@@ -9,44 +9,29 @@
  */
 package org.sipfoundry.openfire.vcard.provider;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.StringReader;
 import java.io.InputStream;
-import java.util.Properties;
-import java.util.List;
+import java.net.ConnectException;
 import java.util.Iterator;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.security.MessageDigest;
-import java.net.URLClassLoader;
+import java.util.Properties;
 
-import org.dom4j.Element;
 import org.dom4j.Document;
-import org.dom4j.Node;
 import org.dom4j.DocumentHelper;
-import org.dom4j.io.SAXReader;
-import org.dom4j.Namespace;
-import org.dom4j.dom.DOMElement;
-import org.jivesoftware.util.AlreadyExistsException;
-import org.jivesoftware.util.Log;
-import org.xmpp.packet.IQ;
-import org.xmpp.packet.Message;
-import org.jivesoftware.util.NotFoundException;
-import org.jivesoftware.openfire.XMPPServer;
-import org.jivesoftware.openfire.XMPPServerInfo;
-import org.jivesoftware.openfire.IQRouter;
-import org.jivesoftware.openfire.pubsub.PubSubModule;
-import org.jivesoftware.openfire.SessionManager;
-import org.jivesoftware.openfire.user.UserManager;
+import org.dom4j.Element;
+import org.dom4j.Node;
 import org.jivesoftware.openfire.vcard.VCardProvider;
 import org.jivesoftware.openfire.vcard.DefaultVCardProvider;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.DataInputStream;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.FileNotFoundException;
+import org.jivesoftware.util.AlreadyExistsException;
+import org.jivesoftware.util.Log;
+import org.jivesoftware.util.NotFoundException;
+import org.jivesoftware.util.cache.Cache;
+import org.jivesoftware.util.cache.CacheFactory;
+import org.sipfoundry.openfire.vcard.provider.RestInterface;
 
 /**
  * <p>
@@ -67,18 +52,16 @@ public class SipXVCardProvider implements VCardProvider {
     static final String DEFAULT_SECRET = "unknown";
     static final String MODIFY_METHOD = "PUT";
     static final String QUERY_METHOD = "GET";
+    static final String PA_USER = "MyAssistant";
+    static final int    MAX_ATTEMPTS = 12; //Try 12 times at most when connects to sipXconfig
+    static final int    ATTEMPT_INTERVAL = 5000; // 5 seconds
     private String m_ConfigHostName;
     private String m_SharedSecret;
+    static long ID_index = 0;
 
-    /**
-     * The default vCard provider is used to handle the vCard in the database.
-     */
-    private DefaultVCardProvider defaultProvider = null;
+    private Cache<String, Element> vcardCache;
+    private DefaultVCardProvider defaultProvider;
 
-    /**
-     * Initializes the SipX vCard provider and then creates an instance of the default vCard
-     * provider to use for database interaction.
-     */
     public SipXVCardProvider() {
         super();
 
@@ -91,12 +74,23 @@ public class SipXVCardProvider implements VCardProvider {
             m_SharedSecret = domain_config.getProperty(PROP_SECRET, DEFAULT_SECRET);
         }
 
-        Log.info("CONFIG_HOSTS is " + m_ConfigHostName );
+        Log.info("CONFIG_HOSTS is " + m_ConfigHostName);
 
         initTLS();
 
+        String cacheName = "SipXVCardCashe";
+        vcardCache = CacheFactory.createCache(cacheName);
+
         Log.info(this.getClass().getName() + " initialized");
 
+    }
+
+    synchronized public Element getVCard(String username) {
+        Element vcard = vcardCache.get(username);
+        if (vcard == null) {
+            return cacheVCard(username);
+        }
+        return vcard;
     }
 
     /**
@@ -105,25 +99,66 @@ public class SipXVCardProvider implements VCardProvider {
      */
 
     public void deleteVCard(String username) {
-        defaultProvider.deleteVCard(username);
+        if(username.compareToIgnoreCase(PA_USER) == 0)
+            deleteVCard(username);
     }
 
     public Element createVCard(String username, Element element) {
-        try {
-            String sipUserName = getAORFromJABBERID(username);
-            if (sipUserName != null) {
-                String resp = RestInterface.sendRequest(MODIFY_METHOD, m_ConfigHostName,
-                        sipUserName, m_SharedSecret, element);
-                Log.debug("response from createVCard is " + resp);
-            } else {
-                Log.debug("Cannot find sip user account for user " + username);
-            }
 
-            return defaultProvider.createVCard(username, element);
-        } catch (AlreadyExistsException e) {
-            Log.info("vCard already exists for user '" + username + "'");
-            return element;
+        if (username.compareToIgnoreCase(PA_USER) == 0) {
+            try {
+                return defaultProvider.createVCard(username, element);
+            } catch (AlreadyExistsException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
+
+        return updateVCard(username, element);
+    }
+
+    synchronized Element cacheVCard(String username) {
+        Element vCardElement = null;
+        String sipUserName = getAORFromJABBERID(username);
+        if (sipUserName != null) {
+            String resp = null;
+
+            int attempts = 0;
+            boolean tryAgain;
+            do {
+                tryAgain = false;
+                try {
+                    resp = RestInterface.sendRequest(QUERY_METHOD, m_ConfigHostName, sipUserName,
+                            m_SharedSecret, null);
+                } catch (ConnectException e) {
+                    try {
+                        Thread.sleep(ATTEMPT_INTERVAL);
+                    } catch (InterruptedException e1) {
+                        e1.printStackTrace();
+                    }
+                    attempts++;
+                    tryAgain = true;
+                }
+            } while (resp == null && attempts < MAX_ATTEMPTS && tryAgain);
+
+            if (resp != null) {
+                vCardElement = RestInterface.buildVCardFromXMLContactInfo(sipUserName, resp);
+                if (vCardElement != null) {
+                    vcardCache.remove(username);
+                    vcardCache.put(username, vCardElement);
+                } else {
+                    Log.error("In cacheVCard buildVCardFromXMLContactInfo failed! ");
+                }
+            } else {
+                Log.error("In cacheVCard, No valid response from sipXconfig, " + username
+                        + "'s vcard info not loaded!");
+            }
+        } else {
+            Log.error("In cacheVCard Failed to find peer SIP user account for XMPP user "
+                    + username);
+        }
+
+        return vCardElement;
     }
 
     /**
@@ -132,55 +167,55 @@ public class SipXVCardProvider implements VCardProvider {
      *
      */
     public Element loadVCard(String username) {
-        Element vCardElement = null;
-        try {
-            String sipUserName = getAORFromJABBERID(username);
-            if (sipUserName != null) {
-                String resp = RestInterface.sendRequest(QUERY_METHOD, m_ConfigHostName,
-                        sipUserName, m_SharedSecret, null);
-                if (resp != null) {
-                    vCardElement = RestInterface.buildVCardFromXMLContactInfo(sipUserName, resp);
-                    if (vCardElement != null) {
-                        defaultProvider.deleteVCard(username);
-                        defaultProvider.createVCard(username, vCardElement);
-                        // IQAvatar(username, vCardElement.element("PHOTO").element("BINVAL"));
-                        return vCardElement;
-                    }
-                }
-
-                Log.info("VCard for user " + username + " loaded from sipX failed!");
-            } else {
-                Log.info("Failed to find SIP user account for user " + username);
-            }
-
+        if (username.compareToIgnoreCase(PA_USER) == 0)
             return defaultProvider.loadVCard(username);
 
-        } catch (AlreadyExistsException ex) {
-            return vCardElement;
-        }
-
-        catch (Exception e) {
-            return defaultProvider.loadVCard(username);
-        }
-
+        return getVCard(username);
     }
 
     /**
      * Updates the vCard both in SipX and in the database.
-     */
-    public Element updateVCard(String username, Element vCardElement) throws NotFoundException {
+     *////
+    public Element updateVCard(String username, Element vCardElement) {
+        if (username.compareToIgnoreCase(PA_USER) == 0) {
+            try {
+                return defaultProvider.updateVCard(username, vCardElement);
+            } catch (NotFoundException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
 
         try {
             String sipUserName = getAORFromJABBERID(username);
             if (sipUserName != null) {
-                RestInterface.sendRequest(MODIFY_METHOD, m_ConfigHostName, sipUserName,
-                        m_SharedSecret, vCardElement);
 
-                return loadVCard(username);
+                int attempts = 0;
+                boolean tryAgain;
+                do {
+                    tryAgain = false;
+                    try {
+                        RestInterface.sendRequest(MODIFY_METHOD, m_ConfigHostName, sipUserName, m_SharedSecret,
+                                vCardElement);
+                    } catch (ConnectException e) {
+                        try {
+                            Thread.sleep(ATTEMPT_INTERVAL);
+                        } catch (Exception e1) {
+                            e1.printStackTrace();
+                        }
+                        attempts++;
+                        tryAgain = true;
+                    }
+                } while (attempts < MAX_ATTEMPTS && tryAgain);
+
+                if (attempts >= MAX_ATTEMPTS)
+                    Log.error("Failed to update contact info for user " + username + ", sipXconfig might be down" );
+
+                return cacheVCard(username);
 
             } else {
-                Log.info("Failed to find SIP account for user " + username);
-                return defaultProvider.updateVCard(username, vCardElement);
+                Log.error("Failed to find a valid SIP account for user " + username);
+                return vCardElement;
             }
         }
 
@@ -271,8 +306,6 @@ public class SipXVCardProvider implements VCardProvider {
             String xmlstr = readXML(accountFile);
 
             if (xmlstr != null) {
-                // SAXReader reader = new SAXReader();
-                // Document doc = reader.read(accountFile);
                 Log.debug("after readXML " + xmlstr);
                 Document doc = DocumentHelper.parseText(xmlstr);
                 Element root = doc.getRootElement();
@@ -318,7 +351,7 @@ public class SipXVCardProvider implements VCardProvider {
             dis.close();
 
             return builder.toString().replaceAll("xmlns=", "dummy="); // dom4j parser doesn't like
-                                                                      // xmlns in the root element
+            // xmlns in the root element
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             return null;
@@ -327,112 +360,4 @@ public class SipXVCardProvider implements VCardProvider {
             return null;
         }
     }
-
-    public static void IQAvatar(String username, Element binValElement) {
-
-        if (binValElement == null)
-            return;
-
-        try {
-
-            String avatarStr = binValElement.getText();
-
-            XMPPServer server = XMPPServer.getInstance();
-            SessionManager smgr = server.getSessionManager();
-            UserManager umgr = server.getUserManager();
-            PubSubModule psm = server.getPubSubModule();
-            XMPPServerInfo info = server.getServerInfo();
-            String aor = username + "@" + info.getXMPPDomain();
-            String itemId = getItemId(avatarStr.getBytes());
-
-            Log.info("the itemid after sha1 is " + itemId);
-
-            StringBuilder xbuilder = new StringBuilder("<iq type='set' from='TBD' id='TBD'>");
-            xbuilder.append("<pubsub xmlns='http://jabber.org/protocol/pubsub'>");
-            xbuilder.append("<publish node='urn:xmpp:avatar:data'>");
-            xbuilder.append("<item id='");
-            xbuilder.append(itemId);
-            xbuilder.append("'>");
-            xbuilder.append("<data xmlns='urn:xmpp:avatar:data'>");
-            xbuilder.append(avatarStr);
-            xbuilder.append("</data>");
-            xbuilder.append("</item>");
-            xbuilder.append("</publish>");
-            xbuilder.append("</pubsub>");
-            xbuilder.append("</iq>");
-
-            String xmlstr1 = xbuilder.toString();
-            SAXReader sreader = new SAXReader();
-
-            Document avatarDoc = sreader.read(new StringReader(xmlstr1));
-            Element rootElement = avatarDoc.getRootElement();
-
-            IQ avatar = new IQ(rootElement);
-            avatar.setFrom(aor);
-            avatar.setID(aor + "_publish1");
-
-            psm.process(avatar);
-
-            StringBuilder builder2 = new StringBuilder("<iq type='set' from='TBD' id='TBD'>");
-            builder2.append("<pubsub xmlns='http://jabber.org/protocol/pubsub'>");
-            builder2.append("<publish node='urn:xmpp:avatar:metadata'>");
-            builder2.append("<item id='");
-            builder2.append(itemId + "_" + aor);
-            builder2.append("'>");
-            builder2.append("<metadata xmlns='urn:xmpp:avatar:metadata'>");
-            builder2.append("<info ");
-            builder2.append("id='");
-            builder2.append(itemId);
-            builder2.append("'");
-            builder2.append("type='image/png'");
-            builder2.append("</metadata>");
-            builder2.append("</item>");
-            builder2.append("</publish>");
-            builder2.append("</pubsub>");
-            builder2.append("<iq>");
-
-            String xmlstr2 = builder2.toString();
-
-            avatarDoc = sreader.read(new StringReader(xmlstr2));
-            rootElement = avatarDoc.getRootElement();
-
-            avatar = new IQ(rootElement);
-            avatar.setFrom(aor);
-            avatar.setID(aor + "_publish2");
-            psm.process(avatar);
-
-            Log.info("psm process message done!");
-        } catch (Exception ex) {
-            Log.error(ex.getMessage());
-        }
-    }
-
-    public static String getItemId(byte[] avatarBytes) {
-        try {
-            MessageDigest md = MessageDigest.getInstance("SHA-1");
-            md.update(avatarBytes);
-            // md.update( int ) processes only the low order 8-bits. It actually expects an
-            // unsigned byte.
-            byte[] digest = md.digest();
-
-            return byteArrayToString(digest);
-        }
-        /*
-         * catch(NoSuchAlgorithmException ex) { Log.error("no such algorithm of SHA " +
-         * ex.getMessage()); return ""; }
-         */
-        catch (Exception ex) {
-            Log.error(ex.getMessage());
-            return "thisisafakeitemid";
-        }
-    }
-
-    public static String byteArrayToString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(bytes.length * 2);
-        for (int i = 0; i < bytes.length; i++) {
-            sb.append(String.format("%02x", bytes[i]));
-        }
-        return sb.toString();
-    }
-
 }

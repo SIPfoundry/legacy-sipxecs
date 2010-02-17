@@ -9,38 +9,34 @@
  */
 package org.sipfoundry.openfire.vcard.provider;
 
+import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.StringReader;
-import java.io.IOException;
-import javax.net.ssl.HttpsURLConnection;
-import java.net.HttpURLConnection;
+import java.net.ConnectException;
 import java.net.URL;
-import java.io.*;
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-
 import java.util.List;
+
+import javax.imageio.ImageIO;
+import javax.net.ssl.HttpsURLConnection;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamSource;
 
 import org.apache.commons.codec.binary.Base64;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
-import org.dom4j.Attribute;
-import org.dom4j.Namespace;
-import org.dom4j.QName;
-import org.dom4j.dom.DOMElement;
-import org.dom4j.io.SAXReader;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerFactory;
 import org.dom4j.io.DocumentResult;
 import org.dom4j.io.DocumentSource;
-
+import org.dom4j.io.SAXReader;
 import org.jivesoftware.util.Log;
+import org.sipfoundry.openfire.vcard.provider.SipXVCardProvider;
 
 public class RestInterface {
 
@@ -59,7 +55,7 @@ public class RestInterface {
     }
 
     public static String sendRequest(String method, String sipXserver, String username, String password,
-            Element vcardElement) {
+            Element vcardElement) throws ConnectException {
         try {
             StringBuilder urlStr = new StringBuilder().append(REST_CALL_PROTO).append(sipXserver).append(":")
                     .append(REST_CALL_PORT).append(REST_CALL_URL_CONTACT_INFO);
@@ -79,12 +75,14 @@ public class RestInterface {
                 conn.setRequestProperty("Content-type", "text/xml");
                 OutputStreamWriter wr = new OutputStreamWriter(conn.getOutputStream());
                 String vcardXml = RestInterface.buildXMLContactInfo(vcardElement);
-                String contactXml = RestInterface.sendRequest(SipXVCardProvider.QUERY_METHOD, sipXserver, username, password, null);
+                String contactXml = RestInterface.sendRequest(SipXVCardProvider.QUERY_METHOD, sipXserver, username,
+                        password, null);
                 if (contactXml != null) {
                     vcardXml = refillMissingContactInfo(vcardXml, contactXml);
                 }
 
                 wr.write(vcardXml);
+
                 wr.flush();
                 wr.close();
             }
@@ -104,10 +102,15 @@ public class RestInterface {
             if (conn.getResponseCode() >= 200 && conn.getResponseCode() < 300) {
                 return resp.toString();
             } else {
-                Log.info("Response code " + conn.getResponseCode() + ":" + conn.getResponseMessage() + " "
+                Log.error("Response code " + conn.getResponseCode() + ":" + conn.getResponseMessage() + " "
                         + resp.toString());
                 return null;
             }
+        }
+
+        catch (ConnectException ex) {
+            Log.error("In sendRequest ConnectException " + ex.getMessage());
+            throw ex;
         }
 
         catch (IOException ex) {
@@ -124,7 +127,7 @@ public class RestInterface {
     public String buildXMLContactInfoXSLT(Element e) {
         try {
             String x = e.asXML().replace("xmlns=\"vcard-temp\"", ""); // xmlns causes dom4j xpath
-                                                                      // not working somehow.
+            // not working somehow.
             Document vcardDoc = DocumentHelper.parseText(x);
 
             Log.debug("before XSLT " + vcardDoc.getRootElement().asXML());
@@ -134,7 +137,7 @@ public class RestInterface {
             Log.debug("After XSLT " + contactDoc.getRootElement().asXML());
             return contactDoc.getRootElement().asXML();
         } catch (Exception ex) {
-            Log.info(ex.getMessage());
+            Log.error(ex.getMessage());
             return null;
         }
 
@@ -143,7 +146,7 @@ public class RestInterface {
     public static String buildXMLContactInfo(Element e) {
         try {
             String x = e.asXML().replace("xmlns=\"vcard-temp\"", ""); // xmlns causes dom4j xpath
-                                                                      // not working somehow.
+            // not working somehow.
 
             Log.debug("In buildXMLContactInfo vcard string is " + x);
             Document vcardDoc = DocumentHelper.parseText(x);
@@ -152,10 +155,10 @@ public class RestInterface {
             StringBuilder xbuilder = new StringBuilder("<contact-information>");
 
             xbuilder.append("<firstName>");
-            xbuilder.append(getNodeText(el, "N/FAMILY"));
+            xbuilder.append(getNodeText(el, "N/GIVEN"));
             xbuilder.append("</firstName>");
             xbuilder.append("<lastName>");
-            xbuilder.append(getNodeText(el, "N/GIVEN"));
+            xbuilder.append(getNodeText(el, "N/FAMILY"));
             xbuilder.append("</lastName>");
             xbuilder.append("<jobTitle>");
             xbuilder.append(getNodeText(el, "TITLE"));
@@ -185,9 +188,6 @@ public class RestInterface {
             xbuilder.append("</zip>");
             xbuilder.append("</officeAddress>");
 
-            //xbuilder.append("<cellPhoneNumber>");
-            //xbuilder.append(getNodeText(el, "TEL/NUMBER"));
-            //xbuilder.append("</cellPhoneNumber>");
             /*
              * if (!(getNodeText(el, "JABBERID").equals("unknown"))) { xbuilder.append("<imId>");
              * xbuilder.append(getNodeText(el, "JABBERID"));xbuilder.append("</imId>"); }
@@ -225,8 +225,9 @@ public class RestInterface {
     }
 
     //
-    // Refill the contact information available in sipX but not mentioned in the vcard update request from XMM client.
-    // Otherwise, those information  will be deleted by sipX.
+    // Refill the contact information available in sipX but not mentioned in the vcard update
+    // request from XMM client.
+    // Otherwise, those information will be deleted by sipX.
     //
     public static String refillMissingContactInfo(String vcardXml, String contactXml) {
         try {
@@ -238,29 +239,24 @@ public class RestInterface {
             Document vcardDoc = sreader.read(new StringReader(vcardXml));
             Element vcardRootElement = vcardDoc.getRootElement();
 
-            for (Element el: (List<Element>) contactRootElement.elements())
-            {
+            for (Element el : (List<Element>) contactRootElement.elements()) {
                 if (vcardRootElement.element(el.getName()) == null) {
                     Log.debug(" In refillMissingContactInfo Element = [" + el.getName() + "] not found!");
                     vcardRootElement.add(el.createCopy());
                 }
             }
-            Log.debug("vcard XML string after refill is " + vcardRootElement.asXML() );
+            Log.debug("vcard XML string after refill is " + vcardRootElement.asXML());
             return vcardRootElement.asXML();
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Log.error(ex.getMessage());
             return null;
         }
 
     }
 
-
-
     public static Element buildVCardFromXMLContactInfo(String userName, String xmlstring) {
         try {
             SAXReader sreader = new SAXReader();
-
 
             Log.debug("In buildVCardFromXMLContactInfo contactInfo is " + xmlstring);
 
@@ -408,8 +404,7 @@ public class RestInterface {
             xbuilder.append("<DESC/>");
 
             String encodedStr = getEncodedAvatar(getNodeText(rootElement, "avatar"));
-            if (encodedStr != null)
-            {
+            if (encodedStr != null) {
                 xbuilder.append("<PHOTO>");
                 xbuilder.append("<TYPE>image/png</TYPE>");
                 xbuilder.append("<BINVAL>");
@@ -417,7 +412,6 @@ public class RestInterface {
                 xbuilder.append("</BINVAL>");
                 xbuilder.append("</PHOTO>");
             }
-
 
             xbuilder.append("</vCard>");
 
@@ -450,7 +444,7 @@ public class RestInterface {
             return node.getText();
         }
 
-        return "unknown";
+        return "";
     }
 
     public static String getTextFromNodes(Element element, String nameNode, String criteriaNode, String valueNode) {
@@ -467,7 +461,7 @@ public class RestInterface {
 
         }
 
-        return "unknown";
+        return "";
     }
 
     public static Document styleDocument(Document document, InputStream stylesheet) throws Exception {
@@ -486,12 +480,10 @@ public class RestInterface {
         return transformedDoc;
     }
 
-    public static String getEncodedAvatar(String avatarURL)
-    {
+    public static String getEncodedAvatar(String avatarURL) {
 
-        try
-        {
-            Log.debug("Avatar URL "+ avatarURL);
+        try {
+            Log.debug("Avatar URL " + avatarURL);
 
             URL serverURL = new URL(avatarURL);
             return getPngString(serverURL);
@@ -508,24 +500,17 @@ public class RestInterface {
         }
     }
 
-
-    public static String getPngString(URL url)
-    {
-        try
-        {
+    public static String getPngString(URL url) {
+        try {
             ByteArrayOutputStream os = new ByteArrayOutputStream();
             BufferedImage image = ImageIO.read(url);
-            ImageIO.write(image,"png",os);
+            ImageIO.write(image, "png", os);
 
             return new String(new Base64().encode(os.toByteArray()));
-        }
-        catch(IOException e)
-        {
-            Log.error("In getPngString, error:"+e.getMessage());
+        } catch (IOException e) {
+            Log.error("In getPngString, error:" + e.getMessage());
             return null;
-        }
-        catch(Exception e)
-        {
+        } catch (Exception e) {
             Log.error(e.getMessage());
             return null;
         }
