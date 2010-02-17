@@ -50,7 +50,7 @@ public class UserPhonebookPageTest extends TestCase {
 
         Collection<Phonebook> phonebooks = Collections.singletonList(new Phonebook());
         m_phonebookManager = createMock(PhonebookManager.class);
-        m_phonebookManager.getPublicPhonebooksByUser(m_portalUser);
+        m_phonebookManager.getAllPhonebooksByUser(m_portalUser);
         expectLastCall().andReturn(phonebooks).anyTimes();
         m_phonebookManager.getEntries(phonebooks, m_portalUser);
         expectLastCall().andReturn(m_allEntries).anyTimes();
@@ -64,7 +64,6 @@ public class UserPhonebookPageTest extends TestCase {
         expectLastCall().andReturn("").anyTimes();
 
         m_out.setUserId(1);
-        m_out.setPhonebookEntries(m_allEntries);
 
         Domain domain = new Domain();
         domain.setName("example.com");
@@ -78,6 +77,10 @@ public class UserPhonebookPageTest extends TestCase {
         PropertyUtils.write(m_out, "domainManager", domainManager);
 
         replay(m_phonebookManager, m_coreContext, messages, domainManager);
+    }
+
+    public void testGetPhoneBookEntries() {
+        assertEquals(5, m_out.getPhonebookEntries().size());
     }
 
     public void testCall() {

@@ -13,14 +13,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
-import org.apache.lucene.queryParser.ParseException;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.common.SipUri;
@@ -48,42 +44,14 @@ public abstract class UserPhonebookPage extends UserBasePage {
     @InjectObject("spring:domainManager")
     public abstract DomainManager getDomainManager();
 
-    @Persist
-    public abstract void setQuery(String query);
-
-    public abstract String getQuery();
-
-    @Persist
-    public abstract Collection<PhonebookEntry> getPhonebookEntries();
-
-    public abstract void setPhonebookEntries(Collection<PhonebookEntry> entries);
-
-    public abstract void setCurrentNumber(String number);
-
-    @Override
-    public void pageBeginRender(PageEvent event) {
-        super.pageBeginRender(event);
-
-        if (getPhonebookEntries() == null) {
-            initializeEntries();
-        }
-    }
-
     public String getWidgetSrc() {
         return getRequestCycle().getAbsoluteURL('/' + UserPhonebookWidgetPage.PAGE + ".html");
     }
 
-    private void initializeEntries() {
+    protected Collection<PhonebookEntry> getPhonebookEntries() {
         User user = getUser();
-        String query = getQuery();
-        Collection<Phonebook> phonebooks = getPhonebooks();
-        Collection<PhonebookEntry> entries = null;
-        if (StringUtils.isEmpty(query)) {
-            entries = getPhonebookManager().getEntries(phonebooks, user);
-        } else {
-            entries = getPhonebookManager().search(phonebooks, query, user);
-        }
-        setPhonebookEntries(entries);
+        Collection<Phonebook> phonebooks = getPhonebookManager().getAllPhonebooksByUser(user);
+        return getPhonebookManager().getEntries(phonebooks, user);
     }
 
     /**
@@ -97,28 +65,6 @@ public abstract class UserPhonebookPage extends UserBasePage {
         String destAddrSpec = SipUri.fix(number, domain);
         String displayName = "ClickToCall";
         getSipService().sendRefer(getUser(), userAddrSpec, displayName, destAddrSpec);
-    }
-
-    /**
-     * Filters the phonebook entries based on the value of getQuery()
-     */
-    public void search() throws IOException, ParseException {
-        setPhonebookEntries(null);
-    }
-
-    private Collection<Phonebook> getPhonebooks() {
-        User user = getUser();
-        return getPhonebookManager().getPublicPhonebooksByUser(user);
-    }
-
-    /**
-     * Called whenever new row is about to displayed. Sorts entries into extensions (that look
-     * like phone numbers) and sipIds (that look like SIP usernames)
-     *
-     * @param entry phone book entry
-     */
-    public void setPhonebookEntry(PhonebookEntry entry) {
-        setCurrentNumber(entry.getNumber());
     }
 
     public void export() {
