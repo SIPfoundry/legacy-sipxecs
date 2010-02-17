@@ -133,6 +133,18 @@ public class MailboxServlet extends HttpServlet {
                                 }
                             }
                         }
+                        
+                        if (action.equals("delete")) {
+                            if(method.equals(METHOD_PUT)) {
+                                VmMessage msg = messages.getMessage(messageId);
+                                if(msg != null) {
+                                    messages.deleteMessage(msg);
+                                } else {
+                                    response.sendError(404, "messageId not found");
+                                }
+                            }
+                        }
+                        
                     } else {
                         response.sendError(400, "messageId missing");
                     }
