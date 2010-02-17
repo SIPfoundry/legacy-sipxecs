@@ -29,6 +29,7 @@
       classpath:/org/sipfoundry/sipxconfig/alias/alias.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/time/timemanager.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/tls/tls.beans.xml
       classpath:/org/sipfoundry/sipxconfig/bulk/bulk.beans.xml
       classpath:/org/sipfoundry/sipxconfig/bulk/csv/csv.beans.xml
       classpath:/org/sipfoundry/sipxconfig/bulk/ldap/ldap.beans.xml

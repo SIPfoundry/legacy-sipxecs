@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
+<dataset>
+	<users first_name="" last_name="" user_name="userseed1" pintoken="x" user_id="1001" user_type="C"/>
+	<users first_name="" last_name="" user_name="userseed2" pintoken="x" user_id="1002" user_type="C"/>
+	<users first_name="" last_name="" user_name="userseed3" pintoken="x" user_id="1003" user_type="C"/>
+	<users first_name="user4" last_name="" user_name="userseed4" pintoken="x" user_id="1004" user_type="I"/>
+	<users first_name="" last_name="seed5" user_name="userseed5" pintoken="x" user_id="1005" user_type="C"/>
+	<users first_name="" last_name="" user_name="userseed6" pintoken="x" user_id="1006" user_type="I"/>
+	<users first_name="" last_name="" user_name="usersee-nofind" pintoken="x" user_id="1007" user_type="I"/>
+</dataset>

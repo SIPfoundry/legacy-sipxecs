@@ -30,7 +30,7 @@ public final class SipUri {
         // utility class
     }
 
-    public static String format(User user, String domainName) {
+    public static String format(AbstractUser user, String domainName) {
         return format(user.getDisplayName(), user.getUserName(), domainName);
     }
 

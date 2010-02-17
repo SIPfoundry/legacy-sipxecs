@@ -39,6 +39,8 @@ public class CredentialsTest extends TestCase {
         expectLastCall().andReturn("company.com");
         coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
+        coreContext.loadInternalUsers();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
 
         User user = new User();
         user.setSipPassword("test");

@@ -339,6 +339,8 @@
     <antcall target="gateway-enabled" />
     <antcall target="park-server-migration-task" />
     <antcall target="migrate-pregroup-alarm-contacts" />
+    <antcall target="tls_peer" />
+    <antcall target="internal_user" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1047,6 +1049,12 @@
   </target>
   <target name="migrate-pregroup-alarm-contacts" depends="createlang-plpgsql" unless="migrate-pregroup-alarm-contacts">
     <db-patch patch="migrate-pregroup-alarm-contacts"/>
+  </target>
+  <target name="tls_peer" unless="tls_peer">
+    <db-patch patch="tls_peer"/>
+  </target>
+  <target name="internal_user" unless="internal_user">
+    <db-patch patch="internal_user"/>
   </target>
 
   <!--

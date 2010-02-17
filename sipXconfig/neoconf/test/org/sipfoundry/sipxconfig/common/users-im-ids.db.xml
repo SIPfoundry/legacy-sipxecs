@@ -5,9 +5,9 @@
   <address_book_entry address_book_entry_id="2" im_id="openfire2" />
   <address_book_entry address_book_entry_id="3"/>
   <address_book_entry address_book_entry_id="4"/>
-  <users user_name="userseed1" user_id="1001" address_book_entry_id="1" />
-  <users user_name="userseed2" user_id="1002" address_book_entry_id="2" />
-  <users user_name="userseed3" user_id="1003" address_book_entry_id="3" />
-  <users user_name="201" user_id="1004" address_book_entry_id="4" />
+  <users user_name="userseed1" user_id="1001" address_book_entry_id="1" user_type="C"/>
+  <users user_name="userseed2" user_id="1002" address_book_entry_id="2" user_type="C"/>
+  <users user_name="userseed3" user_id="1003" address_book_entry_id="3" user_type="C"/>
+  <users user_name="201" user_id="1004" address_book_entry_id="4" user_type="C"/>
   <user_alias user_id="1004" alias="Alias1"/>
 </dataset>

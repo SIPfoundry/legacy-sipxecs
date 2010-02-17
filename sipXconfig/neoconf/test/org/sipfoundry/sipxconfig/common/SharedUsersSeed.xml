@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
-	<users first_name="sam" last_name="" user_name="alpha" pintoken="x" user_id="1001" is_shared="true"/>
-	<users first_name="addie" last_name="" user_name="beta" pintoken="x" user_id="1002" is_shared="false"/>
-	<users first_name="jessica" last_name="agog" user_name="charlie" pintoken="x" user_id="1003" is_shared="false"/>
+	<users first_name="sam" last_name="" user_name="alpha" pintoken="x" user_id="1001" is_shared="true" user_type="C"/>
+	<users first_name="addie" last_name="" user_name="beta" pintoken="x" user_id="1002" is_shared="false" user_type="C"/>
+	<users first_name="jessica" last_name="agog" user_name="charlie" pintoken="x" user_id="1003" is_shared="false" user_type="C"/>
 </dataset>

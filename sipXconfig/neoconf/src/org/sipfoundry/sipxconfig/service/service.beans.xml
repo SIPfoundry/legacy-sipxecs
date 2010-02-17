@@ -141,6 +141,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxProxyConfiguration" />
+        <ref bean="peerIdentitiesConfiguration" />
       </list>
     </property>
     <property name="bundles">
@@ -156,6 +157,13 @@
     <property name="template" value="sipxproxy/sipXproxy-config.vm" />
     <property name="name" value="sipXproxy-config" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="peerIdentitiesConfiguration" class="org.sipfoundry.sipxconfig.service.PeerIdentitiesConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
+    <property name="name" value="peeridentities.xml"/>
+    <property name="tlsPeerManager" ref="tlsPeerManager" />
+    <property name="restartRequired" value="true" />
   </bean>
 
   <bean id="sipxRegistrarService" class="org.sipfoundry.sipxconfig.service.SipxRegistrarService" parent="sipxService"
@@ -519,6 +527,7 @@
     <property name="configurations">
       <list>
         <ref bean="sbcSipXbridgeConfiguration" />
+        <ref bean="peerIdentitiesConfiguration" />
       </list>
     </property>
   </bean>

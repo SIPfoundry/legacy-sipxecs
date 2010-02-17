@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 <dataset>
-  <users user_name="user1" user_id="1001" pintoken="1234" />
-  <users user_name="user2" user_id="1002" pintoken="1234" />
+  <users user_name="user1" user_id="1001" pintoken="1234" user_type="C"/>
+  <users user_name="user2" user_id="1002" pintoken="1234" user_type="C"/>
   
   <speeddial speeddial_id="2000" user_id="1001"/>
   

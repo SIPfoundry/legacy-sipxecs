@@ -2,9 +2,9 @@
 <!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 
 <dataset>
-  <users user_name="user1" pintoken="x" user_id="1001" />
-  <users user_name="user2" pintoken="x" user_id="1002" />
-  <users user_name="user3" pintoken="x" user_id="1003" />
+  <users user_name="user1" pintoken="x" user_id="1001" user_type="C" />
+  <users user_name="user2" pintoken="x" user_id="1002" user_type="C" />
+  <users user_name="user3" pintoken="x" user_id="1003" user_type="C" />
 
   <user_paging_group paging_group_id="100" user_id="1001" />
   <user_paging_group paging_group_id="100" user_id="1002" />

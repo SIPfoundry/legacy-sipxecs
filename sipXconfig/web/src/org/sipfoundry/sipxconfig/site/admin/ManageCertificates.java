@@ -27,9 +27,12 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class ManageCertificates extends BasePage implements PageBeginRenderListener {
 
-    public static final String PAGE = "ManageCertificates";
+    public static final String PAGE = "admin/ManageCertificates";
     public static final Integer UPLOAD = new Integer(1);
     public static final Integer TEXT = new Integer(2);
+    public static final String GENERATE_CSR_TAB = "generate";
+    public static final String IMPORT_WEB_CERT_TAB = "import";
+    public static final String CERT_AUTH_TAB = "authorities";
 
     private static final String COUNTRY_PROP = "countryName";
     private static final String STATE_PROP = "stateOrProvinceName";
@@ -50,6 +53,8 @@ public abstract class ManageCertificates extends BasePage implements PageBeginRe
     @Persist
     @InitialValue(value = "literal:generate")
     public abstract String getTab();
+
+    public abstract void setTab(String tab);
 
     public abstract String getCountry();
 

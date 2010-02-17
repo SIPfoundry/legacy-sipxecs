@@ -10,6 +10,15 @@
     last_name="User"
     sip_password="1234"
     pintoken="1234"
-    address_book_entry_id="1"/>
+    address_book_entry_id="1"
+    user_type="C"/>
+    <users
+    user_id="2001"
+    user_name="~~tp~internal~"
+    first_name=""
+    last_name=""
+    sip_password="1234"
+    pintoken=""
+    user_type="I"/>
 	<user_alias user_id="1000" alias="123"/>
 </dataset>

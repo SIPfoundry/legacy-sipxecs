@@ -25,6 +25,7 @@
     <file>@SIPX_CONFDIR@/nattraversalrules.xml</file>
     <file>@SIPX_CONFDIR@/forwardingrules.xml</file>
     <file>@SIPX_CONFDIR@/authrules.xml</file>
+    <file>@SIPX_CONFDIR@/peeridentities.xml</file>
     <imdb>credential</imdb>
     <imdb>permission</imdb>
     <imdb>caller-alias</imdb>

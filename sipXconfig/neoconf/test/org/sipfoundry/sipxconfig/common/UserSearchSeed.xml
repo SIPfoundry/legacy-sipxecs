@@ -17,17 +17,17 @@
 	<group_storage group_id="1001" name="user group 1" resource="user" description="user group 1" weight="0"/>
 	<group_storage group_id="1002" name="user group 2" resource="user" description="user group 2" weight="0"/>
 		
-	<users first_name="" last_name="" user_name="userseed1" pintoken="x" user_id="1001" address_book_entry_id="1"/>
-	<users first_name="" last_name="" user_name="userseed2" pintoken="x" user_id="1002" address_book_entry_id="2"/>
-	<users first_name="" last_name="" user_name="userseed3" pintoken="x" user_id="1003" address_book_entry_id="3"/>
-	<users first_name="user4" last_name="" user_name="userseed4" pintoken="x" user_id="1004" address_book_entry_id="4"/>
-	<users first_name="" last_name="seed5" user_name="userseed5" pintoken="x" user_id="1005" address_book_entry_id="5"/>
-	<users first_name="" last_name="" user_name="userseed6" pintoken="x" user_id="1006" address_book_entry_id="6"/>
-	<users first_name="" last_name="" user_name="usersee-nofind" pintoken="x" user_id="1007" address_book_entry_id="7"/>
-	<users first_name="" last_name="" user_name="canfind-userseed" pintoken="x" user_id="1008" address_book_entry_id="8"/>
-	<users first_name="" last_name="" user_name="u s e r s e e d" pintoken="x" user_id="1009" address_book_entry_id="9"/>
-	<users first_name="" last_name="" user_name="userwithnoaliases" pintoken="x" user_id="1010" address_book_entry_id="10"/>
-
+	<users first_name="" last_name="" user_name="userseed1" pintoken="x" user_id="1001" address_book_entry_id="1" user_type="C"/>
+	<users first_name="" last_name="" user_name="userseed2" pintoken="x" user_id="1002" address_book_entry_id="2" user_type="C"/>
+	<users first_name="" last_name="" user_name="userseed3" pintoken="x" user_id="1003" address_book_entry_id="3" user_type="C"/>
+	<users first_name="user4" last_name="" user_name="userseed4" pintoken="x" user_id="1004" address_book_entry_id="4" user_type="C"/>
+	<users first_name="" last_name="seed5" user_name="userseed5" pintoken="x" user_id="1005" address_book_entry_id="5" user_type="C"/>
+	<users first_name="" last_name="" user_name="userseed6" pintoken="x" user_id="1006" address_book_entry_id="6" user_type="C"/>
+	<users first_name="" last_name="" user_name="usersee-nofind" pintoken="x" user_id="1007" address_book_entry_id="7" user_type="C"/>
+	<users first_name="" last_name="" user_name="canfind-userseed" pintoken="x" user_id="1008" address_book_entry_id="8" user_type="C"/>
+	<users first_name="" last_name="" user_name="u s e r s e e d" pintoken="x" user_id="1009" address_book_entry_id="9" user_type="C"/>
+	<users first_name="" last_name="" user_name="userwithnoaliases" pintoken="x" user_id="1010" address_book_entry_id="10" user_type="C"/>
+	<users first_name="" last_name="" user_name="~~tp~tlspeer" pintoken="x" user_id="2007" user_type="I"/>
 	<user_group user_id="1001" group_id="1001"/>
 	<user_group user_id="1008" group_id="1001"/>
 	<user_group user_id="1001" group_id="1002"/>

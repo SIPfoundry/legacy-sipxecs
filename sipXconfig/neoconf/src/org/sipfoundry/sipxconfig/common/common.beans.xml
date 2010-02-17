@@ -5,6 +5,7 @@
   -->
   <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
     <lookup-method name="newUser" bean="org.sipfoundry.sipxconfig.common.User"/>
+    <lookup-method name="newInternalUser" bean="org.sipfoundry.sipxconfig.common.InternalUser"/>
     <property name="sessionFactory">
       <ref bean="sessionFactory"/>
     </property>
@@ -66,6 +67,9 @@
     <property name="musicOnHoldManager" ref="musicOnHoldManager" />
     <property name="sipxImbotService" ref="sipxImbotService" />
   </bean>
+
+  <bean id="org.sipfoundry.sipxconfig.common.InternalUser" class="org.sipfoundry.sipxconfig.common.InternalUser"
+    singleton="false" parent="org.sipfoundry.sipxconfig.common.User" />
 
   <!-- DST change monitoring -->
   <bean id="checkDST" class="org.sipfoundry.sipxconfig.common.CheckDST"/>

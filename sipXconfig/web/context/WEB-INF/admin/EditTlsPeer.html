@@ -1,0 +1,28 @@
+<div jwcid="@common/Border">
+  <div>
+    <h2 id="page:tlspeer"><span key="title">TLS Peer</span></h2>
+    <span jwcid="@common/ErrorMsg"></span>
+    <form jwcid="@Form" delegate="bean:validator">
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel"
+            for="peer:name"
+            field="component:name"
+            label="message:name.label">
+            <input jwcid="name@TextField"
+              id="peer:name"
+              value="ognl:tlsPeer.name"
+              validators="spring-validators:required"
+              displayName="message:name"
+              />
+          </tr>
+        </tbody>
+      </table>
+      <h3><span key="permissions">Permissions</span></h3>
+      <span jwcid="@user/UserSettingsPanel" user="ognl:tlsPeer.internalUser" groupToDisplay="permission"
+        settingsToHide="superadmin,tui-change-pin,personal-auto-attendant,music-on-hold,Voicemail,RecordSystemPrompts"
+        callback="ognl:callback"/>
+      <ul jwcid="@common/FormActions" listener="listener:saveTlsPeer" callback="ognl:callback"/>
+    </form>
+  </div>
+</div>

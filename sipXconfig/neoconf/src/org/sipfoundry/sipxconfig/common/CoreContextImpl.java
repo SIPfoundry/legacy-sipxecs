@@ -48,7 +48,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String ADMIN_GROUP_NAME = "administrators";
     private static final String QUERY_USER_BY_NAME_OR_ALIAS = "userByNameOrAlias";
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID = "userIdsByNameOrAliasOrImId";
-    private static final String QUERY_USER = "from User";
+    private static final String QUERY_USER = "from AbstractUser";
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
     private static final String QUERY_IM_ID = "imId";
     private static final String QUERY_USER_ID = "userId";
@@ -71,6 +71,11 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
      * Implemented by Spring lookup-method injection
      */
     public abstract User newUser();
+
+    /**
+     * Implemented by Spring lookup-method injection
+     */
+    public abstract InternalUser newInternalUser();
 
     public boolean getDebug() {
         return m_debug;
@@ -336,6 +341,11 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return getUsersInGroupCount(null);
     }
 
+    // returns only the number of users created by admin
+    public int getAllUsersCount() {
+        return getBeansInGroupCount(AbstractUser.class, null);
+    }
+
     public int getUsersInGroupCount(Integer groupId) {
         return getBeansInGroupCount(User.class, groupId);
     }
@@ -378,6 +388,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     public List<User> loadUsersByPage(int first, int pageSize) {
         return loadBeansByPage(User.class, first, pageSize);
+    }
+
+    public List<InternalUser> loadInternalUsers() {
+        return getHibernateTemplate().loadAll(InternalUser.class);
     }
 
     public void clear() {

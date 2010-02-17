@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchesWithUsersDeletedEvent;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -84,6 +85,9 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             if (map.get(((Branch) entity).getId()) != null) {
                 m_replicationContext.generate(DataSet.USER_LOCATION);
             }
+        } else if (entity instanceof BeanWithUserPermissions) {
+            m_replicationContext.generate(DataSet.CREDENTIAL);
+            m_replicationContext.generate(DataSet.PERMISSION);
         }
     }
 

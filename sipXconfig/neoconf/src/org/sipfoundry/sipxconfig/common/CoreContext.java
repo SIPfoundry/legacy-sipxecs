@@ -30,6 +30,11 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
      */
     User newUser();
 
+    /**
+     * Instantiates an internal user complete w/setting model
+     */
+    InternalUser newInternalUser();
+
     /** Instantiates special user that represents sipx service */
     User getSpecialUser(SpecialUserType specialUserType);
 
@@ -65,6 +70,8 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
 
     int getUsersCount();
 
+    int getAllUsersCount();
+
     int getUsersInGroupCount(Integer groupId);
 
     /**
@@ -83,6 +90,8 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
             String orderBy, boolean orderAscending);
 
     List<User> loadUsersByPage(int first, int pageSize);
+
+    List<InternalUser> loadInternalUsers();
 
     List<User> loadUserByTemplateUser(User template);
 

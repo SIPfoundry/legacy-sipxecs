@@ -17,9 +17,12 @@ import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
+import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -38,6 +41,7 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     private BranchManager m_branchManager;
     private ConfigurationFile m_contactInformationConfig;
     private ContactInformationDaoListener m_contactInformationDaoListener;
+    private TlsPeerManager m_tlsPeerManager;
 
     public void setReplicationTrigger(ReplicationTrigger trigger) {
         m_trigger = trigger;
@@ -114,6 +118,20 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         User testUser = m_coreContext.loadUser(1001);
         testUser.setIsShared(true);
         m_coreContext.saveUser(testUser);
+
+        verify(replicationContext);
+    }
+
+    public void testReplicateOnTlsPeerCreation() throws Exception {
+        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+        replicationContext.generate(DataSet.CREDENTIAL);
+        replicationContext.generate(DataSet.PERMISSION);
+        replay(replicationContext);
+        m_trigger.setReplicationContext(replicationContext);
+
+        TlsPeer peer = m_tlsPeerManager.newTlsPeer();
+        peer.setName("test");
+        m_tlsPeerManager.saveTlsPeer(peer);
 
         verify(replicationContext);
     }
@@ -232,6 +250,10 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
     public void setContactInformationDaoListener(ContactInformationDaoListener contactInformationDaoListener) {
         m_contactInformationDaoListener = contactInformationDaoListener;
+    }
+
+    public void setTlsPeerManager(TlsPeerManager peerManager) {
+        m_tlsPeerManager = peerManager;
     }
 
 }

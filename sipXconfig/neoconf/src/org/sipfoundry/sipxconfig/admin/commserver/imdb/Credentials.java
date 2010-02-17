@@ -14,8 +14,10 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
@@ -45,6 +47,11 @@ public class Credentials extends DataSetGenerator {
         };
         forAllUsersDo(getCoreContext(), closure);
 
+        List<InternalUser> internalUsers = getCoreContext().loadInternalUsers();
+        for (InternalUser user : internalUsers) {
+            addUser(items, user, domainName, realm);
+        }
+
         for (SpecialUserType specialUserType : SpecialUserType.values()) {
             addSpecialUser(items, specialUserType, domainName, realm);
         }
@@ -72,7 +79,7 @@ public class Credentials extends DataSetGenerator {
         }
     }
 
-    protected void addUser(List<Map<String, String>> items, User user, String domainName, String realm) {
+    protected void addUser(List<Map<String, String>> items, AbstractUser user, String domainName, String realm) {
         String uri = user.getUri(domainName);
         addCredentialsItem(items, uri, user.getUserName(), user.getSipPassword(), user.getPintoken(), realm);
     }

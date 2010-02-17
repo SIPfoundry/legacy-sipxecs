@@ -49,6 +49,8 @@ public class PermissionsTest extends TestCase {
         expectLastCall().andReturn("host.company.com");
         coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(Collections.EMPTY_LIST);
+        coreContext.loadInternalUsers();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
         coreContext.newUser();
         expectLastCall().andReturn(testUser).anyTimes();
 
@@ -90,6 +92,8 @@ public class PermissionsTest extends TestCase {
         coreContext.getDomainName();
         expectLastCall().andReturn("host.company.com");
         coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+        coreContext.loadInternalUsers();
         expectLastCall().andReturn(Collections.EMPTY_LIST);
         coreContext.newUser();
         expectLastCall().andReturn(testUser).anyTimes();

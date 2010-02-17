@@ -27,6 +27,7 @@ import org.apache.tapestry.web.WebRequest;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.CoreContextImpl;
+import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.security.UserDetailsImpl;
@@ -200,6 +201,11 @@ public class BorderTest extends TestCase {
 
                 @Override
                 public User newUser() {
+                    return null;
+                }
+
+                @Override
+                public InternalUser newInternalUser() {
                     return null;
                 }
 

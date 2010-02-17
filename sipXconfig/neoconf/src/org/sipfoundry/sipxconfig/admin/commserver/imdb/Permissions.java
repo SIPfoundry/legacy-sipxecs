@@ -14,7 +14,9 @@ import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.Closure;
+import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
@@ -63,9 +65,14 @@ public class Permissions extends DataSetGenerator {
             }
         };
         forAllUsersDo(getCoreContext(), closure);
+
+        List<InternalUser> internalUsers = getCoreContext().loadInternalUsers();
+        for (InternalUser user : internalUsers) {
+            addUser(items, user, domain);
+        }
     }
 
-    void addUser(List<Map<String, String>> item, User user, String domain) {
+    void addUser(List<Map<String, String>> item, AbstractUser user, String domain) {
         Setting permissions = user.getSettings().getSetting(Permission.CALL_PERMISSION_PATH);
         Setting voicemailPermissions = user.getSettings().getSetting(Permission.VOICEMAIL_SERVER_PATH);
         PermissionWriter writer = new PermissionWriter(user, domain, item);
@@ -83,13 +90,13 @@ public class Permissions extends DataSetGenerator {
     }
 
     class PermissionWriter extends AbstractSettingVisitor {
-        private final User m_user;
+        private final AbstractUser m_user;
 
         private final List<Map<String, String>> m_items;
 
         private final String m_domain;
 
-        PermissionWriter(User user, String domain, List<Map<String, String>> items) {
+        PermissionWriter(AbstractUser user, String domain, List<Map<String, String>> items) {
             m_user = user;
             m_items = items;
             m_domain = domain;

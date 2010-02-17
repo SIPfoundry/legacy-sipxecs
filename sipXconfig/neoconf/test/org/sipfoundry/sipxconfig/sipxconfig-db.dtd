@@ -855,6 +855,7 @@
     address_book_entry_id CDATA #IMPLIED
     cfwd_time CDATA #IMPLIED
     branch_id CDATA #IMPLIED
+    user_type CDATA #IMPLIED
 >
 
 <!ELEMENT value_storage EMPTY>
@@ -880,4 +881,11 @@
     address_zip CDATA #IMPLIED
     phone_number CDATA #IMPLIED
     fax_number CDATA #IMPLIED
+>
+
+<!ELEMENT tls_peer EMPTY>
+<!ATTLIST tls_peer
+    tls_peer_id CDATA #REQUIRED
+    name CDATA #REQUIRED
+    internal_user_id CDATA #IMPLIED
 >

@@ -4,5 +4,5 @@
   <value_storage value_storage_id="1" />
   <setting_value value_storage_id="1" value="standard" path="mailbox/active-greeting" />
 
-  <users user_name="200" user_id="200" value_storage_id="1" pintoken="x" />
+  <users user_name="200" user_id="200" value_storage_id="1" pintoken="x" user_type="C"/>
 </dataset>

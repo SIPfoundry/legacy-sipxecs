@@ -9,12 +9,13 @@
     - Ideally the table would be named "user" (singular) rather than "users",
     - like other tables, but "user" exists already as a PostgreSQL internal table.
   -->
-  <class name="User" table="users">
+  <class name="AbstractUser" table="users" discriminator-value="C">
     <id name="id" column="user_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">user_seq</param>
       </generator>
     </id>
+    <discriminator column="user_type" type="character" />
     <property name="firstName" />
     <property name="pintoken" />
     <property name="sipPassword" />
@@ -39,6 +40,9 @@
     cascade="all"
     column="address_book_entry_id"/>
     <many-to-one name="branch" column="branch_id" not-found="ignore" />
+
+    <subclass name="User" discriminator-value="C"></subclass>
+    <subclass name="InternalUser" discriminator-value="I"></subclass>
   </class>
 
   <class name="SpecialUser" table="special_user">

@@ -7,9 +7,9 @@
   - 1 server w/no users
   -->
 <dataset>
-	<users user_id="1001" user_name="testuser1"/>
-	<users user_id="1002" user_name="testuser2"/>
-	<users user_id="1003" user_name="testuser3"/>
+	<users user_id="1001" user_name="testuser1" user_type="C"/>
+	<users user_id="1002" user_name="testuser2" user_type="C"/>
+	<users user_id="1003" user_name="testuser3" user_type="C"/>
 	<location location_id="1001" name="server1" fqdn="server1.example.com" ip_address="10.1.1.1" primary_location="true"/>
 	<location location_id="1002" name="server2" fqdn="server1.example.com" ip_address="10.1.1.2" primary_location="false"/>
 	<location location_id="1003" name="server3" fqdn="empty.example.com" ip_address="10.1.1.3" primary_location="false"/>

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 <dataset>
-  <users user_name="user1" user_id="1001" pintoken="1234" />
+  <users user_name="user1" user_id="1001" pintoken="1234" user_type="C"/>
   <value_storage value_storage_id="1001" />
   <group_storage group_id="1001" resource="user" weight="1001" name="SeedUserGroup1" />
   <user_group group_id="1001" user_id="1001" />

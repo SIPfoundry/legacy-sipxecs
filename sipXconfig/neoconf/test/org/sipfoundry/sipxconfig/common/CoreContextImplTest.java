@@ -26,6 +26,10 @@ public class CoreContextImplTest extends TestCase {
             public User newUser() {
                 return null;
             }
+
+            public InternalUser newInternalUser() {
+                return null;
+            }
         };
         try {
             m_core.checkMaxUsers(new User(), -1);
@@ -56,6 +60,10 @@ public class CoreContextImplTest extends TestCase {
     public void testCheckForDuplicateString() {
         CoreContextImpl core = new CoreContextImpl() {
             public User newUser() {
+                return null;
+            }
+
+            public InternalUser newInternalUser() {
                 return null;
             }
         };

@@ -23,7 +23,7 @@
   <!--
     - Call sequence
   -->
-  <class name="CallSequence" table="users">
+  <class name="CallSequence" table="users" where="user_type='C'">
     <id name="id" column="user_id" type="int" unsaved-value="-1">
       <generator class="foreign">
         <param name="property">user</param>

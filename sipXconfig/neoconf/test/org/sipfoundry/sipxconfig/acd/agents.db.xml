@@ -2,7 +2,7 @@
 <!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
 
 <dataset>
-	<users user_id="1000" user_name="testuser"/>
+	<users user_id="1000" user_name="testuser" user_type="C"/>
 	<location location_id="101" name="localhost" fqdn="localhost" ip_address="127.0.0.1" primary_location="true"/>
 	<acd_server acd_server_id="1001" location_id="101" port="8100"/>
 	

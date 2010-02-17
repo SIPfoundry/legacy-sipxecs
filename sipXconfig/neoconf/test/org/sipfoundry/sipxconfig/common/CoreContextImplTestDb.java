@@ -219,7 +219,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
         // Check that we have the expected number of users
         ITable usersTable = TestHelper.getConnection().createDataSet().getTable("users");
-        assertEquals(NUM_USERS, usersTable.getRowCount());
+        assertEquals(11, usersTable.getRowCount());
 
         // Delete two users
         List usersToDelete = new ArrayList();
@@ -229,7 +229,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
         // We should have reduced the user count by two
         usersTable = TestHelper.getConnection().createDataSet().getTable("users");
-        assertEquals(NUM_USERS - 2, usersTable.getRowCount());
+        assertEquals(9, usersTable.getRowCount());
     }
 
     public void testDeleteUsersByUserName() throws Exception {
@@ -237,7 +237,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
         // Check that we have the expected number of users
         ITable usersTable = TestHelper.getConnection().createDataSet().getTable("users");
-        assertEquals(NUM_USERS, usersTable.getRowCount());
+        assertEquals(11, usersTable.getRowCount());
 
         // Delete two users
         List<String> usersToDelete = new ArrayList();
@@ -247,7 +247,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
         // We should have reduced the user count by two
         usersTable = TestHelper.getConnection().createDataSet().getTable("users");
-        assertEquals(NUM_USERS - 2, usersTable.getRowCount());
+        assertEquals(9, usersTable.getRowCount());
     }
 
     public void testLoadGroups() throws Exception {
@@ -327,8 +327,10 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testCountUsers() throws Exception {
-        TestHelper.insertFlat("common/UserSearchSeed.xml");
-        assertEquals(10, m_core.getUsersCount());
+        TestHelper.insertFlat("common/UserCountSeed.xml");
+        assertEquals(4, m_core.getUsersCount());
+        assertEquals(7, m_core.getAllUsersCount());
+        assertEquals(3, m_core.loadInternalUsers().size());
     }
 
     public void testCountUsersInGroup() throws Exception {

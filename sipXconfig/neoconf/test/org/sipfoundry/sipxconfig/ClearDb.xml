@@ -136,4 +136,5 @@
   <table name="user_alarm_group"/>  
 
   <table name="branch"/>
+  <table name="tls_peer"/>
 </dataset>

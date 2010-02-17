@@ -7,7 +7,7 @@
   <group_storage group_id="1001" name="user group 1" resource="user" description="user group 1" weight="0"/>
   <group_storage group_id="1002" name="user group 2" resource="user" description="user group 2" weight="0"/>
 
-  <users user_name="user2" user_id="4002" pintoken="1234" />
+  <users user_name="user2" user_id="4002" pintoken="1234" user_type="C"/>
   <user_group user_id="4002" group_id="1001"/>
 
   <speeddial_group speeddial_id="2000" group_id="1001"/>
