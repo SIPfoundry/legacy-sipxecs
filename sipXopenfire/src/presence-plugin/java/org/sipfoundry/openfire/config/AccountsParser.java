@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -15,12 +17,14 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 import org.jivesoftware.openfire.PacketRouter;
 import org.jivesoftware.openfire.group.Group;
+import org.jivesoftware.openfire.group.GroupManager;
 import org.jivesoftware.openfire.muc.MUCRole;
 import org.jivesoftware.openfire.muc.MUCRoom;
 import org.jivesoftware.openfire.muc.MultiUserChatService;
 import org.jivesoftware.openfire.muc.spi.LocalMUCRole;
 import org.jivesoftware.openfire.muc.spi.LocalMUCRoom;
 import org.jivesoftware.openfire.muc.spi.LocalMUCUser;
+import org.jivesoftware.openfire.muc.spi.MUCPersistenceManager;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePlugin;
 import org.sipfoundry.openfire.plugin.presence.SipXOpenfirePluginException;
 import org.sipfoundry.openfire.plugin.presence.UserAccount;
@@ -45,6 +49,7 @@ public class AccountsParser {
     private long lastModified;
     private File accountDbFile;
     private static Logger logger = Logger.getLogger(AccountsParser.class);
+    private XmppAccountInfo previousXmppAccountInfo = null;
   
     private static Timer timer = new Timer();
 
@@ -61,80 +66,205 @@ public class AccountsParser {
 
         @Override
         public void run() {
-            try {
-                if (accountDbFile.lastModified() != AccountsParser.this.lastModified) {
-                    logger.info("XMPP account configuration changes detected - reparsing file");
-                    AccountsParser.this.lastModified = accountDbFile.lastModified(); 
-                    String fileUrl = "file://" + accountDbFileName;
-                    XmppAccountInfo accountInfo = AccountsParser.this.parse(fileUrl);
-                    SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
-                    Collection<UserAccount> userAccounts = new HashSet<UserAccount>();
-                    userAccounts.addAll(plugin.getUserAccounts());
-    
-                    for (UserAccount userAccount : userAccounts) {
-                        if (accountInfo.getXmppUserAccount(userAccount.getXmppUserName()) == null) {
-                            if (!userAccount.getXmppUserName().equals("admin")) {
-                                plugin.destroyUser(XmppAccountInfo.appendDomain(userAccount
-                                        .getXmppUserName()));
-                            }
-                        }
-                    }
-                    HashSet<Group> groups = new HashSet<Group>();
-                    groups.addAll(plugin.getGroups());
-                    for (Group group : groups) {
-                        if (accountInfo.getXmppGroup(group.getName()) == null) {
-                            logger.debug("Cannot find group in config directory " + group.getName());
-                            plugin.deleteGroup(group.getName());
-                            continue;
-                        }
-                    }
-                    Collection<MUCRoom> chatRooms = plugin.getMUCRooms();
-                    /*
-                     * Remove any chat rooms that do not appear in the xml file.
-                     */
-                    for (MUCRoom mucRoom : chatRooms) {
-                        String domain = mucRoom.getMUCService().getServiceDomain().split("\\.")[0];
-                        logger.debug("Checking MUCRoom" + domain + " name " + mucRoom.getName());
-                        XmppChatRoom xmppChatRoom = accountInfo.getXmppChatRoom(domain, mucRoom
-                                .getName());
-                        // Found a chat room that is not in our list of chat rooms.
-    
-                        if (xmppChatRoom == null) {
-                            if (!mucRoom.wasSavedToDB()) {
-                                /*
-                                 * Anything not in our database is deemed adhoc.
-                                 */
-                                logger.debug("Adhoc chat room detected - enable logging");
-                                mucRoom.setLogEnabled(true);
-                                logger.debug("AdHoc chat room has owners : " + mucRoom.getOwners());
-                                mucRoom.setLogEnabled(true);
-                            } else {
-                                logger.debug("Destroy chat room " + mucRoom.getName());
-                                mucRoom.destroyRoom(null, "not a managed chat");
-    
-                            }
-                        }
-                    }
-    
-                    /*
-                     * Restrict the chat services to those that are in xmpp-account-info.xml
-                     */
-                    HashSet<String> allowedDomains = new HashSet<String>();
-                    for (XmppChatRoom chatRoom : accountInfo.getXmppChatRooms()) {
-                        allowedDomains.add(chatRoom.getSubdomain());
-                    }
-                    plugin.pruneChatServices(allowedDomains);
-                    /*
-                     * Make sure that all user accounts can create multi-user chatrooms
-                     */
-                    plugin.setAllowedUsersForChatServices(plugin.getUserAccounts());
-                }
-            } catch (Exception ex) {
-                logger.error("Exception caught while parsing accountsdb ", ex);
+            if (accountDbFile.lastModified() != AccountsParser.this.lastModified) {
+                logger.info("XMPP account configuration changes detected - reparsing file");
+                AccountsParser.this.lastModified = accountDbFile.lastModified(); 
+                String fileUrl = "file://" + accountDbFileName;
+                XmppAccountInfo newAccountInfo = AccountsParser.this.parse(fileUrl);
+                enforceConfigurationDeltas( newAccountInfo, previousXmppAccountInfo );
+                pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
+                pruneUnwantedXmppGroups( newAccountInfo.getXmppGroupNames() );
+                pruneUnwantedXmppChatrooms( newAccountInfo );
+                pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
+                // Make sure that all user accounts can create multi-user chatrooms
+                SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
+                plugin.setAllowedUsersForChatServices(plugin.getUserAccounts());
+                previousXmppAccountInfo = newAccountInfo;
             }
-
         }
+    }
+    
+    private void enforceConfigurationDeltas( XmppAccountInfo newAccountInfo, XmppAccountInfo previousXmppAccountInfo )
+    {
+        setElementsChangeStatusBasedOnPreviousConfiguration( newAccountInfo, previousXmppAccountInfo);
+        for( XmppConfigurationElement element : newAccountInfo.getAllElements() ){
+            if( element.getStatus() != XmppAccountStatus.UNCHANGED ){
+                try{
+                    if( element instanceof XmppUserAccount ){
+                        SipXOpenfirePlugin.getInstance().update( (XmppUserAccount)element );
+                    }
+                    else if( element instanceof XmppGroup ){
+                        SipXOpenfirePlugin.getInstance().update( (XmppGroup)element );
+                    }
+                    else if( element instanceof XmppChatRoom ){
+                        try{
+                            SipXOpenfirePlugin.getInstance().update( (XmppChatRoom)element );
+                        } catch( Exception e ){
+                            logger.error("enforceConfigurationDeltas caught " + e );
+                        }
+                    }
+                    else{
+                        logger.error("Dealing with unexpected class type " + element.getClass() );
+                    }
+                }
+                catch( Exception e ){
+                    logger.error("setElementsChangeStatusBasedOnPreviousConfiguration caught " ,e );            
+                }
+            }        
+        }
+    }
 
+    private void setElementsChangeStatusBasedOnPreviousConfiguration( XmppAccountInfo newXmppAccountInfo,
+            XmppAccountInfo previousXmppAccountInfo )
+    {
+        if(previousXmppAccountInfo == null){
+            // no previous config, everything looks new to us.
+            for( XmppConfigurationElement element : newXmppAccountInfo.getAllElements()){
+                element.setStatus(XmppAccountStatus.NEW);
+            }
+        }
+        else{
+            // process users
+            setElementsChangeStatusBasedOnPreviousConfiguration( newXmppAccountInfo.getXmppUserAccountMap(),
+                                                           previousXmppAccountInfo.getXmppUserAccountMap() );
+            // process groups
+            setElementsChangeStatusBasedOnPreviousConfiguration( newXmppAccountInfo.getXmppGroupMap(),
+                                                           previousXmppAccountInfo.getXmppGroupMap() );
+            // process chatrooms
+            setElementsChangeStatusBasedOnPreviousConfiguration( newXmppAccountInfo.getXmppChatRoomMap(),
+                                                           previousXmppAccountInfo.getXmppChatRoomMap() );
+        }
+        if( logger.isEnabledFor(Level.INFO) ){
+            for( XmppConfigurationElement element : newXmppAccountInfo.getAllElements()){
+                logger.info(element.toString());
+            }
+            
+        }
+    }
+    
+    private void setElementsChangeStatusBasedOnPreviousConfiguration( Map<String, ? extends XmppConfigurationElement> newXmppAccountMap,
+            Map<String, ? extends XmppConfigurationElement> previousXmppAccountMap )
+    {
+        for( String elementName : newXmppAccountMap.keySet() )
+        {
+            // check if element taken from new account map used to exist in the previous one
+            XmppConfigurationElement elementFromNewConfig = newXmppAccountMap.get( elementName );
+            XmppConfigurationElement elementFromPreviousConfig = previousXmppAccountMap.get( elementName );
+            if( elementFromPreviousConfig == null ){
+                // element not found in previous configuration, it must  be new
+                elementFromNewConfig.setStatus(XmppAccountStatus.NEW);
+                
+            }
+            else{
+                // the element is not new, check if it has changed
+                if( elementFromNewConfig.equals(elementFromPreviousConfig) == true){
+                    elementFromNewConfig.setStatus(XmppAccountStatus.UNCHANGED);                            
+                }
+                else{
+                    elementFromNewConfig.setStatus(XmppAccountStatus.MODIFIED);                            
+                }
+            }
+        }
+    }
+        
+    private void pruneUnwantedXmppUsers( Set<String> xmppUserAccountNamesMasterList )
+    {
+        SipXOpenfirePlugin plugin =  SipXOpenfirePlugin.getInstance();
+        // recall user accounts currently configured in openfire
+        Collection<UserAccount> userAccountsInOpenfire = plugin.getUserAccounts();
+
+        // remove all those accounts currently configured in openfire that
+        // do not show up on the provided master list
+        for (UserAccount userAccountInOpenfire : userAccountsInOpenfire) {
+            if (xmppUserAccountNamesMasterList.contains(userAccountInOpenfire.getXmppUserName()) == false) {
+                if (!userAccountInOpenfire.getXmppUserName().equals("admin")) {
+                    try{
+                        // remove user from all the groups it used to belong to - this forces an immediate update of the groups in IM clients
+                        String jidAsString = XmppAccountInfo.appendDomain(userAccountInOpenfire.getXmppUserName());
+                        JID jid = new JID(jidAsString);
+                        Collection<Group>  groups = GroupManager.getInstance().getGroups(jid);
+                        for( Group group : groups )
+                        {
+                            logger.debug("pruneUnwantedXmppUsers removing " + userAccountInOpenfire.getXmppUserName() + " from group "  + group.getName());
+                            group.getMembers().remove(jid);
+                        }
+                        logger.info("Pruning Unwanted Xmpp User " + userAccountInOpenfire.getXmppUserName() );                    
+                        plugin.destroyUser(XmppAccountInfo.appendDomain(userAccountInOpenfire.getXmppUserName()));
+                    }
+                    catch( Exception e ){
+                        logger.error("pruneUnwantedXmppUsers caught ", e );
+                    }
+                }
+            }
+        }
+    }
+
+    private void pruneUnwantedXmppGroups( Set<String> xmppGroupNamesMasterList )
+    {
+        SipXOpenfirePlugin plugin =  SipXOpenfirePlugin.getInstance();
+        // recall groups currently configured in openfire
+        Collection<Group> groupsInOpenfire = plugin.getGroups();
+
+        // remove all those groups currently configured in openfire that
+        // do not show up on the provided master list
+        for (Group groupInOpenfire : groupsInOpenfire) {
+            if (xmppGroupNamesMasterList.contains( groupInOpenfire.getName()) == false) {
+                try{
+                    plugin.deleteGroup(groupInOpenfire.getName());
+                    logger.info("Pruning Unwanted Xmpp group " + groupInOpenfire.getName() );                    
+                }
+                catch( Exception e ){
+                    logger.error("pruneUnwantedXmppGroups caught ", e );
+                }                
+            }
+        }
+    }
+
+    private void pruneUnwantedXmppChatrooms( XmppAccountInfo newAccountInfo )
+    {
+        SipXOpenfirePlugin plugin =  SipXOpenfirePlugin.getInstance();
+        // recall chatrooms currently configured in openfire
+        Collection<MUCRoom> chatRoomsInOpenfire = plugin.getMUCRooms();
+
+        // remove all those groups currently configured in openfire that
+        // do not show up on the provided master list
+        for (MUCRoom mucRoomInOpenfire : chatRoomsInOpenfire) {
+            String domain = mucRoomInOpenfire.getMUCService().getServiceDomain().split("\\.")[0];
+            if( newAccountInfo.getXmppChatRoom(domain, mucRoomInOpenfire.getName() ) == null )
+            {
+                // openfire chatroom not found in the account info - remove it if not ad hoc
+                if (!mucRoomInOpenfire.wasSavedToDB()) {
+                    /*
+                     * Anything not in our database is deemed adhoc - enforce logging so
+                     * that even ad hoc rooms get logged.
+                     */
+                    logger.debug("Adhoc chat room detected - enable logging");
+                    mucRoomInOpenfire.setLogEnabled(true);
+                } else {
+                    logger.info("Pruning Unwanted Xmpp chatroom " + domain + ":" + mucRoomInOpenfire.getName() );
+                    mucRoomInOpenfire.destroyRoom(null, "not a managed chat");
+                    MUCPersistenceManager.deleteFromDB(mucRoomInOpenfire);                    
+                }
+            }
+        }
+    }
+
+    private void pruneUnwantedXmppChatRoomServices( Collection<XmppChatRoom> configuredXmppChatRooms )
+    {
+        /*
+         * Restrict the chat services to those contained configured chatrooms
+         */
+        HashSet<String> allowedDomains = new HashSet<String>();
+        for (XmppChatRoom configuredChatRoom : configuredXmppChatRooms) {
+            allowedDomains.add(configuredChatRoom.getSubdomain());
+        }
+        SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
+        try{
+            plugin.pruneChatServices(allowedDomains);
+        }
+        catch( Exception e ){
+            logger.error( "pruneUnwantedXmppChatRoomServices caught ", e );
+        }
     }
 
     public AccountsParser(String accountDbFileName) {

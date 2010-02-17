@@ -1,19 +1,20 @@
 package org.sipfoundry.openfire.config;
 
-public class XmppChatRoom {
-    private String subdomain;
-    private String roomName;
-    private String description; 
-    private String password;
-    private String conferenceExtension;
-    private String conferenceName;
-    private String conferenceReachabilityInfo;
-    private String owner;
-    private boolean logRoomConversations;
+public class XmppChatRoom extends XmppConfigurationElement{
+    private String subdomain = "";
+    private String roomName = "";
+    private String description = ""; 
+    private String password = "";
+    private String conferenceExtension = "";
+    private String conferenceName = "";
+    private String conferenceReachabilityInfo = "";
+    private String owner = "";
+    private boolean logRoomConversations = false;
     private boolean isPublicRoom = true;
-    private boolean membersOnly;
-    private boolean isPersistent;
-    private boolean isModerated;
+    private boolean membersOnly = false;
+    private boolean isPersistent = false;
+    private boolean isModerated = false;
+    // NOTE: extend the equals() method if new instance variables get added
     
     public XmppChatRoom() {
         
@@ -156,5 +157,73 @@ public class XmppChatRoom {
    
    public boolean isModerated() {
        return this.isModerated;
+   }
+   
+   @Override 
+   public boolean equals(Object other) {
+       //check for self-comparison
+       if ( this == other ) return true;
+
+       if ( !(other instanceof XmppChatRoom) ) return false;
+
+       //cast to native object is now safe
+       XmppChatRoom otherChatRoom = (XmppChatRoom)other;
+
+       //now a proper field-by-field evaluation can be made
+       return 
+           subdomain.equals(otherChatRoom.subdomain) &&
+           roomName.equals(otherChatRoom.roomName) &&
+           description.equals(otherChatRoom.description) &&
+           password.equals(otherChatRoom.password) &&
+           conferenceExtension.equals(otherChatRoom.conferenceExtension) &&
+           conferenceName.equals(otherChatRoom.conferenceName) &&
+           conferenceReachabilityInfo.equals(otherChatRoom.conferenceReachabilityInfo) &&
+           owner.equals(otherChatRoom.owner) &&
+           logRoomConversations == otherChatRoom.logRoomConversations &&
+           isPublicRoom == otherChatRoom.isPublicRoom &&
+           membersOnly == otherChatRoom.membersOnly &&
+           isPersistent == otherChatRoom.isPersistent &&
+           isModerated == otherChatRoom.isModerated;
+   }   
+
+   @Override
+   public int hashCode()
+   {
+       return subdomain.hashCode() * roomName.hashCode();
+   }
+   
+   @Override
+   public String toString()
+   {
+       return new StringBuilder("XmppChatRoom='")
+       .append("'\n    name='")
+       .append(this.getRoomName())
+       .append("'\n    subdomain='")
+       .append(this.getSubdomain())
+       .append("'\n    status='")
+       .append(this.getStatus())
+       .append("'\n    conf.ext='")
+       .append(this.getConferenceExtension())
+       .append("'\n    conf.name='")
+       .append(this.getConferenceName())
+       .append("'\n    conf.reach.info='")
+       .append(this.getConferenceReachabilityInfo())
+       .append("'\n    desc='")
+       .append(this.getDescription())
+       .append("'\n    owner='")
+       .append(this.getOwner())
+       .append("'\n    password='")
+       .append(this.getPassword())
+       .append("'\n    log.conv='")
+       .append(this.isLogRoomConversations())
+       .append("'\n    membersOnly='")
+       .append(this.isMembersOnly())
+       .append("'\n    moderated='")
+       .append(this.isModerated())
+       .append("'\n    persistent='")
+       .append(this.isPersistent())
+       .append("'\n    public='")
+       .append(this.isPublicRoom())
+       .append("'\n===============\n").toString();     
    }
 }

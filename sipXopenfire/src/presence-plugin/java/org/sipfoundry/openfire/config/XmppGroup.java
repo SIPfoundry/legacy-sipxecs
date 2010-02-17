@@ -7,16 +7,18 @@ import java.util.LinkedList;
 
 import org.apache.log4j.Logger;
 
-public class XmppGroup {
+public class XmppGroup extends XmppConfigurationElement {
     private static Logger logger = Logger.getLogger(XmppGroup.class);
 
-    private String groupName;
+    private String groupName = "";
     
-    private String description;
+    private String description = "";
     
-    private String administrator;
+    private String administrator = "";
     
     private HashMap<String,XmppGroupMember> members = new HashMap<String,XmppGroupMember>();
+    // NOTE: extend the equals() method if new instance variables get added
+
 
     /**
      * @param groupName the groupName to set
@@ -74,6 +76,48 @@ public class XmppGroup {
         return this.members.containsKey(jid);
     }
     
-    
+    @Override 
+    public boolean equals(Object other) {
+        //check for self-comparison
+        if ( this == other ) return true;
 
+        if ( !(other instanceof XmppGroup) ) return false;
+
+        //cast to native object is now safe
+        XmppGroup otherGroup = (XmppGroup)other;
+
+        //now a proper field-by-field evaluation can be made
+        try{
+            return groupName.equals( otherGroup.groupName ) &&
+                   description.equals( otherGroup.description ) &&
+                   administrator.equals( otherGroup.administrator ) &&
+                   members.size() == otherGroup.members.size() &&
+                   members.values().containsAll(otherGroup.members.values());
+        } catch( Exception e ){
+            logger.error("Caught: ", e);
+            return false;
+        }
+    }
+    
+    @Override
+    public int hashCode()
+    {
+        return groupName.hashCode();
+    }
+
+    @Override
+    public String toString()
+    {
+        return new StringBuilder("XmppGroup='")
+        .append(this.getGroupName())
+        .append("'\n    status='")
+        .append(this.getStatus())
+        .append("'\n    admin='")
+        .append(this.getAdministrator())
+        .append("'\n    desc='")
+        .append(this.getDescription())
+        .append("'\n    members='")
+        .append(this.getMembers())
+        .append("'\n===============\n").toString();     
+    }
 }

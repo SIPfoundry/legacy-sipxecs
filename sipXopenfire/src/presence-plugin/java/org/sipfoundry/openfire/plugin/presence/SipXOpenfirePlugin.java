@@ -43,8 +43,13 @@ import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.openfire.config.AccountsParser;
 import org.sipfoundry.openfire.config.ConfigurationParser;
+import org.sipfoundry.openfire.config.XmppAccountInfo;
+import org.sipfoundry.openfire.config.XmppChatRoom;
+import org.sipfoundry.openfire.config.XmppGroup;
+import org.sipfoundry.openfire.config.XmppGroupMember;
 import org.sipfoundry.openfire.config.XmppS2sInfo;
 import org.sipfoundry.openfire.config.WatcherConfig;
+import org.sipfoundry.openfire.config.XmppUserAccount;
 import org.sipfoundry.sipcallwatcher.CallWatcher;
 import org.sipfoundry.sipcallwatcher.ResourceStateChangeListener;
 import org.xmpp.component.Component;
@@ -539,25 +544,51 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
     }
 
-    public void createUserAccount(String userName, String password, String displayName,
-            String email, boolean advertiseOnCall, boolean showOnCallDetail) {
+    public void update( XmppUserAccount userAccount ) throws Exception {
+        log.debug("update UserAccount " + userAccount.getUserName());
 
         try {
-            User user = userManager.getUser(userName);
-            user.setPassword(password);
-            user.setName(displayName);
-            user.setEmail(email);
+            User user = userManager.getUser(userAccount.getUserName());
+            // user already exists - update its properties
+            user.setPassword(userAccount.getPassword());
+            user.setName(userAccount.getDisplayName());
+            user.setEmail(userAccount.getEmail());
+            
+            // user has changed, found out all the groups that the 
+            // user is a part of and remove and re-add it so that changes 
+            // made to user attributes such a display name get updated immediately.
+            Collection<Group>  groups = groupManager.getGroups( user );
+            for( Group group : groups )
+            {
+                log.debug("update UserAccount resetting " + userAccount.getUserName() + " in group " + group.getName());
+                String jidAsString = XmppAccountInfo.appendDomain(userAccount.getUserName());
+                JID jid = new JID(jidAsString);
+                group.getMembers().remove(jid);
+                group.getMembers().add(jid);
+            }
         } catch (UserNotFoundException e) {
             try {
-                userManager.createUser(userName, password, displayName, email);
+                // user does not exist create it.
+                userManager.createUser(userAccount.getUserName(),
+                                       userAccount.getPassword(),
+                                       userAccount.getDisplayName(), 
+                                       userAccount.getEmail());
             } catch (UserAlreadyExistsException ex) {
                 throw new SipXOpenfirePluginException(ex);
             }
         } catch (Exception ex) {
             throw new SipXOpenfirePluginException(ex);
         }
-        this.xmppUserPreferencesMap.put(userName,
-                new XmppUserPreferences( advertiseOnCall, showOnCallDetail ));
+        this.xmppUserPreferencesMap.put(userAccount.getUserName(),
+                new XmppUserPreferences(userAccount.getAdvertiseOnCallPreference(),
+                                        userAccount.getShowOnCallDetailsPreference()));
+
+        String jid = XmppAccountInfo.appendDomain(userAccount.getUserName());
+        String sipUserName = userAccount.getSipUserName();
+        log.debug("setSipId " + jid + " sipUserName " + sipUserName);
+        setSipId(jid, sipUserName);
+        setOnThePhoneMessage(sipUserName, userAccount.getOnThePhoneMessage());
+        setAllowedUserForChatServices(jid); // Make sure that user can create multi-user chatrooms
     }
 
     public void destroyUser(String jid) throws UserNotFoundException {
@@ -626,38 +657,82 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         user.getProperties().put(SIP_PWD, sipPassword);
     }
 
-    public void createGroup(String groupName, JID adminJID, String description)
-            throws IllegalArgumentException {
-        log.debug("createGroup groupName = " + groupName);
-        Group group = null;
+    public void update( XmppGroup group ) throws Exception {
+        log.debug("update Group " + group.getGroupName());
         
-        try {
-            group = groupManager.getGroup(groupName);
-            groupManager.deleteGroup(group);
-
-        } catch (GroupNotFoundException ex) {
-
-        }
-        try {
-            group = groupManager.createGroup(groupName);
-
-        } catch (GroupAlreadyExistsException ex1) {
-            log.debug("Group already exists - not creating group");
+        boolean isAllAdminGroup = false;
+        String adminJid = null;
+        JID adminJID = null;
+        if (group.getAdministrator() == null) {
+            isAllAdminGroup = true;
+        } else {
+            adminJid = XmppAccountInfo.appendDomain(group.getAdministrator());
+            adminJID = new JID(adminJid);
 
         }
-        if (description != null) {
-            group.setDescription(description);
-        }
 
-        if (adminJID != null && adminJID.getDomain().equals(this.getXmppDomain())
-                && this.isValidUser(adminJID)) {
-            group.getAdmins().add(adminJID);
+        // check if group already exists in openfire
+        try{
+            Group openfireGroup = getGroupByName(group.getGroupName());
+
+            // enforce description in case it changed
+            openfireGroup.setDescription(group.getDescription());
+            
+            // group already exists, make sure that it contains the correct set of members.
+            // This is achieved in two operations:
+            //  1- Add all members that are currently not in the group but are found in the group from configuration file
+            //  2- Remove all members that are currently in the group but not found in the group from configuration file
+            log.info("create Group: " + group.getGroupName() + " already exists - enforce members list");
+            Collection<String> currentGroupMembers = new HashSet<String>();
+            for( JID jid : openfireGroup.getMembers() ){
+                currentGroupMembers.add(jid.toBareJID());
+            }
+            
+            Collection<String> desiredGroupMembers = new HashSet<String>();
+            Collection<String> desiredGroupMembersBackup = new HashSet<String>();
+            for( XmppGroupMember member :group.getMembers() ){
+                desiredGroupMembers.add(member.getJid());
+                desiredGroupMembersBackup.add(member.getJid());
+            }
+
+            //  1- Add all members that are currently not in the group but are found in the group from configuration file
+            desiredGroupMembers.removeAll(currentGroupMembers);
+            log.info("Need to add the following members to group '" + group.getGroupName() + "': " + desiredGroupMembers);
+            for( String jid : desiredGroupMembers){
+                addUserToGroup(jid, group.getGroupName(), isAllAdminGroup);
+            }
+
+            //  2- Remove all members that are currently in the group but not found in the group from configuration file
+            currentGroupMembers.removeAll(desiredGroupMembersBackup);
+            log.info("Need to remove the following members to group '" + group.getGroupName() + "': " + currentGroupMembers);
+            for( String jid : currentGroupMembers){
+                removeUserFromGroup(jid, group.getGroupName());
+            }
+            
         }
-        
-        // configure group as 'shared' among group members
-        // (magic recipe taken from 'AddGroup.java file of openfire project)
-        group.getProperties().put("sharedRoster.showInRoster", "onlyGroup");
-        group.getProperties().put("sharedRoster.displayName", groupName);
+        catch( GroupNotFoundException ex ){
+            log.info("Group: " + group.getGroupName() + " does not exist - create it");
+            Group openfireGroup = groupManager.createGroup(group.getGroupName());
+            if (group.getDescription() != null) {
+                openfireGroup.setDescription(group.getDescription());
+            }
+
+            if (adminJID != null && adminJID.getDomain().equals(this.getXmppDomain())
+                    && this.isValidUser(adminJID)) {
+                openfireGroup.getAdmins().add(adminJID);
+            }
+            
+            // configure group as 'shared' among group members
+            // (magic recipe taken from 'AddGroup.java file of openfire project)
+            openfireGroup.getProperties().put("sharedRoster.showInRoster", "onlyGroup");
+            openfireGroup.getProperties().put("sharedRoster.displayName", group.getGroupName());
+
+            // add members to the group
+            for (XmppGroupMember member : group.getMembers()) {
+                String userJid = XmppAccountInfo.appendDomain(member.getJid());
+                addUserToGroup(userJid, group.getGroupName(), isAllAdminGroup);
+            }
+        }
     }
 
     public void addUserToGroup(String jidAsString, String groupName, boolean isAdmin) throws GroupNotFoundException{
@@ -813,22 +888,35 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             log.debug("destroyMultiUserChatService not found " + subdomain);
         }
     }
-    
-    
-    public void createChatRoom(String subdomain, String ownerJid, String roomName,
-            boolean makeRoomModerated, boolean makeRoomMembersOnly,
-            boolean allowOccupantsToInviteOthers, boolean isPublicRoom,
-            boolean logRoomConversations, boolean isPersistent, String password,
-            String description, String conferenceExtension, String conferenceName, String conferenceReachabilityInfo)
-            throws Exception {
+        
+    public void update( XmppChatRoom xmppChatRoom ) throws Exception {
+        log.info(String.format("update ChatRoom %s\n %s\n %s\n %s",
+                xmppChatRoom.getSubdomain(), xmppChatRoom.getRoomName(), xmppChatRoom
+                        .getDescription(), xmppChatRoom.getConferenceExtension()));
+        if ( xmppChatRoom.getSubdomain() == null || xmppChatRoom.getRoomName() == null ) {
+            log.error("Null Subdomain or RoomName specified.");
+            return;
+        }
+
+        String subdomain                     = xmppChatRoom.getSubdomain();
+        String ownerJid                      = xmppChatRoom.getOwner(); 
+        String roomName                      = xmppChatRoom.getRoomName();
+        boolean makeRoomModerated            = xmppChatRoom.isModerated(); 
+        boolean makeRoomMembersOnly          = xmppChatRoom.isMembersOnly();
+        boolean allowOccupantsToInviteOthers = false; 
+        boolean isPublicRoom                 = xmppChatRoom.isPublicRoom();
+        boolean logRoomConversations         = xmppChatRoom.isLogRoomConversations(); 
+        boolean isPersistent                 = xmppChatRoom.isPersistent();
+        String password                      = xmppChatRoom.getPassword();
+        String description                   = xmppChatRoom.getDescription();
+        String conferenceExtension           = xmppChatRoom.getConferenceExtension(); 
+        String conferenceName                = xmppChatRoom.getConferenceName();
+        String conferenceReachabilityInfo    = xmppChatRoom.getConferenceReachabilityInfo();
+        
         MultiUserChatService mucService = createChatRoomService(subdomain);
-        MUCRoom mucRoom = mucService.getChatRoom(roomName, new JID(ownerJid));
+        MUCRoom mucRoom = mucService.getChatRoom(roomName, new JID(ownerJid)); //creates room if it does not exist
 
         mucRoom.unlock(mucRoom.getRole());
-
-        if (!mucRoom.wasSavedToDB()) {
-            mucRoom.saveToDB();
-        }
 
         if (mucRoom.isPersistent() != isPersistent) {
             mucRoom.setPersistent(isPersistent);
@@ -909,6 +997,10 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
         if (mucRoom.isLogEnabled() != logRoomConversations) {
             mucRoom.setLogEnabled(logRoomConversations);
+        }
+
+        if (!mucRoom.wasSavedToDB()) {
+            mucRoom.saveToDB();
         }
 
         /* The conference extension is the voice conf bridge extension */
@@ -1160,6 +1252,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             String subdomain = service.getServiceDomain().split("\\.")[0];
             if (!subdomains.contains(subdomain) && 
                 !subdomain.equals(DEFAULT_MUC_SERVICE)) {
+                log.info("Pruning Unwanted Xmpp chatroom service " + subdomain );                
                 this.multiUserChatManager.removeMultiUserChatService(subdomain);
 			}
 		}
