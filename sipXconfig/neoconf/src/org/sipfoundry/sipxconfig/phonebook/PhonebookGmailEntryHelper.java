@@ -14,6 +14,7 @@ import java.util.List;
 
 import com.google.gdata.data.contacts.ContactEntry;
 import com.google.gdata.data.contacts.Relation;
+import com.google.gdata.data.extensions.Email;
 import com.google.gdata.data.extensions.Im;
 import com.google.gdata.data.extensions.Name;
 import com.google.gdata.data.extensions.Organization;
@@ -68,6 +69,7 @@ public class PhonebookGmailEntryHelper {
         extractPhones(phonebookEntry, abe);
         extractOrgs(abe);
         extractRelations(abe);
+        extractEmailAddresses(abe);
         phonebookEntry.setAddressBookEntry(abe);
         return phonebookEntry;
     }
@@ -183,6 +185,17 @@ public class PhonebookGmailEntryHelper {
         for (Relation relation : m_contactEntry.getRelations()) {
             if (relation.hasRel() && relation.getRel().toValue().contains(ASSISTANT)) {
                 abe.setAssistantName(relation.getValue());
+            }
+        }
+    }
+
+    private void extractEmailAddresses(AddressBookEntry abe) {
+        List<Email> emails = m_contactEntry.getEmailAddresses();
+        for (Email email : emails) {
+            if (email.getPrimary()) {
+                abe.setEmailAddress(email.getAddress());
+            } else {
+                abe.setAlternateEmailAddress(email.getAddress());
             }
         }
     }

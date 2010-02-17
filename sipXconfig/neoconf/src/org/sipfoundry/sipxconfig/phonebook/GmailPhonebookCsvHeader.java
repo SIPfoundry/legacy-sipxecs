@@ -36,6 +36,8 @@ public class GmailPhonebookCsvHeader extends PhonebookCsvHeader {
     private static final String ADDRESS_VALUE_STATE = "Region";
     private static final String ADDRESS_VALUE_STREET = "Street";
     private static final String ADDRESS_VALUE_ZIP = "Postal Code";
+    private static final String EMAIL_ADDRESS = "E-mail 1 - Value";
+    private static final String ALTERNATE_EMAIL_ADDRESS = "E-mail 2 - Value";
 
     public GmailPhonebookCsvHeader(Map<String, Integer> header) {
         super(header);
@@ -88,6 +90,8 @@ public class GmailPhonebookCsvHeader extends PhonebookCsvHeader {
         abe.setFaxNumber(getGmailValueForType(row, PHONE_NAME, PHONE_TYPE_WORK_FAX));
         abe.setAlternateImId(getGmailValueForType(row, IM_NAME, IM_TYPE_OTHER));
         abe.setLocation(getValueForSymbol(row, LOCATION));
+        abe.setEmailAddress(getValueForSymbol(row, EMAIL_ADDRESS));
+        abe.setAlternateEmailAddress(getValueForSymbol(row, ALTERNATE_EMAIL_ADDRESS));
 
         Address homeAddress = getAddress(row, TYPE_HOME);
         abe.setHomeAddress(homeAddress);

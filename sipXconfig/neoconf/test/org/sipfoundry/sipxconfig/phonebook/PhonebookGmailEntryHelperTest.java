@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.phonebook;
 import com.google.gdata.data.contacts.ContactEntry;
 import com.google.gdata.data.extensions.City;
 import com.google.gdata.data.extensions.Country;
+import com.google.gdata.data.extensions.Email;
 import com.google.gdata.data.extensions.FamilyName;
 import com.google.gdata.data.extensions.FullName;
 import com.google.gdata.data.extensions.GivenName;
@@ -204,6 +205,24 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         assertEquals("Name", abe.getCompanyName());
         assertEquals("Dept", abe.getJobDept());
         assertEquals("Where", abe.getLocation());
+    }
 
+    public void testExtractEmails() {
+        ContactEntry ce = new ContactEntry();
+        Email email1 = new Email();
+        email1.setAddress("kovalchuk@thrashers.com");
+        email1.setPrimary(true);
+
+        Email email2 = new Email();
+        email2.setAddress("ilya.k@gmail.com");
+        email2.setPrimary(false);
+
+        ce.addEmailAddress(email1);
+        ce.addEmailAddress(email2);
+
+        PhonebookEntry phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        AddressBookEntry abe = phoneBookEntry.getAddressBookEntry();
+        assertEquals("kovalchuk@thrashers.com", abe.getEmailAddress());
+        assertEquals("ilya.k@gmail.com", abe.getAlternateEmailAddress());
     }
 }
