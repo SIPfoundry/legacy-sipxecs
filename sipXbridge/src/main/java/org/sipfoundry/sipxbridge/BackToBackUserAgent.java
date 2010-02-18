@@ -2198,12 +2198,29 @@ public class BackToBackUserAgent implements Comparable {
 
         DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
         Dialog peer = dialogContext.getPeerDialog();
-      
+        
         if (!SipUtilities.isRequestNotForwarded(st.getRequest())
                 && dialogContext.isForwardByeToPeer() && peer != null
                 && peer.getState() != DialogState.TERMINATED && peer.getState() != null) {
             if (peer.getState() == DialogState.EARLY) {
-                Gateway.getTimer().schedule(new DelayedByeSender(peer, st), 8 * 1000);
+                DialogContext peerDialogContext = DialogContext.get(peer);
+                if (peerDialogContext.getDialogCreatingTransaction() != null &&
+                		peerDialogContext.getDialogCreatingTransaction() instanceof ClientTransaction ) {
+                	 ClientTransaction ctx = (ClientTransaction) peerDialogContext.getDialogCreatingTransaction();
+                	 Request cancelRequest = ctx.createCancel();
+                	 SipUtilities.addWanAllowHeaders(cancelRequest);
+                	 SipProvider peerProvider = peerDialogContext.getSipProvider();
+                	 ClientTransaction cancelCtx = peerProvider.getNewClientTransaction(cancelRequest);
+                	 TransactionContext transactionContext = new TransactionContext(cancelCtx,Operation.CANCEL_INVITE);
+                	 cancelCtx.sendRequest();
+                }
+                Gateway.getTimer().schedule(new DelayedByeSender(peer, st), 1000);
+                Response response = SipUtilities.createResponse(st, Response.OK);
+                try {
+					st.sendResponse(response);
+				} catch (InvalidArgumentException e) {
+					throw new SipXbridgeException("Unexpected exception",e);
+				}
             } else {
                 if (requestEvent.getServerTransaction() != null) {
                     TransactionContext.attach(requestEvent.getServerTransaction(),

@@ -1081,7 +1081,7 @@ class DialogContext {
             	bye.setHeader(proxyAuthorizationHeader);
             }
             ViaHeader via  = ((ViaHeader) bye.getHeader(ViaHeader.NAME));
-            if ( !forward ) via.setParameter("noforward", "true");
+            if ( !forward ) via.setParameter("sipxecs-noforward", "true");
 
             ClientTransaction clientTransaction = getSipProvider().getNewClientTransaction(bye);       
 

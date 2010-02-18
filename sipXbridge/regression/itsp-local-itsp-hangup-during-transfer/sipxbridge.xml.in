@@ -2,14 +2,14 @@
 <sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
 
   <bridge-configuration>
-    <global-address>192.168.5.75</global-address>
-    <external-address>192.168.5.75</external-address>
+    <global-address>tester-config.tester-ip-address</global-address>
+    <external-address>tester-config.tester-ip-address</external-address>
     <external-port>5080</external-port>
-    <local-address>192.168.5.75</local-address>
+    <local-address>tester-config.tester-ip-address</local-address>
     <local-port>5090</local-port>
-    <sipx-proxy-domain>192.168.5.75</sipx-proxy-domain>
+    <sipx-proxy-domain>tester-config.tester-ip-address</sipx-proxy-domain>
     <sipx-proxy-port>5055</sipx-proxy-port>
-    <sipx-supervisor-host>192.168.5.75</sipx-supervisor-host>
+    <sipx-supervisor-host>tester-config.tester-ip-address</sipx-supervisor-host>
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
     <media-keepalive-seconds>1</media-keepalive-seconds>
@@ -21,14 +21,13 @@
     <music-on-hold-supported-codecs>PCMU,PCMA</music-on-hold-supported-codecs>
     <route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
     <log-level>DEBUG</log-level>
-    <log-directory>/usr/local/sipx/var/log/sipxpbx/</log-directory>
+    <log-directory>sipx.logdir</log-directory>
     <location-id>1</location-id>
-    <secure-xml-rpc>false</secure-xml-rpc>
   </bridge-configuration>
 
   <itsp-account>
     <itsp-proxy-domain>ot.bandwidth.com</itsp-proxy-domain>
-    <itsp-proxy-address>192.168.5.75</itsp-proxy-address>
+    <itsp-proxy-address>tester-config.tester-ip-address</itsp-proxy-address>
     <itsp-proxy-listening-port>5056</itsp-proxy-listening-port>
     <register-on-initialization>false</register-on-initialization>
     <use-global-addressing>true</use-global-addressing>

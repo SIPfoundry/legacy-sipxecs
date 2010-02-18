@@ -1927,7 +1927,7 @@ class SipUtilities {
         while (headerIterator.hasNext()) {
             ViaHeader via = (ViaHeader) headerIterator.next();
             String noforwardStr = via
-                    .getParameter("noforward");
+                    .getParameter("sipxecs-noforward");
             if (noforwardStr != null
                     && noforwardStr.equals("true")) {
                 noforward = true;
