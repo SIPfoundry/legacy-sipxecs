@@ -19,6 +19,7 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.request.IUploadFile;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
@@ -73,19 +74,29 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
     public void importGmailAddressBook() {
         String gmailAddress = getGmailAddress();
         if (isBlank(gmailAddress)) {
+            getValidator().record(new ValidatorException(getMessages().getMessage("msg.emptyGmailAccount")));
             return;
         }
         String gmailPassword = getGmailPassword();
         if (isBlank(gmailPassword)) {
+            getValidator().record(new ValidatorException(getMessages().getMessage("msg.emptyGmailPassword")));
             return;
         }
         getPhonebookManager().addEntriesFromGmailAccount(getPhonebookId(), gmailAddress, gmailPassword);
+        recordSuccessImport();
     }
 
     public void importFromFile() {
         if (getUploadFile() != null) {
             getPhonebookManager().addEntriesFromFile(getPhonebookId(), getUploadFile().getStream());
+            recordSuccessImport();
+        } else {
+            getValidator().record(new ValidatorException(getMessages().getMessage("msg.emptyImportFile")));
         }
+    }
+
+    private void recordSuccessImport() {
+        TapestryUtils.recordSuccess(this, getMessages().getMessage("msg.importSucces"));
     }
 
     public void savePhonebook() {

@@ -63,8 +63,20 @@ public class EditPhonebookTestUi extends WebTestCase {
         assertElementPresent("gmailAddress");
         assertElementPresent("gmailPassword");
         setTextField("item:name", "test-phonebook");
+        setTextField("gmailAddress", "");
+        setTextField("gmailPassword", "");
+        clickButton("importGmailButton");
+        SiteTestHelper.assertUserError(tester);
         setTextField("gmailAddress", "test");
-        clickButton("form:apply");
+        clickButton("importGmailButton");
+        SiteTestHelper.assertUserError(tester);
+    }
+
+    public void testImportFromFile() {
+        tester.setTextField("item:name", "test-phonebook");
+        tester.clickButton("form:apply");
+        assertElementPresent("phonebookFile");
+        clickButton("importFileButton");
         SiteTestHelper.assertUserError(tester);
     }
 }
