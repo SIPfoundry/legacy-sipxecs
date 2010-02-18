@@ -68,19 +68,16 @@ public class BridgeTest extends BeanWithSettingsTestCase {
         assertEquals(null, bridge.getHost());
         assertEquals(15060, bridge.getFreeswitchService().getFreeswitchSipPort());
         assertEquals(null, bridge.getDescription());
-        assertEquals(false, bridge.isEnabled());
         assertEquals(null, bridge.getName());
         assertEquals("http://null:8080/RPC2", bridge.getServiceUri());
 
         // Test setting explicit values
         location.setFqdn("bridge");
         location.setName("Example Bridge");
-        bridge.setEnabled(true);
         bridge.setAudioDirectory("/tmp") ;
 
         assertEquals("bridge", bridge.getHost());
         assertEquals("Example Bridge", bridge.getDescription());
-        assertEquals(true, bridge.isEnabled());
         assertEquals("/tmp", bridge.getAudioDirectory());
     }
 }

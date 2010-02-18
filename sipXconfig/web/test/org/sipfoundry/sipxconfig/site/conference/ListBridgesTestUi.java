@@ -49,7 +49,7 @@ public class ListBridgesTestUi extends WebTestCase {
 
         Table expected = new Table();
         Row expectedRow =
-            new Row(new Object[]{ "unchecked", TestPage.TEST_LOCATION_FQDN, "Disabled", TestPage.TEST_LOCATION_NAME, "0 ( )" });
+            new Row(new Object[]{ "unchecked", TestPage.TEST_LOCATION_FQDN, TestPage.TEST_LOCATION_NAME, "0 ( )" });
         expected.appendRow(expectedRow);
         assertTableRowsEqual("bridge:list", 1, expected);
 

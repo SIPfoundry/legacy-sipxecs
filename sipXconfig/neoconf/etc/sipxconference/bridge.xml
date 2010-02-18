@@ -50,11 +50,11 @@
     <file variable="yes" />
   </type>
   <group name="fs-conf-bridge">
-    <setting name="log-level" advanced="yes" hidden="yes">
+    <setting name="log-level" hidden="yes">
       <type refid="loglevel" />
       <value>DEBUG</value>
     </setting>
-    <setting name="sip-log-level" advanced="yes" hidden="yes">
+    <setting name="sip-log-level" hidden="yes">
       <type>
         <boolean>
           <true>
@@ -77,60 +77,60 @@
       <value />
     </setting>
     <group name="dtmf-commands">
-      <setting name="mute" advanced="yes">
+      <setting name="mute">
         <type refid="feature-code" />
         <value>0</value>
       </setting>
-      <setting name="deaf-mute" advanced="yes">
+      <setting name="deaf-mute">
         <type refid="feature-code" />
         <value>*</value>
       </setting>
       <group name="energy">
-        <setting name="up" advanced="yes">
+        <setting name="up">
           <type refid="feature-code" />
           <value>9</value>
         </setting>
-        <setting name="reset" advanced="yes">
+        <setting name="reset">
           <type refid="feature-code" />
           <value>#</value>
         </setting>
-        <setting name="down" advanced="yes">
+        <setting name="down">
           <type refid="feature-code" />
           <value>7</value>
         </setting>
       </group>
-      <group name="volume-listen">
-        <setting name="up" advanced="yes">
+      <group name="audio-volume">
+        <setting name="up">
           <type refid="feature-code" />
           <value>6</value>
         </setting>
-        <setting name="reset" advanced="yes">
+        <setting name="reset">
           <type refid="feature-code" />
           <value>5</value>
         </setting>
-        <setting name="down" advanced="yes">
+        <setting name="down">
           <type refid="feature-code" />
           <value>4</value>
         </setting>
-      </group>
-      <group name="volume-talk">
-        <setting name="up" advanced="yes">
+        <setting name="mic-up">
           <type refid="feature-code" />
           <value>3</value>
         </setting>
-        <setting name="reset" advanced="yes">
+        <setting name="mic-reset">
           <type refid="feature-code" />
           <value>2</value>
         </setting>
-        <setting name="down" advanced="yes">
+        <setting name="mic-down">
           <type refid="feature-code" />
           <value>1</value>
         </setting>
       </group>
-      <setting name="hungup" advanced="yes">
-        <type refid="feature-code" />
-        <value>8</value>
-      </setting>
+      <group name="hung-up">
+        <setting name="hungup">
+          <type refid="feature-code" />
+          <value>8</value>
+        </setting>
+      </group>
     </group>
   </group>
 </model>

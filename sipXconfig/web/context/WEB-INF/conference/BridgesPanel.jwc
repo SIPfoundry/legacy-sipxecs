@@ -17,7 +17,7 @@
 
   <!-- C O M P O N E N T S -->
   <component id="tableView" type="common/Table">
-    <binding name="columns" value="literal:* name,enabled,description,activeConferences"/>
+    <binding name="columns" value="literal:* name,description,activeConferences"/>
     <binding name="source" value="bridges"/>
     <binding name="row" value="currentRow"/>
     <binding name="selections" value="selections"/>

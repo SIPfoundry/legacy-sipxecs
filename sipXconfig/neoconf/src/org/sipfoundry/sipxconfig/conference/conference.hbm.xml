@@ -9,8 +9,6 @@
         <param name="sequence">meetme_seq</param>
       </generator>
     </id>
-    <property name="enabled" />
-
     <many-to-one name="service" class="org.sipfoundry.sipxconfig.service.LocationSpecificService"
                  column="location_specific_service_id" />
 

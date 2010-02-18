@@ -341,6 +341,7 @@
     <antcall target="migrate-pregroup-alarm-contacts" />
     <antcall target="tls_peer" />
     <antcall target="internal_user" />
+    <antcall target="remove-enable-meetme-conference" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1056,6 +1057,10 @@
   <target name="internal_user" unless="internal_user">
     <db-patch patch="internal_user"/>
   </target>
+  <target name="remove-enable-meetme-conference" unless="remove-enable-meetme-conference">
+    <db-patch patch="remove-enable-meetme-conference"/>
+  </target>
+
 
   <!--
     - SUPPORT UTILITIES

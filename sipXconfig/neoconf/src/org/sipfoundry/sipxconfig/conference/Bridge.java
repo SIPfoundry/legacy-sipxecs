@@ -34,15 +34,14 @@ public class Bridge extends BeanWithSettings {
     public static final String CALL_CONTROL_ENERGY_UP = "fs-conf-bridge/dtmf-commands/energy/up";
     public static final String CALL_CONTROL_ENERGY_RESET = "fs-conf-bridge/dtmf-commands/energy/reset";
     public static final String CALL_CONTROL_ENERGY_DOWN = "fs-conf-bridge/dtmf-commands/energy/down";
-    public static final String CALL_CONTROL_VOLUME_UP = "fs-conf-bridge/dtmf-commands/volume-listen/up";
-    public static final String CALL_CONTROL_VOLUME_RESET = "fs-conf-bridge/dtmf-commands/volume-listen/reset";
-    public static final String CALL_CONTROL_VOLUME_DOWN = "fs-conf-bridge/dtmf-commands/volume-listen/down";
-    public static final String CALL_CONTROL_TALK_UP = "fs-conf-bridge/dtmf-commands/volume-talk/up";
-    public static final String CALL_CONTROL_TALK_RESET = "fs-conf-bridge/dtmf-commands/volume-talk/reset";
-    public static final String CALL_CONTROL_TALK_DOWN = "fs-conf-bridge/dtmf-commands/volume-talk/down";
-    public static final String CALL_CONTROL_HANGUP = "fs-conf-bridge/dtmf-commands/hungup";
+    public static final String CALL_CONTROL_VOLUME_UP = "fs-conf-bridge/dtmf-commands/audio-volume/up";
+    public static final String CALL_CONTROL_VOLUME_RESET = "fs-conf-bridge/dtmf-commands/audio-volume/reset";
+    public static final String CALL_CONTROL_VOLUME_DOWN = "fs-conf-bridge/dtmf-commands/audio-volume/down";
+    public static final String CALL_CONTROL_TALK_UP = "fs-conf-bridge/dtmf-commands/audio-volume/mic-up";
+    public static final String CALL_CONTROL_TALK_RESET = "fs-conf-bridge/dtmf-commands/audio-volume/mic-reset";
+    public static final String CALL_CONTROL_TALK_DOWN = "fs-conf-bridge/dtmf-commands/audio-volume/mic-down";
+    public static final String CALL_CONTROL_HANGUP = "fs-conf-bridge/dtmf-commands/hung-up/hungup";
 
-    private boolean m_enabled;
 
     private Set<Conference> m_conferences = new LinkedHashSet<Conference>();
 
@@ -84,14 +83,6 @@ public class Bridge extends BeanWithSettings {
     // trivial get/set
     public String getDescription() {
         return getLocation().getName();
-    }
-
-    public boolean isEnabled() {
-        return m_enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        m_enabled = enabled;
     }
 
     public String getName() {

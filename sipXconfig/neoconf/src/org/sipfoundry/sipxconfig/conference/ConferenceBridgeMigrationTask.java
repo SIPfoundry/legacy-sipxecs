@@ -37,7 +37,6 @@ public class ConferenceBridgeMigrationTask extends InitTaskListener {
 
             if (freeswitchService != null) {
                 Bridge newBridge = m_conferenceBridgeContext.newBridge();
-                newBridge.setEnabled(true);
                 newBridge.setService(freeswitchService);
                 m_conferenceBridgeContext.store(newBridge);
             }

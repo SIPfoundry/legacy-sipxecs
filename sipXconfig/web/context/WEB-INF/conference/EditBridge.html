@@ -17,40 +17,32 @@
   </div>
 
     <div jwcid="configTab@Block">
-			<ul class="component-links">
-				<li jwcid="@common/ToggleLink"
-					toggle="ognl:components['settingsFieldset'].showAdvanced" />
-			</ul>
-			<table>
-				<tbody>
-					<tr>
-						<td><label><span key="label.host">Server name</span></label></td>
-						<td><b><span jwcid="@Insert" value="ognl:bridge.name">mydomain.com</span></b></td>
-					</tr>
-					<tr>
-						<td><label><span key="label.ip">IP address</span></label></td>
-						<td><b><span jwcid="@Insert"
-							value="ognl:bridge.service.location.address">10.1.2.3</span></b></td>
-					</tr>
-					<tr>
-						<td><label><span key="label.description">Server
-						description</span></label></td>
-						<td><b><span jwcid="@Insert" value="ognl:bridge.description">Server</span></b></td>
-					</tr>
-					<tr jwcid="@common/FieldPanel" for="bridge:enabled"
-						field="component:enabled" label="message:enabled">
-						<input jwcid="enabled@Checkbox" type="checkbox" id="bridge:enabled"
-							value="ognl:bridge.enabled" />
-					</tr>
-				</tbody>
-			</table>
-			<fieldset jwcid="settingsFieldset@setting/SettingsFieldset"
-				settings="ognl:bridge.settings" renderGroupTitle="false"
-				showAdvancedToggle="false" />
+      <table>
+        <tbody>
+          <tr>
+            <td><label><span key="label.host">Server name</span></label></td>
+            <td><b><span jwcid="@Insert" value="ognl:bridge.name">mydomain.com</span></b></td>
+          </tr>
+          <tr>
+            <td><label><span key="label.ip">IP address</span></label></td>
+            <td>
+              <b><span jwcid="@Insert" value="ognl:bridge.service.location.address">10.1.2.3</span></b></td>
+          </tr>
+          <tr>
+            <td>
+              <label><span key="label.description">Server description</span></label>
+            </td>
+            <td>
+              <b><span jwcid="@Insert" value="ognl:bridge.description">Server</span></b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <fieldset jwcid="settingsFieldset@setting/SettingsFieldset" settings="ognl:bridge.settings" />
 
-            <div jwcid="formActionsBlock@Block">
-                <span jwcid="formActions@common/FormActions" listener="listener:apply" callback="ognl:callback" />
-            </div>
+      <div jwcid="formActionsBlock@Block">
+        <span jwcid="formActions@common/FormActions" listener="listener:apply" callback="ognl:callback" />
+      </div>
     </div>
 
   <div jwcid="conferencesTab@Block">

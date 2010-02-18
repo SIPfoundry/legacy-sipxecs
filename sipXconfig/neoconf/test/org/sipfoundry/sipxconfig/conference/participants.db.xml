@@ -11,8 +11,8 @@
   <location_specific_service location_specific_service_id="2" location_id="1001"
     sipx_service_id="15" enable_on_next_upgrade="true" />
 
-  <meetme_bridge meetme_bridge_id="2005" enabled="1" location_specific_service_id="1" />
-  <meetme_bridge meetme_bridge_id="2006" enabled="0" location_specific_service_id="2" />
+  <meetme_bridge meetme_bridge_id="2005" location_specific_service_id="1" />
+  <meetme_bridge meetme_bridge_id="2006" location_specific_service_id="2" />
 
   <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3001" name="conf_name_3001"
     description="conf_desc_3001" extension="1699" owner_id="1002" enabled="0" />

@@ -3,6 +3,6 @@
 
 <dataset>
   <location_specific_service location_specific_service_id="1" location_id="101" sipx_service_id="15" enable_on_next_upgrade="false"/>
-  <meetme_bridge meetme_bridge_id="1" location_specific_service_id="1" enabled="true"/>
+  <meetme_bridge meetme_bridge_id="1" location_specific_service_id="1"/>
   <meetme_conference meetme_conference_id="1" name="conf1" extension="7777" meetme_bridge_id="1" enabled="true"/>
 </dataset>
