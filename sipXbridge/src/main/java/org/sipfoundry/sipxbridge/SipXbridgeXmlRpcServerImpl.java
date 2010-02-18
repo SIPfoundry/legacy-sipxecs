@@ -158,10 +158,11 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 	public Map<String, String> getRegistrationStatus() throws ServletException {
 	    HashMap<String, String> retval = new HashMap<String, String>();
 		try {
+			int counter = 1;
 			for (ItspAccountInfo itspAccount : Gateway.getAccountManager()
 					.getItspAccounts()) {
 				if (itspAccount.isRegisterOnInitialization()) {
-				    retval.put(itspAccount.getRegistrationRecord().getRegisteredAddress(),
+				    retval.put(itspAccount.getRegistrationRecord().getRegisteredAddress() + " [" + itspAccount.getUserName()  + "]" ,
 				            itspAccount.getRegistrationRecord().getRegistrationStatus());
 				}
 			}
