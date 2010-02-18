@@ -183,6 +183,7 @@ public class SipServerTransaction extends SipTransaction implements
 		SipTester.getPrintWriter().println(
 				"<transaction-id>" + this.getTransactionId()
 						+ "</transaction-id>");
+		SipTester.getPrintWriter().println("<frame>" + this.getSipRequest().getFrameId() + "</frame>");
 
 		SipTester.getPrintWriter().println("<sip-request><![CDATA[");
 		SipTester.getPrintWriter().print(this.sipRequest.getSipRequest());
@@ -249,7 +250,8 @@ public class SipServerTransaction extends SipTransaction implements
 						isReliableResponse = true;
 					}
 				}
-
+				nextResponse.firePermits();
+				
 				if (!isReliableResponse
 						|| newResponse.getStatusCode() / 100 >= 2) {
 					String dialogId = this.getDialogId();
@@ -265,7 +267,7 @@ public class SipServerTransaction extends SipTransaction implements
 						sipDialog.setResponseToSend(newResponse);
 					}
 					responseToSendFrameId = nextResponse.getFrameId();
-					serverTransaction.sendResponse(newResponse);
+				    serverTransaction.sendResponse(newResponse);
 				} else {
 					if (serverTransaction.getDialog() != null) {
 						serverTransaction.getDialog()
@@ -330,6 +332,19 @@ public class SipServerTransaction extends SipTransaction implements
 	public void setMatchingServerTransactions(
 			Collection<SipServerTransaction> matchingServerTransactions) {
 		this.matchingServerTransactions = matchingServerTransactions;
+	}
+	
+	/**
+     * Is this transaction of interest to the emulator?
+     */
+    public boolean isOfInterest() {
+		HostPort sourceHostPort = this.getSipRequest().getSourceHostPort();
+		HostPort targetHostPort = this.getSipRequest().getTargetHostPort();
+		return ! sourceHostPort.equals(targetHostPort) &&
+		  SipTester.isHostPortOfInterest(sourceHostPort) &&
+		  SipTester.isHostPortOfInterest(targetHostPort) &&  
+		  SipTester.isHostPortEmulated(targetHostPort) ;
+		
 	}
 
 }

@@ -20,6 +20,8 @@ public class SipResponse extends SipMessage {
      private static Logger logger = Logger.getLogger(SipResponse.class);
      int permits = 0;
      
+     private HashSet<SipResponse> activateOnSendResponse = new HashSet<SipResponse>();
+     
      public void waitForPrecondition() {
          try {
              logger.debug("Frame = " + this.getFrameId() + " line = " + 
@@ -74,9 +76,26 @@ public class SipResponse extends SipMessage {
     }
 
     public void triggerPreCondition() {
-        logger.debug("triggerPerCondition: Frame = " + this.getFrameId() + " npermits  " + this.preconditionSem.availablePermits());
+        logger.debug("triggerPerCondition: Frame = " + this.getFrameId() + " npermits  " + 
+        		this.preconditionSem.availablePermits());
         this.preconditionSem.release();
     }
+
+
+	public void addPostCondition(SipResponse response) {
+		logger.debug("frame " + this.getFrameId () + " addPostCondition " + response.getFrameId());
+		response.addPermit();
+		this.activateOnSendResponse.add(response);
+	}
+
+
+	public void firePermits() {
+		for (SipResponse response : this.activateOnSendResponse ) {
+			response.triggerPreCondition();
+		}	
+	}
+
+
     
    
 

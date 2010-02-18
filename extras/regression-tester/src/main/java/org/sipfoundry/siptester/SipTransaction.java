@@ -30,4 +30,5 @@ public abstract class SipTransaction {
         return ((SIPRequest)sipRequest.getSipRequest()).getTransactionId();
     }
     
+    
 }

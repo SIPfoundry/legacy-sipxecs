@@ -28,6 +28,13 @@ public class TraceConfig {
        }
        return false;
     }
+
+	public boolean isEndpointEmulated(HostPort targetHostPort) {
+		  for (TraceEndpoint traceEndpoint : this.emulatedEndpoints) {
+	           if ( traceEndpoint.getTraceIpAddresses().contains(targetHostPort)) return true;
+	       }
+	       return false;
+	}
     
    
 

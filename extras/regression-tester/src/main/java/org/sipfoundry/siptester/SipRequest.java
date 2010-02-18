@@ -63,6 +63,17 @@ public class SipRequest extends SipMessage {
         return this.hostPort;
     }
 
+
+
+
+	public HostPort getSourceHostPort() {
+		String host = this.getSipRequest().getTopmostViaHeader().getHost();
+		int port = this.getSipRequest().getTopmostViaHeader().getPort();
+		if (port == -1 ) port = 5060;
+	
+		return new HostPort(host,port);
+	}
+
   
 
 }
