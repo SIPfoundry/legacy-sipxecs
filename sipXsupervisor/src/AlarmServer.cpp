@@ -28,7 +28,6 @@
 #include "EmailNotifier.h"
 #include "SmsNotifier.h"
 #include "LogNotifier.h"
-#include "TrapNotifier.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -127,7 +126,7 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
    bool actEmail = true;
    bool actSms = true;
    bool actLog = true;
-   bool actTrap = true;
+   bool actTrap = false;
    int  filtMax = INT_MAX;
    int  filtMin = 0;
    if (element && data)
@@ -180,9 +179,9 @@ bool cAlarmServer::loadAlarmData(TiXmlElement* element, cAlarmData* data)
             // All regular/SMS notifications for this alarm type must be disabled.
             actEmail = false;
             actSms = false;
-            actTrap = false;
          }
       }
+      actTrap  = getBoolAttribute(codeElement, "trap");
       codeElement = element->FirstChildElement("filter");
       filtMax  = getIntAttribute(codeElement, "max_reports", INT_MAX);
       filtMin  = getIntAttribute(codeElement, "min_threshold");
@@ -282,13 +281,14 @@ bool cAlarmServer::loadAlarmStringsFile(const UtlString& stringsFile)
          {
             mpNotifiers[cAlarmData::eActionSms]->initStrings(element);
          }
-         /* Not implemented as Strings are not needed for TrapNotifier.
-         element = alarmActionsElement->FirstChildElement("trap");
-         if (mpNotifiers[cAlarmData::eActionTrap])
-         {
-            mpNotifiers[cAlarmData::eActionTrap]->initStrings(element);
-         }
-         */
+
+         /* not implemented yet
+          element = alarmActionsElement->FirstChildElement("trap");
+          if (mpNotifiers[cAlarmData::eActionTrap])
+          {
+          mpNotifiers[cAlarmData::eActionTrap]->initStrings(element);
+          }
+          */
       }
    }
    else
@@ -476,7 +476,7 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
          }
       }
 
-      // Alarm SNMPv2 trap notifications
+      /* not implemented yet
       element = alarmActionsElement->FirstChildElement("trap");
       if (getBoolAttribute(element, "enabled"))
       {
@@ -488,22 +488,11 @@ bool cAlarmServer::loadAlarmConfig(const UtlString& alarmFile, const UtlString& 
          mpNotifiers[cAlarmData::eActionTrap] = pTrapNotifier;
          if (pTrapNotifier)
          {
-            TiXmlElement* groupElement = groupServerHandle.FirstChildElement("definitions").Element();
-            pTrapNotifier->init(element, groupElement);
+            pTrapNotifier->init(element, NULL);
             gbActions[cAlarmData::eActionTrap] = true;
          }
       }
-      else
-      {
-         // The trap notification of alarms is disabled.
-         // So, delete the notifier
-         if (mpNotifiers[cAlarmData::eActionTrap])
-         {
-            delete mpNotifiers[cAlarmData::eActionTrap];
-            mpNotifiers[cAlarmData::eActionTrap] = 0;
-         }
-         gbActions[cAlarmData::eActionTrap] = false;
-      }
+      */
    }
    return true;
 }

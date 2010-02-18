@@ -83,7 +83,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxsupervisor-process.xml
 
 %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/alarms/sipXalarms-config.xml
-%attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.mib
 %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/alarm-strings.xml
 %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml
 
