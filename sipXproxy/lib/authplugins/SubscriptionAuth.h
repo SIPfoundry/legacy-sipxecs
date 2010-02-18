@@ -23,8 +23,8 @@ class SipRouter;
 extern "C" AuthPlugin* getAuthPlugin(const UtlString& name);
 
 /// Plug-in responsible for forcing the authentication of SUBSCRIBE requests
-/// for dialog event packages that require authentication based on the 
-/// value of the PACKAGES_REQUIRING_AUTHENTICATION configuration key 
+/// for event packages that require authentication, which are listed
+/// in the PACKAGES_REQUIRING_AUTHENTICATION configuration value
 /// found in the sipXproxy-config configuration file.  The creation of 
 /// this plug-in was prompted by XECS-1606.
 /// 
