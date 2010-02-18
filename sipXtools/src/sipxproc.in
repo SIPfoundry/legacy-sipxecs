@@ -57,6 +57,7 @@ def usage_exit(error_code=1)
   -u|--setConfigVersion Set the configuration version of the specified service
   -v|--serviceVersion The service version value to update
   -f|--file           Get the named file
+  -d|--delete         Delete the named file
   -t|--runConfigtest          Run the configtest for the specified service
   --getConfigtestMessages     Return messages from the configtest for the specified service
   -S|--snapshot         Execute snapshot on a local/remote system. Snapshot arguments may
@@ -87,6 +88,7 @@ if __FILE__ == $0
       ['--setConfigVersion','-u', GetoptLong::REQUIRED_ARGUMENT],
       ['--serviceVersion','-v',       GetoptLong::REQUIRED_ARGUMENT],
       ['--file','-f',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--delete','-d',          GetoptLong::REQUIRED_ARGUMENT],
       ['--runConfigtest','-t',        GetoptLong::REQUIRED_ARGUMENT],
       ['--getConfigtestMessages',     GetoptLong::REQUIRED_ARGUMENT],
       ['--host','-n',          GetoptLong::REQUIRED_ARGUMENT],
@@ -135,6 +137,10 @@ begin
             # One string arguments must be specified.
             serviceversion = arg
          when '--file'
+            # One string arguments must be specified.
+            action = name.gsub(/--/, '')
+            filepath = arg
+         when '--delete'
             # One string arguments must be specified.
             action = name.gsub(/--/, '')
             filepath = arg
@@ -245,6 +251,27 @@ when 'file'
   client.read_timeout = 60
 
   request  = Net::HTTP::Get.new(filepath)
+  response = client.request(request)
+
+  puts response.body
+
+  if response.code != '200'
+    exitStatus = -1
+  end
+
+when 'delete'
+  client = Net::HTTP.new(server_host, port)
+
+  # SSL certificate information
+  client.use_ssl = true
+  client.verify_mode = OpenSSL::SSL::VERIFY_PEER
+  client.cert = OpenSSL::X509::Certificate.new(File.read('@SIPX_CONFDIR@/ssl/ssl.crt'))
+  client.key = OpenSSL::PKey::RSA.new(File.read('@SIPX_CONFDIR@/ssl/ssl.key'))
+  client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
+  client.open_timeout = 10
+  client.read_timeout = 60
+
+  request  = Net::HTTP::Delete.new(filepath)
   response = client.request(request)
 
   puts response.body

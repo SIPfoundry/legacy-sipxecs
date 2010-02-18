@@ -27,8 +27,6 @@
 #define HEADER_LINE_PART_DELIMITER ' '
 #define END_OF_LINE_DELIMITER "\r\n"
 
-#define PASSWORD_SECRET                 "xpressa"
-
 #define HTTP_DEFAULT_SOCKET_BUFFER_SIZE 10240
 
 #define HTTP_LONG_INT_CHARS 20
@@ -38,6 +36,7 @@
 
 // HTTP Methods
 #define HTTP_GET_METHOD "GET"
+#define HTTP_DELETE_METHOD "DELETE"
 #define HTTP_PUT_METHOD "PUT"
 #define HTTP_POST_METHOD "POST"
 

@@ -66,14 +66,13 @@ class HttpConnection;
  * - Constructs an HttpRequestContext object to provide all the information about the request.
  *
  * There are three ways to handle an HTTP request; the mapped path is used select the
- * processor for the request from among these method in this order (At present, this resolution
- * is applied only to GET and POST methods):
+ * processor for the request from among these method in this order:
  *
  * -# Create a static method whose signature matches HttpServer::RequestProcessor and
  *    register the method using addRequestProcessor.  This means of providing an HTTP
  *    service is relatively simple, but provides no context except the request itself.
  *    Using this method, you must specify the exacty path that this processor is
- *    is responsible for.
+ *    is responsible for.  This mechanism may only be used for GET and POST methods.
  *
  * -# Create a subclass of HttpService and register an object of that class using addHttpService.
  *    The registered object will be called using its version of HttpService::processRequest,
@@ -82,11 +81,8 @@ class HttpConnection;
  *    path (see addHttpService).
  *    This means of providing a service is best when you need additional contextual
  *    information in the service object or want to use additional path information.
+ *    This mechanism may be used for GET, PUT, DELETE, and POST methods.
  *
- * -# A simple built-in file access service can be enabled by calling allowFileAccess
- *    (this is disabled by default).  The built-in service does not do any authentication
- *    beyond the IP optional address validation step described above.
- *    USE OF THE THIS IS NOT RECOMMENDED.
  */
 class HttpServer : public OsTask
 {
@@ -152,7 +148,7 @@ public:
                              RequestProcessor* requestProcessor
                              );
 
-    /// Specify an HttpService to be called when the path exactly matches the fileUrl.
+    /// Specify an HttpService to be called when the path is a prefix match for the fileUrl.
     void addHttpService(const char* fileUrl, /**< path prefix this service is registered for
                                               * Must begin with '/'
                                               * Must not end with '/' unless it is exactly "/"
@@ -164,11 +160,6 @@ public:
      * exactly match the initial components of the HTTP Request URI.
      * So, registering "/one" matches "/one/two/three" but not "/" or "/two" or "/onetwo".
      */
-
-    /// Permit access to mapped file names.
-    void allowFileAccess(bool fileAccess ///< true => allow access, false => disallow access
-                         );
-    ///< THIS IS NOT SECURE AND IS NOT RECOMMENDED.
 
     /// Get current http server status
     OsStatus getStatus();
@@ -203,11 +194,6 @@ private:
                           UtlString& status
                           );
 
-    static void processFileRequest(const HttpRequestContext& requestContext,
-                                   const HttpMessage& request,
-                                   HttpMessage*& response
-                                   );
-
     // Error request processors
     static void processNotSupportedRequest(const HttpRequestContext& requestContext,
                                            const HttpMessage& request,
@@ -229,16 +215,6 @@ private:
                                const HttpMessage& request,
                                HttpMessage*& response
                                );
-
-    static void constructFileList(UtlString & indexText,
-                                  UtlString uri,
-                                  UtlString uriFilename
-                                  );
-
-    void processPutRequest(const HttpRequestContext& requestContext,
-                           const HttpMessage& request,
-                           HttpMessage*& response
-                           );
 
     void getFile(const char* fileName,
                  HttpBody*& body
@@ -267,7 +243,6 @@ private:
    UtlHashMap      mUriMaps;
    UtlHashMap      mRequestProcessorMethods;
    UtlHashMap      mHttpServices;
-   bool            mAllowMappedFiles;
    UtlHashBag      mValidIpAddrList;
    UtlBoolean      mbPersistentConnection;
    int             mHttpConnections;

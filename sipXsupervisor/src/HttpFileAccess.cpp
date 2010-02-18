@@ -13,6 +13,7 @@
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "os/OsSysLog.h"
+#include "os/OsFS.h"
 #include "utl/UtlDefs.h"
 #include "net/HttpMessage.h"
 #include "net/HttpRequestContext.h"
@@ -61,6 +62,122 @@ void HttpFileAccess::processRequest(const HttpRequestContext& requestContext,
             if (resource->isReadable())
             {
                sendFile(path, peerName, requestContext, request, response);
+            }
+            else
+            {
+               message.append("resource ");
+               resource->appendDescription(message);
+               message.append(" does not allow write access to '");
+               message.append(path);
+               message.append("'");
+               OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
+                             peerName.data(), message.data());
+
+               response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
+                                                    HTTP_FORBIDDEN_CODE,
+                                                    "Access denied by process definition");
+               response->setBody(new HttpBody(message.data(),message.length()));
+               response->setContentType(CONTENT_TYPE_TEXT_PLAIN);
+               response->setContentLength(message.length());
+            }
+         }
+         else
+         {
+            message.append("File resource '");
+            message.append(path);
+            message.append("' not known to sipXsupervisor.");
+            OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
+                          peerName.data(), message.data());
+
+            response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
+                                                 HTTP_FILE_NOT_FOUND_CODE,
+                                                 HTTP_FILE_NOT_FOUND_TEXT);
+            response->setBody(new HttpBody(message.data(),message.length()));
+            response->setContentType(CONTENT_TYPE_TEXT_PLAIN);
+            response->setContentLength(message.length());
+         }
+      }
+      else if (requestContext.methodIs(HTTP_DELETE_METHOD))
+      {
+         UtlString path;
+         requestContext.getMappedPath(path);
+
+         FileResource* resource = FileResourceManager::getInstance()->find(path);
+         if (resource)
+         {
+            if (resource->isWriteable())
+            {
+               OsPath filePath(path);
+               if (OsFileSystem::exists(filePath))
+               {
+                  if (OS_SUCCESS
+                      == OsFileSystem::remove(filePath, TRUE /* recursive */, TRUE /* force */))
+                  {
+                     message.append("File '");
+                     message.append(path);
+                     message.append("' deleted");
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "HttpFileAccess::processRequest from %s %s",
+                                   peerName.data(), message.data());
+                  
+                     response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION_1_1,
+                                                          HTTP_OK_CODE, "Deleted");
+                     response->setContentLength(0);
+
+                     // tell anyone who cares that this has changed
+                     resource->modified();
+                  }
+                  else
+                  {
+                     int       httpStatusCode;
+                     UtlString httpStatusText;
+
+                     switch (errno)
+                     {
+                     case EACCES:
+                        httpStatusCode = HTTP_FORBIDDEN_CODE;
+                        httpStatusText = "File Access Denied";
+                        break;
+
+                     default:
+                        httpStatusCode = HTTP_SERVER_ERROR_CODE;
+                        httpStatusText.append("Unknown error ");
+                        httpStatusText.appendNumber(errno);
+                        break;
+                     }
+
+                     message.append("File '");
+                     message.append(path);
+                     message.append("' errno ");
+                     message.appendNumber(errno);
+                     message.append(" ");
+
+                     char errnoMsg[1024];
+                     strerror_r(errno, errnoMsg, sizeof(errnoMsg));
+                     message.append(errnoMsg);
+
+                     OsSysLog::add(FAC_SUPERVISOR, PRI_ERR, "HttpFileAccess::processRequest from %s %s",
+                                   peerName.data(), message.data());
+
+                     response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION,
+                                                          httpStatusCode,
+                                                          httpStatusText);
+                     response->setBody(new HttpBody(message.data(),message.length()));
+                     response->setContentType(CONTENT_TYPE_TEXT_PLAIN);
+                     response->setContentLength(message.length());
+                  }                  
+               }
+               else
+               {
+                  message.append("File to be deleted '");
+                  message.append(path);
+                  message.append("' does not exist");
+                  OsSysLog::add(FAC_SUPERVISOR, PRI_INFO, "HttpFileAccess::processRequest from %s %s",
+                                peerName.data(), message.data());
+                  
+                  response->setResponseFirstHeaderLine(HTTP_PROTOCOL_VERSION_1_1,
+                                                       HTTP_OK_CODE, "File does not exist");
+                  response->setContentLength(0);
+               }
             }
             else
             {
