@@ -322,6 +322,7 @@ public class ExtMailStore {
                     try {
                         msg.setFlag(Flag.SEEN, true);
                         msg.setFlag(Flag.DELETED, false);
+                        LOG.debug("Msg " + msgId + " marked as saved for user " + conn.m_user.getUserName());
                     } catch (MessagingException e) {
                         LogError("MarkSaved", mbxId, e.getMessage());
                     }
@@ -341,6 +342,7 @@ public class ExtMailStore {
                     try {
                         msg.setFlag(Flag.SEEN, false);
                         msg.setFlag(Flag.DELETED, false);
+                        LOG.debug("Msg " + msgId + " marked as new for user " + conn.m_user.getUserName());
                     } catch (MessagingException e) {
                         LogError("MarkNew", mbxId, e.getMessage());
                     }
@@ -372,7 +374,8 @@ public class ExtMailStore {
                             amsg = (IMAPMessage) themsg;
                             conn.m_msgIdMap.put(amsg.getMessageNumber(), GetMsgId(amsg));
                         }
-
+                        LOG.debug("Msg " + msgId + " marked as deleted for user " + conn.m_user.getUserName());
+                        
                     } catch (MessagingException e) {
                         LogError("MarkDeleted", mbxId, e.getMessage());
                     }
@@ -762,6 +765,8 @@ public class ExtMailStore {
         ImapInfo imapInfo = user.getImapInfo();
         if(imapInfo == null || !imapInfo.isSynchronize())
             return;
+        
+        LOG.debug("Attempting to created IMAP connection for user " + user.getUserName());
                 
         class ConnectAction implements java.security.PrivilegedAction {
             public Object run() {
@@ -794,9 +799,10 @@ public class ExtMailStore {
                 } catch (AuthenticationFailedException e) {
                     SendUpdatePswdEmail(conn);
                 } catch (MessagingException e) {
-                    // e.printStackTrace();
+                    LOG.error("SipXivr::ConnectAction", e);
                     SendUpdatePswdEmail(conn); 
                 }
+                LOG.debug("created IMAP connection for mailbox " + user.getUserName());
                 return null;
             }
         }
@@ -894,6 +900,7 @@ public class ExtMailStore {
             } catch (MessagingException e) {
                 // nothing to do
             }
+            LOG.debug("Closed IMAP connection for user " + conn.m_user.getUserName());
         }
     }
     
