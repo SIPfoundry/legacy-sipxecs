@@ -104,11 +104,11 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
    if (user.index(URI_IN_PREFIX) == 0)
    {
       // This is a ~~in~ URI.
-      // Check for a '/' separator.
-      ssize_t s = user.last('/');
+      // Check for an '&' separator.
+      ssize_t s = user.last('&');
       if (s != UTL_NOT_FOUND)
       {
-         // This is a ~~in~[user]/[instrument] URI.
+         // This is a ~~in~[user]&[instrument] URI.
          const char* instrumentp = user.data() + s + 1;
          UtlString u;
          u.append(user,
@@ -290,14 +290,14 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
       mEventPublisher.publish(instrumentEntity, mEventType.data(), mEventType.data(),
                               1, &body, FALSE);
       
-      // Publish content for ~~in~[user]/[instrument]@[domain].
+      // Publish content for ~~in~[user]&[instrument]@[domain].
 
       UtlString userInstrumentEntity;
       userInstrumentEntity.append("sip:" URI_IN_PREFIX);
       UtlString user;
       aorUri.getUserId(user);
       userInstrumentEntity.append(user);
-      userInstrumentEntity.append("/");
+      userInstrumentEntity.append("&");
       userInstrumentEntity.append(instrument);
       userInstrumentEntity.append("@");
       userInstrumentEntity.append(*getDomainName());

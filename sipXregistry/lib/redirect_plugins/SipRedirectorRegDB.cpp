@@ -112,11 +112,11 @@ SipRedirectorRegDB::lookUp(
    if (user.index(URI_IN_PREFIX) == 0)
    {
       // This is a ~~in~ URI.
-      // Check for a '/' separator.
-      ssize_t s = user.last('/');
+      // Check for an '&' separator.
+      ssize_t s = user.last('&');
       if (s != UTL_NOT_FOUND)
       {
-         // This is a ~~in~[user]/[instrument] URI.
+         // This is a ~~in~[user]&[instrument] URI.
          const char* instrumentp = user.data() + s + 1;
          UtlString u;
          u.append(user,

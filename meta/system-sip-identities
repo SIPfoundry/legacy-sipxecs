@@ -53,8 +53,10 @@ The assigned facility codes are:
       the token "token".  For hard phones, "token" is usually the MAC
       address.  Note "token" is case-sensitive.  (Some registrations will
       not have instrument identification; they are not accessible via
-      this mechanism, as "token" must be non-empty.)
-   ~~in~[user name]/[token]
+      this mechanism, as "token" must be non-empty.)  "token" must conform
+      to the BNF "token" in RFC 3261, except that it may not contain "%",
+      in order to avoid escaping problems.
+   ~~in~[user name]&[token]
       The line appearance of [user name] on the instrument identified
       by "token".  Or really, the set of such appearances of [user name]
       on the instrument.  "user name" must not be an alias.
