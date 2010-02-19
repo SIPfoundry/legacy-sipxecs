@@ -35,12 +35,15 @@ class BranchTimePair : public UtlString
 {
 
 public:
-   BranchTimePair(const char* name, const unsigned long* time = NULL) :
+   BranchTimePair(const char* name, const unsigned long* time = NULL, const bool* paipresent = NULL) :
       UtlString(name)
    {
       if ( time ) {
          setValue(time);
       }      
+      if ( paipresent ) {
+         setPaiPresent(paipresent);
+      }
    }
 
    virtual
@@ -55,6 +58,7 @@ public:
 
       ((UtlString&) *this) = rhs.data();
       setValue(&rhs.timeInt);
+      setPaiPresent(&rhs.paibool);
 
       return *this;
 
@@ -62,9 +66,11 @@ public:
       //:Copy constructor
    BranchTimePair(const BranchTimePair& rBranchTimePair):
    UtlString(rBranchTimePair),
-   timeInt(0) 
+   timeInt(0),
+   paibool(false)
    {
       setValue(&rBranchTimePair.timeInt);
+      setPaiPresent(&rBranchTimePair.paibool);
    }
       //:Copy constructor
       
@@ -76,6 +82,15 @@ public:
    //   //! returns: the integer containing the value <br>
    //      //! Note: this should not be freed as it is part of this object
    //
+     
+   const bool* getPaiPresent()
+   {
+      return &paibool;
+   }
+   //: get paipresent bool
+   //   //! returns: the boolean containing the presence of a pai <br>
+   //      //! Note: this should not be freed as it is part of this object
+   //
    void setValue(const unsigned long* time)
    {
       if ( time ) 
@@ -84,10 +99,19 @@ public:
       }
    }
 
+   void setPaiPresent(const bool* paipresent)
+   {
+      if ( paipresent ) 
+      {
+         paibool = *paipresent;
+      }
+   }
+
 protected:
 
 private:
    unsigned long timeInt;
+   bool paibool;
    int count;
 
    BranchTimePair();
@@ -499,9 +523,25 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                   if ( branchId && branchId.data() ) {
                      mCallTransMutex.acquire();
                      unsigned long currentTime = OsDateTime::getSecsSinceEpoch();
-                     if (NULL == mCallTransMap.insertKeyAndValue(new UtlString(callId), new BranchTimePair(branchId.data(), &currentTime)) ) {
-                        mCallTransMutex.release();
-                        return(TRUE);
+                     if (NULL == mCallTransMap.insertKeyAndValue(new UtlString(callId), new BranchTimePair(branchId.data(), &currentTime, &paiPresent)) ) {
+                        // Unable to add callId to map so it must already be present.  Check if the paiPresent value is set to true or not.
+                        // If not set and we now have a PAI for this call, set it and generate another call request state event with this info. Otherwise
+                        // skip over.
+                        if ( paiPresent ) {
+                           callIdBranchIdTime = (BranchTimePair*) mCallTransMap.findValue(&callId);
+                           if ( callIdBranchIdTime && (*callIdBranchIdTime->getPaiPresent() == false) ) {
+                              // need to generate another call request event in order to state originator is internal.
+                              callIdBranchIdTime->setPaiPresent(&paiPresent);
+                           }
+                           else {
+                              mCallTransMutex.release();
+                              return(TRUE);
+                           }
+                        }
+                        else {
+                           mCallTransMutex.release();
+                           return(TRUE);
+                        }
                      }
                      mCallTransMutex.release();
                   }
