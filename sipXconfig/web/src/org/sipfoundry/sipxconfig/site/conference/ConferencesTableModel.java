@@ -17,10 +17,8 @@ import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.BridgeConferenceIdentity;
-import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.search.IdentityToBean;
-import org.sipfoundry.sipxconfig.search.SearchManager;
 
 public class ConferencesTableModel implements IBasicTableModel {
     private final ConferenceBridgeContext m_conferenceContext;
@@ -30,8 +28,6 @@ public class ConferencesTableModel implements IBasicTableModel {
     private final Bridge m_bridge;
 
     private String m_queryText;
-
-    private SearchManager m_searchManager;
 
     private BridgeConferenceIdentity m_identity;
 
@@ -66,14 +62,6 @@ public class ConferencesTableModel implements IBasicTableModel {
         m_queryText = text;
     }
 
-    public SearchManager getSearchManager() {
-        return m_searchManager;
-    }
-
-    public void setSearchManager(SearchManager manager) {
-        m_searchManager = manager;
-    }
-
     public void setIdentity(BridgeConferenceIdentity identity) {
         m_identity = identity;
     }
@@ -83,7 +71,7 @@ public class ConferencesTableModel implements IBasicTableModel {
             return m_conferenceContext.countFilterConferences(m_bridge.getId(), m_groupId);
         }
 
-        return m_searchManager.search(Conference.class, m_queryText, null).size();
+        return m_conferenceContext.searchConferences(m_queryText).size();
     }
 
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn, boolean orderAscending) {

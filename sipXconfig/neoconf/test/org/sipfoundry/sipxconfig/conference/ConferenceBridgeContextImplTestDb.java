@@ -88,19 +88,19 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/participants.db.xml");
 
         assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(4, db.getRowCount("meetme_conference"));
+        assertEquals(5, db.getRowCount("meetme_conference"));
 
         m_context.removeConferences(Collections.singleton(new Integer(3002)));
 
         assertEquals(2, db.getRowCount("meetme_bridge"));
-        assertEquals(3, db.getRowCount("meetme_conference"));
+        assertEquals(4, db.getRowCount("meetme_conference"));
     }
 
     public void testLoadBridge() throws Exception {
         TestHelper.insertFlat("conference/participants.db.xml");
         Bridge bridge = m_context.loadBridge(new Integer(2006));
 
-        assertEquals(2, bridge.getConferences().size());
+        assertEquals(3, bridge.getConferences().size());
     }
 
     public void testLoadConference() throws Exception {
@@ -115,7 +115,7 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         TestHelper.insertFlat("conference/participants.db.xml");
         List<Conference> conferences = m_context.getAllConferences();
 
-        assertEquals(4, conferences.size());
+        assertEquals(5, conferences.size());
         Set<String> names = new HashSet<String>();
         for (Conference conference : conferences) {
             names.add(conference.getName());
@@ -237,6 +237,10 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
                                                           // insensitive match
         assertEquals(3, getConferencesCount("MaX"));// owner first name - partial and c.i. match
         assertEquals(3, getConferencesCount("AfInO"));// owner last name - partial and c.i. match
+        assertEquals(3, getConferencesCount("Maxim Afinogenov"));// owner first+last name
+        assertEquals(3, getConferencesCount("AfInOgenov maxim"));// owner last+first name
+        assertEquals(1, getConferencesCount("Ilya"));
+        assertEquals(1, getConferencesCount("conference_no_owner"));
     }
 
     private int getConferencesCount(String searchTerm) {

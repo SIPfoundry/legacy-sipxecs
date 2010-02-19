@@ -43,7 +43,6 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.conference.FreeswitchApiConnectException;
 import org.sipfoundry.sipxconfig.conference.FreeswitchApiException;
-import org.sipfoundry.sipxconfig.search.SearchManager;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class ConferencesPanel extends TablePanel {
@@ -117,9 +116,6 @@ public abstract class ConferencesPanel extends TablePanel {
 
     public abstract boolean getSearchMode();
 
-    @InjectObject(value = "spring:searchManager")
-    public abstract SearchManager getSearchManager();
-
     @InjectObject(value = "spring:identity")
     public abstract BridgeConferenceIdentity getIdentity();
 
@@ -152,7 +148,6 @@ public abstract class ConferencesPanel extends TablePanel {
         conferenceTableModel.setGroupId(getSelectedGroupId());
         conferenceTableModel.setQueryText(getQueryText());
         conferenceTableModel.setSearchMode(getSearchMode());
-        conferenceTableModel.setSearchManager(getSearchManager());
         getIdentity().setBridge(getBridge());
         conferenceTableModel.setIdentity(getIdentity());
 

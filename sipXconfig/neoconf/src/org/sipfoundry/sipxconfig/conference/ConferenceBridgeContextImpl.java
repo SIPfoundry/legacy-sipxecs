@@ -240,12 +240,20 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public List<Conference> searchConferences(final String searchTerm) {
         String searchTermLike = (new StringBuilder()).append(PERCENT).append(searchTerm).append(PERCENT).toString();
-        List<Conference> conferences = getHibernateTemplate().findByNamedQueryAndNamedParam("searchConferences",
+        List<Conference> conferences = new ArrayList<Conference>();
+        List<Object[]> results = getHibernateTemplate().findByNamedQueryAndNamedParam("searchConferences",
                 new String[] {
-                    "name", "ext", "description", "ownerFName", "ownerLName", "ownerUName"
+                    "name", "ext", "description", "ownerName", "ownerUName"
                 }, new String[] {
-                    searchTermLike, searchTerm, searchTermLike, searchTermLike, searchTermLike, searchTerm
+                    searchTermLike, searchTerm, searchTermLike, searchTermLike, searchTerm
                 });
+        for (Object[] result : results) {
+            for (int i = 0; i < result.length; i++) {
+                if (result[i] instanceof Conference) {
+                    conferences.add((Conference) result[i]);
+                }
+            }
+        }
         return conferences;
     }
 

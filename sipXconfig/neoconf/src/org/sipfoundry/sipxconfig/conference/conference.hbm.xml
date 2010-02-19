@@ -63,7 +63,16 @@
   </query>
 
   <query name="searchConferences">
-    <![CDATA[from Conference conf where lower(conf.name) like lower(:name) or conf.extension = :ext or lower(conf.description) like lower(:description) or lower(conf.owner.firstName) like lower(:ownerFName) or lower(conf.owner.lastName) like lower(:ownerLName) or conf.owner.userName = :ownerUName]]>
+    <![CDATA[from Conference conf left join conf.owner owner
+    where lower(conf.name) like lower(:name)
+    or conf.extension = :ext
+    or lower(conf.description) like lower(:description)
+    or owner.userName = :ownerUName
+    or lower(owner.firstName) like lower(:ownerName)
+    or lower(owner.lastName) like lower(:ownerName)
+    or lower(owner.firstName||' '||owner.lastName) like lower(:ownerName)
+    or lower(owner.lastName||' '||owner.firstName) like lower(:ownerName)
+    ]]>
   </query>
 
 </hibernate-mapping>
