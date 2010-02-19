@@ -179,58 +179,64 @@ public class ExtMailStore {
             Collection<IMAPConnection> connections;
             IMAPConnection conn;
 
-            currUsers = null;
-            Date now = new Date();
-            m_LastCheckedTime = now.getTime();    
+            try {
             
-            while (running) {
-                try {
-                    validUsersXML = ValidUsersXML.update(LOG, true);
-                } catch (Exception e1) {
-                    System.exit(1); // If you can't trust validUsers, who can you trust?
-                }
-
-                users = ValidUsersXML.GetUsers();
-                if (!users.equals(currUsers)) {
-
-                    // check for deleted mailboxes
-                    connections = m_connectionMap.values();
-                    for (Iterator<IMAPConnection> it = connections.iterator(); it.hasNext();) {
-                        conn = it.next();
-
-                        User user = validUsersXML.getUser(conn.m_user.getUserName());
-                        boolean deleteit;
-                        if (user != null) {
-                            deleteit = !user.hasVoicemail();
-                        } else {
-                            deleteit = true;
-                        }
-
-                        if (deleteit) {
-                            CloseConnection(conn.m_user.getUserName(), false);
-                            it.remove();
-                        }
-                    }
-
-                    for (User u : users) {
-                        if (!m_connectionMap.containsKey(u.getUserName()) && u.hasVoicemail()) {
-                            OpenConnection(u);
-                        }
-                    }
-
-                    currUsers = users;
-                }
+                currUsers = null;
+                Date now = new Date();
+                m_LastCheckedTime = now.getTime();    
                 
-                UpdateConnections();                
-                
-                try {
-                    sleep(5000);
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    running = false;
+                while (running) {
+                    try {
+                        validUsersXML = ValidUsersXML.update(LOG, true);
+                    } catch (Exception e1) {
+                        LOG.error("SipXivr IMAP::run validusers", e1);
+                        System.exit(1); // If you can't trust validUsers, who can you trust?
+                    }
+    
+                    users = ValidUsersXML.GetUsers();
+                    if (!users.equals(currUsers)) {
+    
+                        // check for deleted mailboxes
+                        connections = m_connectionMap.values();
+                        for (Iterator<IMAPConnection> it = connections.iterator(); it.hasNext();) {
+                            conn = it.next();
+    
+                            User user = validUsersXML.getUser(conn.m_user.getUserName());
+                            boolean deleteit;
+                            if (user != null) {
+                                deleteit = !user.hasVoicemail();
+                            } else {
+                                deleteit = true;
+                            }
+    
+                            if (deleteit) {
+                                CloseConnection(conn.m_user.getUserName(), false);
+                                it.remove();
+                            }
+                        }
+    
+                        for (User u : users) {
+                            if (!m_connectionMap.containsKey(u.getUserName()) && u.hasVoicemail()) {
+                                OpenConnection(u);
+                            }
+                        }
+    
+                        currUsers = users;
+                    }
+                    
+                    UpdateConnections();                
+                    
+                    try {
+                        sleep(5000);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        running = false;
+                    }
                 }
-            }
-        }
+            } catch (Exception e) {
+                LOG.error("SipXivr IMAP::run", e);
+            }   
+        }    
     }
 
     public static void Initialize() {
@@ -868,8 +874,7 @@ public class ExtMailStore {
             CloseConnection(mbxid, true);
             
         } catch (GeneralSecurityException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("SipXivr::OpenConnection", e);
         }
     }
 
