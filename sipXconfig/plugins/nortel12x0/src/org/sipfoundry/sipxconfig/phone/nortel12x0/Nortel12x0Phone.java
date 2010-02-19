@@ -28,7 +28,6 @@ import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
-import org.sipfoundry.sipxconfig.phone.PhoneModel;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -37,8 +36,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
 public class Nortel12x0Phone extends Phone {
 
-    public static final PhoneModel MODEL = new PhoneModel("nortel12x0", "Nortel IP Phone 1230");
-    public static final String BEAN_ID = "nortel12x0PhoneStandard";
+    public static final String BEAN_ID = "nortel12x0";
     public static final String USER_ID_SETTING = "registrationAndProxy/authname";
     public static final String AUTH_ID_SETTING = "registrationAndProxy/authId";
     public static final String PASSWORD_SETTING = "registrationAndProxy/authPassword";

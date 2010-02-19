@@ -729,7 +729,7 @@ public class Servlet extends HttpServlet {
         //  - plugins/nortel12x0/src/org/sipfoundry/sipxconfig/phone/nortel12x0/nortel12x0-models.beans.xml
         PHONE_MODEL_MAP.put("1210", new PhoneModel("nortel-1210", "Nortel IP 1210"));
         PHONE_MODEL_MAP.put("1220", new PhoneModel("nortel-1220", "Nortel IP 1220"));
-        PHONE_MODEL_MAP.put("1230", new PhoneModel("nortel12x0PhoneStandard", "Nortel IP 1230"));
+        PHONE_MODEL_MAP.put("1230", new PhoneModel("nortel-1230", "Nortel IP 1230"));
     }
 
     public static void main(String[] args) throws Exception {

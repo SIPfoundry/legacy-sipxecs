@@ -113,7 +113,7 @@ public class ServletTest extends TestCase {
         phone = new DetectedPhone();
         assertEquals(true, Servlet.extractNortelIp12X0ModelAndVersion(phone, "Nortel IP Phone 1230 (SIP12x0.01.100.05.05)"));
         assertNotNull(phone.model);
-        assertEquals("nortel12x0PhoneStandard", phone.model.sipxconfig_id);
+        assertEquals("nortel-1230", phone.model.sipxconfig_id);
         assertEquals("SIP12x0.01.100.05.05", phone.version);
     }
 

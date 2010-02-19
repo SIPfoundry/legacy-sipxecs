@@ -2,10 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
   "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-  <bean id="nortel12x0PhoneStandard" parent="abstractPhoneModel">
-    <property name="beanId" value="nortel12x0" />
-    <property name="label" value="Nortel IP Phone 1230" />
-    <property name="maxLineCount" value="10" />
+  <bean id="nortel12x0Model" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.nortel12x0.Nortel12x0Model" abstract="true">
     <property name="profileTemplate" value="nortel12x0/nortel12x0.vm" />
     <property name="vendor" value="Nortel" />
     <property name="restartSupported" value="true" />
@@ -16,7 +13,7 @@
     </property>
   </bean>
 
-  <bean id="nortel-1210" parent="nortel12x0PhoneStandard">
+  <bean id="nortel-1210" parent="nortel12x0Model">
     <property name="label" value="Nortel IP Phone 1210" />
     <property name="maxLineCount" value="1" />
     <property name="supportedFeatures">
@@ -26,7 +23,7 @@
     </property>
   </bean>
 
-  <bean id="nortel-1220" parent="nortel12x0PhoneStandard">
+  <bean id="nortel-1220" parent="nortel12x0Model">
     <property name="label" value="Nortel IP Phone 1220" />
     <property name="maxLineCount" value="4" />
     <property name="supportedFeatures">
@@ -35,6 +32,17 @@
       </set>
     </property>
   </bean>
+
+  <bean id="nortel-1230" parent="nortel12x0Model">
+    <property name="label" value="Nortel IP Phone 1230" />
+    <property name="maxLineCount" value="10" />
+    <property name="supportedFeatures">
+    <set>
+      <value>intercom</value>
+    </set>
+    </property>
+  </bean>
+
 
   <bean id="nortel12x0" class="org.sipfoundry.sipxconfig.phone.nortel12x0.Nortel12x0Phone" singleton="false"
     parent="abstractPhone">

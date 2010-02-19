@@ -342,6 +342,7 @@
     <antcall target="tls_peer" />
     <antcall target="internal_user" />
     <antcall target="remove-enable-meetme-conference" />
+    <antcall target="change-nortel-phones-model" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1060,7 +1061,9 @@
   <target name="remove-enable-meetme-conference" unless="remove-enable-meetme-conference">
     <db-patch patch="remove-enable-meetme-conference"/>
   </target>
-
+  <target name="change-nortel-phones-model" unless="change-nortel-phones-model">
+    <db-patch patch="change-nortel-phones-model"/>
+  </target>
 
   <!--
     - SUPPORT UTILITIES
