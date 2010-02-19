@@ -42,6 +42,8 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
 public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxManager {
     private static final String MESSAGE_SUFFIX = "-00.xml";
     private static final FilenameFilter MESSAGE_FILES = new SuffixFileFilter(MESSAGE_SUFFIX);
+    private static final String PATH_MAILBOX = "/mailbox/";
+    private static final String PATH_MESSAGE = "/message/";
     private File m_mailstoreDirectory;
     private File m_stdpromptDirectory;
     private DistributionListsReader m_distributionListsReader;
@@ -96,6 +98,25 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
      * Mark voicemail as read
      */
     public void markRead(Mailbox mailbox, Voicemail voicemail) {
+        StringBuilder sb = new StringBuilder(PATH_MAILBOX).append(mailbox.getUserDirectory().getName()).append(
+                PATH_MESSAGE).append(voicemail.getMessageId()).append("/heard");
+        invokeWebservice(sb.toString());
+    }
+
+    public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
+        File destination = new File(mailbox.getUserDirectory(), destinationFolderId);
+        for (File f : voicemail.getAllFiles()) {
+            f.renameTo(new File(destination, f.getName()));
+        }
+    }
+
+    public void delete(Mailbox mailbox, Voicemail voicemail) {
+        StringBuilder sb = new StringBuilder(PATH_MAILBOX).append(mailbox.getUserDirectory().getName()).append(
+                PATH_MESSAGE).append(voicemail.getMessageId()).append("/delete");
+        invokeWebservice(sb.toString());
+    }
+
+    private void invokeWebservice(String uri) {
         PutMethod httpPut = null;
         String host = null;
         String port = null;
@@ -109,8 +130,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
             HttpClient client = new HttpClient();
             host = ivrLocation.getFqdn();
             port = ivrService.getHttpsPort();
-            httpPut = new PutMethod(getMailboxServerUrl(host, Integer.parseInt(port)) + "/mailbox/"
-                    + mailbox.getUserDirectory().getName() + "/message/" + voicemail.getMessageId() + "/heard");
+            httpPut = new PutMethod(getMailboxServerUrl(host, Integer.parseInt(port)) + uri);
             int statusCode = client.executeMethod(httpPut);
             if (statusCode != 200) {
                 throw new UserException("&error.https.server.status.code", host, String.valueOf(statusCode));
@@ -123,19 +143,6 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
             if (httpPut != null) {
                 httpPut.releaseConnection();
             }
-        }
-    }
-
-    public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
-        File destination = new File(mailbox.getUserDirectory(), destinationFolderId);
-        for (File f : voicemail.getAllFiles()) {
-            f.renameTo(new File(destination, f.getName()));
-        }
-    }
-
-    public void delete(Mailbox mailbox, Voicemail voicemail) {
-        for (File f : voicemail.getAllFiles()) {
-            f.delete();
         }
     }
 
