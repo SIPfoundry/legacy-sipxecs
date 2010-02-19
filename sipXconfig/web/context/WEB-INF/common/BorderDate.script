@@ -8,12 +8,14 @@
 
 <body>
 <![CDATA[
+dojo.require("dojo.date.format");
+
 var currentDate = new Date("${date}");
-var interval=60000;
+var interval=10000;
 
 function updateDate(){
 	targetNode = dojo.byId("dateComponent");
-	targetNode.innerHTML = currentDate.toUTCString();
+	targetNode.innerHTML = dojo.date.format(currentDate, {datePattern: "EEE, dd MMM yyyy ", timePattern: "HH:mm aa"});
 	currentDate.setMilliseconds(currentDate.getMilliseconds()+interval);
 	setTimeout('updateDate()', interval);
 }
