@@ -499,6 +499,10 @@ public class Retrieve {
                 VmDialog vmd = new VmDialog(m_vm, menuFragment);
                 vmd.setPrePromptList(prePromptPl);
                 vmd.setSpeakCanceled(false);
+                
+                // Mark the message heard (if it wasn't before)
+                m_messages.markMessageHeard(vmMessage, true);
+                
                 long playStart = System.currentTimeMillis();
                 String digit = vmd.collectDigit(validDigits); //message starts playing here
                 duration = (int) ((System.currentTimeMillis() - playStart)/1000);
@@ -507,10 +511,7 @@ public class Retrieve {
                     // Timeout, cancel, or errors
                     return;
                 }
-                
-                // Mark the message heard (if it wasn't before)
-                m_messages.markMessageHeard(vmMessage, true);
-                
+                                           
                 if (digit.equals("1")) {
                     playInfo = true;
                     startPos = 0;
