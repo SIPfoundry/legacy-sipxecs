@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.site.cdr;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
@@ -30,6 +33,7 @@ import org.sipfoundry.sipxconfig.site.UserSession;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class CdrTable extends BaseComponent {
+    private static final Pattern FULL_USER_RE = Pattern.compile("(?:\\w+ *)+ - (\\d+)");
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
     public abstract ExpressionEvaluator getExpressionEvaluator();
@@ -74,9 +78,14 @@ public abstract class CdrTable extends BaseComponent {
      * @param number number to call - refer is sent to current user
      */
     public void call(String number) {
+        String extension = number;
         String domain = getDomainManager().getDomain().getName();
         String userAddrSpec = getUser().getAddrSpec(domain);
-        String destAddrSpec = SipUri.fix(number, domain);
+        Matcher matcher = FULL_USER_RE.matcher(extension);
+        if (matcher.matches()) {
+            extension = matcher.group(1);
+        }
+        String destAddrSpec = SipUri.fix(extension, domain);
         String displayName = "ClickToCall";
         getSipService().sendRefer(getUser(), userAddrSpec, displayName, destAddrSpec);
     }
