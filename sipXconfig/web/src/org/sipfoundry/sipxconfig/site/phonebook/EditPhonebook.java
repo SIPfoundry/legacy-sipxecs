@@ -82,21 +82,23 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
             getValidator().record(new ValidatorException(getMessages().getMessage("msg.emptyGmailPassword")));
             return;
         }
-        getPhonebookManager().addEntriesFromGmailAccount(getPhonebookId(), gmailAddress, gmailPassword);
-        recordSuccessImport();
+        int contacts = getPhonebookManager().addEntriesFromGmailAccount(getPhonebookId(),
+                gmailAddress, gmailPassword);
+        recordSuccessImport(contacts);
     }
 
     public void importFromFile() {
         if (getUploadFile() != null) {
-            getPhonebookManager().addEntriesFromFile(getPhonebookId(), getUploadFile().getStream());
-            recordSuccessImport();
+            int contacts = getPhonebookManager().addEntriesFromFile(getPhonebookId(), getUploadFile().getStream());
+            recordSuccessImport(contacts);
         } else {
             getValidator().record(new ValidatorException(getMessages().getMessage("msg.emptyImportFile")));
         }
     }
 
-    private void recordSuccessImport() {
-        TapestryUtils.recordSuccess(this, getMessages().getMessage("msg.importSucces"));
+    private void recordSuccessImport(int contacts) {
+        TapestryUtils.recordSuccess(this,
+                getMessages().format("msg.vcardImport.success", contacts));
     }
 
     public void savePhonebook() {

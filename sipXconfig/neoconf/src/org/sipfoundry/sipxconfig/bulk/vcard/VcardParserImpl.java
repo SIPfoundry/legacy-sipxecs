@@ -49,7 +49,7 @@ public class VcardParserImpl implements BulkParser {
                 }
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new VCardParserException();
         } finally {
             IOUtils.closeQuietly(reader);
         }

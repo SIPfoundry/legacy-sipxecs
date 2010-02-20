@@ -35,7 +35,6 @@ public class VcardParserImplTest extends TestCase {
 
         parser.parse(reader, add);
         assertEquals(9, entriesList.size());
-        System.out.println("COSMIN:" + entriesList.get(5)[0] + ":" + entriesList.get(5)[1] + ":" + entriesList.get(5)[2]);
 
         String[] entry1 = entriesList.get(0);
         assertEquals(22, entry1.length);
@@ -147,5 +146,47 @@ public class VcardParserImplTest extends TestCase {
         assertEquals("Madrid", entry9[19]);
         assertEquals("Madrid", entry9[20]);
         assertEquals("", entry9[21]);
+    }
+
+    public void testParseContactWithPictureAttachment() throws Exception {
+        // the contact used for this test was generated with Microsoft Outlook 2007 and
+        // it contains a picture attachment
+
+        InputStream contact = getClass().getResourceAsStream("SainaNehwal.vcf");
+        Reader reader = new InputStreamReader(contact);
+        VcardParserImpl parser = new VcardParserImpl();
+        final List<String[]> entriesList = new ArrayList<String[]>();
+        Closure add = new Closure() {
+            public void execute(Object item) {
+                entriesList.add((String[]) item);
+            }
+        };
+
+        parser.parse(reader, add);
+        assertEquals(1, entriesList.size());
+
+        String[] entry = entriesList.get(0);
+        assertEquals("Saina", entry[0]);
+        assertEquals("Nehwal", entry[1]);
+        assertEquals("182182", entry[2]);
+        assertEquals("99867", entry[3]);
+        assertEquals("456", entry[4]);
+        assertEquals("6655", entry[5]);
+        assertEquals("nehwalSaina@abc.com", entry[6]);
+        assertEquals(null, entry[7]);
+        assertEquals("ABC", entry[8]);
+        assertEquals("Design Engineer", entry[9]);
+        assertEquals("SCS", entry[10]);
+        assertEquals("3rd Phase JPN", entry[11]);
+        assertEquals("560060", entry[12]);
+        assertEquals("India", entry[13]);
+        assertEquals("Karnataka", entry[14]);
+        assertEquals("Bangalore", entry[15]);
+        assertEquals("JP Nagar", entry[16]);
+        assertEquals("561111", entry[17]);
+        assertEquals("India", entry[18]);
+        assertEquals("Karnataka", entry[19]);
+        assertEquals("Bangalore", entry[20]);
+        assertEquals("", entry[21]);
     }
 }

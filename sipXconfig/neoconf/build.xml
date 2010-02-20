@@ -42,7 +42,8 @@
     <pathelement location="${gdata-client.jar}" />
     <pathelement location="${gdata-contacts.jar}" />
     <pathelement location="${gdata-core.jar}" />
-    <pathelement location="${vcard4j.jar}" />
+    <pathelement location="${mime-dir-j-api.jar}" />
+    <pathelement location="${mime-dir-j-vcard4j.jar}" />
     <pathelement location="${xalan.jar}" />
     <pathelement location="${serializer.jar}" />
     <pathelement location="${restlet.jar}"/>
@@ -260,7 +261,8 @@
       <fileset file="${gdata-contacts.jar}" />
       <fileset file="${gdata-core.jar}" />
       <fileset file="${google-collect.jar}" />
-      <fileset file="${vcard4j.jar}" />
+      <fileset file="${mime-dir-j-api.jar}" />
+      <fileset file="${mime-dir-j-vcard4j.jar}" />
       <fileset file="${xalan.jar}" />
       <fileset file="${serializer.jar}" />
       <fileset file="${restlet.jar}"/>

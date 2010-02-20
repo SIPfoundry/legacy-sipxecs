@@ -61,6 +61,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
 import org.sipfoundry.sipxconfig.bulk.BulkParser;
+import org.sipfoundry.sipxconfig.bulk.vcard.VCardParserException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -609,7 +610,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             savePhonebook(phonebook);
             return count;
         } catch (IOException e) {
-            throw new UserException("&msg.phonebookUploadError");
+            throw new VCardParserException();
         }
     }
 
