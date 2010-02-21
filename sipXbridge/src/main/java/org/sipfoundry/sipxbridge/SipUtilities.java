@@ -16,6 +16,7 @@ import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.extensions.SessionExpires;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
+import gov.nist.javax.sip.header.ims.PathHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
 import gov.nist.javax.sip.message.Content;
 import gov.nist.javax.sip.message.MessageExt;
@@ -62,6 +63,7 @@ import javax.sip.address.SipURI;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
+import javax.sip.header.CallInfoHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.ErrorInfoHeader;
@@ -73,8 +75,10 @@ import javax.sip.header.InReplyToHeader;
 import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.OrganizationHeader;
 import javax.sip.header.ReasonHeader;
+import javax.sip.header.RecordRouteHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
+import javax.sip.header.RequireHeader;
 import javax.sip.header.RouteHeader;
 import javax.sip.header.ServerHeader;
 import javax.sip.header.SubjectHeader;
@@ -1906,7 +1910,7 @@ class SipUtilities {
      * @param message
      * @param newMessage
      */
-    public static void copyHeaders(Message message, Message newMessage) {
+    public static void copyHeaders(Response message, Response newMessage) {
         Iterator<String> headerNames = message.getHeaderNames();
         while (headerNames.hasNext()) {
             String headerName = headerNames.next();
@@ -1918,6 +1922,48 @@ class SipUtilities {
            }
         }
 
+    }
+    
+    /**
+     * Copy all the headers in the inbound request to the outbound 
+     * request excepting our private headers. This is called just
+     * before sending the request. Note that some headers
+     * are excluded because we filter these based on privacy settings.
+     * 
+     * @param incomingRequest
+     * @param outgoingRequest
+     * @param toItsp -- indicates which direction the request is heading.
+     */
+    public static void copyHeaders(Request incomingRequest, Request outgoingRequest, boolean toItsp) {
+    	 Iterator<String> inboundHeaderNames = incomingRequest.getHeaderNames();
+         while (inboundHeaderNames.hasNext()) {
+         	String headerName = inboundHeaderNames.next();
+         	if ( toItsp  ) {
+         		if (  headerName.equalsIgnoreCase( ReplyToHeader.NAME) 
+         				|| headerName.equalsIgnoreCase(CallInfoHeader.NAME )
+         				|| headerName.equalsIgnoreCase(SubjectHeader.NAME)
+         				|| headerName.equalsIgnoreCase(OrganizationHeader.NAME )
+         				|| headerName.equalsIgnoreCase(InReplyToHeader.NAME )
+         				|| headerName.equalsIgnoreCase(RouteHeader.NAME) 
+         				|| headerName.equalsIgnoreCase(RecordRouteHeader.NAME)
+         				|| headerName.toLowerCase().startsWith("x-sipx")
+         				|| headerName.toLowerCase().startsWith("sipxecs")){
+         			continue;
+         		}
+         	} else {
+         		if (  headerName.equalsIgnoreCase(RouteHeader.NAME) 
+         			  || headerName.equalsIgnoreCase(RecordRouteHeader.NAME)){
+         			continue;
+         		}
+         	}
+         	ListIterator<Header> headerIterator = incomingRequest.getHeaders(headerName);
+         	while (headerIterator.hasNext()) {
+         		Header header = headerIterator.next();
+         		if (header != null && outgoingRequest.getHeader(headerName) == null ) {
+         			outgoingRequest.setHeader(header);
+         		}
+         	}
+         }
     }
     
     static boolean isRequestNotForwarded(Request incomingMessage) {
@@ -2004,5 +2050,23 @@ class SipUtilities {
             throw new SipXbridgeException("Unexpected exception creating references header" );
         }
     }
+
+    /**
+     * Check to see if request contains an unspupported extension and return true if it des.
+     * 
+     * @param request
+     * @return
+     */
+	public static boolean requestContainsUnsupportedExtension(Request request) {
+		Iterator<RequireHeader> requireHeaders = request.getHeaders(RequireHeader.NAME);
+		while(requireHeaders.hasNext()) {
+			RequireHeader rh = requireHeaders.next();
+			String tag = rh.getOptionTag();
+			if (! tag.equals("100rel") && !tag.equals("timer") && !tag.equals("replaces")) {
+				return true;
+			}
+		}
+		return false;
+	}
 
 }

@@ -52,12 +52,14 @@ import javax.sip.TransactionUnavailableException;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.header.AlertInfoHeader;
 import javax.sip.header.AuthorizationHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
 import javax.sip.header.CallInfoHeader;
 import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
+import javax.sip.header.DateHeader;
 import javax.sip.header.ExtensionHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
@@ -66,6 +68,7 @@ import javax.sip.header.MaxForwardsHeader;
 import javax.sip.header.OrganizationHeader;
 import javax.sip.header.ProxyAuthorizationHeader;
 import javax.sip.header.ReasonHeader;
+import javax.sip.header.RecordRouteHeader;
 import javax.sip.header.ReferToHeader;
 import javax.sip.header.ReplyToHeader;
 import javax.sip.header.RouteHeader;
@@ -1278,6 +1281,11 @@ public class BackToBackUserAgent implements Comparable {
             this.referingDialog = ct.getDialog();
 
             this.referingDialogPeer = serverTransaction.getDialog();
+            
+            /*
+             * Finally copy all the headers we do not understand.
+             */
+            SipUtilities.copyHeaders(request, newRequest, false);
 
             ct.sendRequest();
 
@@ -1724,6 +1732,9 @@ public class BackToBackUserAgent implements Comparable {
                     outgoingRequest.addHeader(header);
                 }
             }
+            
+           
+            
             /*
              * Attach ALLOW headers that are only relevant for the LAN side.
              */
@@ -1881,6 +1892,12 @@ public class BackToBackUserAgent implements Comparable {
              * Add this to the list of managed dialogs.
              */
             this.addDialog(DialogContext.get(ct.getDialog()));
+            
+            /*
+             * Copy any unrecognized that we have not accounted for
+             */
+            SipUtilities.copyHeaders(incomingRequest,outgoingRequest, true);
+           
             
             /*
              * Send the request.

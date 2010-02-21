@@ -356,6 +356,19 @@ public class SipListenerImpl implements SipListenerExt {
 
                 st.sendResponse(response);
                 return;
+            } else if ( SipUtilities.requestContainsUnsupportedExtension(request) ) {
+            	  logger.debug("Rejecting request -- request contains unsupported extension");
+
+                  Response response = ProtocolObjects.messageFactory
+                          .createResponse(Response.BAD_EXTENSION, request);
+                  
+                  ServerTransaction st = requestEvent.getServerTransaction();
+                  if (st == null) {
+                      st = provider.getNewServerTransaction(request);
+                  }
+
+                  st.sendResponse(response);
+                  return;
 
             } else if (provider == Gateway.getLanProvider()
                     && method.equals(Request.INVITE)
