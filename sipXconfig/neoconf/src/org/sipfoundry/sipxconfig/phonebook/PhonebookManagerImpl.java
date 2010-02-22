@@ -755,7 +755,14 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             fileEntry.setFirstName(entry.getFirstName());
             fileEntry.setLastName(entry.getLastName());
             fileEntry.setNumber(entry.getNumber());
-            fileEntry.setAddressBookEntry(entry.getAddressBookEntry());
+            User user = getUserForEntry(entry);
+            if (user.getBranch() != null && entry.getAddressBookEntry().getUseBranchAddress()) {
+                AddressBookEntry addressBookEntry = (AddressBookEntry) entry.getAddressBookEntry();
+                addressBookEntry.setOfficeAddress(user.getBranch().getAddress());
+                fileEntry.setAddressBookEntry(addressBookEntry);
+            } else {
+                fileEntry.setAddressBookEntry(entry.getAddressBookEntry());
+            }
             fileEntry.setPhonebook(null);
             fileEntries.add(fileEntry);
         }

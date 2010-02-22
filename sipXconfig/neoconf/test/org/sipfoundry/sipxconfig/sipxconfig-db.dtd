@@ -84,6 +84,7 @@
 	im_id CDATA #IMPLIED
 	alternate_im_id CDATA #IMPLIED
 	gravatar CDATA #IMPLIED
+	use_branch_address CDATA #IMPLIED
  >
 
 <!ELEMENT alarm_contacts EMPTY>
