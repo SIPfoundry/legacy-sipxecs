@@ -1,6 +1,7 @@
 package org.sipfoundry.sipcallwatcher;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.openfire.config.XmppGroup;
 import org.sipfoundry.sipcallwatcher.MultipartMessages.MessagePart;
 import org.xml.sax.InputSource;
 import java.io.ByteArrayInputStream;
@@ -41,6 +42,7 @@ public class DialogInfoMessagePart extends MessagePart
         String displayName;
         String identity;
         String targetUri;
+        // ^^^NOTE: extend equals() override when adding new members
 
         public EndpointInfo( String displayName, String identity,
                 String targetUri )
@@ -91,6 +93,28 @@ public class DialogInfoMessagePart extends MessagePart
                          .append(this.getTargetUri()).toString();
         }
         
+        @Override
+        public boolean equals( Object other )
+        {
+            //check for self-comparison
+            if ( this == other ) return true;
+
+            if ( !(other instanceof EndpointInfo) ) return false;
+
+            //cast to native object is now safe
+            EndpointInfo otherEndpointInfo = (EndpointInfo)other;
+            
+            return displayName.equals( otherEndpointInfo.displayName ) &&
+                   identity.equals( otherEndpointInfo.identity )       &&
+                   targetUri.equals( otherEndpointInfo.targetUri );
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return displayName.hashCode() * identity.hashCode() * targetUri.hashCode();
+        }
+
     }
     
     public class DialogInfo
@@ -161,6 +185,25 @@ public class DialogInfoMessagePart extends MessagePart
                          .append("' remote info='")
                          .append(this.getRemoteInfo())
                          .append("'\n").toString();        
+        }
+        
+        @Override
+        public boolean equals( Object other )
+        {
+            //check for self-comparison
+            if ( this == other ) return true;
+
+            if ( !(other instanceof DialogInfo) ) return false;
+
+            //cast to native object is now safe
+            DialogInfo otherDialogInfo = (DialogInfo)other;
+            return id.equals( otherDialogInfo.id );
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return id.hashCode();
         }
         
     }

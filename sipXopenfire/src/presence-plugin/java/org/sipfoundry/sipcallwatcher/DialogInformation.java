@@ -1,8 +1,8 @@
 package org.sipfoundry.sipcallwatcher;
 
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipcallwatcher.DialogInfoMessagePart.EndpointInfo;
 
@@ -14,13 +14,11 @@ class DialogInformation {
     private static Logger logger = Logger.getLogger(DialogInformation.class);
 
     /*
-     * maps active dialog Ids to their state (confirmed, trying, early, proceeding or
-     * terminated) according to RFC 4235
+     * track info about active dialogs
      */
-    private Map<String, String> activeDialogStates = new HashMap<String, String>();
+    private LinkedList<DialogInfoMessagePart.DialogInfo> activeDialogs = new LinkedList<DialogInfoMessagePart.DialogInfo>();
     /* state of a resource considering all its dialogs */
     private SipResourceState compoundState = SipResourceState.UNDETERMINED;
-    private EndpointInfo remoteForLastActiveDialog; // information about the far-end of the last active dialog
     /* internal Id used to track entries that have been updated */
     private int updateId = -1;
     private String resourceName;
@@ -40,7 +38,7 @@ class DialogInformation {
                 // Full state of the resource is an empty list of dialogs...
                 // There are no dialogs associated with this resource so it
                 // is clearly idle.
-                activeDialogStates.clear();
+                activeDialogs.clear();
                 if (!this.compoundState.equals(SipResourceState.IDLE)) {
                     hasStateChanged = true;
                     this.compoundState = SipResourceState.IDLE;
@@ -52,24 +50,28 @@ class DialogInformation {
                  * the list of dialogs is complete. We can replace all the dialogs we had with
                  * the ones supplied if any.
                  */
-                activeDialogStates.clear();
+                activeDialogs.clear();
+                hasStateChanged = true;
             }
             // update the dialogs we have with the ones supplied.
             for (DialogInfoMessagePart.DialogInfo dialogInfo : updatedDialogs) {
                 // we only track 'active' dialogs
                 if (!dialogInfo.getState().equals("terminated")) {
-                    activeDialogStates.put(dialogInfo.getId(), dialogInfo.getState() );
-                    remoteForLastActiveDialog = dialogInfo.getRemoteInfo();
+                    if( activeDialogs.contains( dialogInfo ) == false ) {
+                        activeDialogs.addFirst( dialogInfo );
+                        hasStateChanged = true;
+                    }
                 } else {
                     // dialog is terminated - discontinue its tracking
-                    activeDialogStates.remove(dialogInfo.getId());
+                    activeDialogs.remove(dialogInfo);
+                    hasStateChanged = true;
                 }
             }
-            hasStateChanged = computeCompoundState();
+            hasStateChanged |= computeCompoundState();
         }
 
         logger.debug("resource " + this.resourceName + " hasStateChanged = "
-                + hasStateChanged);
+                + hasStateChanged + " (# of active dialogs = " + activeDialogs.size() + ")");
         return hasStateChanged;
     }
 
@@ -82,7 +84,7 @@ class DialogInformation {
     private boolean computeCompoundState() {
         boolean hasStateChanged = false;
         SipResourceState newCompoundState;
-        if (activeDialogStates.size() > 0) {
+        if (activeDialogs.size() > 0) {
             // at least one active dialog - that makes the resource busy.
             newCompoundState = SipResourceState.BUSY;
         } else {
@@ -105,7 +107,11 @@ class DialogInformation {
     }
 
     public EndpointInfo getActiveDialogRemoteInfo() {
-        return this.remoteForLastActiveDialog;
+        EndpointInfo requestedEndpointInfo = null;
+        if( activeDialogs.size() != 0 ){
+            requestedEndpointInfo = activeDialogs.getFirst().getRemoteInfo();
+        }
+        return requestedEndpointInfo;
     }
     
     public int getUpdateId() {

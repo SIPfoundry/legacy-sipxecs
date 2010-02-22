@@ -328,8 +328,9 @@ public class PresenceUnifier implements PresenceEventListener
                 URI uri = SipFactory.getInstance().createAddressFactory().createURI( remoteEndpoint.getIdentity() );
                 if( uri instanceof SipURI ){
                     SipURI sipURI = (SipURI)uri;
-                    if( sipURI.getHost().equals( sipXopenfirePlugin.getSipDomain() ) ){
-                        // identity of the remote endpoint belongs to our domain
+                    if( sipURI.getHost().equals( sipXopenfirePlugin.getSipDomain() ) ||
+                        sipURI.getHost().matches("\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}") ){
+                        // identity of the remote endpoint belongs to our domain or is in IP address form
                         try{
                             String xmppNode = sipXopenfirePlugin.getXmppNode(sipURI.getUser());
                             remoteEndpointAsString = sipXopenfirePlugin.getXmppDisplayName( xmppNode );
