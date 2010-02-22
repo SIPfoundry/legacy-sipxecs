@@ -166,10 +166,12 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 				            itspAccount.getRegistrationRecord().getRegistrationStatus());
 				}
 			}
+			
 		} catch (Throwable ex) {
 		    throw new ServletException(formatStackTrace(ex), ex);
 		}
 
+		logger.debug("getRegistrationStatus: " + retval);
 		return retval;
 	}
 
