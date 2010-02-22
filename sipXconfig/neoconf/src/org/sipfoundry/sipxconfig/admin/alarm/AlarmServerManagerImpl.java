@@ -22,7 +22,6 @@ import static java.util.Collections.emptyList;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -36,6 +35,7 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.util.CollectionUtils;
 
 public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> implements AlarmServerManager {
     private static final Log LOG = LogFactory.getLog(AlarmServerManagerImpl.class);
@@ -144,6 +144,13 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         m_alarmsStringsDirectory = alarmsStringsDirectory;
     }
 
+    public void deployAlarms() {
+        getAlarmServer();
+        // Check if the 'default' alarm group has email contact(s)
+        updateDefaultAlarmGroup();
+        replicateAlarmService();
+    }
+
     public void deployAlarmConfiguration(AlarmServer server, List<Alarm> alarms) {
         // save the alarm codes
         saveAlarmCodes(alarms);
@@ -152,21 +159,12 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         saveAlarmServer(server);
 
         // replicate alarm server and alarm groups configurations
-        replicateAlarms(null);
+        replicateAlarmService();
 
         // replicate new alarm types configuration
         replicateAlarmsConfiguration(alarms);
 
         m_replicationContext.publishEvent(new AlarmServerActivatedEvent(this));
-    }
-
-    private void replicateAlarms(Location location) {
-        SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
-        if (location == null) {
-            m_serviceConfigurator.replicateServiceConfig(alarmService);
-        } else {
-            m_serviceConfigurator.replicateServiceConfig(location, alarmService);
-        }
     }
 
     public AlarmServer getAlarmServer() {
@@ -187,14 +185,14 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         return server;
     }
 
-    private AlarmGroup createDefaultGroup() {
-        AlarmGroup group = new AlarmGroup();
-        List<String> addresses = new ArrayList<String>();
-        addresses.add(m_sipxUser + DEFAULT_HOST);
-        group.setEmailAddresses(addresses);
-        group.setName(GROUP_NAME_DEFAULT);
-
-        return group;
+    private void updateDefaultAlarmGroup() {
+        AlarmGroup defaultAlarmGroup = getAlarmGroupByName(GROUP_NAME_DEFAULT);
+        List<String> addresses = defaultAlarmGroup.getEmailAddresses();
+        if (CollectionUtils.isEmpty(addresses)) {
+            addresses.add(m_sipxUser + DEFAULT_HOST);
+            defaultAlarmGroup.setEmailAddresses(addresses);
+            saveAlarmGroup(defaultAlarmGroup);
+        }
     }
 
     private void saveAlarmServer(AlarmServer server) {
@@ -221,22 +219,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     }
 
     public List<AlarmGroup> getAlarmGroups() {
-
         List<AlarmGroup> groups = getHibernateTemplate().loadAll(AlarmGroup.class);
-
-        // Create the default group if doesn't already exist.
-        boolean hasDefault = false;
-        for (AlarmGroup group : groups) {
-            if (isDefaultGroup(group)) {
-                hasDefault = true;
-                break;
-            }
-        }
-        if (!hasDefault) {
-            AlarmGroup group = createDefaultGroup();
-            saveAlarmGroup(group);
-            groups.add(group);
-        }
 
         return groups;
     }

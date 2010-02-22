@@ -7,6 +7,7 @@ create table alarm_group (
   enabled boolean not null default false,
   constraint alarm_group_pkey primary key (alarm_group_id)
 );
+insert into alarm_group (alarm_group_id, name, description, enabled) values (nextval('alarm_group_seq'), 'default', 'Default alarm group', true);
 
 create table alarm_group_smscontacts (
   alarm_group_id integer not null,

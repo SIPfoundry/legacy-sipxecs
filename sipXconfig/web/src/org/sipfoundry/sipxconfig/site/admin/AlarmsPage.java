@@ -90,7 +90,7 @@ public abstract class AlarmsPage extends BasePage implements PageBeginRenderList
 
             SelectMap selections = getSelections();
             for (Alarm alarm : alarms) {
-                if (alarm.getGroupName().compareTo("disabled") != 0) {
+                if (alarm.getGroupName().equals("disabled")) {
                     selections.setSelected(alarm, true);
                 }
             }

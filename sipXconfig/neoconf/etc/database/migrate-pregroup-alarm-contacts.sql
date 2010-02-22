@@ -7,11 +7,10 @@ begin\n
   SELECT alarm_group_id INTO default_group_id FROM alarm_group WHERE name = ''default'';\n
 \n
   index_contact := 0;\n
-  SELECT max(index) INTO index_contact FROM alarm_group_emailcontacts;\n
 \n
   for contact in select * from alarm_contacts loop\n
-	index_contact := index_contact + 1;\n
     insert into alarm_group_emailcontacts values(default_group_id, contact.address, index_contact);\n
+	index_contact := index_contact + 1;\n
   end loop;\n
 end;\n
 ' language plpgsql;

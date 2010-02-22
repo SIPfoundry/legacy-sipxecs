@@ -30,6 +30,8 @@ public interface AlarmServerManager {
 
     void deployAlarmConfiguration(AlarmServer alarmServer, List<Alarm> alarms);
 
+    void deployAlarms();
+
     List<Alarm> getAlarmTypes();
 
     String getLogDirectory();

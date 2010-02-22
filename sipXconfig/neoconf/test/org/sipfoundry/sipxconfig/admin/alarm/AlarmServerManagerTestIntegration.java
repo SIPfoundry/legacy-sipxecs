@@ -44,16 +44,16 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetAlarmServer() throws Exception {
         AlarmServer alarmServer = m_alarmServerManager.getAlarmServer();
+        assertNotNull(alarmServer);
         assertTrue(alarmServer.isEmailNotificationEnabled());
         AlarmGroup alarmGroup = m_alarmServerManager.getAlarmGroupByName("default");
         assertNotNull(alarmGroup);
-        assertEquals("sipxpbxuser@localhost", alarmGroup.getEmailAddresses().get(0));
     }
 
     public void testGetAlarmGroups() throws Exception {
         List<AlarmGroup> groups = m_alarmServerManager.getAlarmGroups();
         assertEquals(4, groups.size());
-        AlarmGroup group1 = groups.get(0);
+        AlarmGroup group1 = groups.get(1);
         assertEquals("sale", group1.getName());
         assertEquals("Sales", group1.getDescription());
         assertEquals(true, group1.isEnabled());
