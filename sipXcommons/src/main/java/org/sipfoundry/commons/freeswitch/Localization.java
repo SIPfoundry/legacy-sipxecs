@@ -26,7 +26,6 @@ public class Localization {
      *
      */
     private final Logger LOG;
-
     private String m_bundleName;
     private HashMap<Locale, ResourceBundle> m_resourcesByLocale;
     private ResourceBundle m_bundle;
@@ -111,6 +110,8 @@ public class Localization {
         }
 
         String ttpClass;
+        String docDir = "";
+        String tmpGlobalPrefix = "";
         try {
             ttpClass = m_bundle.getString("global.ttpClassName");
         } catch (MissingResourceException e) {
@@ -126,13 +127,14 @@ public class Localization {
             // Trim trailing "/" (will put it back in a bit)
             globalPrefix = globalPrefix.substring(0, globalPrefix.length()-1);
         }
+        
         if (!globalPrefix.startsWith("/")) {
-            String docDir = m_config.getDocDirectory();
+            docDir = m_config.getDocDirectory();
             if (!docDir.endsWith("/")) {
                 docDir += "/";
             }
+            tmpGlobalPrefix = globalPrefix;
             globalPrefix = docDir + globalPrefix;
-
         }
 
         if (m_bundle != null) {
@@ -146,8 +148,12 @@ public class Localization {
                 // are still there, just not the .properties file
                 if (localeString != null) {
                     String suffix = "_"+localeString;
+                    String path= "";
                     if (!globalPrefix.endsWith(suffix)) {
-                        String path = globalPrefix + suffix;
+                        if (tmpGlobalPrefix.indexOf("/")>=0) // call pilot TUI
+                            path = docDir + tmpGlobalPrefix.replaceFirst("/", suffix+"/");
+                        else	// standard TUI
+                            path = globalPrefix + suffix;
                         File testFile = new File(path);
                         if (testFile.exists()) {
                             globalPrefix = path;
