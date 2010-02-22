@@ -126,7 +126,10 @@ public class ExtMailStore {
                     CloseConnection(m_user.getUserName(), true);
                 } catch (MessagingException e) {
                     running = false;
+                    LOG.info("IMAP: Idling failed for user " + m_user.getUserName() +
+                              " :" + e.getMessage());
                     CloseConnection(m_user.getUserName(), true);
+                    
                 }
             }
         }
