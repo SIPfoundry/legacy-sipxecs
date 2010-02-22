@@ -741,11 +741,30 @@ SipRedirectorPickUp::lookUpDialog(
       {
          // Construct the SUBSCRIBE for the call pickup.
          SipMessage subscribe;
-         UtlString subscribeRequestUri("sip:");
+         Url subscribeRequestUri;
+         // Name-addr character string, without URI-parameters.
+         UtlString subscribeRequestStringShort;
+         // URI character string, with URI-parameters.
+         UtlString subscribeRequestStringLong;
          // The user of the request URI is our subscribeUser parameter.
-         subscribeRequestUri.append(subscribeUser);
-         subscribeRequestUri.append("@");
-         subscribeRequestUri.append(mDomain);
+         subscribeRequestUri.setScheme(Url::SipUrlScheme);
+         subscribeRequestUri.setUserId(subscribeUser);
+         subscribeRequestUri.setHostAddress(mDomain);
+         // Serialize as URI, without URI-parameters.
+         subscribeRequestUri.toString(subscribeRequestStringShort);
+         // Add URI-parameters to prevent forwarding of the SUBSCRIBE to
+         // irrelevant contacts.
+         subscribeRequestUri.setUrlParameter("sipx-noroute", "Voicemail");
+         subscribeRequestUri.setUrlParameter("sipx-userforward", "false");
+         // Serialize as name-addr, with URI-parameters.
+         subscribeRequestUri.getUri(subscribeRequestStringLong);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "%s::lookUpDialog call pick-up, "
+                       "subscribeRequestStringShort = '%s', "
+                       "subscribeRequestStringLong = '%s'",
+                       mLogName.data(),
+                       subscribeRequestStringShort.data(),
+                       subscribeRequestStringLong.data());
 
          // Construct a Call-Id for the SUBSCRIBE.
          UtlString callId;
@@ -777,9 +796,9 @@ SipRedirectorPickUp::lookUpDialog(
          // Allow the SipUserAgent to fill in Contact:.
          subscribe.setRequestData(
             SIP_SUBSCRIBE_METHOD,
-            subscribeRequestUri.data(), // request URI
+            subscribeRequestStringLong.data(), // request URI
             fromUri, // From:
-            subscribeRequestUri.data(), // To:
+            subscribeRequestStringShort.data(), // To:
             callId,
             mCSeq);
          // Increment CSeq and roll it over if necessary.
