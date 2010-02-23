@@ -100,7 +100,7 @@ public class SipXVCardProvider implements VCardProvider {
 
     public void deleteVCard(String username) {
         if(username.compareToIgnoreCase(PA_USER) == 0)
-            deleteVCard(username);
+            defaultProvider.deleteVCard(username);
     }
 
     public Element createVCard(String username, Element element) {
