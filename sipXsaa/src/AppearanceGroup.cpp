@@ -636,7 +636,18 @@ void AppearanceGroup::handleNotifyRequest(const UtlString* dialogHandle,
    }
    UtlString contactUri = pThisAppearance->getUri()->data();
 
-   // TODO: check that event type is supported
+   // check that event type is supported
+   UtlString eventType;
+   msg->getEventField(eventType);
+   if (eventType != SLA_EVENT_TYPE)
+   {
+      OsSysLog::add(FAC_SAA, PRI_INFO,
+                    "AppearanceGroup::handleNotifyRequest: ignoring NOTIFY(%s): not an SLA event", eventType.data());
+      response.setOkResponseData(msg, NULL);
+      getAppearanceAgent()->getServerUserAgent().send(response);
+      return;
+   }
+
    // Get the NOTIFY content.
    const char* content;
    ssize_t l;
