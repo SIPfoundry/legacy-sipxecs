@@ -215,6 +215,8 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
         } else {
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, sbc.getName());
             getDialPlanActivationManager().replicateDialPlan(true);
+            sbc.generateProfiles(sbc.getProfileLocation());
+            sbc.restart();
         }
     }
 

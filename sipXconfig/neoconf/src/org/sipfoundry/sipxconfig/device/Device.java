@@ -202,11 +202,8 @@ public abstract class Device extends BeanWithGroups {
         m_branch = branch;
     }
 
-    /**
-     * @throws RestartException if it cannot complete the operation
-     */
     public void restart() {
-        throw new RestartException("Restart not supported.");
+        // If no action is required for a restart then do nothing
     }
 
     public String getNiceName() {

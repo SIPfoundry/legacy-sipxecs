@@ -106,6 +106,12 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         // Replicate occurs only for update gateway
         if (!isNew) {
             m_dialPlanActivationManager.replicateDialPlan(true);
+
+            SbcDevice sbc = gateway.getSbcDevice();
+            if (sbc != null) {
+                sbc.generateProfiles(sbc.getProfileLocation());
+                sbc.restart();
+            }
         }
 
         m_replicationContext.generate(DataSet.CALLER_ALIAS);

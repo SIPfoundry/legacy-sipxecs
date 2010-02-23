@@ -7,7 +7,8 @@
     <property name="label" value="Internal SBC" />
     <property name="modelDir" value="sipXbridge" />
     <property name="serialNumberPattern" value="" />
-    <property name="restartSupported" value="true" />
+    <property name="restartSupported" value="false" />
+    <property name="projectionSupported" value="false" />
     <property name="defaultPort" value="5090" />
     <property name="internalSbc" value="true" />
   </bean>

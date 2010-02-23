@@ -58,7 +58,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         // delete one sbc
         setWorkingForm("Form");
         checkCheckbox("checkbox");
-        setExpectedJavaScriptConfirm("Are you sure you want to remove selected SBCs?", true);
+        setExpectedJavaScriptConfirm("Are you sure you want to remove selected SBC Routes?", true);
         clickButton("list:sbc:delete");
         SiteTestHelper.assertNoUserError(tester);
         sbcsTable = getTable("list:sbc");
@@ -78,7 +78,7 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         for (int i = 0; i < rowCount - 1; i++) {
             SiteTestHelper.selectRow(getTester(), i, true);
         }
-        setExpectedJavaScriptConfirm("Are you sure you want to remove selected SBCs?", true);
+        setExpectedJavaScriptConfirm("Are you sure you want to remove selected SBC Routes?", true);
         clickButton("list:sbc:delete");
         assertEquals(1, SiteTestHelper.getRowCount(getTester(), "list:sbc"));
     }

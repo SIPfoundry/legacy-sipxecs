@@ -42,18 +42,20 @@ public class ProfileManagerImpl implements ProfileManager {
     }
 
     protected void generate(Device d) {
-        String jobName = "Projection for: " + d.getNiceName();
-        Serializable jobId = m_jobContext.schedule(jobName);
-        try {
-            m_jobContext.start(jobId);
-            ProfileLocation location = d.getProfileLocation();
-            d.generateProfiles(location);
-            m_jobContext.success(jobId);
-        } catch (RuntimeException e) {
-            m_jobContext.failure(jobId, null, e);
-            // do not throw error, job queue will stop running.
-            // error gets logged to job error table and sipxconfig.log
-            LOG.error(e);
+        if (d.getModel().isProjectionSupported()) {
+            String jobName = "Projection for: " + d.getNiceName();
+            Serializable jobId = m_jobContext.schedule(jobName);
+            try {
+                m_jobContext.start(jobId);
+                ProfileLocation location = d.getProfileLocation();
+                d.generateProfiles(location);
+                m_jobContext.success(jobId);
+            } catch (RuntimeException e) {
+                m_jobContext.failure(jobId, null, e);
+                // do not throw error, job queue will stop running.
+                // error gets logged to job error table and sipxconfig.log
+                LOG.error(e);
+            }
         }
     }
 

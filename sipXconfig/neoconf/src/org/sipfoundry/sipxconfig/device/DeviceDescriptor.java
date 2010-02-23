@@ -33,6 +33,8 @@ public abstract class DeviceDescriptor implements Model, FeatureProvider {
 
     private boolean m_restartSupported;
 
+    private boolean m_projectionSupported = true;
+
     private Set<String> m_supportedFeatures = new HashSet<String>();
 
     /**
@@ -296,5 +298,13 @@ public abstract class DeviceDescriptor implements Model, FeatureProvider {
 
     public boolean isRestartSupported() {
         return m_restartSupported;
+    }
+
+    public void setProjectionSupported(boolean projectionSupported) {
+        m_projectionSupported = projectionSupported;
+    }
+
+    public boolean isProjectionSupported() {
+        return m_projectionSupported;
     }
 }
