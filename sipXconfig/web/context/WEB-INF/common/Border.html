@@ -73,18 +73,19 @@
 							<div class="roundedIndicatorSectionBoxInside">
 								<span jwcid="@Insert" raw="true" value="ognl:getPage().getMessages().getMessage('title')"/>
 							</div>
+							<div class="roundedIndicatorSectionBoxBottomLeft"></div><div class="roundedIndicatorSectionBoxBottomRight"></div>
 						</div>
 
 						<!-- BEGIN:leftNav -->
 						<div id="leftNav">
 								<span jwcid="@If" condition="ognl:navigationBlock" renderTag="false">
-									<div class="roundedSectionBoxTopLeft"></div><div class="roundedSectionBoxTopRight"></div>
-									<div class="roundedSectionBoxInside roundedNavSectionBoxInsideContent">
+									<div class="roundedNavSectionBoxTopLeft"></div><div class="roundedNavSectionBoxTopRight"></div>
+									<div class="roundedNavSectionBoxInside">
 										<span class="roundedSectionBoxInsideContent">
 											<div jwcid="@RenderBlock" block="ognl:navigationBlock" />
 										</span>
 									</div>
-									<div class="roundedSectionBoxBottomLeft"></div><div class="roundedSectionBoxBottomRight"></div>
+									<div class="roundedNavSectionBoxBottomLeft"></div><div class="roundedNavSectionBoxBottomRight"></div>
 								</span>
 								<span jwcid="@Else" renderTag="false">
 									<span class="roundedSectionBoxInsideContent">&nbsp;</span><!-- to ensure this block is never empty, so it has the min width -->

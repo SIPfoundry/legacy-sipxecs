@@ -778,27 +778,69 @@ html, body {
 	width:95%;
 }
 
-.roundedSectionBoxTopLeft, .roundedSectionBoxTopRight, .roundedSectionBoxBottomLeft, .roundedSectionBoxBottomRight, .roundedMainSectionBoxTopLeft, .roundedMainSectionBoxTopRight, .roundedMainSectionBoxBottomLeft, .roundedMainSectionBoxBottomRight, .roundedIndicatorSectionBoxTopLeft, .roundedIndicatorSectionBoxTopRight { 
+.roundedSectionBoxTopLeft, 
+.roundedSectionBoxTopRight, 
+.roundedSectionBoxBottomLeft, 
+.roundedSectionBoxBottomRight,
+.roundedNavSectionBoxTopLeft, 
+.roundedNavSectionBoxTopRight, 
+.roundedNavSectionBoxBottomLeft, 
+.roundedNavSectionBoxBottomRight,
+.roundedMainSectionBoxTopLeft, 
+.roundedMainSectionBoxTopRight, 
+.roundedMainSectionBoxBottomLeft, 
+.roundedMainSectionBoxBottomRight, 
+.roundedIndicatorSectionBoxTopLeft, 
+.roundedIndicatorSectionBoxTopRight 
+{ 
 	height: 8px;
 	font-size: 2px;
 }
-.roundedSectionBoxTopLeft, .roundedSectionBoxBottomLeft, .roundedMainSectionBoxTopLeft, .roundedMainSectionBoxBottomLeft, .roundedIndicatorSectionBoxTopLeft { 
+.roundedSectionBoxTopLeft, 
+.roundedSectionBoxBottomLeft,
+.roundedNavSectionBoxTopLeft, 
+.roundedNavSectionBoxBottomLeft,
+.roundedMainSectionBoxTopLeft, 
+.roundedMainSectionBoxBottomLeft, 
+.roundedIndicatorSectionBoxTopLeft 
+{ 
 	margin-right: 5px;
 }
-.roundedSectionBoxTopRight, .roundedSectionBoxBottomRight, .roundedMainSectionBoxTopRight, .roundedMainSectionBoxBottomRight, .roundedIndicatorSectionBoxTopRight { 
+.roundedSectionBoxTopRight, 
+.roundedSectionBoxBottomRight,
+.roundedNavSectionBoxTopRight, 
+.roundedNavSectionBoxBottomRight,
+.roundedMainSectionBoxTopRight, 
+.roundedMainSectionBoxBottomRight, 
+.roundedIndicatorSectionBoxTopRight 
+{ 
 	margin-left: 5px;
 	margin-top: -8px;
 }
-.roundedSectionBoxTopRight, .roundedMainSectionBoxTopRight, .roundedIndicatorSectionBoxTopRight {
+.roundedSectionBoxTopRight, 
+.roundedNavSectionBoxTopRight, 
+.roundedMainSectionBoxTopRight, 
+.roundedIndicatorSectionBoxTopRight 
+{
 	background-position: 100% 0;
 }
-.roundedSectionBoxBottomLeft, .roundedMainSectionBoxBottomLeft  { 
+.roundedSectionBoxBottomLeft, 
+.roundedNavSectionBoxBottomLeft,
+.roundedMainSectionBoxBottomLeft,
+.roundedIndicatorSectionBoxBottomLeft 
+{ 
 	background-position: 0 -8px;
 }
-.roundedSectionBoxBottomRight, .roundedMainSectionBoxBottomRight { 
+.roundedSectionBoxBottomRight,
+.roundedNavSectionBoxBottomRight,
+.roundedMainSectionBoxBottomRight,
+.roundedIndicatorSectionBoxBottomRight 
+{ 
 	background-position: 100% -8px;
 }
-.roundedSectionBoxInside, .roundedIndicatorSectionBoxInside{
+.roundedSectionBoxInside, 
+.roundedIndicatorSectionBoxInside
+{
 	padding-left: 10px;
 	padding-right:10px;
 }
@@ -810,11 +852,13 @@ html, body {
 	margin-top:-7px;
 	padding-bottom:10px;
 }
-.roundedSectionBoxInsideContent, .roundedMainSectionBoxInsideContent {
+.roundedSectionBoxInsideContent, 
+.roundedMainSectionBoxInsideContent 
+{
 	display:inline-block;
 	width:100%;
 }
-.roundedNavSectionBoxInsideContent {
+.roundedNavSectionBoxInside {
 	padding-left: 0px;
 	padding-right:0px;
 }

@@ -401,17 +401,31 @@ div.autocomplete ul strong.highlight {
 	background:#000000;	
 }
 
-.roundedSectionBoxTopLeft, .roundedSectionBoxTopRight, .roundedSectionBoxBottomLeft, .roundedSectionBoxBottomRight { 
+.roundedSectionBoxTopLeft, 
+.roundedSectionBoxTopRight, 
+.roundedSectionBoxBottomLeft, 
+.roundedSectionBoxBottomRight,
+.roundedNavSectionBoxTopLeft, 
+.roundedNavSectionBoxTopRight, 
+.roundedNavSectionBoxBottomLeft, 
+.roundedNavSectionBoxBottomRight 
+{ 
 	background: transparent url(/sipxconfig/images/layout/roundedSectionBoxCorners.gif);
 }
-.roundedSectionBoxInside {
+.roundedSectionBoxInside,
+.roundedNavSectionBoxInside
+{
 	border-left: 1px solid #bebebe;
 	border-right: 1px solid #bebebe;
 	background: #ffffff;
 	color: #000000;
 }
 
-.roundedMainSectionBoxTopLeft, .roundedMainSectionBoxTopRight, .roundedMainSectionBoxBottomLeft, .roundedMainSectionBoxBottomRight { 
+.roundedMainSectionBoxTopLeft, 
+.roundedMainSectionBoxTopRight, 
+.roundedMainSectionBoxBottomLeft, 
+.roundedMainSectionBoxBottomRight 
+{ 
 	background: transparent url(/sipxconfig/images/layout/roundedSectionBoxCornersMain.gif);
 }
 .roundedMainSectionBoxInside {
@@ -421,7 +435,11 @@ div.autocomplete ul strong.highlight {
 	color: #000000;
 }
 
-.roundedIndicatorSectionBoxTopLeft, .roundedIndicatorSectionBoxTopRight, .roundedIndicatorSectionBoxBottomLeft, .roundedIndicatorSectionBoxBottomRight { 
+.roundedIndicatorSectionBoxTopLeft, 
+.roundedIndicatorSectionBoxTopRight, 
+.roundedIndicatorSectionBoxBottomLeft, 
+.roundedIndicatorSectionBoxBottomRight 
+{ 
 	background: transparent url(/sipxconfig/images/layout/roundedIndicatorSectionBoxCorners.png);
 }
 .roundedIndicatorSectionBoxInside {
