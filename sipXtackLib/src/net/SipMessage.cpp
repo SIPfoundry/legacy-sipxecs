@@ -1437,10 +1437,10 @@ void SipMessage::setRequestUnauthorized(const SipMessage* request,
                         HTTP_PROXY_UNAUTHORIZED_TEXT);
     }
 
-    setAuthenticationData(authenticationScheme, authenticationRealm,
-                          authenticationNonce, authenticationOpaque,
-                          NULL,
-                          authEntity);
+    setAuthenticateData(authenticationScheme, authenticationRealm,
+                        authenticationNonce, authenticationOpaque,
+                        NULL,
+                        authEntity);
 }
 
 // This method is needed to cover the symetrical situation which is

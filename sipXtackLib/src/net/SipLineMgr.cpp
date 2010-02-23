@@ -49,27 +49,11 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-SipLineMgr::SipLineMgr(const char* authenticationScheme) :
+SipLineMgr::SipLineMgr() :
     OsServerTask( "SipLineMgr-%d" ),
-    mAuthenticationScheme (HTTP_DIGEST_AUTHENTICATION),
     mpRefreshMgr (NULL),
     mObserverMutex(OsRWMutex::Q_FIFO)
-{   // Authentication
-    if(authenticationScheme)
-    {
-        mAuthenticationScheme.append(authenticationScheme);
-        // Do not require authentication if not Basic or Digest
-        if(   0 != mAuthenticationScheme.compareTo(HTTP_BASIC_AUTHENTICATION,
-                                                   UtlString::ignoreCase
-                                                   )
-           && 0 != mAuthenticationScheme.compareTo(HTTP_DIGEST_AUTHENTICATION,
-                                                   UtlString::ignoreCase
-                                                   )
-           )
-        {
-            mAuthenticationScheme.remove(0);
-        }
-    }
+{   
 }
 
 SipLineMgr::~SipLineMgr()
@@ -177,13 +161,13 @@ SipLineMgr::handleMessage(OsMsg &eventMessage)
                     //get realm and scheme
                     if ( responseCode == HTTP_UNAUTHORIZED_CODE)
                     {
-                        sipMsg->getAuthenticationData(&scheme, &realm, &nonce, &opaque,
-                            &algorithm, &qop, HttpMessage::SERVER);
+                        sipMsg->getAuthenticateData(&scheme, &realm, &nonce, &opaque,
+                                                    &algorithm, &qop, HttpMessage::SERVER);
                     }
                     else if ( responseCode == HTTP_PROXY_UNAUTHORIZED_CODE)
                     {
-                        sipMsg->getAuthenticationData(&scheme, &realm, &nonce, &opaque,
-                            &algorithm, &qop, HttpMessage::PROXY);
+                        sipMsg->getAuthenticateData(&scheme, &realm, &nonce, &opaque,
+                                                    &algorithm, &qop, HttpMessage::PROXY);
                     }
 
                     //SDUATODO: LINE_STATE_FAILED after timing mechanism in place
@@ -544,11 +528,11 @@ SipLineMgr::getLineforAuthentication(
    // Get realm and scheme (hard way but not too expensive)
    if (response != NULL)
    {
-      if (!response->getAuthenticationData(&scheme, &realm, &nonce, &opaque,
-                                           &algorithm, &qop, SipMessage::PROXY))
+      if (!response->getAuthenticateData(&scheme, &realm, &nonce, &opaque,
+                                         &algorithm, &qop, SipMessage::PROXY))
       {
-         if (!response->getAuthenticationData(&scheme, &realm, &nonce, &opaque,
-                                              &algorithm, &qop, SipMessage::SERVER))
+         if (!response->getAuthenticateData(&scheme, &realm, &nonce, &opaque,
+                                            &algorithm, &qop, SipMessage::SERVER))
          {
             // Report inability to get auth criteria
             UtlString callId ;
@@ -725,8 +709,13 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
 
     // Get the digest authentication info. needed to create
     // a request with credentials
-    response->getAuthenticationData( &scheme, &realm, &nonce, &opaque,
-                                    &algorithm, &qop, authorizationEntity);
+    response->getAuthenticateData( &scheme, 
+                                   &realm, 
+                                   &nonce, 
+                                   &opaque,
+                                   &algorithm, 
+                                   &qop, 
+                                   authorizationEntity);
 
     // Set to true when we determine that we should not send an auth. challenge.
     UtlBoolean alreadyTriedOnce = FALSE;

@@ -328,7 +328,6 @@ SipRedirectorPickUp::initialize(OsConfigDb& configDb,
          NULL, // sipProxyServers
          NULL, // sipDirectoryServers
          NULL, // sipRegistryServers
-         NULL, // authenticationScheme
          NULL, // authenicateRealm
          NULL, // authenticateDb
          NULL, // authorizeUserIds

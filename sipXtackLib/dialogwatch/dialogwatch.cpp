@@ -325,7 +325,6 @@ int main(int argc, char* argv[])
                        NULL,
                        NULL,
                        NULL,
-                       NULL,
                        &lineMgr);
    // Add the 'eventlist' extension, so dialogwatch can subscribe to
    // event lists.

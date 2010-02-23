@@ -1166,7 +1166,6 @@ class SipMessageTest : public CppUnit::TestCase
                                  NULL,
                                  NULL,
                                  NULL,
-                                 NULL,
                                  SIP_DEFAULT_RTT,
                                  TRUE,
                                  -1,

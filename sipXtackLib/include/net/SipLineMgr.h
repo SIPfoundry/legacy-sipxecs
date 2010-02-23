@@ -71,7 +71,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   SipLineMgr(const char* authenticationScheme = HTTP_DIGEST_AUTHENTICATION);
+   SipLineMgr();
      //:Default constructor
 
    SipLineMgr(const SipLineMgr& rSipLineMgr);
@@ -322,7 +322,6 @@ private:
     };
 
     UtlBoolean mIsStarted;
-    UtlString mAuthenticationScheme;
     UtlString mAuthenticationRealm;
     OsConfigDb* mpAuthenticationDb;
     OsConfigDb* mpAuthorizationUserIds;

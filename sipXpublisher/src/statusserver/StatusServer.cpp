@@ -506,7 +506,6 @@ StatusServer::startStatusServer (
             NULL,   // outbound proxy
             NULL,   // directory server
             NULL,   // registry server
-            NULL,   // auth scheme
             NULL,   // auth realm
             NULL,   // auth DB
             NULL,   // auth user IDs

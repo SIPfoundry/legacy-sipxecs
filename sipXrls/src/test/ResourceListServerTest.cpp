@@ -225,14 +225,14 @@ public:
       {
          // retrieve information in the Www-authenticate: header
          UtlString dummy, nonce, realm;
-         if( response.getAuthenticationData( &dummy,
-                                             &realm,
-                                             &nonce,
-                                             &dummy,
-                                             &dummy,
-                                             &dummy,
-                                             HttpMessage::SERVER,
-                                             0 ) )
+         if( response.getAuthenticateData( &dummy,
+                                           &realm,
+                                           &nonce,
+                                           &dummy,
+                                           &dummy,
+                                           &dummy,
+                                           HttpMessage::SERVER,
+                                           0 ) )
          {
             // look for credentials belonging to the requesting user.
             Url fromUrl;
@@ -253,6 +253,7 @@ public:
                                        authTypeDB) )
             {
                // generate response hash
+               // TBD - 25-jan-2010 work might be needed if these tests are re-enabled
                UtlString responseHash;
                UtlString method;
 

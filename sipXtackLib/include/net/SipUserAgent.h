@@ -196,9 +196,6 @@ public:
      *        be sent for next hop before going to the final destination
      * \param sipDirectoryServers - deprecated
      * \param sipRegistryServers - deprecated
-     * \param authenticationScheme - authentication scheme to use when
-     *        challenging on behalf of the UA (i.e. 401).  Valid values
-     *        are NONE and DIGEST.
      * \param authenicateRealm - The authentication realm to use when
      *        sending 401 challenges.
      * \param authenticateDb - the authentication DB to use when
@@ -248,7 +245,6 @@ public:
                 const char* sipProxyServers = NULL,
                 const char* sipDirectoryServers = NULL,
                 const char* sipRegistryServers = NULL,
-                const char* authenticationScheme = NULL,
                 const char* authenicateRealm = NULL,
                 OsConfigDb* authenticateDb = NULL,
                 OsConfigDb* authorizeUserIds = NULL,
@@ -710,13 +706,6 @@ protected:
     // Get mMaxResendTimeoutMs, the maximum that will be used for a timeout interval.
     int getMaxResendTimeout();
 
-    UtlBoolean shouldAuthenticate(SipMessage* message) const;
-
-    UtlBoolean authorized(SipMessage* request,
-                          const char* uri = NULL) const;
-
-    void addAuthentication(SipMessage* message) const;
-
     UtlBoolean resendWithAuthorization(SipMessage* response,
                                        SipMessage* request,
                                        int* messageType,
@@ -785,7 +774,6 @@ private:
 
     UtlString defaultUserAgentName;
     long mLastCleanUpTime;
-    UtlString mAuthenticationScheme;
     UtlString mAuthenticationRealm;
     OsConfigDb* mpAuthenticationDb;
     OsConfigDb* mpAuthorizationUserIds;

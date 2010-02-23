@@ -1398,11 +1398,10 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
 
 
 UtlBoolean
-SipRegistrarServer::isAuthorized(
-    const Url&  toUri,
-    UtlString& instrument,
-    const SipMessage& message,
-    SipMessage& responseMessage )
+SipRegistrarServer::isAuthorized(const Url& toUri,
+                                 UtlString& instrument,
+                                 const SipMessage& message,
+                                 SipMessage& responseMessage )
 {
     UtlBoolean isAuthorized = FALSE;
 

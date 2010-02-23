@@ -1773,7 +1773,7 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
                 // Got a success
                 if(responseCode >= SIP_2XX_CLASS_CODE)
                 {
-                    // Set the Reason data to send in CANCEL 
+                    // Set the Reason data to send in CANCEL
                     setCancelReasonValue("SIP",
                                          responseCode,
                                          SIP_REASON_CALL_ANSWERED_ELSEWHERE);
@@ -2691,7 +2691,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                      "mpDnsDestinations[0].isValidServerT() = %d, "
                      "mpRequest = %p",
                      mIsServerTransaction, mIsDnsSrvChild,
-                     mpDnsDestinations, 
+                     mpDnsDestinations,
                      // Only examine mpDnsDestinations[0] if mpDnsDestinations != NULL.
                      mpDnsDestinations ? mpDnsDestinations[0].isValidServerT() : 0,
                      mpRequest);
@@ -3023,19 +3023,19 @@ void SipTransaction::getChallengeRealms(const SipMessage& response, UtlSList& re
    // Get any the proxy authentication challenges from the new challenge
    UtlString authField;
    for (unsigned authIndex = 0;
-        response.getAuthenticationField(authIndex, HttpMessage::PROXY, authField);
+        response.getAuthenticateField(authIndex, HttpMessage::PROXY, authField);
         authIndex++
         )
    {
       UtlString challengeRealm;
-      if (   HttpMessage::parseAuthenticationData(authField,
-                                                  NULL, // scheme
-                                                  &challengeRealm,
-                                                  NULL, // nonce
-                                                  NULL, // opaque
-                                                  NULL, // algorithm
-                                                  NULL, // qop
-                                                  NULL  // domain
+      if (   HttpMessage::parseAuthenticateData(authField,
+                                                NULL, // scheme
+                                                &challengeRealm,
+                                                NULL, // nonce
+                                                NULL, // opaque
+                                                NULL, // algorithm
+                                                NULL, // qop
+                                                NULL  // domain
                                                   )
           && !realmList.contains(&challengeRealm)
           )
@@ -3247,27 +3247,28 @@ UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int r
                         UtlString authField;
                         unsigned  authIndex;
                         for (authIndex = 0;
-                             childResponse->getAuthenticationField(authIndex, HttpMessage::PROXY,
-                                                                   authField);
+                             childResponse->getAuthenticateField(authIndex, 
+                                                                 HttpMessage::PROXY,
+                                                                 authField);
                              authIndex++
                              )
                         {
                            UtlString challengeRealm;
-                           if (HttpMessage::parseAuthenticationData(authField,
-                                                                    NULL, // scheme
-                                                                    &challengeRealm,
-                                                                    NULL, // nonce
-                                                                    NULL, // opaque
-                                                                    NULL, // algorithm
-                                                                    NULL, // qop
-                                                                    NULL  // domain
-                                                                    )
+                           if (HttpMessage::parseAuthenticateData(authField,
+                                                                  NULL, // scheme
+                                                                  &challengeRealm,
+                                                                  NULL, // nonce
+                                                                  NULL, // opaque
+                                                                  NULL, // algorithm
+                                                                  NULL, // qop
+                                                                  NULL  // domain
+                                                                  )
                                )
                            {
                               if (!proxyRealmsSeen.contains(&challengeRealm))
                               {
                                  proxyRealmsSeen.insert(new UtlString(challengeRealm));
-                                 bestResponse.addAuthenticationField(authField, HttpMessage::PROXY);
+                                 bestResponse.addAuthenticateField(authField, HttpMessage::PROXY);
                               }
                               else
                               {
@@ -3288,12 +3289,13 @@ UtlBoolean SipTransaction::findBestChildResponse(SipMessage& bestResponse, int r
 
                         // Get the UA server authenticate challenges
                         for (authIndex = 0;
-                             childResponse->getAuthenticationField(authIndex,
-                                                                   HttpMessage::SERVER, authField);
+                             childResponse->getAuthenticateField(authIndex,
+                                                                 HttpMessage::SERVER, 
+                                                                 authField);
                              authIndex++
                              )
                          {
-                             bestResponse.addAuthenticationField(authField, HttpMessage::SERVER);
+                             bestResponse.addAuthenticateField(authField, HttpMessage::SERVER);
                          }
                     }   // end child and best both want to challenge
                     else if (bestPri >= RESP_PRI_4XX)  // bestResp == cancel will top this
@@ -3914,9 +3916,9 @@ UtlBoolean SipTransaction::handleIncoming(SipMessage& incomingMessage,
                            {
                               mCancelReasonValue.append(", ");
                            }
-                           mCancelReasonValue.append(reasonTxt.data()); 
+                           mCancelReasonValue.append(reasonTxt.data());
                         }
-                        
+
                         cancelChildren(userAgent,
                                        transactionList);
                         shouldDispatch = FALSE;
@@ -5482,8 +5484,8 @@ UtlBoolean SipTransaction::isUriRecursedChildren(UtlString& uriString)
     return(childHasSameUri);
 }
 
-void SipTransaction::setCancelReasonValue(const char* protocol, 
-                                          int responseCode, 
+void SipTransaction::setCancelReasonValue(const char* protocol,
+                                          int responseCode,
                                           const char* reasonText)
 {
    mCancelReasonValue = protocol;

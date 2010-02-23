@@ -468,16 +468,16 @@ public:
             "\r\n"
                                  );
 
-         CPPUNIT_ASSERT(!proxyRspOne.getAuthenticationField(0,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(!proxyRspOne.getAuthenticateField(0,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
-         CPPUNIT_ASSERT(!proxyRspOne.getAuthenticationField(1,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(!proxyRspOne.getAuthenticateField(1,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
 
-         CPPUNIT_ASSERT(proxyRspOne.getAuthenticationField(0,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(proxyRspOne.getAuthenticateField(0,HttpMessage::PROXY,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
                           value.data());
 
-         CPPUNIT_ASSERT(!proxyRspOne.getAuthenticationField(1,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(!proxyRspOne.getAuthenticateField(1,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
 
          HttpMessage proxyRspTwo(
@@ -496,21 +496,21 @@ public:
             "\r\n"
                                  );
 
-         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticationField(0,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticateField(0,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
-         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticationField(1,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticateField(1,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
-         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticationField(2,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticateField(2,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
 
-         CPPUNIT_ASSERT(proxyRspTwo.getAuthenticationField(0,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(proxyRspTwo.getAuthenticateField(0,HttpMessage::PROXY,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
                           value.data());
-         CPPUNIT_ASSERT(proxyRspTwo.getAuthenticationField(1,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(proxyRspTwo.getAuthenticateField(1,HttpMessage::PROXY,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.net\", nonce=\"nothernonce\"",
                           value.data());
 
-         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticationField(2,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(!proxyRspTwo.getAuthenticateField(2,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
 
          HttpMessage serverRspOne(
@@ -528,16 +528,16 @@ public:
             "\r\n"
                                  );
 
-         CPPUNIT_ASSERT(!serverRspOne.getAuthenticationField(0,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(!serverRspOne.getAuthenticateField(0,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
-         CPPUNIT_ASSERT(!serverRspOne.getAuthenticationField(1,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(!serverRspOne.getAuthenticateField(1,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
 
-         CPPUNIT_ASSERT(serverRspOne.getAuthenticationField(0,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(serverRspOne.getAuthenticateField(0,HttpMessage::SERVER,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
                           value.data());
 
-         CPPUNIT_ASSERT(!serverRspOne.getAuthenticationField(1,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(!serverRspOne.getAuthenticateField(1,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
 
          HttpMessage serverRspTwo(
@@ -556,21 +556,21 @@ public:
             "\r\n"
                                  );
 
-         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticationField(0,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticateField(0,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
-         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticationField(1,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticateField(1,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
-         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticationField(2,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticateField(2,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
 
-         CPPUNIT_ASSERT(serverRspTwo.getAuthenticationField(0,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(serverRspTwo.getAuthenticateField(0,HttpMessage::SERVER,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
                           value.data());
-         CPPUNIT_ASSERT(serverRspTwo.getAuthenticationField(1,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(serverRspTwo.getAuthenticateField(1,HttpMessage::SERVER,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.net\", nonce=\"nothernonce\"",
                           value.data());
 
-         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticationField(2,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(!serverRspTwo.getAuthenticateField(2,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
 
          HttpMessage proxyRspMixed(
@@ -589,18 +589,18 @@ public:
             "\r\n"
                                  );
 
-         CPPUNIT_ASSERT(proxyRspMixed.getAuthenticationField(0,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(proxyRspMixed.getAuthenticateField(0,HttpMessage::SERVER,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.net\", nonce=\"nothernonce\"",
                           value.data());
 
-         CPPUNIT_ASSERT(!proxyRspMixed.getAuthenticationField(1,HttpMessage::SERVER,value));
+         CPPUNIT_ASSERT(!proxyRspMixed.getAuthenticateField(1,HttpMessage::SERVER,value));
          CPPUNIT_ASSERT(value.isNull());
 
-         CPPUNIT_ASSERT(proxyRspMixed.getAuthenticationField(0,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(proxyRspMixed.getAuthenticateField(0,HttpMessage::PROXY,value));
          ASSERT_STR_EQUAL("Digest realm=\"example.com\", nonce=\"c6c882469d27a9e9c4f75ab3fca4f7921184787266\"",
                           value.data());
 
-         CPPUNIT_ASSERT(!proxyRspMixed.getAuthenticationField(1,HttpMessage::PROXY,value));
+         CPPUNIT_ASSERT(!proxyRspMixed.getAuthenticateField(1,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
 
       }

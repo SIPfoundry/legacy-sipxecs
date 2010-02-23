@@ -343,7 +343,6 @@ SIPXTAPI_API SIPX_RESULT sipxInitialize(SIPX_INST* phInst,
                 NULL,                       // sipProxyServers
                 NULL,                       // sipDirectoryServers
                 NULL,                       // sipRegistryServers
-                NULL,                       // authenticationScheme
                 NULL,                       // authenicateRealm
                 NULL,                       // authenticateDb
                 NULL,                       // authorizeUserIds

@@ -532,7 +532,6 @@ int main(int argc, char* argv[])
                                                domain.isNull() ? NULL : domain.data(), // outbound proxy
                                                NULL, // sipDirectoryServers (deprecated)
                                                NULL, // sipRegistryServers (deprecated)
-                                               NULL, // authenticationScheme
                                                NULL, // authenicateRealm
                                                NULL, // authenticateDb
                                                NULL, // authorizeUserIds (deprecated)

@@ -1746,7 +1746,7 @@ void HttpMessage::unescape(UtlString& escapedText)
                     {
                         escapedChar += (*unescapedTextPtr - '7');
                     }
-#ifdef TEST_PRINT
+#ifdef TEST_PRINT_OS
                     osPrintf("HttpMessage::unescape char: %d\n", escapedChar);
 #endif
                     //unescapedText.append((char) escapedChar);
@@ -1819,7 +1819,7 @@ void HttpMessage::escape(UtlString& unEscapedText)
         else
         {
             sprintf(escapedChar, "%%%02X", (int)(unEscapedChar & 0xff));
-#ifdef TEST_PRINT
+#ifdef TEST_PRINT_OS
             osPrintf("%d escaped: %s\n", (int) unEscapedChar,
                 escapedChar);
 #endif
@@ -1844,7 +1844,7 @@ void HttpMessage::escapeOneChar(UtlString& unEscapedText, char tobeEscapedChar)
         if(unEscapedChar == tobeEscapedChar )
         {
             sprintf(escapedChar, "%%%02X", (int) (unEscapedChar & 0xff));
-#ifdef TEST_PRINT
+#ifdef TEST_PRINT_OS
             osPrintf("%d escaped: %s\n", (int) unEscapedChar,
                 escapedChar);
 #endif
@@ -2314,7 +2314,7 @@ UtlBoolean HttpMessage::getDateField(long* epochDate) const
         // returns zero if the format is not understood
         if(! *epochDate)
         {
-#ifdef TEST_PRINT
+#ifdef TEST_PRINT_OS
             osPrintf("WARNING: unsupported date format\n");
             osPrintf("Date field: \"%s\"\n", dateField);
             osPrintf("epoch date: %ld\n", *epochDate);
@@ -2632,12 +2632,12 @@ UtlBoolean HttpMessage::getAuthenticationScheme(UtlString* scheme,
     return(fieldValue != NULL);
 }
 
-void HttpMessage::setAuthenticationData(const char* scheme,
-                                        const char* realm,
-                                        const char* nonce,
-                                        const char* opaque,
-                                        const char* domain,
-                                        enum HttpEndpointEnum authEntity)
+void HttpMessage::setAuthenticateData(const char* scheme,
+                                      const char* realm,
+                                      const char* nonce,
+                                      const char* opaque,
+                                      const char* domain,
+                                      enum HttpEndpointEnum authEntity)
 {
     UtlString schemeString;
     UtlString authField;
@@ -2664,7 +2664,7 @@ void HttpMessage::setAuthenticationData(const char* scheme,
     else
     {
         OsSysLog::add( FAC_HTTP, PRI_ERR,
-                      "HttpMessage::setAuthenticationData: no realm specified"
+                      "HttpMessage::setAuthenticateData: no realm specified"
                       );
     }
 
@@ -2701,18 +2701,18 @@ void HttpMessage::setAuthenticationData(const char* scheme,
         // :TBD: should add qop
     }
 
-    addAuthenticationField(authField, authEntity);
+    addAuthenticateField(authField, authEntity);
 }
 
-UtlBoolean HttpMessage::getAuthenticationData(UtlString* scheme,
-                                              UtlString* realm,
-                                              UtlString* nonce,
-                                              UtlString* opaque,
-                                              UtlString* algorithm, // MD5 or MD5-sess
-                                              UtlString* qop, // may be multiple values
-                                              HttpMessage::HttpEndpointEnum authorizationEntity,
-                                              unsigned   index
-                                              ) const
+UtlBoolean HttpMessage::getAuthenticateData(UtlString* scheme,
+                                            UtlString* realm,
+                                            UtlString* nonce,
+                                            UtlString* opaque,
+                                            UtlString* algorithm, // MD5 or MD5-sess
+                                            UtlString* qop, // may be multiple values
+                                            HttpMessage::HttpEndpointEnum authorizationEntity,
+                                            unsigned   index
+                                            ) const
 {
     const char* fieldValue = NULL;
     UtlBoolean foundData = FALSE;
@@ -2728,7 +2728,7 @@ UtlBoolean HttpMessage::getAuthenticationData(UtlString* scheme,
 
     if(fieldValue)
     {
-       foundData = parseAuthenticationData(fieldValue,
+       foundData = parseAuthenticateData(fieldValue,
                                            scheme, realm, nonce, opaque, algorithm, qop,
                                            NULL /* domain */);
     }
@@ -2736,17 +2736,17 @@ UtlBoolean HttpMessage::getAuthenticationData(UtlString* scheme,
     return foundData;
 }
 
-bool HttpMessage::parseAuthenticationData(const UtlString& authenticationField,
-                                          UtlString* scheme,
-                                          UtlString* realm,
-                                          UtlString* nonce,
-                                          UtlString* opaque,
-                                          UtlString* algorithm, // MD5 or MD5-sess
-                                          UtlString* qop,
-                                          UtlString* domain
-                                          )
+bool HttpMessage::parseAuthenticateData(const UtlString& authenticateField,
+                                        UtlString* scheme,
+                                        UtlString* realm,
+                                        UtlString* nonce,
+                                        UtlString* opaque,
+                                        UtlString* algorithm, // MD5 or MD5-sess
+                                        UtlString* qop,
+                                        UtlString* domain
+                                        )
 {
-   NetAttributeTokenizer tokenizer(authenticationField.data());
+   NetAttributeTokenizer tokenizer(authenticateField.data());
    UtlString name;
    UtlString value;
 
@@ -2824,7 +2824,7 @@ UtlBoolean HttpMessage::getAuthorizationUser(UtlString* user,
    UtlString dummy;
 
    getAuthorizationScheme(&scheme);
-#ifdef TEST
+#ifdef TEST_PRINT
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "HttpMessage::getAuthorizationUser authorization scheme: \"%s\"",
                  scheme.data());
@@ -2880,7 +2880,7 @@ UtlBoolean HttpMessage::getAuthorizationUser(UtlString* user,
    return foundUserId;
 }
 
-UtlBoolean HttpMessage::getAuthorizationField(UtlString* authenticationField,
+UtlBoolean HttpMessage::getAuthorizationField(UtlString* authorizationField,
                                               HttpMessage::HttpEndpointEnum authorizationEntity
                                               ) const
 {
@@ -2894,11 +2894,11 @@ UtlBoolean HttpMessage::getAuthorizationField(UtlString* authenticationField,
         fieldValue = getHeaderValue(0, HTTP_PROXY_AUTHORIZATION_FIELD);
     }
 
-    authenticationField->remove(0);
+    authorizationField->remove(0);
 
     if(fieldValue)
     {
-        authenticationField->append(fieldValue);
+        authorizationField->append(fieldValue);
     }
 
     return(fieldValue != NULL);
@@ -3020,7 +3020,7 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
 }
 
 
-void HttpMessage::addAuthenticationField(const UtlString& authenticationField,
+void HttpMessage::addAuthenticateField(const UtlString& authenticateField,
                                          enum HttpEndpointEnum authEntity)
 {
     const char* fieldName = NULL;
@@ -3034,21 +3034,21 @@ void HttpMessage::addAuthenticationField(const UtlString& authenticationField,
         break;
     default:
        OsSysLog::add(FAC_SIP, PRI_CRIT,
-                     "HttpMessage::addAuthenticationField invalid authEntity - no field added"
+                     "HttpMessage::addAuthenticateField invalid authEntity - no field added"
                      );
        assert(false);
     }
     if (fieldName)
     {
-       addHeaderField(fieldName, authenticationField);
+       addHeaderField(fieldName, authenticateField);
     }
 }
 
-bool HttpMessage::getAuthenticationField(int index,
-                                         enum HttpEndpointEnum authEntity,
-                                         UtlString& authenticationField) const
+bool HttpMessage::getAuthenticateField(int index,
+                                       enum HttpEndpointEnum authEntity,
+                                       UtlString& authenticateField) const
 {
-   authenticationField.remove(0);
+   authenticateField.remove(0);
 
    const char* fieldName;
    switch( authEntity )
@@ -3061,7 +3061,7 @@ bool HttpMessage::getAuthenticationField(int index,
       break;
    default:
       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                    "HttpMessage::getAuthenticationField invalid authEntity"
+                    "HttpMessage::getAuthenticateField invalid authEntity"
                     );
       assert(false); // invalid authEntity value
    }
@@ -3070,11 +3070,11 @@ bool HttpMessage::getAuthenticationField(int index,
       const char* fieldValue = getHeaderValue(index, fieldName);
       if (fieldValue)
       {
-         authenticationField.append(fieldValue);
+         authenticateField.append(fieldValue);
       }
    }
 
-   return(!authenticationField.isNull());
+   return(!authenticateField.isNull());
 }
 
 
@@ -3482,9 +3482,9 @@ void HttpMessage::setRequestUnauthorized(const HttpMessage* request,
                             const char* authenticationDomain)
 {
     setResponseFirstHeaderLine("HTTP/1.1", HTTP_UNAUTHORIZED_CODE, HTTP_UNAUTHORIZED_TEXT);
-    setAuthenticationData(authenticationScheme, authenticationRealm,
-                          authenticationNonce, authenticationOpaque,
-                          authenticationDomain);
+    setAuthenticateData(authenticationScheme, authenticationRealm,
+                        authenticationNonce, authenticationOpaque,
+                        authenticationDomain);
 }
 
 void HttpMessage::setBasicAuthorization(const char* user,
@@ -3559,8 +3559,10 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
     if(cookieFound)
     {
 #ifdef TEST
-        osPrintf("HttpMessage::getBasicAuthorizationData cookie: \"%s\"\n",
-            cookie.data());
+        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                      "HttpMessage::getBasicAuthorizationData "
+                      "cookie: \"%s\"\n",
+                      cookie.data());
 #endif
         int decodedLength = NetBase64Codec::decodedSize(cookie.length(), cookie.data());
         char* decodedCookie = new char[decodedLength + 1];
@@ -3569,7 +3571,9 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
 
 #ifdef TEST_PRINT
         decodedCookie[decodedLength] = 0;
-        osPrintf("HttpMessage::getBasicAuthorizationData decoded cookie: \"%s\"\n",
+        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                      "HttpMessage::getBasicAuthorizationData "
+                      "decoded cookie: \"%s\"\n",
             decodedCookie);
 #endif
         // Parse out the userId and password
@@ -3592,7 +3596,9 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
         else
         {
 #ifdef TEST_PRINT
-            osPrintf("HttpMessage::getBasicAuthorizationData no user/password separator found\n");
+            OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                          "HttpMessage::getBasicAuthorizationData "
+                          "no user/password separator found\n");
 #endif
             userId->append(decodedCookie, decodedLength);
         }
@@ -3603,7 +3609,9 @@ UtlBoolean HttpMessage::getBasicAuthorizationData(UtlString* userId,
 #ifdef TEST
     else
     {
-        osPrintf("HttpMessage::getBasicAuthorizationData cookie not found in message\n");
+        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                      "HttpMessage::getBasicAuthorizationData "
+                      "cookie not found in message\n");
     }
 #endif
 
@@ -3620,14 +3628,18 @@ UtlBoolean HttpMessage::verifyBasicAuthorization(const char* user,
     if(user == NULL || strcmp(user, "") == 0)
     {
 #ifdef TEST
-        osPrintf("HttpMessage::verifyBasicAuthorization no db user id given\n");
+        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                      "HttpMessage::verifyBasicAuthorization "
+                      "no db user id given\n");
 #endif
         userAllowed = FALSE;
     }
 #ifdef TEST
     else
     {
-        osPrintf("HttpMessage::verifyBasicAuthorization user: \"%s\" password: \"%s\"\n",
+        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                      "HttpMessage::verifyBasicAuthorization "
+                      "user: \"%s\" password: \"%s\"\n",
             user, password);
     }
 #endif
@@ -3640,11 +3652,17 @@ UtlBoolean HttpMessage::verifyBasicAuthorization(const char* user,
         // Get the user:password cookie provided in this message
         userAllowed = getBasicAuthorizationData(&givenCookie);
 #ifdef TEST
-        osPrintf("HttpMessage::verifyBasicAuthorization user: \"%s\" password: \"%s\"\n",
+        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                      "HttpMessage::verifyBasicAuthorization "
+                      "user: \"%s\" password: \"%s\"\n",
             user, password);
-        osPrintf("HttpMessage::verifyBasicAuthorization ref. cookie: \"%s\"\n",
+        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                      "HttpMessage::verifyBasicAuthorization "
+                      " ref. cookie: \"%s\"\n",
             referenceCookie.data());
-        osPrintf("HttpMessage::verifyBasicAuthorization msg. cookie: \"%s\"\n",
+        OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                      "HttpMessage::verifyBasicAuthorization "
+                      "msg. cookie: \"%s\"\n",
             givenCookie.data());
 #endif
     }
@@ -3657,7 +3675,9 @@ UtlBoolean HttpMessage::verifyBasicAuthorization(const char* user,
 #ifdef TEST
     else
     {
-        osPrintf("HttpMessage::verifyBasicAuthorization no cookie in authorization field\n");
+            OsSysLog::add(FAC_HTTP,PRI_DEBUG,
+                          "HttpMessage::verifyBasicAuthorization "
+                          "no cookie in authorization field\n");
     }
 #endif
 

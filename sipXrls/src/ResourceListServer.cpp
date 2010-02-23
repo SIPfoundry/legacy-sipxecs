@@ -83,7 +83,6 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       NULL, // sipProxyServers
       NULL, // sipDirectoryServers
       NULL, // sipRegistryServers
-      NULL, // authenticationScheme
       NULL, // authenicateRealm
       NULL, // authenticateDb
       NULL, // authorizeUserIds
@@ -105,7 +104,6 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
       domainName.data(), // sipProxyServers
       NULL, // sipDirectoryServers
       NULL, // sipRegistryServers
-      NULL, // authenticationScheme
       NULL, // authenicateRealm
       NULL, // authenticateDb
       NULL, // authorizeUserIds

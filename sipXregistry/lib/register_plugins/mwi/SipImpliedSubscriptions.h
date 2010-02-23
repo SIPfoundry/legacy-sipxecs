@@ -92,13 +92,13 @@ protected:
      * but are passed separately so that they can be used in authentication.
      */
 
-    /// add authentication to the subscribe request.
-    void authenticate( const SipMessage& registerMessage ///< to get the user and realm from
-                      ,SipMessage& subscribeRequest      ///< the request to authenticate
-                      ,UtlString&  callId                ///< callid from the request
-                      ,UtlString&  fromTag               ///< From tag parameter from the request
-                      ,UtlString&  fromUri               ///< identity from the request
-                      );
+    /// attempt to add xxx-authorization header to the subscribe request.
+    void addAuthorization( const SipMessage& registerMessage ///< to get the user and realm from
+                           ,SipMessage& subscribeRequest      ///< the request to authenticate
+                           ,UtlString&  callId                ///< callid from the request
+                           ,UtlString&  fromTag               ///< From tag parameter from the request
+                           ,UtlString&  fromUri               ///< identity from the request
+                           );
 
 private:
     friend class ImpliedSubscriptionUserAgent;

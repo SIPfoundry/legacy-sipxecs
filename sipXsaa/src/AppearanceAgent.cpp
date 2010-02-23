@@ -67,7 +67,6 @@ AppearanceAgent::AppearanceAgent(const UtlString& domainName,
       domainName.data(), // sipProxyServers (outbound proxy)
       NULL, // sipDirectoryServers
       NULL, // sipRegistryServers
-      NULL, // authenticationScheme
       NULL, // authenicateRealm
       NULL, // authenticateDb
       NULL, // authorizeUserIds

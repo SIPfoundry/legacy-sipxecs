@@ -592,40 +592,40 @@ public:
                                        HttpEndpointEnum authorizationEntity
                                        ) const;
 
-    UtlBoolean getAuthenticationData(UtlString* scheme,
-                                     UtlString* realm,
-                                     UtlString* nonce,
-                                     UtlString* opaque,
-                                     UtlString* algorithm, // MD5 or MD5-sess
-                                     UtlString* qop, // may be multiple values
-                                     HttpEndpointEnum authorizationEntity,
-                                     unsigned   index = 0
-                                     ) const;
+    UtlBoolean getAuthenticateData(UtlString* scheme,
+                                   UtlString* realm,
+                                   UtlString* nonce,
+                                   UtlString* opaque,
+                                   UtlString* algorithm, // MD5 or MD5-sess
+                                   UtlString* qop, // may be multiple values
+                                   HttpEndpointEnum authorizationEntity,
+                                   unsigned   index = 0
+                                   ) const;
 
 
-    static bool parseAuthenticationData(const UtlString& authenticationField,
-                                        UtlString* scheme,
-                                        UtlString* realm,
-                                        UtlString* nonce,
-                                        UtlString* opaque,
-                                        UtlString* algorithm, // MD5 or MD5-sess
-                                        UtlString* qop,
-                                        UtlString* domain
-                                        );
+    static bool parseAuthenticateData(const UtlString& authenticationField,
+                                      UtlString* scheme,
+                                      UtlString* realm,
+                                      UtlString* nonce,
+                                      UtlString* opaque,
+                                      UtlString* algorithm, // MD5 or MD5-sess
+                                      UtlString* qop,
+                                      UtlString* domain
+                                      );
 
-    void setAuthenticationData(const char* scheme, const char* realm,
-                                const char* nonce, const char* opaque,
-                                const char* domain = NULL,
-                                enum HttpEndpointEnum authEntity = SERVER);
+    void setAuthenticateData(const char* scheme, const char* realm,
+                             const char* nonce, const char* opaque,
+                             const char* domain = NULL,
+                             enum HttpEndpointEnum authEntity = SERVER);
 
-    void addAuthenticationField(const UtlString&      authenticationField,
-                                enum HttpEndpointEnum authType
-                                );
+    void addAuthenticateField(const UtlString&      authenticationField,
+                              enum HttpEndpointEnum authType
+                              );
 
-    bool getAuthenticationField(int index,
-                                enum HttpEndpointEnum authEntity,
-                                UtlString& authenticationField
-                                ) const;
+    bool getAuthenticateField(int index,
+                              enum HttpEndpointEnum authEntity,
+                              UtlString& authenticationField
+                              ) const;
 
     // Authorization methods
     static void buildBasicAuthorizationCookie(const char* user,

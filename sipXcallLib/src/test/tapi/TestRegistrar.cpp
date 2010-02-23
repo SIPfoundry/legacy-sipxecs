@@ -45,7 +45,6 @@ TestRegistrar::TestRegistrar()
                 NULL,                       // sipProxyServers
                 NULL,                       // sipDirectoryServers
                 NULL,                       // sipRegistryServers
-                NULL,                       // authenticationScheme
                 NULL,                       // authenicateRealm
                 NULL,                       // authenticateDb
                 NULL,                       // authorizeUserIds
@@ -172,6 +171,7 @@ UtlBoolean TestRegistrar::handleRegisterRequest(SipMessage message)
         UtlString requestNonce;
         UtlString uriParam;
 
+        // TBD - 25-jan-2010 work might be needed if these tests are re-enabled
         message.getDigestAuthorizationData(
                    &requestUser, &requestRealm, &requestNonce,
                    NULL, NULL, &uriParam,
@@ -190,9 +190,9 @@ UtlBoolean TestRegistrar::handleRegisterRequest(SipMessage message)
             finalResponse.setCSeqField(++seqNum, method);
             retrySeqNum = seqNum;
 #ifdef _WIN32
-            finalResponse.setAuthenticationData("md5", "TestRegistrar", NULL, NULL, NULL, HttpMessage::HttpEndpointEnum::SERVER );
+            finalResponse.setAuthenticateData("md5", "TestRegistrar", NULL, NULL, NULL, HttpMessage::HttpEndpointEnum::SERVER );
 #else
-            finalResponse.setAuthenticationData("md5", "TestRegistrar", NULL, NULL, NULL, HttpMessage::SERVER );
+            finalResponse.setAuthenticateData("md5", "TestRegistrar", NULL, NULL, NULL, HttpMessage::SERVER );
 #endif
             finalResponse.setResponseData(&message, 401, "Not authorized");
         }

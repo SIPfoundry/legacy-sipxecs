@@ -284,8 +284,10 @@ void SipImpliedSubscriptions::takeAction(
                             ,subscribeRequest, callId, fromTag, fromUri
                             );
 
-      authenticate( registerMessage, subscribeRequest, callId, fromTag, fromUri );
+      // If credentials aren't found, Authorization header won't be added
+      addAuthorization( registerMessage, subscribeRequest, callId, fromTag, fromUri );
 
+      // send SUBSCRIBE with or without Authorization header
       sipUserAgent->send( subscribeRequest, NULL, NULL );
    }
 }
@@ -382,12 +384,12 @@ void SipImpliedSubscriptions::buildSubscribeRequest( const SipMessage& registerM
 }
 
 
-void SipImpliedSubscriptions::authenticate( const SipMessage& registerMessage
-                                           ,SipMessage& subscribeRequest
-                                           ,UtlString&  callId
-                                           ,UtlString&  fromTag
-                                           ,UtlString&  fromUri
-                                           )
+void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessage
+                                                ,SipMessage& subscribeRequest
+                                                ,UtlString&  callId
+                                                ,UtlString&  fromTag
+                                                ,UtlString&  fromUri
+                                                )
 {
    // Construct authentication that the status server will accept
    // We need the user credentials, and a signed nonce like the one

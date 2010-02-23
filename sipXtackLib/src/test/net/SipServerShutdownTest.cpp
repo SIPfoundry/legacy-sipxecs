@@ -44,7 +44,6 @@ public:
                          ,NULL     // default sipProxyServers
                          ,NULL     // default sipDirectoryServers
                          ,NULL     // default sipRegistryServers
-                         ,NULL     // default authenticationScheme
                          ,NULL     // default authenicateRealm
                          ,NULL     // default authenticateDb
                          ,NULL     // default authorizeUserIds
