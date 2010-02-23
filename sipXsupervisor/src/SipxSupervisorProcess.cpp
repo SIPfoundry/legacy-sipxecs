@@ -244,7 +244,7 @@ bool SipxSupervisorProcess::disable()
 bool SipxSupervisorProcess::restart()
 {
    OsSysLog::add(FAC_SUPERVISOR, PRI_ERR,
-                 "SipxSupervisorProcess::disable: supervisor cannot be restarted");
+                 "SipxSupervisorProcess::restart: supervisor cannot be restarted");
    return false;
 }
 
