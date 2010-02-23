@@ -83,16 +83,8 @@
   </bean>
 
   <!-- User cache configuration -->
-  <bean id="userCache" class="org.acegisecurity.providers.dao.cache.EhCacheBasedUserCache">
-    <property name="cache" ref="userCacheBackend" />
+  <bean id="userCache" class="org.acegisecurity.providers.dao.cache.NullUserCache">
   </bean>
-
-  <bean id="userCacheBackend" class="org.springframework.cache.ehcache.EhCacheFactoryBean">
-    <property name="cacheManager" ref="cacheManager" />
-    <property name="cacheName" value="userCache" />
-  </bean>
-
-  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" />
 
   <!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
   <bean id="loggerListener" class="org.acegisecurity.event.authentication.LoggerListener">

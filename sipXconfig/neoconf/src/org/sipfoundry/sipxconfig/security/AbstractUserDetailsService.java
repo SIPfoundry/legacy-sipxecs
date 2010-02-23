@@ -20,6 +20,7 @@ import org.acegisecurity.userdetails.UsernameNotFoundException;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.permission.PermissionName.RECORD_SYSTEM_PROMPTS;
@@ -34,10 +35,15 @@ public abstract class AbstractUserDetailsService implements UserDetailsService {
     private CoreContext m_coreContext;
     private AcdContext m_acdContext;
 
-    public final UserDetails loadUserByUsername(String userNameOrAlias) {
-        User user = m_coreContext.loadUserByUserNameOrAlias(userNameOrAlias);
+    public final UserDetails loadUserByUsername(String userNameOrAliasOrImId) {
+        User user = m_coreContext.loadUserByUserNameOrAlias(userNameOrAliasOrImId);
         if (user == null) {
-            throw new UsernameNotFoundException(userNameOrAlias);
+            // 2nd attempt - try to login as an imID
+            user = getUserForImId(userNameOrAliasOrImId);
+        }
+
+        if (user == null) {
+            throw new UsernameNotFoundException(userNameOrAliasOrImId);
         }
 
         List<GrantedAuthority> gas = new ArrayList<GrantedAuthority>(4);
@@ -59,7 +65,19 @@ public abstract class AbstractUserDetailsService implements UserDetailsService {
             gas.add(AttendantAdmin.toAuth());
         }
 
-        return createUserDetails(userNameOrAlias, user, gas);
+        return createUserDetails(userNameOrAliasOrImId, user, gas);
+    }
+
+    private User getUserForImId(String imId) {
+        User user = m_coreContext.loadUserByConfiguredImId(imId);
+        if (user != null) {
+            ImAccount imAccount = new ImAccount(user);
+            if (!imAccount.isEnabled()) {
+                return null;
+            }
+        }
+
+        return user;
     }
 
     protected abstract UserDetails createUserDetails(String userNameOrAlias, User user, List<GrantedAuthority> gas);

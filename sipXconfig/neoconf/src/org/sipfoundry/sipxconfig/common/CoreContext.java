@@ -99,6 +99,8 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
 
     User loadUserByAlias(String userName);
 
+    User loadUserByConfiguredImId(String userName);
+
     User loadUserByUserNameOrAlias(String userNameOrAlias);
 
     List<User> getSharedUsers();

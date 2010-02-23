@@ -69,6 +69,15 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         assertNull(m_core.loadUserByAlias("userseed2"));
     }
 
+    public void testLoadUserByConfiguredImId() throws Exception {
+        TestHelper.insertFlat("common/UserSearchSeed.xml");
+        User user = m_core.loadUserByConfiguredImId("jagr");
+        assertEquals("userseed1", user.getUserName());
+
+        User user1 = m_core.loadUserByConfiguredImId("test");
+        assertNull(user1);
+    }
+
     public void testLoadUserByUserNameOrAlias() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 

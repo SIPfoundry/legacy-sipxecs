@@ -3,7 +3,7 @@
 <dataset>
 	<value_storage value_storage_id="1001"/>
 	<value_storage value_storage_id="1002"/>
-	<address_book_entry	address_book_entry_id="1" office_address_street="1 Drive"/>
+	<address_book_entry	address_book_entry_id="1" office_address_street="1 Drive" im_id="jagr"/>
 	<address_book_entry	address_book_entry_id="2"/>
 	<address_book_entry	address_book_entry_id="3"/>
 	<address_book_entry	address_book_entry_id="4"/>

@@ -72,6 +72,10 @@
     <![CDATA[select u from User u join u.aliases alias where alias = :value]]>
   </query>
 
+  <query name="userByConfiguredImId">
+    <![CDATA[select u from User u where u.addressBookEntry.imId = :value]]>
+  </query>
+
   <query name="userByNameOrAlias">
     <![CDATA[select u from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
   </query>

@@ -235,6 +235,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return loadUserByNamedQueryAndNamedParam("userByAlias", VALUE, alias);
     }
 
+    public User loadUserByConfiguredImId(String imId) {
+        return loadUserByNamedQueryAndNamedParam("userByConfiguredImId", VALUE, imId);
+    }
+
     public User loadUserByUserNameOrAlias(String userNameOrAlias) {
         return loadUserByNamedQueryAndNamedParam(QUERY_USER_BY_NAME_OR_ALIAS, VALUE, userNameOrAlias);
     }

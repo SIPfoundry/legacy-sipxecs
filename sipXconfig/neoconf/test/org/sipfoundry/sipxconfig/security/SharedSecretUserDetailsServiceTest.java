@@ -116,6 +116,9 @@ public class SharedSecretUserDetailsServiceTest extends TestCase {
         m_coreContext.loadUserByUserNameOrAlias(USER_NAME);
         expectLastCall().andReturn(null);
 
+        m_coreContext.loadUserByConfiguredImId(USER_NAME);
+        expectLastCall().andReturn(null);
+
         replay(m_coreContext);
 
         try {
