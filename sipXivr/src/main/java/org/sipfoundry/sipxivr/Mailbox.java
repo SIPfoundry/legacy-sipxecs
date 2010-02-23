@@ -157,19 +157,24 @@ public class Mailbox {
         return m_mailboxPreferences ; 
     }
     
-    public void writeMailboxPreferences() {
-        MailboxPreferencesWriter mpw = new MailboxPreferencesWriter() ;
+    public void writeMailboxPreferences(String pin) {
+        // only preferences updated here are the active greeing and that is done
+        // via a sipXconfig REST call
+        
+        // /sipxconfig/rest/my/mailbox/200/preferences/activegreeting/standard
+
+        RestfulRequest rr = new RestfulRequest(
+                    IvrConfiguration.get().getConfigUrl()+"/sipxconfig/rest/my/mailbox/" + 
+                    m_user.getUserName() + "/preferences/activegreeting/", 
+                    m_user.getUserName(), pin);
+                   
         try {
-            // Write a temporary file so any readers will not read incomplete data
-            File tempFile = File.createTempFile("temp_mailboxprefs", ".xml", m_mailboxPreferencesFile.getParentFile());
-            mpw.writeObject(m_mailboxPreferences, tempFile);
-            // Move the temporary file to the correct filename
-            tempFile.renameTo(m_mailboxPreferencesFile) ;
-            m_lastModified = m_mailboxPreferencesFile.lastModified();
-        } catch (IOException e) {
-            LOG.error("writeMailboxPreferences cannot create tmp file",e);
-            throw new RuntimeException(e);
-        }
+            if (rr.put(getMailboxPreferences().getActiveGreeting().getActiveGreeting())) {
+                LOG.info("Mailbox::writeMailboxPreferences:change Greeting "+m_user.getUserName()+" greeting changed.");
+            }
+        } catch (Exception e) {
+            LOG.info("Mailbox::writeMailboxPreferences:change Greeting "+m_user.getUserName()+" failed: " + e.getMessage());
+        }        
     }
     
     public long getLastModified() {

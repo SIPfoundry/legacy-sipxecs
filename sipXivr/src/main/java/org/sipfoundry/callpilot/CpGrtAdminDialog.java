@@ -220,7 +220,7 @@ public class CpGrtAdminDialog {
         }
     }
     
-    public void chooseAGreeting() {
+    public void chooseAGreeting(String pin) {
         GreetingType type = GreetingType.NONE;
         
         CpDialog vmd = new CpDialog(m_vm, "select_greeting");
@@ -239,7 +239,7 @@ public class CpGrtAdminDialog {
         }
     
         m_mailbox.getMailboxPreferences().getActiveGreeting().setGreetingType(type);
-        m_mailbox.writeMailboxPreferences();
+        m_mailbox.writeMailboxPreferences(pin);
         
         if (digit.equals("1")) {
             m_vm.getLoc().play("use_primary_greeting", "");

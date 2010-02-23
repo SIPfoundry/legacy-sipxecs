@@ -1039,7 +1039,7 @@ public class Retrieve {
 
                     if (digit2.equals("1")) {
                         m_mailbox.getMailboxPreferences().getActiveGreeting().setGreetingType(type);
-                        m_mailbox.writeMailboxPreferences();
+                        m_mailbox.writeMailboxPreferences(m_userEnteredPin);
                         // Active greeting set successfully.
                         m_loc.play("selected_greeting_okay", "");
                         continue voicemailOptions;

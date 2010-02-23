@@ -166,49 +166,7 @@ public class MailboxServlet extends HttpServlet {
                     } else {
                         pw.format("<uuid>%s</uuid>\n", uuid);
                     }
-                } else if (context.equals("preferences")) {
-                    if (subDirs.length >= 4) {
-                        String whichPreference = subDirs[3];
-                        if (whichPreference.equals("activegreeting")) {
-                            MailboxPreferences prefs = mailbox.getMailboxPreferences();
-                            if (method.equals(METHOD_DELETE)) {
-                                prefs.setActiveGreeting(new ActiveGreeting());
-                                mailbox.writeMailboxPreferences();
-                            } else if (method.equals(METHOD_PUT)) {
-                                try {
-                                    JAXBContext jc = JAXBContext.newInstance(ActiveGreeting.class);
-                                    ActiveGreeting ag = (ActiveGreeting) jc.createUnmarshaller().unmarshal(
-                                            request.getReader());
-                                    prefs.setActiveGreeting(ag);
-                                    mailbox.writeMailboxPreferences();
-                                } catch (Exception e) {
-                                    //e.printStackTrace(pw);
-                                    response.sendError(400, e.getMessage());
-                                }
-                            }
-                            else if (method.equals(METHOD_GET)) {
-                                response.setContentType("text/xml");
-                                try {
-                                    JAXBContext jc = JAXBContext.newInstance(ActiveGreeting.class);
-                                    ActiveGreeting ag = prefs.getActiveGreeting();
-                                    Marshaller m = jc.createMarshaller();
-                                    m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT,new Boolean(true));
-                                    m.setProperty(Marshaller.JAXB_FRAGMENT, new Boolean(true));
-                                    StringWriter xml = new StringWriter();
-                                    m.marshal(ag, xml);
-                                    pw.write(xml.toString());
-                                    pw.write("\n");
-                                } catch (Exception e) {
-                                    e.printStackTrace(pw);
-                                    response.sendError(400, e.getMessage());
-                                }
-                            }
-                        } else {
-                            response.sendError(400, "preference not understood");
-                        }
-                    } else {
-                        response.sendError(400, "preference selection missing");
-                    }
+
                 } else {
                     response.sendError(400, "context not understood");
                 }

@@ -492,7 +492,7 @@ public class CpRetrieve {
                     
                 case CHOOSE_GREETING:
                     grtDlg = new CpGrtAdminDialog(m_vm, LOG);
-                    grtDlg.chooseAGreeting();
+                    grtDlg.chooseAGreeting(m_userEnteredPin);
                     break;                               
                           
                 case PWDCHANGE:

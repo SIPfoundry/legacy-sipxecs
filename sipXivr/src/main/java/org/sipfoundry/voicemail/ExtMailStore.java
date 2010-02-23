@@ -548,6 +548,7 @@ public class ExtMailStore {
         } catch (MessagingException e) {
             LogError("GetMsg", "", e.getMessage()); 
         }
+        LOG.debug("GetMsg could not find message with Msg Id " + msgId);
         return null;
     }
 
@@ -775,7 +776,7 @@ public class ExtMailStore {
         if(imapInfo == null || !imapInfo.isSynchronize())
             return;
         
-        LOG.debug("Attempting to created IMAP connection for user " + user.getUserName());
+        LOG.debug("Attempting to create IMAP connection for user " + user.getUserName());
                 
         class ConnectAction implements java.security.PrivilegedAction {
             public Object run() {
@@ -804,14 +805,15 @@ public class ExtMailStore {
                     Mailbox.createDirsIfNeeded(mbx);
                     Messages themsgs = Messages.newMessages(mbx);
                     SynchronizeMailbox(mbx, themsgs);
+                    LOG.debug("created IMAP connection for mailbox " + user.getUserName());
 
                 } catch (AuthenticationFailedException e) {
+                    LOG.error("SipXivr::ConnectAction for " + conn.m_user.getUserName(), e);
                     SendUpdatePswdEmail(conn);
                 } catch (MessagingException e) {
-                    LOG.error("SipXivr::ConnectAction", e);
+                    LOG.error("SipXivr::ConnectAction for " + conn.m_user.getUserName(), e);
                     SendUpdatePswdEmail(conn); 
-                }
-                LOG.debug("created IMAP connection for mailbox " + user.getUserName());
+                }                
                 return null;
             }
         }
