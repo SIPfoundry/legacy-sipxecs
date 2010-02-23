@@ -242,7 +242,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "1", "3", "l");
         entries = pagedPhonebook.getEntries().iterator();
         assertEquals("pintail", entries.next().getNumber());
-        assertEquals("London", entries.next().getAddressBookEntry().getOfficeAddress().getCity());
+        assertEquals("yellowthroat", entries.next().getNumber());
 
         pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "0", "3", null);
         assertEquals(4, pagedPhonebook.getSize());
@@ -250,7 +250,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals(0, pagedPhonebook.getStartRow());
         assertEquals(3, pagedPhonebook.getEndRow());
         entries = pagedPhonebook.getEntries().iterator();
-        assertEquals("Bucharest", entries.next().getAddressBookEntry().getOfficeAddress().getCity());
+        assertEquals("canadian", entries.next().getNumber());
         assertEquals("mallard", entries.next().getNumber());
         assertEquals("pintail", entries.next().getNumber());
 
