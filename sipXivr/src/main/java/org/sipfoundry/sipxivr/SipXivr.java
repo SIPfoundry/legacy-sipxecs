@@ -109,8 +109,6 @@ public class SipXivr implements Runnable {
 		            }
 		        }
 		        
-		        parseDiversionHeader(parameters);
-		        
 		        LOG.info(String.format("SipXivr::run Accepting call-id %s from %s to %s", 
 		                m_fses.getVariable("variable_sip_call_id"),
 		                m_fses.getVariable("variable_sip_from_uri"),
@@ -126,6 +124,7 @@ public class SipXivr implements Runnable {
 		            Attendant app = new Attendant(s_config, m_fses, parameters);
 		            app.run();
 		        } else if (action.equals("deposit") || action.equals("retrieve")) {
+		                parseDiversionHeader(parameters);
 		        	// Run VoiceMail
 		        	VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
 		        	app.run();
