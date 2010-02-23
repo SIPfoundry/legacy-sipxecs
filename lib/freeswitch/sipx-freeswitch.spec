@@ -144,7 +144,7 @@ CODECS_MODULES="codecs/mod_bv codecs/mod_celt codecs/mod_h26x codecs/mod_ilbc co
 DIALPLANS_MODULES="dialplans/mod_dialplan_asterisk dialplans/mod_dialplan_directory dialplans/mod_dialplan_xml"
 DIRECTORIES_MODULES=
 DOTNET_MODULES=
-ENDPOINTS_MODULES="endpoints/mod_dingaling endpoints/mod_iax endpoints/mod_portaudio endpoints/mod_sofia ../../libs/openzap/mod_openzap endpoints/mod_loopback"
+ENDPOINTS_MODULES="endpoints/mod_dingaling endpoints/mod_portaudio endpoints/mod_sofia ../../libs/openzap/mod_openzap endpoints/mod_loopback"
 EVENT_HANDLERS_MODULES="event_handlers/mod_event_multicast event_handlers/mod_event_socket event_handlers/mod_cdr_csv"
 FORMATS_MODULES="formats/mod_file_string formats/mod_local_stream formats/mod_native_file formats/mod_portaudio_stream formats/mod_shell_stream formats/mod_sndfile formats/mod_tone_stream"
 LANGUAGES_MODULES=""
@@ -286,6 +286,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %dir %{prefix}/conf/sip_profiles/external
 %dir %{prefix}/conf/jingle_profiles
 %dir %{prefix}/conf/mrcp_profiles
+%dir %{prefix}/conf/ivr_menus
 %ifos linux
 %config(noreplace) /etc/monit.d/freeswitch.monitrc
 %endif
@@ -305,6 +306,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %config(noreplace) %{prefix}/conf/sip_profiles/external/*.xml
 %config(noreplace) %{prefix}/conf/jingle_profiles/*.xml
 %config(noreplace) %{prefix}/conf/mrcp_profiles/*.xml
+%config(noreplace) %{prefix}/conf/ivr_menus/*.xml
 %config(noreplace) %{prefix}/htdocs/*
 %ifos linux
 /etc/ld.so.conf.d/*
@@ -345,7 +347,6 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %{prefix}/mod/mod_dialplan_xml.so* 
 %{prefix}/mod/mod_dialplan_asterisk.so* 
 %{prefix}/mod/mod_dingaling.so* 
-%{prefix}/mod/mod_iax.so* 
 %{prefix}/mod/mod_portaudio.so* 
 %{prefix}/mod/mod_portaudio_stream.so* 
 %{prefix}/mod/mod_shell_stream.so* 
