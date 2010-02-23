@@ -287,4 +287,32 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals(new Integer(101), editableContact.getId());
         assertEquals("10020", editableContact.getNumber());
     }
+
+    public void testMultipleFileUploadPhonebookEntries() throws Exception {
+        loadDataSet("phonebook/PhonebookFileEntriesSeed.db.xml");
+
+        Phonebook p = m_phonebookManager.getPhonebook(new Integer(2001));
+        m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook_gmail.csv"));
+
+        assertEquals(1, m_phonebookManager.getEntries(p).size());
+
+        m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook_gmail.csv"));
+        m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook_gmail.csv"));
+        m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook_gmail.csv"));
+        m_phonebookManager.addEntriesFromFile(2001, getClass().getResourceAsStream("phonebook.csv"));
+
+        assertEquals(2, m_phonebookManager.getEntries(p).size());
+    }
+
+    public void testUpdateFilePhonebookEntryInternalIds() throws Exception {
+        loadDataSet("phonebook/PhonebookSeed.db.xml");
+
+        Phonebook p = m_phonebookManager.getPhonebook(new Integer(1002));
+        Iterator<PhonebookEntry> entries = m_phonebookManager.getEntries(p).iterator();
+        assertNull(entries.next().getInternalId());
+
+        m_phonebookManager.updateFilePhonebookEntryInternalIds();
+        Iterator<PhonebookEntry> newEntries = m_phonebookManager.getEntries(p).iterator();
+        assertEquals("__", newEntries.next().getInternalId());
+    }
 }

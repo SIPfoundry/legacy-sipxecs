@@ -67,23 +67,23 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
 
     public abstract IUploadFile getUploadFile();
 
-    public abstract String getGmailAddress();
+    public abstract String getGoogleAddress();
 
-    public abstract String getGmailPassword();
+    public abstract String getGooglePassword();
 
-    public void importGmailAddressBook() {
-        String gmailAddress = getGmailAddress();
-        if (isBlank(gmailAddress)) {
-            getValidator().record(new ValidatorException(getMessages().getMessage("msg.emptyGmailAccount")));
+    public void importGoogleAddressBook() {
+        String googleAddress = getGoogleAddress();
+        if (isBlank(googleAddress)) {
+            getValidator().record(new ValidatorException(getMessages().getMessage("msg.emptyGoogleAccount")));
             return;
         }
-        String gmailPassword = getGmailPassword();
-        if (isBlank(gmailPassword)) {
-            getValidator().record(new ValidatorException(getMessages().getMessage("msg.emptyGmailPassword")));
+        String googlePassword = getGooglePassword();
+        if (isBlank(googlePassword)) {
+            getValidator().record(new ValidatorException(getMessages().getMessage("msg.emptyGooglePassword")));
             return;
         }
-        int contacts = getPhonebookManager().addEntriesFromGmailAccount(getPhonebookId(),
-                gmailAddress, gmailPassword);
+        int contacts = getPhonebookManager().addEntriesFromGoogleAccount(getPhonebookId(),
+                googleAddress, googlePassword);
         recordSuccessImport(contacts);
     }
 

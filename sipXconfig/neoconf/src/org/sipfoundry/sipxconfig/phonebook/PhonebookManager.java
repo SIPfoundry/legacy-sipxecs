@@ -61,7 +61,7 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     int addEntriesFromFile(Integer phonebookId, InputStream in);
 
-    int addEntriesFromGmailAccount(Integer phonebookId, String account, String password);
+    int addEntriesFromGoogleAccount(Integer phonebookId, String account, String password);
 
     Phonebook getPrivatePhonebook(User user);
 
@@ -77,6 +77,8 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
      * Gets all phonebooks for the provided user
      */
     Collection<Phonebook> getAllPhonebooksByUser(User consumer);
+
+    void updateFilePhonebookEntryInternalIds();
 
     // --> this methods will be removed after version update
     void removeTableColumns();

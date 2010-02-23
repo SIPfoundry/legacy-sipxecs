@@ -23,6 +23,8 @@ import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 
 import junit.framework.TestCase;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
@@ -32,6 +34,8 @@ import org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.FileEntrySearchPredicate;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.GoogleEntrySearchPredicate;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhoneEntryComparator;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhonebookEntryPredicate;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.StringArrayPhonebookEntry;
@@ -344,5 +348,28 @@ public class PhonebookManagerTest extends TestCase {
 
         predicate = new PhonebookEntryPredicate("test");
         assertTrue(predicate.evaluate(a));
+    }
+
+    public void testEntrySearchPredicates() {
+        PhonebookEntry a = new FilePhonebookEntry();
+        a.setInternalId("internalId");
+        PhonebookEntry b = new PhonebookEntry();
+        b.setInternalId("internalId");
+        GooglePhonebookEntry c = new GooglePhonebookEntry();
+        c.setGoogleAccount("account1");
+        GooglePhonebookEntry d = new GooglePhonebookEntry();
+        d.setGoogleAccount("account1");
+        GooglePhonebookEntry e = new GooglePhonebookEntry();
+        e.setGoogleAccount("account2");
+
+        Collection<PhonebookEntry> entries = new ArrayList<PhonebookEntry>();
+        entries.add(a);
+        entries.add(b);
+        entries.add(c);
+        entries.add(d);
+        entries.add(e);
+
+        assertEquals(1, CollectionUtils.select(entries, new FileEntrySearchPredicate("internalId")).size());
+        assertEquals(2, CollectionUtils.select(entries, new GoogleEntrySearchPredicate("account1")).size());
     }
 }

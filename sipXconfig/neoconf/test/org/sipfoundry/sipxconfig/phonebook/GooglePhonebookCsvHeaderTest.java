@@ -14,7 +14,7 @@ import java.util.Map;
 
 import junit.framework.TestCase;
 
-public class GmailPhonebookCsvHeaderTest extends TestCase {
+public class GooglePhonebookCsvHeaderTest extends TestCase {
 
     String[] gmailHeaderStrings = {
         "Name", "Given Name", "Additional Name", "Family Name", "Yomi Name", "Given Name Yomi",
@@ -38,13 +38,13 @@ public class GmailPhonebookCsvHeaderTest extends TestCase {
         "pirate wannabe", "", "", "", "", "Assistant", "Murray",
     };
 
-    public void testGetValuesForEntryGmail() {
+    public void testGetValuesForEntryGoogle() {
         Map<String, Integer> header = new HashMap<String, Integer>();
         Integer index = 0;
         for (String headerString : gmailHeaderStrings) {
             header.put(headerString, index++);
         }
-        PhonebookFileEntryHelper helper = new GmailPhonebookCsvHeader(header);
+        PhonebookFileEntryHelper helper = new GooglePhonebookCsvHeader(header);
         assertEquals("Guybrush", helper.getFirstName(gmailRow));
         assertEquals("Seepgood", helper.getLastName(gmailRow));
         assertEquals("7777", helper.getNumber(gmailRow));

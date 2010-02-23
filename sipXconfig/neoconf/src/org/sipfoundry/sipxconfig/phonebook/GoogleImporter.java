@@ -31,7 +31,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 public class GoogleImporter {
     private static final Log LOG = LogFactory.getLog(GoogleImporter.class);
 
-    private static final String GMAIL_URL = "http://www.google.com/m8/feeds/contacts/%s/full";
+    private static final String GOOGLE_URL = "http://www.google.com/m8/feeds/contacts/%s/full";
 
     private final String m_password;
 
@@ -45,23 +45,23 @@ public class GoogleImporter {
     List<ContactEntry> getEntries() {
         List<ContactEntry> entries = new ArrayList<ContactEntry>();
         try {
-            ContactsService gmailService = new ContactsService("sipxconfig-phonebooks-4.2");
-            gmailService.setUserCredentials(m_account, m_password);
+            ContactsService googleService = new ContactsService("sipxconfig-phonebooks-4.2");
+            googleService.setUserCredentials(m_account, m_password);
 
-            URL feedUrl = new URL(String.format(GMAIL_URL, m_account));
+            URL feedUrl = new URL(String.format(GOOGLE_URL, m_account));
             Query query = new Query(feedUrl);
             query.setMaxResults(2000);
-            ContactFeed resultFeed = gmailService.query(query, ContactFeed.class);
+            ContactFeed resultFeed = googleService.query(query, ContactFeed.class);
             entries = resultFeed.getEntries();
         } catch (AuthenticationException e) {
             LOG.warn("Authentication problems", e);
-            throw new GmailAuthUserException();
+            throw new GoogleAuthUserException();
         } catch (ServiceException e) {
             LOG.warn("Google service problems", e);
-            throw new GmailServiceUserException(e);
+            throw new GoogleServiceUserException(e);
         } catch (IOException e) {
             LOG.warn("Connectivity problems", e);
-            throw new GmailTransportUserException(e);
+            throw new GoogleTransportUserException(e);
         }
 
         return entries;
@@ -70,7 +70,7 @@ public class GoogleImporter {
     public int addEntries(Phonebook phonebook) {
         List<ContactEntry> entries = getEntries();
         for (ContactEntry entry : entries) {
-            PhonebookGmailEntryHelper entryHelper = new PhonebookGmailEntryHelper(entry);
+            PhonebookGoogleEntryHelper entryHelper = new PhonebookGoogleEntryHelper(entry, m_account);
             PhonebookEntry phonebookEntry = entryHelper.getPhonebookEntry();
             phonebookEntry.setPhonebook(phonebook);
             phonebook.addEntry(phonebookEntry);
@@ -78,26 +78,26 @@ public class GoogleImporter {
         return entries.size();
     }
 
-    public static class GmailAuthUserException extends UserException {
+    public static class GoogleAuthUserException extends UserException {
 
-        public GmailAuthUserException() {
-            super("&msg.phonebookGmailAuthError");
+        public GoogleAuthUserException() {
+            super("&msg.phonebookGoogleAuthError");
         }
 
     }
 
-    public static class GmailServiceUserException extends UserException {
+    public static class GoogleServiceUserException extends UserException {
 
-        public GmailServiceUserException(ServiceException e) {
-            super("&msg.phonebookGmailError", e);
+        public GoogleServiceUserException(ServiceException e) {
+            super("&msg.phonebookGoogleError", e);
         }
 
     }
 
-    public static class GmailTransportUserException extends UserException {
+    public static class GoogleTransportUserException extends UserException {
 
-        public GmailTransportUserException(IOException e) {
-            super("&msg.phonebookGmailTransportError", e);
+        public GoogleTransportUserException(IOException e) {
+            super("&msg.phonebookGoogleTransportError", e);
         }
 
     }

@@ -420,6 +420,45 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     }
 
+    static class FileEntrySearchPredicate implements Predicate {
+
+        private String m_internalId;
+
+        public FileEntrySearchPredicate(String internalId) {
+            m_internalId = internalId;
+        }
+
+        @Override
+        public boolean evaluate(Object phoneEntry) {
+            if (phoneEntry instanceof FilePhonebookEntry) {
+                FilePhonebookEntry entry = (FilePhonebookEntry) phoneEntry;
+                return StringUtils.containsIgnoreCase(entry.getInternalId(), m_internalId);
+            }
+
+            return false;
+        }
+
+    }
+
+    static class GoogleEntrySearchPredicate implements Predicate {
+
+        private String m_account;
+
+        public GoogleEntrySearchPredicate(String account) {
+            m_account = account;
+        }
+
+        @Override
+        public boolean evaluate(Object phoneEntry) {
+            if (phoneEntry instanceof GooglePhonebookEntry) {
+                GooglePhonebookEntry entry = (GooglePhonebookEntry) phoneEntry;
+                return StringUtils.containsIgnoreCase(entry.getGoogleAccount(), m_account);
+            }
+            return false;
+        }
+
+    }
+
     static class PhonebookEntryMaker implements Closure {
         private final Map<String, PhonebookEntry> m_entries;
         private PhonebookFileEntryHelper m_header = new InternalPhonebookVcardHeader();
@@ -463,7 +502,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
                     throw new InvalidPhonebookFormat();
                 }
                 if (key.toLowerCase().contains("yomi")) {
-                    return new GmailPhonebookCsvHeader(header);
+                    return new GooglePhonebookCsvHeader(header);
                 }
                 if (key.toLowerCase().contains("tty/tdd phone")) {
                     return new OutlookPhonebookCsvHeader(header);
@@ -615,12 +654,20 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     @Override
-    public int addEntriesFromGmailAccount(Integer phonebookId, String account, String password) {
+    public int addEntriesFromGoogleAccount(Integer phonebookId, String account, String password) {
         Phonebook phonebook = getPhonebook(phonebookId);
+        deleteGoogleImportedEntries(account, phonebook);
         GoogleImporter googleImporter = new GoogleImporter(account, password);
         int count = googleImporter.addEntries(phonebook);
         savePhonebook(phonebook);
         return count;
+    }
+
+    private void deleteGoogleImportedEntries(String account, Phonebook phonebook) {
+        Collection existingEntries = CollectionUtils.select(phonebook.getEntries(), new GoogleEntrySearchPredicate(
+                account));
+        phonebook.getEntries().removeAll(existingEntries);
+
     }
 
     int addEntries(Phonebook phonebook, InputStream is) throws IOException {
@@ -637,13 +684,19 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
         List<PhonebookEntry> entriesList = new ArrayList(entries.values());
         for (PhonebookEntry entry : entriesList) {
-            PhonebookEntry fileEntry = new PhonebookEntry();
+            PhonebookEntry fileEntry = new FilePhonebookEntry();
 
             fileEntry.setFirstName(entry.getFirstName());
             fileEntry.setLastName(entry.getLastName());
             fileEntry.setNumber(entry.getNumber());
             fileEntry.setAddressBookEntry(entry.getAddressBookEntry());
             fileEntry.setPhonebook(phonebook);
+            String uniqueKey = getEntryKey(fileEntry);
+            fileEntry.setInternalId(uniqueKey);
+
+            PhonebookEntry oldEntry = (PhonebookEntry) CollectionUtils.find(phonebook.getEntries(),
+                    new FileEntrySearchPredicate(uniqueKey));
+            phonebook.getEntries().remove(oldEntry);
 
             phonebook.addEntry(fileEntry);
         }
@@ -761,5 +814,16 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
 
         return fileEntries;
+    }
+
+    /**
+     * To be used only for upgrading existing contacts
+     */
+    public void updateFilePhonebookEntryInternalIds() {
+        Collection<FilePhonebookEntry> fileEntries = getHibernateTemplate().loadAll(FilePhonebookEntry.class);
+        for (FilePhonebookEntry entry : fileEntries) {
+            entry.setInternalId(getEntryKey(entry));
+        }
+        getHibernateTemplate().saveOrUpdateAll(fileEntries);
     }
 }

@@ -3,12 +3,13 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.phonebook" default-lazy="false">
 
-  <class name="PhonebookEntry" table="phonebook_file_entry">
+  <class name="PhonebookEntry" table="phonebook_file_entry" discriminator-value="U">
     <id name="id" column="phonebook_file_entry_id" type="int" unsaved-value="-1">
       <generator class="sequence">
         <param name="sequence">phonebook_file_entry_seq</param>
       </generator>
     </id>
+    <discriminator column="phonebook_entry_type" type="character" />
 	<property name="firstName" column="first_name"/>
 	<property name="lastName" column="last_name"/>
 	<property name="number" column="phone_number"/>
@@ -19,7 +20,17 @@
 			     cascade="all"
 			     column="address_book_entry_id"/>
 
-	<many-to-one name="phonebook" column="phonebook_id" class="Phonebook" not-null="true"/>
+    <many-to-one name="phonebook" column="phonebook_id" class="Phonebook" not-null="true"/>
+
+    <subclass name="GooglePhonebookEntry" discriminator-value="G">
+		<property name="googleAccount" column="google_account_id"/>
+		<property name="internalId" column="internal_id"/>
+	</subclass>
+
+    <subclass name="FilePhonebookEntry" discriminator-value="F">
+        <property name="internalId" column="internal_id"/>
+    </subclass>
+
   </class>
 
 </hibernate-mapping>

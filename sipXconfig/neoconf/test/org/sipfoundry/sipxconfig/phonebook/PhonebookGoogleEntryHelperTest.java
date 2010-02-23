@@ -30,7 +30,7 @@ import com.google.gdata.data.extensions.StructuredPostalAddress;
 import com.google.gdata.data.extensions.Where;
 import junit.framework.TestCase;
 
-public class PhonebookGmailEntryHelperTest extends TestCase {
+public class PhonebookGoogleEntryHelperTest extends TestCase {
 
     public void testExtractName() {
         ContactEntry ce = new ContactEntry();
@@ -43,7 +43,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         name.setGivenName(givenName);
         ce.setName(name);
 
-        PhonebookEntry phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         assertEquals("Flinstone", phoneBookEntry.getLastName());
         assertEquals("Fred", phoneBookEntry.getFirstName());
 
@@ -54,7 +54,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         name1.setFamilyName(familyName1);
         ce1.setName(name1);
 
-        PhonebookEntry phoneBookEntry1 = new PhonebookGmailEntryHelper(ce1).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry1 = new PhonebookGoogleEntryHelper(ce1, "me@gmail.com").getPhonebookEntry();
         assertEquals("Duffy", phoneBookEntry1.getLastName());
         assertEquals("", phoneBookEntry1.getFirstName());
 
@@ -65,7 +65,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         name2.setGivenName(givenName2);
         ce2.setName(name2);
 
-        PhonebookEntry phoneBookEntry2 = new PhonebookGmailEntryHelper(ce2).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry2 = new PhonebookGoogleEntryHelper(ce2, "me@gmail.com").getPhonebookEntry();
         assertEquals("Bunny", phoneBookEntry2.getFirstName());
         assertEquals("", phoneBookEntry2.getLastName());
 
@@ -76,7 +76,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         name3.setFullName(fullName);
         ce3.setName(name3);
 
-        PhonebookEntry phoneBookEntry3 = new PhonebookGmailEntryHelper(ce3).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry3 = new PhonebookGoogleEntryHelper(ce3, "me@gmail.com").getPhonebookEntry();
         assertEquals("Yosemite", phoneBookEntry3.getFirstName());
         assertEquals("Sam", phoneBookEntry3.getLastName());
 
@@ -84,7 +84,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         name3.setFullName(fullName);
         ce3.setName(name3);
 
-        phoneBookEntry3 = new PhonebookGmailEntryHelper(ce3).getPhonebookEntry();
+        phoneBookEntry3 = new PhonebookGoogleEntryHelper(ce3, "me@gmail.com").getPhonebookEntry();
         assertEquals("Yosemite", phoneBookEntry3.getFirstName());
         assertEquals("Sam II", phoneBookEntry3.getLastName());
 
@@ -92,7 +92,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         name3.setFullName(fullName);
         ce3.setName(name3);
 
-        phoneBookEntry3 = new PhonebookGmailEntryHelper(ce3).getPhonebookEntry();
+        phoneBookEntry3 = new PhonebookGoogleEntryHelper(ce3, "me@gmail.com").getPhonebookEntry();
         assertEquals("Yosemite", phoneBookEntry3.getFirstName());
         assertEquals(null, phoneBookEntry3.getLastName());
 
@@ -104,7 +104,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         im1.setAddress("yahooAddress");
         ce.addImAddress(im1);
 
-        PhonebookEntry phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         assertEquals("yahooAddress", phoneBookEntry.getAddressBookEntry().getImId());
         assertEquals(null, phoneBookEntry.getAddressBookEntry().getAlternateImId());
 
@@ -112,7 +112,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         im2.setAddress("googleAddress");
         ce.addImAddress(im2);
 
-        phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         assertEquals("yahooAddress", phoneBookEntry.getAddressBookEntry().getImId());
         assertEquals("googleAddress", phoneBookEntry.getAddressBookEntry().getAlternateImId());
     }
@@ -131,7 +131,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
 
         ce.addStructuredPostalAddress(address);
 
-        PhonebookEntry phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         Address homeAddr = phoneBookEntry.getAddressBookEntry().getHomeAddress();
         assertEquals("City", homeAddr.getCity());
         assertEquals("Country", homeAddr.getCountry());
@@ -145,7 +145,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
 
         ContactEntry ce1 = new ContactEntry();
         ce1.addStructuredPostalAddress(address);
-        PhonebookEntry phoneBookEntry1 = new PhonebookGmailEntryHelper(ce1).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry1 = new PhonebookGoogleEntryHelper(ce1, "me@gmail.com").getPhonebookEntry();
         Address workAddr = phoneBookEntry1.getAddressBookEntry().getOfficeAddress();
         assertEquals("Street", workAddr.getStreet());
         assertEquals("PostCode", workAddr.getZip());
@@ -158,7 +158,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         ce.addPhoneNumber(createPhoneNumber("home", "2222"));
         ce.addPhoneNumber(createPhoneNumber("fax", "3333"));
 
-        PhonebookEntry phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         assertEquals("1234", phoneBookEntry.getNumber());
         assertEquals("1111", phoneBookEntry.getAddressBookEntry().getCellPhoneNumber());
         assertEquals("2222", phoneBookEntry.getAddressBookEntry().getHomePhoneNumber());
@@ -166,11 +166,11 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
 
         //test set Mobile or Home phone as phoneBookEntry number
         ce.addPhoneNumber(createPhoneNumber("work", null));
-        phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         assertEquals("1111", phoneBookEntry.getNumber());
 
         ce.addPhoneNumber(createPhoneNumber("mobile", null));
-        phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         assertEquals("2222", phoneBookEntry.getNumber());
     }
 
@@ -199,7 +199,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
 
         ce.addOrganization(org);
 
-        PhonebookEntry phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         AddressBookEntry abe = phoneBookEntry.getAddressBookEntry();
         assertEquals("Title", abe.getJobTitle());
         assertEquals("Name", abe.getCompanyName());
@@ -220,7 +220,7 @@ public class PhonebookGmailEntryHelperTest extends TestCase {
         ce.addEmailAddress(email1);
         ce.addEmailAddress(email2);
 
-        PhonebookEntry phoneBookEntry = new PhonebookGmailEntryHelper(ce).getPhonebookEntry();
+        PhonebookEntry phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         AddressBookEntry abe = phoneBookEntry.getAddressBookEntry();
         assertEquals("kovalchuk@thrashers.com", abe.getEmailAddress());
         assertEquals("ilya.k@gmail.com", abe.getAlternateEmailAddress());

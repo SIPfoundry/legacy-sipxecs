@@ -35,5 +35,5 @@
   <phonebook_consumer phonebook_id="1003" group_id="1001"/>
 
   <phonebook name="private" phonebook_id="1004" user_id="1002"/>
-  <phonebook_file_entry phonebook_file_entry_id="101" first_name="John" phone_number="10020" phonebook_id="1004"/>
+  <phonebook_file_entry phonebook_file_entry_id="101" first_name="John" phone_number="10020" phonebook_id="1004" phonebook_entry_type="U"/>
 </dataset>

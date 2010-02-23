@@ -343,6 +343,8 @@
     <antcall target="internal_user" />
     <antcall target="remove-enable-meetme-conference" />
     <antcall target="change-nortel-phones-model" />
+    <antcall target="multiple_phonebook_entry_types" />
+    <antcall target="phonebook_entries_update_task" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1063,6 +1065,12 @@
   </target>
   <target name="change-nortel-phones-model" unless="change-nortel-phones-model">
     <db-patch patch="change-nortel-phones-model"/>
+  </target>
+  <target name="multiple_phonebook_entry_types" unless="multiple_phonebook_entry_types">
+    <db-patch patch="multiple_phonebook_entry_types"/>
+  </target>
+  <target name="phonebook_entries_update_task" unless="phonebook_entries_update_task">
+    <db-patch patch="phonebook_entries_update_task"/>
   </target>
 
   <!--

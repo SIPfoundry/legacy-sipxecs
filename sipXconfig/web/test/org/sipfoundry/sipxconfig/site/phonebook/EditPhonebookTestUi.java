@@ -57,18 +57,18 @@ public class EditPhonebookTestUi extends WebTestCase {
         SiteTestHelper.assertUserError(tester);
     }
 
-    public void testImportGmailContacts() {
+    public void testImportGoogleContacts() {
         tester.setTextField("item:name", "test-phonebook");
         tester.clickButton("form:apply");
-        assertElementPresent("gmailAddress");
-        assertElementPresent("gmailPassword");
+        assertElementPresent("googleAddress");
+        assertElementPresent("googlePassword");
         setTextField("item:name", "test-phonebook");
-        setTextField("gmailAddress", "");
-        setTextField("gmailPassword", "");
-        clickButton("importGmailButton");
+        setTextField("googleAddress", "");
+        setTextField("googlePassword", "");
+        clickButton("importGoogleButton");
         SiteTestHelper.assertUserError(tester);
-        setTextField("gmailAddress", "test");
-        clickButton("importGmailButton");
+        setTextField("googleAddress", "test");
+        clickButton("importGoogleButton");
         SiteTestHelper.assertUserError(tester);
     }
 

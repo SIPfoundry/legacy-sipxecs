@@ -29,7 +29,7 @@ import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.split;
 
-public class PhonebookGmailEntryHelper {
+public class PhonebookGoogleEntryHelper {
     private static final String WORK = "work";
     private static final String GIVEN_NAME = "givenName";
     private static final String FAMILY_NAME = "familyName";
@@ -50,9 +50,11 @@ public class PhonebookGmailEntryHelper {
 
     private final ContactEntry m_contactEntry;
     private final PhonebookEntry m_phonebookEntry;
+    private final String m_account;
 
-    PhonebookGmailEntryHelper(ContactEntry entry) {
+    PhonebookGoogleEntryHelper(ContactEntry entry, String account) {
         m_contactEntry = entry;
+        m_account = account;
         m_phonebookEntry = createPhonebookEntry();
     }
 
@@ -61,7 +63,9 @@ public class PhonebookGmailEntryHelper {
     }
 
     private PhonebookEntry createPhonebookEntry() {
-        PhonebookEntry phonebookEntry = new PhonebookEntry();
+        GooglePhonebookEntry phonebookEntry = new GooglePhonebookEntry();
+        phonebookEntry.setInternalId(m_contactEntry.getId());
+        phonebookEntry.setGoogleAccount(m_account);
         extractName(phonebookEntry);
         AddressBookEntry abe = new AddressBookEntry();
         extractIMs(abe);

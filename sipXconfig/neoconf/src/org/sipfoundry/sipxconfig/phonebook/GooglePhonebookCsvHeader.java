@@ -13,7 +13,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
-public class GmailPhonebookCsvHeader extends PhonebookCsvHeader {
+public class GooglePhonebookCsvHeader extends PhonebookCsvHeader {
     private static final String FIRST_NAME = "Given Name";
     private static final String LAST_NAME = "Family Name";
     private static final String PHONE = "Phone 1 - Value";
@@ -39,11 +39,11 @@ public class GmailPhonebookCsvHeader extends PhonebookCsvHeader {
     private static final String EMAIL_ADDRESS = "E-mail 1 - Value";
     private static final String ALTERNATE_EMAIL_ADDRESS = "E-mail 2 - Value";
 
-    public GmailPhonebookCsvHeader(Map<String, Integer> header) {
+    public GooglePhonebookCsvHeader(Map<String, Integer> header) {
         super(header);
     }
 
-    private String getGmailValueForType(String[] row, String property, String type, String valueSuffix) {
+    private String getGoogleValueForType(String[] row, String property, String type, String valueSuffix) {
         for (int index = 1;; index++) {
             String key = String.format("%s %d - Type", property, index);
             Integer rowIndex = getIndexForSymbol(key);
@@ -59,8 +59,8 @@ public class GmailPhonebookCsvHeader extends PhonebookCsvHeader {
         return null;
     }
 
-    private String getGmailValueForType(String[] row, String property, String type) {
-        return getGmailValueForType(row, property, type, "Value");
+    private String getGoogleValueForType(String[] row, String property, String type) {
+        return getGoogleValueForType(row, property, type, "Value");
     }
 
     public String getFirstName(String[] row) {
@@ -84,11 +84,11 @@ public class GmailPhonebookCsvHeader extends PhonebookCsvHeader {
         abe.setJobTitle(getValueForSymbol(row, JOB_TITLE));
         abe.setJobDept(getValueForSymbol(row, JOB_DEPT));
         abe.setCompanyName(getValueForSymbol(row, COMPANY_NAME));
-        abe.setAssistantName(getGmailValueForType(row, RELATION_NAME, RELATION_TYPE_ASSISTANT));
-        abe.setCellPhoneNumber(getGmailValueForType(row, PHONE_NAME, PHONE_TYPE_MOBILE));
-        abe.setHomePhoneNumber(getGmailValueForType(row, PHONE_NAME, TYPE_HOME));
-        abe.setFaxNumber(getGmailValueForType(row, PHONE_NAME, PHONE_TYPE_WORK_FAX));
-        abe.setAlternateImId(getGmailValueForType(row, IM_NAME, IM_TYPE_OTHER));
+        abe.setAssistantName(getGoogleValueForType(row, RELATION_NAME, RELATION_TYPE_ASSISTANT));
+        abe.setCellPhoneNumber(getGoogleValueForType(row, PHONE_NAME, PHONE_TYPE_MOBILE));
+        abe.setHomePhoneNumber(getGoogleValueForType(row, PHONE_NAME, TYPE_HOME));
+        abe.setFaxNumber(getGoogleValueForType(row, PHONE_NAME, PHONE_TYPE_WORK_FAX));
+        abe.setAlternateImId(getGoogleValueForType(row, IM_NAME, IM_TYPE_OTHER));
         abe.setLocation(getValueForSymbol(row, LOCATION));
         abe.setEmailAddress(getValueForSymbol(row, EMAIL_ADDRESS));
         abe.setAlternateEmailAddress(getValueForSymbol(row, ALTERNATE_EMAIL_ADDRESS));
@@ -104,11 +104,11 @@ public class GmailPhonebookCsvHeader extends PhonebookCsvHeader {
 
     private Address getAddress(String[] row, String type) {
         Address address = new Address();
-        address.setCity(getGmailValueForType(row, ADDRESS, type, ADDRESS_VALUE_CITY));
-        address.setCountry(getGmailValueForType(row, ADDRESS, type, ADDRESS_VALUE_COUNTRY));
-        address.setState(getGmailValueForType(row, ADDRESS, type, ADDRESS_VALUE_STATE));
-        address.setStreet(getGmailValueForType(row, ADDRESS, type, ADDRESS_VALUE_STREET));
-        address.setZip(getGmailValueForType(row, ADDRESS, type, ADDRESS_VALUE_ZIP));
+        address.setCity(getGoogleValueForType(row, ADDRESS, type, ADDRESS_VALUE_CITY));
+        address.setCountry(getGoogleValueForType(row, ADDRESS, type, ADDRESS_VALUE_COUNTRY));
+        address.setState(getGoogleValueForType(row, ADDRESS, type, ADDRESS_VALUE_STATE));
+        address.setStreet(getGoogleValueForType(row, ADDRESS, type, ADDRESS_VALUE_STREET));
+        address.setZip(getGoogleValueForType(row, ADDRESS, type, ADDRESS_VALUE_ZIP));
         return address;
     }
 }

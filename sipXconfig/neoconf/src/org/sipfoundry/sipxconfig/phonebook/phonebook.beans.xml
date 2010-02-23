@@ -30,4 +30,13 @@
     <property name="vcardEncoding" value="UTF-8" />
   </bean>
 
+  <bean id="filePhonebookEntryUpgradeTask" class="org.sipfoundry.sipxconfig.phonebook.FilePhonebookEntryUpgradeTask">
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="taskNames">
+      <list>
+        <value>phonebook_entries_update_task</value>
+      </list>
+    </property>
+  </bean>
+
 </beans>

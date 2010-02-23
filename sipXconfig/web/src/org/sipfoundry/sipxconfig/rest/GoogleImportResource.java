@@ -19,9 +19,9 @@ import org.restlet.data.Response;
 import org.restlet.data.Status;
 import org.restlet.resource.Representation;
 import org.restlet.resource.Variant;
-import org.sipfoundry.sipxconfig.phonebook.GoogleImporter.GmailAuthUserException;
-import org.sipfoundry.sipxconfig.phonebook.GoogleImporter.GmailServiceUserException;
-import org.sipfoundry.sipxconfig.phonebook.GoogleImporter.GmailTransportUserException;
+import org.sipfoundry.sipxconfig.phonebook.GoogleImporter.GoogleAuthUserException;
+import org.sipfoundry.sipxconfig.phonebook.GoogleImporter.GoogleServiceUserException;
+import org.sipfoundry.sipxconfig.phonebook.GoogleImporter.GoogleTransportUserException;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -29,9 +29,9 @@ import static org.restlet.data.MediaType.APPLICATION_JSON;
 import static org.restlet.data.MediaType.APPLICATION_XML;
 
 public class GoogleImportResource extends UserResource {
-    public static final Status PHONEBOOK_GMAIL_AUTH_ERROR = new Status(743);
-    public static final Status PHONEBOOK_GMAIL_SERVICE_ERROR = new Status(744);
-    public static final Status PHONEBOOK_GMAIL_TRANSPORT_ERROR = new Status(745);
+    public static final Status PHONEBOOK_GOOGLE_AUTH_ERROR = new Status(743);
+    public static final Status PHONEBOOK_GOOGLE_SERVICE_ERROR = new Status(744);
+    public static final Status PHONEBOOK_GOOGLE_TRANSPORT_ERROR = new Status(745);
     private PhonebookManager m_phonebookManager;
 
     @Override
@@ -58,15 +58,15 @@ public class GoogleImportResource extends UserResource {
         Representable credentials = googleImport.getObject();
         Integer phonebookId = m_phonebookManager.getPrivatePhonebookCreateIfRequired(getUser()).getId();
         try {
-            int entries = m_phonebookManager.addEntriesFromGmailAccount(phonebookId, credentials.getAccount(),
+            int entries = m_phonebookManager.addEntriesFromGoogleAccount(phonebookId, credentials.getAccount(),
                     credentials.getPassword());
             getResponse().setStatus(Status.SUCCESS_OK, String.valueOf(entries));
-        } catch (GmailAuthUserException ex) {
-            getResponse().setStatus(PHONEBOOK_GMAIL_AUTH_ERROR);
-        } catch (GmailServiceUserException ex) {
-            getResponse().setStatus(PHONEBOOK_GMAIL_SERVICE_ERROR);
-        } catch (GmailTransportUserException ex) {
-            getResponse().setStatus(PHONEBOOK_GMAIL_TRANSPORT_ERROR);
+        } catch (GoogleAuthUserException ex) {
+            getResponse().setStatus(PHONEBOOK_GOOGLE_AUTH_ERROR);
+        } catch (GoogleServiceUserException ex) {
+            getResponse().setStatus(PHONEBOOK_GOOGLE_SERVICE_ERROR);
+        } catch (GoogleTransportUserException ex) {
+            getResponse().setStatus(PHONEBOOK_GOOGLE_TRANSPORT_ERROR);
         }
     }
 

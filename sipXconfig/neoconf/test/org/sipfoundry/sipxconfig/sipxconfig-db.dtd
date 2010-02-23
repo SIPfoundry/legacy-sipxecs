@@ -641,6 +641,9 @@
 	phone_number CDATA #IMPLIED
 	address_book_entry_id CDATA #IMPLIED
 	phonebook_id CDATA #REQUIRED
+	phonebook_entry_type CDATA #IMPLIED
+	google_account_id CDATA #IMPLIED
+	internal_id CDATA #IMPLIED
  >
 
 <!ELEMENT phonebook_member EMPTY>

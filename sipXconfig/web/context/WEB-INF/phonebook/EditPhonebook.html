@@ -53,25 +53,25 @@
         <table>
           <tbody>
             <tr jwcid="@common/FieldPanel"
-              label="message:label.phonebookGmailAddress"
-              field="component:gmailAddress"
-              description="message:description.phonebookGmailAddress">
+              label="message:label.phonebookGoogleAddress"
+              field="component:googleAddress"
+              description="message:description.phonebookGoogleAddress">
               <td>
-                <input jwcid="gmailAddress@TextField"
-                  value="ognl:gmailAddress"
-                  displayName="message:label.phonebookGmailAddress"
+                <input jwcid="googleAddress@TextField"
+                  value="ognl:googleAddress"
+                  displayName="message:label.phonebookGoogleAddress"
                   validators="validators:email"
                   autocomplete="off" />
               </td>
             </tr>
             <tr jwcid="@common/FieldPanel"
-              label="message:label.phonebookGmailPassword"
-              field="component:gmailPassword">
+              label="message:label.phonebookGooglePassword"
+              field="component:googlePassword">
               <td>
-                <input jwcid="gmailPassword@TextField"
+                <input jwcid="googlePassword@TextField"
                   hidden="true"
                   autocomplete="off"
-                  value="ognl:gmailPassword" />
+                  value="ognl:googlePassword" />
               </td>
             </tr>
           </tbody>
@@ -79,7 +79,7 @@
       </fieldset>
       <ul class="form-actions">
         <li>
-          <input jwcid="importGmailButton@Submit" value="message:import.contacts" listener="listener:importGmailAddressBook" />
+          <input jwcid="importGoogleButton@Submit" value="message:import.contacts" listener="listener:importGoogleAddressBook" />
         </li>
       </ul>
     </div>
