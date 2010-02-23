@@ -6,7 +6,6 @@
  */
 package org.sipfoundry.sipxbridge;
 
-import gov.nist.javax.sip.SipStackImpl;
 import gov.nist.javax.sip.header.ViaList;
 import gov.nist.javax.sip.message.MessageFactoryImpl;
 
@@ -93,6 +92,7 @@ public class ProtocolObjects {
                     SipFoundryLogRecordFactory.class.getName());
             stackProperties.setProperty("javax.sip.ROUTER_PATH",
                     org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());
+            stackProperties.setProperty("gov.nist.javax.sip.TLS_SECURITY_POLICY", SipxTlsSecurityPolicy.class.getName());
             stackProperties.setProperty("gov.nist.javax.sip.CACHE_CLIENT_CONNECTIONS", "true");
             stackProperties.setProperty("gov.nist.javax.sip.CACHE_SERVER_CONNECTIONS", "true");
             stackProperties.setProperty("gov.nist.javax.sip.REJECT_STRAY_RESPONSES","true");

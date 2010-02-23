@@ -15,26 +15,20 @@ import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.message.SIPMessage;
+import gov.nist.javax.sip.stack.SIPTransaction;
 
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.security.cert.X509Certificate;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateParsingException;
 import java.text.ParseException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimerTask;
 
-import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
@@ -1239,7 +1233,7 @@ public class BackToBackUserAgent implements Comparable {
 
             if ( SipUtilities.getViaTransport(request).equalsIgnoreCase("TLS")) {
                 logger.debug("incoming request came over TLS");
-                List<String> certIdentities = extractCertIdentities(serverTransaction);
+                List<String> certIdentities = ((SIPTransaction)serverTransaction).extractCertIdentities();
                 if (certIdentities.isEmpty()) {
                     logger.warn("Could not find any identities in the TLS certificate");
                 }
@@ -1265,7 +1259,9 @@ public class BackToBackUserAgent implements Comparable {
                         }
                     }
                     if (!foundPeerIdentity) {
-                        logger.warn("No peer identity found for " + certIdentities);
+                        // This is not necessarily an error; it just means that no user identity will be
+                        // assigned to this call, and access to resources requiring permissions will be refused
+                        logger.warn("No matching TLS Peer found for " + certIdentities);
                     }
                 }
             }
@@ -1309,89 +1305,6 @@ public class BackToBackUserAgent implements Comparable {
 
         }
 
-    }
-
-    /**
-     * Extract identities from certificates exchanged over TLS, based on guidelines
-     * from draft-ietf-sip-domain-certs-04.
-     * @param serverTransaction
-     * @return list of authenticated identities in the form of URIs (i.e. sip:FQHN)
-     */
-    private List<String> extractCertIdentities(ServerTransaction serverTransaction) {
-        List<String> certIdentities = new ArrayList<String>();
-        Certificate[] certs = null;
-        try {
-            certs = ((TransactionExt)serverTransaction).getPeerCertificates();
-        } catch (SSLPeerUnverifiedException ex) {
-            logger.error("Peer unverified", ex);
-            return certIdentities;
-        }
-        for ( Certificate cert : certs) {
-            X509Certificate x509cert = (X509Certificate)cert;
-            Collection<List<?>> subjAltNames = null;
-            try {
-                subjAltNames = x509cert.getSubjectAlternativeNames();
-            } catch (CertificateParsingException ex) {
-                logger.error("Error parsing TLS certificate", ex);
-            }
-            final Integer dnsNameType = 2;
-            final Integer uriNameType = 6;
-            if (subjAltNames != null) {
-                logger.debug("found subjAltNames: " + subjAltNames);
-                // First look for a URI in the subjectAltName field
-                // as per draft-ietf-sip-domain-certs-04
-                for (List<?> altName : subjAltNames) {
-                    // 0th position is the alt name type
-                    // 1st position is the alt name data
-                    try {
-                        if (altName.get(0).equals(uriNameType)) {
-                            SipURI altNameUri = (SipURI) ProtocolObjects.addressFactory
-                                    .createURI((String) altName.get(1));
-                            String altHostName = altNameUri.getHost();
-                            logger.debug("found uri " + altName.get(1) + ", hostName "
-                                    + altHostName);
-                            certIdentities.add(altHostName);
-                        }
-                    } catch (ParseException ex) {
-                        logger.warn("subjAltName in TLS certificate contains invalid URI "
-                                + altName.get(1), ex);
-                    }
-                }
-                // DNS  An implementation MUST accept a domain name system
-                // identifier as a SIP domain identity if and only if no other
-                // identity is found that matches the "sip" URI type described
-                // above.
-                if (certIdentities.isEmpty()) {
-                    for (List<?> altName : subjAltNames) {
-                        if (altName.get(0).equals(dnsNameType)) {
-                            logger.debug("found dns " + altName.get(1));
-                            certIdentities.add(altName.get(1).toString());
-                        }
-                    }
-                }
-            }
-            else
-            {
-                // If and only if the subjectAltName does not appear in the
-                // certificate, the implementation MAY examine the CN field of the
-                // certificate.  If a valid DNS name is found there, the
-                // implementation MAY accept this value as a SIP domain identity.
-                String dname = x509cert.getSubjectDN().getName();
-                String cname = "";
-                try {
-                    Pattern EXTRACT_CN = Pattern.compile(".*CN\\s*=\\s*([\\w*\\.]+).*");
-                    Matcher matcher = EXTRACT_CN.matcher(dname);
-                    if (matcher.matches()) {
-                        cname = matcher.group(1);
-                        logger.debug("found CN: " + cname + " from DN: " + dname);
-                        certIdentities.add(cname);
-                    }
-                } catch (Exception ex) {
-                    logger.error("exception while extracting CN", ex);
-                }
-            }
-        }
-        return certIdentities;
     }
 
     /**

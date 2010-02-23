@@ -271,6 +271,14 @@
                  email="default"
                  />
       </alarm>
+      <alarm id="TLS_CERTIFICATE_MISMATCH">
+         <code>SPX00041</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
 
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.

@@ -182,6 +182,13 @@
          <description>One or more ITSP accounts is missing required configuration parameters.</description>
          <resolution>Check your ITSP accounts. Those that require Registration must have a user name specified.</resolution>
       </alarm>
+      <alarm id="TLS_CERTIFICATE_MISMATCH">
+         <shorttitle>The certificate identity does not match the request domain</shorttitle>
+         <description>The configuration requires the identity '{0}', but the remote certificate contains only the following identities: {1}</description>
+         <resolution>This is a security violation because the remote identity encapsulated in the certificate
+                     does not match the address it came from.
+                     Ensure that the certificate identity matches the request domain.</resolution>
+      </alarm>
 
       <!-- Add new alarms above this line.
           Notes:
