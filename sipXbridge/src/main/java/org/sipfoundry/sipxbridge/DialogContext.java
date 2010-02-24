@@ -8,6 +8,7 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.DialogExt;
+import gov.nist.javax.sip.SipProviderExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
@@ -676,12 +677,13 @@ class DialogContext {
         try {
 
             Dialog peerDialog = DialogContext.getPeerDialog(dialog);
+
             /*
              * There is already a re-negotiation in progress so return silently
              */
 
             if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
-                logger.debug("queryDialogFromPeer -- sending query to " + peerDialog
+                logger.debug("solicitSdpOfferFromPeerDialog -- sending query to " + peerDialog
                         + " continuationOperation = " + 
                         (continuationData != null ? continuationData.getOperation() : null));
 
@@ -711,12 +713,12 @@ class DialogContext {
                 reInvite.setHeader(referencesHeader);
                 SipUtilities.addWanAllowHeaders(reInvite);
                 SipProvider provider = ((DialogExt) peerDialog).getSipProvider();
-                ItspAccountInfo peerAccountInfo = DialogContext.getPeerDialogContext(dialog)
-                        .getItspInfo();
-                ViaHeader viaHeader = SipUtilities.createViaHeader(provider, peerAccountInfo);
+                String transport = ((SipProviderExt)provider).getListeningPoints()[0].getTransport();
+                ViaHeader viaHeader = SipUtilities.createViaHeader(provider, transport);
+
                 reInvite.setHeader(viaHeader);
-                ContactHeader contactHeader = SipUtilities.createContactHeader(provider,
-                        peerAccountInfo);
+                ContactHeader contactHeader = SipUtilities.createContactHeader(null,
+                        provider, transport);
 
                 reInvite.setHeader(contactHeader);
                 AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
