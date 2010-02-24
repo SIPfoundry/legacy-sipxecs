@@ -1,6 +1,6 @@
 include $(top_srcdir)/config/subdir.am
 
-SUBDIRS = alarms
+SUBDIRS = alarms mibs
 
 schemas = \
 	sipXecs-process.xsd \

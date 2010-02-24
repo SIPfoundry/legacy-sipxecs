@@ -8,6 +8,8 @@
          </email>
          <sms>
          </sms>
+         <trap>
+         </trap>
       </group>
    </definitions>
 </alarm_groups>

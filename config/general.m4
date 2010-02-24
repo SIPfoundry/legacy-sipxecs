@@ -34,6 +34,49 @@ AC_DEFUN([CHECK_CLOVER],
    fi
 ])
 
+# ================ NET SNMP ================
+AC_DEFUN([CHECK_NET_SNMP],
+[
+    AC_MSG_CHECKING([for net-snmp-config.h ])
+    include_path="$includedir $prefix/include /usr/include /usr/local/include"
+    include_check="net-snmp/net-snmp-config.h"
+
+    foundpath=""
+    for dir in $include_path ; do
+        if test -f "$dir/$include_check";
+        then
+            foundpath=$dir;
+            break;
+        fi;
+    done
+    if test x_$foundpath = x_; then
+       AC_MSG_RESULT([no])
+       AC_MSG_WARN([searched $include_path    ])
+       AC_MSG_ERROR('$include_check' not found)
+    else
+       AC_MSG_RESULT($foundpath/$include_check)
+    fi
+
+    AC_MSG_CHECKING([for net-snmp-includes.h ])
+    include_path="$includedir $prefix/include /usr/include /usr/local/include"
+    include_check="net-snmp/net-snmp-includes.h"
+
+    foundpath=""
+    for dir in $include_path ; do
+        if test -f "$dir/$include_check";
+        then
+            foundpath=$dir;
+            break;
+        fi;
+    done
+    if test x_$foundpath = x_; then
+       AC_MSG_RESULT([no])
+       AC_MSG_WARN([searched $include_path    ])
+       AC_MSG_ERROR('$include_check' not found)
+    else
+       AC_MSG_RESULT($foundpath/$include_check)
+    fi
+])
 
 # ============ O P E N F I R E  =======================
 AC_DEFUN([CHECK_OPENFIRE],

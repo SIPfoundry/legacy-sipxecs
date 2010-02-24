@@ -24,12 +24,8 @@
          <!-- Alarm notification SMS will be sent from this address. -->
          <email-notification-addr>postmaster@${MY_FULL_HOSTNAME}</email-notification-addr>
       </sms>
-      <!-- snmp traps are not yet implemented
       <trap enabled="false">
-         <snmp_manager>1.2.3.4</snmp_manager>
-         <snmp_read_community>whatever</snmp_read_community>
       </trap>
-      -->
    </actions>
 
   </settings>

@@ -100,7 +100,7 @@ public:
             PRI_ALERT,
             "C'est une épreuve de la système alarme. La seule parameter devrait être ici: {0}, et c'est tout.",
             "C'est aussi une épreuve de l'insertion des parametres, des accents, et des virgules.",
-            { true, true, true, false },
+            { true, true, true, true },
             3,
             0
          },
@@ -111,7 +111,7 @@ public:
             PRI_WARNING,
             "La deuxième parametre est {1}, puis parametre {0}",
             "Check for bugs in assembleMsg!",
-            { true, true, true, false },
+            { true, true, true, true },
             INT_MAX,
             0
          },
@@ -122,7 +122,7 @@ public:
             PRI_DEBUG,
             "Print special characters such as <, >, and & properly.",
             "Text must be escaped in the strings file, and unescaped before sending notifications.",
-            { true, true, true, false },
+            { true, true, true, true },
             INT_MAX,
             0
          },
@@ -133,7 +133,7 @@ public:
             PRI_WARNING,
             "This is missing from the _fr strings file.",
             "It should be displayed in English.",
-            { true, true, true, false },
+            { true, true, true, true },
             INT_MAX,
             0
          }

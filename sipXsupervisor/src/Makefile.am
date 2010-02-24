@@ -88,6 +88,8 @@ libsipXalarms_la_LIBADD = \
 	 @SIPXCOMMSERVER_LIBS@ \
     @SIPXTACK_LIBS@
 
+libsipXalarms_la_LDFLAGS = `net-snmp-config --libs`
+
 libsipXalarms_la_SOURCES = \
 	AlarmData.cpp \
 	AlarmServer.cpp \
@@ -97,6 +99,7 @@ libsipXalarms_la_SOURCES = \
 	LogNotifier.cpp \
 	NotifierBase.cpp \
 	SmsNotifier.cpp \
+        TrapNotifier.cpp \
 	AlarmData.h \
 	AlarmServer.h \
 	AlarmUtils.h \
@@ -104,4 +107,5 @@ libsipXalarms_la_SOURCES = \
 	EmailSendTask.h \
 	LogNotifier.h \
 	NotifierBase.h \
-	SmsNotifier.h
+	SmsNotifier.h \
+        TrapNotifier.h

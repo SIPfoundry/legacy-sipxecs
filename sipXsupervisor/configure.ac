@@ -22,6 +22,7 @@ AC_PROG_CXX
 AX_COMPILER_VENDOR
 AC_PROG_CC
 CHECK_XARGS_REPLACE
+CHECK_NET_SNMP
 
 ENABLE_DOC
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
@@ -47,6 +48,7 @@ AC_CONFIG_FILES([src/test/Makefile])
 AC_CONFIG_FILES([etc/Makefile])
 AC_CONFIG_FILES([meta/Makefile])
 AC_CONFIG_FILES([meta/alarms/Makefile])
+AC_CONFIG_FILES([meta/mibs/Makefile])
 AC_CONFIG_FILES([doc/Makefile])
 
 AM_CONDITIONAL(DO_RPMBUILD, test x$enable_rpmbuild = xyes)
