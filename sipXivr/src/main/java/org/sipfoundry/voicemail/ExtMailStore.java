@@ -280,17 +280,12 @@ public class ExtMailStore {
             Folder grtfolder = null;
 
             if (!conn.m_synching) {
-                try{
-                    grtfolder = conn.m_store.getFolder("VoiceMail Greetings");
-                    OpenFolder(grtfolder);
-                
-                    if(isSpokenName) {
-                        AddGreetingToFolder(conn.m_session, grtfolder, mbx, "spoken name", recording);
-                    } else {
-                        AddGreetingToFolder(conn.m_session, grtfolder, mbx, type.getId(), recording);
-                    }
-                } catch (MessagingException e) {
-                    LogError("SaveInFolder", mbx.getUser().getUserName(), e.getMessage());                   
+                grtfolder = OpenFolder(conn, "VoiceMail Greetings");
+            
+                if(isSpokenName) {
+                    AddGreetingToFolder(conn.m_session, grtfolder, mbx, "spoken name", recording);
+                } else {
+                    AddGreetingToFolder(conn.m_session, grtfolder, mbx, type.getId(), recording);
                 }
                 
                 try {
@@ -398,9 +393,8 @@ public class ExtMailStore {
 
         Folder grtfolder = null;
 
-        try {
-            grtfolder = conn.m_store.getFolder("VoiceMail Greetings");
-            OpenFolder(grtfolder);
+        try {                      
+            grtfolder = OpenFolder(conn, "VoiceMail Greetings");
             File TempFile;
             boolean success;
 
@@ -659,17 +653,34 @@ public class ExtMailStore {
         }
     }
 
-    private static void OpenFolder(Folder folder) {
-
+    private static Folder OpenFolder(IMAPConnection conn, String folderName) {
+ 
+        Folder folder = null;
+        
         try {
-            if (!folder.exists()) {
+            folder = conn.m_store.getFolder(folderName);
+            
+            if (!folder.exists()) {               
                 folder.create(Folder.HOLDS_MESSAGES);
             }
             folder.open(Folder.READ_WRITE);
 
         } catch (MessagingException e) {
-            LogError("OpenFolder", "", e.getMessage());
+
+            try {
+                char delim = conn.m_infolder.getSeparator();
+                folder = conn.m_store.getFolder("inbox" + delim + folderName);
+                if (!folder.exists()) {               
+                    folder.create(Folder.HOLDS_MESSAGES);
+                }
+                folder.open(Folder.READ_WRITE);
+                
+            } catch (MessagingException e1) {
+                LogError("OpenFolder", "", e.getMessage());
+            }            
+            
         }
+        return folder;
     }
 
     private static void OpenConnection(final User user) {
@@ -788,8 +799,7 @@ public class ExtMailStore {
                     conn.m_store.connect(imapInfo.getHost(), Integer.parseInt(imapInfo.getPort()), 
                                          imapInfo.getAccount(), imapInfo.getDecodedPassword());
                     
-                    conn.m_infolder = conn.m_store.getFolder("inbox");
-                    OpenFolder(conn.m_infolder);
+                    conn.m_infolder = OpenFolder(conn, "inbox");                
                     
                     conn.m_msgIdMap = Collections.synchronizedMap(new HashMap<Integer, String>());
 
@@ -823,13 +833,12 @@ public class ExtMailStore {
             props.setProperty("mail.imap.sasl.enable", "true");
             props.setProperty("mail.imap.starttls.enable", "true");
             
+            MailSSLSocketFactory sf = new MailSSLSocketFactory();
+            sf.setTrustAllHosts(true);
+            props.put("mail.imap.ssl.socketFactory", sf);     
+            
             if(imapInfo.isUseTLS()) {
-                props.setProperty("mail.imap.ssl.enable", "true");
-                
-                MailSSLSocketFactory sf = new MailSSLSocketFactory();
-                sf.setTrustAllHosts(true);
-                props.put("mail.imap.ssl.socketFactory", sf);                               
-                
+                props.setProperty("mail.imap.ssl.enable", "true");                                                               
             } else {
                 props.setProperty("mail.imap.ssl.enable", "false");
             }

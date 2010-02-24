@@ -393,9 +393,8 @@ public class CpRetrieve {
                     if(m_vmMessage != null) {                      
                         if(m_startPos >= m_vmMessage.getDuration()) {
                             m_startPos = (int) m_vmMessage.getDuration() - 1;
-                            if(m_startPos < 0) {
-                                m_startPos = 0;
-                            }
+                        } else if(m_startPos < 0) {
+                            m_startPos = 0;                         
                         }
                     }
                     

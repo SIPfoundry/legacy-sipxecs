@@ -124,20 +124,18 @@ public class Messages {
         // then sort the list. this list allows us to easily map a CallPilot Msg Number 
         // to a message Id
         
-        if(m_MsgIds == null) {
-            m_MsgIds = msgIds;
-              
-            Collections.sort(m_MsgIds, new Comparator<String>(){
-                public int compare(String o1, String o2) {
-                    
-                    if(Integer.parseInt(o1) > Integer.parseInt(o2)) {
-                        return 1;
-                    } else { 
-                        return -1;
-                    }    
-                }
-            });
-        }
+        m_MsgIds = msgIds;
+          
+        Collections.sort(m_MsgIds, new Comparator<String>(){
+            public int compare(String o1, String o2) {
+                
+                if(Integer.parseInt(o1) > Integer.parseInt(o2)) {
+                    return 1;
+                } else { 
+                    return -1;
+                }    
+            }
+        });
     }
     
     /**
@@ -161,6 +159,10 @@ public class Messages {
             if (m.matches()) {
                 String id = m.group(1);     // The ID
                 
+                if(msgIds != null) {
+                    msgIds.add(id);
+                } 
+                
                 // If this message is already in the map, skip it
                 VmMessage vmMessage = map.get(id);
                 if (vmMessage != null) {
@@ -179,11 +181,7 @@ public class Messages {
                         m_numUnheadUrgent++; 
                     }
                 }
-                                         
-                if(msgIds != null) {
-                    msgIds.add(id);
-                }    
-                
+                                                          
                 map.put(id, vmMessage);
             }
         }

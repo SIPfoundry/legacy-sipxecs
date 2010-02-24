@@ -94,11 +94,6 @@ public class VmMessage {
 
         // Check for -00.wav
         File audio = new File(directory, id+"-00.wav");
-        if (!audio.exists()) {
-            LOG.error(String.format("Voice message descriptor file %s exists with no corresponding audio file",
-                    me.m_descriptorFile.getPath()));
-            return null;
-        }
         
         me.m_audioFile = audio;
 
