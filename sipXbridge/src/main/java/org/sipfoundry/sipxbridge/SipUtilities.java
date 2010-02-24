@@ -12,6 +12,7 @@ import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.HeaderFactoryImpl;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
+import gov.nist.javax.sip.header.extensions.ReferredByHeader;
 import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.extensions.SessionExpires;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
@@ -1929,6 +1930,7 @@ class SipUtilities {
      * request excepting our private headers. This is called just
      * before sending the request. Note that some headers
      * are excluded because we filter these based on privacy settings.
+     * Others are excluded because we deal with them explicitly during processing.
      * 
      * @param incomingRequest
      * @param outgoingRequest
@@ -1945,6 +1947,9 @@ class SipUtilities {
          				|| headerName.equalsIgnoreCase(OrganizationHeader.NAME )
          				|| headerName.equalsIgnoreCase(InReplyToHeader.NAME )
          				|| headerName.equalsIgnoreCase(RouteHeader.NAME) 
+         				|| headerName.equalsIgnoreCase(ReplacesHeader.NAME)
+         				|| headerName.equalsIgnoreCase(ReferToHeader.NAME)
+         				|| headerName.equalsIgnoreCase(ReferredByHeader.NAME)
          				|| headerName.equalsIgnoreCase(RecordRouteHeader.NAME)
          				|| headerName.toLowerCase().startsWith("x-sipx")
          				|| headerName.toLowerCase().startsWith("sipxecs")){
