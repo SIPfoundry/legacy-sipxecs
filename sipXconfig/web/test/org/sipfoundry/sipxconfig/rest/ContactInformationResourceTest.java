@@ -49,23 +49,6 @@ public class ContactInformationResourceTest extends TestCase {
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);
 
-        AddressBookEntry addressBook = new AddressBookEntry();
-        addressBook.setJobTitle("Data Entry Assistant");
-        addressBook.setJobDept("Data Management Services");
-        addressBook.setCompanyName("Museum of Science");
-        Address homeAddress = new Address();
-        homeAddress.setCity("NY");
-        addressBook.setHomeAddress(homeAddress);
-        Address officeAddress = new Address();
-        officeAddress.setStreet("1 Science Park");
-        officeAddress.setCity("Boston");
-        officeAddress.setCountry("US");
-        officeAddress.setState("MA");
-        officeAddress.setZip("02114");
-        addressBook.setOfficeAddress(officeAddress);
-        addressBook.setEmailAddress("john.doe@example.com");
-        m_user.setAddressBookEntry(addressBook);
-
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.loadUser(m_user.getId());
         expectLastCall().andReturn(m_user);
@@ -80,6 +63,7 @@ public class ContactInformationResourceTest extends TestCase {
     }
 
     public void testRepresentXml() throws Exception {
+        initAddressBookEntry();
         ContactInformationResource resource = new ContactInformationResource();
         resource.setCoreContext(m_coreContext);
 
@@ -97,6 +81,7 @@ public class ContactInformationResourceTest extends TestCase {
     }
 
     public void testRepresentJson() throws Exception {
+        initAddressBookEntry();
         ContactInformationResource resource = new ContactInformationResource();
         resource.setCoreContext(m_coreContext);
 
@@ -138,6 +123,7 @@ public class ContactInformationResourceTest extends TestCase {
     }
 
     public void testRepresentXmlUserWithBranch() throws Exception {
+        initAddressBookEntry();
         Branch branch = new Branch();
         branch.getAddress().setStreet("Branch Street");
         m_user.setBranch(branch);
@@ -214,5 +200,58 @@ public class ContactInformationResourceTest extends TestCase {
         assertEquals("Doe", m_user.getLastName());
         assertEquals("http://www.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=wavatar",
                 new Gravatar(m_user).getUrl());
+    }
+
+    public void testRepresentXmlWithNullAddressBook() throws Exception {
+        ContactInformationResource resource = new ContactInformationResource();
+        resource.setCoreContext(m_coreContext);
+
+        ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
+        Request request = new Request();
+        request.setChallengeResponse(challengeResponse);
+        resource.init(null, request, null);
+
+        Representation representation = resource.represent(new Variant(MediaType.TEXT_XML));
+        StringWriter writer = new StringWriter();
+        representation.write(writer);
+        String generated = writer.toString();
+        String expected = IOUtils.toString(getClass().getResourceAsStream("contact-information-null-address-book.rest.test.xml"));
+        assertEquals(expected, generated);
+    }
+
+    public void testRepresentJsonWithNullAddressBook() throws Exception {
+        ContactInformationResource resource = new ContactInformationResource();
+        resource.setCoreContext(m_coreContext);
+
+        ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
+        Request request = new Request();
+        request.setChallengeResponse(challengeResponse);
+        resource.init(null, request, null);
+
+        Representation representation = resource.represent(new Variant(MediaType.APPLICATION_JSON));
+        StringWriter writer = new StringWriter();
+        representation.write(writer);
+        String generated = writer.toString();
+        String expected = IOUtils.toString(getClass().getResourceAsStream("contact-information-null-address-book.rest.test.json"));
+        assertEquals(expected, generated);
+    }
+
+    private void initAddressBookEntry() {
+        AddressBookEntry addressBook = new AddressBookEntry();
+        addressBook.setJobTitle("Data Entry Assistant");
+        addressBook.setJobDept("Data Management Services");
+        addressBook.setCompanyName("Museum of Science");
+        Address homeAddress = new Address();
+        homeAddress.setCity("NY");
+        addressBook.setHomeAddress(homeAddress);
+        Address officeAddress = new Address();
+        officeAddress.setStreet("1 Science Park");
+        officeAddress.setCity("Boston");
+        officeAddress.setCountry("US");
+        officeAddress.setState("MA");
+        officeAddress.setZip("02114");
+        addressBook.setOfficeAddress(officeAddress);
+        addressBook.setEmailAddress("john.doe@example.com");
+        m_user.setAddressBookEntry(addressBook);
     }
 }

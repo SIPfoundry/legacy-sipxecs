@@ -38,9 +38,12 @@ public class ContactInformationResource extends UserResource {
     public Representation represent(Variant variant) throws ResourceException {
         User user = getUser();
         AddressBookEntry addressBook = user.getAddressBookEntry();
-        AddressBookEntry reprAddressBook = (AddressBookEntry) addressBook.duplicate();
-        if (addressBook.getUseBranchAddress() && user.getBranch() != null) {
-            reprAddressBook.setOfficeAddress(user.getBranch().getAddress());
+        AddressBookEntry reprAddressBook = null;
+        if (addressBook != null) {
+            reprAddressBook = (AddressBookEntry) addressBook.duplicate();
+            if (addressBook.getUseBranchAddress() && user.getBranch() != null) {
+                reprAddressBook.setOfficeAddress(user.getBranch().getAddress());
+            }
         }
 
         Representable representable = new Representable(user.getFirstName(), user.getLastName(), reprAddressBook);
@@ -77,7 +80,9 @@ public class ContactInformationResource extends UserResource {
         public Representable(String firstName, String lastName, AddressBookEntry addressBook) {
             m_firstName = firstName;
             m_lastName = lastName;
-            this.update(addressBook);
+            if (addressBook != null) {
+                this.update(addressBook);
+            }
         }
 
         public String getFirstName() {
