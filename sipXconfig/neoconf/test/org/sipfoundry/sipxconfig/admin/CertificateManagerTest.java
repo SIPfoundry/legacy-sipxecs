@@ -143,10 +143,11 @@ public class CertificateManagerTest extends TestCase {
 
     public void testSaveDeleteCert() throws Exception {
         File tmpCAFile = m_manager.getCATmpFile("validCA.crt");
+        File caFile = m_manager.getCAFile("validCA.crt");
 
         FileUtils.copyFile(new File(TestUtil.getTestSourceDirectory(this.getClass())
                 + File.separator + "validCA.crt"), tmpCAFile);
-        m_manager.copyCRTAuthority();
+        FileUtils.copyFile(tmpCAFile, caFile);
         m_manager.deleteCRTAuthorityTmpDirectory();
         Set<CertificateDecorator> certs =  m_manager.listCertificates();
         assertEquals(2, certs.size());

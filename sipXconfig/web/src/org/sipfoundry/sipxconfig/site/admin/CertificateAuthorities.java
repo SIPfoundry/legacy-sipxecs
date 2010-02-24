@@ -89,6 +89,8 @@ public abstract class CertificateAuthorities extends BaseComponent {
             // do nothing on errors
             return;
         }
+        //clean tmp path
+        getCertificateManager().deleteCRTAuthorityTmpDirectory();
         IUploadFile uploadFile = getUploadFile();
 
         if (uploadFile == null) {
@@ -111,8 +113,8 @@ public abstract class CertificateAuthorities extends BaseComponent {
     public void keep() {
         setShowCertificate(false);
         getCertificateManager().copyCRTAuthority();
-        getCertificateManager().deleteCRTAuthorityTmpDirectory();
         getCertificateManager().rehashCertificates();
+        getCertificateManager().restartRemote();
         getCertificateManager().generateKeyStores();
     }
 

@@ -29,14 +29,18 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.SoftwareAdminApi;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
-
-import static org.apache.commons.io.FileUtils.copyDirectory;
 
 /**
  * Backup provides Java interface to backup scripts
@@ -67,6 +71,7 @@ public class CertificateManagerImpl implements CertificateManager {
     private static final String ERROR_MSG_COPY = "&msg.copyError";
     private static final String ERROR_VALID = "&error.valid";
     private static final String EXTERNAL_KEY_BASED = "external-key-based";
+    private static final String RESTART_SIPXECS = "restart";
 
     private String m_binCertDirectory;
 
@@ -83,6 +88,12 @@ public class CertificateManagerImpl implements CertificateManager {
     private SipxProcessContext m_processContext;
 
     private SipxServiceManager m_sipxServiceManager;
+
+    private SipxReplicationContext m_sipxReplicationContext;
+
+    private ApiProvider<SoftwareAdminApi>  m_softwareAdminApiProvider;
+
+    private LocationsManager m_locationsManager;
 
     public void setBinCertDirectory(String binCertDirectory) {
         m_binCertDirectory = binCertDirectory;
@@ -278,6 +289,21 @@ public class CertificateManagerImpl implements CertificateManager {
         }
     }
 
+    public void restartRemote() {
+        // restart distributed systems in order to regenerate their keystore/truststore.
+        try {
+            Location[] locations = m_locationsManager.getLocations();
+            for (Location location : locations) {
+                if (!location.isPrimary()) {
+                    SoftwareAdminApi api = m_softwareAdminApiProvider.getApi(location.getSoftwareAdminUrl());
+                    api.exec(m_locationsManager.getPrimaryLocation().getFqdn(), RESTART_SIPXECS);
+                }
+            }
+        } catch (XmlRpcRemoteException e) {
+            LOG.error("Cannot restart remote locations", e);
+        }
+    }
+
     public void generateKeyStores() {
         try {
             runCommand(getKeyStoreGenCommand());
@@ -362,11 +388,20 @@ public class CertificateManagerImpl implements CertificateManager {
     }
 
     public void copyCRTAuthority() {
-        try {
-            copyDirectory(new File(getCATmpDir()), new File(m_sslAuthDirectory));
-        } catch (IOException ex) {
-            throw new UserException("&error.keep");
+        AnyFile anyFile = null;
+        Location[] locations = m_locationsManager.getLocations();
+        for (File file : new File(getCATmpDir()).listFiles()) {
+            anyFile = new AnyFile();
+            anyFile.setDirectory(m_sslAuthDirectory);
+            anyFile.setName(file.getName());
+            anyFile.setSourceFilePath(file.getAbsolutePath());
+            for (Location location : locations) {
+                //call replicate on each location so JobStatus page can show replication status on
+                //each affected location
+                m_sipxReplicationContext.replicate(location, anyFile);
+            }
         }
+        deleteCRTAuthorityTmpDirectory();
     }
 
     public Set<CertificateDecorator> listCertificates() {
@@ -393,7 +428,7 @@ public class CertificateManagerImpl implements CertificateManager {
         try {
             FileUtils.deleteDirectory(new File(getCATmpDir()));
         } catch (IOException ex) {
-            LOG.error("Cannot delete temporary directory");
+            LOG.error("Cannot delete temporary certificate directory");
             // Temporary path cannot be deleted
         }
     }
@@ -507,4 +542,18 @@ public class CertificateManagerImpl implements CertificateManager {
         m_sipxServiceManager = sipxServiceManager;
     }
 
+    @Required
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
+    }
+
+    @Required
+    public void setSoftwareAdminApiProvider(ApiProvider<SoftwareAdminApi>  softwareAdminApiProvider) {
+        m_softwareAdminApiProvider = softwareAdminApiProvider;
+    }
+
+    @Required
+    public void setLocationsManager(LocationsManager  locationsManager) {
+        m_locationsManager = locationsManager;
+    }
 }

@@ -21,6 +21,9 @@
     <property name="certdbDirectory" value="${sysdir.var}/certdb" />
 	<property name="sipxServiceManager" ref="sipxServiceManager"/>
 	<property name="processContext" ref="sipxProcessContext"/>
+	<!-- eagerly replicate certificate files -->
+	<property name="sipxReplicationContext" ref="sipxReplicationContextImpl"/>
+	<property name="locationsManager" ref="locationsManager" />
+	<property name="softwareAdminApiProvider" ref="softwareAdminApiProvider" />
   </bean>
-
 </beans>
