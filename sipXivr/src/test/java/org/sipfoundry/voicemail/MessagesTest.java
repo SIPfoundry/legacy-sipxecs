@@ -125,7 +125,7 @@ public class MessagesTest extends TestCase {
         FileUtils.touch(new File(m_inboxDir, "0004-00.sta"));
         
         FileUtils.touch(new File(m_inboxDir, "0005-00.dog")); // .dog doesn't count
-        makeMd(new File(m_inboxDir, "0006-00.xml")); // .xml with no .wav, doesn't count.
+        makeMd(new File(m_inboxDir, "0006-00.xml")); // .xml with no .wav, it counts.
         FileUtils.touch(new File(m_inboxDir, "0007-00.wav")); // .wav with no .xml, doesn't count.
         
         makeMd(new File(m_inboxDir, "0008-00.xml"));
@@ -139,11 +139,11 @@ public class MessagesTest extends TestCase {
         FileUtils.touch(new File(m_inboxDir, "this.is.a.file"));
 
         m.loadFolder(m_inboxDir, m.m_inbox, true, null);
-        assertEquals(5, m.getInboxCount());
+        assertEquals(6, m.getInboxCount());
         assertEquals(3, m.getUnheardCount());
 
         m.loadFolder(m_inboxDir, m.m_saved, false, null);
-        assertEquals(5, m.getSavedCount());
+        assertEquals(6, m.getSavedCount());
         assertEquals(3, m.getUnheardCount());
 
     }
