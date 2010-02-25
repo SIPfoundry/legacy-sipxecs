@@ -32,13 +32,17 @@ public class CertificateManagerTestIntegration extends IntegrationTestCase {
         m_sipxServiceManager = sipxServiceManager;
     }
 
+    /**
+     * Only services from primary location are prompted to restart
+     * @throws Exception
+     */
     public void testMarkForRestartAll() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");
         loadDataSetXml("admin/caLocationsAndServices1.xml");
         m_sipxProcessContext.clear();
         m_certificateManagerImpl.generateKeyStores();
         Collection<RestartNeededService> servicesToRestart = m_sipxProcessContext.getRestartNeededServices();
-        assertEquals(3, servicesToRestart.size());
+        assertEquals(1, servicesToRestart.size());
     }
 
     public void testMarkForRestart() throws Exception {

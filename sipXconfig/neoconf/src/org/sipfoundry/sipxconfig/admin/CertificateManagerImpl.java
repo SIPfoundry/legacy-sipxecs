@@ -37,6 +37,12 @@ import org.sipfoundry.sipxconfig.admin.commserver.SoftwareAdminApi;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxConfigService;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
+import org.sipfoundry.sipxconfig.service.SipxIvrService;
+import org.sipfoundry.sipxconfig.service.SipxProvisionService;
+import org.sipfoundry.sipxconfig.service.SipxRecordingService;
+import org.sipfoundry.sipxconfig.service.SipxRestService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
@@ -314,12 +320,34 @@ public class CertificateManagerImpl implements CertificateManager {
         }
     }
 
+    /**
+     * Mark for restart only services from primary location.
+     * Anyway, sipXecs from secondary locations
+     * is restarted, so there is no need to mark services for restart for these locations
+     */
     private void markServicesForRestart() {
-        SipxConfigService configService = (SipxConfigService) m_sipxServiceManager
+        SipxService configService = m_sipxServiceManager
                 .getServiceByBeanId(SipxConfigService.BEAN_ID);
-        SipxBridgeService bridgeService = (SipxBridgeService) m_sipxServiceManager
+        SipxService bridgeService = m_sipxServiceManager
                 .getServiceByBeanId(SipxBridgeService.BEAN_ID);
-        m_processContext.markServicesForRestart(Arrays.asList(configService, bridgeService));
+        SipxService ivrService = m_sipxServiceManager
+                .getServiceByBeanId(SipxIvrService.BEAN_ID);
+        SipxService recordingService = m_sipxServiceManager
+                .getServiceByBeanId(SipxRecordingService.BEAN_ID);
+        SipxService imbotService = m_sipxServiceManager
+                .getServiceByBeanId(SipxImbotService.BEAN_ID);
+        SipxService openfireService = m_sipxServiceManager.getServiceByBeanId("sipxOpenfireService");
+        SipxService provisionService = m_sipxServiceManager
+                .getServiceByBeanId(SipxProvisionService.BEAN_ID);
+        SipxService restService = m_sipxServiceManager
+                .getServiceByBeanId(SipxRestService.BEAN_ID);
+
+        Location primaryLocation = m_locationsManager.getPrimaryLocation();
+
+        m_processContext.markServicesForRestart(primaryLocation,
+                                   Arrays.asList(configService, bridgeService, ivrService,
+                                                 recordingService, openfireService, imbotService,
+                                                 provisionService, restService));
     }
 
     public File getCRTFile(String serverName) {
