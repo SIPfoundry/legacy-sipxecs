@@ -642,8 +642,11 @@ public class SipUtilities {
 							&& cth.getContentSubType().equals("sdp")) {
 						SessionDescription sdp = SipUtilities
 								.getSessionDescription(message);
-						String mappedAddress = SipTester.getTesterConfig()
+						String mediaAddress = SipUtilities.getSessionDescriptionMediaIpAddress("audio", sdp);
+						
+						String mappedAddress = mediaAddress.equals("0.0.0.0") ? "0.0.0.0" : SipTester.getTesterConfig()
 								.getTesterIpAddress();
+						
 
 						/*
 						 * Edit the SDP -- get new ports and stick them in
@@ -1002,6 +1005,9 @@ public class SipUtilities {
 
 			copyHeaders(traceResponse, null, newResponse, endpoint
 					.getTraceEndpoint());
+			
+			newResponse.setHeader( SipTester.getHeaderFactory().createHeader("x-sipx-emulated-frame",
+					new Integer(traceResponse.getFrameId()).toString() ));
 
 			return newResponse;
 		} catch (Exception ex) {

@@ -231,6 +231,7 @@ public class SipDialog {
 		String key = ipAddress + ":" + port;
 		logger.debug("createMediaListener : " + this + " ipAddress:port = "
 				+ ipAddress + ":" + port);
+		
 		try {
 			if (mediaListeners.containsKey(key)) {
 				this.mediaListener = mediaListeners.get(key);
@@ -350,13 +351,6 @@ public class SipDialog {
 
 	private void addDialogId(String dialogId) {
 		this.dialogIds.add(dialogId);
-	    /* if (this.dialogIds.size() > 2) {
-			logger
-					.error("last dialogId set at "
-							+ this.dialogIdSetAtStackTrace);
-			logger.error("Error occured at : " + SipUtilities.getStackTrace());
-			SipTester.fail("Internal inconsistency on dialog " + this);
-		} */
 		this.dialogIdSetAtStackTrace = SipUtilities.getStackTrace();
 
 	}
@@ -410,7 +404,7 @@ public class SipDialog {
 					public void run() {
 						sendBytes();
 					}
-				}, 100);
+				}, 500);
 			} else {
 				logger.debug("this.remoteIpAddress = " + this + " remoteIp/port = "
 						+ this.getRemoteIpAddress()
@@ -452,12 +446,13 @@ public class SipDialog {
 								sessionDescription);
 				int port = SipUtilities.getSessionDescriptionMediaPort("audio",
 						sessionDescription);
-				this.mediaListener = createMediaListener(ipAddress, port);
+				this.mediaListener = createMediaListener(SipTester.getTesterConfig().getTesterIpAddress(), port);
 				mediaListener.isLocalEndOnHold = SipUtilities
 						.isHoldRequest(sessionDescription);
 				if (mediaListener != null && !mediaListener.isRunning()) {
-					new Thread(mediaListener).start();
+						new Thread(mediaListener).start();
 				}
+				
 
 			} else {
 				System.out.println("isSpiral");
@@ -496,7 +491,7 @@ public class SipDialog {
 							sessionDescription);
 			int port = SipUtilities.getSessionDescriptionMediaPort("audio",
 					sessionDescription);
-			this.mediaListener = createMediaListener(ipAddress, port);
+			this.mediaListener = createMediaListener(SipTester.getTesterConfig().getTesterIpAddress(), port);
 			mediaListener.isLocalEndOnHold = SipUtilities
 					.isHoldRequest(sessionDescription);
 			logger.debug("localEndOnHold " + mediaListener.isLocalEndOnHold);

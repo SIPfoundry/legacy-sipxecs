@@ -18,6 +18,7 @@ public class SipResponse extends SipMessage {
      private ResponseEvent responseEvent;  
      private Semaphore preconditionSem = new Semaphore(0);
      private static Logger logger = Logger.getLogger(SipResponse.class);
+     private HashSet<SipMessage> activatedBy = new HashSet<SipMessage>();
      int permits = 0;
      
      private HashSet<SipResponse> activateOnSendResponse = new HashSet<SipResponse>();
@@ -75,10 +76,12 @@ public class SipResponse extends SipMessage {
         return responseEvent;
     }
 
-    public void triggerPreCondition() {
+    public void triggerPreCondition(SipResponse sipResponse) {
         logger.debug("triggerPerCondition: Frame = " + this.getFrameId() + " npermits  " + 
         		this.preconditionSem.availablePermits());
         this.preconditionSem.release();
+        //this.permits --;
+        this.activatedBy.remove(sipResponse);
     }
 
 
@@ -86,13 +89,34 @@ public class SipResponse extends SipMessage {
 		logger.debug("frame " + this.getFrameId () + " addPostCondition " + response.getFrameId());
 		response.addPermit();
 		this.activateOnSendResponse.add(response);
+		response.addActivatedBy(this);
+	}
+
+
+	void addActivatedBy(SipMessage sipMessage) {
+		this.activatedBy.add(sipMessage);
+		
 	}
 
 
 	public void firePermits() {
 		for (SipResponse response : this.activateOnSendResponse ) {
-			response.triggerPreCondition();
+			response.triggerPreCondition(this);
 		}	
+	}
+	
+	public HashSet<SipMessage> getActivatedBy() {
+		return this.activatedBy;
+	}
+
+
+	public void triggerPreCondition(SipRequest sipRequest) {
+		   logger.debug("triggerPerCondition: Frame = " + this.getFrameId() + " npermits  " + 
+	        		this.preconditionSem.availablePermits());
+	        this.preconditionSem.release();
+	        
+	        this.activatedBy.remove(sipRequest);
+		
 	}
 
 

@@ -191,7 +191,9 @@ public class SipServerTransaction extends SipTransaction implements
 		SipTester.getPrintWriter().println("<responses>");
 
 		for (SipResponse response : this.responses) {
-			SipTester.getPrintWriter().println("<sip-response><![CDATA[");
+			SipTester.getPrintWriter().println("<sip-response >");
+			SipTester.getPrintWriter().println("<frameId>" + response.getFrameId() + "</frameId>");
+			SipTester.getPrintWriter().println("<![CDATA[");
 			SipTester.getPrintWriter().println(
 					response.getSipResponse() + "]]></sip-response>");
 		}

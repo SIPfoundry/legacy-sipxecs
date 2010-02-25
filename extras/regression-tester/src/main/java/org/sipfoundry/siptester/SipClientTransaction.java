@@ -73,6 +73,8 @@ public class SipClientTransaction extends SipTransaction implements
             this.postCondition.add(resp);
             logger.debug("addPostCondition " + this.getTime() + " respTime = " + resp.getTime());
             resp.addPermit();
+            resp.addActivatedBy(this.getSipRequest());
+           
         }
     }
 
@@ -198,7 +200,6 @@ public class SipClientTransaction extends SipTransaction implements
 
                     // logger.debug("dialogId " + dialogId);
                     SipDialog sipDialog = SipTester.getDialog(this.sipRequest,false,this.endpoint);
-                    SipResponse sipResponse = (SipResponse) this.triggeringMessage;
                     for (SipServerTransaction sst : this.serverTransactions) {
                         SipDialog hisDialog = SipTester.getDialog(sst.getDialogId(),this.endpoint);
                         hisDialog.setPeerDialog(sipDialog);
@@ -211,6 +212,8 @@ public class SipClientTransaction extends SipTransaction implements
                      * If tester is in Dialog Stateful Mode.
                      */
                     if ( dialog != null ) {
+                        SipResponse sipResponse = (SipResponse) this.triggeringMessage;
+                        
                         Request ack = dialog.createAck(SipUtilities.getSequenceNumber(sipResponse
                             .getResponseEvent().getResponse()));
                         SipUtilities.copyHeaders(this.sipRequest,
@@ -342,7 +345,7 @@ public class SipClientTransaction extends SipTransaction implements
             SipTester.fail("unexpectedException", ex);
         } finally {
             for (SipResponse sipResponse : this.getPostCondition()) {
-                sipResponse.triggerPreCondition();
+                sipResponse.triggerPreCondition(sipRequest);
             }
         }
     }

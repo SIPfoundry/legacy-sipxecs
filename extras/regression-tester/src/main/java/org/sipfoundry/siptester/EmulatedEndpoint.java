@@ -97,10 +97,12 @@ public class EmulatedEndpoint extends HostPort {
     }
 
     public void addEmulatedServerTransaction(SipServerTransaction serverTx) {
-        this.serverTransactions.add(serverTx);
-        serverTx.setEndpoint(this);
-        logger.debug("addEmulatedServerTransaction " + this.ipAddress + ":" + this.port + " "
-                + serverTx.getSipRequest().getFrameId());
+    	if (serverTx.isOfInterest()) {
+			this.serverTransactions.add(serverTx);
+			serverTx.setEndpoint(this);
+			logger.debug("addEmulatedServerTransaction " + this.ipAddress + ":"
+					+ this.port + " " + serverTx.getSipRequest().getFrameId());
+		}
 
     }
 
@@ -166,7 +168,7 @@ public class EmulatedEndpoint extends HostPort {
         new Thread(new Runnable() {
             public void run() {
 
-                if (clientTransactions.isEmpty()) {
+                if (clientTransactions.isEmpty() ) {
                     System.out.println(traceEndpoint.getTraceIpAddresses() +  " Nothing to run");
                     doneFlag = true;
                     return;
@@ -220,8 +222,8 @@ public class EmulatedEndpoint extends HostPort {
             it = this.serverTransactions.iterator();
             while (it.hasNext()) {
                 SipServerTransaction sst = it.next();
-                  if (request.getMethod().equals(sst.getSipRequest().getSipRequest().getMethod()) &&
-                		  sst.getSipRequest().getFrameId() > SipTester.getMaxEmulatedFrame()) {
+                  if ( request.getMethod().equalsIgnoreCase(sst.getSipRequest().getSipRequest().getMethod()) 
+                		   /* && sst.getSipRequest().getFrameId() > SipTester.getMaxEmulatedFrame() */ ) {
                     it.remove();
                     retval.add(sst);
                     break;            
@@ -230,6 +232,7 @@ public class EmulatedEndpoint extends HostPort {
          }
         if (retval.isEmpty()) {
             logger.debug("Could not find a matching server transaction for the incoming request");
+           
         }
         return retval;
     }

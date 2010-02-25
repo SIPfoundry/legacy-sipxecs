@@ -571,7 +571,23 @@ public class SipTester {
 					}
 
 				}
+				
+				
 				Iterator<SipClientTransaction> it1 = runnable.iterator();
+				
+				while(it1.hasNext()) {
+					SipClientTransaction previousTx = it1.next();
+					EmulatedEndpoint ee = previousTx.getEndpoint();
+					for (SipServerTransaction sst : ee.getServerTransactions()) {
+						if (sst.getSipRequest().getFrameId() < currentTx
+								.getSipRequest().getFrameId()) {
+							currentTx.addHappensBefore(sst.getSipRequest());
+							sst.getSipRequest().addPostCondition(currentTx);
+						}
+					}
+				}
+				
+				/*
 				while (it1.hasNext()) {
 					SipClientTransaction previousTx = it1.next();
 					for (SipServerTransaction sst : previousTx
@@ -582,7 +598,9 @@ public class SipTester {
 							sst.getSipRequest().addPostCondition(currentTx);
 						}
 					}
-				}
+				}*/
+				
+				
 				it1 = runnable.iterator();
 				while (it1.hasNext()) {
 					SipClientTransaction transaction = it1.next();
@@ -623,6 +641,14 @@ public class SipTester {
 				}
 
 			}
+			
+			/* for (Iterator<String> it =  SipTester.serverTransactionMap.keySet().iterator(); it.hasNext();) {
+				String key = (String) it.next();
+				SipServerTransaction sst = SipTester.serverTransactionMap.get(key);
+				if ( !sst.isOfInterest()) {
+					it.remove();
+				}
+			}*/
 
 			for (SipServerTransaction st1 : SipTester.serverTransactionMap
 					.values()) {
@@ -639,7 +665,8 @@ public class SipTester {
 					}
 				}
 			}
-
+			
+			
 
 			if (runnable.isEmpty()) {
 				System.out.println("Nothing to run!!");
@@ -685,6 +712,22 @@ public class SipTester {
 						doneFlag = false;
 					}
 				}
+				
+				
+				if ( doneFlag ) {
+					for ( SipServerTransaction sst : SipTester.serverTransactionMap.values() ) {
+						for(SipResponse sipResponse : sst.getResponses() ) {
+							if ( sipResponse.getActivatedBy().size() != 0 ) {
+								System.out.println("Did not send response " + sst.getSipRequest().getSipRequest());
+								for ( SipMessage  sipMessage : sipResponse.getActivatedBy())  {
+									System.out.println("Waiting to emulate Frame  " + sipMessage.getFrameId());
+								}
+							}
+						}
+
+					}
+				}
+				
 				if (doneFlag) {
 					System.out.println("all done!");
 					System.exit(1);
