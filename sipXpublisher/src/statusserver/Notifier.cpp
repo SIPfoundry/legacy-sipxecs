@@ -52,6 +52,7 @@ Notifier::Notifier(SipUserAgent* sipUserAgent)
 {
     mpSipUserAgent = sipUserAgent;
     mpSubscriptionDB = SubscriptionDB::getInstance();
+    mpStaticSeq = 0;
 }
 
 Notifier::~Notifier()
@@ -151,6 +152,8 @@ Notifier::sendNotifyForeachSubscription (
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "Notifier::sendNotifyForeachSubscription configured contact %s", userUri.data());
          int notifycseq = 0;
+         userCallid.append("-");
+         userCallid.appendNumber((mpStaticSeq++ & 0xFFFF), "%04x");
          UtlString id("");
          UtlString subscriptionState("terminated");
          UtlString recordroute("");

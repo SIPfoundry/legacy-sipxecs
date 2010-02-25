@@ -57,6 +57,7 @@ public:
 private:
     SipUserAgent*   mpSipUserAgent;
     SubscriptionDB* mpSubscriptionDB;
+    int             mpStaticSeq;
 
     static UtlString sComponentKey;
     static UtlString sUriKey;
