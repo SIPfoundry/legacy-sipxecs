@@ -11,6 +11,7 @@ Url:      http://www.pingtel.com
 
 Source:   %name-%version.tar.gz
 
+Requires: alsa-utils
 Requires: expat >= 1.95
 %if %{_vendor} == redhat
 Requires: httpd >= 2.0.46

@@ -544,12 +544,21 @@ do_setup() {
             fi
         fi
 
-        # Ensure that the /dev/dsp device is writable by all.
+        # Ensure that the audio devices are owned by @SIPXPBXUSER@
         # This is required for proper FreeSWITCH operation.
-        if test -e /dev/dsp
-        then
-            chmod 666 /dev/dsp
+        for dev in /dev/adsp /dev/audio /dev/dsp /dev/mixer /dev/sequencer /dev/sequencer2 ; do
+            if test -e $dev ; then
+                chown @SIPXPBXUSER@ $dev
+            fi
+        done
+        if test -d /dev/snd ; then
+            chown @SIPXPBXUSER@ /dev/snd/*
         fi
+
+        # Configure the sound input source used for MOH to be 'Line'
+        amixer cset iface=MIXER,name="Input Source",index=0 "Line"
+        amixer cset iface=MIXER,name="Capture Switch",index=0 on
+        amixer cset iface=MIXER,name="Capture Volume",index=0 60%
 
         # Ensure the sipx-restore and sipx-archive-common scripts are
         # both owned by root.
