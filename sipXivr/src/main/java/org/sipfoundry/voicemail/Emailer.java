@@ -202,7 +202,7 @@ public class Emailer {
                 try {
                     boolean attachAudio = u.isAltAttachAudioToEmail();
                     LOG.info(String.format("Emailer::run sending message %s as %s email to %s %s audio",
-                            m_vmessage.getMessageId(), fmt.toString(), to, attachAudio?"with":"without"));
+                            m_vmessage.getMessageId(), fmt.toString(), alt, attachAudio?"with":"without"));
                     EmailFormatter emf = EmailFormatter.getEmailFormatter(fmt, 
                             m_ivrConfig, m_mailbox, m_vmessage);
                     javax.mail.Message message = buildMessage(emf, attachAudio);
