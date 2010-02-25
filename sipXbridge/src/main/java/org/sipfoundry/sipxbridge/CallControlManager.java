@@ -1854,6 +1854,10 @@ class CallControlManager implements SymmitronResetHandler {
          * call. We have already redirected the RTP media to the redirected party at this point.
          */
 
+        if ( logger.isDebugEnabled()) {
+        	logger.debug("referDialog.getState() " + referDialog.getState() 
+        		+ " isOrignatorSipXbridge " + SipUtilities.isOriginatorSipXbridge(response));
+        }
         if (referDialog.getState() == DialogState.CONFIRMED
                 && SipUtilities.isOriginatorSipXbridge(response)) {
             /*
@@ -1934,7 +1938,9 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void blindTransferToItspResponse(ResponseEvent responseEvent) throws Exception {
-        logger.debug("blindTransferToItspResponse");
+    	if ( logger.isDebugEnabled() ) {
+    		logger.debug("blindTransferToItspResponse");
+    	}
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -2036,6 +2042,7 @@ class CallControlManager implements SymmitronResetHandler {
          * call. We have already redirected the RTP media to the redirected party at this point.
          */
 
+        logger.debug("referDialog.getState() " + referDialog.getState() + " isOriginatorSipxbridge = "  + SipUtilities.isOriginatorSipXbridge(response));
         if (referDialog.getState() == DialogState.CONFIRMED
                 && SipUtilities.isOriginatorSipXbridge(response)) {
 

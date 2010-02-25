@@ -85,8 +85,8 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
 
     void setSessionDescription(SessionDescription sessionDescription) {
         if (this.sessionDescription != null && logger.isDebugEnabled()) {
-            logger.debug("Old SD  = " + this.sessionDescription);
-            logger.debug("newSD = " + sessionDescription);
+            logger.debug("RtpReceiverEndpoint.setSessionDescription() Old SD  = " + this.sessionDescription);
+            logger.debug("RtpReceiverEndpoint.setSessionDescription() newSD = " + sessionDescription);
         }
         
         

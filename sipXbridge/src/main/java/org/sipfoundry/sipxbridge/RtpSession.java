@@ -61,6 +61,10 @@ class RtpSession {
      * @return
      */
     protected boolean isHoldRequest(SessionDescription sessionDescription) {
+    	
+    	if ( logger.isDebugEnabled()) {
+    		logger.debug("isHoldRequest " + sessionDescription);
+    	}
 
         int oldPort = this.getTransmitter().getPort();
         String oldIpAddress = this.getTransmitter().getIpAddress();
@@ -82,6 +86,7 @@ class RtpSession {
         if (logger.isDebugEnabled()) {
             logger.debug("mediaAttribute = " + mediaAttribute + "sessionAttribute = "
                     + sessionAttribute);
+            logger.debug("mediaIpAddress = " + newIpAddress + " oldPort " + oldPort + " newPort = " + newport );
         }
         /*
          * RFC2543 specified that placing a user on hold was accomplished by setting the
