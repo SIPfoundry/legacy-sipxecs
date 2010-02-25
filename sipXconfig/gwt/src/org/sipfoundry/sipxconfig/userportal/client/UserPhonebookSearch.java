@@ -344,9 +344,6 @@ public class UserPhonebookSearch implements EntryPoint {
         }
     }
 
-
-
-
     private static final class ExpandedContactComponent extends VLayout {
         private final IButton m_editButton = new IButton(s_searchConstants.edit());
         private final IButton m_saveButton = new IButton(s_searchConstants.save());
@@ -446,8 +443,6 @@ public class UserPhonebookSearch implements EntryPoint {
         }
     }
 
-
-
     private static final class DetailsTab extends TabSet {
         public DetailsTab(Details details) {
             setOverflow(Overflow.VISIBLE);
@@ -481,8 +476,6 @@ public class UserPhonebookSearch implements EntryPoint {
         }
     }
 
-
-
     private static final class DetailsLayout extends VLayout {
         public DetailsLayout(final Details details, final PhonebookGrid grid) {
             final IButton saveButton = new IButton(s_searchConstants.save());
@@ -508,8 +501,6 @@ public class UserPhonebookSearch implements EntryPoint {
             setMembersMargin(10);
         }
     }
-
-
 
     private static class Details {
         private static final String[] FIELDS_GENERAL = {
@@ -634,8 +625,6 @@ public class UserPhonebookSearch implements EntryPoint {
         }
     }
 
-
-
     private static final class PhonebookForm extends DynamicForm {
         private static final String TITLE_STYLE = "titleFormStyle";
 
@@ -703,8 +692,6 @@ public class UserPhonebookSearch implements EntryPoint {
         }
 
     }
-
-
 
     private static class ModalWindow extends Window {
 
@@ -860,8 +847,6 @@ public class UserPhonebookSearch implements EntryPoint {
         }
     }
 
-
-
     private static class ClickToCallButton extends IButton {
         private final LinkedHashMap<String, String> m_phoneMap;
 
@@ -889,14 +874,16 @@ public class UserPhonebookSearch implements EntryPoint {
 
             for (String fieldName : FIELDS_PHONENUMBERS) {
                 String numberToDial = listGridRecord.getAttributeAsString(fieldName);
-                if (numberToDial != null) {
+                if (numberToDial != null && !EMPTY_STRING.equals(numberToDial)) {
                     m_phoneMap.put(fieldName + numberToDial, s_searchConstants.getString(fieldName));
                 }
             }
+
+            if (m_phoneMap.isEmpty()) {
+                m_phoneMap.put(EMPTY_STRING, s_searchConstants.emptyPhoneList());
+            }
         }
     }
-
-
 
     private static class GmailImportModalWindow extends ModalWindow {
 

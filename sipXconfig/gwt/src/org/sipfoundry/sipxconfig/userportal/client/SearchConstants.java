@@ -150,4 +150,6 @@ public interface SearchConstants extends ConstantsWithLookup {
     String nextPage();
 
     String previousPage();
+
+    String emptyPhoneList();
 }
