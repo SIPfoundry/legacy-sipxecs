@@ -417,7 +417,10 @@ public class FindSipServer {
 		// If there is a port specified, use the A record.
 		if (uri.getPort() != -1) {
 			LOG.debug("FindSipServer::findServer Port supplied");
-			retval.add(hasPort(uri));
+			Hop hop  = hasPort(uri);
+			if ( hop != null ) {
+				retval.add(hasPort(uri));
+			}
 			return retval;
 		}
 
