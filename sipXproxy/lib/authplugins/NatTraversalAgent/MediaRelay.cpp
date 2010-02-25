@@ -297,8 +297,8 @@ bool MediaRelay::preAllocateSymmitronResources( void )
                {
                   key1Name = BRIDGE_ID;
                   Bridge* pPreviouslyCreatedBridge = 0;
-
-                  for( index = 0; index < mMaxMediaRelaySessions * 2; index++ )
+                  unsigned int numberOfBridgesToCreate = mMaxMediaRelaySessions * 2;
+                  for( index = 0; index < numberOfBridgesToCreate; index++ )
                   {
                      Sym* pEndpoint1Sym = static_cast<Sym*>( mSymList.at( index ) );
                      Sym* pEndpoint2Sym = static_cast<Sym*>( mSymList.at( mMaxMediaRelaySessions * 2 + index ) );
@@ -334,7 +334,7 @@ bool MediaRelay::preAllocateSymmitronResources( void )
                   }
 
                   // check if we managed to reach the end of the loop and create all the required bridges
-                  if( index >= mMaxMediaRelaySessions )
+                  if( index >= numberOfBridgesToCreate )
                   {
                      // this completes the initialization sequence - set flag to indicate success.
                      bInitializationSucceeded = true;
