@@ -23,6 +23,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -42,7 +43,9 @@ class DataShuffler implements Runnable {
     
     private static long packetCounter = Math.abs(random.nextLong());
     
-    private static List workQueue = SynchronizedList.decorate(new LinkedList<WorkItem>());
+    //private static List workQueue = SynchronizedList.decorate(new LinkedList<WorkItem>());
+    
+    private static ConcurrentSkipListSet<WorkItem> workQueue = new ConcurrentSkipListSet<WorkItem>();
     
 
     public DataShuffler() {
@@ -294,10 +297,12 @@ class DataShuffler implements Runnable {
 
                 selector.select();
                 
-                while (! workQueue.isEmpty() ) {
+                Iterator<WorkItem> it = workQueue.iterator();
+                while (it.hasNext() ) {
                     logger.debug("Got a work item");
-                    WorkItem workItem = (WorkItem)workQueue.remove(0);
+                    WorkItem workItem = it.next();
                     workItem.doWork();
+                    it.remove();
                 }
                 
                 // Iterate over the set of keys for which events are
