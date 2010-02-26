@@ -2690,7 +2690,7 @@
 		<setting name='SPEEDLIST_LABEL'>
 			<type refid="restrictedString"/>
 			<value>SDL</value>
-			<description>String  used for SDL key label </description>
+			<description>String used for SDL key label</description>
 		</setting>
 		<setting name='SPEEDLIST_KEY_INDEX'>
 			<type>
