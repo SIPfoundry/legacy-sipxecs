@@ -51,6 +51,9 @@ public abstract class AutoRefreshForm extends BaseComponent implements PageBegin
     @Parameter(defaultValue = "30")
     public abstract int getInterval();
 
+    @Parameter(defaultValue = "false")
+    public abstract boolean getStopOnError();
+
     @Bean
     public abstract SipxValidationDelegate getValidator();
 

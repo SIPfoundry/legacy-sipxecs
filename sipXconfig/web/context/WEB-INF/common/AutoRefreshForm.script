@@ -6,6 +6,7 @@
   <input-symbol key="refreshButton" required="yes"/>
   <input-symbol key="interval" required="yes"/>
   <input-symbol key="checkbox" required="yes" />
+  <input-symbol key="stopOnError" required="yes" />
   
   <let key="initRefresh" unique="yes">initRefresh</let>
   <let key="timeoutId" unique="yes">timeoutId</let>
@@ -14,6 +15,7 @@
     <unique>
 <![CDATA[    
 var refreshEnabled = true;
+var stopOnError = ${stopOnError};
     
 function updateRefresh(value) {
     dojo.debug("Updating auto refresh interval: " + value.message);
@@ -24,8 +26,13 @@ function ${initRefresh}(buttonName, interval) {
   dojo.debug("Registering auto refresh: " + interval);
   var click = function() {
     if (dojo.byId("${checkbox}").checked && refreshEnabled) {  
-        dojo.debug("Clicking: " + buttonName);
-        dojo.byId(buttonName).click();     
+        if (stopOnError && dojo.byId("user:error") != null) {
+            dojo.debug("Error on page - no refresh");
+            dojo.byId("${checkbox}").checked = false;
+        } else {
+            dojo.debug("Clicking: " + buttonName);
+            dojo.byId(buttonName).click();
+        }
     }
   }
   
