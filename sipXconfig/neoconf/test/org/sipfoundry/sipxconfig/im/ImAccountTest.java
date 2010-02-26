@@ -51,7 +51,7 @@ public class ImAccountTest extends TestCase {
 
         imAccount.setImId("555");
         assertEquals("555", imAccount.getImId());
-        assertNull(user.getImId());
+        assertNotNull(user.getImId());
     }
 
     public void testGetImDisplayName() throws Exception {

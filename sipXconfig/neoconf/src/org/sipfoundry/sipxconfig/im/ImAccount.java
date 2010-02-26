@@ -57,11 +57,7 @@ public class ImAccount {
      * Otherwise we update to a new value.
      */
     public void setImId(String imId) {
-        if (getDefaultImId().equals(imId)) {
-            m_user.setImId(null);
-        } else {
-            m_user.setImId(imId);
-        }
+        m_user.setImId(imId);
     }
 
     public String getDefaultImId() {

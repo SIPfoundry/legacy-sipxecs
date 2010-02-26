@@ -87,6 +87,7 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         // Save the user
         CoreContext core = getCoreContext();
         User user = getUser();
+        user.setImId(user.getUserName());
         EditGroup.saveGroups(getSettingDao(), user.getGroups());
 
         // Execute the automatic assignments for the user.

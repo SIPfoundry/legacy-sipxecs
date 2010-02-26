@@ -67,9 +67,6 @@ public abstract class UserSettings extends PageWithCallback implements PageBegin
 
     public void apply() {
         ImAccount imAccount = new ImAccount(getUser());
-        if (imAccount.getDefaultImId().equals(getUser().getImId())) {
-            getUser().setImId(null);
-        }
         if (imAccount.getDefaultImDisplayName().equals(getUser().getImDisplayName())) {
             getUser().setImDisplayName(null);
         }
