@@ -21,9 +21,8 @@ import org.apache.commons.collections.Closure;
 
 public class VcardParserImplTest extends TestCase {
 
-    public void testParse() throws Exception {
-
-        InputStream testPhonebookFile = getClass().getResourceAsStream("testPhonebook.vcf");
+    private List<String[]> parseVcardFile(String fileName) {
+        InputStream testPhonebookFile = getClass().getResourceAsStream(fileName);
         Reader reader = new InputStreamReader(testPhonebookFile);
         VcardParserImpl parser = new VcardParserImpl();
         final List<String[]> entriesList = new ArrayList<String[]>();
@@ -34,6 +33,13 @@ public class VcardParserImplTest extends TestCase {
         };
 
         parser.parse(reader, add);
+
+        return entriesList;
+    }
+
+    public void testParse() throws Exception {
+
+        List<String[]> entriesList = parseVcardFile("testPhonebook.vcf");
         assertEquals(9, entriesList.size());
 
         String[] entry1 = entriesList.get(0);
@@ -152,17 +158,7 @@ public class VcardParserImplTest extends TestCase {
         // the contact used for this test was generated with Microsoft Outlook 2007 and
         // it contains a picture attachment
 
-        InputStream contact = getClass().getResourceAsStream("SainaNehwal.vcf");
-        Reader reader = new InputStreamReader(contact);
-        VcardParserImpl parser = new VcardParserImpl();
-        final List<String[]> entriesList = new ArrayList<String[]>();
-        Closure add = new Closure() {
-            public void execute(Object item) {
-                entriesList.add((String[]) item);
-            }
-        };
-
-        parser.parse(reader, add);
+        List<String[]> entriesList = parseVcardFile("SainaNehwal.vcf");
         assertEquals(1, entriesList.size());
 
         String[] entry = entriesList.get(0);
@@ -188,5 +184,37 @@ public class VcardParserImplTest extends TestCase {
         assertEquals("Karnataka", entry[19]);
         assertEquals("Bangalore", entry[20]);
         assertEquals("", entry[21]);
+    }
+
+    public void testParseContactWithNoOrgUnit() throws Exception {
+        // the contact used for this test was generated with Microsoft Outlook 2007 and
+        // it contains only OrgName and not OrgUnit
+
+        List<String[]> entriesList = parseVcardFile("JamesCam.vcf");
+        assertEquals(1, entriesList.size());
+
+        String[] entry = entriesList.get(0);
+        assertEquals("James", entry[0]);
+        assertEquals("Cam", entry[1]);
+        assertEquals("678-8990", entry[2]);
+        assertEquals(null, entry[3]);
+        assertEquals(null, entry[4]);
+        assertEquals("23445", entry[5]);
+        assertEquals("james@gmail.com", entry[6]);
+        assertEquals(null, entry[7]);
+        assertEquals("Avaya", entry[8]);
+        assertEquals("TE", entry[9]);
+        assertEquals("", entry[10]);
+        assertEquals(null, entry[11]);
+        assertEquals(null, entry[12]);
+        assertEquals(null, entry[13]);
+        assertEquals(null, entry[14]);
+        assertEquals(null, entry[15]);
+        assertEquals(null, entry[16]);
+        assertEquals(null, entry[17]);
+        assertEquals(null, entry[18]);
+        assertEquals(null, entry[19]);
+        assertEquals(null, entry[20]);
+        assertEquals(null, entry[21]);
     }
 }

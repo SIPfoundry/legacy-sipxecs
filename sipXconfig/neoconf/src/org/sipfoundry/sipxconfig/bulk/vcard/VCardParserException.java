@@ -13,6 +13,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 
 public class VCardParserException extends UserException {
     public VCardParserException() {
-        super("&msg.phonebookUploadError");
+        super("&msg.phonebookVcardUploadError");
     }
 }

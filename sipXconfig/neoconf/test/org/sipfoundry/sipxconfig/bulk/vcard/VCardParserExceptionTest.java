@@ -15,6 +15,6 @@ public class VCardParserExceptionTest extends TestCase {
 
     public void testVCardParserException() {
         Exception ex = new VCardParserException();
-        assertEquals("&msg.phonebookUploadError", ex.getMessage());
+        assertEquals("&msg.phonebookVcardUploadError", ex.getMessage());
     }
 }

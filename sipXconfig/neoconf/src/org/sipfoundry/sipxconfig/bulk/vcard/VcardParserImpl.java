@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.bulk.vcard;
 
-import java.io.IOException;
 import java.io.Reader;
 import java.util.Iterator;
 
@@ -25,6 +24,8 @@ import net.sf.vcard4j.parser.DomParser;
 import org.apache.commons.collections.Closure;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.xerces.dom.DocumentImpl;
 import org.sipfoundry.sipxconfig.bulk.BulkParser;
 import org.w3c.dom.Document;
@@ -33,6 +34,8 @@ public class VcardParserImpl implements BulkParser {
     public static final String NAME = "N";
     public static final String ORGANIZATION = "ORG";
     public static final String TITLE_TYPE = "TITLE";
+
+    public static final Log LOG = LogFactory.getLog(VcardParserImpl.class);
 
     public void parse(Reader reader, Closure closure) {
         try {
@@ -48,7 +51,8 @@ public class VcardParserImpl implements BulkParser {
                     closure.execute(entryStrings);
                 }
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
+            LOG.error("An error occurred while importing the vCard contact(s): " + e.getMessage());
             throw new VCardParserException();
         } finally {
             IOUtils.closeQuietly(reader);
