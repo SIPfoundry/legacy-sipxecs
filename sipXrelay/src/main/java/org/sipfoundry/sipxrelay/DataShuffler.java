@@ -43,9 +43,9 @@ class DataShuffler implements Runnable {
     
     private static long packetCounter = Math.abs(random.nextLong());
     
-    //private static List workQueue = SynchronizedList.decorate(new LinkedList<WorkItem>());
+    private static List workQueue = SynchronizedList.decorate(new LinkedList<WorkItem>());
     
-    private static ConcurrentSkipListSet<WorkItem> workQueue = new ConcurrentSkipListSet<WorkItem>();
+    //private static ConcurrentSkipListSet<WorkItem> workQueue = new ConcurrentSkipListSet<WorkItem>();
     
 
     public DataShuffler() {

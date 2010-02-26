@@ -19,13 +19,11 @@ public abstract class WorkItem implements Comparable<WorkItem> {
     
     @Override
     public int compareTo(WorkItem workItem) {
-    	if ( workItem.creationTime < this.creationTime ) {
-    		return -1;
-    	} else if ( creationTime >= this.creationTime ) {
+    	if ( workItem.creationTime <= this.creationTime ) {
     		return 1;
-    	} else {
-    		return 0;
-    	}
+    	} else  {
+    		return -1;
+    	} 
     }
     
     public abstract void doWork();
