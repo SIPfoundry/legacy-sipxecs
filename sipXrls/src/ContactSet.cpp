@@ -162,14 +162,14 @@ void ContactSet::subscriptionEventCallback(
           getResourceListServer()->getMaxRegSubscInResource())
       {
          // Add this ContactSet to mNotifyMap for the subscription.
-         UtlString* d = new UtlString(*dialogHandle);
-         getResourceListSet()->addNotifyMapping(d, this);
+         // (::addNotifyMapping() copies *dialogHandle.)
+         getResourceListSet()->addNotifyMapping(*dialogHandle, this);
          // Remember it in mSubscriptions, if there isn't already an entry.
-         if (!mSubscriptions.find(d))
+         if (!mSubscriptions.find(dialogHandle))
          {
-            // Remember to make a copy of *d, because the NotifyMapping logic
-            // now owns *d.
-            mSubscriptions.insertKeyAndValue(new UtlString(*d), new UtlHashMap);
+            // Remember to make a copy of *dialogHandle.
+            mSubscriptions.insertKeyAndValue(new UtlString(*dialogHandle),
+                                             new UtlHashMap);
          }
          else
          {

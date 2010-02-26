@@ -55,7 +55,7 @@ ResourceInstance::ResourceInstance(SubscriptionSet* parent,
                  subscriptionState);
 
    // Add this ResourceInstance to mNotifyMap.
-   getResourceListSet()->addNotifyMapping(&mInstanceName, this);
+   getResourceListSet()->addNotifyMapping(mInstanceName, this);
 
    // Publish the state with the new instance.
    getResourceCached()->setToBePublished();

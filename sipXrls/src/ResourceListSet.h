@@ -189,10 +189,14 @@ class ResourceListSet : public UtlContainableAtomic
     *  Note that the handler is UtlContainable, not ResourceNotifyReceiver,
     *  in parallel to addSubscribeMapping().
     */
-   void addNotifyMapping(UtlString* dialogHandle,
+   void addNotifyMapping(const UtlString& dialogHandle,
+                         //< does not become owned by ::addNotifyMapping().
                          UtlContainable* handler);
 
    /** Delete a mapping for a dialog handle.
+    *  May be either the dialog handle or the reversed dialog handle.
+    *  Frees the UtlString objects that are the keys for mNotifyMap,
+    *  but does not free the 'handler' that they are mapped to.
     */
    void deleteNotifyMapping(const UtlString* dialogHandle);
 

@@ -470,40 +470,33 @@ void ResourceListSet::deleteSubscribeMapping(UtlString* earlyDialogHandle)
 /** Add a mapping for a dialog handle to its handler for
  *  NOTIFY events.
  */
-void ResourceListSet::addNotifyMapping(UtlString* dialogHandle,
+void ResourceListSet::addNotifyMapping(const UtlString& dialogHandle,
                                        UtlContainable* handler)
 {
    /* The machinery surrounding dialog handles is broken in that it
     * does not keep straight which tag is local and which is remote,
-    * and the dialogHandle for notifyEventCallback has the tags
-    * reversed relative to the tags in the dialogHandle for
-    * subscriptionEventCallback.  So we reverse the tags in dialogHandle
-    * before inserting it into mNotifyMap, to match what
-    * notifyEventCallback will receive.  Yuck.  Ideally, we would fix
-    * the problem (XSL-146), but there are many places in the code
-    * where it is sloppy about tracking whether a message is incoming
-    * or outgoing when constructing a dialogHandle, and this is
-    * circumvented by making the lookup of dialogs by dialogHandle
-    * insensitive to reversing the tags.  (See SipDialog::isSameDialog.)
+    * and the order of the tags in dialogHandle is not consistent.
+    * Ideally, we would fix the problem (XSL-146), but there are many
+    * places in the code where it is sloppy about tracking whether a
+    * message is incoming or outgoing when constructing a
+    * dialogHandle.  We circumvent this by making the lookup of
+    * dialogs by dialogHandle insensitive to reversing the tags.  (See
+    * SipDialog::isSameDialog.)
     */
-   /* Correction:  Sometimes the NOTIFY tags are reversed, and
-    * sometimes they aren't.  So we have to file both handles in
-    * mNotifyMap.  Yuck.
-    */
-   mNotifyMap.insertKeyAndValue(dialogHandle, handler);
 
+   // Construct our copies of the dialog handle and the swapped dialog handle.
+   UtlString* dialogHandleP = new UtlString(dialogHandle);
    UtlString* swappedDialogHandleP = new UtlString;
-   swapTags(*dialogHandle, *swappedDialogHandleP);
+   swapTags(dialogHandle, *swappedDialogHandleP);
 
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s', handler = %p",
-                 this, dialogHandle->data(), swappedDialogHandleP->data(),
+                 this,
+                 dialogHandleP->data(), swappedDialogHandleP->data(),
                  handler);
 
-   // Note that we have allocated *swappedDialogHandleP.  Our caller
-   // owns *dialogHandle and will deallocate it after calling
-   // deleteNotifyMapping, but deleteNotify must remember to deallocate
-   // *swappedDialogHandleP, the key object in mNotifyMap.  Yuck.
+   // Make entries in mNotifyMap for both forms of the handle.
+   mNotifyMap.insertKeyAndValue(dialogHandleP, handler);
    mNotifyMap.insertKeyAndValue(swappedDialogHandleP, handler);
 }
 
@@ -511,25 +504,28 @@ void ResourceListSet::addNotifyMapping(UtlString* dialogHandle,
  */
 void ResourceListSet::deleteNotifyMapping(const UtlString* dialogHandle)
 {
-   // See comment in addNotifyMapping for why we do this.
+   // See comment in addNotifyMapping for why we have two entries, one for
+   // the dialog handle and one for the swapped dialog handle.
    UtlString swappedDialogHandle;
-
    swapTags(*dialogHandle, swappedDialogHandle);
 
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::deleteNotifyMapping this = %p, dialogHandle = '%s', swappedDialogHandle = '%s'",
                  this, dialogHandle->data(), swappedDialogHandle.data());
 
-   // Delete the un-swapped mapping.
-   mNotifyMap.remove(dialogHandle);
-
-   // Have to get a pointer to the key object, as our caller won't
-   // free it.  Otherwise, we could just do "mNotifyMap.remove(dialogHandle)".
+   // We have to get a pointer to the key objects, as our caller won't
+   // free them.  Otherwise, we could use UtlHashMap::remove().
    UtlContainable* value;
-   UtlContainable* keyString = mNotifyMap.removeKeyAndValue(&swappedDialogHandle, value);
+   UtlContainable* keyString = mNotifyMap.removeKeyAndValue(dialogHandle, value);
    if (keyString)
    {
       // Delete the key object.
+      delete keyString;
+   }
+   keyString = mNotifyMap.removeKeyAndValue(&swappedDialogHandle, value);
+   if (keyString)
+   {
+      // Delete the swapped key object.
       delete keyString;
    }
 }
