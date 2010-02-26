@@ -17,7 +17,13 @@
   </div>
   <fieldset>
     <table>
-      <span jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences" user="ognl:user"/>
+      <tr jwcid="pin@user/ConfirmPassword"
+          password="ognl:pin"
+          passwordDisplayName="message:label.pin"
+          confirmPasswordDisplayName="message:label.pin2"
+          passwordMismatchMessage="message:error.pinMismatch">
+      </tr>
+      <tr jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
     </table>
   </fieldset>
   <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>

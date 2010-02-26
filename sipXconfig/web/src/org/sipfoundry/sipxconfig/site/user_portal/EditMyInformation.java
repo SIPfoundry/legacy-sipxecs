@@ -25,11 +25,13 @@ import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
+import org.sipfoundry.sipxconfig.site.user.UserForm;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 
-public abstract class EditMyInformation extends UserBasePage {
+public abstract class EditMyInformation extends UserBasePage implements EditPinComponent {
     public static final String TAB_CONFERENCES = "conferences";
 
     private static final String OPERATOR_SETTING = "personal-attendant" + Setting.PATH_DELIM + "operator";
@@ -39,6 +41,8 @@ public abstract class EditMyInformation extends UserBasePage {
 
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
+
+    public abstract String getPin();
 
     public abstract Conference getCurrentRow();
 
@@ -81,7 +85,9 @@ public abstract class EditMyInformation extends UserBasePage {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
+
         User user = getUserForEditing();
+        UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
         getCoreContext().saveUser(user);
 
         savePersonalAttendant(user);
@@ -113,6 +119,8 @@ public abstract class EditMyInformation extends UserBasePage {
             user = getUser();
             setUserForEditing(user);
         }
+
+        UserForm.initializePin(getComponent("pin"), this, user);
 
         MailboxManager mailMgr = getMailboxManager();
         if (getMailboxPreferences() == null && mailMgr.isEnabled()) {

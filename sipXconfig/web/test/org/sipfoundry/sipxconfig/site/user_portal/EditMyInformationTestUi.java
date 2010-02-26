@@ -20,6 +20,7 @@ public class EditMyInformationTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(EditMyInformationTestUi.class);
     }
 
+    @Override
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -104,6 +105,18 @@ public class EditMyInformationTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         assertButtonPresent("pa:enablePA");
+        assertButtonPresent("form:apply");
+    }
+
+    public void testTabInfoDisplay() {
+        clickLink("menu.myInformation");
+        clickLink("link:info");
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        assertElementPresent("user:emailAddress");
+        //the pin component
+        assertElementPresent("cp:password");
+        assertElementPresent("cp:confirmPassword");
         assertButtonPresent("form:apply");
     }
 }
