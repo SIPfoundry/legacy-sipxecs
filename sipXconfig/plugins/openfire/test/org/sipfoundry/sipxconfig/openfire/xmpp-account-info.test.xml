@@ -76,7 +76,6 @@
     <is-public-room>true</is-public-room>
     <is-members-only>false</is-members-only>
     <is-persistent>true</is-persistent>
-    <log-room-conversations>false</log-room-conversations>
     <conference-extension>300</conference-extension>
   </chat-room>
   <chat-room>
@@ -89,7 +88,6 @@
     <is-public-room>true</is-public-room>
     <is-members-only>false</is-members-only>
     <is-persistent>true</is-persistent>
-    <log-room-conversations>true</log-room-conversations>
     <conference-extension>300</conference-extension>
   </chat-room>
 </xmpp-account-info>

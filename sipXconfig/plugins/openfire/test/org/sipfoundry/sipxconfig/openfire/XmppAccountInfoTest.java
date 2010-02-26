@@ -158,7 +158,6 @@ public class XmppAccountInfoTest extends TestCase {
         conf1.setDescription("Description");
         conf1.setExtension("300");
         conf1.setSettingTypedValue("chat-meeting/moderated", true);
-        conf1.setSettingTypedValue("chat-meeting/log-conversations", false);
         conf1.setOwner(m_userOne);
 
         Conference conf2 = new Conference();
@@ -171,7 +170,6 @@ public class XmppAccountInfoTest extends TestCase {
         conf3.setDescription("Description 3");
         conf3.setExtension("300");
         conf3.setSettingTypedValue("chat-meeting/moderated", false);
-        conf3.setSettingTypedValue("chat-meeting/log-conversations", true);
         conf3.setOwner(m_userThree);
 
         m_conferences = asList(conf1, conf2, conf3);
