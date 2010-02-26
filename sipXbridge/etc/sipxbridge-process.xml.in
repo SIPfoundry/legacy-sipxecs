@@ -23,6 +23,6 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <file>@SIPX_CONFDIR@/sipxbridge.xml</file>
-    <file>@SIPX_CONFDIR@/peeridentities.xml</file>
+    <file required='false'>@SIPX_CONFDIR@/peeridentities.xml</file>
   </resources>
 </sipXecs-process>
