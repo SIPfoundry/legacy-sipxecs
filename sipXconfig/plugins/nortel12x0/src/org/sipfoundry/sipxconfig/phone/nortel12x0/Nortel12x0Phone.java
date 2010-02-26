@@ -117,7 +117,7 @@ public class Nortel12x0Phone extends Phone {
     }
 
     public String getProfileFilename() {
-        return "Avaya/config/" + "SIP" + getSerialNumber().toUpperCase() + ".xml";
+        return "Nortel/config/" + "SIP" + getSerialNumber().toUpperCase() + ".xml";
 
     }
 

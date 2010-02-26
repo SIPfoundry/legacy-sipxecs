@@ -727,9 +727,9 @@ public class Servlet extends HttpServlet {
         // Nortel IP 12x0, see:
         //  - http://sipx-wiki.calivia.com/index.php/Polycom_SoundPoint_IP_family_table
         //  - plugins/nortel12x0/src/org/sipfoundry/sipxconfig/phone/nortel12x0/nortel12x0-models.beans.xml
-        PHONE_MODEL_MAP.put("1210", new PhoneModel("avaya-1210", "Avaya 1210 IP Deskphone"));
-        PHONE_MODEL_MAP.put("1220", new PhoneModel("avaya-1220", "Avaya 1220 IP Deskphone"));
-        PHONE_MODEL_MAP.put("1230", new PhoneModel("avaya-1230", "Avaya 1230 IP Deskphone"));
+        PHONE_MODEL_MAP.put("1210", new PhoneModel("nortel-1210", "Nortel IP 1210"));
+        PHONE_MODEL_MAP.put("1220", new PhoneModel("nortel-1220", "Nortel IP 1220"));
+        PHONE_MODEL_MAP.put("1230", new PhoneModel("nortel-1230", "Nortel IP 1230"));
     }
 
     public static void main(String[] args) throws Exception {
