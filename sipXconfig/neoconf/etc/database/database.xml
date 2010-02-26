@@ -345,6 +345,7 @@
     <antcall target="change-nortel-phones-model" />
     <antcall target="multiple_phonebook_entry_types" />
     <antcall target="phonebook_entries_update_task" />
+    <antcall target="change-nortel12x0-phone-to-avaya" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1071,6 +1072,9 @@
   </target>
   <target name="phonebook_entries_update_task" unless="phonebook_entries_update_task">
     <db-patch patch="phonebook_entries_update_task"/>
+  </target>
+  <target name="change-nortel12x0-phone-to-avaya" unless="change-nortel12x0-phone-to-avaya">
+    <db-patch patch="change-nortel12x0-phone-to-avaya"/>
   </target>
 
   <!--
