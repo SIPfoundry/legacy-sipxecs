@@ -70,6 +70,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.dao.support.DataAccessUtils;
 
 import static org.apache.commons.lang.StringUtils.join;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.checkDuplicates;
@@ -83,6 +84,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private static final String FIELD_ID = "id";
     private static final String FIELD_CONTENT = "content";
     private static final String PARAM_USER_ID = "userId";
+    private static final String AT_SIGN = "@";
 
     private boolean m_phonebookManagementEnabled;
     private String m_externalUsersDirectory;
@@ -657,7 +659,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     public int addEntriesFromGoogleAccount(Integer phonebookId, String account, String password) {
         Phonebook phonebook = getPhonebook(phonebookId);
         deleteGoogleImportedEntries(account, phonebook);
-        GoogleImporter googleImporter = new GoogleImporter(account, password);
+        String userAccount = new String(account);
+        if (!StringUtils.contains(account, AT_SIGN)) {
+            userAccount = userAccount + AT_SIGN + getGoogleDomain().getDomainName();
+        }
+
+        GoogleImporter googleImporter = new GoogleImporter(userAccount, password);
         int count = googleImporter.addEntries(phonebook);
         savePhonebook(phonebook);
         return count;
@@ -825,5 +832,15 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             entry.setInternalId(getEntryKey(entry));
         }
         getHibernateTemplate().saveOrUpdateAll(fileEntries);
+    }
+
+    public GoogleDomain getGoogleDomain() {
+        List domains = getHibernateTemplate().loadAll(GoogleDomain.class);
+        GoogleDomain gd = (GoogleDomain) DataAccessUtils.singleResult(domains);
+        return gd;
+    }
+
+    public void saveGoogleDomain(GoogleDomain gd) {
+        getHibernateTemplate().saveOrUpdate(gd);
     }
 }

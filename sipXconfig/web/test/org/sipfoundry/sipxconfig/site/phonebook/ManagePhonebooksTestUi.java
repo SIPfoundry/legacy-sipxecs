@@ -50,4 +50,21 @@ public class ManagePhonebooksTestUi extends WebTestCase {
         tester.setTextField("item:name", name);
         tester.clickButton("form:apply");
     }
+
+    public void testDefaultGoogleDomain() throws Exception {
+        SiteTestHelper.home(getTester());
+        clickLink("link:managePhonebooks");
+
+        assertElementPresent("googleDomain");
+        assertButtonPresent("managePhonebooks:apply");
+
+        setTextField("googleDomain", "abc");
+        clickButton("managePhonebooks:apply");
+        SiteTestHelper.assertUserError(tester);
+
+        setTextField("googleDomain", "gmail.com");
+        clickButton("managePhonebooks:apply");
+        SiteTestHelper.assertNoUserError(tester);
+        assertTextFieldEquals("googleDomain", "gmail.com");
+    }
 }

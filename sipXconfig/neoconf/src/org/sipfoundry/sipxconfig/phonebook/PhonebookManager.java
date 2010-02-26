@@ -85,4 +85,7 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     Map<Integer, String[]> getPhonebookFilesName();
     // <--
+
+    GoogleDomain getGoogleDomain();
+    void saveGoogleDomain(GoogleDomain gd);
 }

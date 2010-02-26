@@ -3,6 +3,7 @@
 		<h1>
 			<span key="title.managePhonebooks"/>
 		</h1>
+		<span jwcid="@common/ErrorMsg" />
 		<form jwcid="phonebookManagement">
 			<ul class="component-links">
 				<li>
@@ -11,6 +12,26 @@
 					</a>
 				</li>
 			</ul>
+		  <fieldset>
+			<table>
+			  <tr jwcid="@common/FieldPanel" for="googleDomain"
+				  field="component:googleDomain"
+				  label="message:label.googleDomain"
+				  description="message:description.googleDomain">
+	            <input jwcid="googleDomain@TextField" id="googleDomain"
+	              value="ognl:googleDomainName"
+	              validators="spring-validators:required,noWhitespace,validHostOrIp"
+	              displayName="message:label.googleDomain"/>
+	            <td>
+					<input jwcid="apply@Submit" id="managePhonebooks:apply"
+					    value="message:button.apply"
+			            listener="listener:saveGoogleDomainName" />
+
+	            </td>
+			  </tr>
+			</table>
+
+        </fieldset>
 			<table jwcid="phonebookTable" id="phonebook:list">
 				<span jwcid="nameColumnValue">
 				    <img jwcid="@Image" image="asset:phonebookIcon" align="absmiddle" />

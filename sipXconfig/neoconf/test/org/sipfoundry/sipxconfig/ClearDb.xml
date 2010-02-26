@@ -117,6 +117,7 @@
   <table name="phonebook_member"/>
   <table name="phonebook_consumer"/>
   <table name="phonebook_file_entry"/>
+  <table name="google_domain"/>
   
   <table name="speeddial"/>
   <table name="speeddial_button"/>

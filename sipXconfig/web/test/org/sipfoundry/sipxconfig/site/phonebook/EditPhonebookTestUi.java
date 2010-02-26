@@ -77,6 +77,9 @@ public class EditPhonebookTestUi extends WebTestCase {
         tester.clickButton("form:apply");
         assertElementPresent("phonebookFile");
         clickButton("importFileButton");
+        setTextField("googleAddress", "test");
+        setTextField("googlePassword", "test");
+        clickButton("importFileButton");
         SiteTestHelper.assertUserError(tester);
     }
 }
