@@ -484,6 +484,19 @@ void ResourceListSet::addNotifyMapping(const UtlString& dialogHandle,
     * SipDialog::isSameDialog.)
     */
 
+   // If we already have a different mapping, report an error, as this
+   // addNotifyMapping() should be a duplicate of the mapping we
+   // already have.
+   UtlContainable* current_handler = mNotifyMap.find(&dialogHandle);
+   if (current_handler != handler)
+   {
+      OsSysLog::add(FAC_RLS, PRI_ERR,
+                    "ResourceListSet::addNotifyMapping Adding a different handler for an existing mapping: dialogHandle = '%s', current handler = %p, new handler = %p",
+                    dialogHandle.data(), current_handler, handler);
+      // Remove the previous mapping in preparation for the new mapping.
+      deleteNotifyMapping(&dialogHandle);
+   }
+
    // Construct our copies of the dialog handle and the swapped dialog handle.
    UtlString* dialogHandleP = new UtlString(dialogHandle);
    UtlString* swappedDialogHandleP = new UtlString;
