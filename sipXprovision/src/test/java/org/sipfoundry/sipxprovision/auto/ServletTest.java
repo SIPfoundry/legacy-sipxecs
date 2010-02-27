@@ -99,21 +99,21 @@ public class ServletTest extends TestCase {
         phone = new DetectedPhone();
         assertEquals(true, Servlet.extractNortelIp12X0ModelAndVersion(phone, "Nortel IP Phone 1210 (SIP12x0.45.02.05.00)"));
         assertNotNull(phone.model);
-        assertEquals("nortel-1210", phone.model.sipxconfig_id);
+        assertEquals("avaya-1210", phone.model.sipxconfig_id);
         assertEquals("SIP12x0.45.02.05.00", phone.version);
 
         // Success 1220
         phone = new DetectedPhone();
         assertEquals(true, Servlet.extractNortelIp12X0ModelAndVersion(phone, "Nortel IP Phone 1220 (SIP12x0.99.02.05.99)"));
         assertNotNull(phone.model);
-        assertEquals("nortel-1220", phone.model.sipxconfig_id);
+        assertEquals("avaya-1220", phone.model.sipxconfig_id);
         assertEquals("SIP12x0.99.02.05.99", phone.version);
 
         // Success 1230
         phone = new DetectedPhone();
         assertEquals(true, Servlet.extractNortelIp12X0ModelAndVersion(phone, "Nortel IP Phone 1230 (SIP12x0.01.100.05.05)"));
         assertNotNull(phone.model);
-        assertEquals("nortel-1230", phone.model.sipxconfig_id);
+        assertEquals("avaya-1230", phone.model.sipxconfig_id);
         assertEquals("SIP12x0.01.100.05.05", phone.version);
     }
 

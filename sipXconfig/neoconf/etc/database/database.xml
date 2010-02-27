@@ -346,6 +346,8 @@
     <antcall target="multiple_phonebook_entry_types" />
     <antcall target="phonebook_entries_update_task" />
     <antcall target="add_google_domain" />
+    <antcall target="change-nortel12x0-phone-to-avaya" />
+
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1075,6 +1077,9 @@
   </target>
   <target name="add_google_domain" unless="add_google_domain">
     <db-patch patch="add_google_domain"/>
+  </target>
+  <target name="change-nortel12x0-phone-to-avaya" unless="change-nortel12x0-phone-to-avaya">
+    <db-patch patch="change-nortel12x0-phone-to-avaya"/>
   </target>
 
   <!--
