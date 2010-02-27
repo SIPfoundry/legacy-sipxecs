@@ -213,4 +213,12 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         assertEquals("00002", page1.get(0).getSerialNumber());
         assertEquals("00004", page1.get(1).getSerialNumber());
     }
+
+    public void testGetPhonebookEntries() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        TestHelper.cleanInsertFlat("phone/PhoneWithPhonebookSeed.xml");
+
+        Phone phone = m_context.loadPhone(1001);
+        assertEquals(3, m_context.getPhonebookEntries(phone).size());
+    }
 }

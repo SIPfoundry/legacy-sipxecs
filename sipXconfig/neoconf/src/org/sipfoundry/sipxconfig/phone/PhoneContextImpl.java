@@ -75,10 +75,6 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     private DaoEventPublisher m_daoEventPublisher;
 
-    public PhonebookManager getPhonebookManager() {
-        return m_phonebookManager;
-    }
-
     @Required
     public void setPhonebookManager(PhonebookManager phonebookManager) {
         m_phonebookManager = phonebookManager;
@@ -340,8 +336,8 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public Collection<PhonebookEntry> getPhonebookEntries(Phone phone) {
         User user = phone.getPrimaryUser();
         if (user != null) {
-            Collection<Phonebook> books = getPhonebookManager().getPublicPhonebooksByUser(user);
-            return getPhonebookManager().getEntries(books, user);
+            Collection<Phonebook> books = m_phonebookManager.getAllPhonebooksByUser(user);
+            return m_phonebookManager.getEntries(books, user);
         }
         return Collections.emptyList();
     }
