@@ -216,8 +216,9 @@ class SipUtilities {
     static ViaHeader createViaHeader(SipProvider sipProvider, String transport) {
         try {
             if (!transport.equalsIgnoreCase("tcp")
-                    && !transport.equalsIgnoreCase("udp"))
-                throw new IllegalArgumentException("Bad transport");
+                    && !transport.equalsIgnoreCase("udp")
+                    && !transport.equalsIgnoreCase("tls"))
+                throw new IllegalArgumentException("Bad transport: " + transport);
 
             ListeningPoint listeningPoint = sipProvider
                     .getListeningPoint(transport);

@@ -214,15 +214,17 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                     }
                 } else {
                     for ( Hop hop : accountInfo.getInboundProxies() ) {
-                        logger.debug("Checking " + hop.getHost() + " port " + hop.getPort());
-                        try {
-                            if (viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())
-                                    && hop.getPort() == port) {
-                                logger.debug("Inbound request from : " + accountInfo.getProxyDomain());
-                                return accountInfo;
-                            }
-                        } catch ( UnknownHostException ex) {
-                            logger.error("Cannot resolve host address " + hop.getHost());
+                        if (hop != null) {
+                           logger.debug("Checking " + hop.getHost() + " port " + hop.getPort());
+                           try {
+                               if (viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())
+                                       && hop.getPort() == port) {
+                                   logger.debug("Inbound request from : " + accountInfo.getProxyDomain());
+                                   return accountInfo;
+                               }
+                           } catch ( UnknownHostException ex) {
+                               logger.error("Cannot resolve host address " + hop.getHost());
+                           }
                         }
                     }
                 }
