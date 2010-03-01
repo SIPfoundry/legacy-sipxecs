@@ -128,7 +128,9 @@ final class Sym implements SymInterface, Serializable {
     }
 
     public void close() {
-        logger.debug("Closing channel : " + this.receiver);
+    	if ( logger.isDebugEnabled()) {
+    		logger.debug("Closing channel : " + this.getId());
+    	}
         try {
             if (this.receiver != null) {
                 if (this.receiver.getDatagramChannel() != null) {

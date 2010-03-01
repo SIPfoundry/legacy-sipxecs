@@ -17,8 +17,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.log4j.Logger;
+
 
 class ConcurrentSet implements Set<Sym> {
+	private static Logger logger = Logger.getLogger(ConcurrentSet.class);
 
     Map<String, Sym> map = new ConcurrentHashMap<String, Sym>();
     private Bridge bridge;
@@ -30,6 +33,9 @@ class ConcurrentSet implements Set<Sym> {
     }
 
     public boolean add(Sym element) {
+    	if ( logger.isDebugEnabled()) {
+    		logger.debug("addSym " + element.getId());
+    	}
         map.put(element.getId(), element);
         if ( element.getBridge() != null  && element.getBridge() != this.bridge) {
             element.getBridge().removeSym(element);

@@ -6,7 +6,7 @@ package org.sipfoundry.sipxrelay;
  * @author mranga
  *
  */
-public abstract class WorkItem implements Comparable<WorkItem> {
+public abstract class WorkItem  {
     boolean error;
     String reason;
     int errorCode;
@@ -17,14 +17,6 @@ public abstract class WorkItem implements Comparable<WorkItem> {
        
     }
     
-    @Override
-    public int compareTo(WorkItem workItem) {
-    	if ( workItem.creationTime <= this.creationTime ) {
-    		return 1;
-    	} else  {
-    		return -1;
-    	} 
-    }
     
     public abstract void doWork();
     

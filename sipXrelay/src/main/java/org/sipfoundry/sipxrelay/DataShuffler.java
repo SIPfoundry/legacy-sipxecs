@@ -43,18 +43,33 @@ class DataShuffler implements Runnable {
     
     private static long packetCounter = Math.abs(random.nextLong());
     
-    private static List workQueue = SynchronizedList.decorate(new LinkedList<WorkItem>());
-    
-    //private static ConcurrentSkipListSet<WorkItem> workQueue = new ConcurrentSkipListSet<WorkItem>();
-    
-
+   // private static List workQueue = SynchronizedList.decorate(new LinkedList<WorkItem>());
+        
+    private static List workQueue = new LinkedList<WorkItem>();
     public DataShuffler() {
 
     }
 
+    private static synchronized void checkWorkQueue() {
+		Iterator<WorkItem> it = null;
+
+		it = workQueue.iterator();
+		if (!workQueue.isEmpty()) {
+			workQueue = new LinkedList<WorkItem>();
+		}
+
+		while (it.hasNext()) {
+			logger.debug("Got a work item");
+			WorkItem workItem = it.next();
+			workItem.doWork();
+		}
+	}
+    
     private static synchronized void initializeSelector() {
 
         try {
+        	checkWorkQueue();
+        	
             if (selector != null) {
                 selector.close();
             }
@@ -297,13 +312,9 @@ class DataShuffler implements Runnable {
 
                 selector.select();
                 
-                Iterator<WorkItem> it = workQueue.iterator();
-                while (it.hasNext() ) {
-                    logger.debug("Got a work item");
-                    WorkItem workItem = it.next();
-                    workItem.doWork();
-                    it.remove();
-                }
+                checkWorkQueue();
+                
+               
                 
                 // Iterate over the set of keys for which events are
                 // available
@@ -450,10 +461,11 @@ class DataShuffler implements Runnable {
     }
 
     public static synchronized void addWorkItem(WorkItem workItem) {
-        DataShuffler.workQueue.add(workItem);
-        if (selector != null) {
-            selector.wakeup();
-        }
+    	
+    	DataShuffler.workQueue.add(workItem);
+    	if (selector != null) {
+			selector.wakeup();
+		}
         
     }
 

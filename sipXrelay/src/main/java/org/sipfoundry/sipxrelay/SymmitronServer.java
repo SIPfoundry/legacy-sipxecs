@@ -9,6 +9,8 @@ package org.sipfoundry.sipxrelay;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -23,7 +25,6 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HostnameVerifier;
@@ -169,7 +170,7 @@ public class SymmitronServer implements Symmitron {
     private static DataShuffler dataShuffler;
 
     
-    private static ConcurrentHashMap<String,Semaphore> semaphoreLockTable = new ConcurrentHashMap<String,Semaphore>();
+    private static ConcurrentHashMap<String,SipXrelaySemaphore> semaphoreLockTable = new ConcurrentHashMap<String,SipXrelaySemaphore>();
 
     private static long startTime;
     
@@ -198,12 +199,12 @@ public class SymmitronServer implements Symmitron {
         String keepaliveMethod;
         int keepAliveTime;
         Sym sym;
-        Semaphore workSem;
+        SipXrelaySemaphore workSem;
     
       
         public SetDestinationWorkItem() {
             super();
-            this.workSem = new Semaphore(0);
+            this.workSem = new SipXrelaySemaphore(0);
         }
 
         public void doWork() {
@@ -250,13 +251,13 @@ public class SymmitronServer implements Symmitron {
 
         String bridgeId;
         String symId;
-        Semaphore workSem;
+        SipXrelaySemaphore workSem;
       
         public AddSymWorkItem(String bridgeId, String symId) {
             super();
             this.bridgeId = bridgeId;
             this.symId = symId;
-            this.workSem = new Semaphore(0);
+            this.workSem = new SipXrelaySemaphore(0);
         }
 
         public void doWork() {
@@ -294,13 +295,13 @@ public class SymmitronServer implements Symmitron {
 
         String bridgeId;
         String symId;
-        Semaphore workSem;
+        SipXrelaySemaphore workSem;
       
         public RemoveSymWorkItem(String bridgeId, String symId) {
             super();
             this.bridgeId = bridgeId;
             this.symId = symId;
-            this.workSem = new Semaphore(0);
+            this.workSem = new SipXrelaySemaphore(0);
         }
 
         public void doWork() {
@@ -332,7 +333,7 @@ public class SymmitronServer implements Symmitron {
     
     class GetBridgeStatisticsWorkItem extends WorkItem {
         
-        Semaphore workSem = new Semaphore(0);
+        SipXrelaySemaphore workSem = new SipXrelaySemaphore(0);
         
         Map<String,Object> retval ;
         
@@ -756,7 +757,7 @@ public class SymmitronServer implements Symmitron {
      * @param controllerHandle -
      *            a client handle in the form componentName:instanceId
      */
-    public void checkForControllerReboot(String controllerHandle) {
+    public void checkForControllerReboot(String controllerHandle) throws Exception {
         String[] handleParts = controllerHandle.split(":");
         if (handleParts.length != 2) {
             throw new IllegalArgumentException("Illegal handle format");
@@ -766,8 +767,13 @@ public class SymmitronServer implements Symmitron {
         String previousInstance = instanceTable.get(componentName);
         if (previousInstance == null) {
             instanceTable.put(componentName, controllerHandle);
-            semaphoreLockTable.put(controllerHandle, new Semaphore(1));
+            semaphoreLockTable.put(controllerHandle, new SipXrelaySemaphore(1));
         } else if (!previousInstance.equals(controllerHandle)) {
+        	SipXrelaySemaphore previousSem = semaphoreLockTable.get(previousInstance);
+        	if ( ! previousSem.tryAcquire(1000, TimeUnit.MILLISECONDS) ) {
+        		// guard against pending operations from last generation.
+        		throw new Exception("Unable to acquire sem from previous handleInstance");
+        	}
             HashSet<Bridge> rtpBridges = bridgeResourceMap
             .get(previousInstance);
             if (rtpBridges != null) {
@@ -787,7 +793,7 @@ public class SymmitronServer implements Symmitron {
             semaphoreLockTable.remove(previousInstance);
             sessionResourceMap.remove(previousInstance);
             sessionResourceMap.put(controllerHandle, new HashSet<Sym>());
-            semaphoreLockTable.put(controllerHandle, new Semaphore(1));
+            semaphoreLockTable.put(controllerHandle, new SipXrelaySemaphore(1));
 
             instanceTable.put(componentName, controllerHandle);
         }
@@ -979,7 +985,7 @@ public class SymmitronServer implements Symmitron {
             
             logger.debug("tryAquire returned with value " + acquired);
             if (!acquired ) {
-            	return createErrorMap(PROCESSING_ERROR,"Semaphore timed out");
+            	return createErrorMap(PROCESSING_ERROR,"SipXrelaySemaphore timed out");
             }
             
             if ( workItem.error ) {
@@ -1082,7 +1088,7 @@ public class SymmitronServer implements Symmitron {
             DataShuffler.addWorkItem(removeSym);
             boolean acquired = removeSym.workSem.tryAcquire(TIMEOUT,TimeUnit.MILLISECONDS);
             if (!acquired) {
-            	return createErrorMap(PROCESSING_ERROR,"Semaphore timed out");
+            	return createErrorMap(PROCESSING_ERROR,"SipXrelaySemaphore timed out");
             }
             if ( removeSym.error ) {
                 return this.createErrorMap(removeSym.errorCode, removeSym.reason);
@@ -1122,7 +1128,7 @@ public class SymmitronServer implements Symmitron {
             boolean acquired = workItem.workSem.tryAcquire(TIMEOUT,TimeUnit.MILLISECONDS);
             if ( !acquired ) {
                 logger.error("addSym: could not acquire sem");
-                return this.createErrorMap(PROCESSING_ERROR,"semaphore timed out");
+                return this.createErrorMap(PROCESSING_ERROR,"SipXrelaySemaphore timed out");
             } else {
                 logger.debug("addSym : acquired sem");
             }
@@ -1287,7 +1293,7 @@ public class SymmitronServer implements Symmitron {
             
             if ( ! acquired ) {
                 logger.error("Timed out acquiring workItem sem ");
-                return createErrorMap(PROCESSING_ERROR,"Semaphore timed out");
+                return createErrorMap(PROCESSING_ERROR,"SipXrelaySemaphore timed out");
             } else {
                 logger.debug("Acquired workItem sem");
             }
@@ -1321,7 +1327,7 @@ public class SymmitronServer implements Symmitron {
             HashSet<Sym> rtpSessions = sessionResourceMap.get(controllerHandle);
             if (rtpSessions != null) {
                 for (Sym rtpSession : rtpSessions) {
-                    rtpSession.close();
+                  rtpSession.close();      
                 }
             }
             sessionResourceMap.remove(controllerHandle);
@@ -1813,6 +1819,8 @@ public class SymmitronServer implements Symmitron {
        return SymmitronServer.bridgeMap.values();
     }
 
+   
+    
     public static void main(String[] args) throws Exception {
         try {
 
