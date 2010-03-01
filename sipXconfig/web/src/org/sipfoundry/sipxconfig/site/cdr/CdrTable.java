@@ -33,6 +33,14 @@ import org.sipfoundry.sipxconfig.site.UserSession;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class CdrTable extends BaseComponent {
+    private static final String DOT = "\\.";
+    private static final String IP_ADDR_OCTET = "(?:25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})";
+    private static final String IP_ADDR = IP_ADDR_OCTET + DOT + IP_ADDR_OCTET + DOT + IP_ADDR_OCTET + DOT
+            + IP_ADDR_OCTET;
+    private static final String PREFIX = "(?:\".*\" *)?";
+    private static final String AOR = PREFIX + "<?(sip:\\w+@(?:(?:(?:(?:\\w+|\\w+-\\w+)\\.)+[A-Za-z]+)|" + IP_ADDR
+            + "))>?";
+    private static final Pattern AOR_RE = Pattern.compile(AOR);
     private static final Pattern FULL_USER_RE = Pattern.compile("(?:\\w+ *)+ - (\\d+)");
 
     @InjectObject(value = "service:tapestry.ognl.ExpressionEvaluator")
@@ -127,4 +135,38 @@ public abstract class CdrTable extends BaseComponent {
         return "None";
     }
 
+    public boolean isSelfCallCalleeCondition() {
+        if (!getUserSession().isAdmin()) {
+            String calleeAor = getRow().getCalleeAor();
+            String userUri = getUser().getUri(getDomainManager().getDomain().getName());
+            return isSelfCallCondition(calleeAor, userUri);
+        }
+        return true;
+    }
+
+    public boolean isSelfCallCallerCondition() {
+        if (!getUserSession().isAdmin()) {
+            String callerAor = getRow().getCallerAor();
+            String userUri = getUser().getUri(getDomainManager().getDomain().getName());
+            return isSelfCallCondition(callerAor, userUri);
+        }
+        return true;
+    }
+
+    public boolean isSelfCallCondition(String calleeOrCallerAor, String userUri) {
+        String callAor = calleeOrCallerAor;
+        String userAor = userUri;
+        Matcher matcher = AOR_RE.matcher(calleeOrCallerAor);
+        if (matcher.matches()) {
+            callAor = matcher.group(1);
+        }
+        matcher = AOR_RE.matcher(userUri);
+        if (matcher.matches()) {
+            userAor = matcher.group(1);
+        }
+        if (userAor != null && callAor != null && userAor.equals(callAor)) {
+            return true;
+        }
+        return false;
+    }
 }

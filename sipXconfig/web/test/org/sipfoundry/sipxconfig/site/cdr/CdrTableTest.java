@@ -56,13 +56,43 @@ public class CdrTableTest extends TestCase {
     public void testFullNameCall() {
         m_cdrTable.call("Frank Zappa - 705");
     }
- 
+
     public void testOneNameCall() {
         m_cdrTable.call("Frank - 5309");
     }
- 
+
     public void testNoNameCall() {
         m_cdrTable.call("55555");
+    }
+
+    public void testSelfCallCondition () {
+        String caller1 = "\"James Bond\"<sip:200@domain.com>";
+        String user1 = "<sip:200@domain.com>";
+        assertTrue(m_cdrTable.isSelfCallCondition(caller1, user1));
+
+        String caller2 = "\"201\" <sip:201@domain.com>";
+        String user2 = "sip:201@domain.com";
+        assertTrue(m_cdrTable.isSelfCallCondition(caller2, user2));
+
+        String caller3 = "<sip:202@11.12.13.14>";
+        String user3 = "\"Yoggy Bear\" <sip:202@11.12.13.14>";
+        assertTrue(m_cdrTable.isSelfCallCondition(caller3, user3));
+
+        String caller4 = "<sip:203@domain.com>";
+        String user4 = "sip:203@domain.com";
+        assertTrue(m_cdrTable.isSelfCallCondition(caller4, user4));
+
+        String caller5 = "\"Big Whale\" <sip:205@domain.com>";
+        String user5 = "\"Bigger Whale\" <sip:205@domain.com>";
+        assertTrue(m_cdrTable.isSelfCallCondition(caller5, user5));
+
+        String caller6 = "<sip:204@domain>";
+        String user6 = "sip:204@domain";
+        assertFalse(m_cdrTable.isSelfCallCondition(caller6, user6));
+
+        String caller7 = "<sip:207@domain.com>";
+        String user7 = "<sip:207@domain.something.com>";
+        assertFalse(m_cdrTable.isSelfCallCondition(caller7, user7));
     }
 
     //userSession mock class
