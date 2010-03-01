@@ -61,7 +61,7 @@ public class Nortel12x0PhoneTest extends TestCase {
 
         Nortel12x0Phone phone = new Nortel12x0Phone();
         phone.setSerialNumber("00041c001e6c");
-        assertEquals("Avaya/config/SIP00041C001E6C.xml", phone.getProfileFilename());
+        assertEquals("Nortel/config/SIP00041C001E6C.xml", phone.getProfileFilename());
     }
 
     public void testGetSettings() {
