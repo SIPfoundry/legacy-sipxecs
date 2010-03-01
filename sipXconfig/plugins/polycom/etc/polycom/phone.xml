@@ -173,7 +173,7 @@
       <type>
         <integer min="96" max="127" />
       </type>
-      <value>127</value>
+      <value>101</value>
     </setting>
   </group>
   <group name="se">

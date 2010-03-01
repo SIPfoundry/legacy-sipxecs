@@ -127,7 +127,7 @@
       tone.dtmf.stim.pac.offHookOnly="0"
       tone.dtmf.viaRtp="1"
       tone.dtmf.rfc2833Control="1"
-      tone.dtmf.rfc2833Payload="127"
+      tone.dtmf.rfc2833Payload="101"
     />
   </tones>
   <sound_effects
@@ -199,6 +199,7 @@
         voice.codecPref.VVX_1500.Lin16.48ksps=""
       />
       <profiles
+        voice.audioProfile.G7221.24kbps.payloadType="127"
         voice.audioProfile.G711Mu.payloadSize="20"
         voice.audioProfile.G711Mu.jitterBufferMin="40"
         voice.audioProfile.G711Mu.jitterBufferShrink="500"
