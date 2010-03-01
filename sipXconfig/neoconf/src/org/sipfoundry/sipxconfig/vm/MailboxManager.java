@@ -18,6 +18,8 @@ public interface MailboxManager {
 
     boolean isEnabled();
 
+    boolean isSystemCpui();
+
     List<Voicemail> getVoicemail(Mailbox mailbox, String folder);
 
     String getMailstoreDirectory();

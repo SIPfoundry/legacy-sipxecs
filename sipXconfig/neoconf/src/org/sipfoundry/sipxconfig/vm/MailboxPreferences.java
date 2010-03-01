@@ -190,10 +190,6 @@ public class MailboxPreferences {
         m_busyPrompt = busyPrompt;
     }
 
-    public boolean isBusyPromptVisible() {
-        return (m_voicemailTui == VoicemailTuiType.CALLPILOT);
-    }
-
     public VoicemailTuiType getVoicemailTui() {
         return m_voicemailTui;
     }
@@ -330,9 +326,9 @@ public class MailboxPreferences {
         return StringUtils.isNotEmpty(getImapHost()) && getImapPort() != null;
     }
 
-    public ActiveGreeting[] getOptionsForActiveGreeting() {
+    public ActiveGreeting[] getOptionsForActiveGreeting(boolean isStandardTui) {
         List list = new ArrayList();
-        if (m_voicemailTui == VoicemailTuiType.STANDARD) {
+        if (isStandardTui) {
             list.add(ActiveGreeting.NONE);
             list.add(ActiveGreeting.STANDARD);
             list.add(ActiveGreeting.OUT_OF_OFFICE);

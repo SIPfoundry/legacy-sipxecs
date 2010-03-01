@@ -166,6 +166,10 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
             return false;
         }
 
+        public boolean isSystemCpui() {
+            return false;
+        }
+
         public DistributionList[] loadDistributionLists(Mailbox mailbox) {
             return null;
         }

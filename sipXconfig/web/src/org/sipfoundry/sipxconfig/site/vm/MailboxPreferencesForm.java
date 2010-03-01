@@ -57,9 +57,13 @@ public abstract class MailboxPreferencesForm extends BaseComponent implements Pa
     @Parameter(required = false, defaultValue = "ognl:false")
     public abstract boolean isAdvanced();
 
+    public boolean isDepositCpui() {
+        return getMailboxManager().isSystemCpui();
+    }
+
     public IPropertySelectionModel getActiveGreetingModel() {
         NewEnumPropertySelectionModel<ActiveGreeting> rawModel = new NewEnumPropertySelectionModel();
-        rawModel.setOptions(getPreferences().getOptionsForActiveGreeting());
+        rawModel.setOptions(getPreferences().getOptionsForActiveGreeting(!isDepositCpui()));
         return (new LocalizedOptionModelDecorator(rawModel, getMessages(), ACTIVE_GREETING_TYPE));
     }
 

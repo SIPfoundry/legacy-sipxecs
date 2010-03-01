@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.sipfoundry.sipxconfig.vm.MailboxPreferences.VoicemailTuiType;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendant;
 import org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter;
 import org.springframework.dao.support.DataAccessUtils;
@@ -56,6 +57,11 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
 
     public boolean isEnabled() {
         return m_mailstoreDirectory != null && m_mailstoreDirectory.exists();
+    }
+
+    public boolean isSystemCpui() {
+        SipxIvrService ivrService = (SipxIvrService) m_sipxServiceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
+        return ivrService.getDefaultTui().equals(VoicemailTuiType.CALLPILOT.getValue());
     }
 
     public DistributionList[] loadDistributionLists(Mailbox mailbox) {
