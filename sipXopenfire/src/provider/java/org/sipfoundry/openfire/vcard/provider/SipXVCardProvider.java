@@ -52,9 +52,10 @@ public class SipXVCardProvider implements VCardProvider {
     static final String DEFAULT_SECRET = "unknown";
     static final String MODIFY_METHOD = "PUT";
     static final String QUERY_METHOD = "GET";
-    static final String PA_USER = "MyAssistant";
-    static final int    MAX_ATTEMPTS = 12; //Try 12 times at most when connects to sipXconfig
-    static final int    ATTEMPT_INTERVAL = 5000; // 5 seconds
+    static final String PA_USER = "myassistant";
+    static final String AVATAR_ELEMENT = "PHOTO";
+    static final int MAX_ATTEMPTS = 12; // Try 12 times at most when connects to sipXconfig
+    static final int ATTEMPT_INTERVAL = 5000; // 5 seconds
     private String m_ConfigHostName;
     private String m_SharedSecret;
     static long ID_index = 0;
@@ -98,27 +99,34 @@ public class SipXVCardProvider implements VCardProvider {
      * is removed.
      */
 
-    public void deleteVCard(String username) {
-        if(username.compareToIgnoreCase(PA_USER) == 0)
-            defaultProvider.deleteVCard(username);
+    synchronized public void deleteVCard(String username) {
+        vcardCache.remove(username);
+        defaultProvider.deleteVCard(username);
     }
 
     public Element createVCard(String username, Element element) {
+        Element vcard = null;
+        try {
+            defaultProvider.deleteVCard(username);
+            vcard = defaultProvider.createVCard(username, element);
+        } catch (AlreadyExistsException e) {
+            e.printStackTrace();
+            Log.error("AlreadyExistsException even afer delete is called!");
+            if (username.compareToIgnoreCase(PA_USER) == 0) {
+                return defaultProvider.loadVCard(username);
+            }
+
+        }
 
         if (username.compareToIgnoreCase(PA_USER) == 0) {
-            try {
-                return defaultProvider.createVCard(username, element);
-            } catch (AlreadyExistsException e) {
-                e.printStackTrace();
-                return null;
-            }
+            return vcard;
         }
 
         return updateVCard(username, element);
     }
 
     synchronized Element cacheVCard(String username) {
-        Element vCardElement = null;
+        Element result = null;
         String sipUserName = getAORFromJABBERID(username);
         if (sipUserName != null) {
             String resp = null;
@@ -128,8 +136,8 @@ public class SipXVCardProvider implements VCardProvider {
             do {
                 tryAgain = false;
                 try {
-                    resp = RestInterface.sendRequest(QUERY_METHOD, m_ConfigHostName, sipUserName,
-                            m_SharedSecret, null);
+                    resp = RestInterface.sendRequest(QUERY_METHOD, m_ConfigHostName, sipUserName, m_SharedSecret,
+                            null);
                 } catch (ConnectException e) {
                     try {
                         Thread.sleep(ATTEMPT_INTERVAL);
@@ -142,10 +150,11 @@ public class SipXVCardProvider implements VCardProvider {
             } while (resp == null && attempts < MAX_ATTEMPTS && tryAgain);
 
             if (resp != null) {
-                vCardElement = RestInterface.buildVCardFromXMLContactInfo(sipUserName, resp);
+                Element vCardElement = RestInterface.buildVCardFromXMLContactInfo(sipUserName, resp);
                 if (vCardElement != null) {
                     vcardCache.remove(username);
-                    vcardCache.put(username, vCardElement);
+                    result = this.mergeAvatar(username, vCardElement, defaultProvider.loadVCard(username));
+                    vcardCache.put(username, result);
                 } else {
                     Log.error("In cacheVCard buildVCardFromXMLContactInfo failed! ");
                 }
@@ -154,11 +163,10 @@ public class SipXVCardProvider implements VCardProvider {
                         + "'s vcard info not loaded!");
             }
         } else {
-            Log.error("In cacheVCard Failed to find peer SIP user account for XMPP user "
-                    + username);
+            Log.error("In cacheVCard Failed to find peer SIP user account for XMPP user " + username);
         }
 
-        return vCardElement;
+        return result;
     }
 
     /**
@@ -167,23 +175,38 @@ public class SipXVCardProvider implements VCardProvider {
      *
      */
     public Element loadVCard(String username) {
-        if (username.compareToIgnoreCase(PA_USER) == 0)
-            return defaultProvider.loadVCard(username);
+        synchronized (username.intern()) {
+            if (username.compareToIgnoreCase(PA_USER) == 0)
+                return defaultProvider.loadVCard(username);
 
-        return getVCard(username);
+            return getVCard(username);
+        }
     }
 
     /**
      * Updates the vCard both in SipX and in the database.
-     *////
+     */
     public Element updateVCard(String username, Element vCardElement) {
         if (username.compareToIgnoreCase(PA_USER) == 0) {
             try {
                 return defaultProvider.updateVCard(username, vCardElement);
             } catch (NotFoundException e) {
                 e.printStackTrace();
+                Log.error("update " + PA_USER + "'s vcard failed!");
                 return null;
             }
+        }
+
+        try {
+            defaultProvider.updateVCard(username, vCardElement);
+        } catch (NotFoundException e) {
+            try {
+                defaultProvider.createVCard(username, vCardElement);
+            } catch (AlreadyExistsException e1) {
+                Log.error("Failed to create vcard due to existing vcard found");
+                e1.printStackTrace();
+            }
+            e.printStackTrace();
         }
 
         try {
@@ -209,7 +232,7 @@ public class SipXVCardProvider implements VCardProvider {
                 } while (attempts < MAX_ATTEMPTS && tryAgain);
 
                 if (attempts >= MAX_ATTEMPTS)
-                    Log.error("Failed to update contact info for user " + username + ", sipXconfig might be down" );
+                    Log.error("Failed to update contact info for user " + username + ", sipXconfig might be down");
 
                 return cacheVCard(username);
 
@@ -223,7 +246,6 @@ public class SipXVCardProvider implements VCardProvider {
             Log.error("updateVCard failed! " + ex.getMessage());
             return vCardElement;
         }
-
     }
 
     /**
@@ -266,9 +288,6 @@ public class SipXVCardProvider implements VCardProvider {
     }
 
     public String getConfDir() {
-
-        Properties result = null;
-
         InputStream in = this.getClass().getResourceAsStream("/config.properties");
         Properties properties = new Properties();
 
@@ -360,4 +379,59 @@ public class SipXVCardProvider implements VCardProvider {
             return null;
         }
     }
+
+    /**
+     * Loads the vCard using the LDAP vCard Provider and re-adds the avatar from the database.
+     *
+     * @param username
+     * @return LDAP vCard re-added avatar element
+     */
+    synchronized Element mergeAvatar(String username, Element vcardFromSipX, Element vcardFromDB) {
+
+        Log.info("merge avatar for user '" + username + "' ...");
+
+        // get the vcard from ldap
+        // Element vCardElement = super.loadVCard(username);
+
+        // only add avatar if it doesn't exist already
+        if (vcardFromDB != null && vcardFromDB.element(AVATAR_ELEMENT) != null) {
+            Element avatarElement = getAvatarCopy(username, vcardFromDB);
+
+            if (avatarElement != null) {
+                if (getAvatar(username, vcardFromSipX) != null) {
+                    vcardFromSipX.remove(getAvatar(username, vcardFromSipX));
+                }
+                vcardFromSipX.add(avatarElement);
+                Log.info("Avatar merged from DB into sipX vCard");
+            } else {
+                Log.info("No vCard found in database");
+            }
+        }
+
+        return vcardFromSipX;
+    }
+
+    protected Element getAvatarCopy(String username, Element vcard) {
+
+        // extract the avatar from the vcard
+        Element avatarElement = null;
+        if (vcard != null) {
+            Element photoElement = vcard.element(AVATAR_ELEMENT);
+            if (photoElement != null)
+                avatarElement = photoElement.createCopy();
+        }
+
+        return avatarElement;
+    }
+
+    protected Element getAvatar(String username, Element vcard) {
+
+        // extract the avatar from the vcard
+        Element avatarElement = null;
+        if (vcard != null) {
+            return vcard.element(AVATAR_ELEMENT);
+        }
+        return avatarElement;
+    }
+
 }
