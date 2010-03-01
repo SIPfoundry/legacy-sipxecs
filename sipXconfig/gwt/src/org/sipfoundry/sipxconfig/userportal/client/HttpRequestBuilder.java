@@ -16,6 +16,8 @@ import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.Window;
 
+import org.sipfoundry.sipxconfig.userportal.locale.SearchConstants;
+
 // TODO: GWT RequestBuilder current does not support PUT and DELETE.
 // This class is a hack to add support to allow PUT and DELETE
 // requests. Once GWT fixes this issue, this class should be removed.

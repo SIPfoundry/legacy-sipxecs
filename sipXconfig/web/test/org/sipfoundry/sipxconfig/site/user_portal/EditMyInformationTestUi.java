@@ -32,13 +32,14 @@ public class EditMyInformationTestUi extends WebTestCase {
 
     /**
      * Test that the My Information page displays correctly. The selected tab when the page is
-     * first displayed should be the voicemail tab
+     * first displayed should be the My Information tab
      */
     public void testDisplay() {
         clickLink("menu.myInformation");
         SiteTestHelper.assertNoUserError(tester);
-        assertElementPresentByXPath("//label[@for='user:activeGreeting']");
-        // assertTextPresent("Active greeting");
+
+        assertLinkPresent("link:extendedInfo");
+        assertElementPresent("contact_information");
     }
 
     public void testTabNavigation() {

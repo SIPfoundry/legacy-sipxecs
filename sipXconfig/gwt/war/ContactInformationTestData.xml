@@ -1,0 +1,30 @@
+<contact-information>
+  <jobTitle>Test_Job title</jobTitle>
+  <jobDept>Test_Department</jobDept>
+  <companyName>Test_Company name</companyName>
+  <assistantName>Test_Assistant name</assistantName>
+  <location>Test_Location</location>
+  <homeAddress>
+    <street>Test_Home Street</street>
+    <city>Test_Home City</city>
+    <country>Test_Home Country</country>
+    <state>Test_Home State/Province</state>
+    <zip>Test_Home Zip/Postal Code</zip>
+  </homeAddress>
+  <officeAddress>
+    <street>Test_Office Street</street>
+    <city>Test_Office City</city>
+    <country>Test_Office Country</country>
+    <state>Test_Office State/Province</state>
+    <zip>Test_Office Zip/Postal Code</zip>
+    <officeDesignation>Test_Office Mail stop</officeDesignation>
+  </officeAddress>
+  <cellPhoneNumber>Test_Cell phone number</cellPhoneNumber>
+  <homePhoneNumber>Test_Home phone number</homePhoneNumber>
+  <assistantPhoneNumber>Test_Assistant phone number</assistantPhoneNumber>
+  <faxNumber>Test_Fax number</faxNumber>
+  <alternateImId>201_alt_im</alternateImId>
+  <emailAddress>email@address.com</emailAddress>
+  <alternateEmailAddress>altemail@addresse.com</alternateEmailAddress>
+  <avatar>http://www.gravatar.com/avatar/63b91ca4ec19ad79f320eaf5815d75e9?s=80&amp;d=wavatar</avatar>
+</contact-information>

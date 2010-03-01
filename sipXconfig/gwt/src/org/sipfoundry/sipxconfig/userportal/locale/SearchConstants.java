@@ -6,7 +6,7 @@
  * Licensed to the User under the LGPL license.
  *
  */
-package org.sipfoundry.sipxconfig.userportal.client;
+package org.sipfoundry.sipxconfig.userportal.locale;
 
 import com.google.gwt.i18n.client.ConstantsWithLookup;
 

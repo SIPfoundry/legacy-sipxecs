@@ -766,6 +766,13 @@ html, body {
 	height: 490px;
 	background: inherit;
 }
+
+.contactInformationIframe {
+	width: 100%;
+	height: 720px;
+	background: inherit;
+}
+
 .bannerLinkDivider {
 	background:transparent url(/sipxconfig/images/layout/bannerLinkDivider.png) no-repeat scroll left top;
 	margin-left:5px;

@@ -17,7 +17,6 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.i18n.client.ConstantsWithLookup;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Timer;
@@ -46,9 +45,6 @@ import com.smartgwt.client.widgets.form.fields.SelectItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
 import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
-import com.smartgwt.client.widgets.form.validator.RegExpValidator;
-import com.smartgwt.client.widgets.form.validator.RequiredIfFunction;
-import com.smartgwt.client.widgets.form.validator.RequiredIfValidator;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
@@ -59,6 +55,7 @@ import com.smartgwt.client.widgets.layout.VLayout;
 import com.smartgwt.client.widgets.tab.Tab;
 import com.smartgwt.client.widgets.tab.TabSet;
 
+import org.sipfoundry.sipxconfig.userportal.locale.SearchConstants;
 import org.sipfoundry.sipxconfig.userportal.widget.PagedPhonebookDataSource;
 import org.sipfoundry.sipxconfig.userportal.widget.PhonebookDataSource;
 
@@ -67,7 +64,6 @@ public class UserPhonebookSearch implements EntryPoint {
 
     private static final String DUMMY_ID = "-1";
     private static final String EMPTY_STRING = "";
-    private static final String EMAIL_EXPRESSION = "^([a-zA-Z0-9_.\\-+])+@(([a-zA-Z0-9\\-])+\\.)+[a-zA-Z0-9]{2,4}$";
     private static final String WILD_CARD = "*";
 
     private static final String[] FIELDS_PHONENUMBERS = {
@@ -525,9 +521,9 @@ public class UserPhonebookSearch implements EntryPoint {
 
         private static PhonebookGrid s_phonebookGrid;
 
-        private final PhonebookForm m_generalForm;
-        private final PhonebookForm m_homeForm;
-        private final PhonebookForm m_officeForm;
+        private final ContactInformationForm m_generalForm;
+        private final ContactInformationForm m_homeForm;
+        private final ContactInformationForm m_officeForm;
         private final AvatarSection m_avatar = new AvatarSection();
         private final ValuesManager m_vm;
 
@@ -538,9 +534,9 @@ public class UserPhonebookSearch implements EntryPoint {
         }
 
         public Details(final PhonebookGrid grid, int generalCols, int homeCols, int officeCols) {
-            m_generalForm = new PhonebookForm(FIELDS_GENERAL, "generalForm", generalCols);
-            m_homeForm = new PhonebookForm(FIELDS_HOME, "homeForm", homeCols);
-            m_officeForm = new PhonebookForm(FIELDS_OFFICE, "officeForm", officeCols);
+            m_generalForm = new ContactInformationForm(FIELDS_GENERAL, "generalForm", generalCols, s_searchConstants);
+            m_homeForm = new ContactInformationForm(FIELDS_HOME, "homeForm", homeCols, s_searchConstants);
+            m_officeForm = new ContactInformationForm(FIELDS_OFFICE, "officeForm", officeCols, s_searchConstants);
 
             m_generalForm.addRequiredValidator(PhonebookDataSource.FIRST_NAME);
             m_generalForm.addRequiredValidator(PhonebookDataSource.LAST_NAME);
@@ -612,85 +608,17 @@ public class UserPhonebookSearch implements EntryPoint {
             return m_avatar;
         }
 
-        public PhonebookForm getGeneralForm() {
+        public ContactInformationForm getGeneralForm() {
             return m_generalForm;
         }
 
-        public PhonebookForm getHomeForm() {
+        public ContactInformationForm getHomeForm() {
             return m_homeForm;
         }
 
-        public PhonebookForm getOfficeForm() {
+        public ContactInformationForm getOfficeForm() {
             return m_officeForm;
         }
-    }
-
-    private static final class PhonebookForm extends DynamicForm {
-        private static final String TITLE_STYLE = "titleFormStyle";
-
-        public PhonebookForm(String[] fieldNames, String formName, int numCols) {
-            setGroupTitle(s_searchConstants.getString(formName));
-            setIsGroup(true);
-            setNumCols(numCols);
-            setFixedColWidths(true);
-            setFields(createFields(fieldNames, s_searchConstants));
-        }
-
-        public void setData(ListGridRecord selection) {
-            for (FormItem item : getFields()) {
-                String itemName = item.getName();
-                String selectionValue = selection.getAttributeAsString(itemName);
-                item.setValue(selectionValue);
-                item.setDisabled(true);
-                item.setTitleStyle(TITLE_STYLE);
-            }
-        }
-
-        public void editData() {
-            for (FormItem item : getFields()) {
-                item.setDisabled(false);
-            }
-        }
-
-        public void addData() {
-            for (FormItem item : getFields()) {
-                item.setDisabled(false);
-                item.setValue(EMPTY_STRING);
-            }
-        }
-
-        private TextItem[] createFields(String[] fieldNames, ConstantsWithLookup constants) {
-            TextItem[] fields = new TextItem[fieldNames.length];
-            for (int i = 0; i < fields.length; i++) {
-                String title = constants.getString(fieldNames[i]);
-                fields[i] = new TextItem(fieldNames[i], title);
-                fields[i].setTitleStyle(TITLE_STYLE);
-            }
-            return fields;
-        }
-
-        public void addRequiredValidator(String name) {
-            FormItem item = getItem(name);
-            RequiredIfValidator requiredValidator = new RequiredIfValidator();
-            requiredValidator.setExpression(new RequiredIfFunction() {
-
-                @Override
-                public boolean execute(FormItem formItem, Object value) {
-                    return true;
-                }
-            });
-            requiredValidator.setErrorMessage(s_searchConstants.requiredField());
-            item.setValidators(requiredValidator);
-        }
-
-        public void addEmailValidator(String name) {
-            FormItem item = getItem(name);
-            RegExpValidator emailValidator = new RegExpValidator();
-            emailValidator.setErrorMessage(s_searchConstants.invalidEmail());
-            emailValidator.setExpression(EMAIL_EXPRESSION);
-            item.setValidators(emailValidator);
-        }
-
     }
 
     private static class ModalWindow extends Window {

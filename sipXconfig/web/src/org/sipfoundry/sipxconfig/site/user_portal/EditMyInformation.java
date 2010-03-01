@@ -70,7 +70,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
     public abstract void setAvailableTabNames(Collection<String> tabNames);
 
     @Persist
-    @InitialValue(value = "literal:info")
+    @InitialValue(value = "literal:extendedInfo")
     public abstract String getTab();
 
     public abstract Block getActionBlockForConferencesTab();
@@ -146,6 +146,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     private void initAvailableTabs() {
         List<String> tabNames = new ArrayList<String>();
+        tabNames.add("extendedInfo");
         tabNames.add("info");
         tabNames.add("distributionLists");
         tabNames.add(TAB_CONFERENCES);

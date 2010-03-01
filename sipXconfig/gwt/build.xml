@@ -26,11 +26,13 @@
       <arg value="-war" />
       <arg value="${output}" />
       <arg value="org.sipfoundry.sipxconfig.userportal.user_phonebook_search" />
+      <arg value="org.sipfoundry.sipxconfig.userportal.contact_information" />
       <classpath>
         <pathelement location="src" />
       </classpath>
       <classpath refid="base.path" />
     </java>
     <move file="${output}/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/org.sipfoundry.sipxconfig.userportal.user_phonebook_search.nocache.js" tofile="${output}/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js" />
+    <move file="${output}/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js" tofile="${output}/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js" />
   </target>
 </project>
