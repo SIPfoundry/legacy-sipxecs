@@ -223,11 +223,12 @@ public class CallControlUtilities {
                  * Fix up the ports if necessary.
                  */
                 DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog);
-                     
-                if ( peerDialogContext.getItspInfo() != DialogContext.get(dialog).getItspInfo() ||  
-                        peerDialogContext.getItspInfo().isAlwaysRelayMedia() )  {
+
+                if ( peerDialogContext != null &&
+                       (peerDialogContext.getItspInfo() != DialogContext.get(dialog).getItspInfo() ||
+                        peerDialogContext.getItspInfo().isAlwaysRelayMedia()) )  {
                     DialogContext.getRtpSession(dialog).getReceiver().setSessionDescription(ackSd);
-              
+
                 }
 
                 DialogContext.getRtpSession(dialog).getTransmitter().setOnHold(false);
