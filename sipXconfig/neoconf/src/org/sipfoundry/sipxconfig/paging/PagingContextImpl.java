@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 
 public abstract class PagingContextImpl extends SipxHibernateDaoSupport implements PagingContext {
@@ -34,6 +35,8 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
     private static final String PARAM_PAGING_GROUP_ID = "pagingGroupId";
 
     private DialPlanActivationManager m_dialPlanActivationManager;
+
+    private PagingProvisioningContext m_pagingProvisioningContext;
 
     protected abstract PagingServer createPagingServer();
 
@@ -117,6 +120,7 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
 
     public void deletePagingGroupsById(Collection<Integer> groupsIds) {
         removeAll(PagingGroup.class, groupsIds);
+        m_pagingProvisioningContext.deploy();
     }
 
     public void clear() {
@@ -136,18 +140,29 @@ public abstract class PagingContextImpl extends SipxHibernateDaoSupport implemen
         return new OnUserDelete();
     }
 
+    @Required
     public void setDialPlanActivationManager(DialPlanActivationManager dialPlanActivationManager) {
         m_dialPlanActivationManager = dialPlanActivationManager;
     }
 
+    public void setPagingProvisioningContext(PagingProvisioningContext pagingProvisioningContext) {
+        m_pagingProvisioningContext = pagingProvisioningContext;
+    }
+
     private class OnUserDelete extends UserDeleteListener {
         protected void onUserDelete(User user) {
+            boolean affectPaging = false;
             List<PagingGroup> groups = getPagingGroups();
             for (PagingGroup group : groups) {
                 Set<User> users = group.getUsers();
                 if (users.remove(user)) {
                     getHibernateTemplate().saveOrUpdate(group);
+                    getHibernateTemplate().flush();
+                    affectPaging = true;
                 }
+            }
+            if (affectPaging) {
+                m_pagingProvisioningContext.deploy();
             }
         }
     }
