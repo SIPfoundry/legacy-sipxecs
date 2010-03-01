@@ -131,7 +131,7 @@ public class GatewaysTestUi extends WebTestCase {
      * Tests that only a SIP Trunk gateway has the additional "Route" field on its Configuration
      * tab, and no other gateway type has it.
      */
-    public void testSipTrunkRouteField() throws Exception {
+    public void testItspSipTrunk() throws Exception {
         tester.setScriptingEnabled(true);
         clickLink("ListGateways");
 
@@ -147,16 +147,33 @@ public class GatewaysTestUi extends WebTestCase {
         }
 
         selectOption("selectGatewayModel", "SIP trunk");
-        setTextField("gateway:name", "SipTrunkRouteTest");
-        setTextField("gateway:address", "1.2.3.4");
-        // // FIXME: apply should not be necessary see: XCF-2444
-        clickButton("form:apply");
+        setTextField("gateway:name", "SipTrunkRouteInit");
         selectOption("sbcDeviceSelect", "Unmanaged SBC");
-        setTextField("sbcDevice:name", "sbcDeviceForSipTrunk");
+        setTextField("sbcDevice:name", "sbcRouteForSipTrunk");
         setTextField("sbcDevice:address", "sbc.example.org");
         clickButton("form:ok");
         assertNoUserError(tester);
-        assertSelectedOptionEquals("sbcDeviceSelect", "sbcDeviceForSipTrunk");
+        assertSelectedOptionEquals("sbcDeviceSelect", "sbcRouteForSipTrunk");
+        setTextField("gateway:name", "SipTrunkRouteTest");
+        setTextField("gateway:address", "1.2.3.4");
+        clickButton("form:ok");
+        assertNoUserError(tester);
+    }
+
+    /**
+     * Tests that a Direct SIP Trunk gateway has no additional "SBC Route" field on its Configuration tab.
+     */
+    public void testDirectSipTrunk() throws Exception {
+        tester.setScriptingEnabled(true);
+        clickLink("ListGateways");
+
+        selectOption("selectGatewayModel", "SIP trunk");
+        assertElementPresent("sbcDeviceSelect");
+        setTextField("gateway:name", "DirectSipTrunkTest");
+        setTextField("gateway:address", "1.2.3.4");
+        // // FIXME: apply should not be necessary see: XCF-2444
+        clickButton("form:apply");
+        assertElementNotPresent("sbcDeviceSelect");
         clickButton("form:ok");
         assertNoUserError(tester);
     }

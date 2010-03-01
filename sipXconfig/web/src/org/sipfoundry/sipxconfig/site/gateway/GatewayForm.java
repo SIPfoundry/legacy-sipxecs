@@ -129,6 +129,14 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
         return (getGateway() instanceof SipTrunk);
     }
 
+    public boolean isNewSipTrunk() {
+        return (isSipTrunk() && getGateway().isNew());
+    }
+
+    public boolean isItspSipTrunk() {
+        return (isSipTrunk() && (getSelectedSbcDevice() != null));
+    }
+
     public SipTrunkModel getTemplate() {
         SipTrunkModel model = (SipTrunkModel) getGateway().getModel();
         if (getTemplateModelSource().getModels().contains(model)) {

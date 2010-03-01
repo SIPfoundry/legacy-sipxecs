@@ -72,6 +72,8 @@
     <property name="beanId" value="sbcGeneric" />
     <property name="label" value="Unmanaged SBC" />
     <property name="serialNumberPattern" value="" />
+    <property name="restartSupported" value="false" />
+    <property name="projectionSupported" value="false" />
   </bean>
 
   <bean id="sbcGeneric" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice" scope="prototype"

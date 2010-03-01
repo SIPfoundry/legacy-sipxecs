@@ -21,13 +21,7 @@
   </div>
   <div jwcid="@common/QuickHelp" value="message:help.sbcConfig">this is what SBCs are for...</div>
   <span jwcid="@common/ErrorMsg"/>
-  <div jwcid="@If" condition="ognl:generateProfileIds != null">
-    <span jwcid="@device/ConfirmProfileGeneration"
-      validator="bean:validator"
-      profileManager="ognl:profileManager"
-      deviceIds="ognl:generateProfileIds"/>
-  </div>
-  <div jwcid="@Else">
+  <div>
     <form jwcid="@Form" delegate="bean:validator" listener="listener:formSubmit" id="list:sbc:form">
       <ul class="component-links">
         <li>
@@ -54,21 +48,6 @@
         </span>
       </table>
       <ul class="component-submit">
-        <li>
-          <input jwcid="propagate@Submit" id="list:sbc:propagate"
-            action="listener:propagate"
-            value="message:button.propagate"/>
-        </li>
-        <li>
-          <input jwcid="propagateAll@Submit" id="list:sbc:propagateAll"
-            action="listener:propagateAll"
-            value="message:button.propagateAll"/>
-        </li>
-        <li>
-          <input jwcid="restart@Submit" id="list:sbc:restart"
-            action="listener:restart"
-            value="message:button.restart"/>
-        </li>
         <li>
           <input jwcid="delete@Submit" id="list:sbc:delete"
             action="listener:delete"

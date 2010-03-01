@@ -17,12 +17,21 @@
           validators="validators:required"
           displayName="message:label.name"/>
       </label>
-      <span jwcid="@If" condition="ognl:sipTrunk && gateway.isNew()">
-	      <label jwcid="@common/FieldPanel" for="gateway:template" field="component:template"
-	             label="message:label.template" description="message:description.template">
-	          <select jwcid="template@PropertySelection" id="gateway:template" value="ognl:template"
-	                  model="ognl:templateModel" />
-	      </label>
+      <span jwcid="@If" condition="ognl:newSipTrunk || itspSipTrunk">
+        <label jwcid="@common/FieldPanel" for="gateway:route" field="ognl:null"
+               label="message:label.route" description="message:description.route">
+          <input jwcid="@common/SbcDeviceSelect"
+                 selectedSbcDevice="ognl:selectedSbcDevice"/>
+        </label>
+      </span>
+      <span jwcid="@If" condition="ognl:itspSipTrunk && gateway.isNew()">
+        <label jwcid="@common/FieldPanel" for="gateway:template" field="component:template"
+               label="message:label.template" description="message:description.template">
+          <select jwcid="template@PropertySelection" id="gateway:template" value="ognl:template"
+                  model="ognl:templateModel">
+            <option value="-1">None</option>
+          </select>
+        </label>
       </span>
 
       <label jwcid="@common/FieldPanel" for="gateway:address"
@@ -99,13 +108,6 @@
           validators="spring-validators:validFieldSize"
           displayName="message:label.description"/>
       </label>
-      <span jwcid="@If" condition="ognl:gateway instanceof org.sipfoundry.sipxconfig.gateway.SipTrunk">
-        <label jwcid="@common/FieldPanel" for="gateway:route" field="ognl:null"
-               label="message:label.route" description="message:description.route">
-          <input jwcid="@common/SbcDeviceSelect"
-                 selectedSbcDevice="ognl:selectedSbcDevice"/>
-        </label>
-      </span>
     </tbody>
   </table>
 </fieldset>
