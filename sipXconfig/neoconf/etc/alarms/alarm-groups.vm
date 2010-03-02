@@ -14,6 +14,15 @@
         <contact>$address</contact>
 #end
       </sms>
+      <trap>
+#foreach ($trapaddress in ${group.contactSnmpAddresses})
+        <trap-receiver-contact>
+          <trap-receiver-address>$trapaddress.hostAddress</trap-receiver-address>
+          <community-string>$trapaddress.communityString</community-string>
+          <port-number>$trapaddress.port</port-number>
+        </trap-receiver-contact>
+#end
+      </trap>
     </group>
 #end
   </definitions>

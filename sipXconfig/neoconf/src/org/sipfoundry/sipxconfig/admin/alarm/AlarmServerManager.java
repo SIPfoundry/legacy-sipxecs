@@ -37,4 +37,8 @@ public interface AlarmServerManager {
     String getLogDirectory();
 
     String getHost();
+
+    String getMibsDirectory();
+
+    String getAlarmNotificationMibFileName();
 }

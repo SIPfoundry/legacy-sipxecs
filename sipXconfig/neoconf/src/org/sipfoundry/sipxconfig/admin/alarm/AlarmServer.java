@@ -12,16 +12,16 @@ package org.sipfoundry.sipxconfig.admin.alarm;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public class AlarmServer extends BeanWithId {
-    private boolean m_emailNotificationEnabled = true; // default enabled
+    private boolean m_alarmNotificationEnabled = true; // default enabled
 
     private String m_fromEmailAddress;
 
-    public boolean isEmailNotificationEnabled() {
-        return m_emailNotificationEnabled;
+    public boolean isAlarmNotificationEnabled() {
+        return m_alarmNotificationEnabled;
     }
 
-    public void setEmailNotificationEnabled(boolean emailNotificationEnabled) {
-        m_emailNotificationEnabled = emailNotificationEnabled;
+    public void setAlarmNotificationEnabled(boolean alarmNotificationEnabled) {
+        m_alarmNotificationEnabled = alarmNotificationEnabled;
     }
 
     public void setFromEmailAddress(String fromEmailAddress) {

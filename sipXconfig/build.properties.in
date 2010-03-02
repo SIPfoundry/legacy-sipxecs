@@ -30,6 +30,7 @@ sipxconfig.lib.dir=@SIPX_JAVADIR@/sipXconfig
 sipxcommons.lib.dir=@SIPX_JAVADIR@/sipXcommons
 sipxpbx.process.dir=@SIPX_DATADIR@/process.d
 sipxpbx.alarms.strings.dir=@PREFIX@/share/sipxecs/alarms/
+sipxpbx.mibs.dir=@PREFIX@/share/sipxecs/mibs/
 sipxpbx.conf.dir=@SIPX_CONFDIR@
 sipxpbx.var.dir=@SIPX_VARDIR@
 sipxpbx.reports.dir=@SIPX_VARDIR@/reports

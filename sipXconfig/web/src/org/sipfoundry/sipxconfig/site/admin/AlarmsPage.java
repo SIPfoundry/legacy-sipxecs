@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 public abstract class AlarmsPage extends BasePage implements PageBeginRenderListener {
+
     @InjectObject("spring:alarmServerManager")
     public abstract AlarmServerManager getAlarmServerManager();
 

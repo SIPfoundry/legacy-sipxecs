@@ -11,20 +11,17 @@
       <log enabled="true">
          <file>${logDirectory}/sipXalarms.log</file>
       </log>
-      <email enabled="${email}">
+      <email enabled="${enabled}">
          <!-- Alarm notification emails will be sent from this address. -->
          <email-notification-addr>${fromEmailAddress}</email-notification-addr>
       </email>
-      <sms enabled="${email}">
+      <sms enabled="${enabled}">
          <!-- Alarm notification SMS will be sent from this address. -->
          <email-notification-addr>${fromEmailAddress}</email-notification-addr>
       </sms>
-      <!-- snmp traps are not yet implemented
-      <trap enabled="false">
-         <snmp_manager>1.2.3.4</snmp_manager>
-         <snmp_read_community>whatever</snmp_read_community>
+      <!--  Alarm notification Trap enable flag. -->
+      <trap enabled="${enabled}">
       </trap>
-      -->
    </actions>
   </settings>
 </alarm_server>

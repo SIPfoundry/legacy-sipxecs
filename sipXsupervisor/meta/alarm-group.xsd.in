@@ -77,6 +77,33 @@
       </sequence>
     </complexType>
   </element>
+   <element name='trap'>
+    <annotation>
+      <documentation>
+        Individual alarm group trap definition.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:trap-receiver-contact' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="trap-receiver-contact">
+    <annotation>
+      <documentation>
+        The contact address for the Trap.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:trap-receiver-address' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='h:community-string' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='h:port-number' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
 
   <element name="contact">
     <annotation>
@@ -86,6 +113,42 @@
     </annotation>
     <simpleType>
       <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+<element name="trap-receiver-address">
+    <annotation>
+      <documentation>
+        The contact address for the alarm group.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="community-string">
+    <annotation>
+      <documentation>
+        The contact address for the alarm group.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="port-number">
+    <annotation>
+      <documentation>
+        The contact address for the alarm group.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="integer">
       </restriction>
     </simpleType>
   </element>

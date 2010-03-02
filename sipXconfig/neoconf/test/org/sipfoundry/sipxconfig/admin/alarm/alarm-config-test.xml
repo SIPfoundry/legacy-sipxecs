@@ -19,12 +19,9 @@
          <!-- Alarm notification SMS will be sent from this address. -->
          <email-notification-addr>postmaster@post.example.org</email-notification-addr>
       </sms>
-      <!-- snmp traps are not yet implemented
-      <trap enabled="false">
-         <snmp_manager>1.2.3.4</snmp_manager>
-         <snmp_read_community>whatever</snmp_read_community>
+      <!--  Alarm notification Trap enable flag. -->
+      <trap enabled="true">
       </trap>
-      -->
    </actions>
   </settings>
 </alarm_server>

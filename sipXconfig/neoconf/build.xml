@@ -139,7 +139,8 @@
       <replacefilter token="@sipxpage.audio.dir@" property="sipxpage.audio.dir" />
       <replacefilter token="@sipxpbx.backup.dir@" property="sipxpbx.backup.dir" />
 	  <replacefilter token="@sipxpbx.download.dir@" property="sipxpbx.download.dir" />
-	  <replacefilter token="@sipxpbx.alarms.strings.dir@" property="sipxpbx.alarms.strings.dir" />    	
+	  <replacefilter token="@sipxpbx.alarms.strings.dir@" property="sipxpbx.alarms.strings.dir" />
+	  <replacefilter token="@sipxpbx.mibs.dir@" property="sipxpbx.mibs.dir" />
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user" />
 	  <replacefilter token="@sipxpbx.reports.dir@" property="sipxpbx.reports.dir" />
       <replacefilter token="@www.dir@" property="www.dir" />

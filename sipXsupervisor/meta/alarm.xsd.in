@@ -137,6 +137,17 @@
     </complexType>
   </element>
 
+  <element name='trap'>
+    <annotation>
+      <documentation>
+        Settings for the Trap notifier.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="enabled" type="boolean"/>
+    </complexType>
+  </element>
+
   <element name="email-notification-addr">
     <annotation>
       <documentation>

@@ -73,6 +73,7 @@ sysdir.vxml.scripts=@www.dir@/doc/aa_vxml
 sysdir.libexec=@sipxpbx.libexec.dir@
 sysdir.default.firmware=@sipxpbx.default.firmware@
 sysdir.alarmsStrings=@sipxpbx.alarms.strings.dir@
+sipxpbx.mibs.dir=@sipxpbx.mibs.dir@
 sysdir.vxml.moh=@sipxvxml.data.dir@/moh
 
 # ACD server defaults - can be changed in UI

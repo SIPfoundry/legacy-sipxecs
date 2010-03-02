@@ -347,6 +347,7 @@
     <antcall target="phonebook_entries_update_task" />
     <antcall target="add_google_domain" />
     <antcall target="change-nortel12x0-phone-to-avaya" />
+    <antcall target="alarm-groups-add-snmp-contacts" />
 
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
@@ -1044,6 +1045,9 @@
   </target>
   <target name="alarm-codes" unless="alarm-codes">
     <db-patch patch="alarm-codes"/>
+  </target>
+  <target name="alarm-groups-add-snmp-contacts" unless="alarm-groups-add-snmp-contacts">
+    <db-patch patch="alarm-groups-add-snmp-contacts"/>
   </target>
   <target name="add_branch_office_designation" unless="add_branch_office_designation">
     <db-patch patch="add_branch_office_designation"/>

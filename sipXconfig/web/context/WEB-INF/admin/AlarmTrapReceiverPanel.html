@@ -1,0 +1,31 @@
+<fieldset>
+<legend><span jwcid="@Insert" value="ognl:label"/></legend>
+<ul class="component-links">
+  <li>
+    <a jwcid="addTrapAddressLink@LinkSubmit"
+      selected="ognl:add" tag="ognl:true">
+      <span key="link.addTrap">Add</span>
+    </a>
+  </li>
+</ul>
+<table id="trapaddress:list">
+  <thead>
+    <div jwcid="@If" condition="ognl:alarmTrapReceiversPresent" renderTag="false">
+      <tr>
+        <th><span key="label.hostAddress">Host Address</span></th>
+        <th><span key="label.port">Port</span></th>
+        <th><span key="label.communityString">Community String</span></th>
+        <th colspan="3"></th>
+      </tr>
+     </div>
+  </thead>
+  <span jwcid="@Hidden" value="ognl:alarmTrapReceiversSize" />
+  <tbody jwcid="@For" source="ognl:alarmTrapReceivers" value="ognl:alarmTrapReceiver"
+    index="ognl:index" volatile="ognl:true">
+    <tr jwcid="@admin/AlarmTrapReceiverEditor"
+      alarmTrapReceiver="ognl:alarmTrapReceiver"
+      index="ognl:index"
+      removeIndex="ognl:removeIndex"/>
+  </tbody>
+</table>
+</fieldset>

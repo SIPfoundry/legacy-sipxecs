@@ -9,6 +9,13 @@
       <sms>
         <contact>test_sms1@example.com</contact>
       </sms>
+      <trap>
+        <trap-receiver-contact>
+          <trap-receiver-address>47.152.236.68</trap-receiver-address>
+          <community-string>ses</community-string>
+          <port-number>162</port-number>
+        </trap-receiver-contact>
+      </trap>
     </group>
   </definitions>
 </alarm_groups>

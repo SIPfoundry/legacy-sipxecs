@@ -19,7 +19,7 @@ import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 public class AlarmServerConfiguration extends SipxServiceConfiguration {
     private AlarmServerManager m_alarmServerManager;
 
-    private boolean m_emailNotificationEnabled;
+    private boolean m_alarmNotificationEnabled;
 
     private String m_fromEmailAddress;
 
@@ -30,7 +30,7 @@ public class AlarmServerConfiguration extends SipxServiceConfiguration {
     private void generate() {
         AlarmServer alarmServer = m_alarmServerManager.getAlarmServer();
         String host = m_alarmServerManager.getHost();
-        m_emailNotificationEnabled = alarmServer.isEmailNotificationEnabled();
+        m_alarmNotificationEnabled = alarmServer.isAlarmNotificationEnabled();
         m_fromEmailAddress = defaultIfEmpty(alarmServer.getFromEmailAddress(), "postmaster@" + host);
         m_logDirectory = m_alarmServerManager.getLogDirectory();
         m_hostName = host;
@@ -40,7 +40,7 @@ public class AlarmServerConfiguration extends SipxServiceConfiguration {
     protected VelocityContext setupContext(Location location) {
         generate();
         VelocityContext context = super.setupContext(location);
-        context.put("email", m_emailNotificationEnabled);
+        context.put("enabled", m_alarmNotificationEnabled);
         context.put("fromEmailAddress", m_fromEmailAddress);
         context.put("logDirectory", m_logDirectory);
         context.put("hostName", m_hostName);

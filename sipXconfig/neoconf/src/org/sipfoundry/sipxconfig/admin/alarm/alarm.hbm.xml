@@ -9,7 +9,7 @@
         <param name="sequence">alarm_server_seq</param>
       </generator>
     </id>
-    <property name="emailNotificationEnabled" />
+    <property name="alarmNotificationEnabled" />
     <property name="fromEmailAddress" />
   </class>
 
@@ -31,6 +31,15 @@
       <key column="alarm_group_id" />
       <index column="index" />
       <element type="string" column="address" not-null="true" />
+    </list>
+    <list name="snmpAddresses" table="alarm_group_snmpcontacts">
+      <key column="alarm_group_id" />
+      <index column="index" />
+      <composite-element class="org.sipfoundry.sipxconfig.admin.alarm.AlarmTrapReceiver">
+          <property name="hostAddress" column="address" not-null="true" type="string"/>
+          <property name="port" column="port" not-null="true" type="int"/>
+          <property name="communityString" column="community_string" not-null="true" type="string"/>
+      </composite-element>
     </list>
     <set name="users" table="user_alarm_group">
       <key column="alarm_group_id" />

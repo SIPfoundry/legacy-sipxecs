@@ -79,6 +79,7 @@ public abstract class ListPanel extends BaseComponent {
         int removeIndex = getRemoveIndex();
         if (removeIndex >= 0) {
             source.remove(removeIndex);
+            TapestryUtils.getValidator(this).clearErrors();
         } else if (TapestryUtils.isValid(cycle, this) && getAdd()) {
             source.add(null);
         }

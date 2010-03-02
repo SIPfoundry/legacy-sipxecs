@@ -45,7 +45,7 @@ public class AlarmServerManagerTestIntegration extends IntegrationTestCase {
     public void testGetAlarmServer() throws Exception {
         AlarmServer alarmServer = m_alarmServerManager.getAlarmServer();
         assertNotNull(alarmServer);
-        assertTrue(alarmServer.isEmailNotificationEnabled());
+        assertTrue(alarmServer.isAlarmNotificationEnabled());
         AlarmGroup alarmGroup = m_alarmServerManager.getAlarmGroupByName("default");
         assertNotNull(alarmGroup);
     }

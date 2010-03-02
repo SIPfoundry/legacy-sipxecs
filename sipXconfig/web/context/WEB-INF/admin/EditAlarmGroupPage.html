@@ -12,7 +12,7 @@
       label="message:label.smsNotificationContacts"
       addLinkLabel="message:link.addSms"
       itemDisplayName="message:label.smsNotificationContacts"
-      validators="spring-validators:required>"
+      validators="spring-validators:required,validPhone"
       source="ognl:group.smsAddresses" />
 
     <fieldset jwcid="@common/ListPanel"
@@ -21,6 +21,10 @@
       itemDisplayName="message:label.emailNotificationContacts"
       validators="spring-validators:required>"
       source="ognl:group.emailAddresses" />
+
+    <fieldset jwcid="@admin/AlarmTrapReceiverPanel"
+     label="message:label.snmpNotificationContacts"
+     snmpAddresses="ognl:group.snmpAddresses"/>
 
     <ul class="component-links">
       <li>

@@ -38,6 +38,7 @@
     <property name="logDirectory" value="${sysdir.log}" />
     <property name="configDirectory" value="${sysdir.etc}" />
     <property name="alarmsStringsDirectory" value="${sysdir.alarmsStrings}" />
+    <property name="mibsDirectory" value="${sipxpbx.mibs.dir}" />
   </bean>
 
   <bean id="alarmServerManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

@@ -9,10 +9,17 @@
   </div>
   <div jwcid="configureAlarmsTab@Block">
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <ul class="component-links">
+      <li><span jwcid="downloadLink@common/DownloadLink"
+          id="downloadLink"
+          fileName="ognl:alarmServerManager.alarmNotificationMibFileName"
+          dirName="ognl:alarmServerManager.mibsDirectory"
+          contentType="literal:application/octet-stream">
+          <span key="link.download"/>
+        </span>
+      </li>
+  </ul>
     <form jwcid="@Form" id="configAlarmForm" delegate="bean:validator">
-      <ul class="component-links">
-        <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
-      </ul>
       <fieldset>
         <table>
           <tbody>
@@ -21,29 +28,25 @@
               label="message:label.enableAlarmServerEmailNotification">
               <span jwcid="enableEmailNotification@Checkbox"
                 id="enableEmailNotification"
-                value="ognl:alarmServer.emailNotificationEnabled" />
+                value="ognl:alarmServer.alarmNotificationEnabled" />
             </tr>
-            <div jwcid="@If" condition="ognl:advanced" renderTag="false">
-              <tr jwcid="@common/FieldPanel" for="fromEmailAddress"
-                field="ognl:components.fromEmailAddress" label="message:label.fromEmailAddress">
-                <span jwcid="fromEmailAddress@TextField" id="fromEmailAddress"
-                  value="ognl:alarmServer.fromEmailAddress"
-                  displayName="message:label.fromEmailAddress"/>
-              </tr>
-            </div>
+            <tr jwcid="@common/FieldPanel" for="fromEmailAddress"
+              field="ognl:components.fromEmailAddress" label="message:label.fromEmailAddress">
+              <span jwcid="fromEmailAddress@TextField" id="fromEmailAddress"
+                value="ognl:alarmServer.fromEmailAddress"
+                displayName="message:label.fromEmailAddress"/>
+            </tr>
           </tbody>
         </table>
       </fieldset>
-      <div jwcid="@If" condition="ognl:advanced" renderTag="false">
-        <fieldset>
+      <fieldset>
         <legend><span key="label.alarms"/></legend>
-        </fieldset>
-        <div jwcid="@admin/AlarmTypes" validator="bean:validator"
-           selections="ognl:selections"
-           alarms="ognl:alarms"
-           alarmGroupModel="ognl:alarmGroupModel"/>
-      </div>
-      <ul jwcid="formActions@common/FormActions" listener="listener:activate"/>
+      </fieldset>
+      <div jwcid="@admin/AlarmTypes" validator="bean:validator"
+        selections="ognl:selections"
+        alarms="ognl:alarms"
+        alarmGroupModel="ognl:alarmGroupModel"/>
+        <ul jwcid="formActions@common/FormActions" listener="listener:activate"/>
     </form>
   </div>
   <div jwcid="notificationGroupsTab@Block">

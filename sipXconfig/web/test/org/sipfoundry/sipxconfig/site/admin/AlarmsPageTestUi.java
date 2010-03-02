@@ -34,10 +34,9 @@ public class AlarmsPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
 
         clickLink("link:configureAlarms");
-        assertLinkPresent("setting:toggle");
         assertElementPresent("enableEmailNotification");
+        assertLinkPresent("downloadLink");
         assertButtonPresent("form:apply");
-        assertTableNotPresent("alarm:list");
 
         clickLink("link:notificationGroups");
         SiteTestHelper.assertNoException(tester);
@@ -93,6 +92,9 @@ public class AlarmsPageTestUi extends WebTestCase {
         setWorkingForm("alarmGroupForm");
         setTextField("item:name", "one");
         setTextField("item:description", "test group");
+        assertLinkPresentWithText("Add SMS address");
+        assertLinkPresentWithText("Add e-mail address");
+        assertLinkPresent("addTrapAddressLink");
         assertButtonPresent("form:ok");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);

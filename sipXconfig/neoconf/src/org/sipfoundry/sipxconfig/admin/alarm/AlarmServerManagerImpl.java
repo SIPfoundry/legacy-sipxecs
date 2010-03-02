@@ -45,6 +45,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private static final String PARAM_ALARM_GROUP_NAME = "alarmGroupName";
     private static final String GROUP_NAME_DISABLED = "disabled";
     private static final String GROUP_NAME_DEFAULT = "default";
+    private static final String MIB_FILE_NAME = "SIPXECS-ALARM-NOTIFICATION-MIB.mib";
 
     private SipxReplicationContext m_replicationContext;
     private SipxServiceManager m_sipxServiceManager;
@@ -54,6 +55,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private String m_logDirectory;
     private String m_configDirectory;
     private String m_alarmsStringsDirectory;
+    private String m_mibsDirectory;
     private LocationsManager m_locationsManager;
 
     @Required
@@ -144,6 +146,11 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         m_alarmsStringsDirectory = alarmsStringsDirectory;
     }
 
+    @Required
+    public void setMibsDirectory(String mibsDirectory) {
+        m_mibsDirectory = mibsDirectory;
+    }
+
     public void deployAlarms() {
         getAlarmServer();
         // Check if the 'default' alarm group has email contact(s)
@@ -181,7 +188,7 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
     private AlarmServer newAlarmServer() {
         AlarmServer server = new AlarmServer();
         // set email notification enabled by default
-        server.setEmailNotificationEnabled(true);
+        server.setAlarmNotificationEnabled(true);
         return server;
     }
 
@@ -276,6 +283,16 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         replicateAlarmService();
     }
 
+    @Override
+    public String getMibsDirectory() {
+        return m_mibsDirectory;
+    }
+
+    @Override
+    public String getAlarmNotificationMibFileName() {
+        return MIB_FILE_NAME;
+    }
+
     private void checkForDuplicateNames(AlarmGroup group) {
         if (isNameInUse(group)) {
             throw new UserException("&error.duplicateGroupNames", group.getName());
@@ -330,4 +347,5 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
         SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
         m_serviceConfigurator.replicateServiceConfig(alarmService);
     }
+
 }

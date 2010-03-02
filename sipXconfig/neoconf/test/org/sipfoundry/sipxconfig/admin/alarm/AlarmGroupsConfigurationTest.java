@@ -9,7 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.alarm;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 import static java.util.Arrays.asList;
 
@@ -43,6 +45,14 @@ public class AlarmGroupsConfigurationTest extends SipxServiceTestBase {
         group1.setEmailAddresses(asList("test_email1@example.com"));
         group1.setSmsAddresses(asList("test_sms1@example.com"));
 
+        List<AlarmTrapReceiver> m_snmpAddresses = new ArrayList<AlarmTrapReceiver>();
+        AlarmTrapReceiver alarmTrapReceiver = new AlarmTrapReceiver();
+        alarmTrapReceiver.setCommunityString("ses");
+        alarmTrapReceiver.setHostAddress("47.152.236.68");
+        alarmTrapReceiver.setPort(162);
+        m_snmpAddresses.add(alarmTrapReceiver);
+        group1.setSnmpAddresses(m_snmpAddresses);
+
         AlarmServerManager alarmServerManager = EasyMock.createMock(AlarmServerManager.class);
         alarmServerManager.getAlarmGroups();
         EasyMock.expectLastCall().andReturn(asList(group1)).anyTimes();
@@ -68,6 +78,14 @@ public class AlarmGroupsConfigurationTest extends SipxServiceTestBase {
         AlarmGroup group1 = new AlarmGroup();
         group1.setName("emergency");
         group1.setUsers(users);
+
+        List<AlarmTrapReceiver> m_snmpAddresses = new ArrayList<AlarmTrapReceiver>();
+        AlarmTrapReceiver alarmTrapReceiver = new AlarmTrapReceiver();
+        alarmTrapReceiver.setCommunityString("ses");
+        alarmTrapReceiver.setHostAddress("47.152.236.68");
+        alarmTrapReceiver.setPort(162);
+        m_snmpAddresses.add(alarmTrapReceiver);
+        group1.setSnmpAddresses(m_snmpAddresses);
 
         AlarmServerManager alarmServerManager = EasyMock.createMock(AlarmServerManager.class);
         alarmServerManager.getAlarmGroups();

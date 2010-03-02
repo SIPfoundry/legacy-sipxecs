@@ -29,7 +29,7 @@ public class AlarmServerConfigurationTest extends SipxServiceTestBase {
         alarmServerConf.setSipxServiceManager(sipxServiceManager);
 
         AlarmServer server = new AlarmServer();
-        server.setEmailNotificationEnabled(true);
+        server.setAlarmNotificationEnabled(true);
 
         AlarmServerManager alarmServerManager = EasyMock.createMock(AlarmServerManager.class);
         alarmServerManager.getAlarmServer();
