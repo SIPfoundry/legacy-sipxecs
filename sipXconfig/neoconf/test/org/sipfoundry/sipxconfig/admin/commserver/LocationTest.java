@@ -6,6 +6,8 @@ import java.util.List;
 
 import static java.util.Arrays.asList;
 
+import org.apache.commons.collections.CollectionUtils;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
@@ -263,15 +265,22 @@ public class LocationTest extends TestCase {
         SipxServiceBundle b2 = new SipxServiceBundle("b2");
         b2.setBeanName("b2");
         b2.setAutoEnable(false);
+        Collection<SipxServiceBundle> bundles = asList(b1, b2);
+
+        Location location = new Location();
 
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getBundleDefinitions();
-        expectLastCall().andReturn(asList(b1, b2));
+        expectLastCall().andReturn(bundles);
+        sipxServiceManager.getBundlesForLocation(location);
+        expectLastCall().andReturn(bundles);
+        sipxServiceManager.getServiceDefinitions(bundles);
+        expectLastCall().andReturn(CollectionUtils.EMPTY_COLLECTION);
 
         replay(sipxServiceManager);
 
-        Location location = new Location();
         location.setPrimary(true);
+        location.setServices(CollectionUtils.EMPTY_COLLECTION);
         location.initBundles(sipxServiceManager);
 
         List<String> installedBundles = location.getInstalledBundles();

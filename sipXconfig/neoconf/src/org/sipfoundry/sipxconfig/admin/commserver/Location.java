@@ -338,6 +338,7 @@ public class Location extends BeanWithId {
                 m_installedBundles.add(bundle.getModelId());
             }
         }
+        resetBundles(sipxServiceManager);
         return true;
     }
 

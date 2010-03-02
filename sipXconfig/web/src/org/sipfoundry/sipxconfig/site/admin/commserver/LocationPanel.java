@@ -17,18 +17,10 @@ import org.apache.tapestry.callback.ICallback;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public abstract class LocationPanel extends BaseComponent {
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
-
-    @InjectObject("spring:sipxServiceManager")
-    public abstract SipxServiceManager getSipxServiceManager();
-
-    @InjectObject("spring:serviceConfigurator")
-    public abstract ServiceConfigurator getServiceConfigurator();
 
     @Parameter
     public abstract ICallback getCallback();

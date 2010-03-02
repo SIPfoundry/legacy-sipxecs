@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site;
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -329,7 +330,8 @@ public abstract class TestPage extends BasePage {
     public void seedService(String beanId) {
         seedLocationsManager();
         Location location = getLocationsManager().getPrimaryLocation();
-        Collection<LocationSpecificService> sipxServices = location.getServices();
+        Collection<LocationSpecificService> sipxServices = new ArrayList<LocationSpecificService>(
+                location.getServices());
         for (LocationSpecificService service : sipxServices) {
             location.removeService(service);
         }
