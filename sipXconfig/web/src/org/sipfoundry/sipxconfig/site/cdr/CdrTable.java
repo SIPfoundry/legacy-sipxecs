@@ -77,6 +77,33 @@ public abstract class CdrTable extends BaseComponent {
     @Asset("/images/park.png")
     public abstract IAsset getParkIcon();
 
+    @Asset("/images/page.png")
+    public abstract IAsset getPageIcon();
+
+    @Asset("/images/site2site.png")
+    public abstract IAsset getSiteToSiteIcon();
+
+    @Asset("/images/longdistance.png")
+    public abstract IAsset getLongDistIcon();
+
+    @Asset("/images/tollfree.png")
+    public abstract IAsset getTollFreeIcon();
+
+    @Asset("/images/callpickup.png")
+    public abstract IAsset getPickupIcon();
+
+    @Asset("/images/autoattendant.png")
+    public abstract IAsset getAutoAttIcon();
+
+    @Asset("/images/restricted.png")
+    public abstract IAsset getRestrictedIcon();
+
+    @Asset("/images/mobile.png")
+    public abstract IAsset getMobileIcon();
+
+    @Asset("/images/emergency.png")
+    public abstract IAsset getEmergencyIcon();
+
     @Asset("/images/retrievepark.png")
     public abstract IAsset getRetrieveParkIcon();
 
@@ -117,6 +144,33 @@ public abstract class CdrTable extends BaseComponent {
                 break;
             case PARK:
                 recipientIcon = getParkIcon();
+                break;
+            case PAGE:
+                recipientIcon = getPageIcon();
+                break;
+            case STS:
+                recipientIcon = getSiteToSiteIcon();
+                break;
+            case LD:
+                recipientIcon = getLongDistIcon();
+                break;
+            case TF:
+                recipientIcon = getTollFreeIcon();
+                break;
+            case DPUP:
+                recipientIcon = getPickupIcon();
+                break;
+            case AA:
+                recipientIcon = getAutoAttIcon();
+                break;
+            case REST:
+                recipientIcon = getRestrictedIcon();
+                break;
+            case MOB:
+                recipientIcon = getMobileIcon();
+                break;
+            case EMERG:
+                recipientIcon = getEmergencyIcon();
                 break;
             default:
                 recipientIcon = null;
