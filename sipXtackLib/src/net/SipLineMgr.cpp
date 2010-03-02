@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -528,13 +528,15 @@ SipLineMgr::getLineforAuthentication(
    // Get realm and scheme (hard way but not too expensive)
    if (response != NULL)
    {
+      // is there a Proxy-Authenticate header with realm and nonce?
       if (!response->getAuthenticateData(&scheme, &realm, &nonce, &opaque,
                                          &algorithm, &qop, SipMessage::PROXY))
       {
+         // No, is there a WWW-Authenticate header with realm and nonce?
          if (!response->getAuthenticateData(&scheme, &realm, &nonce, &opaque,
                                             &algorithm, &qop, SipMessage::SERVER))
          {
-            // Report inability to get auth criteria
+            // Report inability to get auth criteria (neither xxx-Authenticate header)
             UtlString callId ;
             UtlString method ;
             int sequenceNum ;
@@ -546,7 +548,7 @@ SipLineMgr::getLineforAuthentication(
                           "unable get auth data for message:\ncallid='%s' cseq='%d' method='%s'",
                           callId.data(), sequenceNum, method.data()) ;
          }
-         else
+         else // found WWW-Authenticate header with realm and nonce
          {
             OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                           "SipLineMgr::getLineforAuthentication "
@@ -557,7 +559,7 @@ SipLineMgr::getLineforAuthentication(
                           algorithm.data(), qop.data(), mOutboundLine.toString().data()) ;
          }
       }
-      else
+      else // found Proxy-Authenticate header with realm and nonce
       {
          OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                        "SipLineMgr::getLineforAuthentication "
@@ -673,10 +675,9 @@ SipLineMgr::isUserIdDefined( const SipMessage* request /*[in]*/ ) const
 }
 
 
-UtlBoolean SipLineMgr::buildAuthenticatedRequest(
-    const SipMessage* response /*[in]*/,
-    const SipMessage* request /*[in]*/,
-    SipMessage* newAuthRequest /*[out]*/)
+UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[in]*/,
+                                                 const SipMessage* request /*[in]*/,
+                                                 SipMessage* newAuthRequest /*[out]*/)
 {
     UtlBoolean createdResponse = FALSE;
     // Get the userId and password from the DB for the URI
@@ -717,19 +718,20 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
                                    &qop, 
                                    authorizationEntity);
 
-    // Set to true when we determine that we should not send an auth. challenge.
+    // Set to true when we determine that we have already sent the request 
+    // with an Authorization header.
     UtlBoolean alreadyTriedOnce = FALSE;
 
     // if scheme is basic , we dont support it anymore and we
     //should not sent request again because the password has been
-    //converterd to digest already and the BASIC authentication will fail anyway
+    //converted to digest already and the BASIC authentication will fail anyway
     if(scheme.compareTo(HTTP_BASIC_AUTHENTICATION, UtlString::ignoreCase) == 0)
     {
         alreadyTriedOnce = TRUE; //so that we never send request with basic authentication
 
         // Log error
         OsSysLog::add(FAC_AUTH, PRI_ERR,
-                      "SipLineMgr::buildAuthenticatedRequest "
+                      "SipLineMgr::buildAuthorizationRequest "
                       " unable to handle basic auth: callid='%s' method='%s' cseq=%d realm='%s'",
                       callId.data(), method.data(), sequenceNum, realm.data()) ;
     }
@@ -744,11 +746,12 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
                                                       NULL, NULL, NULL, NULL,
                                                       authorizationEntity, requestAuthIndex))
         {
+            // found an Authorization header, is it for our realm?
             if (realm.compareTo(requestRealm) == 0)
             {
                 alreadyTriedOnce = TRUE;
                 OsSysLog::add(FAC_AUTH, PRI_ERR,
-                              "SipLineMgr::buildAuthenticatedRequest "
+                              "SipLineMgr::buildAuthorizationRequest "
                               "authentication has been sent but it was not accepted: "
                               "callid='%s', realm='%s', user='%s'",
                               callId.data(), realm.data(), requestUser.data()) ;
@@ -808,13 +811,14 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
         if ( credentialFound )
         {
             OsSysLog::add(FAC_AUTH, PRI_INFO,
-                          "SipLineMgr::buildAuthenticatedRequest"
+                          "SipLineMgr::buildAuthorizationRequest"
                           "found auth credentials for callid='%s': userid='%s' realm='%s'",
                           callId.data(), userID.data(), realm.data()) ;
 
             // Construct a new request with authorization and send it
             // the Sticky DNS fields will be copied by the copy constructor
             *newAuthRequest = *request;
+
             // Reset the transport parameters
 #           ifdef TEST_PRINT
             int transportTimeStamp = newAuthRequest->getTransportTime();
@@ -835,14 +839,16 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
             timesSent = newAuthRequest->getTimesSent();
             transportProtocol = newAuthRequest->getSendProtocol(); //OsSocket::UNKNOWN;
             mFirstSent = newAuthRequest->isFirstSend();
-            osPrintf("SipLineMgr::buildAuthenticatedResponse "
-                     "transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
-                     transportTimeStamp, lastResendDuration, timesSent,
-                     transportProtocol, mFirstSent);
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                          "SipLineMgr::buildAuthorizationRequest "
+                          "transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d",
+                          transportTimeStamp, lastResendDuration, timesSent,
+                          transportProtocol, mFirstSent);
 #           endif
 
             // Get rid of the via as another will be added.
             newAuthRequest->removeTopVia();
+
             if(scheme.compareTo(HTTP_DIGEST_AUTHENTICATION, UtlString::ignoreCase) == 0)
             {
                 UtlString responseHash;
@@ -942,7 +948,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
                 UtlString requestUri;
                 newAuthRequest->getRequestUri(&requestUri);
                 OsSysLog::add(FAC_AUTH, PRI_ERR,
-                              "SipLineMgr::buildAuthenticatedRequest "
+                              "SipLineMgr::buildAuthorizationRequest "
                               "adding strict route callid='%s' route='%s'",
                               callId.data(), requestUri.data()) ;
                 newAuthRequest->addRouteUri(requestUri);
@@ -952,7 +958,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
         else
         {
             OsSysLog::add(FAC_AUTH, PRI_ERR,
-                          "SipLineMgr::buildAuthenticatedRequest "
+                          "SipLineMgr::buildAuthorizationRequest "
                           "could not find auth credentials for callid='%s' "
                           "lineId='%s' realm='%s'",
                           callId.data(), fromUri.data(), realm.data()) ;
@@ -964,7 +970,7 @@ UtlBoolean SipLineMgr::buildAuthenticatedRequest(
     else
     {
        OsSysLog::add(FAC_AUTH, PRI_ERR,
-                     "SipLineMgr::buildAuthenticatedRequest "
+                     "SipLineMgr::buildAuthorizationRequest "
                      "previous authentication failed for callid='%s'",
                      callId.data());
     }

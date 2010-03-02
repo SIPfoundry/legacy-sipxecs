@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -332,7 +332,7 @@ public:
             from.setFieldParameter("tag", "5678") ;
             line.getPreferredContactUri(contact) ;
             buildRequestAndResponse(from, contact, request, response) ;
-            bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
+            bRC = mgr.buildAuthorizationRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
 
@@ -346,7 +346,7 @@ public:
             from.setFieldParameter("tag", "5678") ;
             contact = identity ;
             buildRequestAndResponse(from, contact, request, response) ;
-            bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
+            bRC = mgr.buildAuthorizationRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
 
@@ -359,7 +359,7 @@ public:
             from = Url("<sip:unknown@example.com>;tag=5678", Url::NameAddr, NULL) ;
             contact = Url("sip:unknown@example.com", Url::NameAddr, NULL) ;
             buildRequestAndResponse(from, contact, request, response) ;
-            bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
+            bRC = mgr.buildAuthorizationRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(!bRC) ;
         }
 
@@ -373,7 +373,7 @@ public:
             contact = Url("sip:unknown@example.com", Url::NameAddr, NULL) ;
             contact.setUrlParameter("LINEID", lineId) ;
             buildRequestAndResponse(from, contact, request, response) ;
-            bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
+            bRC = mgr.buildAuthorizationRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
 
@@ -387,7 +387,7 @@ public:
             contact = Url("sip:127.0.0.1", Url::NameAddr, NULL) ;
             contact.setUrlParameter("LINEID", lineId) ;
             buildRequestAndResponse(from, contact, request, response) ;
-            bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
+            bRC = mgr.buildAuthorizationRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
 
@@ -401,7 +401,7 @@ public:
             from.setFieldParameter("tag", "5678") ;
             contact = Url("sip:127.0.0.1", Url::NameAddr, NULL) ;
             buildRequestAndResponse(from, contact, request, response) ;
-            bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
+            bRC = mgr.buildAuthorizationRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
 
@@ -415,7 +415,7 @@ public:
             from.setFieldParameter("tag", "5678") ;
             contact = Url("sip:127.0.0.1", Url::NameAddr, NULL) ;
             buildRequestAndResponse(from, contact, request, response) ;
-            bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
+            bRC = mgr.buildAuthorizationRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
 
@@ -428,7 +428,7 @@ public:
             from = Url("<sip:unknown@example.com>;tag=5678", Url::NameAddr, NULL) ;
             contact = alias;
             buildRequestAndResponse(from, contact, request, response) ;
-            bRC = mgr.buildAuthenticatedRequest(&response, &request, &requestWithAuth);
+            bRC = mgr.buildAuthorizationRequest(&response, &request, &requestWithAuth);
             CPPUNIT_ASSERT(bRC) ;
         }
     }

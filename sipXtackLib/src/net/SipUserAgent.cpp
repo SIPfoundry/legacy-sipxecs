@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -3818,7 +3818,7 @@ UtlBoolean SipUserAgent::resendWithAuthorization(SipMessage* response,
 
         OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                       "SipUserAgent::resendWithAuthorization ");
-        if ( mpLineMgr && mpLineMgr->buildAuthenticatedRequest(response, request,authorizedRequest))
+        if ( mpLineMgr && mpLineMgr->buildAuthorizationRequest(response, request,authorizedRequest))
         {
            requestResent = send(*authorizedRequest);
            // Send the response back to the application

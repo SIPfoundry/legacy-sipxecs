@@ -2535,33 +2535,35 @@ void HttpMessage::getFirstHeaderLinePart(ssize_t partIndex, UtlString* part, cha
 }
 
 // Response access methods
-   void HttpMessage::setResponseFirstHeaderLine(const char* protocol,
-           int statusCode, const char* statusText)
-   {
-           char codeBuffer[HTTP_LONG_INT_CHARS];
-           sprintf(codeBuffer, "%d", statusCode);
+void HttpMessage::setResponseFirstHeaderLine(const char* protocol,
+                                             int statusCode, const char* statusText)
+{
+    char codeBuffer[HTTP_LONG_INT_CHARS];
+    sprintf(codeBuffer, "%d", statusCode);
 
-           setFirstHeaderLine(protocol, codeBuffer, statusText);
-   }
+    setFirstHeaderLine(protocol, codeBuffer, statusText);
+}
 
-   void HttpMessage::getResponseProtocol(UtlString* protocol) const
-   {
-           getFirstHeaderLinePart(0, protocol);
-   }
+void HttpMessage::getResponseProtocol(UtlString* protocol) const
+{
+    getFirstHeaderLinePart(0, protocol);
+}
 
-        int HttpMessage::getResponseStatusCode() const
-        {
-                UtlString codeString;
-           getFirstHeaderLinePart(1, &codeString);
-                int ret = atoi(codeString.data());
-           return ret;
-        }
+int HttpMessage::getResponseStatusCode() const
+{
+    UtlString codeString;
 
-        void HttpMessage::getResponseStatusText(UtlString* text) const
-        {
-           getFirstHeaderLinePart(2, text);
-                *text = text->strip(UtlString::both);
-        }
+    getFirstHeaderLinePart(1, &codeString);
+    int ret = atoi(codeString.data());
+
+    return ret;
+}
+
+void HttpMessage::getResponseStatusText(UtlString* text) const
+{
+    getFirstHeaderLinePart(2, text);
+    *text = text->strip(UtlString::both);
+}
 
 // Request access methods
 void HttpMessage::setRequestFirstHeaderLine(const char* method,
@@ -2578,33 +2580,33 @@ void HttpMessage::setRequestFirstHeaderLine(const char* method,
    setFirstHeaderLine(method, uri, protocol);
 }
 
-     void HttpMessage::getRequestMethod(UtlString* method) const
-         {
-                getFirstHeaderLinePart(0, method);
-                *method =method->strip(UtlString::both);
-         }
+void HttpMessage::getRequestMethod(UtlString* method) const
+{
+    getFirstHeaderLinePart(0, method);
+    *method =method->strip(UtlString::both);
+}
 
-     void HttpMessage::getRequestUri(UtlString* uri) const
-         {
-                getFirstHeaderLinePart(1, uri);
-         }
+void HttpMessage::getRequestUri(UtlString* uri) const
+{
+    getFirstHeaderLinePart(1, uri);
+}
 
-     void HttpMessage::getRequestProtocol(UtlString* protocol) const
-         {
-                getFirstHeaderLinePart(2, protocol);
-                *protocol = protocol->strip(UtlString::both);
+void HttpMessage::getRequestProtocol(UtlString* protocol) const
+{
+    getFirstHeaderLinePart(2, protocol);
+    *protocol = protocol->strip(UtlString::both);
+}
 
-         }
+void HttpMessage::changeRequestUri(const char* newUri)
+{
+    UtlString method;
+    UtlString protocol;
+    getFirstHeaderLinePart(0, &method);
+    getFirstHeaderLinePart(2, &protocol);
+    setRequestFirstHeaderLine(method.data(), newUri,
+                              protocol.data());
+}
 
-         void HttpMessage::changeRequestUri(const char* newUri)
-         {
-                 UtlString method;
-                 UtlString protocol;
-                 getFirstHeaderLinePart(0, &method);
-                 getFirstHeaderLinePart(2, &protocol);
-                 setRequestFirstHeaderLine(method.data(), newUri,
-                         protocol.data());
-         }
 
 UtlBoolean HttpMessage::getAuthenticationScheme(UtlString* scheme,
                                                 HttpMessage::HttpEndpointEnum authorizationEntity
