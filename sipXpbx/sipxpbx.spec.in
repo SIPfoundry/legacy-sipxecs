@@ -176,6 +176,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/mediaserver
 
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/log/sipxpbx/phone
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/webdav
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/var
 
 %files devel
 %defattr(644,root,root,755)
