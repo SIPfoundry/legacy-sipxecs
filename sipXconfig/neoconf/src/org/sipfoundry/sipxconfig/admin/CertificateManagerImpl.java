@@ -24,6 +24,9 @@ import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +50,8 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
+
+import static org.apache.commons.lang.StringUtils.join;
 
 /**
  * Backup provides Java interface to backup scripts
@@ -380,8 +385,25 @@ public class CertificateManagerImpl implements CertificateManager {
                     filesToDelete.add(getCAFile(file.getName()));
                 }
             }
-            for (File file : filesToDelete) {
-                FileUtils.deleteQuietly(file);
+            HttpClient httpClient = getNewHttpClient();
+            Location[] locations = m_locationsManager.getLocations();
+            for (Location curLocation : locations) {
+                for (File file : filesToDelete) {
+                    String remoteFileName = join(new Object[] {curLocation.getHttpsServerUrl(),
+                            file.getAbsolutePath()});
+                    DeleteMethod httpDelete = new DeleteMethod(remoteFileName);
+                    try {
+                        int statusCode = httpClient.executeMethod(httpDelete);
+                        if (statusCode != 200) {
+                            throw new UserException("&error.https.server.status.code", curLocation.getFqdn(), String
+                                    .valueOf(statusCode));
+                        }
+                    } catch (HttpException ex) {
+                        throw new UserException("&error.https.server", curLocation.getFqdn(), ex.getMessage());
+                    } finally {
+                        httpDelete.releaseConnection();
+                    }
+                }
             }
         } catch (IOException ex) {
             throw new UserException("&error.delete.cert");
@@ -583,5 +605,9 @@ public class CertificateManagerImpl implements CertificateManager {
     @Required
     public void setLocationsManager(LocationsManager  locationsManager) {
         m_locationsManager = locationsManager;
+    }
+
+    protected HttpClient getNewHttpClient() {
+        return new HttpClient();
     }
 }

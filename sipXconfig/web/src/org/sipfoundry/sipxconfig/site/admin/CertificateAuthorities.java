@@ -132,6 +132,8 @@ public abstract class CertificateAuthorities extends BaseComponent {
     public void deleteCertificates() {
         Collection<CertificateDecorator> listCert = getSelections().getAllSelected();
         getCertificateManager().deleteCAs(listCert);
+        getCertificateManager().rehashCertificates();
+        getCertificateManager().restartRemote();
         getCertificateManager().generateKeyStores();
     }
 }

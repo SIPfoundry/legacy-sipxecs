@@ -18,7 +18,14 @@ import java.util.Set;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+
+import static org.easymock.classextension.EasyMock.*;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -38,10 +45,11 @@ public class CertificateManagerTest extends TestCase {
 
     private CertificateManagerImpl m_manager;
     private Location m_primaryLocation;
+    private static String DELETE = "DELETE";
 
     @Override
     protected void setUp() {
-        m_manager = new CertificateManagerImpl();
+        m_manager = createCertificateManager();
 
         m_manager.setCertDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
         m_manager.setSslDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
@@ -51,6 +59,31 @@ public class CertificateManagerTest extends TestCase {
         m_manager.setLibExecDirectory(TestUtil.getTestSourceDirectory(this.getClass()));
 
         m_primaryLocation = TestUtil.createDefaultLocation();
+    }
+
+    private CertificateManagerImpl createCertificateManager() {
+        return new CertificateManagerImpl() {
+            @Override
+            protected HttpClient getNewHttpClient() {
+                return new HttpClient() {
+                    @Override
+                    public int executeMethod(HttpMethod method) {
+                        if (StringUtils.equals(method.getName(), DELETE)) {
+                            try{
+                                URI reqURI = method.getURI();
+                                FileUtils.deleteQuietly(new File(reqURI.getPath()));
+                            } catch (URIException uex) {
+                                //do nothing
+                            }
+                            return 200;
+                        }
+                        else {
+                            return 501;
+                        }
+                    }
+                };
+            }
+        };
     }
 
     public void testWriteAndLoadCertPropertiesFile() {
@@ -156,6 +189,16 @@ public class CertificateManagerTest extends TestCase {
                 + File.separator + "validCA.crt"), tmpCAFile);
         FileUtils.copyFile(tmpCAFile, caFile);
         m_manager.deleteCRTAuthorityTmpDirectory();
+
+        LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
+        locationsManager.getLocations();
+        EasyMock.expectLastCall().andReturn(new Location[] {m_primaryLocation}).anyTimes();
+
+        m_primaryLocation.setFqdn("example.com");
+        m_manager.setLocationsManager(locationsManager);
+
+        replay(locationsManager);
+
         Set<CertificateDecorator> certs =  m_manager.listCertificates();
         assertEquals(2, certs.size());
 
