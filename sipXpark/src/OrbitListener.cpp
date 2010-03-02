@@ -1239,20 +1239,15 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
                        timeout, keycode, capacity);
 
          // Create a player and start to play out the file
-         if (pThisCall->playAudio() == OS_SUCCESS)
+         if (pThisCall->playAudio() != OS_SUCCESS)
          {
-            // Start the time-out timer if necessary.
-            pThisCall->startEscapeTimer(parker, timeout, keycode);
-         }
-         else
-         {
-            // Drop the call
             OsSysLog::add(FAC_PARK, PRI_WARNING,
                           "OrbitListener::setUpParkedCallEstablished "
-                          "Dropping callId '%s' because playAudio() failed",
+                          "No audio for callId '%s' because playAudio() failed",
                           callId.data());
-            mpCallManager->drop(callId);
          }
+         // Start the time-out timer if necessary.
+         pThisCall->startEscapeTimer(parker, timeout, keycode);
       }
       else
       {
@@ -1293,14 +1288,14 @@ void OrbitListener::setUpParkedCallEstablished(const UtlString& callId,
          int timeout, keycode, capacity;
          validateOrbit(callId, address, orbit, audio,
                        timeout, keycode, capacity);
-         if (pThisCall->playAudio() == OS_SUCCESS)
+         if (pThisCall->playAudio() != OS_SUCCESS)
          {
-            OsSysLog::add(FAC_PARK, PRI_DEBUG,
+            OsSysLog::add(FAC_PARK, PRI_WARNING,
                           "OrbitListener::setUpParkedCallEstablished "
-                          "playAudio successfully callId= %s",
+                          "No audio for callId= %s because playAudio() failed",
                           callId.data());
-            pThisCall->startEscapeTimer(parker, timeout, keycode);
          }
+         pThisCall->startEscapeTimer(parker, timeout, keycode);
       }
    }
    else

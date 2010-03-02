@@ -169,8 +169,8 @@ OsStatus ParkedCallObject::playAudio()
    {
       OsSysLog::add(FAC_PARK, PRI_ERR,
                     "ParkedCallObject::playAudio "
-                    "CallId %s: Failed to create player",
-                    mCurrentCallId.data());
+                    "CallId %s: Failed to create player for '%s'",
+                    mCurrentCallId.data(), mFile.data());
       return OS_FAILED;
    }
 
@@ -179,8 +179,8 @@ OsStatus ParkedCallObject::playAudio()
    if (mpPlayer->realize(TRUE) != OS_SUCCESS)
    {
       OsSysLog::add(FAC_PARK, PRI_ERR,
-                    "ParkedCallObject::playAudio - CallId %s: Failed to realize player",
-                    mCurrentCallId.data());
+                    "ParkedCallObject::playAudio - CallId %s: Failed to realize player for '%s'",
+                    mCurrentCallId.data(), mFile.data());
       return OS_FAILED;
    }
 
