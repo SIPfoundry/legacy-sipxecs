@@ -578,7 +578,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
       OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Create - Writing out the config file before shutting down the server");
       mpXmlConfigDoc->SaveFile();
       // Flag to restart the server.
-      gShutdownFlag = true;
+      // gShutdownFlag = true;  // No longer self-restart.  Instead rely on sipXsupervisor.
    }
    else {
       mOperationalState = mAdministrativeState;
@@ -872,7 +872,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
          OsSysLog::add(LOG_FACILITY, PRI_INFO, "ACDServer::Set - Writing out the config file before shutting down the server");
          mpXmlConfigDoc->SaveFile();
          // Flag to restart the server.
-         gShutdownFlag = true;
+         // gShutdownFlag = true;  // No longer self-restart.  Instead rely on sipXsupervisor.
       }
       else {
          // sipXconfig always sets ADMIN_STATE to active as the last step
@@ -888,7 +888,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
          // and sipXconfig would query it after making a change to see if a
          // restart is required.  If so, it would send a RESTART action command
          // (currently unused and uncoded)
-         gRestartFlag = true ;
+         // gRestartFlag = true; // Do not schedule a supervisor restart.  Let sipXconfig do that.
 
          mOperationalState = mAdministrativeState;
          setPSAttribute(pInstanceNode, ADMINISTRATIVE_STATE_TAG, mAdministrativeState);
