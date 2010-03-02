@@ -212,10 +212,8 @@ public class SipClientTransaction extends SipTransaction implements
                      * If tester is in Dialog Stateful Mode.
                      */
                     if ( dialog != null ) {
-                        SipResponse sipResponse = (SipResponse) this.triggeringMessage;
                         
-                        Request ack = dialog.createAck(SipUtilities.getSequenceNumber(sipResponse
-                            .getResponseEvent().getResponse()));
+                        Request ack = dialog.createAck(SipUtilities.getSequenceNumber(sipDialog.getLastResponse()));
                         SipUtilities.copyHeaders(this.sipRequest,
                             this.triggeringMessage, ack, this.endpoint.getTraceEndpoint());
                         sipDialog.setRequestToSend(ack,spiral);
@@ -235,11 +233,7 @@ public class SipClientTransaction extends SipTransaction implements
                     if (triggeringMessage instanceof SipRequest) {
                         logger.debug("trigger = " + triggeringMessage.getSipMessage());
                     }
-                   //  String dialogId = ((SIPRequest) sipRequest).getDialogId(false);
-
-                    // logger.debug("dialogId " + dialogId);
-                   // SipDialog sipDialog = SipTester.getDialog(this.sipRequest,false,this.endpoint);
-
+                   
                     SipResponse sipResponse = (SipResponse) this.triggeringMessage;
                     Dialog dialog = sipResponse.getResponseEvent().getDialog();
                     if (dialog != null) {
@@ -278,11 +272,6 @@ public class SipClientTransaction extends SipTransaction implements
                     }
 
                 } else {
-                    // String dialogId = ((SIPRequest) requestExt).getDialogId(false);
-                	
-                	//String dialogId = SipUtilities.getDialogId(requestExt, false, endpoint.getTraceEndpoint().getBehavior());
-
-                    // logger.debug("dialogId " + dialogId);
                     SipDialog sipDialog = SipTester.getDialog(this.sipRequest,false,this.endpoint);
                     logger.debug("sipDialog = " + sipDialog + "frameId = "
                             + this.sipRequest.getFrameId() + " method = "
