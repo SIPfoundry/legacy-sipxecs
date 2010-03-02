@@ -11,6 +11,18 @@ ${setting.name}=""
 #end
 #end
 #end
+#macro (computeCodecSettings $setting)
+#set ($priorities = $priorityCalculator.getCodecPriorities($setting))
+#set ($priorityKeys = $priorities.keySet())
+#foreach ($priority in $priorityKeys)
+#if ($priorities.get($priority) != "")
+codecs:${priority}:enabled="true"
+codecs:${priority}:priority="${priorities.get($priority)}"
+#else
+codecs:${priority}:enabled="false"
+#end
+#end
+#end
 [DATA]
 Success=1
 
@@ -43,16 +55,13 @@ proxies:proxy${line_index}:password=""
 #end
 #end
 #foreach ($setting in $phone_leaf_settings)
+#if($setting.name != "voiceCodecs" && $setting.name != "videoCodecs")
 #generate_setting($setting)
+#end
 #end
 
 #foreach ($setting in $phone_leaf_settings)
-#if($setting.profileName == "codec_name")
-#if($setting.value != "0.0")
-codecs:${setting.name}:enabled="true"
-codecs:${setting.name}:priority="${setting.value}"
-#else
-codecs:${setting.name}:enabled="false"
-#end
+#if($setting.name == "voiceCodecs" || $setting.name == "videoCodecs")
+#computeCodecSettings($setting)
 #end
 #end

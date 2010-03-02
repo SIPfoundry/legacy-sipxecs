@@ -11,9 +11,12 @@ package org.sipfoundry.sipxconfig.phone.counterpath;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.im.ImAccount;
@@ -21,6 +24,7 @@ import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 
 public class CounterpathProfileContext extends ProfileContext<Phone> {
     public CounterpathProfileContext(Phone device, String profileTemplate) {
@@ -49,6 +53,8 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
         context.put("line_sip_settings", lineSipSettings);
         context.put("line_xmpp_settings", lineXmppSettings);
         context.put("max_lines", getDevice().getModel().getMaxLineCount());
+
+        context.put("priorityCalculator", new PriorityCalculator());
 
         return context;
     }
@@ -90,4 +96,26 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
             return "xmpp-config".equals(setting.getParent().getProfileName());
         }
     }
+
+    public class PriorityCalculator {
+        public Map<String, String> getCodecPriorities(Setting setting) {
+            Map<String, String> priorities = new LinkedHashMap<String, String>();
+            List<String> values = (List<String>) setting.getTypedValue();
+            for (String codec : getAllCodecs(setting)) {
+                priorities.put(codec, StringUtils.EMPTY);
+            }
+            int priority = 1;
+            for (String value : values) {
+                priorities.put(value, (priority++) + ".0");
+            }
+            return priorities;
+        }
+
+        private Set<String> getAllCodecs(Setting codecs) {
+            MultiEnumSetting type = (MultiEnumSetting) codecs.getType();
+            Map<String, String> allCodecs = type.getEnums();
+            return allCodecs.keySet();
+        }
+    }
+
 }

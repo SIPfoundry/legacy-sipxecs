@@ -12,87 +12,79 @@
       </false>
     </boolean>
   </type>
-  <type id="codec-preference">
-    <enum>
+  <type id="preffered-voice-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
       <option>
-        <value>0.0</value>
+        <value>broadvoice32</value>
       </option>
       <option>
-        <value>1.0</value>
+        <value>broadvoice32_fec</value>
       </option>
       <option>
-        <value>2.0</value>
+        <value>dvi4</value>
       </option>
       <option>
-        <value>3.0</value>
+        <value>dvi4_wb</value>
       </option>
       <option>
-        <value>4.0</value>
+        <value>evrc</value>
       </option>
       <option>
-        <value>5.0</value>
+        <value>g711a</value>
       </option>
       <option>
-        <value>6.0</value>
+        <value>g711u</value>
       </option>
       <option>
-        <value>7.0</value>
+        <value>g722</value>
       </option>
       <option>
-        <value>8.0</value>
+        <value>g722_2_wb</value>
       </option>
       <option>
-        <value>9.0</value>
+        <value>g723</value>
       </option>
       <option>
-        <value>10.0</value>
+        <value>g726-32</value>
       </option>
       <option>
-        <value>11.0</value>
+        <value>g729</value>
       </option>
       <option>
-        <value>12.0</value>
+        <value>gsm</value>
       </option>
       <option>
-        <value>13.0</value>
+        <value>ilbc</value>
       </option>
       <option>
-        <value>14.0</value>
+        <value>l16_wb</value>
       </option>
       <option>
-        <value>15.0</value>
+        <value>speex</value>
       </option>
       <option>
-        <value>16.0</value>
+        <value>speex_fec</value>
       </option>
       <option>
-        <value>17.0</value>
+        <value>speex_wb</value>
       </option>
       <option>
-        <value>18.0</value>
+        <value>speex_wb_fec</value>
+      </option>
+    </multi-enum>
+  </type>
+  <type id="preffered-video-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>h263</value>
       </option>
       <option>
-        <value>19.0</value>
+        <value>h263_1998</value>
       </option>
       <option>
-        <value>20.0</value>
+        <value>h264_unified</value>
       </option>
-      <option>
-        <value>21.0</value>
-      </option>
-      <option>
-        <value>22.0</value>
-      </option>
-      <option>
-        <value>23.0</value>
-      </option>
-      <option>
-        <value>24.0</value>
-      </option>
-      <option>
-        <value>25.0</value>
-      </option>
-    </enum>
+    </multi-enum>
   </type>
   <type id="log-level">
     <enum>
@@ -429,133 +421,32 @@
     </group>
   </group>
   <group name="codecs">
-    <group name="codec_preference">
-      <group name="audio_codecs"/>
-      <setting name="broadvoice32">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>2.0</value>
-      </setting>
-      <setting name="broadvoice32_fec">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="dvi4">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="dvi4_wb">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="evrc">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="g711a">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>10.0</value>
-      </setting>
-      <setting name="g711u">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>6.0</value>
-      </setting>
-      <setting name="g722">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>1.0</value>
-      </setting>
-      <setting name="g722_2_wb">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="g723">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="g726-32">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="g729">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>12.0</value>
-      </setting>
-      <setting name="gsm">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="ilbc">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>9.0</value>
-      </setting>
-      <setting name="l16_wb">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="speex">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="speex_fec">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="speex_wb">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="speex_wb_fec">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-     <group name="video_codecs"/>
-      <setting name="h263">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>1.0</value>
-      </setting>
-      <setting name="h263_1998">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
-      </setting>
-      <setting name="h264_unified">
-        <profileName>codec_name</profileName>
-        <type refid="codec-preference"/>
-        <value>0.0</value>
+    <group name="audio_codecs">
+      <setting name="voiceCodecs">
+        <type refid="preffered-voice-codecs-type"/>
+        <value>g722|broadvoice32|g711u|ilbc|g711a|g729</value>
       </setting>
     </group>
-    <group name="general_settings"/>
-    <setting name="codecs:h263:enable_CIF">
-      <type refid="true-false"/>
-      <value>false</value>
-    </setting>
-    <setting name="system:network:honor_first_codec" advanced="yes">
-      <type refid="true-false"/>
-      <value>true</value>
-    </setting>
-    <setting name="codecs:codec_selection_manager:enable" advanced="yes">
-      <type refid="true-false"/>
-      <value>false</value>
-    </setting>
+    <group name="video_codecs">
+      <setting name="videoCodecs">
+        <type refid="preffered-video-codecs-type"/>
+        <value>h263</value>
+      </setting>
+    </group>
+    <group name="general_settings">
+      <setting name="codecs:h263:enable_CIF">
+        <type refid="true-false"/>
+        <value>false</value>
+      </setting>
+      <setting name="system:network:honor_first_codec" advanced="yes">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+      <setting name="codecs:codec_selection_manager:enable" advanced="yes">
+        <type refid="true-false"/>
+        <value>false</value>
+      </setting>
+    </group>
   </group>
   <group name="provisioning">
     <setting name="feature:call:enable_recording">
