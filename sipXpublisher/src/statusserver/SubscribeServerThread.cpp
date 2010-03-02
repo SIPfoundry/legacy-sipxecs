@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -527,7 +527,7 @@ SubscribeServerThread::isAuthorized (
     SipMessage *responseMessage,
     StatusPluginReference* pluginContainer)
 {
-    UtlBoolean isAuthorized = FALSE;
+    UtlBoolean retIsAuthorized = FALSE;
     UtlString  requestUser;
     Url       identityUrl;
     message->getUri(NULL, NULL, NULL, &requestUser);
@@ -584,13 +584,13 @@ SubscribeServerThread::isAuthorized (
                 {
                    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
                         " All permissions matched - request is AUTHORIZED");
-                    isAuthorized = TRUE;
+                    retIsAuthorized = TRUE;
                 }
                 else
                 {
                     OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
                         " One or more Permissions did not match - request is UNAUTHORIZED");
-                    isAuthorized = FALSE;
+                    retIsAuthorized = FALSE;
                 }
             }
             else
@@ -598,39 +598,38 @@ SubscribeServerThread::isAuthorized (
                 // one or more permissions needed by plugin and none in IMDB => UNAUTHORIZED
                 OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
                     " No Permissions in IMDB - request is UNAUTHORIZED");
-                isAuthorized = FALSE;
+                retIsAuthorized = FALSE;
             }
         }
         else
         {
             OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthorized() -"
                 " No Permissions required - request is always AUTHORIZED");
-            isAuthorized = TRUE;
+            retIsAuthorized = TRUE;
         }
     }
     //set the error response message id unauthorized
-    if(!isAuthorized)
+    if(!retIsAuthorized)
     {
         responseMessage->setResponseData(message,SIP_FORBIDDEN_CODE, SIP_FORBIDDEN_TEXT);
     }
-    return isAuthorized;
+    return retIsAuthorized;
 }
 
 UtlBoolean
-SubscribeServerThread::isAuthenticated (
-    const SipMessage* message,
-    SipMessage *responseMessage,
-    UtlString& authenticatedUser,
-    UtlString& authenticatedRealm )
+SubscribeServerThread::isAuthenticated (const SipMessage* message,
+                                        SipMessage *responseMessage,
+                                        UtlString& authenticatedUser,
+                                        UtlString& authenticatedRealm )
 {
-    UtlBoolean isAuthorized = FALSE;
+    UtlBoolean retIsAuthenticated = FALSE;
 
     // if we are not using a database we must assume authenticated
     if ( !mIsCredentialDB )
     {
         OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
             ":: No Credential DB - request is always AUTHENTICATED");
-        isAuthorized = TRUE;
+        retIsAuthenticated = TRUE;
     } else
     {
         // realm and auth type should be default for server
@@ -639,116 +638,149 @@ SubscribeServerThread::isAuthenticated (
                 mRealm.data());
 
         UtlString requestNonce;
+        UtlString requestCnonce;
+        UtlString requestNonceCount;
+        UtlString requestQop;
         UtlString requestRealm;
         UtlString requestUser;
         UtlString requestUserBase;
         UtlString requestUriParam;
         int requestAuthIndex = 0;
-        // can have multiphe authorization / authorization-proxy headers
+        // can have multiple authorization / authorization-proxy headers
         // headers search for a realm match
-        while ( message->getDigestAuthorizationData (
-                &requestUser,
-                &requestRealm,
-                &requestNonce,
-                NULL,
-                NULL,
-                &requestUriParam,
-                HttpMessage::SERVER,
-                requestAuthIndex,
-                &requestUserBase) )
+        while ( message->getDigestAuthorizationData ( &requestUser,
+                                                      &requestRealm,
+                                                      &requestNonce,
+                                                      NULL, // opaque
+                                                      NULL, // response
+                                                      &requestUriParam,
+                                                      &requestCnonce,
+                                                      &requestNonceCount,
+                                                      &requestQop,
+                                                      HttpMessage::SERVER,
+                                                      requestAuthIndex,
+                                                      &requestUserBase) )
         {
-            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-                   "- Authorization header set in message, validate it.\n"
-                   "- reqRealm=\"%s\", reqUser=\"%s\", reqUserBase=\"%s\"",
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG, 
+                          "SubscribeServerThread::isAuthenticated() "
+                          "- Authorization header set in message, validate it.\n"
+                          "- reqRealm=\"%s\", reqUser=\"%s\", reqUserBase=\"%s\"",
                           requestRealm.data(), requestUser.data(),
                           requestUserBase.data());
 
-            // case sensitive comparison of realm
-            if ( mRealm.compareTo( requestRealm ) == 0 )
+            UtlString qopType;
+            UtlString callId;
+            UtlString fromTag;
+            long     nonceExpires = (5*60); // five minutes
+
+            Url fromUrl;
+            message->getFromUrl(fromUrl);
+            fromUrl.getFieldParameter("tag", fromTag);
+            UtlString reqUri;
+            message->getRequestUri(&reqUri);
+            Url mailboxUrl(reqUri);
+
+            message->getCallIdField(&callId);
+
+            if (mRealm.compareTo(requestRealm) ) // case sensitive check that realm is correct
             {
-                OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated()"
-                    "- Realm matches, now validate userid/password");
+               OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                             "SubscribeServerThread::isAuthenticated() "
+                             "Realm does not match");
+            }
 
-                // See if the nonce is valid - see net/SipNonceDb.cpp
-                UtlString reqUri;
-                message->getRequestUri(&reqUri);
-                Url mailboxUrl(reqUri);
+            // See if the nonce is valid - see net/SipNonceDb.cpp
+            else if (!mNonceDb.isNonceValid(requestNonce, callId, fromTag, mRealm, nonceExpires))
+            {
+                OsSysLog::add(FAC_AUTH, PRI_INFO,
+                              "SubscribeServerThread::isAuthenticated() "
+                              "Invalid NONCE: '%s' found for mailboxUrl '%s' "
+                              "realm: '%s' user: '%s' "
+                              "cnonce: '%s' nc: '%s' qop: '%s' "
+                              "expiration: %ld",
+                              requestNonce.data(), mailboxUrl.toString().data(),
+                              mRealm.data(), requestUser.data(), 
+                              requestCnonce.data(), requestNonceCount.data(), 
+                              requestQop.data(), nonceExpires);
+            }
 
+            // verify that qop,cnonce, nonceCount are compatible
+            else if (message->verifyQopConsistency(requestCnonce.data(),
+                                                     requestNonceCount.data(),
+                                                     &requestQop,
+                                                     qopType)
+                     >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
+            {
+                OsSysLog::add(FAC_AUTH, PRI_INFO,
+                              "SubscribeServerThread::isAuthenticated() "
+                              "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
+                              requestQop.data(), requestCnonce.data(), requestNonceCount.data());
+            }
+
+            else // realm, nonce and qop are all ok
+            {    
                 UtlString authTypeDB;
                 UtlString passTokenDB;
-                UtlString callId;
-                UtlString fromTag;
-                long     nonceExpires = (5*60); // five minutes
 
-                Url fromUrl;
-                message->getFromUrl(fromUrl);
-                fromUrl.getFieldParameter("tag", fromTag);
-
-                message->getCallIdField(&callId);
-
-                if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
-                                          mRealm, nonceExpires))
+                // then get the credentials for this realm
+                if (CredentialDB::getInstance()->getCredentialByUserid(mailboxUrl,
+                                                                       mRealm,
+                                                                       requestUserBase,
+                                                                       passTokenDB,
+                                                                       authTypeDB))
                 {
-                    // then get the credentials for this realm
-                    if (CredentialDB::getInstance()->
-                        getCredentialByUserid(
-                           mailboxUrl,
-                           mRealm,
-                           requestUserBase,
-                           passTokenDB,
-                           authTypeDB))
-                    {
-                        // the Digest Password is calculated from the request
-                        // user, passtoken, nonce and request URI
+                    // the Digest Password is calculated from the request
+                    // user, passtoken, nonce and request URI
 
-                        isAuthorized =
-                           message->verifyMd5Authorization(requestUser.data(),
-                                                           passTokenDB.data(),
-                                                           requestNonce,
-                                                           requestRealm.data(),
-                                                           requestUriParam.data());
-                        if (isAuthorized)
-                        {
-                            // can have multiple credentials for same realm so only break out
-                            // when we have a positive match
-                            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-                                "- request is AUTHENTICATED");
-                            // copy the authenticated user/realm for subsequent authorization
-                            authenticatedUser = requestUserBase;
-                            authenticatedRealm = requestRealm;
-                            break;
-                        }
-                        else
-                        {
-                            OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-                                "- digest authorization failed");
-                        }
+                    retIsAuthenticated =
+                       message->verifyMd5Authorization(requestUser.data(),
+                                                       passTokenDB.data(),
+                                                       requestNonce.data(),
+                                                       requestRealm.data(),
+                                                       requestCnonce.data(),
+                                                       requestNonceCount.data(),
+                                                       requestQop.data(),
+                                                       requestUriParam.data());
+                    if (retIsAuthenticated)
+                    {
+                        // can have multiple credentials for same realm so only break out
+                        // when we have a positive match
+                        OsSysLog::add(FAC_AUTH, PRI_DEBUG, 
+                                      "SubscribeServerThread::isAuthenticated() "
+                                      "- request is AUTHENTICATED");
+                        // copy the authenticated user/realm for subsequent authorization
+                        authenticatedUser = requestUserBase;
+                        authenticatedRealm = requestRealm;
+                        break;
                     }
                     else
                     {
-                        OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-                            "- No Credentials for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"",
-                            mailboxUrl.toString().data(),
-                            requestRealm.data(),
-                            requestUser.data());
+                        OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                                      "SubscribeServerThread::isAuthenticated() "
+                                      "- digest authorization failed "
+                                      "nonce \"%s\", cnonce \"%s\" for "
+                                      "mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"",
+                                      requestNonce.data(),
+                                      requestCnonce.data(),
+                                      mailboxUrl.toString().data(),
+                                      requestRealm.data(),
+                                      requestUser.data());
                     }
                 }
                 else
                 {
-                    OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::isAuthenticated() "
-                           "- Invalid nonce \"%s\" for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"",
-                           requestNonce.data(),
-                           mailboxUrl.toString().data(),
-                           requestRealm.data(),
-                           requestUser.data());
-
-                }
-                // end check credentials
+                    OsSysLog::add(FAC_AUTH, PRI_DEBUG, 
+                                  "SubscribeServerThread::isAuthenticated() "
+                                  "- No Credentials for mailboxUrl=\"%s\", reqRealm=\"%s\", reqUser=\"%s\"",
+                        mailboxUrl.toString().data(),
+                        requestRealm.data(),
+                        requestUser.data());
+                }  // end check credentials
             }
             requestAuthIndex++;
         } //end while
 
-        if ( !isAuthorized )
+        if ( !retIsAuthenticated )
         {
             // Generate the 401 Unauthorized response to challenge for credentials
             // Use the SipNonceDB to generate a nonce
@@ -770,8 +802,8 @@ SubscribeServerThread::isAuthenticated (
             responseMessage->setRequestUnauthorized(message, HTTP_DIGEST_AUTHENTICATION,
                                                     mRealm, newNonce);
         }
-    }
-    return isAuthorized;
+    }  // end DB exists
+    return retIsAuthenticated;
 }
 
 UtlBoolean

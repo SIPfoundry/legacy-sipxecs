@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -114,8 +114,10 @@ UtlBoolean SipNonceDb::isNonceValid(const UtlString& nonce,
 
    if (nonce.length() == (MD5_SIZE + HEX_TIMESTAMP_LENGTH))
    {
-      UtlString timestamp = nonce(MD5_SIZE, HEX_TIMESTAMP_LENGTH);
-      UtlString rcvdSignature = nonce(0,MD5_SIZE);
+      UtlString timestamp = nonce(MD5_SIZE, HEX_TIMESTAMP_LENGTH);   // get timestamp from nonce string
+      UtlString rcvdSignature = nonce(0,MD5_SIZE);                   // get signature from nonce string
+
+      // calculate valid signature for supplied data using known secret
       UtlString msgSignature(nonceSignature(callId, fromTag, realm, timestamp.data()));
       if (0 == rcvdSignature.compareTo(msgSignature))
       {

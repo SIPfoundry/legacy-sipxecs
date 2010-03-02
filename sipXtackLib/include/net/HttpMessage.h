@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -104,6 +104,7 @@
 #define HTTP_AUTHENTICATION_USERNAME_TOKEN  "username"
 #define HTTP_AUTHENTICATION_URI_TOKEN       "uri"
 #define HTTP_AUTHENTICATION_RESPONSE_TOKEN  "response"
+#define HTTP_QOP_AUTH_DELIMITER ","
 
 // HTTP_CONTENT_TRANSFER_ENCODING types
 #define HTTP_CONTENT_TRANSFER_ENCODING_BINARY "binary"
@@ -185,6 +186,13 @@ public:
     {
         SERVER = 0,
         PROXY
+    };
+
+    enum AuthQopValues
+    {
+        AUTH_QOP_EMPTY = 0,
+        AUTH_QOP_HAS_AUTH,
+        AUTH_QOP_NOT_SUPPORTED   // put supported values ahead of this line
     };
 
 /* ============================ CREATORS ================================== */
@@ -672,7 +680,7 @@ public:
                                     const char* cnonce,
                                     const char* opaque,
                                     const char* qop,
-                                    int nonceCount,
+                                    const char* nonceCount,
                                     HttpEndpointEnum authorizationEntity
                                     );
 
@@ -696,6 +704,9 @@ public:
                                           UtlString* opaque = NULL,
                                           UtlString* response = NULL,
                                           UtlString* uri = NULL,
+                                          UtlString* cnonce = NULL,
+                                          UtlString* nonceCount = NULL,
+                                          UtlString* qop = NULL,
                                           HttpEndpointEnum authorizationEntity = HttpMessage::PROXY,
                                           int index = 0,
                                           UtlString* user_base = NULL,
@@ -710,7 +721,7 @@ public:
                                const char* algorithm,
                                const char* nonce,
                                const char* cnonce,
-                               int nonceCount,
+                               const char* nonceCount,
                                const char* qop,
                                const char* method,
                                const char* uri,
@@ -721,12 +732,18 @@ public:
                                       const char* password,
                                       const char* nonce,
                                       const char* realm,
+                                      const char* cnonce,
+                                      const char* nonceCount,
+                                      const char* qop,
                                       const char* thisMessageMethod = NULL,
                                       const char* thisMessageUri = NULL,
                                       enum HttpEndpointEnum authEntity = SERVER) const;
 
     UtlBoolean verifyMd5Authorization(const char* userPasswordDigest,
                                       const char* nonce,
+                                      const char* cnonce,
+                                      const char* nonceCount,
+                                      const char* qop,
                                       const char* thisMessageMethod = NULL,
                                       const char* thisMessageUri = NULL) const;
 

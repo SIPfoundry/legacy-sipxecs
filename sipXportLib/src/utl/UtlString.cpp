@@ -18,11 +18,16 @@
 // APPLICATION INCLUDES
 #include "utl/UtlString.h"
 #include "os/OsDefs.h"
+#include "utl/UtlRegex.h"
+#include <os/OsSysLog.h>
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define UTLSTRING_MIN_INCREMENT 100 ///< smallest additional memory to be allocated
+#define SWS "\\s*"
+#define SLASH "\\\\"
+#define TEST 1
 
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType UtlString::TYPE = "UtlString";
@@ -1082,6 +1087,84 @@ UtlContainableType UtlString::getContainableType() const
 {
     return UtlString::TYPE;
 }
+
+UtlBoolean UtlString::findToken(const char* token,
+                                const char* delimiter,
+                                const char* suffix ) const
+{
+    RegEx*   ptmpRegEx = NULL;
+    UtlBoolean  matched = FALSE;
+
+    // build regular expression
+    UtlString regExpStr;
+    // find beginning of line or delimiter
+    regExpStr.append("(^|");
+    regExpStr.append(delimiter);
+    regExpStr.append(")");
+
+    // allow whitespace around token
+    regExpStr.append(SWS);
+    regExpStr.append(token);
+    regExpStr.append(SWS);
+
+   // find another delimiter, end of line or (optional) suffix
+    regExpStr.append("(");
+    regExpStr.append(delimiter);
+    if (suffix)
+    {
+        regExpStr.append("|");
+        regExpStr.append(suffix);
+    }
+    regExpStr.append("|$)");
+
+    // eg. with delimiter = "," and suffix= ";" 
+    //      '( ^|,) SWS token SWS (,|;|$)'
+    // eg. same without suffix
+    //      '( ^|,) SWS token SWS (,|$)'
+
+#ifdef TEST
+    OsSysLog::add( FAC_LOG, PRI_DEBUG
+                  ,"UtlString::findRegEx: "
+                   "built regexp '%s' to find '%s' with delimiter '%s' "
+                   "suffix '%s'"
+                  ,regExpStr.data(),token, delimiter,
+                   suffix);
+#endif
+
+    try
+    {
+        ptmpRegEx = new RegEx(regExpStr.data());
+    }
+    catch(const char* compileError)
+    {
+        OsSysLog::add( FAC_LOG, PRI_ERR
+                      ,"UtlString::findRegEx: "
+                       "Invalid regexp '%s' for '%s': "
+                       "compile error '%s'"
+                      ,regExpStr.data()
+                      ,data()
+                      ,compileError
+                      );
+    }
+
+    if (ptmpRegEx)
+    {
+        matched = ptmpRegEx->Search(data());
+    }
+
+#ifdef TEST
+    OsSysLog::add( FAC_LOG, PRI_DEBUG
+                  ,"UtlString::findRegEx: "
+                   "'%s' with delimiter '%s' %sfound in '%s': "
+                  ,token
+                  ,delimiter
+                  ,(matched ? "":"not ")
+                  ,data()
+                  );
+#endif
+    return matched;
+}
+
 
 /* ============================ INQUIRY =================================== */
 

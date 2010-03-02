@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -1450,6 +1450,9 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
                                               const char* password,
                                               const char* nonce,
                                               const char* realm,
+                                              const char* cnonce,
+                                              const char* nonceCount,
+                                              const char* qop,
                                               const char* uri,
                                               enum HttpEndpointEnum authEntity) const
 {
@@ -1493,9 +1496,10 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
     OsSysLog::add(FAC_SIP,PRI_DEBUG,
                   "SipMessage::verifyMd5Authorization - "
                   "userId='%s', password='%s', nonce='%s', "
-                  "realm='%s', uri='%s', method='%s' \n",
-                   userId, password, nonce,
-                  realm, uriString.data(), method.data());
+                  "realm='%s', cnonce='%s', nonceCount='%s', "
+                  "qop='%s', uri='%s', method='%s'",
+                  userId, password, nonce,realm, cnonce,
+                  nonceCount, qop,uriString.data(), method.data());
 #endif
 
     UtlBoolean isAllowed = FALSE;
@@ -1503,11 +1507,91 @@ UtlBoolean SipMessage::verifyMd5Authorization(const char* userId,
                                                     password,
                                                     nonce,
                                                     realm,
+                                                    cnonce,
+                                                    nonceCount,
+                                                    qop,
                                                     method.data(),
                                                     uriString.data(),
                                                     authEntity);
     return isAllowed;
 }
+
+HttpMessage::AuthQopValues SipMessage::verifyQopConsistency(const char* cnonce,
+                                                            const char* nonceCount,
+                                                            const UtlString* qop,
+                                                            UtlString& qopType) const
+{
+    HttpMessage::AuthQopValues qopValue = SipMessage::parseQopValue(qop, qopType);
+    
+    switch (qopValue)
+    {
+    case HttpMessage::AUTH_QOP_HAS_AUTH:
+        if (   cnonce == NULL || strlen(cnonce) == 0
+            || nonceCount == NULL || strlen(nonceCount) == 0)
+        {
+            OsSysLog::add(FAC_SIP,PRI_DEBUG,
+                          "SipMessage::verifyQopConsistency - "
+                          "qop='%s'but cnonce and/or nonceCount not valid ",
+                          qop->data());
+            qopValue = HttpMessage::AUTH_QOP_NOT_SUPPORTED;
+        }
+        break;
+
+    case HttpMessage::AUTH_QOP_EMPTY:  // no qop parameter
+        if (   (cnonce && strlen(cnonce) )
+            || (nonceCount && strlen(nonceCount)))
+        {
+            OsSysLog::add(FAC_SIP,PRI_DEBUG,
+                          "SipMessage::verifyQopConsistency - "
+                          "No qop parameter but unwanted cnonce and/or nonceCount is included ");
+            qopValue = HttpMessage::AUTH_QOP_NOT_SUPPORTED;
+        }
+    default:
+        qopValue = HttpMessage::AUTH_QOP_NOT_SUPPORTED;
+        break;
+    }
+    return qopValue;
+}
+
+
+HttpMessage::AuthQopValues SipMessage::parseQopValue(const UtlString* qop,
+                                                     UtlString& qopType) const
+{
+    HttpMessage::AuthQopValues retVal;
+
+    if (qopType) qopType.remove(0);
+
+    if (qop && !qop->isNull())
+    {
+        if (qop->findToken(HTTP_QOP_AUTH, HTTP_QOP_AUTH_DELIMITER))
+        {
+            retVal = HttpMessage::AUTH_QOP_HAS_AUTH;
+            if (qopType)
+            {
+                qopType.append(HTTP_QOP_AUTH);
+            }
+        }
+        else
+        {
+            retVal = HttpMessage::AUTH_QOP_NOT_SUPPORTED;
+        }
+        OsSysLog::add(FAC_SIP,PRI_DEBUG,
+                "SipMessage::parseQopValue - "
+                "qop='%s' is %s\"auth\" ",
+                qop->data(), 
+                (retVal == HttpMessage::AUTH_QOP_HAS_AUTH) ? "": "not ");
+    }
+    else 
+    {
+        retVal = HttpMessage::AUTH_QOP_EMPTY;
+
+        OsSysLog::add(FAC_SIP,PRI_DEBUG,
+                "SipMessage::parseQopValue - "
+                "no qop value found ");
+    }
+    return retVal;
+}
+
 
 void SipMessage::setResponseData(const SipMessage* request,
                          int responseCode,

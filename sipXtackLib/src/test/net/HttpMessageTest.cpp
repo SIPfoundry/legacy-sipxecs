@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -418,7 +418,7 @@ public:
         const char* nonce = "dcd98b7102dd2f0e8b11d0f600bfb0c093";
         const char* alg = HTTP_MD5_SESSION_ALGORITHM;
         const char *cnonce = NULL;
-        int nonceCount = 0;
+        const char * nonceCount = "00000001";
         const char* method = "GET";
         const char* qop = NULL;
         const char* uri = "/private/prices.html";

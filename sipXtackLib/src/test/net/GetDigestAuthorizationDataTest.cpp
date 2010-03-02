@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2008 Nortel Networks Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2008, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -82,6 +82,9 @@ public:
                                                          &opaque,
                                                          &response,
                                                          &uri,
+                                                         NULL,  // TBD cnonce
+                                                         NULL,  // TBD nonceCount
+                                                         NULL,  // TBD qop
                                                          HttpMessage::PROXY,
                                                          0);
             CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -93,6 +96,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       6);
          CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -108,6 +114,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       7);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
@@ -127,6 +136,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       0);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
@@ -147,6 +159,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       0);
          CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -162,6 +177,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       1);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
@@ -183,6 +201,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       0);
          CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -198,6 +219,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       1);
          CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -213,6 +237,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       2);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
@@ -234,6 +261,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       0);
          CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -249,6 +279,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::PROXY,
                                                       1);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
@@ -268,6 +301,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       0);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
@@ -288,6 +324,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       0);
          CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -303,6 +342,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       1);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
@@ -324,6 +366,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       0);
          CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -339,6 +384,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       1);
          CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -354,6 +402,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       2);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
@@ -375,6 +426,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       0);
          CPPUNIT_ASSERT_MESSAGE("return should be true", true == result);
@@ -390,6 +444,9 @@ public:
                                                       &opaque,
                                                       &response,
                                                       &uri,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       1);
          CPPUNIT_ASSERT_MESSAGE("return should be false", false == result);
@@ -416,6 +473,9 @@ public:
                                                       NULL,
                                                       NULL,
                                                       NULL,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       0,
                                                       &user_base,
@@ -437,6 +497,9 @@ public:
                                                       NULL,
                                                       NULL,
                                                       NULL,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       0,
                                                       &user_base,
@@ -458,6 +521,9 @@ public:
                                                       NULL,
                                                       NULL,
                                                       NULL,
+                                                      NULL,  // TBD cnonce
+                                                      NULL,  // TBD nonceCount
+                                                      NULL,  // TBD qop
                                                       HttpMessage::SERVER,
                                                       0,
                                                       &user_base,

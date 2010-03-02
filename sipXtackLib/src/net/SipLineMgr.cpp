@@ -38,6 +38,7 @@
 #include "net/NetMd5Codec.h"
 #include "net/TapiMgr.h"
 #include "net/SipRefreshMgr.h"
+#include "net/CallId.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -691,6 +692,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
     UtlString scheme;
     UtlString algorithm;
     UtlString qop;
+    UtlString qopType;
     UtlString callId;
 
     response->getCSeqField(&sequenceNum, &method);
@@ -744,6 +746,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
         while (! alreadyTriedOnce
                && request->getDigestAuthorizationData(&requestUser, &requestRealm,
                                                       NULL, NULL, NULL, NULL,
+                                                      NULL, NULL, NULL, // not used: cnonce, nonceCount, qop
                                                       authorizationEntity, requestAuthIndex))
         {
             // found an Authorization header, is it for our realm?
@@ -806,7 +809,10 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
         }
     }
 
-    if( !alreadyTriedOnce)
+    // We can only answer a challenge with no qop or with qop="auth"
+    // We choose not to try again if we already answered once.
+    HttpMessage::AuthQopValues qopValue = response->parseQopValue(&qop, qopType);
+    if( !alreadyTriedOnce && qopValue < HttpMessage::AUTH_QOP_NOT_SUPPORTED)
     {
         if ( credentialFound )
         {
@@ -826,11 +832,13 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
             int timesSent = newAuthRequest->getTimesSent();
             int transportProtocol = newAuthRequest->getSendProtocol(); //OsSocket::UNKNOWN;
             int mFirstSent = newAuthRequest->isFirstSend();
-            osPrintf( "SipLineMgr::buildAuthenticatedResponse "
-                     "transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d\n",
-                     transportTimeStamp, lastResendDuration, timesSent,
-                     transportProtocol, mFirstSent);
+            OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                          "SipLineMgr::buildAuthorizationRequest "
+                          "transTime: %d resendDur: %d timesSent: %d sendProtocol: %d isFirst: %d",
+                          transportTimeStamp, lastResendDuration, timesSent,
+                          transportProtocol, mFirstSent);
 #           endif
+
             newAuthRequest->resetTransport();
 
 #           ifdef TEST_PRINT
@@ -852,70 +860,67 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
             if(scheme.compareTo(HTTP_DIGEST_AUTHENTICATION, UtlString::ignoreCase) == 0)
             {
                 UtlString responseHash;
-                int nonceCount;
+                UtlString cnonce;
+                UtlString nonceCount;
+
                 // create the authorization in the request
                 request->getRequestUri(&uri);
-
-                // :TBD: cheat and use the cseq instead of a real nonce-count
-                request->getCSeqField(&nonceCount, &method);
-                nonceCount = (nonceCount + 1) / 2;
-
                 request->getRequestMethod(&method);
 
-                // Use unique tokens which are constant for this
-                // session to generate a cnonce
-                Url fromUrl;
-                UtlString cnonceSeed;
-                UtlString fromTag;
-                UtlString cnonce;
-                request->getCallIdField(&cnonceSeed);
-                request->getFromUrl(fromUrl);
-                fromUrl.getFieldParameter("tag", fromTag);
-                cnonceSeed.append(fromTag);
-                cnonceSeed.append("blablacnonce"); // secret
-                NetMd5Codec::encode(cnonceSeed, cnonce);
-
-                // Get the digest of the body
-                const HttpBody* body = request->getBody();
-                UtlString bodyDigest;
-                const char* bodyString = "";
-                if(body)
+                // Add support for "qop=auth" if requested (eg. cnonce, nonce-count)
+                if (qopValue == HttpMessage::AUTH_QOP_HAS_AUTH)
                 {
-                    ssize_t len;
-                    body->getBytes(&bodyString, &len);
-                    if(bodyString == NULL)
-                        bodyString = "";
+                    // Use a random number, anything more adds no value
+                    CallId::getNewTag( cnonce );
+    
+                    // We always generate a new nonce, so it's ok to have fixed nonce count
+                    nonceCount.append("00000001");
+    
+#if 0  // TBD - auth-int is not currently supported. This code has never been tested
+                    // If needed, get the digest of the body
+                    UtlString bodyDigest;
+                    ssize_t qopIndex = qopString.index(HTTP_QOP_AUTH_INTEGRITY, 0, UtlString::ignoreCase);
+                    if(qopIndex >= 0)
+                    {
+                        const HttpBody* body = request->getBody();
+                        const char* bodyString = "";
+                        if(body)
+                        {
+                            ssize_t len;
+                            body->getBytes(&bodyString, &len);
+                            if(bodyString == NULL)
+                                bodyString = "";
+                        }
+    
+                        NetMd5Codec::encode(bodyString, bodyDigest);
+                    }
+#endif
                 }
 
-                NetMd5Codec::encode(bodyString, bodyDigest);
-
                 // Build the Digest hash response
-                HttpMessage::buildMd5Digest(
-                    passToken.data(),
-                    algorithm.data(),
-                    nonce.data(),
-                    cnonce.data(),
-                    nonceCount,
-                    qop.data(),
-                    method.data(),
-                    uri.data(),
-                    bodyDigest.data(),
-                    &responseHash);
+                HttpMessage::buildMd5Digest( passToken.data(),
+                                             algorithm.data(),
+                                             nonce.data(),
+                                             cnonce.data(),
+                                             nonceCount.data(),
+                                             qopType.data(),
+                                             method.data(),
+                                             uri.data(),
+                                             NULL, // TBD bodyDigest.data(),
+                                             &responseHash);
 
-                newAuthRequest->setDigestAuthorizationData(
-                    userID.data(),
-                    realm.data(),
-                    nonce.data(),
-                    uri.data(),
-                    responseHash.data(),
-                    algorithm.data(),
-                    cnonce.data(),
-                    opaque.data(),
-                    qop.data(),
-                    nonceCount,
-                    authorizationEntity);
-
-            }
+                newAuthRequest->setDigestAuthorizationData( userID.data(),
+                                                            realm.data(),
+                                                            nonce.data(),
+                                                            uri.data(),
+                                                            responseHash.data(),
+                                                            algorithm.data(),
+                                                            cnonce.data(),
+                                                            opaque.data(),
+                                                            qopType.data(),
+                                                            nonceCount.data(),
+                                                            authorizationEntity);
+             }
 
             // This is a new version of the message so increment the sequence number
             newAuthRequest->incrementCSeqNumber();
@@ -966,6 +971,7 @@ UtlBoolean SipLineMgr::buildAuthorizationRequest(const SipMessage* response /*[i
     }
     // Else we already tried to provide authentication
     // Or we do not have a userId and password for this uri
+    // Or we don't know how to respond to the qop challenge
     // Let this error message through to the application
     else
     {

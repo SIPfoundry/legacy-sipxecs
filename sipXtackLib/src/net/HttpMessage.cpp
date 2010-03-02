@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -2700,7 +2700,12 @@ void HttpMessage::setAuthenticateData(const char* scheme,
             authField.append('\"');
         }
 
-        // :TBD: should add qop
+        // Always ask for 'qop="auth"' in www or proxy authenticate header
+        authField.append(", ");
+        authField.append(HTTP_AUTHENTICATION_QOP_TOKEN);
+        authField.append("=\"");
+        authField.append(HTTP_QOP_AUTH);
+        authField.append('\"');
     }
 
     addAuthenticateField(authField, authEntity);
@@ -2866,6 +2871,9 @@ UtlBoolean HttpMessage::getAuthorizationUser(UtlString* user,
                                  NULL,
                                  NULL,
                                  NULL,
+                                 NULL,  // cnonce
+                                 NULL,  // nonceCount
+                                 NULL,  // qop
                                  HttpMessage::PROXY,
                                  0,
                                  userBase, // provide user base argument
@@ -2912,6 +2920,9 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
                                                    UtlString* opaque,
                                                    UtlString* response,
                                                    UtlString* uri,
+                                                   UtlString* cnonce,
+                                                   UtlString* nonceCount,
+                                                   UtlString* qop,
                                                    HttpMessage::HttpEndpointEnum authorizationEntity,
                                                    int index,
                                                    UtlString* user_base,
@@ -2924,6 +2935,9 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
    if (user) user->remove(0);
    if (uri) uri->remove(0);
    if (response) response->remove(0);
+   if (cnonce) cnonce->remove(0);
+   if (nonceCount) nonceCount->remove(0);
+   if (qop) qop->remove(0);
    if (user_base) user_base->remove(0);
    if (instrument) instrument->remove(0);
 
@@ -2962,6 +2976,18 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
             else if(nonce && name.compareTo(HTTP_AUTHENTICATION_NONCE_TOKEN, UtlString::ignoreCase) == 0)
             {
                nonce->append(value);
+            }
+            else if(cnonce && name.compareTo(HTTP_AUTHENTICATION_CNONCE_TOKEN, UtlString::ignoreCase) == 0)
+            {
+               cnonce->append(value);
+            }
+            else if(nonceCount && name.compareTo(HTTP_AUTHENTICATION_NONCE_COUNT_TOKEN, UtlString::ignoreCase) == 0)
+            {
+               nonceCount->append(value);
+            }
+            else if(qop && name.compareTo(HTTP_AUTHENTICATION_QOP_TOKEN, UtlString::ignoreCase) == 0)
+            {
+               qop->append(value);   // NOTE: value returned has been stripped of quotes
             }
             else if(opaque && name.compareTo(HTTP_AUTHENTICATION_OPAQUE_TOKEN, UtlString::ignoreCase) == 0)
             {
@@ -3023,7 +3049,7 @@ UtlBoolean HttpMessage::getDigestAuthorizationData(UtlString* user,
 
 
 void HttpMessage::addAuthenticateField(const UtlString& authenticateField,
-                                         enum HttpEndpointEnum authEntity)
+                                       enum HttpEndpointEnum authEntity)
 {
     const char* fieldName = NULL;
     switch(authEntity)
@@ -3080,7 +3106,7 @@ bool HttpMessage::getAuthenticateField(int index,
 }
 
 
-
+// Must check for QOP consistency before setting header data
 void HttpMessage::setDigestAuthorizationData(const char* user,
                                              const char* realm,
                                              const char* nonce,
@@ -3090,7 +3116,7 @@ void HttpMessage::setDigestAuthorizationData(const char* user,
                                              const char* cnonce,
                                              const char* opaque,
                                              const char* qop,
-                                             int nonceCount,
+                                             const char* nonceCount,
                                              HttpMessage::HttpEndpointEnum authorizationEntity)
 {
     UtlString schemeString;
@@ -3144,10 +3170,8 @@ void HttpMessage::setDigestAuthorizationData(const char* user,
         authField.append("=");
         authField.append(algorithm);
     }
-    UtlString alg(algorithm ? algorithm : "");
-    if(cnonce && strlen(cnonce) &&
-        ((qop && strlen(qop)) ||
-         (algorithm &&  alg.compareTo(HTTP_MD5_SESSION_ALGORITHM, UtlString::ignoreCase) == 0)))
+
+    if((cnonce && strlen(cnonce)) && (qop && strlen(qop)))
     {
         authField.append(", ");
         authField.append(HTTP_AUTHENTICATION_CNONCE_TOKEN);
@@ -3163,35 +3187,22 @@ void HttpMessage::setDigestAuthorizationData(const char* user,
         authField.append(opaque);
         authField.append('\"');
     }
-    if(qop && strlen(qop))
+
+    if(qop && strlen(qop)) // qop value passed in is exactly what's wanted
     {
-        UtlString qopString(qop);
         authField.append(", ");
         authField.append(HTTP_AUTHENTICATION_QOP_TOKEN);
         authField.append("=");
-        ssize_t qopIntIndex = qopString.index(HTTP_QOP_AUTH_INTEGRITY, 0, UtlString::ignoreCase);
-        ssize_t qopIndex = qopString.index(HTTP_QOP_AUTH, 0, UtlString::ignoreCase);
-        if(qopIntIndex >= 0)
-        {
-            authField.append(HTTP_QOP_AUTH_INTEGRITY);
-        }
-        else if(qopIndex >= 0)
-        {
-            authField.append(HTTP_QOP_AUTH);
-        }
+        authField.append(qop); 
     }
-    if(nonceCount > 0 &&
-       qop && strlen(qop))
-    {
-        char nonceCountBuffer[20];
-        sprintf(nonceCountBuffer, "%.8x", nonceCount);
-        UtlString nonceCountString(nonceCountBuffer);
-        nonceCountString.toLower();
 
+    // nonceCount and qop consistency should be validated before calling this function
+    if(nonceCount && strlen(nonceCount))     
+    {
         authField.append(", ");
         authField.append(HTTP_AUTHENTICATION_NONCE_COUNT_TOKEN);
         authField.append('=');
-        authField.append(nonceCountString);
+        authField.append(nonceCount);
     }
 
     if(authorizationEntity == SERVER)
@@ -3226,7 +3237,7 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
                                  const char* algorithm,
                                  const char* nonce,
                                  const char* cnonce,
-                                 int nonceCount,
+                                 const char* nonceCount,
                                  const char* qop,
                                  const char* method,
                                  const char* uri,
@@ -3256,15 +3267,21 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
     if(method) a2Buffer.append(method);
     a2Buffer.append(':');
     if(uri) a2Buffer.append(uri);
+
+#if 0   // TBD - auth-int is not currently supported.
+    // If needed, get the digest of the body
+    // This code has not been tested
+    ssize_t qopIndex;
     UtlString qopString(qop ? qop : "");
     UtlBoolean qopInt = FALSE;
-    ssize_t qopIndex = qopString.index(HTTP_QOP_AUTH_INTEGRITY, 0, UtlString::ignoreCase);
+    qopIndex = qopString.index(HTTP_QOP_AUTH_INTEGRITY, 0, UtlString::ignoreCase);
     if(qopIndex >= 0)
     {
         qopInt = TRUE;
         a2Buffer.append(':');
         if(bodyDigest) a2Buffer.append(bodyDigest);
     }
+#endif
 
     // Encode A2
     NetMd5Codec::encode(a2Buffer.data(), encodedA2);
@@ -3273,20 +3290,18 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
     UtlString buffer(encodedA1);
     buffer.append(':');
     if(nonce) buffer.append(nonce);
-    qopIndex = qopString.index(HTTP_QOP_AUTH, 0, UtlString::ignoreCase);
-    if(qopIndex >= 0)
+    if(qop )
     {
-        char nonceCountBuffer[20];
-        sprintf(nonceCountBuffer, "%.8x", nonceCount);
-        UtlString nonceCountString(nonceCountBuffer);
-        nonceCountString.toLower();
-
         buffer.append(':');
-        buffer.append(nonceCountString);
+        buffer.append(nonceCount);
         buffer.append(':');
         if(cnonce) buffer.append(cnonce);
         buffer.append(':');
-        if(qopInt)
+        buffer.append(qop);
+
+#if 0   // TBD - auth-int is not currently supported.
+        // code not tested
+       if(qopInt)
         {
             buffer.append(HTTP_QOP_AUTH_INTEGRITY);
         }
@@ -3294,6 +3309,7 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
         {
             buffer.append(HTTP_QOP_AUTH);
         }
+#endif       
     }
     buffer.append(':');
     buffer.append(encodedA2);
@@ -3302,8 +3318,13 @@ void HttpMessage::buildMd5Digest(const char* userPasswordDigest,
     NetMd5Codec::encode(buffer.data(), *responseToken);
 
 #ifdef TEST_PRINT
-    osPrintf("HttpMessage::buildMd5Digest expecting authorization:\n\tuserPasswordDigest: '%s'\n\tnonce: '%s'\n\tmethod: '%s'\n\turi: '%s'\n\tresponse: '%s'\n",
-        userPasswordDigest, nonce, method, uri, responseToken->data());
+    OsSysLog::add(FAC_HTTP, PRI_DEBUG,
+                  "HttpMessage::buildMd5Digest "
+                  "expecting authorization: "
+                  "userPasswordDigest:'%s', nonce:'%s', method:'%s', uri:'%s', "
+                  "cnonce='%s', nonceCount='%s', qop='%s', response:'%s'",
+                  userPasswordDigest, nonce, method, uri, 
+                  cnonce, nonceCount, qop, responseToken->data());
 #endif
 }
 
@@ -3311,6 +3332,9 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
                                                const char* password,
                                                const char* nonce,
                                                const char* realm,
+                                               const char* cnonce,
+                                               const char* nonceCount,
+                                               const char* qop,
                                                const char* thisMessageMethod,
                                                const char* thisMessageUri,
                                                enum HttpEndpointEnum authEntity) const
@@ -3319,12 +3343,7 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
     UtlString uri;
     UtlString method;
     UtlString referenceHash;
-    UtlString msgUser;
-    UtlString msgRealm;
-    UtlString msgNonce;
-    UtlString msgOpaque;
     UtlString msgDigestHash;
-    UtlString msgUri;
 
     if(thisMessageUri && *thisMessageUri)
     {
@@ -3357,25 +3376,31 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
     buildMd5Digest(encodedA1,
                    NULL, // algorithm
                    nonce,
-                   NULL, // cnonce
-                   0, // nonceCount
-                   NULL, // qop
+                   cnonce, // cnonce
+                   nonceCount, // nonceCount
+                   qop, // qop
                    method.data(),
                    uri.data(),
                    NULL, // body digest
                    &referenceHash);
     OsSysLog::add(FAC_HTTP, PRI_DEBUG,
-                  "HttpMessage::verifyMd5Authorization password = '%s', nonce = '%s', method = '%s', uri = '%s', referenceHash = '%s'",
-                  encodedA1.data(), nonce, method.data(), uri.data(), referenceHash.data());
+                  "HttpMessage::verifyMd5Authorization "
+                  "password = '%s', nonce = '%s', method = '%s', uri = '%s', "
+                  "cnonce='%s', nonceCount='%s', qop='%s', referenceHash = '%s'",
+                  encodedA1.data(), nonce, method.data(), uri.data(), 
+                  cnonce, nonceCount, qop, referenceHash.data());
 
-    // Get the digest hash given in the message
+    // Get  the digest hash contained in the message for comparison
     int authIndex = 0;
-    while(getDigestAuthorizationData(&msgUser,
-                                     &msgRealm,
-                                     &msgNonce,
-                                     &msgOpaque,
+    while(getDigestAuthorizationData(NULL,  // user - not used here
+                                     NULL,  // realm - not used here
+                                     NULL,  // Nonce - not used here
+                                     NULL,  // Opaque - not used here
                                      &msgDigestHash,
-                                     &msgUri,
+                                     NULL,  // uri - not used here
+                                     NULL,  // cnonce - not used here
+                                     NULL,  // nonceCount - not used here
+                                     NULL,  // qop - not used here
                                      authEntity,
                                      authIndex))
     {
@@ -3399,6 +3424,9 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userId,
 
 UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
                                                const char* nonce,
+                                               const char* cnonce,
+                                               const char* nonceCount,
+                                               const char* qop,
                                                const char* thisMessageMethod,
                                                const char* thisMessageUri) const
 {
@@ -3406,14 +3434,9 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
     UtlString uri;
     UtlString method;
     UtlString referenceHash;
-    UtlString msgUser;
-    UtlString msgRealm;
-    UtlString msgNonce;
-    UtlString msgOpaque;
     UtlString msgDigestHash;
-    UtlString msgUri;
 
-    if(thisMessageUri && *thisMessageUri)
+    if (thisMessageUri && *thisMessageUri)
     {
         uri.append(thisMessageUri);
     }
@@ -3421,7 +3444,7 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
     {
         getRequestUri(&uri);
     }
-    if(thisMessageMethod && *thisMessageMethod)
+    if (thisMessageMethod && *thisMessageMethod)
     {
         method.append(thisMessageMethod);
     }
@@ -3434,18 +3457,21 @@ UtlBoolean HttpMessage::verifyMd5Authorization(const char* userPasswordDigest,
     buildMd5Digest(userPasswordDigest,
                    NULL, // algorithm
                    nonce,
-                   NULL, // cnonce
-                   0, // nonceCount
-                   NULL, // qop
+                   cnonce, // cnonce
+                   nonceCount, // nonceCount
+                   qop, // qop
                    method.data(),
                    uri.data(),
                    NULL, // body digest
                    &referenceHash);
 
-    // Get the digest hash given in the message
-    allowed = getDigestAuthorizationData(&msgUser, &msgRealm, &msgNonce, &msgOpaque,
-                                         &msgDigestHash, &msgUri);
-    if(allowed)
+    // Get the digest hash contained in the message for comparison
+    allowed = getDigestAuthorizationData(NULL,  // user - not used here
+                                         NULL,  // realm - not used here
+                                         NULL,  // Nonce - not used here
+                                         NULL,  // Opaque - not used here
+                                         &msgDigestHash);
+    if (allowed)
     {
         allowed = (referenceHash.compareTo(msgDigestHash) == 0);
     }

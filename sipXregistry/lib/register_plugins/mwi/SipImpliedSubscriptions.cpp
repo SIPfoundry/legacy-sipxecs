@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -36,6 +36,7 @@
 #include "net/NetMd5Codec.h"
 #include "sipdb/CredentialDB.h"
 #include "SipImpliedSubscriptions.h"
+#include <net/CallId.h>
 
 // DEFINES
 // MACROS
@@ -401,40 +402,53 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
    UtlString opaque;
    UtlString response;
    UtlString authUri;
+   UtlString qop;
+   UtlString qopType;
 
-   // extract the identity from the authorization of the registration
-   if ( registerMessage.getDigestAuthorizationData( &user, &realm       // the identity
-                                                   ,NULL // request nonce not used
-                                                   ,&opaque // passed through to aid debugging
-                                                   ,NULL, NULL // response & authUri not used
-                                                   ,HttpMessage::SERVER, 0
-                                                   ,&userBase
-                                                   )
-       )
+   // Did Register have Authorization header?
+   UtlBoolean registerHasAuth = registerMessage.getDigestAuthorizationData( &user, 
+                                                                            &realm       // the identity
+                                                                            ,NULL // request nonce not used
+                                                                            ,&opaque // passed through to aid debugging
+                                                                            ,NULL, NULL // response & authUri not used
+                                                                            ,NULL  // cnonce not used
+                                                                            ,NULL  // nonceCount not used
+                                                                            ,&qop  // what kind of Auth?
+                                                                            ,HttpMessage::SERVER, 0
+                                                                            ,&userBase);
+   // We only support no qop or with qop="auth"
+   HttpMessage::AuthQopValues qopValue = registerMessage.parseQopValue(&qop, qopType);
+
+   if( registerHasAuth && qopValue < HttpMessage::AUTH_QOP_NOT_SUPPORTED)
    {
       Url subscribeUser;
       UtlString passToken;
       UtlString authType;
 
       if (CredentialDB::getInstance()->getCredential( userBase, realm, subscribeUser
-                                                     ,passToken, authType
-                                                     )
-          )
+                                                     ,passToken, authType))
       {
          // Construct a nonce
          UtlString serverNonce;
          UtlString clientNonce;
+         UtlString cnonce;
+         UtlString nonceCount;
+
          SipNonceDb* nonceDb = SharedNonceDb::get();
 
          nonceDb->createNewNonce( callId, fromTag, realm ,serverNonce );
 
-         // generate a client nonce - doesn't matter what it is, really
-         //   because the server doesn't validate this one;
-         //   but change an input so that the two won't be the same
-         //              UtlString dummyFromTag("different value");
-         //              mRegistrarNonceDb.createNewNonce( callId, dummyFromTag, fromUri
-         //                                               ,clientNonce
-         //                               );
+         // Add support for "qop=auth" if requested (eg. cnonce, nonce-count)
+         if (qopValue == HttpMessage::AUTH_QOP_HAS_AUTH)
+         {
+             // Use a random number, anything more adds no value
+             UtlString cnonce;
+             CallId::getNewTag( cnonce );
+
+             // We always generate a new nonce, so it's ok to have fixed nonce count
+             nonceCount.append("00000001");
+
+         }
 
          // Construct A1
          UtlString a1Buffer;
@@ -451,9 +465,9 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
          HttpMessage::buildMd5Digest(encodedA1.data(),
                                      HTTP_MD5_ALGORITHM,
                                      serverNonce.data(),
-                                     NULL, // client nonce
-                                     1, // nonce count
-                                     "",
+                                     cnonce.data(), // client nonce
+                                     nonceCount.data(),
+                                     qopType.data(), 
                                      SIP_SUBSCRIBE_METHOD,
                                      fromUri.data(),
                                      NULL,
@@ -461,16 +475,17 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
                                      );
 
          subscribeRequest.removeHeader( HTTP_AUTHORIZATION_FIELD, 0);
-         subscribeRequest.setDigestAuthorizationData(userBase.data(),
+
+         subscribeRequest.setDigestAuthorizationData(user.data(),
                                                      realm.data(),
                                                      serverNonce.data(),
                                                      fromUri.data(),
                                                      responseHash.data(),
                                                      HTTP_MD5_ALGORITHM,
-                                                     NULL,//clientNonce.data(),
+                                                     cnonce.data(),
                                                      opaque.data(),
-                                                     HTTP_QOP_AUTH,
-                                                     1, // nonce count
+                                                     qopType.data(),
+                                                     nonceCount.data(), 
                                                      HttpMessage::SERVER
                                                      );
 

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -68,6 +68,7 @@ class UtlStringTest_NonMutating : public UtlStringTest
     CPPUNIT_TEST(testPlusOperator);
     CPPUNIT_TEST(testIndexOperator);
     CPPUNIT_TEST(testCharAtOperator);
+    CPPUNIT_TEST(testfindToken);
     CPPUNIT_TEST_SUITE_END();
 
 private :
@@ -1667,6 +1668,56 @@ public:
                 actualValue);
         }
     }//testCharAtOperator
+
+
+    /*!a Test findToken.
+    *
+    *    look for regexp at
+    *        a) The first token
+    *        b) The last token
+    *        c) nowhere in the string
+    *        d) somewhere in the string
+    *        d) substring exists in the string but doesn't meet token criteria
+    */
+    void testfindToken()
+    {
+        UtlBoolean result;
+        struct TestCharAtStructure
+        {
+            const char* testDescription;
+            const char* testString;
+            const char* testDelimit;
+            const char* testSuffix;
+            UtlBoolean expectedResult;
+        };
+
+        const char* prefix = "Test findRegEx, when ";
+        string Message;
+
+        TestCharAtStructure testData[] = { \
+            { "regEx first and last in string", " testWord", ",", NULL, TRUE }, \
+            { "regEx NOT in string", "no, such ,word", ",", NULL, FALSE }, \
+            { "regEx not first in string", "not , the , first,testWord, or, last", ",", NULL, TRUE  }, \
+            { "regEx last in string", "not , the , first,testWord", ",", NULL, TRUE  }, \
+            { "regEx NOT(exactly) in string", "no such, testWord-sim, word", ",", NULL, FALSE }, \
+            { "regEx has suffix", "suffix , is, semicolon,testWord;dale, seen, here", ",", ";", TRUE  }, \
+            { "regEx has no suffix", "suffix , is, semicolon,testWord, not, here", ",", ";", TRUE  }, \
+        };
+
+        UtlString *ptestString;
+
+        const int testCount = sizeof(testData)/sizeof(testData[0]);
+        for (int i=0; i < testCount; i++)
+        {
+            ptestString = new UtlString(testData[i].testString);
+            result = ptestString->findToken("testWord", testData[i].testDelimit, testData[i].testSuffix);
+
+            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedResult, result);
+
+            delete ptestString;
+        }
+    }//testfindToken
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlStringTest_NonMutating);

@@ -1,6 +1,6 @@
 // 
 // 
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 // 
@@ -1023,14 +1023,16 @@ bool SipRouter::areAllExtensionsSupported( const SipMessage& sipRequest,
 }
 
 bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
-                             UtlString& authUser
-                             )
+                                UtlString& authUser )
 {
    UtlBoolean authenticated = FALSE;
    UtlString requestUser;
    UtlString requestUserBase;
    UtlString requestRealm;
    UtlString requestNonce;
+   UtlString requestCNonce;
+   UtlString requestQop;
+   UtlString requestNonceCount;
    UtlString requestUri;
    int requestAuthIndex;
    UtlString callId;
@@ -1055,6 +1057,9 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
                                                    NULL,
                                                    NULL,
                                                    &requestUri,
+                                                   &requestCNonce,
+                                                   &requestNonceCount,
+                                                   &requestQop,
                                                    HttpMessage::PROXY,
                                                    requestAuthIndex,
                                                    &requestUserBase)
@@ -1062,83 +1067,99 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
          requestAuthIndex++
         )
    {
-      if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive
+      UtlString qopType;
+
+      if (mRealm.compareTo(requestRealm) ) // case sensitive check that realm is correct
       {
          OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                       "SipRouter:isAuthenticated: checking user '%s'",
-                       requestUser.data());
-
-         // Ignore this credential if it is not a current valid nonce
-         if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
-                                   mRealm, nonceExpires))
-         {
-            Url userUrl;
-            UtlString authTypeDB;
-            UtlString passTokenDB;
-
-            // then get the credentials for this user and realm
-            if(CredentialDB::getInstance()->getCredential(requestUserBase,
-                                                          mRealm,
-                                                          userUrl,
-                                                          passTokenDB,
-                                                          authTypeDB)
-               )
-            {
-#                   ifdef TEST_PRINT
-               // THIS SHOULD NOT BE LOGGED IN PRODUCTION
-               // For security reasons we do not want to put passtokens into the log.
-               OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                             "SipRouter::isAuthenticated "
-                             "found credential "
-                             "user: \"%s\" passToken: \"%s\"",
-                             requestUser.data(), passTokenDB.data());
-#                   endif
-               authenticated = sipRequest.verifyMd5Authorization(requestUser.data(),
-                                                                 passTokenDB.data(),
-                                                                 requestNonce,
-                                                                 requestRealm.data(),
-                                                                 requestUri,
-                                                                 HttpMessage::PROXY );
-
-               if ( authenticated )
-               {
-                  userUrl.getIdentity(authUser);
-                  OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                                "SipRouter::isAuthenticated(): "
-                                "authenticated as '%s'",
-                                authUser.data());
-               }
-               else
-               {
-                  OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                                "SipRouter::isAuthenticated() "
-                                "authentication failed as '%s'",
-                                requestUser.data());
-               }
-            }
-            // Did not find credentials in DB
-            else
-            {
-               OsSysLog::add(FAC_AUTH, PRI_INFO,
-                             "SipRouter::isAuthenticated() "
-                             "No credentials found for user: '%s'",
-                             requestUser.data());
-            }
-         }
-         else // Is not a valid nonce
-         {
-            OsSysLog::add(FAC_AUTH, PRI_INFO,
-                          "SipRouter::isAuthenticated() "
-                          "Invalid NONCE: %s found "
-                          "call-id: %s from tag: %s uri: %s realm: %s expiration: %ld",
-                          requestNonce.data(), callId.data(), fromTag.data(),
-                          requestUri.data(), mRealm.data(), nonceExpires);
-         }
+                       "SipRouter:isAuthenticated::isAuthenticated "
+                       "Realm does not match");
       }
-      else
+
+      // validate the nonce
+      else if (!mNonceDb.isNonceValid(requestNonce, callId, fromTag, mRealm, nonceExpires))
       {
-         // wrong realm - meant for some other proxy on the path, so ignore it
+          OsSysLog::add(FAC_AUTH, PRI_INFO,
+                        "SipRouter::isAuthenticated() "
+                        "Invalid NONCE: '%s' found "
+                        "call-id: '%s' from tag: '%s' uri: '%s' realm: '%s' "
+                        "cnonce: '%s' nc: '%s' qop: '%s' "
+                        "expiration: %ld",
+                        requestNonce.data(), callId.data(), fromTag.data(),
+                        requestUri.data(), mRealm.data(), 
+                        requestCNonce, requestNonceCount, requestQop, nonceExpires);
       }
+
+      // verify that qop,cnonce, nonceCount are compatible
+      else if (sipRequest.verifyQopConsistency(requestCNonce.data(),
+                                               requestNonceCount.data(),
+                                               &requestQop,
+                                               qopType)
+               >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
+      {
+          OsSysLog::add(FAC_AUTH, PRI_INFO,
+                        "SipRouter:isAuthenticated -"
+                        "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
+                        requestQop.data(), requestCNonce.data(), requestNonceCount.data());
+      }
+
+      else // realm, nonce and qop are all ok
+      {    
+          Url userUrl;
+          UtlString authTypeDB;
+          UtlString passTokenDB;
+
+          // then get the credentials for this user and realm
+          if(CredentialDB::getInstance()->getCredential(requestUserBase,
+                                                        mRealm,
+                                                        userUrl,
+                                                        passTokenDB,
+                                                        authTypeDB))
+          {
+#ifdef TEST_PRINT
+             // THIS SHOULD NOT BE LOGGED IN PRODUCTION
+             // For security reasons we do not want to put passtokens into the log.
+             OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                           "SipRouter::isAuthenticated "
+                           "found credential "
+                           "user: \"%s\" passToken: \"%s\"",
+                           requestUser.data(), passTokenDB.data());
+#endif
+             authenticated = sipRequest.verifyMd5Authorization(requestUser.data(),
+                                                               passTokenDB.data(),
+                                                               requestNonce.data(),
+                                                               requestRealm.data(),
+                                                               requestCNonce.data(),
+                                                               requestNonceCount.data(),
+                                                               requestQop.data(),
+                                                               requestUri.data(),
+                                                               HttpMessage::PROXY );
+
+             if ( authenticated )
+             {
+                userUrl.getIdentity(authUser);
+                OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                              "SipRouter::isAuthenticated(): "
+                              "authenticated as '%s'",
+                              authUser.data());
+             }
+             else
+             {
+                OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                              "SipRouter::isAuthenticated() "
+                              "authentication failed as '%s'",
+                              requestUser.data());
+             }
+          }
+          // Did not find credentials in DB
+          else
+          {
+             OsSysLog::add(FAC_AUTH, PRI_INFO,
+                           "SipRouter::isAuthenticated() "
+                           "No credentials found for user: '%s'",
+                           requestUser.data());
+          }
+      } // end DB check
    } // looping through credentials
 
    return(authenticated);

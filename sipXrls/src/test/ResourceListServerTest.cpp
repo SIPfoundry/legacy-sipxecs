@@ -1,5 +1,5 @@
 // 
-// Copyright (C) 2008 Nortel, certain elements licensed under a Contributor Agreement.  
+// Copyright (C) 2008, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.  
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 // 
@@ -262,7 +262,7 @@ public:
                                            HTTP_MD5_ALGORITHM,
                                            nonce.data(),
                                            NULL, // client nonce
-                                           1, // nonce count
+                                           "00000001", // nonce count
                                            "",
                                            method.data(),
                                            fromUriAsString.data(),
@@ -281,7 +281,7 @@ public:
                                                            NULL,//clientNonce.data(),
                                                            NULL,
                                                            HTTP_QOP_AUTH,
-                                                           1, // nonce count
+                                                           "00000001", // nonce count
                                                            HttpMessage::SERVER
                                                            );  
                result = true;

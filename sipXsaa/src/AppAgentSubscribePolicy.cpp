@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2009, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -73,7 +73,7 @@ UtlBoolean AppAgentSubscribePolicy::getKeys(const SipMessage& subscribeRequest,
 }
 
 UtlBoolean AppAgentSubscribePolicy::isAuthorized(const SipMessage& subscribeRequest,
-                                            SipMessage& subscribeResponse)
+                                                 SipMessage& subscribeResponse)
 {
    UtlBoolean ret = true;
 
@@ -82,7 +82,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthorized(const SipMessage& subscribeRequ
 
 
 UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribeRequest,
-                                               SipMessage & subscribeResponse)
+                                                    SipMessage & subscribeResponse)
 {
    UtlBoolean isAuthorized = FALSE;
 
@@ -94,87 +94,121 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
    subscribeRequest.getFromUrl(fromNameAddr);
    fromNameAddr.getFieldParameter("tag", fromTag);
 
-   UtlString authNonce, authRealm, authUser, authUserBase, uriParam;
+   UtlString authNonce;
+   UtlString authRealm;
+   UtlString authUser;
+   UtlString authUserBase;
+   UtlString uriParam;
+   UtlString authCnonce;
+   UtlString authNonceCount;
+   UtlString authQop;
 
    // Iterate through Authorization and Proxy-Authorization credentials,
    // looking for one that shows this request is authenticated.
    for (int authIndex = 0;
-           ! isAuthorized
-        && subscribeRequest.getDigestAuthorizationData(
-           &authUser, &authRealm, &authNonce,
-           NULL, NULL, &uriParam,
-           HttpMessage::SERVER, authIndex,
-           &authUserBase);
+        ! isAuthorized
+        && subscribeRequest.getDigestAuthorizationData(&authUser,
+                                                       &authRealm,
+                                                       &authNonce,
+                                                       NULL, NULL, 
+                                                       &uriParam,
+                                                       &authCnonce,
+                                                       &authNonceCount,
+                                                       &authQop,
+                                                       HttpMessage::SERVER, 
+                                                       authIndex,
+                                                       &authUserBase);
         authIndex++
       )
    {
-      OsSysLog::add(FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
+      OsSysLog::add(FAC_AUTH, PRI_DEBUG, 
+                    "AppAgentSubscribePolicy::isAuthenticated "
+                    "Message Authorization received: "
                     "reqRealm='%s', reqUser='%s', reqUserBase='%s'",
                     authRealm.data(), authUser.data(), authUserBase.data());
 
-      if (mRealm.compareTo(authRealm) == 0) // case sensitive check that realm is correct
+      UtlString qopType;
+
+      if (mRealm.compareTo(authRealm) ) // case sensitive check that realm is correct
       {
          OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                       "AppAgentSubscribePolicy::isAuthenticated Realm Matches");
+                       "AppAgentSubscribePolicy::isAuthenticated "
+                       "Realm does not match");
+      }
 
+      // validate the nonce
+      else if (!mNonceDb.isNonceValid(authNonce, callId, fromTag, mRealm, mNonceExpiration))
+      {
+          OsSysLog::add(FAC_AUTH, PRI_INFO,
+                        "AppAgentSubscribePolicy::isAuthenticated -"
+                        "Invalid nonce: nonce='%s', callId='%s'",
+                        authNonce.data(), callId.data());
+      }
+
+      // verify that qop,cnonce, nonceCount are compatible
+      else if (subscribeRequest.verifyQopConsistency(authCnonce.data(),
+                                                     authNonceCount.data(),
+                                                     &authQop,
+                                                     qopType)
+               >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
+      {
+          OsSysLog::add(FAC_AUTH, PRI_INFO,
+                        "AppAgentSubscribePolicy::isAuthenticated -"
+                        "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
+                        authQop.data(), authCnonce.data(), authNonceCount.data());
+      }
+
+      else // realm, nonce and qop are all ok
+      {    
+         // build the "authorization identity" from the auth credentials
+         Url authIdentity;
          UtlString authTypeDB;
          UtlString passTokenDB;
 
-         // validate the nonce
-         if (mNonceDb.isNonceValid(authNonce, callId, fromTag,
-                                   mRealm, mNonceExpiration))
+         // then get the credentials for this user & realm
+         if (CredentialDB::getInstance(mCredentialDbName)->getCredential( authUserBase
+                                                                          ,authRealm
+                                                                          ,authIdentity
+                                                                          ,passTokenDB
+                                                                          ,authTypeDB ))
          {
-            // build the "authorization identity" from the auth credentials
-            Url authIdentity;
-
-            // then get the credentials for this user & realm
-            if (CredentialDB::getInstance(mCredentialDbName)->
-                getCredential( authUserBase
-                              ,authRealm
-                              ,authIdentity
-                              ,passTokenDB
-                              ,authTypeDB
+            // only DIGEST is used, so the authTypeDB above is ignored
+            if ((isAuthorized =
+                 subscribeRequest.verifyMd5Authorization(authUser.data(),
+                                                         passTokenDB.data(),
+                                                         authNonce.data(),
+                                                         authRealm.data(),
+                                                         authCnonce.data(),
+                                                         authNonceCount.data(),
+                                                         authQop.data(),
+                                                         uriParam.data())
                    ))
             {
-               // only DIGEST is used, so the authTypeDB above is ignored
-               if ((isAuthorized =
-                    subscribeRequest.verifyMd5Authorization(authUser.data(),
-                                                            passTokenDB.data(),
-                                                            authNonce,
-                                                            authRealm.data(),
-                                                            uriParam)
-                      ))
-               {
-                  OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                                "AppAgentSubscribePolicy::isAuthenticated "
-                                "response auth hash matches");
-               }
-               else
-               {
-                  UtlString identity;
-                  authIdentity.getIdentity(identity);
-                  OsSysLog::add(FAC_AUTH, PRI_ERR,
-                                "Response auth hash does not match (bad password?)"
-                                " authIdentity='%s' authUser='%s' authUserBase='%s'",
-                                identity.data(), authUser.data(), authUserBase.data());
-               }
+               OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                             "AppAgentSubscribePolicy::isAuthenticated "
+                             "response auth hash matches");
             }
-            else // failed to get credentials
+            else
             {
                UtlString identity;
                authIdentity.getIdentity(identity);
                OsSysLog::add(FAC_AUTH, PRI_ERR,
-                             "Unable to get credentials for realm='%s', user='%s', userBase = '%s'",
-                             mRealm.data(), authUser.data(), authUserBase.data());
+                             "AppAgentSubscribePolicy::isAuthenticated "
+                             "Response auth hash does not match (bad password?)"
+                             " authIdentity='%s' authUser='%s' authUserBase='%s'",
+                             identity.data(), authUser.data(), authUserBase.data());
             }
          }
-         else // nonce is not valid
+         else // failed to get credentials
          {
-            OsSysLog::add(FAC_AUTH, PRI_INFO,
-                          "Invalid nonce: nonce='%s', callId='%s'",
-                          authNonce.data(), callId.data());
+            UtlString identity;
+            authIdentity.getIdentity(identity);
+            OsSysLog::add(FAC_AUTH, PRI_ERR,
+                          "AppAgentSubscribePolicy::isAuthenticated "
+                          "Unable to get credentials for realm='%s', user='%s', userBase = '%s'",
+                          mRealm.data(), authUser.data(), authUserBase.data());
          }
-      }
+      }     // end DB check
    } //end for
 
    if ( !isAuthorized )

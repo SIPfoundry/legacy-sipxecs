@@ -1,7 +1,7 @@
 #define GRUU_WORKAROUND
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -1428,7 +1428,14 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
                        fromNameAddr.toString().data(), toUri.toString().data(),
                        mRealm.data() );
 
-        UtlString requestNonce, requestRealm, requestUser, requestUserBase, uriParam;
+        UtlString requestNonce;
+        UtlString requestRealm;
+        UtlString requestUser;
+        UtlString requestUserBase;
+        UtlString uriParam;
+        UtlString requestCnonce;
+        UtlString requestNonceCount;
+        UtlString requestQop;
         int requestAuthIndex = 0;
         UtlString callId;
         UtlString fromTag;
@@ -1438,11 +1445,18 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
         fromNameAddr.getFieldParameter("tag", fromTag);
 
         while ( ! isAuthorized
-               && message.getDigestAuthorizationData(
-                   &requestUser, &requestRealm, &requestNonce,
-                   NULL, NULL, &uriParam,
-                   HttpMessage::SERVER, requestAuthIndex,
-                   &requestUserBase, &instrument)
+               && message.getDigestAuthorizationData(&requestUser,
+                                                     &requestRealm, 
+                                                     &requestNonce,
+                                                     NULL, NULL, 
+                                                     &uriParam,
+                                                     &requestCnonce,  // cnonce
+                                                     &requestNonceCount,  // nonceCount
+                                                     &requestQop,  // qop
+                                                     HttpMessage::SERVER, 
+                                                     requestAuthIndex,
+                                                     &requestUserBase, 
+                                                     &instrument)
                )
         {
            OsSysLog::add( FAC_AUTH, PRI_DEBUG, "Message Authorization received: "
@@ -1450,70 +1464,91 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
                           requestRealm.data() , requestUser.data(),
                           requestUserBase.data(), instrument.data());
 
-            if ( mRealm.compareTo(requestRealm) == 0 ) // case sensitive check that realm is correct
-            {
-                OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                              "SipRegistrarServer::isAuthorized Realm Matches");
+           UtlString qopType;
 
+           if (mRealm.compareTo(requestRealm) ) // case sensitive check that realm is correct
+           {
+              OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                            "SipRegistrarServer::isAuthorized "
+                            "Realm does not match");
+           }
+
+           // validate the nonce
+           else if (!mNonceDb.isNonceValid(requestNonce, callId, fromTag, mRealm, mNonceExpiration))
+           {
+               OsSysLog::add(FAC_AUTH, PRI_INFO,
+                             "SipRegistrarServer::isAuthorized "
+                             "Invalid nonce for '%s', nonce='%s', callId='%s'",
+                             identity.data(), requestNonce.data(), callId.data());
+           }
+
+           // verify that qop,cnonce, nonceCount are compatible
+           else if (message.verifyQopConsistency(requestCnonce.data(),
+                                                 requestNonceCount.data(),
+                                                 &requestQop,
+                                                 qopType)
+                    >= HttpMessage::AUTH_QOP_NOT_SUPPORTED)
+           {
+               OsSysLog::add(FAC_AUTH, PRI_INFO,
+                             "SipRegistrarServer::isAuthorized "
+                             "Invalid combination of QOP('%s'), cnonce('%s') and nonceCount('%s')",
+                             requestQop.data(), requestCnonce.data(), requestNonceCount.data());
+           }
+
+           else // realm, nonce and qop are all ok
+           {
                 // need the request URI to validate the nonce
                 UtlString reqUri;
                 message.getRequestUri(&reqUri);
                 UtlString authTypeDB;
                 UtlString passTokenDB;
+                Url discardUriFromDB;
 
-                // validate the nonce
-                if (mNonceDb.isNonceValid(requestNonce, callId, fromTag,
-                                          mRealm, mNonceExpiration))
+                // then get the credentials for this user & realm
+                if (CredentialDB::getInstance()->getCredential( toUri
+                                                               ,requestRealm
+                                                               ,requestUserBase
+                                                               ,passTokenDB
+                                                               ,authTypeDB
+                                                               ))
                 {
-                    Url discardUriFromDB;
-
-                    // then get the credentials for this user & realm
-                    if (CredentialDB::getInstance()->getCredential( toUri
-                                                                   ,requestRealm
-                                                                   ,requestUserBase
-                                                                   ,passTokenDB
-                                                                   ,authTypeDB
-                                                                   ))
+                  // only DIGEST is used, so the authTypeDB above is ignored
+                  if ((isAuthorized = message.verifyMd5Authorization(requestUser.data(),
+                                                                     passTokenDB.data(),
+                                                                     requestNonce,
+                                                                     requestRealm.data(),
+                                                                     requestCnonce.data(),
+                                                                     requestNonceCount.data(),
+                                                                     requestQop.data(),
+                                                                     uriParam)
+                       ))
                     {
-                      // only DIGEST is used, so the authTypeDB above is ignored
-                      if ((isAuthorized = message.verifyMd5Authorization(requestUser.data(),
-                                                                         passTokenDB.data(),
-                                                                         requestNonce,
-                                                                         requestRealm.data(),
-                                                                         uriParam)
-                           ))
-                        {
-                          OsSysLog::add(FAC_AUTH, PRI_DEBUG,
-                                        "SipRegistrarServer::isAuthorized "
-                                        "response auth hash matches");
-                        }
-                      else
-                        {
-                          OsSysLog::add(FAC_AUTH, PRI_ERR,
-                                        "Response auth hash does not match (bad password?)"
-                                        " toUri='%s' requestUser='%s' requestNonce='%s' uriParam='%s'",
-                                        toUri.toString().data(),
-                                        requestUser.data(),
-                                        requestNonce.data(),
-                                        uriParam.data());
-                        }
+                      OsSysLog::add(FAC_AUTH, PRI_DEBUG,
+                                    "SipRegistrarServer::isAuthorized "
+                                    "response auth hash matches");
                     }
-                    else // failed to get credentials
+                  else
                     {
-                        OsSysLog::add(FAC_AUTH, PRI_ERR,
-                                      "Unable to get credentials for '%s', realm='%s', user='%s'",
-                                      identity.data(), mRealm.data(), requestUser.data());
+                      OsSysLog::add(FAC_AUTH, PRI_ERR,
+                                    "Response auth hash does not match (bad password?)"
+                                    " toUri='%s' requestUser='%s' requestNonce='%s' uriParam='%s'"
+                                    " passTokenDB='%s' authTypeDB='%s'",
+                                    toUri.toString().data(),
+                                    requestUser.data(),
+                                    requestNonce.data(),
+                                    uriParam.data(),
+                                    passTokenDB.data(),
+                                    authTypeDB.data());
                     }
                 }
-                else // nonce is not valid
+                else // failed to get credentials
                 {
-                    OsSysLog::add(FAC_AUTH, PRI_INFO,
-                                  "Invalid nonce for '%s', nonce='%s', callId='%s'",
-                                  identity.data(), requestNonce.data(),
-                                  callId.data());
+                    OsSysLog::add(FAC_AUTH, PRI_ERR,
+                                  "Unable to get credentials for '%s', realm='%s', user='%s'",
+                                  identity.data(), mRealm.data(), requestUser.data());
                 }
-            }
-            requestAuthIndex++;
+           }    // end check DB
+           requestAuthIndex++;
         } //end while
 
         if ( !isAuthorized )
@@ -1534,7 +1569,7 @@ SipRegistrarServer::isAuthorized(const Url& toUri,
             // Clear instrument, which may have been set.
             instrument.remove(0);
         }
-    }
+    }   // end DB exists
     return isAuthorized;
 }
 

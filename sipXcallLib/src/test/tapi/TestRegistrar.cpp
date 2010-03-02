@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -175,6 +175,9 @@ UtlBoolean TestRegistrar::handleRegisterRequest(SipMessage message)
         message.getDigestAuthorizationData(
                    &requestUser, &requestRealm, &requestNonce,
                    NULL, NULL, &uriParam,
+                   NULL,  // TBD cnonce
+                   NULL,  // TBD nonceCount
+                   NULL,  // TBD qop
                    HttpMessage::SERVER, 0);
 
         if (seqNum == retrySeqNum) // if this is a retry response

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -333,6 +333,21 @@ public:
     /**<
      * @return the offset of the string or UTL_NOT_FOUND
      */
+
+    UtlBoolean findToken(const char* token,
+                         const char* delimiter,
+                          const char* suffix = NULL) const;
+    /**<
+ 	 * Search for 'token' in the string.
+ 	 * String is a sequence of substrings, separated by 'delimiter's,
+ 	 * possibly surrounded by whitespace.  See if 'token' matches any
+ 	 * of these substrings.
+ 	 * If 'suffix' is not NULL, a substring may be followed by 'suffix'
+ 	 * and a string (not containing 'delimiter') before the next
+     * 'delimiter'.
+ 	 *
+ 	 * @return True if 'token' matches any of the substrings.
+ 	 */
 
 ///@}
 // ================================================================

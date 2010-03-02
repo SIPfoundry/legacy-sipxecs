@@ -1,6 +1,6 @@
 //
 //
-// Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+// Copyright (C) 2007, 2010 Avaya, Inc., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
 //
@@ -1245,8 +1245,35 @@ public:
                                       const char* password,
                                       const char* nonce,
                                       const char* realm,
+                                      const char* cnonce,
+                                      const char* nonceCount,
+                                      const char* qop,
                                       const char* uri = NULL,
                                       enum HttpEndpointEnum authEntity = SERVER) const;
+
+    HttpMessage::AuthQopValues verifyQopConsistency(const char* cnonce,
+                                                    const char* nonceCount,
+                                                    const UtlString* qop,
+                                                    UtlString& qopType ) const;
+    /**<
+     * Verify that qop, cnonce and nonceCount are consistent. 
+     * Cnonce and nonceCount MUST be present if the header has a qop parameter 
+ 	 *
+ 	 * @return True if qop, cnonce and nonceCount are all supplied.
+ 	 * @return True if none of qop, cnonce and nonceCount are provided.
+ 	 */
+
+    HttpMessage::AuthQopValues parseQopValue(const UtlString* qop,
+                                             UtlString& qopType ) const;
+    /**<
+     * @return HttpMessage::AUTH_QOP_EMPTY = 0 if there was no qop value.
+     * @return HttpMessage::AUTH_QOP_HAS_AUTH if qop value exists and contains 'auth' exactly.
+     * @return HttpMessage::AUTH_QOP_NOT_SUPPORTED  if qop value exists but does not contain 'a supported value (currently 'auth'). 
+     *  
+     * @fill qopType for supported values (currently 'auth') 
+     *  
+ 	 */
+
 
     //! @name DNS SRV state accessors
     /*! \note this will be deprecated
