@@ -371,7 +371,9 @@ class SipUtilities {
         }
     }
 
-    /**
+   
+
+	/**
      * Create a basic registration request.
      */
 
@@ -1463,6 +1465,8 @@ class SipUtilities {
                         .createAllowHeader(method);
                 message.addHeader(allow);
             }
+            SupportedHeader sh = ProtocolObjects.headerFactory.createSupportedHeader("timer");
+            message.setHeader(sh);
             /*
              * 100rel not supported from the WAN side. DO NOT add 100rel support
              * when signaling the WAN ( not needed -- leads to needless
@@ -1952,6 +1956,7 @@ class SipUtilities {
          				|| headerName.equalsIgnoreCase(ReferToHeader.NAME)
          				|| headerName.equalsIgnoreCase(ReferredByHeader.NAME)
          				|| headerName.equalsIgnoreCase(RecordRouteHeader.NAME)
+         				|| headerName.equalsIgnoreCase(SupportedHeader.NAME)
          				|| headerName.toLowerCase().startsWith("x-sipx")
          				|| headerName.toLowerCase().startsWith("sipxecs")){
          			continue;

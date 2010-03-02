@@ -7,6 +7,7 @@
 package org.sipfoundry.sipxbridge;
 
 import java.text.ParseException;
+import java.util.TimerTask;
 
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
@@ -33,6 +34,8 @@ public class RtpSessionUtilities {
 
 	private static final Logger logger = Logger
 			.getLogger(RtpSessionUtilities.class);
+	
+	
 
 	/**
 	 * Forward the re-INVITE to the iTSP. Creates a corresponding client
@@ -46,8 +49,39 @@ public class RtpSessionUtilities {
 	 * @throws Exception
 	 */
 	static void forwardReInvite(RtpSession rtpSession,
-			ServerTransaction serverTransaction, Dialog dialog)
+			ServerTransaction serverTransaction, Dialog dialog, boolean retry )
 			throws Exception {
+		
+		Dialog peerDialog = DialogContext.getPeerDialog(dialog);
+
+		/*
+		 * Check if the server side of the dialog is still alive. If not return
+		 * an error.
+		 */
+		if (peerDialog.getState() == DialogState.TERMINATED) {
+			CallControlUtilities.sendInternalError(serverTransaction,
+			"Peer Dialog is terminated");
+			return;
+		}
+		
+		if (peerDialog.getState() == DialogState.EARLY
+				|| peerDialog.getState() == null) {
+			if (retry) {
+				ReInviteTimerTask ttask = new ReInviteTimerTask(rtpSession,
+						serverTransaction, dialog);
+
+				Gateway.getTimer().schedule(ttask,
+						500, 500);
+
+			} else {
+				logger.error("Error processing request"
+						+ serverTransaction.getRequest());
+				logger.error("peer dialog state is " + peerDialog.getState());
+				CallControlUtilities.sendInternalError(serverTransaction,
+						"Peer Dialog not established");
+			}
+			return;
+		}
 		AuthorizationHeader authorizationHeader = null;
 	    /*
 		 * If we are re-negotiating media, then use the new session description
@@ -94,18 +128,8 @@ public class RtpSessionUtilities {
 		DialogContext dat = (DialogContext) dialog
 				.getApplicationData();
 		BackToBackUserAgent b2bua = dat.getBackToBackUserAgent();
-		Dialog peerDialog = DialogContext.getPeerDialog(dialog);
-
-		/*
-		 * Check if the server side of the dialog is still alive. If not return
-		 * an error.
-		 */
-		if (peerDialog.getState() == DialogState.TERMINATED) {
-			Response response = SipUtilities.createResponse(serverTransaction,
-					Response.SERVER_INTERNAL_ERROR);
-			response.setReasonPhrase("Peer Dialog is Terminated");
-			return;
-		}
+		
+	
 
 		DialogContext peerDat = DialogContext.get(peerDialog);
 

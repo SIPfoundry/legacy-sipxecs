@@ -21,6 +21,7 @@ import javax.sip.ResponseEvent;
 import javax.sip.ServerTransaction;
 import javax.sip.SipException;
 import javax.sip.SipProvider;
+import javax.sip.TransactionState;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
@@ -51,6 +52,21 @@ public class CallControlUtilities {
             logger.error("Check gateway configuration", e);
         }
     }
+    
+    public static void sendInternalError(ServerTransaction st,
+			String reasonPhrase) {
+		  try {
+	            Request request = st.getRequest();
+	            Response response = ProtocolObjects.messageFactory.createResponse(
+	                    Response.SERVER_INTERNAL_ERROR, request);
+	            response.setReasonPhrase(reasonPhrase);
+	           
+	            st.sendResponse(response);
+	        } catch (Exception e) {
+	            logger.error("Check gateway configuration", e);
+	        }
+		
+	}
 
     static void sendBadRequestError(ServerTransaction st, Exception ex) {
         try {
@@ -138,9 +154,7 @@ public class CallControlUtilities {
              * Got a Response to our SDP query. Shuffle to the other end.
              */
 
-            DialogContext.getRtpSession(reOfferDialog).getTransmitter().setOnHold(false);
-            
-            
+            DialogContext.getRtpSession(reOfferDialog).getTransmitter().setOnHold(false);     
             DialogContext.get(reOfferDialog).sendSdpReOffer(sdpOffer,responseEvent);   
 
         } else {
@@ -150,7 +164,7 @@ public class CallControlUtilities {
         }
 
     }
-
+   
     /**
      * Sends an SDP answer to the peer of this dialog.
      * 
@@ -374,6 +388,10 @@ public class CallControlUtilities {
             dialogContext.getSipProvider() != Gateway.getLanProvider() &&
             peerDialogContext.getSipProvider() != Gateway.getLanProvider();
     }
+
+	
+
+	
     
 	
 

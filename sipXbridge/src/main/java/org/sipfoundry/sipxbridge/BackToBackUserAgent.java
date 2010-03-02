@@ -1281,7 +1281,7 @@ public class BackToBackUserAgent implements Comparable {
             /*
              * Finally copy all the headers we do not understand.
              */
-            SipUtilities.copyHeaders(request, newRequest, false);
+           // SipUtilities.copyHeaders(request, newRequest, false);
 
             ct.sendRequest();
 
@@ -1808,8 +1808,10 @@ public class BackToBackUserAgent implements Comparable {
             
             /*
              * Copy any unrecognized that we have not accounted for
+             * Stil questionable about whether unknown headers should be copied so I am commenting the
+             * following out for the moment.
              */
-            SipUtilities.copyHeaders(incomingRequest,outgoingRequest, true);
+           // SipUtilities.copyHeaders(incomingRequest,outgoingRequest, true);
            
             
             /*

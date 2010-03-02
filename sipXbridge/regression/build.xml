@@ -34,6 +34,47 @@
           		<arg value= "--stop" />
         	</exec>
         </target>
+        <target name="regression" description="run the regression tests" >
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-blind-local-itsp-reinvite-during-transfer" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-call-park-pickup"/>
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-call-pickup" /> 
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-itsp-hangup-after-transfer" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-itsp-hangup-during-transfer" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-local-hangup" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-forward-itsp" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-attended-itsp" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-blind-local" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-attended-itsp" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-attended-local" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-blind-itsp" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-blind-local" />
+        	</ant>
+	</target>
 
         <target name="test" description="run a test" >
 		<chmod  file="copysipxbridge.sh" perm="ugo+rwx" />

@@ -8,6 +8,7 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sip.DialogExt;
+import gov.nist.javax.sip.ServerTransactionExt;
 import gov.nist.javax.sip.SipProviderExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
 import gov.nist.javax.sip.header.extensions.MinSE;
@@ -183,6 +184,8 @@ class DialogContext {
     private String  dialogContextId;
 
     private long lastReInviteSent;
+
+	private ServerTransaction pendingReInvite;
 
   
 
@@ -719,11 +722,17 @@ class DialogContext {
                 reInvite.setHeader(viaHeader);
                 ContactHeader contactHeader = SipUtilities.createContactHeader(null,
                         provider, transport);
-
+                
+                
                 reInvite.setHeader(contactHeader);
                 AcceptHeader acceptHeader = ProtocolObjects.headerFactory.createAcceptHeader(
                         "application", "sdp");
                 reInvite.setHeader(acceptHeader);
+                if ( provider == Gateway.getWanProvider(transport) && 
+                		(this.itspInfo == null || this.itspInfo.isGlobalAddressingUsed())) {
+                	SipUtilities.setGlobalAddresses(reInvite);       	
+                }
+ 
                 ClientTransaction ctx = provider.getNewClientTransaction(reInvite);
                 TransactionContext tad = TransactionContext.attach(ctx,
                         Operation.SOLICIT_SDP_OFFER_FROM_PEER_DIALOG);
@@ -823,17 +832,7 @@ class DialogContext {
             logger.warn("Attempt to send SDP re-offer on a terminated dialog");
             return;
         }
-        Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
         Response triggeringResponse = responseEvent.getResponse();
-        ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggeringResponse, ReferencesHeader.CHAIN);
-        sdpOfferInvite.setHeader(referencesHeader);
-        
-        if ( proxyAuthorizationHeader != null ) {
-        	sdpOfferInvite.setHeader(proxyAuthorizationHeader);
-        }
-        /*
-         * Set and fix up the sdp offer to send to the opposite side.
-         */
         
         if ( CallControlUtilities.isRemoveRelay(this) ) {
             sdpOffer = SipUtilities.getSessionDescription(triggeringResponse);
@@ -844,17 +843,46 @@ class DialogContext {
 
         SipUtilities.incrementSessionVersion(sdpOffer);
 
-        SipUtilities.fixupOutboundRequest(dialog, sdpOfferInvite);
+      
+        if ( this.pendingReInvite != null ) {
+        	Response newResponse = SipUtilities.createResponse(this.pendingReInvite, Response.OK);
+        	SipUtilities.setSessionDescription(newResponse, sdpOffer);
+        	
+        	if (((ServerTransactionExt)this.pendingReInvite).getSipProvider()  != Gateway.getLanProvider() &&
+        			(this.itspInfo == null || this.itspInfo.isGlobalAddressingUsed())) {
+        		SipUtilities.setGlobalAddress(newResponse);
+        	}
 
-        sdpOfferInvite.setContent(sdpOffer.toString(), ProtocolObjects.headerFactory
-                .createContentTypeHeader("application", "sdp"));
+        			
+        	this.pendingReInvite.sendResponse(newResponse);
+        	this.pendingReInvite = null;
+        	
+        	        	
+        }  else {
+        	Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
+        	ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggeringResponse, ReferencesHeader.CHAIN);
+        	sdpOfferInvite.setHeader(referencesHeader);
 
-        ClientTransaction ctx = ((DialogExt) dialog).getSipProvider().getNewClientTransaction(
-                sdpOfferInvite);
+        	if ( proxyAuthorizationHeader != null ) {
+        		sdpOfferInvite.setHeader(proxyAuthorizationHeader);
+        	}
+        	/*
+        	 * Set and fix up the sdp offer to send to the opposite side.
+        	 */
 
-        TransactionContext.attach(ctx, Operation.SEND_SDP_RE_OFFER);
+        	SipUtilities.fixupOutboundRequest(dialog, sdpOfferInvite);
 
-        this.sendReInvite(ctx);
+        	sdpOfferInvite.setContent(sdpOffer.toString(), ProtocolObjects.headerFactory
+        			.createContentTypeHeader("application", "sdp"));
+
+        	ClientTransaction ctx = ((DialogExt) dialog).getSipProvider().getNewClientTransaction(
+        			sdpOfferInvite);
+
+
+        	TransactionContext.attach(ctx, Operation.SEND_SDP_RE_OFFER);
+
+        	this.sendReInvite(ctx);
+        }
         
 
     }
@@ -1228,6 +1256,18 @@ class DialogContext {
     public String getDialogContextId() {
        return dialogContextId;
     }
+
+    /**
+     * Get a pending re-INVITE.
+     * @return
+     */
+	public ServerTransaction  getPendingReInvite() {
+		return this.pendingReInvite;
+	}
+	
+	public void setPendingReInvite(ServerTransaction serverTransaction ) {
+		this.pendingReInvite = serverTransaction;
+	}
 
 	
 	

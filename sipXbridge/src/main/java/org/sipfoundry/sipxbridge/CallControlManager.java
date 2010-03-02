@@ -394,7 +394,7 @@ class CallControlManager implements SymmitronResetHandler {
                 /*
                  * Remove hold and codec renegotiation require forwarding of re-INVITE.
                  */
-                RtpSessionUtilities.forwardReInvite(rtpSession, serverTransaction, dialog);
+                RtpSessionUtilities.forwardReInvite(rtpSession, serverTransaction, dialog, true);
             } else {
                 /*
                  * This is a request that can be handled locally. Grab the previous session
@@ -1884,8 +1884,11 @@ class CallControlManager implements SymmitronResetHandler {
                 tad.setDialogPendingSdpAnswer(null);
                 CallControlUtilities.sendSdpAnswerInAck(response, dialogToAck);
             } else if (dialogContext.getPendingAction() == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
-                dialogContext.setPendingAction(PendingDialogAction.NONE);
-                CallControlUtilities.sendSdpReOffer(responseEvent, dialog, peerDialog);
+            	 dialogContext.setPendingAction(PendingDialogAction.NONE);
+                   
+            	
+            	CallControlUtilities.sendSdpReOffer(responseEvent, dialog, peerDialog);
+            	
             } else {
                 if (logger.isDebugEnabled()) {
                     logger.debug("tad.dialogPendingSdpAnswer = "
