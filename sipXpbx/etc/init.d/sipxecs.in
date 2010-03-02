@@ -557,9 +557,9 @@ do_setup() {
 
         # If alsa present configure the sound input source used for MOH to be 'Line'
         if test -d /dev/snd ; then
-            amixer cset iface=MIXER,name="Input Source",index=0 "Line"
-            amixer cset iface=MIXER,name="Capture Switch",index=0 on
-            amixer cset iface=MIXER,name="Capture Volume",index=0 60%
+            amixer cset iface=MIXER,name="Input Source",index=0 "Line" >& /dev/null
+            amixer cset iface=MIXER,name="Capture Switch",index=0 on >& /dev/null
+            amixer cset iface=MIXER,name="Capture Volume",index=0 60% >& /dev/null
         fi
 
         # Ensure the sipx-restore and sipx-archive-common scripts are
