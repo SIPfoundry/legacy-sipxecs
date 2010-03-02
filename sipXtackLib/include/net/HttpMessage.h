@@ -192,7 +192,7 @@ public:
     {
         AUTH_QOP_EMPTY = 0,
         AUTH_QOP_HAS_AUTH,
-        AUTH_QOP_NOT_SUPPORTED   // put supported values ahead of this line
+        AUTH_QOP_NOT_SUPPORTED   // Must be last (largest number) put supported values ahead of this line
     };
 
 /* ============================ CREATORS ================================== */

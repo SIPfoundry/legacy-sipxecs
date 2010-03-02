@@ -2654,9 +2654,9 @@ void HttpMessage::setAuthenticateData(const char* scheme,
     {
         authField.append(HTTP_BASIC_AUTHENTICATION); // :TBD: should be Digest
     }
-    authField.append(' ');
-    authField.append(HTTP_AUTHENTICATION_REALM_TOKEN);
-    authField.append('=');
+    authField.append(" "
+                     HTTP_AUTHENTICATION_REALM_TOKEN
+                     "=");
     if(realm)
     {
         authField.append('\"');
@@ -2677,35 +2677,35 @@ void HttpMessage::setAuthenticateData(const char* scheme,
     {
         if(domain && *domain)
         {
-            authField.append(", ");
-            authField.append(HTTP_AUTHENTICATION_DOMAIN_TOKEN);
-            authField.append("=\"");
+            authField.append(", "
+                             HTTP_AUTHENTICATION_DOMAIN_TOKEN
+                             "=\"");
             authField.append(domain);
-            authField.append('\"');
+            authField.append("\"");
         }
         if(nonce && *nonce)
         {
-            authField.append(", ");
-            authField.append(HTTP_AUTHENTICATION_NONCE_TOKEN);
-            authField.append("=\"");
+            authField.append(", "
+                             HTTP_AUTHENTICATION_NONCE_TOKEN
+                             "=\"");
             authField.append(nonce);
-            authField.append('\"');
+            authField.append("\"");
         }
         if(opaque && *opaque)
         {
-            authField.append(", ");
-            authField.append(HTTP_AUTHENTICATION_OPAQUE_TOKEN);
-            authField.append("=\"");
+            authField.append(", "
+                             HTTP_AUTHENTICATION_OPAQUE_TOKEN
+                             "=\"");
             authField.append(opaque);
-            authField.append('\"');
+            authField.append("\"");
         }
 
         // Always ask for 'qop="auth"' in www or proxy authenticate header
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_QOP_TOKEN);
-        authField.append("=\"");
-        authField.append(HTTP_QOP_AUTH);
-        authField.append('\"');
+        authField.append(", "
+                         HTTP_AUTHENTICATION_QOP_TOKEN
+                         "=\""
+                         HTTP_QOP_AUTH
+                         "\"");
     }
 
     addAuthenticateField(authField, authEntity);
@@ -3125,83 +3125,83 @@ void HttpMessage::setDigestAuthorizationData(const char* user,
     authField.append(HTTP_DIGEST_AUTHENTICATION);
     if(user && strlen(user))
     {
-        authField.append(' ');
-        authField.append(HTTP_AUTHENTICATION_USERNAME_TOKEN);
-        authField.append("=\"");
+        authField.append(" "
+                         HTTP_AUTHENTICATION_USERNAME_TOKEN
+                         "=\"");
         authField.append(user);
-        authField.append('\"');
+        authField.append("\"");
     }
     if(realm)
     {
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_REALM_TOKEN);
-        authField.append("=\"");
+        authField.append(", "
+                         HTTP_AUTHENTICATION_REALM_TOKEN
+                         "=\"");
         authField.append(realm);
-        authField.append('\"');
+        authField.append("\"");
     }
     if(nonce && strlen(nonce))
     {
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_NONCE_TOKEN);
-        authField.append("=\"");
+        authField.append(", "
+                         HTTP_AUTHENTICATION_NONCE_TOKEN
+                         "=\"");
         authField.append(nonce);
-        authField.append('\"');
+        authField.append("\"");
     }
     if(uri && strlen(uri))
     {
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_URI_TOKEN);
-        authField.append("=\"");
+        authField.append(", "
+                         HTTP_AUTHENTICATION_URI_TOKEN
+                         "=\"");
         authField.append(uri);
-        authField.append('\"');
+        authField.append("\"");
     }
     if(response && strlen(response))
     {
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_RESPONSE_TOKEN);
-        authField.append("=\"");
+        authField.append(", "
+                         HTTP_AUTHENTICATION_RESPONSE_TOKEN
+                         "=\"");
         authField.append(response);
-        authField.append('\"');
+        authField.append("\"");
     }
     if(algorithm && strlen(algorithm))
     {
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_ALGORITHM_TOKEN);
-        authField.append("=");
+        authField.append(", "
+                         HTTP_AUTHENTICATION_ALGORITHM_TOKEN
+                         "=");
         authField.append(algorithm);
     }
 
     if((cnonce && strlen(cnonce)) && (qop && strlen(qop)))
     {
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_CNONCE_TOKEN);
-        authField.append("=\"");
+        authField.append(", "
+                         HTTP_AUTHENTICATION_CNONCE_TOKEN
+                         "=\"");
         authField.append(cnonce);
-        authField.append('\"');
+        authField.append("\"");
     }
     if(opaque && strlen(opaque))
     {
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_OPAQUE_TOKEN);
-        authField.append("=\"");
+        authField.append(", "
+                         HTTP_AUTHENTICATION_OPAQUE_TOKEN
+                         "=\"");
         authField.append(opaque);
-        authField.append('\"');
+        authField.append("\"");
     }
 
     if(qop && strlen(qop)) // qop value passed in is exactly what's wanted
     {
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_QOP_TOKEN);
-        authField.append("=");
+        authField.append(", "
+                         HTTP_AUTHENTICATION_QOP_TOKEN
+                         "=");
         authField.append(qop); 
     }
 
     // nonceCount and qop consistency should be validated before calling this function
     if(nonceCount && strlen(nonceCount))     
     {
-        authField.append(", ");
-        authField.append(HTTP_AUTHENTICATION_NONCE_COUNT_TOKEN);
-        authField.append('=');
+        authField.append(", "
+                         HTTP_AUTHENTICATION_NONCE_COUNT_TOKEN
+                         "=");
         authField.append(nonceCount);
     }
 

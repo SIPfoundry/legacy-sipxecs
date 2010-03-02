@@ -1546,6 +1546,8 @@ HttpMessage::AuthQopValues SipMessage::verifyQopConsistency(const char* cnonce,
                           "No qop parameter but unwanted cnonce and/or nonceCount is included ");
             qopValue = HttpMessage::AUTH_QOP_NOT_SUPPORTED;
         }
+        break;
+
     default:
         qopValue = HttpMessage::AUTH_QOP_NOT_SUPPORTED;
         break;

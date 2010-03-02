@@ -1259,8 +1259,14 @@ public:
      * Verify that qop, cnonce and nonceCount are consistent. 
      * Cnonce and nonceCount MUST be present if the header has a qop parameter 
  	 *
- 	 * @return True if qop, cnonce and nonceCount are all supplied.
- 	 * @return True if none of qop, cnonce and nonceCount are provided.
+     * @return HttpMessage::AUTH_QOP_EMPTY = 0 if there is no value for any of { qop, nonceCount, cnonce } .
+     * @return HttpMessage::AUTH_QOP_HAS_AUTH if there are values for all of { qop, nonceCount, cnonce } AND
+     *                                                  qop value exists and contains 'auth' exactly.
+     * @return HttpMessage::AUTH_QOP_NOT_SUPPORTED  if:
+     *                          - qop value exists but does not contain a supported value (currently 'auth') OR
+     *                          - more than one but not all of { qop, nonceCount, cnonce } have a value
+     *  
+     * @fill qopType for supported values (currently 'auth') 
  	 */
 
     HttpMessage::AuthQopValues parseQopValue(const UtlString* qop,
