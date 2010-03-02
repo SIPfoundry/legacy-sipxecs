@@ -82,11 +82,6 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
     // Anything else.
     protected Color m_unhighlighted_color;
 
-    // these static variables keep track of both the top and bottom ChartBody
-    // object instances
-    protected static ChartBody topChart;
-    protected static ChartBody bottomChart;
-
     // used to display the dialog with the background colors when assigning a
     // background color to a sip dialog, also the recorded location of the popup
     // menu so that when user decides to set a background the color chooser
@@ -144,27 +139,36 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         // the SIPChartModel class, this array is just used here, it is updated
         // in the ChartHeader class whenever a new key is added
         m_key_positions = m_model.getKeyPositions();
+    }
 
-        // lets initialize our ChartBody variables, these are used to highlight
-        // the messages on both charts if they are visible, might also be used
-        // for other things in the future
-        if (topChart == null)
+    // Public Methods
+    //
+    
+    // method used to paint the background alternating dark gray rectangles
+    public void paintBackgroundRow(Graphics g, int index)
+    {
+        Dimension dimSize = getSize();
+        Dimension dimRowSize = getMinimumSize();
+
+        if ((index >= 0) && (index < m_model.getSize()))
         {
-            // the top ChartBody always is instantiated first so if topChart is
-            // null we know that it is being instantiated
-            topChart = this;
-        }
-        else
-        {
-            // top ChartBody is instantiated so we know that this is the second
-            // one
-            bottomChart = this;
+            ChartDescriptor entry = (ChartDescriptor) m_model.getEntryAt(index);
+
+            // if display index has been set to < 0 that means user decided not
+            // to display the message
+            if (entry.displayIndex < 0)
+                return;
+
+            // get the rectangle size
+            Rectangle backgroundArea = new Rectangle(0, (dimRowSize.height)
+                    * (entry.displayIndex + 1) - 12, dimSize.width, ARROW_HEIGHT + 14);
+
+            // every alternate row is painted with dark gray color
+            if (entry.displayIndex % 2 == 0)
+                GUIUtils.paintBackgroundRow(g, backgroundArea);
         }
     }
 
-    // ////////////////////////////////////////////////////////////////////////////
-    // Public Methods
-    // //
     public void paintEntry(Graphics g, int index)
     {
         Dimension dimSize = getSize();
@@ -389,6 +393,17 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         // also.)
         g.setColor(Color.black);
         g.fillRect(0, 0, dimSize.width, dimSize.height);
+
+        // here we paint the background rows, the alternating
+        // black and dark gray rows, they must be painted first
+        // so they appear to be in the background
+        if ((iEntries > 0) && (dimRowSize.width > 0) && (iNumKeys > 0))
+        {
+            for (int i = 0; i < iEntries; i++)
+            {
+                paintBackgroundRow(g, i);
+            }
+        }
 
         // Draw vertical lines
         if ((dimRowSize.width > 0) && (iNumKeys > 0))
@@ -890,15 +905,15 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 
         // re-validate and repaint the paint after the messages indexes are
         // reset
-        topChart.revalidate();
-        topChart.repaint();
+        m_frame.m_body.revalidate();
+        m_frame.m_body.repaint();
 
         // if the bottom pane is being shown then need to revalidate and repaint
         // that one as well
         if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
         {
-            bottomChart.revalidate();
-            bottomChart.repaint();
+            m_frame.m_bodySecond.revalidate();
+            m_frame.m_bodySecond.repaint();
         }
 
         m_model.fireKeyVisibilityChanged();
@@ -1003,16 +1018,26 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         {
             // repaint only if the popup menu is not displayed, if it is then we
             // don't want to repaint the background screen since it paints over
-            // the popup menu
-            if (!topChart.m_toolsPopUp.isShowing() && !bottomChart.m_toolsPopUp.isShowing())
+            // the popup menu, this is the case for the pop-up menu on the
+            // main screen OR the time index column
+            if (!m_frame.m_body.m_toolsPopUp.isShowing()
+                    && !m_frame.m_bodySecond.m_toolsPopUp.isShowing()
+                    && !m_frame.m_bodyTimeIndex.m_toolsPopUp.isShowing()
+                    && !m_frame.m_bodyTimeIndexSecond.m_toolsPopUp.isShowing())
             {
-                topChart.setMouseOver(-1);
+                // setting mouse over value for the top scroll pane and the
+                // corresponding time index column
+                m_frame.m_body.setMouseOver(-1);
+                m_frame.m_bodyTimeIndex.setMouseOver(-1);
 
                 // if the bottom chart is also visible (user is working in
                 // split screen mode) then also repaint messages on that
                 // ChartBody
                 if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
-                    bottomChart.setMouseOver(-1);
+                {
+                    m_frame.m_bodySecond.setMouseOver(-1);
+                    m_frame.m_bodyTimeIndexSecond.setMouseOver(-1);
+                }
             }
         }
     }
@@ -1028,20 +1053,38 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
         {
             // repaint only if the popup menu is not displayed, if it is then we
             // don't want to repaint the background screen since it paints over
-            // the popup menu
-            if (!topChart.m_toolsPopUp.isShowing() && !bottomChart.m_toolsPopUp.isShowing())
+            // the popup menu, this is the case for the pop-up menu on the
+            // main screen OR the time index column
+            if (!m_frame.m_body.m_toolsPopUp.isShowing()
+                    && !m_frame.m_bodySecond.m_toolsPopUp.isShowing()
+                    && !m_frame.m_bodyTimeIndex.m_toolsPopUp.isShowing()
+                    && !m_frame.m_bodyTimeIndexSecond.m_toolsPopUp.isShowing())
             {
                 int verticalIndex = PointToIndex(e.getPoint());
 
                 // call the setMouseOver for the top chart to repaint
                 // the highlighted messages
-                topChart.setMouseOver(verticalIndex);
+                m_frame.m_body.setMouseOver(verticalIndex);
+
+                // only manipulate the time index column if its
+                // actually visible, user has the option to make
+                // it invisible
+                if (m_frame.m_scrollPaneTimeIndex.isVisible())
+                    m_frame.m_bodyTimeIndex.setMouseOver(verticalIndex);
 
                 // if the bottom chart is also visible (user is working in
                 // split screen mode) then also repaint messages on that
                 // ChartBody
                 if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
-                    bottomChart.setMouseOver(verticalIndex);
+                {
+                    m_frame.m_bodySecond.setMouseOver(verticalIndex);
+
+                    // only manipulate the second time index column if its
+                    // actually visible, user has the option to make
+                    // it invisible
+                    if (m_frame.m_scrollPaneTimeIndex.isVisible())
+                        m_frame.m_bodyTimeIndexSecond.setMouseOver(verticalIndex);
+                }
             }
         }
     }
@@ -1163,14 +1206,22 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 
             // trigger a repaint of the top chart and bottom chart if it is
             // visible
-            topChart.repaint();
+            m_frame.m_body.repaint();
+
+            if (m_frame.m_bodyTimeIndex.isVisible())
+                m_frame.m_bodyTimeIndex.repaint();
 
             // because the chart descriptors are shared between ChartBody
             // instances setting the color for each descriptor sets it
             // automatically for
             // both ChartBody instances
             if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
-                bottomChart.repaint();
+            {
+                m_frame.m_bodySecond.repaint();
+
+                if (m_frame.m_bodyTimeIndexSecond.isVisible())
+                    m_frame.m_bodyTimeIndexSecond.repaint();
+            }
         }
         else if (arg0.getActionCommand().compareTo(PopUpUtils.Item3) == 0)
         {
@@ -1179,13 +1230,13 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 
             // trigger a repaint of the top chart and bottom chart if it is
             // visible
-            topChart.revalidate();
-            topChart.repaint();
+            m_frame.m_body.revalidate();
+            m_frame.m_body.repaint();
 
             if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
             {
-                bottomChart.revalidate();
-                bottomChart.repaint();
+                m_frame.m_bodySecond.revalidate();
+                m_frame.m_bodySecond.repaint();
             }
         }
         else if (arg0.getActionCommand().compareTo(PopUpUtils.Item4) == 0)
@@ -1195,13 +1246,13 @@ public class ChartBody extends JComponent implements Scrollable, ActionListener
 
             // trigger a repaint of the top chart and bottom chart if it is
             // visible
-            topChart.revalidate();
-            topChart.repaint();
+            m_frame.m_body.revalidate();
+            m_frame.m_body.repaint();
 
             if (m_frame.getPaneVisibility(SIPViewerFrame.bottomPaneID))
             {
-                bottomChart.revalidate();
-                bottomChart.repaint();
+                m_frame.m_bodySecond.revalidate();
+                m_frame.m_bodySecond.repaint();
             }
         }
     }

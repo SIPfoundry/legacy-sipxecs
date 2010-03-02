@@ -24,6 +24,7 @@ public class SIPChartModel
 //////////////////////////////////////////////////////////////////////////////
 // Attributes
 ////
+    protected SIPViewerFrame m_frame;
     protected String    m_trackableKeys[] ;
     protected int       m_keyUsage[] ;
     protected int       m_keyUsageOrig[] ;
@@ -38,8 +39,9 @@ public class SIPChartModel
 //////////////////////////////////////////////////////////////////////////////
 // Construction
 ////
-    public SIPChartModel()
+    public SIPChartModel(SIPViewerFrame frame)
     {
+        m_frame = frame;
         m_iNumKeys = 0 ;
         m_trackableKeys = new String[MAX_KEYS] ;
         m_keyUsage = new int[MAX_KEYS];
@@ -52,8 +54,7 @@ public class SIPChartModel
 
         m_htAliases = new Hashtable(MAX_KEYS+10) ;
         m_vListeners = new Vector() ;
-    }
-
+    }  
 
 //////////////////////////////////////////////////////////////////////////////
 // Public Method
@@ -641,6 +642,12 @@ public class SIPChartModel
     
     protected void fireKeyVisibilityChanged()
     {
+
+        // make all the time indexes for all the messages the
+        // same format as well as accurate since key become
+        // invisible
+        PopUpUtils.setTimeIndex(m_frame);
+        
         ChartModelListener listener ;
         Vector listeners = (Vector) m_vListeners.clone() ;
 

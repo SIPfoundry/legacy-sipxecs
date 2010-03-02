@@ -265,7 +265,7 @@ public class GUIUtils
                 i = i + LINE_DOTTED_SOLID_RUN + LINE_DOTTED_EMPTY_RUN;
             }
             break;
-            
+
         case GUIUtils.LINE_THICK:
             // thick line is drawn just like a solid line but 3 times with
             // +/- 1 vertical index differential
@@ -273,7 +273,7 @@ public class GUIUtils
             g.drawLine(rect.x, yOffset, rect.x + rect.width, yOffset);
             g.drawLine(rect.x, yOffset + 1, rect.x + rect.width, yOffset + 1);
             break;
-            
+
         default:
             g.drawLine(rect.x, yOffset, rect.x + rect.width, yOffset);
             break;
@@ -400,6 +400,41 @@ public class GUIUtils
                 + (rect.height - 1));
 
         g.setColor(colorOld);
+    }
+
+    // this method is used to draw the background colors for the alternating
+    // rows
+    public static void paintBackgroundRow(Graphics g, Rectangle rectangleArea)
+    {
+        // store current color whatever it is
+        Color tmpColor = g.getColor();
+
+        // set the background color (determined by experimentation)
+        g.setColor(new Color(20, 18, 20));
+
+        // fill the background with the color
+        g.fillRect(rectangleArea.x, rectangleArea.y, rectangleArea.width, rectangleArea.height);
+
+        // reset to original color
+        g.setColor(tmpColor);
+    }
+
+    // this method is used to draw the background with a custom
+    // specified color
+    public static void paintBackgroundRowCustomColor(Graphics g, Rectangle rectangleArea,
+            Color customColor)
+    {
+        // store current color whatever it is
+        Color tmpColor = g.getColor();
+
+        // set color to the specified custom color
+        g.setColor(customColor);
+
+        // fill the background with the color
+        g.fillRect(rectangleArea.x, rectangleArea.y, rectangleArea.width, rectangleArea.height);
+
+        // reset to original color
+        g.setColor(tmpColor);
     }
 
 }

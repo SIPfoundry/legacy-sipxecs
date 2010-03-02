@@ -22,14 +22,22 @@ import org.jdom.Element;
 import org.jdom.output.Format;
 import org.jdom.output.XMLOutputter;
 
+import com.pingtel.sipviewer.PopUpUtils.TimeDisplayMode;
+
 public class SipViewerMetaData
 {
 
+    // local reference to the SIPViewerFrame
+    // so that it can be used in various methods here without
+    // passing it around all the time
+    protected static SIPViewerFrame m_frame;
+
     // input is the root container of the input file, it contains individual
     // XML elements that are SIP messages
-    public static void setSipViewerMetaData(ChartHeader m_header, SIPChartModel m_model,
-            SIPViewerFrame m_frame, JScrollPane m_scrollPane, JScrollPane m_scrollPaneSecond)
+    public static void setSipViewerMetaData(SIPViewerFrame frame)
     {
+
+        m_frame = frame;
 
         // first we see if sipviewer_meta data is embedded in the XML file
         List sipviewer_meta = SipBranchData.nodeContainer.getChildren("sipviewer_meta");
@@ -47,28 +55,76 @@ public class SipViewerMetaData
             xmlNode = (Element) sipviewer_meta.get(0);
 
             // set the column locations
-            setKeyLocations(xmlNode.getChild("locations"), m_header);
+            setKeyLocations(xmlNode.getChild("locations"), m_frame.m_header);
 
             // set the background colors
-            setBackgroundColors(xmlNode.getChild("colors"), m_model);
+            setBackgroundColors(xmlNode.getChild("colors"), m_frame.m_model);
 
             if (xmlNode.getChild("display_locations") != null)
             {
-                setDisplayLocations(xmlNode.getChild("display_locations"), m_model);
+                setDisplayLocations(xmlNode.getChild("display_locations"), m_frame.m_model);
             }
-            
+
+            // sets the usage counts for each vertical line to know
+            // how many messages "connect" to it
             if (xmlNode.getChild("usage_counts") != null)
             {
-                setUsageCounts(xmlNode.getChild("usage_counts"), m_model);
+                setUsageCounts(xmlNode.getChild("usage_counts"), m_frame.m_model);
             }
 
             // set the view mode single/split
             setViewMode(xmlNode.getChildText("mode"), m_frame);
 
+            // first see if time info is in the log file (this is
+            // for backwards compatibility with older log files that
+            // have annotation information)
+            String timeIndexFormat = xmlNode.getChildText("time_index_format");
+
+            if (timeIndexFormat != null)
+            {
+                // lets set the current display mode
+                PopUpUtils.currentTimeDisplaySelection = TimeDisplayMode.valueOf(timeIndexFormat);
+
+                // if display mode is set key index then key index should
+                // also be in the file so lets get it and set it
+                PopUpUtils.keyIndex = Integer.valueOf(xmlNode.getChildText("time_index_key"));
+
+                // lets set the time zone value
+                setTimeZone(xmlNode.getChildText("time_zone"), m_frame);
+
+                // lastly we set the visible/invisible setting on the time
+                // index column
+                setTimeIndexMode(xmlNode.getChildText("time_index_mode"), m_frame);
+            }
+
             // set the scroll locations for each pane
-            setScrollLocations(xmlNode.getChild("scroll_locations"), m_scrollPane,
-                    m_scrollPaneSecond);
+            setScrollLocations(xmlNode.getChild("scroll_locations"), m_frame.m_scrollPane,
+                    m_frame.m_scrollPaneSecond);
         }
+
+        // we have to determine the time index values, either
+        // from settings that were stored in the log file or
+        // from just use the default TIME_OF_DAY_DEFAULT
+        PopUpUtils.setTimeIndex(m_frame);
+
+        // when the log file is parsed the m_model is updated
+        // with each dialog message, each message has a
+        // display property that is set either
+        // to its display number or < 0 which means
+        // invisible, calling the frame validate() and
+        // repaint() methods takes care of redoing the
+        // layout for everything except the time index
+        // columns so we force the time index columns to be
+        // repainted
+        m_frame.m_bodyTimeIndex.revalidate();
+        m_frame.m_bodyTimeIndex.repaint();
+        m_frame.m_bodyTimeIndexSecond.revalidate();
+        m_frame.m_bodyTimeIndexSecond.repaint();
+
+        // lets refresh the frame since time index column
+        // sizes could have changed
+        m_frame.validate();
+        m_frame.repaint();
     }
 
     // sets location of each column, locations are extracted from the input XML
@@ -144,7 +200,7 @@ public class SipViewerMetaData
             m_model.getEntryAt(i).displayIndex = Integer.valueOf(display_location.getText());
         }
     }
-    
+
     // sets the usage counts for all the columns
     private static void setUsageCounts(Element usage_counts, SIPChartModel m_model)
     {
@@ -155,7 +211,7 @@ public class SipViewerMetaData
         int count = elementList.size();
 
         for (int x = 0; x < m_model.m_iNumKeys; x++)
-        {            
+        {
             // get the actual count
             usage_count = (Element) elementList.get(x);
 
@@ -171,6 +227,47 @@ public class SipViewerMetaData
         if (mode.equalsIgnoreCase("split"))
         {
             m_frame.setSecondPaneVisibility(true);
+        }
+    }
+
+    // sets the time zone
+    private static void setTimeZone(String mode, SIPViewerFrame m_frame)
+    {
+        // if the time zone is 'utc' then set utc radio
+        // button in the time zone settings in the menus
+        if (mode.equalsIgnoreCase("utc"))
+        {
+            m_frame.m_utcTimeZone.setSelected(true);
+        }
+        else
+        {
+            // else select the local time zone value
+            m_frame.m_localTimeZone.setSelected(true);
+        }
+    }
+
+    // set the time index visibility
+    private static void setTimeIndexMode(String mode, SIPViewerFrame m_frame)
+    {
+        // if invisible then set both time index columns, top
+        // and bottom to invisible
+        if (mode.equalsIgnoreCase("invisible"))
+        {
+            // set both columns to invisble
+            m_frame.m_scrollPaneTimeIndex.setVisible(false);
+            m_frame.m_scrollPaneTimeIndexSecond.setVisible(false);
+        }
+        else
+        {
+            // in case of setting to visible we only have to
+            // worry about the second pane time index column
+            // since the top one is visible by default
+            if (m_frame.m_scrollPaneSecond.isVisible())
+            {
+                // if we are working in split screen mode then
+                // set the second time index column to visible
+                m_frame.m_bodyTimeIndexSecond.setVisible(true);
+            }
         }
     }
 
@@ -354,7 +451,7 @@ public class SipViewerMetaData
 
                     // storing the locations under the "locations" XML tag
                     locations.addContent(location);
-                    
+
                     // now lets store the usage count for the columns, basically
                     // how many times are they really a target or sounrce of a
                     // message
@@ -375,7 +472,7 @@ public class SipViewerMetaData
 
                 // storing the locations under the "locations" XML tag
                 locations.addContent(location);
-                
+
                 // now lets store the usage count for the columns
                 Element usage_count = new Element("usage_count");
                 usage_count.setText(Integer.toString(m_model.m_keyUsage[x]));
@@ -387,7 +484,7 @@ public class SipViewerMetaData
 
         // adding locations to the meta data component
         meta.getChildren().add(locations);
-        
+
         // adding usage counts to the meta data component
         meta.getChildren().add(usage_counts);
 
@@ -482,8 +579,88 @@ public class SipViewerMetaData
             mode.setText("single");
         }
 
-        // adding mode to the meta data component
         meta.getChildren().add(mode);
+
+        // time_index_mode is a single entry so don't need a top XML container
+        // for it
+        Element time_index_mode = new Element("time_index_mode");
+
+        if (m_frame.m_scrollPaneTimeIndex.isVisible())
+        {
+            // if the top time index column is visible so
+            // that means that time index columns are set
+            // to visible
+            time_index_mode.setText("visible");
+        }
+        else
+        {
+            // top time index column is not visible so
+            // user has selected to hide time index columns
+            time_index_mode.setText("invisible");
+        }
+
+        // adding time_index_mode to the meta data component
+        meta.getChildren().add(time_index_mode);
+
+        // mode is a single entry so don't need a top XML container for it
+        Element time_index_format = new Element("time_index_format");
+
+        // lets get the time display format that is currently selected
+        time_index_format.setText(String.valueOf(PopUpUtils.currentTimeDisplaySelection));
+
+        // adding time_index_format to the meta data component
+        meta.getChildren().add(time_index_format);
+
+        // mode is a single entry so don't need a top XML container for it
+        Element time_index_key = new Element("time_index_key");
+
+        // if user decided to omit invisible dialogs
+        if (SaveOptionCheckBox.getCheckStatus())
+        {
+            // if the key index is invisible, the dialog that has the key
+            // index is invisible, then we can't store the key index
+            // value in the xml file since it will be invalid on
+            // next file load, because the hidden messages would
+            // have been removed
+            if (m_model.getEntryAt(PopUpUtils.keyIndex).displayIndex < 0)
+            {
+                // if message is invisible set key index to default
+                // value of 0
+                time_index_key.setText("0");
+            }
+            else
+            {
+                // else store key index
+                time_index_key.setText(String.valueOf(PopUpUtils.keyIndex));
+            }
+        }
+        else
+        {
+            // also if user decides not to omit any dialogs then we
+            // can safely store the key index since the message that
+            // its set against will be stored in the log file
+            time_index_key.setText(String.valueOf(PopUpUtils.keyIndex));
+        }
+
+        // adding mode to the meta data component
+        meta.getChildren().add(time_index_key);
+
+        // time_zone is a single entry so don't need a top XML container for it
+        Element time_zone = new Element("time_zone");
+
+        if (m_frame.m_utcTimeZone.isSelected())
+        {
+            // lets get the time zone selected
+            time_zone.setText("utc");
+        }
+        else
+        {
+            // user is using local time zone
+            time_zone.setText("local");
+        }
+
+        // adding time_zone to the meta data component
+        meta.getChildren().add(time_zone);
 
         // creating and storing the relative scroll position of the top and
         // bottom panels
@@ -507,8 +684,8 @@ public class SipViewerMetaData
         return meta;
     }
 
-    // this dialog shows the colors available for setting the sip dialog
-    // backgrounds
+    // this action listener is envoked when user presses the check box to
+    // omit invisible messages
     static public class SaveOptionCheckBox extends JDialog implements ActionListener
     {
         static JCheckBox checkboxRef;
@@ -525,8 +702,30 @@ public class SipViewerMetaData
         public void actionPerformed(ActionEvent e)
         {
 
-            // System.out.print(checkboxRef.isSelected());
-
+            if ((checkboxRef.isSelected())
+                    && (m_frame.m_model.getEntryAt(PopUpUtils.keyIndex).displayIndex < 0))
+            {
+                if (PopUpUtils.currentTimeDisplaySelection == TimeDisplayMode.SINCE_KEY_INDEX)
+                {
+                    JOptionPane
+                            .showMessageDialog(
+                                    null,
+                                    "The Time Disply Format is set to \"Since Key Index\". You assigned the Key\n"
+                                            + "Index to a dialog that is no longer visible. If you choose to Omit Invisible\n"
+                                            + "Dialogs then your current time index values will not be reproducable from\n"
+                                            + "the saved log file and the Key Index position will be reset to 0.",
+                                    "SipViewer Annotation Info Loss", JOptionPane.WARNING_MESSAGE);
+                }
+                else
+                {
+                    JOptionPane
+                            .showMessageDialog(
+                                    null,
+                                    "You assigned the Key Index to a dialog that is no longer visible. If you choose\n"
+                                            + "to Omit Invisible Dialogs then the Key Index position will be reset to 0.",
+                                    "SipViewer Annotation Info Loss", JOptionPane.WARNING_MESSAGE);
+                }
+            }
         }
 
         static public boolean getCheckStatus()

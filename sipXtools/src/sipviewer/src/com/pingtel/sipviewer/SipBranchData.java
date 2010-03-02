@@ -1,5 +1,9 @@
 package com.pingtel.sipviewer;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Vector;
 import java.util.List;
 import java.util.Enumeration;
@@ -24,6 +28,9 @@ public class SipBranchData
     String sourceAddress;
     String destinationAddress;
     String timeStamp;
+    long   timeStampInMicroseconds;
+    int    timeStampThreeDigitAccuracy;
+    String timeIndexDisplay;
     String transactionId;
     String frameId;
     String message;
@@ -50,6 +57,40 @@ public class SipBranchData
         destinationAddress = xmlBranchNode.getChildText("destinationAddress");
 
         timeStamp = xmlBranchNode.getChildText("time");
+
+        // setting DateFormater so that it can correctly parse the source
+        DateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+
+        try
+        {
+            // grabbing the actual time
+            Date messageDate = dateFormatter.parse(timeStamp.substring(0, 23));
+
+            // the logs are accurate to a microsecond but java gives us
+            // support only to milliseconds, we have to do some calculations
+            // later on to retain the microsecond accuracy, storing in
+            // microsecond format
+            timeStampInMicroseconds = messageDate.getTime() * 1000;
+
+            // this stores the complete 3 digits of microsecond value used
+            // later in calculations
+            timeStampThreeDigitAccuracy = Integer.valueOf(timeStamp.substring(23, 26));
+            
+            // adding the microsecond values to the overall microsecond values
+            timeStampInMicroseconds += timeStampThreeDigitAccuracy;
+
+        } catch (ParseException e)
+        {
+            // we'll endup here if the logs are corrupted
+            e.printStackTrace();
+        }
+
+        // this field is used to display the time index values to the user in
+        // the time index column, initial timestamp is in the form
+        // yyyy-MM-ddTHH:mm:ss.SSSSSSZ we're interested only in the time (not
+        // date) so we grab everything after letter T and exclude the timezone
+        // Z letter
+        timeIndexDisplay = timeStamp.substring(timeStamp.indexOf('T') + 1, timeStamp.length() - 1);
 
         transactionId = xmlBranchNode.getChildText("transactionId");
         int c = transactionId.charAt(0);
