@@ -94,8 +94,8 @@ class Utils
     # back on when getting the semicolon position
     add_pos = header.length - sip_uri.length      
     
-    # find the semicolon preceding the tag
-    semi = sip_uri.index(';')
+    # find the semicolon and tag
+    semi = sip_uri.index(';tag')
     
     # extract the AOR
     if semi
