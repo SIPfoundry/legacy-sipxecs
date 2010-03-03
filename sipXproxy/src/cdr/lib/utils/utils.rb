@@ -95,7 +95,7 @@ class Utils
     add_pos = header.length - sip_uri.length      
     
     # find the semicolon and tag
-    semi = sip_uri.index(';')
+    semi = sip_uri.index(';tag')
     
     # extract the AOR
     if semi

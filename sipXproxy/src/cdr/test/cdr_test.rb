@@ -28,8 +28,8 @@ def make_cse(args)
   cse.call_id='test'
   cse.from_tag="abcd"
   cse.to_tag="efghss"
-  cse.from_url='sip:alice@example.com; tag=f'
-  cse.to_url='sip:bob@example.com; tag=g'
+  cse.from_url='sip:alice@example.com;tag=f'
+  cse.to_url='sip:bob@example.com;tag=g'
   cse.contact='sip:alice@1.1.1.1'
   cse.branch_id='abc'
   cse.via_count=2

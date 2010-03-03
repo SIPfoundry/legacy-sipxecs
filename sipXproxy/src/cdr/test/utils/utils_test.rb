@@ -27,8 +27,8 @@ class UtilsTest < Test::Unit::TestCase
                  Utils.get_aor_from_header(header))                 
     
     # another good input
-    header = '<sip:100@pingtel.com;user=phone>'
-    assert_equal('<sip:100@pingtel.com>', Utils.get_aor_from_header(header))
+    header = '<sip:100@pingtel.com;user=phone>;tag=5551212'
+    assert_equal('<sip:100@pingtel.com;user=phone>', Utils.get_aor_from_header(header))
     
     # Test get_aor_from_header with a bad input: there is no tag.
     # Must raise an exception.

@@ -18,7 +18,7 @@ class CallStateEventTest < Test::Unit::TestCase
     cse = CallStateEvent.new
     cse.from_url = 'sip:alice@example.com'
     assert_raise(BadSipHeaderException) { cse.caller_aor }
-    cse.from_url = 'sip:alice@example.com; tag=f'
+    cse.from_url = 'sip:alice@example.com;tag=f'
     assert_equal('sip:alice@example.com', cse.caller_aor)
   end
 
@@ -27,13 +27,13 @@ class CallStateEventTest < Test::Unit::TestCase
     cse.event_type = CallStateEvent::CALL_SETUP_TYPE
     cse.to_url = 'sip:bob@example.com'
     assert_raise(BadSipHeaderException) { cse.callee_aor }
-    cse.to_url = 'sip:bob@example.com; tag=t'
+    cse.to_url = 'sip:bob@example.com;tag=t'
     assert_equal('sip:bob@example.com', cse.callee_aor)
 
     cse.event_type = CallStateEvent::CALL_REQUEST_TYPE
     cse.to_url = 'sip:bob@example.com'
     assert_equal('sip:bob@example.com', cse.callee_aor)
-    cse.to_url = 'sip:bob@example.com; tag=t'
+    cse.to_url = 'sip:bob@example.com;tag=t'
     assert_equal('sip:bob@example.com', cse.callee_aor)
   end
   
