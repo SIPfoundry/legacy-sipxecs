@@ -958,8 +958,7 @@ for command in \
     "vmstat 5 2" \
     "free" \
     "df -h" \
-    "ls -ld /tmp" \
-    "@SIPX_BINDIR@/analyze_483s @SIPX_LOGDIR@/sipXproxy.log"
+    "ls -ld /tmp"
 do
   echo "" >> ${SystemConfig}
   echo ======== $command >> ${SystemConfig}
