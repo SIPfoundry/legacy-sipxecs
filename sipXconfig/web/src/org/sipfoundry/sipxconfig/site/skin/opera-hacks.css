@@ -3,3 +3,7 @@
 {
     display: table;
 }
+
+#contentContainer #leftNav {
+	width:15%;
+}
