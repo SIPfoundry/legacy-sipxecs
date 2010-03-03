@@ -7,7 +7,6 @@ import java.util.List;
 import static java.util.Arrays.asList;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxParkService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
