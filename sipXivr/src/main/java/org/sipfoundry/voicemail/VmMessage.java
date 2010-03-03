@@ -144,12 +144,14 @@ public class VmMessage {
         // Generate the MessageDescriptor;
         me.m_messageDescriptor = new MessageDescriptor();
         me.m_messageDescriptor.setId(mailbox.getUser().getIdentity());
-        //me.m_messageDescriptor.setFromUri(msg.getf);
-
+        
         try {
+            String str = msg.getHeader("X-SIPX-FROMURI", ";");
+            me.m_messageDescriptor.setFromUri(str);
+            
             me.m_messageDescriptor.setDurationSecs(msg.getSize());
             me.m_unHeard = !msg.isSet(Flag.SEEN);
-            me.m_messageDescriptor.setTimestamp(msg.getReceivedDate().toString());
+            me.m_messageDescriptor.setTimestamp(msg.getReceivedDate().getTime());
             me.m_messageDescriptor.setSubject(msg.getSubject());
 
             Priority pr = Priority.NORMAL;

@@ -90,6 +90,7 @@ public class Emailer {
 
             message.setSubject(emf.getSubject(), "UTF-8");
             
+            message.addHeader("X-SIPX-FROMURI", m_vmessage.getMessageDescriptor().getFromUri());
             message.addHeader("X-SIPX-MSGID", m_vmessage.getMessageId());
             message.addHeader("X-SIPX-MBXID", m_mailbox.getUser().getUserName());
             message.addHeader("X-SIPX-MSG", "yes");
