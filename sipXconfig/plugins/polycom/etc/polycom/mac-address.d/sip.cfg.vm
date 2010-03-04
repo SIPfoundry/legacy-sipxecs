@@ -341,11 +341,9 @@
     <codecPref
 #set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('codecPref'))
 #foreach ($setting in $cfg.getSettings($group))
-      video.codecPref.${setting.ProfileName}="$!{setting.Value}"
+      #set ($prefix = "video.codecPref")
+      #computeCodecSettings($setting $prefix)
 #end
-## As part of XX-6689, replace the above loop with: computeCodecSettings($group "video.codecPref")
-## Also update SipConfigurationTest testGenerateVVX1500Profile() so that not all video codecs
-## are selected.  (See XX-6875: Polycom offers and accepts codecs that are de-selected)
     />
     <profile
 #set ($group = $cfg.EndpointSettings.getSetting('video').getSetting('profile'))

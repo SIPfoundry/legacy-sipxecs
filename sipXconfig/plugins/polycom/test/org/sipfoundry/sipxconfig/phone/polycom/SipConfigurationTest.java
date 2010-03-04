@@ -98,7 +98,6 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
         features.add("video");
         model.setSupportedFeatures(features);
         phone.setModel(model);
-
         tester = PhoneTestDriver.supplyTestData(phone);
         initSettings();
         phone.setDeviceVersion(PolycomModel.VER_2_0);
@@ -108,7 +107,7 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
         phone.setSettingValue("dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");
         phone.setSettingValue("dialplan/digitmap/routing.1/port", "9999");
         phone.setSettingValue("dialplan/digitmap/routing.1/emergency.1.value", "911,912");
-
+        phone.setSettingValue("video/codecPref/videoCodecs", "H264|H2631998");//de-selected testing
         phone.beforeProfileGeneration();
         ProfileContext cfg = new SipConfiguration(phone);
 

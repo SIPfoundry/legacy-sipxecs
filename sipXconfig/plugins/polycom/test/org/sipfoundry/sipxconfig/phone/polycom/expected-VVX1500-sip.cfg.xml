@@ -254,8 +254,8 @@
     video.maxCallRate=""
   >
     <codecPref
-      video.codecPref.H261="4"
-      video.codecPref.H263="3"
+      video.codecPref.H261=""
+      video.codecPref.H263=""
       video.codecPref.H2631998="2"
       video.codecPref.H264="1"
     />

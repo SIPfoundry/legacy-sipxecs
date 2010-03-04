@@ -734,21 +734,16 @@
         <value/>
     </setting>
     <group name="codecPref">
-      <setting name="H261">
-        <type refid="codecPref" />
-        <value>4</value>
-      </setting>
-      <setting name="H263">
-        <type refid="codecPref" />
-        <value>3</value>
-      </setting>
-      <setting name="H2631998">
-        <type refid="codecPref" />
-        <value>2</value>
-      </setting>
-      <setting name="H264">
-        <type refid="codecPref" />
-        <value>1</value>
+      <setting name="videoCodecs">
+        <type>
+          <multi-enum labelKeyPrefix="codec">
+            <option><value>H261</value></option>
+            <option><value>H263</value></option>
+            <option><value>H2631998</value></option>
+            <option><value>H264</value></option>
+          </multi-enum>
+        </type>
+        <value>H264|H2631998|H263|H261</value>
       </setting>
     </group>
     <group name="profile"  advanced="yes">
