@@ -76,6 +76,8 @@ public class InternetCallingTestUi extends WebTestCase {
         setTextField("sbcDevice:address", "sbc.example.net");
         clickButton("form:ok");
         selectOption("sbcDeviceSelect", "sbcDevice2");
+        clickLink("addLink");
+        setTextField("TextField", "*.example.com");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
 

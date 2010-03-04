@@ -79,6 +79,9 @@ public abstract class EditSbc extends PageWithCallback implements PageBeginRende
         if (getSelectedSbcDevice() == null) {
             throw new UserException(getMessages().getMessage("error.requiredSbc"));
         }
+        if (sbc.getRoutes().isEmpty()) {
+            throw new UserException(getMessages().getMessage("error.requiredSubnet"));
+        }
         sbc.setSbcDevice(getSelectedSbcDevice());
         getSbcManager().saveSbc(sbc);
         // update IDs of newly saved SBC
