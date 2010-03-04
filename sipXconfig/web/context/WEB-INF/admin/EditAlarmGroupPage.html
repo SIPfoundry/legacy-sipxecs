@@ -7,25 +7,24 @@
       item="ognl:group"
       nameValidator="spring-validators:required,noWhitespace,validAlarmGroupName"
       useExtension="false" />
-
+   <br/><br/><hr/>
     <fieldset jwcid="@common/ListPanel"
       label="message:label.smsNotificationContacts"
       addLinkLabel="message:link.addSms"
       itemDisplayName="message:label.smsNotificationContacts"
       validators="spring-validators:required,validPhone"
       source="ognl:group.smsAddresses" />
-
+   <br/><hr/>
+    <fieldset jwcid="@admin/AlarmTrapReceiverPanel"
+     label="message:label.snmpNotificationContacts"
+     snmpAddresses="ognl:group.snmpAddresses"/>
+   <br/><hr/>
     <fieldset jwcid="@common/ListPanel"
       label="message:label.emailNotificationContacts"
       addLinkLabel="message:link.addEmail"
       itemDisplayName="message:label.emailNotificationContacts"
       validators="spring-validators:required>"
       source="ognl:group.emailAddresses" />
-
-    <fieldset jwcid="@admin/AlarmTrapReceiverPanel"
-     label="message:label.snmpNotificationContacts"
-     snmpAddresses="ognl:group.snmpAddresses"/>
-
     <ul class="component-links">
       <li>
         <a jwcid="addExtensions@LinkSubmit" listener="listener:addUsers"><span key="link.addEmailUser" /></a>
