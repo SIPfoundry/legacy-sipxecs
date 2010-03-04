@@ -42,6 +42,8 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
     // the misspelling is intentional - typo in freeswitch API
     private static final Pattern INVALID_MEMBER_PATTERN = Pattern.compile("Non-Exist[ae]nt ID [\\d]+\\n");
 
+    private static final String COMMAND_LIST_DELIM = ">,<";
+
     /**
      * Verifies that a member action was completed successfully and that the target member exists.
      *
@@ -162,7 +164,7 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         ActiveConferenceMember member = new ActiveConferenceMember();
 
         Scanner scan = new Scanner(line);
-        scan.useDelimiter(";");
+        scan.useDelimiter(COMMAND_LIST_DELIM);
 
         member.setId(scan.nextInt());
 

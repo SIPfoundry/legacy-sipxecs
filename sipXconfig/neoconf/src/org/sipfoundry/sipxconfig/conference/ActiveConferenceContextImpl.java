@@ -27,7 +27,8 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class ActiveConferenceContextImpl implements ActiveConferenceContext {
 
-    private static final String COMMAND_LIST = "list";
+    private static final String COMMAND_LIST_DELIM = ">,<";
+    private static final String COMMAND_LIST = "list delim " + COMMAND_LIST_DELIM;
     private static final Log LOG = LogFactory.getLog(ActiveConferenceContextImpl.class);
 
     private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
