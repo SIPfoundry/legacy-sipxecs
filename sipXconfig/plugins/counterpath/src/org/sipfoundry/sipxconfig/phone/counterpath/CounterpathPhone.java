@@ -311,13 +311,10 @@ public class CounterpathPhone extends Phone {
 
             if (passwordFile.exists()) {
                 Boolean updated = false;
-
                 Map<String, String> authDB = new HashMap<String, String>();
                 BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(passwordFile)));
-
                 String strLine;
                 String[] tokens = new String[3];
-
                 while ((strLine = br.readLine()) != null) {
                     tokens = strLine.split(":");
                     if ((tokens[0].equals(user.getUserName())) && (!tokens[2].equals(md5text))) {
@@ -326,21 +323,18 @@ public class CounterpathPhone extends Phone {
                     }
                     authDB.put(tokens[0], tokens[2]);
                 }
-
-                // Close the input stream
                 br.close();
 
-                if (updated) {
-
-                    passwordFile.delete();
-
-                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
-                            passwordFileNamePath)));
-                    for (Map.Entry<String, String> entry : authDB.entrySet()) {
-                        bw.write(entry.getKey() + WEBDAV_REALM + entry.getValue() + NEW_LINE);
-                    }
-                    bw.close();
+                passwordFile.delete();
+                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
+                        passwordFileNamePath)));
+                for (Map.Entry<String, String> entry : authDB.entrySet()) {
+                    bw.write(entry.getKey() + WEBDAV_REALM + entry.getValue() + NEW_LINE);
                 }
+                if (!updated) {
+                    bw.write(user.getUserName() + WEBDAV_REALM + md5text + NEW_LINE);
+                }
+                bw.close();
             } else {
                 BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(passwordFile)));
                 bw.write(user.getUserName() + WEBDAV_REALM + md5text + NEW_LINE);
