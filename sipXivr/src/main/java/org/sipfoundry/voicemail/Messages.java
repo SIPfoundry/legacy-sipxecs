@@ -118,7 +118,7 @@ public class Messages {
         // Load the saved folder (don't count unheard...shouldn't be any but why take chances!)
         loadFolder(m_savedDir, m_saved, false, msgIds);
         // Load the deleted folder (same with unheard)
-        loadFolder(m_deletedDir, m_deleted, false, msgIds);
+        loadFolder(m_deletedDir, m_deleted, false, null);
         
         // build a mailbox wide list of messageIds as loadFolder is called
         // then sort the list. this list allows us to easily map a CallPilot Msg Number 
