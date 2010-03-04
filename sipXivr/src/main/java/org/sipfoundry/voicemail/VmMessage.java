@@ -291,6 +291,12 @@ public class VmMessage {
             me.m_unHeard = true;
             operation = "creating status file "+me.m_statusFile.getPath();
             FileUtils.touch(me.m_statusFile);
+            
+            if(m_urgent) {
+                operation = "creating urgent file "+ me.m_urgentFile.getPath();
+                LOG.debug("VmMessage::newMessage "+ operation);
+                FileUtils.touch(me.m_urgentFile);
+            }
 
             operation = "copying audio file "+m_audioFile.getPath();
             me.m_audioFile = CopyMessageFileToDirectory(m_audioFile, me.m_messageId, directory);
