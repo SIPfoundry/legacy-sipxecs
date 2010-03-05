@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.collections.Predicate;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
@@ -32,6 +33,7 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
+import org.sipfoundry.sipxconfig.phonebook.GooglePhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
@@ -46,6 +48,9 @@ import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
+
+import static org.apache.commons.collections.CollectionUtils.select;
+import static org.apache.commons.lang.StringUtils.isEmpty;
 
 /**
  * Context for entire sipXconfig framework. Holder for service layer bean factories.
@@ -337,9 +342,15 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         User user = phone.getPrimaryUser();
         if (user != null) {
             Collection<Phonebook> books = m_phonebookManager.getAllPhonebooksByUser(user);
-            return m_phonebookManager.getEntries(books, user);
+            return filterPhonebookEntries(m_phonebookManager.getEntries(books, user));
         }
         return Collections.emptyList();
+    }
+
+    private Collection<PhonebookEntry> filterPhonebookEntries(Collection<PhonebookEntry> entries) {
+        Collection entriesToRemove = select(entries, new InvalidGoogleEntrySearchPredicate());
+        entries.removeAll(entriesToRemove);
+        return entries;
     }
 
     public SpeedDial getSpeedDial(Phone phone) {
@@ -394,5 +405,18 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
 
     public static void addByNoLinesCriteria(DetachedCriteria crit) {
         crit.add(Restrictions.isEmpty("lines"));
+    }
+
+    static class InvalidGoogleEntrySearchPredicate implements Predicate {
+
+        @Override
+        public boolean evaluate(Object phonebookEntry) {
+            if (phonebookEntry instanceof GooglePhonebookEntry) {
+                GooglePhonebookEntry entry = (GooglePhonebookEntry) phonebookEntry;
+                return (isEmpty(entry.getFirstName()) || isEmpty(entry.getLastName()) || isEmpty(entry.getNumber()));
+            }
+            return false;
+        }
+
     }
 }
