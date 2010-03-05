@@ -367,8 +367,12 @@ public class BridgeConfiguration {
     /**
      * @param globalPort the globalPort to set
      */
-    public void setGlobalPort(int globalPort) {
-        this.globalPort = globalPort;
+    public void setGlobalPort(String globalPort) {
+      try {
+        this.globalPort = Integer.parseInt(globalPort);
+      } catch ( NumberFormatException ex) {
+    	  logger.error("Bad global port specified. Check configuration file",ex);
+      }
     }
 
     /**

@@ -1710,9 +1710,9 @@ public class BackToBackUserAgent implements Comparable {
             ListeningPoint lp = itspProvider.getListeningPoint(outboundTransport);
             String sentBy = lp.getSentBy();
             if (itspAccountInfo == null || itspAccountInfo.isGlobalAddressingUsed()) {
-                lp.setSentBy(Gateway.getGlobalAddress() + ":" + lp.getPort());
+                lp.setSentBy(Gateway.getGlobalAddress() + ":" + Gateway.getGlobalPort(lp.getTransport()));
             }
-            lp.setSentBy(sentBy);
+            
 
             /*
              * pair the inbound and outboud dialogs.

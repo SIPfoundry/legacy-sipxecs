@@ -62,6 +62,8 @@ public class ConfigurationParser {
 
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "global-address"),
                 "setGlobalAddress", 0);
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "global-port"),
+                "setGlobalPort", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-supervisor-host"),
                 "setSipXSupervisorHost", 0);
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-supervisor-xml-rpc-port"),
