@@ -141,9 +141,6 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
             m_httpsPort = Integer.parseInt(props.getProperty(prop = "ivr.httpsPort"));
             m_configUrl = props.getProperty(prop = "ivr.configUrl");
             m_sendIMUrl = props.getProperty("ivr.sendIMUrl");
-            if(m_sendIMUrl == null) {
-                m_sendIMUrl = "http://" + m_sipxchangeDomainName + ":8086/IM";
-            }
             
             String defaultTUI = props.getProperty("ivr.defaultTui");
             if(defaultTUI == null) {

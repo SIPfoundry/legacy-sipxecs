@@ -54,13 +54,19 @@ public class Deposit {
     
     private void sendIM(User user, boolean vmEntry, String instantMsg) {
         URL sendIMUrl;
+        
+        String urlStr = IvrConfiguration.get().getSendIMUrl();
+        if(urlStr == null) {
+            return;
+        }
+        
         try {
             if(vmEntry) {
-                sendIMUrl = new URL(IvrConfiguration.get().getSendIMUrl() + "/" +
+                sendIMUrl = new URL(urlStr + "/" +
                                     user.getUserName() + "/SendVMEntryIM");
             
             } else {
-                sendIMUrl = new URL(IvrConfiguration.get().getSendIMUrl() + "/" +
+                sendIMUrl = new URL(urlStr + "/" +
                         user.getUserName() + "/SendVMExitIM");
             }
                 
@@ -547,6 +553,7 @@ public class Deposit {
                 
                 // "3" means "erase" and re-record
                 if (digit.equals("3")) {
+                    m_loc.play("send_record_message", "");
                     recorded = false ;
                     continue ;
                 }
