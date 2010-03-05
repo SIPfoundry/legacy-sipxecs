@@ -7,6 +7,7 @@
 package org.sipfoundry.sipxbridge;
 
 import gov.nist.javax.sdp.MediaDescriptionImpl;
+import gov.nist.javax.sdp.fields.AttributeField;
 import gov.nist.javax.sip.DialogExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.header.HeaderFactoryExt;
@@ -1109,6 +1110,23 @@ class SipUtilities {
 		}
 	}
 
+	public static String getDuplexity(MediaDescriptionImpl mediaDescription) {
+    	  int i = 0;
+          for (i = 0; i < mediaDescription.getAttributeFields().size(); i++) {
+              AttributeField af = (AttributeField) mediaDescription.getAttributeFields()
+                      .elementAt(i);
+              if (af.getAttribute().getName().equalsIgnoreCase("sendrecv") ||
+                      af.getAttribute().getName().equalsIgnoreCase("recvonly") ||
+                      af.getAttribute().getName().equalsIgnoreCase("sendonly") ||
+                      af.getAttribute().getName().equalsIgnoreCase("inactive")) {
+            	  return af.getAttribute().getName();
+              }
+          }
+          return null;
+         
+    }
+	
+	
 	static void setDuplexity(SessionDescription sessionDescription,
 			String attributeValue) {
 
@@ -1129,8 +1147,12 @@ class SipUtilities {
 					}
 				}
 			}
+			
 			MediaDescriptionImpl md = (MediaDescriptionImpl) getMediaDescription(sessionDescription);
-			md.setDuplexity(attributeValue);
+			
+			if ( SipUtilities.getDuplexity(md) != null )  {
+				md.setDuplexity(attributeValue);
+			}
 
 		} catch (Exception ex) {
 			logger.error("Error while processing the following SDP : "

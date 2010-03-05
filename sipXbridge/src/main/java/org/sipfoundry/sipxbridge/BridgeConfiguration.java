@@ -54,18 +54,16 @@ public class BridgeConfiguration {
     private int musicOnHoldDelayMiliseconds = 500;
     private HashSet<Integer> parkServerCodecs = new HashSet<Integer>();
     private boolean isSecure = true;
-    private int sipSessionTimerIntervalSeconds = 1800;
     private String sipxSupervisorHost;
     private int sipxSupervisorXmlRpcPort;
     private int callLimit = -1;
     
-    private boolean alwaysRelayMedia;
-
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
     public BridgeConfiguration() {
         parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
         parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
+        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("G722"));
 
     }
 
@@ -257,9 +255,9 @@ public class BridgeConfiguration {
         this.musicOnHoldName = musicOnHoldName;
     }
 
-    /**
-     * The session timer interval.
-     */
+   
+    
+    
 
     /**
      * @param musicOnHoldEnabled the musicOnHoldEnabled to set
