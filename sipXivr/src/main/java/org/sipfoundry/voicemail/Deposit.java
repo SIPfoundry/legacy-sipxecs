@@ -31,6 +31,7 @@ import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.Menu;
 import org.sipfoundry.sipxivr.PersonalAttendant;
+import org.sipfoundry.sipxivr.PhonePresence;
 import org.sipfoundry.sipxivr.RemoteRequest;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
@@ -394,7 +395,7 @@ public class Deposit {
      * 
      * @return
      */
-    public String depositVoicemail(boolean isOnThePhone) {
+    public String depositVoicemail(String reason) {
         try {
         
         User user = m_mailbox.getUser();
@@ -404,6 +405,20 @@ public class Deposit {
         
         // by passing null, usingCpUi will return if CPUI is the primary UI
         if(m_vm.usingCpUi(null)) {
+            boolean isOnThePhone = false;
+
+            if(reason != null) {
+                isOnThePhone = reason.equals("user-busy");
+            } else {
+                // no diversion header present. check if user on the phone via openfire.
+                try {
+                    PhonePresence phonePresence = new PhonePresence();
+                    isOnThePhone = phonePresence.isUserOnThePhone(user.getUserName());
+                } catch (Exception e) {
+
+                }                  
+            } 
+                                
             return depositCPUI(isOnThePhone);
         }        
         

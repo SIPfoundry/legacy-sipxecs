@@ -9,7 +9,6 @@
 
 package org.sipfoundry.voicemail;
 
-import java.io.File;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -31,13 +30,11 @@ import org.sipfoundry.commons.freeswitch.Transfer;
 import org.sipfoundry.commons.userdb.DistributionList;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
-import org.sipfoundry.sipxivr.PhonePresence;
 import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.sipxivr.Menu;
 import org.sipfoundry.sipxivr.PersonalAttendant;
-
 
 public class VoiceMail {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
@@ -205,25 +202,8 @@ public class VoiceMail {
             }
             // Create the mailbox if it isn't there
             Mailbox.createDirsIfNeeded(m_mailbox);
- 
-            boolean isOnThePhone = false;
-            String reason = m_parameters.get("call-forward-reason");
-            if(reason != null) {
-                isOnThePhone = reason.equals("user-busy");
-            } else {
-                /*
-                // no diversion header present. check if user on the phone via openfire.
-                PhonePresence phonePresence;
-                try {
-                    phonePresence = new PhonePresence();
-                    isOnThePhone = phonePresence.isUserOnThePhone(user.getUserName());
-                } catch (Exception e) {
-
-                } 
-                */                  
-            }                
-            
-            String result = new Deposit(this).depositVoicemail(isOnThePhone);
+                           
+            String result = new Deposit(this).depositVoicemail(m_parameters.get("call-forward-reason"));
             if (result == null) {
                 return null ;
             }
