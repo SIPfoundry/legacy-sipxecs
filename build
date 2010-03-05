@@ -8,8 +8,6 @@ build script is deprecated, run
  make build
 
 For more information see
- http://sipx-wiki.calivia.com/index.php/Using_autoconf_instead_of_build_script
- http://sipx-wiki.calivia.com/index.php/Building_sipX_for_yum_based_distributions
-
+ http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+Setup#ExpressDevelopmentEnvironmentSetup-Step4.Runtheedebuilddevuser.shscript%28asdevelopmentuser%29
 EOF
 

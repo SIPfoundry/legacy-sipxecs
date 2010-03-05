@@ -8,7 +8,7 @@
 
 # ede_base_root.sh
 #
-# See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
+# See http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+Setup for insptructions.
 
 START_DATE=`date`
 
@@ -32,7 +32,7 @@ echo ""
 echo "Using development username: $DEVEL_USER."
 echo "" 
 
-# See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup#f._Confirm_the_FQDN_.28Fully_Qualified_Domain_Name.29
+# See http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+Setup#ExpressDevelopmentEnvironmentSetup-f.ConfirmtheFQDN%28FullyQualifiedDomainName%29
 HOSTNAME_F=`hostname -f`
 host $HOSTNAME_F
 if [ $? != 0 ]; then

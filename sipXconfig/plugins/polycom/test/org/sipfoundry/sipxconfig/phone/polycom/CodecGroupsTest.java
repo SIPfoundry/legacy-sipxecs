@@ -36,7 +36,7 @@ public class CodecGroupsTest extends TestCase {
     /**
      * Test the option list and default selected values for every single Polycom group.
      *
-     * @see http://sipx-wiki.calivia.com/index.php/Polycom_SoundPoint_IP_family_table#Codec_group
+     * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
      */
     public void testAllCodecGroups() throws DocumentException {
 
@@ -128,7 +128,7 @@ public class CodecGroupsTest extends TestCase {
      * For example, we have not (yet) bothered to list the iLBC codec (XX-6596.)
      *
      * @see http://track.sipfoundry.org/browse/XX-6596: Polycom 3.2.0: Add iLBC codec support
-     * @see http://sipx-wiki.calivia.com/index.php/Polycom_SoundPoint_IP_family_table#Codec_group
+     * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
      */
     private static final HashMap<CodecGroupType, Collection<String>> CODECGROUP_OPTION_MAP;
     static {
@@ -184,7 +184,7 @@ public class CodecGroupsTest extends TestCase {
      * The correct full list of default selected codecs for the specified Polycom codec group.
      * The AbstractSequentialList value of the Map is ordered by preference.
      *
-     * @see http://sipx-wiki.calivia.com/index.php/Polycom_SoundPoint_IP_family_table#Codec_group
+     * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
      */
     private static final HashMap<CodecGroupType, ArrayList<String>> CODECGROUP_SELECTED_MAP;
     static {
@@ -250,7 +250,7 @@ public class CodecGroupsTest extends TestCase {
      * note reported in the other test methods.  It doesn't actually test anything outside
      * of this class.
      *
-     * @see http://sipx-wiki.calivia.com/index.php/Polycom_SoundPoint_IP_family_table#Codec_group
+     * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
      */
     public void testCodecGroupsSelectedSubsetOfOptions() {
 

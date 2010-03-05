@@ -13,7 +13,7 @@ interop-server-config
 express_devel (dir)
 	Scripts for setting up a sipXecs development environment on
 	an i386 32-bit Fedora 8 installation. See: 
-	http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup
+        http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+Setup
 
 doggerel
 	poems, balladry, rhymes, verse.  Makes the Vogons sound good!

@@ -41,9 +41,8 @@ public class PolycomPhoneDefaults {
 
 
     // The attributes that control Daylight Savings Time (DST) are explained here:
-    //    http://sipx-wiki.calivia.com/index.php/
-    //       Polycom_SoundPointIP_Configuration_File_Notes#sip_-_tcpIpApp.sntp.daylightSavings
-
+    // http://wiki.sipfoundry.org/display/xecsuser/Polycom#
+    // Polycom-PolycomSoundPointIPConfigurationFileNotes
     @SettingEntry(path = "tcpIpApp.sntp/daylightSavings.enable")
     public boolean isDstEnabled() {
         return getZone().getUseDaylight();

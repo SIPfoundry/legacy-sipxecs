@@ -8,7 +8,7 @@
 
 # ede_fedora_staticip_root.sh
 #
-# See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
+# See http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+Setup for instructions.
 
 # Changes a Fedora 10/11 or CentOS 5 system from 'NetworkManager' service DHCP to 
 # 'network' service static IP, using the specified IP Address.  The network connection 

@@ -8,7 +8,7 @@
 
 # ede_build_devuser.sh
 #
-# See http://sipx-wiki.calivia.com/index.php/Express_Development_Environment_Setup for instructions.
+# See http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+Setup for instructions.
 
 # Usage: $0 [-h] [-d] [-r] [-c CODEDIR]
 #   -h: Print this usage information and exit.
@@ -377,7 +377,6 @@ echo Distribution - $(return_uname_distro_id) >> $FULL_PATH_EDE_LOGS/info.log
 
 if [ -z "$SANDBOX_MODE" ]; then
    # Build any dependency RPMs which may be specified and/or required.
-   # http://sipx-wiki.calivia.com/index.php/Building_dependencies
    if [ $BUILD_ALL_DEPENDENCIES ]; then
       # Build all those required by the distribution.
       if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
@@ -523,7 +522,7 @@ popd > /dev/null
 # How are we building sipXecs?
 CONFIGURE_FLAGS="--enable-reports --enable-agent --enable-cdr --enable-mrtg"
 if [ $BUILD_RPMS ]; then
-   # RPM build/install  - http://sipx-wiki.calivia.com/index.php/Building_RPMs
+   # RPM build/install  - http://wiki.sipfoundry.org/display/oldxx/Building+RPMs
    mv ~/.rpmmacros ~/.rpmmacros.old 2> /dev/null
    echo "%_topdir      $FULL_PATH_SIPX_RPM_TOPDIR" > ~/.rpmmacros
    rpmdev-setuptree

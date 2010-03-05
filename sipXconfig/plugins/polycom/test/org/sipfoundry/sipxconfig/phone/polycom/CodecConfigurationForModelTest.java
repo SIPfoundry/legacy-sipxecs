@@ -50,7 +50,7 @@ public class CodecConfigurationForModelTest extends TestCase {
      * Test the codec preferences for every single (sipXconfig) Polycom model.
      * @throws DocumentException
      *
-     * @see http://sipx-wiki.calivia.com/index.php/Polycom_SoundPoint_IP_family_table#Codec_group
+     * @see http://wiki.sipfoundry.org/display/xecsuser/Polycom#Polycom-Codecgroup
      */
     public void testCodecConfigurationForAllModels() throws DocumentException {
 
