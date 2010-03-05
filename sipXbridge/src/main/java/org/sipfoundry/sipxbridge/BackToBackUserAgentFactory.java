@@ -66,7 +66,11 @@ public class BackToBackUserAgentFactory {
 	                for (Dialog dialog : ( (SipStackExt) ProtocolObjects.getSipStack()).getDialogs() ) {
 	                    logger.debug("Dialog " + dialog + " dialogState = " + dialog.getState() ); 
 	                    if ( dialog.getState() != DialogState.TERMINATED ) {
-	                        logger.debug("Dialog was allocated at " + DialogContext.get(dialog).getCreationPointStackTrace());
+	                    	if ( DialogContext.get(dialog) != null ) {
+	                    		logger.debug("Dialog was allocated at " + DialogContext.get(dialog).getCreationPointStackTrace());
+	                    	} else {
+	                    		logger.debug("Null dialog context!");
+	                    	}
 	                    }
 	                }
 	            }
