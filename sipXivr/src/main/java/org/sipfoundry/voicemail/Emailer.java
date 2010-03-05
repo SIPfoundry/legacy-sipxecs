@@ -190,6 +190,7 @@ public class Emailer {
                     javax.mail.Message message = buildMessage(emf, attachAudio);
                     message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(to));
                     Transport.send(message);
+                    ExtMailStore.SendUpdatePswdEmail(u, m_session);
                 } catch (Exception e) {
                     LOG.error("Emailer::run problem sending email.", e) ;
                 }

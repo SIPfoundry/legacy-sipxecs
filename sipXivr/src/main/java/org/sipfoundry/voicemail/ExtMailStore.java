@@ -60,14 +60,12 @@ import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.ImapInfo;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.GreetingType;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.MailboxPreferences;
 import org.sipfoundry.voicemail.Greeting;
 
 /**
@@ -146,34 +144,9 @@ public class ExtMailStore {
      * runs at a low priority
      */
     private static class SyncThread extends Thread {
-
-        static long m_LastCheckedTime;
         
         public SyncThread() {
         }
-
-        private static void  UpdateConnections() {
-            // now deal with user config that has changed: imap server, port#,
-            // useTLS, email address, synchronize or not
-            IMAPConnection conn;
-
-            Collection<IMAPConnection> connections = m_connectionMap.values();
-            
-            for (Iterator<IMAPConnection> it = connections.iterator(); it.hasNext();) {
-                conn = it.next();
-                             
-                Mailbox mbx = new Mailbox(conn.m_user);      
-             
-                if(mbx.getLastModified() > m_LastCheckedTime) {                   
-                    CloseConnection(conn.m_user.getUserName(), false);
-                    it.remove();
-                    OpenConnection(conn.m_user);
-                }    
-            }
-            
-            Date now = new Date();
-            m_LastCheckedTime = now.getTime();            
-        }    
         
         public void run() {
             boolean running = true;
@@ -181,12 +154,10 @@ public class ExtMailStore {
             ValidUsersXML validUsersXML = null;
             Collection<IMAPConnection> connections;
             IMAPConnection conn;
+            boolean changed;
 
-            try {
-            
-                currUsers = null;
-                Date now = new Date();
-                m_LastCheckedTime = now.getTime();    
+            try {            
+                currUsers = null;    
                 
                 while (running) {
                     try {
@@ -219,15 +190,40 @@ public class ExtMailStore {
                         }
     
                         for (User u : users) {
-                            if (!m_connectionMap.containsKey(u.getUserName()) && u.hasVoicemail()) {
+                            
+                            conn = Connection(u.getUserName());
+                            if(conn == null) {
                                 OpenConnection(u);
+                            } else {
+                                // perhaps IMAP parameters have changed. If so close and reopen
+                                ImapInfo newInfo = u.getImapInfo();
+                                ImapInfo oldInfo = conn.m_user.getImapInfo(); 
+                                changed = false;
+                                
+                                if(!newInfo.getPort().equals(oldInfo.getPort())) 
+                                    changed = true;
+                                
+                                if(!newInfo.getHost().equals(oldInfo.getHost())) 
+                                    changed = true;
+
+                                if(!newInfo.getAccount().equals(oldInfo.getAccount())) 
+                                    changed = true;
+                                
+                                if(!newInfo.getPassword().equals(oldInfo.getPassword())) 
+                                    changed = true;
+                                
+                                if(newInfo.isUseTLS() != oldInfo.isUseTLS()) 
+                                    changed = true;
+
+                                if(changed) {
+                                    CloseConnection(u.getUserName(), true);
+                                    OpenConnection(u);                                   
+                                }                               
                             }
                         }
     
                         currUsers = users;
-                    }
-                    
-                    UpdateConnections();                
+                    }               
                     
                     try {
                         sleep(5000);
@@ -615,41 +611,36 @@ public class ExtMailStore {
         return mbxId;
     }
 
-    private static void SendUpdatePswdEmail(IMAPConnection conn) {
-        // send e-mail to username account at host      
+    public static void SendUpdatePswdEmail(User user, Session session) {
+        // send e-mail to use only if the user doesn't have an IMAP 
+        // connection yet has configured things to have one
         
-        Mailbox mbox = new Mailbox(conn.m_user);        
-        
-        File statusfile = new File(mbox.getUserDirectory(), "email.sta");
-        if (statusfile.exists()) {
-            if (statusfile.lastModified() >= mbox.getLastModified()) {
-                // don't send email only one time until administrator or user changes configuration
-                return;
-            }
-        }                           
-        
+        IMAPConnection conn = Connection(user.getUserName());
+        if(conn != null) { 
+            return;
+        }
+    
+        ImapInfo imapInfo = user.getImapInfo();
+        if(imapInfo == null || !imapInfo.isSynchronize()) {
+            return;        
+        }                         
+            
         try {           
-            MimeMessage message = new MimeMessage(conn.m_session);
+            MimeMessage message = new MimeMessage(session);
 
-            String ident = conn.m_user.getIdentity();
+            String ident = user.getIdentity();
             String from = "postmaster" + ident.substring(ident.indexOf('@'));
             message.setFrom(new InternetAddress(from, "Voicemail"));
 
-            message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(conn.m_user.getEmailAddress()));
+            message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(user.getEmailAddress()));
 
             message.setSubject("e-mail password change required");
             message.setText("You must change your e-mail password by logging in at " + "http://"
                     + ident.substring(ident.indexOf('@') + 1));
             Transport.send(message);
-            
-            // sent email now create or re-create stats file
-            if (statusfile.exists()) {
-                statusfile.delete();
-            }
-            statusfile.createNewFile();
-            
+                        
         } catch (Exception e) {
-            LogError("SendUpdatePswdEmail", conn.m_user.getUserName(), e.getMessage());
+            LogError("SendUpdatePswdEmail", user.getUserName(), e.getMessage());
         }
     }
 
@@ -675,7 +666,7 @@ public class ExtMailStore {
                 }
                 folder.open(Folder.READ_WRITE);
                 
-            } catch (MessagingException e1) {
+            } catch (Exception e1) {
                 LogError("OpenFolder", "", e.getMessage());
             }            
             
@@ -782,7 +773,11 @@ public class ExtMailStore {
         conn.m_synching = false;
         final String mbxid = user.getUserName();
         
-        // should we even try to make a connection? 
+        // should we even try to make a connection?
+        
+        if(!user.hasVoicemail())
+            return;
+        
         ImapInfo imapInfo = user.getImapInfo();
         if(imapInfo == null || !imapInfo.isSynchronize())
             return;
@@ -818,11 +813,9 @@ public class ExtMailStore {
                     LOG.debug("created IMAP connection for mailbox " + user.getUserName());
 
                 } catch (AuthenticationFailedException e) {
-                    LOG.error("SipXivr::ConnectAction for " + conn.m_user.getUserName(), e);
-                    SendUpdatePswdEmail(conn);
+                    LOG.info("SipXivr::ConnectAction IMAP login failed for " + conn.m_user.getUserName(), e);
                 } catch (MessagingException e) {
-                    LOG.error("SipXivr::ConnectAction for " + conn.m_user.getUserName(), e);
-                    SendUpdatePswdEmail(conn); 
+                    LOG.error("SipXivr::ConnectAction for " + conn.m_user.getUserName(), e); 
                 }                
                 return null;
             }
@@ -845,7 +838,7 @@ public class ExtMailStore {
                 
             props.setProperty("mail.smtp.host", "localhost");
 
-            conn.m_session = Session.getInstance(props);           
+            conn.m_session = Session.getInstance(props);  
                         
             conn.m_store = conn.m_session.getStore("imap");
             // to deal with GSSAPI security we need to create our own
