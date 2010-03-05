@@ -21,10 +21,10 @@ public final class SipUri {
     // It is sometimes important to differentiate between default port and omitted port
     public static final int OMIT_SIP_PORT = 0;
 
-    private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)@.+");
+    private static final Pattern EXTRACT_USER_RE = Pattern.compile("\\s*<?(?:sip:)?(.+?)[@;].+");
     private static final Pattern EXTRACT_FULL_USER_RE = Pattern
-            .compile("(?:\"?\\s*(\\b.*\\b)\\s*\"?)\\s*<(?:sip:)?(.+?)@.+");
-    private static final Pattern SIP_URI_RE = Pattern.compile("(?:\".*\")?\\s*<?(?:sip:)?.+?@.+>?");
+            .compile("\\s*(?:\"?\\s*([^\"<]+?)\\s*\"?)?\\s*<(?:sip:)?(.+?)[@;].+");
+    private static final Pattern SIP_URI_RE = Pattern.compile("(?:\".*\")?\\s*<?(?:sip:)?.+?[@;].+>?");
 
     private SipUri() {
         // utility class

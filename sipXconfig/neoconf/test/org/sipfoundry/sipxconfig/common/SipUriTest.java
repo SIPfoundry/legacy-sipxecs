@@ -109,12 +109,16 @@ public class SipUriTest extends TestCase {
         assertEquals("name", SipUri.extractUser("name@sipfoundry.org"));
         assertEquals("name", SipUri.extractUser("name@sipfoundry@.org"));
         assertEquals("O", SipUri.extractUser("A <sip:O@us.calivia.com>"));
+        assertEquals("name", SipUri.extractUser("\"*123\"<sip:name@sipfoundry@.org>"));
+        assertEquals("name", SipUri.extractUser("\"*123 then some more junk and more * characters\"<sip:name@sipfoundry@.org>"));
+        assertEquals("name", SipUri.extractUser("\"*123 then some more junk and more * characters\"<sip:name;phone_context=sipfoundry.org>"));
     }
 
     public void testExtractUserFromFullUser() {
         assertNull(SipUri.extractUser("name"));
         assertEquals("name", SipUri.extractUser("\"Joe \"<sip:name@sipfoundry.org>"));
         assertEquals("name", SipUri.extractUser("\"Joe Macy\"<sip:name@sipfoundry.org>"));
+
     }
 
     public void testExtractFullUser() {
@@ -124,6 +128,7 @@ public class SipUriTest extends TestCase {
         assertEquals("name", SipUri.extractFullUser("   <sip:name@sipfoundry.org>"));
         assertEquals("name", SipUri.extractFullUser("name@sipfoundry.org"));
         assertEquals("name", SipUri.extractFullUser("name@sipfoundry@.org"));
+        assertEquals("name", SipUri.extractFullUser("<sip:name;phone_context=sipfoundry.org>"));
 
         String fullUser = SipUri.extractFullUser("\"first last\"<sip:name@sipfoundry.org>");
         assertEquals("first last - name", fullUser);
@@ -132,6 +137,9 @@ public class SipUriTest extends TestCase {
 
         fullUser = SipUri
                 .extractFullUser("\"Douglas+Hubler\"<sip:201@nuthatch.pingtel.com>;tag%3D53585A61-338ED896");
+        assertEquals("Douglas+Hubler - 201", fullUser);
+        fullUser = SipUri
+                .extractFullUser("\"Douglas+Hubler\"<sip:201;phone_context=pingtel.com>;tag%3D53585A61-338ED896");
         assertEquals("Douglas+Hubler - 201", fullUser);
 
         assertEquals("O", SipUri.extractFullUser("O <sip:O@us.calivia.com>"));
