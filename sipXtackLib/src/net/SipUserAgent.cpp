@@ -1119,6 +1119,11 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
                                  const char* serverAddress,
                                  int port)
 {
+  if (mbShuttingDown || mbShutdownDone)
+  {
+     return FALSE;
+  }
+
   assert(mSipUdpServer);
   UtlBoolean isResponse = message->isResponse();
   UtlString method;
@@ -1231,6 +1236,11 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
                                           const char* serverAddress,
                                           int port)
 {
+    if (mbShuttingDown || mbShutdownDone)
+    {
+       return FALSE;
+    }
+
     assert(mSipUdpServer);
     UtlBoolean sentOk = mSipUdpServer->sendTo(message,
                                              serverAddress,
@@ -1283,6 +1293,11 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
 
 UtlBoolean SipUserAgent::sendStatelessResponse(SipMessage& rresponse)
 {
+    if (mbShuttingDown || mbShutdownDone)
+    {
+       return FALSE;
+    }
+
     UtlBoolean sendSucceeded = FALSE;
 
     // Forward via the server tranaction
@@ -1336,6 +1351,11 @@ UtlBoolean SipUserAgent::sendStatelessAck(SipMessage& ackRequest,
                                           int port,
                                           OsSocket::IpProtocolSocketType protocol)
 {
+    if (mbShuttingDown || mbShutdownDone)
+    {
+       return FALSE;
+    }
+
     UtlBoolean sendSucceeded = FALSE;
     UtlString method;
 
@@ -1359,6 +1379,11 @@ UtlBoolean SipUserAgent::sendStatelessRequest(SipMessage& request,
                                               OsSocket::IpProtocolSocketType protocol,
                                               const UtlString& branchId)
 {
+   if (mbShuttingDown || mbShutdownDone)
+   {
+      return FALSE;
+   }
+
    // Convert the enum to a protocol string
    UtlString viaProtocolString;
    SipMessage::convertProtocolEnumToString(protocol,
@@ -1402,6 +1427,11 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
                                  const char* serverAddress,
                                  int port)
 {
+    if (mbShuttingDown || mbShutdownDone)
+    {
+       return FALSE;
+    }
+
     int sendSucceeded = FALSE;
     ssize_t len;
     UtlString msgBytes;
@@ -1472,6 +1502,11 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
                                  const char* serverAddress,
                                  int port)
 {
+   if (mbShuttingDown || mbShutdownDone)
+   {
+      return FALSE;
+   }
+
 #ifdef SIP_TLS
    int sendSucceeded = FALSE;
    int len;
@@ -2471,6 +2506,13 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
       {
          mSipTransactions.deleteTransactionTimers();
 
+         // Record that the SipUserAgent is shut down to cause methods that are
+         // requests for further work to return failure.
+         mbShutdownDone = TRUE;
+
+         // Cause our ::run() loop to finish.
+         requestShutdown();
+
          if (msgSubType == SipUserAgent::SHUTDOWN_MESSAGE_EVENT)
          {
             OsEvent* pEvent =
@@ -2478,10 +2520,6 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
             OsStatus res = pEvent->signal(OS_SUCCESS);
             assert(res == OS_SUCCESS);
          }
-
-         // Record that the SipUserAgent is shut down to cause methods that are
-         // requests for further work to return failure.
-         mbShutdownDone = TRUE;
       }
       else
       {
