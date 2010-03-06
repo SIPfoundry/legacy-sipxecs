@@ -158,6 +158,7 @@ Voice-Message: 0/0 (0/0)\r\n";
          CPPUNIT_ASSERT(subMgr.updateDialogInfo(mwiSubWithAuthRequest,
                                                 resourceId,
                                                 eventTypeKey,
+                                                eventType,
                                                 subscribeDialogHandle,
                                                 isNew,
                                                 isExpired,
@@ -186,7 +187,8 @@ Voice-Message: 0/0 (0/0)\r\n";
          // Create a notify with getNotifyDialogInfo
          SipMessage nextNotify;
          CPPUNIT_ASSERT(subMgr.getNotifyDialogInfo(subscribeDialogHandle,
-                                            nextNotify));
+                                                   nextNotify,
+                                                   "active;expires=1234"));
 
          // Validate the results from getNotifyDialogInfo
          int nextNotifyCseq;
@@ -210,11 +212,12 @@ Voice-Message: 0/0 (0/0)\r\n";
          int numNotifiesCreated;
          UtlString** acceptHeaderValuesArray = NULL;
          SipMessage** notifyArray = NULL;
-         CPPUNIT_ASSERT(subMgr.createNotifiesDialogInfo(resourceId,
-                                                        eventTypeKey,
-                                                        numNotifiesCreated,
-                                                        acceptHeaderValuesArray,
-                                                        notifyArray));
+         subMgr.createNotifiesDialogInfo(resourceId,
+                                         eventTypeKey,
+                                         "active;expires=%ld",
+                                         numNotifiesCreated,
+                                         acceptHeaderValuesArray,
+                                         notifyArray);
          CPPUNIT_ASSERT(numNotifiesCreated == 1);
          CPPUNIT_ASSERT(acceptHeaderValuesArray);
          CPPUNIT_ASSERT(notifyArray);
@@ -247,7 +250,8 @@ Voice-Message: 0/0 (0/0)\r\n";
          CPPUNIT_ASSERT(!subMgr.isExpired(subscribeDialogHandle));
 
          // End the dialog and subscription
-         subMgr.endSubscription(subscribeDialogHandle);
+         subMgr.endSubscription(subscribeDialogHandle,
+                                SipSubscriptionMgr::subscriptionTerminated);
          CPPUNIT_ASSERT(dialogMgr->countDialogs() == 0);
          CPPUNIT_ASSERT(!subMgr.dialogExists(subscribeDialogHandle));
          CPPUNIT_ASSERT(subMgr.isExpired(subscribeDialogHandle));
@@ -256,6 +260,7 @@ Voice-Message: 0/0 (0/0)\r\n";
          CPPUNIT_ASSERT(subMgr.updateDialogInfo(mwiSubWithAuthRequest,
                                                 resourceId,
                                                 eventTypeKey,
+                                                eventType,
                                                 subscribeDialogHandle,
                                                 isNew,
                                                 isExpired,

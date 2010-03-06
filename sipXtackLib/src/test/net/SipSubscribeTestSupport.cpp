@@ -78,11 +78,16 @@ void runListener(OsMsgQ& msgQueue,
                  int responseCode,
                  UtlBoolean retry,
                  int expires,
-                 UtlString* toTagp)
+                 UtlString* toTagp,
+                 const SipMessage** request2p)
 {
    // Initialize the request and response pointers.
    request = NULL;
    response = NULL;
+   if (request2p)
+   {
+      *request2p = NULL;
+   }
 
    // Because the SUBSCRIBE response and NOTIFY request can come in either order,
    // we have to read messages until no more arrive.
@@ -112,9 +117,22 @@ void runListener(OsMsgQ& msgQueue,
       }
       else
       {
-         // Check that we get only one request.
-         assert(request == NULL);
-         request = sipMessage;
+         // Store pointer to request.  Check that we do not receive
+         // too many requests.
+         if (request == NULL)
+         {
+            request = sipMessage;
+         }
+         else if (request2p)
+         {
+            *request2p = sipMessage;
+         }
+         else
+         {
+            // Received more responses than were allowed.
+            assert(FALSE);
+         }
+
          // Immediately generate a response to the request
          SipMessage requestResponse;
          requestResponse.setResponseData(request,

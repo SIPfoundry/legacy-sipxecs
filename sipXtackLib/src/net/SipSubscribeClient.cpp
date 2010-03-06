@@ -1572,17 +1572,18 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
 			   "Subscription-State:terminated",
 			   notifyDialogHandle.data(), dialogState->data());
 
+             // Save the group state handle.
+             UtlString originalHandle(*dialogState->mpGroupState);
+
              // Delete knowledge of this subscription dialog, without sending
              // an un-SUBSCRIBE (which would be redundant).
              endSubscriptionDialogByNotifier(*dialogState);
-
-             // Reestablish the subscription.
-             UtlString originalHandle(*dialogState->mpGroupState);
 
              OsUnLock unlock(lock);
              dialogState = NULL;
              groupState = NULL;
 
+             // Reestablish the subscription.
              reestablish(originalHandle);
           }
        }

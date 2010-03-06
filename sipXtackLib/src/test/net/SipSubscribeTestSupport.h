@@ -55,8 +55,11 @@ void runListener(OsMsgQ& msgQueue, ///< OsMsgQ to listen on
                  ///< TRUE to add "Retry-After: 0" to responsees
                  int expires,
                  ///< Expires value to add to SUBSCRIBE responses
-                 UtlString* toTagp
+                 UtlString* toTagp,
                  ///< To-tag that was created or used for response, or NULL
+                 const SipMessage** request2p = NULL
+                 ///< If non-NULL, allows a second request to be received,
+                 ///  and is set to point to such a second request, if received.
    );
 
 #endif // _SipSubscribeSupport_

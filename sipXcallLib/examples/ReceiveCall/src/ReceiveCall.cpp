@@ -766,10 +766,12 @@ int main(int argc, char* argv[])
               pSubscriptionMgr = new SipSubscriptionMgr();
               pPolicyHolder = new SipSubscribeServerEventHandler;
               pPublisher = new SipPublishContentMgr;
-              pSubscribeServer = new SipSubscribeServer(*pUserAgent,
-                                                        *pPublisher,
-                                                        *pSubscriptionMgr,
-                                                        *pPolicyHolder);
+              pSubscribeServer =
+                 new SipSubscribeServer(SipSubscribeServer::terminationReasonNoresource,
+                                        *pUserAgent,
+                                        *pPublisher,
+                                        *pSubscriptionMgr,
+                                        *pPolicyHolder);
               pSubscribeServer->enableEventType(DIALOG_EVENT_TYPE,
                                                 NULL,
                                                 NULL,

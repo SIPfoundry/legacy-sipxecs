@@ -3,9 +3,9 @@
   - XML Schema for sipX subscription persistent DB file
   -->
 <schema
-    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/subscription-00-00'
+    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/subscription-00-01'
     xmlns:sip_types='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
-    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/subscription-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/subscription-00-01'
     xmlns='http://www.w3.org/2001/XMLSchema'
     >
 
@@ -60,6 +60,7 @@
         <element ref='dmp:toUri'/>
         <element ref='dmp:fromUri'/>
         <element ref='dmp:callid'/>
+        <element ref='dmp:eventtypekey'/>
         <element ref='dmp:eventtype'/>
         <element ref='dmp:id'/>
         <element ref='dmp:key'/>
@@ -126,13 +127,27 @@
     </simpleType>
   </element>
 
-  <element name='eventtype' type='normalizedString'>
+  <element name='eventtypekey' type='normalizedString'>
     <annotation>
       <documentation>
-        The "event type key" from the Event header.
+        The "event type key", derived from the Event header.
 	This will not include event-type parameters unless they specify
 	something about the event info to be generated.  In particular,
 	the 'id' parameter will not be included.
+	See sipXtackLib/include/net/SipPublishContentMgr.h for more information
+	on the event type key and event type values for subscriptions.
+	For upward compatibility with the -00-00 version of this schema,
+	if this element is absent or the content of this element is null,
+	the event type key is the same as the event type given by the eventtype
+	element.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='eventtype' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The "event type", derived from the Event header.
       </documentation>
     </annotation>
   </element>

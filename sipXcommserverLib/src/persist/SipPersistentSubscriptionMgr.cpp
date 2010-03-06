@@ -122,8 +122,18 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
             dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gFromKey));
          const UtlString* callidp =
             dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gCallidKey));
+         const UtlString* eventtypekeyp =
+            dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gEventtypekeyKey));
          const UtlString* eventtypep =
             dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gEventtypeKey));
+         // For upward compatibility from schema subscription-00-00,
+         // if the eventtypekey value is null, copy the eventtype value.
+         // We can do this by just copying the pointer.  (Both pointers are into
+         // the ResultSet 'rs', which owns the underlying UtlString's.)
+         if (eventtypekeyp->isNull())
+         {
+            eventtypekeyp = eventtypep;
+         }
          const UtlString* eventidp =
             dynamic_cast <UtlString*> (rowp->findValue(&SubscriptionDB::gIdKey));
          // Correct the null string if it is returned as
@@ -168,7 +178,7 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
                                            top->data(),
                                            callidp->data(),
                                            subcseq,
-                                           eventtypep->data(),
+                                           eventtypekeyp->data(),
                                            acceptp->data(),
                                            eventidp->data(),
                                            contactp->data(),
@@ -207,6 +217,7 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
                                                  // *keyp is the resource that
                                                  // is subscribed to.
                                                  *keyp,
+                                                 *eventtypekeyp,
                                                  *eventtypep,
                                                  expires,
                                                  notifycseq,
@@ -217,8 +228,9 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
                           "SipPersistentSubscriptionMgr:: "
-                          "SipSubscriptionMgr::insertDialogInfo failed keyp = '%s', eventtypep = '%s', subscribeDialogHandle = '%s'",
+                          "SipSubscriptionMgr::insertDialogInfo failed keyp = '%s', eventtypekeyp = '%s', eventtypep = '%s', subscribeDialogHandle = '%s'",
                           keyp->data(),
+                          eventtypekeyp->data(),
                           eventtypep->data(),
                           subscribeDialogHandle.data());
          }
@@ -271,6 +283,7 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
    const SipMessage& subscribeRequest,
    UtlString& resourceId,
    UtlString& eventTypeKey,
+   UtlString& eventType,
    UtlString& subscribeDialogHandle,
    UtlBoolean& isNew,
    UtlBoolean& isSubscriptionExpired,
@@ -279,8 +292,8 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::updateDialogInfo "
-                 "resourceId = '%s', eventTypeKey = '%s'",
-                 resourceId.data(), eventTypeKey.data());
+                 "resourceId = '%s', eventTypeKey = '%s', eventType = '%s'",
+                 resourceId.data(), eventTypeKey.data(), eventType.data());
 
    UtlBoolean ret;
 
@@ -288,6 +301,7 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
    ret = SipSubscriptionMgr::updateDialogInfo(subscribeRequest,
                                               resourceId,
                                               eventTypeKey,
+                                              eventType,
                                               subscribeDialogHandle,
                                               isNew,
                                               isSubscriptionExpired,
@@ -324,10 +338,11 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "SipPersistentSubscriptionMgr::updateDialogInfo "
                     "mComponent = '%s', requestUri = '%s', callId = '%s', contactEntry = '%s', expires = %d, "
-                    "to = '%s', from = '%s', eventTypeKey = '%s', key = '%s', route = '%s', accept = '%s'",
+                    "to = '%s', from = '%s', eventTypeKey = '%s', eventType = '%s', key = '%s', route = '%s', accept = '%s'",
                     mComponent.data(), requestUri.data(),
                     callId.data(), contactEntry.data(), expires,
-                    to.data(), from.data(), eventTypeKey.data(), resourceId.data(), route.data(),
+                    to.data(), from.data(), eventTypeKey.data(),
+                    eventType.data(), resourceId.data(), route.data(),
                     accept.data());
 
       // Attempt to update an existing row.
@@ -340,12 +355,13 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
       {
          // Add a new row.
 
-         // This call assumes that eventTypeKey (as set by the handler) is OK for use as the <eventtype>,
+         // This call assumes that eventTypeKey (as set by the
+         // handler) is OK for use as the <eventtypekey>,
          // and that the NOTIFY CSeq's will start at 1.  0 is used as
          // the initial XML version.
          ret = mSubscriptionDBInstance->insertRow(
             mComponent, requestUri, callId, contactEntry,
-            expires, subscribeCseq, eventTypeKey, "",
+            expires, subscribeCseq, eventTypeKey, eventType, "",
             to, from, resourceId, route, 1, accept, 0);
 
          if (!ret)
@@ -367,7 +383,10 @@ UtlBoolean SipPersistentSubscriptionMgr::insertDialogInfo(
    const SipMessage& subscribeRequest,
    const UtlString& resourceId,
    const UtlString& eventTypeKey,
+   const UtlString& eventType,
    int expires,
+   int notifyCSeq,
+   int version,
    UtlString& subscribeDialogHandle,
    UtlBoolean& isNew)
 {
@@ -379,13 +398,23 @@ UtlBoolean SipPersistentSubscriptionMgr::insertDialogInfo(
 // Set the subscription dialog information and cseq for the next NOTIFY request
 UtlBoolean SipPersistentSubscriptionMgr::getNotifyDialogInfo(
    const UtlString& subscribeDialogHandle,
-   SipMessage& notifyRequest)
+   SipMessage& notifyRequest,
+   const char* subscriptionStateFormat,
+   UtlString* resourceId,
+   UtlString* eventTypeKey,
+   UtlString* eventType,
+   UtlString* acceptHeaderValue)
 {
    UtlBoolean ret;
 
    // Call SipSubscriptionMgr to update the in-memory data.
    ret = SipSubscriptionMgr::getNotifyDialogInfo(subscribeDialogHandle,
-                                                 notifyRequest);
+                                                 notifyRequest,
+                                                 subscriptionStateFormat,
+                                                 resourceId,
+                                                 eventTypeKey,
+                                                 eventType,
+                                                 acceptHeaderValue);
 
    // If that succeeded, update the IMDB to show the to/from URIs as
    // they appear in the NOTIFY, esp. including the to-tag.
@@ -428,46 +457,21 @@ UtlBoolean SipPersistentSubscriptionMgr::getNotifyDialogInfo(
    return ret;
 }
 
-UtlBoolean SipPersistentSubscriptionMgr::createNotifiesDialogInfo(
-   const char* resourceId,
-   const char* eventTypeKey,
-   int& numNotifiesCreated,
-   UtlString**& acceptHeaderValuesArray,
-   SipMessage**& notifyArray)
-{
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipPersistentSubscriptionMgr::createNotifiesDialogInfo "
-                 "resourceId = '%s' eventTypeKey = '%s'",
-                 resourceId, eventTypeKey);
-
-   UtlBoolean ret;
-
-   // Call SipSubscriptionMgr to update the in-memory data and generate the NOTIFYs.
-   ret = SipSubscriptionMgr::createNotifiesDialogInfo(resourceId, eventTypeKey,
-                                                      numNotifiesCreated,
-                                                      acceptHeaderValuesArray,
-                                                      notifyArray);
-
-   // The NOTIFY CSeq and XML version will be saved when our caller
-   // calls updateVersion().
-
-   return ret;
-}
-
-UtlBoolean SipPersistentSubscriptionMgr::endSubscription(const UtlString& dialogHandle)
+UtlBoolean SipPersistentSubscriptionMgr::endSubscription(const UtlString& dialogHandle,
+                                                         enum SipSubscriptionMgr::subscriptionChange change)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::endSubscription "
-                 "dialogHandle = '%s'",
-                 dialogHandle.data());
+                 "dialogHandle = '%s', change = %d",
+                 dialogHandle.data(), change);
 
    UtlBoolean ret;
 
    // Call SipSubscriptionMgr to update the in-memory data.
-   ret = SipSubscriptionMgr::endSubscription(dialogHandle);
+   ret = SipSubscriptionMgr::endSubscription(dialogHandle, change);
 
-   // If that succeeded, update the IMDB.
-   if (ret)
+   // If that succeeded, and change != silent, update the IMDB.
+   if (ret && change != SipSubscriptionMgr::subscriptionTerminatedSilently)
    {
       // Delete the subscription from the IMDB.
       UtlString callId, localTag, remoteTag;
@@ -563,7 +567,7 @@ void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
    UtlString to;
    UtlString from;
    UtlString callId;
-   UtlString eventType, eventId;
+   UtlString eventHeader, eventId;
    int now;
 
    // Note that the "to" and "from" fields of the subscription table
@@ -572,13 +576,13 @@ void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
    notifyRequest.getToField(&from);
    notifyRequest.getFromField(&to);
    notifyRequest.getCallIdField(&callId);
-   notifyRequest.getEventField(&eventType, &eventId);
+   notifyRequest.getEventField(&eventHeader, &eventId);
    now = (int) OsDateTime::getSecsSinceEpoch();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipPersistentSubscriptionMgr::updateVersion "
-                 "callId = '%s', to = '%s', from = '%s', eventType = '%s', eventTypeKey = '%s', eventId = '%s', cseq = %d, version = %d",
-                 callId.data(), to.data(), from.data(), eventType.data(), eventTypeKey.data(), eventId.data(), cseq, version);
+                 "callId = '%s', to = '%s', from = '%s', eventHeader = '%s', eventTypeKey = '%s', eventId = '%s', cseq = %d, version = %d",
+                 callId.data(), to.data(), from.data(), eventHeader.data(), eventTypeKey.data(), eventId.data(), cseq, version);
    mSubscriptionDBInstance->updateNotifyUnexpiredSubscription(
       mComponent, to, from, callId, eventTypeKey, eventId, now, cseq, version);
 

@@ -1,5 +1,4 @@
 //
-//
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -23,13 +22,15 @@
 class PublishCallbackContainer : public UtlString
 {
 public:
-    PublishCallbackContainer();
+    PublishCallbackContainer(UtlString& eventTypeKey,
+                             SipPublishContentMgr::SipPublisherContentChangeCallback callbackFunction,
+                             void* applicationData);
 
     virtual ~PublishCallbackContainer();
 
     // Parent UtlString contains the SIP event Type token (not the eventTypeKey)
-    void* mpApplicationData;
     SipPublishContentMgr::SipPublisherContentChangeCallback mpCallback;
+    void* mpApplicationData;
 
 private:
     //! DISALLOWED accidental copying
@@ -37,22 +38,27 @@ private:
     PublishCallbackContainer& operator=(const PublishCallbackContainer& rhs);
 };
 
-// Private class to contain event content for eventTypeKey
+// Private class to contain event content for resourceId/eventTypeKey
 class PublishContentContainer : public UtlString
 {
 public:
-    PublishContentContainer();
+    PublishContentContainer(UtlString key);
 
     virtual ~PublishContentContainer();
 
-    // parent UtlString contains the resourceId and eventTypeKey
+    // The parent UtlString is "resourceId\001eventTypeKey", which is the
+    // "key" string.
 
     // List of HttpBody's which are the content for this resourceId/eventTypeKey.
     // UtlString value of HttpBody is its MIME-type.
+    // Will always contain 1 or more elements.
     UtlSList mEventContent;
 
     //! Dump the object's internal state.
     void dumpState();
+
+   // No ::getContainableType() is declared, so that PublishContentContainer's
+   // compare as their base UtlString's.
 
 private:
     //! DISALLOWED accendental copying
@@ -64,23 +70,40 @@ private:
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
+
+// Used to separate the resourceId from the eventTypeKey in
+// PublishContentContainer value.
+#define CONTENT_KEY_SEPARATOR "\001"
+
 // STATIC VARIABLE INITIALIZATIONS
+
+// Special value for the acceptHeaderValue argument to ::getContent()
+// that indicates all MIME types are acceptable.
+// Since UtlString::findToken() treats whitespace as insignificant,
+// the value of " " cannot duplicate a legitimate value.
+const UtlString SipPublishContentMgr::acceptAllTypes(" ");
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
-PublishCallbackContainer::PublishCallbackContainer() :
-   mpApplicationData(NULL),
-   mpCallback(NULL)
+PublishCallbackContainer::PublishCallbackContainer(UtlString& eventTypeKey,
+                                                   SipPublishContentMgr::SipPublisherContentChangeCallback callbackFunction,
+                                                   void* applicationData) :
+   UtlString(eventTypeKey),
+   mpCallback(callbackFunction),
+   mpApplicationData(applicationData)
 {
 }
+
 PublishCallbackContainer::~PublishCallbackContainer()
 {
 }
 
-PublishContentContainer::PublishContentContainer()
+PublishContentContainer::PublishContentContainer(UtlString key) :
+   UtlString(key)
 {
 }
+
 PublishContentContainer::~PublishContentContainer()
 {
    // Delete the stored information.
@@ -92,6 +115,10 @@ void PublishContentContainer::dumpState()
 {
    // indented 8 and 10
 
+   UtlString key(*this);
+   key.replace(sizeof (CONTENT_KEY_SEPARATOR) - 1,
+               key.index(CONTENT_KEY_SEPARATOR),
+               " ");
    OsSysLog::add(FAC_RLS, PRI_INFO,
                  "\t        PublishContentContainer %p UtlString = '%s'",
                  this, data());
@@ -117,10 +144,7 @@ SipPublishContentMgr::SipPublishContentMgr()
 
 
 // Copy constructor NOT IMPLEMENTED
-SipPublishContentMgr::SipPublishContentMgr(const SipPublishContentMgr& rSipPublishContentMgr)
-: mPublishMgrMutex(OsMutex::Q_FIFO)
-{
-}
+//SipPublishContentMgr::SipPublishContentMgr(const SipPublishContentMgr& rSipPublishContentMgr)
 
 
 // Destructor
@@ -136,48 +160,46 @@ SipPublishContentMgr::~SipPublishContentMgr()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-SipPublishContentMgr&
-SipPublishContentMgr::operator=(const SipPublishContentMgr& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
+// Assignment operator NOT IMPLEMENTED
+//SipPublishContentMgr&
+//SipPublishContentMgr::operator=(const SipPublishContentMgr& rhs)
 
-   return *this;
-}
-
-void SipPublishContentMgr::publish(const char* resourceId,
+void SipPublishContentMgr::revised_publish(const char* resourceId,
                                    const char* eventTypeKey,
                                    const char* eventType,
                                    int numContentTypes,
                                    HttpBody* eventContent[],
-                                   UtlBoolean noNotify,
-                                   UtlBoolean fullState)
+                                   UtlBoolean fullState,
+                                   UtlBoolean noNotify)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipPublishContentMgr::publish resourceId '%s', eventTypeKey '%s', eventType '%s', numContentTypes %d, noNotify %d, fullState %d",
-                  resourceId, eventTypeKey, eventType, numContentTypes,
-                  noNotify, fullState);
+                  resourceId ? resourceId : "(null)",
+                  eventTypeKey, eventType, numContentTypes, noNotify, fullState);
 
-    UtlBoolean resourceIdProvided = resourceId && *resourceId;
+    if (numContentTypes < 1)
+    {
+       OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "SipPublishContentMgr::publish "
+                     "No content bodies supplied for resourceId '%s', "
+                     "eventTypeKey '%s', fullState %d",
+                     resourceId? resourceId : "(null)",
+                     eventTypeKey, fullState);
+       
+    }
 
     // Construct the key to look up.
     UtlString key;
-    if(resourceIdProvided)
-    {
-        key = resourceId;
-    }
-
-    if(eventTypeKey)
-    {
-       key.append(eventTypeKey);
-    }
+    key.append(resourceId);
+    key.append(CONTENT_KEY_SEPARATOR);
+    key.append(eventTypeKey);
 
     lock();
 
-    // Determine the type of storage we will be using
+    // Determine the storage we will be using.
     UtlHashBag* pContent;
-    if (resourceIdProvided)
+    // resourceId can be NULL if we are called from ::publishDefault()
+    if (resourceId)
     {
        if (fullState)
        {
@@ -193,7 +215,14 @@ void SipPublishContentMgr::publish(const char* resourceId,
     else
     {
        // Default dialog events
-       pContent = &mDefaultContentEntries;
+       if (fullState)
+       {
+          pContent = &mDefaultContentEntries;
+       }
+       else
+       {
+          pContent = &mDefaultPartialContentEntries;
+       }
     }
 
     // Look up the key in the specific or default entries, as appropriate.
@@ -201,14 +230,12 @@ void SipPublishContentMgr::publish(const char* resourceId,
        dynamic_cast <PublishContentContainer*> (pContent->find(&key));
 
     // If not found, create a container.
-    if(container == NULL)
+    if (container == NULL)
     {
-        container = new PublishContentContainer();
-        *(static_cast <UtlString*> (container)) = key;
+        container = new PublishContentContainer(key);
 	// Save the container in the appropriate hash.
         pContent->insert(container);
     }
-
     // The content for this event type already existed
     else
     {
@@ -231,63 +258,77 @@ void SipPublishContentMgr::publish(const char* resourceId,
     }
 
     // Don't call the observers if noNotify is set or if this is default content.
-    if (!noNotify && resourceIdProvided)
+    if (!noNotify && resourceId)
     {
        // Call the observer for the content change, if any.
        UtlString eventTypeString(eventType);
        PublishCallbackContainer* callbackContainer =
           dynamic_cast <PublishCallbackContainer*>
           (mEventContentCallbacks.find(&eventTypeString));
-       if(callbackContainer && callbackContainer->mpCallback)
+       if (callbackContainer)
        {
           (callbackContainer->mpCallback)(callbackContainer->mpApplicationData,
                                           resourceId,
                                           eventTypeKey,
-                                          eventTypeString);
+                                          eventTypeString,
+                                          NULL);
        }
     }
 
     unlock();
 }
 
-void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
+void SipPublishContentMgr::revised_publishDefault(const char* eventTypeKey,
                                           const char* eventType,
                                           int numContentTypes,
-                                          HttpBody* eventContent[])
+                                          HttpBody* eventContent[],
+                                          UtlBoolean fullState)
 {
-    publish(NULL,
+    revised_publish(NULL,
             eventTypeKey,
             eventType,
             numContentTypes,
-            eventContent);
+            eventContent,
+            fullState);
 }
 
-void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
+void SipPublishContentMgr::revised_publishDefault(const char* eventTypeKey,
                                           const char* eventType,
                                           SipPublishContentMgrDefaultConstructor*
-                                          defaultConstructor)
+                                          defaultConstructor,
+                                          UtlBoolean fullState)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipPublishContentMgr::publishDefault eventTypeKey '%s', eventType '%s', defaultConstructor %p",
-                  eventTypeKey, eventType, defaultConstructor);
+                  "SipPublishContentMgr::publishDefault eventTypeKey '%s', eventType '%s', fullState %d, defaultConstructor %p",
+                  eventTypeKey, eventType, fullState, defaultConstructor);
+
     // Construct the key to look up.
     UtlString key;
-
-    if(eventTypeKey)
-    {
-       key.append(eventTypeKey);
-    }
+    key.append(CONTENT_KEY_SEPARATOR);
+    key.append(eventTypeKey);
 
     lock();
+
+    // Determine the storage we will be using.
+    UtlHashMap* pContent;
+
+    if (fullState)
+    {
+       pContent = &mDefaultContentConstructors;
+    }
+    else
+    {
+       pContent = &mDefaultPartialContentConstructors;
+    }
+
+    // Remove any old value first.
+    pContent->destroy(&key);
 
     // Add the default constructor.
     if (defaultConstructor)
     {
-       // Remove any old value first.
-       mDefaultContentConstructors.destroy(&key);
        UtlString* key_heap = new UtlString(key);
-       mDefaultContentConstructors.insertKeyAndValue(key_heap,
-                                                     defaultConstructor);
+       pContent->insertKeyAndValue(key_heap, defaultConstructor);
     }
 
     // Do not call the observer for the content change since this is default
@@ -296,203 +337,259 @@ void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
     unlock();
 }
 
-void SipPublishContentMgr::unpublish(const char* resourceId,
+void SipPublishContentMgr::revised_unpublish(const char* resourceId,
                                      const char* eventTypeKey,
                                      const char* eventType,
-                                     UtlBoolean noNotify)
+                                     const char* reason)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipPublishContentMgr::unpublish resourceId '%s', eventTypeKey '%s', eventType '%s', noNotify = %d",
-                  resourceId, eventTypeKey, eventType, noNotify);
-    UtlBoolean resourceIdProvided = resourceId && *resourceId;
+                  "SipPublishContentMgr::unpublish resourceId '%s', eventTypeKey '%s', eventType '%s', reason '%s'",
+                  resourceId ? resourceId : "(null)",
+                  eventTypeKey, eventType,
+                  reason ? reason : "(null)");
 
     // Construct the key to look up.
     UtlString key;
-    if(resourceIdProvided)
-    {
-        key = resourceId;
-    }
-
-    if(eventTypeKey)
-    {
-       key.append(eventTypeKey);
-    }
+    key.append(resourceId);
+    key.append(CONTENT_KEY_SEPARATOR);
+    key.append(eventTypeKey);
 
     lock();
 
     // Look up the key in the specific or default entries, as appropriate.
-    PublishContentContainer* container;
-    if (resourceIdProvided)
+    if (resourceId)
     {
-       container = dynamic_cast <PublishContentContainer*>(mContentEntries.find(&key));
-       if (container)
+       PublishContentContainer* content =
+          dynamic_cast <PublishContentContainer*> (mContentEntries.remove(&key));
+       PublishContentContainer* partialContent =
+          dynamic_cast <PublishContentContainer*> (mPartialContentEntries.remove(&key));
+
+       // Call the default content constructors, if available.
+       
+       // Construct the key for the default data.
+       UtlString default_key;
+       default_key.append(CONTENT_KEY_SEPARATOR);
+       default_key.append(eventTypeKey);
+
+       // If it exists, call it to publish full content for this resource/event.
+       SipPublishContentMgrDefaultConstructor* constructor =
+          dynamic_cast <SipPublishContentMgrDefaultConstructor*>
+          (mDefaultContentConstructors.findValue(&default_key));
+       if (constructor)
        {
-           container->mEventContent.destroyAll();
-           mContentEntries.destroy(container);
+          constructor->generateDefaultContent(this, resourceId,
+                                              eventTypeKey, eventType);
        }
 
-       container = dynamic_cast <PublishContentContainer*>(mPartialContentEntries.find(&key));
-       if (container)
+       // If it exists, call it to publish partial content for this resource/event.
+       constructor =
+          dynamic_cast <SipPublishContentMgrDefaultConstructor*>
+          (mDefaultPartialContentConstructors.findValue(&default_key));
+       if (constructor)
        {
-           container->mEventContent.destroyAll();
-           mPartialContentEntries.destroy(container);
-       }
-    }
-    else
-    {
-       container = dynamic_cast <PublishContentContainer*>(mDefaultContentEntries.find(&key));
-       if (container)
-       {
-           container->mEventContent.destroyAll();
-           mDefaultContentEntries.destroy(container);
+          constructor->generateDefaultContent(this, resourceId,
+                                              eventTypeKey, eventType);
        }
 
-       // Remove any default constructor.
-       mDefaultContentConstructors.destroy(&key);
-    }
-
-    // Call the observer for the content change, if any, unless this
-    // is default content or noNotify is set.
-    if (!noNotify && resourceIdProvided)
-    {
+       // Is there a callback for this eventType?  (Probably so.)
        UtlString eventTypeString(eventType);
        PublishCallbackContainer* callbackContainer =
           dynamic_cast <PublishCallbackContainer*>
           (mEventContentCallbacks.find(&eventTypeString));
-       if(callbackContainer && callbackContainer->mpCallback)
+       if (callbackContainer)
        {
-          (callbackContainer->mpCallback)(callbackContainer->mpApplicationData,
-                                          resourceId,
-                                          eventTypeKey,
-                                          eventTypeString);
+          // See if resource-specific (full) content exists now.
+          PublishContentContainer* newContent =
+             dynamic_cast <PublishContentContainer*> (mContentEntries.find(&key));
+
+          // If no (full) content was generated, check if (fixed) default content exists.
+          PublishContentContainer* defaultContent;
+          if (!newContent)
+          {
+             defaultContent =
+                dynamic_cast <PublishContentContainer*> (mDefaultContentEntries.find(&default_key));
+          }
+
+          // Now, newContent is non-NULL if default content exists for
+          // 'key', which means that the resource still has
+          // publishable content.
+          if (newContent || defaultContent)
+          {
+             // Replace the new content for the resource with the previous content.
+             if (newContent)
+             {
+                mContentEntries.removeReference(newContent);
+             }
+             PublishContentContainer* newPartialContent =
+                dynamic_cast <PublishContentContainer*> (mPartialContentEntries.remove(&key));
+
+             // Insert the previous content for the resource.
+             if (content)
+             {
+                mContentEntries.insert(content);
+             }
+             if (partialContent)
+             {
+                mPartialContentEntries.insert(partialContent);
+             }
+
+             // Do a "publish" callback.
+             (callbackContainer->mpCallback)(callbackContainer->mpApplicationData,
+                                             resourceId,
+                                             eventTypeKey,
+                                             eventTypeString,
+                                             NULL);
+
+             // Remove the previous content again.
+             // Insert the previous content for the resource.
+             if (content)
+             {
+                mContentEntries.removeReference(content);
+             }
+             if (partialContent)
+             {
+                mPartialContentEntries.removeReference(partialContent);
+             }
+
+             // Insert the new content again.
+             if (newContent)
+             {
+                mContentEntries.insert(newContent);
+             }
+             if (newPartialContent)
+             {
+                mContentEntries.insert(newPartialContent);
+             }
+          }
+          else
+          {
+             // No publishable content, so do an "unpublish" callback.
+             (callbackContainer->mpCallback)(callbackContainer->mpApplicationData,
+                                             resourceId,
+                                             eventTypeKey,
+                                             eventTypeString,
+                                             reason);
+          }
+       }
+
+       // Delete the old content containers.
+       if (content)
+       {
+          delete content;
+       }
+       if (partialContent)
+       {
+          delete partialContent;
        }
     }
-
-    unlock();
-}
-
-void SipPublishContentMgr::unpublishDefault(const char* eventTypeKey,
-                                            const char* eventType)
-{
-    unpublish(NULL,
-              eventTypeKey,
-              eventType);
-}
-
-UtlBoolean SipPublishContentMgr::setContentChangeObserver(const char* eventType,
-                                                          void* applicationData,
-                                                          SipPublisherContentChangeCallback callbackFunction)
-{
-    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipPublishContentMgr::setContentChangeObserver eventType '%s', callbackFunction %p",
-                  eventType, callbackFunction);
-    UtlBoolean callbackSet = FALSE;
-    UtlString eventTypeString(eventType);
-
-    lock();
-
-    // eventTypeKey and eventType must be defined
-    if(eventType == NULL ||
-       *eventType == 0)
-    {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-            "SipPublishContentMgr::setContentChangeObserver ignored, event type not set.");
-
-    }
-
-    // There should not be a callback set, need to unset first
-    else if((mEventContentCallbacks.find(&eventTypeString)))
-    {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-            "SipPublishContentMgr::setContentChangeObserver ignored, callback already exists for event: %s",
-            eventType ? eventType : "<null>");
-    }
-
     else
     {
-        callbackSet = TRUE;
-        PublishCallbackContainer* callbackEntry = new PublishCallbackContainer();
-        *(static_cast <UtlString*> (callbackEntry)) = eventType;
-        callbackEntry->mpApplicationData = applicationData;
-        callbackEntry->mpCallback = callbackFunction;
-        mEventContentCallbacks.insert(callbackEntry);
+       // Remove default content.
+       mDefaultContentEntries.destroy(&key);
+       // Remove any default constructor.
+       mDefaultContentConstructors.destroy(&key);
     }
 
     unlock();
-
-    return (callbackSet);
 }
 
+void SipPublishContentMgr::revised_unpublishDefault(const char* eventTypeKey,
+                                            const char* eventType,
+                                            UtlBoolean fullState)
+{
+    revised_unpublish(NULL,
+              eventTypeKey,
+              eventType,
+              NULL);
+}
 
-
-UtlBoolean SipPublishContentMgr::removeContentChangeObserver(const char* eventType,
-                                                             void*& applicationData,
-                                SipPublisherContentChangeCallback& callbackFunction)
+void SipPublishContentMgr::revised_setContentChangeObserver(const char* eventType,
+                                                            SipPublisherContentChangeCallback callbackFunction,
+                                                            void* applicationData)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipPublishContentMgr::removeContentChangeObserver eventType '%s', callbackFunction %p",
-                  eventType, &callbackFunction);
-    UtlBoolean callbackRemoved = FALSE;
+                  "SipPublishContentMgr::setContentChangeObserver eventType '%s', callbackFunction %p, applicationData = %p",
+                  eventType, callbackFunction, applicationData);
     UtlString eventTypeString(eventType);
-    PublishCallbackContainer* callbackEntry = NULL;
 
     lock();
 
     // eventType must be defined
-    if(eventType == NULL ||
-       *eventType == 0)
+    if (!eventTypeString.isNull())
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-            "SipPublishContentMgr::setContentChangeObserver ignored, event type not set.");
-
+       // Delete any existing callback.
+       mEventContentCallbacks.destroy(&eventTypeString);
+       // Insert the new callback, if it is not NULL.
+       if (callbackFunction)
+       {
+          mEventContentCallbacks.insert(
+             new PublishCallbackContainer(eventTypeString,
+                                          callbackFunction,
+                                          applicationData));
+       }
     }
-
-    // There should not be a callback set, need to unset first
-    else if((callbackEntry = (PublishCallbackContainer*)
-        mEventContentCallbacks.remove(&eventTypeString)))
-    {
-        callbackRemoved = TRUE;
-        callbackFunction = callbackEntry->mpCallback;
-        applicationData = callbackEntry->mpApplicationData;
-        delete callbackEntry;
-        callbackEntry = NULL;
-    }
-
     else
     {
-        OsSysLog::add(FAC_SIP, PRI_ERR,
-            "SipPublishContentMgr::setContentChangeObserver ignored, no callback exists for event: %s",
-            eventType ? eventType : "<null>");
+       OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "SipPublishContentMgr::setContentChangeObserver "
+                     "ignored, eventType is null.");
     }
 
     unlock();
 
-    return (callbackRemoved);
+    return;
+}
+
+void SipPublishContentMgr::getContentChangeObserver(const char* eventType,
+                                                    SipPublisherContentChangeCallback& callbackFunction,
+                                                    void*& applicationData)
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPublishContentMgr::getContentChangeObserver eventType '%s'",
+                 eventType);
+   UtlString eventTypeString(eventType);
+
+   lock();
+
+   PublishCallbackContainer* callbackEntry = 
+      dynamic_cast <PublishCallbackContainer*>
+      (mEventContentCallbacks.find(&eventTypeString));
+   if (callbackEntry)
+   {
+      callbackFunction = callbackEntry->mpCallback;
+      applicationData = callbackEntry->mpApplicationData;
+   }
+   else
+   {
+      callbackFunction = NULL;
+      applicationData = NULL;
+   }
+
+   unlock();
+
+   return;
 }
 
 
 /* ============================ ACCESSORS ================================= */
 
-UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
+UtlBoolean SipPublishContentMgr::revised_getContent(const char* resourceId,
                                             const char* eventTypeKey,
                                             const char* eventType,
-                                            const char* acceptHeaderValue,
+                                            UtlBoolean fullState,
+                                            const UtlString& acceptHeaderValue,
                                             HttpBody*& content,
                                             UtlBoolean& isDefaultContent,
-                                            UtlBoolean fullState)
+                                            UtlString* availableMediaTypes)
 {
     UtlBoolean foundContent = FALSE;
-    UtlString key(resourceId);
-
-    key.append(eventTypeKey);
     PublishContentContainer* container = NULL;
     isDefaultContent = FALSE;
 
-    // Turn acceptHeaderValue into a HashBag of its components.
-    // acceptedTypesGiven = FALSE if there are no components.
-    UtlHashBag contentTypes;
-    UtlBoolean acceptedTypesGiven =
-       buildContentTypesContainer(acceptHeaderValue, contentTypes);
+    UtlString key;
+    key.append(resourceId);
+    key.append(CONTENT_KEY_SEPARATOR);
+    key.append(eventTypeKey);
 
     lock();
 
@@ -517,13 +614,26 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
     if (container == NULL)
     {
        // Construct the key for the default data.
-       UtlString default_key(eventTypeKey);
+       UtlString default_key;
+       default_key.append(CONTENT_KEY_SEPARATOR);
+       default_key.append(eventTypeKey);
 
        // Look up the constructor.
 
+       UtlHashMap* pDefaultConstructors;
+       if (fullState)
+       {
+          // Full content (this is the usual case)
+          pDefaultConstructors = &mDefaultContentConstructors;
+       }
+       else
+       {
+          // Partial content (used for partial dialog events)
+          pDefaultConstructors = &mDefaultPartialContentConstructors;
+       }
        SipPublishContentMgrDefaultConstructor* constructor =
           dynamic_cast <SipPublishContentMgrDefaultConstructor*>
-          (mDefaultContentConstructors.findValue(&default_key));
+          (pDefaultConstructors->findValue(&default_key));
        // If it exists, call it to publish content for this resource/event.
        if (constructor)
        {
@@ -531,7 +641,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
                                               eventTypeKey, eventType);
        }
 
-       // See if resource specific content exists now.
+       // See if resource-specific content exists now.
        container =
           dynamic_cast <PublishContentContainer*> (pContent->find(&key));
 
@@ -540,7 +650,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        {
                isDefaultContent = TRUE;
        }
-       // If still no content was found, check if the default exists.
+       // If still no content was found, check if (fixed) default content exists.
        else
        {
            container =
@@ -553,13 +663,11 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
        }
     }
 
-    // Within the container, find the content of the right MIME type.
+    // Within the container, choose the correct content.
     if (container)
     {
-        if (acceptedTypesGiven)
+        if (acceptHeaderValue.compareTo(acceptAllTypes) != 0)
         {
-           UtlString base_mime_type;
-
            // Search for the first content in the container whose
            // MIME type is in the acceptable list.
            UtlSListIterator contentIterator(container->mEventContent);
@@ -567,20 +675,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
            while (!foundContent &&
                   (bodyPtr = dynamic_cast <HttpBody*> (contentIterator())))
            {
-              // Test if ';' is present in *bodyPtr's MIME type.
-              // (Remember that an HttpBody considered as a UtlString has
-              // the value of its content type.)
-              ssize_t i = bodyPtr->index(';');
-
-              // The 'if expression' is TRUE if the MIME type of *bodyPtr
-              // is found in in contentTypes.  This is messy, because
-              // *bodyPtr's MIME type may have parameters, which have
-              // to be removed before searching contentTypes.
-              if (contentTypes.find(i == UTL_NOT_FOUND ?
-                                    bodyPtr :
-                                    ( base_mime_type.remove(0),
-                                      base_mime_type.append(*bodyPtr, 0, i),
-                                      &base_mime_type)))
+              if (acceptHeaderValue.findToken(bodyPtr->getContentType(), ",", ";"))
               {
                  content = bodyPtr->copy();
                  foundContent = TRUE;
@@ -588,18 +683,33 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
            }
            if (!foundContent)
            {
-              // No content was found that matched the required MIME types.
+              // No content was found that matched the allowed MIME types.
               OsSysLog::add(FAC_SIP, PRI_WARNING,
-                            "SipPublishContentMgr::getContent no content found for key '%s', acceptHeaderValue '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s'",
+                            "SipPublishContentMgr::getContent no acceptable content found for key '%s', acceptHeaderValue '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s'",
                             key.data(),
-                            acceptHeaderValue ? acceptHeaderValue : "[none]",
+                            acceptHeaderValue.data(),
                             resourceId ? resourceId : "[none]",
                             eventTypeKey, eventType);
+              if (availableMediaTypes)
+              {
+                 // Construct the list of available MIME types.
+                 availableMediaTypes->remove(0);
+                 contentIterator.reset();
+                 while ((bodyPtr = dynamic_cast <HttpBody*> (contentIterator())))
+                 {
+                    if (!availableMediaTypes->isNull())
+                    {
+                       availableMediaTypes->append(',');
+                    }
+                    availableMediaTypes->append(static_cast <UtlString&> (*bodyPtr));
+                 }
+              }
            }
         }
         else
         {
            // No MIME types were specified, take the first content in the list.
+           // (which should exist)
            HttpBody* bodyPtr =
               dynamic_cast <HttpBody*> (container->mEventContent.first());
            if (bodyPtr)
@@ -610,10 +720,14 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
            else
            {
               // No content was found (at all).
+              // Set *availableMediaTypes.
+              if (availableMediaTypes)
+              {
+                 availableMediaTypes->remove(0);
+              }
               OsSysLog::add(FAC_SIP, PRI_WARNING,
-                            "SipPublishContentMgr::getContent no content found for key '%s', acceptHeaderValue '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s'",
+                            "SipPublishContentMgr::getContent no content found for key '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s' - publish() must have been called with numContentTypes==0",
                             key.data(),
-                            acceptHeaderValue ? acceptHeaderValue : "[none]",
                             resourceId ? resourceId : "[none]",
                             eventTypeKey, eventType);
            }
@@ -622,10 +736,15 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
     else
     {
        // No container found for this resource and event.
+       // Set *availableMediaTypes.
+       if (availableMediaTypes)
+       {
+          availableMediaTypes->remove(0);
+       }
        OsSysLog::add(FAC_SIP, PRI_WARNING,
                      "SipPublishContentMgr::getContent no container found for key '%s', acceptHeaderValue '%s', resourceId '%s', eventTypeKey ='%s', eventType '%s', fullState = %d",
                      key.data(),
-                     acceptHeaderValue ? acceptHeaderValue : "[none]",
+                     acceptHeaderValue.data(),
                      resourceId ? resourceId : "[none]",
                      eventTypeKey, eventType,
                      fullState);
@@ -633,8 +752,7 @@ UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
 
     unlock();
 
-    contentTypes.destroyAll();
-    return (foundContent);
+    return foundContent;
 }
 
 
@@ -651,69 +769,61 @@ void SipPublishContentMgr::getStats(int& numDefaultContent,
     unlock();
 }
 
-UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
-                                              const char* eventTypeKey,
-                                              int maxContentTypes,
-                                              int& numContentTypes,
-                                              HttpBody* eventContent[],
-                                              SipPublishContentMgrDefaultConstructor**
-                                              pDefaultConstructor)
+void SipPublishContentMgr::revised_getPublished(const char* resourceId,
+                                        const char* eventTypeKey,
+                                        UtlBoolean fullState,
+                                        int& numContentTypes,
+                                        HttpBody**& eventContent,
+                                        SipPublishContentMgrDefaultConstructor**
+                                        pDefaultConstructor)
 {
-    UtlBoolean contentReturned = FALSE;
-
-    UtlBoolean resourceIdProvided = resourceId && *resourceId;
-
     // Construct the key to look up.
     UtlString key;
-    if(resourceIdProvided)
-    {
-        key = resourceId;
-    }
-
-    if(eventTypeKey)
-    {
-       key.append(eventTypeKey);
-    }
+    key.append(resourceId);
+    key.append(CONTENT_KEY_SEPARATOR);
+    key.append(eventTypeKey);
 
     lock();
 
     // Look up the key in the specific or default entries, as appropriate.
+    UtlHashBag* bag = 
+       resourceId ?
+       (fullState ? &mContentEntries : &mPartialContentEntries) :
+       (fullState ? &mDefaultContentEntries : &mDefaultPartialContentEntries);
     PublishContentContainer* container =
-       dynamic_cast <PublishContentContainer*> ((resourceIdProvided ?
-                                                 mContentEntries :
-                                                 mDefaultContentEntries).find(&key));
+       dynamic_cast <PublishContentContainer*> (bag->find(&key));
 
     // If not found, return zero versions.
     if (container == NULL)
     {
-       contentReturned = TRUE;
        numContentTypes = 0;
+       eventContent = new HttpBody*[0];
     }
-
-    // The content for this event type exists.
+    // Content for this event type exists.
     else
     {
         int num = container->mEventContent.entries();
+        numContentTypes = num;
 
-        if(num <= maxContentTypes)
+        HttpBody** contentCopies = new HttpBody*[num];
+        eventContent = contentCopies;
+
+        // Copy the contents into the array.
+        for (int index = 0; index < num; index++)
         {
-           contentReturned = TRUE;
-           numContentTypes = num;
-           // Copy the contents into the array.
-           for (int index = 0; index < num; index++)
-           {
-              eventContent[index] =
-                 new HttpBody(*dynamic_cast <HttpBody*>
-                               (container->mEventContent.at(index)));
-           }
+           eventContent[index] =
+              new HttpBody(*dynamic_cast <HttpBody*>
+                            (container->mEventContent.at(index)));
         }
     }
 
     // Return the default constructor, if any.
-    if (pDefaultConstructor)
+    if (pDefaultConstructor && !resourceId)
     {
        UtlContainable* defaultConstructor =
-          mDefaultContentConstructors.findValue(&key);
+          (fullState ?
+           mDefaultContentConstructors :
+           mDefaultPartialContentConstructors).findValue(&key);
        *pDefaultConstructor =
           // Is there a default constructor?
           defaultConstructor ?
@@ -726,7 +836,7 @@ UtlBoolean SipPublishContentMgr::getPublished(const char* resourceId,
 
     unlock();
 
-    return contentReturned;
+    return;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -742,60 +852,31 @@ void SipPublishContentMgr::dumpState()
                  "\t    SipPublishContentMgr %p",
                  this);
 
-   UtlHashBagIterator itor(mContentEntries);
+   dumpStateBag(mContentEntries, "mContentEntries");
+   dumpStateBag(mPartialContentEntries, "mPartialContentEntries");
+   dumpStateBag(mDefaultContentEntries, "mDefaultContentEntries");
+   dumpStateBag(mDefaultPartialContentEntries, "mDefaultPartialContentEntries");
+
+   unlock();
+}
+
+void SipPublishContentMgr::dumpStateBag(UtlHashBag& bag,
+                                        const char* name)
+{
+   UtlHashBagIterator itor(bag);
    PublishContentContainer* container;
    while ((container = dynamic_cast <PublishContentContainer*> (itor())))
    {
       OsSysLog::add(FAC_RLS, PRI_INFO,
-                    "\t      mContentEntries{'%s'}",
-                    container->data());
+                    "\t      %s{'%s'}",
+                    name, container->data());
       container->dumpState();
    }
-
-   unlock();
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
-
-UtlBoolean
-SipPublishContentMgr::buildContentTypesContainer(const char* acceptHeaderValue,
-                                                 UtlHashBag& contentTypes)
-{
-   // Set to TRUE when we see an element.
-   UtlBoolean containsMimetypes = FALSE;
-
-   if (acceptHeaderValue)
-   {
-      // Parse acceptHeaderValue into its parts.
-      const char* p = acceptHeaderValue;
-      while (*p != '\0')
-      {
-         // Skip any leading separator characters.
-         size_t i = strspn(p, " \t,");
-         if (*p != '\0')
-         {
-            p += i;
-            // Identify the base MIME type (without any parameters).
-            i = strcspn(p, " \t,;");
-            if (i > 0)
-            {
-               // Create a string containing the MIME type and put it in the
-               // bag of MIME types.
-               UtlString* value = new UtlString(p, i);
-               contentTypes.insert(value);
-               containsMimetypes = TRUE;
-               p += i;
-               // Skip until a comma or end-of-string.
-               p += strcspn(p, ",");
-            }
-         }
-      }
-   }
-
-   return containsMimetypes;
-}
 
 void SipPublishContentMgr::lock()
 {

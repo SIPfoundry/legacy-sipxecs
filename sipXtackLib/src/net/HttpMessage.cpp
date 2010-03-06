@@ -2325,6 +2325,11 @@ UtlBoolean HttpMessage::getDateField(long* epochDate) const
     return(dateField != NULL && *epochDate);
 }
 
+void HttpMessage::setAcceptField(const char* acceptFieldValue)
+{
+   setHeaderValue(HTTP_ACCEPT_FIELD, acceptFieldValue);
+}
+
 UtlBoolean HttpMessage::getAcceptField(UtlString& acceptValue) const
 {
     const char* value = getHeaderValue(0, HTTP_ACCEPT_FIELD);
@@ -2348,12 +2353,12 @@ void HttpMessage::getAcceptLanguageField(UtlString* acceptLanaguageFieldValue) c
 
 void HttpMessage::setAcceptLanguageField(const char* acceptLanaguageFieldValue)
 {
-        setHeaderValue(HTTP_ACCEPT_LANGUAGE_FIELD, acceptLanaguageFieldValue);
+   setHeaderValue(HTTP_ACCEPT_LANGUAGE_FIELD, acceptLanaguageFieldValue);
 }
 
 void HttpMessage::setLocationField(const char* locationField)
 {
-    setHeaderValue(HTTP_LOCATION_FIELD, locationField);
+   setHeaderValue(HTTP_LOCATION_FIELD, locationField);
 }
 
 void HttpMessage::getBytes(UtlString* bufferString, ssize_t* length, bool includeBody) const

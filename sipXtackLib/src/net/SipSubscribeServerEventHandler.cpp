@@ -117,59 +117,48 @@ UtlBoolean SipSubscribeServerEventHandler::isAuthorized(const SipMessage& subscr
     return TRUE;
 }
 
-UtlBoolean SipSubscribeServerEventHandler::getNotifyContent(const UtlString& resourceId,
-                                                            const UtlString& eventTypeKey,
-                                                            const UtlString& eventType,
-                                                            SipPublishContentMgr& contentMgr,
-                                                            const char* acceptHeaderValue,
-                                                            SipMessage& notifyRequest,
-                                                            UtlBoolean fullState)
+UtlBoolean
+SipSubscribeServerEventHandler::getNotifyContent(const UtlString& resourceId,
+                                                 const UtlString& eventTypeKey,
+                                                 const UtlString& eventType,
+                                                 SipPublishContentMgr& contentMgr,
+                                                 const UtlString& acceptHeaderValue,
+                                                 SipMessage& notifyRequest,
+                                                 UtlBoolean fullState,
+                                                 UtlString* availableMediaTypes)
 {
     UtlBoolean gotBody = FALSE;
-    // Default behavior is to just go get the content from
-    // the content manager and attach it to the notify
     HttpBody* messageBody = NULL;
     UtlBoolean isDefaultEventContent;
-    gotBody = contentMgr.getContent(resourceId,
+    gotBody = contentMgr.revised_getContent(resourceId,
                                     eventTypeKey,
                                     eventType,
+                                    fullState,
                                     acceptHeaderValue,
                                     messageBody,
                                     isDefaultEventContent,
-                                    fullState);
+                                    availableMediaTypes);
 
     // The body will be freed with the NOTIFY message.
-    if(messageBody)
+    if (messageBody)
     {
-        const char* contentTypePtr = messageBody->getContentType();
-        UtlString contentType;
-        if(contentTypePtr)
-        {
-            contentType = contentTypePtr;
-        }
-        else
-        {
-            OsSysLog::add(FAC_SIP, PRI_ERR,
-                "SipSubscribeServerEventHandler::getNotifyContent body published for resourceId: '%s' eventTypeKey: '%s' with no content type",
-                resourceId.data() ? resourceId.data() : "<null>",
-                eventTypeKey.data() ? eventTypeKey.data() : "<null>");
-
-            contentType = "text/unknown";
-        }
-
-        notifyRequest.setContentType(contentType);
+        notifyRequest.setContentType(messageBody->getContentType());
         notifyRequest.setBody(messageBody);
 
-        UtlString request;
-        ssize_t requestLength;
-        notifyRequest.getBytes(&request, &requestLength);
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "SipSubscribeServerEventHandler::getNotifyContent resourceId '%s', eventTypeKey '%s' contentType '%s' NOTIFY message length = %zu, message = '%s'",
-                      resourceId.data(), eventTypeKey.data(),
-                      contentType.data(), requestLength, request.data());
+        if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
+        {
+           UtlString request;
+           ssize_t requestLength;
+           notifyRequest.getBytes(&request, &requestLength);
+           OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                         "SipSubscribeServerEventHandler::getNotifyContent resourceId '%s', eventTypeKey '%s' contentType '%s' NOTIFY message length = %zu, message = '%s'",
+                         resourceId.data(), eventTypeKey.data(),
+                         messageBody->getContentType(),
+                         requestLength, request.data());
+        }
     }
 
-    return(gotBody);
+    return gotBody;
 }
 
 /* ============================ ACCESSORS ================================= */

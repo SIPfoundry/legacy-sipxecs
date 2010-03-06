@@ -424,16 +424,16 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
    // subscription.
    body = generateRlmiBody(consolidated, RLMI_FULL, mResourcesList);
    getResourceListServer()->getEventPublisher().
-      publish(resourceListUri.data(),
+      revised_publish(resourceListUri.data(),
               getResourceListServer()->getEventType(),
               getResourceListServer()->getEventType(),
               1, &body,
+              RLMI_FULL,
               // Suppress generating notifications for this call of
               // SipPublishContentMgr::publish, because the call below
               // will generate notifications for the same subscribed-to
               // URIs.
-              TRUE,
-              RLMI_FULL);
+              TRUE);
 
    // Generate and publish the fullState=FALSE notice body.
    // If there are no URIs in mChangesList, then there have been no changes
@@ -442,14 +442,14 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
    {
       body = generateRlmiBody(consolidated, RLMI_PARTIAL, partialList);
       getResourceListServer()->getEventPublisher().
-         publish(resourceListUri.data(),
+         revised_publish(resourceListUri.data(),
                  getResourceListServer()->getEventType(),
                  getResourceListServer()->getEventType(),
                  1, &body,
+                 RLMI_PARTIAL,
                  // This call to SipPublishContentMgr::publish triggers
                  // notification.
-                 FALSE,
-                 RLMI_PARTIAL);
+                 FALSE);
    }
 }
 

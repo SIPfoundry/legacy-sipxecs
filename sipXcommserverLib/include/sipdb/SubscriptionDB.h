@@ -67,6 +67,7 @@ public:
         const UtlString& contact,
         const int& expires,
         const int& subscribeCseq,
+        const UtlString& eventTypeKey,
         const UtlString& eventType,
         const UtlString& id,
         const UtlString& to,
@@ -182,6 +183,7 @@ public:
     static const UtlString gNotifycseqKey;
     static const UtlString gSubscribecseqKey;
     static const UtlString gExpiresKey;
+    static const UtlString gEventtypekeyKey; // sic
     static const UtlString gEventtypeKey;
     static const UtlString gIdKey;
     static const UtlString gToKey;

@@ -303,7 +303,6 @@ public:
                                                            eventType);
          subMgrp = subServerp->getSubscriptionMgr(eventType);
          subMgrp->getDialogMgr();
-         subServerp->getPublishMgr(eventType);
 
          subServerp->start();
          // Enable the handler for the MWI server
@@ -314,6 +313,8 @@ public:
       {
          subClientp->requestShutdown();
          refreshMgrp->requestShutdown();
+         subServerp->requestShutdown();
+         subServerp->shutdown();
          userAgentp->shutdown(TRUE);
 
          OsTask::delay(1000);   // 1 second to let other threads clean up
@@ -467,6 +468,8 @@ public:
       {
          subClientp->requestShutdown();
          refreshMgrp->requestShutdown();
+         subServerp->requestShutdown();
+         subServerp->shutdown();
 
          OsTask::delay(1000);   // 1 second to let other threads clean up
 
@@ -718,6 +721,7 @@ public:
          subClientp->requestShutdown();
          refreshMgrp->requestShutdown();
          subServerp->requestShutdown();
+         subServerp->shutdown();
          userAgentp->shutdown(TRUE);
 
          OsTask::delay(1000);   // 1 second to let other threads clean up
@@ -1998,6 +2002,18 @@ public:
          // Enable the handler for the MWI server
          subServerp->enableEventType(eventType, userAgentp);
 
+         // Publish content, so we can subscribe to the URI.
+         SipPublishContentMgr* pubMgrp = subServerp->getPublishMgr(eventType);
+         
+         const char* cc = "This is a test\n";
+         HttpBody* c = new HttpBody(cc, strlen(cc), eventType);
+         pubMgrp->revised_publish(resource_id,
+                          eventType,
+                          eventType,
+                          1,
+                          &c,
+                          TRUE);
+
          // Create a SUBSCRIBE observer
          // Register an interest in SUBSCRIBE requests
          // for this event type
@@ -2058,6 +2074,7 @@ public:
          subClientp->requestShutdown();
          refreshMgrp->requestShutdown();
          subServerp->requestShutdown();
+         subServerp->shutdown();
          userAgentp->shutdown(TRUE);
 
          OsTask::delay(1000);   // 1 second to let other threads clean up
@@ -2084,14 +2101,14 @@ public:
          // Should not be any pre-existing content
          HttpBody* preexistingBodyPtr;
          UtlBoolean isDefaultContent;
-         int version;
-         CPPUNIT_ASSERT(!contentMgrp->getContent(resource_id,
-                                                 eventTypeKey,
-                                                 eventType,
-                                                 NULL,
-                                                 preexistingBodyPtr,
-                                                 version,
-                                                 isDefaultContent));
+         CPPUNIT_ASSERT(contentMgrp->revised_getContent(resource_id,
+                                                eventTypeKey,
+                                                eventType,
+                                                TRUE,
+                                                SipPublishContentMgr::acceptAllTypes,
+                                                preexistingBodyPtr,
+                                                isDefaultContent,
+                                                NULL));
          int numDefaultContent = -1;
          int numDefaultConstructor = -1;
          int numResourceSpecificContent = -1;
@@ -2102,7 +2119,7 @@ public:
                                numCallbacksRegistered);
          CPPUNIT_ASSERT(numDefaultContent == 0);
          CPPUNIT_ASSERT(numDefaultConstructor == 0);
-         CPPUNIT_ASSERT(numResourceSpecificContent == 0);
+         CPPUNIT_ASSERT(numResourceSpecificContent == 1);
          CPPUNIT_ASSERT(numCallbacksRegistered == 1);
 
          // Set up a subscription.
@@ -2125,7 +2142,7 @@ public:
                                numCallbacksRegistered);
          CPPUNIT_ASSERT(numDefaultContent == 0);
          CPPUNIT_ASSERT(numDefaultConstructor == 0);
-         CPPUNIT_ASSERT(numResourceSpecificContent == 0);
+         CPPUNIT_ASSERT(numResourceSpecificContent == 1);
          CPPUNIT_ASSERT(numCallbacksRegistered == 1);
 
          // See if a subscribe was sent and received

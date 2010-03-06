@@ -152,7 +152,9 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
 
    // Install it for the resource, but do not publish it, because our
    // caller will publish it.
-   contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body, TRUE);
+   contentMgr->revised_publish(resourceId, eventTypeKey, eventType,
+                       1, &body,
+                       TRUE, TRUE);
 }
 
 // Make a copy of this object according to its real type.
@@ -199,7 +201,8 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
       FALSE // bUseNextAvailablePort
       ),
    mSubscriptionMgr(SUBSCRIPTION_COMPONENT_REG, mDomainName),
-   mSubscribeServer(mUserAgent, mEventPublisher, mSubscriptionMgr,
+   mSubscribeServer(SipSubscribeServer::terminationReasonSilent,
+                    mUserAgent, mEventPublisher, mSubscriptionMgr,
                     mPolicyHolder)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
@@ -227,7 +230,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
    mUserAgent.start();
 
    // Arrange to generate default content for reg events.
-   mEventPublisher.publishDefault(mEventType.data(), mEventType.data(),
+   mEventPublisher.revised_publishDefault(mEventType.data(), mEventType.data(),
                                   new RegEventDefaultConstructor(this));
 
    // Start the SIP Subscribe Server after the initial content has
@@ -272,8 +275,9 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
 
    // Publish content for the AOR.
    generateContentUser(aorString.data(), aorString, aorUri, body);
-   mEventPublisher.publish(aorString, mEventType.data(), mEventType.data(),
-                           1, &body, FALSE);
+   mEventPublisher.revised_publish(aorString, mEventType.data(), mEventType.data(),
+                           1, &body,
+                           TRUE, FALSE);
 
    if (!instrument.isNull())
    {
@@ -286,8 +290,9 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
       instrumentEntity.append(*getDomainName());
 
       generateContentInstrument(instrumentEntity.data(), instrument, body);
-      mEventPublisher.publish(instrumentEntity, mEventType.data(), mEventType.data(),
-                              1, &body, FALSE);
+      mEventPublisher.revised_publish(instrumentEntity, mEventType.data(), mEventType.data(),
+                              1, &body,
+                              TRUE, FALSE);
       
       // Publish content for ~~in~[user]&[instrument]@[domain].
 
@@ -302,8 +307,9 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
       userInstrumentEntity.append(*getDomainName());
 
       generateContentUserInstrument(aorString.data(), aorString, aorUri, instrument, body);
-      mEventPublisher.publish(userInstrumentEntity, mEventType.data(), mEventType.data(),
-                              1, &body, FALSE);
+      mEventPublisher.revised_publish(userInstrumentEntity, mEventType.data(), mEventType.data(),
+                              1, &body,
+                              TRUE, FALSE);
    }
 }
 

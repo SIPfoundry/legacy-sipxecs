@@ -1,0 +1,71 @@
+relationship between full and partial info
+I think I understand.
+
+publish callback triggered on full vs. partial?
+depends on noNotify.  If both full and partial are used, publish(full)
+has noNotify, so only partial update does callback..
+
+publish noNotify?  for default, and also for full when partial is coming.
+
+unpublish needs work OK
+
+callback needs a reason argument
+
+removeContentChangeObserver logic is strange
+completely updated
+
+unpublish is how we delete a resource, so it must have 'reason'
+
+change name of unpublish
+do we really want to do this?
+No, I think "unpublish" is right.
+
+callback - eventType vs. eventTypeKey
+OK
+
+eventType vs. eventTypeKey -- eventType is coarser, and it is the
+index for callbacks.  But eventType is needed in a number of places
+for that reason.
+OK
+
+Need to re-introduce ctrl-A.
+
+Is default content segregated by fullState?  Yes.
+
+Indexing in SipSubscriptionMgr has no ^A
+
+duplicated code in shutdown()
+
+* Termination of sub due to error requires NOTIFY.
+
+* Need to pace rate of generatation of end-of-subs notifys.
+ 
+* factor sending of SUB response in ::handleSubscribe
+
+* remove setting of subscription state from getNotifyDialogInfo
+
+
+
+shutdown (all)
+
+notifySubscribers (for a particular resource/event)
+
+	eventData->mpEventSpecificSubscriptionMgr->createNotifiesDialogInfo
+
+	eventData->mpEventSpecificSubscriptionMgr->getNotifyContent
+	eventData->mpEventSpecificSubscriptionMgr->updateNotifyVersion
+	eventData->mpEventSpecificSubscriptionMgr->updateVersion
+
+handleSubscribe (for a particular SUBSCRIBE)
+
+	mpEventSpecificSubscriptionMgr->updateDialogInfo
+	mpEventSpecificSubscriptionMgr->getNotifyDialogInfo
+
+	mpEventSpecificSubscriptionMgr->getNotifyContent
+	mpEventSpecificSubscriptionMgr->updateNotifyVersion
+	mpEventSpecificSubscriptionMgr->updateVersion
+
+generateIndividualNotify (for a particular NOTIFY response)
+(all we get here is a dialog handle)
+
+Factor out the last three methods.

@@ -623,7 +623,8 @@ int main(int argc, char* argv[])
     SipSubscribeServerEventHandler policyHolder; // Component for granting the subscription rights
     SipPublishContentMgr publisher; // Component for publishing the event contents
 
-    SipSubscribeServer subscribeServer(*userAgent, publisher,
+    SipSubscribeServer subscribeServer(SipSubscribeServer::terminationReasonSilent,
+                                       *userAgent, publisher,
                                        subscriptionMgr, policyHolder);
     subscribeServer.enableEventType(DIALOG_EVENT_TYPE);
     subscribeServer.start();

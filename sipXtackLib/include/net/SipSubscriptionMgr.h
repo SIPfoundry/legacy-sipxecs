@@ -46,6 +46,17 @@ class SipSubscriptionMgr
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
+   /// Describes whether a subscription is to continue or be terminated.
+   enum subscriptionChange
+   {
+      subscriptionContinues,
+      subscriptionTerminated,
+      // Subscription is to be ended, but subscriber is not to be notified.
+      // Used when subscription will be continued by a later incarnation of
+      // this server.
+      subscriptionTerminatedSilently
+   };
+
 /* ============================ CREATORS ================================== */
 
     //! Default constructor
@@ -58,8 +69,8 @@ public:
 /* ============================ MANIPULATORS ============================== */
 
     //! Add/Update subscription for the given SUBSCRIBE request
-    /** The resourceId and eventTypeKey are set based on
-     *  the subscription.  If the subscription already existed, they
+    /** The resourceId, eventTypeKey, and eventType are set based on
+     *  the subscription.  If the subscription already exists, they
      *  are extracted from the subscription state.  If this is a new
      *  subscription, handler.getKeys() is called to compute them.
      */
@@ -69,6 +80,8 @@ public:
                                         UtlString& resourceId,
                                         /// the event type key for the events
                                         UtlString& eventTypeKey,
+                                        /// the event type for the events
+                                        UtlString& eventType,
                                         /// the dialog handle for the subscription (out)
                                         UtlString& subscribeDialogHandle,
                                         /// TRUE if the subscription is new (out)
@@ -98,6 +111,8 @@ public:
                                         const UtlString& resourceId,
                                         /// the event type key for the events
                                         const UtlString& eventTypeKey,
+                                        /// the event type for the events
+                                        const UtlString& eventType,
                                         /// the expiration epoch
                                         int expires,
                                         /// the last NOTIFY CSeq
@@ -110,38 +125,89 @@ public:
                                         UtlBoolean& isNew);
 
     //! Set the subscription dialog information and cseq for the next NOTIFY request
+    // Constructs the Subscription-State header using subscriptionStateFormat.
+    // (See ::createNotifiesDialogInfo() for details.)
+    // Returns resource, event-type, and accept-header about the subscription
+    // if requested.
     virtual UtlBoolean getNotifyDialogInfo(const UtlString& subscribeDialogHandle,
-                                           SipMessage& notifyRequest);
+                                           SipMessage& notifyRequest,
+                                           const char* subscriptionStateFormat,
+                                           UtlString* resourceId = NULL,
+                                           UtlString* eventTypeKey = NULL,
+                                           UtlString* eventType = NULL,
+                                           UtlString* acceptHeaderValue = NULL);
 
     //! Construct a NOTIFY request for each subscription/dialog subscribed to the given resourceId and eventTypeKey
     /*! Allocates a SipMessage* array and allocates a SipMessage and sets the
      * dialog information for the NOTIFY request for each subscription.
+     *  \param resourceId - resourceId and eventTypeKey should be appropriate
+     *         strings.  If both are NULL, it means to select all subscriptions.
+     *  \param eventTypeKey
+     *  \param subscriptionStateFormat - a printf() format string that generates
+     *         the desired Subscription-State header.  It may have one format
+     *         specification for a 'long int' that is the number of seconds
+     *         until the subscription expires.  It must generate no more than
+     *         100 characters.
      *  \param numNotifiesCreated - number of pointers to NOTIFY requests in
      *         the returned notifyArray
-     *  \param notifyArray - if numNotifiesCreated > 0 array is allocated of
-     *         sufficient size to hold a SipMessage for each subscription.
+     *  \param acceptHeaderValuesArray - allocated array holding a UtlString*
+     *         for each subscription, containing the Accept header values
+     *  \param notifyArray - allocated array holding a SipMessage* for
+     *         each subscription, containing the generated NOTIFY requests
      */
-    virtual UtlBoolean createNotifiesDialogInfo(const char* resourceId,
-                                                const char* eventTypeKey,
-                                                int& numNotifiesCreated,
-                                                UtlString**& acceptHeaderValuesArray,
-                                                SipMessage**& notifyArray);
+    virtual void createNotifiesDialogInfo(const char* resourceId,
+                                          const char* eventTypeKey,
+                                          const char* subscriptionStateFormat,
+                                          int& numNotifiesCreated,
+                                          UtlString**& acceptHeaderValuesArray,
+                                          SipMessage**& notifyArray);
+
+    //! Construct a NOTIFY request for each subscription/dialog subscribed to the given eventType.
+    /*! Allocates a SipMessage* array and allocates a SipMessage and sets the
+     * dialog information for the NOTIFY request for each subscription.
+     *  \param eventType - the event type to select
+     *  \param subscriptionStateFormat - a printf() format string that generates
+     *         the desired Subscription-State header.  It may have one format
+     *         specification for a 'long int' that is the number of seconds
+     *         until the subscription expires.  It must generate no more than
+     *         100 characters.
+     *  \param numNotifiesCreated - number of pointers to NOTIFY requests in
+     *         the returned notifyArray
+     *  \param acceptHeaderValuesArray - allocated array holding a UtlString*
+     *         for each subscription, containing the Accept header values
+     *  \param notifyArray - allocated array holding a SipMessage* for
+     *         each subscription, containing the generated NOTIFY requests
+     *  \param resourceIdArray - allocated array holding a char*
+     *         for each subscription, containing the resource Id values.
+     *  \param eventTypeKeyArray - allocated array holding a char*
+     *         for each subscription, containing the event type key values.
+     */
+    virtual void createNotifiesDialogInfoEvent(const UtlString& eventType,
+                                               const char* subscriptionStateFormat,
+                                               int& numNotifiesCreated,
+                                               UtlString**& acceptHeaderValuesArray,
+                                               SipMessage**& notifyArray,
+                                               UtlString**& resourceIdArray,
+                                               UtlString**& eventTypeKeyArray);
 
     //! frees up the notifies created in createNotifiesDialogInfo
-    virtual void freeNotifies(int numNotifies,
-                              UtlString** acceptHeaderValues,
-                              SipMessage** notifiesArray);
+    static void freeNotifies(int numNotifies,
+                             UtlString** acceptHeaderValues,
+                             SipMessage** notifiesArray);
 
-    //! End the dialog for the subscription indicated, by the dialog handle
+    //! End the dialog for the subscription indicated by the dialog handle
     /*! Finds a matching dialog and expires the subscription if it has
      *  not already expired.
      *  \param dialogHandle - a fully established SIP dialog handle
+     *  \param change - describes whether the subscription should
+     *         end silently - has no effect in SipSubscriptionMgr.
      *  Returns TRUE if a matching dialog was found regardless of
      *  whether the subscription was already expired or not.
      */
-    virtual UtlBoolean endSubscription(const UtlString& dialogHandle);
+    virtual UtlBoolean endSubscription(const UtlString& dialogHandle,
+                                       enum subscriptionChange change);
 
-    //! Remove old subscriptions that expired before given date
+    //! Remove old subscriptions, ones that expired before the given time.
     virtual void removeOldSubscriptions(long oldEpochTimeSeconds);
 
     //! Set stored value for the next NOTIFY CSeq and version.
@@ -151,6 +217,8 @@ public:
 
    /** Update the values that are saved in the IMDB of the NOTIFY CSeq
     *  (now in notifyRequest) and XML version (as specified by 'version').
+     *  \param change - specifies whether the subscription is to
+     *         continue or terminate
     */
    virtual void updateVersion(SipMessage& notifyRequest,
                               int version,
@@ -241,8 +309,8 @@ private:
     // by dialog handles.
     UtlHashBag mSubscriptionStatesByDialogHandle;
 
-    // Index to subscription states in mSubscriptionStatesByDialogHandle
-    // indexed by the resourceId and eventTypeKey
+    // Index to subscription states in mSubscriptionStatesByDialogHandle,
+    // indexed by the resourceId and eventTypeKey.
     // Members are SubscriptionServerStateIndex's, which are indexed by
     // resourceId concatenated with eventTypeKey.
     UtlHashBag mSubscriptionStateResourceIndex;

@@ -313,12 +313,12 @@ UtlBoolean
 UserStaticDB::insertRow (const UtlHashMap& nvPairs) 
 {
     UtlString identity, event, contact, from_uri, to_uri, callid;
-    identity = *((UtlString*)nvPairs.findValue(&gIdentityKey));
-    event = *((UtlString*)nvPairs.findValue(&gEventKey));
-    contact = *((UtlString*)nvPairs.findValue(&gContactKey));
-    from_uri = *((UtlString*)nvPairs.findValue(&gFromUriKey));
-    to_uri = *((UtlString*)nvPairs.findValue(&gToUriKey));
-    callid = *((UtlString*)nvPairs.findValue(&gCallidKey));
+    identity = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gIdentityKey)));
+    event = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gEventKey)));
+    contact = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gContactKey)));
+    from_uri = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gFromUriKey)));
+    to_uri = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gToUriKey)));
+    callid = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gCallidKey)));
     return insertRow ( Url( identity ), event, contact, from_uri, to_uri, callid );
 }
 

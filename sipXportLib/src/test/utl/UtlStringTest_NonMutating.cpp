@@ -69,6 +69,7 @@ class UtlStringTest_NonMutating : public UtlStringTest
     CPPUNIT_TEST(testIndexOperator);
     CPPUNIT_TEST(testCharAtOperator);
     CPPUNIT_TEST(testfindToken);
+    CPPUNIT_TEST(testfindTokenSuffix);
     CPPUNIT_TEST_SUITE_END();
 
 private :
@@ -1694,14 +1695,14 @@ public:
         const char* prefix = "Test findRegEx, when ";
         string Message;
 
-        TestCharAtStructure testData[] = { \
-            { "regEx first and last in string", " testWord", ",", NULL, TRUE }, \
-            { "regEx NOT in string", "no, such ,word", ",", NULL, FALSE }, \
-            { "regEx not first in string", "not , the , first,testWord, or, last", ",", NULL, TRUE  }, \
-            { "regEx last in string", "not , the , first,testWord", ",", NULL, TRUE  }, \
-            { "regEx NOT(exactly) in string", "no such, testWord-sim, word", ",", NULL, FALSE }, \
-            { "regEx has suffix", "suffix , is, semicolon,testWord;dale, seen, here", ",", ";", TRUE  }, \
-            { "regEx has no suffix", "suffix , is, semicolon,testWord, not, here", ",", ";", TRUE  }, \
+        TestCharAtStructure testData[] = {
+            { "regEx first and last in string", " testWord", ",", NULL, TRUE },
+            { "regEx NOT in string", "no, such ,word", ",", NULL, FALSE },
+            { "regEx not first in string", "not , the , first,testWord, or, last", ",", NULL, TRUE  },
+            { "regEx last in string", "not , the , first,testWord", ",", NULL, TRUE  },
+            { "regEx NOT(exactly) in string", "no such, testWord-sim, word", ",", NULL, FALSE },
+            { "regEx has suffix", "suffix , is, semicolon,testWord;dale, seen, here", ",", ";", TRUE  },
+            { "regEx has no suffix", "suffix , is, semicolon,testWord, not, here", ",", ";", TRUE  },
         };
 
         UtlString *ptestString;
@@ -1718,6 +1719,15 @@ public:
             delete ptestString;
         }
     }//testfindToken
+
+    void testfindTokenSuffix()
+    {
+       UtlString string("word1,word2;parameter,word3");
+
+       CPPUNIT_ASSERT(!string.findToken("word2", ","));
+       CPPUNIT_ASSERT(string.findToken("word2", ",", ";"));
+    }//testfindTokenSuffix
+
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(UtlStringTest_NonMutating);

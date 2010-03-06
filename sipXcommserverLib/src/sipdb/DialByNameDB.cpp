@@ -209,7 +209,7 @@ DialByNameDB::insertRow ( const UtlHashMap& nvPairs ) const
     // Note we do not need the identity object here
     // as it is inferred from the uri
     return insertRow (
-        Url( *((UtlString*)nvPairs.findValue(&gNp_contactKey)) ) );
+        Url( *(dynamic_cast <UtlString*> (nvPairs.findValue(&gNp_contactKey))) ));
 }
 
 UtlBoolean

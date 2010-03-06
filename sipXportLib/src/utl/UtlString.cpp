@@ -26,8 +26,7 @@
 // CONSTANTS
 #define UTLSTRING_MIN_INCREMENT 100 ///< smallest additional memory to be allocated
 #define SWS "\\s*"
-#define SLASH "\\\\"
-#define TEST 1
+#define TEST_FINDTOKEN 1
 
 // STATIC VARIABLE INITIALIZATIONS
 const UtlContainableType UtlString::TYPE = "UtlString";
@@ -1088,9 +1087,10 @@ UtlContainableType UtlString::getContainableType() const
     return UtlString::TYPE;
 }
 
+
 UtlBoolean UtlString::findToken(const char* token,
                                 const char* delimiter,
-                                const char* suffix ) const
+                                const char* suffix) const
 {
     RegEx*   ptmpRegEx = NULL;
     UtlBoolean  matched = FALSE;
@@ -1104,25 +1104,28 @@ UtlBoolean UtlString::findToken(const char* token,
 
     // allow whitespace around token
     regExpStr.append(SWS);
+    // "\Q" causes all characters to be treated as non-special until "\E".
+    regExpStr.append("\\Q");
     regExpStr.append(token);
+    regExpStr.append("\\E");
     regExpStr.append(SWS);
 
-   // find another delimiter, end of line or (optional) suffix
+    // find another delimiter, end of line or (optional) suffix
     regExpStr.append("(");
     regExpStr.append(delimiter);
     if (suffix)
     {
-        regExpStr.append("|");
-        regExpStr.append(suffix);
+       regExpStr.append("|");
+       regExpStr.append(suffix);
     }
     regExpStr.append("|$)");
+    // "(^|" delimiter ")" SWS "\Q" token "\E" SWS "(" delimiter "|" suffix "|$)");
+    // e.g., with delimiter = "," and suffix= ";" 
+    //      '( ^|,) SWS \Q token \E SWS (,|;|$)'
+    // e.g., with delimiter = "," and without suffix
+    //      '( ^|,) SWS \Q token \E SWS (,|$)'
 
-    // eg. with delimiter = "," and suffix= ";" 
-    //      '( ^|,) SWS token SWS (,|;|$)'
-    // eg. same without suffix
-    //      '( ^|,) SWS token SWS (,|$)'
-
-#ifdef TEST
+#ifdef TEST_FINDTOKEN
     OsSysLog::add( FAC_LOG, PRI_DEBUG
                   ,"UtlString::findRegEx: "
                    "built regexp '%s' to find '%s' with delimiter '%s' "
@@ -1152,7 +1155,7 @@ UtlBoolean UtlString::findToken(const char* token,
         matched = ptmpRegEx->Search(data());
     }
 
-#ifdef TEST
+#ifdef TEST_FINDTOKEN
     OsSysLog::add( FAC_LOG, PRI_DEBUG
                   ,"UtlString::findRegEx: "
                    "'%s' with delimiter '%s' %sfound in '%s': "

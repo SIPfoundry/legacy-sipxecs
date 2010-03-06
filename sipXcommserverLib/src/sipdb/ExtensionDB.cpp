@@ -311,8 +311,8 @@ ExtensionDB::insertRow (const UtlHashMap& nvPairs)
     // Note we do not need the identity object here
     // as it is inferred from the uri
     return insertRow (
-        Url( *((UtlString*)nvPairs.findValue(&gUriKey)) ),
-        *((UtlString*)nvPairs.findValue(&gExtensionKey)) );
+        Url( *(dynamic_cast <UtlString*> (nvPairs.findValue(&gUriKey))) ),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gExtensionKey))));
 }
 
 UtlBoolean

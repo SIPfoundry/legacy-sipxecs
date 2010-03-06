@@ -67,8 +67,10 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
       // Create the SIP Subscribe Server
       mpSubscriptionMgr = new SipSubscriptionMgr(); // Component for holding the subscription data
 
-      mpSubscribeServer = new SipSubscribeServer(*mpUserAgent, mSipPublishContentMgr,
-                                              *mpSubscriptionMgr, mPolicyHolder);
+      mpSubscribeServer =
+         new SipSubscribeServer(SipSubscribeServer::terminationReasonNone,
+                                *mpUserAgent, mSipPublishContentMgr,
+                                *mpSubscriptionMgr, mPolicyHolder);
       mpSubscribeServer->enableEventType(DIALOG_EVENT_TYPE,
                                          NULL,
                                          NULL,
@@ -389,8 +391,10 @@ void SipDialogMonitor::publishContent(UtlString& contact,
          // Publish the content to the subscribe server
          // Make a copy, because mpSipPublishContentMgr will own it.
          HttpBody* pHttpBody = new HttpBody(*(HttpBody*)list);
-	 mSipPublishContentMgr.publish(listUri->data(), DIALOG_EVENT_TYPE,
-                                       DIALOG_EVENT_TYPE, 1,
+	 mSipPublishContentMgr.revised_publish(listUri->data(),
+                                       DIALOG_EVENT_TYPE,
+                                       DIALOG_EVENT_TYPE,
+                                       1,
                                        &pHttpBody);
       }
    }

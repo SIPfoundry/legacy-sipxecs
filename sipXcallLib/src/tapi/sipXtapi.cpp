@@ -1978,6 +1978,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
         szContentType ? szContentType : "<null>",
         pContent ? pContent : "<null>",
         nContentLength);
+    UtlString contentType(szContentType);
 
     SIPX_RESULT sipXresult = SIPX_RESULT_FAILURE;
 
@@ -1998,12 +1999,14 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                 pInst->pSubscribeServer->getPublishMgr(szEventType);
             if(publishMgr)
             {
-                publishMgr->getContent(szResourceId,
+                publishMgr->revised_getContent(szResourceId,
                                        szEventType,
                                        szEventType,
-                                       szContentType,
+                                       TRUE,
+                                       contentType,
                                        oldContentPtr,
-                                       isDefaultContent);
+                                       isDefaultContent,
+                                       NULL);
             }
             // Default content is ok, ignore it
             if(isDefaultContent && oldContentPtr)
@@ -2071,7 +2074,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                         }
 
                         // Publish the content
-                        publishMgr->publish(pData->pResourceId->data(),
+                        publishMgr->revised_publish(pData->pResourceId->data(),
                                             pData->pEventType->data(),
                                             pData->pEventType->data(),
                                             1, // one content type for event
@@ -2141,7 +2144,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
         if(publishMgr)
         {
             // Publish the state change
-            publishMgr->publish(pData->pResourceId->data(),
+            publishMgr->revised_publish(pData->pResourceId->data(),
                                 pData->pEventType->data(),
                                 pData->pEventType->data(),
                                 1, // one content type for event
@@ -2216,9 +2219,10 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherDestroy(const SIPX_PUB hPub,
             if(publishMgr)
             {
                 // Publish the state change
-                publishMgr->unpublish(*pData->pResourceId,
+                publishMgr->revised_unpublish(*pData->pResourceId,
                                       *pData->pEventType,
-                                      *pData->pEventType);
+                                      *pData->pEventType,
+                                      SipSubscribeServer::terminationReasonNone);
             }
 
             if(pData->pEventType)

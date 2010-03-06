@@ -120,8 +120,10 @@ void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
 
    // Publish the event (storing it for the resource), but set
    // noNotify to TRUE, because our caller will push the NOTIFYs.
-   contentMgr->publish(resourceId, eventTypeKey, eventType, 1,
-                       &(HttpBody*&) sipPresenceEvent, TRUE);
+   HttpBody* b = static_cast <HttpBody*> (sipPresenceEvent);
+   contentMgr->revised_publish(resourceId, eventTypeKey, eventType,
+                       1, &b,
+                       TRUE, TRUE);
 }
 
 // Make a copy of this object according to its real type.
@@ -221,10 +223,12 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
    if (mToBePublished)
    {
       // Create the SIP Subscribe Server
-      mpSubscribeServer = new SipSubscribeServer(*mpUserAgent, mSipPublishContentMgr,
-                                                 *mpSubscriptionMgr, mPolicyHolder);
+      mpSubscribeServer =
+         new SipSubscribeServer(SipSubscribeServer::terminationReasonNone,
+                                *mpUserAgent, mSipPublishContentMgr,
+                                *mpSubscriptionMgr, mPolicyHolder);
       // Arrange to generate default content for presence events.
-      mSipPublishContentMgr.publishDefault(PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
+      mSipPublishContentMgr.revised_publishDefault(PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
                                            new PresenceDefaultConstructor);
       mpSubscribeServer->enableEventType(PRESENCE_EVENT_TYPE);
       mpSubscribeServer->start();
@@ -735,8 +739,9 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
       {
          // Publish the content to the subscribe server
          // Make a copy, because mpSipPublishContentMgr will own it.
-         HttpBody* pHttpBody = new HttpBody(*(HttpBody*)list);
-         mSipPublishContentMgr.publish(listUri->data(),
+         HttpBody* pHttpBody =
+            new HttpBody(*(static_cast <HttpBody*> (list)));
+         mSipPublishContentMgr.revised_publish(listUri->data(),
                                        PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
                                        1, &pHttpBody);
       }
@@ -745,8 +750,9 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
 
    // Publish the content to the subscribe server
    // Make a copy, because mpSipPublishContentMgr will own it.
-   HttpBody* pHttpBody = new HttpBody(*(HttpBody*)presenceEvent);
-   mSipPublishContentMgr.publish(contact.data(),
+   HttpBody* pHttpBody = 
+      new HttpBody(*(static_cast <HttpBody*> (presenceEvent)));
+   mSipPublishContentMgr.revised_publish(contact.data(),
                                  PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
                                  1, &pHttpBody);
 }

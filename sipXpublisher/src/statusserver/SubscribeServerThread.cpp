@@ -185,6 +185,7 @@ UtlBoolean SubscribeServerThread::insertRow(
    const UtlString& contact,
    const int& expires,
    const int& subscribeCseq,
+   const UtlString& eventTypeKey,
    const UtlString& eventType,
    const UtlString& id,
    const UtlString& to,
@@ -201,7 +202,7 @@ UtlBoolean SubscribeServerThread::insertRow(
       OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::insertRow() calling SubscriptionDB::getInstance()->InsertRow()\n") ;
       status = SubscriptionDB::getInstance()->insertRow(
          SUBSCRIPTION_COMPONENT_STATUS,
-         uri, callid, contact, expires, subscribeCseq, eventType,
+         uri, callid, contact, expires, subscribeCseq, eventTypeKey, eventType,
          id, to, from, key, recordRoute, notifyCseq,
          CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY, 0);
    }
@@ -301,6 +302,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
                            = addSubscription(timeNow,
                                              message,
                                              mDefaultDomain,
+                                             eventPackage,
                                              eventPackage,
                                              id,
                                              otherParams,
@@ -836,6 +838,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
     const int timeNow,
     const SipMessage* subscribeMessage,
     const char* domain,
+    const UtlString& eventTypeKey,
     const UtlString& eventType,
     const UtlString& eventId,
     const UtlHashMap& eventParams,
@@ -897,8 +900,8 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
             // remove subscription binding
             // remove all bindings  because one contact value is *
             OsSysLog::add(FAC_SIP, PRI_DEBUG,"SubscribeServerThread::addSubscription -"
-                " subscription for url %s and event %s to be removed after sending NOTIFY",
-                toUrl.toString().data(), eventType.data());
+                " subscription for url '%s' and event type key '%s' to be removed after sending NOTIFY",
+                toUrl.toString().data(), eventTypeKey.data());
 
             returnStatus = STATUS_TO_BE_REMOVED;
             return returnStatus;
@@ -1013,8 +1016,8 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SubscribeServerThread::addSubscription -"
-                  " Adding/updating subscription for URI '%s' event %s duration %d to '%s'",
-                  toUrl.toString().data(), eventType.data(), grantedExpirationTime, contactEntry.data());
+                  " Adding/updating subscription for URI '%s' event type key '%s' duration %d to '%s'",
+                  toUrl.toString().data(), eventTypeKey.data(), grantedExpirationTime, contactEntry.data());
 
     // trim the contact to just the uri
     Url contactUrl(contactEntry);
@@ -1031,6 +1034,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
                   contactEntry,
                   grantedExpirationTime + timeNow,
                   subscribeCseqInt,
+                  eventTypeKey,
                   eventType,
                   eventId,
                   to,

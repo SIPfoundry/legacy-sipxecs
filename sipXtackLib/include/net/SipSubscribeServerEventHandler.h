@@ -94,7 +94,7 @@ public:
                                        SipMessage& subscribeResponse);
 
     //! Determine if the given SUBSCRIBE request is authorized to subscribe
-    /*! Default behavior is to allow any request to subscribe
+    /*! Default behavior is to allow any request to subscribe.
      *  Note that if isAuthorized returns false, it must construct a suitable
      *  failure response in subscribeResponse.  (If it returns true, it should
      *  not modify subscribeResponse.)
@@ -104,6 +104,7 @@ public:
 
     /**! Fill in the event-specific content for the identified resource
      *   and eventTypeKey into notifyRequest.
+     *   Returns true if content was obtained.
      */
     /*! The default behavior is to attach the content yielded from
      *  contentMgr->getContent.
@@ -112,9 +113,10 @@ public:
                                         const UtlString& eventTypeKey,
                                         const UtlString& eventType,
                                         SipPublishContentMgr& contentMgr,
-                                        const char* allowHeaderValue,
+                                        const UtlString& acceptHeaderValue,
                                         SipMessage& notifyRequest,
-                                        UtlBoolean fullState);
+                                        UtlBoolean fullState,
+                                        UtlString* availableMediaTypes);
 
 /* ============================ ACCESSORS ================================= */
 

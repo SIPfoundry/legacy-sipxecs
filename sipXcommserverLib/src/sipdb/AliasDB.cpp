@@ -311,8 +311,8 @@ AliasDB::insertRow (const UtlHashMap& nvPairs)
     // Note we do not need the identity object here
     // as it is inferred from the uri
     UtlString identity, contact;
-    identity = *((UtlString*)nvPairs.findValue(&gIdentityKey));
-    contact = *((UtlString*)nvPairs.findValue(&gContactKey));
+    identity = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gIdentityKey)));
+    contact = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gContactKey)));
     return insertRow ( Url( identity ), Url( contact ) );
 }
 

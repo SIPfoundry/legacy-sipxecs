@@ -336,18 +336,19 @@ public:
 
     UtlBoolean findToken(const char* token,
                          const char* delimiter,
-                          const char* suffix = NULL) const;
+                         const char* suffix = NULL) const;
     /**<
- 	 * Search for 'token' in the string.
- 	 * String is a sequence of substrings, separated by 'delimiter's,
- 	 * possibly surrounded by whitespace.  See if 'token' matches any
- 	 * of these substrings.
- 	 * If 'suffix' is not NULL, a substring may be followed by 'suffix'
- 	 * and a string (not containing 'delimiter') before the next
+     * Search for 'token' in the string.
+     * String is a sequence of substrings, separated by 'delimiter's,
+     * possibly surrounded by whitespace.  See if 'token' equals any
+     * of these substrings.
+     * If 'suffix' is not NULL, a substring may be followed by 'suffix'
+     * and a string (not containing 'delimiter') before the next
      * 'delimiter'.
- 	 *
- 	 * @return True if 'token' matches any of the substrings.
- 	 */
+     * 'token' may not contain backslashes.
+     *
+     * @return True if 'token' matches any of the substrings.
+     */
 
 ///@}
 // ================================================================
@@ -477,8 +478,8 @@ public:
 
     /// Replace a single character at the designated position.
     void replaceAt(size_t pos,  ///< offset into data to replace - must be < the length
-                              char newChar ///< character to be put into that offset
-                              );
+                   char newChar ///< character to be put into that offset
+       );
 
 
     /// Replace all instances of character src with character tgt.

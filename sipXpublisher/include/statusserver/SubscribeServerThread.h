@@ -68,6 +68,7 @@ public:
         const UtlString& contact,
         const int& expires,
         const int& subscribeCseq,
+        const UtlString& eventTypeKey,
         const UtlString& eventType,
         const UtlString& id,
         const UtlString& to,
@@ -146,6 +147,7 @@ protected:
     SubscribeStatus addSubscription(const int timeNow,
                                     const SipMessage* subscribeMessage, ///< request message
                                     const char* domain,
+                                    const UtlString& eventTypeKey, ///< package name
                                     const UtlString& eventType, ///< package name
                                     const UtlString& eventId,   ///< event header id parameter (may be null)
                                     const UtlHashMap& eventParams,

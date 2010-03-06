@@ -103,10 +103,7 @@ public:
                                SipPublishServerEventStateCompositor* compositor = NULL);
 
     //! Tell the publish server to stop supporting given event type
-    UtlBoolean disableEventType(const char* eventType,
-                                SipUserAgent*& userAgent,
-                                SipPublishServerEventStateMgr*& eventStateMgr,
-                                SipPublishServerEventStateCompositor*& compositor);
+    UtlBoolean disableEventType(const char* eventType);
 
     //! Handler for PUBLISH requests and timers
     UtlBoolean handleMessage(OsMsg &eventMessage);

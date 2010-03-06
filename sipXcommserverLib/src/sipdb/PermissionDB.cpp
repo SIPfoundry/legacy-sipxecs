@@ -310,8 +310,8 @@ PermissionDB::insertRow (const UtlHashMap& nvPairs)
     // Note we do not need the identity object here
     // as it is inferred from the uri
     return insertRow (
-        Url( *((UtlString*)nvPairs.findValue(&gIdentityKey )) ),
-        *((UtlString*)nvPairs.findValue(&gPermissionKey )) );
+        Url( *(dynamic_cast <UtlString*> (nvPairs.findValue(&gIdentityKey))) ),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gPermissionKey))));
 }
 
 UtlBoolean

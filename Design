@@ -1,0 +1,119 @@
+I am starting work on XX-7389, "Subscribe Server should respond 404 when
+SUBSCRIBE does not address an implemented resource".  There is an open
+design question regarding how the Subscribe Server should determine if a
+resource exists or not.  During normal operation, the application code
+will have published content for every resource that exists, which makes
+the decision whether or not to respond 404 rather easy.  But during
+startup, the Subscribe Server has no reliable guide to which resources
+are implemented and which are not (since the application code hasn't
+told it yet).
+
+One solution to this problem is to ignore it -- if the application
+hasn't provided content yet, respond 404, and assume that the subscriber
+will retry later, by which time the content will have been provided.
+
+----------------------------------------------------------------------
+
+General idea:
+
+If a resource name has no content recorded for it, attempts to subscribe
+to that resource name are rejected with a 404 response.
+
+If the content for a resource is removed, any existing subscriptions to
+that resource will be terminated.
+
+Specifics:
+
+SubscribeServer will test new SUBSCRIBEs to see if content is provided
+for the given resource name.  As is true now, content can be provided by
+being specifically published for that resource name, provided by a
+"default content" function, or provided by being published as default
+content for all otherwise unknown resources.
+
+The "unpublish" method will be renamed and its intention extended to
+"delete" the specified resource.  New SUBSCRIBEs to the resource will be
+rejected with 404.  All existing subscriptions to the resource will be
+terminated.  The termination NOTIFY will include the
+previously-published content (to avoid confusing the subscriber).  As is
+true now, the termination NOTIFY can be suppressed or not, and will be
+extended to provide a "reason" value per RFC 3265 (to work better in HA
+environments).
+
+Stopping the SubscribeServer will terminate all existing subscriptions,
+and will provide the alternative terminations that can be obtained with
+unpublish().
+
+Correct handling of various cases when specific content is removed for a
+resource but default content still applies to it.
+
+Correct handling when a resource has content but none of the content
+has an acceptable media type for the subscriber.
+
+----------------------------------------------------------------------
+
+::shutdown() will get an argument which describes how the subscriptions
+are to be shut down, and one option will be "Don't tell the subscriber
+anything, since the re-execution of this server will continue the
+subscriptions."  That option will cause the subscriptions to remain in
+the persistent database.  The other options, which notify the subscriber
+that the subscription is ending, will remove entries from the persistent
+database.
+
+----------------------------------------------------------------------
+
+Subscriptions are not cleaned up when ::disableEventType() is called.
+This behavior will probably be continued, as nobody calls
+disableEventType().
+
+----------------------------------------------------------------------
+
+Information provided on a per-event-type basis:
+
+The content is held in a SipPublishContentMgr.
+The data about the subscriptions is held in a SipSubscriptionMgr.
+Behavior modifications are provided by SipSubscribeServerEventHandler.
+
+* Responding to SUBSCRIBE
+
+Incoming SUBSCRIBEs are handled by SipSubscribeServer::handleSubscribe().
+Currently, 200 for SUBSCRIBE is sent before content is extracted.
+That has to be delayed until content is obtained.
+
+Update SipSubscribeServerEventHandler::getNotifyContent() and
+SipPublishContentMgr::getContent() to return a trinary result:
+- resource and content found
+- resource found but no content for this accept header value
+- resource not found, that is, no content exists for this resource name
+
+This is needed to generate 489 Bad Event and 415 Unsupported Media Type responses.
+
+If the subscription has been deleted, we need to generate a proper
+response to the SUBSCRIBE.
+
+How do we generate Accept header for 415 responses?  Need additional
+accessor, or an argument to ::getContent()?
+
+* Handling of default content
+
+Content is provided in 3 ways, which are prioritized:
+1. specific content for a resource
+2. a default constructor (for the event type), when given the resource
+name, may generate (publish) content for the resource.
+3. there may be published default content
+
+If content is provided for a resource by one method, content at a
+lower-priority method is not checked for, even if the found content
+does not match the Accept header - we expect multiple content types to
+be handled in parallel.
+
+* Content publishing
+
+We assume that the set of content types published for a given resource
+does not change, other than becoming empty or not.
+
+* unpublishing/deleting a resource/Subscribe Server shutdown
+
+Ideally, unpublishing only removes particular content, and only
+resources that lose all possible content go out of existence.  How
+hard is that to check?
+

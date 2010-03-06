@@ -51,6 +51,7 @@ const UtlString SubscriptionDB::gContactKey("contact");
 const UtlString SubscriptionDB::gNotifycseqKey("notifycseq");
 const UtlString SubscriptionDB::gSubscribecseqKey("subscribecseq");
 const UtlString SubscriptionDB::gExpiresKey("expires");
+const UtlString SubscriptionDB::gEventtypekeyKey("eventtypekey"); // sic
 const UtlString SubscriptionDB::gEventtypeKey("eventtype");
 const UtlString SubscriptionDB::gIdKey("id");
 const UtlString SubscriptionDB::gToKey("toUri");
@@ -362,25 +363,26 @@ SubscriptionDB::insertRow (const UtlHashMap& nvPairs)
 
     // For other integer values, default to 0 if the datum is missing in the input.
 
-    UtlString* cComponent = (UtlString*) nvPairs.findValue(&gComponentKey);
-    UtlString* expStr = (UtlString*) nvPairs.findValue(&gExpiresKey);
-    UtlString* cSubseqStr = (UtlString*) nvPairs.findValue(&gSubscribecseqKey);
-    UtlString* cNotifySeqStr = (UtlString*) nvPairs.findValue(&gNotifycseqKey);
-    UtlString* cVersionStr = (UtlString*) nvPairs.findValue(&gVersionKey);
-    UtlString* cAcceptStr = (UtlString*) nvPairs.findValue(&gAcceptKey);
+    UtlString* cComponent = dynamic_cast <UtlString*> (nvPairs.findValue(&gComponentKey));
+    UtlString* expStr = dynamic_cast <UtlString*> (nvPairs.findValue(&gExpiresKey));
+    UtlString* cSubseqStr = dynamic_cast <UtlString*> (nvPairs.findValue(&gSubscribecseqKey));
+    UtlString* cNotifySeqStr = dynamic_cast <UtlString*> (nvPairs.findValue(&gNotifycseqKey));
+    UtlString* cVersionStr = dynamic_cast <UtlString*> (nvPairs.findValue(&gVersionKey));
+    UtlString* cAcceptStr = dynamic_cast <UtlString*> (nvPairs.findValue(&gAcceptKey));
 
     // Get the remaining fields so that we can substitute the null string
     // if the fetched value is 0 (the null pointer) because the field
     // is not present in the disk file.
-    UtlString* uri = (UtlString*) nvPairs.findValue(&gUriKey);
-    UtlString* callId = (UtlString*) nvPairs.findValue(&gCallidKey);
-    UtlString* contact = (UtlString*) nvPairs.findValue(&gContactKey);
-    UtlString* eventType = (UtlString*) nvPairs.findValue(&gEventtypeKey);
-    UtlString* id = (UtlString*) nvPairs.findValue(&gIdKey);
-    UtlString* to = (UtlString*) nvPairs.findValue(&gToKey);
-    UtlString* from = (UtlString*) nvPairs.findValue(&gFromKey);
-    UtlString* key = (UtlString*) nvPairs.findValue(&gKeyKey);
-    UtlString* recordRoute = (UtlString*) nvPairs.findValue(&gRecordrouteKey);
+    UtlString* uri = dynamic_cast <UtlString*> (nvPairs.findValue(&gUriKey));
+    UtlString* callId = dynamic_cast <UtlString*> (nvPairs.findValue(&gCallidKey));
+    UtlString* contact = dynamic_cast <UtlString*> (nvPairs.findValue(&gContactKey));
+    UtlString* eventTypeKey = dynamic_cast <UtlString*> (nvPairs.findValue(&gEventtypekeyKey));
+    UtlString* eventType = dynamic_cast <UtlString*> (nvPairs.findValue(&gEventtypeKey));
+    UtlString* id = dynamic_cast <UtlString*> (nvPairs.findValue(&gIdKey));
+    UtlString* to = dynamic_cast <UtlString*> (nvPairs.findValue(&gToKey));
+    UtlString* from = dynamic_cast <UtlString*> (nvPairs.findValue(&gFromKey));
+    UtlString* key = dynamic_cast <UtlString*> (nvPairs.findValue(&gKeyKey));
+    UtlString* recordRoute = dynamic_cast <UtlString*> (nvPairs.findValue(&gRecordrouteKey));
 
     // Note: identity inferred from the uri
     return insertRow (
@@ -390,6 +392,7 @@ SubscriptionDB::insertRow (const UtlHashMap& nvPairs)
         contact ? *contact : nullString,
         expStr ? atoi(expStr->data()) : 0,
         cSubseqStr ? atoi(cSubseqStr->data()) : 0,
+        eventTypeKey ? *eventTypeKey : nullString,
         eventType ? *eventType : nullString,
         id ? *id : nullString,
         to ? *to : nullString,
@@ -409,6 +412,7 @@ SubscriptionDB::insertRow (
     const UtlString& contact,
     const int& expires,
     const int& subscribeCseq,
+    const UtlString& eventTypeKey,
     const UtlString& eventType,
     const UtlString& id,
     const UtlString& to,
@@ -440,12 +444,14 @@ SubscriptionDB::insertRow (
                       "  toUri='%s'\n"
                       "  fromUri='%s'\n"
                       "  callid='%s'\n"
+                      "  eventtypekey='%s'\n"
                       "  eventtype='%s'\n"
                       "  id='%s'",
                       component.data(),
                       to.data(),
                       from.data(),
                       callid.data(),
+                      eventTypeKey.data(),
                       eventType.data(),
                       ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
                       );
@@ -519,6 +525,7 @@ SubscriptionDB::insertRow (
             row.uri = uri;
             row.subscribecseq = subscribeCseq;
             row.notifycseq = notifyCseq;
+            row.eventtypekey = eventTypeKey;
             row.eventtype = eventType;
             row.id = ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data() );
             row.fromUri = from;
@@ -535,6 +542,7 @@ SubscriptionDB::insertRow (
                           "  to='%s'\n"
                           "  from='%s'\n"
                           "  callid='%s'\n"
+                          "  eventtypekey='%s'\n"
                           "  eventtype='%s'\n"
                           "  id='%s'\n"
                           "  contact='%s'\n"
@@ -550,6 +558,7 @@ SubscriptionDB::insertRow (
                           to.data(),
                           from.data(),
                           callid.data(),
+                          eventTypeKey.data(),
                           eventType.data(),
                           (id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data()),
                           contact.data(),
@@ -810,6 +819,8 @@ SubscriptionDB::getAllRows ( ResultSet& rResultSet ) const
                     new UtlInt ( cursor->expires );
                 UtlInt* subscribecseqValue =
                     new UtlInt ( cursor->subscribecseq );
+                UtlString* eventtypekeyValue =
+                    new UtlString ( cursor->eventtypekey );
                 UtlString* eventtypeValue =
                     new UtlString ( cursor->eventtype );
                 UtlString* idValue =
@@ -836,6 +847,7 @@ SubscriptionDB::getAllRows ( ResultSet& rResultSet ) const
                 UtlString* contactKey = new UtlString( gContactKey );
                 UtlString* expiresKey = new UtlString( gExpiresKey );
                 UtlString* subscribecseqKey = new UtlString( gSubscribecseqKey );
+                UtlString* eventtypekeyKey = new UtlString( gEventtypekeyKey );
                 UtlString* eventtypeKey = new UtlString( gEventtypeKey );
                 UtlString* idKey = new UtlString( gIdKey );
                 UtlString* toKey = new UtlString( gToKey );
@@ -858,6 +870,8 @@ SubscriptionDB::getAllRows ( ResultSet& rResultSet ) const
                     expiresKey, expiresValue);
                 record.insertKeyAndValue (
                     subscribecseqKey, subscribecseqValue);
+                record.insertKeyAndValue (
+                    eventtypekeyKey, eventtypekeyValue);
                 record.insertKeyAndValue (
                     eventtypeKey, eventtypeValue);
                 record.insertKeyAndValue (

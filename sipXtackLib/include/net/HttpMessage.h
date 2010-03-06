@@ -493,8 +493,8 @@ public:
     /*! \param index - index into the header fields or if name is not null
      *        the index into the set of header fields having the given name
      * \param name - string containing the name of the header field
-     * \return read only string if a header field exists <br>
-     *       null if no header field is found
+     * \return read-only string if a header field exists <br>
+     *       NULL if no header field is found
      */
     const char* getHeaderValue(int index, const char* name = NULL) const;
 
@@ -546,9 +546,9 @@ public:
 
     int getContentLength() const;
 
-        void setUserAgentField(const char* userAgentFieldValue);
+    void setUserAgentField(const char* userAgentFieldValue);
 
-        void getUserAgentField(UtlString* userAgentFieldValue) const;
+    void getUserAgentField(UtlString* userAgentFieldValue) const;
 
     void setRefresh(int seconds, const char* refreshUrl = NULL);
 
@@ -561,6 +561,9 @@ public:
 
     void getAcceptLanguageField(UtlString* acceptLanaguageFieldValue) const;
 
+    void setAcceptField(const char* acceptFieldValue);
+
+    // Returns TRUE if the Accept header was present.
     UtlBoolean getAcceptField(UtlString& acceptValue) const;
 
     void setLocationField(const char* locationField);

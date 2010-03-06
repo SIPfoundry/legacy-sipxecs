@@ -34,6 +34,8 @@ class SipSubscribeServerTest1 : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(SipSubscribeServerTest1);
    CPPUNIT_TEST(basicSubscriptionTest);
+   CPPUNIT_TEST(nonexistentResourceSubscriptionTest);
+   CPPUNIT_TEST(noAllowedContentSubscriptionTest);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -112,6 +114,18 @@ public:
          dialogMgrp = subMgrp->getDialogMgr();
          CPPUNIT_ASSERT(dialogMgrp);
 
+         // Publish content, so we can subscribe to the URI.
+         SipPublishContentMgr* pubMgrp = subServerp->getPublishMgr(eventName);
+         
+         const char* cc = "This is a test\n";
+         HttpBody* c = new HttpBody(cc, strlen(cc), mwiMimeType);
+         pubMgrp->revised_publish(notifier_resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          &c,
+                          TRUE);
+
          // Create a simple Subscription client
          // Register an interest in SUBSCRIBE responses and NOTIFY requests
          // for this event type
@@ -143,13 +157,14 @@ public:
 
          OsTask::delay(1000);
 
+         // Delete the Subscribe Server before deleting the objects it uses.
+         delete subServerp;
+
          notifierUserAgentp->shutdown(TRUE);
          delete notifierUserAgentp;
 
          subscriberUserAgentp->shutdown(TRUE);
          delete subscriberUserAgentp;
-
-         delete subServerp;
       }
 
    // Basic server functionality test.
@@ -216,8 +231,8 @@ public:
             // Check that the response code and CSeq method in the
             // subscribe response are OK.
             {
-               CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
-                              SIP_ACCEPTED_CODE);
+               CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                    subscribeResponse->getResponseStatusCode());
                UtlString subscribeMethod;
                subscribeResponse->getCSeqField(NULL, &subscribeMethod);
                ASSERT_STR_EQUAL(SIP_SUBSCRIBE_METHOD, subscribeMethod.data());
@@ -240,10 +255,11 @@ public:
                ASSERT_STR_EQUAL(subscribeEventHeader, notifyEventHeader);
             }
 
-            // The NOTIFY should have no body because none has been published yet.
+            // The NOTIFY should have a body because we have published
+            // content for this request-URI.
             {
                const HttpBody* bodyPtr = notifyRequest->getBody();
-               CPPUNIT_ASSERT(bodyPtr == NULL);
+               CPPUNIT_ASSERT(bodyPtr != NULL);
             }
 
             // The Contact in the subscribe response should be the notifier.
@@ -266,7 +282,7 @@ public:
                                                    mwiMimeType);
             SipPublishContentMgr* publishMgr = subServerp->getPublishMgr(eventName);
             CPPUNIT_ASSERT(publishMgr);
-            publishMgr->publish(notifier_resource_id,
+            publishMgr->revised_publish(notifier_resource_id,
                                 eventName,
                                 eventName,
                                 1,
@@ -352,8 +368,8 @@ public:
             CPPUNIT_ASSERT(oneTimeNotifyRequest);
 
             {
-               CPPUNIT_ASSERT(oneTimeSubscribeResponse->getResponseStatusCode() ==
-                              SIP_ACCEPTED_CODE);
+               CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                    oneTimeSubscribeResponse->getResponseStatusCode());
                UtlString oneTimeSubscribeMethod;
                oneTimeSubscribeResponse->getCSeqField(NULL, &oneTimeSubscribeMethod);
                ASSERT_STR_EQUAL(SIP_SUBSCRIBE_METHOD, oneTimeSubscribeMethod.data());
@@ -399,6 +415,132 @@ public:
          }
       }
 
+   // Basic server functionality test.
+   // Checks that server answers SUBSCRIBES, sends NOTIFY, sends NOTIFY
+   // when content changes.
+   void nonexistentResourceSubscriptionTest()
+      {
+	// Remove the content for the resource URI.
+	subServerp->getPublishMgr(eventName)->
+	    revised_unpublish(notifier_resource_id,
+		      eventName,
+		      eventName,
+                      SipSubscribeServer::terminationReasonNone);
+
+         // Send a SUBSCRIBE to the notifier.
+         SipMessage mwiSubscribeRequest;
+         {
+            UtlString c;
+            CallId::getNewCallId(c);
+            mwiSubscribeRequest.setSubscribeData(notifier_aor, // request URI
+                                                 subscriber_name_addr, // From
+                                                 notifier_name_addr, // To
+                                                 c, // Call-Id
+                                                 0, // CSeq
+                                                 eventName, // Event
+                                                 mwiMimeType, // Accept
+                                                 NULL, // Event id
+                                                 subscriber_name_addr, // Contact
+                                                 NULL, // Route
+                                                 3600 // Expires
+               );
+         }
+
+         CPPUNIT_ASSERT(subscriberUserAgentp->send(mwiSubscribeRequest));
+
+         // We should get a 404 response and no NOTIFY request in the queue
+         OsTime messageTimeout(1, 0);  // 1 second
+         {
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            runListener(incomingClientMsgQueue,
+                        *subscriberUserAgentp,
+                        messageTimeout,
+                        messageTimeout,
+                        notifyRequest,
+                        subscribeResponse,
+                        SIP_OK_CODE,
+                        FALSE,
+                        0,
+                        NULL);
+
+            // We should have received a SUBSCRIBE response and no NOTIFY request.
+            CPPUNIT_ASSERT(subscribeResponse);
+            CPPUNIT_ASSERT(!notifyRequest);
+
+            // Check that the response code and CSeq method in the
+            // subscribe response are OK.
+            {
+               CPPUNIT_ASSERT_EQUAL(SIP_NOT_FOUND_CODE,
+                                    subscribeResponse->getResponseStatusCode());
+               UtlString subscribeMethod;
+               subscribeResponse->getCSeqField(NULL, &subscribeMethod);
+               ASSERT_STR_EQUAL(SIP_SUBSCRIBE_METHOD, subscribeMethod.data());
+            }
+         }
+      }
+
+   // Basic server functionality test.
+   // Checks that server answers SUBSCRIBES, sends NOTIFY, sends NOTIFY
+   // when content changes.
+   void noAllowedContentSubscriptionTest()
+      {
+         // Send a SUBSCRIBE to the notifier.
+         SipMessage mwiSubscribeRequest;
+         {
+            UtlString c;
+            CallId::getNewCallId(c);
+            mwiSubscribeRequest.setSubscribeData(notifier_aor, // request URI
+                                                 subscriber_name_addr, // From
+                                                 notifier_name_addr, // To
+                                                 c, // Call-Id
+                                                 0, // CSeq
+                                                 eventName, // Event
+                                                 "application/x-nonexistent", // Accept
+                                                 NULL, // Event id
+                                                 subscriber_name_addr, // Contact
+                                                 NULL, // Route
+                                                 3600 // Expires
+               );
+         }
+
+         CPPUNIT_ASSERT(subscriberUserAgentp->send(mwiSubscribeRequest));
+
+         // We should get a 415 response and no NOTIFY request in the queue
+         OsTime messageTimeout(1, 0);  // 1 second
+         {
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            runListener(incomingClientMsgQueue,
+                        *subscriberUserAgentp,
+                        messageTimeout,
+                        messageTimeout,
+                        notifyRequest,
+                        subscribeResponse,
+                        SIP_OK_CODE,
+                        FALSE,
+                        0,
+                        NULL);
+
+            // We should have received a SUBSCRIBE response and no NOTIFY request.
+            CPPUNIT_ASSERT(subscribeResponse);
+            CPPUNIT_ASSERT(!notifyRequest);
+
+            // Check that the response code and CSeq method in the
+            // subscribe response are OK.
+            {
+               CPPUNIT_ASSERT_EQUAL(SIP_BAD_MEDIA_CODE,
+                                    subscribeResponse->getResponseStatusCode());
+	       // Check that the Accept header has the right value.
+               ASSERT_STR_EQUAL(mwiMimeType,
+				subscribeResponse->getHeaderValue(0, SIP_ACCEPT_FIELD));
+
+               UtlString subscribeMethod;
+               subscribeResponse->getCSeqField(NULL, &subscribeMethod);
+               ASSERT_STR_EQUAL(SIP_SUBSCRIBE_METHOD, subscribeMethod.data());
+            }
+         }
+      }
 };
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipSubscribeServerTest1);
@@ -464,6 +606,18 @@ public:
          dialogMgrp = subMgrp->getDialogMgr();
          CPPUNIT_ASSERT(dialogMgrp);
 
+         // Publish content, so we can subscribe to the URI.
+         SipPublishContentMgr* pubMgrp = subServerp->getPublishMgr(eventName);
+         
+         const char* cc = "This is a test\n";
+         HttpBody* c = new HttpBody(cc, strlen(cc), mwiMimeType);
+         pubMgrp->revised_publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          &c,
+                          TRUE);
+
          // Create a simple Subscription client
          // Register an interest in SUBSCRIBE responses and NOTIFY requests
          // for this event type
@@ -495,10 +649,11 @@ public:
 
          OsTask::delay(1000);
 
+         // Delete the Subscribe Server before deleting the objects it uses.
+         delete subServerp;
+
          userAgentp->shutdown(TRUE);
          delete userAgentp;
-
-         delete subServerp;
       }
 
    // Test for XECS-243, Subscribe Server does not send NOTIFY when it
@@ -558,13 +713,14 @@ public:
             CPPUNIT_ASSERT(subscribeResponse);
             CPPUNIT_ASSERT(notifyRequest);
 
-            CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
-                           SIP_ACCEPTED_CODE);
+            CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                 subscribeResponse->getResponseStatusCode());
 
-            // The NOTIFY should have no body because none has been published yet.
+            // The NOTIFY should have a body because we have published
+            // content for this request-URI.
             {
                const HttpBody* bodyPtr = notifyRequest->getBody();
-               CPPUNIT_ASSERT(bodyPtr == NULL);
+               CPPUNIT_ASSERT(bodyPtr != NULL);
             }
          }
 
@@ -593,13 +749,14 @@ public:
             CPPUNIT_ASSERT(subscribeResponse);
             CPPUNIT_ASSERT(notifyRequest);
 
-            CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
-                           SIP_ACCEPTED_CODE);
+            CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                 subscribeResponse->getResponseStatusCode());
 
-            // The NOTIFY should have no body because none has been published yet.
+            // The NOTIFY should have a body because we have published
+            // content for this request-URI.
             {
                const HttpBody* bodyPtr = notifyRequest->getBody();
-               CPPUNIT_ASSERT(bodyPtr == NULL);
+               CPPUNIT_ASSERT(bodyPtr != NULL);
             }
          }
       }
@@ -608,6 +765,9 @@ public:
    // NOTIFY, it does not terminate the subscription.
    // Test for XECS-282, When subscribe server receives 500 for a
    // NOTIFY, it does not terminate the subscription.
+   // Note that 500 now does not terminate the subscription because in many
+   // cases, alternative forking of the NOTIFY to a slow subscriber results
+   // in 500 responses.
    // Verify that subscription is terminated when NOTIFY returns a variety
    // of error responses.  (Retry-After suppresses termination.  That case
    // is tested in terminateSubscriptionOnErrorRetryAfter.)
@@ -635,8 +795,11 @@ public:
                               SIP_NOT_FOUND_CODE,
                               SIP_BAD_TRANSACTION_CODE,
                               499,
-                              SIP_SERVER_INTERNAL_ERROR_CODE,
-                              SIP_SERVICE_UNAVAILABLE_CODE,
+                              // We would like to test 503
+                              // (SIP_SERVICE_UNAVAILABLE_CODE) here, but
+                              // SipTransaction turns a received 503 into
+                              // 500, so it also does not terminate a
+                              // subscription.
                               599,
                               SIP_GLOBAL_BUSY_CODE,
                               699 };
@@ -644,6 +807,9 @@ public:
               i < sizeof (test_codes) / sizeof (test_codes[0]);
               i++)
          {
+            char message[100];
+            sprintf(message, "test_codes[%d] = %d", i, test_codes[i]);
+
             // Send a SUBSCRIBE to ourselves
             SipMessage mwiSubscribeRequest(mwiSubscribe);
             {
@@ -657,7 +823,8 @@ public:
             mwiSubscribeRequest.setContactField(aor_name_addr);
             mwiSubscribeRequest.incrementCSeqNumber();
 
-            CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+            CPPUNIT_ASSERT_MESSAGE(message,
+                                   userAgentp->send(mwiSubscribeRequest));
 
             // We should get a 202 response and a NOTIFY request in the queue
             // Send the specified response to the NOTIFY.
@@ -665,6 +832,7 @@ public:
             {
                const SipMessage* subscribeResponse;
                const SipMessage* notifyRequest;
+               const SipMessage* notifyRequest2;
                runListener(incomingClientMsgQueue,
                            *userAgentp,
                            messageTimeout,
@@ -674,10 +842,12 @@ public:
                            test_codes[i],
                            FALSE,
                            0,
-                           NULL);
+                           NULL,
+                           &notifyRequest2);
 
                // We should have received a SUBSCRIBE response and a NOTIFY request.
-               CPPUNIT_ASSERT(subscribeResponse);
+               CPPUNIT_ASSERT_MESSAGE(message,
+                                      subscribeResponse);
 
                // Extract the to-tag in the response, apply it to
                // mwiSubscribeRequest.
@@ -687,10 +857,32 @@ public:
                toUrl.getFieldParameter("tag", toTag);
                mwiSubscribeRequest.setToFieldTag(toTag);
 
-               CPPUNIT_ASSERT(notifyRequest);
+               // Check that the subscribe response is what we expected.
 
-               CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
-                              SIP_ACCEPTED_CODE);
+               CPPUNIT_ASSERT_EQUAL_MESSAGE(message,
+                                            SIP_ACCEPTED_CODE,
+                                            subscribeResponse->getResponseStatusCode());
+
+               // Check that the first NOTIFY is what we expected.
+
+               CPPUNIT_ASSERT_MESSAGE(message, notifyRequest);
+               // Have to be careful here because the server may not give us
+               // the length of subscription that we requested.
+               #define EXPECTED_STATE_PREFIX "active;expires="
+               CPPUNIT_ASSERT_MESSAGE(
+                  message,
+                  0 == strncmp(EXPECTED_STATE_PREFIX,
+                               notifyRequest->
+                                   getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD),
+                               strlen(EXPECTED_STATE_PREFIX)));
+
+               // Check that the second NOTIFY is what we expected.
+
+               CPPUNIT_ASSERT_MESSAGE(message, notifyRequest2);
+               ASSERT_STR_EQUAL_MESSAGE(message,
+                                        "terminated;reason=deactivated",
+                                        notifyRequest2->
+                                            getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD));
             }
 
             // Wait for the subscription to be ended.
@@ -701,7 +893,8 @@ public:
             mwiSubscribeRequest.incrementCSeqNumber();
             // Leave the Expires header with the default value.
 
-            CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+            CPPUNIT_ASSERT_MESSAGE(message,
+                                   userAgentp->send(mwiSubscribeRequest));
 
             // We should get a 481 response and no NOTIFY, because the
             // subscription has been terminated.
@@ -720,9 +913,11 @@ public:
                            NULL);
 
                // We should have received a SUBSCRIBE response and no NOTIFY request.
-               CPPUNIT_ASSERT(subscribeResponse);
-               CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
-                              SIP_BAD_TRANSACTION_CODE);
+               CPPUNIT_ASSERT_MESSAGE(message, subscribeResponse);
+
+               CPPUNIT_ASSERT_EQUAL_MESSAGE(message,
+                                            SIP_BAD_TRANSACTION_CODE,
+                                            subscribeResponse->getResponseStatusCode());
                CPPUNIT_ASSERT(!notifyRequest);
             }
          }
@@ -793,8 +988,11 @@ public:
                CPPUNIT_ASSERT(subscribeResponse);
                CPPUNIT_ASSERT(notifyRequest);
 
-               CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
-                              SIP_ACCEPTED_CODE);
+               char message[100];
+               sprintf(message, "test_codes[%d] = %d", i, test_codes[i]);
+               CPPUNIT_ASSERT_EQUAL_MESSAGE(message,
+                                            SIP_ACCEPTED_CODE,
+                                            subscribeResponse->getResponseStatusCode());
 
                // Extract the to-tag in the response, apply it to mwiSubscribeRequest.
                // This allows the re-SUBSCRIBE below to be applied to the existing dialog.
@@ -832,14 +1030,19 @@ public:
                CPPUNIT_ASSERT(subscribeResponse);
                CPPUNIT_ASSERT(notifyRequest);
 
-               CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
-                              SIP_ACCEPTED_CODE);
+               char message[100];
+               sprintf(message, "test_codes[%d] = %d", i, test_codes[i]);
+               CPPUNIT_ASSERT_EQUAL_MESSAGE(message,
+                                            SIP_ACCEPTED_CODE,
+                                            subscribeResponse->getResponseStatusCode());
             }
          }
       }
 
    // XECS-1810: Verify that subscription is *not* terminated when NOTIFY
    // returns a Timeout error.
+   // This is extended to cover not only 408 errors, but also 482 and 500,
+   // as those also can be caused by slow network or slow subscribers.
    void terminateSubscriptionOnErrorTimeout()
       {
          // Test MWI messages
@@ -859,79 +1062,93 @@ public:
             "Content-Length: 0\r\n"
             "\r\n";
 
-         // Send a SUBSCRIBE to ourselves
-         SipMessage mwiSubscribeRequest(mwiSubscribe);
+         // Loop through this scenario for a series of response codes.
+         int test_codes[] = { SIP_REQUEST_TIMEOUT_CODE,
+                              SIP_LOOP_DETECTED_CODE,
+                              SIP_SERVER_INTERNAL_ERROR_CODE };
+         for (unsigned int i = 0;
+              i < sizeof (test_codes) / sizeof (test_codes[0]);
+              i++)
          {
-            UtlString c;
-            CallId::getNewCallId(c);
-            mwiSubscribeRequest.setCallIdField(c);
-         }
-         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
-                                                          aor,
-                                                          SIP_PROTOCOL_VERSION);
-         mwiSubscribeRequest.setContactField(aor_name_addr);
-         mwiSubscribeRequest.incrementCSeqNumber();
+            // Send a SUBSCRIBE to ourselves
+            SipMessage mwiSubscribeRequest(mwiSubscribe);
+            {
+               UtlString c;
+               CallId::getNewCallId(c);
+               mwiSubscribeRequest.setCallIdField(c);
+            }
+            mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
+                                                             aor,
+                                                             SIP_PROTOCOL_VERSION);
+            mwiSubscribeRequest.setContactField(aor_name_addr);
+            mwiSubscribeRequest.incrementCSeqNumber();
 
-         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+            CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
-         // We should get a 202 response and a NOTIFY request in the queue
-         // Send a Timeout error response to the NOTIFY.
-         OsTime messageTimeout(1, 0);  // 1 second
-         {
-            const SipMessage* subscribeResponse;
-            const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue,
-                        *userAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        notifyRequest,
-                        subscribeResponse,
-                        SIP_REQUEST_TIMEOUT_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            // We should get a 202 response and a NOTIFY request in the queue
+            // Send a Timeout error response to the NOTIFY.
+            OsTime messageTimeout(1, 0);  // 1 second
+            {
+               const SipMessage* subscribeResponse;
+               const SipMessage* notifyRequest;
+               runListener(incomingClientMsgQueue,
+                           *userAgentp,
+                           messageTimeout,
+                           messageTimeout,
+                           notifyRequest,
+                           subscribeResponse,
+                           test_codes[i],
+                           FALSE,
+                           0,
+                           NULL);
 
-            // We should have received a SUBSCRIBE response and a NOTIFY request.
-            CPPUNIT_ASSERT(subscribeResponse);
-            CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
-            CPPUNIT_ASSERT(notifyRequest);
+               // We should have received a SUBSCRIBE response and a NOTIFY request.
+               CPPUNIT_ASSERT(subscribeResponse);
+               char message[100];
+               sprintf(message, "test_codes[%d] = %d", i, test_codes[i]);
+               CPPUNIT_ASSERT_EQUAL_MESSAGE(message,
+                                            SIP_ACCEPTED_CODE,
+                                            subscribeResponse->getResponseStatusCode());
+               CPPUNIT_ASSERT(notifyRequest);
 
-            // Extract the to-tag in the response, apply it to mwiSubscribeRequest.
-            // This allows the re-SUBSCRIBE below to be applied to the existing dialog.
-            Url toUrl;
-            subscribeResponse->getToUrl(toUrl);
-            UtlString toTag;
-            toUrl.getFieldParameter("tag", toTag);
-            mwiSubscribeRequest.setToFieldTag(toTag);
-         }
+               // Extract the to-tag in the response, apply it to mwiSubscribeRequest.
+               // This allows the re-SUBSCRIBE below to be applied to the existing dialog.
+               Url toUrl;
+               subscribeResponse->getToUrl(toUrl);
+               UtlString toTag;
+               toUrl.getFieldParameter("tag", toTag);
+               mwiSubscribeRequest.setToFieldTag(toTag);
+            }
 
-         // Send a re-SUBSCRIBE in the existing dialog, to find out if the
-         // subscription was terminated or not.
-         mwiSubscribeRequest.incrementCSeqNumber();
-         // Leave the Expires header with the default value.
+            // Send a re-SUBSCRIBE in the existing dialog, to find out if the
+            // subscription was terminated or not.
+            mwiSubscribeRequest.incrementCSeqNumber();
+            // Leave the Expires header with the default value.
 
-         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+            CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
-         // We should get a 202 response and a NOTIFY, because the Timeout
-         // error suppresses the termination of the subscription.
-         {
-            const SipMessage* subscribeResponse;
-            const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue,
-                        *userAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        notifyRequest,
-                        subscribeResponse,
-                        SIP_OK_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            // We should get a 202 response and a NOTIFY, because the Timeout
+            // error suppresses the termination of the subscription.
+            {
+               const SipMessage* subscribeResponse;
+               const SipMessage* notifyRequest;
+               runListener(incomingClientMsgQueue,
+                           *userAgentp,
+                           messageTimeout,
+                           messageTimeout,
+                           notifyRequest,
+                           subscribeResponse,
+                           SIP_OK_CODE,
+                           FALSE,
+                           0,
+                           NULL);
 
-            // We should have received a SUBSCRIBE response and no NOTIFY request.
-            CPPUNIT_ASSERT(subscribeResponse);
-            CPPUNIT_ASSERT(notifyRequest);
-            CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() == SIP_ACCEPTED_CODE);
+               // We should have received a SUBSCRIBE response and no NOTIFY request.
+               CPPUNIT_ASSERT(subscribeResponse);
+               CPPUNIT_ASSERT(notifyRequest);
+               CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                    subscribeResponse->getResponseStatusCode());
+            }
          }
       }
 
@@ -992,8 +1209,8 @@ public:
             CPPUNIT_ASSERT(subscribeResponse);
             CPPUNIT_ASSERT(notifyRequest);
 
-            CPPUNIT_ASSERT(subscribeResponse->getResponseStatusCode() ==
-                           SIP_ACCEPTED_CODE);
+            CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                 subscribeResponse->getResponseStatusCode());
 
             // Check the Contact headers.
             UtlString c;

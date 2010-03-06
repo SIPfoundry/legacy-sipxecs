@@ -163,44 +163,25 @@ UtlBoolean SipPublishServer::enableEventType(const char* eventTypeToken,
     return(addedEvent);
 }
 
-UtlBoolean SipPublishServer::disableEventType(const char* eventTypeToken,
-                                             SipUserAgent*& userAgent,
-                                             SipPublishServerEventStateMgr*& eventStateMgr,
-                                             SipPublishServerEventStateCompositor*& eventStateCompositor)
+UtlBoolean SipPublishServer::disableEventType(const char* eventType)
 {
-    UtlBoolean removedEvent = FALSE;
-    UtlString eventName(eventTypeToken ? eventTypeToken : "");
+    UtlString eventName(eventType);
     lockForWrite();
-    // Only add the event support if it does not already exist;
+
     PublishServerEventData* eventData =
-        (PublishServerEventData*) mEventDefinitions.remove(&eventName);
+       dynamic_cast <PublishServerEventData*> (mEventDefinitions.remove(&eventName));
 
-    if(eventData)
+    if (eventData)
     {
-        removedEvent = TRUE;
-        userAgent = eventData->mpEventSpecificUserAgent == mpDefaultUserAgent ?
-                        NULL : eventData->mpEventSpecificUserAgent;
-        eventStateCompositor = eventData->mpEventSpecificStateCompositor == mpDefaultCompositor ?
-                        NULL : eventData->mpEventSpecificStateCompositor;
-        eventStateMgr = eventData->mpEventSpecificStateMgr == mpDefaultEventStateMgr ?
-                        NULL : eventData->mpEventSpecificStateMgr;
-
         // Unregister interest in PUBLISH requests for this event type
         eventData->mpEventSpecificUserAgent->removeMessageObserver(*(getMessageQueue()));
 
         delete eventData;
-        eventData = NULL;
-    }
-    else
-    {
-        userAgent = NULL;
-        eventStateCompositor = NULL;
-        eventStateMgr = NULL;
     }
 
     unlockForWrite();
 
-    return(removedEvent);
+    return eventData != NULL;
 }
 
 UtlBoolean SipPublishServer::handleMessage(OsMsg &eventMessage)

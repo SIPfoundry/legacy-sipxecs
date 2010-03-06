@@ -121,7 +121,7 @@ protected:
    ssize_t bodyLength;
    UtlString mBody;
    UtlString mMultipartBoundary;
-   int mBodyPartCount;
+   int mBodyPartCount;          // Only significant if ::isMultipart() == true.
    UtlSList mBodyParts;
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */

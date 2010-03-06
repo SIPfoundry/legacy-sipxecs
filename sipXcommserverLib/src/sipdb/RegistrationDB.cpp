@@ -419,14 +419,14 @@ RegistrationDB::insertRow(const UtlHashMap& nvPairs)
 {
     // For integer values, default to 0 if the datum is missing in the input.
 
-    UtlString* expStr = (UtlString*) nvPairs.findValue(&gExpiresKey);
-    UtlString* cseqStr = (UtlString*) nvPairs.findValue(&gCseqKey);
+    UtlString* expStr = dynamic_cast <UtlString*> (nvPairs.findValue(&gExpiresKey));
+    UtlString* cseqStr = dynamic_cast <UtlString*> (nvPairs.findValue(&gCseqKey));
 
     // If the IMDB does not specify a Q-Value, "%" will be found here
     // (representing a null IMDB column).
-    UtlString* qvalue = (UtlString*) nvPairs.findValue(&gQvalueKey);
+    UtlString* qvalue = dynamic_cast <UtlString*> (nvPairs.findValue(&gQvalueKey));
 
-    UtlString* updateNumberStr = (UtlString*) nvPairs.findValue(&gUpdateNumberKey);
+    UtlString* updateNumberStr = dynamic_cast <UtlString*> (nvPairs.findValue(&gUpdateNumberKey));
     // Note that updateNumberStr is likely to start with 0x, so we
     // need the full functionality of strtoll here, not just a
     // decimal-to-binary conversion.  But strtoll is in C99, so it
@@ -437,18 +437,18 @@ RegistrationDB::insertRow(const UtlHashMap& nvPairs)
     // Get the remaining fields so that we can substitute the null string
     // if the fetched value is 0 (the null pointer) because the field
     // is not present in the disk file.
-    UtlString* contact = (UtlString*) nvPairs.findValue(&gContactKey);
-    UtlString* callId = (UtlString*) nvPairs.findValue(&gCallidKey);
-    UtlString* instanceId = (UtlString*) nvPairs.findValue(&gInstanceIdKey);
-    UtlString* gruu = (UtlString*) nvPairs.findValue(&gGruuKey);
-    UtlString* path = (UtlString*) nvPairs.findValue(&gPathKey);
-    UtlString* primary = (UtlString*) nvPairs.findValue(&gPrimaryKey);
+    UtlString* contact = dynamic_cast <UtlString*> (nvPairs.findValue(&gContactKey));
+    UtlString* callId = dynamic_cast <UtlString*> (nvPairs.findValue(&gCallidKey));
+    UtlString* instanceId = dynamic_cast <UtlString*> (nvPairs.findValue(&gInstanceIdKey));
+    UtlString* gruu = dynamic_cast <UtlString*> (nvPairs.findValue(&gGruuKey));
+    UtlString* path = dynamic_cast <UtlString*> (nvPairs.findValue(&gPathKey));
+    UtlString* primary = dynamic_cast <UtlString*> (nvPairs.findValue(&gPrimaryKey));
 
-    UtlString* instrument = (UtlString*) nvPairs.findValue(&gInstrumentKey);
+    UtlString* instrument = dynamic_cast <UtlString*> (nvPairs.findValue(&gInstrumentKey));
 
     // Note: identity inferred from the uri
     updateBinding(
-       Url(*((UtlString*)nvPairs.findValue(&gUriKey))),
+       Url(*(dynamic_cast <UtlString*> (nvPairs.findValue(&gUriKey)))),
        contact ? *contact : nullString,
        qvalue ? *qvalue : percent,
        callId ? *callId : nullString,

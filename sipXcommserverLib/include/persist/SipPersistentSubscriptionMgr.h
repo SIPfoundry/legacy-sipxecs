@@ -1,5 +1,4 @@
 //
-//
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -110,6 +109,7 @@ public:
    virtual UtlBoolean updateDialogInfo(const SipMessage& subscribeRequest,
                                        UtlString& resourceId,
                                        UtlString& eventTypeKey,
+                                       UtlString& eventType,
                                        UtlString& subscribeDialogHandle,
                                        UtlBoolean& isNew,
                                        UtlBoolean& isExpired,
@@ -126,37 +126,35 @@ public:
    virtual UtlBoolean insertDialogInfo(const SipMessage& subscribeRequest,
                                        const UtlString& resourceId,
                                        const UtlString& eventTypeKey,
+                                       const UtlString& eventType,
                                        int expires,
+                                       int notifyCSeq,
+                                       int version,
                                        UtlString& subscribeDialogHandle,
                                        UtlBoolean& isNew);
 
    //! Set the subscription dialog information and cseq for the next NOTIFY request
    //  Also, update the database to show the to/from URIs as they appear in NOTIFYs.
    virtual UtlBoolean getNotifyDialogInfo(const UtlString& subscribeDialogHandle,
-                                          SipMessage& notifyRequest);
-
-   //! Construct a NOTIFY request for each subscription/dialog subscribed to the given resourceId and eventTypeKey
-   /*! Allocates a SipMessage* array and allocates a SipMessage and sets the
-    * dialog information for the NOTIFY request for each subscription.
-    *  \param numNotifiesCreated - number of pointers to NOTIFY requests in
-    *         the returned notifyArray
-    *  \param notifyArray - if numNotifiesCreated > 0 array is allocated of
-    *         sufficient size to hold a SipMessage for each subscription.
-    */
-   virtual UtlBoolean createNotifiesDialogInfo(const char* resourceId,
-                                               const char* eventTypeKey,
-                                               int& numNotifiesCreated,
-                                               UtlString**& acceptHeaderValuesArray,
-                                               SipMessage**& notifyArray);
+                                          SipMessage& notifyRequest,
+                                          const char* subscriptionStateFormat,
+                                          UtlString* resourceId = NULL,
+                                          UtlString* eventTypeKey = NULL,
+                                          UtlString* eventType = NULL,
+                                          UtlString* acceptHeaderValue = NULL);
 
    //! End the dialog for the subscription indicated, by the dialog handle
    /*! Finds a matching dialog and expires the subscription if it has
     *  not already expired.
     *  \param dialogHandle - a fully established SIP dialog handle
+    *  \param change - describes whether the subscription should
+    *         end silently - subscriptionTerminatedSilently means that
+    *         IMDB record of subscription should be retained.
     *  Returns TRUE if a matching dialog was found regardless of
     *  whether the subscription was already expired or not.
     */
-   virtual UtlBoolean endSubscription(const UtlString& dialogHandle);
+   virtual UtlBoolean endSubscription(const UtlString& dialogHandle,
+                                      enum SipSubscriptionMgr::subscriptionChange change);
 
    //! Remove old subscriptions that expired before given date
    virtual void removeOldSubscriptions(long oldEpochTimeSeconds);

@@ -199,7 +199,7 @@ CredentialDB::load()
                     {
                        UtlString* pintokenKey = new UtlString(gPintokenKey);
                        UtlString* pintokenValue
-                          = new UtlString(*((UtlString*)nvPairs.findValue(&gPasstokenKey)));
+                          = new UtlString(*(dynamic_cast <UtlString*> (nvPairs.findValue(&gPasstokenKey))));
                        nvPairs.insertKeyAndValue(pintokenKey, pintokenValue);
                     }
 
@@ -324,12 +324,12 @@ CredentialDB::insertRow (const UtlHashMap& nvPairs)
 {
     // Note: identity inferred from the uri
     return insertRow (
-        Url (*((UtlString*)nvPairs.findValue(&gUriKey))),
-        *((UtlString*)nvPairs.findValue(&gRealmKey)),
-        *((UtlString*)nvPairs.findValue(&gUseridKey)),
-        *((UtlString*)nvPairs.findValue(&gPasstokenKey)),
-        *((UtlString*)nvPairs.findValue(&gPintokenKey)),
-        *((UtlString*)nvPairs.findValue(&gAuthtypeKey)));
+        Url (*(dynamic_cast <UtlString*> (nvPairs.findValue(&gUriKey)))),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gRealmKey))),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gUseridKey))),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gPasstokenKey))),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gPintokenKey))),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gAuthtypeKey))));
 }
 
 UtlBoolean

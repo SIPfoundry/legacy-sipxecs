@@ -39,6 +39,7 @@ public:
     int4 notifycseq;
     int4 subscribecseq;
     int4 expires; // Absolute expiration time secs since 1/1/1970
+    const char* eventtypekey;
     const char* eventtype;
     const char* id; // id param from event header
     const char* toUri;
@@ -54,6 +55,7 @@ public:
         KEY(fromUri, HASHED),
         KEY(callid, HASHED),
         KEY(eventtype, HASHED),
+        KEY(eventtypekey, HASHED),
         KEY(id, HASHED),
         KEY(key, HASHED),
         FIELD(subscribecseq),

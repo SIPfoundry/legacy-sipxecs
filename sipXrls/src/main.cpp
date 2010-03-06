@@ -380,6 +380,8 @@ int main(int argc, char* argv[])
 
    if (configDb.loadFromFile(fileName) != OS_SUCCESS)
    {
+      fprintf(stderr, "Failed to load config DB from file '%s'",
+              fileName.data());
       exit(1);
    }
 

@@ -311,10 +311,11 @@ LocationDB::insertRow (const UtlHashMap& nvPairs)
 {
 
     return insertRow (
-        *((UtlString*)nvPairs.findValue(&gNameKey ) ),
-        *((UtlString*)nvPairs.findValue(&gDescriptionKey ) ),
-        *((UtlString*)nvPairs.findValue(&gLocationCodeKey ) ),
-        *((UtlString*)nvPairs.findValue(&gSubnetsKey ) ) );
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gNameKey))),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gDescriptionKey))),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gLocationCodeKey))),
+        *(dynamic_cast <UtlString*> (nvPairs.findValue(&gSubnetsKey)))
+       );
 }
 
 UtlBoolean

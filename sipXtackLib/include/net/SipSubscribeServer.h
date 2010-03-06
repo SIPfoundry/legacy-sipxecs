@@ -1,5 +1,4 @@
 //
-//
 // Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
 // Contributors retain copyright to elements licensed under a Contributor Agreement.
 // Licensed to the User under the LGPL license.
@@ -23,6 +22,8 @@
 // DEFINES
 
 // The placeholder for the XML version number.
+// (This is a #define because many users want to concatenate this value
+// with other string literals using string-paste.)
 #define VERSION_PLACEHOLDER "&version;"
 
 // MACROS
@@ -149,42 +150,75 @@ class SipSubscribeServer : public OsServerTask
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
 
-
 /* ============================ CREATORS ================================== */
 
     //! Helper utility to build a basic server with default behavior
     static SipSubscribeServer* buildBasicServer(SipUserAgent& userAgent,
                                                 const char* eventType = NULL);
 
-    //! Default Dialog constructor
-    SipSubscribeServer(SipUserAgent& defaultUserAgent,
+    //! Default constructor
+    // ::~SipSubscribeServer() calls ::shutdown(defaultTermination),
+    // so *defaultTermination must be static, or at least, remain
+    // valid until ~SipSubscribeServer() finishes.
+    // The ::terminationReason* values are ideal.
+    // This default reason to terminate all remaining subscriptions can be
+    // overridden by calling ::shutdown() first, which terminates all
+    // subscriptions, leaving none for ~SipSubscribeServer() to terminate.
+    SipSubscribeServer(const char* defaultTermination,
+                       //< default termination reason value
+                       // The remaining arguments are default values for
+                       // the corresponding arguments to ::enableEventType().
+                       SipUserAgent& defaultUserAgent,
                        SipPublishContentMgr& defaultContentMgr,
                        SipSubscriptionMgr& defaultSubscriptionMgr,
-                       SipSubscribeServerEventHandler& defaultPlugin);
+                       SipSubscribeServerEventHandler& defaultEventHandler);
+
+    /// Terminate all subscriptions and accept no new ones.
+    /** Used to perform an orderly shutdown of the Subscribe Server's
+     *  operations.
+     *  /param reason - the termination reason to be given to subscribers
+     *         Interpreted in the same way as the reason parameter to 
+     *         ::contentChangeCallback().
+     *         If NULL, uses defaultTermination from the constructor.
+     */
+    void shutdown(const char* reason = NULL);
 
     //! Destructor
+    //  Calls ::shutdown(), with the 'reason' value from the constructor
+    //  as its argument.  If the application called ::shutdown() previously,
+    //  this has no effect, as all subscriptions are already terminated.
+    //  Note that the dependent objects (SipUserAgent, SipPublishContentMgr,
+    //  SipSubscriptionMgr, and SipSubscribeServerEventHandler) must still
+    //  exist (which was not true of earlier versions of this class).
     virtual
     ~SipSubscribeServer();
-
 
 /* ============================ MANIPULATORS ============================== */
 
     //! Callback invoked by SipPublishContentMgr when content changes
     /*! This is used to tell the SipSubscribeServer that a new notify
      *  needs to be sent as the event state content has changed.
-     *  (Note that changing the default content has no effect on existing
-     *  subscribers.  contentChangeCallback should not be called when the
-     *  default content changes.)
+     *  Not called when default content is changed.
+     *  The 'reason' parameter is NULL if the resource has not had
+     *  all of its content remoted.
+     *  It is non-NULL if it has no more content, and thus the subscription
+     *  should be ended.  In that case, SipPublishContentMgr::getContent()
+     *  will (for the duration of this callback) return the previous
+     *  content (which makes it possible to send a NOTIFY containing
+     *  the last available content for the resource).  The non-NULL
+     *  value is passed from SipPublishContentMgr::unpublish().
      */
-    static void contentChangeCallback(void* applicationData,
+    static void revised_contentChangeCallback(void* applicationData,
                                       const char* resourceId,
                                       const char* eventTypeKey,
-                                      const char* eventType);
+                                      const char* eventType,
+                                      const char* reason);
 
     //! Send a NOTIFY to all subscribers to the given resourceId and eventTypeKey.
     UtlBoolean notifySubscribers(const char* resourceId,
                                  const char* eventTypeKey,
-                                 const char* eventType);
+                                 const char* eventType,
+                                 const char* reason);
 
     /// Tell subscribe server to support a given event type
     /** \param eventType - event type
@@ -213,11 +247,7 @@ public:
                                UtlBoolean onlyFullState = TRUE);
 
     //! Tell subscribe server to stop supporting given event type
-    UtlBoolean disableEventType(const char* eventType,
-                                SipUserAgent*& userAgent,
-                                SipPublishContentMgr*&,
-                                SipSubscribeServerEventHandler*& eventPlugin,
-                                SipSubscriptionMgr*& subscriptionMgr);
+    UtlBoolean disableEventType(const char* eventType);
 
     //! Handler for SUBSCRIBE requests, NOTIFY responses and timers
     UtlBoolean handleMessage(OsMsg &eventMessage);
@@ -268,11 +298,69 @@ public:
    void dumpState();
 
    //! The standard callback routine to edit content.
-   /** Static method that finds and replaces "&version;" (at most once)
+   /** Static method that finds and replaces VERSION_PLACEHOLDER (at most once)
     *  with the version value.
     */
    static UtlBoolean standardVersionCallback(SipMessage& notifyRequest,
                                              int version);
+
+   //! Reason values for termination of subscriptions.
+   static const char terminationReasonNone[];
+   /**<
+    * The subscription will be reported with "Subscription-State: terminated",
+    * but no "reason" parameter will be provided.
+    */
+   static const char terminationReasonSilent[];
+   /**<
+    * The subscription will be terminated but no NOTIFY with
+    * "Subscription-State: terminated" will be sent, so that the subscriber
+    * does not know that the subscription has been ended.
+    */
+   static const char terminationReasonDeactivated[];
+   /**<
+    * The subscription has been terminated, but the subscriber
+    * SHOULD retry immediately with a new subscription.  One primary use
+    * of such a status code is to allow migration of subscriptions
+    * between nodes.  The "retry-after" parameter has no semantics for
+    * "deactivated".
+    */
+   static const char terminationReasonProbation[];
+   /**<
+    * The subscription has been terminated, but the client
+    * SHOULD retry at some later time.  If a "retry-after" parameter is
+    * also present, the client SHOULD wait at least the number of
+    * seconds specified by that parameter before attempting to re-
+    * subscribe.
+    */
+   static const char terminationReasonRejected[];
+   /**<
+    * The subscription has been terminated due to change in
+    * authorization policy.  Clients SHOULD NOT attempt to re-subscribe.
+    * The "retry-after" parameter has no semantics for "rejected".
+    */
+   static const char terminationReasonTimeout[];
+   /**<
+    * The subscription has been terminated because it was not
+    * refreshed before it expired.  Clients MAY re-subscribe
+    * immediately.  The "retry-after" parameter has no semantics for
+    * "timeout".
+    */
+   static const char terminationReasonGiveup[];
+   /**<
+    * The subscription has been terminated because the notifier
+    * could not obtain authorization in a timely fashion.  If a "retry-
+    * after" parameter is also present, the client SHOULD wait at least
+    * the number of seconds specified by that parameter before
+    * attempting to re-subscribe; otherwise, the client MAY retry
+    * immediately, but will likely get put back into pending state.
+    */
+   static const char terminationReasonNoresource[];
+   /**<
+    * The subscription has been terminated because the resource
+    * state which was being monitored no longer exists.  Clients SHOULD
+    * NOT attempt to re-subscribe.  The "retry-after" parameter has no
+    * semantics for "noresource".
+    */
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
@@ -290,11 +378,14 @@ private:
     UtlBoolean handleSubscribe(const SipMessage& subscribeRequest);
 
     //! Handle NOTIFY responses
-    UtlBoolean handleNotifyResponse(const SipMessage& notifyResponse);
+    void handleNotifyResponse(const SipMessage& notifyResponse);
 
     //! Handle subscription expiration timer events
     UtlBoolean handleExpiration(UtlString* subscribeDialogHandle,
                                 OsTimer* timer);
+
+    //! End a subscription because we got an error ersponse from a NOTIFY request.
+    void generateTerminatingNotify(const UtlString& dialogHandle);
 
     //! lock for single thread write access (add/remove event handlers)
     void lockForWrite();
@@ -315,6 +406,7 @@ private:
     // Members are SubscribeServerEventData's, indexed as strings
     // containing the event type.
     UtlHashBag mEventDefinitions;
+    const char* mDefaultTermination;
     OsRWMutex mSubscribeServerMutex;
 };
 

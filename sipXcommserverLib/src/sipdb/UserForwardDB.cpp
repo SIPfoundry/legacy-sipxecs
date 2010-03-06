@@ -311,8 +311,8 @@ UserForwardDB::insertRow (const UtlHashMap& nvPairs)
     // Note we do not need the identity object here
     // as it is inferred from the uri
     UtlString identity, cfwdtime;
-    identity = *((UtlString*)nvPairs.findValue(&gIdentityKey));
-    cfwdtime = *((UtlString*)nvPairs.findValue(&gCfwdtimeKey));
+    identity = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gIdentityKey)));
+    cfwdtime = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gCfwdtimeKey)));
     return insertRow ( Url( identity ), cfwdtime );
 }
 
