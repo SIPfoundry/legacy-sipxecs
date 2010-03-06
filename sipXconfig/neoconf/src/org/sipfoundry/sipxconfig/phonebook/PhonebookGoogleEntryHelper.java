@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.phonebook;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
+import com.google.gdata.data.Extension;
 import com.google.gdata.data.contacts.ContactEntry;
 import com.google.gdata.data.contacts.Relation;
 import com.google.gdata.data.extensions.Email;
@@ -20,6 +21,7 @@ import com.google.gdata.data.extensions.Name;
 import com.google.gdata.data.extensions.Organization;
 import com.google.gdata.data.extensions.PhoneNumber;
 import com.google.gdata.data.extensions.StructuredPostalAddress;
+import com.google.gdata.data.extensions.Where;
 
 import static org.apache.commons.beanutils.BeanUtils.getSimpleProperty;
 import static org.apache.commons.beanutils.PropertyUtils.getProperty;
@@ -72,6 +74,7 @@ public class PhonebookGoogleEntryHelper {
         extractAddress(abe);
         extractPhones(phonebookEntry, abe);
         extractOrgs(abe);
+        extractExtensions(abe);
         extractRelations(abe);
         extractEmailAddresses(abe);
         phonebookEntry.setAddressBookEntry(abe);
@@ -154,12 +157,7 @@ public class PhonebookGoogleEntryHelper {
                 continue;
             }
             Address phonebookAddress = new Address();
-            phonebookAddress.setCity(getGDataValue(address, CITY));
-            phonebookAddress.setCountry(getGDataValue(address, COUNTRY));
-            phonebookAddress.setState(getGDataValue(address, REGION));
-            phonebookAddress.setStreet(getGDataValue(address, STREET));
-            phonebookAddress.setZip(getGDataValue(address, POSTCODE));
-
+            extractPostalAddress(phonebookAddress, address);
             if (address.getRel().contains(WORK)) {
                 abe.setOfficeAddress(phonebookAddress);
             } else {
@@ -180,9 +178,6 @@ public class PhonebookGoogleEntryHelper {
         abe.setJobTitle(getGDataValue(org, ORG_TITLE));
         abe.setCompanyName(getGDataValue(org, ORG_NAME));
         abe.setJobDept(getGDataValue(org, ORG_DEPARTMENT));
-        if (org.getWhere() != null) {
-            abe.setLocation(org.getWhere().getValueString());
-        }
     }
 
     private void extractRelations(AddressBookEntry abe) {
@@ -191,6 +186,22 @@ public class PhonebookGoogleEntryHelper {
                 abe.setAssistantName(relation.getValue());
             }
         }
+    }
+
+    private void extractExtensions(AddressBookEntry abe) {
+        for (Extension extension : m_contactEntry.getExtensions()) {
+            if (extension instanceof Where) {
+                abe.setLocation(((Where) extension).getValueString());
+            }
+        }
+    }
+
+    private void extractPostalAddress(Address phonebookAddress, StructuredPostalAddress addressGmail) {
+        phonebookAddress.setCity(getGDataValue(addressGmail, CITY));
+        phonebookAddress.setCountry(getGDataValue(addressGmail, COUNTRY));
+        phonebookAddress.setState(getGDataValue(addressGmail, REGION));
+        phonebookAddress.setStreet(getGDataValue(addressGmail, STREET));
+        phonebookAddress.setZip(getGDataValue(addressGmail, POSTCODE));
     }
 
     private void extractEmailAddresses(AddressBookEntry abe) {

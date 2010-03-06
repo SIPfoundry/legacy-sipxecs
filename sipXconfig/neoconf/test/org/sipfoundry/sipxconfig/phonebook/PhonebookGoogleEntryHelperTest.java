@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import junit.framework.TestCase;
+
+import com.google.gdata.data.Extension;
 import com.google.gdata.data.contacts.ContactEntry;
 import com.google.gdata.data.extensions.City;
 import com.google.gdata.data.extensions.Country;
@@ -28,7 +31,6 @@ import com.google.gdata.data.extensions.Region;
 import com.google.gdata.data.extensions.Street;
 import com.google.gdata.data.extensions.StructuredPostalAddress;
 import com.google.gdata.data.extensions.Where;
-import junit.framework.TestCase;
 
 public class PhonebookGoogleEntryHelperTest extends TestCase {
 
@@ -117,6 +119,15 @@ public class PhonebookGoogleEntryHelperTest extends TestCase {
         assertEquals("googleAddress", phoneBookEntry.getAddressBookEntry().getAlternateImId());
     }
 
+    public void testExtractLocation() {
+        ContactEntry ce = new ContactEntry();
+        Extension ext = new Where("","", "testLocation");
+        ce.addExtension(ext);
+        PhonebookEntry phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
+        String location = phoneBookEntry.getAddressBookEntry().getLocation();
+        assertEquals("testLocation", location);
+    }
+
     public void testExtractAddress() {
         ContactEntry ce = new ContactEntry();
         StructuredPostalAddress address = new StructuredPostalAddress();
@@ -194,9 +205,6 @@ public class PhonebookGoogleEntryHelperTest extends TestCase {
         OrgDepartment dept = new OrgDepartment("Dept");
         org.setOrgDepartment(dept);
 
-        Where where = new Where("", "", "Where");
-        org.setWhere(where);
-
         ce.addOrganization(org);
 
         PhonebookEntry phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
@@ -204,7 +212,6 @@ public class PhonebookGoogleEntryHelperTest extends TestCase {
         assertEquals("Title", abe.getJobTitle());
         assertEquals("Name", abe.getCompanyName());
         assertEquals("Dept", abe.getJobDept());
-        assertEquals("Where", abe.getLocation());
     }
 
     public void testExtractEmails() {
