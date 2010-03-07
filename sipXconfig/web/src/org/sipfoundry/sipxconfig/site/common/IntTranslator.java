@@ -42,7 +42,8 @@ public class IntTranslator extends SipxconfigNumberTranslator {
     @Override
     protected Object parseText(IFormComponent field, ValidationMessages messages, String text)
         throws ValidatorException {
-        if (text.matches("(\\d)+(\\D)+")) {
+        // Allow nothing but digits: [0-9], for everything else through exception.
+        if (!text.matches("(\\d)+")) {
             throw new ValidatorException(buildMessage(messages, field, getMessageKey()), getConstraint());
         } else {
             return super.parseText(field, messages, text);

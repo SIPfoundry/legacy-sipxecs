@@ -57,5 +57,40 @@ public class IntTranslatorTest extends TestCase {
         }
         assertEquals(-1, result);
 
+        result = 0;
+        try {
+            String text = "123abc)%&**%&^$$!@!@$$@#123";
+            out.parseText(field, messages, text);
+        } catch (ValidatorException ex) {
+            result = -1;
+        }
+        assertEquals(-1, result);
+
+        result = 0;
+        try {
+            String text = "123abc123";
+            out.parseText(field, messages, text);
+        } catch (ValidatorException ex) {
+            result = -1;
+        }
+        assertEquals(-1, result);
+        
+        result = 0;
+        try {
+            String text = "@@123abc1236";
+            out.parseText(field, messages, text);
+        } catch (ValidatorException ex) {
+            result = -1;
+        }
+        assertEquals(-1, result);
+        
+        result = 0;
+        try {
+            String text = "123 123";
+            out.parseText(field, messages, text);
+        } catch (ValidatorException ex) {
+            result = -1;
+        }
+        assertEquals(-1, result);
     }
 }
