@@ -4,7 +4,7 @@
       <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
     </ul>
   </span>
-  <span jwcid="@If" condition="ognl:voicemailTuiModel.optionCount > 1" renderTag="false">
+  <span jwcid="@If" condition="ognl:admin && voicemailTuiModel.optionCount > 1" renderTag="false">
     <tr jwcid="@common/FieldPanel" for="user:voicemailTui"
       field="component:voicemailTui"
       label="message:label.voicemailTui"
