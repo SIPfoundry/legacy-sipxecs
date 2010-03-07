@@ -18,7 +18,7 @@
     <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
     <music-on-hold-address>~~mh~</music-on-hold-address>
     <music-on-hold-delay-miliseconds>500</music-on-hold-delay-miliseconds>
-    <music-on-hold-supported-codecs>PCMU,PCMA</music-on-hold-supported-codecs>
+    <music-on-hold-supported-codecs>PCMU,PCMA,G722</music-on-hold-supported-codecs>
     <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
     <log-level>INFO</log-level>
     <log-directory>/var/log/sipxpbx/</log-directory>
