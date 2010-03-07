@@ -403,7 +403,7 @@ void SipPublishContentMgr::revised_unpublish(const char* resourceId,
              dynamic_cast <PublishContentContainer*> (mContentEntries.find(&key));
 
           // If no (full) content was generated, check if (fixed) default content exists.
-          PublishContentContainer* defaultContent;
+          PublishContentContainer* defaultContent = NULL;
           if (!newContent)
           {
              defaultContent =
