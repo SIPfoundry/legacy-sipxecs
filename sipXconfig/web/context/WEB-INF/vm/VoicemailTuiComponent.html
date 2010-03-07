@@ -1,10 +1,16 @@
 <span jwcid="@If" condition="ognl:model.optionCount > 1" renderTag="false">
-  <tr jwcid="@common/FieldPanel"
-    label="message:label.voicemail.voicemailTui"
-    description="message:description.voicemail.voicemailTui">
-    <span jwcid="voicemail@PropertySelection"
-      id="voicemail:voicemailTui"
-      model="ognl:model"
-      value="ognl:voicemailTui"/>
-  </tr>
+<fieldset>
+  <table>
+    <tbody>
+      <tr jwcid="@common/FieldPanel"
+        label="message:label.voicemail.voicemailTui"
+        description="message:description.voicemail.voicemailTui">
+      <span jwcid="voicemail@PropertySelection"
+        id="voicemail:voicemailTui"
+        model="ognl:model"
+        value="ognl:voicemailTui"/>
+      </tr>
+    </tbody>
+  </table>
+</fieldset>
 </span>
