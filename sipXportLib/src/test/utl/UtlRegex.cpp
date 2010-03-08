@@ -38,6 +38,7 @@ class UtlRegExTest : public CppUnit::TestCase
    CPPUNIT_TEST(testMatchUtlLookBehind);
    CPPUNIT_TEST(testCopy1);
    CPPUNIT_TEST(testRecursionLimit);
+   CPPUNIT_TEST(testQuotemeta);
    CPPUNIT_TEST_SUITE_END();
 
 # define EXPRESSION( expression, options ) \
@@ -310,6 +311,37 @@ public:
          CPPUNIT_ASSERT(!matchAs.Search(bigSubject));
       }
 
+   void testQuotemeta()
+      {
+        struct test
+        {
+            const char* literal;
+            const char* expected_regexp;
+        } tests[] = {
+           { "", "" },
+           { "1", "1" },
+           { "a", "a" },
+           { "!", "\\!" },
+           { " ", "\\ " },
+           { "a1", "a1" },
+           { "a! ", "a\\!\\ " },
+           { "this is", "this\\ is" },
+           { "this_is", "this\\_is" },
+        };
+
+        for (unsigned int i = 0; i < sizeof (tests) / sizeof (tests[0]); i++)
+        {
+           char message[100];
+           sprintf(message, "Test %d: '%s'", i, tests[i].literal);
+
+           UtlString literal(tests[i].literal);
+           UtlString regexp;
+           RegEx::Quotemeta(literal, regexp);
+
+           ASSERT_STR_EQUAL_MESSAGE(message,
+                                    tests[i].expected_regexp, regexp.data());
+        }
+      }
 
 };
 

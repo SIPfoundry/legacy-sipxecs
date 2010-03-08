@@ -18,6 +18,7 @@
 //
 
 #include "assert.h"
+#include <ctype.h>
 #include "utl/UtlRegex.h"
 
 #ifndef    SIPX_MAX_REGEX_RECURSION
@@ -418,6 +419,45 @@ const char * RegEx::Match(int i)
       return subjectStr;
    }
 }
+
+// Turn a string into a regexp string that matches exactly the given string.
+// Implemented directly, rather than by invoking the PCRE Quotemeta(), as
+// the operation is simple enough to code by hand, and the relevant add-on
+// to PCRE includes parts of the C++ STD.
+void RegEx::Quotemeta(const UtlString& literal,
+                      UtlString& regex)
+{
+   // Clear 'regex'.
+   regex.remove(0);
+   // To make sure literal.length() is not fetched repeatedly.
+   int l = literal.length();
+   // Set 'regex' large enough to hold the longest possible result.
+   regex.capacity(l * 2);
+   // Copy the characters of 'literal', prepending backslashes to all
+   // non-alphanumeric characters.  (This is slightly different from Perl's
+   // quotemeta(), as we backslash "_", but Perl does not.)
+   // Some unpleasant casts are needed, because isalnum() wants 'unsigned char'
+   // arguments.
+   const unsigned char* lp =
+      reinterpret_cast <const unsigned char*> (literal.data());
+   unsigned char* rp =
+      const_cast <unsigned char*>
+      (reinterpret_cast <const unsigned char*> (regex.data()));
+   for (int i = 0; i < l; i++)
+   {
+      // Beware that isalnum()'s arguments are 'unsigned char' values.
+      unsigned char c = *lp++;
+      if (!isalnum(c))
+      {
+         *rp++ = '\\';
+      }
+      *rp++ = c;
+   }
+   // Set the length of 'regex' appropriately.
+   regex.setLength(rp -
+                   reinterpret_cast <const unsigned char*> (regex.data()));
+}
+
 
 // PRIVATE METHODS
 

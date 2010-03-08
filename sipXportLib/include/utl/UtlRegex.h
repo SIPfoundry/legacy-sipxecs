@@ -420,7 +420,6 @@ class RegEx : public UtlContainableAtomic
    * - afterC = 10
    */
 
-
   /// Get a string matched by a previous search
   const char * Match(int i = 0 /**< must be < SubStrings() */ );
   /**<
@@ -437,6 +436,14 @@ class RegEx : public UtlContainableAtomic
    * - Match(1) returns $1, etc.
    * @returns a pointer to the ith matched substring.
    */
+
+  /// Turn a string into a regexp string that matches exactly the given string.
+  //  Much like the Perl quotemeta() function.
+  static void Quotemeta(const UtlString& literal,
+                        ///< input, "literal" string
+                        UtlString& regex
+                        ///< output, "regexp" string
+     );
 
 ///@}
 
