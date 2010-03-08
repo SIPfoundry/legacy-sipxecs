@@ -1090,7 +1090,8 @@ UtlContainableType UtlString::getContainableType() const
 
 UtlBoolean UtlString::findToken(const char* token,
                                 const char* delimiter,
-                                const char* suffix) const
+                                const char* suffix,
+                                bool regex) const
 {
     RegEx*   ptmpRegEx = NULL;
     UtlBoolean  matched = FALSE;
@@ -1100,22 +1101,38 @@ UtlBoolean UtlString::findToken(const char* token,
     // find beginning of line or delimiter
     regExpStr.append("(^|");
     regExpStr.append(delimiter);
-    regExpStr.append(")");
+    regExpStr.append(')');
 
     // allow whitespace around token
     regExpStr.append(SWS);
-    // "\Q" causes all characters to be treated as non-special until "\E".
-    regExpStr.append("\\Q");
-    regExpStr.append(token);
-    regExpStr.append("\\E");
+
+    // Insert 'token' correctly, based on the value of 'regex'.
+    if (regex)
+    {
+       // 'token' is a regexp.
+       // Must parenthesize 'token', as it may contain operations with
+       // low precedence.
+       regExpStr.append(')');
+       regExpStr.append(token);
+       regExpStr.append(')');
+    }
+    else
+    {
+       // 'token' is a literal string and must be quoted.
+       UtlString quoted;
+       RegEx::Quotemeta(token, quoted);
+       regExpStr.append(quoted);
+    }
+
+    // More whitespace.
     regExpStr.append(SWS);
 
     // find another delimiter, end of line or (optional) suffix
-    regExpStr.append("(");
+    regExpStr.append('(');
     regExpStr.append(delimiter);
     if (suffix)
     {
-       regExpStr.append("|");
+       regExpStr.append('|');
        regExpStr.append(suffix);
     }
     regExpStr.append("|$)");

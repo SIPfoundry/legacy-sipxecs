@@ -439,7 +439,7 @@ class RegEx : public UtlContainableAtomic
 
   /// Turn a string into a regexp string that matches exactly the given string.
   //  Much like the Perl quotemeta() function.
-  static void Quotemeta(const UtlString& literal,
+  static void Quotemeta(const char* literal,
                         ///< input, "literal" string
                         UtlString& regex
                         ///< output, "regexp" string

@@ -19,6 +19,7 @@
 
 #include "assert.h"
 #include <ctype.h>
+#include <string.h>
 #include "utl/UtlRegex.h"
 
 #ifndef    SIPX_MAX_REGEX_RECURSION
@@ -424,13 +425,13 @@ const char * RegEx::Match(int i)
 // Implemented directly, rather than by invoking the PCRE Quotemeta(), as
 // the operation is simple enough to code by hand, and the relevant add-on
 // to PCRE includes parts of the C++ STD.
-void RegEx::Quotemeta(const UtlString& literal,
+void RegEx::Quotemeta(const char* literal,
                       UtlString& regex)
 {
    // Clear 'regex'.
    regex.remove(0);
    // To make sure literal.length() is not fetched repeatedly.
-   int l = literal.length();
+   int l = strlen(literal);
    // Set 'regex' large enough to hold the longest possible result.
    regex.capacity(l * 2);
    // Copy the characters of 'literal', prepending backslashes to all
@@ -439,7 +440,7 @@ void RegEx::Quotemeta(const UtlString& literal,
    // Some unpleasant casts are needed, because isalnum() wants 'unsigned char'
    // arguments.
    const unsigned char* lp =
-      reinterpret_cast <const unsigned char*> (literal.data());
+      reinterpret_cast <const unsigned char*> (literal);
    unsigned char* rp =
       const_cast <unsigned char*>
       (reinterpret_cast <const unsigned char*> (regex.data()));

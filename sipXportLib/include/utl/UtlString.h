@@ -336,16 +336,21 @@ public:
 
     UtlBoolean findToken(const char* token,
                          const char* delimiter,
-                         const char* suffix = NULL) const;
+                         const char* suffix = NULL,
+                         bool regex = false) const;
     /**<
      * Search for 'token' in the string.
-     * String is a sequence of substrings, separated by 'delimiter's,
+     * The string is a sequence of substrings, separated by 'delimiter's,
      * possibly surrounded by whitespace.  See if 'token' equals any
      * of these substrings.
      * If 'suffix' is not NULL, a substring may be followed by 'suffix'
      * and a string (not containing 'delimiter') before the next
      * 'delimiter'.
-     * 'token' may not contain backslashes.
+     * If 'regex' is false (the default), 'token' is interpreted as a string
+     * which must be literally present in the UtlString.
+     * If 'regex' is true, 'token' is interpreted as a regular expression
+     * (the argument to Regex::Regex()), and the UtlString must contain
+     * a delimited substring which is matched by 'token'.
      *
      * @return True if 'token' matches any of the substrings.
      */
