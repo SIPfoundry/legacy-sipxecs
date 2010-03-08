@@ -114,6 +114,11 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         for (File f : voicemail.getAllFiles()) {
             f.renameTo(new File(destination, f.getName()));
         }
+
+        // ask voicemail to update the MWI ..
+        StringBuilder sb = new StringBuilder(PATH_MAILBOX).append(mailbox.getUserDirectory().getName()).append("/mwi");
+        invokeWebservice(sb.toString());
+
     }
 
     public void delete(Mailbox mailbox, Voicemail voicemail) {
