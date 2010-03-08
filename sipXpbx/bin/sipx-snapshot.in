@@ -64,7 +64,6 @@ do
 
         --debug)
             Debug=DEBUG
-            exit;
             ;;
 
         -v|--version)
