@@ -1087,7 +1087,8 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
                         "expiration: %ld",
                         requestNonce.data(), callId.data(), fromTag.data(),
                         requestUri.data(), mRealm.data(), 
-                        requestCNonce, requestNonceCount, requestQop, nonceExpires);
+                        requestCNonce.data(), requestNonceCount.data(),
+                        requestQop.data(), nonceExpires);
       }
 
       // verify that qop,cnonce, nonceCount are compatible
