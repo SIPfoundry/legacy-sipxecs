@@ -41,7 +41,7 @@ public class SipServiceImpl extends SipStackBean implements SipService {
             String referTarget, boolean allowForwarding) {
         UserCredentials credentials = new UserCredentialsImpl(user, m_domainManager.getAuthorizationRealm());
         LOG.debug("sendRefer: source = " + sourceAddrSpec + " dest = " + destinationAddrSpec);
-        InviteMessage message = new InviteMessage(this, credentials, displayName, sourceAddrSpec,
+        InviteMessage message = new InviteMessage(this, credentials, displayName, destinationAddrSpec,
                 sourceAddrSpec, referTarget, Operator.SEND_3PCC_REFER_CALL_SETUP);
         message.setforwardingAllowed(allowForwarding);
         message.createAndSend();
@@ -52,7 +52,7 @@ public class SipServiceImpl extends SipStackBean implements SipService {
     }
 
     public void sendRefer(User user, String sourceAddrSpec, String displayName, String destinationAddrSpec) {
-        sendRefer(user, sourceAddrSpec, displayName, destinationAddrSpec, destinationAddrSpec, m_allowForwarding);
+        sendRefer(user, sourceAddrSpec, displayName, sourceAddrSpec, destinationAddrSpec, m_allowForwarding);
     }
 
     @Required

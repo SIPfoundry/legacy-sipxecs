@@ -198,7 +198,7 @@ public class ManageVoicemailTestUi extends WebTestCase {
     public void testCall() {
         SipService sipService = createMock(SipService.class);
         String fromUri = "'200'<sip:123@example.com>";
-        sipService.sendRefer(m_portalUser, "sip:portalUser@example.com", "sip:123@example.com");
+        sipService.sendRefer(m_portalUser, "sip:portalUser@example.com", "ClickToCall", "sip:123@example.com");
         replay(sipService);
 
         PropertyUtils.write(m_out, "sipService", sipService);
