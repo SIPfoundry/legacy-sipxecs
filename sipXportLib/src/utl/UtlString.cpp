@@ -1112,7 +1112,7 @@ UtlBoolean UtlString::findToken(const char* token,
        // 'token' is a regexp.
        // Must parenthesize 'token', as it may contain operations with
        // low precedence.
-       regExpStr.append(')');
+       regExpStr.append('(');
        regExpStr.append(token);
        regExpStr.append(')');
     }

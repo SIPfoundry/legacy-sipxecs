@@ -430,7 +430,6 @@ void RegEx::Quotemeta(const char* literal,
 {
    // Clear 'regex'.
    regex.remove(0);
-   // To make sure literal.length() is not fetched repeatedly.
    int l = strlen(literal);
    // Set 'regex' large enough to hold the longest possible result.
    regex.capacity(l * 2);

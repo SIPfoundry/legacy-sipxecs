@@ -1673,7 +1673,7 @@ public:
 
     /*!a Test findToken.
     *
-    *    look for regexp at
+    *    look for string as
     *        a) The first token
     *        b) The last token
     *        c) nowhere in the string
@@ -1683,40 +1683,93 @@ public:
     void testfindToken()
     {
         UtlBoolean result;
+        enum Mode
+        {
+           literalAndRegexp,
+           literalOnly,
+           regexpOnly
+        };
         struct TestCharAtStructure
         {
-            const char* testDescription;
-            const char* testString;
-            const char* testDelimit;
-            const char* testSuffix;
-            UtlBoolean expectedResult;
+           const char* testDescription;
+           const char* testNeedle;
+           const char* testHaystack;
+           const char* testDelimit;
+           const char* testSuffix;
+           enum Mode mode;
+           UtlBoolean expectedResult;
         };
 
         const char* prefix = "Test findRegEx, when ";
         string Message;
 
         TestCharAtStructure testData[] = {
-            { "regEx first and last in string", " testWord", ",", NULL, TRUE },
-            { "regEx NOT in string", "no, such ,word", ",", NULL, FALSE },
-            { "regEx not first in string", "not , the , first,testWord, or, last", ",", NULL, TRUE  },
-            { "regEx last in string", "not , the , first,testWord", ",", NULL, TRUE  },
-            { "regEx NOT(exactly) in string", "no such, testWord-sim, word", ",", NULL, FALSE },
-            { "regEx has suffix", "suffix , is, semicolon,testWord;dale, seen, here", ",", ";", TRUE  },
-            { "regEx has no suffix", "suffix , is, semicolon,testWord, not, here", ",", ";", TRUE  },
+            { "regEx first and last in string",
+              "testWord", " testWord", ",", NULL,
+              literalAndRegexp, TRUE },
+            { "regEx NOT in string",
+              "testWord", "no, such ,word", ",", NULL,
+              literalAndRegexp, FALSE },
+            { "regEx not first in string",
+              "testWord", "not , the , first,testWord, or, last", ",", NULL,
+              literalAndRegexp, TRUE  },
+            { "regEx last in string",
+              "testWord", "not , the , first,testWord", ",", NULL,
+              literalAndRegexp, TRUE  },
+            { "regEx NOT(exactly) in string",
+              "testWord", "no such, testWord-sim, word", ",", NULL,
+              literalAndRegexp, FALSE },
+            { "regEx has suffix",
+              "testWord", "suffix , is, semicolon,testWord;dale, seen, here", ",", ";",
+              literalAndRegexp, TRUE  },
+            { "regEx has no suffix",
+              "testWord", "suffix , is, semicolon,testWord, not, here", ",", ";",
+              literalAndRegexp, TRUE  },
+            { "search string contains regexp meta chars 1",
+              "text/dialoginfo+xml", "text/plain,text/dialoginfo+xml", ",", NULL,
+              literalOnly, TRUE },
+            { "search string contains regexp meta chars 2",
+              "text/dialoginfo+xml", "text/plain,text/dialoginfo+xml", ",", NULL,
+              regexpOnly, FALSE },
+            { "search for regexp",
+              "ab+c*", "a, ab, d", ",", NULL,
+              regexpOnly, TRUE },
         };
 
-        UtlString *ptestString;
+        UtlString *ptestHaystack;
 
         const int testCount = sizeof(testData)/sizeof(testData[0]);
         for (int i=0; i < testCount; i++)
         {
-            ptestString = new UtlString(testData[i].testString);
-            result = ptestString->findToken("testWord", testData[i].testDelimit, testData[i].testSuffix);
+            ptestHaystack = new UtlString(testData[i].testHaystack);
+            TestUtilities::createMessage(2, &Message, prefix,
+                                         testData[i].testDescription);
+            if (testData[i].mode != regexpOnly)
+            {
+               // Execute the test as a literal string.
+               result =
+                  ptestHaystack->findToken(testData[i].testNeedle,
+                                           testData[i].testDelimit,
+                                           testData[i].testSuffix);
+               CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(),
+                                            testData[i].expectedResult,
+                                            result);
+            }
 
-            TestUtilities::createMessage(2, &Message, prefix, testData[i].testDescription);
-            CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(), testData[i].expectedResult, result);
+            if (testData[i].mode != literalOnly)
+            {
+               // Execute the test as a regexp string.
+               result =
+                  ptestHaystack->findToken(testData[i].testNeedle,
+                                           testData[i].testDelimit,
+                                           testData[i].testSuffix,
+                                           true);
+               CPPUNIT_ASSERT_EQUAL_MESSAGE(Message.data(),
+                                            testData[i].expectedResult,
+                                            result);
+            }
 
-            delete ptestString;
+            delete ptestHaystack;
         }
     }//testfindToken
 
