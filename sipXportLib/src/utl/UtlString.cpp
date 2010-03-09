@@ -1144,7 +1144,7 @@ UtlBoolean UtlString::findToken(const char* token,
 
 #ifdef TEST_FINDTOKEN
     OsSysLog::add( FAC_LOG, PRI_DEBUG
-                  ,"UtlString::findRegEx: "
+                  ,"UtlString::findToken: "
                    "built regexp '%s' to find '%s' with delimiter '%s' "
                    "suffix '%s'"
                   ,regExpStr.data(),token, delimiter,
@@ -1158,7 +1158,7 @@ UtlBoolean UtlString::findToken(const char* token,
     catch(const char* compileError)
     {
         OsSysLog::add( FAC_LOG, PRI_ERR
-                      ,"UtlString::findRegEx: "
+                      ,"UtlString::findToken: "
                        "Invalid regexp '%s' for '%s': "
                        "compile error '%s'"
                       ,regExpStr.data()
@@ -1174,7 +1174,7 @@ UtlBoolean UtlString::findToken(const char* token,
 
 #ifdef TEST_FINDTOKEN
     OsSysLog::add( FAC_LOG, PRI_DEBUG
-                  ,"UtlString::findRegEx: "
+                  ,"UtlString::findToken: "
                    "'%s' with delimiter '%s' %sfound in '%s': "
                   ,token
                   ,delimiter
