@@ -23,6 +23,14 @@
       </description>
       <value>sip.ser-001.nat.bt.com</value>
     </setting>
+    <setting name="sipxecs-lineids" hidden="yes">
+     <label>Line ID</label>
+     <type>
+      <string />
+     </type>
+     <description>The reference unique gateway ID</description>
+     </setting>
+
     <setting name="user-name">
       <label>User name</label>
       <type>

@@ -84,13 +84,19 @@ public class EmergencyRuleTest extends TestCase {
         assertEquals("9911", patterns[2]);
     }
 
+    public static void assertUrlParams(String[] params) {
+        TestCase.assertTrue(null != params);
+        TestCase.assertEquals(1, params.length);
+        TestCase.assertTrue(params[0].startsWith("sipxecs-lineid="));
+    }
+
     public void testGetTransforms() {
         Transform[] transforms = m_rule.getTransforms();
         assertEquals(3, transforms.length);
         FullTransform emergencyTransform = (FullTransform) transforms[0];
         assertEquals("911", emergencyTransform.getUser());
         assertEquals("sosgateway1.com:4000", emergencyTransform.getHost());
-        assertNull(emergencyTransform.getUrlParams());
+        assertUrlParams(emergencyTransform.getUrlParams());
         assertEquals("q=0.95", emergencyTransform.getFieldParams()[0]);
 
         emergencyTransform = (FullTransform) transforms[1];
@@ -101,7 +107,7 @@ public class EmergencyRuleTest extends TestCase {
 
         emergencyTransform = (FullTransform) transforms[2];
         assertEquals("sosgateway3.com:5555", emergencyTransform.getHost());
-        assertNull(emergencyTransform.getUrlParams());
+        assertUrlParams(emergencyTransform.getUrlParams());
         assertEquals("q=0.85", emergencyTransform.getFieldParams()[0]);
         assertEquals("route=bridge.example.org", emergencyTransform.getHeaderParams()[0]);
     }
@@ -113,7 +119,7 @@ public class EmergencyRuleTest extends TestCase {
         FullTransform emergencyTransform = (FullTransform) transforms[0];
         assertEquals("911", emergencyTransform.getUser());
         assertEquals("sosgateway1.com:4000", emergencyTransform.getHost());
-        assertNull(emergencyTransform.getUrlParams());
+        assertUrlParams(emergencyTransform.getUrlParams());
         String[] fieldParams = emergencyTransform.getFieldParams();
         assertEquals(2, fieldParams.length);
         assertEquals("q=0.95", fieldParams[0]);
@@ -131,7 +137,7 @@ public class EmergencyRuleTest extends TestCase {
         emergencyTransform = (FullTransform) transforms[2];
         assertEquals("sosgateway3.com:5555", emergencyTransform.getHost());
         assertEquals("route=bridge.example.org", emergencyTransform.getHeaderParams()[0]);
-        assertNull(emergencyTransform.getUrlParams());
+        assertUrlParams(emergencyTransform.getUrlParams());
         fieldParams = emergencyTransform.getFieldParams();
         assertEquals(2, fieldParams.length);
         assertEquals("q=0.85", fieldParams[0]);

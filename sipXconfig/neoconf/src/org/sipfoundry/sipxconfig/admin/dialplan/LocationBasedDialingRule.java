@@ -112,6 +112,8 @@ public abstract class LocationBasedDialingRule extends DialingRule {
             transform.setUrlParams(transport);
         }
         transform.addHeaderParams(String.format(GATEWAY_EXPIRES_PATTERN, GATEWAY_EXPIRES_VALUE));
+        //transform.addHeaderParams(String.format(GATEWAY_LINEID_PATTERN, g.getId().toString()));
+        transform.addUrlParams(String.format(GATEWAY_LINEID_PATTERN,  g.getId().toString()));
         return transform;
     }
 }

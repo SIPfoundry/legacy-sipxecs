@@ -42,6 +42,13 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
     public static final String LOG_SETTING = "bridge-configuration/log-level";
 
     public static final String LOCATION_ID_SETTING = "bridge-configuration/location-id";
+    public static final String ITSP_PROXY_DOMAIN_SETTING = "itsp-account/itsp-proxy-domain";
+    public static final String USER_NAME_SETTING = "itsp-account/user-name";
+    public static final String SIXECS_LINEIDS_SETTING = "itsp-account/sipxecs-lineids";
+    public static final String SIXECS_LINEID_START = "<sipxecs-lineid>";
+    public static final String SIXECS_LINEID_END = "</sipxecs-lineid>";
+    public static final String CONFIG_FORMAT_PREFIX = "    ";
+    public static final String NEW_LINE_FEED = "\n";
 
     private GatewayContext m_gatewayContext;
 
@@ -130,6 +137,69 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
         return profileLocation;
     }
 
+    boolean isRedundant(SipTrunk sipTrunk, List<SipTrunk> list) {
+        for (SipTrunk t : list) {
+            String domain = t.getSettingValue(ITSP_PROXY_DOMAIN_SETTING);
+            String username = t.getSettingValue(USER_NAME_SETTING);
+            if (domain == null) {
+                continue;
+            }
+
+            if (domain.compareToIgnoreCase(sipTrunk.getSettingValue(ITSP_PROXY_DOMAIN_SETTING)) != 0) {
+                continue;
+            }
+
+            if (username == null && sipTrunk.getSettingValue(USER_NAME_SETTING) == null) {
+                return true;
+            }
+
+            if (username == null && sipTrunk.getSettingValue(USER_NAME_SETTING) != null) {
+                continue;
+            }
+
+            if (username.equals(sipTrunk.getSettingValue(USER_NAME_SETTING))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    void addGWReference(SipTrunk sipTrunk, List< ? extends SipTrunk> list) {
+        String lineID;
+        String lineIDs = "";
+        for (Object o : list) {
+            if (o instanceof SipTrunk) {
+                SipTrunk t = (SipTrunk) o;
+
+                String domain = t.getSettingValue(ITSP_PROXY_DOMAIN_SETTING);
+                String username = t.getSettingValue(USER_NAME_SETTING);
+                if ((domain != null && domain.equals(sipTrunk.getSettingValue(ITSP_PROXY_DOMAIN_SETTING)))) {
+                    if ((username != null && username.equals(sipTrunk.getSettingValue(USER_NAME_SETTING)))
+                            || (username == null && sipTrunk.getSettingValue(USER_NAME_SETTING) == null)) {
+
+                        lineID = Integer.toString(t.getId());
+                        lineIDs = lineIDs.concat(NEW_LINE_FEED + CONFIG_FORMAT_PREFIX + SIXECS_LINEID_START + lineID
+                                + SIXECS_LINEID_END);
+                    }
+                }
+            }
+        }
+        lineIDs = lineIDs.concat(NEW_LINE_FEED + CONFIG_FORMAT_PREFIX);
+        sipTrunk.setSettingValue(SIXECS_LINEIDS_SETTING, lineIDs);
+    }
+
+    public List<SipTrunk> getMySipItsps() {
+        List<SipTrunk> itsps = new ArrayList<SipTrunk>();
+        List< ? extends SipTrunk> list = m_gatewayContext.getGatewayByType(SipTrunk.class);
+        for (SipTrunk t : list) {
+            if (equals(t.getSbcDevice()) && t.isEnabled() && !isRedundant(t, itsps)) {
+                addGWReference(t, list);
+                itsps.add(t);
+            }
+        }
+        return itsps;
+    }
+
     public List<SipTrunk> getMySipTrunks() {
         List<SipTrunk> trunks = new ArrayList<SipTrunk>();
         for (SipTrunk t : m_gatewayContext.getGatewayByType(SipTrunk.class)) {
@@ -165,7 +235,8 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
         public Map<String, Object> getContext() {
             Map<String, Object> context = super.getContext();
             BridgeSbc device = getDevice();
-            context.put("trunks", device.getMySipTrunks());
+            // context.put("trunks", device.getMySipTrunks());
+            context.put("itsps", device.getMySipItsps());
             return context;
         }
     }
@@ -183,7 +254,9 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
             m_natLocation = location.getNat();
         }
 
-        @SettingEntry(paths = { "bridge-configuration/local-address", "bridge-configuration/external-address" })
+        @SettingEntry(paths = {
+                "bridge-configuration/local-address", "bridge-configuration/external-address"
+                })
         public String getExternalAddress() {
             return m_location.getAddress();
         }

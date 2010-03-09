@@ -96,6 +96,15 @@ public class FullTransform extends Transform {
         m_urlParams = urlParams;
     }
 
+    public void addUrlParams(String... urlParams) {
+        if (m_urlParams == null) {
+            setUrlParams(urlParams);
+        } else {
+            m_urlParams = (String[]) ArrayUtils.addAll(m_urlParams, urlParams);
+        }
+    }
+
+
     public String getUser() {
         return m_user;
     }

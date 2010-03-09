@@ -59,6 +59,8 @@ public class InternationalRule extends DialingRule {
             };
             transform.setFieldParams(fieldParams);
             transform.addHeaderParams(String.format(GATEWAY_EXPIRES_PATTERN, GATEWAY_EXPIRES_VALUE));
+            //transform.addHeaderParams(String.format(GATEWAY_LINEID_PATTERN,  gateway.getId().toString()));
+            transform.addUrlParams(String.format(GATEWAY_LINEID_PATTERN,  gateway.getId().toString()));
             transforms.add(transform);
         }
         return transforms.toArray(new Transform[transforms.size()]);

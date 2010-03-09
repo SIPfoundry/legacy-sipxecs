@@ -88,6 +88,8 @@ public class BridgeSbcTest {
         m_sipTrunk.setAddress("itsp.example.com");
         m_sipTrunk.setAddressPort(5061);
         m_sipTrunk.setAddressTransport(AddressTransport.UDP);
+        //m_sipTrunk.setSettingValue("itsp-account/sipxecs-lineids", "<sipxecs-lineid>1</sipxecs-lineid>");
+        m_sipTrunk.setUniqueId(1);
         m_sipTrunk.setSettingValue("itsp-account/user-name", "juser");
         m_sipTrunk.setSettingValue("itsp-account/password", "1234");
         m_sipTrunk.setSettingValue("itsp-account/itsp-registrar-address", "10.1.1.1");
@@ -95,7 +97,7 @@ public class BridgeSbcTest {
 
         GatewayContext gatewayContext = createMock(GatewayContext.class);
         gatewayContext.getGatewayByType(SipTrunk.class);
-        expectLastCall().andReturn(Arrays.asList(m_sipTrunk));
+        expectLastCall().andReturn(Arrays.asList(m_sipTrunk)).anyTimes();
         replay(gatewayContext);
 
         m_sbc.setGatewayContext(gatewayContext);

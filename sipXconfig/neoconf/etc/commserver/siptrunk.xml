@@ -22,6 +22,13 @@
         ITSP uses. If the ITSP does not provide this lookup mechanism specify a server address below.
       </description>
     </setting>
+    <setting name="sipxecs-lineids" hidden="yes">
+      <label>line ID</label>
+      <type>
+        <string />
+      </type>
+      <description>The unique id of the siptrunk.</description>
+    </setting>
     <setting name="user-name">
       <label>User name</label>
       <type>

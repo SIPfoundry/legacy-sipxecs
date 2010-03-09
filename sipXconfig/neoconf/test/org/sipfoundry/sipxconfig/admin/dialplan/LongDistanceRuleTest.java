@@ -126,7 +126,7 @@ public class LongDistanceRuleTest extends TestCase {
         FullTransform transform = (FullTransform) transforms[0];
         assertEquals("1{vdigits}", transform.getUser());
         assertEquals("longdistance.gateway.com", transform.getHost());
-        assertNull(transform.getUrlParams());
+        EmergencyRuleTest.assertUrlParams(transform.getUrlParams());
     }
 
     public void testGetTransformsWithSchedule() {
@@ -276,7 +276,7 @@ public class LongDistanceRuleTest extends TestCase {
             FullTransform transform = (FullTransform) transforms[0];
             assertTrue(transform.getUser().endsWith("{vdigits}"));
             assertEquals("longdistance.gateway.com", transform.getHost());
-            assertNull(transform.getUrlParams());
+            EmergencyRuleTest.assertUrlParams(transform.getUrlParams());
         }
     }
 

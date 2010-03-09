@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <items type="caller-alias">
   <item>
-    <domain>example.org</domain>
+    <domain>example.org;sipxecs-lineid=1</domain>
     <alias>sip:7832331111@example.org</alias>
   </item>
   <item>
     <identity>userName@example.org</identity>
-    <domain>bongo.com:5060</domain>
+    <domain>bongo.com:5060;sipxecs-lineid=2</domain>
     <alias>"first last"&lt;sip:1234@example.org&gt;</alias>
   </item>
   <item>
     <identity>kuku@example.org</identity>
-    <domain>bongo.com:5060</domain>
+    <domain>bongo.com:5060;sipxecs-lineid=2</domain>
     <alias>sip:4321@example.org</alias>
   </item>
   <item>
-    <domain>kuku.net:1025</domain>
+    <domain>kuku.net:1025;sipxecs-lineid=3</domain>
     <alias>sip:anonymous@anonymous.invalid</alias>
   </item>
   <item>
     <identity>userName@example.org</identity>
-    <domain>kuku.net:1025</domain>
+    <domain>kuku.net:1025;sipxecs-lineid=3</domain>
     <alias>"first last"&lt;sip:1234@example.org&gt;</alias>
   </item>
   <item>
     <identity>kuku@example.org</identity>
-    <domain>kuku.net:1025</domain>
+    <domain>kuku.net:1025;sipxecs-lineid=3</domain>
     <alias>sip:+21@example.org</alias>
   </item>  
   <item>
     <identity>number@example.org</identity>
-    <domain>kuku.net:1025</domain>
+    <domain>kuku.net:1025;sipxecs-lineid=3</domain>
     <alias>"user without"&lt;sip:+45@example.org&gt;</alias>
   </item>  
   <item>
-    <domain>1.2.3.4</domain>
+    <domain>1.2.3.4;sipxecs-lineid=4</domain>
     <alias>sip:1234@example.org</alias>
   </item>
 </items>

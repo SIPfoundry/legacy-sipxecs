@@ -38,10 +38,11 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& name);
  *
  * On an initial request, the first test is for an exact match of the identity (user@domain,
  * with no parameters) in the From header of the request and the target domain (from the
- * request URI).  Note that the target domain for a PSTN call is the domain of some gateway,
- * which could be a local device or a remote SIP Trunk service.  The lookup is _not_
- * affected by any Route on the request, so a request to an ITSP that is Routed through
- * a local SBC matches on the ITSP domain, not that of the SBC.
+ * request URI).  Note that the target domain for a PSTN call is the domain of some gateway
+ * with an unique identifier "sipxecs-lineid" . The gateway could be a local device or a
+ * remote SIP Trunk service.  The lookup is _not_ * affected by any Route on the request,
+ * so a request to an ITSP that is Routed through a local SBC matches on the ITSP domain,
+ * not that of the SBC.
  *
  * If an exact match is found, then the resulting From header from the output column
  * is substituted.  This is used to replace the identity of a specific user when calling
@@ -121,6 +122,7 @@ class CallerAlias : public AuthPlugin
    static const char* ALIAS_FROM_PARAM;  ///< route parameter name for the aliased From header
    static const char* CALLER_TAG_OFFSET_PARAM; ///< route parameter name for the tag offset in From
    static const char* ALIAS_TAG_OFFSET_PARAM; ///< route parameter name for the tag offset in To
+   static const char* ALIAS_URI_SIPXECS_LINEID_PARAM; ///<internal URI parameter to identify the gateway chosen by call routing.
    
   private:
    friend AuthPlugin* getAuthPlugin(const UtlString& name);

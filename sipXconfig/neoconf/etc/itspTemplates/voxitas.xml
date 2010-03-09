@@ -31,6 +31,14 @@
         route to the ITSP's server (outbound proxy) is determined by DNS lookup on the ITSP domain.
       </description>
     </setting>
+     <setting name="sipxecs-lineids" hidden="yes">
+       <label>Line ID</label>
+      <type>
+      <string />
+      </type>
+      <description>The reference unique gateway ID</description>
+    </setting>
+
     <setting name="user-name">
       <label>User name</label>
       <type>

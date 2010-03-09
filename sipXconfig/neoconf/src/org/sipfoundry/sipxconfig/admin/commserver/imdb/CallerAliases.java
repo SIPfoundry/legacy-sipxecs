@@ -37,10 +37,11 @@ public class CallerAliases extends DataSetGenerator {
 
         for (Gateway gateway : gateways) {
             final String gatewayAddr = gateway.getGatewayAddress();
+            final String gatewayAddrWithLineID = gatewayAddr + ";sipxecs-lineid=" + gateway.getId().toString();
             // add default entry for the gateway
             final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
             String callerAliasUri = getGatewayCallerAliasUri(sipDomain, gatewayInfo);
-            addItem(items, gatewayAddr, callerAliasUri);
+            addItem(items, gatewayAddrWithLineID, callerAliasUri);
 
             // only add user aliases is overwrite is not set
             if (gatewayInfo.isIgnoreUserInfo() || gatewayInfo.isEnableCallerId()) {
@@ -52,7 +53,7 @@ public class CallerAliases extends DataSetGenerator {
                 public void execute(User user) {
                     String userCallerAliasUri = getCallerAliasUri(gatewayInfo, user);
                     String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
-                    addItem(items, gatewayAddr, userCallerAliasUri, identity);
+                    addItem(items, gatewayAddrWithLineID, userCallerAliasUri, identity);
                 }
 
             };

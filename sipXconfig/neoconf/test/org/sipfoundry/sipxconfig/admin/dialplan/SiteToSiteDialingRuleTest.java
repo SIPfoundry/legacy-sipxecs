@@ -126,7 +126,7 @@ public class SiteToSiteDialingRuleTest {
             assertTrue(fieldParams[0].startsWith("q="));
             assertEquals(full.getHeaderParams()[0], "expires=60");
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
-            assertNull(full.getUrlParams());
+            EmergencyRuleTest.assertUrlParams(full.getUrlParams());
             assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
         }
     }
@@ -145,7 +145,7 @@ public class SiteToSiteDialingRuleTest {
             assertTrue(fieldParams[1].startsWith("sipx-ValidTime=\""));
             assertEquals(full.getHeaderParams()[0], "expires=60");
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
-            assertNull(full.getUrlParams());
+            EmergencyRuleTest.assertUrlParams(full.getUrlParams());
             assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
         }
     }

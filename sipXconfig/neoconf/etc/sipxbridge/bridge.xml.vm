@@ -26,7 +26,7 @@
 #set($bc = $sbc.Settings.getSetting("bridge-configuration"))
 #emit_group($bc)
 
-#foreach ($trunk in $trunks)
+#foreach ($trunk in $itsps)
 #set($itsp = $trunk.Settings.getSetting("itsp-account"))
 #emit_group($itsp)
 

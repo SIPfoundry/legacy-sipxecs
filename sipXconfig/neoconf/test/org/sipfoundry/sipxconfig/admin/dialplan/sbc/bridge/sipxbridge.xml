@@ -27,6 +27,9 @@
 
   <itsp-account>
     <itsp-proxy-domain>itsp.example.com</itsp-proxy-domain>
+    <sipxecs-lineids>
+    <sipxecs-lineid>1</sipxecs-lineid>
+    </sipxecs-lineids>
     <user-name>juser</user-name>
     <password>1234</password>
     <register-on-initialization>false</register-on-initialization>

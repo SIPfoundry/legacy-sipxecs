@@ -23,6 +23,13 @@
       </description>
       <value>sipconnect-fca.atl0.cbeyond.net</value>
     </setting>
+    <setting name="sipxecs-lineids" hidden="yes">
+     <label>Line ID</label>
+    <type>
+    <string />
+    </type>
+    <description>The reference unique gateway ID</description>
+    </setting>
     <setting name="user-name">
       <label>User name</label>
       <type>

@@ -254,19 +254,19 @@ public class FallbackRulesTest extends XMLTestCase {
         lisbonSite.setName("Lisbon");
 
         Gateway montreal = new Gateway();
-        montreal.setUniqueId();
+        montreal.setUniqueId(100);
         montreal.setAddress("montreal.example.org");
         montreal.setBranch(montrealSite);
         montreal.setShared(false);
 
         Gateway lisbon = new Gateway();
-        lisbon.setUniqueId();
+        lisbon.setUniqueId(200);
         lisbon.setAddress("lisbon.example.org");
         lisbon.setBranch(lisbonSite);
         lisbon.setPrefix("9");
 
         Gateway shared = new Gateway();
-        shared.setUniqueId();
+        shared.setUniqueId(300);
         shared.setAddress("example.org");
         shared.setPrefix("8");
         shared.setShared(false);

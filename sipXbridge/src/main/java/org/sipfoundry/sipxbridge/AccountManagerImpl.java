@@ -13,6 +13,7 @@ import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -38,12 +39,13 @@ import org.apache.xmlrpc.XmlRpcException;
  */
 public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.AccountManager {
 
+    static final String SIPXECS_LINEID_LABEL = ";sipxecs-lineid=";
+
     private static Logger logger = Logger.getLogger(AccountManagerImpl.class);
 
     private HashSet<ItspAccountInfo> itspAccounts = new HashSet<ItspAccountInfo>();
 
     private BridgeConfiguration bridgeConfiguration;
-
 
     public AccountManagerImpl() {
 
@@ -59,7 +61,6 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return bridgeConfiguration;
     }
 
-
     /**
      * Start the failure timout timers for each of the accounts we manage.
      */
@@ -70,13 +71,28 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         }
     }
 
-
-
     /**
      * Get the default outbound ITSP account for outbound calls.
      */
     ItspAccountInfo getDefaultAccount() {
         return itspAccounts.iterator().next();
+    }
+
+    // xx-4785
+    boolean checkSipxecsLineid(ArrayList<String> ids, String uriStr) {
+
+        // label not found, we'll pick based on the proxyDomain only.
+        if (uriStr.indexOf(SIPXECS_LINEID_LABEL) == -1)
+            return true;
+
+        // Otherwise, the label value has to match.
+        for (String sipxecsLineid : ids) {
+            if (uriStr.endsWith(SIPXECS_LINEID_LABEL + sipxecsLineid)
+                    || (uriStr.indexOf(SIPXECS_LINEID_LABEL + sipxecsLineid + ";") != -1))
+                return true;
+        }
+
+        return false;
     }
 
     /**
@@ -90,21 +106,21 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         try {
 
             for (ItspAccountInfo accountInfo : itspAccounts) {
-                if (accountInfo.getProxyDomain() != null
-                        && sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
+                if (accountInfo.getProxyDomain() != null && sipUri.getHost().endsWith(accountInfo.getProxyDomain())
+                        && checkSipxecsLineid(accountInfo.getSipxecsLineIds(), sipUri.toString())) {
                     if (accountInfo.getCallerId() == null) {
                         /*
-                         * A null override caller ID has been provided. This case occurs
-                         * when you override the default P-A-I to blank. (see XX-7159)
+                         * A null override caller ID has been provided. This case occurs when you
+                         * override the default P-A-I to blank. (see XX-7159)
                          */
                         FromHeader fromHeader = (FromHeader) request.getHeader(FromHeader.NAME);
 
                         String userStr = ((SipURI) fromHeader.getAddress().getURI()).getUser();
-                      
+
                         if (accountInfo.getUserName() != null && userStr.equals(accountInfo.getUserName())) {
                             accountFound = accountInfo;
                             return accountInfo;
-                        } 
+                        }
                     } else {
                         String callerId = accountInfo.getCallerId();
                         FromHeader fromHeader = (FromHeader) request.getHeader(FromHeader.NAME);
@@ -113,7 +129,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                         String domainStr = ((SipURI) fromHeader.getAddress().getURI()).getHost();
                         if (userStr.equals("anonymous") && domainStr.equals("invalid")) {
                             PAssertedIdentityHeader pai = (PAssertedIdentityHeader) request
-                            .getHeader(PAssertedIdentityHeader.NAME);
+                                    .getHeader(PAssertedIdentityHeader.NAME);
                             if (pai == null) {
                                 logger.warn("Anonymous call without P-Asserted-Identity ");
                                 // BUGBUG - this is really a mistake we should reject
@@ -122,13 +138,12 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                                 return accountInfo;
                             }
                             userStr = ((SipURI) pai.getAddress().getURI()).getUser();
-                        } 
-                        
+                        }
+
                         if (callerId.startsWith(userStr)) {
                             accountFound = accountInfo;
                             return accountInfo;
                         }
-
 
                     }
                 }
@@ -137,27 +152,28 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             for (ItspAccountInfo accountInfo : itspAccounts) {
                 logger.warn("Could not match user part of inbound request URI");
                 if (accountInfo.getProxyDomain() != null) {
-                    if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
+                    if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())
+                            && checkSipxecsLineid(accountInfo.getSipxecsLineIds(), sipUri.toString())) {
                         accountFound = accountInfo;
                         return accountInfo;
                     }
                 }
             }
 
-            String userName = ((SipURI)((FromHeader)request.getHeader(FromHeader.NAME)).getAddress().getURI()).getUser();
+            String userName = ((SipURI) ((FromHeader) request.getHeader(FromHeader.NAME)).getAddress().getURI())
+                    .getUser();
 
             /*
-             * If an account is not found return an account record with the
-             * domain set to the outbound request domain. The INVITE will be
-             * forwarded. If the other side does not like the INVITE it an
-             * complain about it. See issue XX-5623
+             * If an account is not found return an account record with the domain set to the
+             * outbound request domain. The INVITE will be forwarded. If the other side does not
+             * like the INVITE it an complain about it. See issue XX-5623
              */
             accountFound = new ItspAccountInfo();
             accountFound.setProxyDomain(sipUri.getHost());
             accountFound.setUserName(userName);
             accountFound.setOutboundProxyPort(sipUri.getPort());
-            accountFound.setOutboundTransport(sipUri.getTransportParam()==null ?
-                  "udp" : sipUri.getTransportParam());
+            accountFound.setOutboundTransport(sipUri.getTransportParam() == null ? "udp" : sipUri
+                    .getTransportParam());
             accountFound.setGlobalAddressingUsed(true);
             accountFound.setDummyAccount(true);
             accountFound.setRegisterOnInitialization(false);
@@ -178,12 +194,10 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return itspAccounts;
     }
 
-
-
     /**
-     * Get an ITSP account based on the host and port of the inbound request.
-     * Look up the ITSP account based on the topmost via header of the inbound
-     * request. Should we reject the request if it is not from a known ITSP?
+     * Get an ITSP account based on the host and port of the inbound request. Look up the ITSP
+     * account based on the topmost via header of the inbound request. Should we reject the
+     * request if it is not from a known ITSP?
      *
      * @param host
      * @param port
@@ -191,7 +205,8 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      */
     ItspAccountInfo getItspAccount(String host, int port) {
         logger.debug("INVITE received on " + host + ":" + port);
-        if ( port == -1) port = 5060; // set default.
+        if (port == -1)
+            port = 5060; // set default.
         try {
             String viaHost = InetAddress.getByName(host).getHostAddress();
             logger.debug("viaHost = " + viaHost + "viaPort = " + port);
@@ -213,7 +228,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                         logger.error("Cannot resolve host address " + registrarHost);
                     }
                 } else {
-                    for ( Hop hop : accountInfo.getInboundProxies() ) {
+                    for (Hop hop : accountInfo.getInboundProxies()) {
                         if (hop != null) {
                            logger.debug("Checking " + hop.getHost() + " port " + hop.getPort());
                            try {
@@ -237,9 +252,6 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return null;
     }
 
-
-
-
     // //////////////////////////////////////////////////////////////////
     // Public methods.
     // //////////////////////////////////////////////////////////////////
@@ -260,8 +272,9 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     /*
      * (non-Javadoc)
      *
-     * @see gov.nist.javax.sip.clientauthutils.AccountManager#getCredentials(javax.sip.ClientTransaction,
-     *      java.lang.String)
+     * @see
+     * gov.nist.javax.sip.clientauthutils.AccountManager#getCredentials(javax.sip.ClientTransaction
+     * , java.lang.String)
      */
     public UserCredentials getCredentials(ClientTransaction ctx, String authRealm) {
 

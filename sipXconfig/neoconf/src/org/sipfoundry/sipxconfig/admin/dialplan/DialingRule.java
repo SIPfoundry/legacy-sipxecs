@@ -40,6 +40,7 @@ public abstract class DialingRule extends BeanWithId implements NamedObject, IDi
     public static final String VALID_TIME_PARAM = "sipx-ValidTime=\"%s\"";
     public static final String GATEWAY_EXPIRES_PATTERN = "expires=%s";
     public static final String GATEWAY_EXPIRES_VALUE = "60";
+    public static final String GATEWAY_LINEID_PATTERN = "sipxecs-lineid=%s";
 
     private boolean m_enabled;
     private String m_name;

@@ -54,7 +54,7 @@ public class InternationalRuleTest extends TestCase {
         FullTransform transform = (FullTransform) transforms[0];
         assertEquals("011{vdigits}", transform.getUser());
         assertEquals("i1.gateway.com:5050", transform.getHost());
-        assertNull(transform.getUrlParams());
+        EmergencyRuleTest.assertUrlParams(transform.getUrlParams());
         transform = (FullTransform) transforms[1];
         assertEquals("4321011{vdigits}", transform.getUser());
         assertEquals("i2.gateway.com", transform.getHost());

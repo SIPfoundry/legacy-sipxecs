@@ -6,6 +6,7 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -66,6 +67,11 @@ public class ItspAccountInfo implements
      * The Sip Domain for the register request.
      */
     private String proxyDomain;
+
+    /**
+     * The Sip Domain for the register request.
+     */
+    private ArrayList<String> sipxecsLineId = new ArrayList<String>();
 
     /**
      * The authentication realm
@@ -369,6 +375,19 @@ public class ItspAccountInfo implements
         return proxyDomain;
     }
 
+    /**
+     * @param sipxecsLineId
+     *            the sipxecsLineId to set
+     */
+    public void setSipxecsLineId(String sipxecsLineId) {
+        this.sipxecsLineId.add(sipxecsLineId);
+    }
+    /**
+     * @return the sipxecsLineId
+     */
+    public ArrayList<String> getSipxecsLineIds() {
+        return sipxecsLineId;
+    }
     /**
      * @param authenticationRealm
      *            the authenticationRealm to set

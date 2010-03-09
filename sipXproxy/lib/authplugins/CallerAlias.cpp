@@ -10,6 +10,7 @@
 #include "os/OsConfigDb.h"
 #include "os/OsSysLog.h"
 #include "os/OsFS.h"
+#include "net/Url.h"
 
 // APPLICATION INCLUDES
 #include "sipdb/CallerAliasDB.h"
@@ -192,14 +193,35 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
 
             /*
              * Examine the request URI,
-             *   checking for a caller alias set for its domain with callerIdentity
+             * checking for a caller alias set for its domain(including asssociated gateway sipxecsLineid)  with callerIdentity
              */
+
+            UtlString sipxecsLineIdField;
+            requestUri.getUrlParameter(SIPX_SIPXECS_LINEID_URI_PARAM, sipxecsLineIdField);
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "getUrlParameter: sipxecsLineid[%s]"
+                             " in CallerAlias",
+                             sipxecsLineIdField.data()
+                             );
+
             UtlString targetDomain;
             requestUri.getHostWithPort(targetDomain);
+
+            if (!(sipxecsLineIdField.isNull()))
+            {
+                targetDomain.append(";").append(SIPX_SIPXECS_LINEID_URI_PARAM).append("=").append(sipxecsLineIdField.data());
+            }
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "CallerAlias::targetDomain [%s]",
+                          targetDomain.data()
+                          );
 
             // look up any caller alias for this identity and contact domain
             UtlString callerAlias;
             UtlString nullId; // empty string for wildcard matches
+
             if (spCallerAliasDB->getCallerAlias(callerIdentity, targetDomain, callerAlias)
                 || (   identityIsLocal
                     && spCallerAliasDB->getCallerAlias(nullId, targetDomain, callerAlias)

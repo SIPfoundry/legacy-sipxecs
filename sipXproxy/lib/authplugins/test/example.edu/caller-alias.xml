@@ -1,17 +1,19 @@
 <?xml version="1.0" standalone="yes" ?>
 <items type="caller-alias" xmlns='http://www.sipfoundry.org/sipX/schema/xml/caller-alias-00-00'>
     <item>
-        <identity>301@example.edu</identity>
-        <domain>example.org</domain>
+        <domain>example.org;sipxecs-lineid=1</domain>
         <alias>"John Doe" &lt;sip:john.doe@example.edu&gt;</alias>
     </item>
     <item>
-        <identity>301@example.edu</identity>
-        <domain>pstn-gateway.example.edu</domain>
+        <domain>pstn-gateway.example.edu;sipxecs-lineid=2</domain>
         <alias>"John Doe" &lt;sip:9785551234@example.edu&gt;</alias>
     </item>
     <item>
-        <domain>pstn-gateway.example.edu</domain>
+        <domain>pstn-gateway.example.edu;sipxecs-lineid=2</domain>
         <alias>"Example University" &lt;sip:9785551200@example.edu&gt;</alias>
+    </item>
+    <item>
+        <domain>example.org</domain>
+        <alias>"John Doe" &lt;sip:john.doe@example.edu&gt;</alias>
     </item>
 </items>

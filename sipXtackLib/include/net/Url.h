@@ -29,6 +29,7 @@ class UtlDList;
 #define SIPX_NO_NAT_URI_PARAM               "x-sipX-nonat"
 #define SIPX_PRIVATE_CONTACT_URI_PARAM      "x-sipX-privcontact"
 #define SIPX_ROUTE_TO_REGISTRAR_URI_PARAM   "x-sipX-routetoreg"
+#define SIPX_SIPXECS_LINEID_URI_PARAM  "sipxecs-lineid"
 
 // MACROS
 // EXTERNAL FUNCTIONS

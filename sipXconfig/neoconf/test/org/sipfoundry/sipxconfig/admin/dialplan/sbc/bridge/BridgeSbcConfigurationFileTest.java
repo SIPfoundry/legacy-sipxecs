@@ -60,7 +60,7 @@ public class BridgeSbcConfigurationFileTest extends SipxServiceTestBase {
 
         GatewayContext gatewayContext = createMock(GatewayContext.class);
         gatewayContext.getGatewayByType(SipTrunk.class);
-        expectLastCall().andReturn(Collections.emptyList());
+        expectLastCall().andReturn(Collections.emptyList()).anyTimes();
 
         LocationsManager locationsManager = createMock(LocationsManager.class);
         locationsManager.getLocationByAddress(location.getAddress());

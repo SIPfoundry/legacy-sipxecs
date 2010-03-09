@@ -111,6 +111,20 @@ public class BeanWithId implements PrimaryKeySource, Cloneable {
         return this;
     }
 
+    /**
+     * Assigns a id to a newly created object.
+     *
+     * For testing ONLY. Most objects are created with id -1 and hibernate sets a proper id. We
+     * want to be able to set the id to a unique value in tests.
+     *
+     * @return the same object - to allow for chaining calls
+     */
+
+    public BeanWithId setUniqueId(int val) {
+        setId(new Integer(val));
+        return this;
+    }
+
     public static final class BeanToId implements Transformer {
         public Object transform(Object item) {
             BeanWithId bean = (BeanWithId) item;

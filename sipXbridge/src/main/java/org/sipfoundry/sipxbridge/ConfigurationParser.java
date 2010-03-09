@@ -193,6 +193,11 @@ public class ConfigurationParser {
          */
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "itsp-proxy-domain"),
                 "setProxyDomain", 0);
+        /*
+         * sipxecs-lineid.
+         */
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "sipxecs-lineids/sipxecs-lineid"),
+                "setSipxecsLineId", 0);
 
         /*
          * Authentication user name
