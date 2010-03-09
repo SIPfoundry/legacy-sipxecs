@@ -93,8 +93,8 @@ bool MailMessage::Attach( const unsigned char *data, const int& rDatalength, con
 UtlString MailMessage::Send()
 {
     char receiveBuf[MAILBUFLEN];
-    UtlString r;
     UtlString str;
+    UtlString errorMsg;
 
     // Connect to the SMTP server
     OsConnectionSocket s(25,m_Server.data());
@@ -113,7 +113,11 @@ UtlString MailMessage::Send()
     // Receive a 250 response
     s.read(receiveBuf,MAILBUFLEN);
     if (memcmp(receiveBuf,"250",3) != 0)
-        return "Unacceptable response to HELO: " + r;
+    {
+        errorMsg = "Unacceptable response to HELO: ";
+        errorMsg += receiveBuf;
+        return errorMsg.data();
+    }
 
     // Send the MAIL FROM command
     str = "MAIL FROM:";
@@ -124,10 +128,19 @@ UtlString MailMessage::Send()
     // Receive a 250 response
     s.read(receiveBuf,MAILBUFLEN);
     if (memcmp(receiveBuf,"250",3) != 0)
-        return "Unacceptable response to MAIL FROM: " + r;
+    {
+        errorMsg = "Unacceptable response to MAIL FROM: ";
+        errorMsg += receiveBuf;
+        return errorMsg.data();
+    }
 
     // Send an RCPT TO for all recipients (To, Cc, and Bcc)
     unsigned int i;
+    if (m_vecTo.size() + m_vecCc.size() + m_vecBcc.size() == 0)
+    {
+        errorMsg = "No TO/CC/BCC list given";
+        return errorMsg.data();
+    }
     for (i = 0; i < m_vecTo.size(); i++)
     {
         // Send an RCPT TO command
@@ -139,7 +152,11 @@ UtlString MailMessage::Send()
         // Receive a 250 response
         s.read(receiveBuf,MAILBUFLEN);
         if (memcmp(receiveBuf,"250",3) != 0)
-            return "Unacceptable response to RCPT TO: " + r;
+        {
+            errorMsg = "Unacceptable response to RCPT TO: ";
+            errorMsg += receiveBuf;
+            return errorMsg.data();
+        }
     }
     for (i = 0; i < m_vecCc.size(); i++)
     {
@@ -152,7 +169,11 @@ UtlString MailMessage::Send()
         // Receive a 250 response
         s.read(receiveBuf,MAILBUFLEN);
         if (memcmp(receiveBuf,"250",3) != 0)
-            return "Unacceptable response to RCPT TO: " + r;
+        {
+            errorMsg = "Unacceptable response to RCPT TO: ";
+            errorMsg += receiveBuf;
+            return errorMsg.data();
+        }
     }
     for (i = 0; i < m_vecBcc.size(); i++)
     {
@@ -165,7 +186,11 @@ UtlString MailMessage::Send()
         // Receive a 250 response
         s.read(receiveBuf,MAILBUFLEN);
         if (memcmp(receiveBuf,"250",3) != 0)
-            return "Unacceptable response to RCPT TO: " + r;
+        {
+            errorMsg = "Unacceptable response to RCPT TO: ";
+            errorMsg += receiveBuf;
+            return errorMsg.data();
+        }
     }
 
     // Send the DATA command
@@ -176,7 +201,11 @@ UtlString MailMessage::Send()
     // Receive a 354 response
     s.read(receiveBuf,MAILBUFLEN);
     if (memcmp(receiveBuf,"354",3) != 0)
-        return "Unacceptable response to DATA: " + r;
+    {
+        errorMsg = "Unacceptable response to DATA: ";
+        errorMsg += receiveBuf;
+        return errorMsg.data();
+    }
 
     // Format the data
     UtlString data = FormatForSending();
@@ -189,7 +218,11 @@ UtlString MailMessage::Send()
     // Receive a 250 response
     s.read(receiveBuf,MAILBUFLEN);
     if (memcmp(receiveBuf,"250",3) != 0)
-        return "Unacceptable response to body: " + r;
+    {
+        errorMsg = "Unacceptable response to body: ";
+        errorMsg += receiveBuf;
+        return errorMsg.data();
+    }
 
     return "";
 }

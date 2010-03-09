@@ -62,44 +62,47 @@ OsStatus SmsNotifier::handleAlarm(const OsTime alarmTime,
 {
    OsStatus retval = OS_FAILED;
 
-   UtlString body;
-   UtlString tempStr;
-
-   UtlString sevStr = OsSysLog::priorityName(alarmData->getSeverity());
-   body.append(alarmMsg);
-
-   OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServer: sms body is %s", body.data());
-
-   MailMessage message( mSmsStrFrom, mReplyTo, mSmtpServer );
-   message.Body(body);
-
-   UtlSList subjectParams;
-   UtlString codeStr(alarmData->getCode());
-   UtlString titleStr(sevStr);
-   subjectParams.append(&codeStr);
-   subjectParams.append(&titleStr);
-   assembleMsg(mSmsStrSubject, subjectParams, tempStr);
-   message.Subject(tempStr);
-
    //execute the mail command for each user
    UtlString groupKey(alarmData->getGroupName());
    if (!groupKey.isNull())
    {
       UtlContainable* pContact = mContacts.findValue(&groupKey);
-       if (pContact)
-       {
+      if (pContact)
+      {
          // Process the comma separated list of contacts
-         UtlString* contactList = dynamic_cast<UtlString*>(pContact);
-         UtlTokenizer tokenList(*contactList);
-
-         UtlString entry;
-         while (tokenList.next(entry, ","))
+         UtlString* contactList = dynamic_cast<UtlString*> (pContact);
+         if (!contactList->isNull())
          {
-            message.To(entry, entry);
-         }
+            MailMessage message(mSmsStrFrom, mReplyTo, mSmtpServer);
+            UtlTokenizer tokenList(*contactList);
 
-         // delegate send to separate task so as not to block
-         EmailSendTask::getInstance()->sendMessage(message);
+            UtlString entry;
+            while (tokenList.next(entry, ","))
+            {
+               message.To(entry, entry);
+            }
+
+            UtlString body;
+            UtlString tempStr;
+
+            UtlString sevStr = OsSysLog::priorityName(alarmData->getSeverity());
+            body.append(alarmMsg);
+
+            OsSysLog::add(FAC_ALARM, PRI_DEBUG, "AlarmServer: sms body is %s", body.data());
+
+            message.Body(body);
+
+            UtlSList subjectParams;
+            UtlString codeStr(alarmData->getCode());
+            UtlString titleStr(sevStr);
+            subjectParams.append(&codeStr);
+            subjectParams.append(&titleStr);
+            assembleMsg(mSmsStrSubject, subjectParams, tempStr);
+            message.Subject(tempStr);
+
+            // delegate send to separate task so as not to block
+            EmailSendTask::getInstance()->sendMessage(message);
+         }
       }
    }
 
