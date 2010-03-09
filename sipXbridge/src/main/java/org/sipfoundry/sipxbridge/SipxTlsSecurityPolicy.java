@@ -76,7 +76,7 @@ public class SipxTlsSecurityPolicy implements TlsSecurityPolicy {
                     for (Iterator<Hop> it = hops.iterator(); it.hasNext();) {
                         hop = it.next();
                         peerIpAddress = (hop == null ? "" : hop.getHost());
-                        logger.debug("looking up certificate identity " + identity + ": found " + peerIpAddress);
+                        logger.info("looking up certificate identity " + identity + ": found " + peerIpAddress);
                         if (expectedIpAddress.equals(peerIpAddress)) {
                             foundPeerIdentity = true;
                             break OUTERMOST;
