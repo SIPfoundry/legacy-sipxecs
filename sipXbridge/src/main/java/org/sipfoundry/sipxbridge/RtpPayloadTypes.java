@@ -31,12 +31,16 @@ public class RtpPayloadTypes {
 
     static {
         putPayload("PCMU", 0);
+        putPayload("G726",2);
         putPayload("GSM", 3);
         putPayload("G723", 4);
-        putPayload("DVI4", 5);
+        putPayload("DVI4@8000h", 5);
+        putPayload("DVI4@16000h",6);
         putPayload("LPC", 7);
         putPayload("PCMA", 8);
         putPayload("G722", 9);
+        putPayload("L16_stereo",10);
+        putPayload("L16",11);
         putPayload("QCELP", 12);
         putPayload("CN", 13);
         putPayload("MPA", 14);
