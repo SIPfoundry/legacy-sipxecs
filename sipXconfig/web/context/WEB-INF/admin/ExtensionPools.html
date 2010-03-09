@@ -20,8 +20,7 @@
         label="message:label.start">
         <td jwcid="start@TextField" id="extPool:start"
           value="ognl:userExtensionPool.firstExtension"
-          translator="translator:sipxnumber,omitZero=true"
-          validators="validators:required,min=1,max=2147483647"
+          validators="spring-validators:validPhone,required"
           displayName="message:label.start"/>
       </tr>
       <tr jwcid="@common/FieldPanel" for="extPool:end"
@@ -29,8 +28,7 @@
         label="message:label.end">
         <td jwcid="end@TextField" id="extPool:end"
           value="ognl:userExtensionPool.lastExtension"
-          translator="translator:sipxnumber,omitZero=true"
-          validators="validators:required,min=1,max=2147483647"
+          validators="spring-validators:validPhone,required"
           displayName="message:label.end"/>
       </tr>
     </table>
