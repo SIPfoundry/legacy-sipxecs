@@ -43,9 +43,9 @@ class DataShuffler implements Runnable {
     
     private static long packetCounter = Math.abs(random.nextLong());
     
-   // private static List workQueue = SynchronizedList.decorate(new LinkedList<WorkItem>());
+    private static List workQueue = SynchronizedList.decorate(new LinkedList<WorkItem>());
         
-    private static List workQueue = new LinkedList<WorkItem>();
+ //   private static List workQueue = new LinkedList<WorkItem>();
     public DataShuffler() {
 
     }
@@ -55,12 +55,13 @@ class DataShuffler implements Runnable {
 
 		it = workQueue.iterator();
 		if (!workQueue.isEmpty()) {
-			workQueue = new LinkedList<WorkItem>();
+			workQueue = SynchronizedList.decorate (new LinkedList<WorkItem>());
 		}
 
 		while (it.hasNext()) {
 			logger.debug("Got a work item");
-			WorkItem workItem = it.next();
+		    WorkItem workItem = it.next();
+			it.remove();					
 			workItem.doWork();
 		}
 	}

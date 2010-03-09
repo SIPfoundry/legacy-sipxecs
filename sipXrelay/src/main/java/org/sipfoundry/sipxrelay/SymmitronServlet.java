@@ -45,7 +45,7 @@ public class SymmitronServlet extends HttpServlet {
              serverConfig.setKeepAliveEnabled(true);
              serverConfig.setEnabledForExceptions(true);
              serverConfig.setEnabledForExtensions(true);
-             server.setMaxThreads(4);
+             server.setMaxThreads(1);
 
              server.setConfig(serverConfig);
              server.setHandlerMapping(handlerMapping);

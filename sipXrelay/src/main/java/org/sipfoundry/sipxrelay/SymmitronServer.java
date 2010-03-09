@@ -202,9 +202,18 @@ public class SymmitronServer implements Symmitron {
         SipXrelaySemaphore workSem;
     
       
-        public SetDestinationWorkItem() {
+        public SetDestinationWorkItem(Sym sym, String ipAddress, int port, int keepAliveTime, String keepaliveMethod) {
             super();
+            if ( port <  0 || keepAliveTime < 0 || KeepaliveMethod.valueOf(keepaliveMethod) == null ) {
+            	throw new IllegalArgumentException(String.format("Bad parameter sym = %s ipaddr = %s port = %d keepaliveTime= %d keepaliveMethod = %s ",
+            			sym.getId(), ipAddress,port, keepAliveTime, keepaliveMethod));
+            }
             this.workSem = new SipXrelaySemaphore(0);
+            this.ipAddress = ipAddress;
+            this.port = port;
+            this.keepAliveTime = keepAliveTime;
+            this.sym = sym;
+            this.keepaliveMethod = keepaliveMethod;
         }
 
         public void doWork() {
@@ -972,12 +981,8 @@ public class SymmitronServer implements Symmitron {
          
             
          
-            SetDestinationWorkItem workItem = new SetDestinationWorkItem();
-            workItem.ipAddress = ipAddress;
-            workItem.port = port;
-            workItem.keepAliveTime = keepAliveTime;
-            workItem.sym = sym;
-            workItem.keepaliveMethod = keepaliveMethod;
+            SetDestinationWorkItem workItem = new SetDestinationWorkItem(sym,ipAddress,port,keepAliveTime,keepaliveMethod);
+           
             
             DataShuffler.addWorkItem(workItem);
             
