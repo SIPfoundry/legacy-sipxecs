@@ -225,11 +225,17 @@ class DataShuffler implements Runnable {
                                     }               
                                 } else {
                                     if (autoDiscoveryFlag == AutoDiscoveryFlag.IP_ADDRESS_AND_PORT) {
+                                    	if ( logger.isTraceEnabled() ) {
+                                    		logger.trace("autoDiscovery : setting Ip addess and port : autoDiscovery flag " + autoDiscoveryFlag);
+                                    	}
                                         sym.getTransmitter().setIpAddressAndPort(
                                                 remoteAddress.getAddress().getHostAddress(),
                                                 remoteAddress.getPort());
                                     } else if (autoDiscoveryFlag == AutoDiscoveryFlag.PORT_ONLY) {
-                                        // Only update the remote port when the IP address matches. OR if the address is not yet set.             
+                                        // Only update the remote port when the IP address matches. OR if the address is not yet set.  
+                                    	if ( logger.isTraceEnabled () ) {
+                                     		logger.trace("autoDiscovery : setting port : autoDiscovery flag " + autoDiscoveryFlag);          
+                                    	}
                                          sym.getTransmitter().setPort(remoteAddress.getPort());
                                     }
                                 }

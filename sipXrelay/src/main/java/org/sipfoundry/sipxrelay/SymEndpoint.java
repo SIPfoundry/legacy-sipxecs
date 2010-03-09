@@ -139,7 +139,9 @@ abstract class SymEndpoint implements SymEndpointInterface {
      * @throws UnknownHostException
      */
     public void setIpAddress(String ipAddress) throws UnknownHostException {
-        logger.debug("SymEndpoint: setIpAddress: " + ipAddress);
+    	if ( logger.isTraceEnabled() ) {
+    		logger.trace("SymEndpoint: setIpAddress: " + ipAddress);
+    	}
         this.ipAddress = ipAddress;
         if ( ipAddress != null ) {
             this.inetAddress = InetAddress.getByName(ipAddress);
@@ -156,7 +158,9 @@ abstract class SymEndpoint implements SymEndpointInterface {
      * @param port
      */
     public void setPort(int port) throws IllegalArgumentException {
-        logger.debug("SymEndpoint : setPort : " + port);
+    	if ( logger.isTraceEnabled()) {
+    		logger.trace("SymEndpoint : setPort : " + port);
+    	}
         if ( port < 0 ) throw new IllegalArgumentException("Bad port "+ port);
         this.port = port;
     }
