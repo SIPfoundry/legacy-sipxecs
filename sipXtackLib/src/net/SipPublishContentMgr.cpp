@@ -675,10 +675,98 @@ UtlBoolean SipPublishContentMgr::revised_getContent(const char* resourceId,
            while (!foundContent &&
                   (bodyPtr = dynamic_cast <HttpBody*> (contentIterator())))
            {
-              if (acceptHeaderValue.findToken(bodyPtr->getContentType(), ",", ";"))
+              // Trim any parameters off the body content type.
+              UtlString* content_type = bodyPtr;
+              UtlString base_content_type(*content_type);
+              ssize_t i = base_content_type.index(';');
+              if (i != UTL_NOT_FOUND)
               {
-                 content = bodyPtr->copy();
-                 foundContent = TRUE;
+                 base_content_type.remove(i);
+              }
+              
+              // See if base_content_type is in acceptHeaderValue.
+              if (acceptHeaderValue.findToken(base_content_type.data(), ",", ";"))
+              {
+                 // If base_content_type is "multipart/related", extract
+                 // the 'type' parameter value, which is the type of the
+                 // root component, and check whether it is in acceptHeaderValue.
+                 ssize_t j;
+                 if (base_content_type.compareTo("multipart/related",
+                                                 UtlString::ignoreCase) == 0)
+                 {
+                    // Search for the 'type' parameter.
+                    i = content_type->index(";type=", UtlString::ignoreCase);
+                    if (i != UTL_NOT_FOUND)
+                    {
+                       // Advance i to point to the value.
+                       i += sizeof (";type=") - 1;
+                       if ((*content_type)(i) == '\"')
+                       {
+                          // Value is quoted.
+                          // Advance i to point to the value proper.
+                          i++;
+                          // Find the closing double-quote.
+                          j = content_type->index('\"', i);
+                          if (j == UTL_NOT_FOUND)
+                          {
+                             // This shouldn't happen.
+                             OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                           "SipPublishContentMgr::getContent "
+                                           "No closing double-quote found for 'type' parameter in body MIME type '%s'",
+                                           content_type->data());
+                             // j == UTL_NOT_FOUND indicates failure.
+                          }
+                       }
+                       else
+                       {
+                          // Value is not quoted.
+                          // Find the end of the parameter.
+                          j = content_type->index(';', i);
+                          if (j == UTL_NOT_FOUND)
+                          {
+                             j = content_type->length();
+                          }
+                       }
+                       if (j != UTL_NOT_FOUND)
+                       {
+                          // Characters from i to j are the type parameter value.
+                          UtlString base_root_type;
+                          base_root_type.append(*content_type, i, j - i);
+                          // Remove parameters from base_root_type.
+                          ssize_t k = base_content_type.index(';');
+                          if (k != UTL_NOT_FOUND)
+                          {
+                             base_content_type.remove(k);
+                          }
+                          // See if base_root_type is in acceptHeaderValue.
+                          if (acceptHeaderValue.findToken(base_root_type.data(), ",", ";"))
+                          {
+                             // Having passed all the tests, this content is OK.
+                             foundContent = true;
+                          }
+                       }              
+                    }
+                    else
+                    {
+                       OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                     "SipPublishContentMgr::getContent "
+                                     "No 'type' parameter in body MIME type '%s'",
+                                     content_type->data());
+                    }
+                 }
+                 else
+                 {
+                    // If base_content_type is not multipart/related,
+                    // we can accept the content with no further tests.
+                    foundContent = true;
+                 }
+
+                 // If this content is acceptable, copy it into 'content'.
+                 // Because foundContent is true, the loop will exit.
+                 if (foundContent)
+                 {
+                    content = bodyPtr->copy();
+                 }
               }
            }
            if (!foundContent)

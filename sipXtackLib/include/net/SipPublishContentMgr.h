@@ -271,8 +271,7 @@ public:
      *         via a NOTIFY.  If multiple bodies are provided and the content
      *         types match more than one of the MIME types provided in the
      *         SUBSCRIBE Accepts header, the order of the bodies in the
-     *         eventContent array indicates a preference. MIME types should
-     *         not have parameters.
+     *         eventContent array indicates a preference.
      *         The bodies are NOT copied, but their memory becomes
      *         owned by the SipPublishContentMgr object and will be
      *         deleted by it when they are no longer needed.
@@ -396,9 +395,10 @@ public:
      *         no MIME types are acceptable.  If this string has the special
      *         value acceptAllTypes (corresponding to no Accept header), the
      *         first (sequentially) content body will be selected.
-     *         Wildcards in the MIME types are not processed, and parameters
-     *         are deleted before comparison.  (This is a major violation
-     *         of the standards, but does not cause problems in practice.)
+     *         Wildcards in the MIME types are not processed, and
+     *         parameters on the content body types are deleted before
+     *         comparison.  (This is a major violation of the
+     *         standards, but does not cause problems in practice.)
      *  \param content - the content body if a match was found, otherwise NULL.
      *         The content body is a copy that must be freed.
      *  \param isDefaultContent - if there was no content specific to the resourceId

@@ -117,6 +117,7 @@ class SipPublishContentMgrTest : public CppUnit::TestCase
    CPPUNIT_TEST(testGetContent);
    CPPUNIT_TEST(testContentChangeObserver);
    CPPUNIT_TEST(testGetContentAccept);
+   CPPUNIT_TEST(testGetContentAcceptMultipartRelated);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -314,33 +315,33 @@ public:
             publisher.revised_publish("2", event_type, event_type, 1, &body);
          }
 
-         HttpBody *b;
+         HttpBody *b = NULL;
          UtlBoolean d;
          const char *s;
          ssize_t l;
 
-         publisher.revised_getContent("0", event_type, event_type, TRUE, "text/plain", b, d, NULL);
+         CPPUNIT_ASSERT(publisher.revised_getContent("0", event_type, event_type, TRUE, "text/plain", b, d, NULL));
          CPPUNIT_ASSERT_MESSAGE("Content for 0 should be default",
                                 d);
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 0 is incorrect",
                                 strcmp(s, default_content) == 0);
 
-         publisher.revised_getContent("1a", event_type, event_type, TRUE, "text/plain", b, d, NULL);
+         CPPUNIT_ASSERT(publisher.revised_getContent("1a", event_type, event_type, TRUE, "text/plain", b, d, NULL));
          CPPUNIT_ASSERT_MESSAGE("Content for 1a should be default",
                                 d);
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 1a is incorrect",
                                 strcmp(s, "This is default content for the resource '1a'.") == 0);
 
-         publisher.revised_getContent("1b", event_type, event_type, TRUE, "text/plain", b, d, NULL);
+         CPPUNIT_ASSERT(publisher.revised_getContent("1b", event_type, event_type, TRUE, "text/plain", b, d, NULL));
          CPPUNIT_ASSERT_MESSAGE("Content for 1b should not be default",
                                 !d);
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 1b is incorrect",
                                 strcmp(s, content_1b) == 0);
 
-         publisher.revised_getContent("2", event_type, event_type, TRUE, "text/plain", b, d, NULL);
+         CPPUNIT_ASSERT(publisher.revised_getContent("2", event_type, event_type, TRUE, "text/plain", b, d, NULL));
          CPPUNIT_ASSERT_MESSAGE("Content for 2 should not be default",
                                 !d);
          b->getBytes(&s, &l);
@@ -586,7 +587,7 @@ public:
       {
          SipPublishContentMgr publisher;
 
-         HttpBody *(bodies[2]);
+         HttpBody *(bodies[3]);
 
          const char *content_text_plain = "text/plain content";
          ssize_t bodyLength_text_plain = strlen(content_text_plain);
@@ -596,10 +597,14 @@ public:
          const char *content_text_xml = "text/xml content";
          ssize_t bodyLength_text_xml = strlen(content_text_xml);
          bodies[1] = new HttpBody(content_text_xml, bodyLength_text_xml,
-                                  // Published MIME types should not have parameters.
                                   "text/xml");
 
-         publisher.revised_publish(TEST_RESOURCE_ID, "dialog", "dialog", 2, bodies);
+         const char *content_text_junk = "text/x-junk;param content";
+         ssize_t bodyLength_text_junk = strlen(content_text_junk);
+         bodies[2] = new HttpBody(content_text_junk, bodyLength_text_junk,
+                                  "text/x-junk;param");
+
+         publisher.revised_publish(TEST_RESOURCE_ID, "dialog", "dialog", 3, bodies);
 
          HttpBody *content;
          UtlBoolean foundContent;
@@ -626,11 +631,6 @@ public:
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(FALSE==foundContent);
-
-         content->getBytes(&contentBody, &length);
-         ASSERT_STR_EQUAL_MESSAGE("incorrect body value", content_text_plain, contentBody);
-         CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
-                                      bodyLength_text_plain, length);
 
          // Search with "Accept: text/plain".
 
@@ -741,6 +741,111 @@ public:
 
          foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/nonexistent",
+                                             content, isDefaultContent, NULL);
+         CPPUNIT_ASSERT(FALSE==isDefaultContent);
+         CPPUNIT_ASSERT(FALSE==foundContent);
+
+         // Search with "Accept: text/x-junk".
+
+         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+                                             "text/x-junk",
+                                             content, isDefaultContent, NULL);
+         CPPUNIT_ASSERT(FALSE==isDefaultContent);
+         CPPUNIT_ASSERT(TRUE==foundContent);
+      }
+
+   void testGetContentAcceptMultipartRelated()
+      {
+         SipPublishContentMgr publisher;
+
+         // We are rather sleezy here, as the body text we provide
+         // has no multipart structure, despite that we give them
+         // multipart types.
+
+         HttpBody *(bodies[2]);
+
+         const char *content_text_plain = "root text/plain";
+         ssize_t bodyLength_text_plain = strlen(content_text_plain);
+         bodies[0] = new HttpBody(content_text_plain, bodyLength_text_plain,
+                                  "multipart/related;type=text/plain");
+
+         const char *content_text_xml = "root text/xml";
+         ssize_t bodyLength_text_xml = strlen(content_text_xml);
+         bodies[1] = new HttpBody(content_text_xml, bodyLength_text_xml,
+                                  "multipart/related;type=\"text/xml\"");
+
+         publisher.revised_publish(TEST_RESOURCE_ID, "dialog", "dialog", 2, bodies);
+
+         HttpBody *content;
+         UtlBoolean foundContent;
+         UtlBoolean isDefaultContent;
+         ssize_t length;
+         const char* contentBody;
+
+         // Search with no Accept.
+
+         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+                                                     SipPublishContentMgr::acceptAllTypes,
+                                             content, isDefaultContent, NULL);
+         CPPUNIT_ASSERT(FALSE==isDefaultContent);
+         CPPUNIT_ASSERT(TRUE==foundContent);
+
+         content->getBytes(&contentBody, &length);
+         ASSERT_STR_EQUAL_MESSAGE("incorrect body value", content_text_plain, contentBody);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
+                                      bodyLength_text_plain, length);
+
+         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+                                             // Null string - no types accepted.
+                                             "",
+                                             content, isDefaultContent, NULL);
+         CPPUNIT_ASSERT(FALSE==isDefaultContent);
+         CPPUNIT_ASSERT(FALSE==foundContent);
+
+         // Search with "Accept: multipart/related,text/plain".
+
+         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+                                             "multipart/related,text/plain",
+                                             content, isDefaultContent, NULL);
+         CPPUNIT_ASSERT(FALSE==isDefaultContent);
+         CPPUNIT_ASSERT(TRUE==foundContent);
+
+         content->getBytes(&contentBody, &length);
+         ASSERT_STR_EQUAL_MESSAGE("incorrect body value", content_text_plain, contentBody);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
+                                      bodyLength_text_plain, length);
+
+         // Search with "Accept: multipart/related,text/xml".
+
+         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+                                             "multipart/related,text/xml",
+                                             content, isDefaultContent, NULL);
+         CPPUNIT_ASSERT(FALSE==isDefaultContent);
+         CPPUNIT_ASSERT(TRUE==foundContent);
+
+         content->getBytes(&contentBody, &length);
+         ASSERT_STR_EQUAL_MESSAGE("incorrect body value", content_text_xml, contentBody);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
+                                      bodyLength_text_xml, length);
+
+         // Search with "Accept: multipart/related,text/plain,text/xml".
+
+         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+                                             "multipart/related,text/plain,text/xml",
+                                             content, isDefaultContent, NULL);
+         CPPUNIT_ASSERT(FALSE==isDefaultContent);
+         CPPUNIT_ASSERT(TRUE==foundContent);
+
+         content->getBytes(&contentBody, &length);
+         ASSERT_STR_EQUAL_MESSAGE("incorrect body value", content_text_plain, contentBody);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
+                                      bodyLength_text_plain, length);
+
+         // Search with "Accept: multipart/related,text/x-other" to verify that
+         // the root part type is checked.
+
+         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+                                             "multipart/related,text/x-other",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(FALSE==foundContent);
