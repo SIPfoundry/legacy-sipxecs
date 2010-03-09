@@ -78,7 +78,7 @@ class SipXecsService
    static const char* Name();
 
    /// Read the log level from the specified config file and set it for the current process
-   static void setLogPriority(const char* configSettingsFile, ///< path to configuration file
+   static OsSysLogPriority setLogPriority(const char* configSettingsFile, ///< path to configuration file
                               const char* servicePrefix, /**< the string "_LOG_LEVEL" is appended
                                                           *   to this prefix to find the config
                                                           *   directive that sets the level */
@@ -88,8 +88,9 @@ class SipXecsService
                                                                           * level name */
                               );
 
-   /// Read the log level from a preloaded OsConfigDb and set it for the current process
-   static void setLogPriority(const OsConfigDb& configSettings, ///< configuration data
+   /// Read the log level from a preloaded OsConfigDb, set it for the current process, and return
+   /// it so that it can be set explicitly for other facilities
+   static OsSysLogPriority setLogPriority(const OsConfigDb& configSettings, ///< configuration data
                               const char* servicePrefix, /**< the string "_LOG_LEVEL" is appended
                                                           *   to this prefix to find the config
                                                           *   directive that sets the level */

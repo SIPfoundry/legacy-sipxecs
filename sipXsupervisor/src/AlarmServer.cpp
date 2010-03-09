@@ -48,7 +48,6 @@ cAlarmServer::cAlarmServer() :
    mLanguage(""),
    mAlarmCount(0)
 {
-   OsSysLog::setLoggingPriorityForFacility(FAC_ALARM, PRI_NOTICE);
    for (int i=0; i<cAlarmData::eActionMax; i++)
    {
       mpNotifiers[i] = 0;

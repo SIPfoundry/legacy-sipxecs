@@ -442,7 +442,8 @@ int supervisorMain(bool bOriginalSupervisor)
     }
 
     // Set logging based on the supervisor configuration - TODO change default to "NOTICE" ?
-    SipXecsService::setLogPriority(supervisorConfiguration, SUPERVISOR_PREFIX, PRI_INFO );
+    OsSysLogPriority logPri = SipXecsService::setLogPriority(supervisorConfiguration, SUPERVISOR_PREFIX, PRI_INFO );
+    OsSysLog::setLoggingPriorityForFacility(FAC_ALARM, logPri);
 
     // Open the domain configuration file
     OsConfigDb domainConfiguration;

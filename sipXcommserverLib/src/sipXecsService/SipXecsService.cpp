@@ -222,7 +222,7 @@ const char* SipXecsService::Name()
    return name;
 }
 
-void SipXecsService::setLogPriority(const char* configSettingsFile, // path to configuration file
+OsSysLogPriority SipXecsService::setLogPriority(const char* configSettingsFile, // path to configuration file
                                     const char* servicePrefix, /* the string "_LOG_LEVEL" is
                                                                 * appended to this prefix to find
                                                                 * the config directive that sets
@@ -240,7 +240,7 @@ void SipXecsService::setLogPriority(const char* configSettingsFile, // path to c
 
    if (OS_SUCCESS == configuration.loadFromFile(configPath.data()))
    {
-      setLogPriority(configuration, servicePrefix, defaultLevel);
+      return setLogPriority(configuration, servicePrefix, defaultLevel);
    }
    else
    {
@@ -252,10 +252,11 @@ void SipXecsService::setLogPriority(const char* configSettingsFile, // path to c
                     );
 
       OsSysLog::setLoggingPriority(defaultLevel);
+      return defaultLevel;
    }
 }
 
-void SipXecsService::setLogPriority(const OsConfigDb& configSettings, // configuration data
+OsSysLogPriority SipXecsService::setLogPriority(const OsConfigDb& configSettings, // configuration data
                                     const char* servicePrefix, /* the string "_LOG_LEVEL" is
                                                                 * appended to this prefix to
                                                                 * find the config directive that
@@ -291,6 +292,7 @@ void SipXecsService::setLogPriority(const OsConfigDb& configSettings, // configu
    }
 
    OsSysLog::setLoggingPriority(priority);
+   return priority;
 }
 
 /// destructor
