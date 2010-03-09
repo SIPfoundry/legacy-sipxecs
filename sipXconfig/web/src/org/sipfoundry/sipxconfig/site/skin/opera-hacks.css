@@ -7,3 +7,7 @@
 #contentContainer #leftNav {
 	width:15%;
 }
+.roundedSectionBoxInsideContent {
+	display:inline-block;
+	width:100%;
+}

@@ -511,14 +511,16 @@ div.help
 {
     clear:right;
     float:right;
-    /*margin:-20px -878px 15px 708px;*/
-    padding:0px;
-    margin-right:-190px;
+    PADDING-RIGHT: 0px;
+    PADDING-LEFT: 20px;
+    PADDING-TOP: 0px;
+    PADDING-BOTTOM: 0px;
+    margin-right:-25%;
 }
 
 div.help
 {
-	width:160px;
+	width:20%;
 }
 
 div.right-column
@@ -851,6 +853,9 @@ html, body {
 	padding-left: 10px;
 	padding-right:10px;
 }
+.roundedSectionBoxInside {
+	min-height:200px;
+}
 #leftNav li {
 	margin:0px;
 }
@@ -859,7 +864,9 @@ html, body {
 	margin-top:-7px;
 	padding-bottom:10px;
 }
-.roundedSectionBoxInsideContent, 
+.roundedSectionBoxInsideContent {
+	width:100%;
+}
 .roundedMainSectionBoxInsideContent 
 {
 	display:inline-block;
