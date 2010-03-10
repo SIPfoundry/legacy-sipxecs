@@ -220,7 +220,7 @@ void ResourceListServer::start()
    // do not get NOTIFYs with incomplete information.
    if (!mSubscribeServer.enableEventType(mEventType, NULL, NULL, NULL, NULL,
                                          SipSubscribeServer::standardVersionCallback,
-                                         FALSE);
+                                         FALSE))
    {
       OsSysLog::add(FAC_RLS, PRI_CRIT, "ResourceListServer:: enableEventType failed");
    }
