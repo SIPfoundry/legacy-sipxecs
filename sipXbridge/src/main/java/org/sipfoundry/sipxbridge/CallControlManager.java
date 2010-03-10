@@ -853,7 +853,7 @@ class CallControlManager implements SymmitronResetHandler {
 
             ItspAccountInfo itspAccount = dialogContext.getItspInfo();
 
-            ContactHeader contactHeader = SipUtilities.createContactHeader(provider, itspAccount);
+            ContactHeader contactHeader = SipUtilities.createContactHeader(provider, itspAccount,serverTransactionId);
             prackOk.setHeader(contactHeader);
 
             serverTransactionId.sendResponse(prackOk);
@@ -1385,7 +1385,7 @@ class CallControlManager implements SymmitronResetHandler {
                     SipUtilities.getViaTransport(newResponse));
         } else {
             contactHeader = SipUtilities.createContactHeader(transactionContext
-                    .getServerTransactionProvider(), transactionContext.getItspAccountInfo());
+                    .getServerTransactionProvider(), transactionContext.getItspAccountInfo(),serverTransaction);
         }
 
         newResponse.setHeader(contactHeader);
@@ -1571,7 +1571,7 @@ class CallControlManager implements SymmitronResetHandler {
             SipProvider wanProvider = (SipProvider) ((TransactionExt) st).getSipProvider();
 
             ContactHeader contactHeader = SipUtilities.createContactHeader(wanProvider,
-                    dialogContext.getItspInfo());
+                    dialogContext.getItspInfo(),st);
             ContentTypeHeader cth = ProtocolObjects.headerFactory.createContentTypeHeader(
                     "application", "sdp");
 
@@ -1822,7 +1822,8 @@ class CallControlManager implements SymmitronResetHandler {
                     ContactHeader contact = SipUtilities
                             .createContactHeader(
                                     ((TransactionExt) peerDat.dialogCreatingTransaction)
-                                            .getSipProvider(), peerDat.getItspInfo());
+                                            .getSipProvider(), peerDat.getItspInfo(), 
+                                            ((ServerTransaction) peerDat.dialogCreatingTransaction));
                     forwardedResponse.setHeader(contact);
                     ((ServerTransaction) peerDat.dialogCreatingTransaction)
                             .sendResponse(forwardedResponse);
@@ -2011,7 +2012,8 @@ class CallControlManager implements SymmitronResetHandler {
                     SipUtilities.setSessionDescription(forwardedResponse, sessionDescription);
                     ContactHeader contact = SipUtilities.createContactHeader(
                             ((TransactionExt) transactionContext.getServerTransaction()).getSipProvider(),
-                            peerDialogContext.getItspInfo());
+                            peerDialogContext.getItspInfo(), 
+                            transactionContext.getServerTransaction());
                     forwardedResponse.setHeader(contact);
                    
                     transactionContext.getServerTransaction().sendResponse(forwardedResponse);
@@ -2667,10 +2669,11 @@ class CallControlManager implements SymmitronResetHandler {
                     prackRequest.addHeader(referencesHeader);
 
                     SipProvider provider = (SipProvider) responseEvent.getSource();
-                    ContactHeader cth = SipUtilities.createContactHeader(provider, dialogContext
-                            .getItspInfo());
-                    prackRequest.setHeader(cth);
                     ClientTransaction ct = provider.getNewClientTransaction(prackRequest);
+                    ContactHeader cth = SipUtilities.createContactHeader(provider, dialogContext
+                             .getItspInfo(),ct);
+                    prackRequest.setHeader(cth);
+                   
                     /*
                      * No server transaction -- this is one sided.
                      */

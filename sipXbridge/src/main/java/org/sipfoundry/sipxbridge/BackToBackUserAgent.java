@@ -2079,14 +2079,14 @@ public class BackToBackUserAgent implements Comparable {
                  
                 RtpSession wanRtpSession = peerDat.getRtpSession();
                 SipProvider wanProvider = ((DialogExt) peerDialog).getSipProvider();
-                ContactHeader contact = SipUtilities.createContactHeader(wanProvider, peerDat
-                        .getItspInfo());
-
+               
                 SessionDescription answerSdes = SipUtilities.cleanSessionDescription(SipUtilities
                         .cloneSessionDescription(sdes), codecs);
                 wanRtpSession.getReceiver().setSessionDescription(answerSdes);
 
                 ServerTransaction peerSt = ((ServerTransaction) peerDat.dialogCreatingTransaction);
+                ContactHeader contact = SipUtilities.createContactHeader(wanProvider, peerDat
+                        .getItspInfo(),peerSt);
                 if ( peerSt != null && peerSt.getState() != TransactionState.TERMINATED ) {
                 	Response peerOk = SipUtilities.createResponse(peerSt,
 							Response.OK);   	

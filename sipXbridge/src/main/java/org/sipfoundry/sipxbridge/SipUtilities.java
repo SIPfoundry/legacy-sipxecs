@@ -23,6 +23,7 @@ import gov.nist.javax.sip.header.ims.PrivacyHeader;
 import gov.nist.javax.sip.message.Content;
 import gov.nist.javax.sip.message.MessageExt;
 import gov.nist.javax.sip.message.MultipartMimeContent;
+import gov.nist.javax.sip.message.RequestExt;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.io.InputStream;
@@ -52,6 +53,7 @@ import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
+import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
@@ -277,7 +279,7 @@ class SipUtilities {
 	 * Create a contact header for the given provider.
 	 */
 	static ContactHeader createContactHeader(SipProvider provider,
-			ItspAccountInfo itspAccount) {
+			ItspAccountInfo itspAccount, Transaction transaction) {
 		try {
 			/*
 			 * If we are creating a contact header for a provider that is facing
@@ -320,7 +322,7 @@ class SipUtilities {
 			} else {
 				/*
 				 * Creating contact header for WAN bound request. Nothing is
-				 * known about this ITSP. We just use global addressing.
+				 * known about this ITSP.
 				 */
 
 				ContactHeader contactHeader = ProtocolObjects.headerFactory
@@ -332,8 +334,13 @@ class SipUtilities {
 				}
 				SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
 						userName, Gateway.getGlobalAddress());
-				String transport = itspAccount != null ? itspAccount
-						.getOutboundTransport() : "udp";
+				String transport = "udp";
+				if ( transaction != null ) {
+					transport = SipUtilities.getTopmostViaTransport(transaction.getRequest());
+				} else if ( itspAccount != null ) {
+					transport = itspAccount.getOutboundTransport();
+				}
+				
 				sipUri.setPort(Gateway.getGlobalPort(transport));
 				sipUri.setTransportParam(transport);
 				Address address = ProtocolObjects.addressFactory
@@ -501,7 +508,7 @@ class SipUtilities {
 			Request request = createRegistrationRequestTemplate(itspAccount,
 					null, 1L);
 			ContactHeader contactHeader = createContactHeader(itspAccount
-					.getSipProvider(), itspAccount);
+					.getSipProvider(), itspAccount, null);
 			request.addHeader(contactHeader);
 			ExpiresHeader expiresHeader = ProtocolObjects.headerFactory
 					.createExpiresHeader(0);
@@ -590,7 +597,7 @@ class SipUtilities {
 					callId, cseq);
 
 			ContactHeader contactHeader = createContactHeader(sipProvider,
-					itspAccount);
+					itspAccount, null);
 			contactHeader.removeParameter("expires");
 
 			request.addHeader(contactHeader);
@@ -781,7 +788,7 @@ class SipUtilities {
 			Gateway.getAuthenticationHelper().setAuthenticationHeaders(request);
 
 			ContactHeader contactHeader = createContactHeader(sipProvider,
-					itspAccount);
+					itspAccount, null);
 			request.addHeader(contactHeader);
 
 			Iterator<Hop> hopIter = addresses.iterator();
@@ -1793,7 +1800,7 @@ class SipUtilities {
 			 */
 			if (provider != Gateway.getLanProvider()) {
 				ContactHeader contactHeader = SipUtilities.createContactHeader(
-						provider, itspAccount);
+						provider, itspAccount, serverTransaction);
 				newResponse.setHeader(contactHeader);
 			}
 
@@ -2153,6 +2160,10 @@ class SipUtilities {
 			}
 		}
 		return false;
+	}
+
+	public static String getTopmostViaTransport(Request request) {
+		return ((RequestExt) request).getTopmostViaHeader().getTransport();
 	}
 
 }

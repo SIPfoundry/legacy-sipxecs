@@ -271,7 +271,7 @@ class DialogContext {
                     request.setContent(sd.toString(), ProtocolObjects.headerFactory
                             .createContentTypeHeader("application", "sdp"));
                     ContactHeader cth = SipUtilities.createContactHeader(provider,
-                            getItspInfo());
+                            getItspInfo(),null);
                     request.setHeader(cth);
                     SessionExpiresHeader sexp = SipUtilities.createSessionExpires(DialogContext.this.sessionExpires);
                     request.setHeader(sexp);
