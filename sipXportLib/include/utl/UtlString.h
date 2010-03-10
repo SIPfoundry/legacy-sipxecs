@@ -351,6 +351,7 @@ public:
      * If 'regex' is true, 'token' is interpreted as a regular expression
      * (the argument to Regex::Regex()), and the UtlString must contain
      * a delimited substring which is matched by 'token'.
+     * Matching is done case-insensitively.
      *
      * @return True if 'token' matches any of the substrings.
      */

@@ -1734,6 +1734,16 @@ public:
             { "search for regexp",
               "ab+c*", "a, ab, d", ",", NULL,
               regexpOnly, TRUE },
+            // Check case insensitivity.
+            { "regEx first and last in string",
+              "testword", " TestWord", ",", NULL,
+              literalAndRegexp, TRUE },
+            { "regEx not first in string",
+              "TESTWORD", "not , the , first,testword, or, last", ",", NULL,
+              literalAndRegexp, TRUE  },
+            { "search for regexp",
+              "Ab+c*", "a, aB, d", ",", NULL,
+              regexpOnly, TRUE },
         };
 
         UtlString *ptestHaystack;

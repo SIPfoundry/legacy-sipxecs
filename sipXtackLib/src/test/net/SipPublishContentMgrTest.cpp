@@ -645,6 +645,17 @@ public:
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
                                       bodyLength_text_plain, length);
 
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+                                             "tExT/pLaiN",
+                                             content, isDefaultContent, NULL);
+         CPPUNIT_ASSERT(FALSE==isDefaultContent);
+         CPPUNIT_ASSERT(TRUE==foundContent);
+
+         content->getBytes(&contentBody, &length);
+         ASSERT_STR_EQUAL_MESSAGE("incorrect body value", content_text_plain, contentBody);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
+                                      bodyLength_text_plain, length);
+
          // Search with "Accept: text/xml".
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
@@ -767,7 +778,7 @@ public:
          const char *content_text_plain = "root text/plain";
          ssize_t bodyLength_text_plain = strlen(content_text_plain);
          bodies[0] = new HttpBody(content_text_plain, bodyLength_text_plain,
-                                  "multipart/related;type=text/plain");
+                                  "multiPART/relATED;type=text/pLAIN");
 
          const char *content_text_xml = "root text/xml";
          ssize_t bodyLength_text_xml = strlen(content_text_xml);
@@ -806,6 +817,17 @@ public:
 
          foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "multipart/related,text/plain",
+                                             content, isDefaultContent, NULL);
+         CPPUNIT_ASSERT(FALSE==isDefaultContent);
+         CPPUNIT_ASSERT(TRUE==foundContent);
+
+         content->getBytes(&contentBody, &length);
+         ASSERT_STR_EQUAL_MESSAGE("incorrect body value", content_text_plain, contentBody);
+         CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
+                                      bodyLength_text_plain, length);
+
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+                                             "MultIpArt/rElAtEd,text/Plain",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
          CPPUNIT_ASSERT(TRUE==foundContent);

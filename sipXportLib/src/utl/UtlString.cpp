@@ -1153,7 +1153,8 @@ UtlBoolean UtlString::findToken(const char* token,
 
     try
     {
-        ptmpRegEx = new RegEx(regExpStr.data());
+       // Compile regExpStr into a RegEx, set the case-insensitive flag.
+       ptmpRegEx = new RegEx(regExpStr.data(), PCRE_CASELESS);
     }
     catch(const char* compileError)
     {
