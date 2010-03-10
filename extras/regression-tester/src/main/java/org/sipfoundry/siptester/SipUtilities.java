@@ -524,18 +524,20 @@ public class SipUtilities {
 			logger.debug("message = " + message);
 			if (triggerMessage instanceof SipRequest) {
 				SipRequest sipRequest = (SipRequest) triggerMessage;
-				Request request = sipRequest.getRequestEvent().getRequest();
-				ReferToHeader referTo = (ReferToHeader) request
-						.getHeader(ReferToHeader.NAME);
-				if (referTo != null) {
-					SipURIExt uri = (SipURIExt) referTo.getAddress().getURI();
-					Iterator<String> headerNames = uri.getHeaderNames();
-					while (headerNames.hasNext()) {
-						String headerName = headerNames.next();
-						String headerValue = URLDecoder.decode(uri
-								.getHeader(headerName), "UTF-8");
-						newMessage.setHeader(SipTester.getHeaderFactory()
-								.createHeader(headerName, headerValue));
+				if ( sipRequest.getRequestEvent() != null ) {
+					Request request = sipRequest.getRequestEvent().getRequest();
+					ReferToHeader referTo = (ReferToHeader) request
+					.getHeader(ReferToHeader.NAME);
+					if (referTo != null) {
+						SipURIExt uri = (SipURIExt) referTo.getAddress().getURI();
+						Iterator<String> headerNames = uri.getHeaderNames();
+						while (headerNames.hasNext()) {
+							String headerName = headerNames.next();
+							String headerValue = URLDecoder.decode(uri
+									.getHeader(headerName), "UTF-8");
+							newMessage.setHeader(SipTester.getHeaderFactory()
+									.createHeader(headerName, headerValue));
+						}
 					}
 				}
 			}
