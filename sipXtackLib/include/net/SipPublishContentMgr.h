@@ -208,7 +208,7 @@ public:
      *         In most uses, there is no value in providing default
      *         content for "partial" state.
      */
-    virtual void revised_publishDefault(const char* eventTypeKey,
+    virtual void publishDefault(const char* eventTypeKey,
                                 const char* eventType,
                                 int numContentTypes,
                                 HttpBody* eventContent[],
@@ -219,7 +219,7 @@ public:
      *  \param *defaultConstructor becomes owned by the SipPublishContentMgr,
      *         which will delete it when it is no longer needed.
      */
-    virtual void revised_publishDefault(const char* eventTypeKey,
+    virtual void publishDefault(const char* eventTypeKey,
                                 const char* eventType,
                                 SipPublishContentMgrDefaultConstructor*
                                 defaultConstructor,
@@ -228,7 +228,7 @@ public:
     /** Remove the default content and default content constructor for
      *  eventTypeKey.
      */
-    virtual void revised_unpublishDefault(const char* eventTypeKey,
+    virtual void unpublishDefault(const char* eventTypeKey,
                                   const char* eventType,
                                   UtlBoolean fullState = TRUE);
 
@@ -289,7 +289,7 @@ public:
      *         methods, or when publishing full content and partial content
      *         will be published immediately (which will trigger callbacks).
      */
-    virtual void revised_publish(const char* resourceId,
+    virtual void publish(const char* resourceId,
                          const char* eventTypeKey,
                          const char* eventType,
                          int numContentTypes,
@@ -332,7 +332,7 @@ public:
      *         the callback function if there is no remaining content
      *         for this resourceId/eventTypeKey.
      */
-    virtual void revised_unpublish(const char* resourceId,
+    virtual void unpublish(const char* resourceId,
                            const char* eventTypeKey,
                            const char* eventType,
                            const char* reason);
@@ -357,7 +357,7 @@ public:
      *         defaultConstructor for eventTypeKey (if one is set), or
      *         NULL.
      */
-    virtual void revised_getPublished(const char* resourceId,
+    virtual void getPublished(const char* resourceId,
                               const char* eventTypeKey,
                               UtlBoolean fullState,
                               int& numContentTypes,
@@ -413,7 +413,7 @@ public:
      *         the null string, there is no content available.
      */
     static const UtlString acceptAllTypes;
-    virtual UtlBoolean revised_getContent(const char* resourceId,
+    virtual UtlBoolean getContent(const char* resourceId,
                                   const char* eventTypeKey,
                                   const char* eventType,
                                   UtlBoolean fullState,
@@ -431,7 +431,7 @@ public:
      *  \param applicationData - application specific data that is to be
      *         passed back to the application in the callback function.
      */
-    virtual void revised_setContentChangeObserver(const char* eventType,
+    virtual void setContentChangeObserver(const char* eventType,
                                                   SipPublisherContentChangeCallback callbackFunction,
                                                   void* applicationData);
 

@@ -84,7 +84,7 @@ void TestDefaultConstructorClass::generateDefaultContent(SipPublishContentMgr* c
       HttpBody *body = new HttpBody(content, strlen(content), "text/plain");
 
       // Install it for the resource.
-      contentMgr->revised_publish(resourceId, eventTypeKey, eventType, 1, &body);
+      contentMgr->publish(resourceId, eventTypeKey, eventType, 1, &body);
    }
 }
 
@@ -182,16 +182,16 @@ public:
          int numOldContents;
          HttpBody **oldContents;
 
-         publisher.revised_getPublished(NULL, "dialog", TRUE,
+         publisher.getPublished(NULL, "dialog", TRUE,
                                 numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents should be zero",
                                       0, numOldContents);
          deleteHttpBodyArray(oldContents, numOldContents);
 
-         publisher.revised_publishDefault("dialog", "dialog", 1, &body);
+         publisher.publishDefault("dialog", "dialog", 1, &body);
 
-         publisher.revised_getPublished(NULL, "dialog", TRUE,
+         publisher.getPublished(NULL, "dialog", TRUE,
                                 numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
@@ -204,7 +204,7 @@ public:
                                        content) == 0);
          deleteHttpBodyArray(oldContents, numOldContents);
 
-         publisher.revised_unpublishDefault("dialog", "dialog");
+         publisher.unpublishDefault("dialog", "dialog");
       }
 
    void testDefaultConstructor()
@@ -225,7 +225,7 @@ public:
          HttpBody **oldContents;
          SipPublishContentMgrDefaultConstructor *constructor;
 
-         publisher.revised_getPublished(NULL, event_type, TRUE,
+         publisher.getPublished(NULL, event_type, TRUE,
                                 numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
@@ -237,11 +237,11 @@ public:
          // Register the default content constructor.
 
          TestDefaultConstructorClass* p = new TestDefaultConstructorClass;
-         publisher.revised_publishDefault(event_type, event_type, p);
+         publisher.publishDefault(event_type, event_type, p);
 
          // See if getPublished can retrieve it.
 
-         publisher.revised_getPublished(NULL, event_type, TRUE,
+         publisher.getPublished(NULL, event_type, TRUE,
                                 numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
@@ -252,7 +252,7 @@ public:
 
          // Ensure that it can't be retrieved for other event types.
 
-         publisher.revised_getPublished(NULL, "dialog", TRUE,
+         publisher.getPublished(NULL, "dialog", TRUE,
                                 numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
@@ -268,12 +268,12 @@ public:
             ssize_t bodyLength = strlen(default_content);
             HttpBody *body = new HttpBody(default_content, bodyLength,
                                           "text/plain");
-            publisher.revised_publishDefault(event_type, event_type, 1, &body);
+            publisher.publishDefault(event_type, event_type, 1, &body);
          }
 
          // See if getPublished returns the string.
 
-         publisher.revised_getPublished(NULL, event_type, TRUE,
+         publisher.getPublished(NULL, event_type, TRUE,
                                 numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 1 old contents",
@@ -284,7 +284,7 @@ public:
 
          // Make sure getPublished does not return the string for other events.
 
-         publisher.revised_getPublished(NULL, "dialog", TRUE,
+         publisher.getPublished(NULL, "dialog", TRUE,
                                 numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
@@ -306,13 +306,13 @@ public:
             ssize_t bodyLength = strlen(content_1b);
             HttpBody *body = new HttpBody(content_1b, bodyLength,
                                           "text/plain");
-            publisher.revised_publish("1b", event_type, event_type, 1, &body);
+            publisher.publish("1b", event_type, event_type, 1, &body);
          }
          const char *content_2 = "This is content for 2.";
          {
             ssize_t bodyLength = strlen(content_2);
             HttpBody *body = new HttpBody(content_2, bodyLength, "text/plain");
-            publisher.revised_publish("2", event_type, event_type, 1, &body);
+            publisher.publish("2", event_type, event_type, 1, &body);
          }
 
          HttpBody *b = NULL;
@@ -320,28 +320,28 @@ public:
          const char *s;
          ssize_t l;
 
-         CPPUNIT_ASSERT(publisher.revised_getContent("0", event_type, event_type, TRUE, "text/plain", b, d, NULL));
+         CPPUNIT_ASSERT(publisher.getContent("0", event_type, event_type, TRUE, "text/plain", b, d, NULL));
          CPPUNIT_ASSERT_MESSAGE("Content for 0 should be default",
                                 d);
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 0 is incorrect",
                                 strcmp(s, default_content) == 0);
 
-         CPPUNIT_ASSERT(publisher.revised_getContent("1a", event_type, event_type, TRUE, "text/plain", b, d, NULL));
+         CPPUNIT_ASSERT(publisher.getContent("1a", event_type, event_type, TRUE, "text/plain", b, d, NULL));
          CPPUNIT_ASSERT_MESSAGE("Content for 1a should be default",
                                 d);
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 1a is incorrect",
                                 strcmp(s, "This is default content for the resource '1a'.") == 0);
 
-         CPPUNIT_ASSERT(publisher.revised_getContent("1b", event_type, event_type, TRUE, "text/plain", b, d, NULL));
+         CPPUNIT_ASSERT(publisher.getContent("1b", event_type, event_type, TRUE, "text/plain", b, d, NULL));
          CPPUNIT_ASSERT_MESSAGE("Content for 1b should not be default",
                                 !d);
          b->getBytes(&s, &l);
          CPPUNIT_ASSERT_MESSAGE("Content for 1b is incorrect",
                                 strcmp(s, content_1b) == 0);
 
-         CPPUNIT_ASSERT(publisher.revised_getContent("2", event_type, event_type, TRUE, "text/plain", b, d, NULL));
+         CPPUNIT_ASSERT(publisher.getContent("2", event_type, event_type, TRUE, "text/plain", b, d, NULL));
          CPPUNIT_ASSERT_MESSAGE("Content for 2 should not be default",
                                 !d);
          b->getBytes(&s, &l);
@@ -350,11 +350,11 @@ public:
 
          // Remove the default content constructor.
 
-         publisher.revised_unpublishDefault(event_type, event_type);
+         publisher.unpublishDefault(event_type, event_type);
 
          // See if getPublished now returns NULL.
 
-         publisher.revised_getPublished(NULL, event_type, TRUE,
+         publisher.getPublished(NULL, event_type, TRUE,
                                 numOldContents, oldContents, &constructor);
 
          CPPUNIT_ASSERT_MESSAGE("getPublished should return 0 old contents",
@@ -413,14 +413,14 @@ public:
          int numOldContents;
          HttpBody **oldContents;
 
-         publisher.revised_getPublished(TEST_RESOURCE_ID, "dialog", TRUE,
+         publisher.getPublished(TEST_RESOURCE_ID, "dialog", TRUE,
                                 numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents should be zero",
                                       0, numOldContents);
          deleteHttpBodyArray(oldContents, numOldContents);
 
-         publisher.revised_publish(TEST_RESOURCE_ID, "dialog", "dialog", 1, &body);
+         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 1, &body);
 
          SipSubscribeServerEventHandler eventHandler;
          SipMessage notifyRequest;
@@ -439,7 +439,7 @@ public:
          CPPUNIT_ASSERT(notifyBodyBytes);
          CPPUNIT_ASSERT(strcmp(content, notifyBodyBytes) == 0);
 
-         publisher.revised_getPublished(TEST_RESOURCE_ID, "dialog", TRUE,
+         publisher.getPublished(TEST_RESOURCE_ID, "dialog", TRUE,
                                 numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
@@ -452,7 +452,7 @@ public:
                                        content) == 0);
          deleteHttpBodyArray(oldContents, numOldContents);
 
-         publisher.revised_unpublish(TEST_RESOURCE_ID, "dialog", "dialog", "test");
+         publisher.unpublish(TEST_RESOURCE_ID, "dialog", "dialog", "test");
       }
 
    void testGetContent()
@@ -503,13 +503,13 @@ public:
                                        DIALOG_EVENT_CONTENT_TYPE);
 
 
-         publisher.revised_publish(TEST_RESOURCE_ID, "dialog", "dialog", 1, &body);
+         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 1, &body);
 
          HttpBody* returned_content;
          UtlBoolean foundContent;
          UtlBoolean isDefaultContent;
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              // The content type is hard-coded
                                              // here to check that the #define
                                              // DIALOG_EVENT_CONTENT_TYPE,
@@ -534,7 +534,7 @@ public:
          ASSERT_STR_EQUAL_MESSAGE("incorrect body value", content, contentBody);
          delete returned_content;
 
-         foundContent = publisher.revised_getContent("something-else@example.com", "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent("something-else@example.com", "dialog", "dialog", TRUE,
                                              "application/dialog-info+xml",
                                              returned_content, isDefaultContent,
                                              NULL);
@@ -544,14 +544,14 @@ public:
          int numOldContents;
          HttpBody **oldContents;
 
-         publisher.revised_getPublished(TEST_RESOURCE_ID, "dialog", TRUE,
+         publisher.getPublished(TEST_RESOURCE_ID, "dialog", TRUE,
                                 numOldContents, oldContents, NULL);
 
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of contents are not the same",
                                       1, numOldContents);
          deleteHttpBodyArray(oldContents, numOldContents);
 
-         publisher.revised_unpublish(TEST_RESOURCE_ID, "dialog", "dialog", "test");
+         publisher.unpublish(TEST_RESOURCE_ID, "dialog", "dialog", "test");
       }
 
    void testContentChangeObserver()
@@ -567,7 +567,7 @@ public:
 
          SipPublishContentMgr publisher;
 
-         publisher.revised_setContentChangeObserver(eventType,
+         publisher.setContentChangeObserver(eventType,
                                             contentChangeCallback,
                                             (void *)appData);
 
@@ -575,7 +575,7 @@ public:
          HttpBody *body = new HttpBody(content, bodyLength,
                                        DIALOG_EVENT_CONTENT_TYPE);
 
-         publisher.revised_publish(resourceId, eventType, eventType, 1, &body);
+         publisher.publish(resourceId, eventType, eventType, 1, &body);
 
          CPPUNIT_ASSERT_MESSAGE("bad app data pointer", appData == mAppData);
          ASSERT_STR_EQUAL_MESSAGE("incorrect resource Id", resourceId, mResourceId.data());
@@ -604,7 +604,7 @@ public:
          bodies[2] = new HttpBody(content_text_junk, bodyLength_text_junk,
                                   "text/x-junk;param");
 
-         publisher.revised_publish(TEST_RESOURCE_ID, "dialog", "dialog", 3, bodies);
+         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 3, bodies);
 
          HttpBody *content;
          UtlBoolean foundContent;
@@ -614,7 +614,7 @@ public:
 
          // Search with no Accept.
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                                      SipPublishContentMgr::acceptAllTypes,
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -625,7 +625,7 @@ public:
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
                                       bodyLength_text_plain, length);
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              // Null string - no types accepted.
                                              "",
                                              content, isDefaultContent, NULL);
@@ -634,7 +634,7 @@ public:
 
          // Search with "Accept: text/plain".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/plain",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -647,7 +647,7 @@ public:
 
          // Search with "Accept: text/xml".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/xml",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -660,7 +660,7 @@ public:
 
          // Search with "Accept: text/plain,text/xml".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/plain,text/xml",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -673,7 +673,7 @@ public:
 
          // Search with "Accept: text/xml,text/plain".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/xml,text/plain",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -686,7 +686,7 @@ public:
 
          // Search with "Accept: text/nonexistent,text/plain".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/nonexistent,text/plain",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -700,7 +700,7 @@ public:
 
          // Search with "Accept: text/plain,text/nonexistent".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/plain",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -713,7 +713,7 @@ public:
 
          // Search with "Accept: text/nonexistent,text/xml".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/nonexistent,text/xml",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -726,7 +726,7 @@ public:
 
          // Search with "Accept: text/xml,text/nonexistent".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/xml",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -739,7 +739,7 @@ public:
 
          // Search with "Accept: text/nonexistent".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/nonexistent",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -747,7 +747,7 @@ public:
 
          // Search with "Accept: text/x-junk".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "text/x-junk",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -774,7 +774,7 @@ public:
          bodies[1] = new HttpBody(content_text_xml, bodyLength_text_xml,
                                   "multipart/related;type=\"text/xml\"");
 
-         publisher.revised_publish(TEST_RESOURCE_ID, "dialog", "dialog", 2, bodies);
+         publisher.publish(TEST_RESOURCE_ID, "dialog", "dialog", 2, bodies);
 
          HttpBody *content;
          UtlBoolean foundContent;
@@ -784,7 +784,7 @@ public:
 
          // Search with no Accept.
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                                      SipPublishContentMgr::acceptAllTypes,
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -795,7 +795,7 @@ public:
          CPPUNIT_ASSERT_EQUAL_MESSAGE("number of bytes are not the same",
                                       bodyLength_text_plain, length);
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              // Null string - no types accepted.
                                              "",
                                              content, isDefaultContent, NULL);
@@ -804,7 +804,7 @@ public:
 
          // Search with "Accept: multipart/related,text/plain".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "multipart/related,text/plain",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -817,7 +817,7 @@ public:
 
          // Search with "Accept: multipart/related,text/xml".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "multipart/related,text/xml",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -830,7 +830,7 @@ public:
 
          // Search with "Accept: multipart/related,text/plain,text/xml".
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "multipart/related,text/plain,text/xml",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);
@@ -844,7 +844,7 @@ public:
          // Search with "Accept: multipart/related,text/x-other" to verify that
          // the root part type is checked.
 
-         foundContent = publisher.revised_getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
+         foundContent = publisher.getContent(TEST_RESOURCE_ID, "dialog", "dialog", TRUE,
                                              "multipart/related,text/x-other",
                                              content, isDefaultContent, NULL);
          CPPUNIT_ASSERT(FALSE==isDefaultContent);

@@ -121,7 +121,7 @@ void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
    // Publish the event (storing it for the resource), but set
    // noNotify to TRUE, because our caller will push the NOTIFYs.
    HttpBody* b = static_cast <HttpBody*> (sipPresenceEvent);
-   contentMgr->revised_publish(resourceId, eventTypeKey, eventType,
+   contentMgr->publish(resourceId, eventTypeKey, eventType,
                        1, &b,
                        TRUE, TRUE);
 }
@@ -228,7 +228,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                 *mpUserAgent, mSipPublishContentMgr,
                                 *mpSubscriptionMgr, mPolicyHolder);
       // Arrange to generate default content for presence events.
-      mSipPublishContentMgr.revised_publishDefault(PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
+      mSipPublishContentMgr.publishDefault(PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
                                            new PresenceDefaultConstructor);
       mpSubscribeServer->enableEventType(PRESENCE_EVENT_TYPE);
       mpSubscribeServer->start();
@@ -741,7 +741,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
          // Make a copy, because mpSipPublishContentMgr will own it.
          HttpBody* pHttpBody =
             new HttpBody(*(static_cast <HttpBody*> (list)));
-         mSipPublishContentMgr.revised_publish(listUri->data(),
+         mSipPublishContentMgr.publish(listUri->data(),
                                        PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
                                        1, &pHttpBody);
       }
@@ -752,7 +752,7 @@ void SipPresenceMonitor::publishContent(UtlString& contact, SipPresenceEvent* pr
    // Make a copy, because mpSipPublishContentMgr will own it.
    HttpBody* pHttpBody = 
       new HttpBody(*(static_cast <HttpBody*> (presenceEvent)));
-   mSipPublishContentMgr.revised_publish(contact.data(),
+   mSipPublishContentMgr.publish(contact.data(),
                                  PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
                                  1, &pHttpBody);
 }

@@ -164,7 +164,7 @@ SipPublishContentMgr::~SipPublishContentMgr()
 //SipPublishContentMgr&
 //SipPublishContentMgr::operator=(const SipPublishContentMgr& rhs)
 
-void SipPublishContentMgr::revised_publish(const char* resourceId,
+void SipPublishContentMgr::publish(const char* resourceId,
                                    const char* eventTypeKey,
                                    const char* eventType,
                                    int numContentTypes,
@@ -278,13 +278,13 @@ void SipPublishContentMgr::revised_publish(const char* resourceId,
     unlock();
 }
 
-void SipPublishContentMgr::revised_publishDefault(const char* eventTypeKey,
+void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
                                           const char* eventType,
                                           int numContentTypes,
                                           HttpBody* eventContent[],
                                           UtlBoolean fullState)
 {
-    revised_publish(NULL,
+    publish(NULL,
             eventTypeKey,
             eventType,
             numContentTypes,
@@ -292,7 +292,7 @@ void SipPublishContentMgr::revised_publishDefault(const char* eventTypeKey,
             fullState);
 }
 
-void SipPublishContentMgr::revised_publishDefault(const char* eventTypeKey,
+void SipPublishContentMgr::publishDefault(const char* eventTypeKey,
                                           const char* eventType,
                                           SipPublishContentMgrDefaultConstructor*
                                           defaultConstructor,
@@ -337,7 +337,7 @@ void SipPublishContentMgr::revised_publishDefault(const char* eventTypeKey,
     unlock();
 }
 
-void SipPublishContentMgr::revised_unpublish(const char* resourceId,
+void SipPublishContentMgr::unpublish(const char* resourceId,
                                      const char* eventTypeKey,
                                      const char* eventType,
                                      const char* reason)
@@ -493,19 +493,19 @@ void SipPublishContentMgr::revised_unpublish(const char* resourceId,
     unlock();
 }
 
-void SipPublishContentMgr::revised_unpublishDefault(const char* eventTypeKey,
+void SipPublishContentMgr::unpublishDefault(const char* eventTypeKey,
                                             const char* eventType,
                                             UtlBoolean fullState)
 {
-    revised_unpublish(NULL,
+    unpublish(NULL,
               eventTypeKey,
               eventType,
               NULL);
 }
 
-void SipPublishContentMgr::revised_setContentChangeObserver(const char* eventType,
-                                                            SipPublisherContentChangeCallback callbackFunction,
-                                                            void* applicationData)
+void SipPublishContentMgr::setContentChangeObserver(const char* eventType,
+                                                    SipPublisherContentChangeCallback callbackFunction,
+                                                    void* applicationData)
 {
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipPublishContentMgr::setContentChangeObserver eventType '%s', callbackFunction %p, applicationData = %p",
@@ -573,7 +573,7 @@ void SipPublishContentMgr::getContentChangeObserver(const char* eventType,
 
 /* ============================ ACCESSORS ================================= */
 
-UtlBoolean SipPublishContentMgr::revised_getContent(const char* resourceId,
+UtlBoolean SipPublishContentMgr::getContent(const char* resourceId,
                                             const char* eventTypeKey,
                                             const char* eventType,
                                             UtlBoolean fullState,
@@ -857,7 +857,7 @@ void SipPublishContentMgr::getStats(int& numDefaultContent,
     unlock();
 }
 
-void SipPublishContentMgr::revised_getPublished(const char* resourceId,
+void SipPublishContentMgr::getPublished(const char* resourceId,
                                         const char* eventTypeKey,
                                         UtlBoolean fullState,
                                         int& numContentTypes,

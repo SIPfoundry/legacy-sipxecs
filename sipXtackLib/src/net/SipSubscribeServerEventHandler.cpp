@@ -130,7 +130,7 @@ SipSubscribeServerEventHandler::getNotifyContent(const UtlString& resourceId,
     UtlBoolean gotBody = FALSE;
     HttpBody* messageBody = NULL;
     UtlBoolean isDefaultEventContent;
-    gotBody = contentMgr.revised_getContent(resourceId,
+    gotBody = contentMgr.getContent(resourceId,
                                     eventTypeKey,
                                     eventType,
                                     fullState,

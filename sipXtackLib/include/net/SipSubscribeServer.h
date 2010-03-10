@@ -208,7 +208,7 @@ public:
      *  the last available content for the resource).  The non-NULL
      *  value is passed from SipPublishContentMgr::unpublish().
      */
-    static void revised_contentChangeCallback(void* applicationData,
+    static void contentChangeCallback(void* applicationData,
                                       const char* resourceId,
                                       const char* eventTypeKey,
                                       const char* eventType,

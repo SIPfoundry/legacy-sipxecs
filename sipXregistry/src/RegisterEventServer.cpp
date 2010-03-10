@@ -152,7 +152,7 @@ void RegEventDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
 
    // Install it for the resource, but do not publish it, because our
    // caller will publish it.
-   contentMgr->revised_publish(resourceId, eventTypeKey, eventType,
+   contentMgr->publish(resourceId, eventTypeKey, eventType,
                        1, &body,
                        TRUE, TRUE);
 }
@@ -230,7 +230,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
    mUserAgent.start();
 
    // Arrange to generate default content for reg events.
-   mEventPublisher.revised_publishDefault(mEventType.data(), mEventType.data(),
+   mEventPublisher.publishDefault(mEventType.data(), mEventType.data(),
                                   new RegEventDefaultConstructor(this));
 
    // Start the SIP Subscribe Server after the initial content has
@@ -275,7 +275,7 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
 
    // Publish content for the AOR.
    generateContentUser(aorString.data(), aorString, aorUri, body);
-   mEventPublisher.revised_publish(aorString, mEventType.data(), mEventType.data(),
+   mEventPublisher.publish(aorString, mEventType.data(), mEventType.data(),
                            1, &body,
                            TRUE, FALSE);
 
@@ -290,7 +290,7 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
       instrumentEntity.append(*getDomainName());
 
       generateContentInstrument(instrumentEntity.data(), instrument, body);
-      mEventPublisher.revised_publish(instrumentEntity, mEventType.data(), mEventType.data(),
+      mEventPublisher.publish(instrumentEntity, mEventType.data(), mEventType.data(),
                               1, &body,
                               TRUE, FALSE);
       
@@ -307,7 +307,7 @@ void RegisterEventServer::generateAndPublishContent(const UtlString& aorString,
       userInstrumentEntity.append(*getDomainName());
 
       generateContentUserInstrument(aorString.data(), aorString, aorUri, instrument, body);
-      mEventPublisher.revised_publish(userInstrumentEntity, mEventType.data(), mEventType.data(),
+      mEventPublisher.publish(userInstrumentEntity, mEventType.data(), mEventType.data(),
                               1, &body,
                               TRUE, FALSE);
    }

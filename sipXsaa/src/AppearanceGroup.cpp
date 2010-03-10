@@ -65,7 +65,7 @@ AppearanceGroup::AppearanceGroup(AppearanceGroupSet* appearanceGroupSet,
   // Make a copy, because mpSipPublishContentMgr will own it.
   HttpBody* pHttpBody = new HttpBody(*(HttpBody*)lFullContent);
   delete lFullContent;
-  getAppearanceAgent()->getEventPublisher().revised_publish(
+  getAppearanceAgent()->getEventPublisher().publish(
         mSharedUser.data(),
         DIALOG_SLA_EVENT_TYPE, //eventTypeKey
         DIALOG_EVENT_TYPE,     //eventType
@@ -185,7 +185,7 @@ AppearanceGroup::~AppearanceGroup()
    }
 
    // now unpublish to free memory
-   getAppearanceAgent()->getEventPublisher().revised_unpublish(
+   getAppearanceAgent()->getEventPublisher().unpublish(
          mSharedUser.data(),
          DIALOG_SLA_EVENT_TYPE, //eventTypeKey
          DIALOG_EVENT_TYPE,     //eventType
@@ -585,7 +585,7 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
       OsSysLog::add(FAC_SAA, PRI_INFO,
             "AppearanceGroup::handleNotifyRequest outgoing NOTIFY body: %s", pHttpBody->getBytes());
 
-      getAppearanceAgent()->getEventPublisher().revised_publish(
+      getAppearanceAgent()->getEventPublisher().publish(
             mSharedUser.data(),
             DIALOG_SLA_EVENT_TYPE, //eventTypeKey
             DIALOG_EVENT_TYPE,     //eventType
@@ -602,7 +602,7 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
       HttpBody* pPartialBody = new HttpBody(*(HttpBody*)lContent);
       OsSysLog::add(FAC_SAA, PRI_INFO,
             "AppearanceGroup::handleNotifyRequest outgoing NOTIFY body: %s", pPartialBody->getBytes());
-      getAppearanceAgent()->getEventPublisher().revised_publish(
+      getAppearanceAgent()->getEventPublisher().publish(
             mSharedUser.data(),
             DIALOG_SLA_EVENT_TYPE, //eventTypeKey
             DIALOG_EVENT_TYPE,     //eventType

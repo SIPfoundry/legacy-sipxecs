@@ -81,7 +81,7 @@ void DialogDefaultConstructor::generateDefaultContent(SipPublishContentMgr* cont
 
    // Install it for the resource, but do not publish it, because our
    // caller will publish it.
-   contentMgr->revised_publish(resourceId, eventTypeKey, eventType,
+   contentMgr->publish(resourceId, eventTypeKey, eventType,
                        1, &body,
                        TRUE, TRUE);
 }
@@ -118,7 +118,7 @@ DialogEventPublisher::DialogEventPublisher(CallManager* callManager,
    mMaskEstablishedasEarly(maskEstablished)
 {
    // Arrange to generate default content for dialog events.
-   mpSipPublishContentMgr->revised_publishDefault(DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
+   mpSipPublishContentMgr->publishDefault(DIALOG_EVENT_TYPE, DIALOG_EVENT_TYPE,
                                           new DialogDefaultConstructor);
    // Determine the host/port parts if none are given.
    if (mEntityHost.isNull())
@@ -285,7 +285,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   // Make a copy, because mpSipPublishContentMgr will own it.
                   HttpBody* pHttpBody =
                      new HttpBody(*(static_cast <HttpBody*> (pThisCall)));
-                  mpSipPublishContentMgr->revised_publish(entity.data(),
+                  mpSipPublishContentMgr->publish(entity.data(),
                                                   DIALOG_EVENT_TYPE,
                                                   DIALOG_EVENT_TYPE,
                                                   1,
@@ -518,7 +518,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   // Make a copy, because mpSipPublishContentMgr will own it.
                   HttpBody* pHttpBody =
                      new HttpBody(*(static_cast <HttpBody*> (pThisCall)));
-                  mpSipPublishContentMgr->revised_publish(entity.data(),
+                  mpSipPublishContentMgr->publish(entity.data(),
                                                   DIALOG_EVENT_TYPE,
                                                   DIALOG_EVENT_TYPE,
                                                   1,
@@ -618,7 +618,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                   // Make a copy, because mpSipPublishContentMgr will own it.
                   HttpBody* pHttpBody =
                      new HttpBody(*(static_cast <HttpBody*> (pThisCall)));
-                  mpSipPublishContentMgr->revised_publish(entity.data(),
+                  mpSipPublishContentMgr->publish(entity.data(),
                                                   DIALOG_EVENT_TYPE,
                                                   DIALOG_EVENT_TYPE,
                                                   1,
@@ -812,7 +812,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
             // Make a copy, because mpSipPublishContentMgr will own it.
             HttpBody* pHttpBody =
                new HttpBody(*(static_cast <HttpBody*> (pThisCall)));
-            mpSipPublishContentMgr->revised_publish(entity.data(),
+            mpSipPublishContentMgr->publish(entity.data(),
                                             DIALOG_EVENT_TYPE,
                                             DIALOG_EVENT_TYPE,
                                             1,
@@ -929,7 +929,7 @@ UtlBoolean DialogEventPublisher::handleMessage(OsMsg& rMsg)
                      // Make a copy, because mpSipPublishContentMgr will own it.
                      HttpBody* pHttpBody =
                         new HttpBody(*(static_cast <HttpBody*> (pThisCall)));
-                     mpSipPublishContentMgr->revised_publish(entity.data(),
+                     mpSipPublishContentMgr->publish(entity.data(),
                                                      DIALOG_EVENT_TYPE,
                                                      DIALOG_EVENT_TYPE,
                                                      1,

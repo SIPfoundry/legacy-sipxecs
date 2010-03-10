@@ -1999,7 +1999,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                 pInst->pSubscribeServer->getPublishMgr(szEventType);
             if(publishMgr)
             {
-                publishMgr->revised_getContent(szResourceId,
+                publishMgr->getContent(szResourceId,
                                        szEventType,
                                        szEventType,
                                        TRUE,
@@ -2074,7 +2074,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                         }
 
                         // Publish the content
-                        publishMgr->revised_publish(pData->pResourceId->data(),
+                        publishMgr->publish(pData->pResourceId->data(),
                                             pData->pEventType->data(),
                                             pData->pEventType->data(),
                                             1, // one content type for event
@@ -2144,7 +2144,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherUpdate(const SIPX_PUB hPub,
         if(publishMgr)
         {
             // Publish the state change
-            publishMgr->revised_publish(pData->pResourceId->data(),
+            publishMgr->publish(pData->pResourceId->data(),
                                 pData->pEventType->data(),
                                 pData->pEventType->data(),
                                 1, // one content type for event
@@ -2219,7 +2219,7 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherDestroy(const SIPX_PUB hPub,
             if(publishMgr)
             {
                 // Publish the state change
-                publishMgr->revised_unpublish(*pData->pResourceId,
+                publishMgr->unpublish(*pData->pResourceId,
                                       *pData->pEventType,
                                       *pData->pEventType,
                                       SipSubscribeServer::terminationReasonNone);

@@ -119,7 +119,7 @@ public:
          
          const char* cc = "This is a test\n";
          HttpBody* c = new HttpBody(cc, strlen(cc), mwiMimeType);
-         pubMgrp->revised_publish(notifier_resource_id,
+         pubMgrp->publish(notifier_resource_id,
                           eventName,
                           eventName,
                           1,
@@ -282,7 +282,7 @@ public:
                                                    mwiMimeType);
             SipPublishContentMgr* publishMgr = subServerp->getPublishMgr(eventName);
             CPPUNIT_ASSERT(publishMgr);
-            publishMgr->revised_publish(notifier_resource_id,
+            publishMgr->publish(notifier_resource_id,
                                 eventName,
                                 eventName,
                                 1,
@@ -422,7 +422,7 @@ public:
       {
 	// Remove the content for the resource URI.
 	subServerp->getPublishMgr(eventName)->
-	    revised_unpublish(notifier_resource_id,
+	    unpublish(notifier_resource_id,
 		      eventName,
 		      eventName,
                       SipSubscribeServer::terminationReasonNone);
@@ -611,7 +611,7 @@ public:
          
          const char* cc = "This is a test\n";
          HttpBody* c = new HttpBody(cc, strlen(cc), mwiMimeType);
-         pubMgrp->revised_publish(resource_id,
+         pubMgrp->publish(resource_id,
                           eventName,
                           eventName,
                           1,

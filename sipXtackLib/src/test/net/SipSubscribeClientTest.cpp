@@ -2007,7 +2007,7 @@ public:
          
          const char* cc = "This is a test\n";
          HttpBody* c = new HttpBody(cc, strlen(cc), eventType);
-         pubMgrp->revised_publish(resource_id,
+         pubMgrp->publish(resource_id,
                           eventType,
                           eventType,
                           1,
@@ -2101,7 +2101,7 @@ public:
          // Should not be any pre-existing content
          HttpBody* preexistingBodyPtr;
          UtlBoolean isDefaultContent;
-         CPPUNIT_ASSERT(contentMgrp->revised_getContent(resource_id,
+         CPPUNIT_ASSERT(contentMgrp->getContent(resource_id,
                                                 eventTypeKey,
                                                 eventType,
                                                 TRUE,

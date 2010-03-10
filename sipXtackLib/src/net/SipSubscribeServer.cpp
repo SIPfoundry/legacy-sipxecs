@@ -351,7 +351,7 @@ SipSubscribeServer::operator=(const SipSubscribeServer& rhs)
    return *this;
 }
 
-void SipSubscribeServer::revised_contentChangeCallback(void* applicationData,
+void SipSubscribeServer::contentChangeCallback(void* applicationData,
                                                const char* resourceId,
                                                const char* eventTypeKey,
                                                const char* eventType,
@@ -588,8 +588,8 @@ UtlBoolean SipSubscribeServer::enableEventType(const char* eventTypeToken,
         // Register the callback for changes that occur in the
         // publish content manager.
         eventData->mpEventSpecificContentMgr->
-           revised_setContentChangeObserver(eventName,
-                                    revised_contentChangeCallback,
+           setContentChangeObserver(eventName,
+                                    contentChangeCallback,
                                     this);
     }
 

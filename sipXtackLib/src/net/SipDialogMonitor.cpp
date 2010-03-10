@@ -391,7 +391,7 @@ void SipDialogMonitor::publishContent(UtlString& contact,
          // Publish the content to the subscribe server
          // Make a copy, because mpSipPublishContentMgr will own it.
          HttpBody* pHttpBody = new HttpBody(*(HttpBody*)list);
-	 mSipPublishContentMgr.revised_publish(listUri->data(),
+	 mSipPublishContentMgr.publish(listUri->data(),
                                        DIALOG_EVENT_TYPE,
                                        DIALOG_EVENT_TYPE,
                                        1,

@@ -424,7 +424,7 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
    // subscription.
    body = generateRlmiBody(consolidated, RLMI_FULL, mResourcesList);
    getResourceListServer()->getEventPublisher().
-      revised_publish(resourceListUri.data(),
+      publish(resourceListUri.data(),
               getResourceListServer()->getEventType(),
               getResourceListServer()->getEventType(),
               1, &body,
@@ -442,7 +442,7 @@ void ResourceList::genAndPublish(UtlBoolean consolidated, UtlString resourceList
    {
       body = generateRlmiBody(consolidated, RLMI_PARTIAL, partialList);
       getResourceListServer()->getEventPublisher().
-         revised_publish(resourceListUri.data(),
+         publish(resourceListUri.data(),
                  getResourceListServer()->getEventType(),
                  getResourceListServer()->getEventType(),
                  1, &body,
