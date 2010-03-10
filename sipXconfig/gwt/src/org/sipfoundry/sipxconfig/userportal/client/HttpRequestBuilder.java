@@ -14,7 +14,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
-import com.google.gwt.user.client.Window;
+import com.smartgwt.client.util.SC;
 
 import org.sipfoundry.sipxconfig.userportal.locale.SearchConstants;
 
@@ -34,34 +34,54 @@ public final class HttpRequestBuilder extends RequestBuilder {
     }
 
     public static void doPut(String url) {
+        doPut(url, null);
+    }
+
+    public static void doPut(String url, String successMessage) {
         HttpRequestBuilder builder = new HttpRequestBuilder(PUT, url);
-        sendRequest(builder, null);
+        sendRequest(builder, null, successMessage);
     }
 
     public static void doPut(String url, String postData, String contentType, String variant) {
+        doPut(url, postData, contentType, variant, null);
+    }
+
+    public static void doPut(String url, String postData, String contentType, String variant, String successMessage) {
         HttpRequestBuilder builder = new HttpRequestBuilder(PUT, url);
         builder.setHeader(contentType, variant);
-        sendRequest(builder, postData);
+        sendRequest(builder, postData, successMessage);
     }
 
     public static void doDelete(String url) {
+        doDelete(url, null);
+    }
+
+    public static void doDelete(String url, String successMessage) {
         HttpRequestBuilder builder = new HttpRequestBuilder(DELETE, url);
-        sendRequest(builder, null);
+        sendRequest(builder, null, successMessage);
     }
 
     public static void doDelete(String url, String contentType, String variant) {
+        doDelete(url, contentType, variant, null);
+    }
+
+    public static void doDelete(String url, String contentType, String variant, String successMessage) {
         HttpRequestBuilder builder = new HttpRequestBuilder(DELETE, url);
         builder.setHeader(contentType, variant);
-        sendRequest(builder, null);
+        sendRequest(builder, null, successMessage);
     }
 
     public static void doPost(String url, String postData, String contentType, String variant) {
-        HttpRequestBuilder builder = new HttpRequestBuilder(POST, url);
-        builder.setHeader(contentType, variant);
-        sendRequest(builder, postData);
+        doPost(url, postData, contentType, variant, null);
     }
 
-    private static void sendRequest(HttpRequestBuilder builder, String postData) {
+    public static void doPost(String url, String postData, String contentType, String variant, String successMessage) {
+        HttpRequestBuilder builder = new HttpRequestBuilder(POST, url);
+        builder.setHeader(contentType, variant);
+        sendRequest(builder, postData, successMessage);
+    }
+
+    private static void sendRequest(HttpRequestBuilder builder, String postData, final String successMessage) {
         try {
             builder.sendRequest(postData, new RequestCallback() {
                 public void onResponseReceived(Request request, Response response) {
@@ -70,16 +90,20 @@ public final class HttpRequestBuilder extends RequestBuilder {
                             && httpStatusCode != Response.SC_NO_CONTENT) {
                         StringBuilder errorMsg = new StringBuilder(s_searchConstants.requestFailed());
                         errorMsg.append("\n" + String.valueOf(httpStatusCode) + " " + response.getStatusText());
-                        Window.alert(errorMsg.toString());
+                        SC.warn(errorMsg.toString());
+                    } else {
+                        if (successMessage != null) {
+                            SC.say(successMessage);
+                        }
                     }
                 }
 
                 public void onError(Request request, Throwable exception) {
-                    Window.alert(s_searchConstants.requestFailed() + exception.getMessage());
+                    SC.warn(s_searchConstants.requestFailed() + exception.getMessage());
                 }
             });
         } catch (RequestException e) {
-            Window.alert(s_searchConstants.requestFailed() + e.getMessage());
+            SC.warn(s_searchConstants.requestFailed() + e.getMessage());
         }
     }
 }

@@ -103,8 +103,8 @@ public class UserPhonebookSearch implements EntryPoint {
         showOnPhone.addChangedHandler(new ChangedHandler() {
             @Override
             public void onChanged(ChangedEvent event) {
-                updateShowOnPhoneStatus(showOnPhone.getValueAsBoolean());
-                SC.say(s_searchConstants.showPersonalContactsMessage());
+                updateShowOnPhoneStatus(showOnPhone.getValueAsBoolean(), s_searchConstants
+                        .showPersonalContactsMessage());
             }
         });
 
@@ -392,7 +392,8 @@ public class UserPhonebookSearch implements EntryPoint {
                         @Override
                         public void execute(Boolean value) {
                             if (value != null && value) {
-                                ((PhonebookDataSource) grid.getDataSource()).deleteEntry(entryId);
+                                ((PhonebookDataSource) grid.getDataSource()).deleteEntry(entryId, s_searchConstants
+                                        .deleteContactSuccessMessage());
                                 grid.refreshRecordsWithDelay();
                             }
                         }
@@ -586,10 +587,12 @@ public class UserPhonebookSearch implements EntryPoint {
             } else {
                 if (m_vm.validate() && m_vm.valuesHaveChanged()) {
                     if (m_edit) {
-                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).editEntry(entryId, m_vm);
+                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).editEntry(entryId, m_vm,
+                                s_searchConstants.editContactSuccessMessage());
                         s_phonebookGrid.refreshRecordsWithDelay();
                     } else {
-                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).addEntry(entryId, m_vm);
+                        ((PhonebookDataSource) s_phonebookGrid.getDataSource()).addEntry(entryId, m_vm,
+                                s_searchConstants.addContactSuccessMessage());
                         s_phonebookGrid.refreshRecordsWithDelay();
                         addData();
                     }
@@ -743,8 +746,8 @@ public class UserPhonebookSearch implements EntryPoint {
         return phoneNumber.replaceAll("[^0-9+]", EMPTY_STRING);
     }
 
-    private static void updateShowOnPhoneStatus(Boolean show) {
-        HttpRequestBuilder.doPut("/sipxconfig/rest/my/phonebook/showContactsOnPhone/" + show);
+    private static void updateShowOnPhoneStatus(Boolean show, String successMessage) {
+        HttpRequestBuilder.doPut("/sipxconfig/rest/my/phonebook/showContactsOnPhone/" + show, successMessage);
     }
 
     private static class AvatarSection extends VLayout {
@@ -895,11 +898,11 @@ public class UserPhonebookSearch implements EntryPoint {
 
                             @Override
                             public void onError(Request request, Throwable exception) {
-                                SC.say(s_searchConstants.gmailImportFailed());
+                                SC.warn(s_searchConstants.gmailImportFailed());
                             }
                         });
                     } catch (RequestException ex) {
-                        SC.say(s_searchConstants.gmailImportFailed());
+                        SC.warn(s_searchConstants.gmailImportFailed());
                     }
                     destroy();
                 }

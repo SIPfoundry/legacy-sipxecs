@@ -158,4 +158,10 @@ public interface SearchConstants extends ConstantsWithLookup {
     String showPersonalContactsMessage();
 
     String defaultGoogleDomain();
+
+    String deleteContactSuccessMessage();
+
+    String addContactSuccessMessage();
+
+    String editContactSuccessMessage();
 }

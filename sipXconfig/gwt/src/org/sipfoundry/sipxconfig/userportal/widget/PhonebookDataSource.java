@@ -153,18 +153,18 @@ public class PhonebookDataSource extends DataSource {
         setClientOnly(false);
     }
 
-    public void deleteEntry(String entryId) {
-        HttpRequestBuilder.doDelete(getPhoneBookEntryUrl(entryId), CONTENT_TYPE, VARIANT);
+    public void deleteEntry(String entryId, String successMessage) {
+        HttpRequestBuilder.doDelete(getPhoneBookEntryUrl(entryId), CONTENT_TYPE, VARIANT, successMessage);
     }
 
-    public void editEntry(String entryId, ValuesManager vm) {
+    public void editEntry(String entryId, ValuesManager vm, String successMessage) {
         HttpRequestBuilder.doPut(getPhoneBookEntryUrl(entryId), buildJsonRequest(vm).toString(), CONTENT_TYPE,
-                VARIANT);
+                VARIANT, successMessage);
     }
 
-    public void addEntry(String entryId, ValuesManager vm) {
+    public void addEntry(String entryId, ValuesManager vm, String successMessage) {
         HttpRequestBuilder.doPost(getPhoneBookEntryUrl(entryId), buildJsonRequest(vm).toString(), CONTENT_TYPE,
-                VARIANT);
+                VARIANT, successMessage);
     }
 
     public JSONObject buildJsonRequest(ValuesManager form) {
