@@ -55,6 +55,14 @@
   </bean>
   <alias name="userPhonebookEntry" alias="/my/phonebook/entry/{entryId}" />
 
+  <bean id="showContactsOnPhone" class="org.sipfoundry.sipxconfig.rest.ShowContactsOnPhoneResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+	<property name="phonebookManager" ref="phonebookManager" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="showContactsOnPhone" alias="/my/phonebook/showContactsOnPhone/{value}" />
+
   <bean id="googleImportResource" class="org.sipfoundry.sipxconfig.rest.GoogleImportResource" scope="prototype">
     <property name="coreContext" ref="coreContext" />
     <property name="phonebookManager" ref="phonebookManager" />

@@ -18,6 +18,25 @@
     </div>
     <div jwcid="@Else">
       <form jwcid="@Form" delegate="bean:validator">
+        <div jwcid="@If" condition="ognl:privatePhonebook != null">
+          <fieldset>
+            <table>
+              <tr jwcid="@common/FieldPanel" for="showPersonalContacts"
+                field="component:showPersonalContacts"
+                label="message:label.showPersonalContacts"
+                description="message:description.showPersonalContacts">
+                <input jwcid="showPersonalContacts@Checkbox" id="showPersonalContacts"
+                  value="ognl:privatePhonebook.showOnPhone"
+                  displayName="message:label.showPersonalContacts"/>
+                  <td>
+                    <input jwcid="apply@Submit" id="managePhonebooks:apply"
+                      value="message:button.apply"
+                      listener="listener:savePrivatePhonebook" />
+                  </td>
+              </tr>
+            </table>
+          </fieldset>
+        </div>
         <ul class="component-links">
           <li>
             <span jwcid="@phone/ModelSelector" userId="ognl:userId"/>

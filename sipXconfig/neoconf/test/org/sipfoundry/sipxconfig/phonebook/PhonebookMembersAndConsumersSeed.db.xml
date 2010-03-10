@@ -30,10 +30,12 @@
   <phonebook name="test2" phonebook_id="1002"/>
   <!-- intentionlally blank -->
   
-  <phonebook name="test3" phonebook_id="1003"/>
+  <phonebook name="test3" phonebook_id="1003" />
   <phonebook_member phonebook_id="1003" group_id="1003"/>
   <phonebook_consumer phonebook_id="1003" group_id="1001"/>
 
-  <phonebook name="private" phonebook_id="1004" user_id="1002"/>
+  <phonebook name="private" phonebook_id="1004" user_id="1002" show_on_phone="false"/>
   <phonebook_file_entry phonebook_file_entry_id="101" first_name="John" phone_number="10020" phonebook_id="1004" phonebook_entry_type="U"/>
+
+  <google_domain domain_name="mydomain.com" google_domain_id="1" />
 </dataset>

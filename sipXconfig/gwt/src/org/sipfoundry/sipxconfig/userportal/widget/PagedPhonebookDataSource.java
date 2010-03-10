@@ -50,11 +50,13 @@ public abstract class PagedPhonebookDataSource extends PhonebookDataSource {
     protected void transformResponse(DSResponse response, DSRequest request, Object data) {
         if (request.getOperationType().equals(DSOperationType.FETCH)) {
             Integer size = Integer.parseInt(XMLTools.selectString(data, "/phonebook/size"));
-            onDataFetch(size);
+            String showOnPhoneStatus = XMLTools.selectString(data, "/phonebook/show-on-phone");
+            String googleDomain = XMLTools.selectString(data, "/phonebook/google-domain");
+            onDataFetch(size, showOnPhoneStatus, googleDomain);
         } else {
             super.transformResponse(response, request, data);
         }
     }
 
-    protected abstract void onDataFetch(Integer size);
+    protected abstract void onDataFetch(Integer size, String showOnPhoneStatus, String googleDomain);
 }

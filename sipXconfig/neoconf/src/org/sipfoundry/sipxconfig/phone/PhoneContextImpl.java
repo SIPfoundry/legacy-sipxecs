@@ -341,7 +341,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
     public Collection<PhonebookEntry> getPhonebookEntries(Phone phone) {
         User user = phone.getPrimaryUser();
         if (user != null) {
-            Collection<Phonebook> books = m_phonebookManager.getAllPhonebooksByUser(user);
+            Collection<Phonebook> books = filterPhonebooks(m_phonebookManager.getAllPhonebooksByUser(user));
             return filterPhonebookEntries(m_phonebookManager.getEntries(books, user));
         }
         return Collections.emptyList();
@@ -351,6 +351,16 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         Collection entriesToRemove = select(entries, new InvalidGoogleEntrySearchPredicate());
         entries.removeAll(entriesToRemove);
         return entries;
+    }
+
+    private Collection<Phonebook> filterPhonebooks(Collection<Phonebook> books) {
+        Collection<Phonebook> filteredPhonebooks = new ArrayList<Phonebook>();
+        for (Phonebook book : books) {
+            if (book.getShowOnPhone()) {
+                filteredPhonebooks.add(book);
+            }
+        }
+        return filteredPhonebooks;
     }
 
     public SpeedDial getSpeedDial(Phone phone) {

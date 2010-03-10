@@ -152,4 +152,10 @@ public interface SearchConstants extends ConstantsWithLookup {
     String previousPage();
 
     String emptyPhoneList();
+
+    String showPersonalContactsOnPhone();
+
+    String showPersonalContactsMessage();
+
+    String defaultGoogleDomain();
 }

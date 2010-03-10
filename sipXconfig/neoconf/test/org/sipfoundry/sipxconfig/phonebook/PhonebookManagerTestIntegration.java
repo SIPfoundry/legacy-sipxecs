@@ -236,6 +236,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals(3, pagedPhonebook.getFilteredSize());
         assertEquals(0, pagedPhonebook.getStartRow());
         assertEquals(1, pagedPhonebook.getEndRow());
+        assertNull(pagedPhonebook.getShowOnPhone());
         Iterator<PhonebookEntry> entries = pagedPhonebook.getEntries().iterator();
         assertEquals("mallard", entries.next().getNumber());
 
@@ -265,6 +266,12 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals(4, pagedPhonebook.getFilteredSize());
         assertEquals(0, pagedPhonebook.getStartRow());
         assertEquals(4, pagedPhonebook.getEndRow());
+
+        User canadian = m_coreContext.loadUser(1002);
+        Collection<Phonebook> canadianBooks = m_phonebookManager.getPublicPhonebooksByUser(canadian);
+        PagedPhonebook canadianPagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "1", null);
+        assertFalse(canadianPagedPhonebook.getShowOnPhone());
+        assertEquals("mydomain.com", canadianPagedPhonebook.getDefaultGoogleDomain());
     }
 
     public void testGetPrivatePagedPhonebook() throws Exception {

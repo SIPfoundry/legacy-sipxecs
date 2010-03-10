@@ -39,6 +39,7 @@ import com.smartgwt.client.widgets.events.CloseClickHandler;
 import com.smartgwt.client.widgets.events.CloseClientEvent;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.ValuesManager;
+import com.smartgwt.client.widgets.form.fields.CheckboxItem;
 import com.smartgwt.client.widgets.form.fields.FormItem;
 import com.smartgwt.client.widgets.form.fields.PasswordItem;
 import com.smartgwt.client.widgets.form.fields.SelectItem;
@@ -77,13 +78,35 @@ public class UserPhonebookSearch implements EntryPoint {
     public void onModuleLoad() {
 
         final PageBrowseLayout pageBrowseLayout = new PageBrowseLayout();
+        final CheckboxItem showOnPhone = new CheckboxItem(s_searchConstants.showPersonalContactsOnPhone());
+        showOnPhone.setVisible(false);
+
+        final DynamicForm showOnPhoneForm = new DynamicForm();
+        showOnPhoneForm.setFields(showOnPhone);
+
+        final Label googleDomain = new Label();
 
         final DataSource phonebookDS = new PagedPhonebookDataSource("phonebookGridId") {
             @Override
-            protected void onDataFetch(Integer size) {
+            protected void onDataFetch(Integer size, String showStatus, String domain) {
                 pageBrowseLayout.update(size, this);
+                if (showStatus.equalsIgnoreCase("n/a")) {
+                    showOnPhone.hide();
+                } else {
+                    showOnPhone.show();
+                    showOnPhone.setValue(Boolean.valueOf(showStatus));
+                }
+                googleDomain.setContents(s_searchConstants.defaultGoogleDomain() + domain);
             }
         };
+
+        showOnPhone.addChangedHandler(new ChangedHandler() {
+            @Override
+            public void onChanged(ChangedEvent event) {
+                updateShowOnPhoneStatus(showOnPhone.getValueAsBoolean());
+                SC.say(s_searchConstants.showPersonalContactsMessage());
+            }
+        });
 
         final PhonebookGrid phonebookGrid = new PhonebookGrid(phonebookDS);
         final Details details = new Details(phonebookGrid);
@@ -123,10 +146,14 @@ public class UserPhonebookSearch implements EntryPoint {
         Tab entriesTab = new Tab(s_searchConstants.entries());
 
         HLayout leftHLayout = new HLayout();
+        leftHLayout.setMargin(10);
         leftHLayout.addMember(searchForm);
+        leftHLayout.addMember(showOnPhoneForm);
         leftHLayout.setWidth("50%");
 
         HLayout rightHLayout = new HLayout();
+        rightHLayout.setMargin(10);
+        rightHLayout.addMember(googleDomain);
         rightHLayout.addMember(gmailImport);
         rightHLayout.setWidth(WILD_CARD);
         rightHLayout.setAlign(Alignment.RIGHT);
@@ -714,6 +741,10 @@ public class UserPhonebookSearch implements EntryPoint {
      */
     private static String formatPhoneNumber(String phoneNumber) {
         return phoneNumber.replaceAll("[^0-9+]", EMPTY_STRING);
+    }
+
+    private static void updateShowOnPhoneStatus(Boolean show) {
+        HttpRequestBuilder.doPut("/sipxconfig/rest/my/phonebook/showContactsOnPhone/" + show);
     }
 
     private static class AvatarSection extends VLayout {

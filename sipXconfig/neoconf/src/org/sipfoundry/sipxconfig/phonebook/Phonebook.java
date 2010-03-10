@@ -22,6 +22,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 public class Phonebook extends BeanWithId implements NamedObject {
     private String m_name;
     private String m_description;
+    private boolean m_showOnPhone = true;
     private Set<Group> m_members = new TreeSet<Group>();
     private Set<Group> m_consumers = new TreeSet<Group>();
     private Collection<PhonebookEntry> m_entries = new ArrayList<PhonebookEntry>();
@@ -67,6 +68,14 @@ public class Phonebook extends BeanWithId implements NamedObject {
 
     public void setDescription(String description) {
         m_description = description;
+    }
+
+    public boolean getShowOnPhone() {
+        return m_showOnPhone;
+    }
+
+    public void setShowOnPhone(boolean show) {
+        m_showOnPhone = show;
     }
 
     public Collection<PhonebookEntry> getEntries() {

@@ -220,5 +220,8 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
 
         Phone phone = m_context.loadPhone(1001);
         assertEquals(3, m_context.getPhonebookEntries(phone).size());
+
+        Phone phone2 = m_context.loadPhone(2001);
+        assertEquals(0, m_context.getPhonebookEntries(phone2).size());
     }
 }

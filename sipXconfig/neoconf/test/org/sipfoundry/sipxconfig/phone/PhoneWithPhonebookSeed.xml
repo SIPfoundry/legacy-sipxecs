@@ -2,13 +2,19 @@
 <!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
 <dataset>
 	<value_storage value_storage_id="1001"/>
+	<value_storage value_storage_id="2001"/>
 	<group_storage group_id="1001" name="phone group 1" resource="phone" description="phone group 1" weight="0"/>
+	<group_storage group_id="2001" name="phone group 2" resource="phone" description="phone group 2" weight="0"/>
 
 	<phone serial_number="0123456789ab" phone_id="1001" bean_id="testPhone" model_id="testPhoneModel"/>
+	<phone serial_number="0223456789ab" phone_id="2001" bean_id="testPhone" model_id="testPhoneModel"/>
 	<phone_group phone_id="1001" group_id="1001"/>
+	<phone_group phone_id="2001" group_id="2001"/>
 
 	<users user_id="1001" user_name="testuser1" user_type="C"/>
+	<users user_id="2001" user_name="testuser2" user_type="C"/>
 	<line line_id="1001" phone_id="1001" position="0" user_id="1001" />
+	<line line_id="2001" phone_id="2001" position="0" user_id="2001" />
 
 	<user_group group_id="1001" user_id="1001" />
 	<phonebook name="privatePhonebook_1001" phonebook_id="1001" user_id="1001"/>
@@ -23,5 +29,9 @@
 	<phonebook name="publicPhonebook" phonebook_id="1002" />
 	<phonebook_file_entry phonebook_file_entry_id="5" first_name="test9" last_name="test10" phonebook_id="1002" phonebook_entry_type="F"/>
 	<phonebook_consumer phonebook_id="1002" group_id="1000" />
+
+	<user_group group_id="2001" user_id="2001" />
+	<phonebook name="privatePhonebook_2001" phonebook_id="2001" user_id="2001" show_on_phone="false"/>
+	<phonebook_file_entry phonebook_file_entry_id="6" first_name="entryFirst" last_name="entryLast" phone_number="123" phonebook_id="2001" phonebook_entry_type="G"/>
 
 </dataset>

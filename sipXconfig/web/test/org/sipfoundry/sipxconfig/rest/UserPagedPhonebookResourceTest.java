@@ -119,7 +119,7 @@ public class UserPagedPhonebookResourceTest extends TestCase {
         entry5.setNumber("204");
         entry5.setAddressBookEntry(new AddressBookEntry());
 
-        return new PagedPhonebook(Arrays.asList(entry1, entry2), 5, "0", "2");
+        return new PagedPhonebook(Arrays.asList(entry1, entry2), 5, "0", "2", null, "mydomain.com");
     }
 
     public void testRepresentXml() throws Exception {

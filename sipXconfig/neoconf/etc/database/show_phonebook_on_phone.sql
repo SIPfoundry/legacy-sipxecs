@@ -1,0 +1,1 @@
+ALTER TABLE phonebook ADD show_on_phone boolean DEFAULT true;

@@ -617,6 +617,12 @@
     group_id CDATA #REQUIRED
 >
 
+<!ELEMENT google_domain EMPTY>
+<!ATTLIST google_domain
+    google_domain_id CDATA #REQUIRED
+    domain_name CDATA #REQUIRED
+>
+
 <!ELEMENT phonebook EMPTY>
 <!ATTLIST phonebook
     phonebook_id CDATA #REQUIRED
@@ -625,6 +631,7 @@
     members_csv_filename CDATA #IMPLIED
     members_vcard_filename CDATA #IMPLIED
 	user_id CDATA #IMPLIED
+	show_on_phone CDATA #IMPLIED
 >
 
 <!ELEMENT phonebook_consumer EMPTY>

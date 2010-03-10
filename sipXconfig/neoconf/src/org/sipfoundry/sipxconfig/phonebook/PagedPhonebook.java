@@ -24,9 +24,12 @@ public class PagedPhonebook implements Serializable {
     private int m_startRow;
     private int m_endRow;
     private int m_filteredSize;
+    private Boolean m_showOnPhone;
+    private String m_defaultGoogleDomain;
     private Collection<PhonebookEntry> m_entries;
 
-    public PagedPhonebook(Collection<PhonebookEntry> entries, int totalSize, String start, String stop) {
+    public PagedPhonebook(Collection<PhonebookEntry> entries, int totalSize, String start, String stop,
+            Boolean showOnPhone, String defaultGoogleDomain) {
         m_size = totalSize;
         m_filteredSize = entries.size();
         m_startRow = parseRow(start, DEFAULT_START_ROW);
@@ -42,6 +45,8 @@ public class PagedPhonebook implements Serializable {
 
         LinkedList<PhonebookEntry> entriesList = new LinkedList<PhonebookEntry>(entries);
         m_entries = entriesList.subList(m_startRow, m_endRow);
+        m_showOnPhone = showOnPhone;
+        m_defaultGoogleDomain = defaultGoogleDomain;
     }
 
     public int getSize() {
@@ -62,6 +67,14 @@ public class PagedPhonebook implements Serializable {
 
     public Collection<PhonebookEntry> getEntries() {
         return m_entries;
+    }
+
+    public Boolean getShowOnPhone() {
+        return m_showOnPhone;
+    }
+
+    public String getDefaultGoogleDomain() {
+        return m_defaultGoogleDomain;
     }
 
     private int parseRow(String rowValue, int defaultRow) {

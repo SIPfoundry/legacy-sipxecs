@@ -244,9 +244,11 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         Collection<PhonebookEntry> entries = convertPhonebookEntries(getEntries(phonebook, user));
 
         // add private phonebook
+        Boolean showOnPhone = null;
         Phonebook privatePhonebook = getPrivatePhonebook(user);
         if (privatePhonebook != null) {
             entries.addAll(privatePhonebook.getEntries());
+            showOnPhone = privatePhonebook.getShowOnPhone();
         }
 
         int totalSize = entries.size();
@@ -255,7 +257,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         }
 
         Collections.sort(new LinkedList(entries), new PhoneEntryComparator());
-        return new PagedPhonebook(entries, totalSize, startRow, endRow);
+        return new PagedPhonebook(entries, totalSize, startRow, endRow, showOnPhone, getGoogleDomain()
+                .getDomainName());
     }
 
     public Collection<PhonebookEntry> getEntries(Phonebook phonebook) {

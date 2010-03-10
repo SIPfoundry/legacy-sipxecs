@@ -36,8 +36,13 @@ public class UserPagedPhonebookResource extends UserPhonebookSearchResource {
         Collection<Phonebook> phonebooks = getPhonebookManager().getPublicPhonebooksByUser(getUser());
         PagedPhonebook pagedPhonebook = getPhonebookManager().getPagedPhonebook(phonebooks, getUser(), start, end,
                 queryString);
+        String showOnPhoneStatus = "n/a";
+        if (pagedPhonebook.getShowOnPhone() != null) {
+            showOnPhoneStatus = String.valueOf(pagedPhonebook.getShowOnPhone());
+        }
         PrivatePagedPhonebook privatePagedPhonebook = new PrivatePagedPhonebook(pagedPhonebook.getSize(),
                 pagedPhonebook.getFilteredSize(), pagedPhonebook.getStartRow(), pagedPhonebook.getEndRow(),
+                showOnPhoneStatus, pagedPhonebook.getDefaultGoogleDomain(),
                 convertPhonebookEntries(pagedPhonebook.getEntries()));
         return new PagedPhonebookRepresentation(variant.getMediaType(), privatePagedPhonebook);
     }
@@ -52,14 +57,20 @@ public class UserPagedPhonebookResource extends UserPhonebookSearchResource {
         @SuppressWarnings("unused")
         private final int m_endRow;
         @SuppressWarnings("unused")
+        private final String m_showOnPhone;
+        @SuppressWarnings("unused")
+        private final String m_defaultGoogleDomain;
+        @SuppressWarnings("unused")
         private final ArrayList<Representable> m_entries;
 
-        public PrivatePagedPhonebook(int size, int filteredSize, int startRow, int endRow,
-                ArrayList<Representable> entries) {
+        public PrivatePagedPhonebook(int size, int filteredSize, int startRow, int endRow, String showOnPhone,
+                String defaultGoogleDomain, ArrayList<Representable> entries) {
             m_size = size;
             m_filteredSize = filteredSize;
             m_startRow = startRow;
             m_endRow = endRow;
+            m_showOnPhone = showOnPhone;
+            m_defaultGoogleDomain = defaultGoogleDomain;
             m_entries = entries;
         }
     }
@@ -80,6 +91,8 @@ public class UserPagedPhonebookResource extends UserPhonebookSearchResource {
             xstream.aliasField("filtered-size", PrivatePagedPhonebook.class, "filteredSize");
             xstream.aliasField("start-row", PrivatePagedPhonebook.class, "startRow");
             xstream.aliasField("end-row", PrivatePagedPhonebook.class, "endRow");
+            xstream.aliasField("google-domain", PrivatePagedPhonebook.class, "defaultGoogleDomain");
+            xstream.aliasField("show-on-phone", PrivatePagedPhonebook.class, "showOnPhone");
             xstream.alias("entry", Representable.class);
             xstream.aliasField("first-name", Representable.class, "firstName");
             xstream.aliasField("last-name", Representable.class, "lastName");

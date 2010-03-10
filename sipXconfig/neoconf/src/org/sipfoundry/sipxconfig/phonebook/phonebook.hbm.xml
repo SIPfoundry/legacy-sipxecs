@@ -11,6 +11,7 @@
     </id>
     <property name="name" />
     <property name="description" />
+    <property name="showOnPhone" column="show_on_phone" />
     <set name="consumers" table="phonebook_consumer">
       <key column="phonebook_id" />
       <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
