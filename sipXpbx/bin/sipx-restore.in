@@ -218,6 +218,14 @@ then
     popd > /dev/null
     echo "done."
   fi
+
+  # Restore NTP configuration
+  echo -n "Restoring /etc/ntp.conf file..."
+  NTPConfigFile="ntp.conf.backup"
+  tar --gzip --extract --file=$CONFIGURATION_PATH -C @SIPX_TMPDIR@  $NTPConfigFile
+  @SIPX_BINDIR@/sipx-time-manager --set-configuration @SIPX_TMPDIR@/$NTPConfigFile
+  rm -f @SIPX_TMPDIR@/$NTPConfigFile
+  echo "done."
   
 fi # *** END Configuration ***
 
