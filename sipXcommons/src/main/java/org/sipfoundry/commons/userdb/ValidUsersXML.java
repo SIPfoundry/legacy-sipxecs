@@ -371,6 +371,21 @@ public class ValidUsersXML {
         return output.toString();
     }
 
+    public static String getDomainPart(String uri) {
+        if (uri == null) {
+            return null;
+        }
+
+        String domainName = uri;
+        int atStart = domainName.indexOf("@");
+        if (atStart <= 0) {
+            return null;
+        }
+
+        domainName = domainName.substring(atStart+1);
+        return domainName.trim();
+    }
+
     public static String getUserPart(String uri) {
         if (uri == null) {
             return null;
