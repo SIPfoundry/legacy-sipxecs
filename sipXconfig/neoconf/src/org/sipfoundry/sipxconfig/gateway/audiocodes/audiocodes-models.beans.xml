@@ -37,15 +37,15 @@
   </bean>
 
   <bean id="audiocodesMediant1000" parent="audiocodesMediant">
-    <property name="label" value="AudioCodes Mediant 1000" />
+    <property name="label" value="AudioCodes Mediant 1000 PRI" />
   </bean>
 
   <bean id="audiocodesMediant2000" parent="audiocodesMediant">
-    <property name="label" value="AudioCodes Mediant 2000" />
+    <property name="label" value="AudioCodes Mediant 2000 PRI" />
   </bean>
 
   <bean id="audiocodesMediant3000" parent="audiocodesMediant">
-    <property name="label" value="AudioCodes Mediant 3000" />
+    <property name="label" value="AudioCodes Mediant 3000 PRI" />
   </bean>
 
   <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesDigitalGateway"
@@ -72,8 +72,8 @@
   </bean>
 
   <bean id="audiocodesMediantBRI" parent="audiocodesBRI">
-    <property name="label" value="AudioCodes Mediant BRI" />
-    <property name="maxPorts" value="4" />
+    <property name="label" value="AudioCodes Mediant 1000 BRI" />
+    <property name="maxPorts" value="24" />
   </bean>
 
   <bean id="gwAudiocodesBRI" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesBRIGateway"
