@@ -29,6 +29,10 @@ JavaHome=""
 # Executable we're looking for
 JavaTool="java"
 
+# common java arguments:
+#    -Dcom.ibm.tools.attach.enable=no used to get around XX-7634
+CommonJavaArgs="-Dcom.ibm.tools.attach.enable=no"
+
 # All sipx programs require 1.4 or above, if this does not become
 # true, I suggest parameter-izing this
 JavaVersions="1\.[456]"
@@ -111,7 +115,7 @@ NOJAVA
         exit 1
     fi
 
-    echo "$JavaToolCommand"
+    echo "$JavaToolCommand $CommonJavaArgs"
     exit 0
 
 fi
