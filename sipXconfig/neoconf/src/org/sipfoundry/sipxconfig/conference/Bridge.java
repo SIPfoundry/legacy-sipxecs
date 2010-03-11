@@ -9,12 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
@@ -25,7 +27,8 @@ import org.sipfoundry.sipxconfig.setting.type.SettingType;
 
 public class Bridge extends BeanWithSettings {
     public static final String BEAN_NAME = "conferenceBridge";
-
+    public static final String PROMPTS_DEFAULT = "stdprompts";
+    public static final String CONFERENCE = "conf";
     public static final String CONFERENCES_PROP = "conferences";
     public static final String SERVICE_URI_PROP = "serviceUri";
 
@@ -41,14 +44,23 @@ public class Bridge extends BeanWithSettings {
     public static final String CALL_CONTROL_TALK_RESET = "fs-conf-bridge/dtmf-commands/audio-volume/mic-reset";
     public static final String CALL_CONTROL_TALK_DOWN = "fs-conf-bridge/dtmf-commands/audio-volume/mic-down";
     public static final String CALL_CONTROL_HANGUP = "fs-conf-bridge/dtmf-commands/hung-up/hungup";
-
+    public static final String SLASH = System.getProperty("file.separator");
 
     private Set<Conference> m_conferences = new LinkedHashSet<Conference>();
-
     private String m_audioDirectory;
+    private LocalizationContext m_localizationContext;
+    private String m_promptsDir;
 
     /** The associated FreeSWITCH service. */
     private LocationSpecificService m_service;
+
+    public void setLocalizationContext(LocalizationContext localizationContext) {
+        m_localizationContext = localizationContext;
+    }
+
+    public void setPromptsDir(String promptsDir) {
+        m_promptsDir = promptsDir;
+    }
 
     public LocationSpecificService getService() {
         return m_service;
@@ -102,6 +114,14 @@ public class Bridge extends BeanWithSettings {
     }
 
     public String getAudioDirectory() {
+        String path = m_promptsDir + SLASH + m_localizationContext.getCurrentLanguageDir();
+        String tmpPath = path + SLASH + CONFERENCE;
+        File testFile = new File(tmpPath);
+        if (testFile.exists()) {
+            m_audioDirectory = path;
+        } else {
+            m_audioDirectory = m_promptsDir + SLASH + PROMPTS_DEFAULT;
+        }
         return m_audioDirectory;
     }
 

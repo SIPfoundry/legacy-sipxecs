@@ -22,10 +22,12 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -36,9 +38,11 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
@@ -63,6 +67,10 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     private DomainManager m_domainManager;
     private SipxServiceBundle m_conferenceBundle;
     private DaoEventPublisher m_daoEventPublisher;
+
+    private SipxServiceManager m_sipxServiceManager;
+    private SipxReplicationContext m_replicationContext;
+    private ServiceConfigurator m_serviceConfigurator;
 
     public List getBridges() {
         return getHibernateTemplate().loadAll(Bridge.class);
@@ -368,4 +376,28 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         m_daoEventPublisher = daoEventPublisher;
     }
 
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+    public void setReplicationContext(SipxReplicationContext replicationContext) {
+        m_replicationContext = replicationContext;
+    }
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
+    }
+
+    public void updateConfAudio() {
+        SipxFreeswitchService service = getSipxFreeswitchService();
+        List< ? extends ConfigurationFile> configurationFiles = service.getConfigurations();
+        for (ConfigurationFile configurationFile : configurationFiles) {
+            if (configurationFile instanceof ConferenceConfiguration) {
+                m_replicationContext.replicate(configurationFile);
+                m_serviceConfigurator.markServiceForRestart(service);
+            }
+        }
+    }
+
+    private SipxFreeswitchService getSipxFreeswitchService() {
+        return (SipxFreeswitchService) m_sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+    }
 }

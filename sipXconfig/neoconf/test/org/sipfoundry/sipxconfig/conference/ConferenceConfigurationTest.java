@@ -46,7 +46,12 @@ public class ConferenceConfigurationTest extends TestCase {
     }
 
     public void testGenerate() throws Exception {
-        Bridge bridge = new Bridge();
+        Bridge bridge = new Bridge() {
+            @Override
+            public String getAudioDirectory() {
+                return "/audioDirectory";
+            }
+        };
         bridge.setModelFilesContext(TestHelper.getModelFilesContext());
         bridge.getSettings();
         bridge.setSettingValue(Bridge.CALL_CONTROL_MUTE, "1");
@@ -61,8 +66,6 @@ public class ConferenceConfigurationTest extends TestCase {
         bridge.setSettingValue(Bridge.CALL_CONTROL_TALK_RESET, "#");
         bridge.setSettingValue(Bridge.CALL_CONTROL_TALK_DOWN, "*");
         bridge.setSettingValue(Bridge.CALL_CONTROL_HANGUP, "0");
-
-        bridge.setAudioDirectory("/audioDirectory");
 
         User owner = new User();
 

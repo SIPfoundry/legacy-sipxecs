@@ -17,6 +17,7 @@
     <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
     <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
   </bean>
 
   <bean id="localizationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

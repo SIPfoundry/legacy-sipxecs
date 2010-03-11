@@ -3,6 +3,8 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean name="conferenceBridge" class="org.sipfoundry.sipxconfig.conference.Bridge" scope="prototype" parent="beanWithSettings">
+    <property name="localizationContext" ref="localizationContext"/>
+    <property name="promptsDir" value="${sysdir.doc}"/>
     <property name="audioDirectory" value="${sysdir.doc}/stdprompts" />
     <!-- default value - overridden in sipxconfig.properties -->
   </bean>
@@ -35,6 +37,9 @@
       <ref local="conferenceBridgeProvisioning" />
     </property>
     <property name="conferenceBundle" ref="conferenceBundle" />
+    <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
+    <property name="replicationContext" ref="sipxReplicationContextDao" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="conferenceBridgeContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

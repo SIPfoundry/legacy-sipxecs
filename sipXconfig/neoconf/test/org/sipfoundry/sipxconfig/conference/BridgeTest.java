@@ -9,11 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import java.io.File;
+import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.localization.LocalizationContext;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxParkService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public class BridgeTest extends BeanWithSettingsTestCase {
 
@@ -74,10 +83,39 @@ public class BridgeTest extends BeanWithSettingsTestCase {
         // Test setting explicit values
         location.setFqdn("bridge");
         location.setName("Example Bridge");
-        bridge.setAudioDirectory("/tmp") ;
 
         assertEquals("bridge", bridge.getHost());
         assertEquals("Example Bridge", bridge.getDescription());
-        assertEquals("/tmp", bridge.getAudioDirectory());
+    }
+
+    public void testGetAudioDirecotry() {
+        Bridge bridge = new Bridge();
+        LocalizationContext localContex = createMock(LocalizationContext.class);
+        expect(localContex.getCurrentLanguage()).andReturn("fr");
+        expect(localContex.getCurrentLanguageDir()).andReturn("stdprompts_fr");
+        replay(localContex);
+        String sysdirDoc = TestHelper.getSysDirProperties().getProperty("sysdir.doc");
+        bridge.setLocalizationContext(localContex);
+        bridge.setPromptsDir(sysdirDoc);
+        String path = sysdirDoc+System.getProperty("file.separator")+"stdprompts_fr";
+        new File(path+System.getProperty("file.separator")+"conf").mkdirs();
+        bridge.setAudioDirectory(path);
+        assertEquals(path, bridge.getAudioDirectory());
+    }
+
+    public void testGetDefaultAudioDirecotry() {
+        Bridge bridge = new Bridge();
+        LocalizationContext localContex = createMock(LocalizationContext.class);
+        expect(localContex.getCurrentLanguage()).andReturn("ja");
+        expect(localContex.getCurrentLanguageDir()).andReturn("stdprompts_ja");
+        replay(localContex);
+        String sysdirDoc = TestHelper.getSysDirProperties().getProperty("sysdir.doc");
+        bridge.setLocalizationContext(localContex);
+        bridge.setPromptsDir(sysdirDoc);
+        String path = sysdirDoc+System.getProperty("file.separator")+"stdprompts";
+        new File(path+System.getProperty("file.separator")+"conf").mkdirs();
+        bridge.setAudioDirectory(path);
+        assertEquals(path, bridge.getAudioDirectory());
     }
 }
+

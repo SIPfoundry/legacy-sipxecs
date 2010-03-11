@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl.RegionDialPl
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
@@ -54,6 +55,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private ServiceConfigurator m_serviceConfigurator;
     private DialPlanActivationManager m_dialPlanActivationManager;
     private AutoAttendantManager m_autoAttendantManager;
+    private ConferenceBridgeContext m_conferenceBridgeContext;
 
     public void setRegionDir(String regionDir) {
         m_regionDir = regionDir;
@@ -88,6 +90,11 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     @Required
     public void setAutoAttendantManager(AutoAttendantManager autoAttendantManager) {
         m_autoAttendantManager = autoAttendantManager;
+    }
+
+    @Required
+    public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
+        m_conferenceBridgeContext = conferenceBridgeContext;
     }
 
     public void setDefaultLanguage(String defaultLanguage) {
@@ -215,10 +222,9 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         // to AutoAttendant prompts directory.
         m_autoAttendantManager.updatePrompts(new File(m_promptsDir, getCurrentLanguageDir()));
         getHibernateTemplate().saveOrUpdate(localization);
-
         // new to push domain config and dial plans for all locations...
         m_serviceConfigurator.initLocations();
-
+        m_conferenceBridgeContext.updateConfAudio();
         return 1;
     }
 

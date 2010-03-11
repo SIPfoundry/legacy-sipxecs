@@ -63,4 +63,10 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     List<Conference> filterConferencesByPage(final Integer bridgeId, final Integer ownerGroupId, int firstRow,
             int pageSize, String[] orderBy, boolean orderAscending);
+    /**
+     * Update the conference audio path
+     * Replicates configuration to all locations
+     * @param conf configuration to be replicated
+     */
+    void updateConfAudio();
 }
