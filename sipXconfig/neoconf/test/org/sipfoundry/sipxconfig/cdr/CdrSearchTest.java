@@ -42,7 +42,7 @@ public class CdrSearchTest extends TestCase {
         search.setMode(CdrSearch.Mode.CALLEE);
         StringBuilder sql = new StringBuilder();
         assertTrue(sql.toString(), search.appendGetSql(sql));
-        assertEquals(" AND (callee_aor LIKE '%<sip:abc@%>' AND callee_route='INT')", sql.toString());
+        assertEquals(" AND (callee_aor LIKE '%<sip:abc@%>' AND (callee_route LIKE '%INT' OR callee_route LIKE '%AA' OR callee_route LIKE '%VM' OR callee_route LIKE '%PAGE' OR callee_route LIKE '%PARK' OR callee_route LIKE '%DPUP' OR callee_route IS NULL))", sql.toString());
     }
 
     public void testGetSqlAny() {
@@ -52,7 +52,7 @@ public class CdrSearchTest extends TestCase {
         StringBuilder sql = new StringBuilder();
         assertTrue(sql.toString(), search.appendGetSql(sql));
         assertEquals(
-                " AND ((caller_aor LIKE '%<sip:abc@%>' AND caller_internal=true) OR (callee_aor LIKE '%<sip:abc@%>' AND callee_route='INT'))",
+                " AND ((caller_aor LIKE '%<sip:abc@%>' AND caller_internal=true) OR (callee_aor LIKE '%<sip:abc@%>' AND (callee_route LIKE '%INT' OR callee_route LIKE '%AA' OR callee_route LIKE '%VM' OR callee_route LIKE '%PAGE' OR callee_route LIKE '%PARK' OR callee_route LIKE '%DPUP' OR callee_route IS NULL)))",
                 sql.toString());
     }
 

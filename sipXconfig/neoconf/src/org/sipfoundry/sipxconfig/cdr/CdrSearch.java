@@ -18,7 +18,11 @@ public class CdrSearch {
     public static final Map<String, String> ORDER_TO_COLUMN;
     public static final String OPEN_PARANTHESIS = "(";
     public static final String SQM_CLOSED_PARANTHESIS = "')"; // SQM=single quotation mark
+    public static final String CLOSED_PARANTHESIS = ")"; //  Closed paranthesis
     public static final String AND = " AND ";
+    public static final String OR = " OR ";
+    public static final String SINGLE_QUOTE = "'";
+    public static final String LIKE_WITH_WILDCARD = " LIKE '%";
     public static final String EQUALS_SQM = "='";
 
     static {
@@ -89,10 +93,45 @@ public class CdrSearch {
         sql.append(CdrManagerImpl.CALLEE_AOR);
         appendSearchTermSql(sql);
         sql.append(AND);
+        appendCalleeInternalRouteSql(sql);
+        sql.append(CLOSED_PARANTHESIS);
+    }
+
+    private void appendCalleeInternalRouteSql(StringBuilder sql) {
+        sql.append(OPEN_PARANTHESIS);
         sql.append(CdrManagerImpl.CALLEE_ROUTE);
-        sql.append(EQUALS_SQM);
+        sql.append(LIKE_WITH_WILDCARD);
         sql.append(CallTag.INT);
-        sql.append(SQM_CLOSED_PARANTHESIS);
+        sql.append(SINGLE_QUOTE);
+        sql.append(OR);
+        sql.append(CdrManagerImpl.CALLEE_ROUTE);
+        sql.append(LIKE_WITH_WILDCARD);
+        sql.append(CallTag.AA);
+        sql.append(SINGLE_QUOTE);
+        sql.append(OR);
+        sql.append(CdrManagerImpl.CALLEE_ROUTE);
+        sql.append(LIKE_WITH_WILDCARD);
+        sql.append(CallTag.VM);
+        sql.append(SINGLE_QUOTE);
+        sql.append(OR);
+        sql.append(CdrManagerImpl.CALLEE_ROUTE);
+        sql.append(LIKE_WITH_WILDCARD);
+        sql.append(CallTag.PAGE);
+        sql.append(SINGLE_QUOTE);
+        sql.append(OR);
+        sql.append(CdrManagerImpl.CALLEE_ROUTE);
+        sql.append(LIKE_WITH_WILDCARD);
+        sql.append(CallTag.PARK);
+        sql.append(SINGLE_QUOTE);
+        sql.append(OR);
+        sql.append(CdrManagerImpl.CALLEE_ROUTE);
+        sql.append(LIKE_WITH_WILDCARD);
+        sql.append(CallTag.DPUP);
+        sql.append(SINGLE_QUOTE);
+        sql.append(OR);
+        sql.append(CdrManagerImpl.CALLEE_ROUTE);
+        sql.append(" IS NULL");
+        sql.append(CLOSED_PARANTHESIS);
     }
 
     public boolean appendGetSql(StringBuilder sql) {
@@ -109,9 +148,9 @@ public class CdrSearch {
             sql.append(AND);
             sql.append(OPEN_PARANTHESIS);
             appendCallerSql(sql);
-            sql.append(" OR ");
+            sql.append(OR);
             appendCalleeSql(sql);
-            sql.append(")");
+            sql.append(CLOSED_PARANTHESIS);
             break;
         default:
             return false;

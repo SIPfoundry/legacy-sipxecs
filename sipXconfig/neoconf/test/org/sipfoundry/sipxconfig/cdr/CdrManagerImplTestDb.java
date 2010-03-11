@@ -74,7 +74,7 @@ public class CdrManagerImplTestDb extends SipxDatabaseTestCase {
         cdrSearch.setMode(Mode.CALLEE);
         cdrSearch.setTerm("201");
         List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
-        assertTrue(cdrs.size() == 2);
+        assertTrue(cdrs.size() == 6);
     }
 
     public void testGetCdrsSearchAny() {
@@ -84,7 +84,7 @@ public class CdrManagerImplTestDb extends SipxDatabaseTestCase {
         cdrSearch.setMode(Mode.ANY);
         cdrSearch.setTerm("200");
         List<Cdr> cdrs = cdrManager.getCdrs(null, null, cdrSearch, null);
-        assertTrue(cdrs.size() == 4);
+        assertTrue(cdrs.size() == 5);
     }
 
 }
