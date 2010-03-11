@@ -22,6 +22,14 @@
                <delete dir="${classes}" quiet="true" failonerror="false" />
          </target>
 
+         <target name="translate" description="translate a file" depends="compile" >
+            <java fork="yes" classname="org.sipfoundry.translator.Translator">
+               <classpath>
+                  <pathelement location="${classes}" />
+               </classpath>
+               <classpath refid="base.path" />
+             </java>
+        </target>
 
          <!-- runs the sample. This example is an emulated blind transfer. -->
          <target name="test1" description="run the sample script" depends="clean,compile" >
