@@ -204,7 +204,8 @@ public class SymmitronServer implements Symmitron {
       
         public SetDestinationWorkItem(Sym sym, String ipAddress, int port, int keepAliveTime, String keepaliveMethod) {
             super();
-            if ( port <  0 || keepAliveTime < 0 || KeepaliveMethod.valueOf(keepaliveMethod) == null ) {
+            if ( port <  0 || keepAliveTime < 0 || keepaliveMethod == null ||
+            		KeepaliveMethod.valueOfString(keepaliveMethod) == null ) {
             	throw new IllegalArgumentException(String.format("Bad parameter sym = %s ipaddr = %s port = %d keepaliveTime= %d keepaliveMethod = %s ",
             			sym.getId(), ipAddress,port, keepAliveTime, keepaliveMethod));
             }
