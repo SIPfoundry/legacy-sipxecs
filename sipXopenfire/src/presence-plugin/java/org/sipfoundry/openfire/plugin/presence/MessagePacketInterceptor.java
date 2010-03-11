@@ -4,8 +4,12 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 
 import org.apache.log4j.ConsoleAppender;
 import org.apache.log4j.Logger;
@@ -39,6 +43,9 @@ public class MessagePacketInterceptor implements PacketInterceptor {
     private SipXOpenfirePlugin plugin;
     private boolean logImMessages;
     private String imMessagesLogDirectory;
+    private int cookedMessageId = new Random().nextInt();
+    HashMap<String, String> multiUserChatSubstitutionMessages = new HashMap<String, String>();
+
 
     MessagePacketInterceptor(SipXOpenfirePlugin plugin,
                              boolean logImMessages,
@@ -226,11 +233,22 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         }
     }    
 
-    private void processGroupChatMessage(Message message, boolean incoming, boolean processed) throws Exception{
+    private void processGroupChatMessage(Message message, boolean incoming, boolean processed) throws Exception
+    {
         String chatText = message.getBody();
         if (chatText != null) {
             if (incoming && !processed) {
                 if (chatText.startsWith(CONF_DIRECTIVE) ) { 
+                    if( message.getID() == null )
+                    {
+                        // Message IDs are optional be we need them to 
+                        // track data related to @conf directives.  If we
+                        // find that a given message does not have an ID,
+                        // we make one up and add it to the message.
+                        message.setID(Integer.toString(cookedMessageId++));
+                    }
+
+                    log.debug("message is: " + chatText);
                     // check if the message is in the user->chat room direction.
                     log.debug("conference command detected: " + chatText);
                     log.debug("from : " + message.getFrom());
@@ -283,33 +301,41 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                                     }    
                                     else{
                                         for (MUCRole occupant : chatRoom.getOccupants()) {
-                                            try{
-                                                if (occupant.getRole() != MUCRole.Role.none) {
-                                                    String occupantJID = occupant.getUserAddress().toBareJID();
+                                            if (occupant.getRole() != MUCRole.Role.none) {
+                                                String occupantJID = occupant.getUserAddress().toBareJID();
+                                                log.info( "occupantJID " + occupantJID);
+                                                String mapKey = message.getID() + occupantJID; 
+                                                try{
                                                     String occupantSipId = plugin.getSipId(occupantJID);
                                                     if ( occupantSipId != null) {
                                                         String restCallCommand = buildRestConferenceCommand(
                                                                 commandRequesterSipId, occupantSipId, conferenceName, conferencePin);
-                                                        sendRestRequest(restCallCommand);                                                    
+                                                        sendRestRequest(restCallCommand);    
+                                                        multiUserChatSubstitutionMessages.put(mapKey, plugin.getLocalizer().localize("invitetojoin.prompt") +
+                                                                                                      " " +
+                                                                                                      roomName + 
+                                                                                                      " " +
+                                                                                                      plugin.getLocalizer().localize("audioconference.prompt") +
+                                                                                                      " - " + 
+                                                                                                      plugin.getLocalizer().localize("willringshortly.prompt") );                                                
+                                                    }
+                                                    else{
+                                                        throw new UserNotFoundException("could not find SIP id for JID " + occupantJID );
                                                     }
                                                 }
-                                            }
-                                            catch( Exception ex ){
-                                                log.warn( "processGroupChatMessage " + ex + ": skipping user");
+                                                catch( Exception ex ){
+                                                    log.warn( "processGroupChatMessage " + ex + ": skipping user");
+                                                    multiUserChatSubstitutionMessages.put(mapKey, message.getFrom().getNode() +
+                                                                                            " " +
+                                                                                            plugin.getLocalizer().localize("nosipaccount.prompt"));                                                
+                                                }
                                             }
                                         }
-                                        changeMessageBody( message, plugin.getLocalizer().localize("invitetojoin.prompt") +
-                                                     	            " " +
-                                                     	            roomName + 
-                                                     	            " " +
-                                                     	            plugin.getLocalizer().localize("audioconference.prompt") +
-                                                     	            " - " + 
-                                                                    plugin.getLocalizer().localize("willringshortly.prompt") );
                                     }
                                 }
                                 else{
                                     // Not an owner; send back a message saying that command is not allowed
-                                    log.debug(commandRequesterSipId + "is not the owner of MUC room " + subdomain + ":" + roomName);
+                                    log.debug(commandRequesterSipId + " is not the owner of MUC room " + subdomain + ":" + roomName);
                                     reply( message, plugin.getLocalizer().localize("notallowed.prompt") +
                                                     " - " +
                                                     plugin.getLocalizer().localize("onlyowners.prompt") +
@@ -337,6 +363,17 @@ public class MessagePacketInterceptor implements PacketInterceptor {
                         log.debug("caught: " + ex.getMessage() + " while processing room chat message to " + message.getTo());
                     }
                 }                    
+            }
+            else if (!incoming && !processed) {
+                // check if we have an output message substitution stored for this message Id and destination.
+                if( message.getID() != null ){
+                    String mapKey =  message.getID() + message.getTo().toBareJID();
+                    String messageSubstitution = multiUserChatSubstitutionMessages.get(mapKey);
+                    if( messageSubstitution != null ){
+                        changeMessageBody(message, messageSubstitution);    
+                        multiUserChatSubstitutionMessages.remove(mapKey);
+                    }
+                }
             }
         }
     }    
@@ -420,6 +457,16 @@ public class MessagePacketInterceptor implements PacketInterceptor {
         message.setBody(newBodyText);
         // address #2
         message.deleteExtension( "html", "http://jabber.org/protocol/xhtml-im");
+    }
+
+    private void appendToMessageBody( Message message, String textToAppend ){
+        String currentBody = message.getBody(); 
+        if( currentBody == null ){
+            message.setBody(textToAppend);
+        }
+        else{
+            message.setBody(currentBody + textToAppend);
+        }
     }
 
     private void logIm( Message message, boolean incoming, boolean processed )
