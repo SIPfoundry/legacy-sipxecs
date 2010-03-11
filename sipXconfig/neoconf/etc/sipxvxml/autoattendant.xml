@@ -6,19 +6,19 @@
   <group name="dtmf">
     <setting name="interDigitTimeout">
       <type>
-        <integer min="1" />
+        <integer min="1" required="yes" />
       </type>
       <value>3</value>
     </setting>
     <setting name="overallDigitTimeout">
       <type>
-        <integer min="1" />
+        <integer min="1" required="yes" />
       </type>
       <value>7</value>
     </setting>
     <setting name="maxDigits">
       <type>
-        <integer min="1" />
+        <integer min="1" required="yes" />
       </type>
       <value>10</value>
     </setting>
@@ -26,13 +26,13 @@
   <group name="onfail">
     <setting name="noinputCount">
       <type>
-        <integer min="0" max="10" />
+        <integer min="0" max="10" required="yes" />
       </type>
       <value>2</value>
     </setting>
     <setting name="nomatchCount">
       <type>
-        <integer min="0" max="10" />
+        <integer min="0" max="10" required="yes" />
       </type>
       <value>2</value>
     </setting>
