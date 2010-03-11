@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -29,19 +28,13 @@ import org.sipfoundry.sipxconfig.components.FormActions;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.conference.Bridge;
-import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
-import org.sipfoundry.sipxconfig.setting.SettingImpl;
-import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
-import org.springframework.orm.hibernate3.HibernateObjectRetrievalFailureException;
 
 public abstract class NewUser extends PageWithCallback implements PageBeginRenderListener {
 
@@ -103,81 +96,6 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
         }
 
         return null;
-    }
-
-    /**
-     * Creates a new conference for a new user.
-     *
-     * @param user The user that has just been created.
-     * @param conferenceGroup The group containing conference settings to use.
-     */
-    private void createUserConference(User user, Group conferenceGroup) {
-        SettingValue bridgeIdValue = conferenceGroup.getSettingValue(new SettingImpl("conference/bridgeId"));
-        Integer bridgeId = Integer.parseInt(bridgeIdValue.getValue());
-        SettingValue conferencePrefixValue = conferenceGroup.getSettingValue(new SettingImpl("conference/prefix"));
-        ConferenceBridgeContext bridgeContext = getConferenceBridgeContext();
-
-        Bridge bridge = null;
-        try {
-            bridge = bridgeContext.loadBridge(bridgeId);
-        } catch (HibernateObjectRetrievalFailureException horfe) {
-            LOG.warn(String.format("Unable to create a conference for new user %s; the user group \"%s\" "
-                    + "references a non-existent conference bridge ID: %d", user.getUserName(), conferenceGroup
-                    .getName(), bridgeId));
-        }
-
-        if (bridge != null) {
-            String extension = user.getExtension(true);
-            String extensionOrName = extension == null ? user.getUserName() : extension;
-            String conferenceExtension = conferencePrefixValue + extensionOrName;
-
-            Conference userConference = bridgeContext.newConference();
-            userConference.setExtension(conferenceExtension.toString());
-            userConference.setName(user.getUserName() + "-conference");
-            userConference.setOwner(user);
-            userConference.setEnabled(true);
-            userConference.setDescription("Automatically created conference for " + user.getDisplayName());
-
-            LOG.debug(String.format("Creating conference \"%s\", extension %s, for user %s", userConference
-                    .getName(), userConference.getExtension(), user.getDisplayName()));
-
-            bridgeContext.validate(userConference);
-            bridge.addConference(userConference);
-            bridgeContext.store(bridge);
-        }
-    }
-
-    /**
-     * Examines the groups a user belongs to and determines which, if any, group's conference
-     * creation settings to use.
-     *
-     * @param user The user being created.
-     * @return A Group whose conference creation settings should be used, or null if none of the
-     *         user's groups have conferences enabled.
-     */
-    private Group getConferenceGroup(User user) {
-        // Find the highest weight group that has conferences enabled, if any.
-        List<Group> userGroups = new ArrayList<Group>(user.getGroupsAsList()); // cloning it
-        // because we may
-        // remove items
-        Group conferenceGroup = null;
-        while (!userGroups.isEmpty() && conferenceGroup == null) {
-            Group highestGroup = Group.selectGroupWithHighestWeight(userGroups);
-            SettingValue groupValue = highestGroup.getSettingValue(new SettingImpl(
-                    ("conference" + Setting.PATH_DELIM) + "enabled"));
-            if (groupValue != null && Boolean.valueOf(groupValue.getValue())) {
-                conferenceGroup = highestGroup;
-            } else {
-                userGroups.remove(highestGroup);
-            }
-        }
-
-        if (conferenceGroup != null) {
-            LOG.debug("Using group \"" + conferenceGroup.getName() + "\" for conference settings for new user: "
-                    + user.getUserName());
-        }
-
-        return conferenceGroup;
     }
 
     public IPage extensionPools(IRequestCycle cycle) {
