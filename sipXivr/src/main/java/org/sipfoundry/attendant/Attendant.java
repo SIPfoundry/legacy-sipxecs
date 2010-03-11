@@ -429,21 +429,44 @@ public class Attendant {
      */
     void failure() {
         LOG.info("Attendant::failure");
-
         if (m_config.isTransferOnFailure()) {
-            PromptList pl = m_loc.getPromptList();
-            pl.addPrompts(m_config.getTransferPrompt());
-            m_loc.play(pl, "");
-            
+            String transferPrompt = m_config.getTransferPrompt();
+            if (transferPrompt != null){
+                PromptList pl = m_loc.getPromptList();
+                pl.addPrompts(m_config.getTransferPrompt());
+                m_loc.play(pl, "");
+            }
+
             String dest = m_config.getTransferURL();
             if (!dest.toLowerCase().contains("sip:")) {
                 LOG.error("Attendant::failure transferUrl should be a sip: URL.  Assuming extension");
                 dest = extensionToUrl(dest) ;
             }
-
             LOG.info("Attendant::failure Transfer on falure to " + dest);
-            Transfer xfer = new Transfer(m_fses, dest);
-            xfer.go();
+
+            m_loc.play("please_hold","");
+            String domainPart = ValidUsersXML.getDomainPart(dest);
+            String transferDomain = m_ivrConfig.getSipxchangeDomainName();
+            if (domainPart.equalsIgnoreCase(transferDomain)){
+                String userpart = ValidUsersXML.getUserPart(dest);
+                User user = m_validUsers.getUser(userpart);
+                if (user != null) {
+                    String uri = user.getUri();
+                    LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s)", dest, uri));
+                    // It's valid, transfer the call there.
+                    Transfer xfer = new Transfer(m_fses, dest);
+                    xfer.go();
+                } 
+                else {
+                    LOG.info("Attendant::attendant Extension " + dest + " is not valid");
+                    // "That extension is not valid."
+                    m_loc.play("invalid_extension", "");
+                }
+            } else
+            {
+                Transfer xfer = new Transfer(m_fses, dest);
+                xfer.go();
+            }
         }
 
         // This is an enhancement over the original VoiceXML 
