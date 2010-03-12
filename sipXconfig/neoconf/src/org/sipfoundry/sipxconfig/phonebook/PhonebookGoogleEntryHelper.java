@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.phonebook;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import com.google.gdata.data.Extension;
@@ -138,7 +140,7 @@ public class PhonebookGoogleEntryHelper {
                 abe.setFaxNumber(phoneNumber);
             }
         }
-        //Set the available phone number if any
+        // Set the available phone number if any
         if (phonebookEntry.getNumber() == null) {
             if (mobileNumber != null) {
                 phonebookEntry.setNumber(mobileNumber);
@@ -206,12 +208,30 @@ public class PhonebookGoogleEntryHelper {
 
     private void extractEmailAddresses(AddressBookEntry abe) {
         List<Email> emails = m_contactEntry.getEmailAddresses();
+
+        List<String> workEmails = new ArrayList<String>();
+        List<String> homeEmails = new ArrayList<String>();
+        List<String> otherEmails = new ArrayList<String>();
         for (Email email : emails) {
-            if (email.getPrimary()) {
-                abe.setEmailAddress(email.getAddress());
+            if (email.getRel().contains(WORK)) {
+                workEmails.add(email.getAddress());
+            } else if (email.getRel().contains(HOME)) {
+                homeEmails.add(email.getAddress());
             } else {
-                abe.setAlternateEmailAddress(email.getAddress());
+                otherEmails.add(email.getAddress());
             }
+        }
+        List<String> allEmails = new LinkedList<String>();
+        allEmails.addAll(workEmails);
+        allEmails.addAll(homeEmails);
+        allEmails.addAll(otherEmails);
+
+        if (allEmails.size() > 0) {
+            abe.setEmailAddress(allEmails.get(0));
+        }
+
+        if (allEmails.size() > 1) {
+            abe.setAlternateEmailAddress(allEmails.get(1));
         }
     }
 

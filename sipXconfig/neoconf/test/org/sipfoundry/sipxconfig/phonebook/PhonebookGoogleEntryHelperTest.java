@@ -218,17 +218,47 @@ public class PhonebookGoogleEntryHelperTest extends TestCase {
         ContactEntry ce = new ContactEntry();
         Email email1 = new Email();
         email1.setAddress("kovalchuk@thrashers.com");
-        email1.setPrimary(true);
+        email1.setRel("work");
 
         Email email2 = new Email();
         email2.setAddress("ilya.k@gmail.com");
-        email2.setPrimary(false);
+        email2.setRel("other");
 
         ce.addEmailAddress(email1);
         ce.addEmailAddress(email2);
 
         PhonebookEntry phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
         AddressBookEntry abe = phoneBookEntry.getAddressBookEntry();
+        assertEquals("kovalchuk@thrashers.com", abe.getEmailAddress());
+        assertEquals("ilya.k@gmail.com", abe.getAlternateEmailAddress());
+
+        ce = new ContactEntry();
+        email1.setRel("home");
+        email2.setRel("other");
+        ce.addEmailAddress(email1);
+        ce.addEmailAddress(email2);
+        phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
+        abe = phoneBookEntry.getAddressBookEntry();
+        assertEquals("kovalchuk@thrashers.com", abe.getEmailAddress());
+        assertEquals("ilya.k@gmail.com", abe.getAlternateEmailAddress());
+
+        ce = new ContactEntry();
+        email1.setRel("home");
+        email2.setRel("work");
+        ce.addEmailAddress(email1);
+        ce.addEmailAddress(email2);
+        phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
+        abe = phoneBookEntry.getAddressBookEntry();
+        assertEquals("ilya.k@gmail.com", abe.getEmailAddress());
+        assertEquals("kovalchuk@thrashers.com", abe.getAlternateEmailAddress());
+
+        ce = new ContactEntry();
+        email1.setRel("work");
+        email2.setRel("home");
+        ce.addEmailAddress(email1);
+        ce.addEmailAddress(email2);
+        phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
+        abe = phoneBookEntry.getAddressBookEntry();
         assertEquals("kovalchuk@thrashers.com", abe.getEmailAddress());
         assertEquals("ilya.k@gmail.com", abe.getAlternateEmailAddress());
     }
