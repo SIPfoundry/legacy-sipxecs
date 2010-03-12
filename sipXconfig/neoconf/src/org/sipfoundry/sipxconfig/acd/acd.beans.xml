@@ -33,7 +33,7 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="locationsManager" ref="locationsManager"/>
 	<property name="sipxServiceManager" ref="sipxServiceManager"/>
-	<property name="callCenterBundle" ref="callCenterBundle"/>
+	<property name="acdBundle" ref="acdBundle"/>
 	<property name="aliasManager" ref="aliasManager"/>
   </bean>
 

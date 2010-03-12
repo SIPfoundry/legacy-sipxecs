@@ -238,7 +238,7 @@
     </property>
     <property name="bundles">
       <set>
-        <ref bean="callCenterBundle" />
+        <ref bean="acdBundle" />
       </set>
     </property>
   </bean>
@@ -481,7 +481,7 @@
     </property>
     <property name="bundles">
       <set>
-        <ref bean="callCenterBundle" />
+        <ref bean="acdBundle" />
       </set>
     </property>
   </bean>
@@ -505,7 +505,7 @@
     </property>
     <property name="bundles">
       <set>
-        <ref bean="callCenterBundle" />
+        <ref bean="acdBundle" />
       </set>
     </property>
   </bean>

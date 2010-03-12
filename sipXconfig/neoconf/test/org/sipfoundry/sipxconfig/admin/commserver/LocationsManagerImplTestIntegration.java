@@ -220,7 +220,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setName("test location");
         location.setAddress("192.168.1.2");
         location.setFqdn("location1");
-        location.setInstalledBundles(asList("callCenterBundle"));
+        location.setInstalledBundles(asList("acdBundle"));
         m_out.storeLocation(location);
         assertEquals(1, m_acdContext.getServers().size());
         assertEquals(0, m_conferenceBridgeContext.getBridges().size());
@@ -231,12 +231,12 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         service.setSipxService(freeswitchService);
         service.setLocation(location);
         location.addService(freeswitchService);
-        location.setInstalledBundles(asList("callCenterBundle", "conferenceBundle"));
+        location.setInstalledBundles(asList("acdBundle", "conferenceBundle"));
         m_out.storeLocation(location);
         assertEquals(1, m_acdContext.getServers().size());
         assertEquals(1, m_conferenceBridgeContext.getBridges().size());
 
-        location.setInstalledBundles(asList("callCenterBundle"));
+        location.setInstalledBundles(asList("acdBundle"));
         m_out.storeLocation(location);
         assertEquals(1, m_acdContext.getServers().size());
         assertEquals(0, m_conferenceBridgeContext.getBridges().size());

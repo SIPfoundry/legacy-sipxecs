@@ -44,8 +44,8 @@
     <constructor-arg value="borderController" />
   </bean>
 
-  <bean id="callCenterBundle" parent="abstractBundle">
-    <constructor-arg value="callCenter" />
+  <bean id="acdBundle" parent="abstractBundle">
+    <constructor-arg value="acd" />
     <property name="autoEnable" value="true" />
     <property name="resetAffectLocation" value="true" />
   </bean>

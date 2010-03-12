@@ -83,7 +83,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     private SipxServiceManager m_sipxServiceManager;
 
-    private SipxServiceBundle m_callCenterBundle;
+    private SipxServiceBundle m_acdBundle;
 
     private AcdServer getAcdServer(Integer id) {
         return (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
@@ -384,12 +384,12 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     private void onLocationSave(Location location) {
         getHibernateTemplate().update(location);
         AcdServer server = getAcdServerForLocationId(location.getId());
-        boolean isCallCenterInstalled = location.isBundleInstalled(m_callCenterBundle.getModelId());
-        if (server == null && isCallCenterInstalled) {
+        boolean isAcdInstalled = location.isBundleInstalled(m_acdBundle.getModelId());
+        if (server == null && isAcdInstalled) {
             server = newServer();
             server.setLocation(location);
             getHibernateTemplate().save(server);
-        } else if (server != null && !isCallCenterInstalled) {
+        } else if (server != null && !isAcdInstalled) {
             getHibernateTemplate().delete(server);
         }
     }
@@ -601,8 +601,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     }
 
     @Required
-    public void setCallCenterBundle(SipxServiceBundle callCenterBundle) {
-        m_callCenterBundle = callCenterBundle;
+    public void setAcdBundle(SipxServiceBundle acdBundle) {
+        m_acdBundle = acdBundle;
     }
 
     public boolean isAliasInUse(String alias) {

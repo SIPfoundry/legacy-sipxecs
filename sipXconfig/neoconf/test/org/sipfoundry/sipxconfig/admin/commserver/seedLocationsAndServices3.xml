@@ -63,7 +63,7 @@
     <column>bundle_bean</column>
     <row>
       <value>101</value>
-      <value>callCenterBundle</value>
+      <value>acdBundle</value>
     </row>
   </table>
   <table name="acd_server">

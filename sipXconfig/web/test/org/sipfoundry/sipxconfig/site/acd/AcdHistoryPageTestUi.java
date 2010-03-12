@@ -30,7 +30,7 @@ public class AcdHistoryPageTestUi extends WebTestCase {
         //make sure acd call center is not attached to primary location
         clickLink("editLocationLink");
         clickLink("link:configureBundle");
-        uncheckCheckbox("MultiplePropertySelection", "1");
+        uncheckCheckbox("MultiplePropertySelection", "0");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
     }
@@ -45,7 +45,7 @@ public class AcdHistoryPageTestUi extends WebTestCase {
      public void testReports() {
          getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
          SiteTestHelper.home(getTester());
-         //create one and only one location (primary): Acd Callcenter bundle
+         //create one and only one location (primary): Acd bundle
          //is enabled by default
          clickLink("seedLocationsManager");
 

@@ -350,6 +350,8 @@
     <antcall target="alarm-groups-add-snmp-contacts" />
     <antcall target="show_phonebook_on_phone" />
 
+    <antcall target="change-callCenter-to-ACD" />
+
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1088,6 +1090,9 @@
   </target>
   <target name="show_phonebook_on_phone" unless="show_phonebook_on_phone">
     <db-patch patch="show_phonebook_on_phone"/>
+  </target>
+  <target name="change-callCenter-to-ACD" unless="change-callCenter-to-ACD">
+    <db-patch patch="change-callCenter-to-ACD"/>
   </target>
 
   <!--
