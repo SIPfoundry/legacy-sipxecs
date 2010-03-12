@@ -17,6 +17,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 public final class GrandstreamModel extends PhoneModel {
 
     private boolean m_isHandyTone;
+    private boolean m_isFxsGxw;
 
     public GrandstreamModel() {
     }
@@ -27,5 +28,13 @@ public final class GrandstreamModel extends PhoneModel {
 
     public boolean isHandyTone() {
         return m_isHandyTone;
+    }
+
+    public void setIsFxsGxw(boolean isFxsGxw) {
+        m_isFxsGxw = m_isFxsGxw;
+    }
+
+    public boolean isFxsGxw() {
+        return m_isFxsGxw;
     }
 }

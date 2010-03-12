@@ -21,6 +21,13 @@
 			</type>
 			<value/>
 		</setting>
+		<setting name="P4150-P4151-P4152-P4153-P4154-P4155-P4156-P4157" if="gsFxsGxw.*" hidden="yes">
+			<label>Profile ID</label>
+			<type>
+				<string/>
+			</type>
+			<value>0</value>
+		</setting>
 		<setting name="P31-P410-P510-P610-P1710-P1810" if="gsPhone.*">
 			<label>Enable SIP Registration</label>
 			<type>
@@ -42,6 +49,13 @@
 			</type>
 			<value/>
 		</setting>
+		<setting name="P4180-P4181-P4182-P4183-P4184-P4185-P4186-P4187" if="gsFxsGxw.*">
+			<label>User Caller Name</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
 		<setting name="P3-P703" if="gsHt.*">
 			<label>User Caller Name</label>
 			<type>
@@ -50,6 +64,13 @@
 			<value/>
 		</setting>
 		<setting name="P35-P404-P504-P604-P1704-P1804" if="gsPhone.*">
+			<label>SIP User ID</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P4060-P4061-P4062-P4063-P4064-P4065-P4066-P4067" if="gsFxsGxw.*">
 			<label>SIP User ID</label>
 			<type>
 				<string/>
@@ -70,6 +91,13 @@
 			</type>
 			<value/>
 		</setting>
+		<setting name="P4090-P4091-P4092-P4093-P4094-P4095-P4096-P4097" if="gsFxsGxw.*">
+			<label>Authentication ID</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
 		<setting name="P36-P736" if="gsHt.*">
 			<label>Authentication ID</label>
 			<type>
@@ -84,12 +112,56 @@
 			</type>
 			<value/>
 		</setting>
+		<setting name="P4120-P4121-P4122-P4123-P4124-P4125-P4126-P4127" if="gsFxsGxw.*">
+			<label>Authentication password</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
 		<setting name="P34-P734" if="gsHt.*">
 			<label>Authentication password</label>
 			<type>
 				<string/>
 			</type>
 			<value/>
+		</setting>
+		<setting name="P4300-P4301-P4302-P4303-P4304-P4305-P4306-P4307" if="gsFxsGxw.*">
+			<label>Hunting Group</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>None</label>
+                                                <value>0</value>
+                                        </option>
+                                        <option>
+                                                <value>1</value>
+                                        </option>
+                                        <option>
+                                                <value>2</value>
+                                        </option>
+                                        <option>
+                                                <value>3</value>
+                                        </option>
+                                        <option>
+                                                <value>4</value>
+                                        </option>
+                                        <option>
+                                                <value>5</value>
+                                        </option>
+                                        <option>
+                                                <value>6</value>
+                                        </option>
+                                        <option>
+                                                <value>7</value>
+                                        </option>
+                                        <option>
+                                                <value>8</value>
+                                        </option>
+                                </enum>
+                        </type>
+                        <value>0</value>
+                        <description>Normally each line should be in a unique hunting group</description>
 		</setting>
 		<setting name="P33-P426-P526-P626-P1726-P1826" if="gsPhone.*">
 			<label>Voice Mail UserID</label>
@@ -215,7 +287,7 @@
                         <description>RFC 3261 T2 value. The maxium retransmit interval for non-INVITE requests and INVITE responses.</description>
                 </setting>
 	</group>
-	<group name="opt">
+	<group name="opt" if="gsPhone.*|gsHt.*">
 		<label>User options</label>
 		<setting name="P104-P423-P523-P623-P1723-P1823" if="gsPhone.*">
 			<label>Default Ring Tone</label>
@@ -351,7 +423,7 @@
 			<value>1</value>
 		</setting>
 	</group>
-	<group name="advanced">
+	<group name="advanced" if="gsPhone.*|gsHt.*">
 		<label>Advanced</label>
 		<setting name="P29-P422-P522-P622-P1722-P1822" if="gsPhone.*">
 			<label>Early Dial</label>
@@ -405,7 +477,7 @@
 			<description>Caller ID will be blocked if checked.</description>
 		</setting>
 		<setting name="P66-P419-P519-P619-P1719-P1819" if="gsPhone.*">
-			<label>Dial Plan</label>
+			<label>Dial Plan Prefix</label>
 			<type>
 				<string/>
 			</type>
@@ -413,7 +485,7 @@
 			<description>Prefix string added to called numbers.</description>
 		</setting>
 		<setting name="P66-P766" if="gsHt.*">
-			<label>Dial Plan</label>
+			<label>Dial Plan Prefix</label>
 			<type>
 				<string/>
 			</type>
@@ -681,7 +753,7 @@
 			<type refid="gscodec"/>
 			<value>9</value>
 		</setting>
-		<setting name="P58-P748" if="gsHt.*">
+		<setting name="P58-P758" if="gsHt.*">
 			<label>Second codec</label>
 			<type refid="gscodec"/>
 			<value>9</value>

@@ -18,6 +18,7 @@ public class LineInfo {
     private String m_registrationServerPort;
     private String m_userId;
     private String m_password;
+    private String m_huntgroup;
     private String m_voiceMail;
     private String m_displayName;
 
@@ -47,6 +48,12 @@ public class LineInfo {
     }
     public void setUserId(String userId) {
         m_userId = userId;
+    }
+    public String getHuntgroup() {
+        return m_huntgroup;
+    }
+    public void setHuntgroup(String huntgroup) {
+        m_huntgroup = huntgroup;
     }
     public String getVoiceMail() {
         return m_voiceMail;

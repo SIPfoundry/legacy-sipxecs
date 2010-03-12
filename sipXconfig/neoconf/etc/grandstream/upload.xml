@@ -9,19 +9,29 @@
   </type>
   <group name="firmware">
     <label>Grandstream Firmware</label>
-    <description>Grandstream Video IP Phones.</description>
+    <description>Grandstream Video IP Phones and FXS Gateways.</description>
     <setting name="gxv3000-release.zip">
       <label>GXV 3000 Firmware (zip)</label>
       <type refid="zip"/>
       <description>Firmware. Example file name : Release_GXV3000_1.0.1.27.zip</description>
     </setting>
+    <setting name="gxw4004-release.zip">
+      <label>GXW 4004 Firmware (zip)</label>
+      <type refid="zip"/>
+      <description>Firmware. Example file name : Release_GXW4004_1.0.1.54.zip</description>
+    </setting>
+    <setting name="gxw4008-release.zip">
+      <label>GXW 4008 Firmware (zip)</label>
+      <type refid="zip"/>
+      <description>Firmware. Example file name : Release_GXW4008_1.0.1.54.zip</description>
+    </setting>
     <setting name="bt100-ht1-release.zip">
-      <label>Budgtone 100 and HT486/286 Firmware (zip)</label>
+      <label>Budgetone 100 and HT486/286 Firmware (zip)</label>
       <type refid="zip"/>
       <description>Firmware. Example file name : Release_BT100-HT486-HT286_1.1.0.3.zip</description>
     </setting>
     <setting name="bt200-gxp2000-release.zip">
-      <label>Budgtone 200 and GXP 2000/2010/2020/1200 Firmware (zip)</label>
+      <label>Budgetone 200 and GXP 2000/2010/2020/1200 Firmware (zip)</label>
       <type refid="zip"/>
       <description>Firmware. Example file name : Release_BT200_GXP1200_GXP2000_GXP2010_GXP2020_1.1.6.16.zip</description>
     </setting>

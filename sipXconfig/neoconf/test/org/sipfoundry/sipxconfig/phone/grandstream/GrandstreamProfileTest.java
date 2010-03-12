@@ -56,6 +56,10 @@ public class GrandstreamProfileTest extends TestCase {
         assertProfile("gsPhoneGxv3000", "expected-gxv3000.cfg");
     }
 
+    public void testGxw4004() throws Exception {
+        assertProfile("gsFxsGxw4004", "expected-gxw4004.cfg");
+    }
+
     protected void assertProfile(String modelId, String expectedProfile) throws IOException {
         GrandstreamModel model = new GrandstreamModel();
         model.setModelDir("grandstream");

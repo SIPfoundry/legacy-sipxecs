@@ -47,6 +47,20 @@
     <property name="label" value="Grandstream GXV3000" />
     <property name="maxLineCount" value="3" />
   </bean>
+  <bean id="gsFxsGxw4004" parent="gsModel">
+    <property name="label" value="Grandstream GXW4004" />
+    <property name="maxLineCount" value="4" />
+    <property name="isFxsGxw" value="true" />
+    <property name="restartSupported" value="false" />
+    <property name="externalLinesSupported" value="false" />
+  </bean>
+  <bean id="gsFxsGxw4008" parent="gsModel">
+    <property name="label" value="Grandstream GXW4008" />
+    <property name="maxLineCount" value="8" />
+    <property name="isFxsGxw" value="true" />
+    <property name="restartSupported" value="false" />
+    <property name="externalLinesSupported" value="false" />
+  </bean>
   <bean id="gsHt286" parent="gsModel">
     <property name="label" value="Grandstream HandyTone 286" />
     <property name="maxLineCount" value="1" />

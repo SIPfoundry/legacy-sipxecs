@@ -6,7 +6,7 @@
   ]>
 <model>
     &types;
-    <group name="phone">
+    <group name="phone" if="gsPhone.*|gsHt.*">
         <label>Phone</label>
         <setting name="P900" if="gsPhoneGxv3000">
 			<label>Web Access</label>
@@ -53,7 +53,7 @@
             <value>420</value>
         </setting>
         <setting name="P75">
-            <label>Enable Daylight Savings Time</label>
+            <label>Automatic Daylight Savings Time</label>
             <type>
                 <boolean/>
             </type>
@@ -376,6 +376,43 @@
             </type>
             <value>*00</value>
             <description>Key pattern to use the PSTN line.</description>
+        </setting>
+    </group>
+    <group name="gateway" if="gsFxsGxw.*">
+        <label>Gateway</label>
+        <setting name="P196">
+            <label>End User Password</label>
+            <type>
+                <string/>
+            </type>
+            <value>123</value>
+        </setting>
+        <setting name="P2">
+            <label>Admin password</label>
+            <type>
+                <string/>
+            </type>
+            <value>admin</value>
+            <description>Admin password for web interface</description>
+        </setting>
+        <setting name="P64">
+            <label>Time Zone</label>
+            <type>
+                <string/>
+            </type>
+            <value>TZH+5</value>
+        </setting>
+        <setting name="P75">
+            <label>Automatic Daylight Savings Time</label>
+            <type>
+                <boolean/>
+            </type>
+            <value>0</value>
+        </setting>
+        <setting name="P85">
+            <label>No Key Entry Timeout</label>
+            <type refid="byte"/>
+            <value>4</value>
         </setting>
     </group>
     <group name="network">
@@ -821,7 +858,178 @@
             <description>Always refresh with INVITE instead of UPDATE.</description>
         </setting>
     </group>
-
+    <group name="account-proxy" if="gsFxsGxw.*">
+		<label>Proxy and Registration</label>
+		<setting name="P271" hidden="yes">
+			<label>Account Active</label>
+			<type>
+				<boolean/>
+			</type>
+                        <value>1</value>
+		</setting>
+		<setting name="P47">
+			<label>Primary SIP Server</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P48">
+			<label>Outbound Proxy</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P103">
+			<label>Use DNS SRV</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P31">
+			<label>Enable SIP Registration</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P32">
+			<label>Register Expiration</label>
+			<type>
+				<integer min="0" max="65535"/>
+			</type>
+			<value>60</value>
+			<description>Register Expiration (in minutes. default 1 hour, max 45 days)</description>
+		</setting>
+		<setting name="P191">
+			<label>Enable Call Features</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+                        <description>If enabled, call feature using star codes will be handled locally by the gateway.</description>
+		</setting>
+    </group>
+    <group name="account-codecs" if="gsFxsGxw.*">
+		<label>Voice Codecs</label>
+		<setting name="P57">
+			<label>First codec</label>
+			<type refid="gs-fxs-gxw-codec"/>
+			<value>0</value>
+		</setting>
+		<setting name="P58">
+			<label>Second codec</label>
+			<type refid="gs-fxs-gxw-codec"/>
+			<value>8</value>
+		</setting>
+		<setting name="P59">
+			<label>Third codec</label>
+			<type refid="gs-fxs-gxw-codec"/>
+			<value>4</value>
+		</setting>
+		<setting name="P60">
+			<label>Fourth codec</label>
+			<type refid="gs-fxs-gxw-codec"/>
+			<value>18</value>
+		</setting>
+		<setting name="P61">
+			<label>Fifth codec</label>
+			<type refid="gs-fxs-gxw-codec"/>
+			<value>2</value>
+		</setting>
+		<setting name="P62">
+			<label>Sixth codec</label>
+			<type refid="gs-fxs-gxw-codec"/>
+			<value>98</value>
+		</setting>
+		<setting name="P46">
+			<label>Seventh codec</label>
+			<type refid="gs-fxs-gxw-codec"/>
+			<value>103</value>
+		</setting>
+		<setting name="P98">
+			<label>Eighth codec</label>
+			<type refid="gs-fxs-gxw-codec"/>
+			<value>99</value>
+		</setting>
+    </group>
+    <group name="account-advanced" if="gsFxsGxw.*">
+                <label>Advanced Parameters</label>
+		<setting name="P29">
+			<label>Early Dial</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Check only if proxy supports 484 response.</description>
+		</setting>
+		<setting name="P52">
+			<label>NAT Traversal</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>No</label>
+                                                <value>0</value>
+                                        </option>
+                                        <option>
+                                                <label>No but send keep-alive</label>
+                                                <value>2</value>
+                                        </option>
+                                        <option>
+                                                <label>Yes</label>
+                                                <value>1</value>
+                                        </option>
+                                </enum>
+                        </type>
+			<value>0</value>
+		</setting>
+		<setting name="P65">
+			<label>Send Anonymous</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Caller ID will be blocked if checked.</description>
+		</setting>
+		<setting name="P66">
+			<label>Dial Plan Prefix</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>Prefix string added to called numbers.</description>
+		</setting>
+		<setting name="P71">
+			<label>Offhook Auto-Dial</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>User ID/extension to dial automatically when offhook.</description>
+		</setting>
+		<setting name="P851">
+			<label>Send DTMF</label>
+			<type>
+				<enum>
+					<option>
+						<label>In Audio</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Via RTP</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>Via SIP INFO</label>
+						<value>2</value>
+					</option>
+				</enum>
+			</type>
+			<value>1</value>
+		</setting>
+    </group>
     <group name="wan" if="gsHt4.*">
         <label>WAN</label>
         <setting name="P110">
