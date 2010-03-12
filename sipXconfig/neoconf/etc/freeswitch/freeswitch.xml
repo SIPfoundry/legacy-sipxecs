@@ -4,7 +4,7 @@
 <model>
   <group name="freeswitch-config">
     <setting name="FREESWITCH_CODECS">
-      <value>PCMU@20i,PCMA@20i,speex,G722,L16</value>
+      <value>G722,PCMU@20i,PCMA@20i,speex,L16</value>
     </setting>
     <setting name="FREESWITCH_SIP_PORT" advanced="yes">
       <type>

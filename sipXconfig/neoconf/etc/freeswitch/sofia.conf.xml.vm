@@ -39,7 +39,7 @@
     <!-- ************************************************* -->
 
     <!--<param name="aggressive-nat-detection" value="true"/>-->
-    <param name="inbound-codec-negotiation" value="generous"/>
+    <param name="inbound-codec-negotiation" value="scrooge"/>
     <param name="nonce-ttl" value="60"/>
     <param name="auth-calls" value="false"/>
     <param name="accept-blind-auth" value="true"/>
