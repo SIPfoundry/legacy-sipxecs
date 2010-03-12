@@ -546,7 +546,7 @@ bool CallTracker::generateSessionContextHandleFromRequest( UtlString& handle )
    bool bHandleGenerated = true;
    char tempBuffer[50];
 #ifdef _nat_unit_tests_
-   sprintf( tempBuffer, "%u-%u", 1234, sNextAvailableSessionContextHandle );
+   sprintf( tempBuffer, "%u-%zd", 1234, sNextAvailableSessionContextHandle );
 #else
    sprintf( tempBuffer, "%u-%zd", mPid, sNextAvailableSessionContextHandle );
 #endif

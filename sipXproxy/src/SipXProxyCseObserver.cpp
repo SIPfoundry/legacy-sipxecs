@@ -286,7 +286,7 @@ void SipXProxyCseObserver::CleanupTransMap(void* userData, const intptr_t eventD
     // Acquire the map mutex and then iterate over the entries seeing if any need to be deleted.
     Observer->mCallTransMutex.acquire();
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                  "SipXProxyCseObserver CleanupTransMap number of entries in map = %i", Observer->mCallTransMap.entries());
+                  "SipXProxyCseObserver CleanupTransMap number of entries in map = %zu", Observer->mCallTransMap.entries());
     UtlHashMapIterator callTransIter(Observer->mCallTransMap);
     UtlString* callId;
     while ((callId = dynamic_cast <UtlString*>(callTransIter())) != NULL)

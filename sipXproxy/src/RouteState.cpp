@@ -664,7 +664,7 @@ void RouteState::update(SipMessage* request )
                recordRouteUrl.setUrlParameter( UrlParameterName, newRouteStateToken.data() );
                recordRouteUrl.toString( routeValue );
                request->setRecordRouteField( routeValue.data(), *pos );
-               OsSysLog::add( FAC_SIP, PRI_DEBUG, "RouteState::update rewriting route state for RR index %u", *pos );
+               OsSysLog::add( FAC_SIP, PRI_DEBUG, "RouteState::update rewriting route state for RR index %zu", *pos );
             }
          }
          
