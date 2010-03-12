@@ -363,13 +363,17 @@ class SipUtilities {
 	static ContactHeader createContactHeader(String user, SipProvider provider,
 			String transport) {
 		try {
+			if ( transport == null ) {
+				logger.warn("Null transport specified -- assuming UDP");
+				transport = "udp";
+			}
 			ListeningPoint lp = provider.getListeningPoint(transport);
 			String ipAddress = lp.getIPAddress();
 			int port = lp.getPort();
 			SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(user,
 					ipAddress);
 			sipUri.setPort(port);
-			if (transport.equals("tls")) {
+			if (transport.equalsIgnoreCase("tls")) {
 				sipUri.setTransportParam(transport);
 			}
 			Address address = ProtocolObjects.addressFactory
