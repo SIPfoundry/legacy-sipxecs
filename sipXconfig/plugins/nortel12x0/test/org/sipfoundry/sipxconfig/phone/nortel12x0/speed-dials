@@ -17,12 +17,14 @@
 <sessionTimerInSec><![CDATA[30]]></sessionTimerInSec>
 <sessionRefresherFlag><![CDATA[FALSE]]></sessionRefresherFlag>
 <subscriptionExpires><![CDATA[86400]]></subscriptionExpires>
+<groupPagingSecret><![CDATA[sipXpage]]></groupPagingSecret>
 <hotDeskingAutoLogin><![CDATA[TRUE]]></hotDeskingAutoLogin>
 <autoCallbackTimeout><![CDATA[15]]></autoCallbackTimeout>
 <useRFC2543HoldScheme><![CDATA[FALSE]]></useRFC2543HoldScheme>
 <infoDTMFContentType><![CDATA[application/dtmf-relay]]></infoDTMFContentType>
 <onhookDefaultMode><![CDATA[handsfree]]></onhookDefaultMode>
 <acceptMWIBlindNOTIFY><![CDATA[FALSE]]></acceptMWIBlindNOTIFY>
+<disableHistoryInfo><![CDATA[TRUE]]></disableHistoryInfo>
 <natTraversal><![CDATA[none]]></natTraversal>
 <callParkMethod><![CDATA[none]]></callParkMethod>
 <callRtrvPrefix><![CDATA[*4]]></callRtrvPrefix>

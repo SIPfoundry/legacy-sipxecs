@@ -306,6 +306,12 @@
       </type>
       <value />
     </setting>
+    <setting name="groupPagingSecret" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value>sipXpage</value>
+    </setting>
     <setting name="hotDeskingAutoLogin">
       <type refid="on-off" />
       <value>TRUE</value>
@@ -355,6 +361,10 @@
     <setting name="acceptMWIBlindNOTIFY">
       <type refid="on-off" />
       <value>FALSE</value>
+    </setting>
+    <setting name="disableHistoryInfo">
+      <type refid="on-off" />
+      <value>TRUE</value>
     </setting>
   </group>
   <!--  NAT TRAVERSAL SETTINGS  -->
