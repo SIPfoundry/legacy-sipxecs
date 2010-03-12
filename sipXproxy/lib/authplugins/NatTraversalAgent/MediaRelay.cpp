@@ -159,9 +159,8 @@ bool MediaRelay::preAllocateSymmitronResources( void )
    int errorCode;
 
    // create our handle which is our 'common name':'random number'.  This handle will be used to identify
-   // this media relay instance to the Symmitron.  We generate a new one on every signIn ahs a defensive
+   // this media relay instance to the Symmitron.  We generate a new one on every signIn as a defensive
    // coding measure in case our signOut() gets lost.
-   PID pid = OsProcess::getCurrentPID();
    char ourHandle[200];
    sprintf( ourHandle, "%s:%u", COMMON_HANDLE_NAME, rand() );
    mOurInstanceHandle = ourHandle;

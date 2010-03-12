@@ -130,13 +130,13 @@ SipXProxyCseObserver::SipXProxyCseObserver(SipUserAgent&         sipUserAgent,
                                            CallStateEventWriter* pWriter
                                            ) :
    OsServerTask("SipXProxyCseObserver-%d", NULL, 2000),
+   SipOutputProcessor( CSE_AGENT_OUTPUT_PROC_PRIO ),
    mpSipUserAgent(&sipUserAgent),
    mpBuilder(NULL),
    mpWriter(pWriter),
    mSequenceNumber(0),
    mFlushTimer(getMessageQueue(), 0),
-   mCallTransMutex(OsMutex::Q_FIFO),
-   SipOutputProcessor( CSE_AGENT_OUTPUT_PROC_PRIO )
+   mCallTransMutex(OsMutex::Q_FIFO)
 {
    OsTime timeNow;
    OsDateTime::getCurTime(timeNow);
@@ -293,7 +293,7 @@ void SipXProxyCseObserver::CleanupTransMap(void* userData, const intptr_t eventD
     {
        BranchTimePair* callIdValue = dynamic_cast <BranchTimePair*> (callTransIter.value());
        const unsigned long* entryTime = callIdValue->getValue();
-       if ( (currentTime - *entryTime) > MAX_CALL_LENGTH ) 
+       if ( (int) (currentTime - *entryTime) > MAX_CALL_LENGTH ) 
        {
           // Delete the entry.  It's way too old.
           Observer->mCallTransMap.destroy(callId);

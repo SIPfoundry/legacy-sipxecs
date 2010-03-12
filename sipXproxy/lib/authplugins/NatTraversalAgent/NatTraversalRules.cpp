@@ -248,7 +248,9 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             if( sscanf( tempString.data(), "%d:%d", &startPort, &endPort ) == 2 &&
                 startPort < endPort )
             {
-               mMaxMediaRelaySessions = ( endPort - startPort ) * NAT_TRAVERSAL_SHARE / PORTS_PER_MEDIA_RELAY_SESSIONS;
+               mMaxMediaRelaySessions =
+                  (int) (( endPort - startPort ) * NAT_TRAVERSAL_SHARE /
+                         PORTS_PER_MEDIA_RELAY_SESSIONS);
                if( mMaxMediaRelaySessions > 0 )
                {
                   isValid = true;

@@ -28,6 +28,7 @@ ENABLE_DOXYGEN
 AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
 AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 
+SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED
 SFAC_INIT_FLAGS
 AM_CONDITIONAL(IS_RPMBUILD, test x$enable_rpmbuild = xyes)
 

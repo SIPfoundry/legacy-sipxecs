@@ -50,9 +50,6 @@ static const char* CallEvent_DefaultBoolElement =
 static const char* CallEvent_DefaultEndIntElement =
   "0";
 
-static const char* CallEvent_DefaultEndElement =
-  "\'\'";
-
 static const char* CallEvent_DefaultReferElement =
   "\'\',\'\',";
 
