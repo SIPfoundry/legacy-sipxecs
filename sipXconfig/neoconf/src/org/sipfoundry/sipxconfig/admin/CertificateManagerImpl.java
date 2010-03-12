@@ -83,6 +83,7 @@ public class CertificateManagerImpl implements CertificateManager {
     private static final String ERROR_VALID = "&error.valid";
     private static final String EXTERNAL_KEY_BASED = "external-key-based";
     private static final String RESTART_SIPXECS = "restart";
+    private static final String[] SSL_CA_EXTENSIONS = {"crt"};
 
     private String m_binCertDirectory;
 
@@ -377,7 +378,7 @@ public class CertificateManagerImpl implements CertificateManager {
             throw new UserException("&error.delete.default.ca", cert.getFileName());
         }
 
-        Collection<File> files = FileUtils.listFiles(new File(m_sslAuthDirectory), null, false);
+        Collection<File> files = FileUtils.listFiles(new File(m_sslAuthDirectory), SSL_CA_EXTENSIONS, false);
         Collection<File> filesToDelete = new ArrayList<File>();
         try {
             for (File file : files) {
@@ -456,7 +457,7 @@ public class CertificateManagerImpl implements CertificateManager {
 
     public Set<CertificateDecorator> listCertificates() {
         Set<CertificateDecorator> certificates = new TreeSet<CertificateDecorator>();
-        Collection<File> files = FileUtils.listFiles(new File(m_sslAuthDirectory), null, false);
+        Collection<File> files = FileUtils.listFiles(new File(m_sslAuthDirectory), SSL_CA_EXTENSIONS, false);
         CertificateDecorator certificateDecorator = null;
 
         for (File file : files) {
