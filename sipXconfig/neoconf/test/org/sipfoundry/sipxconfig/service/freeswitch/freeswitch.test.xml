@@ -42,7 +42,7 @@
   -->
 
   <!--#set "domain=example.org"-->
-  <!--#set "global_codec_prefs=PCMU@20i,PCMA@20i,speex,G722,L16"-->
+  <!--#set "global_codec_prefs=G722,PCMU@20i,PCMA@20i,speex,L16"-->
 
   <section name="configuration" description="Various Configuration">
     <X-PRE-PROCESS cmd="include" data="autoload_configs/*.xml"/>
