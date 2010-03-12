@@ -126,7 +126,7 @@ public class SipXVCardProvider implements VCardProvider {
     }
 
     synchronized Element cacheVCard(String username) {
-        Element result = null;
+        Element vCardElement = null;
         String sipUserName = getAORFromJABBERID(username);
         if (sipUserName != null) {
             String resp = null;
@@ -150,11 +150,11 @@ public class SipXVCardProvider implements VCardProvider {
             } while (resp == null && attempts < MAX_ATTEMPTS && tryAgain);
 
             if (resp != null) {
-                Element vCardElement = RestInterface.buildVCardFromXMLContactInfo(sipUserName, resp);
+                Element avatarFromDB = getAvatarCopy(defaultProvider.loadVCard(username));
+                vCardElement = RestInterface.buildVCardFromXMLContactInfo(sipUserName, resp, avatarFromDB);
                 if (vCardElement != null) {
                     vcardCache.remove(username);
-                    result = this.mergeAvatar(username, vCardElement, defaultProvider.loadVCard(username));
-                    vcardCache.put(username, result);
+                    vcardCache.put(username, vCardElement);
                 } else {
                     Log.error("In cacheVCard buildVCardFromXMLContactInfo failed! ");
                 }
@@ -166,7 +166,7 @@ public class SipXVCardProvider implements VCardProvider {
             Log.error("In cacheVCard Failed to find peer SIP user account for XMPP user " + username);
         }
 
-        return result;
+        return vCardElement;
     }
 
     /**
@@ -395,11 +395,11 @@ public class SipXVCardProvider implements VCardProvider {
 
         // only add avatar if it doesn't exist already
         if (vcardFromDB != null && vcardFromDB.element(AVATAR_ELEMENT) != null) {
-            Element avatarElement = getAvatarCopy(username, vcardFromDB);
+            Element avatarElement = getAvatarCopy(vcardFromDB);
 
             if (avatarElement != null) {
-                if (getAvatar(username, vcardFromSipX) != null) {
-                    vcardFromSipX.remove(getAvatar(username, vcardFromSipX));
+                if (getAvatar(vcardFromSipX) != null) {
+                    vcardFromSipX.remove(getAvatar(vcardFromSipX));
                 }
                 vcardFromSipX.add(avatarElement);
                 Log.info("Avatar merged from DB into sipX vCard");
@@ -411,9 +411,7 @@ public class SipXVCardProvider implements VCardProvider {
         return vcardFromSipX;
     }
 
-    protected Element getAvatarCopy(String username, Element vcard) {
-
-        // extract the avatar from the vcard
+    protected Element getAvatarCopy(Element vcard) {
         Element avatarElement = null;
         if (vcard != null) {
             Element photoElement = vcard.element(AVATAR_ELEMENT);
@@ -424,9 +422,7 @@ public class SipXVCardProvider implements VCardProvider {
         return avatarElement;
     }
 
-    protected Element getAvatar(String username, Element vcard) {
-
-        // extract the avatar from the vcard
+    protected Element getAvatar(Element vcard) {
         Element avatarElement = null;
         if (vcard != null) {
             return vcard.element(AVATAR_ELEMENT);
