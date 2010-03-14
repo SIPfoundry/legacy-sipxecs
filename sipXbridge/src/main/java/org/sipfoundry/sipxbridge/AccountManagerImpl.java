@@ -39,7 +39,7 @@ import org.apache.xmlrpc.XmlRpcException;
  */
 public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.AccountManager {
 
-    static final String SIPXECS_LINEID_LABEL = ";sipxecs-lineid=";
+    static final String SIPXECS_LINEID = "sipxecs-lineid";
 
     private static Logger logger = Logger.getLogger(AccountManagerImpl.class);
 
@@ -79,16 +79,16 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     }
 
     // xx-4785
-    boolean checkSipxecsLineid(ArrayList<String> ids, String uriStr) {
+    boolean checkSipxecsLineid(ArrayList<String> ids, SipURI uri) {
 
         // label not found, we'll pick based on the proxyDomain only.
-        if (uriStr.indexOf(SIPXECS_LINEID_LABEL) == -1)
+        if (uri.getParameter(SIPXECS_LINEID) ==  null) {
             return true;
+        }
 
         // Otherwise, the label value has to match.
         for (String sipxecsLineid : ids) {
-            if (uriStr.endsWith(SIPXECS_LINEID_LABEL + sipxecsLineid)
-                    || (uriStr.indexOf(SIPXECS_LINEID_LABEL + sipxecsLineid + ";") != -1))
+            if (uri.getParameter(SIPXECS_LINEID).equals(sipxecsLineid))
                 return true;
         }
 
@@ -107,7 +107,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
             for (ItspAccountInfo accountInfo : itspAccounts) {
                 if (accountInfo.getProxyDomain() != null && sipUri.getHost().endsWith(accountInfo.getProxyDomain())
-                        && checkSipxecsLineid(accountInfo.getSipxecsLineIds(), sipUri.toString())) {
+                        && checkSipxecsLineid(accountInfo.getSipxecsLineIds(), sipUri)) {
                     if (accountInfo.getCallerId() == null) {
                         /*
                          * A null override caller ID has been provided. This case occurs when you
@@ -152,8 +152,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             for (ItspAccountInfo accountInfo : itspAccounts) {
                 logger.warn("Could not match user part of inbound request URI");
                 if (accountInfo.getProxyDomain() != null) {
-                    if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())
-                            && checkSipxecsLineid(accountInfo.getSipxecsLineIds(), sipUri.toString())) {
+                    if (sipUri.getHost().endsWith(accountInfo.getProxyDomain())) {
                         accountFound = accountInfo;
                         return accountInfo;
                     }
