@@ -38,8 +38,6 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.addAll;
 
 import com.glaforge.i18n.io.CharsetToolkit;
-import org.apache.commons.collections.Closure;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -62,6 +60,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
 import org.sipfoundry.sipxconfig.bulk.BulkParser;
 import org.sipfoundry.sipxconfig.bulk.vcard.VCardParserException;
+import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
@@ -70,11 +69,16 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.dao.support.DataAccessUtils;
 
+import static org.apache.commons.collections.CollectionUtils.filter;
+import static org.apache.commons.collections.CollectionUtils.find;
+import static org.apache.commons.collections.CollectionUtils.isEmpty;
+import static org.apache.commons.collections.CollectionUtils.select;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.checkDuplicates;
+import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.requireOneOrZero;
+import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
 public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> implements PhonebookManager,
         DaoEventListener {
@@ -94,6 +98,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private BulkParser m_vcardParser;
     private VcardWriter m_vcardWriter;
     private String m_vcardEncoding;
+    private GeneralPhonebookSettings m_generalPhonebookSettings;
 
     public Collection<Phonebook> getPhonebooks() {
         Collection<Phonebook> books = getHibernateTemplate().loadAll(Phonebook.class);
@@ -235,8 +240,23 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
                 }
             }
         }
-
+        boolean everyone = getGeneralPhonebookSettings().isEveryoneEnabled();
+        if (everyone) {
+            addEveryoneEntries(user, entries);
+        }
         return entries.values();
+    }
+
+    private void addEveryoneEntries(final User user, final Map<String, PhonebookEntry> entries) {
+        Closure<User> closure = new Closure<User>() {
+            @Override
+            public void execute(User closureUser) {
+                if (!closureUser.equals(user)) {
+                    addUserEntries(closureUser, entries);
+                }
+            }
+        };
+        forAllUsersDo(m_coreContext, closure);
     }
 
     public PagedPhonebook getPagedPhonebook(Collection<Phonebook> phonebook, User user, String startRow,
@@ -253,7 +273,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
         int totalSize = entries.size();
         if (!StringUtils.isEmpty(queryString) && !queryString.equals("null")) {
-            CollectionUtils.filter(entries, new PhonebookEntryPredicate(queryString));
+            filter(entries, new PhonebookEntryPredicate(queryString));
         }
 
         Collections.sort(new LinkedList(entries), new PhoneEntryComparator());
@@ -262,14 +282,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public Collection<PhonebookEntry> getEntries(Phonebook phonebook) {
-        Map<String, PhonebookEntry> entries = new TreeMap();
+        Map<String, PhonebookEntry> entries = new TreeMap<String, PhonebookEntry>();
         Collection<Group> members = phonebook.getMembers();
+
         if (members != null) {
             for (Group group : members) {
-                for (User user : m_coreContext.getGroupMembers(group)) {
-                    PhonebookEntry entry = new UserPhonebookEntry(user);
-                    entries.put(getEntryKey(entry), entry);
-                }
+                addUserEntries(m_coreContext.getGroupMembers(group), entries);
             }
         }
 
@@ -280,6 +298,17 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         List<PhonebookEntry> finalList = new ArrayList(entries.values());
         Collections.sort(finalList, new PhoneEntryComparator());
         return finalList;
+    }
+
+    private void addUserEntries(Collection<User> users, Map<String, PhonebookEntry> entries) {
+        for (User user : users) {
+            addUserEntries(user, entries);
+        }
+    }
+
+    private void addUserEntries(User user, Map<String, PhonebookEntry> entries) {
+        PhonebookEntry entry = new UserPhonebookEntry(user);
+        entries.put(getEntryKey(entry), entry);
     }
 
     private void addEntriesFromFile(Map<String, PhonebookEntry> entries, InputStream in, String encoding,
@@ -464,7 +493,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     }
 
-    static class PhonebookEntryMaker implements Closure {
+    static class PhonebookEntryMaker implements org.apache.commons.collections.Closure {
         private final Map<String, PhonebookEntry> m_entries;
         private PhonebookFileEntryHelper m_header = new InternalPhonebookVcardHeader();
         private boolean m_extractHeader;
@@ -674,7 +703,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     private void deleteGoogleImportedEntries(String account, Phonebook phonebook) {
-        Collection existingEntries = CollectionUtils.select(phonebook.getEntries(), new GoogleEntrySearchPredicate(
+        Collection existingEntries = select(phonebook.getEntries(), new GoogleEntrySearchPredicate(
                 account));
         phonebook.getEntries().removeAll(existingEntries);
 
@@ -704,7 +733,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             String uniqueKey = getEntryKey(fileEntry);
             fileEntry.setInternalId(uniqueKey);
 
-            PhonebookEntry oldEntry = (PhonebookEntry) CollectionUtils.find(phonebook.getEntries(),
+            PhonebookEntry oldEntry = (PhonebookEntry) find(phonebook.getEntries(),
                     new FileEntrySearchPredicate(uniqueKey));
             phonebook.getEntries().remove(oldEntry);
 
@@ -839,11 +868,26 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public GoogleDomain getGoogleDomain() {
         List domains = getHibernateTemplate().loadAll(GoogleDomain.class);
-        GoogleDomain gd = (GoogleDomain) DataAccessUtils.singleResult(domains);
+        GoogleDomain gd = (GoogleDomain) singleResult(domains);
         return gd;
     }
 
     public void saveGoogleDomain(GoogleDomain gd) {
         getHibernateTemplate().saveOrUpdate(gd);
     }
+
+    public void saveGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings) {
+        saveBeanWithSettings(generalPhonebookSettings);
+    }
+
+    public GeneralPhonebookSettings getGeneralPhonebookSettings() {
+        List list =  getHibernateTemplate().loadAll(GeneralPhonebookSettings.class);
+        return isEmpty(list) ? m_generalPhonebookSettings : (GeneralPhonebookSettings) singleResult(list);
+    }
+
+    @Required
+    public void setGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings) {
+        m_generalPhonebookSettings = generalPhonebookSettings;
+    }
+
 }

@@ -27,6 +27,15 @@
     <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"
       unique="true" cascade="none" />
   </class>
+  <class name="GeneralPhonebookSettings" table="general_phonebook_settings">
+    <id name="id" column="general_phonebook_settings_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">general_phonebook_settings_seq</param>
+      </generator>
+    </id>
+	<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+  </class>
   <query name="phoneBooksByUser">
     <![CDATA[
       select pb from Phonebook as pb, User as u

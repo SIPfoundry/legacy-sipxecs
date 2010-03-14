@@ -21,6 +21,7 @@ public class ManagePhonebooksTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(ManagePhonebooksTestUi.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
@@ -66,5 +67,24 @@ public class ManagePhonebooksTestUi extends WebTestCase {
         clickButton("managePhonebooks:apply");
         SiteTestHelper.assertNoUserError(tester);
         assertTextFieldEquals("googleDomain", "gmail.com");
+    }
+
+    public void testEveryone() {
+        SiteTestHelper.home(getTester());
+        clickLink("link:managePhonebooks");
+
+        assertCheckboxPresent("everyone");
+        assertButtonPresent("managePhonebooks:applyEveryone");
+        assertCheckboxSelected("everyone");
+
+        uncheckCheckbox("everyone");
+        clickButton("managePhonebooks:applyEveryone");
+        SiteTestHelper.assertNoUserError(tester);
+        assertCheckboxNotSelected("everyone");
+
+        checkCheckbox("everyone");
+        clickButton("managePhonebooks:applyEveryone");
+        SiteTestHelper.assertNoUserError(tester);
+        assertCheckboxSelected("everyone");
     }
 }

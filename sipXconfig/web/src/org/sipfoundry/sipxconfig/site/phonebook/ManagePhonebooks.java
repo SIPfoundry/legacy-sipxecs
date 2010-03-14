@@ -22,6 +22,7 @@ import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings;
 import org.sipfoundry.sipxconfig.phonebook.GoogleDomain;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 
@@ -38,10 +39,18 @@ public abstract class ManagePhonebooks extends BasePage implements PageBeginRend
 
     public abstract String getGoogleDomainName();
 
+    public abstract void setGeneralPhonebookSettings(GeneralPhonebookSettings gPhSettings);
+
+    public abstract GeneralPhonebookSettings getGeneralPhonebookSettings();
+
     public void pageBeginRender(PageEvent event) {
         // load google default domain name
         if (StringUtils.isEmpty(getGoogleDomainName())) {
             setGoogleDomainName(getPhonebookManager().getGoogleDomain().getDomainName());
+        }
+
+        if (getGeneralPhonebookSettings() == null) {
+            setGeneralPhonebookSettings(getPhonebookManager().getGeneralPhonebookSettings());
         }
     }
 
@@ -77,5 +86,9 @@ public abstract class ManagePhonebooks extends BasePage implements PageBeginRend
         getPhonebookManager().saveGoogleDomain(googleDomain);
 
         TapestryUtils.recordSuccess(getPage(), getMessages().getMessage("msg.googleDomain.success"));
+    }
+
+    public void saveGeneralPhonebookSettings() {
+        getPhonebookManager().saveGeneralPhonebookSettings(getGeneralPhonebookSettings());
     }
 }

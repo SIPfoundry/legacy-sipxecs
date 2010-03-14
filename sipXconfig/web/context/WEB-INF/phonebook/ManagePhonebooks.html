@@ -29,6 +29,20 @@
 
 	            </td>
 			  </tr>
+			  <tr jwcid="@common/FieldPanel" for="everyone"
+				  field="component:everyone"
+				  label="message:label.everyone"
+				  description="message:description.everyone">
+	            <input jwcid="everyone@Checkbox" id="everyone"
+	              value="ognl:generalPhonebookSettings.everyoneEnabled"
+	              displayName="message:label.everyone"/>
+	            <td>
+					<input jwcid="applyEveryone@Submit" id="managePhonebooks:applyEveryone"
+					    value="message:button.apply"
+			            listener="listener:saveGeneralPhonebookSettings" />
+
+	            </td>
+			  </tr>
 			</table>
 
         </fieldset>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <users user_id="1001" user_name="test1001" user_type="C"/>
+  <users user_id="1002" user_name="test1002" user_type="C"/>
+  <users user_id="1003" user_name="test1003" user_type="C"/>
+  <users user_id="1004" user_name="test1004" user_type="C"/>
+</dataset>

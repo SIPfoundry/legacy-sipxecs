@@ -17,6 +17,7 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
@@ -24,12 +25,14 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
 
     private PhoneContext m_context;
 
+    private PhonebookManager m_phonebookManager;
+
     private SettingDao m_settingContext;
 
     @Override
     protected void setUp() throws Exception {
         m_context = (PhoneContext) TestHelper.getApplicationContext().getBean(PhoneContext.CONTEXT_BEAN_NAME);
-
+        m_phonebookManager = (PhonebookManager) TestHelper.getApplicationContext().getBean(PhonebookManager.CONTEXT_BEAN_NAME);
         m_settingContext = (SettingDao) TestHelper.getApplicationContext().getBean(SettingDao.CONTEXT_NAME);
     }
 
@@ -215,13 +218,25 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGetPhonebookEntries() throws Exception {
+        //Test everyone enabled
         TestHelper.cleanInsert("ClearDb.xml");
         TestHelper.cleanInsertFlat("phone/PhoneWithPhonebookSeed.xml");
 
         Phone phone = m_context.loadPhone(1001);
-        assertEquals(3, m_context.getPhonebookEntries(phone).size());
+        assertEquals(4, m_context.getPhonebookEntries(phone).size());
 
         Phone phone2 = m_context.loadPhone(2001);
+        assertEquals(1, m_context.getPhonebookEntries(phone2).size());
+
+        //Test everyone disabled
+        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
+        phone = m_context.loadPhone(1001);
+        assertEquals(3, m_context.getPhonebookEntries(phone).size());
+
+        phone2 = m_context.loadPhone(2001);
         assertEquals(0, m_context.getPhonebookEntries(phone2).size());
+
+        //Reset everyone to default value(true)
+        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
     }
 }

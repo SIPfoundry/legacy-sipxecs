@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="enable-disable">
+    <boolean>
+      <true>
+        <value>ENABLE</value>
+      </true>
+      <false>
+        <value>DISABLE</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="application">
+    <setting name="everyone">
+      <type refid="enable-disable" />
+      <value>ENABLE</value>
+    </setting>
+  </group>
+</model>

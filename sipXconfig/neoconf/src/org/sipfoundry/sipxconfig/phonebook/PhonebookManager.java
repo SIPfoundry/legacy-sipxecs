@@ -88,4 +88,8 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     GoogleDomain getGoogleDomain();
     void saveGoogleDomain(GoogleDomain gd);
+
+    void saveGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings);
+
+    GeneralPhonebookSettings getGeneralPhonebookSettings();
 }

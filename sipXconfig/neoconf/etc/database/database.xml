@@ -346,6 +346,7 @@
     <antcall target="multiple_phonebook_entry_types" />
     <antcall target="phonebook_entries_update_task" />
     <antcall target="add_google_domain" />
+	<antcall target="general_phonebook_settings" />
     <antcall target="change-nortel12x0-phone-to-avaya" />
     <antcall target="alarm-groups-add-snmp-contacts" />
     <antcall target="show_phonebook_on_phone" />
@@ -1093,6 +1094,9 @@
   </target>
   <target name="change-callCenter-to-ACD" unless="change-callCenter-to-ACD">
     <db-patch patch="change-callCenter-to-ACD"/>
+  </target>
+  <target name="general_phonebook_settings" unless="general_phonebook_settings">
+	<db-patch patch="general_phonebook_settings"/>
   </target>
 
   <!--
