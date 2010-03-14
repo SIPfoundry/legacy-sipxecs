@@ -147,7 +147,7 @@
 
     <setting name="music-on-hold-supported-codecs" hidden="yes">
       <label>MOH codecs</label>
-      <value>PCMU,PCMA,G722,G729,L16</value>
+      <value>PCMU,PCMA,G722,L16</value>
       <description>
         Codecs supported by the MOH Server.
       </description>
