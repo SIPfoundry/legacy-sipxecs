@@ -1273,7 +1273,8 @@ class CallControlManager implements SymmitronResetHandler {
 
             
             if (transactionContext.getOperation() == Operation.CANCEL_REPLACED_INVITE
-                    || transactionContext.getOperation() == Operation.CANCEL_MOH_INVITE) {
+                    || transactionContext.getOperation() == Operation.CANCEL_MOH_INVITE 
+                    || transactionContext.getOperation() == Operation.SEND_INVITE_TO_MOH_SERVER) {
                 logger.debug("ingoring 4xx response " + transactionContext.getOperation());
             } else if (transactionContext.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
                 // Is the dialog marked as one that needs an SDP answer in ACK? If so replay the old SDP answer            
@@ -2149,8 +2150,19 @@ class CallControlManager implements SymmitronResetHandler {
                     }
                 }
             } else {
-                logger.debug("Response code is  " + response.getStatusCode());
-
+                logger.debug("MOH negotiation failed. Response code is  " + response.getStatusCode());
+                if (tad.getDialogPendingSdpAnswer() != null
+                        && DialogContext.getPendingAction(tad.getDialogPendingSdpAnswer()) ==
+                            PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
+                    /*
+                     * Send the previous Answer to the peer dialog.
+                     */
+                    if (DialogContext.getRtpSession(tad.getDialogPendingSdpAnswer())!= null) {
+                        CallControlUtilities
+                        .sendSdpAnswerInAck( tad.getDialogPendingSdpAnswer(),null);
+                    } 
+                  
+               }
             }
         } catch (Exception ex) {
             logger.error("Exception occured sending SDP in ACK to MOH Server",ex);
@@ -2270,8 +2282,6 @@ class CallControlManager implements SymmitronResetHandler {
 
                 if (!Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled()
                         || b2bua.isMohDisabled()
-                        || !SipUtilities.isCodecSupported(responseSessionDescription, Gateway
-                                .getParkServerCodecs())
                         || (b2bua.getMusicOnHoldDialog() != null && b2bua.getMusicOnHoldDialog()
                                 .getState() != DialogState.TERMINATED)) {
                     DialogContext.get(dialog).setLastResponse(response);
@@ -2283,8 +2293,8 @@ class CallControlManager implements SymmitronResetHandler {
                     DialogContext.get(dialog).setLastResponse(response);
                     DialogContext.get(continuation.getDialog()).setPendingAction(
                             PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
-                    CallControlUtilities.sendSdpAnswerInAck(dialog,Gateway.getParkServerCodecs());
-              
+                    CallControlUtilities.sendSdpAnswerInAck(dialog,null);
+                    
                     
                     DialogContext.getRtpSession(continuation.getDialog()).getReceiver()
                             .setSessionDescription(responseSessionDescription);
@@ -2339,9 +2349,7 @@ class CallControlManager implements SymmitronResetHandler {
              * have an existing MOH dialog with the park server, we just reply back with a
              * suitable ACK right away. Note that this ACK should be an SDP answer.
              */
-            if (!SipUtilities.isCodecSupported(responseSessionDescription, Gateway
-                    .getParkServerCodecs())
-                    || b2bua.isMohDisabled()
+            if ( b2bua.isMohDisabled()
                     || (b2bua.getMusicOnHoldDialog() != null && b2bua.getMusicOnHoldDialog()
                             .getState() != DialogState.TERMINATED)) {
                 /*
