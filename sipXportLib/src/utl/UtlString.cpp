@@ -1171,6 +1171,7 @@ UtlBoolean UtlString::findToken(const char* token,
     if (ptmpRegEx)
     {
         matched = ptmpRegEx->Search(data());
+        delete ptmpRegEx;
     }
 
 #ifdef TEST_FINDTOKEN
