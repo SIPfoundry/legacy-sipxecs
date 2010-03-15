@@ -13,7 +13,7 @@
     </file>
   </type>
   <group name="nortel12x0Firmware">
-    <label>Nortel IP Phone 1210/1220/1230 Firmware Files</label>
+    <label>Avaya 1210/1220/1230 IP Deskphone Firmware Files</label>
     <setting name="image12x0.zip">
       <type refid="zip"/>
     </setting>
