@@ -1,0 +1,10 @@
+<type id="yes-no">
+  <boolean>
+    <true>
+      <value>yes</value>
+    </true>
+    <false>
+      <value>no</value>
+    </false>
+  </boolean>
+</type>
