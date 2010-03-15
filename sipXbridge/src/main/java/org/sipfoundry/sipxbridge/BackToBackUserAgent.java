@@ -866,9 +866,15 @@ public class BackToBackUserAgent implements Comparable {
              * Create a new client transaction. First attach any queried session description.
              */
             if (sessionDescription != null) {
+            	if ( Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled()) {
+                  	SipUtilities.cleanSessionDescription(sessionDescription, Gateway.getParkServerCodecs());
+                }
                 SipUtilities.setDuplexity(sessionDescription, "sendrecv");
                 SipUtilities.setSessionDescription(inviteRequest, sessionDescription);
             }
+            
+          
+            
             ClientTransaction ct = Gateway.getLanProvider()
                     .getNewClientTransaction(inviteRequest);
 
@@ -1218,6 +1224,13 @@ public class BackToBackUserAgent implements Comparable {
              * description.
              */
             SessionDescription sd = SipUtilities.getSessionDescription(request);
+            
+            /*
+             * Only allow those codecs supported by freeSWITCH
+             */
+            if ( Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled() )  {
+            	SipUtilities.cleanSessionDescription(sd, Gateway.getParkServerCodecs());
+            }
 
             RtpSession outboundSession = this.createRtpSession(outboundDialog);
 
@@ -1695,7 +1708,11 @@ public class BackToBackUserAgent implements Comparable {
                 serverTransaction.sendResponse(response);
                 return;
             }
-
+            
+            /* Restrict offer to the codecs allowed by park server */
+            if ( Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled() ) {
+            	SipUtilities.cleanSessionDescription(outboundSessionDescription, Gateway.getParkServerCodecs());
+            }
             /*
              * Indicate that we will be transmitting first.
              */

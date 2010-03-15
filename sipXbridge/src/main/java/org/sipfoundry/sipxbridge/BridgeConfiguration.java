@@ -64,6 +64,7 @@ public class BridgeConfiguration {
         parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
         parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
         parkServerCodecs.add(RtpPayloadTypes.getPayloadType("G722"));
+        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("L16"));
 
     }
 
