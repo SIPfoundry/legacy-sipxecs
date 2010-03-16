@@ -34,6 +34,7 @@ public class Localization {
     private FreeSwitchConfigurationInterface m_config;
     private FreeSwitchEventSocketInterface m_fses;
     private String m_prefix;
+    private String m_localeString;
 
     public Localization(String bundleName, String localeString, HashMap<Locale, ResourceBundle> resourcesByLocale,
             FreeSwitchConfigurationInterface config, FreeSwitchEventSocketInterface fses) {
@@ -47,6 +48,7 @@ public class Localization {
         m_fses = fses;
         LOG = config.getLogger();
         changeLocale(localeString);
+        m_localeString = localeString;
     }
 
     /**
@@ -63,7 +65,8 @@ public class Localization {
         m_config = origLoc.m_config;
         m_fses = origLoc.m_fses;
         LOG = origLoc.LOG;
-        changeLocale(null);
+        m_localeString = origLoc.m_localeString;
+        changeLocale(m_localeString);
     }
 
     public void changeLocale(String localeString) {
