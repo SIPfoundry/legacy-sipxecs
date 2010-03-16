@@ -57,41 +57,8 @@ public class InternetCallingTestUi extends WebTestCase {
         // it's going to fail since "Enable Internet Calling" is checked and SBC address is needed
         SiteTestHelper.assertUserError(tester);
 
-        selectOption("sbcDeviceSelect", "Unmanaged SBC");
-        SiteTestHelper.assertNoUserError(tester);
-        setTextField("sbcDevice:name", "sbcDevice1");
-        setTextField("sbcDevice:address", "sbc.example.org");
-        clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
-        selectOption("sbcDeviceSelect", "sbcDevice1");
-
         Table auxSbcsTable = tester.getTable("sbc:list");
         assertEquals(1, auxSbcsTable.getRowCount());
 
-        // add aditional SBC
-        clickLink("sbc:add");
-        SiteTestHelper.assertNoUserError(tester);
-        selectOption("sbcDeviceSelect", "Unmanaged SBC");
-        setTextField("sbcDevice:name", "sbcDevice2");
-        setTextField("sbcDevice:address", "sbc.example.net");
-        clickButton("form:ok");
-        selectOption("sbcDeviceSelect", "sbcDevice2");
-        clickLink("addLink");
-        setTextField("TextField", "*.example.com");
-        clickButton("form:ok");
-        SiteTestHelper.assertNoUserError(tester);
-
-        // check number of rows in the table after SBC added
-        auxSbcsTable = tester.getTable("sbc:list");
-        assertEquals(2, auxSbcsTable.getRowCount());
-        assertTextInTable("sbc:list", "sbc.example.net");
-
-        // check number of rows in the table after SBC is deleted
-        SiteTestHelper.selectRow(tester, 0, true);
-        setExpectedJavaScriptConfirm("Are you sure you want to delete the selected SBCs?", true);
-        clickButton("sbc:delete");
-        auxSbcsTable = tester.getTable("sbc:list");
-        assertEquals(1, auxSbcsTable.getRowCount());
-        assertTextNotInTable("sbc:list", "sbc.example.net");
     }
 }

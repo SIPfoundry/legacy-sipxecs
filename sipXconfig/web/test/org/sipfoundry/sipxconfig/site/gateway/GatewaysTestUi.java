@@ -149,13 +149,7 @@ public class GatewaysTestUi extends WebTestCase {
 
         selectOption("selectGatewayModel", "SIP trunk");
         setTextField("gateway:name", "SipTrunkRouteInit");
-        selectOption("sbcDeviceSelect", "Unmanaged SBC");
-        setTextField("sbcDevice:name", "sbcRouteForSipTrunk");
-        setTextField("sbcDevice:address", "sbc.example.org");
-        clickButton("form:ok");
-        assertNoUserError(tester);
-        assertSelectedOptionEquals("sbcDeviceSelect", "sbcRouteForSipTrunk");
-        setTextField("gateway:name", "SipTrunkRouteTest");
+        assertElementPresent("sbcDeviceSelect");
         setTextField("gateway:address", "1.2.3.4");
         clickButton("form:ok");
         assertNoUserError(tester);

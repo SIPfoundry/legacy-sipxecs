@@ -23,6 +23,7 @@
             label="message:label.address"
             description="message:description.address">
             <span jwcid="sbcDevice@common/SbcDeviceSelect"
+              externalSBCOnly="ognl:true"
               selectedSbcDevice="ognl:selectedSbcDevice"
 			  enforceInternetCallingSupport="ognl:true" />
           </tr>
@@ -36,7 +37,9 @@
       itemDisplayName="message:label.domain"
       validators="spring-validators:required,validDnsWildcard"
       source="ognl:sbc.routes.domains"/>
+    <br/>
     <div jwcid="@common/QuickHelp" value="message:help.subnets"/>
+
     <fieldset jwcid="@common/ListPanel"
       label="message:label.subnets"
       addLinkLabel="message:link.addSubnet"

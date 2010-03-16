@@ -27,7 +27,6 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
-import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -63,6 +62,12 @@ public abstract class SbcDeviceSelect extends BaseComponent {
     public abstract void setEnforceInternetCallingSupport(boolean enforce);
 
     public abstract boolean getEnforceInternetCallingSupport();
+
+    @Parameter(required = false)
+    public abstract void setExternalSBCOnly(boolean externalSBCOnly);
+
+    public abstract boolean getExternalSBCOnly();
+
 
     @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
@@ -119,22 +124,13 @@ public abstract class SbcDeviceSelect extends BaseComponent {
 
         Collection<SbcDevice> sbcDevices = deviceManager.getSbcDevices();
         if (!sbcDevices.isEmpty()) {
-            actions.add(new OptGroup(getMessages().getMessage("label.addSbc")));
             for (SbcDevice sbcDevice : sbcDevices) {
                 if (checkIfAllowedToAddAction(sbcDevice.getModel())) {
                     AddExistingSbcDeviceAction action = new AddExistingSbcDeviceAction(sbcDevice);
-                    actions.add(action);
+                    if (!(getExternalSBCOnly() && (sbcDevice.getBeanId().equals("sbcSipXbridge")))) {
+                        actions.add(action);
+                    }
                 }
-            }
-        }
-
-        Collection<SbcDescriptor> models = getSbcModelSource().getModels();
-        actions.add(new OptGroup(getMessages().getMessage("label.createSbc")));
-        for (SbcDescriptor model : models) {
-            boolean maxAllowedReached = deviceManager.maxAllowedLimitReached(model);
-            if (checkIfAllowedToAddNewAction(model) && !maxAllowedReached) {
-                AddNewSbcDeviceAction action = new AddNewSbcDeviceAction(model);
-                actions.add(action);
             }
         }
 
