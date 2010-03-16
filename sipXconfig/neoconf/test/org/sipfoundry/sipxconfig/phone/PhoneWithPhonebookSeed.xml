@@ -21,7 +21,10 @@
 	<phonebook_file_entry phonebook_file_entry_id="1" first_name="test1" last_name="test2" phone_number="123" phonebook_id="1001" phonebook_entry_type="G"/>
 	<phonebook_file_entry phonebook_file_entry_id="2" first_name="test3" last_name="test4" phone_number="222" phonebook_id="1001" phonebook_entry_type="U"/>
 	<phonebook_file_entry phonebook_file_entry_id="3" first_name="test5" last_name="test6" phonebook_id="1001" phonebook_entry_type="G"/>
-	<phonebook_file_entry phonebook_file_entry_id="4" first_name="test7" last_name="" phone_number="555" phonebook_id="1001" phonebook_entry_type="G"/>
+	<phonebook_file_entry phonebook_file_entry_id="4" first_name="" last_name="" phone_number="555" phonebook_id="1001" phonebook_entry_type="G"/>
+	<phonebook_file_entry phonebook_file_entry_id="7" first_name="First" last_name="" phone_number="555" phonebook_id="1001" phonebook_entry_type="G"/>
+	<phonebook_file_entry phonebook_file_entry_id="8" first_name="" last_name="Last" phone_number="555" phonebook_id="1001" phonebook_entry_type="G"/>
+	<phonebook_file_entry phonebook_file_entry_id="9" first_name="Without" last_name="Phone" phone_number="" phonebook_id="1001" phonebook_entry_type="G"/>
 
 	<value_storage value_storage_id="1000" />
 	<group_storage group_id="1000" resource="user" weight="1000" name="1000" />

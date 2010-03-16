@@ -423,7 +423,7 @@ public class PhoneContextImpl extends SipxHibernateDaoSupport implements BeanFac
         public boolean evaluate(Object phonebookEntry) {
             if (phonebookEntry instanceof GooglePhonebookEntry) {
                 GooglePhonebookEntry entry = (GooglePhonebookEntry) phonebookEntry;
-                return (isEmpty(entry.getFirstName()) || isEmpty(entry.getLastName()) || isEmpty(entry.getNumber()));
+                return ((isEmpty(entry.getFirstName()) && isEmpty(entry.getLastName())) || isEmpty(entry.getNumber()));
             }
             return false;
         }

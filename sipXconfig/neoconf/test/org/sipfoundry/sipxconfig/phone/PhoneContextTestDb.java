@@ -223,7 +223,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsertFlat("phone/PhoneWithPhonebookSeed.xml");
 
         Phone phone = m_context.loadPhone(1001);
-        assertEquals(4, m_context.getPhonebookEntries(phone).size());
+        assertEquals(6, m_context.getPhonebookEntries(phone).size());
 
         Phone phone2 = m_context.loadPhone(2001);
         assertEquals(1, m_context.getPhonebookEntries(phone2).size());
@@ -231,7 +231,7 @@ public class PhoneContextTestDb extends SipxDatabaseTestCase {
         //Test everyone disabled
         m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
         phone = m_context.loadPhone(1001);
-        assertEquals(3, m_context.getPhonebookEntries(phone).size());
+        assertEquals(5, m_context.getPhonebookEntries(phone).size());
 
         phone2 = m_context.loadPhone(2001);
         assertEquals(0, m_context.getPhonebookEntries(phone2).size());

@@ -20,6 +20,8 @@ import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 
+import static org.apache.commons.lang.StringEscapeUtils.escapeXml;
+
 public class DirectoryConfiguration extends ProfileContext {
     private static final String EMPTY_STRING = "";
     private static final String SINGLE_SPACE = " ";
@@ -78,24 +80,24 @@ public class DirectoryConfiguration extends ProfileContext {
         }
 
         public String getUri() {
-            return "sip:" + m_entry.getNumber() + "@" + m_domainName;
+            return "sip:" + escapeXml(m_entry.getNumber()) + "@" + m_domainName;
         }
 
         public String getGivenName() {
-            return m_entry.getFirstName() == null ? EMPTY_STRING : m_entry.getFirstName();
+            return m_entry.getFirstName() == null ? EMPTY_STRING : escapeXml(m_entry.getFirstName());
         }
 
         public String getLastName() {
-            return m_entry.getLastName() == null ? EMPTY_STRING : m_entry.getLastName();
+            return m_entry.getLastName() == null ? EMPTY_STRING : escapeXml(m_entry.getLastName());
         }
 
         public String getBusinessNumber() {
-            return m_entry.getNumber();
+            return escapeXml(m_entry.getNumber());
         }
 
         public String getXmppAddress() {
             if (m_subEntry != null) {
-                return m_subEntry.getImId() == null ? EMPTY_STRING : m_subEntry.getImId();
+                return m_subEntry.getImId() == null ? EMPTY_STRING : escapeXml(m_subEntry.getImId());
             }
 
             return EMPTY_STRING;
@@ -103,49 +105,51 @@ public class DirectoryConfiguration extends ProfileContext {
 
         public String getHomeNumber() {
             if (m_subEntry != null) {
-                return m_subEntry.getHomePhoneNumber() == null ? EMPTY_STRING : m_subEntry.getHomePhoneNumber();
+                return m_subEntry.getHomePhoneNumber() == null ? EMPTY_STRING : escapeXml(m_subEntry
+                        .getHomePhoneNumber());
             }
             return EMPTY_STRING;
         }
 
         public String getMobileNumber() {
             if (m_subEntry != null) {
-                return m_subEntry.getCellPhoneNumber() == null ? EMPTY_STRING : m_subEntry.getCellPhoneNumber();
+                return m_subEntry.getCellPhoneNumber() == null ? EMPTY_STRING : escapeXml(m_subEntry
+                        .getCellPhoneNumber());
             }
             return EMPTY_STRING;
         }
 
         public String getFaxNumber() {
             if (m_subEntry != null) {
-                return m_subEntry.getFaxNumber() == null ? EMPTY_STRING : m_subEntry.getFaxNumber();
+                return m_subEntry.getFaxNumber() == null ? EMPTY_STRING : escapeXml(m_subEntry.getFaxNumber());
             }
             return EMPTY_STRING;
         }
 
         public String getHomeAddress() {
             if (m_subEntry != null) {
-                return convertToString(m_subEntry.getHomeAddress());
+                return escapeXml(convertToString(m_subEntry.getHomeAddress()));
             }
             return EMPTY_STRING;
         }
 
         public String getOfficeAddress() {
             if (m_subEntry != null) {
-                return convertToString(m_subEntry.getOfficeAddress());
+                return escapeXml(convertToString(m_subEntry.getOfficeAddress()));
             }
             return EMPTY_STRING;
         }
 
         public String getCompany() {
             if (m_subEntry != null) {
-                return m_subEntry.getCompanyName() == null ? EMPTY_STRING : m_subEntry.getCompanyName();
+                return m_subEntry.getCompanyName() == null ? EMPTY_STRING : escapeXml(m_subEntry.getCompanyName());
             }
             return EMPTY_STRING;
         }
 
         public String getJobTitle() {
             if (m_subEntry != null) {
-                return m_subEntry.getJobTitle() == null ? EMPTY_STRING : m_subEntry.getJobTitle();
+                return m_subEntry.getJobTitle() == null ? EMPTY_STRING : escapeXml(m_subEntry.getJobTitle());
             }
             return EMPTY_STRING;
         }
