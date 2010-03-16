@@ -20,12 +20,16 @@
   <target name="execs" depends="jar,installer" description="create jar and installer"/>
 
   <!-- J A R -->
-  <target name="jar" depends="compile,manifest" description="create jar file">
-
+  <target name="jar" depends="compile" description="create jar file">
     <jar jarfile="${build.dir}/dist/sipviewer.jar" manifest="${dist.dir}/MANIFEST.MF">
       <fileset dir="${classes.dir}" >
         <include name="**/*.class" />
       </fileset>
+        <manifest>
+               <attribute name="Class-Path" value="jdom.jar" />
+               <attribute name="Created-By" value="1.6.0_14 (Sun Microsystems Inc.)" />
+               <attribute name="Main-Class" value="com.pingtel.sipviewer.SIPViewer" />
+        </manifest>
     </jar>
   </target>
 
