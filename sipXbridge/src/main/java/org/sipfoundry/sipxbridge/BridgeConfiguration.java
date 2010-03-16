@@ -61,10 +61,6 @@ public class BridgeConfiguration {
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
     public BridgeConfiguration() {
-        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMU"));
-        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("PCMA"));
-        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("G722"));
-        parkServerCodecs.add(RtpPayloadTypes.getPayloadType("L16"));
 
     }
 
@@ -490,6 +486,7 @@ public class BridgeConfiguration {
     }
 
     public void setMohSupportedCodecs(String mohCodecs) throws IllegalArgumentException {
+    	
         String[] codecs = mohCodecs.split("\\,");
         for (String codec : codecs) {
             if (!RtpPayloadTypes.isPayload(codec)) {

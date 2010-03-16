@@ -1330,7 +1330,7 @@ public class Gateway {
      *
      * @return
      */
-    static HashSet<Integer> getParkServerCodecs() {
+    static HashSet<Integer> getAllowableCodecs() {
         return getBridgeConfiguration().getParkServerCodecs();
     }
 

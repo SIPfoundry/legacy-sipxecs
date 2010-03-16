@@ -145,16 +145,15 @@
       </description>
     </setting>
 
-    <setting name="music-on-hold-supported-codecs" hidden="yes">
-      <label>MOH codecs</label>
+    <setting name="music-on-hold-supported-codecs" advanced="yes">
+      <label>Permitted Codecs</label>
       <value>PCMU,PCMA,G722,L16</value>
       <description>
-        Codecs supported by the MOH Server.
+        Codecs permitted for call setup. Leave blank if you do not want to restict to a specified set.
       </description>
     </setting>
 
     <setting name="route-inbound-calls-to-extension">
-      <value>operator</value>
     </setting>
     <setting name="log-level" hidden="yes">
       <label>Logging level</label>

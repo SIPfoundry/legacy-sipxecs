@@ -650,6 +650,32 @@ public class BackToBackUserAgent implements Comparable {
                 + DialogContext.get(dialog).getCreationPointStackTrace());
         this.cleanupList.add(dialog);
     }
+    
+    /**
+     * Check the session description and send 488 to server transaction 
+     * if the session description is empty.
+     * 
+     * @param serverTransaction -- dialog forming  INVITE server transaction
+     * @param sessionDescription -- the session description to check.
+     * @return true if session description is ok. False otherwise.
+     * @throws InvalidArgumentException 
+     * @throws Exception 
+     */
+    boolean checkSessionDescription(SessionDescription sessionDescription,
+    		ServerTransaction serverTransaction) throws Exception {
+    	 /*
+         * Could not find any acceptable codecs. Reject the INVITE with 488.
+         */
+        if ( SipUtilities.getNonTelephoneEventMediaFormats(sessionDescription).isEmpty() )  {
+        	Response errorResponse = SipUtilities.createResponse(serverTransaction, Response.NOT_ACCEPTABLE_HERE);
+        	serverTransaction.sendResponse(errorResponse);
+        	this.tearDownNow();
+        	return false;
+        } else {
+        	return true;
+        }
+        
+    }
 
     /**
      * Create an INVITE request from an in-bound REFER. Note that the only reason why this is here
@@ -866,9 +892,10 @@ public class BackToBackUserAgent implements Comparable {
              * Create a new client transaction. First attach any queried session description.
              */
             if (sessionDescription != null) {
-            	if ( Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled()) {
-                  	SipUtilities.cleanSessionDescription(sessionDescription, Gateway.getParkServerCodecs());
-                }
+            	SipUtilities.cleanSessionDescription(sessionDescription, Gateway.getAllowableCodecs());
+            	if (!this.checkSessionDescription(sessionDescription, stx)) {
+            		return;
+            	}
                 SipUtilities.setDuplexity(sessionDescription, "sendrecv");
                 SipUtilities.setSessionDescription(inviteRequest, sessionDescription);
             }
@@ -1226,12 +1253,15 @@ public class BackToBackUserAgent implements Comparable {
             SessionDescription sd = SipUtilities.getSessionDescription(request);
             
             /*
-             * Only allow those codecs supported by freeSWITCH
+             * Only allow a subset of codecs if specified by user.
              */
-            if ( Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled() )  {
-            	SipUtilities.cleanSessionDescription(sd, Gateway.getParkServerCodecs());
+            SipUtilities.cleanSessionDescription(sd, Gateway.getAllowableCodecs());
+            
+           
+            if (! checkSessionDescription(sd,serverTransaction) ) {
+            	return;
             }
-
+            
             RtpSession outboundSession = this.createRtpSession(outboundDialog);
 
             logger.debug("outboundSession = " + outboundSession);
@@ -1709,10 +1739,13 @@ public class BackToBackUserAgent implements Comparable {
                 return;
             }
             
-            /* Restrict offer to the codecs allowed by park server */
-            if ( Gateway.getBridgeConfiguration().isMusicOnHoldSupportEnabled() ) {
-            	SipUtilities.cleanSessionDescription(outboundSessionDescription, Gateway.getParkServerCodecs());
+            /* Restrict offer to the codecs allowed if such a limit is specified. */
+            SipUtilities.cleanSessionDescription(outboundSessionDescription, Gateway.getAllowableCodecs());
+            
+            if (!this.checkSessionDescription(outboundSessionDescription, serverTransaction)) {
+            	return;
             }
+            
             /*
              * Indicate that we will be transmitting first.
              */
