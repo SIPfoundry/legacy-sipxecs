@@ -553,6 +553,9 @@ public class Deposit {
                 
                 // "3" means "erase" and re-record
                 if (digit.equals("3")) {
+                    // if the user hangs up during playback of this prompt
+                    // we don't want to save the message. 
+                    m_message.setIsToBeStored(false);
                     m_loc.play("send_record_message", "");
                     recorded = false ;
                     continue ;

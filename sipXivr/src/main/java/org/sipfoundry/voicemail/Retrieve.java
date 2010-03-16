@@ -1165,92 +1165,93 @@ public class Retrieve {
                 // bad entry, timeout, canceled
                 return;
             }
-            
+
             // No need to check what they pressed, if it wasn't "1", then we aren't here!
-            
-            // "To record the Auto Attendant prompt, press 1."
-            // "To Manage the special Auto Attendant menu, press 2."
-            // "To cancel, press *."
-            vmd = new VmDialog(m_vm, "sysadmin_opts2");
-            String digit = vmd.collectDigit("12");
-            if (digit == null) {
-                // bad entry, timeout, canceled
-                continue adminOptions;
-            }
-            
-            if (digit.equals("1")) {
-                LOG.info("Retrieve::adminOptions:recordAA "+m_ident);
-
-                // "Record the Auto Attendant prompt, then press #"
-                // 
-                // "To listen to your recording, press 1."
-                // "To use this recording, press 2." 
-                // "To delete this recording and try again, press 3."
+            adminOptions2:
+            for(;;) {
+                // "To record the Auto Attendant prompt, press 1."
+                // "To Manage the special Auto Attendant menu, press 2."
                 // "To cancel, press *."
-                File recordingFile = recordDialog("record_aa", "aa_confirm");
-
-                if (recordingFile == null) {
+                vmd = new VmDialog(m_vm, "sysadmin_opts2");
+                String digit = vmd.collectDigit("12");
+                if (digit == null) {
+                    // bad entry, timeout, canceled
                     continue adminOptions;
                 }
+                
+                if (digit.equals("1")) {
+                    LOG.info("Retrieve::adminOptions:recordAA "+m_ident);
 
-                String aaName = String.format("customautoattendant-%d.wav", System.currentTimeMillis()/1000);
-                File aaFile = new File(((IvrConfiguration)m_loc.getConfig()).getPromptsDirectory(), aaName);
-                
-                // Save the recording as the aaFile
-                if (aaFile.exists()) {
-                    aaFile.delete();
-                }
-                // Do this before the rename, as once renamed recordingFile is changed
-                dontDeleteTempFile(recordingFile);
-                recordingFile.renameTo(aaFile);
-                
-                // Auto Attendant prompt recorded.
-                m_loc.play("aa_recorded", "");
-                
-                continue adminOptions;
-            }
-            
-            if (digit.equals("2")) {
-                // "To enable the special autoattendant menu, press 1."
-                // "To disable it, press 2."
-                // "To cancel, press *."
-                vmd = new VmDialog(m_vm, "special_menu_options");
-                String digit1 = vmd.collectDigit("12");
-                if (digit1 == null) {
-                    continue adminOptions;
-                }
-                // Tell sipXconfig about the change.
-                
-                try {
-                    // Use sipXconfig's RESTful interface to change the special mode
-                    RestfulRequest rr = new RestfulRequest(
-                            ((IvrConfiguration)m_loc.getConfig()).getConfigUrl()+"/sipxconfig/rest/auto-attendant/specialmode", 
-                            m_mailbox.getUser().getUserName(), m_userEnteredPin);
-                    
-                    if (digit1.equals("1")) {
-                        if (rr.put(null)) {
-                            LOG.info("Retrieve::adminOptions:specialmode "+m_ident+" specialmode enabled.");
-                            // "Special Auto Attendant menu is enabled."
-                            m_loc.play("special_menu_enabled","");
-                            continue adminOptions;
-                        }
-                    } else if (digit1.equals("2")) {
-                        if (rr.delete()) {
-                            LOG.info("Retrieve::adminOptions:specialmode "+m_ident+" specialmode disabled.");
-                            // "Special Auto Attendant menu is disabled."
-                            m_loc.play("special_menu_disabled","");
-                            continue adminOptions;
-                        }
+                    // "Record the Auto Attendant prompt, then press #"
+                    // 
+                    // "To listen to your recording, press 1."
+                    // "To use this recording, press 2." 
+                    // "To delete this recording and try again, press 3."
+                    // "To cancel, press *."
+                    File recordingFile = recordDialog("record_aa", "aa_confirm");
+
+                    if (recordingFile == null) {
+                        continue adminOptions2;
                     }
-                    LOG.error("Retrieve::adminOptions:specialmode trouble "+rr.getResponse());
-                } catch (Exception e) {
-                    LOG.error("Retrieve::adminOptions:specialmode trouble", e);
+
+                    String aaName = String.format("customautoattendant-%d.wav", System.currentTimeMillis()/1000);
+                    File aaFile = new File(((IvrConfiguration)m_loc.getConfig()).getPromptsDirectory(), aaName);
+
+                    // Save the recording as the aaFile
+                    if (aaFile.exists()) {
+                        aaFile.delete();
+                    }
+                    // Do this before the rename, as once renamed recordingFile is changed
+                    dontDeleteTempFile(recordingFile);
+                    recordingFile.renameTo(aaFile);
+
+                    // Auto Attendant prompt recorded.
+                    m_loc.play("aa_recorded", "");
+
+                    continue adminOptions2;
                 }
-                // "An error occurred while processing your request."
-                m_loc.play("special_menu_failed", "");
+
+                if (digit.equals("2")) {
+                    // "To enable the special autoattendant menu, press 1."
+                    // "To disable it, press 2."
+                    // "To cancel, press *."
+                    vmd = new VmDialog(m_vm, "special_menu_options");
+                    String digit1 = vmd.collectDigit("12");
+                    if (digit1 == null) {
+                        continue adminOptions2;
+                    }
+                    // Tell sipXconfig about the change.
+
+                    try {
+                        // Use sipXconfig's RESTful interface to change the special mode
+                        RestfulRequest rr = new RestfulRequest(
+                                ((IvrConfiguration)m_loc.getConfig()).getConfigUrl()+"/sipxconfig/rest/auto-attendant/specialmode", 
+                                m_mailbox.getUser().getUserName(), m_userEnteredPin);
+
+                        if (digit1.equals("1")) {
+                            if (rr.put(null)) {
+                                LOG.info("Retrieve::adminOptions:specialmode "+m_ident+" specialmode enabled.");
+                                // "Special Auto Attendant menu is enabled."
+                                m_loc.play("special_menu_enabled","");
+                                continue adminOptions2;
+                            }
+                        } else if (digit1.equals("2")) {
+                            if (rr.delete()) {
+                                LOG.info("Retrieve::adminOptions:specialmode "+m_ident+" specialmode disabled.");
+                                // "Special Auto Attendant menu is disabled."
+                                m_loc.play("special_menu_disabled","");
+                                continue adminOptions2;
+                            }
+                        }
+                        LOG.error("Retrieve::adminOptions:specialmode trouble "+rr.getResponse());
+                    } catch (Exception e) {
+                        LOG.error("Retrieve::adminOptions:specialmode trouble", e);
+                    }
+                    // "An error occurred while processing your request."
+                    m_loc.play("special_menu_failed", "");
+                }
             }
         }
-
     }
 
     /**
