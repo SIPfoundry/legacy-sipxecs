@@ -564,8 +564,13 @@ do_setup() {
 
         # Ensure the sipx-restore and sipx-archive-common scripts are
         # both owned by root.
-        make_root_writable_only @SIPX_BINDIR@/sipx-restore
+        make_root_writable_only @SIPX_BINDIR@/sipx-restore 
         make_root_writable_only @SIPX_BINDIR@/sipx-archive-common
+
+        # Make IBM JVM's Attach API temporary directory accessible to sipXecs Java processes.
+        # Failure to do so causes Java processes to consume unnecessary CPU cycles (XX-7634) 
+        mkdir /tmp/.com_ibm_tools_attach/ 2> /dev/null 
+        chown @SIPXPBXUSER@:@SIPXPBXUSER@ /tmp/.com_ibm_tools_attach 2> /dev/null
 
         # TEMPORARY WORKAROUND TO DETECT MASTER SYSTEM
         activateConfigServerOnMaster
