@@ -29,9 +29,15 @@ class SipRedirectorPresenceRoutingTest : public CppUnit::TestCase,  public Dummy
    CPPUNIT_TEST(removeVoicemailContactButNotFound);
    CPPUNIT_TEST(dontRemoveVoicemailContact);
    CPPUNIT_TEST(routeToTelUriBeginning);
-   CPPUNIT_TEST(routeToTelUriMiddle);
+   CPPUNIT_TEST(routeToTelUriMiddle1);
+   CPPUNIT_TEST(routeToTelUriMiddle2);
    CPPUNIT_TEST(routeToTelUriEnd);
-   CPPUNIT_TEST(routeToUnvalidTelUris);
+   CPPUNIT_TEST(routeToInvalidTelUris);
+   CPPUNIT_TEST(routeToSipUriBeginning);
+   CPPUNIT_TEST(routeToSipUriMiddle1);
+   CPPUNIT_TEST(routeToSipUriMiddle2);
+   CPPUNIT_TEST(routeToSipUriEnd);
+   CPPUNIT_TEST(routeToInvalidSipUris);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -214,7 +220,7 @@ public:
    {
       pUp = insertUnifiedPresenceEntry();
       Url toUrl("sip:dummy@example.com");
-      pUp->setXmppStatusMessage("tel:bob@bobnet.net is where I can be reached!");
+      pUp->setXmppStatusMessage("tel:12345 is where I can be reached!");
       ContactList contactList("SipRedirectorPresenceRoutingTest");
       contactList.add(UtlString("sip:201@domain.com"), *this );
       contactList.add(UtlString("sip:202@domain.com"), *this );
@@ -223,6 +229,7 @@ public:
 
       OsConfigDb configuration;
       configuration.set("VOICEMAIL_ON_BUSY", "Y" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
       SipRedirectorPresenceRouting pluginUnderTest("PIUT");
       pluginUnderTest.readConfig(configuration);
 
@@ -235,14 +242,14 @@ public:
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
       CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+      ASSERT_STR_EQUAL( "sip:12345@bobnet.net", tmpString.data() );
    }
 
-   void routeToTelUriMiddle()
+   void routeToTelUriMiddle1()
    {
       pUp = insertUnifiedPresenceEntry();
       Url toUrl("sip:dummy@example.com");
-      pUp->setXmppStatusMessage("You can reach me at tel:bob@bobnet.net if this is an emergency!");
+      pUp->setXmppStatusMessage("You can reach me at tel:+1234567890 if this is an emergency 1234");
       ContactList contactList("SipRedirectorPresenceRoutingTest");
       contactList.add(UtlString("sip:201@domain.com"), *this );
       contactList.add(UtlString("sip:202@domain.com"), *this );
@@ -251,6 +258,7 @@ public:
 
       OsConfigDb configuration;
       configuration.set("VOICEMAIL_ON_BUSY", "Y" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
       SipRedirectorPresenceRouting pluginUnderTest("PIUT");
       pluginUnderTest.readConfig(configuration);
 
@@ -263,14 +271,43 @@ public:
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
       CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+      ASSERT_STR_EQUAL( "sip:+1234567890@bobnet.net", tmpString.data() );
+   }
+
+   void routeToTelUriMiddle2()
+   {
+      pUp = insertUnifiedPresenceEntry();
+      Url toUrl("sip:dummy@example.com");
+      pUp->setXmppStatusMessage("You can reach me at tel:+1234567890, if this is an emergency 1234");
+      ContactList contactList("SipRedirectorPresenceRoutingTest");
+      contactList.add(UtlString("sip:201@domain.com"), *this );
+      contactList.add(UtlString("sip:202@domain.com"), *this );
+      contactList.add(UtlString("sip:~~vm~203@domain.com"), *this );
+      contactList.resetWasModifiedFlag();
+
+      OsConfigDb configuration;
+      configuration.set("VOICEMAIL_ON_BUSY", "Y" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
+      SipRedirectorPresenceRouting pluginUnderTest("PIUT");
+      pluginUnderTest.readConfig(configuration);
+
+      RedirectPlugin::LookUpStatus rc;
+      rc = pluginUnderTest.doLookUp(
+            toUrl,
+            contactList );
+
+      UtlString tmpString;
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.entries() == 4 );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
+      ASSERT_STR_EQUAL( "sip:+1234567890@bobnet.net", tmpString.data() );
    }
 
    void routeToTelUriEnd()
    {
       pUp = insertUnifiedPresenceEntry();
       Url toUrl("sip:dummy@example.com");
-      pUp->setXmppStatusMessage("You can reach me at tel:bob@bobnet.net");
+      pUp->setXmppStatusMessage("You can reach me at tel:+(800)-555-1212.1234");
       ContactList contactList("SipRedirectorPresenceRoutingTest");
       contactList.add(UtlString("sip:201@domain.com"), *this );
       contactList.add(UtlString("sip:202@domain.com"), *this );
@@ -279,6 +316,7 @@ public:
 
       OsConfigDb configuration;
       configuration.set("VOICEMAIL_ON_BUSY", "Y" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
       SipRedirectorPresenceRouting pluginUnderTest("PIUT");
       pluginUnderTest.readConfig(configuration);
 
@@ -291,10 +329,10 @@ public:
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
       CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+      ASSERT_STR_EQUAL( "sip:+(800)-555-1212.1234@bobnet.net", tmpString.data() );
    }
 
-   void routeToUnvalidTelUris()
+   void routeToInvalidTelUris()
    {
       pUp = insertUnifiedPresenceEntry();
       Url toUrl("sip:dummy@example.com");
@@ -306,6 +344,168 @@ public:
 
       OsConfigDb configuration;
       configuration.set("VOICEMAIL_ON_BUSY", "N" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
+      SipRedirectorPresenceRouting pluginUnderTest("PIUT");
+      pluginUnderTest.readConfig(configuration);
+
+      RedirectPlugin::LookUpStatus rc;
+
+      pUp->setXmppStatusMessage("You can reach me at tel:+(800)-555-1212.1234@bobnet.net");
+      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.wasListModified() == false );
+
+      pUp->setXmppStatusMessage("You can reach me at tel:+(800)-555-1212.1234#");
+      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.wasListModified() == false );
+
+      pUp->setXmppStatusMessage("You can reach me at tel 1234;bob");
+      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.wasListModified() == false );
+
+      pUp->setXmppStatusMessage("You can reach me at tel:1234/bob");
+      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.wasListModified() == false );
+
+      pUp->setXmppStatusMessage("You can reach me at tel:1234a");
+      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.wasListModified() == false );
+
+   }
+
+   void routeToSipUriBeginning()
+   {
+      pUp = insertUnifiedPresenceEntry();
+      Url toUrl("sip:dummy@example.com");
+      pUp->setXmppStatusMessage("sip:bob@bobnet.net is where I can be reached!");
+      ContactList contactList("SipRedirectorPresenceRoutingTest");
+      contactList.add(UtlString("sip:201@domain.com"), *this );
+      contactList.add(UtlString("sip:202@domain.com"), *this );
+      contactList.add(UtlString("sip:~~vm~203@domain.com"), *this );
+      contactList.resetWasModifiedFlag();
+
+      OsConfigDb configuration;
+      configuration.set("VOICEMAIL_ON_BUSY", "Y" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
+      SipRedirectorPresenceRouting pluginUnderTest("PIUT");
+      pluginUnderTest.readConfig(configuration);
+
+      RedirectPlugin::LookUpStatus rc;
+      rc = pluginUnderTest.doLookUp(
+            toUrl,
+            contactList );
+
+      UtlString tmpString;
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.entries() == 4 );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
+      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+   }
+
+   void routeToSipUriMiddle1()
+   {
+      pUp = insertUnifiedPresenceEntry();
+      Url toUrl("sip:dummy@example.com");
+      pUp->setXmppStatusMessage("You can reach me at sip:bob@bobnet.net if this is an emergency!");
+      ContactList contactList("SipRedirectorPresenceRoutingTest");
+      contactList.add(UtlString("sip:201@domain.com"), *this );
+      contactList.add(UtlString("sip:202@domain.com"), *this );
+      contactList.add(UtlString("sip:~~vm~203@domain.com"), *this );
+      contactList.resetWasModifiedFlag();
+
+      OsConfigDb configuration;
+      configuration.set("VOICEMAIL_ON_BUSY", "Y" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
+      SipRedirectorPresenceRouting pluginUnderTest("PIUT");
+      pluginUnderTest.readConfig(configuration);
+
+      RedirectPlugin::LookUpStatus rc;
+      rc = pluginUnderTest.doLookUp(
+            toUrl,
+            contactList );
+
+      UtlString tmpString;
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.entries() == 4 );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
+      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+   }
+
+   void routeToSipUriMiddle2()
+   {
+      pUp = insertUnifiedPresenceEntry();
+      Url toUrl("sip:dummy@example.com");
+      pUp->setXmppStatusMessage("You can reach me at sip:bob@bobnet.net, if this is an emergency!");
+      ContactList contactList("SipRedirectorPresenceRoutingTest");
+      contactList.add(UtlString("sip:201@domain.com"), *this );
+      contactList.add(UtlString("sip:202@domain.com"), *this );
+      contactList.add(UtlString("sip:~~vm~203@domain.com"), *this );
+      contactList.resetWasModifiedFlag();
+
+      OsConfigDb configuration;
+      configuration.set("VOICEMAIL_ON_BUSY", "Y" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
+      SipRedirectorPresenceRouting pluginUnderTest("PIUT");
+      pluginUnderTest.readConfig(configuration);
+
+      RedirectPlugin::LookUpStatus rc;
+      rc = pluginUnderTest.doLookUp(
+            toUrl,
+            contactList );
+
+      UtlString tmpString;
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.entries() == 4 );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
+      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+   }
+
+   void routeToSipUriEnd()
+   {
+      pUp = insertUnifiedPresenceEntry();
+      Url toUrl("sip:dummy@example.com");
+      pUp->setXmppStatusMessage("You can reach me at sip:bob@bobnet.net");
+      ContactList contactList("SipRedirectorPresenceRoutingTest");
+      contactList.add(UtlString("sip:201@domain.com"), *this );
+      contactList.add(UtlString("sip:202@domain.com"), *this );
+      contactList.add(UtlString("sip:~~vm~203@domain.com"), *this );
+      contactList.resetWasModifiedFlag();
+
+      OsConfigDb configuration;
+      configuration.set("VOICEMAIL_ON_BUSY", "Y" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
+      SipRedirectorPresenceRouting pluginUnderTest("PIUT");
+      pluginUnderTest.readConfig(configuration);
+
+      RedirectPlugin::LookUpStatus rc;
+      rc = pluginUnderTest.doLookUp(
+            toUrl,
+            contactList );
+
+      UtlString tmpString;
+      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
+      CPPUNIT_ASSERT( contactList.entries() == 4 );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
+      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+   }
+
+   void routeToInvalidSipUris()
+   {
+      pUp = insertUnifiedPresenceEntry();
+      Url toUrl("sip:dummy@example.com");
+      ContactList contactList("SipRedirectorPresenceRoutingTest");
+      contactList.add(UtlString("sip:201@domain.com"), *this );
+      contactList.add(UtlString("sip:202@domain.com"), *this );
+      contactList.add(UtlString("sip:~~vm~203@domain.com"), *this );
+      contactList.resetWasModifiedFlag();
+
+      OsConfigDb configuration;
+      configuration.set("VOICEMAIL_ON_BUSY", "N" );
+      configuration.set("SIP_DOMAIN", "bobnet.net" );
       SipRedirectorPresenceRouting pluginUnderTest("PIUT");
       pluginUnderTest.readConfig(configuration);
 
@@ -316,32 +516,12 @@ public:
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
 
-      pUp->setXmppStatusMessage("You can reach me at tel:bobnet.net");
+      pUp->setXmppStatusMessage("You can reach me at sip:bobnet.net");
       rc = pluginUnderTest.doLookUp( toUrl, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
 
-      pUp->setXmppStatusMessage("You can reach me at tel bob@bobnet.net");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
-      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
-      CPPUNIT_ASSERT( contactList.wasListModified() == false );
-
-      pUp->setXmppStatusMessage("You can reach me at http://bobnet.net");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
-      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
-      CPPUNIT_ASSERT( contactList.wasListModified() == false );
-
-      pUp->setXmppStatusMessage("You can reach me at mailto:bob@bobnet.net");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
-      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
-      CPPUNIT_ASSERT( contactList.wasListModified() == false );
-
-      pUp->setXmppStatusMessage("You can reach me at sip:bob@bobnet.net");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
-      CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
-      CPPUNIT_ASSERT( contactList.wasListModified() == false );
-
-      pUp->setXmppStatusMessage("You can reach me at sip:tel@bobnet.net");
+      pUp->setXmppStatusMessage("You can reach me at sip:bob");
       rc = pluginUnderTest.doLookUp( toUrl, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );

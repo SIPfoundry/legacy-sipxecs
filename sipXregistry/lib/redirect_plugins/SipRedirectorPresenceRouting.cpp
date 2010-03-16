@@ -27,6 +27,7 @@
 
 // DEFINES
 #define CONFIG_SETTING_REALM "REALM"
+#define CONFIG_SETTING_SIP_DOMAIN "SIP_DOMAIN"
 #define CONFIG_SETTING_VOICEMAIL_ON_BUSY "VOICEMAIL_ON_BUSY"
 #define CONFIG_SETTING_USER_PREFS_FILE "USER_PREFS_FILE"
 #define CONFIG_OPENFIRE_PRESENCE_SERVER_URL "OPENFIRE_PRESENCE_SERVER_URL"
@@ -160,7 +161,8 @@ UnifiedPresenceContainer::UnifiedPresenceContainer() :
 // FORWARD DECLARATIONS
 
 
-const RegEx TelUri( "tel:(.+@.+?)(\\s|\\Z)" );
+const RegEx TelUri( "tel:([\\+\\.\\(\\)0-9\\-]+?)(,|\\s|\\Z)" );
+const RegEx SipUri( "(sip:.+@.+?)(,|\\s|\\Z)" );
 
 // Static factory function.
 extern "C" RedirectPlugin* getRedirectPlugin(const UtlString& instanceName)
@@ -203,7 +205,23 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
         OsSysLog::add(FAC_SIP, PRI_INFO,
                     "%s::readConfig mRealm = '%s'",
                     mLogName.data(), mRealm.data() );
-   }
+    }
+
+    // extract the SIP domain information from the config DB - we need this part
+    // to transform the tel URI into a SIP URI
+    if ((configDb.get(CONFIG_SETTING_SIP_DOMAIN, mSipDomain) != OS_SUCCESS) ||
+         mSipDomain.isNull())
+    {
+        OsSysLog::add(FAC_SIP, PRI_ERR,
+                     "%s::readConfig No SIP domain specified in the configuration",
+                     mLogName.data());
+    }
+    else
+    {
+        OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "%s::readConfig mSipDomain = '%s'",
+                    mLogName.data(), mSipDomain.data() );
+    }
 
     mbForwardToVmOnBusy = configDb.getBoolean(CONFIG_SETTING_VOICEMAIL_ON_BUSY, FALSE);
     OsSysLog::add(FAC_SIP, PRI_INFO,
@@ -342,37 +360,49 @@ SipRedirectorPresenceRouting::doLookUp(
    {
       // unified presence data is available for the called party.
       // Use it to make call routing decisions.
-       OsSysLog::add(FAC_SIP, PRI_INFO, "%s::LookUpStatus "
-                                        "Presence information for '%s':\r\n"
-                                        "    Telephony presence: '%s'"
-                                        "    XMPP presence: '%s'"
-                                        "    Custom presence message: '%s'",
-                                        mLogName.data(),
-                                        to.data(), pUp->getSipState().data(),
-                                        pUp->getXmppPresence().data(),
-                                        pUp->getXmppStatusMessage().data() );
+      OsSysLog::add(FAC_SIP, PRI_INFO, "%s::LookUpStatus "
+                                       "Presence information for '%s':\r\n"
+                                       "    Telephony presence: '%s'"
+                                       "    XMPP presence: '%s'"
+                                       "    Custom presence message: '%s'",
+                                       mLogName.data(),
+                                       to.data(), pUp->getSipState().data(),
+                                       pUp->getXmppPresence().data(),
+                                       pUp->getXmppStatusMessage().data() );
 
-       // look for tel uri in the custom presence message
-
-       RegEx telUri( TelUri );
-       telUri.Search( pUp->getXmppStatusMessage().data() );
-       UtlString targetUri;
-       if( telUri.MatchString( &targetUri, 1 ) )
-       {
-         // prepend 'sip:' and add target as contact
+      // look for tel URI in the custom presence message
+      RegEx telUri( TelUri );
+      telUri.Search( pUp->getXmppStatusMessage().data() );
+      UtlString targetUri;
+      if( !mSipDomain.isNull() && telUri.MatchString( &targetUri, 1 ) )
+      {
+         // prepend 'sip:', append the SIP domain and add resulting target as contact 
          targetUri.insert( 0, "sip:" );
+         targetUri.append( '@' );
+         targetUri.append( mSipDomain );
          contactList.add( targetUri, *this );
       }
       else
       {
-         // If user is busy then call goes directly to voicemail.
-         if( ( pUp->getSipState().compareTo("BUSY", UtlString::ignoreCase ) == 0 && mbForwardToVmOnBusy ) ||
-             ( pUp->getXmppPresence().compareTo("BUSY", UtlString::ignoreCase ) == 0 && mUserPrefs.forwardToVoicemailOnDnd( username ) ) )
+         // no tel URI - look for a sip URI then
+         RegEx sipUri( SipUri );
+         sipUri.Search( pUp->getXmppStatusMessage().data() );
+         if( sipUri.MatchString( &targetUri, 1 ) )
          {
-            // prune all non-voicemail contacts from the list
-            removeNonVoicemailContacts( contactList );
+           contactList.add( targetUri, *this );
          }
-      }
+         else
+         {
+            // no tel or sip URI, check to see if we need to send the call directly
+            // to voicemail based on seetings, presence and user preferences
+            if( ( pUp->getSipState().compareTo("BUSY", UtlString::ignoreCase ) == 0 && mbForwardToVmOnBusy ) ||
+                ( pUp->getXmppPresence().compareTo("BUSY", UtlString::ignoreCase ) == 0 && mUserPrefs.forwardToVoicemailOnDnd( username ) ) )
+            {
+               // prune all non-voicemail contacts from the list
+               removeNonVoicemailContacts( contactList );
+            }
+         }
+      }   
    }
    return RedirectPlugin::SUCCESS;
 }

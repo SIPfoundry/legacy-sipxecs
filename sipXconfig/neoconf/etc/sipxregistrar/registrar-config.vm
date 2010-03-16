@@ -64,6 +64,7 @@ SIP_REDIRECT.900-PRESENCE.USER_PREFS_FILE : @sipxpbx.conf.dir@/presencerouting-p
 SIP_REDIRECT.900-PRESENCE.OPENFIRE_PRESENCE_SERVER_URL : http://$!{openfire-host}:$!{openfire-xml-rpc-port}/plugins/sipx-openfire-presence/status
 SIP_REDIRECT.900-PRESENCE.LOCAL_PRESENCE_MONITOR_SERVER_URL : http://$!{location.address}:9096/RPC2
 SIP_REDIRECT.900-PRESENCE.REALM : $!{registrarService.realm}
+SIP_REDIRECT.900-PRESENCE.SIP_DOMAIN : $!{registrarService.domainName}
 #end
 #end
 SIP_REDIRECT_HOOK_LIBRARY.997-SUBSCRIBE : @sipxpbx.lib.dir@/libRedirectorSubscribe.so

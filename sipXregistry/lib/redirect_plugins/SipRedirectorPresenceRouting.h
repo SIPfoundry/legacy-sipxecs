@@ -129,6 +129,7 @@ class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
    // "[instance] class".
    UtlString mLogName;
    UtlString mRealm;
+   UtlString mSipDomain;
    UtlBoolean mbForwardToVmOnBusy;
    Url mOpenFirePresenceServerUrl;
    Url mLocalPresenceMonitorServerUrl;
