@@ -21,7 +21,6 @@ public class SipStackBean extends AbstractSipStackBean implements AccountManager
     Collection<ListeningPointAddress> lpaSet = new HashSet<ListeningPointAddress>();
     private Subscriber subscriber;
     private ListeningPointAddressImpl tcpListeningPointAddress;
-    private ListeningPointAddressImpl udpListeningPointAddress;
     
     public SipStackBean() {
         super();
@@ -29,7 +28,7 @@ public class SipStackBean extends AbstractSipStackBean implements AccountManager
     }
     
     public Subscriber getSubscriber() {      
-        this.subscriber.setProvider(udpListeningPointAddress.getSipProvider());
+        this.subscriber.setProvider(tcpListeningPointAddress.getSipProvider());
         return subscriber;
         
     }
@@ -38,9 +37,7 @@ public class SipStackBean extends AbstractSipStackBean implements AccountManager
     @Override
     public Collection<ListeningPointAddress> getListeningPointAddresses() {   
         this.tcpListeningPointAddress = new ListeningPointAddressImpl("tcp");
-        this.udpListeningPointAddress = new ListeningPointAddressImpl("udp");
         lpaSet.add(this.tcpListeningPointAddress);
-        lpaSet.add(this.udpListeningPointAddress);
         return lpaSet;
     }
 

@@ -101,7 +101,7 @@ public class Subscriber implements SipListener {
     Subscriber(SipStackBean stackBean) {
 
         this.watcherConfig = CallWatcher.getConfig();
-        this.transport = "udp";
+        this.transport = "tcp";
         this.stackBean = stackBean;
 
         headerFactory = this.stackBean.getHeaderFactory();
