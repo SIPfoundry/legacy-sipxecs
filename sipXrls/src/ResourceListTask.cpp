@@ -7,7 +7,17 @@
 // $$
 ////////////////////////////////////////////////////////////////////////////
 
+// Define VALGRIND_LEAK_CHECK_ON_DEBUG to cause ::debugDumpState() to call
+// VALGRIND_DO_LEAK_CHECK in order to report memory leaks.
+#define VALGRIND_LEAK_CHECK_ON_DEBUG
+
 // SYSTEM INCLUDES
+
+#ifdef VALGRIND_LEAK_CHECK_ON_DEBUG
+#include <valgrind/valgrind.h>
+#include <valgrind/memcheck.h>
+#endif
+
 // APPLICATION INCLUDES
 
 #include "ResourceListServer.h"
@@ -204,6 +214,10 @@ void ResourceListTask::handleMessageRequest(const SipMessage& msg)
 // Dump the state of the RLS into the log.
 void ResourceListTask::debugDumpState(const SipMessage& msg)
 {
+   #ifdef VALGRIND_LEAK_CHECK_ON_DEBUG
+   VALGRIND_DO_LEAK_CHECK;
+   #endif
+
    // Get the 'id' URI parameter off the request-URI.
    UtlString request_string;
    msg.getRequestUri(&request_string);
