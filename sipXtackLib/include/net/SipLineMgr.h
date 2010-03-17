@@ -92,6 +92,7 @@ public:
    void setOwner(const UtlString& owner);
 
    UtlBoolean addLine(SipLine& line,
+                      ///< SipLineMgr does *not* take ownership of *line.
                       UtlBoolean doEnable = TRUE);
 
    void deleteLine(const Url& identity);

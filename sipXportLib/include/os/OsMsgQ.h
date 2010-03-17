@@ -78,6 +78,8 @@ public:
                          const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;
      //:Insert a message at the tail of the queue and wait for a response
      // Wait until there is either room on the queue or the timeout expires.
+     // Does not take ownership of *pMsg, unless *pMsg is reusable (which
+     // is not the default).
 
    virtual OsStatus sendP(OsMsg* pMsg,
                           const OsTime& rTimeout=OsTime::OS_INFINITY) = 0;

@@ -273,7 +273,7 @@ UtlBoolean SipClient::handleMessage(OsMsg& eventMessage)
       sendMessage(*sendMsg->getMessage(), sendMsg->getAddress(),
                   sendMsg->getPort());
       messageProcessed = TRUE;
-      // sendMsg will be deleted by ::run(), as usual.
+      // *eventMessage will be deleted by ::run(), as usual.
       // Its destructor will free any storage owned by it.
    }
 
