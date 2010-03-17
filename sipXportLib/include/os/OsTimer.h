@@ -144,7 +144,7 @@ class OsTimer : public UtlContainableAtomic
 
    /** Construct a timer that signals by calling
     *  @code
-    *  pQueue->send(new OsEventMsg(OsEventMsg::NOTIFY, this, userData)
+    *  pQueue->send(new OsEventMsg(OsEventMsg::NOTIFY, this, userData))
     *  @endcode
     */
    OsTimer(OsMsgQ* pQueue,      ///< Queue to send OsEventMsg::NOTIFY message
@@ -153,7 +153,7 @@ class OsTimer : public UtlContainableAtomic
 
    /** Construct a timer that signals by calling
     *  @code
-    *  pQueue->send(pMsg->createCopy())
+    *  pQueue->send(*pMsg)      // Note that pQueue->send() copies *pMsg.
     *  @endcode
     */
    OsTimer(OsMsg* pMsg,         ///< Message to send.

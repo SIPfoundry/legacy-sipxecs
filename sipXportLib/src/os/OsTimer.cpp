@@ -63,8 +63,8 @@ public:
    //:Signal the occurrence of the event
    virtual OsStatus signal(intptr_t eventData)
       {
-         // Signaling is done by queueing mpMsg->createCopy() to *mpQueue.
-         return mpQueue->send(*mpMsg->createCopy());
+         // mpQueue->send() copies *mpMsg and queues it on *mpQueue.
+         return mpQueue->send(*mpMsg);
       }
 
    /* ============================ ACCESSORS ================================= */
@@ -109,6 +109,11 @@ OsTimer::OsTimer(OsMsgQ* pQueue,
    mProcessingInProgress(FALSE),
    mpNotifier(new OsQueuedEvent(*pQueue, userData)),
    mbManagedNotifier(TRUE),
+   // Initialize the following three fields so ::getFullState() will never
+   // return undefined values, which my be printed by application code.
+   mExpiresAt(0),
+   mPeriodic(FALSE),
+   mPeriod(0),
    mOutstandingMessages(0),
    mTimerQueueLink(0),
    mFiring(FALSE)
@@ -131,6 +136,11 @@ OsTimer::OsTimer(OsNotification& rNotifier) :
    mProcessingInProgress(FALSE),
    mpNotifier(&rNotifier),
    mbManagedNotifier(FALSE),
+   // Initialize the following three fields so ::getFullState() will never
+   // return undefined values, which my be printed by application code.
+   mExpiresAt(0),
+   mPeriodic(FALSE),
+   mPeriod(0),
    mOutstandingMessages(0),
    mTimerQueueLink(0),
    mFiring(FALSE)
@@ -155,6 +165,11 @@ OsTimer::OsTimer(OsMsg* pMsg,
    // *mpNotifier owns the new OsQueueMsgNotification, which owns *pMsg.
    mpNotifier(new OsQueueMsgNotification(pQueue, pMsg)),
    mbManagedNotifier(TRUE),
+   // Initialize the following three fields so ::getFullState() will never
+   // return undefined values, which my be printed by application code.
+   mExpiresAt(0),
+   mPeriodic(FALSE),
+   mPeriod(0),
    mOutstandingMessages(0),
    mTimerQueueLink(0),
    mFiring(FALSE)

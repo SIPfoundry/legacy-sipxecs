@@ -233,7 +233,7 @@ public:
     void endAllSubscriptions();
 
     /** Change the subscription expiration period for all subscriptions
-     *  in a group..
+     *  in a group.
      *  Send a new SUBSCRIBE with a different timeout value, and set
      *  refresh timers appropriately.  Future re-SUBSCRIBEs will use
      *  the new timeout value.
