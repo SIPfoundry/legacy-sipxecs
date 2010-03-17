@@ -51,9 +51,15 @@ public class DialByName {
      */
     protected DialByNameChoice selectChoice(String digits){
         // Lookup the list of validUsers that match the DTMF digits
-        Vector<User> matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers);
-
-        if (matches.size() == 0) {
+        Vector<User> matches = m_validUsers.lookupDTMF(digits, false);
+        if (matches.size() != 0) {
+            matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers);
+            if (matches.size() == 0) {
+                // Indicate dose match but user has no voice mail permission
+                m_loc.play("invalid_extension", "");
+                return new DialByNameChoice(new IvrChoice(digits, IvrChoiceReason.SUCCESS));
+            }
+        } else {
             // Indicate no match
             // "No name in the directory matches the name you entered."
             m_loc.play("dial_by_name_nomatch", "");
