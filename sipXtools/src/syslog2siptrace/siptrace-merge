@@ -185,9 +185,9 @@ foreach $file (@files) {
 	    # $element is the entire element, $identifier is a string of
 	    # the branchId elements, the transactionId, and the method
 	    # or responseCode.
-	    # It is a fine-grained identifier of the message, and all
+	    # $identifier is a fine-grained identifier of the message, and all
 	    # duplicates of this message will have the same identifier.
-	    # (The proper assembly of $identity requires that the
+	    # (The proper assembly of $identifier requires that the
 	    # siptrace file has the canonical format, with the leaf elements
 	    # on separate lines and the elements in the canonical order.)
 
