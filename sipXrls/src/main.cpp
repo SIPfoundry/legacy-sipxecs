@@ -291,6 +291,8 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
                OsSysLog::add(LOG_FACILITY, PRI_CRIT,
                              "Constructing SipLineMgr failed" );
             }
+            // lineMgr does not take ownership of *line, so we have to delete it.
+            delete line;
          }
          else
          {
