@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
@@ -25,6 +26,7 @@ import org.sipfoundry.sipxconfig.setting.type.HostnameSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.IpAddrSetting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
+import org.sipfoundry.sipxconfig.setting.type.PhonePadPinSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
@@ -156,6 +158,23 @@ public class SettingTypesTest extends TestCase {
         assertFalse(type.isRequired());
 
         assertEquals("example.com", hostnameSetting.getValue());
+    }
+
+    public void testPhonePadPinSettingType() throws Exception {
+        Setting setting = group.getSetting("phonepadpin_setting");
+        SettingType type = setting.getType();
+        assertTrue(type instanceof PhonePadPinSetting);
+        PhonePadPinSetting phonePadPinSetting = (PhonePadPinSetting) type;
+        assertFalse(phonePadPinSetting.isRequired());
+        assertEquals(255, phonePadPinSetting.getMaxLen());
+        assertFalse(phonePadPinSetting.isRequired());
+        assertEquals("[\\d#*]+", phonePadPinSetting.getPattern());
+        // not hidden in UI
+        assertFalse(phonePadPinSetting.isPassword());
+
+        assertEquals("1234#*", setting.getValue());
+        assertTrue(setting.getTypedValue() instanceof String);
+        assertSame(setting.getTypedValue().toString(), setting.getValue());
     }
 
     public void testSettingEnumType() {

@@ -40,6 +40,7 @@ import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.HostnameSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.IpAddrSetting;
+import org.sipfoundry.sipxconfig.setting.type.PhonePadPinSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
@@ -107,8 +108,6 @@ public abstract class SettingEditor extends BaseComponent {
     }
 
     /**
-     * Prepares Tapestry4 validators list
-     *
      * @return list of Validator objects
      */
     public List getValidatorList() {
@@ -158,21 +157,24 @@ public abstract class SettingEditor extends BaseComponent {
                 Pattern pattern = new Pattern();
                 pattern.setPattern(patternString);
 
-                ///////////////////////////////////////////////////////////////
-                // The IpAddrSetting and HostnameSetting involves a long and
-                // complicated regular expression so we don't want to show
-                // the default error message when the Pattern validation fails.
-                ///////////////////////////////////////////////////////////////
+                // /////////////////////////////////////////////////////////////////
+                // Settings with specific string pattern requirements might lead to
+                // error messages with complicated regular expressions in them.
+                // We want to display a custom message for these setting types.
+                // (e.g IpAddrSetting and HostnameSetting).
+                // /////////////////////////////////////////////////////////////////
 
                 if (type instanceof HostnameSetting) {
                     String customMessage = CustomSettingMessages.getMessagePattern(
-                                                 CustomSettingMessages.INVALID_HOSTNAME_PATTERN,
-                                                 Locale.getDefault());
+                            CustomSettingMessages.INVALID_HOSTNAME_PATTERN, Locale.getDefault());
                     pattern.setMessage(customMessage);
                 } else if (type instanceof IpAddrSetting) {
                     String customMessage = CustomSettingMessages.getMessagePattern(
-                                                 CustomSettingMessages.INVALID_IPADDR_PATTERN,
-                                                 Locale.getDefault());
+                            CustomSettingMessages.INVALID_IPADDR_PATTERN, Locale.getDefault());
+                    pattern.setMessage(customMessage);
+                } else if (type instanceof PhonePadPinSetting) {
+                    String customMessage = CustomSettingMessages.getMessagePattern(
+                            CustomSettingMessages.INVALID_PHONEPADPIN_PATTERN, Locale.getDefault());
                     pattern.setMessage(customMessage);
                 }
 
@@ -185,12 +187,12 @@ public abstract class SettingEditor extends BaseComponent {
     /**
      * In order to make FieldLabel happy we need IFormComponent instance. In most cases this is
      * actually the widget directly passed to setting editor. However in some cases our widget is
-     * a collection of components, and there is no easy way of extracting a usable IFormElement.
-     *
-     * I tried searching for IFormComponent among component children: this does not work since
-     * there is no guarantee that found component will be actually renderer (it can be inside of
-     * if block)
-     *
+     * a collection of components, and there is no easy way of extracting a usable IFormElement. I
+     * tried searching for IFormComponent among component children: this does not work since there
+     * is no guarantee that found component will be actually renderer (it can be inside of if
+     * block)
+     */
+    /**
      * @return IFormComponent or null if labeled component is not IFormComponent
      */
     public IFormComponent getFormComponent() {
@@ -226,8 +228,8 @@ public abstract class SettingEditor extends BaseComponent {
         EnumSetting enumType = (EnumSetting) type;
         MessageSource messageSource = getMessageSource();
         IPropertySelectionModel model = null;
-        model = (messageSource != null) ? localizedModelForType(setting, enumType, messageSource, getPage().getLocale())
-                : enumModelForType(enumType);
+        model = (messageSource != null) ? localizedModelForType(setting, enumType, messageSource, getPage()
+                .getLocale()) : enumModelForType(enumType);
 
         if (enumType.isPromptSelect()) {
             model = getTapestry().instructUserToSelect(model, getMessages());
@@ -238,10 +240,8 @@ public abstract class SettingEditor extends BaseComponent {
     }
 
     /**
-     * Retrieve default value for current setting.
-     *
-     * This is less than ideal implementation since Enum and Boolean types are treated very
-     * differently from all other types.
+     * Retrieve default value for current setting. This is less than ideal implementation since
+     * Enum and Boolean types are treated very differently from all other types.
      */
     public String getDefaultValue() {
         Setting setting = getSetting();

@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.setting.type.HostnameSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.IpAddrSetting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
+import org.sipfoundry.sipxconfig.setting.type.PhonePadPinSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
@@ -126,6 +127,8 @@ public class XmlModelBuilder implements ModelBuilder {
                 IpAddrSetting.class));
         digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "hostname", typeIdRule,
                 HostnameSetting.class));
+        digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "phonepadpin", typeIdRule,
+                PhonePadPinSetting.class));
     }
 
     static class AbstractSettingRuleSet extends RuleSetBase {

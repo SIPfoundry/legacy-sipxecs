@@ -6,17 +6,13 @@
   <group name="fs-conf-conference">
     <setting name="organizer-code" hidden="yes">
       <type>
-        <string required="yes">
-          <pattern>[\d#*]+</pattern>
-        </string>
+        <phonepadpin />
       </type>
       <value />
     </setting>
     <setting name="participant-code">
       <type>
-        <string>
-          <pattern>[\d#*]+</pattern>
-        </string>
+        <phonepadpin />
       </type>
       <value />
     </setting>

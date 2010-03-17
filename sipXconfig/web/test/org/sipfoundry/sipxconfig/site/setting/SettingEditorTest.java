@@ -10,6 +10,9 @@
 package org.sipfoundry.sipxconfig.site.setting;
 
 import java.util.List;
+import java.util.Locale;
+
+import junit.framework.TestCase;
 
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.validator.Max;
@@ -21,14 +24,14 @@ import org.apache.tapestry.form.validator.Required;
 import org.apache.tapestry.test.Creator;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.setting.CustomSettingMessages;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.EnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
+import org.sipfoundry.sipxconfig.setting.type.PhonePadPinSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
-
-import junit.framework.TestCase;
 
 public class SettingEditorTest extends TestCase {
 
@@ -146,4 +149,63 @@ public class SettingEditorTest extends TestCase {
 
         settingCtrl.verify();
     }
+
+    // Testing of PhonePadPinSetting
+    public void testValidatorForPhonePadDefaults() {
+        PhonePadPinSetting type = new PhonePadPinSetting();
+        List validators = SettingEditor.validatorListForType(type, true);
+
+        assertEquals(2, validators.size());
+        assertTrue(validators.get(0) instanceof MaxLength);
+        assertTrue(validators.get(1) instanceof Pattern);
+        assertEquals(255, ((MaxLength) validators.get(0)).getMaxLength());
+        assertEquals("[\\d#*]+", ((Pattern) validators.get(1)).getPattern());
+    }
+
+    public void testValidatorForPhonePadPinOptions() {
+        PhonePadPinSetting type = new PhonePadPinSetting();
+        type.setMaxLen(15);
+        type.setRequired(true);
+
+        List validators = SettingEditor.validatorListForType(type, true);
+        assertEquals(3, validators.size());
+        assertTrue(validators.get(0) instanceof Required);
+        assertTrue(validators.get(1) instanceof MaxLength);
+        assertTrue(validators.get(2) instanceof Pattern);
+        assertEquals("[\\d#*]+", ((Pattern) validators.get(2)).getPattern());
+
+        type.setMinLen(3);
+        validators = SettingEditor.validatorListForType(type, true);
+        assertTrue(validators.get(2) instanceof MinLength);
+        assertTrue(validators.get(3) instanceof Pattern);
+    }
+
+    public void testValidatorForPhonePadPinCustomMessage() {
+        PhonePadPinSetting type = new PhonePadPinSetting();
+        List validators = SettingEditor.validatorListForType(type, true);
+
+        assertEquals(CustomSettingMessages.getMessagePattern(CustomSettingMessages.INVALID_PHONEPADPIN_PATTERN,
+                Locale.getDefault()), ((Pattern) validators.get(1)).getMessage());
+    }
+
+    public void testGetDefaultValueForPhonePadPin() {
+        PhonePadPinSetting type = new PhonePadPinSetting();
+
+        // IMocksControl settingCtrl = EasyMock.createControl();
+        IMocksControl settingCtrl = EasyMock.createStrictControl();
+        Setting setting = settingCtrl.createMock(Setting.class);
+
+        setting.getType();
+        settingCtrl.andReturn(type);
+        setting.getDefaultValue();
+        settingCtrl.andReturn("bongo");
+        settingCtrl.replay();
+
+        m_editor.setSetting(setting);
+
+        assertEquals("bongo", m_editor.getDefaultValue());
+
+        settingCtrl.verify();
+    }
+
 }
