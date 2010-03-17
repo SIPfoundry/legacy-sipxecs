@@ -33,7 +33,7 @@ class ResourceListServer;
 class ResourceListSet;
 class ResourceList;
 class ResourceCached;
-
+class ResourceInstance;
 
 //! Container for a set of subscriptions created by a SUBSCRIBE request.
 /** The SubscriptionSet does not have an independent life beyond the
@@ -89,6 +89,10 @@ class SubscriptionSet : public UtlContainableAtomic,
    //  publishes the content.
    void addInstance(const char* instanceName,
                     const char* subscriptionState);
+
+   //! Find a subscription in the set.
+   //  Returns the ResourceInstance or NULL if not found.
+   ResourceInstance* getInstance(const char* instanceName);
 
    //! Delete a subscription from the set.
    //  Also removes the dialog handle from mHandleMap of the ResourceListSet

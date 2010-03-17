@@ -135,9 +135,14 @@ void SubscriptionSet::subscriptionEventCallback(
       break;
    case SipSubscribeClient::SUBSCRIPTION_SETUP:
    {
-      // Put the subscription into pending state, as we have no
-      // content for it yet.
-      addInstance(dialogHandle->data(), "pending");
+      // There may be duplicate 'active' subscription callbacks, so first
+      // check whether we already know of the subscription.
+      if (!getInstance(dialogHandle->data()))
+      {
+         // Put the subscription into pending state, as we have no
+         // content for it yet.
+         addInstance(dialogHandle->data(), "pending");
+      }
    }
    break;
    case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
@@ -173,6 +178,28 @@ void SubscriptionSet::addInstance(const char* instanceName,
                     instanceName, mSubscriptions.entries(),
                     mUri.data());
    }
+}
+
+// Find a subscription in the set.
+ResourceInstance* SubscriptionSet::getInstance(const char* instanceName)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "SubscriptionSet::getInstance instanceName = '%s'",
+                 instanceName);
+
+   // Search for the resource instance in question.
+   UtlSListIterator itor(mSubscriptions);
+   ResourceInstance* inst;
+   UtlBoolean found = FALSE;
+   while (!found && (inst = dynamic_cast <ResourceInstance*> (itor())))
+   {
+      if (inst->getInstanceName()->compareTo(instanceName) == 0)
+      {
+         found = TRUE;
+      }
+   }
+
+   return inst;
 }
 
 // Delete a subscription from the set.
