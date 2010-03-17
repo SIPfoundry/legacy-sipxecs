@@ -3,5 +3,7 @@
   label="message:label.branchSelection">
     <span jwcid="branchSelection@PropertySelection"
       model="ognl:branchesModel"
-      value="ognl:branch" />
+      value="ognl:selectedAction"
+      renderer="bean:render"
+      onchange="literal:javascript:this.form.submit();" />
 </span>
