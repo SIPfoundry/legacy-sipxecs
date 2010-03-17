@@ -3,6 +3,9 @@
 ### Order sipXrls to write its state into its log file.
 ###
 
+# Message destination.
+DEST="${1:-`hostname -f`}"
+
 # Temporary file.
 Work=${TMPDIR:-/tmp}/sipx-snapshot-rls.$$
 
@@ -10,12 +13,16 @@ Work=${TMPDIR:-/tmp}/sipx-snapshot-rls.$$
 . @SIPX_LIBEXECDIR@/sipx-utils.sh
 Domain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
 
+# URI
+URI="sip:~~rl~D~dumpstate@${Domain}"
+
 # Send a MESSAGE request to ~~rl~D~dumpstate, which cause the RLS to
 # write its state.
+echo "Sending MESSAGE $URI to $DEST"
 if @SIPX_BINDIR@/sipsend \
-        `hostname -f` \
+        "$DEST" \
         MESSAGE \
-        "sip:~~rl~D~dumpstate@${Domain}" >$Work &&
+        "$URI" >$Work &&
    grep '^SIP/2\.0  *2' $Work >/dev/null ; then
     # If we got a success response, exit with 0.
     rm $Work
