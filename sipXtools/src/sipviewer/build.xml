@@ -21,7 +21,7 @@
 
   <!-- J A R -->
   <target name="jar" depends="compile" description="create jar file">
-    <jar jarfile="${build.dir}/dist/sipviewer.jar" manifest="${dist.dir}/MANIFEST.MF">
+    <jar jarfile="${build.dir}/dist/sipviewer.jar">
       <fileset dir="${classes.dir}" >
         <include name="**/*.class" />
       </fileset>
