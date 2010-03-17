@@ -43,7 +43,7 @@ public abstract class PhoneCloud extends BaseComponent {
         if (getPhones() == null) {
             PhoneContext phoneContext = getPhoneContext();
             // TODO: replace by loading lightweight user substitute
-            List<Phone> phones = phoneContext.loadPhonesByPage(null, null, 0, 25, new String[] {
+            List<Phone> phones = phoneContext.loadPhonesByPage(null, 0, 25, new String[] {
                 "serialNumber"
             }, true);
             setPhones(phones);

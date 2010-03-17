@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
-import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
@@ -59,10 +58,6 @@ public abstract class BranchTable extends BaseComponent implements PageBeginRend
 
     public abstract void setUserCounts(Map<Integer, Long> counts);
 
-    public abstract Map<Integer, Long> getPhoneCounts();
-
-    public abstract void setPhoneCounts(Map<Integer, Long> counts);
-
     public abstract Map<Integer, Long> getGatewayCounts();
 
     public abstract void setGatewayCounts(Map<Integer, Long> counts);
@@ -79,9 +74,6 @@ public abstract class BranchTable extends BaseComponent implements PageBeginRend
     public void pageBeginRender(PageEvent event) {
         if (getUserCounts() == null) {
             setUserCounts(getSettingContext().getBranchMemberCountIndexedByBranchId(User.class));
-        }
-        if (getPhoneCounts() == null) {
-            setPhoneCounts(getSettingContext().getBranchMemberCountIndexedByBranchId(Phone.class));
         }
         if (getServerCounts() == null) {
             setServerCounts(getSettingContext().getBranchMemberCountIndexedByBranchId(Location.class));

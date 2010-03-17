@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 public class PhoneWithNoLinesTableModel extends PhoneTableModel {
 
     public PhoneWithNoLinesTableModel(PhoneContext phoneContext) {
-        super(phoneContext, null, null);
+        super(phoneContext, null);
     }
 
     public int getRowCount() {

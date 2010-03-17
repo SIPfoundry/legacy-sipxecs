@@ -352,7 +352,7 @@
     <antcall target="show_phonebook_on_phone" />
 
     <antcall target="change-callCenter-to-ACD" />
-
+    <antcall target="drop_phone_branch" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1097,6 +1097,9 @@
   </target>
   <target name="general_phonebook_settings" unless="general_phonebook_settings">
 	<db-patch patch="general_phonebook_settings"/>
+  </target>
+  <target name="drop_phone_branch" unless="drop_phone_branch">
+    <db-patch patch="drop_phone_branch"/>
   </target>
 
   <!--

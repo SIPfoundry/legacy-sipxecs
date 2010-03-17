@@ -4,8 +4,6 @@
   <branch branch_id="1000" name="branch1" description="" />
 
   <users user_name="user1" user_id="1000" branch_id="1000" user_type="C"/>
-  <phone serial_number="000000000000" phone_id="1000" bean_id="acmePhone" model_id="acmePhoneStandard"
-    branch_id="1000" />
   <sbc_device model_id="" port="5999" bean_id="sbcGeneric" sbc_device_id="1000" branch_id="1000" />
   <location public_port="5600" name="location1" registered="false" stun_interval="0" location_id="1000"
     fqdn="x.example.com" stop_rtp_port="10000" start_rtp_port="10000" use_stun="false" branch_id="1000" />

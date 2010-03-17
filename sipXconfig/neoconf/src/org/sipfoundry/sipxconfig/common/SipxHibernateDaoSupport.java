@@ -76,6 +76,11 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
         return copy;
     }
 
+    public List<T> loadBeansByPage(Class beanClass, Integer groupId, int firstRow, int pageSize,
+            String[] orderBy, boolean orderAscending) {
+        return loadBeansByPage(beanClass, groupId, null, firstRow, pageSize, orderBy, orderAscending);
+    }
+
     public List<T> loadBeansByPage(Class beanClass, Integer groupId, Integer branchId, int firstRow, int pageSize,
             String[] orderBy, boolean orderAscending) {
         DetachedCriteria c = DetachedCriteria.forClass(beanClass);

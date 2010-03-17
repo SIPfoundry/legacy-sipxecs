@@ -43,7 +43,7 @@ public interface PhoneContext extends DataObjectSource {
 
     int getPhonesInGroupCount(Integer groupId);
 
-    List<Phone> loadPhonesByPage(Integer groupId, Integer branchId, int page, int pageSize, String[] orderBy,
+    List<Phone> loadPhonesByPage(Integer groupId, int page, int pageSize, String[] orderBy,
             boolean orderAscending);
 
     List<Phone> loadPhones();

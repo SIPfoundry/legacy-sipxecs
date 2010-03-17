@@ -64,6 +64,6 @@ public class PhoneLoadTestPerformance extends PerformanceTestCase {
     }
 
     public void testLoadPage() {
-        m_context.loadPhonesByPage(null, null, 0, 30, new String[] { "serialNumber" }, true);
+        m_context.loadPhonesByPage(null, 0, 30, new String[] { "serialNumber" }, true);
     }
 }

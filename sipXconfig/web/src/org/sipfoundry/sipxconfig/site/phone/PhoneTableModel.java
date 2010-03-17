@@ -24,12 +24,10 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 public class PhoneTableModel implements IBasicTableModel {
     private PhoneContext m_phoneContext;
     private Integer m_groupId;
-    private Integer m_branchId;
 
-    public PhoneTableModel(PhoneContext phoneContext, Integer groupId, Integer branchId) {
+    public PhoneTableModel(PhoneContext phoneContext, Integer groupId) {
         m_phoneContext = phoneContext;
         m_groupId = groupId;
-        m_branchId = branchId;
     }
 
     public PhoneTableModel() {
@@ -38,10 +36,6 @@ public class PhoneTableModel implements IBasicTableModel {
 
     public void setGroupId(Integer groupId) {
         m_groupId = groupId;
-    }
-
-    public void setBranchId(Integer branchId) {
-        m_branchId = branchId;
     }
 
     public void setPhoneContext(PhoneContext context) {
@@ -59,7 +53,7 @@ public class PhoneTableModel implements IBasicTableModel {
     public Iterator getCurrentPageRows(int firstRow, int pageSize, ITableColumn objSortColumn,
             boolean orderAscending) {
         String[] orderBy = orderByFromSortColum(objSortColumn);
-        List page = m_phoneContext.loadPhonesByPage(m_groupId, m_branchId, firstRow, pageSize, orderBy,
+        List page = m_phoneContext.loadPhonesByPage(m_groupId, firstRow, pageSize, orderBy,
                 orderAscending);
         return page.iterator();
     }

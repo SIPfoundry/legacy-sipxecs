@@ -49,7 +49,7 @@ public class ExportCsv {
         int phoneIndex = 0;
         int size = 0;
         do {
-            List<Phone> phones = m_phoneContext.loadPhonesByPage(null, null, phoneIndex, DEFAULT_PAGE_SIZE, order,
+            List<Phone> phones = m_phoneContext.loadPhonesByPage(null, phoneIndex, DEFAULT_PAGE_SIZE, order,
                     true);
             size = phones.size();
             phoneIndex += size;

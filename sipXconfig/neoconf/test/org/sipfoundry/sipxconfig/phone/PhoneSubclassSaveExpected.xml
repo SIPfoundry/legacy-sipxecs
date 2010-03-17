@@ -2,5 +2,5 @@
 <!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 <dataset>
   <phone serial_number="000000000000" phone_id="[phone_id]" bean_id="acmePhone" model_id="acmePhoneStandard"
-    description="[null]" device_version_id="[null]" value_storage_id="[null]" branch_id="[null]" />
+    description="[null]" device_version_id="[null]" value_storage_id="[null]" />
 </dataset>

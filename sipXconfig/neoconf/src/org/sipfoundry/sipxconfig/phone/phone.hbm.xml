@@ -26,7 +26,6 @@
       <list-index column="position"/>
       <one-to-many class="Line"/>
     </list>
-    <many-to-one name="branch" column="branch_id" not-found="ignore" />
   </class>
   <!-- L I N E -->
   <class name="Line" table="line">
@@ -59,10 +58,6 @@
 
   <query name="phonesByUserIdAndPhoneModel">
     <![CDATA[select distinct line.phone from Line as line join line.user as line_user where line_user.id = :userId and line.phone.modelId = :modelId]]>
-  </query>
-
-  <query name="phonesForBranch">
-    <![CDATA[from Phone p where p.branch = :branch]]>
   </query>
 
 </hibernate-mapping>

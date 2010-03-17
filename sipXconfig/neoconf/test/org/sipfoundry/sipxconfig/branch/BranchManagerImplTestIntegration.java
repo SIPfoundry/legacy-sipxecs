@@ -18,7 +18,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
-import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 public class BranchManagerImplTestIntegration extends IntegrationTestCase {
 
@@ -26,7 +25,6 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
 
     private BranchManager m_branchManager;
     private CoreContext m_coreContext;
-    private PhoneContext m_phoneContext;
     private LocationsManager m_locationManager;
     private SbcDeviceManager m_sbcDeviceManager;
 
@@ -40,10 +38,6 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setPhoneContext(PhoneContext phoneContext) {
-        m_phoneContext = phoneContext;
     }
 
     public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
@@ -86,7 +80,6 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
         assertNotNull(branch1);
 
         assertSame(branch1, m_coreContext.loadUser(1000).getBranch());
-        assertSame(branch1, m_phoneContext.loadPhone(1000).getBranch());
         assertSame(branch1, m_sbcDeviceManager.getSbcDevice(1000).getBranch());
         assertSame(branch1, m_locationManager.getLocation(1000).getBranch());
 

@@ -80,7 +80,7 @@ public abstract class ManagePhones extends BasePage implements PageBeginRenderLi
         if (getUnassignedMode()) {
             return new PhoneWithNoLinesTableModel(getPhoneContext());
         } else if (!getSearchMode() || StringUtils.isBlank(queryText)) {
-            return new PhoneTableModel(getPhoneContext(), getGroupId(), null);
+            return new PhoneTableModel(getPhoneContext(), getGroupId());
         }
         return new SearchPhoneTableModel(getSearchManager(), queryText, getPhoneContext());
     }
