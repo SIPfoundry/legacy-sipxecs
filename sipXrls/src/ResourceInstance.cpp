@@ -146,7 +146,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
          terminateXmlDialogs();
          publish = true;
          OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                       "ResourceInstance::notifyEventCallback all non-terminated dialogs");
+                       "ResourceInstance::notifyEventCallback terminated all non-terminated dialogs");
       }
 
       // Find all the <dialog> elements.
@@ -233,7 +233,7 @@ void ResourceInstance::notifyEventCallback(const UtlString* dialogHandle,
 
                // Now that we have the XML all nice and pretty, store a copy of
                // it in mXmlDialogs.
-               // Clone the XML and create a UtlVoidPtr to wrap it.
+               // Clone the XML.
                TiXmlElement* alloc_xml = dialog_element->Clone()->ToElement();
 
                // Look for an earlier version of this dialog in the hash map.
