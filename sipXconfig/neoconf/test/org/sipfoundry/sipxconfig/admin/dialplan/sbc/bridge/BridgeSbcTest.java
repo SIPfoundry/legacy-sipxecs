@@ -105,7 +105,7 @@ public class BridgeSbcTest {
 
     @Test
     public void testGenerateConfig() throws Exception {
-        // Use default asserted identity
+        // Use default asserted identity and set default proxy domain
         m_sipTrunk.setSettingValue("itsp-account/default-asserted-identity", "true");
         m_sipTrunk.setSettingValue("itsp-account/is-user-phone", "true");
         m_sipTrunk.setEnabled(true);

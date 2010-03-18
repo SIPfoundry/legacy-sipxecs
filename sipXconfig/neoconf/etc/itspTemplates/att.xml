@@ -21,7 +21,6 @@
         The domain name of the ITSP. This domain name is used to look up via DNS SRV the address of the SIP server the
         ITSP uses. If the ITSP does not provide this lookup mechanism specify a server address below. Please contact ATT for the server address.
       </description>
-      <value>please.contact.att</value>
     </setting>
     <setting name="sipxecs-lineids" hidden="yes">
       <label>Line ID</label>

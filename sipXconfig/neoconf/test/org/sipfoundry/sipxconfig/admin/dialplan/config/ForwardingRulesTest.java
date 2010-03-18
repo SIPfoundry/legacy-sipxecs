@@ -344,7 +344,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         sipTrunk.setModelFilesContext(modelFilesContext);
         sipTrunk.setSbcDevice(bridgeSbc);
         sipTrunk.setAddress("itsp.example.com");
-        sipTrunk.setSettingValue("itsp-account/itsp-proxy-domain", "itsp.example.com");
+        sipTrunk.setSettingValue("itsp-account/itsp-proxy-domain", "default.itsp.proxy.domain");
 
         GatewayContext gatewayContext = createMock(GatewayContext.class);
         gatewayContext.getGatewayByType(SipTrunk.class);
@@ -375,7 +375,7 @@ public class ForwardingRulesTest extends XMLTestCase {
         InputStream referenceXmlStream = ForwardingRulesTest.class
                 .getResourceAsStream("forwardingrules-itsp-callback-test.xml");
 
-        assertXMLEqual(new StringReader(generatedXml), new InputStreamReader(referenceXmlStream));
+        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(generatedXml));
     }
 
     private ForwardingRules generate(IDialingRule rule, SbcManager sbcManager) {

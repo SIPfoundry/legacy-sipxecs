@@ -103,7 +103,7 @@
     <description>
       Route url-dialed calls for itspname to the sipXbridge.
     </description>
-    <routeFrom>${sipTrunk.Settings.getSetting("itsp-account").getSetting("itsp-proxy-domain").value}</routeFrom>
+    <routeFrom>${sipTrunk.address}</routeFrom>
     <routeTo authRequired='true'>${bridgeSbc.route}</routeTo>
   </route>
 #end

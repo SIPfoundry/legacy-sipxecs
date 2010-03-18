@@ -139,13 +139,13 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
 
     boolean isRedundant(SipTrunk sipTrunk, List<SipTrunk> list) {
         for (SipTrunk t : list) {
-            String domain = t.getSettingValue(ITSP_PROXY_DOMAIN_SETTING);
+            String domain = t.getAddress();
             String username = t.getSettingValue(USER_NAME_SETTING);
             if (domain == null) {
                 continue;
             }
 
-            if (domain.compareToIgnoreCase(sipTrunk.getSettingValue(ITSP_PROXY_DOMAIN_SETTING)) != 0) {
+            if (sipTrunk.getAddress() != null && domain.compareToIgnoreCase(sipTrunk.getAddress()) != 0) {
                 continue;
             }
 
