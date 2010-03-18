@@ -9,6 +9,18 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXcallLib
 
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: doxygen
+BuildRequires: openssl-devel >= 0.9.7a
+BuildRequires: pcre-devel >= 4.5
+# why does src reference headers in mediaadapater but installation
+# doesn't require mediaadapter *.so to be installed?
+BuildRequires: sipxmediaadapterlib-devel >= %version
+BuildRequires: sipxmedialib-devel >= %version
+BuildRequires: sipxtacklib-devel >= %version
+
 Source: %name-%version.tar.gz
 
 Requires: sipxtacklib >= %version
@@ -31,10 +43,6 @@ contains technologies related to call processing:
 
 * tao - A transport layer designed to decouple (and remote) the
   application layer from call processing.
-
-%if %{_vendor} == suse
-%debug_package
-%endif
 
 # Install header files
 %package devel

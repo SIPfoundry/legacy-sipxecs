@@ -12,6 +12,10 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org
 
+BuildRequires: automake
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
+
 %define sipxconfiglib %{_datadir}/java/sipXecs/sipXconfig
 
 Requires: sipxacd >= %version

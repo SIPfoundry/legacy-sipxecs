@@ -9,6 +9,15 @@ Vendor: Pingtel Corp.
 Packager: Pingtel <support@pingtel.com>
 Url: http://www.pingtel.com
 
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: doxygen
+BuildRequires: openssl-devel >= 0.9.7a
+BuildRequires: pcre-devel >= 4.5
+BuildRequires: sipxportlib-devel >= %version
+BuildRequires: sipxtacklib-devel >= %version
+
 Source: %name-%version.tar.gz
 
 Requires: sipxtacklib >= %version

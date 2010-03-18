@@ -9,13 +9,22 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXrest
 
+BuildRequires: ant-commons-logging
+BuildRequires: ant-junit
+BuildRequires: ant-nodeps
+BuildRequires: automake
+BuildRequires: java-devel >= 1.6
+BuildRequires: zip
+BuildRequires: sipxcommons >= %version
+BuildRequires: sipxrest >= %version
+
 Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
 Requires: sipxcommons >= %version
 Requires: sipxrest >= %version
 
-%if %{use_ibm_jvm}
+%if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
 %endif

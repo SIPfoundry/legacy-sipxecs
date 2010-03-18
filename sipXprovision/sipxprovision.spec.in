@@ -9,12 +9,21 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org
 
+BuildRequires: ant-commons-logging
+BuildRequires: ant-junit
+BuildRequires: ant-trax
+BuildRequires: xalan-j2
+BuildRequires: ant-nodeps
+BuildRequires: automake
+BuildRequires: java-devel >= 1.6
+BuildRequires: sipxconfig
+
 Source: %name-%version.tar.gz
 
 Requires: sipxcommons >= %version
 Requires: sipxconfig >= %version
 
-%if %{use_ibm_jvm}
+%if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
 %endif

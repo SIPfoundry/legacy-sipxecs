@@ -9,8 +9,35 @@ Vendor:   Pingtel Corp.
 Packager: Pingtel <support@pingtel.com>
 Url:      http://www.pingtel.com
 
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: doxygen
+BuildRequires: pcre-devel >= 4.5
+BuildRequires: rubygems
+BuildRequires: ruby
+BuildRequires: rubygem-rake
+BuildRequires: stunnel
+BuildRequires: unixODBC-devel
+BuildRequires: zip
+%if %{_vendor} == suse
+BuildRequires: pwdutils
+%else
+BuildRequires: shadow-utils
+%endif
+BuildRequires: sipxcommserverlib-devel  >= %version
+BuildRequires: sipxportlib-devel        >= %version
+BuildRequires: sipxtacklib-devel        >= %version
+
 Source:   %name-%version.tar.gz
 
+%if %{_vendor} == suse
+Requires: pwdutils
+Requires: cron
+%else
+Requires: shadow-utils
+Requires: vixie-cron
+%endif
 Requires: sipxcommserverlib >= %version
 Requires: sipxpbx >= %version
 
@@ -37,12 +64,13 @@ Requires: postgresql-odbc
 Requires: stunnel
 Requires: ruby
 Requires: ruby-dbi
-
 Requires: rubygems
-%if %{_vendor} == redhat
+%if %{_vendor} == suse
+Requires: rubygem-postgres
+%else
 Requires: ruby-libs
-%endif
 Requires: ruby-postgres
+%endif
 
 Requires: sipxcommserverlib >= %version
 Group:    Productivity/Telephony/SIP/Servers

@@ -8,6 +8,19 @@ Group:    Productivity/Telephony/SIP/Servers
 Vendor:   Pingtel
 Packager: Pingtel
 Url:      http://www.pingtel.com
+ 
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: doxygen
+BuildRequires: pcre-devel >= 4.5
+BuildRequires: openssl-devel
+BuildRequires: sipxcalllib-devel >= %version
+BuildRequires: sipxcommserverlib-devel >= %version
+BuildRequires: sipxmediaadapterlib-devel >= %version
+BuildRequires: sipxmedialib-devel >= %version
+BuildRequires: sipxportlib-devel >= %version
+BuildRequires: sipxtacklib-devel >= %version
 
 Source:   %name-%version.tar.gz
 

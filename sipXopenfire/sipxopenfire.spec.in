@@ -9,6 +9,16 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXopenfire
 
+BuildRequires: java-devel >= 1.6
+BuildRequires: ant-commons-logging
+BuildRequires: ant-junit
+BuildRequires: ant-nodeps
+BuildRequires: automake
+BuildRequires: zip
+BuildRequires: sipxcommserverlib
+BuildRequires: sipxcommons
+BuildRequires: sipx-openfire
+
 Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version

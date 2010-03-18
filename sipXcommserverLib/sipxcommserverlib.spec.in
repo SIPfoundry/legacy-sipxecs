@@ -9,6 +9,22 @@ Vendor: Pingtel Corp.
 Packager: Pingtel <support@pingtel.com>
 Url: http://www.pingtel.com
 
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: doxygen
+BuildRequires: pcre-devel >= 4.5
+BuildRequires: unixODBC-devel >= 2.2
+BuildRequires: sipxportlib-devel >= %version
+BuildRequires: sipxtacklib-devel >= %version
+%if %{_vendor} == redhat
+BuildRequires: httpd-devel
+BuildRequires: xerces-c-devel >= 2.6.0
+BuildRequires: shadow-utils
+%endif
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
+
 Source: %name-%version.tar.gz
 
 Requires: rpm

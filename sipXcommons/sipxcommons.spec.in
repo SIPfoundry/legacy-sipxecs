@@ -9,11 +9,26 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXcommons
 
+BuildRequires: java-devel >= 1.6
+BuildRequires: ant-commons-logging
+BuildRequires: ant-junit
+BuildRequires: ant-nodeps
+BuildRequires: automake
+%if %{_vendor} == redhat
+BuildRequires: shadow-utils
+%endif
+%if %{_vendor} == suse
+BuildRequires: pwdutils
+%endif
+BuildRequires: zip
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
+
 Source: %name-%version.tar.gz
 
 Requires: shadow-utils
 
-%if %{use_ibm_jvm}
+%if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
 Requires: java-ibm-unrestricted
 %else

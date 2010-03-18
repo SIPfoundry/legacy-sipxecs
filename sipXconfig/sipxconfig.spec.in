@@ -9,6 +9,32 @@ Vendor:   SIPfoundry
 Packager: SIPfoundry <sipx-dev@lif.sipfoundry.org>
 Url:      http://www.sipfoundry.org/
 
+BuildRequires: ant-commons-logging
+BuildRequires: ant-junit
+BuildRequires: ant-trax
+BuildRequires: xalan-j2
+BuildRequires: ant-nodeps
+BuildRequires: automake
+BuildRequires: java-devel >= 1.6
+%if %{_vendor} == redhat
+BuildRequires: shadow-utils
+BuildRequires: vixie-cron
+%endif
+%if %{_vendor} == suse
+BuildRequires: pwdutils
+BuildRequires: cron
+%endif
+BuildRequires: zip
+BuildRequires: jakarta-commons-beanutils
+BuildRequires: jakarta-commons-collections
+BuildRequires: ruby-devel
+BuildRequires: rubygems
+BuildRequires: rubygem-rake
+BuildRequires: sipx-jasperreports-deps
+BuildRequires: sipxcommons >= %version
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
+
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
 %define sipxpbxconf %{_sysconfdir}/sipxpbx
@@ -38,7 +64,7 @@ Requires: sipx-jasperreports-deps
 Requires: apache2-prefork
 %endif
 
-%if %{use_ibm_jvm}
+%if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
 %if %{_vendor} == redhat
 Requires: java-fonts >= 1.6
@@ -161,8 +187,13 @@ Vendor: SIPfoundry
 Summary: Aggregates data from sipxconfig-agent into a database for reporting tools
 
 Requires: rubygems
-Requires: ruby-postgres
 Requires: ruby-dbi
+%if %{_vendor} == redhat
+Requires: ruby-postgres
+%endif
+%if %{_vendor} == suse
+Requires: rubygem-postgres
+%endif
 
 %description report
 Report peridocically queries sipxconfig-agent regarding automatic call distribution records

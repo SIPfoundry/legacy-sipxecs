@@ -11,6 +11,11 @@ Url: http://www.sipfoundry.org
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Vendor: SIPfoundry
 
+BuildRequires: automake
+
+Requires: sipx-freeswitch >= 1.0.4
+Requires: sipxcommserverlib >= %version
+
 Source: %name-%version.tar.gz
 
 Prefix: %_prefix

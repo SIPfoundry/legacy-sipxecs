@@ -9,6 +9,28 @@ Vendor:   SIPfoundry
 Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
 Url:      http://www.sipfoundry.org/sipXsaa
 
+# TODO : project doesn't java, java/ant check should be removed from configure.ac
+BuildRequires: ant-commons-logging
+BuildRequires: ant-junit
+BuildRequires: ant-nodeps
+BuildRequires: java-devel >= 1.6
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: doxygen
+BuildRequires: pcre-devel >= 4.5
+BuildRequires: openssl-devel
+BuildRequires: apr-devel
+BuildRequires: httpd-devel
+BuildRequires: sipxcalllib-devel >= %version
+BuildRequires: sipxcommserverlib-devel >= %version
+BuildRequires: sipxmediaadapterlib-devel >= %version
+BuildRequires: sipxmedialib-devel >= %version
+BuildRequires: sipxportlib-devel >= %version
+BuildRequires: sipxtacklib-devel >= %version
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
+
 Source:   %name-%version.tar.gz
 
 Requires: sipxcalllib >= %version

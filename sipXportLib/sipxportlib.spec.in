@@ -9,6 +9,14 @@ Vendor: Pingtel Corp
 Packager: Pingtel <support@pingtel.com>
 Url: http://www.pingtel.com
 
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: doxygen
+BuildRequires: openssl-devel >= 0.9.7a
+BuildRequires: pcre-devel >= 4.5
+BuildRequires: findutils
+
 # sipXphone would require 0.9.7c to decrypt profiles to get access to
 # certain new alg.  If this is still nec., this may need to be
 # changed.  But in the meantime, Red Hat Enterprise 3.0 as of 08/16/04
@@ -40,10 +48,6 @@ encapsulate functions and operations for:
   * File and Directory
   * Operating System Processes
   * Dynamic loading of shared libraries and symbols
-
-%if %{_vendor} == suse
-%debug_package
-%endif
 
 # Install header files
 %package devel

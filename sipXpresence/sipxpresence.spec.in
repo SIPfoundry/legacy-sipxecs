@@ -9,6 +9,25 @@ Vendor:   Pingtel Corp.
 Packager: Pingtel <support@pingtel.com>
 Url:      http://www.pingtel.com
 
+# TODO : project doesn't java, java hecked should be removed from configure.ac
+BuildRequires: ant-commons-logging
+BuildRequires: ant-junit
+BuildRequires: ant-nodeps
+BuildRequires: java-devel >= 1.6
+
+BuildRequires: automake
+BuildRequires: gcc-c++
+BuildRequires: cppunit-devel
+BuildRequires: doxygen
+BuildRequires: pcre-devel >= 4.5
+BuildRequires: openssl-devel
+BuildRequires: sipxportlib-devel >= %version
+BuildRequires: sipxtacklib-devel >= %version
+BuildRequires: sipxcalllib-devel >= %version
+BuildRequires: sipxmediaadapterlib-devel >= %version
+BuildRequires: sipxmedialib-devel >= %version
+BuildRequires: sipxcommserverlib-devel  >= %version
+
 Source:   %name-%version.tar.gz
 
 Requires: sipxcalllib >= %version
