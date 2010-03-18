@@ -17,6 +17,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
@@ -55,6 +56,10 @@ public abstract class UserPhones extends UserBasePage {
 
     public abstract Phonebook getPrivatePhonebook();
 
+    public abstract boolean getIsShared();
+
+    public abstract void setIsShared(boolean shared);
+
     public Collection<Phone> getPhones() {
         return getPhoneContext().getPhonesByUserId(getUserId());
     }
@@ -70,10 +75,18 @@ public abstract class UserPhones extends UserBasePage {
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
         setPrivatePhonebook(getPhonebookManager().getPrivatePhonebook(getUser()));
+        setIsShared(getUser().getIsShared());
     }
 
     public void savePrivatePhonebook() {
         getPhonebookManager().savePhonebook(getPrivatePhonebook());
         TapestryUtils.recordSuccess(this, getMessages().getMessage("showOnPhone.success"));
+    }
+
+    public void saveSharedLine() {
+        User user = getUser();
+        user.setIsShared(getIsShared());
+        getCoreContext().saveUser(user);
+        TapestryUtils.recordSuccess(this, getMessages().getMessage("userSaved.success"));
     }
 }

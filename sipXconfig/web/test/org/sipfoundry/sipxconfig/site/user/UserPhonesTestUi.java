@@ -29,5 +29,17 @@ public class UserPhonesTestUi extends WebTestCase {
         clickLink("UserPhonesPage");
         SiteTestHelper.assertNoUserError(tester);
     }
+    
+    public void testShared() {
+        clickLink("UserPhonesPage");
+        checkCheckbox("isShared");
+
+        clickButton("isShared:apply");
+
+        // click apply, then navigate back.
+        SiteTestHelper.home(getTester(), true);
+        clickLink("UserPhonesPage");
+        assertCheckboxSelected("isShared");
+    }
 
 }
