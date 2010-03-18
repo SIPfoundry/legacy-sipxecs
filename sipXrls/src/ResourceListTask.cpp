@@ -9,7 +9,7 @@
 
 // Define VALGRIND_LEAK_CHECK_ON_DEBUG to cause ::debugDumpState() to call
 // VALGRIND_DO_LEAK_CHECK in order to report memory leaks.
-#define VALGRIND_LEAK_CHECK_ON_DEBUG
+//#define VALGRIND_LEAK_CHECK_ON_DEBUG
 
 // SYSTEM INCLUDES
 
