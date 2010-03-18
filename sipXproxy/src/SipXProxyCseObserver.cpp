@@ -523,10 +523,17 @@ UtlBoolean SipXProxyCseObserver::handleMessage(OsMsg& eventMessage)
                   if ( branchId && branchId.data() ) {
                      mCallTransMutex.acquire();
                      unsigned long currentTime = OsDateTime::getSecsSinceEpoch();
-                     if (NULL == mCallTransMap.insertKeyAndValue(new UtlString(callId), new BranchTimePair(branchId.data(), &currentTime, &paiPresent)) ) {
-                        // Unable to add callId to map so it must already be present.  Check if the paiPresent value is set to true or not.
-                        // If not set and we now have a PAI for this call, set it and generate another call request state event with this info. Otherwise
-                        // skip over.
+
+                     UtlString* keyCallId = new UtlString(callId);
+                     BranchTimePair* valBranchTimePair = new BranchTimePair(branchId.data(), &currentTime, &paiPresent);
+                     if (NULL == mCallTransMap.insertKeyAndValue(keyCallId, valBranchTimePair) ) {
+                        // Unable to add callId to map so it must already be present.  
+                        delete keyCallId;
+                        delete valBranchTimePair;
+
+                        // Check if the paiPresent value is set to true or not.
+                        // If not set and we now have a PAI for this call, set it and generate another call request state event 
+                        // with this info. Otherwise skip over.
                         if ( paiPresent ) {
                            callIdBranchIdTime = (BranchTimePair*) mCallTransMap.findValue(&callId);
                            if ( callIdBranchIdTime && (*callIdBranchIdTime->getPaiPresent() == false) ) {
