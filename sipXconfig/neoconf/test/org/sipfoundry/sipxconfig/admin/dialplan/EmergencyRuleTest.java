@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.permission.Permission;
  * EmergencyRuleTest
  */
 public class EmergencyRuleTest extends TestCase {
-    private static final String VALIDTIME_PARAMS = "sipx-ValidTime=\"";
+    private static final String VALIDTIME_PARAMS = "sipx-ValidTime=";
     private EmergencyRule m_rule;
     private Schedule m_schedule;
 

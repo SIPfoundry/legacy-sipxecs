@@ -37,7 +37,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  */
 public abstract class DialingRule extends BeanWithId implements NamedObject, IDialingRule {
 
-    public static final String VALID_TIME_PARAM = "sipx-ValidTime=\"%s\"";
+    public static final String VALID_TIME_PARAM = "sipx-ValidTime=%s";
     public static final String GATEWAY_EXPIRES_PATTERN = "expires=%s";
     public static final String GATEWAY_EXPIRES_VALUE = "60";
     public static final String GATEWAY_LINEID_PATTERN = "sipxecs-lineid=%s";
