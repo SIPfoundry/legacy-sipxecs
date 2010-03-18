@@ -157,35 +157,36 @@ void ContactSet::subscriptionEventCallback(
       break;
    case SipSubscribeClient::SUBSCRIPTION_SETUP:
    {
-      // Check that we don't have too many subscriptions.
-      if (mSubscriptions.entries() <
-          getResourceListServer()->getMaxRegSubscInResource())
-      {
-         // Add this ContactSet to mNotifyMap for the subscription.
-         // (::addNotifyMapping() copies *dialogHandle.)
-         getResourceListSet()->addNotifyMapping(*dialogHandle, this);
          // Remember it in mSubscriptions, if there isn't already an entry.
          if (!mSubscriptions.find(dialogHandle))
          {
-            // Remember to make a copy of *dialogHandle.
-            mSubscriptions.insertKeyAndValue(new UtlString(*dialogHandle),
-                                             new UtlHashMap);
+            // Check that we don't have too many subscriptions.
+            if (mSubscriptions.entries() <
+                getResourceListServer()->getMaxRegSubscInResource())
+            {
+               // Add this ContactSet to mNotifyMap for the subscription.
+               // (::addNotifyMapping() copies *dialogHandle.)
+               getResourceListSet()->addNotifyMapping(*dialogHandle, this);
+
+               // Remember to make a copy of *dialogHandle.
+               mSubscriptions.insertKeyAndValue(new UtlString(*dialogHandle),
+                                                new UtlHashMap);
+            }
+            else
+            {
+               OsSysLog::add(FAC_RLS, PRI_ERR,
+                             "ContactSet::subscriptionEventCallback cannot add reg subscription with dialog handle '%s', already %zu in ContactSet '%s'",
+                             dialogHandle->data(), mSubscriptions.entries(),
+                             mUri.data());
+            }
          }
          else
          {
-            OsSysLog::add(FAC_RLS, PRI_WARNING,
+            OsSysLog::add(FAC_RLS, PRI_DEBUG,
                           "ContactSet::subscriptionEventCallback mSubscriptions element already exists for this dialog handle mUri = '%s', dialogHandle = '%s'",
                           mUri.data(),
                           dialogHandle->data());
          }
-      }
-      else
-      {
-         OsSysLog::add(FAC_RLS, PRI_ERR,
-                       "ContactSet::subscriptionEventCallback cannot add reg subscription with dialog handle '%s', already %zu in ContactSet '%s'",
-                       dialogHandle->data(), mSubscriptions.entries(),
-                       mUri.data());
-      }
    }
    break;
    case SipSubscribeClient::SUBSCRIPTION_TERMINATED:
