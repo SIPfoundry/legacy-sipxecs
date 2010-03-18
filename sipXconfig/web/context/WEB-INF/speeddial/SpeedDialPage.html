@@ -8,12 +8,12 @@
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <!--  form jwcid="@tacos:AjaxForm" delegate="bean:validator" -->
     <form jwcid="speedDialForm@Form" delegate="bean:validator" listener="listener:onSubmit">
-      <fieldset jwcid="@speeddial/SpeedDialPanel" speedDial="ognl:speedDial"/>
+      <fieldset jwcid="@speeddial/SpeedDialPanel" speedDial="ognl:speedDial" addNumberLinkDisabled="ognl:groupSynced"/>
       <fieldset>
         <table>
           <tr jwcid="@common/FieldPanel" for="item:groupSync" field="component:groupSync" label="message:label.groupSync"
               description="message:description.groupSync">
-            <input jwcid="groupSync@Checkbox" type="checkbox" id="speeddial:groupSync" value="ognl:groupSynced"/>
+            <span jwcid="groupSync@Checkbox" type="checkbox" id="speeddial:groupSync" value="ognl:groupSynced"/>
           </tr>
         </table>
       </fieldset>

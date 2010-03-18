@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.site.speeddial;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageEvent;
@@ -66,6 +68,11 @@ public abstract class SpeedDialPage extends UserBasePage {
         setSpeedDial(speedDial);
         setSavedUserId(userId);
         setGroupSynced(!getSpeedDialManager().isSpeedDialDefinedForUserId(userId));
+    }
+
+    @EventListener(events = "onclick", targets = "groupSync")
+    public void addNumberActivation(IRequestCycle cycle) {
+        cycle.getResponseBuilder().updateComponent("render");
     }
 
     public void onSubmit() {

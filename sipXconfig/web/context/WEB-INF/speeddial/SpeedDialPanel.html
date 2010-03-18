@@ -3,10 +3,14 @@
     <!-- a jwcid="addNumberLink@tacos:AjaxLinkSubmit"
       listener="listener:add"
       updateComponents="ognl:{'speeddial:list'}" -->
-    <a jwcid="addNumberLink@LinkSubmit"
-      selected="ognl:add" tag="ognl:true">
-      <span key="link.addNumber">Add</span>
-    </a>
+    <div jwcid="render@Any">
+    <span jwcid="@If" condition="ognl:!addNumberLinkDisabled">
+      <a jwcid="addNumberLink@LinkSubmit"
+        selected="ognl:add" tag="ognl:true">
+        <span key="link.addNumber">Add</span>
+      </a>
+     </span>
+     </div>
   </li>
 </ul>
 <table id="speeddial:list">

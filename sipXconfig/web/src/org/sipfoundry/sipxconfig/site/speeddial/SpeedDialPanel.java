@@ -33,6 +33,9 @@ public abstract class SpeedDialPanel extends BaseComponent {
     @Parameter
     public abstract SpeedDialGroup getSpeedDialGroup();
 
+    @Parameter(required = false, defaultValue = "false")
+    public abstract boolean isAddNumberLinkDisabled();
+
     public abstract void setSpeedDialGroup(SpeedDialGroup speedDialGroup);
 
     public abstract List<Button> getButtons();
@@ -69,6 +72,7 @@ public abstract class SpeedDialPanel extends BaseComponent {
         setButtons(buttons);
     }
 
+    @Override
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
         setRemoveIndex(-1);
@@ -83,6 +87,7 @@ public abstract class SpeedDialPanel extends BaseComponent {
         }
     }
 
+    @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         super.renderComponent(writer, cycle);
         if (TapestryUtils.isRewinding(cycle, this)) {
