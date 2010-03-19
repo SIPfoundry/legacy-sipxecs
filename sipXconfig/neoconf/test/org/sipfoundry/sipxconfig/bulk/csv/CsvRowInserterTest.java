@@ -47,11 +47,11 @@ public class CsvRowInserterTest extends TestCase {
         replay(domainManager, coreContext);
 
         String[] userRow1 = new String[] {
-            "bongo", "1234", "abcdef", "", "Star", "","","","","","","","im_id"
+            "bongo", "1234", "abcdef", "", "Star", "","","","","","",""," im_id"
         };
 
         String[] userRow2 = new String[] {
-            "kuku", "1234", "abcdef", "John", "Lennon", "jlennon, 121212"
+            "kuku", "1234", "abcdef", " John", " Lennon  ", "jlennon, 121212"
         };
 
         CsvRowInserter impl = new CsvRowInserter();

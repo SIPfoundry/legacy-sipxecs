@@ -9,7 +9,6 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,7 +24,6 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
@@ -44,6 +42,7 @@ import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.split;
+import static org.apache.commons.lang.StringUtils.trim;
 import static org.apache.commons.lang.StringUtils.trimToNull;
 import static org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping.createUri;
 
@@ -144,7 +143,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     }
 
     public void setFirstName(String firstName) {
-        m_firstName = firstName;
+        m_firstName = trim(firstName);
     }
 
     public String getSipPassword() {
@@ -165,7 +164,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     }
 
     public void setLastName(String lastName) {
-        m_lastName = lastName;
+        m_lastName = trim(lastName);
     }
 
     public String getUserName() {
@@ -173,7 +172,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     }
 
     public void setUserName(String userName) {
-        m_userName = userName;
+        m_userName = trim(userName);
     }
 
     /**
@@ -199,7 +198,9 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     }
 
     public void setAliases(Set<String> aliases) {
-        m_aliases = aliases;
+        for (String alias : aliases) {
+            addAlias(alias);
+        }
     }
 
     public Branch getBranch() {
@@ -285,11 +286,13 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
      * was already in the set.
      */
     public boolean addAlias(String alias) {
-        return getAliases().add(alias);
+        return getAliases().add(trim(alias));
     }
 
     public void addAliases(String[] aliases) {
-        getAliases().addAll(Arrays.asList(aliases));
+        for (String alias : aliases) {
+            addAlias(alias);
+        }
     }
 
     /** Return the aliases as a space-delimited string */
@@ -491,7 +494,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     }
 
     public void setImId(String id) {
-        useAddressBookEntry().setImId(id);
+        useAddressBookEntry().setImId(trim(id));
     }
 
     public String getImDisplayName() {
@@ -502,7 +505,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     }
 
     public void setImDisplayName(String imDisplayName) {
-        useAddressBookEntry().setImDisplayName(imDisplayName);
+        useAddressBookEntry().setImDisplayName(trim(imDisplayName));
     }
 
     public String getImPassword() {

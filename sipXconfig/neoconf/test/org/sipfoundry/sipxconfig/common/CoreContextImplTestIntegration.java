@@ -114,6 +114,25 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(100, user.getBranch().getId().intValue());
     }
 
+    public void testTrimUserValues() {
+        User user = new User();
+        user.setFirstName("First  ");
+        user.setLastName("  Last");
+        user.setUserName(" username ");
+        user.setImId(" imID ");
+        user.setImDisplayName("displayName  ");
+        user.addAlias(" Alias1");
+        user.addAlias("Alias2 ");
+        assertTrue(m_coreContext.saveUser(user));
+        user = m_coreContext.loadUserByUserName("username");
+        assertEquals("First", user.getFirstName());
+        assertEquals("Last", user.getLastName());
+        assertEquals("username", user.getUserName());
+        assertEquals("imID", user.getImId());
+        assertEquals("displayName", user.getImDisplayName());
+        assertEquals("Alias1 Alias2", user.getAliasesString());
+    }
+
     public void setBranchManager(BranchManager branchManager) {
         m_branchManager = branchManager;
     }
