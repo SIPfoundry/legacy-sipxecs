@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.phonebook" default-lazy="false">
+
+  <class name="Address" table="address">
+    <id name="id" column="address_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">addr_seq</param>
+      </generator>
+    </id>
+      <property name="street" column="street" />
+      <property name="zip" column="zip" />
+      <property name="city" column="city" />
+      <property name="country" column="country" />
+      <property name="state" column="state" />
+      <property name="officeDesignation" column="office_designation" />
+  </class>
+</hibernate-mapping>

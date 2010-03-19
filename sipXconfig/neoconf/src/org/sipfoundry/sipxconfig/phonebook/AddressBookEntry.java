@@ -18,8 +18,9 @@ public class AddressBookEntry extends BeanWithId {
     private String m_assistantName;
     private String m_location;
 
-    private Address m_homeAddress = new Address();
-    private Address m_officeAddress = new Address();
+    private Address m_homeAddress;
+    private Address m_officeAddress;
+    private Address m_branchAddress;
     private String m_cellPhoneNumber;
     private String m_homePhoneNumber;
     private String m_assistantPhoneNumber;
@@ -30,7 +31,7 @@ public class AddressBookEntry extends BeanWithId {
     private String m_alternateImId;
     private String m_emailAddress;
     private String m_alternateEmailAddress;
-    private boolean m_useBranchAddress = true;
+    private boolean m_useBranchAddress;
 
     private String m_avatar = Gravatar.DEFAULT_AVATAR;
 
@@ -70,24 +71,34 @@ public class AddressBookEntry extends BeanWithId {
         return m_homeAddress;
     }
 
-    /**
-     * (hibernate injects null value here when all homeAddress fields are empty) see:
-     * http://opensource.atlassian.com/projects/hibernate/browse/HB-31
-     */
     public void setHomeAddress(Address homeAddress) {
-        m_homeAddress = homeAddress == null ? new Address() : homeAddress;
+        m_homeAddress = homeAddress;
     }
 
     public Address getOfficeAddress() {
+        if (m_useBranchAddress && null != m_branchAddress) {
+            if (null == m_officeAddress) {
+                m_officeAddress = new Address();
+            }
+            m_officeAddress.update(m_branchAddress);
+        }
         return m_officeAddress;
     }
 
-    /**
-     * (hibernate injects null value here when all officeAddress fields are empty) see:
-     * http://opensource.atlassian.com/projects/hibernate/browse/HB-31
-     */
+    public Address getBranchAddress() {
+        return m_branchAddress;
+    }
+
     public void setOfficeAddress(Address officeAddress) {
-        m_officeAddress = officeAddress == null ? new Address() : officeAddress;
+        if (null != m_officeAddress) {
+            m_officeAddress.update(officeAddress);
+        } else {
+            m_officeAddress = officeAddress;
+        }
+    }
+
+    public void setBranchAddress(Address branchAddress) {
+        m_branchAddress = branchAddress;
     }
 
     public String getCellPhoneNumber() {

@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 <dataset>
-  <users user_name="yellowthroat" user_id="1001" pintoken="1234" user_type="C"/>
-  <users user_name="canadian" user_id="1002" pintoken="1234" user_type="C"/>
+  <address address_id="1" city="London" />
+  <address address_id="2" city="Bucharest" />
+  <address_book_entry address_book_entry_id="1" office_address_id="1"/>
+  <address_book_entry address_book_entry_id="2"  office_address_id="2"/>
+  <users user_name="yellowthroat" user_id="1001" pintoken="1234" address_book_entry_id="1" user_type="C"/>
+  <users user_name="canadian" user_id="1002" pintoken="1234" address_book_entry_id="2" user_type="C"/>
   <users user_name="chirping" user_id="1003" pintoken="1234" user_type="C"/>
   <users user_name="song" user_id="1004" pintoken="1234" user_type="C"/>
   <users user_name="mallard" user_id="1005" pintoken="1234" user_type="C"/>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <address address_id="2" street="branchAddress"/>
+    <address address_id="1"/>
+    <branch branch_id="1" address_id="2"/>
+	<address_book_entry	address_book_entry_id="1" office_address_id="1"/>
+	<users first_name="" last_name="" user_name="userseed1" pintoken="x" user_id="1001" address_book_entry_id="1" user_type="C" branch_id="1" />
+</dataset>

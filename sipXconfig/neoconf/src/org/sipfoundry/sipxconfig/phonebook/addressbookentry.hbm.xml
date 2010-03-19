@@ -25,20 +25,17 @@
     <property name="useBranchAddress" />
     <property name="emailAddress" />
     <property name="alternateEmailAddress" />
-    <component name="homeAddress" class="Address">
-      <property name="street" column="home_address_street" />
-      <property name="zip" column="home_address_zip" />
-      <property name="city" column="home_address_city" />
-      <property name="country" column="home_address_country" />
-      <property name="state" column="home_address_state" />
-    </component>
-    <component name="officeAddress" class="Address">
-      <property name="street" column="office_address_street" />
-      <property name="zip" column="office_address_zip" />
-      <property name="city" column="office_address_city" />
-      <property name="country" column="office_address_country" />
-      <property name="state" column="office_address_state" />
-      <property name="officeDesignation" column="office_address_office_designation" />
-    </component>
+	<many-to-one name="homeAddress" class="org.sipfoundry.sipxconfig.phonebook.Address"
+    unique="true"
+    cascade="all"
+    column="home_address_id"/>
+	<many-to-one name="officeAddress" class="org.sipfoundry.sipxconfig.phonebook.Address"
+    unique="true"
+    cascade="all"
+    column="office_address_id"/>
+    <many-to-one name="branchAddress" class="org.sipfoundry.sipxconfig.phonebook.Address"
+    unique="false"
+    cascade="none"
+    column="branch_address_id"/>
   </class>
 </hibernate-mapping>

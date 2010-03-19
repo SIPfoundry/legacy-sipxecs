@@ -318,6 +318,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         expectedRds.addReplacementObject("[sip_password]", admin.getSipPassword());
         expectedRds.addReplacementObject("[is_shared]", admin.getIsShared());
         expectedRds.addReplacementObject("[null]", null);
+        expectedRds.addReplacementObject("[address_id]", admin.getAddressBookEntry().getId());
 
         IDataSet actualDs = TestHelper.getConnection().createDataSet();
 

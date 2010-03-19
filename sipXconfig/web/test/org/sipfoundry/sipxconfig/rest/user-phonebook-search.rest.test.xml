@@ -4,8 +4,6 @@
     <last-name>LastName1</last-name>
     <number>200</number>
     <contact-information>
-      <homeAddress/>
-      <officeAddress/>
       <avatar>http://gravatar.com/avatar</avatar>
     </contact-information>
   </entry>
@@ -14,8 +12,6 @@
     <last-name>LastName2</last-name>
     <number>201</number>
     <contact-information>
-      <homeAddress/>
-      <officeAddress/>
       <avatar>http://gravatar.com/avatar</avatar>
     </contact-information>
   </entry>

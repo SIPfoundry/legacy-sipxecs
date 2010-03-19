@@ -63,6 +63,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
         ReplacementDataSet expectedRds = new ReplacementDataSet(expectedDs);
         expectedRds.addReplacementObject("[user_id]", user.getId());
         expectedRds.addReplacementObject("[null]", null);
+        expectedRds.addReplacementObject("[address_book_entry_id]", user.getAddressBookEntry().getId());
 
         ITable expected = expectedRds.getTable("users");
         ITable actual = TestHelper.getConnection().createQueryTable("users",

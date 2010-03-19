@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -129,6 +130,16 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                     throw new ChangePintokenRequiredException("When changing user name, you must also change PIN");
                 }
             }
+        } else {
+            if (user.getAddressBookEntry() == null) {
+                user.setAddressBookEntry(new AddressBookEntry());
+            }
+            user.getAddressBookEntry().setUseBranchAddress(true);
+        }
+
+        if (null != user.getAddressBookEntry() && user.getAddressBookEntry().getUseBranchAddress()
+                && user.getBranch() != null) {
+            user.getAddressBookEntry().setBranchAddress(user.getBranch().getAddress());
         }
         getHibernateTemplate().saveOrUpdate(user);
 

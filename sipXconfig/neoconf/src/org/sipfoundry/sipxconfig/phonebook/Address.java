@@ -8,7 +8,9 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
-public class Address {
+import org.sipfoundry.sipxconfig.common.BeanWithId;
+
+public class Address extends BeanWithId {
 
     private String m_street;
     private String m_city;

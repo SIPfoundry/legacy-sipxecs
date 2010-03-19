@@ -167,6 +167,7 @@ public class UserPhonebookEntryResource extends UserResource {
             xstream.aliasField("contact-information", PhonebookEntry.class, "addressBookEntry");
             xstream.omitField(PhonebookEntry.class, "m_phonebook");
             xstream.omitField(AddressBookEntry.class, "m_useBranchAddress");
+            xstream.omitField(AddressBookEntry.class, "m_branchOfficeAddress");
         }
     }
 

@@ -20,6 +20,7 @@
   <table name="setting_value"/>
 
   <!-- users -->
+  <table name="address"/>
   <table name="address_book_entry"/>
   <table name="users"/>
   <table name="user_alias"/>
@@ -52,7 +53,7 @@
   <!-- park orbit -->
   <table name="park_orbit"/>  
   <table name="park_orbit_group"/>
-      
+
   <!-- phone -->  
   <table name="job"/>
   <table name="phone"/>
@@ -70,13 +71,13 @@
   <table name="extension_pool"/>
   <table name="intercom"/>
   <table name="intercom_phone_group"/>
-      
+
   <table name="dialing_rule_gateway"/>
-        
+
   <!-- forwarding -->
   <table name="ring"/>
   <table name="schedule_hours"/>
-	
+
   <!-- ACD -->
   <table name="acd_server"/>
   <table name="acd_line"/>
@@ -91,16 +92,16 @@
   <table name="meetme_bridge"/>
   <table name="meetme_conference"/>
   <table name="meetme_participant"/>
-	
+
   <!-- ldap -->
   <table name="cron_schedule"/>
   <table name="ldap_connection"/>
   <table name="ldap_attr_map"/>
   <table name="ldap_user_property_to_ldap_attr"/>
   <table name="ldap_selected_object_classes"/>  
-  
+
   <table name="permission"/>
-  
+
   <table name="domain">
     <column>domain_id</column>
     <column>name</column>
@@ -112,22 +113,22 @@
     </row>
   </table>
   <table name="domain_alias"/>
-  
+
   <table name="phonebook"/>
   <table name="phonebook_member"/>
   <table name="phonebook_consumer"/>
   <table name="phonebook_file_entry"/>
   <table name="google_domain"/>
-  
+
   <table name="speeddial"/>
   <table name="speeddial_button"/>
   <table name="speeddial_group"/>
   <table name="speeddial_group_button"/>
   <table name="service"/>
-  
+
   <table name="personal_attendant"/>
   <table name="personal_attendant_menu_item"/>
-  
+
   <!-- paging group -->
   <table name="paging_group"/>
   <table name="user_paging_group"/>  

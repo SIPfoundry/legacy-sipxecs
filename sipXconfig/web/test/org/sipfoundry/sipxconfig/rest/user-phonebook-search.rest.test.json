@@ -4,8 +4,6 @@
     "last-name": "LastName1",
     "number": "200",
     "contact-information": {
-      "homeAddress": {},
-      "officeAddress": {},
       "avatar": "http://gravatar.com/avatar"
     }
   },
@@ -14,8 +12,6 @@
     "last-name": "LastName2",
     "number": "201",
     "contact-information": {
-      "homeAddress": {},
-      "officeAddress": {},
       "avatar": "http://gravatar.com/avatar"
     }
   }

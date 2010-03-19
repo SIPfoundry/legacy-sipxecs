@@ -12,14 +12,10 @@
     <property name="description" />
     <property name="phoneNumber" />
     <property name="faxNumber" />
-    <component name="address" class="org.sipfoundry.sipxconfig.phonebook.Address">
-      <property name="street" column="address_street" />
-      <property name="city" column="address_city" />
-      <property name="state" column="address_state" />
-      <property name="country" column="address_country" />
-      <property name="zip" column="address_zip" />
-      <property name="officeDesignation" column="office_designation" />
-    </component>
+	<many-to-one name="address" class="org.sipfoundry.sipxconfig.phonebook.Address"
+    unique="true"
+    cascade="all"
+    column="address_id"/>
   </class>
 
 </hibernate-mapping>

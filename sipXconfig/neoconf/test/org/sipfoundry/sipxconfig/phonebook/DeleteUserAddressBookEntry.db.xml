@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <address
+        address_id="2"
+        street="branchAddress"
+        zip="[null]"
+        country="[null]"
+        state="[null]"
+        city="[null]"
+        office_designation="[null]"
+        />
+</dataset>

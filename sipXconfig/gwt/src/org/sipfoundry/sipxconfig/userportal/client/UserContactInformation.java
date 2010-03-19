@@ -10,6 +10,7 @@ package org.sipfoundry.sipxconfig.userportal.client;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Timer;
 import com.smartgwt.client.widgets.IButton;
 import com.smartgwt.client.widgets.events.ClickEvent;
 import com.smartgwt.client.widgets.events.ClickHandler;
@@ -65,7 +66,7 @@ public class UserContactInformation implements EntryPoint {
             public void onClick(ClickEvent event) {
                 if (m_valuesManager.validate() && m_valuesManager.valuesHaveChanged()) {
                     m_dataSource.editEntry(m_valuesManager);
-                    m_valuesManager.fetchData();
+                    refreshRecordsWithDelay();
                 }
             }
         });
@@ -75,5 +76,16 @@ public class UserContactInformation implements EntryPoint {
         saveButtonLayout.setPadding(10);
 
         return saveButtonLayout;
+    }
+
+    private void refreshRecordsWithDelay() {
+        // fetch data with 1.5 secs delay so the changes to be picked up
+        Timer refreshTimer = new Timer() {
+            @Override
+            public void run() {
+                m_valuesManager.fetchData();
+            }
+        };
+        refreshTimer.schedule(1500);
     }
 }

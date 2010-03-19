@@ -350,9 +350,9 @@
     <antcall target="change-nortel12x0-phone-to-avaya" />
     <antcall target="alarm-groups-add-snmp-contacts" />
     <antcall target="show_phonebook_on_phone" />
-
     <antcall target="change-callCenter-to-ACD" />
     <antcall target="drop_phone_branch" />
+    <antcall target="address" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1100,6 +1100,9 @@
   </target>
   <target name="drop_phone_branch" unless="drop_phone_branch">
     <db-patch patch="drop_phone_branch"/>
+  </target>
+  <target name="address" unless="address">
+    <db-patch patch="address"/>
   </target>
 
   <!--

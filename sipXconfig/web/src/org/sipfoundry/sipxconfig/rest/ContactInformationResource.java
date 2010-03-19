@@ -38,15 +38,8 @@ public class ContactInformationResource extends UserResource {
     public Representation represent(Variant variant) throws ResourceException {
         User user = getUser();
         AddressBookEntry addressBook = user.getAddressBookEntry();
-        AddressBookEntry reprAddressBook = null;
-        if (addressBook != null) {
-            reprAddressBook = (AddressBookEntry) addressBook.duplicate();
-            if (addressBook.getUseBranchAddress() && user.getBranch() != null) {
-                reprAddressBook.setOfficeAddress(user.getBranch().getAddress());
-            }
-        }
 
-        Representable representable = new Representable(user.getFirstName(), user.getLastName(), reprAddressBook);
+        Representable representable = new Representable(user.getFirstName(), user.getLastName(), addressBook);
         return new AddressBookRepresentation(variant.getMediaType(), representable);
     }
 

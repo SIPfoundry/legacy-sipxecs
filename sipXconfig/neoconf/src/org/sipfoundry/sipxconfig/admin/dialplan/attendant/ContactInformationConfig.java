@@ -72,13 +72,9 @@ public class ContactInformationConfig extends XmlFile {
 
             Element homeAddressEl = userEl.addElement("homeAddress");
             addAddressInfo(homeAddressEl, abe.getHomeAddress());
+
             Element officeAddressEl = userEl.addElement("officeAddress");
-            if (abe.getUseBranchAddress() && user.getBranch() != null) {
-                addAddressInfo(officeAddressEl, user.getBranch().getAddress());
-            } else {
-                addAddressInfo(officeAddressEl, abe.getOfficeAddress());
-            }
-            addElements(officeAddressEl, abe.getOfficeAddress(), "officeDesignation");
+            addAddressInfo(officeAddressEl, abe.getOfficeAddress());
         }
 
         List<Conference> conferences = m_conferenceBridgeContext.findConferencesByOwner(user);
@@ -106,7 +102,9 @@ public class ContactInformationConfig extends XmlFile {
     }
 
     private void addAddressInfo(Element element, Address address) {
-        addElements(element, address, "street", "city", "country", "state", "zip");
+        if (address != null) {
+            addElements(element, address, "street", "city", "country", "state", "zip", "officeDesignation");
+        }
     }
 
     private void addElement(Element userEl, Object bean, String name) {

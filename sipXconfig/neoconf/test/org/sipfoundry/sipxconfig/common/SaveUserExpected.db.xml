@@ -10,7 +10,7 @@
         sip_password="sippassword"
         user_name="userid"
         value_storage_id="[null]"
-        address_book_entry_id="[null]"
+        address_book_entry_id="[address_book_entry_id]"
         branch_id="[null]"
         user_type="C"
         />

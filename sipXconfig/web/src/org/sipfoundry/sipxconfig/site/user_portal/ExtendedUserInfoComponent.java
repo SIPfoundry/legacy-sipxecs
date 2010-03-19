@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.im.ImAccount;
+import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.site.UserSession;
 
@@ -50,6 +51,12 @@ public abstract class ExtendedUserInfoComponent extends BaseComponent {
             AddressBookEntry abe = getUser().getAddressBookEntry();
             if (abe == null) {
                 abe = new AddressBookEntry();
+            }
+            if (abe.getHomeAddress() == null) {
+                abe.setHomeAddress(new Address());
+            }
+            if (abe.getOfficeAddress() == null) {
+                abe.setOfficeAddress(new Address());
             }
             setAddressBookEntry(abe);
         }

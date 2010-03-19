@@ -146,6 +146,7 @@
         <value>org/sipfoundry/sipxconfig/domain/domain.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phonebook/phonebook.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phonebook/addressbookentry.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/phonebook/address.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phonebook/phonebook_file_entry.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/phonebook/google_domain.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/acd/acd.hbm.xml</value>

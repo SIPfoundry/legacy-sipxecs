@@ -55,20 +55,6 @@
     <leaveMsgEndIM>false</leaveMsgEndIM>
   </user>
   <user>
-    <userName>202</userName>
-    <imId>202</imId>
-    <imDisplayName>202</imDisplayName>
-    <homeAddress/>
-    <officeAddress>
-      <street>1, Branch Street</street>
-    </officeAddress>
-    <conferences/>
-    <conferenceEntryIM>true</conferenceEntryIM>
-    <conferenceExitIM>false</conferenceExitIM>
-    <leaveMsgBeginIM>false</leaveMsgBeginIM>
-    <leaveMsgEndIM>false</leaveMsgEndIM>
-  </user>
-  <user>
     <userName>Jagr</userName>
     <imId>Jagr</imId>
     <imDisplayName>Jagr</imDisplayName>

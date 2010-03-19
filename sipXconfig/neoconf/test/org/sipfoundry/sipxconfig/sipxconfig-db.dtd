@@ -68,22 +68,15 @@
 	fax_number CDATA #IMPLIED
 	location CDATA #IMPLIED
 	company_name CDATA #IMPLIED
-	home_address_street CDATA #IMPLIED
-	home_address_zip CDATA #IMPLIED
-	home_address_country CDATA #IMPLIED
-	home_address_state CDATA #IMPLIED
-	home_address_city CDATA #IMPLIED
-	office_address_street CDATA #IMPLIED
-	office_address_zip CDATA #IMPLIED
-	office_address_country CDATA #IMPLIED
-	office_address_state CDATA #IMPLIED
-	office_address_city CDATA #IMPLIED
 	job_title CDATA #IMPLIED
 	job_dept CDATA #IMPLIED
-	office_address_office_designation CDATA #IMPLIED
+	home_address_id CDATA #IMPLIED
+	office_address_id CDATA #IMPLIED
+    branch_address_id CDATA #IMPLIED
 	im_id CDATA #IMPLIED
 	alternate_im_id CDATA #IMPLIED
 	gravatar CDATA #IMPLIED
+	use_branch_address CDATA #IMPLIED
  >
 
 <!ELEMENT alarm_contacts EMPTY>
@@ -884,13 +877,20 @@
     branch_id CDATA #REQUIRED
     name CDATA #IMPLIED
     description CDATA #IMPLIED
-    address_street CDATA #IMPLIED
-    address_city CDATA #IMPLIED
-    address_state CDATA #IMPLIED
-    address_country CDATA #IMPLIED
-    address_zip CDATA #IMPLIED
     phone_number CDATA #IMPLIED
     fax_number CDATA #IMPLIED
+    address_id CDATA #IMPLIED
+>
+
+<!ELEMENT address EMPTY>
+<!ATTLIST address
+    address_id CDATA #REQUIRED
+    street CDATA #IMPLIED
+    city CDATA #IMPLIED
+    state CDATA #IMPLIED
+    country CDATA #IMPLIED
+    zip CDATA #IMPLIED
+    office_designation CDATA #IMPLIED
 >
 
 <!ELEMENT tls_peer EMPTY>

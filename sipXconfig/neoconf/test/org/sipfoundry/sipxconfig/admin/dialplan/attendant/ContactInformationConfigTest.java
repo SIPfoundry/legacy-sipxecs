@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.common.DaoUtils;
 
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
-import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.conference.Conference;
@@ -103,19 +102,6 @@ public class ContactInformationConfigTest extends BeanWithSettingsTestCase {
         m_u2.setAddressBookEntry(abe2);
         setImNotificationSettings(m_u2, "true", "false", "false", "false");
 
-        m_u3.setUserName("202");
-        AddressBookEntry abe3 = new AddressBookEntry();
-        abe3.setUseBranchAddress(true);
-        Branch branch = new Branch();
-        Address addr = new Address();
-        addr.setStreet("1, Branch Street");
-        branch.setAddress(addr);
-        m_u3.setBranch(branch);
-        m_u3.setAddressBookEntry(abe3);
-        setImNotificationSettings(m_u3, "true", "false", "false", "false");
-
-
-
         m_u4.setUserName("Jagr");
         m_u4.addAlias("nhlPlayer");
 
@@ -126,7 +112,7 @@ public class ContactInformationConfigTest extends BeanWithSettingsTestCase {
 
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        expectLastCall().andReturn(Arrays.asList(m_u1, m_u2, m_u3, m_u4));
+        expectLastCall().andReturn(Arrays.asList(m_u1, m_u2, m_u4));
 
 
         ConferenceBridgeContext bridgeContext = createMock(ConferenceBridgeContext.class);
