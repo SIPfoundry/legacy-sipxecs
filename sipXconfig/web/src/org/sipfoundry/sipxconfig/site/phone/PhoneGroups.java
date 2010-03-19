@@ -37,6 +37,7 @@ public abstract class PhoneGroups extends BasePage implements PageBeginRenderLis
     public IPage addGroup(IRequestCycle cycle) {
         EditGroup page = (EditGroup) cycle.getPage(EditGroup.PAGE);
         page.newGroup("phone", PAGE);
+        page.setShowBranch(false);
         return page;
     }
 

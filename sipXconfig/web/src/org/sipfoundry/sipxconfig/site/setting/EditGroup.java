@@ -37,6 +37,11 @@ public abstract class EditGroup extends PageWithCallback implements PageBeginRen
 
     public abstract SettingDao getSettingContext();
 
+    public abstract boolean getShowBranch();
+
+    public abstract void setShowBranch(boolean showBranch);
+
+
     public static void saveGroups(SettingDao dao, Collection groups) {
         for (Iterator i = groups.iterator(); i.hasNext();) {
             dao.saveGroup((Group) i.next());

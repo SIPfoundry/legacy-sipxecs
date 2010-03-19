@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.site.setting;
 
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IBinding;
+import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -22,6 +23,12 @@ public abstract class EditGroupForm extends BaseComponent {
     public abstract void setGroup(Group group);
 
     public abstract SettingDao getSettingContext();
+
+    @Parameter (required = false, defaultValue = "true")
+    public abstract boolean getShowBranch();
+
+    public abstract void setShowBranch(boolean showBranch);
+
 
     // set the "group_id" parameter to TRUE
     private void markGroupId(int id) {
