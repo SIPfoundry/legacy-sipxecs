@@ -24,8 +24,7 @@
          <!-- Alarm notification SMS will be sent from this address. -->
          <email-notification-addr>postmaster@${MY_FULL_HOSTNAME}</email-notification-addr>
       </sms>
-      <trap enabled="false">
-      </trap>
+      <trap enabled="false"/>
    </actions>
 
   </settings>

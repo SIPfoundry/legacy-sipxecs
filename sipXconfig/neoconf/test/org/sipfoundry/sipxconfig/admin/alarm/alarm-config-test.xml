@@ -20,8 +20,7 @@
          <email-notification-addr>postmaster@post.example.org</email-notification-addr>
       </sms>
       <!--  Alarm notification Trap enable flag. -->
-      <trap enabled="true">
-      </trap>
+      <trap enabled="true"/>
    </actions>
   </settings>
 </alarm_server>

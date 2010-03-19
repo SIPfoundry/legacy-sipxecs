@@ -18,8 +18,7 @@
             <!-- Alarm notification SMS will be sent to each contact in this list. -->
             <contact>@SIPXPBXUSER@@localhost</contact>
          </sms>
-         <trap enabled="false">
-         </trap>
+         <trap enabled="false"/>
       </actions>
    </settings>
 

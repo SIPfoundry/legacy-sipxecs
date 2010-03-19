@@ -64,6 +64,7 @@
         <element ref='h:log' minOccurs='0' maxOccurs='1' />
         <element ref='h:email' minOccurs='0' maxOccurs='1' />
         <element ref='h:sms' minOccurs='0' maxOccurs='1' />
+        <element ref='h:trap' minOccurs='0' maxOccurs='1' />
       </sequence>
     </complexType>
   </element>

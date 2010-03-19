@@ -47,6 +47,7 @@
       <sequence>
         <element ref='h:email' minOccurs='0' />
         <element ref='h:sms' minOccurs='0' />
+        <element ref='h:trap' minOccurs='0' />
       </sequence>
       <attribute name="id" type="string" use="required"/>
     </complexType>

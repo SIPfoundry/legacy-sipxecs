@@ -20,8 +20,7 @@
          <email-notification-addr>${fromEmailAddress}</email-notification-addr>
       </sms>
       <!--  Alarm notification Trap enable flag. -->
-      <trap enabled="${enabled}">
-      </trap>
+      <trap enabled="${enabled}"/>
    </actions>
   </settings>
 </alarm_server>
