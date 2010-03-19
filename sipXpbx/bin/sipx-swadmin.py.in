@@ -4,20 +4,20 @@
 #
 # Copyright (C) 2008 Nortel Networks
 #
-# This script drives the software admin package update process, 
-# interacting with Yum and presenting output in a friendly 
-# manner.           
+# This script drives the software admin package update process,
+# interacting with Yum and presenting output in a friendly
+# manner.
 #
 #----------------------------------------------------------------------
 
-import yum, sys, os, fcntl, signal
+import yum, sys, os, fcntl, signal, time
 from subprocess import Popen, PIPE
 
 # Checks for updated sipXecs packages.
 def check_update():
     print "# Package Name|Installed Version|Updated Version"
     yumBase = yum.YumBase()
-    
+
     # Check for an installed sipxecs package.
     # This is used to determine whether or not to look
     # at specific sipx repos or all repos for updates.
@@ -37,6 +37,7 @@ def check_update():
     sys.stdout.write('***END***\n')
     sys.stdout.flush()
     sys.stderr.flush()
+    time.sleep(1)
 
 # Checks the version of sipXecs installed on the system.
 # The version of the main sipxecs package is checked, and that version number is used.
@@ -49,7 +50,7 @@ def check_version():
     sipxPackage = yumBase.rpmdb.searchAll("sipxcommons")
     if len(sipxPackage) == 0:
        sipxPackage = yumBase.rpmdb.searchAll("sipxcommserverlib")
- 
+
     if len(sipxPackage) > 0:
        print "version:" + sipxPackage[0].name + " " + sipxPackage[0].ver + "-" + sipxPackage[0].release
     else:
@@ -59,7 +60,8 @@ def check_version():
     sys.stdout.write('***END***\n')
     sys.stdout.flush()
     sys.stderr.flush()
-    
+    time.sleep(1)
+
 # Downloads and installs updated packages for the system
 def update():
     print "Downloading and installing updated packages...\n\n"
@@ -84,7 +86,7 @@ def update():
     sys.stdout.flush()
     sys.stderr.flush()
     restart()
-    
+
 # Restarts the sipXecs
 def restart():
     print "Restarting the sipXecs...\n\n"
@@ -102,7 +104,7 @@ def restart():
     sys.stdout.write('***END***\n')
     sys.stdout.flush()
     sys.stderr.flush()
-    
+
 # Reboot the system
 def reboot():
     print "Rebooting the system...\n\n"
@@ -120,7 +122,7 @@ def reboot():
     sys.stdout.write('***END***\n')
     sys.stdout.flush()
     sys.stderr.flush()
-    
+
 def usage():
     print """
         Usage: sipx-swadmin.py <command>
@@ -143,7 +145,7 @@ if len(sys.argv) < 2:
     usage()
     quit()
 
-# Allow child process siganls to be processed in the default manner. 
+# Allow child process signals to be processed in the default manner.
 signal.signal(signal.SIGCHLD, signal.SIG_DFL)
 
 if sys.argv[1] == "check-update":
@@ -151,11 +153,11 @@ if sys.argv[1] == "check-update":
 elif sys.argv[1] == "version":
     check_version()
 elif sys.argv[1] == "update":
-    update()    
+    update()
 elif sys.argv[1] == "restart":
-    restart()   
+    restart()
 elif sys.argv[1] == "reboot":
-    reboot()    
+    reboot()
 else:
     usage()
 
