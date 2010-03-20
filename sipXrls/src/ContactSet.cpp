@@ -303,15 +303,15 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                UtlString* uri_allocated = new UtlString;
                UtlBoolean check_uri = TRUE;
                TiXmlNode* pub_gruu_node = contact_element->FirstChild("gr:pub-gruu");
-               if(pub_gruu_node)
+               if (pub_gruu_node)
                {
                   TiXmlElement* pub_gruu_element = pub_gruu_node->ToElement();
-                  UtlString pub_gruu_uri (pub_gruu_element->Attribute("uri"));
-                  if(!pub_gruu_uri.isNull())
+                  UtlString pub_gruu_uri(pub_gruu_element->Attribute("uri"));
+                  if (!pub_gruu_uri.isNull())
                   {
                      // Check the URI Scheme. Only accept the GRUU address if it is of either
                      // a sip or sips scheme
-                     Url tmp (pub_gruu_uri, TRUE );
+                     Url tmp(pub_gruu_uri, TRUE);
                      Url::Scheme uriScheme = tmp.getScheme();
                      if(Url::SipUrlScheme == uriScheme ||
                         Url::SipsUrlScheme == uriScheme)
@@ -325,7 +325,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
 
                // If we did not find a GRUU address, then use the address in the "uri" element as the
                // contact URI, and check for path headers.
-               if(check_uri)
+               if (check_uri)
                {
                   TiXmlNode* u = contact_element->FirstChild("uri");
                   if (u)
@@ -378,7 +378,7 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                      // Add the contact if it is not already present.
                      if (!state_from_this_subscr->find(id_allocated))
                      {
-                        // Prepend the registration Call-Id and ';'.
+                        // Prepend the registration Call-Id and ';' to *uri_allocated..
                         uri_allocated->insert(0, ';');
                         const char* call_id = contact_element->Attribute("callid");
                         if (call_id)
@@ -391,13 +391,33 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                             getResourceListServer()->getMaxContInRegSubsc())
                         {
                            // Insert the registration record.
-                           state_from_this_subscr->insertKeyAndValue(id_allocated,
-                                                                     uri_allocated);
-                           OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                                         "ContactSet::notifyEventCallback adding id = '%s' Call-Id;URI = '%s'",
-                                         id, uri_allocated->data());
-                           id_allocated = NULL;
-                           uri_allocated = NULL;
+                           if (state_from_this_subscr->insertKeyAndValue(id_allocated,
+                                                                         uri_allocated))
+                           {
+                              OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                                            "ContactSet::notifyEventCallback adding id = '%s' Call-Id;URI = '%s'",
+                                            id, uri_allocated->data());
+                              id_allocated = NULL;
+                              uri_allocated = NULL;
+                           }
+                           else
+                           {
+                              OsSysLog::add(FAC_RLS, PRI_ERR,
+                                            "ContactSet::notifyEventCallback adding id = '%s' Call-Id;URI = '%s' failed",
+                                            id_allocated->data(), uri_allocated->data());
+                              OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                                            "ContactSet::notifyEventCallback *state_from_this_subscr is:");
+                              UtlHashMapIterator itor(*state_from_this_subscr);
+                              UtlContainable* k;
+                              while ((k = itor()))
+                              {
+                                 UtlContainable* v = itor.value();
+                                 OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                                               "ContactSet::notifyEventCallback (*state_from_this_subscr)['%s'] = '%s'",
+                                               (dynamic_cast <UtlString*> (k))->data(),
+                                               (dynamic_cast <UtlString*> (v))->data());
+                              }
+                           }
                         }
                         else
                         {
@@ -426,7 +446,6 @@ void ContactSet::notifyEventCallback(const UtlString* dialogHandle,
                }
                else
                {
-                  delete uri_allocated;
                   OsSysLog::add(FAC_RLS, PRI_ERR,
                                 "ContactSet::notifyEventCallback <contact> element with id = '%s' is missing id, state, and/or URI",
                                 id ? id : "(missing)");
