@@ -9,6 +9,7 @@
 package org.sipfoundry.sipxconfig.userportal.client;
 
 import com.google.gwt.i18n.client.ConstantsWithLookup;
+import com.smartgwt.client.util.JSOHelper;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.FormItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
@@ -20,6 +21,7 @@ import com.smartgwt.client.widgets.grid.ListGridRecord;
 public class ContactInformationForm extends DynamicForm {
 
     private static final String TITLE_STYLE = "titleFormStyle";
+    private static final String READONLY_ATTR = "readOnly";
     private static final String EMAIL_EXPRESSION = "^([a-zA-Z0-9_.\\-+])+@(([a-zA-Z0-9\\-])+\\.)+[a-zA-Z0-9]{2,4}$";
 
     private ConstantsWithLookup m_constants;
@@ -38,22 +40,25 @@ public class ContactInformationForm extends DynamicForm {
             String itemName = item.getName();
             String selectionValue = selection.getAttributeAsString(itemName);
             item.setValue(selectionValue);
-            item.setDisabled(true);
+            item.setAttribute(READONLY_ATTR, "true");
             item.setTitleStyle(TITLE_STYLE);
         }
+        markForRedraw();
     }
 
     public void editData() {
         for (FormItem item : getFields()) {
-            item.setDisabled(false);
+            JSOHelper.deleteAttribute(item.getJsObj(), READONLY_ATTR);
         }
+        markForRedraw();
     }
 
     public void addData() {
         for (FormItem item : getFields()) {
-            item.setDisabled(false);
             item.setValue("");
+            JSOHelper.deleteAttribute(item.getJsObj(), READONLY_ATTR);
         }
+        markForRedraw();
     }
 
     private TextItem[] createFields(String[] fieldNames, ConstantsWithLookup constants) {

@@ -22,6 +22,7 @@ import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Timer;
 import com.smartgwt.client.data.DataSource;
 import com.smartgwt.client.types.Alignment;
+import com.smartgwt.client.types.Cursor;
 import com.smartgwt.client.types.OperatorId;
 import com.smartgwt.client.types.Overflow;
 import com.smartgwt.client.types.Side;
@@ -768,6 +769,8 @@ public class UserPhonebookSearch implements EntryPoint {
             m_contactName.setStyleName("gwtContactNameStyle");
             m_contactName.setAlign(Alignment.CENTER);
             m_contactName.setAutoHeight();
+            m_contactName.setCanSelectText(true);
+            m_contactName.setCursor(Cursor.TEXT);
 
             final HLayout clickToCallButtonLayout = new HLayout();
             m_clickToCall = new ClickToCallButton();

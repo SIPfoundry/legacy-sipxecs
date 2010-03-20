@@ -4,24 +4,24 @@
 }
 
 
-input[disabled='disabled'] {
+input[readonly='TRUE'], input[readonly], input[readOnly] {
 	border:0px;
 	background:white;
-	color:blue;
-	cursor:default;
+	color:gray;
+	cursor:text;
 }
 
-input.disabled {
+input.readonly {
 	border:0px;
 	background:white;
-	color:blue;
-	cursor:default;
+	color:gray;
+	cursor:text;
 }
 
 input.textItemDisabled {
 	border:0px;
 	background:white;
-	cursor:default;
+	cursor:text;
 }
 
 .titleFormStyle, .titleFormStyleFocused, .titleFormStyleError
