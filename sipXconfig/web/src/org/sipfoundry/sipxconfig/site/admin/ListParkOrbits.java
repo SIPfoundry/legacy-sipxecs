@@ -15,16 +15,16 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit;
 import org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.setting.GroupSettings;
 
-public abstract class ListParkOrbits extends BasePage implements PageBeginRenderListener {
+public abstract class ListParkOrbits extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "admin/ListParkOrbits";
 

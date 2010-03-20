@@ -1,8 +1,5 @@
-<div jwcid="@common/Border" restricted="false">
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
   <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin"/>
-  <h2 jwcid="@If" condition="ognl:!userSession.admin">
-    <span key="title">User Schedules</span>
-  </h2>
   <span jwcid="@common/ErrorMsg"/>
   <span jwcid="@user_portal/UserSchedulesComponent"
     user="ognl:user"

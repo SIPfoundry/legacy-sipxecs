@@ -20,7 +20,6 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.admin.BackupPlan;
 import org.sipfoundry.sipxconfig.admin.DailyBackupSchedule;
@@ -30,9 +29,10 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class BackupPage extends BasePage implements PageBeginRenderListener {
+public abstract class BackupPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/BackupPage";
 
     /**

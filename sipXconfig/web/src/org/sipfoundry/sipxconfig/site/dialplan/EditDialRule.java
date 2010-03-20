@@ -19,7 +19,6 @@ import org.apache.tapestry.callback.PageCallback;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -27,6 +26,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleType;
 import org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.components.NamedValuesSelectionModel;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -34,7 +34,7 @@ import org.sipfoundry.sipxconfig.phone.PhoneModel;
 /**
  * EditDialRule
  */
-public abstract class EditDialRule extends BasePage implements PageBeginRenderListener {
+public abstract class EditDialRule extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String CUSTOM = "dialplan/EditCustomDialRule";
     public static final String INTERNAL = "dialplan/EditInternalDialRule";

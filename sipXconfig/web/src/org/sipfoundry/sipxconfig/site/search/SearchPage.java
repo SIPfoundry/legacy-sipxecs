@@ -19,13 +19,13 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
-public abstract class SearchPage extends BasePage implements IExternalPage,
+public abstract class SearchPage extends SipxBasePage implements IExternalPage,
         PageBeginRenderListener {
     public static final String PAGE = "search/SearchPage";
 

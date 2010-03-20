@@ -16,8 +16,8 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.contrib.table.model.ITableColumn;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.services.ExpressionEvaluator;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.job.Job;
 import org.sipfoundry.sipxconfig.job.JobContext;
 
@@ -28,7 +28,7 @@ import static org.sipfoundry.sipxconfig.components.TapestryUtils.createDateColum
 /**
  * Displays current staus of background jobs
  */
-public abstract class JobStatusPage extends BasePage {
+public abstract class JobStatusPage extends SipxBasePage {
     public static final Object PAGE = "admin/JobStatusPage";
 
     @InjectObject(value = "spring:jobContext")

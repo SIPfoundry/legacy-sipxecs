@@ -32,12 +32,12 @@ public class RegistrationsTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         setWorkingForm("refreshForm");
         assertButtonPresent("refresh");
-        assertElementPresent("registrations:page");
+        assertTablePresent("registrations:list");
         clickButton("refresh");
         SiteTestHelper.assertNoException(tester);
         setWorkingForm("refreshForm");
         assertButtonPresent("refresh");
-        assertElementPresent("registrations:page");
+        assertTablePresent("registrations:list");
     }
 
     /**

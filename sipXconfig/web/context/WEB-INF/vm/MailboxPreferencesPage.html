@@ -1,4 +1,4 @@
-<div jwcid="@common/Border" restricted="false">
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
   <span jwcid="@common/QuickHelp" value="message:quick.help" />
   <span jwcid="@user/UserNavigation" bean="ognl:editedUser" renderCondition="ognl:userSession.admin" />
   <span jwcid="@If" condition="ognl:!userSession.admin">

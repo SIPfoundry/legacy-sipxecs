@@ -18,7 +18,6 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
@@ -28,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -37,7 +37,7 @@ import org.sipfoundry.sipxconfig.device.RestartManager;
 /**
  * List all the gateways, allow adding and deleting gateways
  */
-public abstract class ListSbcDevices extends BasePage {
+public abstract class ListSbcDevices extends SipxBasePage {
     public static final String PAGE = "sbc/ListSbcDevices";
 
     @InjectObject(value = "spring:sbcDeviceManager")

@@ -19,14 +19,14 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.TimeOfDay;
 import org.sipfoundry.sipxconfig.components.MapSelectionModel;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.TimeZoneManager;
 
-public abstract class TimeZonePage extends BasePage implements PageBeginRenderListener {
+public abstract class TimeZonePage extends SipxBasePage implements PageBeginRenderListener {
     @InjectObject(value = "spring:timeZoneManager")
     public abstract TimeZoneManager getTimeZoneManager();
 

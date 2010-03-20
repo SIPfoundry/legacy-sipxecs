@@ -17,15 +17,15 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.sipfoundry.sipxconfig.admin.CertificateManager;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class ManageCertificates extends BasePage implements PageBeginRenderListener {
+public abstract class ManageCertificates extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "admin/ManageCertificates";
     public static final Integer UPLOAD = new Integer(1);

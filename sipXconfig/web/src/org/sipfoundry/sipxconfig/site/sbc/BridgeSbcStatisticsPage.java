@@ -17,7 +17,6 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
@@ -26,9 +25,10 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbcRegistration
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbcStatistics;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class BridgeSbcStatisticsPage extends BasePage implements PageBeginRenderListener {
+public abstract class BridgeSbcStatisticsPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "sbc/BridgeSbcStatisticsPage";
 
     @InjectObject(value = "spring:sbcDeviceManager")

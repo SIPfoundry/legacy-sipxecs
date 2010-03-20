@@ -1,6 +1,6 @@
-<div jwcid="@common/Border">
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <h2 id="server:form">
-    <span key="title"/> - <span jwcid="@Insert" value="ognl:serviceDescriptor.label"/>
+    <span jwcid="@Insert" value="ognl:serviceDescriptor.label"/>
   </h2>
   <span jwcid="@common/ErrorMsg"/>
   <form jwcid="@Form" delegate="bean:validator">

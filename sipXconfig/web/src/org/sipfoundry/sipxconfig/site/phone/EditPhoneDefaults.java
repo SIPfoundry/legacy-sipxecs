@@ -18,8 +18,8 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -32,7 +32,7 @@ import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.setting.SettingFilter;
 import org.sipfoundry.sipxconfig.setting.SettingUtil;
 
-public abstract class EditPhoneDefaults extends BasePage implements PageBeginRenderListener {
+public abstract class EditPhoneDefaults extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "phone/EditPhoneDefaults";
 
@@ -214,5 +214,10 @@ public abstract class EditPhoneDefaults extends BasePage implements PageBeginRen
 
     public Setting getPhoneActiveSetting() {
         return PHONE_SETTINGS == getResourceId() ? getEditFormSetting() : null;
+    }
+
+    @Override
+    public String getBorderTitle() {
+        return getPhoneModel().getLabel();
     }
 }

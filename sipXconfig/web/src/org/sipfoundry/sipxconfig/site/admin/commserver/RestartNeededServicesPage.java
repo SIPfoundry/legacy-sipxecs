@@ -23,13 +23,13 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.RestartListener;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.RestartNeededService;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -37,7 +37,7 @@ import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
 import static org.sipfoundry.sipxconfig.components.LocalizationUtils.getMessage;
 
-public abstract class RestartNeededServicesPage extends BasePage implements PageBeginRenderListener {
+public abstract class RestartNeededServicesPage extends SipxBasePage implements PageBeginRenderListener {
     public static final Object PAGE = "admin/commserver/RestartNeededServicesPage";
 
     @InjectObject("spring:sipxProcessContext")

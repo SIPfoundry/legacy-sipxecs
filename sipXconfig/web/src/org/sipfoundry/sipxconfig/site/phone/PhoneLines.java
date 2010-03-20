@@ -19,9 +19,9 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -33,7 +33,7 @@ import org.sipfoundry.sipxconfig.site.line.EditLine;
 /**
  * Manage a phone's lines
  */
-public abstract class PhoneLines extends BasePage implements PageBeginRenderListener {
+public abstract class PhoneLines extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "phone/PhoneLines";
 

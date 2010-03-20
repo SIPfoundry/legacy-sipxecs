@@ -14,11 +14,11 @@ import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.DnsTestContext;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class DnsTestPage extends BasePage {
+public abstract class DnsTestPage extends SipxBasePage {
 
     @Bean
     public abstract SipxValidationDelegate getValidator();

@@ -9,9 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.site.line;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.LocalizationUtils;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -21,7 +23,7 @@ import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 /**
  * Comments
  */
-public abstract class LineSettings extends BasePage implements PageBeginRenderListener {
+public abstract class LineSettings extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "line/LineSettings";
 
@@ -72,5 +74,12 @@ public abstract class LineSettings extends BasePage implements PageBeginRenderLi
 
     public String cancel() {
         return ManagePhones.PAGE;
+    }
+
+    @Override
+    public String getBorderTitle() {
+        Setting setting = getParentSetting();
+        return LocalizationUtils.getModelMessage(this, setting.getMessageSource(), setting.getLabelKey(),
+                StringUtils.EMPTY);
     }
 }

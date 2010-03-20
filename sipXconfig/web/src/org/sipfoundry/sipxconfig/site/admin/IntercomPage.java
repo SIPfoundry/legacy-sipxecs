@@ -16,9 +16,9 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.intercom.Intercom;
 import org.sipfoundry.sipxconfig.admin.intercom.IntercomManager;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.DeviceDescriptor;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -26,7 +26,7 @@ import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
-public abstract class IntercomPage extends BasePage implements PageBeginRenderListener {
+public abstract class IntercomPage extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "admin/Intercom";
     private static final int CODE_LEN = 8;

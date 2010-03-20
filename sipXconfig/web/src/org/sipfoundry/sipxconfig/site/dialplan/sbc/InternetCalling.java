@@ -15,15 +15,15 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.Sbc;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class InternetCalling extends BasePage implements PageBeginRenderListener {
+public abstract class InternetCalling extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "dialplan/sbc/InternetCalling";
 
     @InjectObject(value = "spring:sbcManager")

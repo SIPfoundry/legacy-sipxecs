@@ -1,8 +1,5 @@
-<div jwcid="@common/Border" restricted="false" useDojo="true">
+<div jwcid="@common/Border" restricted="false" useDojo="true" borderTitle="ognl:borderTitle">
   <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
-  <span jwcid="@If" condition="ognl:!userSession.admin">
-    <h2><span key="title">Music On Hold</span></h2>
-  </span>
   <span jwcid="@common/ErrorMsg"/>
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <form jwcid="musicOnHoldForm@Form" delegate="bean:validator">

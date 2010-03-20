@@ -13,7 +13,7 @@ import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
@@ -22,7 +22,7 @@ import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-public abstract class MusicOnHold extends BasePage implements PageBeginRenderListener {
+public abstract class MusicOnHold extends SipxBasePage implements PageBeginRenderListener {
 
     @Bean
     public abstract SipxValidationDelegate getValidator();

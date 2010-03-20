@@ -18,7 +18,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.setting.ModelBuilder;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -30,7 +30,7 @@ import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.site.setting.SettingsIron;
 
-public abstract class UiFieldsTestPage extends BasePage implements PageBeginRenderListener {
+public abstract class UiFieldsTestPage extends SipxBasePage implements PageBeginRenderListener {
 
     @InjectObject(value = "spring:modelBuilder")
     public abstract ModelBuilder getModelBuilder();

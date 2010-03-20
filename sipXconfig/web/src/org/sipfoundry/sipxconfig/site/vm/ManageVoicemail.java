@@ -185,11 +185,7 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         }
     }
 
-    public String getFolderLabel() {
-        return getFolderLabel(getFolderId());
-    }
-
-    String getFolderLabel(String folderId) {
+    private String getFolderLabel(String folderId) {
         return getMessages().getMessage("tab." + folderId);
     }
 

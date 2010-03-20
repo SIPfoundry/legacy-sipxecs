@@ -12,10 +12,10 @@ package org.sipfoundry.sipxconfig.site.admin;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class InstantMessaging extends BasePage {
+public abstract class InstantMessaging extends SipxBasePage {
     public static final String PAGE = "admin/InstantMessaging";
 
     @Bean

@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.site.phone;
 
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -19,7 +19,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * Edit vendor specific phone setttings in abstract manor using setting model of meta data
  */
-public abstract class PhoneSettings extends BasePage implements PageBeginRenderListener {
+public abstract class PhoneSettings extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "phone/PhoneSettings";
 

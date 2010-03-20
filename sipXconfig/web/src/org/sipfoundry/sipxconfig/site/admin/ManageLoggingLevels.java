@@ -20,7 +20,6 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdProvisioningContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
@@ -30,12 +29,13 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.service.LoggingEntity;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxService;
 
-public abstract class ManageLoggingLevels extends BasePage implements PageBeginRenderListener {
+public abstract class ManageLoggingLevels extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "admin/ManageLoggingLevels";
     public static final String DEBUG = "DEBUG";

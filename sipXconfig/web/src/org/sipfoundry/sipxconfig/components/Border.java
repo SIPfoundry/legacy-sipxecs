@@ -112,6 +112,9 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public abstract void setBaseUrl(String baseUrl);
 
+    @Parameter(required = true)
+    public abstract String getBorderTitle();
+
     public void pageBeginRender(PageEvent event) {
         if (getBaseUrl() == null) {
             String baseUrl = getRequest().getContextPath();

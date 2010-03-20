@@ -19,13 +19,13 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class TlsPeersPage extends BasePage implements PageBeginRenderListener {
+public abstract class TlsPeersPage extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "admin/TlsPeers";
 

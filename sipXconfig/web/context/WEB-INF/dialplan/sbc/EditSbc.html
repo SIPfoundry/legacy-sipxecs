@@ -1,5 +1,4 @@
-<div jwcid="@common/Border">
-  <h2><span key="title">SBC</span></h2>
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <span jwcid="@common/ErrorMsg" />
   <form jwcid="@Form" delegate="bean:validator">
     <fieldset jwcid="@dialplan/sbc/SbcPanel" sbc="ognl:sbc" selectedSbcDevice="ognl:selectedSbcDevice" enforceInternetCallingSupport="ognl:enforceInternetCallingSupport"/>

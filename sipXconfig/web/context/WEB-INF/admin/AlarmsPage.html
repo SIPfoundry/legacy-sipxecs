@@ -1,9 +1,8 @@
-<div jwcid="@common/Border" useDojo="true">
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
   <span jwcid="@common/TabNavigation"
     tabNames="ognl:{'configureAlarms', 'notificationGroups', 'historyAlarms'}"
     selectedTab="ognl:tab"/>
   <div id="settings-content">
-  <h2><span key="title">Configuration for Alarms</span></h2>
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
   </div>

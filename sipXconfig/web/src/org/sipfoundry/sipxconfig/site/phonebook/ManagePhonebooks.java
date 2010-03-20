@@ -18,15 +18,15 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings;
 import org.sipfoundry.sipxconfig.phonebook.GoogleDomain;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
 
-public abstract class ManagePhonebooks extends BasePage implements PageBeginRenderListener {
+public abstract class ManagePhonebooks extends SipxBasePage implements PageBeginRenderListener {
 
     @Asset("/images/phonebook.png")
     public abstract IAsset getPhonebookIcon();

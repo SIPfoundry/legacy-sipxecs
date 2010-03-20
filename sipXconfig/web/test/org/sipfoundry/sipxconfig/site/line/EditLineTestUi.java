@@ -58,7 +58,6 @@ public class EditLineTestUi extends WebTestCase {
 
         // Cancel to go back to the add line page
         clickButton("form:cancel");
-        assertElementPresent("line:add");
     }
 
     private void navigateToAddLine() {
@@ -67,7 +66,6 @@ public class EditLineTestUi extends WebTestCase {
         clickLinkWithText(m_helper.endpoint[0].getSerialNumber());
         clickLinkWithText("Add Line");
         SiteTestHelper.assertNoException(tester);
-        assertElementPresent("line:add");
     }
 
 }

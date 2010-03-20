@@ -13,13 +13,13 @@ import java.util.Collection;
 
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class ListCallGroups extends BasePage {
+public abstract class ListCallGroups extends SipxBasePage {
 
     public static final String PAGE = "admin/ListCallGroups";
 

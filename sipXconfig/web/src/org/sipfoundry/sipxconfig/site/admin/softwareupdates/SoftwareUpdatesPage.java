@@ -23,18 +23,18 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdate;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
 import org.sipfoundry.sipxconfig.admin.update.SynchronousPackageUpdate;
 import org.sipfoundry.sipxconfig.admin.update.UpdateApi;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
 
-public abstract class SoftwareUpdatesPage extends BasePage implements PageBeginRenderListener {
+public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBeginRenderListener {
 
     public static final Object PAGE = "admin/softwareupdates/SoftwareUpdatesPage";
 

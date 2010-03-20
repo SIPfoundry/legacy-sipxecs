@@ -11,11 +11,11 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.login.LoginContext;
 import org.sipfoundry.sipxconfig.site.UserSession;
@@ -24,7 +24,7 @@ import org.sipfoundry.sipxconfig.site.UserSession;
  * ChangePin
  */
 
-public abstract class ChangePin extends BasePage {
+public abstract class ChangePin extends SipxBasePage {
 
     /**
      * Properties

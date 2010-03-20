@@ -20,10 +20,10 @@ import org.apache.tapestry.components.IPrimaryKeyConverter;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.ObjectSourceDataSqueezer;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -31,7 +31,7 @@ import org.sipfoundry.sipxconfig.service.ConfiguredService;
 import org.sipfoundry.sipxconfig.service.ServiceDescriptor;
 import org.sipfoundry.sipxconfig.service.ServiceManager;
 
-public abstract class ListConfiguredServices extends BasePage implements PageBeginRenderListener {
+public abstract class ListConfiguredServices extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "service/ListConfiguredServices";
 
     @InjectPage(value = UnmanagedServicePage.PAGE)

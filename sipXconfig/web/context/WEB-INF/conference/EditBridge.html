@@ -1,4 +1,4 @@
-<div jwcid="@common/Border">
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <span jwcid="tabNavigation@common/TabNavigation" tabNames="ognl:tabNames" selectedTab="ognl:tab" />
   <div id="settings-content">
     <div id="breadcrumbs">
@@ -9,7 +9,6 @@
     </div>
     <span jwcid="@common/ErrorMsg"/>
 
-      <h2><span key="title">Conference Server</span></h2>
       <form jwcid="@common/AutoRefreshForm" delegate="bean:validator" listener="listener:formSubmit"
             showRefresh="ognl:tab == 'conferences'" actionBlock="ognl:actionBlockForTab">
         <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />

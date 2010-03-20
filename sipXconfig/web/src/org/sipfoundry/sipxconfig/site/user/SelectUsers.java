@@ -13,11 +13,11 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class SelectUsers extends BasePage {
+public abstract class SelectUsers extends SipxBasePage {
     public static final String PAGE = "user/SelectUsers";
 
     @Bean

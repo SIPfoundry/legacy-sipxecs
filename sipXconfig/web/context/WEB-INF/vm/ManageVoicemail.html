@@ -1,4 +1,4 @@
-<div jwcid="@common/Border" restricted="false">
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
   <link jwcid="@Relation"
     rel="alternate"
     type="application/rss+xml"
@@ -7,9 +7,6 @@
   <span jwcid="@If" condition="ognl:!hasVoicemailPermission">
     <span class="user-warning" id="noVoicemailPermission" key="warning.noVoicemailPermissionNotice"/>
   </span>
-  <h1>
-    <span key="title.manageVoicemail"/> -
-    <span jwcid="@Insert" value="ognl:folderLabel"/> </h1>
 
   <span jwcid="@common/TabNavigation" elementId="voicemailFolders" tabNames="ognl:folderIds" selectedTab="ognl:folderId"/>
 

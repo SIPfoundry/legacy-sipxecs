@@ -10,9 +10,9 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 
-public abstract class ContactInformationWidgetPage extends BasePage {
+public abstract class ContactInformationWidgetPage extends SipxBasePage {
     public static final String PAGE = "user_portal/ContactInformationWidgetPage";
 
     @Asset("/gwt/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js")

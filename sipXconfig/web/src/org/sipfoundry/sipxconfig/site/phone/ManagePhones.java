@@ -21,8 +21,8 @@ import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
@@ -34,7 +34,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 /**
  * List all the phones/phones for management and details drill-down
  */
-public abstract class ManagePhones extends BasePage implements PageBeginRenderListener {
+public abstract class ManagePhones extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "phone/ManagePhones";
 
     @Bean

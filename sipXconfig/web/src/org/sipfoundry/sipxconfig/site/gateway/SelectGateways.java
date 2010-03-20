@@ -17,9 +17,9 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.site.dialplan.EditDialRule;
@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.site.dialplan.EditDialRule;
 /**
  * List all the gateways, allow adding and deleting gateways
  */
-public abstract class SelectGateways extends BasePage implements PageBeginRenderListener {
+public abstract class SelectGateways extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "gateway/SelectGateways";
 
     // virtual properties

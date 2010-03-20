@@ -19,16 +19,16 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.alarm.Alarm;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmGroup;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServer;
 import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class AlarmsPage extends BasePage implements PageBeginRenderListener {
+public abstract class AlarmsPage extends SipxBasePage implements PageBeginRenderListener {
 
     @InjectObject("spring:alarmServerManager")
     public abstract AlarmServerManager getAlarmServerManager();

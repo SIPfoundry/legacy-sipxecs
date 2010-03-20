@@ -1,8 +1,5 @@
-<div jwcid="@common/Border" restricted="false" useDojo="ognl:true">
+<div jwcid="@common/Border" restricted="false" useDojo="ognl:true" borderTitle="ognl:borderTitle">
   <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
-  <h2 jwcid="@If" condition="ognl:!userSession.admin">
-    <span key="title">User Schedules</span>
-  </h2>
   <p>
 	<span key="helpText">Registered phones are operational and ready to make and receive calls. Phones that are not
         registered are turned off or do not have network connectivity.</span>

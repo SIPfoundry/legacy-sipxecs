@@ -16,14 +16,14 @@ import java.util.Iterator;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.setting.Group;
 
-public abstract class ManageUsers extends BasePage {
+public abstract class ManageUsers extends SipxBasePage {
 
     public static final String PAGE = "user/ManageUsers";
     private static final String USER_TABLE_COMPONENT_ID = "userTable";

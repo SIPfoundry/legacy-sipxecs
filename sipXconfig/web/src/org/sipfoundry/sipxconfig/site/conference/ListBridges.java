@@ -13,11 +13,11 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 
-public abstract class ListBridges extends BasePage {
+public abstract class ListBridges extends SipxBasePage {
 
     public static final String PAGE = "conference/ListBridges";
 

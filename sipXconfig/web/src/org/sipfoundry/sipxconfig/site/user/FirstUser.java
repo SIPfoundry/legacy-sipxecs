@@ -16,14 +16,14 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.LoginPage;
 
-public abstract class FirstUser extends BasePage implements PageBeginRenderListener {
+public abstract class FirstUser extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "user/FirstUser";
 
     @InjectObject(value = "spring:coreContext")

@@ -15,12 +15,12 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 
-public abstract class ListAcdServers extends BasePage implements PageBeginRenderListener {
+public abstract class ListAcdServers extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "acd/ListAcdServers";
 
     public abstract AcdContext getAcdContext();

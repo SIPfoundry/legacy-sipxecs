@@ -1,5 +1,4 @@
-<div jwcid="@common/Border">
-  <h2><span key="title">Snapshot</span></h2>
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <div jwcid="@If" condition="ognl:snapshot.initialized" renderTag="false">
     <form jwcid="resultForm@common/AutoRefreshForm"
       delegate="bean:validator"

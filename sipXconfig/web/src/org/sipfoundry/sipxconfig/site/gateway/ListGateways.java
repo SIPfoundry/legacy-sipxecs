@@ -18,8 +18,8 @@ import org.apache.tapestry.annotations.Component;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.components.GatewayTable;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -32,7 +32,7 @@ import org.sipfoundry.sipxconfig.site.sbc.ListSbcDevices.DeviceDescriptorSelecti
 /**
  * List all the gateways, allow adding and deleting gateways
  */
-public abstract class ListGateways extends BasePage {
+public abstract class ListGateways extends SipxBasePage {
     public static final String PAGE = "gateway/ListGateways";
 
     @InjectObject(value = "spring:gatewayContext")

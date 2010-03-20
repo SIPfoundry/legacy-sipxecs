@@ -18,14 +18,14 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.bean.EvenOdd;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.RegistrationMetrics;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 
 /**
  * Displays active and expired registrations
  */
-public abstract class Registrations extends BasePage implements PageBeginRenderListener {
+public abstract class Registrations extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/Registrations";
 
     @InjectObject(value = "spring:registrationContext")

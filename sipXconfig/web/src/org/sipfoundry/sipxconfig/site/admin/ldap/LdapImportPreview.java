@@ -18,16 +18,16 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class LdapImportPreview extends BasePage implements PageBeginRenderListener {
+public abstract class LdapImportPreview extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "admin/ldap/LdapImportPreview";
 

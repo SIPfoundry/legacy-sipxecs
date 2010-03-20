@@ -24,15 +24,15 @@ import org.apache.tapestry.annotations.EventListener;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.Snapshot;
 import org.sipfoundry.sipxconfig.admin.Snapshot.SnapshotResult;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class SnapshotPage extends BasePage implements PageBeginRenderListener {
+public abstract class SnapshotPage extends SipxBasePage implements PageBeginRenderListener {
     @Asset("/images/loading.gif")
     public abstract IAsset getLoadingImage();
 

@@ -29,7 +29,6 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.engine.IEngineService;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.WaitingListener;
@@ -56,6 +55,7 @@ import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -99,7 +99,7 @@ import static org.sipfoundry.sipxconfig.permission.PermissionName.VOICEMAIL;
 /**
  * TestPage page
  */
-public abstract class TestPage extends BasePage {
+public abstract class TestPage extends SipxBasePage {
     public static final String PAGE = "TestPage";
 
     public static final int JOBS = 4;

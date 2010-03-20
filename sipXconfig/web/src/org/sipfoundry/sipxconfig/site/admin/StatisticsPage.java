@@ -22,17 +22,17 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.monitoring.MRTGTarget;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringBean;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringUtil;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.admin.commserver.EditLocationPage;
 import org.sipfoundry.sipxconfig.site.admin.commserver.LocationsPage;
 
-public abstract class StatisticsPage extends BasePage implements PageBeginRenderListener {
+public abstract class StatisticsPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/StatisticsPage";
 
     private static final String SUMMARY_REPORT = "target.summary";

@@ -11,9 +11,9 @@ package org.sipfoundry.sipxconfig.site.user_portal;
 
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 
-public abstract class UserPhonebookWidgetPage extends BasePage {
+public abstract class UserPhonebookWidgetPage extends SipxBasePage {
     public static final String PAGE = "user_portal/UserPhonebookWidgetPage";
 
     @Asset("/gwt/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js")

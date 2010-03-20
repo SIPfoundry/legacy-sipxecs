@@ -65,7 +65,7 @@ public abstract class ViewStatusMessages extends PageWithCallback implements Pag
 
     public abstract void setStatusMessages(ServiceStatusMessageHolder messages);
 
-    public String getServiceLabel() {
+    private String getServiceLabel() {
         String serviceBeanId = getServiceBeanId();
         String key = "label." + serviceBeanId;
         return LocalizationUtils.getMessage(getMessages(), key, serviceBeanId);
@@ -86,5 +86,10 @@ public abstract class ViewStatusMessages extends PageWithCallback implements Pag
 
     public void returnToServices(IRequestCycle cycle) {
         getCallback().performCallback(cycle);
+    }
+
+    @Override
+    public String getBorderTitle() {
+        return getPage().getMessages().getMessage("title") + " " + getServiceLabel();
     }
 }

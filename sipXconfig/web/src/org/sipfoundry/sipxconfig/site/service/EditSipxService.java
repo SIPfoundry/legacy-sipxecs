@@ -54,7 +54,7 @@ public abstract class EditSipxService extends PageWithCallback implements PageBe
         return getBeanId();
     }
 
-    public String getTitle() {
+    private String getTitle() {
         String serviceBeanId = getSipxService().getBeanId();
         return getMessage(getMessages(), "label." + serviceBeanId, serviceBeanId);
     }
@@ -68,6 +68,11 @@ public abstract class EditSipxService extends PageWithCallback implements PageBe
 
     @Override
     public String getBreadCrumbTitle() {
+        return getTitle();
+    }
+
+    @Override
+    public String getBorderTitle() {
         return getTitle();
     }
 }

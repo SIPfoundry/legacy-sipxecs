@@ -23,13 +23,13 @@ import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.web.WebResponse;
 import org.sipfoundry.sipxconfig.cdr.CdrManager;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 
 import static org.sipfoundry.sipxconfig.components.TapestryUtils.getResponseOutputStream;
 
-public abstract class CdrExhibit extends BasePage {
+public abstract class CdrExhibit extends SipxBasePage {
     public static final Log LOG = LogFactory.getLog(CdrExhibit.class);
 
     @Asset(value = "context:/WEB-INF/cdr/Exhibit.script")

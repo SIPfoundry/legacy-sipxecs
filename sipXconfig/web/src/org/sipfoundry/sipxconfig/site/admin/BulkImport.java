@@ -22,16 +22,16 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.hivemind.Messages;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Persist;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.request.IUploadFile;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.admin.AdminContext;
 import org.sipfoundry.sipxconfig.bulk.csv.BulkManager;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 
-public abstract class BulkImport extends BasePage {
+public abstract class BulkImport extends SipxBasePage {
     @Persist
     @InitialValue(value = "literal:import")
     public abstract String getTab();

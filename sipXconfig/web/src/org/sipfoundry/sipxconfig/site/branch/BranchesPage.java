@@ -14,10 +14,10 @@ import java.util.List;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 
-public abstract class BranchesPage extends BasePage {
+public abstract class BranchesPage extends SipxBasePage {
 
     public static final String PAGE = "branch/BranchesPage";
 

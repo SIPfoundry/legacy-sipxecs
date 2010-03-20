@@ -13,10 +13,10 @@ import org.apache.tapestry.PageRedirectException;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
-public abstract class Home extends BasePage implements PageBeginRenderListener {
+public abstract class Home extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "Home";
 
     @InjectState(value = "userSession")

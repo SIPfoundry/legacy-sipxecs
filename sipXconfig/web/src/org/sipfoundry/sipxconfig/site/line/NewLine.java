@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.line;
 
-import org.apache.tapestry.html.BasePage;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -18,7 +18,7 @@ import org.sipfoundry.sipxconfig.site.phone.ManagePhones;
 /**
  * Create a new line
  */
-public abstract class NewLine extends BasePage {
+public abstract class NewLine extends SipxBasePage {
 
     public static final String PAGE = "NewLine";
 

@@ -17,12 +17,12 @@ import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.form.IPropertySelectionModel;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.time.TimeManager;
 import org.sipfoundry.sipxconfig.components.MapSelectionModel;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class TimeSettingsPage extends BasePage {
+public abstract class TimeSettingsPage extends SipxBasePage {
     @InjectObject(value = "spring:timeManager")
     public abstract TimeManager getTimeManager();
 

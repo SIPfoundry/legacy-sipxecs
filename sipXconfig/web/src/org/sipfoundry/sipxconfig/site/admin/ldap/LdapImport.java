@@ -13,14 +13,14 @@ import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class LdapImport extends BasePage implements PageBeginRenderListener {
+public abstract class LdapImport extends SipxBasePage implements PageBeginRenderListener {
 
     public static final String PAGE = "admin/ldap/LdapImport";
 

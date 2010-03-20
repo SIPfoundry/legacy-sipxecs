@@ -23,13 +23,13 @@ import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.sipfoundry.sipxconfig.admin.commserver.DnsGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
@@ -37,7 +37,7 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
 
-public abstract class LocationsPage extends BasePage implements PageBeginRenderListener {
+public abstract class LocationsPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "admin/commserver/LocationsPage";
 
     @InjectState(value = "userSession")

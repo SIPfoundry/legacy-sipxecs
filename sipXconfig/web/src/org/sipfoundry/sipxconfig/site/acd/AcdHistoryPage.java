@@ -28,7 +28,6 @@ import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumn;
 import org.apache.tapestry.contrib.table.model.simple.SimpleTableColumnModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.html.BasePage;
 import org.apache.tapestry.web.WebResponse;
 import org.postgresql.util.PGInterval;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
@@ -40,13 +39,14 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SqlInterval;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.site.cdr.CdrHistory;
 import org.sipfoundry.sipxconfig.site.common.DefaultTableValueRendererSource;
 
 
-public abstract class AcdHistoryPage extends BasePage implements PageBeginRenderListener {
+public abstract class AcdHistoryPage extends SipxBasePage implements PageBeginRenderListener {
     public static final String PAGE = "acd/AcdHistoryPage";
     private static final Log LOG = LogFactory.getLog(AcdHistoryPage.class);
 

@@ -173,9 +173,9 @@ public class NewUserTestUi extends WebTestCase {
         clickLink("ManageUsers");
         clickLink("AddUser");
         checkCheckbox("stay");
-        assertElementPresent("page:newuser");
+        assertFormPresent("form");
         clickButton("form:cancel");
-        assertElementNotPresent("page:newuser");
+        assertElementNotPresent("stay");
     }
 
     public void testAddGroups() {

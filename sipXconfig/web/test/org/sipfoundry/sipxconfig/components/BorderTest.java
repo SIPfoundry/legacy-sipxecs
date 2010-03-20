@@ -117,6 +117,14 @@ public class BorderTest extends TestCase {
         verify(page);
     }
 
+    public void testGetBorderTitle() {
+        IPage page = createMock(IPage.class);
+        Border border = new MockBorder(false, true, new MockUserSession(true));
+        border.setPage(page);
+
+        assertEquals("BorderTitle", border.getBorderTitle());
+    }
+
     private static class MockUserSession extends UserSession {
         private final UserDetailsImpl m_userDetailsImpl;
 
@@ -170,6 +178,11 @@ public class BorderTest extends TestCase {
         @Override
         public UserSession getUserSession() {
             return m_userSession;
+        }
+
+        @Override
+        public String getBorderTitle() {
+            return "BorderTitle";
         }
 
         public ICallback getLoginCallback() {

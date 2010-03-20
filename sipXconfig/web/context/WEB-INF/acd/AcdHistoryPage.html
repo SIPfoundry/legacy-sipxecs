@@ -1,7 +1,4 @@
-<div jwcid="@common/Border" useDojo="true">
-  <h2>
-    <span key="title">ACD Reports</span>
-  </h2>
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
   <span jwcid="@common/ErrorMsg"/>
     <div jwcid="@common/LeftNavigation" renderCondition="ognl:acdHistoricalStats.enabled && acdContext.servers.size>0">
         <span jwcid="@common/TabControl">

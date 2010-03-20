@@ -77,13 +77,18 @@ public abstract class UserSettings extends PageWithCallback implements PageBegin
 
     public String getParentSettingLabel() {
         Setting setting = getParentSetting();
-        return LocalizationUtils.getModelMessage(this, setting.getMessageSource(), setting
-                .getLabelKey(), StringUtils.EMPTY);
+        return LocalizationUtils.getModelMessage(this, setting.getMessageSource(), setting.getLabelKey(),
+                StringUtils.EMPTY);
     }
 
     public String getParentSettingDescription() {
         Setting setting = getParentSetting();
         return LocalizationUtils.getModelMessage(this, setting.getMessageSource(), setting
                 .getDescriptionKey(), StringUtils.EMPTY);
+    }
+
+    @Override
+    public String getBorderTitle() {
+        return getParentSettingLabel();
     }
 }
