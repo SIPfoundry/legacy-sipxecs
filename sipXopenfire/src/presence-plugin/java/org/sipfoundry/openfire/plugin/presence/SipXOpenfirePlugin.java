@@ -269,6 +269,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         
         parseConfigurationFile();
         initializeLogging();   
+        log.info(">>>>>>>>STARTING<<<<<<<<");
         server = XMPPServer.getInstance();
 
         userManager = server.getUserManager();
@@ -321,7 +322,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             throw new SipXOpenfirePluginException("Cannot find user accounts file");
         } else {
             this.accountsParser = new AccountsParser(accountConfigurationFile);
-            this.accountsParser.startScanner();
+            this.accountsParser.parseAccounts();
+            this.accountsParser.startScanner(); 
             try{
                 Thread.sleep(10000);  //leave enough time to allow configuration enforcement
             }

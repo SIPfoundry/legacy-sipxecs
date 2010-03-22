@@ -16,7 +16,7 @@ public class WaitingForStartState extends SubscribeDialogState
         }
         catch( SubscribeDialogStateException ex )
         {
-            logger.info( "WaitingForRefreshTimerState::start caught exception: " + ex );            
+            logger.info( "WaitingForStartState::start caught exception: ", ex );            
             dialog.changeState(new Moribund());
         }
     }

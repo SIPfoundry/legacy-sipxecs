@@ -68,20 +68,25 @@ public class AccountsParser {
         public void run() {
             if (accountDbFile.lastModified() != AccountsParser.this.lastModified) {
                 logger.info("XMPP account configuration changes detected - reparsing file");
-                AccountsParser.this.lastModified = accountDbFile.lastModified(); 
-                String fileUrl = "file://" + accountDbFileName;
-                XmppAccountInfo newAccountInfo = AccountsParser.this.parse(fileUrl);
-                pruneUnwantedXmppGroups( newAccountInfo.getXmppGroupNames() ); // prune groups before applying deltas - see XX-7886
-                enforceConfigurationDeltas( newAccountInfo, previousXmppAccountInfo );
-                pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
-                pruneUnwantedXmppChatrooms( newAccountInfo );
-                pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
-                // Make sure that all user accounts can create multi-user chatrooms
-                SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
-                plugin.setAllowedUsersForChatServices(plugin.getUserAccounts());
-                previousXmppAccountInfo = newAccountInfo;
+                AccountsParser.this.lastModified = accountDbFile.lastModified();
+                parseAccounts();
             }
         }
+    }
+    
+    public void parseAccounts()
+    {
+        String fileUrl = "file://" + accountDbFileName;
+        XmppAccountInfo newAccountInfo = AccountsParser.this.parse(fileUrl);
+        pruneUnwantedXmppGroups( newAccountInfo.getXmppGroupNames() ); // prune groups before applying deltas - see XX-7886
+        enforceConfigurationDeltas( newAccountInfo, previousXmppAccountInfo );
+        pruneUnwantedXmppUsers( newAccountInfo.getXmppUserAccountNames() );
+        pruneUnwantedXmppChatrooms( newAccountInfo );
+        pruneUnwantedXmppChatRoomServices( newAccountInfo.getXmppChatRooms() );
+        // Make sure that all user accounts can create multi-user chatrooms
+        SipXOpenfirePlugin plugin = SipXOpenfirePlugin.getInstance();
+        plugin.setAllowedUsersForChatServices(plugin.getUserAccounts());
+        previousXmppAccountInfo = newAccountInfo;        
     }
     
     private void enforceConfigurationDeltas( XmppAccountInfo newAccountInfo, XmppAccountInfo previousXmppAccountInfo )
@@ -286,7 +291,7 @@ public class AccountsParser {
 
     public void startScanner() {
         Scanner scanner = new Scanner();
-        timer.schedule(scanner, 0, 10000);
+        timer.schedule(scanner, 10000, 10000);
     }
 
     public void stopScanner() {
