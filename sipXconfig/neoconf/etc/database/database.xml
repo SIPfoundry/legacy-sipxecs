@@ -353,6 +353,7 @@
     <antcall target="change-callCenter-to-ACD" />
     <antcall target="drop_phone_branch" />
     <antcall target="address" />
+    <antcall target="update_usebranch_default_value" />
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="11" -->
   </target>
@@ -1103,6 +1104,9 @@
   </target>
   <target name="address" unless="address">
     <db-patch patch="address"/>
+  </target>
+  <target name="update_usebranch_default_value" unless="update_usebranch_default_value">
+    <db-patch patch="update_usebranch_default_value"/>
   </target>
 
   <!--
