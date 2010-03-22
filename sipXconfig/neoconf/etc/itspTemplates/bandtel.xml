@@ -115,7 +115,7 @@
       <value>true</value>
       <description>If true (the default), sipxbridge will attach a user=phone parameter to the call setup INVITE request URI.</description>
     </setting>
-    <setting name="loose-route-invite" advanced="yes">
+    <setting name="loose-route-invite" hidden="yes">
       <label>ITSP supports "Loose Routing"</label>
       <type refid="switch"></type>
       <value>true</value>

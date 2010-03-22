@@ -153,7 +153,7 @@
       </description>
     </setting>
 
-    <setting name="route-inbound-calls-to-extension">
+    <setting name="route-inbound-calls-to-extension" advanced="yes">
     </setting>
     <setting name="log-level" hidden="yes">
       <label>Logging level</label>
