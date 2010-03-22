@@ -229,7 +229,9 @@ public class SipListenerImpl implements SipListenerExt {
                  DialogContext newDialogApplicationData = DialogContext.attach(b2bua, newClientTransaction.getDialog(),
                         newClientTransaction, newClientTransaction
                         .getRequest());
-                b2bua.addDialog(newDialogApplicationData);
+                if (! SipUtilities.getCSeqMethod(response).equals(Request.BYE) ) {
+                     b2bua.addDialog(newDialogApplicationData);
+                }
              
                 
                 if ( newDialogApplicationData != dialogApplicationData ) {
@@ -264,9 +266,11 @@ public class SipListenerImpl implements SipListenerExt {
 
             }
 
-            if (dialog.getState() == DialogState.CONFIRMED) {
+            if (dialog.getState() == DialogState.CONFIRMED ||
+               (dialog.getState() == DialogState.TERMINATED && SipUtilities.getCSeqMethod(response).equals(Request.BYE))) {
                 /*
-                 * In-DIALOG challenge. Re-INVITE was challenged.
+                 * In-DIALOG challenge. Note that for BYE challenge, we may be in a 
+                 * TERMINATED state in the Dialog.
                  */
                 ToHeader toHeader = (ToHeader) newClientTransaction
                         .getRequest().getHeader(ToHeader.NAME);
@@ -285,7 +289,7 @@ public class SipListenerImpl implements SipListenerExt {
             }
            
             DialogContext dialogContext  = DialogContext.get(newClientTransaction.getDialog());
-            if ( !dialogContext.isSessionTimerStarted()) {
+            if (dialog.getState() != DialogState.TERMINATED && !dialogContext.isSessionTimerStarted()) {
                 dialogContext.startSessionTimer();
             }
             

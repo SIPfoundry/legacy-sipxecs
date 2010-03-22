@@ -595,6 +595,9 @@ public class BackToBackUserAgent implements Comparable {
                 logger.error("Problem tearing down backToBackUserAgent.");
             }
         }
+        if ( logger.isDebugEnabled() ) {
+        	logger.debug("dialog table after remove " + this.dialogTable );
+        }
     }
 
     public void cleanUp() {
@@ -617,17 +620,30 @@ public class BackToBackUserAgent implements Comparable {
             logger.debug("Dialog already in table");
             return;
         }
+        /*
+         * This should never happen so we just log error here and return.
+         */
+        if ( dialog.getState() == DialogState.TERMINATED ) {
+        	logger.error("Dialog is TERMINATED -- not adding to table");
+            return;
+        }
+
         this.dialogTable.add(dialog);
         dialogContext.recordInsertionPoint();
         String callId = dialog.getCallId().getCallId();
         this.myCallIds.add(callId);
         dialogContext.setBackToBackUserAgent(this);
-        logger.debug("addDialog " + dialog + " dialogTableSize = " + this.dialogTable.size()
-                + " Dialog was created at: "
-                + DialogContext.get(dialog).getCreationPointStackTrace());
-        if (this.cleanupList.contains(dialog)) {
-            logger.error("Cleanup list also contains dialog");
+        if ( logger.isDebugEnabled()) {
+        	logger.debug("addDialog " + dialog + "at " 
+        	 + SipUtilities.getStackTrace() + " dialogTableSize = " +
+        	 " Dialog was created at: "
+        	 + DialogContext.get(dialog).getCreationPointStackTrace());
         }
+        if (this.cleanupList.contains(dialog)) {
+            logger.warn("Cleanup list also contains dialog");
+        }
+        
+
     }
 
     /**
