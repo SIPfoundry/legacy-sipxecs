@@ -396,18 +396,19 @@
             <description>Admin password for web interface</description>
         </setting>
         <setting name="P64">
-            <label>Time Zone</label>
+            <label>Select Time Zone</label>
             <type>
                 <string/>
             </type>
-            <value>TZH+5</value>
+            <value>customize</value>
         </setting>
-        <setting name="P75">
-            <label>Automatic Daylight Savings Time</label>
+        <setting name="P246">
+            <label>Custom Time Zone</label>
             <type>
-                <boolean/>
+                <string/>
             </type>
-            <value>0</value>
+            <value>MTZ%2b5MDT%2b4,M3.2.0,M11.1.0</value>
+            <description>Grandstream custom time zone format; use "%2b" in place of "+"</description>
         </setting>
         <setting name="P85">
             <label>No Key Entry Timeout</label>

@@ -16,6 +16,7 @@ import java.util.Iterator;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.RestartException;
@@ -32,9 +33,8 @@ import org.sipfoundry.sipxconfig.setting.SettingExpressionEvaluator;
 public class GrandstreamPhone extends Phone {
     private static final String APPLICATION_OCTET_STREAM = "application/octet-stream";
     private static final String TIMEZONE_SETTING = "phone/P64";
-    private static final String GXW_TIMEZONE_SETTING = "gateway/P64";
     private static final String DAYLIGHT_SETTING = "phone/P75";
-    private static final String GXW_DAYLIGHT_SETTING = "gateway/P75";
+    private static final String GXW_TIMEZONE_SETTING = "gateway/P246";
     private static final String USERID_PATH = "port/P35-P404-P504-P604-P1704-P1804";
     private static final String HT_USERID_PATH = "port/P35-P735";
     private static final String GXW_USERID_PATH = "port/P4060-P4061-P4062-P4063-P4064-P4065-P4066-P4067";
@@ -56,6 +56,7 @@ public class GrandstreamPhone extends Phone {
     private static final String GXW_OUTBOUND_PROXY_PATH = "account-proxy/P48";
     private static final String GXW_HUNTGROUP_PATH = "port/P4300-P4301-P4302-P4303-P4304-P4305-P4306-P4307";
     private static final String VOICEMAIL_PATH = "port/P33-P426-P526-P626-P1726-P1826";
+    private static final String DOT = ".";
 
     private boolean m_isTextFormatEnabled;
 
@@ -181,6 +182,38 @@ public class GrandstreamPhone extends Phone {
             return m_defaults.getTftpServer();
         }
 
+        private String zoneOffset(String zone, int offset) {
+            String zoneOffset;
+            int offsetHours = offset / 60;
+            int offsetMinutes = offset % 60;
+            // Display "-" for a postive offset and "+" for a negative or zero offset
+            if (offset > 0) {
+                zoneOffset = (zone + "-" + Integer.toString(offsetHours));
+            } else {
+                zoneOffset = (zone + "%2b" + Integer.toString(-offsetHours));
+            }
+            if ((offsetMinutes) > 0) {
+                zoneOffset = zoneOffset + ":" + Integer.toString(offsetMinutes);
+            }
+            return zoneOffset;
+        }
+
+        private String zoneDstDate(int dstMonth, int dstWeek, int dstDay) {
+            String month = Integer.toString(dstMonth + 1);
+            String week = Integer.toString(dstWeek);
+            String day = Integer.toString(dstDay - 1);
+            return (",M" + month + DOT + week + DOT + day);
+        }
+
+        private String zoneCustomTime(int standardOffset, int daylightOffset) {
+            DeviceTimeZone zone = m_defaults.getTimeZone();
+            String timezone = zoneOffset("MTZ", standardOffset)
+                + zoneOffset("MDT", daylightOffset)
+                + zoneDstDate(zone.getStartMonth(), zone.getStartWeek(), zone.getStartDayOfWeek())
+                + zoneDstDate(zone.getStopMonth(), zone.getStopWeek(), zone.getStopDayOfWeek());
+            return timezone;
+        }
+
         @SettingEntry(path = TIMEZONE_SETTING)
         public int getTimeOffset() {
             // Get the offset in minutes where GMT=720.
@@ -188,84 +221,21 @@ public class GrandstreamPhone extends Phone {
             return offset;
         }
 
-        @SettingEntry(path = GXW_TIMEZONE_SETTING)
-        public String getGatewayTimeOffset() {
-            // Get the offset in minutes where GMT=720.
-            int offset = ((m_defaults.getTimeZone().getOffset()) + (12 * 60));
-            String timezone;
-            switch (offset) {
-            case 0:
-                timezone = "TZA+12"; break;
-            case 60:
-                timezone = "TZB+11"; break;
-            case 120:
-                timezone = "TZC+10"; break;
-            case 180:
-                timezone = "TZD+9"; break;
-            case 240:
-                timezone = "TZE+8"; break;
-            case 300:
-                timezone = "TZF+7"; break;
-            case 360:
-                timezone = "TZG+6"; break;
-            case 450:
-                timezone = "TZf+4:30"; break;
-            case 480:
-                timezone = "TZI+4"; break;
-            case 510:
-                timezone = "TZJ+3:30"; break;
-            case 540:
-                timezone = "TZK+3"; break;
-            case 600:
-                timezone = "TZL+2"; break;
-            case 660:
-                timezone = "TZM+1"; break;
-            case 720:
-                timezone = "TZN+0"; break;
-            case 780:
-                timezone = "TZO-1"; break;
-            case 840:
-                timezone = "TZP-2"; break;
-            case 900:
-                timezone = "TZQ-3"; break;
-            case 960:
-                timezone = "TZR-4"; break;
-            case 1020:
-                timezone = "TZS-5"; break;
-            case 1050:
-                timezone = "TZT-5:30"; break;
-            case 1065:
-                timezone = "TZU-5:45"; break;
-            case 1080:
-                timezone = "TZV-6"; break;
-            case 1110:
-                timezone = "TZW-6:30"; break;
-            case 1140:
-                timezone = "TZX-7"; break;
-            case 1200:
-                timezone = "TZY-8"; break;
-            case 1260:
-                timezone = "TZZ-9"; break;
-            case 1290:
-                timezone = "TZa-9:30"; break;
-            case 1320:
-                timezone = "TZb-10"; break;
-            case 1380:
-                timezone = "TZc-11"; break;
-            case 1440:
-                timezone = "TZd-12"; break;
-            case 1500:
-                timezone = "TZe-13"; break;
-            case 420:
-            default:
-                timezone = "TZH+5"; break;
-            }
-            return timezone;
-        }
-
-        @SettingEntry(paths = { DAYLIGHT_SETTING, GXW_DAYLIGHT_SETTING })
+        @SettingEntry(path = DAYLIGHT_SETTING)
         public boolean getUseDaylight() {
             return m_defaults.getTimeZone().getUseDaylight();
+        }
+
+        @SettingEntry(path = GXW_TIMEZONE_SETTING)
+        public String getGatewayTimeOffset() {
+            int offsetInDst;
+            if (m_defaults.getTimeZone().getUseDaylight()) {
+                offsetInDst = m_defaults.getTimeZone().getOffsetWithDst();
+            } else {
+                offsetInDst = m_defaults.getTimeZone().getOffset();
+            }
+            String timezone = zoneCustomTime(m_defaults.getTimeZone().getOffset(), offsetInDst);
+            return timezone;
         }
 
         @SettingEntry(path = "network/P30")
