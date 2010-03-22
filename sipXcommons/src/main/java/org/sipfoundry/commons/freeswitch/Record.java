@@ -103,7 +103,7 @@ public class Record extends CallCommand {
         new Set(m_fses, "record_rate","8000").go();
         new Set(m_fses, "playback_terminators", m_digitMask).go();
     	m_stopped = true;
-    	m_command = String.format("record\nexecute-app-arg: %s %d 500 10", m_recordFile, m_recordTime);
+    	m_command = String.format("record\nexecute-app-arg: %s %d 200 10", m_recordFile, m_recordTime);
     	super.start();
     }
 
