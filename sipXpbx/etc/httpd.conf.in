@@ -379,7 +379,7 @@ DocumentRoot "@wwwdir@/doc"
 # http://httpd.apache.org/docs-2.0/mod/core.html#options
 # for more information.
 #
-    Options Indexes FollowSymLinks MultiViews
+    Options Indexes FollowSymLinks MultiViews ExecCGI
 
 #
 # AllowOverride controls what directives may be placed in .htaccess files.
@@ -897,7 +897,7 @@ AddType application/x-gzip .gz .tgz
 # To use CGI scripts outside of ScriptAliased directories:
 # (You will also need to add "ExecCGI" to the "Options" directive.)
 #
-#AddHandler cgi-script .cgi
+AddHandler cgi-script .cgi
 
 #
 # For files that include their own HTTP headers:

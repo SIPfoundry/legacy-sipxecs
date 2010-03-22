@@ -15,7 +15,6 @@ import java.text.Format;
 import java.util.List;
 
 import org.apache.tapestry.IAsset;
-import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
@@ -25,13 +24,13 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdate;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
-import org.sipfoundry.sipxconfig.admin.update.SynchronousPackageUpdate;
 import org.sipfoundry.sipxconfig.admin.update.UpdateApi;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
+import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.INSTALLING;
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
 
 public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBeginRenderListener {
@@ -40,6 +39,9 @@ public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBe
 
     @Asset("/images/progressBar.gif")
     public abstract IAsset getProgressBar();
+
+    @Asset("/images/installationProgressBar.gif")
+    public abstract IAsset getInstallationProgressBar();
 
     @Asset("/images/package.png")
     public abstract IAsset getPackageIcon();
@@ -52,6 +54,9 @@ public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBe
 
     @Asset("context:/WEB-INF/admin/softwareupdates/SoftwareUpdatesPage.script")
     public abstract IAsset getScript();
+
+    @Asset("context:/WEB-INF/admin/softwareupdates/DisplayUpdateLog.script")
+    public abstract IAsset getDisplayLogScript();
 
     @InjectObject("spring:packageUpdateManager")
     public abstract PackageUpdateManager getPackageUpdateManager();
@@ -99,10 +104,12 @@ public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBe
         getPackageUpdateManager().checkForUpdates();
     }
 
-    public IPage installUpdates() {
-        WaitingPage waitingPage = getWaitingPage();
-        waitingPage.setWaitingListener(new SynchronousPackageUpdate(getPackageUpdateManager()));
-        return waitingPage;
+    public void installUpdates() {
+        getPackageUpdateManager().installUpdates();
+    }
+
+    public boolean getIsInstalling() {
+        return getPackageUpdateManager().getState().equals(INSTALLING);
     }
 
     public String getFormattedCurrentVersion() {

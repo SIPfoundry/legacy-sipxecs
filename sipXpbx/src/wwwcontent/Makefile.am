@@ -550,7 +550,8 @@ wwwcontent = \
 	vm_vxml/replytovoicemail.vxml \
 	vm_vxml/root.vxml.in \
 	vm_vxml/savemessage.vxml \
-	vm_vxml/savemessage_no_operator.vxml
+	vm_vxml/savemessage_no_operator.vxml \
+	retrieve-update-log.cgi
 
 install-data-hook: install-wwwcontent
 

@@ -887,3 +887,12 @@ div.userPortal
 {
 	text-align:center;
 }
+
+#logtext {
+	height: 400px;
+	width: 600px;
+	overflow: auto;
+	border: 1px solid #666;
+	background-color: #ccc;
+	padding: 8px;
+}

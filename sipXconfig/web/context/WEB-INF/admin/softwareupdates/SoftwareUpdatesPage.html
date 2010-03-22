@@ -1,53 +1,65 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
     <span jwcid="@Script" scriptAsset="asset:script" />
     <span jwcid="@common/ErrorMsg"></span>
-    <form jwcid="@common/AutoRefreshForm" interval="10" updateComponents="ognl:{'packageList'}" delegate="bean:validator">
-	    <div id="updateBox">
-	        <h3 id="statusText"><span jwcid="@Insert" value="ognl:messages.getMessage(packageUpdateManager.state)">No updates available</span></h3>
+    <div jwcid="@If" condition="ognl:!isInstalling">
+	    <form jwcid="@common/AutoRefreshForm" interval="10" updateComponents="ognl:{'packageList'}" delegate="bean:validator">
+		    <div id="updateBox">
+		        <h3 id="statusText"><span jwcid="@Insert" value="ognl:messages.getMessage(packageUpdateManager.state)">No updates available</span></h3>
 
-	        <div jwcid="@If" condition="ognl:packageUpdateManager.state.showProgressBar">
-	            <br/>
-	            <img id="loadingIndicator" jwcid="@Image" image="asset:progressBar" />
-	        </div>
-	        <div jwcid="@Else">
-		        <div jwcid="@If" condition="ognl:packageUpdateManager.lastCheckedDate != null" id="lastChecked">
-				   <span jwcid="@Insert" value="message:label.lastUpdated"/>
-		           <b><span jwcid="@Insert" value="ognl:packageUpdateManager.lastCheckedDate" format="ognl:dateFormat" /></b>.
+		        <div jwcid="@If" condition="ognl:packageUpdateManager.state.showProgressBar">
+		            <br/>
+		            <img id="loadingIndicator" jwcid="@Image" image="asset:progressBar" />
+		        </div>
+		        <div jwcid="@Else">
+			        <div jwcid="@If" condition="ognl:packageUpdateManager.lastCheckedDate != null" id="lastChecked">
+					   <span jwcid="@Insert" value="message:label.lastUpdated"/>
+			           <b><span jwcid="@Insert" value="ognl:packageUpdateManager.lastCheckedDate" format="ognl:dateFormat" /></b>.
+			        </div>
+
+			        <span jwcid="@If" condition="ognl:checkUpdates" renderTag="ognl:false">
+						<div id="currentVersion">
+							<span jwcid="@Insert" value="ognl:formattedCurrentVersion" raw="ognl:true" />
+						</div>
+		            </span>
+				    <span jwcid="@Else">
+						<div id="currentVersion" class="user-error">
+						    <span jwcid="@Insert" value="ognl:formattedCurrentVersion" raw="ognl:true" />
+						</div>
+					</span>
+
+			        <div jwcid="@If" condition="ognl:packageUpdateManager.updatedVersion != null"
+			             id="availableVersion">
+			             <br/>
+			               <b><span jwcid="@Insert" value="message:label.details"/></b>
+			               <div id="newVersion">
+			                  <img jwcid="@Image" image="asset:newSoftwareIcon" align="absmiddle" />
+			                  <span jwcid="@Insert" value="ognl:packageUpdateManager.updatedVersion" />
+			               </div>
+			        </div>
 		        </div>
 
-		        <span jwcid="@If" condition="ognl:checkUpdates" renderTag="ognl:false">
-					<div id="currentVersion">
-					<span jwcid="@Insert" value="ognl:formattedCurrentVersion" raw="ognl:true" />
-			</div>
-	            </span>
-			    <span jwcid="@Else">
-					<div id="currentVersion" class="user-error">
-					    <span jwcid="@Insert" value="ognl:formattedCurrentVersion" raw="ognl:true" />
-				</div>
-			</span>
-
-		        <div jwcid="@If" condition="ognl:packageUpdateManager.updatedVersion != null"
-		             id="availableVersion">
-		             <br/>
-		               <b><span jwcid="@Insert" value="message:label.details"/></b>
-		               <div id="newVersion">
-		                  <img jwcid="@Image" image="asset:newSoftwareIcon" align="absmiddle" />
-		                  <span jwcid="@Insert" value="ognl:packageUpdateManager.updatedVersion" />
-		               </div>
-		        </div>
-	        </div>
-
-	    <br/>
-		<input jwcid="@Submit" listener="listener:checkForUpdates" value="message:button.check" />
-        <span jwcid="@If" condition="ognl:readyToInstall" renderTag="ognl:false">
-            <input jwcid="@Submit" listener="listener:installUpdates" disabled="ognl:!readyToInstall" value="message:button.install" />
-        </span>
-	    </div>
-    </form>
-    <br/><br/>
-
+		    <br/>
+			<input jwcid="@Submit" listener="listener:checkForUpdates" value="message:button.check" />
+	        <span jwcid="@If" condition="ognl:readyToInstall" renderTag="ognl:false">
+	            <input jwcid="@Submit" listener="listener:installUpdates" disabled="ognl:!readyToInstall" value="message:button.install" />
+	        </span>
+		    </div>
+	    </form>
+	    <br/><br/>
+	</div>
+	<div jwcid="@Else">
+		<h3><span jwcid="@Insert" value="ognl:messages.getMessage(packageUpdateManager.state)"></span></h3>
+	    <img id="loadingIndicator" jwcid="@Image" image="asset:installationProgressBar" />
+		<br/><br/>
+		<b><span jwcid="@Insert" value="message:label.installationLog"/></b><br/>
+		<script src="http://code.jquery.com/jquery-latest.js"></script>
+		<span jwcid="@Script" scriptAsset="asset:displayLogScript" />
+		<div id="logtext"></div>
+		<br/>
+		<label for="scroll">Scroll log</label> <input type="checkbox" id="scroll" checked/>
+     </div>
 	<div jwcid="@Any" id="packageList">
-		<span jwcid="@If" condition="ognl:packageUpdateManager.availablePackages != null && !packageUpdateManager.availablePackages.isEmpty()">
+		<span jwcid="@If" condition="ognl:!isInstalling && packageUpdateManager.availablePackages != null && !packageUpdateManager.availablePackages.isEmpty()">
 		    <b><span jwcid="@Insert" value="message:label.toBeUpdated"/></b><br/>
             <table jwcid="tableView@common/Table"
                    columns="packageName,currentVersion,updatedVersion"
