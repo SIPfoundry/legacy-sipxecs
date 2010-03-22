@@ -336,6 +336,7 @@ public class IMUser {
                 String callerDisplayPart;
                 String line;
                 String calleeIdent;
+                int calleeIdentTail;
                 String todayStr;
                 DateFormat  inFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS zzzzzzzz");  
                 DateFormat  fullFormat = new SimpleDateFormat("EEEE, MMMM d 'at' H:mm a");
@@ -380,7 +381,11 @@ public class IMUser {
                     callerDisplayPart = ValidUsersXML.getDisplayPart(caller);
                     
                     calleeIdent = callee.substring(callee.indexOf("sip:"));
-                    calleeIdent = calleeIdent.substring(4, calleeIdent.length() - 1); 
+                    calleeIdentTail = calleeIdent.indexOf(";");
+                    if (calleeIdentTail == -1) {
+                       calleeIdentTail = calleeIdent.length() - 1;
+                    } 
+                    calleeIdent = calleeIdent.substring(4, calleeIdentTail); 
                     boolean inbound = calleeIdent.equals(m_user.getIdentity());
                     
                     if(inbound && (termination.equals("A") | callTag.endsWith("VMR,VM"))) {
