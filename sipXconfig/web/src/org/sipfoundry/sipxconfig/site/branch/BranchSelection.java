@@ -64,14 +64,21 @@ public abstract class BranchSelection extends BaseComponent {
 
     private void triggerAction(IRequestCycle cycle) {
         IActionListener a = getSelectedAction();
-        if (!(a instanceof BranchAdapter)) {
-            return;
-        }
+        BranchAction action;
+        if (a != null) {
+            if (!(a instanceof BranchAction)) {
+                return;
+            }
 
-        BranchAdapter action = (BranchAdapter) a;
-        Branch branch = action.getSelectedBranch();
-        if (branch != null) {
-            action.setId(branch.getId());
+            action = (BranchAction) a;
+            Branch branch = action.getSelectedBranch();
+            if (branch != null) {
+                action.setId(branch.getId());
+            }
+        } else {
+            // no item is selected
+            action = new BranchAction(null);
+            action.setId(null);
         }
         action.actionTriggered(this, cycle);
     }

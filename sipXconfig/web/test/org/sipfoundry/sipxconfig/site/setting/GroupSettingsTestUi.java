@@ -39,7 +39,7 @@ public class GroupSettingsTestUi extends WebTestCase {
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", count);
     }
 
-    public void testAddGroupWithBranch() {
+    public void testGroupWithBranch() {
         BranchesPageTestUi.seedBranch(tester, 1);
         SiteTestHelper.home(tester);
         clickLink("UserGroups");
@@ -69,6 +69,13 @@ public class GroupSettingsTestUi extends WebTestCase {
         assertTextFieldEquals("item:name", "groupWithBranch");
         assertTextFieldEquals("item:description", "description group with branch");
         assertSelectedOptionEquals("branchSelection", "seedBranch0");
+        // reset branch
+        SiteTestHelper.setScriptingEnabled(tester, true);
+        selectOptionByValue("branchSelection", "");
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+        clickLinkWithText("groupWithBranch");
+        assertSelectedOptionValueEquals("branchSelection", "");
     }
 
     public void testEditGroup() {
