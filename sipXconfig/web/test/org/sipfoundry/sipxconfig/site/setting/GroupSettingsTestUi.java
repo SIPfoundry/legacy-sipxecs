@@ -13,6 +13,7 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.branch.BranchesPageTestUi;
 
 public class GroupSettingsTestUi extends WebTestCase {
 
@@ -36,6 +37,38 @@ public class GroupSettingsTestUi extends WebTestCase {
 
     public void seedGroup(int count) {
         SiteTestHelper.seedGroup(getTester(), "NewUserGroup", count);
+    }
+
+    public void testAddGroupWithBranch() {
+        BranchesPageTestUi.seedBranch(tester, 1);
+        SiteTestHelper.home(tester);
+        clickLink("UserGroups");
+        clickLink("AddGroup");
+        SiteTestHelper.assertNoUserError(tester);
+
+        setWorkingForm("groupForm");
+        assertTextFieldEquals("item:name", "");
+        assertTextFieldEquals("item:description", "");
+        assertElementPresent("branchSelection");
+        assertSelectOptionPresent("branchSelection", "seedBranch0");
+        assertButtonPresent("form:ok");
+
+        setTextField("item:name", "groupWithBranch");
+        setTextField("item:description", "description group with branch");
+        SiteTestHelper.setScriptingEnabled(tester, true);
+        selectOption("branchSelection", "seedBranch0");
+        assertTextFieldEquals("item:name", "groupWithBranch");
+        assertTextFieldEquals("item:description", "description group with branch");
+        SiteTestHelper.assertNoUserError(tester);
+
+        clickButton("form:ok");
+        SiteTestHelper.assertNoUserError(tester);
+
+        clickLinkWithText("groupWithBranch");
+        SiteTestHelper.assertNoUserError(tester);
+        assertTextFieldEquals("item:name", "groupWithBranch");
+        assertTextFieldEquals("item:description", "description group with branch");
+        assertSelectedOptionEquals("branchSelection", "seedBranch0");
     }
 
     public void testEditGroup() {

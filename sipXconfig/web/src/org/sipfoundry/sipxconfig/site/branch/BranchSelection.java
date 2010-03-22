@@ -20,7 +20,6 @@ import org.apache.tapestry.IActionListener;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IMarkupWriter;
 import org.apache.tapestry.IRequestCycle;
-import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -29,7 +28,6 @@ import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.components.TapestryContext;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
-import org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 
 public abstract class BranchSelection extends BaseComponent {
@@ -39,9 +37,6 @@ public abstract class BranchSelection extends BaseComponent {
 
     @InjectObject("spring:tapestry")
     public abstract TapestryContext getTapestry();
-
-    @Bean
-    public abstract OptGroupPropertySelectionRenderer getRender();
 
     @Parameter(required = true)
     public abstract Branch getBranch();
