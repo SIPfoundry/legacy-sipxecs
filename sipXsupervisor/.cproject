@@ -22,8 +22,11 @@
 <builder autoBuildTarget="all" buildPath="${SIPX_MYBUILD}/sipXsupervisor" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="cdt.managedbuild.target.gnu.builder.base.1672588351" incrementalBuildTarget="all install" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base"/>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.1587334781" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.742520659" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
-<option id="gnu.cpp.compiler.option.include.paths.824196475" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
+<option id="gnu.cpp.compiler.option.include.paths.824196475" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXportLib/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXtackLib/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXcommserverLib/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXsupervisor}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.2100861277" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
@@ -462,6 +465,7 @@
 </profile>
 </scannerConfigBuildInfo>
 </storageModule>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 <cconfiguration id="cdt.managedbuild.toolchain.gnu.base.2059555087.1861212173">
 <storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.base.2059555087.1861212173" moduleId="org.eclipse.cdt.core.settings" name="Linux GCC check">
@@ -482,13 +486,15 @@
 <builder autoBuildTarget="all" buildPath="${SIPX_MYBUILD}/sipXsupervisor" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="cdt.managedbuild.target.gnu.builder.base.1463675708" incrementalBuildTarget="all check install" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
 <outputEntries>
 <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
-<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="SIPX_SUPERVISOR_OUT"/>
 </outputEntries>
 </builder>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.497137124" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
 <tool id="cdt.managedbuild.tool.gnu.cpp.compiler.base.1499207813" name="GCC C++ Compiler" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.base">
 <option id="gnu.cpp.compiler.option.include.paths.972976711" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" valueType="includePath">
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXportLib/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXtackLib/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXcommserverLib/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXsupervisor}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.429351609" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>
@@ -927,6 +933,7 @@
 </profile>
 </scannerConfigBuildInfo>
 </storageModule>
+<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cconfiguration>
 </storageModule>
 <storageModule moduleId="cdtBuildSystem" version="4.0.0">

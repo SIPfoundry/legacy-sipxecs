@@ -22,7 +22,6 @@
 <builder autoBuildTarget="all" buildPath="${SIPX_MYBUILD}/sipXpark" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="cdt.managedbuild.target.gnu.builder.base.1826657335" incrementalBuildTarget="all install" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
 <outputEntries>
 <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
-<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="SIPX_PARK_OUT"/>
 </outputEntries>
 </builder>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.622000146" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
@@ -327,7 +326,6 @@
 <builder autoBuildTarget="all" buildPath="${SIPX_MYBUILD}/sipXpark" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="cdt.managedbuild.target.gnu.builder.base.558503181" incrementalBuildTarget="all check install" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
 <outputEntries>
 <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
-<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="SIPX_PARK_OUT"/>
 </outputEntries>
 </builder>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.1975509680" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
@@ -336,6 +334,10 @@
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXportLib/include}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXtackLib/include}&quot;"/>
 <listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXcommserverLib/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXmediaLib/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXcallLib/include}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXmediaAdapterLib/interface}&quot;"/>
+<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXpark/src}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.882253544" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 </tool>

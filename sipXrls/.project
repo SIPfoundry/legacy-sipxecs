@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>sipXpublisher</name>
+	<name>sipXrls</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -35,7 +35,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>${SIPX_MYBUILD}/sipXpublisher</value>
+					<value>${SIPX_MYBUILD}/sipXrls</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.cleanBuildTarget</key>
@@ -85,7 +85,7 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>SIPX_PUBLISHER_OUT</name>
+			<name>SIPX_RLS_OUT</name>
 			<type>2</type>
 			<locationURI>SIPX_OUT</locationURI>
 		</link>

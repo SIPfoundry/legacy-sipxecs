@@ -22,7 +22,6 @@
 <builder autoBuildTarget="all" buildPath="${SIPX_MYBUILD}/sipXpbx" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="cdt.managedbuild.target.gnu.builder.base.2073761854" incrementalBuildTarget="all install" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
 <outputEntries>
 <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
-<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="SIPX_PBX_OUT"/>
 </outputEntries>
 </builder>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.1326416198" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
@@ -493,7 +492,6 @@
 <builder autoBuildTarget="all" buildPath="${SIPX_MYBUILD}/sipXpbx" cleanBuildTarget="clean" enableAutoBuild="false" enableCleanBuild="true" enabledIncrementalBuild="true" id="cdt.managedbuild.target.gnu.builder.base.592425448" incrementalBuildTarget="all check install" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.target.gnu.builder.base">
 <outputEntries>
 <entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
-<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name="SIPX_PBX_OUT"/>
 </outputEntries>
 </builder>
 <tool id="cdt.managedbuild.tool.gnu.archiver.base.1813785930" name="GCC Archiver" superClass="cdt.managedbuild.tool.gnu.archiver.base"/>
@@ -520,7 +518,6 @@
 </tool>
 <tool id="cdt.managedbuild.tool.gnu.assembler.base.1119079216" name="GCC Assembler" superClass="cdt.managedbuild.tool.gnu.assembler.base">
 <option id="gnu.both.asm.option.include.paths.1446948999" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
-<listOptionValue builtIn="false" value="&quot;${workspace_loc:/sipXmediaLib/include}&quot;"/>
 </option>
 <inputType id="cdt.managedbuild.tool.gnu.assembler.input.1095585153" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
 </tool>
