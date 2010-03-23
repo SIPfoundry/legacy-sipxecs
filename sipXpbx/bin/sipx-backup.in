@@ -128,6 +128,8 @@ then
     @SIPX_CONFDIR@/domain-config \
     @SIPX_CONFDIR@/ssl/ssl.crt \
     @SIPX_CONFDIR@/ssl/ssl.key \
+    @SIPX_CONFDIR@/mrtg/mrtg-t.cfg \
+    @SIPX_CONFDIR@/mrtg/mrtg.cfg \
     "
   ConfigSets=" \
     @SIPX_CONFDIR@/ssl/authorities/* \
