@@ -176,6 +176,7 @@ class ResourceListSet : public UtlContainableAtomic
    /** Add a mapping for an early dialog handle to its handler for
     *  subscription events.
     *  Note that the handler is UtlContainable, not ResourceSubscriptionReceiver.
+    *  Neither argument becomes owned by mSubscribeMap.
     */
    void addSubscribeMapping(UtlString* earlyDialogHandle,
                             UtlContainable* handler);
@@ -188,9 +189,9 @@ class ResourceListSet : public UtlContainableAtomic
     *  NOTIFY events.
     *  Note that the handler is UtlContainable, not ResourceNotifyReceiver,
     *  in parallel to addSubscribeMapping().
+    *  Neither argument becomes owned by mSubscribeMap.
     */
    void addNotifyMapping(const UtlString& dialogHandle,
-                         //< does not become owned by ::addNotifyMapping().
                          UtlContainable* handler);
 
    /** Delete a mapping for a dialog handle.
@@ -433,6 +434,7 @@ class ResourceListSet : public UtlContainableAtomic
    //! Map from early dialog handles to the objects that handle their events.
    //  The values are instances of subclasses of ResourceSubscriptionReceiver.
    //  The keys are UtlString's owned by the value objects.
+   //  Thus, neither keys nor values are owned by mSubscribeMap.
    UtlHashMap mSubscribeMap;
 
    //! Map from dialog handles to the objects that handle their events.

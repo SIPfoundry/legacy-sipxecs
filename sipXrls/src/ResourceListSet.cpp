@@ -531,6 +531,8 @@ void ResourceListSet::deleteNotifyMapping(const UtlString* dialogHandle)
 
    // We have to get a pointer to the key objects, as our caller won't
    // free them.  Otherwise, we could use UtlHashMap::remove().
+   // We own the key objects and have to delete them, but we don't own
+   // the value objects, and so don't delete them.
    UtlContainable* value;
    UtlContainable* keyString = mNotifyMap.removeKeyAndValue(dialogHandle, value);
    if (keyString)
