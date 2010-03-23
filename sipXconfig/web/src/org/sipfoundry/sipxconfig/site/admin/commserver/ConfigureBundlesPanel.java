@@ -107,6 +107,7 @@ public abstract class ConfigureBundlesPanel extends BaseComponent {
 
         if (!modifiedBundles.isEmpty()) {
             ServerRoleLocation role = getServerRoleLocation();
+            role.setModifiedBundles(modifiedBundles);
             getLocationsManager().storeServerRoleLocation(location, role);
         }
 

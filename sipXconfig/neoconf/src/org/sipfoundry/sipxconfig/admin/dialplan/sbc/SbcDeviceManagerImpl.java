@@ -41,6 +41,8 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDevice> implements SbcDeviceManager,
         BeanFactoryAware, DaoEventListener {
 
+    private static final String BORDER_CONTROLLER = "borderController";
+
     private static final String SBC_ID = "sbcId";
 
     private static final String SBC_NAME = "sbcName";
@@ -278,7 +280,8 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
 
     public void onDelete(Object entity) {
         Location location = null;
-        if (entity instanceof ServerRoleLocation) {
+        if ((entity instanceof ServerRoleLocation)
+                && (((ServerRoleLocation) entity).isBundleModified(BORDER_CONTROLLER))) {
             location = ((ServerRoleLocation) entity).getLocation();
         } else if (entity instanceof Location) {
             location = (Location) entity;
@@ -293,7 +296,8 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
 
     public void onSave(Object entity) {
         Location location = null;
-        if (entity instanceof ServerRoleLocation) {
+        if ((entity instanceof ServerRoleLocation)
+                && (((ServerRoleLocation) entity).isBundleModified(BORDER_CONTROLLER))) {
             location = ((ServerRoleLocation) entity).getLocation();
         } else if (entity instanceof Location) {
             location = (Location) entity;

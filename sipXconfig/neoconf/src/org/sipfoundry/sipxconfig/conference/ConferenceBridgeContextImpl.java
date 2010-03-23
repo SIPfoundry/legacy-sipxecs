@@ -53,7 +53,8 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
         ConferenceBridgeContext, DaoEventListener {
-    private static final String CONFERENCE = "conference";
+    private static final String BUNDLE_CONFERENCE = "conference";
+    private static final String CONFERENCE = BUNDLE_CONFERENCE;
     private static final String VALUE = "value";
     private static final String CONFERENCE_IDS_WITH_ALIAS = "conferenceIdsWithAlias";
     private static final String CONFERENCE_BY_NAME = "conferenceByName";
@@ -325,7 +326,8 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             onLocationSpecificServiceDelete((LocationSpecificService) entity);
         } else if (entity instanceof Location) {
             onLocationDelete((Location) entity);
-        } else if (entity instanceof ServerRoleLocation) {
+        } else if ((entity instanceof ServerRoleLocation)
+                && (((ServerRoleLocation) entity).isBundleModified(BUNDLE_CONFERENCE))) {
             onLocationDelete(((ServerRoleLocation) entity).getLocation());
         }
 
@@ -356,7 +358,8 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
     public void onSave(Object entity) {
         if (entity instanceof Location) {
             onLocationSave((Location) entity);
-        } else if (entity instanceof ServerRoleLocation) {
+        } else if ((entity instanceof ServerRoleLocation)
+                && (((ServerRoleLocation) entity).isBundleModified(BUNDLE_CONFERENCE))) {
             onLocationSave(((ServerRoleLocation) entity).getLocation());
         }
     }

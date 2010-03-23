@@ -28,8 +28,6 @@ import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import org.sipfoundry.sipxconfig.common.UserException;
-
 import static java.util.Arrays.asList;
 
 public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
@@ -359,7 +357,9 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setAddress("192.168.1.2");
         location.setFqdn("location1");
         location.setInstalledBundles(asList("conferenceBundle"));
-        m_out.storeServerRoleLocation(location, new ServerRoleLocation());
+        ServerRoleLocation serverRole = new ServerRoleLocation();
+        serverRole.setModifiedBundles(m_serviceManager.getBundlesForLocation(location));
+        m_out.storeServerRoleLocation(location, serverRole);
         assertEquals(1,m_conferenceBridgeContext.getBridges().size());
     }
 }
