@@ -39,7 +39,11 @@ proxies:proxy${line_index}:#generate_setting($setting)
 #foreach ($xmpp_account in $line_xmpp_settings)
 #set ($line_index = $last_sip_line_index + $velocityCount)
 #foreach ($setting in $xmpp_account)
+#if ($setting.name == "domain")
+proxies:proxy${line_index}:domain="$!{im_role_box_fqdn}"
+#else
 proxies:proxy${line_index}:#generate_setting($setting)
+#end
 #end
 
 #end

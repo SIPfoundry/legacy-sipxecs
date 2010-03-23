@@ -17,6 +17,8 @@ import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
@@ -54,6 +56,12 @@ public class CounterpathPhoneTest extends TestCase {
         assertEquals("0011AABB4455.ini", m_phone.getProfileFilename());
     }
 
+    private class LocationMock extends Location {
+        public String getFqdn() {
+            return "fqdn.im.test.box";
+        }
+    }
+
     public void testGenerateCounterpathCMCEnterprise() throws Exception {
         PhoneTestDriver.supplyTestData(m_phone, true, true, true, true);
         User firstUser = m_phone.getLines().get(0).getUser();
@@ -67,6 +75,13 @@ public class CounterpathPhoneTest extends TestCase {
         secondUser.setImId("sharedUser_id");
         secondUser.setImDisplayName("Shared User Id");
         m_phone.getLines().get(1).getSettings().getSetting("presence/allow_dialog_subscriptions").setValue("0");
+
+        Location locationMock = new LocationMock();
+        LocationsManager locationsManagerMock = EasyMock.createMock(LocationsManager.class);
+        locationsManagerMock.getLocationByBundle("imBundle");
+        EasyMock.expectLastCall().andReturn(locationMock);
+        EasyMock.replay(locationsManagerMock);
+        m_phone.setLocationsManager(locationsManagerMock);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
         m_phone.generateProfiles(location);

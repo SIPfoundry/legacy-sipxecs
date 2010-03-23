@@ -25,6 +25,7 @@ import static java.lang.String.format;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ArrayUtils;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.Device;
@@ -67,6 +68,7 @@ public class CounterpathPhone extends Phone {
     private static final String DIRECTORY_FILE_FORMAT = "%s-directory.xml";
     private static final String NEW_LINE = "\n";
     private String m_syswwwdir;
+    private LocationsManager m_locationsManager;
 
     // private static final String WEBDAV_URL = "resources/resource_lists_path";
     public CounterpathPhone() {
@@ -78,6 +80,14 @@ public class CounterpathPhone extends Phone {
 
     public void setSyswwwdir(String syswwwdir) {
         m_syswwwdir = syswwwdir;
+    }
+
+    public LocationsManager getLocationsManager() {
+        return m_locationsManager;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     @Override
