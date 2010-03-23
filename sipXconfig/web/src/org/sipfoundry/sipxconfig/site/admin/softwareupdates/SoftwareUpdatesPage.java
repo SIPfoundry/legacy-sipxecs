@@ -91,7 +91,7 @@ public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBe
     }
 
     public void pageBeginRender(PageEvent event) {
-        if (getCurrentVersion() == null) {
+        if (getCurrentVersion() == null || getCurrentVersion().equals(UpdateApi.VERSION_NOT_DETERMINED)) {
             setCurrentVersion(getPackageUpdateManager().getCurrentVersion());
         }
         UserException passedException = getPackageUpdateManager().getUserException();

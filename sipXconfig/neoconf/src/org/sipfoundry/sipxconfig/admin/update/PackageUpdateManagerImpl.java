@@ -92,7 +92,7 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
     }
 
     public String getCurrentVersion() {
-        if (m_currentVersion != null) {
+        if (m_currentVersion != null && m_currentVersion != UpdateApi.VERSION_NOT_DETERMINED) {
             return m_currentVersion;
         }
         Callable<String> task = new Callable<String>() {
@@ -103,6 +103,7 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
         Future<String> future = m_updateExecutor.submit(task);
         try {
             m_currentVersion = future.get();
+            m_userException = null;
         } catch (InterruptedException e) {
             m_currentVersion = UpdateApi.VERSION_NOT_DETERMINED;
             m_userException = new UserException(EXCEPTION_MESSAGE);
