@@ -134,7 +134,9 @@ public class ConfRecordStatus extends HttpServlet {
 
                 // Get the next message sequence number.
                 String m_messageId = nextMessageId(mediaDataDirectory);
-                String baseName = baseDirectory + "/" +m_messageId+"-00";
+                // Conference recordings use a file name of "1" plus the 8-digit ID to differentiate
+                // them from the regular 8-digit voicemail message file name.
+                String baseName = baseDirectory + "/" +"1"+m_messageId+"-00";
                 File audioFile = new File(baseName+".wav");
 
                 // Get the name of the server that sent us the request
