@@ -286,6 +286,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %dir %{prefix}/conf/sip_profiles/external
 %dir %{prefix}/conf/jingle_profiles
 %dir %{prefix}/conf/mrcp_profiles
+%dir %{prefix}/conf/skinny_profiles
 %dir %{prefix}/conf/ivr_menus
 %ifos linux
 %config(noreplace) /etc/monit.d/freeswitch.monitrc
@@ -306,6 +307,7 @@ rm -rf $RPM_BUILD_ROOT%{prefix}/conf/lang/ru
 %config(noreplace) %{prefix}/conf/sip_profiles/external/*.xml
 %config(noreplace) %{prefix}/conf/jingle_profiles/*.xml
 %config(noreplace) %{prefix}/conf/mrcp_profiles/*.xml
+%config(noreplace) %{prefix}/conf/skinny_profiles/*.xml
 %config(noreplace) %{prefix}/conf/ivr_menus/*.xml
 %config(noreplace) %{prefix}/htdocs/*
 %ifos linux

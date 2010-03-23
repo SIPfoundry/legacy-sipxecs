@@ -1,6 +1,6 @@
 VERSION = 1.0.5
 RELEASE = 1
-SVN_RELEASE = 16723
+SVN_RELEASE = 17075
 
 SRC_DIR = $(srcdir)/src
 SVN_URL = http://svn.freeswitch.org/svn/freeswitch/trunk
