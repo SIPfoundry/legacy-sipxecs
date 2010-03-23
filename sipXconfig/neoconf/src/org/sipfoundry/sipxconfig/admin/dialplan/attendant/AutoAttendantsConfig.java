@@ -88,9 +88,11 @@ public class AutoAttendantsConfig extends XmlFile {
             addId(regularHoursEl, workingTimeAttendant.getAttendant());
             WorkingHours[] workingHours = workingTimeAttendant.getWorkingHours();
             for (WorkingHours hours : workingHours) {
-                Element dayEl = regularHoursEl.addElement(hours.getDay().getName().toLowerCase());
-                dayEl.addElement("from").setText(hours.getStartTime());
-                dayEl.addElement("to").setText(hours.getStopTime());
+                if (hours.isEnabled()) {
+                    Element dayEl = regularHoursEl.addElement(hours.getDay().getName().toLowerCase());
+                    dayEl.addElement("from").setText(hours.getStartTime());
+                    dayEl.addElement("to").setText(hours.getStopTime());
+                }
             }
         }
         ScheduledAttendant afterHoursAttendant = attendantRule.getAfterHoursAttendant();

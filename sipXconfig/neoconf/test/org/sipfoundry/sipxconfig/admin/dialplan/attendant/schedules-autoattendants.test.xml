@@ -46,14 +46,6 @@
           <from>09:00</from>
           <to>18:00</to>
         </friday>
-        <saturday>
-          <from>09:00</from>
-          <to>18:00</to>
-        </saturday>
-        <sunday>
-          <from>09:00</from>
-          <to>18:00</to>
-        </sunday>
       </regularhours>
       <afterhours>
         <id>operator</id>
