@@ -57,6 +57,7 @@ public class MappingRule extends DialingRule {
     protected static final String VMAIL_RETRIEVE = "retrieve";
     protected static final String AUTOATTENDANT = "autoattendant";
     private static final String FIELD_PARAM = "q=0.1";
+    private static final String DOUBLE_QUOTE = "\"";
 
     private String[] m_patterns;
     private String m_url;
@@ -86,7 +87,7 @@ public class MappingRule extends DialingRule {
         String urlParam = m_url;
         if (getSchedule() != null) {
             String validTime = getSchedule().calculateValidTime();
-            String scheduleParam = String.format(VALID_TIME_PARAM, validTime);
+            String scheduleParam = String.format(VALID_TIME_PARAM, DOUBLE_QUOTE + validTime + DOUBLE_QUOTE);
             urlParam += ";" + scheduleParam;
         }
         transform.setUrl(urlParam);
