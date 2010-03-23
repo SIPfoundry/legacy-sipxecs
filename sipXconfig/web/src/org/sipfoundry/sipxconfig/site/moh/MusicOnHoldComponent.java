@@ -45,8 +45,11 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
 
+    @InjectObject(value = "spring:eagerPhoneProfileManager")
+    public abstract ProfileManager getEagerProfileManager();
+
     @InjectObject(value = "spring:phoneProfileManager")
-    public abstract ProfileManager getProfileManager();
+    public abstract ProfileManager getLazyProfileManager();
 
     @Persist
     public abstract String getAsset();
@@ -64,7 +67,7 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
             return;
         }
         getCoreContext().saveUser(getUser());
-        getProfileManager().generateProfiles(getPhoneIdsForUser(getUser()), false, null);
+        getLazyProfileManager().generateProfiles(getPhoneIdsForUser(getUser()), false, null);
     }
 
     public void onUpdatePhones() {
@@ -72,7 +75,7 @@ public abstract class MusicOnHoldComponent extends BaseComponent {
             return;
         }
         getCoreContext().saveUser(getUser());
-        getProfileManager().generateProfiles(getPhoneIdsForUser(getUser()), true, null);
+        getEagerProfileManager().generateProfiles(getPhoneIdsForUser(getUser()), true, null);
     }
 
     private Collection<Integer> getPhoneIdsForUser(User user) {
