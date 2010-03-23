@@ -26,7 +26,7 @@ public class WaitingForSubscribeResponseState extends SubscribeDialogState
         }
         catch( SubscribeDialogStateException ex )
         {
-            logger.info( "WaitingForSubscribeResponseState::processFailureResponse caught exception: " + ex );            
+            logger.error( "WaitingForSubscribeResponseState::processFailureResponse caught exception: ", ex );            
             dialog.changeState(new Moribund());
         }
     }

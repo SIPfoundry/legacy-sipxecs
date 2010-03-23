@@ -47,7 +47,7 @@ public class SubscribeDialogState extends AbstractSubscribeDialogState
             }
         }
         catch( SubscribeDialogStateException ex ){
-            logger.info( "SubscribeDialogState::processNotifyRequest caught exception: " + ex );
+            logger.error( "SubscribeDialogState::processNotifyRequest caught exception: ", ex );
             dialog.changeState(new Moribund());
         }
     }

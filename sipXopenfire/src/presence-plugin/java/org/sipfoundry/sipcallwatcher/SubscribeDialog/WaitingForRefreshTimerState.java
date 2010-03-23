@@ -14,7 +14,7 @@ public class WaitingForRefreshTimerState extends SubscribeDialogState
             dialog.changeState(new WaitingForSubscribeResponseState());
         }
         catch( SubscribeDialogStateException ex ){
-            logger.info( "WaitingForRefreshTimerState::refreshSubscription caught exception: " + ex );
+            logger.error( "WaitingForRefreshTimerState::refreshSubscription caught exception: ", ex );
             dialog.changeState(new Moribund());
         }
     }

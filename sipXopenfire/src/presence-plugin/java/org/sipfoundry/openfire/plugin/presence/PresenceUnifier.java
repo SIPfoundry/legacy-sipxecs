@@ -106,7 +106,7 @@ public class PresenceUnifier implements PresenceEventListener
             sipXopenfirePlugin.setPresenceStatus(unifiedPresence.getJidAsString(), unifiedPresence.getXmppStatusMessageWithSipState());
         }
         catch( Exception e ){
-            log.error("PresenceUnifier::sipStateChanged() - caught exception for user " + unifiedPresence.getJidAsString() + ":" + e );
+            log.error("PresenceUnifier::sipStateChanged() - caught exception for user " + unifiedPresence.getJidAsString() + ":", e );
         }
         notifyListenersOfChange( unifiedPresence );
     }
@@ -221,7 +221,7 @@ public class PresenceUnifier implements PresenceEventListener
             sipXopenfirePlugin.setPresenceStatus(unifiedPresence.getJidAsString(), unifiedPresence.getXmppStatusMessageWithSipState());                
         }
         catch( Exception e ){
-            log.error("PresenceUnifier::xmppStatusMessageChanged() - caught exception for user " + unifiedPresence.getJidAsString() + ":" + e );
+            log.error("PresenceUnifier::xmppStatusMessageChanged() - caught exception for user " + unifiedPresence.getJidAsString() + ":", e );
         }
         notifyListenersOfChange( unifiedPresence );
         return unifiedPresence; 
@@ -255,7 +255,7 @@ public class PresenceUnifier implements PresenceEventListener
     		}
     		catch( Exception ex )
     		{
-    			log.error("addUnifiedPresenceChangeListener caught exception: " + ex.getMessage() );
+    			log.error("addUnifiedPresenceChangeListener caught exception: ", ex );
     		}
     	}
     }
@@ -305,7 +305,7 @@ public class PresenceUnifier implements PresenceEventListener
             }
         }
         catch( Exception e ){
-            log.error("PresenceUnifier::generateXmppStatusMessageWithSipState() - caught exception for user " + unifiedPresence.getJidAsString() + ":" + e );
+            log.error("PresenceUnifier::generateXmppStatusMessageWithSipState() - caught exception for user " + unifiedPresence.getJidAsString() + ":", e );
         }            
         return xmppStatusMessageWithSipState;
     }

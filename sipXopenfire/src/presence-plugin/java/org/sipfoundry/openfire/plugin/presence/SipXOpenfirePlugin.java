@@ -294,7 +294,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             pruneChatServices(defaultSubdomain);
         }
         catch( Exception ex ){
-            log.error("initializePlugin caught exception while pruning chat services list " + ex );
+            log.error("initializePlugin caught exception while pruning chat services list ", ex );
         }
         
         /*
@@ -308,7 +308,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     		xmppS2sInfo.updateS2sSettings();
         }
         catch( Exception ex ){
-            log.error("initializePlugin caught exception while updating s2s settings " + ex );
+            log.error("initializePlugin caught exception while updating s2s settings ", ex );
         }
         
         /*

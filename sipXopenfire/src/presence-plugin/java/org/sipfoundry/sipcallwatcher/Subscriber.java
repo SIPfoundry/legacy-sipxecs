@@ -328,7 +328,7 @@ public class Subscriber implements SipListener {
             clientTransaction = sipProvider.getNewClientTransaction(request);
             dialog.sendRequest(clientTransaction);
         } catch (Exception ex) {
-            logger.debug("Subscriber::sendInDialogSubscribe caught exception:" + ex );
+            logger.debug("Subscriber::sendInDialogSubscribe caught exception:", ex );
             throw new CallWatcherException("Failed to send in-dialog Subscribe:" + ex );
         }
         return clientTransaction;
