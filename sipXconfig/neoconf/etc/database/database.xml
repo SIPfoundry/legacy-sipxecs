@@ -128,7 +128,7 @@
   -->
   <target name="create" depends="createdb,schema" description="create database with schema" />
 
-  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10" />
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11" />
 
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,initialize" />
 
@@ -354,8 +354,12 @@
     <antcall target="drop_phone_branch" />
     <antcall target="address" />
     <antcall target="update_usebranch_default_value" />
+    <sipx-version version="11"/>
+  </target>
+
+  <target name="version11" description="upgrade from version 10" unless="version12">
     <!-- When freezing schema uncomment this line -->
-    <!-- sipx-version version="11" -->
+    <!-- sipx-version version="12" -->
   </target>
 
   <target name="time_of_day" unless="time_of_day">

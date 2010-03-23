@@ -7,5 +7,5 @@
 
 	<location location_id="1001" name="server1" fqdn="server1.example.com" ip_address="10.1.1.1" primary_location="true"/>
 	<location_specific_service location_specific_service_id="101" 
-		location_id="1001" sipx_service_id="14" enable_on_next_upgrade="false"/>
+		location_id="1001" sipx_service_id="13" enable_on_next_upgrade="false"/>
 </dataset>

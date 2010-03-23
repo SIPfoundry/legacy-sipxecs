@@ -19,6 +19,7 @@ create table version_history(
  * For sipXconfig v3.10.3-r11768, the database version is 8.
  * For sipXconfig v3.11, the database version is 9.
  * For sipXconfig v4.0.2, the database version is 10.
+ * For sipXconfig v4.1.8, the database version is 11.
  */
 insert into version_history (version, applied) values (1, now());
 insert into version_history (version, applied) values (2, now());
@@ -30,6 +31,7 @@ insert into version_history (version, applied) values (7, now());
 insert into version_history (version, applied) values (8, now());
 insert into version_history (version, applied) values (9, now());
 insert into version_history (version, applied) values (10, now());
+insert into version_history (version, applied) values (11, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -115,6 +117,7 @@ create table group_storage (
    description varchar(255),
    resource varchar(255),
    weight int4,
+   branch_id int4,
    primary key (group_id)
 );
 create table user_ring (
@@ -152,7 +155,8 @@ create table gateway (
    display_name varchar(255),
    url_parameters varchar(255),
    shared boolean not null,
-   site_id int4,
+   branch_id int4,
+   enabled boolean not null,
    primary key (gateway_id)
 );
 
@@ -272,6 +276,10 @@ create table users (
    last_name varchar(255),
    user_name varchar(255) not null unique,
    value_storage_id int4,
+   address_book_entry_id integer,
+   is_shared boolean not null default false,
+   branch_id int4,
+   user_type char(1),
    primary key (user_id)
 );
 create table custom_dialing_rule_permission (
@@ -334,7 +342,6 @@ create table meetme_conference (
 );
 create table meetme_bridge (
     meetme_bridge_id int4 not null,
-    enabled bool,
     value_storage_id int4,
     location_specific_service_id integer,
     primary key (meetme_bridge_id)
@@ -512,6 +519,8 @@ create table phonebook (
    description varchar(255),
    members_csv_filename varchar(255),
    members_vcard_filename varchar(255),
+   user_id int4,
+   show_on_phone boolean default true,
    primary key (phonebook_id)
 );
 
@@ -736,6 +745,7 @@ create table sbc_device (
    model_id varchar(64) not null,
    device_version_id varchar(32),
    port int4 not null default 5060,
+   branch_id int4,
    primary key (sbc_device_id)
 );
 
@@ -761,6 +771,7 @@ create table location (
   public_port integer not null default 5060,
   start_rtp_port integer not null default 30000,
   stop_rtp_port integer not null default 31000,
+  branch_id int4,
   primary key (location_id)
 );
 
@@ -801,16 +812,9 @@ create table discovered_devices (
 
 create table alarm_server (
   alarm_server_id integer not null,
-  email_notification_enabled boolean,
+  alarm_notification_enabled boolean,
   from_email_address varchar(255),
   constraint alarm_server_pkey primary key (alarm_server_id)
-);
-
-create table alarm_contacts (
-  alarm_server_id integer not null,
-  address varchar(255) not null,
-  index integer not null,
-  constraint contacts_pkey primary key (alarm_server_id, index)
 );
 
 create table timezone
@@ -828,6 +832,161 @@ create table timezone
   stop_day_of_week integer,
   stop_time integer,
   constraint timezone_pkey primary key (timezone_id)
+);
+
+create table speeddial_group (
+    speeddial_id int4 not null,
+    group_id int4 not null,
+    primary key (speeddial_id)
+);
+
+create table speeddial_group_button (
+    speeddial_id int4 not null,
+    label varchar(255),
+    number varchar(255) not null,
+    blf boolean not null default false,
+    position int4 not null,
+    primary key (speeddial_id, position)
+);
+
+create table address_book_entry
+(
+  address_book_entry_id integer not null,
+  cell_phone_number character varying(255),
+  home_phone_number character varying(255),
+  assistant_name character varying(255),
+  assistant_phone_number character varying(255),
+  fax_number character varying(255),
+  location character varying(255),
+  company_name character varying(255),
+  job_title character varying(255),
+  job_dept character varying(255),
+  im_id character varying(255),
+  alternate_im_id character varying(255),
+  im_display_name character varying(255),
+  use_branch_address boolean DEFAULT false NOT NULL,
+  im_password varchar(255),
+  email_address character varying(255),
+  alternate_email_address character varying(255),
+  home_address_id integer,
+  office_address_id integer,
+  branch_address_id integer,
+  constraint address_book_entry_pkey primary key (address_book_entry_id)
+);
+
+create table phonebook_file_entry (
+  phonebook_file_entry_id integer not null,
+  first_name character varying(255),
+  last_name character varying(255),
+  phone_number character varying(255),
+  address_book_entry_id integer,
+  phonebook_id integer not null,
+  phonebook_entry_type char(1),
+  google_account_id varchar(255),
+  internal_id varchar(255),
+  constraint phonebook_file_entry_pkey primary key (phonebook_file_entry_id)
+);
+
+create table attendant_special_mode (
+    attendant_special_mode_id int4 not null,
+    enabled boolean not null default false,
+    auto_attendant_id int4,
+    primary key (attendant_special_mode_id)
+);
+
+create table branch (
+  branch_id int4 not null,
+  name varchar(255) unique,
+  description varchar(255),
+  phone_number varchar(255),
+  fax_number varchar(255),
+  address_id integer,
+  primary key (branch_id)
+);
+
+create table private_user_key (
+  private_user_key_id int4 not null,
+  key varchar(255) unique,
+  user_id int4,
+  primary key (private_user_key_id)
+);
+
+create table alarm_group (
+  alarm_group_id integer not null,
+  name varchar(255) not null,
+  description character varying(255),
+  enabled boolean not null default false,
+  constraint alarm_group_pkey primary key (alarm_group_id)
+);
+
+create table alarm_group_smscontacts (
+  alarm_group_id integer not null,
+  address varchar(255) not null,
+  index integer not null,
+  constraint group_smscontacts_pkey primary key (alarm_group_id, index)
+);
+
+create table alarm_group_emailcontacts (
+  alarm_group_id integer not null,
+  address varchar(255) not null,
+  index integer not null,
+  constraint group_emailcontacts_pkey primary key (alarm_group_id, index)
+);
+
+create table user_alarm_group
+(
+  alarm_group_id integer not null,
+  user_id integer not null,
+  constraint user_alarm_group_pkey primary key (alarm_group_id, user_id)
+);
+
+create table alarm_code (
+  alarm_seq_id integer not null,
+  alarm_code_id varchar(255) not null,
+  email_group varchar(255) not null,
+  min_threshold integer not null,
+  constraint alarm_code_pkey primary key (alarm_seq_id)
+);
+
+create table tls_peer
+(
+  tls_peer_id integer NOT NULL,
+  "name" character varying(255) NOT NULL,
+  internal_user_id integer,
+  constraint tls_peer_pkey primary key (tls_peer_id)
+);
+
+create table google_domain (
+  google_domain_id integer not null,
+  domain_name character varying(255),
+  constraint google_domain_pkey primary key (google_domain_id)
+);
+
+create table general_phonebook_settings (
+   general_phonebook_settings_id int4 not null,
+   value_storage_id int4,
+   primary key (general_phonebook_settings_id)
+);
+
+create table alarm_group_snmpcontacts (
+  alarm_group_id integer not null,
+  address varchar(255) not null,
+  port int4,
+  community_string varchar(255),
+  index integer,
+  constraint group_snmpcontacts_pkey primary key (alarm_group_id, index)
+);
+
+create table address
+(
+  address_id integer not null,
+  street character varying(255),
+  zip character varying(255),
+  country character varying(255),
+  state character varying(255),
+  city character varying(255),
+  office_designation character varying(255),
+  constraint address_pkey primary key (address_id)
 );
 
 /*
@@ -885,11 +1044,6 @@ alter table gateway
   add constraint fk_sbc_device_id
   foreign key (sbc_device_id)
   references sbc_device(sbc_device_id) match full;
-
-alter table gateway
-  add constraint fk_gateway_site
-  foreign key (site_id)
-  references group_storage;
 
 alter table daily_backup_schedule add constraint FK5518A4EFE76E474 foreign key (backup_plan_id) references backup_plan;
 alter table line add constraint FK32AFF4CB50FCED foreign key (value_storage_id) references value_storage;
@@ -1106,11 +1260,6 @@ alter table backup_plan
     foreign key (ftp_configuration_id)
     references ftp_configuration (id);
 
-alter table alarm_contacts
-  add constraint fk_alarm_server_contacts
-  foreign key (alarm_server_id)
-  references alarm_server;
-
 alter table location_specific_service
   add constraint fk_location_id
   foreign key (location_id)
@@ -1125,6 +1274,89 @@ alter table location_bundle
   add constraint location_bundle_fk
   foreign key (location_id)
   references location;
+
+alter table speeddial_group
+  add constraint fk_speeddial_group
+  foreign key (group_id)
+  references group_storage;
+
+alter table speeddial_group_button
+  add constraint fk_speeddial_button_speeddial
+  foreign key (speeddial_id)
+  references speeddial_group;
+
+alter table users
+  add constraint fk_address_book_entry_users_id
+  foreign key (address_book_entry_id)
+  references address_book_entry;
+
+alter table phonebook_file_entry
+  add constraint phonebook_entry_phonebook foreign key (phonebook_id)
+  references phonebook;
+
+alter table phonebook_file_entry
+  add constraint phonebook_entry_address_book_entry foreign key (address_book_entry_id)
+  references address_book_entry;
+
+alter table users add constraint fk_users_branch
+  foreign key (branch_id)
+  references branch(branch_id) match full
+  on delete set null;
+
+alter table group_storage add constraint fk_group_storage_branch
+  foreign key (branch_id)
+  references branch(branch_id) match full
+  on delete set null;
+
+alter table gateway add constraint fk_gateway_branch
+  foreign key (branch_id)
+  references branch(branch_id) match full
+  on delete set null;
+
+alter table location add constraint fk_location_branch
+  foreign key (branch_id)
+  references branch(branch_id) match full
+  on delete set null;
+
+alter table sbc_device add constraint fk_sbc_device_branch
+  foreign key (branch_id)
+  references branch(branch_id) match full
+  on delete set null;
+
+alter table private_user_key add constraint fk_private_user_key_user
+  foreign key (user_id)
+  references users(user_id) match full
+  on delete cascade;
+
+alter table phonebook add constraint fk_phonebook_users foreign key (user_id) references users;
+
+alter table user_alarm_group add constraint alarm_group_fk1 foreign key (alarm_group_id)
+  references alarm_group (alarm_group_id) match simple
+  on update no action on delete no action;
+
+alter table user_alarm_group add constraint alarm_group_fk2 foreign key (user_id)
+  references users (user_id) match simple
+  on update no action on delete no action;
+
+alter table tls_peer add constraint fk_internal_user foreign key (internal_user_id)
+  references users (user_id) match simple
+  on update no action on delete no action;
+
+alter table address_book_entry add constraint fk_home_address_id foreign key (home_address_id)
+  references address (address_id) match simple
+  on update no action on delete no action;
+
+alter table address_book_entry add constraint fk_office_address_id foreign key (office_address_id)
+  references address (address_id) match simple
+  on update no action on delete set null;
+
+alter table address_book_entry add constraint fk_branch_address_id foreign key (branch_address_id)
+  references address (address_id) match simple
+  on update no action on delete set null;
+
+alter table branch add constraint fk_address_id foreign key (address_id)
+  references address (address_id) match simple
+  on update no action on delete no action;
 
 -- sequences
 
@@ -1164,6 +1396,17 @@ create sequence ftp_configuration_seq;
 create sequence alarm_server_seq;
 create sequence location_specific_service_seq;
 create sequence timezone_seq;
+create sequence speeddial_group_seq;
+create sequence abe_seq;
+create sequence phonebook_file_entry_seq;
+create sequence branch_seq;
+create sequence private_user_key_seq;
+create sequence alarm_group_seq;
+create sequence alarm_code_seq;
+create sequence tls_peer_seq;
+create sequence google_domain_seq;
+create sequence general_phonebook_settings_seq;
+create sequence addr_seq;
 
 -- used for native hibernate ids  
 create sequence hibernate_sequence;
@@ -1179,7 +1422,6 @@ insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_servic
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxPresenceService');
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxIvrService');
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRlsService');
-insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxMediaService');
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxStatusService');
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxCallResolverService');
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxPageService');
@@ -1190,6 +1432,12 @@ insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_servic
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxFreeswitchService');
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRelayService');
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxMrtgService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxSaaService');
+
+-- insert default values
+insert into attendant_special_mode values (1, false, null);
+insert into alarm_group (alarm_group_id, name, description, enabled) values (nextval('alarm_group_seq'), 'default', 'Default alarm group', true);
+insert into google_domain values (nextval('google_domain_seq'), 'gmail.com');
 
 /* will trigger app event to execute java code before next startup to insert default data */
 insert into initialization_task (name) values ('dial-plans');
@@ -1206,3 +1454,8 @@ insert into initialization_task (name) values ('initialize-location-service-mapp
 insert into initialization_task (name) values ('acd_server_migrate_acd_service');
 insert into initialization_task (name) values ('default-time-zone');
 insert into initialization_task (name) values ('migrate-conference-bridges');
+insert into initialization_task (name) values ('phonebook_file_entry_task');
+insert into initialization_task (name) values ('mailbox_prefs_migration');
+insert into initialization_task (name) values ('legacy_park_server_migration');
+insert into initialization_task (name) values ('phonebook_entries_update_task');
+
