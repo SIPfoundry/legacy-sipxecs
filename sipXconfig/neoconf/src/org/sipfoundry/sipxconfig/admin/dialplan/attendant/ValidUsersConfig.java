@@ -110,9 +110,13 @@ public class ValidUsersConfig extends XmlFile {
         boolean hasVoiceMail = user.hasPermission(PermissionName.VOICEMAIL);
         userEl.addElement(ELEMENT_NAME_HASVOICEMAIL).setText(Boolean.toString(hasVoiceMail));
         String userBusyPrompt = user.getSettingValue("voicemail/mailbox/user-busy-prompt");
-        userEl.addElement(ELEMENT_NAME_USERBUSYPROMPT).setText(userBusyPrompt);
+        if (userBusyPrompt != null) {
+            userEl.addElement(ELEMENT_NAME_USERBUSYPROMPT).setText(userBusyPrompt);
+        }
         String voicemailTui = user.getSettingValue("voicemail/mailbox/voicemail-tui");
-        userEl.addElement(ELEMENT_NAME_VOICEMAILTUI).setText(voicemailTui);
+        if (voicemailTui != null) {
+            userEl.addElement(ELEMENT_NAME_VOICEMAILTUI).setText(voicemailTui);
+        }
         boolean canRecordPrompts = user.hasPermission(PermissionName.RECORD_SYSTEM_PROMPTS);
         userEl.addElement(ELEMENT_NAME_CANRECORDPROMPTS).setText(Boolean.toString(canRecordPrompts));
         boolean canTuiChangePin = user.hasPermission(PermissionName.TUI_CHANGE_PIN);
