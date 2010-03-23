@@ -124,7 +124,7 @@
 			</textField>
 			<textField isStretchWithOverflow="true">
 				<reportElement positionType="Float" x="330" y="4" width="150" height="15"/>
-				<textElement/>
+				<textElement textAlignment="Center"/>
 				<textFieldExpression class="java.lang.String"><![CDATA[$F{duration}]]></textFieldExpression>
 			</textField>
 			<textField isStretchWithOverflow="true">

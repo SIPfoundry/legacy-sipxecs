@@ -83,9 +83,9 @@ public class CdrDecorator implements Serializable {
 
     public String getDuration() {
         MillisDurationFormat format = new MillisDurationFormat();
-        format.setMaxField(2);
-        format.setLocale(m_locale);
+        format.setMaxField(1);
         format.setShowZero(true);
+        format.setSeparator(":");
         return format.format(new Long(m_cdr.getDuration()));
     }
 

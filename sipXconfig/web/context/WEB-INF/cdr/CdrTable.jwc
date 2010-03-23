@@ -4,8 +4,8 @@
 <component-specification>
   <bean name="durationFormat" class="org.sipfoundry.sipxconfig.components.MillisDurationFormat"
     lifecycle="page">
-    <set name="maxField" value="2" />
-    <set name="locale" value="page.locale"/>
+    <set name="maxField" value="1" />
+    <set name="separator" value="':'" />
     <set name="showZero" value="true" />
   </bean>
   <bean name="terminationFormat" class="org.sipfoundry.sipxconfig.components.NewEnumFormat"

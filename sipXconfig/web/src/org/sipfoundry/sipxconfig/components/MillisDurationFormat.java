@@ -91,7 +91,7 @@ public class MillisDurationFormat extends Format {
         long[] result = calculate(millis);
         for (int i = 0; i < result.length; i++) {
             long l = result[i];
-            if (l > 0 || added || i == result.length - 1) {
+            if (l >= 0 || added || i == result.length - 1) {
                 if (added) {
                     toAppendTo.append(m_separator);
                 }
@@ -136,7 +136,7 @@ public class MillisDurationFormat extends Format {
         m_locale = locale;
         String[] labels = new String[LABELS.length];
         if (m_locale == null) {
-            Arrays.fill(labels, "{0}");
+            Arrays.fill(labels, "{0,number,#,#00}");
         } else {
             ResourceBundle bundle = ResourceBundle.getBundle(getClass().getName(), m_locale,
                     getClass().getClassLoader());
