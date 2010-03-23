@@ -1,13 +1,16 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickHelp" value="message:quick.help">help text here...</div>
   <div>
     <span jwcid="@common/ErrorMsg"></span>
     <form jwcid="@Form" delegate="bean:validator">
+      <fieldset>
       <table>
         <tbody>
           <tr jwcid="@common/FieldPanel"
             for="peer:name"
             field="component:name"
-            label="message:name.label">
+            label="message:name.label"
+            description="message:name.description">
             <input jwcid="name@TextField"
               id="peer:name"
               value="ognl:tlsPeer.name"
@@ -17,6 +20,7 @@
           </tr>
         </tbody>
       </table>
+      </fieldset>
       <h3><span key="permissions">Permissions</span></h3>
       <span jwcid="@user/UserSettingsPanel" user="ognl:tlsPeer.internalUser" groupToDisplay="permission"
         settingsToHide="superadmin,tui-change-pin,personal-auto-attendant,music-on-hold,Voicemail,RecordSystemPrompts"
