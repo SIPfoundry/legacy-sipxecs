@@ -271,6 +271,25 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="ProgressIndicator2IP" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>-1</value>
+          </option>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>-1</value>
+    </setting>
     <setting name="PlayRBTone2IP" advanced="yes">
       <type>
         <boolean/>
