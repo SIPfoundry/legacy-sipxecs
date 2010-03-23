@@ -16,7 +16,7 @@
       voIpProt.SIP.local.port="5061"
       voIpProt.SIP.csta="0"
       voIpProt.SIP.useRFC2543hold="0"
-      voIpProt.SIP.useContactInReferTo="1"
+      voIpProt.SIP.useContactInReferTo="0"
       voIpProt.SIP.lcs="0"
       voIpProt.SIP.useSendonlyHold="1"
       voIpProt.SIP.sendCompactHdrs="0"

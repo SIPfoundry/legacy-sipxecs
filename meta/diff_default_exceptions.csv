@@ -49,7 +49,6 @@ sip-voIpProt.SIP.outboundProxy.transport, UDPOnly results in an earlier DNS SRV 
 sip-pnet.role, NON-BLANK DEFAULT, though only generated for SoundStation IP 7000s
 sip-up.oneTouchVoiceMail, NON-BLANK DEFAULT (XCF-3077)
 ^sip-voIpProt.SIP.use486forReject, XTRN-520
-^sip-voIpProt.SIP.useContactInReferTo, XX-6745
 
 ^sip-voIpProt.SIP.local.port, NON-BLANK DEFAULT
 ^sip-voIpProt.local.port, XX-6959: Explicit duplicate generation to maintain compatibility with pre-3.2.2 firmware.
