@@ -32,12 +32,12 @@ class UtlChainPool;
  * for other Utl classes.  It may not be used directly because by itself
  * it is not thread safe.  Use one of the lists types derived from UtlList.
  *
- * Each UltLinkChain links forward (next) and backward (prev) in the chain of links;
+ * Each UtlChain links forward (next) and backward (prev) in the chain of links;
  * ends of a chain are indicated by NULL values.  A UtlChain not in a chain,
- * including a newly constructed instance, have NULL pointers in both directions.
+ * including a newly constructed instance, has NULL pointers in both directions.
  *
  * A UtlChain can also be used as a list header whose links point to the ends
- * of a NULL terminated list.
+ * of a NULL-terminated list of UtlLink's.
  */
 class UtlChain
 {
@@ -124,7 +124,7 @@ class UtlChain
       }
 
 
-   /// Insert a new UtlChain after existing..
+   /// Insert a new UtlChain after existing.
    /**
     * This may be called only on an unlinked UtlChain
     */
