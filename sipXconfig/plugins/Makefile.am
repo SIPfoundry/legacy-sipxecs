@@ -1,6 +1,7 @@
 SUBDIRS = \
 	aastra \
 	ciscoplus \
+	ciscospa  \
 	clearone \
 	gtek \
 	gtek-aq \

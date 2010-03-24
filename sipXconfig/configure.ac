@@ -113,6 +113,7 @@ AC_CONFIG_FILES([
     plugins/Makefile
     plugins/aastra/Makefile
     plugins/ciscoplus/Makefile
+    plugins/ciscospa/Makefile
     plugins/clearone/Makefile
     plugins/gtek/Makefile
     plugins/gtek-aq/Makefile
