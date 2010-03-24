@@ -1079,6 +1079,16 @@ public class Retrieve {
                         continue voicemailOptions;
                     }
                     String originalPin = choice1.getDigits();
+                                      
+                    String realm = m_loc.getConfig().getRealm();
+                    if (!user.isPinCorrect(originalPin, realm)) {
+                        errorCount++;
+                        LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pin invalid.");
+                        // "The personal identification number you have entered is not valid."
+                        m_loc.play("pin_invalid", "");
+                        continue;
+                    }
+                    
                     String newPin = "";
 
                     for(;;) {
@@ -1115,16 +1125,7 @@ public class Retrieve {
                         LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pins do not match.");
                         // "The two personal identification numbers you have entered do not match."
                         m_loc.play("pin_mismatch", "");
-                    }
-                    
-                    String realm = m_loc.getConfig().getRealm();
-                    if (!user.isPinCorrect(originalPin, realm)) {
-                        errorCount++;
-                        LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pin invalid.");
-                        // "The personal identification number you have entered is not valid."
-                        m_loc.play("pin_invalid", "");
-                        continue;
-                    }
+                    }                   
                     
                     try {
                         // Use sipXconfig's RESTful interface to change the PIN
