@@ -218,8 +218,8 @@ OsStatus OsMsgQShared::doSend(const OsMsg& rMsg,
 
 // Core send message logic.
 OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
-				  const OsTime& rTimeout,
-				  UtlBoolean isUrgent,
+                                  const OsTime& rTimeout,
+                                  UtlBoolean isUrgent,
                                   UtlBoolean deleteWhenDone)
 {
    OsStatus ret;
@@ -277,7 +277,12 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
       }
       if (ret == OS_BUSY || ret == OS_WAIT_TIMEOUT)
       {
-	 ret =  OS_WAIT_TIMEOUT;     // send timed out
+          ret =  OS_WAIT_TIMEOUT;     // send timed out
+      }
+      if (deleteWhenDone)
+      {
+         // Delete *pMsg, since we are done with it.
+         delete pMsg;
       }
    }
    else

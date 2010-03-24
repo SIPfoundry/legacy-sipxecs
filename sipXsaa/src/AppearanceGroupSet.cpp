@@ -274,9 +274,15 @@ bool AppearanceGroupSet::notifyEventCallbackAsync(const char* earlyDialogHandle,
    // The AppearanceGroupSet concerned is applicationData.
    AppearanceGroupSet* appearanceGroupSet = (AppearanceGroupSet*) applicationData;
 
-   // Send a message to the AppearanceGroupTask.  The handler owns the SipMessage pointer.
-   appearanceGroupSet->getAppearanceAgent()->getAppearanceAgentTask().
-      postMessageP(new NotifyCallbackMsg(dialogHandle, new SipMessage(*notifyRequest)));
+   // Send a message to the AppearanceGroupTask.  The handler owns the SipMessage pointer, unless queue insert fails.
+   SipMessage* qnotifyRequest = new SipMessage(*notifyRequest);
+   if (appearanceGroupSet->getAppearanceAgent()->getAppearanceAgentTask().
+                                    postMessageP(new NotifyCallbackMsg(dialogHandle, qnotifyRequest))
+       != OS_SUCCESS)
+   {  
+       // postMessageP deletes the new NotifyCallbackMsg for this failure path
+       delete qnotifyRequest;
+   }
 
    // Do NOT send an OK response; the callback handler is responsible for this.
    return false;
