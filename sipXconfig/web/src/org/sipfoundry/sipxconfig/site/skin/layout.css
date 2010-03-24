@@ -301,6 +301,7 @@ fieldset#loginForm legend {
 	float: left;       
 	padding-left:10px;
 	min-width:166px;
+	word-wrap: break-word;
 }
 
 #content
@@ -390,6 +391,7 @@ ul.component-links
 {
 	list-style-type:none;
 	text-align:right;
+	margin:0px;
 }
 
 ul.component-links li,
@@ -402,7 +404,7 @@ ul.component-links li form
 ul.component-submit
 {
 	list-style-type:none;
-	margin:5px;
+	margin:0px;
 	padding:0;
 	margin-bottom:0px;
 }
@@ -511,16 +513,13 @@ div.help
 {
     clear:right;
     float:right;
-    PADDING-RIGHT: 0px;
-    PADDING-LEFT: 20px;
-    PADDING-TOP: 0px;
-    PADDING-BOTTOM: 0px;
-    margin-right:-25%;
+    margin-right:-23%;
 }
 
 div.help
 {
 	width:20%;
+	word-wrap: break-word;
 }
 
 div.right-column
@@ -784,7 +783,7 @@ html, body {
 #bodyContentContainer {
 	margin-left:auto;
 	margin-right:auto;
-	width:95%;
+	width:98%;
 }
 
 .roundedSectionBoxTopLeft, 
@@ -856,6 +855,9 @@ html, body {
 .roundedSectionBoxInside {
 	min-height:200px;
 }
+.roundedSectionBoxInside form {
+	overflow:auto;
+} 
 #leftNav li {
 	margin:0px;
 }
@@ -866,6 +868,7 @@ html, body {
 }
 .roundedSectionBoxInsideContent {
 	width:100%;
+	display:inline-block;
 }
 .roundedMainSectionBoxInsideContent 
 {

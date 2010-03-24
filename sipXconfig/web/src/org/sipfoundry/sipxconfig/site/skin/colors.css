@@ -410,7 +410,7 @@ div.autocomplete ul strong.highlight {
 .roundedNavSectionBoxBottomLeft, 
 .roundedNavSectionBoxBottomRight 
 { 
-	background: transparent url(/sipxconfig/images/layout/roundedSectionBoxCorners.gif);
+	background: transparent url(/sipxconfig/images/layout/roundedSectionBoxCorners.gif) no-repeat;
 }
 .roundedSectionBoxInside,
 .roundedNavSectionBoxInside
@@ -426,7 +426,7 @@ div.autocomplete ul strong.highlight {
 .roundedMainSectionBoxBottomLeft, 
 .roundedMainSectionBoxBottomRight 
 { 
-	background: transparent url(/sipxconfig/images/layout/roundedSectionBoxCornersMain.gif);
+	background: transparent url(/sipxconfig/images/layout/roundedSectionBoxCornersMain.gif) no-repeat;
 }
 .roundedMainSectionBoxInside {
 	border-left: 1px solid #bebebe;
@@ -440,7 +440,7 @@ div.autocomplete ul strong.highlight {
 .roundedIndicatorSectionBoxBottomLeft, 
 .roundedIndicatorSectionBoxBottomRight 
 { 
-	background: transparent url(/sipxconfig/images/layout/roundedIndicatorSectionBoxCorners.png);
+	background: transparent url(/sipxconfig/images/layout/roundedIndicatorSectionBoxCorners.png) no-repeat;
 }
 .roundedIndicatorSectionBoxInside {
 	color: #ffffff;

@@ -31,3 +31,8 @@ div.userPortal,
 	padding-left:235px;
 	text-align:center;
 }
+div.right-column,
+div.help
+{
+	padding-left:5%;
+}
