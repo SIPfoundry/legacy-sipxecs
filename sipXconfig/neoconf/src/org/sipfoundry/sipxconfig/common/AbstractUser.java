@@ -198,9 +198,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     }
 
     public void setAliases(Set<String> aliases) {
-        for (String alias : aliases) {
-            addAlias(alias);
-        }
+        m_aliases = aliases;
     }
 
     public Branch getBranch() {
