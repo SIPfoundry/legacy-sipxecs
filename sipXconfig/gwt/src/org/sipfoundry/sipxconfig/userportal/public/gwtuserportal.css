@@ -3,25 +3,8 @@
 	padding:3px;
 }
 
-
-input[readonly='TRUE'], input[readonly], input[readOnly] {
-	border:0px;
-	background:white;
-	color:gray;
-	cursor:text;
-}
-
-input.readonly {
-	border:0px;
-	background:white;
-	color:gray;
-	cursor:text;
-}
-
-input.textItemDisabled {
-	border:0px;
-	background:white;
-	cursor:text;
+td.staticTextStyle {
+	padding:5px;
 }
 
 .titleFormStyle, .titleFormStyleFocused, .titleFormStyleError

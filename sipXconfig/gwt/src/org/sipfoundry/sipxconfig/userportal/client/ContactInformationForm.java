@@ -8,10 +8,13 @@
  */
 package org.sipfoundry.sipxconfig.userportal.client;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import com.google.gwt.i18n.client.ConstantsWithLookup;
-import com.smartgwt.client.util.JSOHelper;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.FormItem;
+import com.smartgwt.client.widgets.form.fields.StaticTextItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.validator.RegExpValidator;
 import com.smartgwt.client.widgets.form.validator.RequiredIfFunction;
@@ -20,11 +23,14 @@ import com.smartgwt.client.widgets.grid.ListGridRecord;
 
 public class ContactInformationForm extends DynamicForm {
 
+    private static final String EMPTY_STRING = "";
     private static final String TITLE_STYLE = "titleFormStyle";
-    private static final String READONLY_ATTR = "readOnly";
+    private static final String STATIC_TEXT_STYLE = "staticTextStyle";
     private static final String EMAIL_EXPRESSION = "^([a-zA-Z0-9_.\\-+])+@(([a-zA-Z0-9\\-])+\\.)+[a-zA-Z0-9]{2,4}$";
 
     private ConstantsWithLookup m_constants;
+    private List<FormItem> m_textItems = new LinkedList<FormItem>();
+    private List<FormItem> m_staticTextItems = new LinkedList<FormItem>();
 
     public ContactInformationForm(String[] fieldNames, String formName, int numCols, ConstantsWithLookup constants) {
         m_constants = constants;
@@ -32,43 +38,73 @@ public class ContactInformationForm extends DynamicForm {
         setIsGroup(true);
         setNumCols(numCols);
         setFixedColWidths(true);
-        setFields(createFields(fieldNames, m_constants));
+        setCanSelectText(true);
+        createFields(fieldNames);
     }
 
     public void setData(ListGridRecord selection) {
-        for (FormItem item : getFields()) {
-            String itemName = item.getName();
+        for (int i = 0; i < m_textItems.size(); i++) {
+            FormItem textItem = m_textItems.get(i);
+            String itemName = textItem.getName();
             String selectionValue = selection.getAttributeAsString(itemName);
-            item.setValue(selectionValue);
-            item.setAttribute(READONLY_ATTR, "true");
-            item.setTitleStyle(TITLE_STYLE);
+            setItemData(textItem, selectionValue, false);
+
+            FormItem staticTextItem = m_staticTextItems.get(i);
+            setItemData(staticTextItem, selectionValue, true);
         }
-        markForRedraw();
+    }
+
+    private void setItemData(FormItem item, String value, boolean visible) {
+        item.setValue(value);
+        item.setTitleStyle(TITLE_STYLE);
+        displayItem(item, visible);
     }
 
     public void editData() {
-        for (FormItem item : getFields()) {
-            JSOHelper.deleteAttribute(item.getJsObj(), READONLY_ATTR);
+        for (FormItem item : m_textItems) {
+            displayItem(item, true);
         }
-        markForRedraw();
+
+        for (FormItem item : m_staticTextItems) {
+            displayItem(item, false);
+        }
     }
 
     public void addData() {
-        for (FormItem item : getFields()) {
-            item.setValue("");
-            JSOHelper.deleteAttribute(item.getJsObj(), READONLY_ATTR);
+        for (FormItem item : m_textItems) {
+            item.setValue(EMPTY_STRING);
+            displayItem(item, true);
         }
-        markForRedraw();
+
+        for (FormItem item : m_staticTextItems) {
+            item.setValue(EMPTY_STRING);
+            displayItem(item, false);
+        }
     }
 
-    private TextItem[] createFields(String[] fieldNames, ConstantsWithLookup constants) {
-        TextItem[] fields = new TextItem[fieldNames.length];
-        for (int i = 0; i < fields.length; i++) {
-            String title = constants.getString(fieldNames[i]);
-            fields[i] = new TextItem(fieldNames[i], title);
-            fields[i].setTitleStyle(TITLE_STYLE);
+    private void displayItem(FormItem item, boolean show) {
+        item.setVisible(show);
+        item.redraw();
+    }
+
+    private void createFields(String[] fieldNames) {
+        List<FormItem> items = new LinkedList<FormItem>();
+        for (int i = 0; i < fieldNames.length; i++) {
+            String title = m_constants.getString(fieldNames[i]);
+            TextItem item = new TextItem(fieldNames[i], title);
+            item.setTitleStyle(TITLE_STYLE);
+            m_textItems.add(item);
+            items.add(item);
+
+            StaticTextItem staticTextItem = new StaticTextItem(fieldNames[i] + "_static", title);
+            staticTextItem.setTitleStyle(TITLE_STYLE);
+            staticTextItem.setVisible(false);
+            staticTextItem.setCellStyle(STATIC_TEXT_STYLE);
+            staticTextItem.setWrap(false);
+            m_staticTextItems.add(staticTextItem);
+            items.add(staticTextItem);
         }
-        return fields;
+        setItems(items.toArray(new FormItem[0]));
     }
 
     public void addRequiredValidator(String name) {
