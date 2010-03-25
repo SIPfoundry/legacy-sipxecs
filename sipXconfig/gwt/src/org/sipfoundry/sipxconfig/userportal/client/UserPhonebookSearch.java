@@ -323,6 +323,7 @@ public class UserPhonebookSearch implements EntryPoint {
         private final TextItem m_lastName;
         private final TextItem m_number;
         private final TextItem m_email;
+        private final TextItem m_fullName;
 
         public SearchForm(DataSource phonebookDS) {
             m_firstName = new TextItem();
@@ -345,7 +346,12 @@ public class UserPhonebookSearch implements EntryPoint {
             m_email.setOperator(OperatorId.ISTARTS_WITH);
             m_email.setVisible(false);
 
-            setFields(m_firstName, m_lastName, m_number, m_email);
+            m_fullName = new TextItem();
+            m_fullName.setCriteriaField(PhonebookDataSource.FULL_NAME);
+            m_fullName.setOperator(OperatorId.ISTARTS_WITH);
+            m_fullName.setVisible(false);
+
+            setFields(m_firstName, m_lastName, m_number, m_email, m_fullName);
             setDataSource(phonebookDS);
             setOperator(OperatorId.OR);
         }
@@ -357,6 +363,7 @@ public class UserPhonebookSearch implements EntryPoint {
                     m_lastName.setValue((String) m_firstName.getValue());
                     m_number.setValue((String) m_firstName.getValue());
                     m_email.setValue((String) m_firstName.getValue());
+                    m_fullName.setValue((String) m_firstName.getValue());
                     if (m_firstName.getValue() != null) {
                         phonebookGrid.filterData(getValuesAsCriteria());
                     } else {

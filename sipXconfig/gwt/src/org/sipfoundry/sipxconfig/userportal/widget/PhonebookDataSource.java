@@ -12,6 +12,8 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.smartgwt.client.data.DataSource;
 import com.smartgwt.client.data.DataSourceField;
+import com.smartgwt.client.data.FieldValueExtractor;
+import com.smartgwt.client.data.XMLTools;
 import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.widgets.form.ValuesManager;
 import org.sipfoundry.sipxconfig.userportal.client.HttpRequestBuilder;
@@ -22,6 +24,7 @@ public class PhonebookDataSource extends DataSource {
     public static final String FIRST_NAME = "firstName";
     public static final String LAST_NAME = "lastName";
     public static final String NUMBER = "number";
+    public static final String FULL_NAME = "fullName";
 
     public static final String EMAIL_ADDRESS = "emailAddress";
     public static final String CONTACT_INFORMATION = "contact-information";
@@ -63,6 +66,8 @@ public class PhonebookDataSource extends DataSource {
     private static final String KEY = "entry";
     private static final String VARIANT = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
+    private static final String FIRST_NAME_XPATH = "first-name";
+    private static final String LAST_NAME_XPATH = "last-name";
 
     public PhonebookDataSource(String id) {
         super();
@@ -71,10 +76,20 @@ public class PhonebookDataSource extends DataSource {
         DataSourceField entryId = new DataSourceTextField(ENTRY_ID);
 
         DataSourceTextField firstName = new DataSourceTextField(FIRST_NAME);
-        firstName.setValueXPath("first-name");
+        firstName.setValueXPath(FIRST_NAME_XPATH);
         DataSourceTextField lastName = new DataSourceTextField(LAST_NAME);
-        lastName.setValueXPath("last-name");
+        lastName.setValueXPath(LAST_NAME_XPATH);
         DataSourceTextField number = new DataSourceTextField(NUMBER);
+
+        DataSourceTextField fullName = new DataSourceTextField(FULL_NAME);
+        fullName.setFieldValueExtractor(new FieldValueExtractor() {
+            @Override
+            public Object execute(Object record, Object value, DataSourceField field, String fieldName) {
+                String firstName = XMLTools.selectString(record, FIRST_NAME_XPATH);
+                String lastName = XMLTools.selectString(record, LAST_NAME_XPATH);
+                return getValue(firstName) + " " + getValue(lastName);
+            }
+        });
 
         DataSourceField emailAddress = new DataSourceTextField(EMAIL_ADDRESS);
         emailAddress.setValueXPath("contact-information/emailAddress");
@@ -131,19 +146,19 @@ public class PhonebookDataSource extends DataSource {
         DataSourceField avatar = new DataSourceTextField(AVATAR);
         avatar.setValueXPath("contact-information/avatar");
 
-        setFields(entryId, firstName, lastName, number, emailAddress, jobTitle, jobDept, companyName, assistantName,
-                location, cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId,
-                alternateEmailAddress, homeStreet, homeCity, homeCountry, homeState, homeZip, officeStreet,
-                officeCity, officeCountry, officeState, officeZip, officeDesignation, avatar);
+        setFields(entryId, firstName, lastName, fullName, number, emailAddress, jobTitle, jobDept, companyName,
+                assistantName, location, cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId,
+                alternateImId, alternateEmailAddress, homeStreet, homeCity, homeCountry, homeState, homeZip,
+                officeStreet, officeCity, officeCountry, officeState, officeZip, officeDesignation, avatar);
         setRecordXPath("/phonebook/entry");
         setDataURL("/sipxconfig/rest/my/phonebook");
 
         /*
-         * NOTE -
-         * ECLIPSE DEBUGGING
+         * NOTE - ECLIPSE DEBUGGING
          *
-         * REST URL is not accessible when debugging the project from inside eclipse. You can use the data URL
-         * "PhonebookTestData.xml" instead. It will give you a set of test data to work with.
+         * REST URL is not accessible when debugging the project from inside eclipse. You can use
+         * the data URL "PhonebookTestData.xml" instead. It will give you a set of test data to
+         * work with.
          *
          * Make sure to use PhonebookDataSource as the DataSource in UserPhonebookSearch
          *
@@ -221,6 +236,13 @@ public class PhonebookDataSource extends DataSource {
 
     private String getPhoneBookEntryUrl(String id) {
         return "/sipxconfig/rest/my/phonebook/entry/" + id;
+    }
+
+    private String getValue(String value) {
+        if (value == null || value.equals("null")) {
+            return "";
+        }
+        return value;
     }
 
 }
