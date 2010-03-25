@@ -65,8 +65,9 @@ public class UserGroupConferenceSettingsTestUi extends WebTestCase {
         clickLink("UserGroups");
         clickLinkWithText("seedGroup0");
         clickLink("link:conference");
+        //seeding location manager does not remove conference role since it is now enabled
+        //by default.  Still, check no exception
         SiteTestHelper.assertNoException(tester);
-        assertSelectedOptionValueEquals("bridgeSelect", "");
     }
 
     /**

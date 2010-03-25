@@ -7,13 +7,12 @@
     http://www.springframework.org/schema/util/spring-util-2.0.xsd">
 
   <bean id="abstractBundle" abstract="true" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
-    <property name="autoEnable" value="false" />
+    <property name="autoEnable" value="true" />
     <property name="resetAffectLocation" value="false" />
   </bean>
 
   <bean id="managementBundle" parent="abstractBundle">
     <constructor-arg value="management" />
-    <property name="autoEnable" value="true" />
     <property name="onlyPrimary" value="true" />
     <property name="min" value="1" />
     <property name="max" value="1" />
@@ -21,7 +20,6 @@
 
   <bean id="primarySipRouterBundle" parent="abstractBundle">
     <constructor-arg value="primarySipRouter" />
-    <property name="autoEnable" value="true" />
     <property name="onlyPrimary" value="true" />
     <property name="min" value="1" />
     <property name="max" value="1" />
@@ -29,14 +27,12 @@
 
   <bean id="redundantSipRouterBundle" parent="abstractBundle">
     <constructor-arg value="redundantSipRouter" />
-    <property name="autoEnable" value="true" />
     <property name="onlyRemote" value="true" />
     <property name="max" value="2" />
   </bean>
 
   <bean id="voicemailBundle" parent="abstractBundle">
     <constructor-arg value="voicemail" />
-    <property name="autoEnable" value="true" />
     <property name="max" value="1" />
   </bean>
 
@@ -46,7 +42,6 @@
 
   <bean id="acdBundle" parent="abstractBundle">
     <constructor-arg value="acd" />
-    <property name="autoEnable" value="true" />
     <property name="resetAffectLocation" value="true" />
   </bean>
 

@@ -37,7 +37,7 @@ public class SipTrunkingServerRoleTestUi extends WebTestCase {
 	}
 
 	public void testDisableSipTrunkingServerRole() {
-		uncheckCheckbox("MultiplePropertySelection", "0");
+		uncheckCheckbox("MultiplePropertySelection", "1");
 		clickButton("form:ok");
 		SiteTestHelper.assertNoUserError(tester);
 

@@ -157,8 +157,12 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
      */
     public void deletePrimaryLocation() {
         Location location = getPrimaryLocation();
-        m_daoEventPublisher.publishDelete(location);
-        getHibernateTemplate().delete(location);
+        if  (location != null) {
+            m_daoEventPublisher.publishDelete(location);
+            getHibernateTemplate().delete(location);
+        } else {
+            return;
+        }
     }
 
     public List<Location> getLocationsForService(SipxService service) {

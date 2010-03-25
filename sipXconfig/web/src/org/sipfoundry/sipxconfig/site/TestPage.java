@@ -323,6 +323,7 @@ public abstract class TestPage extends SipxBasePage {
     }
 
     public void seedLocationsManager() {
+        resetConferenceBridgeContext();
         deleteLocations();
         resetPrimaryLocation();
     }

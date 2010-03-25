@@ -154,12 +154,15 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         Bridge bridgeForServer = null;
         List<Bridge> bridges = getHibernateTemplate().loadAll(Bridge.class);
         for (Bridge b : bridges) {
-            if (b.getService().getLocation().getFqdn().equalsIgnoreCase(hostname)) {
-                bridgeForServer = b;
-                break;
+            if (b != null) {
+                if (b.getService() != null) {
+                    if (b.getService().getLocation().getFqdn().equalsIgnoreCase(hostname)) {
+                        bridgeForServer = b;
+                        break;
+                    }
+                }
             }
         }
-
         return bridgeForServer;
     }
 
