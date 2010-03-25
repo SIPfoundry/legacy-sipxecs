@@ -21,6 +21,7 @@ public class GroupSettingsTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(GroupSettingsTestUi.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
@@ -76,6 +77,37 @@ public class GroupSettingsTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         clickLinkWithText("groupWithBranch");
         assertSelectedOptionValueEquals("branchSelection", "");
+    }
+
+    public void testChangeGroupBranch() {
+        //create two branches
+        BranchesPageTestUi.seedBranch(tester, 2);
+        //create a group with no branch
+        SiteTestHelper.home(tester);
+        clickLink("UserGroups");
+        clickLink("AddGroup");
+        tester.setTextField("item:name", "group1");
+        tester.clickButton("form:ok");
+
+        //ceate a user with group group1 and branch seedBranch0
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        tester.setTextField("user:userId", "x");
+        tester.setTextField("cp:password", "1234");
+        tester.setTextField("cp:confirmPassword", "1234");
+        tester.setTextField("gms:groups", "group1");
+        tester.selectOption("branchSelection", "seedBranch0");
+        tester.clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
+        //try to change the group branch - it fails
+        SiteTestHelper.home(tester);
+        tester.clickLink("UserGroups");
+        tester.clickLinkWithExactText("group1");
+        tester.selectOption("branchSelection", "seedBranch1");
+        tester.clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
     }
 
     public void testEditGroup() {

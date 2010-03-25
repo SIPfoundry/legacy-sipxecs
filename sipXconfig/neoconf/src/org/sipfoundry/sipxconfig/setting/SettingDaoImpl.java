@@ -32,6 +32,8 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDao {
     private static final String RESOURCE_PARAM = "resource";
     private static final String NAME_PARAM = "name";
+    private static final String GROUP_ID = "groupId";
+    private static final String BRANCH = "branch";
 
     private DaoEventPublisher m_daoEventPublisher;
 
@@ -66,6 +68,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
 
     public void saveGroup(Group group) {
         checkDuplicates(group);
+        checkBranchValidity(group);
         assignWeightToNewGroups(group);
         getHibernateTemplate().saveOrUpdate(group);
     }
@@ -99,6 +102,20 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         List objs = getHibernateTemplate().findByNamedQueryAndNamedParam("groupIdsWithNameAndResource", params,
                 values);
         DaoUtils.checkDuplicates(group, objs, new DuplicateGroupException(group.getName()));
+    }
+
+    private void checkBranchValidity(Group group) {
+        String[] params = new String[] {
+            GROUP_ID, BRANCH
+        };
+        Object[] values = new Object[] {
+            group.getId(), group.getBranch()
+        };
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam("selectedBranchValid", params,
+                values);
+        if (objs.size() > 0) {
+            throw new UserException("&branch.validity.error", group.getBranch().getName());
+        }
     }
 
     private static class DuplicateGroupException extends UserException {

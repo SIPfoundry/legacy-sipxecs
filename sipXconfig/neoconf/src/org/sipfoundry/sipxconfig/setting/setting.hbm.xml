@@ -50,6 +50,11 @@
     <![CDATA[select g.id from Group g where g.resource = :resource and g.name = :name]]>
   </query>
 
+  <query name="selectedBranchValid">
+    <![CDATA[select u from User u join u.groups as ugroups where ugroups.id = :groupId
+             and u.branch != null  and u.branch != :branch]]>
+  </query>
+
   <query name="groupsForBranch">
     <![CDATA[from Group g where g.branch = :branch]]>
   </query>

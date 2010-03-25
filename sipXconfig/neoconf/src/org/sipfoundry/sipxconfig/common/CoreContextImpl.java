@@ -119,7 +119,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
         checkImIdUnique(user);
         checkMaxUsers(user, m_maxUserCount);
-        assignBranch(user);
+        checkBranch(user);
 
         if (!user.isNew()) {
             String origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
@@ -258,6 +258,15 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         if (!isImIdUnique(user)) {
             ImAccount accountToSave = new ImAccount(user);
             throw new UserException("&duplicate.imid.error", accountToSave.getImId());
+        }
+    }
+
+    private void checkBranch(User user) {
+        Branch inheritedBranch = user.getInheritedBranch();
+        Branch branch = user.getBranch();
+        if (inheritedBranch != null && branch != null
+                && !StringUtils.equals(inheritedBranch.getName(), branch.getName())) {
+            throw new UserException("&invalid.branch");
         }
     }
 
@@ -480,13 +489,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return availableGroups;
     }
 
-    private void assignBranch(User user) {
-        Branch inheritedBranch = user.getInheritedBranch();
-        if (inheritedBranch != null) {
-            user.setBranch(inheritedBranch);
-        }
-    }
-
     public Group getGroupById(Integer groupId) {
         List<Group> groups = m_settingDao.getGroups(USER_GROUP_RESOURCE_ID);
         for (Group group : groups) {
@@ -569,9 +571,6 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
                 Collection<User> users = getGroupMembers(group);
                 for (User user : users) {
-                    if (user.getInheritedBranch() != null) {
-                        user.setBranch(null);
-                    }
                     Object[] ids = new Object[] {
                         group.getId()
                     };
@@ -602,16 +601,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     }
 
     public void onSave(Object entity) {
-        if (entity instanceof Group) {
-            Group group = (Group) entity;
-            if (User.GROUP_RESOURCE_ID.equals(group.getResource())) {
-                Collection<User> users = getGroupMembers(group);
-                for (User user : users) {
-                    user.setBranch(group.getBranch());
-                    saveUser(user);
-                }
-            }
-        }
+
     }
 
     public boolean isAliasInUse(String alias) {

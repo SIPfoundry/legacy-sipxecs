@@ -106,8 +106,13 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         User user = m_coreContext.loadUser(1001);
         Branch branch = m_branchManager.getBranch(101);
         user.setBranch(branch);
-        m_coreContext.saveUser(user);
-        assertEquals(100, user.getBranch().getId().intValue());
+        try {
+            m_coreContext.saveUser(user);
+            fail();
+        } catch (UserException ex) {
+
+        }
+        assertEquals(100, user.getInheritedBranch().getId().intValue());
     }
 
     public void testTrimUserValues() {

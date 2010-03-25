@@ -13,6 +13,7 @@ import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
+import org.sipfoundry.sipxconfig.site.branch.BranchesPageTestUi;
 import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
 
 
@@ -24,6 +25,7 @@ public class ManageUsersTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(ManageUsersTestUi.class);
     }
 
+    @Override
     protected void setUp() throws Exception {
         super.setUp();
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
@@ -42,6 +44,42 @@ public class ManageUsersTestUi extends WebTestCase {
         clickLink("AddUser");
         clickButton("form:cancel");
         SiteTestHelper.assertNoException(tester);
+    }
+
+    public void testUserInheritsGroupBranch() {
+        //create two new branches
+        BranchesPageTestUi.seedBranch(tester, 2);
+
+        //create a group with branch: seedBranch0
+        SiteTestHelper.home(tester);
+        clickLink("UserGroups");
+        clickLink("AddGroup");
+        tester.setTextField("item:name", "group1");
+        tester.selectOption("branchSelection", "seedBranch0");
+        tester.clickButton("form:ok");
+
+        //ceate a user with group group1
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        tester.setTextField("user:userId", "x");
+        tester.setTextField("cp:password", "1234");
+        tester.setTextField("cp:confirmPassword", "1234");
+        tester.setTextField("gms:groups", "group1");
+        tester.clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
+        //ceate a user with group group1 and with a branch different than inherited group branch
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        tester.setTextField("user:userId", "x");
+        tester.setTextField("cp:password", "1234");
+        tester.setTextField("cp:confirmPassword", "1234");
+        tester.setTextField("gms:groups", "group1");
+        tester.selectOption("branchSelection", "seedBranch1");
+        tester.clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
     }
 
     public void testGroupFilter() throws Exception {

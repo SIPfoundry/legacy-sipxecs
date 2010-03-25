@@ -20,6 +20,7 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -66,6 +67,15 @@ public class ContactInformationConfig extends XmlFile {
 
         AddressBookEntry abe = user.getAddressBookEntry();
         if (abe != null) {
+            //FIXME abe.getOfficeAddress should be accurate enough to get real office address
+            //complete fix should be when XX-8002 gets solved
+            Address officeAddress = null;
+            Branch site = user.getSite();
+            if (abe.getUseBranchAddress() && site != null) {
+                officeAddress = site.getAddress();
+            } else {
+                officeAddress = abe.getOfficeAddress();
+            }
 
             addElements(userEl, abe, "alternateImId", "jobTitle", "jobDept", "companyName", "assistantName",
                     "assistantPhoneNumber", "faxNumber", "location", "homePhoneNumber", "cellPhoneNumber");
@@ -74,7 +84,7 @@ public class ContactInformationConfig extends XmlFile {
             addAddressInfo(homeAddressEl, abe.getHomeAddress());
 
             Element officeAddressEl = userEl.addElement("officeAddress");
-            addAddressInfo(officeAddressEl, abe.getOfficeAddress());
+            addAddressInfo(officeAddressEl, officeAddress);
         }
 
         List<Conference> conferences = m_conferenceBridgeContext.findConferencesByOwner(user);

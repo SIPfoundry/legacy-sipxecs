@@ -79,9 +79,9 @@ public class BranchesPageTestUi extends ListWebTestCase {
      * @param pageLinkId From the TestPage, what link to click to get to new branch page
      */
     public static void seedBranch(WebTester tester, int count) {
-        SiteTestHelper.home(tester);
-        tester.clickLink("link:branches");
         for (int i = 0; i < count; i++) {
+            SiteTestHelper.home(tester);
+            tester.clickLink("link:branches");
             tester.clickLink("branch:add");
             tester.setWorkingForm("branchForm");
             tester.setTextField("item:name", "seedBranch" + i);
