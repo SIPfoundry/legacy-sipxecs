@@ -1080,10 +1080,10 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
       ssize_t l;
       sipMessage->getBytes(&b, &l);
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRefreshManager::handleMessage sipMessage = '%s'",
+                    "SipRefreshManager::handleSipMessage sipMessage = '%s'",
                     b.data());
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRefreshManager::handleMessage sipMessage %p, cseq = %d, method = '%s', isResponse = %d",
+                    "SipRefreshManager::handleSipMessage sipMessage %p, cseq = %d, method = '%s', isResponse = %d",
                     sipMessage, cseq, method.data(), sipMessage->isResponse());
    }
 
@@ -1140,28 +1140,30 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
       RefreshDialogState* state = NULL;
       if (foundDialog && matchesLastLocalTransaction)
       {
-         state = (RefreshDialogState*) mRefreshes.find(&dialogHandle);
+         state =
+            dynamic_cast <RefreshDialogState*> (mRefreshes.find(&dialogHandle));
          // Check if the key has the tags reversed
          if (state == NULL)
          {
             UtlString reversedDialogHandle;
             SipDialog::reverseTags(dialogHandle, reversedDialogHandle);
             state =
-               (RefreshDialogState*)
-               mRefreshes.find(&reversedDialogHandle);
+               dynamic_cast <RefreshDialogState*>
+               (mRefreshes.find(&reversedDialogHandle));
          }
       }
       else if (foundEarlyDialog && matchesLastLocalTransaction)
       {
-         state = (RefreshDialogState*) mRefreshes.find(&earlyDialogHandle);
+         state =
+            dynamic_cast <RefreshDialogState*> (mRefreshes.find(&earlyDialogHandle));
          // See if the key has the tags reversed
          if (state == NULL)
          {
             UtlString reversedEarlyDialogHandle;
             SipDialog::reverseTags(earlyDialogHandle, reversedEarlyDialogHandle);
             state =
-               (RefreshDialogState*)
-               mRefreshes.find(&reversedEarlyDialogHandle);
+               dynamic_cast <RefreshDialogState*>
+               (mRefreshes.find(&reversedEarlyDialogHandle));
          }
       }
 
@@ -1591,7 +1593,7 @@ int SipRefreshManager::dumpRefreshStates(UtlString& dumpString)
    RefreshDialogState* state = NULL;
    UtlString oneStateDump;
 
-   while((state = (RefreshDialogState*) iterator()))
+   while((state = dynamic_cast <RefreshDialogState*> (iterator())))
    {
       state->toString(oneStateDump);
       dumpString.append(oneStateDump);
@@ -1666,8 +1668,8 @@ RefreshDialogState* SipRefreshManager::getAnyDialog(const UtlString& messageDial
    {
       UtlString reversedHandle;
       SipDialog::reverseTags(messageDialogHandle, reversedHandle);
-      state = (RefreshDialogState*)
-         mRefreshes.find(&reversedHandle);
+      state =
+         dynamic_cast <RefreshDialogState*> (mRefreshes.find(&reversedHandle));
    }
 
    // It did not match
@@ -1680,14 +1682,16 @@ RefreshDialogState* SipRefreshManager::getAnyDialog(const UtlString& messageDial
           mpDialogMgr->getEstablishedDialogHandleFor(messageDialogHandle,
                                                      establishedDialogHandle))
       {
-         state = (RefreshDialogState*)
-            mRefreshes.find(&establishedDialogHandle);
+         state =
+            dynamic_cast <RefreshDialogState*>
+            (mRefreshes.find(&establishedDialogHandle));
          if(state == NULL)
          {
             UtlString reversedEstablishedDialogHandle;
             SipDialog::reverseTags(establishedDialogHandle, reversedEstablishedDialogHandle);
-            state = (RefreshDialogState*)
-               mRefreshes.find(&reversedEstablishedDialogHandle);
+            state =
+               dynamic_cast <RefreshDialogState*>
+               (mRefreshes.find(&reversedEstablishedDialogHandle));
          }
       }
 
@@ -1699,14 +1703,16 @@ RefreshDialogState* SipRefreshManager::getAnyDialog(const UtlString& messageDial
          mpDialogMgr->getEarlyDialogHandleFor(messageDialogHandle,
                                               earlyDialogHandle);
 
-         state = (RefreshDialogState*)
-            mRefreshes.find(&earlyDialogHandle);
+         state =
+            dynamic_cast <RefreshDialogState*>
+            (mRefreshes.find(&earlyDialogHandle));
          if(state == NULL)
          {
             UtlString reversedEarlyDialogHandle;
             SipDialog::reverseTags(earlyDialogHandle, reversedEarlyDialogHandle);
-            state = (RefreshDialogState*)
-               mRefreshes.find(&reversedEarlyDialogHandle);
+            state =
+               dynamic_cast <RefreshDialogState*>
+               (mRefreshes.find(&reversedEarlyDialogHandle));
          }
       }
    }
@@ -1719,7 +1725,7 @@ UtlBoolean SipRefreshManager::stateExists(RefreshDialogState* statePtr)
    // Our caller holds the lock.
 
    RefreshDialogState* state =
-      (RefreshDialogState*) mRefreshes.findReference(statePtr);
+      dynamic_cast <RefreshDialogState*> (mRefreshes.findReference(statePtr));
 
    return(state != NULL);
 }

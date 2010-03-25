@@ -1130,8 +1130,13 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
       // either the early dialog failed, or the subscription
       // has expired and the reSUBSCRIBE failed.  We do not hear
       // about SUBSCRIBEs that fail due to authorization unless
-      // there is no matching credentials or the credentials did
+      // there are no matching credentials or the credentials did
       // not work.
+
+      // Tell the Refresh Manager to delete the state for this dialog.
+      mpRefreshManager->stopRefresh(dialogHandle ?
+                                    dialogHandle :
+                                    earlyDialogHandle);
 
       OsLockUnlockable lock(mSemaphore);
 
