@@ -1,0 +1,55 @@
+BEGIN:vCard
+VERSION:3.0
+FN:Michael Jordan
+N:Jordan;Michael;;;
+TEL;TYPE=WORK:1234
+TEL;TYPE=HOME:2222
+TEL;TYPE=CELL:333
+TEL;TYPE=FAX:555
+ADR;TYPE=WORK:OfficeDesignation;;OfficeStreet;OfficeCity;OfficeState;;OfficeCountry
+ADR;TYPE=HOME:;;HomeStreet;HomeCity;HomeState;;HomeCountry
+EMAIL;TYPE=PREF:test@test.com
+EMAIL:alt@test.com
+ORG:NBA;
+TITLE:Mr.
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+FN:Teemu Selanne
+N:Selanne;Teemu;;;
+TEL;TYPE=WORK:789
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+FN:Saku Koivu
+N:Koivu;Saku;;;
+TEL;TYPE=WORK:5432
+TEL;TYPE=HOME:
+TEL;TYPE=CELL:
+TEL;TYPE=FAX:
+ADR;TYPE=WORK:;;;;;;
+ADR;TYPE=HOME:;;;;;;
+EMAIL;TYPE=PREF:
+EMAIL:
+ORG:;
+TITLE:
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+FN:Eric Staal
+N:Staal;Eric;;;
+TEL;TYPE=WORK:4343
+TEL;TYPE=HOME:
+TEL;TYPE=CELL:
+TEL;TYPE=FAX:
+ADR;TYPE=WORK:;;;;;;
+ADR;TYPE=HOME:;;;;;;
+EMAIL;TYPE=PREF:
+EMAIL:
+ORG:;
+TITLE:
+END:vCard
+

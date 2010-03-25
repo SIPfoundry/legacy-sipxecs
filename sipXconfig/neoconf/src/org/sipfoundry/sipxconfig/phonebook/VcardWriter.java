@@ -17,6 +17,10 @@ import org.apache.commons.lang.StringUtils;
 public class VcardWriter {
     public void write(Writer writer, PhonebookEntry entry) throws IOException {
 
+        if (entry == null) {
+            return;
+        }
+
         if (StringUtils.isEmpty(entry.getFirstName()) && StringUtils.isEmpty(entry.getLastName())) {
             return;
         }
@@ -25,29 +29,29 @@ public class VcardWriter {
         String lastName = StringUtils.defaultString(entry.getLastName());
         String phoneNumber = StringUtils.defaultString(entry.getNumber());
 
-        String cellPhoneNumber = null;
-        String homePhoneNumber = null;
-        String faxNumber = null;
+        String cellPhoneNumber = StringUtils.EMPTY;
+        String homePhoneNumber = StringUtils.EMPTY;
+        String faxNumber = StringUtils.EMPTY;
 
-        String emailAddress = null;
-        String alternateEmailAddress = null;
+        String emailAddress = StringUtils.EMPTY;
+        String alternateEmailAddress = StringUtils.EMPTY;
 
-        String companyName = null;
-        String jobTitle = null;
-        String jobDept = null;
+        String companyName = StringUtils.EMPTY;
+        String jobTitle = StringUtils.EMPTY;
+        String jobDept = StringUtils.EMPTY;
 
-        String homeAddressStreet = null;
-        String homeAddressZip = null;
-        String homeAddressCountry = null;
-        String homeAddressState = null;
-        String homeAddressCity = null;
+        String homeAddressStreet = StringUtils.EMPTY;
+        String homeAddressZip = StringUtils.EMPTY;
+        String homeAddressCountry = StringUtils.EMPTY;
+        String homeAddressState = StringUtils.EMPTY;
+        String homeAddressCity = StringUtils.EMPTY;
 
-        String officeAddressStreet = null;
-        String officeAddressZip = null;
-        String officeAddressCountry = null;
-        String officeAddressState = null;
-        String officeAddressCity = null;
-        String officeAddressOfficeDesignation = null;
+        String officeAddressStreet = StringUtils.EMPTY;
+        String officeAddressZip = StringUtils.EMPTY;
+        String officeAddressCountry = StringUtils.EMPTY;
+        String officeAddressState = StringUtils.EMPTY;
+        String officeAddressCity = StringUtils.EMPTY;
+        String officeAddressOfficeDesignation = StringUtils.EMPTY;
 
         AddressBookEntry addressBook = entry.getAddressBookEntry();
         if (addressBook != null) {
@@ -62,19 +66,23 @@ public class VcardWriter {
             jobTitle = StringUtils.defaultString(addressBook.getJobTitle());
             jobDept = StringUtils.defaultString(addressBook.getJobDept());
 
-            homeAddressStreet = StringUtils.defaultString(addressBook.getHomeAddress().getStreet());
-            homeAddressZip = StringUtils.defaultString(addressBook.getHomeAddress().getZip());
-            homeAddressCountry = StringUtils.defaultString(addressBook.getHomeAddress().getCountry());
-            homeAddressState = StringUtils.defaultString(addressBook.getHomeAddress().getState());
-            homeAddressCity = StringUtils.defaultString(addressBook.getHomeAddress().getCity());
+            if (addressBook.getHomeAddress() != null) {
+                homeAddressStreet = StringUtils.defaultString(addressBook.getHomeAddress().getStreet());
+                homeAddressZip = StringUtils.defaultString(addressBook.getHomeAddress().getZip());
+                homeAddressCountry = StringUtils.defaultString(addressBook.getHomeAddress().getCountry());
+                homeAddressState = StringUtils.defaultString(addressBook.getHomeAddress().getState());
+                homeAddressCity = StringUtils.defaultString(addressBook.getHomeAddress().getCity());
+            }
 
-            officeAddressStreet = StringUtils.defaultString(addressBook.getOfficeAddress().getStreet());
-            officeAddressZip = StringUtils.defaultString(addressBook.getOfficeAddress().getZip());
-            officeAddressCountry = StringUtils.defaultString(addressBook.getOfficeAddress().getCountry());
-            officeAddressState = StringUtils.defaultString(addressBook.getOfficeAddress().getState());
-            officeAddressCity = StringUtils.defaultString(addressBook.getOfficeAddress().getCity());
-            officeAddressOfficeDesignation = StringUtils.defaultString(addressBook.getOfficeAddress()
-                    .getOfficeDesignation());
+            if (addressBook.getOfficeAddress() != null) {
+                officeAddressStreet = StringUtils.defaultString(addressBook.getOfficeAddress().getStreet());
+                officeAddressZip = StringUtils.defaultString(addressBook.getOfficeAddress().getZip());
+                officeAddressCountry = StringUtils.defaultString(addressBook.getOfficeAddress().getCountry());
+                officeAddressState = StringUtils.defaultString(addressBook.getOfficeAddress().getState());
+                officeAddressCity = StringUtils.defaultString(addressBook.getOfficeAddress().getCity());
+                officeAddressOfficeDesignation = StringUtils.defaultString(addressBook.getOfficeAddress()
+                        .getOfficeDesignation());
+            }
         }
 
         Formatter formatter = new Formatter(writer);
