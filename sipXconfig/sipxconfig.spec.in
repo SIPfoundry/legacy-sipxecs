@@ -259,7 +259,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{sipxpbxconf}/ciscoIp
 %config(noreplace) %{sipxpbxconf}/ciscoIp/*
 %config(noreplace) %{sipxpbxconf}/ciscoplus/*
-%config(noreplace) %{sipxpbxconf}/ciscospa/*
 %config(noreplace) %{sipxpbxconf}/clearone/*
 %dir %{sipxpbxconf}/commserver
 %config(noreplace) %{sipxpbxconf}/commserver/*
