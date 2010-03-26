@@ -43,7 +43,7 @@
           </false>
         </boolean>
       </type>
-      <value>disabled</value>
+      <value>enabled</value>
     </setting>
     <setting name="behind-nat" hidden="yes">
       <type>
@@ -56,7 +56,7 @@
           </false>
         </boolean>
       </type>
-      <value>false</value>
+      <value>true</value>
     </setting>
     <setting name="media-relay-temperament">
       <type>

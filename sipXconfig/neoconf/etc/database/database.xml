@@ -362,6 +362,16 @@
     <!-- sipx-version version="12" -->
   </target>
 
+  <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
+    <!-- migrate nattraversal defaults from 4.0 to 4.2 Defaults changed from false to true -->
+    <sipx-sql>
+      insert into initialization_task (name) values
+      ('nattraversal_prefs_migration');
+    </sipx-sql>
+    <mark-patch-applied patch="nattraversal_defaults" />
+  </target>
+
+
   <target name="time_of_day" unless="time_of_day">
     <db-patch patch="time_of_day" />
   </target>

@@ -6,4 +6,14 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
+
+    <bean id="NatTraversalDefaultsMigrationTask" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalDefaultsMigrationTask">
+    <property name="natTraversalManager" ref="natTraversalManager"/>
+    <property name="taskNames">
+      <list>
+        <value>nattraversal_prefs_negatation</value>
+        <value>nattraversal_prefs_migration</value>
+      </list>
+    </property>
+  </bean>
 </beans>

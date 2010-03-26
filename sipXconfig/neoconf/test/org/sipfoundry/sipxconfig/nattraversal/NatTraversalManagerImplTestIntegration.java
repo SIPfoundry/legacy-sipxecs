@@ -79,17 +79,17 @@ public class NatTraversalManagerImplTestIntegration extends IntegrationTestCase 
         assertTrue(natTraversal != null);
 
         // test default values
-        assertFalse(natTraversal.isBehindnat());
-        assertFalse(natTraversal.isEnabled());
+        assertTrue(natTraversal.isBehindnat());
+        assertTrue(natTraversal.isEnabled());
 
         // test update NatTraversal
-        natTraversal.setEnabled(true);
+        natTraversal.setEnabled(false);
 
         m_natTraversalManager.store(natTraversal);
 
         NatTraversal natTraversalUpdated = m_natTraversalManager.getNatTraversal();
         assertTrue(natTraversalUpdated != null);
-        assertTrue(natTraversalUpdated.isEnabled());
+        assertFalse(natTraversalUpdated.isEnabled());
 
         flush();
     }
