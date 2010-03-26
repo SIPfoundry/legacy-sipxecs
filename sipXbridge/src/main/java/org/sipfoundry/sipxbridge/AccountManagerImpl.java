@@ -108,7 +108,9 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             for (ItspAccountInfo accountInfo : itspAccounts) {
                 if (accountInfo.getProxyDomain() != null && sipUri.getHost().endsWith(accountInfo.getProxyDomain())
                         && checkSipxecsLineid(accountInfo.getSipxecsLineIds(), sipUri)) {
-                    if (accountInfo.getCallerId() == null) {
+                	if ( sipUri.getParameter(SIPXECS_LINEID) != null ) {
+                		return accountInfo;
+                	} else if (accountInfo.getCallerId() == null) {
                         /*
                          * A null override caller ID has been provided. This case occurs when you
                          * override the default P-A-I to blank. (see XX-7159)
