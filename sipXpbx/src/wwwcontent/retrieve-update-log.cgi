@@ -46,6 +46,7 @@ while (<FILE>) {
 close (FILE);
 
 $message =~ s/\r/\\n/g;
+$message =~ s/"/'/g;
 
 print "$jsoncallback({\"Message\": \"$message\"})";
 exit (0);
