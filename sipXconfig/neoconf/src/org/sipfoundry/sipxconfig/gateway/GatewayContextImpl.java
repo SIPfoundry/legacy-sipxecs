@@ -12,7 +12,10 @@ package org.sipfoundry.sipxconfig.gateway;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
@@ -133,11 +136,23 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
     public void deleteGateways(Collection<Integer> selectedRows) {
         // remove gateways from rules first
         m_dialPlanContext.removeGateways(selectedRows);
+        Set<SbcDevice> sbcSet = new LinkedHashSet<SbcDevice>(0);
         // remove gateways from the database
         for (Integer id : selectedRows) {
+            SbcDevice sbc = getGateway(id).getSbcDevice();
+            // Since this is a set duplicate SBCs will not be added.
+            if (sbc != null) {
+                sbcSet.add(sbc);
+            }
             deleteGateway(id);
         }
+        getHibernateTemplate().flush();
         m_dialPlanActivationManager.replicateDialPlan(true);
+        for (Iterator i = sbcSet.iterator(); i.hasNext();) {
+            SbcDevice sbc = (SbcDevice) i.next();
+            sbc.generateProfiles(sbc.getProfileLocation());
+            sbc.restart();
+        }
     }
 
     public List<Gateway> getGatewayByIds(Collection<Integer> gatewayIds) {
