@@ -62,6 +62,7 @@
   <component id="sipPassword" type="TextField">
     <binding name="value" value="user.sipPassword"/>
     <binding name="displayName" value="message:label.sipPassword"/>
+    <binding name="validators" value="spring-validators:validPin,required"/>
   </component>
   <component id="groupsPanel" type="common/FieldPanel">
     <!-- Tacos/Tapestry Bug

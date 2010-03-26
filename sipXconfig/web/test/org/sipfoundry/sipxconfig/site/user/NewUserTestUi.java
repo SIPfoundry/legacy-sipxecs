@@ -9,10 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import junit.framework.Test;
-import net.sourceforge.jwebunit.junit.WebTestCase;
-import org.sipfoundry.sipxconfig.site.TestPage;
-
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoException;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertNoUserError;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertTextFieldEmpty;
@@ -20,6 +16,10 @@ import static org.sipfoundry.sipxconfig.site.SiteTestHelper.assertUserError;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.getBaseUrl;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.home;
 import static org.sipfoundry.sipxconfig.site.SiteTestHelper.webTestSuite;
+import junit.framework.Test;
+import net.sourceforge.jwebunit.junit.WebTestCase;
+
+import org.sipfoundry.sipxconfig.site.TestPage;
 
 public class NewUserTestUi extends WebTestCase {
 
@@ -194,6 +194,23 @@ public class NewUserTestUi extends WebTestCase {
         clickLink("AddUser");
         clickLink("link:extensionPool");
         assertNoUserError(tester);
+        clickButton("form:ok");
+        assertNoUserError(tester);
+    }
+
+    public void testSipPassword() {
+        clickLink("ManageUsers");
+        clickLink("AddUser");
+        setTextField("user:userId", "x");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        setTextField("user:sipPassword", "");
+        setTextField("user:aliases", "aa bb cc");
+        checkCheckbox("stay");
+        clickButton("form:ok");
+        assertUserError(tester);
+
+        setTextField("user:sipPassword", "abcd");
         clickButton("form:ok");
         assertNoUserError(tester);
     }
