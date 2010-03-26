@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.alarm;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 import junit.framework.TestCase;
 
@@ -28,6 +29,8 @@ public class AlarmEventTest extends TestCase {
         assertEquals("CRIT", alarm.getSeverity());
         assertNotNull(ae.getDate());
         final DateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // alarm times are the UTC times from the alarms log
+        f.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals("2009-06-22 13:39:56", f.format(ae.getDate()));
     }
 
@@ -40,6 +43,8 @@ public class AlarmEventTest extends TestCase {
         assertEquals("CRIT", alarm.getSeverity());
         assertNotNull(ae.getDate());
         final DateFormat f = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        // alarm times are the UTC times from the alarms log
+        f.setTimeZone(TimeZone.getTimeZone("UTC"));
         assertEquals("2009-06-22 13:39:56", f.format(ae.getDate()));
     }
 }

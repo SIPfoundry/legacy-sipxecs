@@ -13,6 +13,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
@@ -47,6 +48,8 @@ public class AlarmEvent implements Serializable {
     private Date extractDate(String line) {
         try {
             String token = StringUtils.substring(line, 1, 20);
+            // alarm times are the UTC times from the alarms log
+            LOG_DATE_FORMAT.setTimeZone(TimeZone.getTimeZone("UTC"));
             return LOG_DATE_FORMAT.parse(token);
         } catch (ParseException ex) {
             return new Date(0);
