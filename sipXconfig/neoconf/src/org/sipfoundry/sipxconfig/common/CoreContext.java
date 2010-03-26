@@ -53,7 +53,7 @@ public interface CoreContext extends DataObjectSource<User>, AliasProvider, Alia
 
     void deleteUser(User user);
 
-    void deleteUsers(Collection<Integer> usersIds);
+    boolean deleteUsers(Collection<Integer> usersIds);
 
     void deleteUsersByUserName(Collection<String> usersName);
 

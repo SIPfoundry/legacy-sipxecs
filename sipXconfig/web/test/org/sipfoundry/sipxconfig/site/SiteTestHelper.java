@@ -424,4 +424,9 @@ public class SiteTestHelper {
         tester.selectOptionByValue(selectName, value);
         tester.submit();
     }
+
+    public static void createAdminUserAndAdminGroup(WebTester tester) {
+        home(tester);
+        tester.clickLink("createAdminUserAndAdminGroup");
+    }
 }

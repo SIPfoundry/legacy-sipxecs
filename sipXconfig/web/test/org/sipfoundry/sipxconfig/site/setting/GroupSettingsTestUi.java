@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.setting;
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
+import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.branch.BranchesPageTestUi;
 
@@ -138,5 +139,37 @@ public class GroupSettingsTestUi extends WebTestCase {
         assertButtonPresent("form:apply");
         clickButton("form:cancel");
         SiteTestHelper.assertNoUserError(tester);
+    }
+
+    public void testDeleteAdminGroup() {
+        SiteTestHelper.createAdminUserAndAdminGroup(tester);
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(tester);
+        clickLink("UserGroups");
+        setWorkingForm("groupManagement");
+        // rowCount includes the header&footer of the table
+        int rowCount = SiteTestHelper.getRowCount(tester, "group:list");
+        if (rowCount <= 2) {
+            return;
+        }
+        for (int i = 0; i < rowCount - 2; i++) {
+            SiteTestHelper.selectRow(tester, i, true);
+        }
+        clickButton("group:delete");
+        // header, footer and "administrators" group who can't be deleted
+        assertEquals(3, SiteTestHelper.getRowCount(tester, "group:list"));
+    }
+
+    public void testRenameAdminGroup() {
+        SiteTestHelper.createAdminUserAndAdminGroup(tester);
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(tester);
+        clickLink("UserGroups");
+        clickLinkWithExactText(CoreContextImpl.ADMIN_GROUP_NAME);
+        clickLink("link:configure");
+        setWorkingForm("groupForm");
+        setTextField("item:name", "administrators2");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
     }
 }

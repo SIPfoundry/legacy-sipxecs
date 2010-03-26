@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.site.user;
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 import org.sipfoundry.sipxconfig.site.branch.BranchesPageTestUi;
 import org.sipfoundry.sipxconfig.site.phone.PhoneTestHelper;
@@ -102,4 +103,37 @@ public class ManageUsersTestUi extends WebTestCase {
         assertEquals(allTableCount, allTableCountAgain);
     }
 
+    public void testDeleteAdminUser() throws Exception {
+        SiteTestHelper.createAdminUserAndAdminGroup(tester);
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        setWorkingForm("userManagement");
+        // rowCount includes the header&footer of the table
+        int rowCount = SiteTestHelper.getRowCount(tester, "user:list");
+        if (rowCount <= 2) {
+            return;
+        }
+        for (int i = 0; i < rowCount - 2; i++) {
+            SiteTestHelper.selectRow(tester, i, true);
+        }
+        clickButton("user:delete");
+        // header, footer and "superadmin" user who can't be deleted
+        assertEquals(3, SiteTestHelper.getRowCount(tester, "user:list"));
+    }
+
+    public void testRenameAdminUser() throws Exception {
+        SiteTestHelper.createAdminUserAndAdminGroup(tester);
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(tester);
+        clickLink("ManageUsers");
+        clickLinkWithExactText(User.SUPERADMIN);
+        clickLink("editUserLink");
+        setWorkingForm("form");
+        setTextField("user:userId", "superadmin2");
+        setTextField("cp:password", "1234");
+        setTextField("cp:confirmPassword", "1234");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+    }
 }

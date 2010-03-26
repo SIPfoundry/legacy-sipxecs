@@ -703,4 +703,10 @@ public abstract class TestPage extends SipxBasePage {
     public void clearRestartNeeded() {
         getSipxProcessContext().clear();
     }
+
+    public void createAdminUserAndAdminGroup() {
+        if (getCoreContext().loadUserByUserName(User.SUPERADMIN) == null) {
+            getCoreContext().createAdminGroupAndInitialUser("123");
+        }
+    }
 }

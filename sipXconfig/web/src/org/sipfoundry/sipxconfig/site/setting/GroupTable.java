@@ -14,7 +14,10 @@ import java.util.List;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
 import org.apache.tapestry.annotations.Asset;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
 public abstract class GroupTable extends BaseComponent {
@@ -30,7 +33,10 @@ public abstract class GroupTable extends BaseComponent {
 
     public void deleteGroup() {
         SettingDao context = getSettingContext();
-        context.deleteGroups(getSelections().getAllSelected());
+        if (context.deleteGroups(getSelections().getAllSelected())) {
+            IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+            validator.record(new ValidatorException(getMessages().getMessage("msg.error.removeAdminGroup")));
+        }
     }
 
     public void moveUp() {

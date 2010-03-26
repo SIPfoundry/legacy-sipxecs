@@ -15,14 +15,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.functors.ChainedTransformer;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.CoreContextImpl;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 
@@ -45,7 +46,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return (Group) getHibernateTemplate().load(Group.class, groupId);
     }
 
-    public void deleteGroups(Collection<Integer> groupIds) {
+    public boolean deleteGroups(Collection<Integer> groupIds) {
         BeanWithId.IdToBean idToBean = new BeanWithId.IdToBean(getHibernateTemplate(), Group.class);
         Transformer publishDelete = new Transformer() {
             public Object transform(Object input) {
@@ -54,8 +55,19 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
             }
         };
         Transformer loadAndPublish = ChainedTransformer.getInstance(idToBean, publishDelete);
-        Collection groups = CollectionUtils.collect(groupIds, loadAndPublish);
+        boolean affectAdmin = false;
+        Group adminGroup = getGroupByName(User.GROUP_RESOURCE_ID, CoreContextImpl.ADMIN_GROUP_NAME);
+        List groups = new ArrayList(groupIds.size());
+        for (Integer groupId : groupIds) {
+            Group group = loadGroup(groupId);
+            if (group != adminGroup) {
+                groups.add(loadAndPublish.transform(groupId));
+            } else {
+                affectAdmin = true;
+            }
+        }
         getHibernateTemplate().deleteAll(groups);
+        return affectAdmin;
     }
 
     public void storeValueStorage(ValueStorage storage) {
@@ -70,6 +82,12 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         checkDuplicates(group);
         checkBranchValidity(group);
         assignWeightToNewGroups(group);
+        if (!group.isNew()) {
+            String origGroupName = (String) getOriginalValue(group, NAME_PARAM);
+            if (!origGroupName.equals(group.getName()) && origGroupName.equals(CoreContextImpl.ADMIN_GROUP_NAME)) {
+                throw new UserException("&msg.error.renameAdminGroup");
+            }
+        }
         getHibernateTemplate().saveOrUpdate(group);
     }
 

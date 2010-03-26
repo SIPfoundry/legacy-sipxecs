@@ -4,6 +4,7 @@
   <property name="groups" />
   <inject property="coreContext" object="spring:coreContext"/>
   <inject property="settingContext" object="spring:settingDao"/>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
   <component id="groupTable" type="setting/GroupTable">
     <binding name="groups" value="groups"/>
     <binding name="memberCounts" value="memberCounts"/>

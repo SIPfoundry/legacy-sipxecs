@@ -25,7 +25,7 @@ public interface SettingDao extends DataObjectSource {
 
     void saveGroup(Group group);
 
-    void deleteGroups(Collection<Integer> allSelected);
+    boolean deleteGroups(Collection<Integer> allSelected);
 
     void moveGroups(List<Group> groups, Collection<Integer> allSelected, int step);
 

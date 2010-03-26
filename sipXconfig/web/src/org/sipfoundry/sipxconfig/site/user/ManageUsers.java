@@ -16,9 +16,12 @@ import java.util.Iterator;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -51,7 +54,10 @@ public abstract class ManageUsers extends SipxBasePage {
         UserTable table = (UserTable) getComponent(USER_TABLE_COMPONENT_ID);
         SelectMap selections = table.getSelections();
         Collection selected = selections.getAllSelected();
-        getCoreContext().deleteUsers(selected);
+        if (getCoreContext().deleteUsers(selected)) {
+            IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+            validator.record(new ValidatorException(getMessages().getMessage("msg.error.removeAdminUser")));
+        }
     }
 
     public IPropertySelectionModel getActionModel() {

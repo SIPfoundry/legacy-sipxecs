@@ -141,4 +141,7 @@
   <component id="resetAcdContext" type="DirectLink">
     <binding name="listener" value="listener:resetAcdContext" />
   </component>
+  <component id="createAdminUserAndAdminGroup" type="DirectLink">
+    <binding name="listener" value="listener:createAdminUserAndAdminGroup"/>
+  </component>
 </page-specification>

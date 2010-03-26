@@ -41,12 +41,12 @@ import static org.springframework.dao.support.DataAccessUtils.intResult;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext, DaoEventListener {
 
+    public static final String ADMIN_GROUP_NAME = "administrators";
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
     private static final int SIP_PASSWORD_LEN = 8;
     private static final String USERNAME_PROP_NAME = "userName";
     private static final String VALUE = "value";
     /** nothing special about this name */
-    private static final String ADMIN_GROUP_NAME = "administrators";
     private static final String QUERY_USER_BY_NAME_OR_ALIAS = "userByNameOrAlias";
     private static final String QUERY_USER_IDS_BY_NAME_OR_ALIAS_OR_IM_ID = "userIdsByNameOrAliasOrImId";
     private static final String QUERY_USER = "from AbstractUser";
@@ -124,6 +124,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         if (!user.isNew()) {
             String origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
             if (!origUserName.equals(user.getUserName())) {
+                if (origUserName.equals(User.SUPERADMIN)) {
+                    throw new UserException("&msg.error.renameAdminUser");
+                }
                 newUserName = true;
                 String origPintoken = (String) getOriginalValue(user, "pintoken");
                 if (origPintoken.equals(user.getPintoken())) {
@@ -190,19 +193,27 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         m_configFileManager.activateConfigFiles();
     }
 
-    public void deleteUsers(Collection<Integer> userIds) {
+    public boolean deleteUsers(Collection<Integer> userIds) {
         if (userIds.isEmpty()) {
             // no users to delete => nothing to do
-            return;
+            return false;
         }
+
+        User admin = loadUserByUserName(User.SUPERADMIN);
+        boolean affectAdmin = false;
         List<User> users = new ArrayList<User>(userIds.size());
         for (Integer id : userIds) {
             User user = loadUser(id);
-            users.add(user);
-            m_daoEventPublisher.publishDelete(user);
+            if (user != admin) {
+                users.add(user);
+                m_daoEventPublisher.publishDelete(user);
+            } else {
+                affectAdmin = true;
+            }
         }
         getHibernateTemplate().deleteAll(users);
         m_configFileManager.activateConfigFiles();
+        return affectAdmin;
     }
 
     public void deleteUsersByUserName(Collection<String> userNames) {
