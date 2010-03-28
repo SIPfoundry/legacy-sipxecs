@@ -11,6 +11,7 @@
 #include "SipSubscribeTestSupport.h"
 
 #include <net/CallId.h>
+#include <os/OsSysLog.h>
 
 /* Support routines for the SipSubscribeServer and SipSubscribeClient tests. */
 
@@ -68,8 +69,18 @@ void createTestSipUserAgent(UtlString& hostIp,
    userAgentp->start();
 }
 
+#define ASSERT(expression) \
+   if (!(expression)) \
+   { \
+     OsSysLog::add(FAC_UNIT_TEST, PRI_ERR, \
+                   "SipSubscribeTestSupport::runListener " \
+                   "ASSERT() failed at %s:%d: " \
+                   # expression, __FILE__, __LINE__); \
+     return false; \
+   }
+
 // Service routine to listen for messages.
-void runListener(OsMsgQ& msgQueue,
+bool runListener(OsMsgQ& msgQueue,
                  SipUserAgent& userAgent,
                  OsTime timeout_first,
                  OsTime timeout_next,
@@ -102,17 +113,17 @@ void runListener(OsMsgQ& msgQueue,
    {
       int msgType = message->getMsgType();
       int msgSubType = message->getMsgSubType();
-      assert(msgType == OsMsg::PHONE_APP);
-      assert(msgSubType == SipMessage::NET_SIP_MESSAGE);
+      ASSERT(msgType == OsMsg::PHONE_APP);
+      ASSERT(msgSubType == SipMessage::NET_SIP_MESSAGE);
       const SipMessage* sipMessage = ((SipMessageEvent*) message)->getMessage();
-      assert(sipMessage);
+      ASSERT(sipMessage);
       int messageType = ((SipMessageEvent*) message)->getMessageStatus();
-      assert(messageType == SipMessageEvent::APPLICATION);
+      ASSERT(messageType == SipMessageEvent::APPLICATION);
 
       if (sipMessage->isResponse())
       {
          // Check that we get only one response.
-         assert(response == NULL);
+         ASSERT(response == NULL);
          response = sipMessage;
       }
       else
@@ -130,7 +141,7 @@ void runListener(OsMsgQ& msgQueue,
          else
          {
             // Received more responses than were allowed.
-            assert(FALSE);
+            ASSERT(FALSE);
          }
 
          // Immediately generate a response to the request
@@ -167,7 +178,8 @@ void runListener(OsMsgQ& msgQueue,
             requestResponse.setExpiresField(expires);
          }
 
-         assert(userAgent.send(requestResponse));
+         ASSERT(userAgent.send(requestResponse));
       }
    }
+   return true;
 }

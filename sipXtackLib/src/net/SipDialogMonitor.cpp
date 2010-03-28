@@ -75,7 +75,6 @@ SipDialogMonitor::SipDialogMonitor(SipUserAgent* userAgent,
                                          NULL,
                                          NULL,
                                          NULL,
-                                         NULL,
                                          SipSubscribeServer::standardVersionCallback);
       mpSubscribeServer->start();
    }

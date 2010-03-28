@@ -60,7 +60,7 @@ UtlBoolean SipPublishServerEventStateCompositor::getKeys(const SipMessage& publi
     uri.getIdentity(resourceId);
 
     // Default event key is the event type with no parameters
-    publishRequest.getEventField(&eventTypeKey, NULL);
+    publishRequest.getEventFieldParts(&eventTypeKey);
 
     return(TRUE);
 }

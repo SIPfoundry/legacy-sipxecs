@@ -38,7 +38,8 @@ void createTestSipUserAgent(/// Host IP address or DNS name
 // Service routine to listen for messages.
 // Wait for messages.  Record any request and response received.
 // Send response to any request received.
-void runListener(OsMsgQ& msgQueue, ///< OsMsgQ to listen on
+// Returns false if unexpected SIP messages are seen; returns true otherwise.
+bool runListener(OsMsgQ& msgQueue, ///< OsMsgQ to listen on
                                    //  Must have observer to userAgent set up.
                  SipUserAgent& userAgent, ///< SipUserAgent to send responses
                  OsTime timeout_first,

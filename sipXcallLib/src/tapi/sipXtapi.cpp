@@ -2067,7 +2067,6 @@ SIPXTAPI_API SIPX_RESULT sipxPublisherCreate(const SIPX_INST hInst,
                                                                      NULL,
                                                                      NULL,
                                                                      NULL,
-                                                                     NULL,
                                                                      SipSubscribeServer::standardVersionCallback);
                             publishMgr =
                                 pInst->pSubscribeServer->getPublishMgr(*pData->pEventType);

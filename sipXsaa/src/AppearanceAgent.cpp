@@ -152,7 +152,7 @@ void AppearanceAgent::start()
    // Start the SIP Subscribe Server after the AppearanceGroupFileReader is
    // done loading the configuration.  This ensures that early subscribers
    // do not get NOTIFYs with incomplete information.
-   if (!mSubscribeServer.enableEventType(DIALOG_EVENT_TYPE, NULL, NULL, NULL, NULL,
+   if (!mSubscribeServer.enableEventType(DIALOG_EVENT_TYPE, NULL, NULL, NULL,
          SipSubscribeServer::standardVersionCallback, FALSE))
    {
       OsSysLog::add(FAC_SAA, PRI_CRIT, "AppearanceAgent:: enableEventType failed");

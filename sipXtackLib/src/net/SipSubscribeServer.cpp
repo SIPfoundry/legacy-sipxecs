@@ -35,7 +35,6 @@ public:
     // Values from the enableEventType call.
     SipUserAgent* mpEventSpecificUserAgent;
     SipPublishContentMgr* mpEventSpecificContentMgr;
-    SipSubscriptionMgr* mpEventSpecificSubscriptionMgr;
     SipContentVersionCallback mpEventSpecificContentVersionCallback;
     UtlBoolean mEventSpecificFullState;
 
@@ -52,7 +51,6 @@ SubscribeServerEventData::SubscribeServerEventData(const UtlString& eventName) :
    mpEventSpecificHandler(NULL),
    mpEventSpecificUserAgent(NULL),
    mpEventSpecificContentMgr(NULL),
-   mpEventSpecificSubscriptionMgr(NULL),
    mpEventSpecificContentVersionCallback(NULL),
    mEventSpecificFullState(TRUE)
 {
@@ -68,9 +66,9 @@ void SubscribeServerEventData::dumpState()
    // indented 4
 
    OsSysLog::add(FAC_RLS, PRI_INFO,
-                 "\t    SubscribeServerEventData %p UtlString = '%s', mpEventSpecificHandler = %p, mpEventSpecificUserAgent = %p, mpEventSpecificContentMgr = %p, mpEventSpecificSubscriptionMgr = %p",
+                 "\t    SubscribeServerEventData %p UtlString = '%s', mpEventSpecificHandler = %p, mpEventSpecificUserAgent = %p, mpEventSpecificContentMgr = %p",
                  this, data(), mpEventSpecificHandler, mpEventSpecificUserAgent,
-                 mpEventSpecificContentMgr, mpEventSpecificSubscriptionMgr);
+                 mpEventSpecificContentMgr);
 }
 
 
@@ -88,6 +86,10 @@ const char SipSubscribeServer::terminationReasonRejected[] = "rejected";
 const char SipSubscribeServer::terminationReasonTimeout[] = "timeout";
 const char SipSubscribeServer::terminationReasonGiveup[] = "giveup";
 const char SipSubscribeServer::terminationReasonNoresource[] = "noresource";
+
+// Milliseconds of delay to allow when sending out bulk NOTIFYs.
+const int SipSubscribeServer::sNotifyDelay = 100;
+
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -115,11 +117,7 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
     if (eventType && *eventType)
     {
         // Enable the server to accept the given SIP event package
-        newServer->enableEventType(eventType,
-                                   &userAgent,
-                                   publishContent,
-                                   eventHandler,
-                                   subscriptionMgr,
+        newServer->enableEventType(eventType, NULL, NULL, NULL,
                                    SipSubscribeServer::standardVersionCallback
            );
     }
@@ -130,6 +128,10 @@ SipSubscribeServer* SipSubscribeServer::buildBasicServer(SipUserAgent& userAgent
 /// Terminate all subscriptions and accept no new ones.
 void SipSubscribeServer::shutdown(const char* reason)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSubscribeServer::shutdown reason = '%s'",
+                 reason ? reason : "[null]");
+
    // If reason is NULL, use the default reason established by the constructor.
    if (!reason)
    {
@@ -137,7 +139,7 @@ void SipSubscribeServer::shutdown(const char* reason)
    }
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipSubscribeServer::shutdown reason '%s'",
+                 "SipSubscribeServer::shutdown reason after defaulting = '%s'",
                  reason ? reason : "[null]");                 
 
    lockForRead();
@@ -196,14 +198,14 @@ void SipSubscribeServer::shutdown(const char* reason)
 
       // :TODO: The four situations where NOTIFYs are generated should
       // be factored into a series of methods in
-      // mpEventSpecificSubscriptionMgr that generate NOTIFYs
+      // SipSubscriptionMgr that generate NOTIFYs
       // sequentially, and for each NOTIFY, call a common service
       // method that does the remaining operations and sends the
       // NOTIFY.
 
       // Construct a NOTIFY (without body) for every subscription, containing
       // the dialog-related information about each subscription.
-      eventData->mpEventSpecificSubscriptionMgr->
+      mpSubscriptionMgr->
          createNotifiesDialogInfoEvent(static_cast <const UtlString&> (*eventData),
                                        format,
                                        numSubscriptions,
@@ -250,7 +252,7 @@ void SipSubscribeServer::shutdown(const char* reason)
                // Also gets 'version' (if relevant) and 'savedEventTypeKey'.
                int version;
                UtlString savedEventTypeKey;
-               eventData->mpEventSpecificSubscriptionMgr->
+               mpSubscriptionMgr->
                   updateNotifyVersion(eventData->mpEventSpecificContentVersionCallback,
                                       *notify,
                                       version,
@@ -261,13 +263,15 @@ void SipSubscribeServer::shutdown(const char* reason)
 
                // Send the NOTIFY request.
                eventData->mpEventSpecificUserAgent->send(*notify);
+
+               // Pace sending the NOTIFYs, of which there may be many.
+               OsTask::delay(sNotifyDelay);
             }
 
             // Remove the record of the subscription.
             UtlString dialogHandle;
-            notify->getDialogHandle(dialogHandle);
-            eventData->mpEventSpecificSubscriptionMgr->
-               endSubscription(dialogHandle, change);
+            notify->getDialogHandleReverse(dialogHandle);
+            mpSubscriptionMgr->endSubscription(dialogHandle, change);
          }
       }
 
@@ -309,23 +313,28 @@ void SipSubscribeServer::shutdown(const char* reason)
 SipSubscribeServer::SipSubscribeServer(const char* defaultTermination,
                                        SipUserAgent& defaultUserAgent,
                                        SipPublishContentMgr& defaultContentMgr,
-                                       SipSubscriptionMgr& defaultSubscriptionMgr,
+                                       SipSubscriptionMgr& subscriptionMgr,
                                        SipSubscribeServerEventHandler& defaultEventHandler)
     : OsServerTask("SipSubscribeServer-%d")
     , mpDefaultUserAgent(&defaultUserAgent)
     , mpDefaultContentMgr(&defaultContentMgr)
-    , mpDefaultSubscriptionMgr(&defaultSubscriptionMgr)
+    , mpSubscriptionMgr(&subscriptionMgr)
     , mpDefaultEventHandler(&defaultEventHandler)
     , mDefaultTermination(defaultTermination)
     , mSubscribeServerMutex(OsMutex::Q_FIFO)
 {
+   // Set our queue to be the queue for resend event messages in
+   // *mpSubscriptionMgr.
+   mpSubscriptionMgr->setResendMsgQ(getMessageQueue());
 }
 
 
 // Destructor
 SipSubscribeServer::~SipSubscribeServer()
-
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSubscribeServer::~");
+
    // Execute the default ::shutdown().
    shutdown(mDefaultTermination);
 
@@ -428,7 +437,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
 
            // Construct a NOTIFY (without body) for each subscription, containing
            // the dialog-related information about each subscription.
-           eventData->mpEventSpecificSubscriptionMgr->
+           mpSubscriptionMgr->
               createNotifiesDialogInfo(resourceId,
                                        eventTypeKey,
                                        format,
@@ -481,7 +490,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                   // Also gets 'version' (if relevant) and 'savedEventTypeKey'.
                   int version;
                   UtlString savedEventTypeKey;
-                  eventData->mpEventSpecificSubscriptionMgr->
+                  mpSubscriptionMgr->
                      updateNotifyVersion(eventData->mpEventSpecificContentVersionCallback,
                                          *notify,
                                          version,
@@ -492,7 +501,7 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                   // as needed by the subscription manager.
                   // In practice, this is only used by SipPersistentSubscriptionMgr
                   // to write the NOTIFY Cseq and XML version into the IMDB.
-                  eventData->mpEventSpecificSubscriptionMgr->
+                  mpSubscriptionMgr->
                      updateVersion(*notify, version, savedEventTypeKey);
 
                   // Set the Contact header.
@@ -507,14 +516,13 @@ UtlBoolean SipSubscribeServer::notifySubscribers(const char* resourceId,
                   // Remove the record of the subscription.
                   UtlString dialogHandle;
                   notify->getDialogHandle(dialogHandle);
-                  eventData->mpEventSpecificSubscriptionMgr->
-                     endSubscription(dialogHandle, change);
+                  mpSubscriptionMgr->endSubscription(dialogHandle, change);
                }
             }
         }
 
         // Free the NOTIFY requests and accept header field values.
-        eventData->mpEventSpecificSubscriptionMgr->
+        mpSubscriptionMgr->
            freeNotifies(numSubscriptions,
                         acceptHeaderValuesArray,
                         notifyArray);
@@ -538,7 +546,6 @@ UtlBoolean SipSubscribeServer::enableEventType(const char* eventTypeToken,
                                                SipUserAgent* userAgent,
                                                SipPublishContentMgr* contentMgr,
                                                SipSubscribeServerEventHandler* eventHandler,
-                                               SipSubscriptionMgr* subscriptionMgr,
                                                SipContentVersionCallback contentVersionCallback,
                                                UtlBoolean onlyFullState)
 {
@@ -558,8 +565,6 @@ UtlBoolean SipSubscribeServer::enableEventType(const char* eventTypeToken,
            contentMgr ? contentMgr : mpDefaultContentMgr;
         eventData->mpEventSpecificHandler =
            eventHandler ? eventHandler : mpDefaultEventHandler;
-        eventData->mpEventSpecificSubscriptionMgr =
-           subscriptionMgr ? subscriptionMgr : mpDefaultSubscriptionMgr;
         eventData->mpEventSpecificContentVersionCallback = contentVersionCallback;
         eventData->mEventSpecificFullState = onlyFullState;
         mEventDefinitions.insert(eventData);
@@ -621,10 +626,10 @@ UtlBoolean SipSubscribeServer::disableEventType(const char* eventType)
    return eventData != NULL;
 }
 
-UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
+UtlBoolean SipSubscribeServer::handleMessage(OsMsg &message)
 {
-    int msgType = eventMessage.getMsgType();
-    int msgSubType = eventMessage.getMsgSubType();
+    int msgType = message.getMsgType();
+    int msgSubType = message.getMsgSubType();
 
     // Timer fired
     if (msgType == OsMsg::OS_EVENT &&
@@ -635,8 +640,8 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
         intptr_t timerIntptr;
         void* subscribeDialogHandleVoid;
 
-        ((OsEventMsg&)eventMessage).getUserData(subscribeDialogHandleVoid);
-        ((OsEventMsg&)eventMessage).getEventData(timerIntptr);
+        ((OsEventMsg&)message).getUserData(subscribeDialogHandleVoid);
+        ((OsEventMsg&)message).getEventData(timerIntptr);
 	subscribeDialogHandle = (UtlString*)subscribeDialogHandleVoid;
         timer = (OsTimer*)timerIntptr;
 
@@ -650,15 +655,23 @@ UtlBoolean SipSubscribeServer::handleMessage(OsMsg &eventMessage)
             delete subscribeDialogHandle;
 
             // do not delete the timer.
-            // handlExpiration deals with that and may reuse the timer
+            // handleExpiration deals with that and may reuse the timer
         }
+    }
+
+    // Resend timer fired
+    else if (msgType == OsMsg::OS_EVENT &&
+             msgSubType == SipSubscriptionMgr::sEventResend)
+    {
+       handleResendEvent(
+          *SipSubscriptionMgr::getHandleOfResendEventMsg(message));
     }
 
     // SIP message
     else if (msgType == OsMsg::PHONE_APP &&
              msgSubType == SipMessage::NET_SIP_MESSAGE)
     {
-        const SipMessage* sipMessage = ((SipMessageEvent&)eventMessage).getMessage();
+        const SipMessage* sipMessage = ((SipMessageEvent&)message).getMessage();
 
         UtlString method;
         if (sipMessage)
@@ -760,22 +773,8 @@ SipSubscribeServer::getPublishMgr(const UtlString& eventType)
 
 SipSubscriptionMgr* SipSubscribeServer::getSubscriptionMgr(const UtlString& eventType)
 {
-    SipSubscriptionMgr* subscribeMgr = NULL;
-    lockForRead();
-    SubscribeServerEventData* eventData =
-       dynamic_cast <SubscribeServerEventData*> (mEventDefinitions.find(&eventType));
-    if (eventData)
-    {
-        subscribeMgr = eventData->mpEventSpecificSubscriptionMgr;
-    }
-
-    else
-    {
-        subscribeMgr = mpDefaultSubscriptionMgr;
-    }
-    unlockForRead();
-
-    return(subscribeMgr);
+   // The SipSubscribeServer does not depend on eventType.
+   return mpSubscriptionMgr;
 }
 
 /* ============================ INQUIRY =================================== */
@@ -792,7 +791,7 @@ void SipSubscribeServer::dumpState()
                  this);
 
    mpDefaultContentMgr->dumpState();
-   mpDefaultSubscriptionMgr->dumpState();
+   mpSubscriptionMgr->dumpState();
    // mpDefaultEventHandler has no internal state.
    UtlHashBagIterator itor(mEventDefinitions);
    SubscribeServerEventData* ed;
@@ -865,7 +864,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
 {
     UtlBoolean handledSubscribe = FALSE;
     UtlString eventName;
-    subscribeRequest.getEventField(&eventName, NULL);
+    subscribeRequest.getEventFieldParts(&eventName);
 
     // Not modifying the SubscribeServerEventData, just reading it
     lockForRead();
@@ -898,7 +897,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                 UtlBoolean isNewDialog;
                 UtlBoolean isExpiredSubscription;
                 UtlString resourceId, eventTypeKey, eventType;
-                eventPackageInfo->mpEventSpecificSubscriptionMgr->
+                mpSubscriptionMgr->
                    updateDialogInfo(
                       subscribeRequest,
                       resourceId,
@@ -920,7 +919,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                  // Note that the dialog can have ended by now, because of
                  // a race condition with the processing of dialog-ending
                  // messages from the outside world.
-                 if (eventPackageInfo->mpEventSpecificSubscriptionMgr->
+                 if (mpSubscriptionMgr->
                      getNotifyDialogInfo(subscribeDialogHandle,
                                          notifyRequest,
                                          "active;expires=%ld"))
@@ -954,7 +953,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                        // Update the NOTIFY content if required for this event type.
                        // Sets 'version' and 'eventTypeKey'.
                        int version;
-                       eventPackageInfo->mpEventSpecificSubscriptionMgr->
+                       mpSubscriptionMgr->
                           updateNotifyVersion(eventPackageInfo->mpEventSpecificContentVersionCallback,
                                               notifyRequest,
                                               version,
@@ -965,7 +964,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                        // as needed by the subscription manager.
                        // In practice, this is only used by SipPersistentSubscriptionMgr
                        // to write the NOTIFY Cseq and XML version into the IMDB.
-                       eventPackageInfo->mpEventSpecificSubscriptionMgr->
+                       mpSubscriptionMgr->
                           updateVersion(notifyRequest, version, eventTypeKey);
 
                        // Send the NOTIFY request
@@ -1003,7 +1002,7 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                        }
 
                        // Destroy the subscription.
-                       eventPackageInfo->mpEventSpecificSubscriptionMgr->
+                       mpSubscriptionMgr->
                           endSubscription(subscribeDialogHandle,
                                           SipSubscriptionMgr::subscriptionTerminated);
 
@@ -1065,24 +1064,17 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
 void SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResponse)
 {
     int responseCode = notifyResponse.getResponseStatusCode();
+    UtlString dialogHandle;
+    notifyResponse.getDialogHandleReverse(dialogHandle);
 
     // If it is a non-Timeout error response and has no Retry-After header,
     // terminate the subscription.
     if (responseCode >= SIP_3XX_CLASS_CODE)
     {
-       UtlString dialogHandle;
-       notifyResponse.getDialogHandleReverse(dialogHandle);
-
        if (   SIP_REQUEST_TIMEOUT_CODE == responseCode
            || SIP_LOOP_DETECTED_CODE == responseCode
            || SIP_SERVER_INTERNAL_ERROR_CODE == responseCode)
        {
-          // Log the response.
-          OsSysLog::add(FAC_SIP, PRI_WARNING,
-                        "SipSubscribeServer::handleNotifyResponse "
-                        "Not terminating subscription due to %d response. Handle: %s",
-                        responseCode, dialogHandle.data());
-
           // RFC 3265 section 3.2.2 says that when a "NOTIFY request
           // fails ... due to a timeout condition ... the notifier
           // SHOULD remove the subscription."  However, we feel this
@@ -1106,6 +1098,41 @@ void SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResponse)
           // indicates that a request was retried with a second transport.
           // But note that SipTransaction translates 503 into 500,
           // so 503 is also exempt.
+
+          // Log the response.
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                        "SipSubscribeServer::handleNotifyResponse "
+                        "Not terminating subscription due to %d response. Handle: %s",
+                        responseCode, dialogHandle.data());
+
+          // This is considered a transient error condition, so schedule a
+          // resend of the NOTIFY.
+          int interval =
+             mpSubscriptionMgr->getNextResendInterval(dialogHandle);
+          // If the interval is less than the maximum, schedule a resend.
+          // Otherwise, give up on it (but keep the subscription).
+          // If the dialog is not found, interval will be 1000000, the not-found
+          // value, which will also cause giving up.
+          if (interval <= SipSubscriptionMgr::sMaxNextResendInterval)
+          {
+             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           "SipSubscribeServer::handleNotifyResponse "
+                           "next resend interval for dialog '%s' is %d",
+                           dialogHandle.data(), interval);
+             // Double the interval for the next resend.
+             mpSubscriptionMgr->setNextResendInterval(dialogHandle,
+                                                      interval * 2);
+
+             // Start the resend timer for this dialog.
+             mpSubscriptionMgr->startResendTimer(dialogHandle, interval);
+          }
+          else
+          {
+             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           "SipSubscribeServer::handleNotifyResponse "
+                           "next resend interval for dialog '%s' is %d, giving up",
+                           dialogHandle.data(), interval);
+          }
        }
        else if (notifyResponse.getHeaderValue(0, SIP_RETRY_AFTER_FIELD) == NULL)
        {
@@ -1122,58 +1149,59 @@ void SipSubscribeServer::handleNotifyResponse(const SipMessage& notifyResponse)
        {
           // This was an error response, but because there was a Retry-After
           // header, we should not terminate the subscription.
-          OsSysLog::add(FAC_SIP, PRI_WARNING,
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                         "SipSubscribeServer::handleNotifyResponse "
                         "Not terminating subscription due to Retry-After header. Handle: %s",
                         dialogHandle.data());
+
+          // This was effectively a success response, so clear the
+          // resend interval for the subscription.
+          mpSubscriptionMgr->setNextResendInterval(dialogHandle,
+                                                   SipSubscriptionMgr::sInitialNextResendInterval);
        }
+    }
+    else
+    {
+       // This was a success response, so clear the resend interval for the
+       // subscription.
+       mpSubscriptionMgr->setNextResendInterval(dialogHandle,
+                                                SipSubscriptionMgr::sInitialNextResendInterval);
     }
 }
 
-// End a subscription because we got an error ersponse from a NOTIFY request.
-// This requires sending a terminating NOTIFY.
-void SipSubscribeServer::generateTerminatingNotify(const UtlString& dialogHandle)
+// Handle a resend event message.
+void SipSubscribeServer::handleResendEvent(const UtlString& dialogHandle)
 {
-   // Sending a terminating NOTIFY presents the risk of an infinite
-   // loop, as the terminating NOTIFY may get an error response.  We
-   // prevent this loop by removing record of the subscription as soon
-   // as we send the terminating NOTIFY, and only initiating sending a
-   // terminating NOTIFY if record of the subscription exists.
-
    // Not modifying the SubscribeServerEventData, just reading it.
    lockForRead();
 
-   // Get the event-specific handler and information.
-   SubscribeServerEventData* eventPackageInfo;
-   UtlHashBagIterator iterator(mEventDefinitions);
-
-   // The terminating NOTIFY request that we will send.
+   // The NOTIFY request that we will send.
    SipMessage notifyRequest;
 
-   // We have to search for the right eventPackageInfo.
-   while ((eventPackageInfo =
-           dynamic_cast <SubscribeServerEventData*> (iterator())))
-   {
-      UtlString resourceId;
-      UtlString eventTypeKey;
-      UtlString eventType;
-      UtlString acceptHeaderValue;
+   // Look up the information about the subscription.
+   UtlString resourceId;
+   UtlString eventTypeKey;
+   UtlString eventType;
+   UtlString acceptHeaderValue;
 
-      // Returns TRUE if eventPackageInfo->mpEventSpecificSubscriptionMgr
-      // has this dialog.
-      if (eventPackageInfo->mpEventSpecificSubscriptionMgr->
-          getNotifyDialogInfo(dialogHandle,
-                              notifyRequest,
-                              "terminated;reason=deactivated",
-                              &resourceId,
-                              &eventTypeKey,
-                              &eventType,
-                              &acceptHeaderValue))
+   // Returns TRUE if this subscription is recorded in mpSubscriptionMgr.
+   if (mpSubscriptionMgr->
+       getNotifyDialogInfo(dialogHandle,
+                           notifyRequest,
+                           "active;expires=%ld",
+                           &resourceId,
+                           &eventTypeKey,
+                           &eventType,
+                           &acceptHeaderValue))
+   {
+      // Get the event-specific handler and information.
+      SubscribeServerEventData* eventPackageInfo =
+         dynamic_cast <SubscribeServerEventData*>
+         (mEventDefinitions.find(&eventType));
+      if (eventPackageInfo)
       {
-         // There is still record of the subscription (hence a
-         // terminating NOTIFY has not yet been sent), and this
-         // eventPackageInfo has record of this subscription.
-         
+         // There is still record of the subscription.
+
          // The NOTIFY headers were set by getNotifyDialogInfo.
 
          // Get the body for the NOTIFY.
@@ -1190,20 +1218,101 @@ void SipSubscribeServer::generateTerminatingNotify(const UtlString& dialogHandle
             // Update the NOTIFY content if required for this event type.
             // Sets 'version' and 'eventTypeKey'.
             int version;
-            eventPackageInfo->mpEventSpecificSubscriptionMgr->
+            mpSubscriptionMgr->
                updateNotifyVersion(eventPackageInfo->mpEventSpecificContentVersionCallback,
                                    notifyRequest,
                                    version,
                                    eventTypeKey);
-            
+
             // Update the saved record of the NOTIFY CSeq and the
             // XML version number for the specified eventTypeKey,
             // as needed by the subscription manager.
             // In practice, this is only used by SipPersistentSubscriptionMgr
             // to write the NOTIFY Cseq and XML version into the IMDB.
-            eventPackageInfo->mpEventSpecificSubscriptionMgr->
+            mpSubscriptionMgr->
                updateVersion(notifyRequest, version, eventTypeKey);
-            
+
+            // Send the NOTIFY request
+            setContact(&notifyRequest);
+            eventPackageInfo->mpEventSpecificUserAgent->send(notifyRequest);
+         }
+      }
+   }
+
+   unlockForRead();
+}
+
+// End a subscription because we got an error ersponse from a NOTIFY request.
+// This requires sending a terminating NOTIFY.
+void SipSubscribeServer::generateTerminatingNotify(const UtlString& dialogHandle)
+{
+   // Sending a terminating NOTIFY presents the risk of an infinite
+   // loop, as the terminating NOTIFY may get an error response.  We
+   // prevent this loop by removing record of the subscription as soon
+   // as we send the terminating NOTIFY, and only initiating sending a
+   // terminating NOTIFY if record of the subscription exists.
+
+   // Not modifying the SubscribeServerEventData, just reading it.
+   lockForRead();
+
+   // The terminating NOTIFY request that we will send.
+   SipMessage notifyRequest;
+
+   // Look up the information about the subscription.
+   UtlString resourceId;
+   UtlString eventTypeKey;
+   UtlString eventType;
+   UtlString acceptHeaderValue;
+
+   // Returns TRUE if this subscription is recorded in mpSubscriptionMgr.
+   if (mpSubscriptionMgr->
+       getNotifyDialogInfo(dialogHandle,
+                           notifyRequest,
+                           "terminated;reason=deactivated",
+                           &resourceId,
+                           &eventTypeKey,
+                           &eventType,
+                           &acceptHeaderValue))
+   {
+      // Get the event-specific handler and information.
+      SubscribeServerEventData* eventPackageInfo =
+         dynamic_cast <SubscribeServerEventData*>
+         (mEventDefinitions.find(&eventType));
+      if (eventPackageInfo)
+      {
+         // There is still record of the subscription (hence a
+         // terminating NOTIFY has not yet been sent).
+
+         // The NOTIFY headers were set by getNotifyDialogInfo.
+
+         // Get the body for the NOTIFY.
+         if (eventPackageInfo->mpEventSpecificHandler->
+             getNotifyContent(resourceId,
+                              eventTypeKey,
+                              eventType,
+                              *(eventPackageInfo->mpEventSpecificContentMgr),
+                              acceptHeaderValue,
+                              notifyRequest,
+                              eventPackageInfo->mEventSpecificFullState,
+                              NULL))
+         {
+            // Update the NOTIFY content if required for this event type.
+            // Sets 'version' and 'eventTypeKey'.
+            int version;
+            mpSubscriptionMgr->
+               updateNotifyVersion(eventPackageInfo->mpEventSpecificContentVersionCallback,
+                                   notifyRequest,
+                                   version,
+                                   eventTypeKey);
+
+            // Update the saved record of the NOTIFY CSeq and the
+            // XML version number for the specified eventTypeKey,
+            // as needed by the subscription manager.
+            // In practice, this is only used by SipPersistentSubscriptionMgr
+            // to write the NOTIFY Cseq and XML version into the IMDB.
+            mpSubscriptionMgr->
+               updateVersion(notifyRequest, version, eventTypeKey);
+
             // Send the NOTIFY request
             setContact(&notifyRequest);
             eventPackageInfo->mpEventSpecificUserAgent->send(notifyRequest);
@@ -1212,7 +1321,7 @@ void SipSubscribeServer::generateTerminatingNotify(const UtlString& dialogHandle
          // Destroy the subscription.
          // This prevents this method from sending a second terminating
          // NOTIFY for this subscription, even if it is called again.
-         eventPackageInfo->mpEventSpecificSubscriptionMgr->
+         mpSubscriptionMgr->
             endSubscription(dialogHandle,
                             SipSubscriptionMgr::subscriptionTerminated);
       }

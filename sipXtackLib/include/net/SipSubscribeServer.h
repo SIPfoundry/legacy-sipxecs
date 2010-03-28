@@ -50,7 +50,7 @@ typedef UtlBoolean (*SipContentVersionCallback)
 
 
 //! Top level class for accepting and processing SUBSCRIBE requests
-/*! This implements a generic RFC 3265 SUBSCRIBE server also
+/*! This implements a generic RFC 3265 SUBSCRIBE server, also
  *  called a notifier.  This class receives SUBSCRIBE requests,
  *  retrieves the SIP event content from the SipPublisherContentMgr,
  *  generates a NOTIFY request with the retrieved event content, and sends
@@ -59,6 +59,11 @@ typedef UtlBoolean (*SipContentVersionCallback)
  *  so that you can have multiple instances of the SipSubscribeServer
  *  each handling different event types.  However you can not have an
  *  event type that is handled by more than one SipSubScribeServer.
+ *
+ *  :BEWARE: It is probably not possible to make SipSubscribeServer work
+ *  if the event type has parameters.  This is due to various architectural
+ *  choices in identifying the relevant event type for a SUBSCRIBE request.
+ *  This should be fixed at some point.
  *
  *  \par Event Specific Handling and Processing
  *  Event types are enabled with the enableEventType method.  This method
@@ -89,33 +94,19 @@ typedef UtlBoolean (*SipContentVersionCallback)
  *  the subscriber the published body whose media-type appears first
  *  in the Accept header of the SUBSCRIBE.  If no body is acceptable
  *  (including if SipPublishContentMgr has no content for this
- *  resourceId), then the NOTIFY has no body.
+ *  resourceId), then an error response (404 or 415) is given to the
+ *  SUBSCRIBE and no subscription is created.
  *
  *  \par
- *  Because the SipPublishContentMgr only models "what content is
- *  available for a resourceId", it cannot record that a resource does
- *  not exist vs. that it has no content.  Thus, a SUBSCRIBE to any
- *  request-URI that arrives at the SipSubscribeServer generates a
- *  success response, though it may yield a NOTIFY with no body.
- *
- *  Similarly, the application cannot signal that a resource has gone
- *  out of existence.  It can only call
- *  SipPublishContentMgr::unpublish(), removing the content for the
- *  resource.  Depending on the arguments to unpublish(), it can
- *  result in a NOTIFY with no body (which tells the subscriber that
- *  there is no content for the resource), or no NOTIFY (suitable if
- *  the subscription is persistent and will be continued by a later
- *  incarnation of the application).
- *
- *  An improvement to the system would allow the SipPublishContentMgr
- *  and/or SipSubscribeServer to distinguish resources that have no
- *  content from resourceIds that have no resource, so that SUBSCRIBEs
- *  to the latter could fail.  Similarly, ::unpublish() would allow
- *  specification as to whether the resource has ceased to exist
- *  (allowing a NOTIFY to be sent with reason=noresource) vs. the
- *  resource is now being serviced by another element (allowing NOTIFY
- *  with reason=deactivated) vs. the resource has no content at this
- *  time (allowing NOTIFY with no body).
+ *  The application can remove all content for a
+ *  resourceId/eventTypeKey combination using the
+ *  SipPublishContentMgr::unpublish() method.  (The
+ *  SipPublishContentMgr::publish() method requires at least one
+ *  content type.)  unpublish() will cause any subscriptions for that
+ *  resourceId/eventTypeKey to be terminated.  The exact method of
+ *  termination is determined by the 'reason' argument to
+ *  SipPublishContentMgr::unpublish(), which is passed to
+ *  SipSubscribeServer::contentChangeCallback().
  *
  *  \par Subscription State
  *  The SipSubscriptionMgr is used by SipSubscribeServer to maintain
@@ -123,7 +114,7 @@ typedef UtlBoolean (*SipContentVersionCallback)
  *  content).
  *
  *  \par Overall Data Flow
- *  The SipSubscribeServer needs to address 4 general stimulus:
+ *  The SipSubscribeServer needs to address 4 general stimuli:
  *  1) Respond to incoming SUBSCRIBE requests and send the cooresponding
  *     NOTIFY request.
  *  2) Generate NOTIFY requests when the event state changes for a resource
@@ -157,20 +148,35 @@ public:
                                                 const char* eventType = NULL);
 
     //! Default constructor
-    // ::~SipSubscribeServer() calls ::shutdown(defaultTermination),
-    // so *defaultTermination must be static, or at least, remain
-    // valid until ~SipSubscribeServer() finishes.
-    // The ::terminationReason* values are ideal.
-    // This default reason to terminate all remaining subscriptions can be
-    // overridden by calling ::shutdown() first, which terminates all
-    // subscriptions, leaving none for ~SipSubscribeServer() to terminate.
+    /** \param defaultTermination -
+        ::~SipSubscribeServer() calls ::shutdown(defaultTermination),
+     *  so *defaultTermination must be static, or at least, remain
+     *  valid until ~SipSubscribeServer() finishes.
+     *  The ::terminationReason* values are ideal for this purpose.
+     *  This default reason to terminate all remaining subscriptions can be
+     *  overridden by calling ::shutdown() first, which terminates all
+     *  subscriptions, leaving none for ~SipSubscribeServer() to terminate.
+     *
+     *  defaultUserAgent, defaultContentMgr, and defaultEventPlugin
+     *  provide the default values for the corresponding arguments to
+     *  ::enableEventType().  In practice, the default values are
+     *  never overridden in calls to ::enableEventType().
+     *
+     *  \param defaultUserAgent - SipUserAgent for message input/output
+     *  \param defaultContentMgr - SipPublishContentMgr to hold published events
+     *  \param subscriptionMgr - SipSubscriptionMgr to manage the subscription
+     *         dialogs
+     *  \param defaultEventPlugin - SipSubscribeServerEventHandler to provide various
+     *         event-type-related services, especially determining from the
+     *         SUBSCRIBE what content should be provided
+     */
     SipSubscribeServer(const char* defaultTermination,
                        //< default termination reason value
                        // The remaining arguments are default values for
                        // the corresponding arguments to ::enableEventType().
                        SipUserAgent& defaultUserAgent,
                        SipPublishContentMgr& defaultContentMgr,
-                       SipSubscriptionMgr& defaultSubscriptionMgr,
+                       SipSubscriptionMgr& subscriptionMgr,
                        SipSubscribeServerEventHandler& defaultEventHandler);
 
     /// Terminate all subscriptions and accept no new ones.
@@ -222,15 +228,14 @@ public:
 
     /// Tell subscribe server to support a given event type
     /** \param eventType - event type
-     *  The following 4 parameters default to the corresponding values
-     *  in the SipSubscribeServer constructor:
+     *  The following 3 parameters default to the corresponding values
+     *  in the SipSubscribeServer constructor.  In practice, the default
+     *  values are never overridden.
      *  \param userAgent - SipUserAgent for message input/output
      *  \param contentMgr - SipPublishContentMgr to hold published events
      *  \param eventPlugin - SipSubscribeServerEventHandler to provide various
      *         event-type-related services, especially determining from the
      *         SUBSCRIBE what content should be provided
-     *  \param subscriptionMgr - SipSubscriptionMgr to manage the subscription
-     *         dialogs
      *  \param dialogVersion - SipContentVersionCallback to provide postprocessing
      *         of published content before it is sent in NOTIFYs
      *  \param onlyFullState - if FALSE, NOTIFYs sent due to content changes
@@ -242,7 +247,6 @@ public:
                                SipUserAgent* userAgent = NULL,
                                SipPublishContentMgr* contentMgr = NULL,
                                SipSubscribeServerEventHandler* eventPlugin = NULL,
-                               SipSubscriptionMgr* subscriptionMgr = NULL,
                                SipContentVersionCallback dialogVersion = NULL,
                                UtlBoolean onlyFullState = TRUE);
 
@@ -380,6 +384,9 @@ private:
     //! Handle NOTIFY responses
     void handleNotifyResponse(const SipMessage& notifyResponse);
 
+    //! Handle messages indicating it is time to resend a NOTIFY
+    void handleResendEvent(const UtlString& dialogHandle);
+
     //! Handle subscription expiration timer events
     UtlBoolean handleExpiration(UtlString* subscribeDialogHandle,
                                 OsTimer* timer);
@@ -401,13 +408,16 @@ private:
 
     SipUserAgent* mpDefaultUserAgent;
     SipPublishContentMgr* mpDefaultContentMgr;
-    SipSubscriptionMgr* mpDefaultSubscriptionMgr;
+    SipSubscriptionMgr* mpSubscriptionMgr;
     SipSubscribeServerEventHandler* mpDefaultEventHandler;
     // Members are SubscribeServerEventData's, indexed as strings
     // containing the event type.
     UtlHashBag mEventDefinitions;
     const char* mDefaultTermination;
     OsRWMutex mSubscribeServerMutex;
+
+    /// Milliseconds of delay to allow when sending out bulk NOTIFYs.
+    static const int sNotifyDelay;
 };
 
 /* ============================ INLINE METHODS ============================ */

@@ -96,7 +96,7 @@ UtlBoolean SipSubscribeServerEventHandler::getKeys(const SipMessage& subscribeRe
     resourceId.prepend("sip:");
 
     // Default event key is the event type with no parameters
-    subscribeRequest.getEventField(&eventTypeKey, NULL);
+    subscribeRequest.getEventFieldParts(&eventTypeKey);
     // Event type is the same.
     eventType = eventTypeKey;
 

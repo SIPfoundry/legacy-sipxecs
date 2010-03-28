@@ -307,7 +307,7 @@ public:
      * \param wantIncoming - want to observe SIP messages originating
      *        from the network.
      * \param wantOutGoing - (not implemented) want to observe SIP
-     *        messages originating from locally.
+     *        messages originating locally.
      * \param eventName - want to observe SUBSCRIBE or NOTIFY requests
      *        having the given event type
      *        eventName is ignored when matching responses.
@@ -317,14 +317,14 @@ public:
      *        on the observer
      */
     void addMessageObserver(OsMsgQ& messageQueue,
-                              const char* sipMethod = NULL,
-                              UtlBoolean wantRequests = TRUE,
-                              UtlBoolean wantResponses = TRUE,
-                              UtlBoolean wantIncoming = TRUE,
-                              UtlBoolean wantOutGoing = FALSE,
-                              const char* eventName = NULL,
-                              SipSession* pSession = NULL,
-                              void* observerData = NULL);
+                            const char* sipMethod = NULL,
+                            UtlBoolean wantRequests = TRUE,
+                            UtlBoolean wantResponses = TRUE,
+                            UtlBoolean wantIncoming = TRUE,
+                            UtlBoolean wantOutGoing = FALSE,
+                            const char* eventName = NULL,
+                            SipSession* pSession = NULL,
+                            void* observerData = NULL);
 
 
     //! Removes all SIP message observers for the given message/queue
@@ -338,7 +338,7 @@ public:
      * \return TRUE if one or more observers are removed otherwise FALSE.
      */
     UtlBoolean removeMessageObserver(OsMsgQ& messageQueue,
-                                    void* pObserverData = NULL);
+                                     void* pObserverData = NULL);
 
     //! Adds a new SipOutputProcessor to the list of processors
     //! that will get notified when an outgoing SIP message is about

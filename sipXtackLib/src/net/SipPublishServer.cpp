@@ -267,7 +267,7 @@ UtlBoolean SipPublishServer::handlePublish(const SipMessage& publishRequest)
 {
     UtlBoolean handledPublish = FALSE;
     UtlString eventName;
-    publishRequest.getEventField(&eventName, NULL);
+    publishRequest.getEventFieldParts(&eventName);
 
     // Not modifying the PublishServerEventData, just reading it
     lockForRead();

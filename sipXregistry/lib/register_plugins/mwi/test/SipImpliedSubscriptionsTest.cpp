@@ -103,7 +103,7 @@ public:
             ASSERT_STR_EQUAL("sip:me@127.0.0.1", subscriber.data());
 
             UtlString event;
-            subscribeRequest.getEventField(&event);
+            subscribeRequest.getEventFieldParts(&event);
             ASSERT_STR_EQUAL(SIP_EVENT_MESSAGE_SUMMARY, event.data());
 
             int expiration;

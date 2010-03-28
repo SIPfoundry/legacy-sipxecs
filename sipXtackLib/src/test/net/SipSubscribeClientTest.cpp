@@ -1148,16 +1148,16 @@ public:
          const SipMessage* subscribeRequest;
          const SipMessage* notifyResponse;
          UtlString subscribeToTag;
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     refreshTime,
-                     &subscribeToTag);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    refreshTime,
+                                    &subscribeToTag));
          CPPUNIT_ASSERT(subscribeRequest);
          // Save the Call-Id for later test.
          UtlString firstCallId;
@@ -1181,16 +1181,16 @@ public:
 
          // The Subscribe Client will now send a 200 response to the NOTIFY.
 
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
@@ -1201,16 +1201,16 @@ public:
          fprintf(stderr, "Waiting %d seconds...\n", refreshTime);
          OsTime timeoutRefreshTime(refreshTime, 0);
          OsTime timeoutZero(0, 0);
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeoutRefreshTime,
-                     timeoutZero,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_BAD_TRANSACTION_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeoutRefreshTime,
+                                    timeoutZero,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_BAD_TRANSACTION_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(subscribeRequest);
          CPPUNIT_ASSERT(!notifyResponse);
 
@@ -1220,16 +1220,16 @@ public:
          OsTask::delay(100);      // 100 msec
          notifyMessage.incrementCSeqNumber();
          CPPUNIT_ASSERT(userAgentp->send(notifyMessage));
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     refreshTime,
-                     &subscribeToTag);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    refreshTime,
+                                    &subscribeToTag));
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_BAD_TRANSACTION_CODE,
                               notifyResponse->getResponseStatusCode());
@@ -1264,16 +1264,16 @@ public:
 
          // The Subscribe Client will now send a 200 response to the NOTIFY.
 
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
@@ -1282,16 +1282,16 @@ public:
          // Wait for the re-SUBSCRIBE, and respond with 200.
 
          fprintf(stderr, "Waiting %d seconds...\n", refreshTime);
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeoutRefreshTime,
-                     timeoutZero,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_OK_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeoutRefreshTime,
+                                    timeoutZero,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_OK_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(subscribeRequest);
          CPPUNIT_ASSERT(!notifyResponse);
          // Verify this is a re-SUBSCRIBE for the second subscription.
@@ -1330,16 +1330,16 @@ public:
          const SipMessage* subscribeRequest;
          const SipMessage* notifyResponse;
          UtlString subscribeToTag;
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     refreshTime,
-                     &subscribeToTag);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    refreshTime,
+                                    &subscribeToTag));
          CPPUNIT_ASSERT(subscribeRequest);
          // Save the SUBSCRIBE request.
          const SipMessage* firstSubscribeRequest = subscribeRequest;
@@ -1365,16 +1365,16 @@ public:
 
          // The Subscribe Client will now send a 200 response to the NOTIFY.
 
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
@@ -1402,16 +1402,16 @@ public:
          // and then the first reestablishing SUBSCRIBE.
          // Make the SUBSCRIBE fail by responding 404.
 
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_NOT_FOUND_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_NOT_FOUND_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
                               notifyResponse->getResponseStatusCode());
@@ -1424,16 +1424,16 @@ public:
          OsTime timeoutSecondReest(delay, 0);
          OsTime timeoutZero(0, 0);
          fprintf(stderr, "Waiting %d seconds...\n", delay);
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeoutSecondReest,
-                     timeoutZero,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_OK_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeoutSecondReest,
+                                    timeoutZero,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_OK_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(subscribeRequest);
       }
 
@@ -1465,16 +1465,16 @@ public:
          const SipMessage* subscribeRequest;
          const SipMessage* notifyResponse;
          UtlString subscribeToTag;
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     5,
-                     &subscribeToTag);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    5,
+                                    &subscribeToTag));
          CPPUNIT_ASSERT(subscribeRequest);
          CPPUNIT_ASSERT(!notifyResponse);
 
@@ -1494,16 +1494,16 @@ public:
          // The Subscribe Client will now send a 200 response to the NOTIFY.
 
          const SipMessage* noSubscribeRequest;
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     noSubscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    noSubscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!noSubscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
@@ -1523,16 +1523,16 @@ public:
 
          // The Subscribe Client will now send a 500 response to the NOTIFY.
 
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_SERVER_INTERNAL_ERROR_CODE,
@@ -1572,16 +1572,16 @@ public:
          const SipMessage* subscribeRequest;
          const SipMessage* notifyResponse;
          UtlString subscribeToTag;
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     5,
-                     &subscribeToTag);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    5,
+                                    &subscribeToTag));
          CPPUNIT_ASSERT(subscribeRequest);
          CPPUNIT_ASSERT(!notifyResponse);
 
@@ -1601,16 +1601,16 @@ public:
          // The Subscribe Client will now send a 200 response to the NOTIFY.
 
          const SipMessage* noSubscribeRequest;
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     noSubscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    noSubscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!noSubscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
@@ -1628,16 +1628,16 @@ public:
 
          // The Subscribe Client will now send a 200 response to the NOTIFY.
 
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          /** Verify that response code is 482, as required by RFC 3261,
@@ -1681,16 +1681,16 @@ public:
          const SipMessage* subscribeRequest;
          const SipMessage* notifyResponse;
          UtlString subscribeToTag;
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     refreshTime,
-                     &subscribeToTag);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    refreshTime,
+                                    &subscribeToTag));
          CPPUNIT_ASSERT(subscribeRequest);
          CPPUNIT_ASSERT(!notifyResponse);
 
@@ -1710,16 +1710,16 @@ public:
          // The Subscribe Client will now send a 200 response to the NOTIFY.
 
          const SipMessage* noSubscribeRequest;
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     noSubscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    noSubscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!noSubscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
@@ -1743,16 +1743,16 @@ public:
 
          // The Subscribe Client will now send a 200 response to the NOTIFY.
 
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     subscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    subscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
@@ -1768,16 +1768,16 @@ public:
          notifyMessage.incrementCSeqNumber();
          CPPUNIT_ASSERT(userAgentp->send(notifyMessage));
 
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     noSubscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    noSubscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!noSubscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,
@@ -1786,16 +1786,16 @@ public:
          secondNotifyMessage.incrementCSeqNumber();
          CPPUNIT_ASSERT(userAgentp->send(secondNotifyMessage));
 
-         runListener(incomingServerMsgQueue,
-                     *userAgentp,
-                     timeout1sec,
-                     timeout1sec,
-                     noSubscribeRequest,
-                     notifyResponse,
-                     SIP_ACCEPTED_CODE,
-                     FALSE,
-                     0,
-                     NULL);
+         CPPUNIT_ASSERT(runListener(incomingServerMsgQueue,
+                                    *userAgentp,
+                                    timeout1sec,
+                                    timeout1sec,
+                                    noSubscribeRequest,
+                                    notifyResponse,
+                                    SIP_ACCEPTED_CODE,
+                                    FALSE,
+                                    0,
+                                    NULL));
          CPPUNIT_ASSERT(!subscribeRequest);
          CPPUNIT_ASSERT(notifyResponse);
          CPPUNIT_ASSERT_EQUAL(SIP_OK_CODE,

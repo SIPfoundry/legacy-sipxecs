@@ -274,7 +274,7 @@ SubscribeServerThread::handleMessage(OsMsg& eventMessage)
             UtlString id;
             UtlHashMap otherParams;
 
-            message->getEventField(&eventPackage, &id, &otherParams);
+            message->getEventFieldParts(&eventPackage, &id, &otherParams);
 
             StatusPluginReference* pluginContainer =
                 mPluginTable->getPlugin( eventPackage );

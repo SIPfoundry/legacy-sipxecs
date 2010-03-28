@@ -67,7 +67,7 @@ UtlBoolean AppAgentSubscribePolicy::getKeys(const SipMessage& subscribeRequest,
     // Default event key is the event type with no parameters, but we want the full thing (dialog;sla)
     subscribeRequest.getEventField(eventTypeKey);
     // Event type is the event type with no parameters.
-    subscribeRequest.getEventField(&eventType, NULL);
+    subscribeRequest.getEventFieldParts(&eventType);
 
     return(TRUE);
 }

@@ -236,7 +236,7 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
    // Start the SIP Subscribe Server after the initial content has
    // been published.  This ensures that early subscribers do not get
    // NOTIFYs with incomplete information.
-   mSubscribeServer.enableEventType(mEventType, NULL, NULL, NULL, NULL,
+   mSubscribeServer.enableEventType(mEventType, NULL, NULL, NULL,
          SipSubscribeServer::standardVersionCallback, TRUE);
    mSubscribeServer.start();
 }

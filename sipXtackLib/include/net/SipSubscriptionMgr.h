@@ -210,6 +210,25 @@ public:
     //! Remove old subscriptions, ones that expired before the given time.
     virtual void removeOldSubscriptions(long oldEpochTimeSeconds);
 
+    //! Get the current resend interval for a subscription.
+    //  Returns 1,000,000 (which is larger than the max-resend value)
+    //  if the subscription cannot be found.
+    int getNextResendInterval(const UtlString& dialogHandle);
+
+    //! Set the current resend interval for a subscription.
+    void setNextResendInterval(const UtlString& dialogHandle,
+                               int interval);
+
+    //! Set the address of the queue to which to send resend messages.
+    void setResendMsgQ(OsMsgQ* pMsgQ);
+
+    //! Start the resend timer for a dialog, unless it is set to fire sooner.
+    void startResendTimer(const UtlString& dialogHandle,
+                          int interval);
+
+    //! Get pointer to the dialog handle of a resend message.
+    static const UtlString* getHandleOfResendEventMsg(const OsMsg& msg);
+
     //! Set stored value for the next NOTIFY CSeq and version.
     virtual void setNextNotifyCSeq(const UtlString& dialogHandleString,
                                    int nextLocalCseq,
@@ -281,6 +300,14 @@ public:
     //! Dump the object's internal state.
     void dumpState();
 
+    /// Initial resend interval, in seconds.
+    static int sInitialNextResendInterval;
+    /// Maximum resend interval, in seconds.
+    static int sMaxNextResendInterval;
+
+    // msgSubType for a ResendEventMsg.
+    static int sEventResend;
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -304,6 +331,8 @@ private:
     int mMinExpiration;
     int mDefaultExpiration;
     int mMaxExpiration;
+    /// Queue to which to send resend messages.
+    OsMsgQ* mpResendMsgQ;
 
     // Container for the SubscriptionServerState's, which are indexed
     // by dialog handles.

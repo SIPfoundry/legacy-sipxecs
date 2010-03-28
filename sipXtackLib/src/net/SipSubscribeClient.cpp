@@ -547,7 +547,7 @@ UtlBoolean SipSubscribeClient::addSubscription(
     // Get the event type and make sure we are registered to
     // receive NOTIFY requests for this event type.
     UtlString eventType;
-    subscriptionRequest->getEventField(&eventType, NULL, NULL);
+    subscriptionRequest->getEventFieldParts(&eventType);
     // If this event type is not in the list, we need to register
     // to receive NOTIFY requests for this event type.
     {
@@ -1231,7 +1231,7 @@ void SipSubscribeClient::handleNotifyRequest(const SipMessage& notifyRequest)
     OsLockUnlockable lock(mSemaphore);
 
     UtlString eventField;
-    notifyRequest.getEventField(&eventField, NULL);
+    notifyRequest.getEventFieldParts(&eventField);
     // We could validate that the event field is
     // set and is the right event type, but mostly
     // we should not care as we know the event type

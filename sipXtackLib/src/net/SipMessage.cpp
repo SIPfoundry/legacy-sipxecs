@@ -3631,10 +3631,12 @@ void SipMessage::addRequireExtension(const char* extension)
     addHeaderField(SIP_REQUIRE_FIELD, extension);
 }
 
-/// Retrieve the event type, id, and other params from the Event Header
-UtlBoolean SipMessage::getEventField(UtlString* eventType,
-                                     UtlString* eventId, //< set to the 'id' parameter value if not NULL
-                                     UtlHashMap* params  //< holds parameter name/value pairs if not NULL
+/// Retrieve the base event type, id, and other params from the Event header.
+UtlBoolean SipMessage::getEventFieldParts(UtlString* eventType,
+                                          UtlString* eventId,
+                                          //< set to the 'id' parameter value if not NULL
+                                          UtlHashMap* params
+                                          //< holds parameter name/value pairs if not NULL
                                      ) const
 {
    UtlString  eventField;
@@ -3687,7 +3689,7 @@ UtlBoolean SipMessage::getEventField(UtlString* eventType,
 UtlBoolean SipMessage::getEventField(UtlString& eventField) const
 {
    const char* value = getHeaderValue(0, SIP_EVENT_FIELD);
-    eventField.remove(0);
+   eventField.remove(0);
 
    if(value)
    {

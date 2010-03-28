@@ -11,6 +11,7 @@
 // APPLICATION INCLUDES
 #include <utl/UtlString.h>
 #include <utl/UtlHashBagIterator.h>
+#include <os/OsEventMsg.h>
 #include <os/OsSysLog.h>
 #include <os/OsTimer.h>
 #include <os/OsDateTime.h>
@@ -26,27 +27,39 @@
 class SubscriptionServerState : public UtlString
 {
 public:
-    SubscriptionServerState(const UtlString& dialogHandle);
+   SubscriptionServerState(const UtlString& dialogHandle,
+                           OsMsgQ* pResendMsgQ);
 
-    virtual ~SubscriptionServerState();
+   virtual ~SubscriptionServerState();
 
-    // Parent UtlString contains the dialog handle
-    UtlString mResourceId;
-    UtlString mEventTypeKey;
-    UtlString mEventType;
-    UtlString mAcceptHeaderValue;
-    long mExpirationDate;       // expiration time
-    int mDialogVer;             // the last value used in a 'version' attribute
-    SipMessage* mpLastSubscribeRequest;
-    OsTimer* mpExpirationTimer;
+   // Parent UtlString contains the dialog handle
 
-    //! Dump the object's internal state.
-    void dumpState();
+   UtlString mResourceId;
+   UtlString mEventTypeKey;
+   UtlString mEventType;
+   UtlString mAcceptHeaderValue;
+   long mExpirationDate;       // expiration time
+   int mDialogVer;             // the last value used in a 'version' attribute
+   SipMessage* mpLastSubscribeRequest;
+   OsTimer* mpExpirationTimer;
+
+   /// The interval to wait to resend a NOTIFY that fails due to a putatively
+   //  transient error response.
+   //  This value starts at SipSubscriptionMgr::sInitialNextResendInterval and
+   //  is doubled until it exceeds SipSubscriptionMgr::sMaxNextResendInterval,
+   //  at which point the NOTIFY is no longer resent.
+   int mNextResendInterval;
+
+   /// The timer to send a resend message to the owning SipSubscribeServer.
+   OsTimer mResendTimer;
+
+   //! Dump the object's internal state.
+   void dumpState();
 
 private:
-    //! DISALLOWED accidental copying
-    SubscriptionServerState(const SubscriptionServerState& rSubscriptionServerState);
-    SubscriptionServerState& operator=(const SubscriptionServerState& rhs);
+   //! DISALLOWED accidental copying
+   SubscriptionServerState(const SubscriptionServerState& rSubscriptionServerState);
+   SubscriptionServerState& operator=(const SubscriptionServerState& rhs);
 };
 
 class SubscriptionServerStateIndex : public UtlString
@@ -67,6 +80,67 @@ private:
     SubscriptionServerStateIndex& operator=(const SubscriptionServerStateIndex& rhs);
 };
 
+
+// msgSubType for a ResendEventMsg
+int SipSubscriptionMgr::sEventResend = OsEventMsg::USER_START;
+
+/// OsMsg subclass to stimulate the resend of a NOTIFY that failed transiently.
+class ResendEventMsg : public OsMsg
+{
+   /* //////////////////////////// PUBLIC //////////////////////////////////// */
+public:
+
+   /* ============================ CREATORS ================================== */
+
+   ResendEventMsg(const UtlString& handle /**< handle of the subscription
+                                           *   for which to resend */
+      ) :
+      OsMsg(OS_EVENT, SipSubscriptionMgr::sEventResend),
+      mHandle(handle)
+      {
+      }
+
+   virtual
+   ~ResendEventMsg()
+      {
+      }
+   //:Destructor
+
+   /* ============================ MANIPULATORS ============================== */
+
+   virtual OsMsg* createCopy(void) const
+      {
+         return new ResendEventMsg(mHandle);
+      };
+   //:Create a copy of this msg object (which may be of a derived type)
+
+   /* ============================ ACCESSORS ================================= */
+
+   // Get pointer to the handle value.
+   const UtlString* getHandle() const
+      {
+         return &mHandle;
+      }
+
+   /* ============================ INQUIRY =================================== */
+
+   /* //////////////////////////// PROTECTED ///////////////////////////////// */
+protected:
+
+   /* //////////////////////////// PRIVATE /////////////////////////////////// */
+private:
+
+   ResendEventMsg(const ResendEventMsg& rResendEventMsg);
+   //:Copy constructor (not implemented for this class)
+
+   ResendEventMsg& operator=(const ResendEventMsg& rhs);
+   //:Assignment operator (not implemented for this class)
+
+   /// Handle of the ResendDialogState for which to send the refresh.
+   UtlString mHandle;
+};
+
+
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
@@ -85,18 +159,30 @@ private:
 
 // STATIC VARIABLE INITIALIZATIONS
 
+// Initial resend interval, in seconds.
+// Intervals shorter than 10 seconds may cause tests to fail due to unexpected
+// resends of NOTIFYs.
+int SipSubscriptionMgr::sInitialNextResendInterval = 10;
+// Maximum resend interval, in seconds.
+int SipSubscriptionMgr::sMaxNextResendInterval = 15 * 60;
+
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
 /* ============================ CREATORS ================================== */
 
-SubscriptionServerState::SubscriptionServerState(const UtlString& dialogHandle)
+SubscriptionServerState::SubscriptionServerState(const UtlString& dialogHandle,
+                                                 OsMsgQ* pResendMsgQ)
    : UtlString(dialogHandle)
    , mExpirationDate(-1)
    , mDialogVer(-1)
    , mpLastSubscribeRequest(NULL)
    , mpExpirationTimer(NULL)
+   , mNextResendInterval(SipSubscriptionMgr::sInitialNextResendInterval)
+   , mResendTimer(new ResendEventMsg(dialogHandle),
+                  pResendMsgQ)
 {
 }
+
 SubscriptionServerState::~SubscriptionServerState()
 {
     if(mpLastSubscribeRequest)
@@ -121,7 +207,7 @@ void SubscriptionServerState::dumpState()
 {
    // indented 6
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   OsSysLog::add(FAC_SIP, PRI_INFO,
                  "\t      SubscriptionServerState %p UtlString = '%s', mResourceId = '%s', mEventTypeKey = '%s', "
                  "mAcceptHeaderValue = '%s', mExpirationDate = %+d, mDialogVer = %d",
                  this, data(), mResourceId.data(), mEventTypeKey.data(),
@@ -152,6 +238,7 @@ SipSubscriptionMgr::SipSubscriptionMgr()
  , mMinExpiration(INITIAL_MIN_EXPIRATION)
  , mDefaultExpiration(INITIAL_DEFAULT_EXPIRATION)
  , mMaxExpiration(INITIAL_MAX_EXPIRATION)
+ , mpResendMsgQ(NULL)           // initially NULL, will be set by ::setResendMsgQ()
 {
 }
 
@@ -315,12 +402,16 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             // Re-get the dialog handle now that the To tag is set
             subscribeCopy->getDialogHandle(dialogHandle);
 
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipSubscriptionMgr::updateDialogInfo dialogHandle = '%s'",
+                          dialogHandle.data());
+
             // Create the dialog
             mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
             isNew = TRUE;
 
             // Create a subscription state
-            state = new SubscriptionServerState(dialogHandle);
+            state = new SubscriptionServerState(dialogHandle, mpResendMsgQ);
             state->mEventTypeKey = eventTypeKey;
             state->mEventType = eventType;
             state->mpLastSubscribeRequest = subscribeCopy;
@@ -537,7 +628,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
         isNew = TRUE;
 
         // Create a subscription state
-        state = new SubscriptionServerState(dialogHandle);
+        state = new SubscriptionServerState(dialogHandle, mpResendMsgQ);
         state->mEventTypeKey = eventTypeKey;
         state->mEventType = eventType;
         state->mpLastSubscribeRequest = subscribeCopy;
@@ -639,7 +730,7 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
             isNew = TRUE;
 
             // Create a subscription state
-            state = new SubscriptionServerState(dialogHandle);
+            state = new SubscriptionServerState(dialogHandle, mpResendMsgQ);
             state->mEventTypeKey = eventTypeKey;
             state->mEventType = eventType;
             state->mpLastSubscribeRequest = subscribeCopy;
@@ -1047,6 +1138,10 @@ void SipSubscriptionMgr::freeNotifies(int numNotifies,
 UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle,
                                                enum subscriptionChange change)
 {
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipSubscriptionMgr::endSubscription dialogHandle = '%s', change = %d",
+                 dialogHandle.data(), change);
+
     UtlBoolean subscriptionFound = FALSE;
 
     lock();
@@ -1124,15 +1219,15 @@ void SipSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
             if(stateIndex->mpState->mExpirationDate < oldEpochTimeSeconds)
             {
                 if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
-	        {
-		   UtlString requestContact;
-		   stateIndex->mpState->mpLastSubscribeRequest->
-		      getContactField(0, requestContact);
-		   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-				 "SipSubscriptionMgr::removeOldSubscriptions delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
+                {
+                   UtlString requestContact;
+                   stateIndex->mpState->mpLastSubscribeRequest->
+                      getContactField(0, requestContact);
+                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                 "SipSubscriptionMgr::removeOldSubscriptions delete subscription for dialog handle '%s', key '%s', contact '%s', mExpirationDate %ld",
                                  stateIndex->mpState->data(),
-				 stateIndex->data(), requestContact.data(),
-				 stateIndex->mpState->mExpirationDate);
+                                 stateIndex->data(), requestContact.data(),
+                                 stateIndex->mpState->mExpirationDate);
                 }
                 mDialogMgr.deleteDialog(*(stateIndex->mpState));
                 mSubscriptionStatesByDialogHandle.removeReference(stateIndex->mpState);
@@ -1155,6 +1250,112 @@ void SipSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
     }
 
     unlock();
+}
+
+int SipSubscriptionMgr::getNextResendInterval(const UtlString& dialogHandle)
+{
+   int interval = 1000000;      // the not-found value
+
+   lock();
+
+   SubscriptionServerState* state =
+      dynamic_cast <SubscriptionServerState*>
+      (mSubscriptionStatesByDialogHandle.find(&dialogHandle));
+    
+   if (state)
+   {
+      interval = state->mNextResendInterval;
+   }
+   else
+   {
+      interval = 1000000;       // Yes, this is redundant.
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipSubscriptionMgr::getNextResendInterval Could not find subscription in mSubscriptionStatesByDialogHandle for dialog handle '%s'",
+                    dialogHandle.data());
+   }
+
+   unlock();
+
+   return interval;
+}
+
+void SipSubscriptionMgr::setNextResendInterval(const UtlString& dialogHandle,
+                                               int interval)
+{
+   lock();
+   SubscriptionServerState* state =
+      dynamic_cast <SubscriptionServerState*>
+      (mSubscriptionStatesByDialogHandle.find(&dialogHandle));
+    
+   if (state)
+   {
+      state->mNextResendInterval = interval;
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipSubscriptionMgr::setNextResendInterval Could not find subscription in mSubscriptionStatesByDialogHandle for dialog handle '%s'",
+                    dialogHandle.data());
+   }
+
+   unlock();
+}
+
+// Set the address of the queue to which to send resend messages.
+void SipSubscriptionMgr::setResendMsgQ(OsMsgQ* pMsgQ)
+{
+   mpResendMsgQ = pMsgQ;
+}
+
+// Start the resend timer for a dialog, unless it is set to fire sooner.
+void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle,
+                                          int interval)
+{
+   assert(mpResendMsgQ); // Check that mpResendMsgQ has been set.
+
+   lock();
+
+   SubscriptionServerState* state =
+      dynamic_cast <SubscriptionServerState*>
+      (mSubscriptionStatesByDialogHandle.find(&dialogHandle));
+    
+   if (state)
+   {
+      enum OsTimer::OsTimerState timerState;
+      OsTimer::Time expiresAt;
+      UtlBoolean periodic;
+      OsTimer::Interval period;
+
+      state->mResendTimer.getFullState(timerState, expiresAt, periodic, period);
+      if (timerState == OsTimer::STOPPED ||
+          expiresAt - OsTimer::now() > interval)
+      {
+         OsTime t(interval, 0);
+         state->mResendTimer.oneshotAfter(t);
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipSubscriptionMgr::startResendTimer scheduling timer in %d seconds",
+                       interval);
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                       "SipSubscriptionMgr::startResendTimer timer firing sooner");
+      }
+   }
+   else
+   {
+      OsSysLog::add(FAC_SIP, PRI_WARNING,
+                    "SipSubscriptionMgr::startResendTimer Could not find subscription in mSubscriptionStatesByDialogHandle for dialog handle '%s'",
+                    dialogHandle.data());
+   }
+
+   unlock();
+}
+
+// Get pointer to the dialog handle of a resend message.
+const UtlString* SipSubscriptionMgr::getHandleOfResendEventMsg(const OsMsg& msg)
+{
+   return (dynamic_cast <const ResendEventMsg&> (msg)).getHandle();
 }
 
 // Set stored value for the next NOTIFY CSeq.
@@ -1338,7 +1539,7 @@ void SipSubscriptionMgr::dumpState()
 
    // indented 4
 
-   OsSysLog::add(FAC_RLS, PRI_INFO,
+   OsSysLog::add(FAC_SIP, PRI_INFO,
                  "\t    SipSubscriptionMgr %p",
                  this);
 

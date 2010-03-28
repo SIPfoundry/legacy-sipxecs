@@ -6,6 +6,9 @@
 //
 //////////////////////////////////////////////////////////////////////////////
 
+// Get value of EXECUTE_SLOW_TESTS.
+#include "config.h"
+
 #include <cppunit/extensions/HelperMacros.h>
 #include <cppunit/TestCase.h>
 #include <sipxunit/TestUtilities.h>
@@ -213,16 +216,16 @@ public:
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue,
-                        *subscriberUserAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        notifyRequest,
-                        subscribeResponse,
-                        SIP_OK_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *subscriberUserAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
 
             // We should have received a SUBSCRIBE response and a NOTIFY request.
             CPPUNIT_ASSERT(subscribeResponse);
@@ -238,11 +241,18 @@ public:
                ASSERT_STR_EQUAL(SIP_SUBSCRIBE_METHOD, subscribeMethod.data());
             }
 
-            // Check that the method in the notify request is OK.
+            // Check that the method in the NOTIFY request is OK.
             {
                UtlString notifyMethod;
                notifyRequest->getRequestMethod(&notifyMethod);
                ASSERT_STR_EQUAL(SIP_NOTIFY_METHOD, notifyMethod.data());
+            }
+
+            // Check that the Content-Type in the NOTIFY request is OK.
+            {
+               UtlString contentType;
+               notifyRequest->getContentType(&contentType);
+               ASSERT_STR_EQUAL(mwiMimeType.data(), contentType.data());
             }
 
             // Check that the Event header in the NOTIFY is the same as the
@@ -293,16 +303,16 @@ public:
          {
             const SipMessage* subscribeResponse;
             const SipMessage* secondNotify;
-            runListener(incomingClientMsgQueue,
-                        *subscriberUserAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        secondNotify,
-                        subscribeResponse,
-                        SIP_OK_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *subscriberUserAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       secondNotify,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
             CPPUNIT_ASSERT(secondNotify);
             CPPUNIT_ASSERT(subscribeResponse == NULL);
 
@@ -352,16 +362,16 @@ public:
          {
             const SipMessage* oneTimeNotifyRequest;
             const SipMessage* oneTimeSubscribeResponse;
-            runListener(incomingClientMsgQueue,
-                        *subscriberUserAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        oneTimeNotifyRequest,
-                        oneTimeSubscribeResponse,
-                        SIP_OK_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *subscriberUserAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       oneTimeNotifyRequest,
+                                       oneTimeSubscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
 
             // Validate the one time subscribe response and notify request
             CPPUNIT_ASSERT(oneTimeSubscribeResponse);
@@ -385,6 +395,9 @@ public:
                UtlString oneTimeNotifyMethod;
                oneTimeNotifyRequest->getRequestMethod(&oneTimeNotifyMethod);
                ASSERT_STR_EQUAL(SIP_NOTIFY_METHOD, oneTimeNotifyMethod.data());
+               UtlString oneTimeContentType;
+               oneTimeNotifyRequest->getContentType(&oneTimeContentType);
+               ASSERT_STR_EQUAL(mwiMimeType.data(), oneTimeContentType.data());
                UtlString oneTimeNotifyEventHeader;
                oneTimeNotifyRequest->getEventField(oneTimeNotifyEventHeader);
                // The Event: header should appear in the NOTIFY.
@@ -420,11 +433,11 @@ public:
    // when content changes.
    void nonexistentResourceSubscriptionTest()
       {
-	// Remove the content for the resource URI.
-	subServerp->getPublishMgr(eventName)->
-	    unpublish(notifier_resource_id,
-		      eventName,
-		      eventName,
+        // Remove the content for the resource URI.
+        subServerp->getPublishMgr(eventName)->
+            unpublish(notifier_resource_id,
+                      eventName,
+                      eventName,
                       SipSubscribeServer::terminationReasonNone);
 
          // Send a SUBSCRIBE to the notifier.
@@ -453,16 +466,16 @@ public:
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue,
-                        *subscriberUserAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        notifyRequest,
-                        subscribeResponse,
-                        SIP_OK_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *subscriberUserAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
 
             // We should have received a SUBSCRIBE response and no NOTIFY request.
             CPPUNIT_ASSERT(subscribeResponse);
@@ -511,16 +524,16 @@ public:
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue,
-                        *subscriberUserAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        notifyRequest,
-                        subscribeResponse,
-                        SIP_OK_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *subscriberUserAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
 
             // We should have received a SUBSCRIBE response and no NOTIFY request.
             CPPUNIT_ASSERT(subscribeResponse);
@@ -531,9 +544,9 @@ public:
             {
                CPPUNIT_ASSERT_EQUAL(SIP_BAD_MEDIA_CODE,
                                     subscribeResponse->getResponseStatusCode());
-	       // Check that the Accept header has the right value.
+               // Check that the Accept header has the right value.
                ASSERT_STR_EQUAL(mwiMimeType,
-				subscribeResponse->getHeaderValue(0, SIP_ACCEPT_FIELD));
+                                subscribeResponse->getHeaderValue(0, SIP_ACCEPT_FIELD));
 
                UtlString subscribeMethod;
                subscribeResponse->getCSeqField(NULL, &subscribeMethod);
@@ -553,6 +566,10 @@ class SipSubscribeServerTest2 : public CppUnit::TestCase
    CPPUNIT_TEST(terminateSubscriptionOnErrorRetryAfter);
    CPPUNIT_TEST(terminateSubscriptionOnErrorTimeout);
    CPPUNIT_TEST(responseContact);
+#ifdef EXECUTE_SLOW_TESTS
+   CPPUNIT_TEST(notifyResend);
+#endif // EXECUTE_SLOW_TESTS
+
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -576,7 +593,7 @@ public:
          hostIp = "127.0.0.1";
 
          eventName = SIP_EVENT_MESSAGE_SUMMARY;
-         mwiMimeType = CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY;;
+         mwiMimeType = CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY;
 
          // Construct a user agent that will function both as the subscriber
          // and the notfier.
@@ -693,21 +710,21 @@ public:
          CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
 
          // We should get a 202 response and a NOTIFY request in the queue
-         // Send a 500 response to the NOTIFY.
+         // Send a 200 response to the NOTIFY.
          OsTime messageTimeout(1, 0);  // 1 second
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue,
-                        *userAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        notifyRequest,
-                        subscribeResponse,
-                        SIP_SERVER_INTERNAL_ERROR_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
 
             // We should have received a SUBSCRIBE response and a NOTIFY request.
             CPPUNIT_ASSERT(subscribeResponse);
@@ -734,16 +751,16 @@ public:
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue,
-                        *userAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        notifyRequest,
-                        subscribeResponse,
-                        SIP_OK_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
 
             // We should have received a SUBSCRIBE response and a NOTIFY request.
             CPPUNIT_ASSERT(subscribeResponse);
@@ -833,17 +850,17 @@ public:
                const SipMessage* subscribeResponse;
                const SipMessage* notifyRequest;
                const SipMessage* notifyRequest2;
-               runListener(incomingClientMsgQueue,
-                           *userAgentp,
-                           messageTimeout,
-                           messageTimeout,
-                           notifyRequest,
-                           subscribeResponse,
-                           test_codes[i],
-                           FALSE,
-                           0,
-                           NULL,
-                           &notifyRequest2);
+               CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                          *userAgentp,
+                                          messageTimeout,
+                                          messageTimeout,
+                                          notifyRequest,
+                                          subscribeResponse,
+                                          test_codes[i],
+                                          FALSE,
+                                          0,
+                                          NULL,
+                                          &notifyRequest2));
 
                // We should have received a SUBSCRIBE response and a NOTIFY request.
                CPPUNIT_ASSERT_MESSAGE(message,
@@ -876,7 +893,9 @@ public:
                                    getHeaderValue(0, SIP_SUBSCRIPTION_STATE_FIELD),
                                strlen(EXPECTED_STATE_PREFIX)));
 
-               // Check that the second NOTIFY is what we expected.
+               // Check that we received a second NOTIFY, in which the server
+               // notifies us that the subscription has been deactiveted
+               // (due to an error response to the first NOTIFY).
 
                CPPUNIT_ASSERT_MESSAGE(message, notifyRequest2);
                ASSERT_STR_EQUAL_MESSAGE(message,
@@ -901,16 +920,16 @@ public:
             {
                const SipMessage* subscribeResponse;
                const SipMessage* notifyRequest;
-               runListener(incomingClientMsgQueue,
-                           *userAgentp,
-                           messageTimeout,
-                           messageTimeout,
-                           notifyRequest,
-                           subscribeResponse,
-                           SIP_OK_CODE,
-                           FALSE,
-                           0,
-                           NULL);
+               CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                          *userAgentp,
+                                          messageTimeout,
+                                          messageTimeout,
+                                          notifyRequest,
+                                          subscribeResponse,
+                                          SIP_OK_CODE,
+                                          FALSE,
+                                          0,
+                                          NULL));
 
                // We should have received a SUBSCRIBE response and no NOTIFY request.
                CPPUNIT_ASSERT_MESSAGE(message, subscribeResponse);
@@ -973,16 +992,16 @@ public:
             {
                const SipMessage* subscribeResponse;
                const SipMessage* notifyRequest;
-               runListener(incomingClientMsgQueue,
-                           *userAgentp,
-                           messageTimeout,
-                           messageTimeout,
-                           notifyRequest,
-                           subscribeResponse,
-                           test_codes[i],
-                           /*Retry-After:0*/ TRUE,
-                           0,
-                           NULL);
+               CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                          *userAgentp,
+                                          messageTimeout,
+                                          messageTimeout,
+                                          notifyRequest,
+                                          subscribeResponse,
+                                          test_codes[i],
+                                          /*Retry-After:0*/ TRUE,
+                                          0,
+                                          NULL));
 
                // We should have received a SUBSCRIBE response and a NOTIFY request.
                CPPUNIT_ASSERT(subscribeResponse);
@@ -1015,16 +1034,16 @@ public:
             {
                const SipMessage* subscribeResponse;
                const SipMessage* notifyRequest;
-               runListener(incomingClientMsgQueue,
-                           *userAgentp,
-                           messageTimeout,
-                           messageTimeout,
-                           notifyRequest,
-                           subscribeResponse,
-                           SIP_OK_CODE,
-                           FALSE,
-                           0,
-                           NULL);
+               CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                          *userAgentp,
+                                          messageTimeout,
+                                          messageTimeout,
+                                          notifyRequest,
+                                          subscribeResponse,
+                                          SIP_OK_CODE,
+                                          FALSE,
+                                          0,
+                                          NULL));
 
                // We should have received a SUBSCRIBE response and no NOTIFY request.
                CPPUNIT_ASSERT(subscribeResponse);
@@ -1091,16 +1110,16 @@ public:
             {
                const SipMessage* subscribeResponse;
                const SipMessage* notifyRequest;
-               runListener(incomingClientMsgQueue,
-                           *userAgentp,
-                           messageTimeout,
-                           messageTimeout,
-                           notifyRequest,
-                           subscribeResponse,
-                           test_codes[i],
-                           FALSE,
-                           0,
-                           NULL);
+               CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                          *userAgentp,
+                                          messageTimeout,
+                                          messageTimeout,
+                                          notifyRequest,
+                                          subscribeResponse,
+                                          test_codes[i],
+                                          FALSE,
+                                          0,
+                                          NULL));
 
                // We should have received a SUBSCRIBE response and a NOTIFY request.
                CPPUNIT_ASSERT(subscribeResponse);
@@ -1132,16 +1151,16 @@ public:
             {
                const SipMessage* subscribeResponse;
                const SipMessage* notifyRequest;
-               runListener(incomingClientMsgQueue,
-                           *userAgentp,
-                           messageTimeout,
-                           messageTimeout,
-                           notifyRequest,
-                           subscribeResponse,
-                           SIP_OK_CODE,
-                           FALSE,
-                           0,
-                           NULL);
+               CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                          *userAgentp,
+                                          messageTimeout,
+                                          messageTimeout,
+                                          notifyRequest,
+                                          subscribeResponse,
+                                          SIP_OK_CODE,
+                                          FALSE,
+                                          0,
+                                          NULL));
 
                // We should have received a SUBSCRIBE response and no NOTIFY request.
                CPPUNIT_ASSERT(subscribeResponse);
@@ -1194,16 +1213,16 @@ public:
          {
             const SipMessage* subscribeResponse;
             const SipMessage* notifyRequest;
-            runListener(incomingClientMsgQueue,
-                        *userAgentp,
-                        messageTimeout,
-                        messageTimeout,
-                        notifyRequest,
-                        subscribeResponse,
-                        SIP_OK_CODE,
-                        FALSE,
-                        0,
-                        NULL);
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
 
             // We should have received a SUBSCRIBE response and a NOTIFY request.
             CPPUNIT_ASSERT(subscribeResponse);
@@ -1218,6 +1237,145 @@ public:
             ASSERT_STR_EQUAL(aor_contact_name_addr, c.data());
             notifyRequest->getContactField(0, c);
             ASSERT_STR_EQUAL(aor_contact_name_addr, c.data());
+         }
+      }
+
+   void notifyResend()
+      {
+         // Test MWI messages
+         const char* mwiSubscribe =
+            "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
+            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "To: <sip:111@example.com>\r\n"
+            "Cseq: 1 SUBSCRIBE\r\n"
+            "Event: message-summary\r\n"
+            "Accept: application/simple-message-summary\r\n"
+            "Expires: 3600\r\n"
+            "Date: Tue, 26 Apr 2005 14:59:30 GMT\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: Pingtel/2.2.0 (VxWorks)\r\n"
+            "Accept-Language: en\r\n"
+            "Supported: sip-cc, sip-cc-01, timer, replaces\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         // Send a SUBSCRIBE to ourselves
+         SipMessage mwiSubscribeRequest(mwiSubscribe);
+         {
+            UtlString c;
+            CallId::getNewCallId(c);
+            mwiSubscribeRequest.setCallIdField(c);
+         }
+         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
+                                                          aor,
+                                                          SIP_PROTOCOL_VERSION);
+         mwiSubscribeRequest.setContactField(aor_name_addr);
+         mwiSubscribeRequest.incrementCSeqNumber();
+
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+
+         // We should get a 202 response and a NOTIFY request in the queue
+         // Send a 408 response to the NOTIFY.
+         {
+            OsTime messageTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_REQUEST_TIMEOUT_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should have received a SUBSCRIBE response and a NOTIFY request.
+            CPPUNIT_ASSERT(subscribeResponse);
+
+            // Check that the subscribe response is what we expected.
+            CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                 subscribeResponse->getResponseStatusCode());
+
+            // Check that the NOTIFY is what we expected.
+            CPPUNIT_ASSERT(notifyRequest);
+         }
+
+         // Wait 10 seconds for the NOTIFY to be resent.
+         {
+            fprintf(stderr, "Waiting 11 seconds...\n");
+            OsTime firstTimeout(11, 0);  // 11 seconds
+            OsTime nextTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       firstTimeout,
+                                       nextTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_REQUEST_TIMEOUT_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should not have received a response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // Check that the NOTIFY is what we expected.
+            CPPUNIT_ASSERT(notifyRequest);
+         }
+
+         // Wait 20 seconds for the NOTIFY to be resent.
+         // Give 200 response this time.
+         {
+            fprintf(stderr, "Waiting 21 seconds...\n");
+            OsTime firstTimeout(21, 0);  // 21 seconds
+            OsTime nextTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       firstTimeout,
+                                       nextTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should not have received a response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // Check that the NOTIFY is what we expected.
+            CPPUNIT_ASSERT(notifyRequest);
+         }
+
+         // Wait 40 seconds for the NOTIFY to be resent, which it should not be.
+         {
+            fprintf(stderr, "Waiting 41 seconds...\n");
+            OsTime firstTimeout(41, 0);  // 41 seconds
+            OsTime nextTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       firstTimeout,
+                                       nextTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_REQUEST_TIMEOUT_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should not have received a response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // We should not have received a NOTIFY request.
+            CPPUNIT_ASSERT(!notifyRequest);
          }
       }
 

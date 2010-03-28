@@ -576,7 +576,7 @@ void SipPersistentSubscriptionMgr::updateVersion(SipMessage& notifyRequest,
    notifyRequest.getToField(&from);
    notifyRequest.getFromField(&to);
    notifyRequest.getCallIdField(&callId);
-   notifyRequest.getEventField(&eventHeader, &eventId);
+   notifyRequest.getEventFieldParts(&eventHeader, &eventId);
    now = (int) OsDateTime::getSecsSinceEpoch();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,

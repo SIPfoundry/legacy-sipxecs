@@ -2352,7 +2352,7 @@ void SipUserAgent::queueMessageToInterestedObservers(SipMessageEvent& event,
       // Find all of the observers which are interested in
       // this method and post the message
       UtlString messageEventName;
-      message->getEventField(&messageEventName, NULL); // no parameters
+      message->getEventFieldParts(&messageEventName); // no parameters
 
       // do these constructors before taking the lock
       UtlString observerMatchingMethod(method);

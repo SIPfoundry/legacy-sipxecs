@@ -776,7 +776,6 @@ int main(int argc, char* argv[])
                                                 NULL,
                                                 NULL,
                                                 NULL,
-                                                NULL,
                                                 SipSubscribeServer::standardVersionCallback);
               pSubscribeServer->start();
 

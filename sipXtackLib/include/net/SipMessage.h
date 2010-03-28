@@ -1043,12 +1043,15 @@ public:
 
     UtlBoolean getContentEncodingField(UtlString* contentEncodingField) const;
 
-    /// Retrieve the event type, id, and other params from the Event Header
-    UtlBoolean getEventField(UtlString* eventType,
-                             UtlString* eventId = NULL, //< set to the 'id' parameter value if not NULL
-                             UtlHashMap* params = NULL  //< holds parameter name/value pairs if not NULL
-                             ) const;
+    /// Retrieve the base event type, id, and other params from the Event header.
+    UtlBoolean getEventFieldParts(UtlString* eventType,
+                                  UtlString* eventId = NULL,
+                                  //< set to the 'id' parameter value if not NULL
+                                  UtlHashMap* params = NULL
+                                  //< holds parameter name/value pairs if not NULL
+       ) const;
 
+    /// Retrieve the complete Event header, including all parameters.
     UtlBoolean getEventField(UtlString& eventField) const;
 
     void setEventField(const char* eventField);

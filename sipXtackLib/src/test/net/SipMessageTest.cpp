@@ -628,11 +628,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsg.getEventField(&package));
+         CPPUNIT_ASSERT(testMsg.getEventFieldParts(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsg.getEventField(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsg.getEventFieldParts(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          CPPUNIT_ASSERT(id.isNull());
          CPPUNIT_ASSERT(params.isEmpty());
@@ -667,11 +667,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package;id=45wwrt2",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithId.getEventField(&package));
+         CPPUNIT_ASSERT(testMsgWithId.getEventFieldParts(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsgWithId.getEventField(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithId.getEventFieldParts(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          CPPUNIT_ASSERT(params.isEmpty());
@@ -706,11 +706,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package; id=45wwrt2",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithIdSpace.getEventField(&package));
+         CPPUNIT_ASSERT(testMsgWithIdSpace.getEventFieldParts(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsgWithIdSpace.getEventField(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithIdSpace.getEventFieldParts(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          CPPUNIT_ASSERT(params.isEmpty());
@@ -745,11 +745,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package; id = 45wwrt2",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithEqualSpace.getEventField(&package));
+         CPPUNIT_ASSERT(testMsgWithEqualSpace.getEventFieldParts(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsgWithEqualSpace.getEventField(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithEqualSpace.getEventFieldParts(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          CPPUNIT_ASSERT(params.isEmpty());
@@ -784,11 +784,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package;id=45wwrt2 ;foo=bar",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithTrailingSpace.getEventField(&package));
+         CPPUNIT_ASSERT(testMsgWithTrailingSpace.getEventFieldParts(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should be empty)
-         CPPUNIT_ASSERT(testMsgWithTrailingSpace.getEventField(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithTrailingSpace.getEventFieldParts(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          // There is one other parameter in this test, so !params.isEmpty().
@@ -825,11 +825,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package;p1=one;id=45wwrt2;p2=two",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithParams.getEventField(&package));
+         CPPUNIT_ASSERT(testMsgWithParams.getEventFieldParts(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which should have values)
-         CPPUNIT_ASSERT(testMsgWithParams.getEventField(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithParams.getEventFieldParts(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          ASSERT_STR_EQUAL("45wwrt2",id.data());
          CPPUNIT_ASSERT(params.entries()==2);
@@ -873,11 +873,11 @@ class SipMessageTest : public CppUnit::TestCase
          ASSERT_STR_EQUAL("the-package;sla",fullEventField.data());
 
          // use the parsing interface, but don't ask for the parameters
-         CPPUNIT_ASSERT(testMsgWithParams.getEventField(&package));
+         CPPUNIT_ASSERT(testMsgWithParams.getEventFieldParts(&package));
          ASSERT_STR_EQUAL("the-package",package.data());
 
          // use the parsing interface and get the parameters (which might not have values)
-         CPPUNIT_ASSERT(testMsgWithParams.getEventField(&package, &id, &params));
+         CPPUNIT_ASSERT(testMsgWithParams.getEventFieldParts(&package, &id, &params));
          ASSERT_STR_EQUAL("the-package",package.data());
          CPPUNIT_ASSERT(id.isNull());
          CPPUNIT_ASSERT(params.entries()==1);

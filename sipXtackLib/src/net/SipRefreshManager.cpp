@@ -859,7 +859,7 @@ void RefreshDialogState::dumpState()
    if (mpLastRequest)
    {
       mpLastRequest->getRequestUri(&requestURI);
-      mpLastRequest->getEventField(&eventField);
+      mpLastRequest->getEventField(eventField);
       mpLastRequest->getBytes(&msg_text, &msg_length);
    }
 
