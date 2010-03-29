@@ -2152,7 +2152,7 @@ public class BackToBackUserAgent implements Comparable {
 
                 ServerTransaction peerSt = ((ServerTransaction) peerDat.dialogCreatingTransaction);
                 ContactHeader contact = SipUtilities.createContactHeader(wanProvider, peerDat
-                        .getItspInfo(),peerSt);
+                        .getItspInfo(), null, peerSt);
                 if ( peerSt != null && peerSt.getState() != TransactionState.TERMINATED ) {
                 	Response peerOk = SipUtilities.createResponse(peerSt,
 							Response.OK);   	

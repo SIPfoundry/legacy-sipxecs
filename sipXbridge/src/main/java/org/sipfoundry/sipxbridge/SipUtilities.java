@@ -18,7 +18,6 @@ import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.extensions.SessionExpires;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
-import gov.nist.javax.sip.header.ims.PathHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
 import gov.nist.javax.sip.message.Content;
 import gov.nist.javax.sip.message.MessageExt;
@@ -31,8 +30,6 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.InetAddress;
 import java.net.URLEncoder;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -43,7 +40,6 @@ import java.util.ListIterator;
 import java.util.Properties;
 import java.util.Set;
 import java.util.Vector;
-import java.util.zip.ZipOutputStream;
 
 import javax.sdp.Attribute;
 import javax.sdp.Connection;
@@ -53,7 +49,6 @@ import javax.sdp.SdpException;
 import javax.sdp.SdpFactory;
 import javax.sdp.SdpParseException;
 import javax.sdp.SessionDescription;
-import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
 import javax.sip.InvalidArgumentException;
 import javax.sip.ListeningPoint;
@@ -72,7 +67,6 @@ import javax.sip.header.ContactHeader;
 import javax.sip.header.ContentTypeHeader;
 import javax.sip.header.ErrorInfoHeader;
 import javax.sip.header.ExpiresHeader;
-import javax.sip.header.ExtensionHeader;
 import javax.sip.header.FromHeader;
 import javax.sip.header.Header;
 import javax.sip.header.InReplyToHeader;
@@ -99,9 +93,9 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 
 /**
- * 
+ *
  * @author mranga
- * 
+ *
  */
 @SuppressWarnings("unchecked")
 class SipUtilities {
@@ -117,7 +111,7 @@ class SipUtilities {
 
 	/**
 	 * Create the UA header.
-	 * 
+	 *
 	 * @return
 	 */
 	static UserAgentHeader createUserAgentHeader() {
@@ -156,7 +150,7 @@ class SipUtilities {
 
 	/**
 	 * Possibly create and return the default Server header.
-	 * 
+	 *
 	 * @return
 	 */
 	static ServerHeader createServerHeader() {
@@ -239,7 +233,7 @@ class SipUtilities {
 	/**
 	 * Get the Via header to assign for this message processor. The topmost via
 	 * header of the outoging messages use this.
-	 * 
+	 *
 	 * @return the ViaHeader to be used by the messages sent via this message
 	 *         processor.
 	 */
@@ -279,7 +273,7 @@ class SipUtilities {
 	 * Create a contact header for the given provider.
 	 */
 	static ContactHeader createContactHeader(SipProvider provider,
-			ItspAccountInfo itspAccount, Transaction transaction) {
+			ItspAccountInfo itspAccount, String user, Transaction transaction) {
 		try {
 			/*
 			 * If we are creating a contact header for a provider that is facing
@@ -293,16 +287,14 @@ class SipUtilities {
 				String transport = itspAccount != null ? itspAccount
 						.getOutboundTransport()
 						: Gateway.DEFAULT_ITSP_TRANSPORT;
-				String userName = itspAccount != null ? itspAccount
-						.getUserName() : null;
-				if (userName == null) {
-					userName = Gateway.SIPXBRIDGE_USER;
+				if (user == null) {
+				    user = Gateway.SIPXBRIDGE_USER;
 				}
 				ListeningPoint lp = provider.getListeningPoint(transport);
 				String ipAddress = lp.getIPAddress();
 				int port = lp.getPort();
 				SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
-						userName, ipAddress);
+						user, ipAddress);
 				sipUri.setPort(port);
 				sipUri.setTransportParam(transport);
 				Address address = ProtocolObjects.addressFactory
@@ -313,12 +305,16 @@ class SipUtilities {
 				return ch;
 
 			} else if (provider == Gateway.getLanProvider()) {
-				/*
-				 * Creating contact header for LAN bound request.
-				 */
-				return SipUtilities.createContactHeader(
-						Gateway.SIPXBRIDGE_USER, provider, Gateway
-								.getSipxProxyTransport());
+
+			    /*
+			     * Creating contact header for LAN bound request.
+			     */
+			    if (user == null) {
+			        user = Gateway.SIPXBRIDGE_USER;
+			    }
+			    return SipUtilities.createContactHeader(
+					user, provider, Gateway
+						.getSipxProxyTransport());
 			} else {
 				/*
 				 * Creating contact header for WAN bound request. Nothing is
@@ -327,20 +323,18 @@ class SipUtilities {
 
 				ContactHeader contactHeader = ProtocolObjects.headerFactory
 						.createContactHeader();
-				String userName = itspAccount != null ? itspAccount
-						.getUserName() : null;
-				if (userName == null) {
-					userName = Gateway.SIPXBRIDGE_USER;
+				if (user == null) {
+				    user = Gateway.SIPXBRIDGE_USER;
 				}
 				SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
-						userName, Gateway.getGlobalAddress());
+						user, Gateway.getGlobalAddress());
 				String transport = "udp";
 				if ( transaction != null ) {
 					transport = SipUtilities.getTopmostViaTransport(transaction.getRequest());
 				} else if ( itspAccount != null ) {
 					transport = itspAccount.getOutboundTransport();
 				}
-				
+
 				sipUri.setPort(Gateway.getGlobalPort(transport));
 				sipUri.setTransportParam(transport);
 				Address address = ProtocolObjects.addressFactory
@@ -500,7 +494,7 @@ class SipUtilities {
 	/**
 	 * Creates a deregistration request and sends it out to deregister ourselves
 	 * from the proxy server.
-	 * 
+	 *
 	 * @param itspAccount
 	 * @return
 	 * @throws SipXbridgeException
@@ -512,7 +506,7 @@ class SipUtilities {
 			Request request = createRegistrationRequestTemplate(itspAccount,
 					null, 1L);
 			ContactHeader contactHeader = createContactHeader(itspAccount
-					.getSipProvider(), itspAccount, null);
+					.getSipProvider(), itspAccount, itspAccount.getUserName(), null);
 			request.addHeader(contactHeader);
 			ExpiresHeader expiresHeader = ProtocolObjects.headerFactory
 					.createExpiresHeader(0);
@@ -586,7 +580,7 @@ class SipUtilities {
 
 	/**
 	 * Create a Registration request for the given ITSP account.
-	 * 
+	 *
 	 * @param sipProvider
 	 * @param itspAccount
 	 * @return
@@ -601,7 +595,7 @@ class SipUtilities {
 					callId, cseq);
 
 			ContactHeader contactHeader = createContactHeader(sipProvider,
-					itspAccount, null);
+					itspAccount, itspAccount.getUserName(), null);
 			contactHeader.removeParameter("expires");
 
 			request.addHeader(contactHeader);
@@ -626,7 +620,7 @@ class SipUtilities {
 
 	/**
 	 * Create a registration query.
-	 * 
+	 *
 	 * @param itspAccount
 	 * @return
 	 * @throws SipXbridgeException
@@ -792,7 +786,7 @@ class SipUtilities {
 			Gateway.getAuthenticationHelper().setAuthenticationHeaders(request);
 
 			ContactHeader contactHeader = createContactHeader(sipProvider,
-					itspAccount, null);
+					itspAccount, fromUser, null);
 			request.addHeader(contactHeader);
 
 			Iterator<Hop> hopIter = addresses.iterator();
@@ -870,7 +864,7 @@ class SipUtilities {
 
 	/**
 	 * Extract and return the media formats from the session description.
-	 * 
+	 *
 	 * @param sessionDescription
 	 *            -- the SessionDescription to examine.
 	 * @return a Set of media formats. Each element is a codec number.
@@ -902,7 +896,7 @@ class SipUtilities {
 
 	/**
 	 * Extract the Media formats that are not Telephone events.
-	 * 
+	 *
 	 * @param sessionDescription
 	 * @return a set of media formats.
 	 */
@@ -936,10 +930,10 @@ class SipUtilities {
 
 	/**
 	 * Remove the Crypto parameters from the request.
-	 * 
+	 *
 	 * @param sessionDescription
 	 *            - the session description to clean.
-	 * 
+	 *
 	 */
 	static void removeCrypto(SessionDescription sessionDescription) {
 		try {
@@ -973,7 +967,7 @@ class SipUtilities {
 	/**
 	 * Cleans the Session description to include only the specified codec set.
 	 * It removes all the SRTP related fields as well.
-	 * 
+	 *
 	 * @param sessionDescription
 	 *            -- the session description to clean ( modify )
 	 * @param codecs
@@ -1134,10 +1128,10 @@ class SipUtilities {
               }
           }
           return null;
-         
+
     }
-	
-	
+
+
 	static void setDuplexity(SessionDescription sessionDescription,
 			String attributeValue) {
 
@@ -1158,9 +1152,9 @@ class SipUtilities {
 					}
 				}
 			}
-			
+
 			MediaDescriptionImpl md = (MediaDescriptionImpl) getMediaDescription(sessionDescription);
-			
+
 			if ( SipUtilities.getDuplexity(md) != null )  {
 				md.setDuplexity(attributeValue);
 			}
@@ -1260,13 +1254,13 @@ class SipUtilities {
 	/**
 	 * Fix up the Origin field, ip address and port of the given session
 	 * description.
-	 * 
+	 *
 	 * @param sessionDescription
 	 *            -- session description field to fix up.
-	 * 
+	 *
 	 * @param address
 	 *            -- new address to assign to media
-	 * 
+	 *
 	 * @param port
 	 *            -- new port to assign.
 	 */
@@ -1309,7 +1303,7 @@ class SipUtilities {
 
 	/**
 	 * Increment the session version.
-	 * 
+	 *
 	 * @param sessionDescription
 	 */
 	static void incrementSessionVersion(SessionDescription sessionDescription) {
@@ -1325,7 +1319,7 @@ class SipUtilities {
 
 	/**
 	 * Fix up request to use global addressing.
-	 * 
+	 *
 	 * @param request
 	 */
 	static void setGlobalAddresses(Request request) {
@@ -1426,7 +1420,7 @@ class SipUtilities {
 	/**
 	 * Return true if the session description contains at least one codec of the
 	 * specified set.
-	 * 
+	 *
 	 * @param sd
 	 * @param codecSet
 	 * @return
@@ -1804,7 +1798,7 @@ class SipUtilities {
 			 */
 			if (provider != Gateway.getLanProvider()) {
 				ContactHeader contactHeader = SipUtilities.createContactHeader(
-						provider, itspAccount, serverTransaction);
+						provider, itspAccount, Gateway.SIPXBRIDGE_USER, serverTransaction);
 				newResponse.setHeader(contactHeader);
 			}
 
@@ -1908,7 +1902,7 @@ class SipUtilities {
 
 	/**
 	 * convert an array of bytes to an hexadecimal string
-	 * 
+	 *
 	 * @return a string
 	 * @param b
 	 *            bytes array to convert to a hexadecimal string
@@ -1975,7 +1969,7 @@ class SipUtilities {
 
 	/**
 	 * This routine copies headers from inbound to outbound responses.
-	 * 
+	 *
 	 * @param message
 	 * @param newMessage
 	 */
@@ -2000,7 +1994,7 @@ class SipUtilities {
 	 * request. Note that some headers are excluded because we filter these
 	 * based on privacy settings. Others are excluded because we deal with them
 	 * explicitly during processing.
-	 * 
+	 *
 	 * @param incomingRequest
 	 * @param outgoingRequest
 	 * @param toItsp
@@ -2135,7 +2129,7 @@ class SipUtilities {
 	/**
 	 * Check to see if request contains an unspupported extension and return
 	 * true if it des.
-	 * 
+	 *
 	 * @param request
 	 * @return
 	 */
