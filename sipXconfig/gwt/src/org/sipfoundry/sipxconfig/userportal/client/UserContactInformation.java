@@ -51,6 +51,7 @@ public class UserContactInformation implements EntryPoint {
 
         generalForm.addEmailValidator(ContactInformationDataSource.EMAIL_ADDRESS);
         generalForm.addEmailValidator(ContactInformationDataSource.ALTERNATE_EMAIL_ADDRESS);
+        generalForm.getItem(ContactInformationDataSource.IM_ID).setDisabled(true);
 
         m_valuesManager = new ValuesManager();
         m_valuesManager.setDataSource(m_dataSource);
