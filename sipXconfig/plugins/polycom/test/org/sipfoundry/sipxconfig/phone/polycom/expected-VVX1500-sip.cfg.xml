@@ -23,7 +23,7 @@
       voIpProt.SIP.ms-forking="0"
       voIpProt.SIP.keepalive.sessionTimers="0"
       voIpProt.SIP.requestURI.E164.addGlobalPrefix=""
-      voIpProt.SIP.allowTransferOnProceeding="0"
+      voIpProt.SIP.allowTransferOnProceeding="2"
       voIpProt.SIP.serverFeatureControl.cf="0"
       voIpProt.SIP.serverFeatureControl.dnd="0"
       voIpProt.SIP.use486forReject="1"

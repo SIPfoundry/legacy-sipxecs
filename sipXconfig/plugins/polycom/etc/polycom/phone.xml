@@ -2317,12 +2317,6 @@
         </type>
         <value />
       </setting>
-      <setting name="allowTransferOnProceeding" advanced="yes">
-        <type>
-          <boolean />
-        </type>
-        <value>0</value>
-      </setting>
     </group>
     <group name="alertInfo">
       <group name="1">

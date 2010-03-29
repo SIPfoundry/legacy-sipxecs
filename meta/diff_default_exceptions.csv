@@ -55,7 +55,7 @@ sip-up.oneTouchVoiceMail, NON-BLANK DEFAULT (XCF-3077)
 
 sip-voIpProt.SIP.serverFeatureControl.cf, NON-BLANK DEFAULT
 sip-voIpProt.SIP.serverFeatureControl.dnd, NON-BLANK DEFAULT
-
+sip-voIpProt.SIP.allowTransferOnProceeding, DEFAULT = '2' XX-8030 & XTRN-229
 ^sip-tcpIpApp.sntp.daylightSavings, These will depend on the locale that the system is in.
 
 ^phone1-attendant.behaviors.display.spontaneousCallAppearances.normal, XTRN-357

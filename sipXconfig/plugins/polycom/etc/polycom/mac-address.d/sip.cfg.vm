@@ -42,6 +42,8 @@
 #end
     />
     <SIP
+#set ($allow_Transfer_On_Proceeding = "2")
+      voIpProt.SIP.allowTransferOnProceeding="$!{allow_Transfer_On_Proceeding}"
 #set ($group = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('protocol'))
 #foreach ($setting in $cfg.getSettings($group))
       voIpProt.SIP.${setting.ProfileName}="$!{setting.Value}"
