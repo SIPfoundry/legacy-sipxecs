@@ -92,4 +92,6 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
     void saveGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings);
 
     GeneralPhonebookSettings getGeneralPhonebookSettings();
+
+    boolean isThisDuplicatePhonebookEntry(PhonebookEntry newEntry, User user);
 }

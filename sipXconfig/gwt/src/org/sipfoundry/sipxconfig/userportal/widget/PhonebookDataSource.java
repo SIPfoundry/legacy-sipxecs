@@ -8,6 +8,12 @@
  */
 package org.sipfoundry.sipxconfig.userportal.widget;
 
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.http.client.Request;
+import com.google.gwt.http.client.RequestBuilder;
+import com.google.gwt.http.client.RequestCallback;
+import com.google.gwt.http.client.RequestException;
+import com.google.gwt.http.client.Response;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.smartgwt.client.data.DataSource;
@@ -15,8 +21,10 @@ import com.smartgwt.client.data.DataSourceField;
 import com.smartgwt.client.data.FieldValueExtractor;
 import com.smartgwt.client.data.XMLTools;
 import com.smartgwt.client.data.fields.DataSourceTextField;
+import com.smartgwt.client.util.SC;
 import com.smartgwt.client.widgets.form.ValuesManager;
 import org.sipfoundry.sipxconfig.userportal.client.HttpRequestBuilder;
+import org.sipfoundry.sipxconfig.userportal.locale.SearchConstants;
 
 public class PhonebookDataSource extends DataSource {
 
@@ -68,6 +76,9 @@ public class PhonebookDataSource extends DataSource {
     private static final String CONTENT_TYPE = "Content-Type";
     private static final String FIRST_NAME_XPATH = "first-name";
     private static final String LAST_NAME_XPATH = "last-name";
+
+    private static final int  PHONEBOOK_DUPLICATE_ENTRY_ERROR = 747;
+    private static SearchConstants s_searchConstants = GWT.create(SearchConstants.class);
 
     public PhonebookDataSource(String id) {
         super();
@@ -177,9 +188,34 @@ public class PhonebookDataSource extends DataSource {
                 VARIANT, successMessage);
     }
 
-    public void addEntry(String entryId, ValuesManager vm, String successMessage) {
-        HttpRequestBuilder.doPost(getPhoneBookEntryUrl(entryId), buildJsonRequest(vm).toString(), CONTENT_TYPE,
-                VARIANT, successMessage);
+    public void addEntry(String entryId, ValuesManager vm, final String successMessage) {
+//        HttpRequestBuilder.doPost(getPhoneBookEntryUrl(entryId), buildJsonRequest(vm).toString(), CONTENT_TYPE,
+//                VARIANT, successMessage);
+        RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.POST, getPhoneBookEntryUrl(entryId));
+        reqBuilder.setHeader(CONTENT_TYPE, VARIANT);
+        try {
+            reqBuilder.sendRequest(buildJsonRequest(vm).toString(), new RequestCallback() {
+
+                @Override
+                public void onResponseReceived(Request request, Response response) {
+                    int httpStatusCode = response.getStatusCode();
+                    String message = s_searchConstants.addPhonebookEntryFailed();
+                    if (httpStatusCode == PHONEBOOK_DUPLICATE_ENTRY_ERROR) {
+                        message = s_searchConstants.duplicatePhonebookEntry();
+                    } else if (httpStatusCode == Response.SC_OK) {
+                        message = successMessage;
+                    }
+                    SC.say(message);
+                }
+
+                @Override
+                public void onError(Request request, Throwable exception) {
+                    SC.warn(s_searchConstants.addPhonebookEntryFailed());
+                }
+            });
+        } catch (RequestException ex) {
+            SC.warn(s_searchConstants.addPhonebookEntryFailed());
+        }
     }
 
     public JSONObject buildJsonRequest(ValuesManager form) {

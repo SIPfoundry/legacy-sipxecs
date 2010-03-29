@@ -164,4 +164,8 @@ public interface SearchConstants extends ConstantsWithLookup {
     String addContactSuccessMessage();
 
     String editContactSuccessMessage();
+
+    String addPhonebookEntryFailed();
+
+    String duplicatePhonebookEntry();
 }

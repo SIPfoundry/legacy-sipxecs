@@ -37,8 +37,12 @@ import static org.restlet.data.MediaType.APPLICATION_JSON;
 import static org.restlet.data.MediaType.TEXT_XML;
 
 public class UserPhonebookEntryResource extends UserResource {
+
+    public static final Status PHONEBOOK_DUPLICATE_ENTRY_ERROR = new Status(747);
+
     private PhonebookManager m_phonebookManager;
     private String m_entryId;
+
 
     @Override
     public void init(Context context, Request request, Response response) {
@@ -140,6 +144,10 @@ public class UserPhonebookEntryResource extends UserResource {
                 getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid Email Address");
                 return false;
             }
+        }
+        if (m_phonebookManager.isThisDuplicatePhonebookEntry(newEntry, getUser())) {
+            getResponse().setStatus(PHONEBOOK_DUPLICATE_ENTRY_ERROR, "Duplicate Entry");
+            return false;
         }
         return true;
     }

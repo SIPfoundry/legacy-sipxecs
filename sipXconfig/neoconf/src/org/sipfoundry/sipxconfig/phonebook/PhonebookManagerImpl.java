@@ -155,6 +155,17 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             super("A phonebook already exists with that name.");
         }
     }
+    public boolean isThisDuplicatePhonebookEntry(PhonebookEntry newEntry, User user) {
+        PhoneEntryComparator entriesComparator = new PhoneEntryComparator();
+        Collection<Phonebook>allUserPhonebooks = getAllPhonebooksByUser(user);
+        Collection<PhonebookEntry> entries = getEntries(allUserPhonebooks, user);
+        for (PhonebookEntry entry : entries) {
+            if (entriesComparator.compare(entry, newEntry) == 0) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     @Required
     public void setCoreContext(CoreContext coreContext) {
