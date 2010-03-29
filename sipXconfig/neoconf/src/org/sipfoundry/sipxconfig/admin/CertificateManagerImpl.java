@@ -51,6 +51,7 @@ import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.apache.commons.lang.StringUtils.deleteWhitespace;
 import static org.apache.commons.lang.StringUtils.join;
 
 /**
@@ -444,7 +445,7 @@ public class CertificateManagerImpl implements CertificateManager {
         for (File file : new File(getCATmpDir()).listFiles()) {
             anyFile = new AnyFile();
             anyFile.setDirectory(m_sslAuthDirectory);
-            anyFile.setName(file.getName());
+            anyFile.setName(deleteWhitespace(file.getName()));
             anyFile.setSourceFilePath(file.getAbsolutePath());
             for (Location location : locations) {
                 //call replicate on each location so JobStatus page can show replication status on
