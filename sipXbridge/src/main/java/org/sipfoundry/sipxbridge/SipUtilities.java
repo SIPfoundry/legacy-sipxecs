@@ -1795,10 +1795,20 @@ class SipUtilities {
 
 			/*
 			 * Rewrite the Contact header of the ITSP bound error response.
+			 * @mranga - for uniformity if the inbound has a contact, extract the user name from there.
+			 * Not so important as this is a relayed error response.
 			 */
+                        ContactHeader responseContactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
+                        String contactUser;
+                        if (responseContactHeader != null) {
+                            SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI();
+                            contactUser = contactURI.getUser();
+                        } else {
+                            contactUser = Gateway.SIPXBRIDGE_USER;
+                        }
 			if (provider != Gateway.getLanProvider()) {
 				ContactHeader contactHeader = SipUtilities.createContactHeader(
-						provider, itspAccount, Gateway.SIPXBRIDGE_USER, serverTransaction);
+						provider, itspAccount, contactUser, serverTransaction);
 				newResponse.setHeader(contactHeader);
 			}
 

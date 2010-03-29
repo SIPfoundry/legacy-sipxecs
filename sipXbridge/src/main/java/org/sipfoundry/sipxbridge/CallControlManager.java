@@ -271,9 +271,19 @@ class CallControlManager implements SymmitronResetHandler {
 
             /*
              * Contact header for the re-INVITE we are about to send.
+             * Use the contact header from the inbound re-invite and extract the user name
+             * from there.
              */
+            ContactHeader requestContactHeader = (ContactHeader) request.getHeader(ContactHeader.NAME);
+            String contactUser;
+            if (requestContactHeader != null) {
+               SipURI contactURI = (SipURI) requestContactHeader.getAddress().getURI();
+               contactUser = contactURI.getUser();
+            } else {
+               contactUser = Gateway.SIPXBRIDGE_USER;
+            } 
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    Gateway.SIPXBRIDGE_USER, peerDialogProvider,
+                    contactUser, peerDialogProvider,
                     SipUtilities.getViaTransport(newRequest));
             newRequest.setHeader(contactHeader);
 
@@ -848,17 +858,17 @@ class CallControlManager implements SymmitronResetHandler {
             Dialog dialog = requestEvent.getDialog();
             DialogContext dialogContext = DialogContext.get(dialog);
             ContactHeader requestContactHeader = (ContactHeader) requestEvent.getRequest().getHeader(ContactHeader.NAME);
-            String contactUser;
+            String contactUser;   
             if (requestContactHeader != null) {
-                SipURI contactURI = (SipURI) requestContactHeader.getAddress().getURI().clone();
+                SipURI contactURI = (SipURI) requestContactHeader.getAddress().getURI();
                 contactUser = contactURI.getUser();
-            }
-            else {
+            }  else {
                 contactUser = Gateway.SIPXBRIDGE_USER;
             }
+            
+           
             ItspAccountInfo itspAccount = dialogContext.getItspInfo();
-
-            ContactHeader contactHeader = SipUtilities.createContactHeader(provider, itspAccount,contactUser, serverTransactionId);
+              ContactHeader contactHeader = SipUtilities.createContactHeader(provider, itspAccount,contactUser, serverTransactionId);
             prackOk.setHeader(contactHeader);
 
             serverTransactionId.sendResponse(prackOk);
@@ -1579,7 +1589,7 @@ class CallControlManager implements SymmitronResetHandler {
             ContactHeader responseContactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
             String contactUser;
             if (responseContactHeader != null) {
-                SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI().clone();
+                SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI();
                 contactUser = contactURI.getUser();
             }
             else {
@@ -1631,7 +1641,17 @@ class CallControlManager implements SymmitronResetHandler {
         SipProvider peerProvider = ((TransactionExt) serverTransaction).getSipProvider();
         Response serverResponse = SipUtilities.createResponse(serverTransaction, response
                 .getStatusCode());
-        ContactHeader contactHeader = SipUtilities.createContactHeader(Gateway.SIPXBRIDGE_USER,
+        
+        //Extract contact header user name from response.
+        ContactHeader responseContactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
+        String contactUser;
+        if (responseContactHeader != null) {
+            SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI();
+            contactUser = contactURI.getUser();
+        } else {
+            contactUser = Gateway.SIPXBRIDGE_USER;
+        }
+        ContactHeader contactHeader = SipUtilities.createContactHeader(contactUser,
                 peerProvider, SipUtilities.getViaTransport(serverResponse));
         serverResponse.setHeader(contactHeader);
 
@@ -1709,8 +1729,17 @@ class CallControlManager implements SymmitronResetHandler {
                 && serverTransaction.getState() != TransactionState.TERMINATED) {
             Response newResponse = SipUtilities.createResponse(serverTransaction, response
                     .getStatusCode());
+            //Get the contact from the inbound response and use that for the outbound response
+            ContactHeader responseContactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
+            String contactUser;
+            if (responseContactHeader != null) {
+                SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI();
+                contactUser = contactURI.getUser();
+            } else {
+                contactUser = Gateway.SIPXBRIDGE_USER;
+            }
             ContactHeader contactHeader = SipUtilities.createContactHeader(
-                    Gateway.SIPXBRIDGE_USER, transasctionContext.getServerTransactionProvider(),
+                    contactUser, transasctionContext.getServerTransactionProvider(),
                     SipUtilities.getViaTransport(newResponse));
             newResponse.setHeader(contactHeader);
             Dialog peerDialog = serverTransaction.getDialog();
@@ -1837,7 +1866,7 @@ class CallControlManager implements SymmitronResetHandler {
                     ContactHeader responseContactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
                     String contactUser;
                     if (responseContactHeader != null) {
-                        SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI().clone();
+                        SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI();
                         contactUser = contactURI.getUser();
                     }
                     else {
@@ -2037,7 +2066,7 @@ class CallControlManager implements SymmitronResetHandler {
                     ContactHeader responseContactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
                     String contactUser;
                     if (responseContactHeader != null) {
-                        SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI().clone();
+                        SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI();
                         contactUser = contactURI.getUser();
                     }
                     else {
@@ -2713,7 +2742,7 @@ class CallControlManager implements SymmitronResetHandler {
                     ContactHeader responseContactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
                     String contactUser;
                     if (responseContactHeader != null) {
-                        SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI().clone();
+                        SipURI contactURI = (SipURI) responseContactHeader.getAddress().getURI();
                         contactUser = contactURI.getUser();
                     }
                     else {
