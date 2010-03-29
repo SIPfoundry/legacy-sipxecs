@@ -1,4 +1,5 @@
 {"contact-information": {
+  "useBranchAddress": false,
   "avatar": "http://gravatar.com/avatar",
   "firstName": "John",
   "lastName": "Doe"

@@ -13,6 +13,7 @@
     "zip": "02114"
   },
   "emailAddress": "john.doe@example.com",
+  "useBranchAddress": false,
   "avatar": "http://www.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=wavatar",
   "firstName": "John",
   "lastName": "Doe"

@@ -1,4 +1,5 @@
 <contact-information>
+  <useBranchAddress>false</useBranchAddress>
   <avatar>http://gravatar.com/avatar</avatar>
   <firstName>John</firstName>
   <lastName>Doe</lastName>

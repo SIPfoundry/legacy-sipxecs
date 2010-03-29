@@ -70,6 +70,18 @@ public class ContactInformationForm extends DynamicForm {
         }
     }
 
+    public void maskData() {
+        for (FormItem item : m_textItems) {
+            item.disable();
+        }
+    }
+
+    public void unMaskData() {
+        for (FormItem item : m_textItems) {
+            item.enable();
+        }
+    }
+
     public void addData() {
         for (FormItem item : m_textItems) {
             item.setValue(EMPTY_STRING);

@@ -69,4 +69,8 @@ public interface ContactInformationConstants extends ConstantsWithLookup {
     String save();
 
     String invalidEmail();
+
+    String useBranchAddress();
+
+    String address();
 }

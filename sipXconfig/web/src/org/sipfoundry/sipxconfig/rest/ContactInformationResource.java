@@ -99,7 +99,6 @@ public class ContactInformationResource extends UserResource {
         @Override
         protected void configureXStream(XStream xstream) {
             xstream.omitField(BeanWithId.class, "m_id");
-            xstream.omitField(AddressBookEntry.class, "m_useBranchAddress");
             xstream.alias("contact-information", Representable.class);
             xstream.aliasField("avatar", Representable.class, "m_avatar");
         }

@@ -27,4 +27,5 @@
   <emailAddress>email@address.com</emailAddress>
   <alternateEmailAddress>altemail@addresse.com</alternateEmailAddress>
   <avatar>http://www.gravatar.com/avatar/63b91ca4ec19ad79f320eaf5815d75e9?s=80&amp;d=wavatar</avatar>
+  <useBranchAddress>true</useBranchAddress>
 </contact-information>

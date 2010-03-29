@@ -12,6 +12,7 @@ import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.smartgwt.client.data.DataSource;
 import com.smartgwt.client.data.DataSourceField;
+import com.smartgwt.client.data.fields.DataSourceBooleanField;
 import com.smartgwt.client.data.fields.DataSourceTextField;
 import com.smartgwt.client.widgets.form.ValuesManager;
 
@@ -47,6 +48,7 @@ public class ContactInformationDataSource extends DataSource {
     public static final String OFFICE_ZIP = "officeZip";
     public static final String OFFICE_DESIGNATION = "officeDesignation";
     public static final String AVATAR = "avatar";
+    public static final String USE_BRANCH_ADDRESS = "useBranchAddress";
 
     public static final String EMAIL_ADDRESS = "emailAddress";
     public static final String ALTERNATE_EMAIL_ADDRESS = "alternateEmailAddress";
@@ -133,13 +135,16 @@ public class ContactInformationDataSource extends DataSource {
         DataSourceField officeDesignation = new DataSourceTextField(OFFICE_DESIGNATION);
         officeDesignation.setValueXPath("officeAddress/officeDesignation");
 
+        DataSourceField useBranchAddress = new DataSourceBooleanField(USE_BRANCH_ADDRESS);
+        useBranchAddress.setValueXPath(USE_BRANCH_ADDRESS);
+
         DataSourceField avatar = new DataSourceTextField(AVATAR);
         avatar.setValueXPath(AVATAR);
 
         setFields(emailAddress, jobTitle, jobDept, companyName, assistantName, location, cellPhoneNumber,
                 homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId,
                 alternateEmailAddress, homeStreet, homeCity, homeCountry, homeState, homeZip, officeStreet,
-                officeCity, officeCountry, officeState, officeZip, officeDesignation, avatar);
+                officeCity, officeCountry, officeState, officeZip, officeDesignation, avatar, useBranchAddress);
         setRecordXPath("/contact-information");
         setDataURL(REST_URL);
 
@@ -152,7 +157,6 @@ public class ContactInformationDataSource extends DataSource {
          *
          * setDataURL("ContactInformationTestData.xml");
          */
-
         setClientOnly(false);
     }
 
@@ -177,6 +181,7 @@ public class ContactInformationDataSource extends DataSource {
         addToJsonObject(contactInfo, LOCATION, form.getValueAsString(LOCATION));
         addToJsonObject(contactInfo, EMAIL_ADDRESS, form.getValueAsString(EMAIL_ADDRESS));
         addToJsonObject(contactInfo, ALTERNATE_EMAIL_ADDRESS, form.getValueAsString(ALTERNATE_EMAIL_ADDRESS));
+        addToJsonObject(contactInfo, USE_BRANCH_ADDRESS, form.getValueAsString(USE_BRANCH_ADDRESS));
 
         JSONObject homeAddress = new JSONObject();
         addToJsonObject(homeAddress, ADDRESS_STREET, form.getValueAsString(HOME_STREET));
