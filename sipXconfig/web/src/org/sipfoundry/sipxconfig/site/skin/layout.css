@@ -268,12 +268,14 @@ fieldset#loginForm legend {
     	margin-left:-1px;
     	min-width:113px;
     	padding-right:0px;
+    	width:100%;
 }
 
 #navigation li ul {
 	display: none;
 	position: absolute;
 	border-bottom:1px solid #bebebe;
+	margin-right:2px;
 }
 
 #navigation li:hover ul,
@@ -784,6 +786,7 @@ html, body {
 	margin-left:auto;
 	margin-right:auto;
 	width:98%;
+	max-width:3000px;
 }
 
 .roundedSectionBoxTopLeft, 
@@ -856,7 +859,7 @@ html, body {
 	min-height:200px;
 }
 .roundedSectionBoxInside form {
-	overflow:auto;
+	overflow-x:auto;
 } 
 #leftNav li {
 	margin:0px;
