@@ -444,13 +444,16 @@ public abstract class CdrReports extends BaseComponent implements PageBeginRende
         Map<String, CdrMinutesGraphBean> outgoingCalls = new HashMap<String, CdrMinutesGraphBean>();
         for (Cdr cdr : cdrs) {
             if (cdr.getDuration() > 0) {
-                String extension = cdr.getCaller();
-                CdrMinutesGraphBean bean = outgoingCalls.get(extension);
-                if (bean == null) {
-                    outgoingCalls.put(extension,
-                            new CdrMinutesGraphBean(extension, (double) cdr.getDuration()));
-                } else {
-                    bean.setMinutes((bean.getMinutes() + cdr.getDuration()));
+                boolean callerInternal = cdr.getCallerInternal();
+                if (callerInternal) {
+                    String extension = cdr.getCaller();
+                    CdrMinutesGraphBean bean = outgoingCalls.get(extension);
+                    if (bean == null) {
+                        outgoingCalls.put(extension,
+                                new CdrMinutesGraphBean(extension, (double) cdr.getDuration()));
+                    } else {
+                        bean.setMinutes((bean.getMinutes() + cdr.getDuration()));
+                    }
                 }
             }
         }
