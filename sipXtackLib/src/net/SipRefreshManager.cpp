@@ -1229,11 +1229,20 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
             if (   (   responseCode == SIP_REQUEST_TIMEOUT_CODE
                     || responseCode == SIP_LOOP_DETECTED_CODE)
                 && !(   method.compareTo(SIP_SUBSCRIBE_METHOD) == 0
-                     && SipDialog::isEarlyDialog(dialogHandle))
+                     && foundEarlyDialog)
                 && ++state->mTransientErrorCount <= sTransientErrorLimit
                 && (unsigned long)state->mExpiration > OsDateTime::getSecsSinceEpoch() )
             {
                // A transient failure to be retried.
+
+               OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                             "SipRefreshManager::handleSipMessage transient failure to be retried "
+                             "responseCode = %d, method = '%s', "
+                             "dialogHandle = '%s', mTransientErrorCount = %d, "
+                             "mExpiration = %lu",
+                             responseCode, method.data(),
+                             dialogHandle.data(), state->mTransientErrorCount,
+                             (unsigned long) state->mExpiration);
 
                // Stop the refresh timer.
                state->mRefreshTimer.stop(TRUE);
@@ -1247,6 +1256,8 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
             }
             else
             {
+               // All other success and failure responses.
+
                // Reset the count of transient failures.
                state->mTransientErrorCount = 0;
 
