@@ -325,7 +325,7 @@ SipSubscribeServer::SipSubscribeServer(const char* defaultTermination,
 {
    // Set our queue to be the queue for resend event messages in
    // *mpSubscriptionMgr.
-   mpSubscriptionMgr->setResendMsgQ(getMessageQueue());
+   mpSubscriptionMgr->initialize(getMessageQueue());
 }
 
 

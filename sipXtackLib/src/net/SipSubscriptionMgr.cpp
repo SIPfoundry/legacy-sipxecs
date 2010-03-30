@@ -269,6 +269,12 @@ SipSubscriptionMgr::operator=(const SipSubscriptionMgr& rhs)
    return *this;
 }
 
+// Set the address of the queue to which to send resend messages.
+void SipSubscriptionMgr::initialize(OsMsgQ* pMsgQ)
+{
+   mpResendMsgQ = pMsgQ;
+}
+
 UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeRequest,
                                                 UtlString& resourceId,
                                                 UtlString& eventTypeKey,
@@ -1299,12 +1305,6 @@ void SipSubscriptionMgr::setNextResendInterval(const UtlString& dialogHandle,
    }
 
    unlock();
-}
-
-// Set the address of the queue to which to send resend messages.
-void SipSubscriptionMgr::setResendMsgQ(OsMsgQ* pMsgQ)
-{
-   mpResendMsgQ = pMsgQ;
 }
 
 // Start the resend timer for a dialog, unless it is set to fire sooner.

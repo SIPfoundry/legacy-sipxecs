@@ -68,6 +68,11 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+    //! Asks the SipSubscriptionMgr to initialize itself and sets the address 
+    // of the queue to which to send resend messages.  The SipSubscriptionMgr
+    // may not be used until initialize() returns.
+    virtual void initialize(OsMsgQ* pMsgQ);
+   
     //! Add/Update subscription for the given SUBSCRIBE request
     /** The resourceId, eventTypeKey, and eventType are set based on
      *  the subscription.  If the subscription already exists, they
@@ -218,9 +223,6 @@ public:
     //! Set the current resend interval for a subscription.
     void setNextResendInterval(const UtlString& dialogHandle,
                                int interval);
-
-    //! Set the address of the queue to which to send resend messages.
-    void setResendMsgQ(OsMsgQ* pMsgQ);
 
     //! Start the resend timer for a dialog, unless it is set to fire sooner.
     void startResendTimer(const UtlString& dialogHandle,

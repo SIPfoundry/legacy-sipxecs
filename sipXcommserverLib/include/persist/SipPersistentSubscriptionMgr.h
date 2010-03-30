@@ -105,6 +105,11 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
+   //! Asks the SipPersistentSubscriptionMgr to initialize itself and sets the address 
+   // of the queue to which to send resend messages.  The SipPersistentSubscriptionMgr
+   // may not be used until initialize() returns.
+   virtual void initialize(OsMsgQ* pMsgQ);
+   
    //! Add/Update subscription for the given SUBSCRIBE request
    virtual UtlBoolean updateDialogInfo(const SipMessage& subscribeRequest,
                                        UtlString& resourceId,

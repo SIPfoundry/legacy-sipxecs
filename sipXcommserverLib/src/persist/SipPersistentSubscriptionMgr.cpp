@@ -52,7 +52,45 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
                  "SipPersistentSubscriptionMgr:: "
                  "mComponent = '%s', mDomain = '%s', fileName = '%s'",
                  mComponent.data(), mDomain.data(), fileName.data());
+}
 
+// Destructor
+SipPersistentSubscriptionMgr::~SipPersistentSubscriptionMgr()
+{
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPersistentSubscriptionMgr::~");
+
+   // Save the IMDB to disk if it is dirty.
+   // Stop the timer first, so if it has fired, its message is in
+   // mPersistTask's queue, and will be finished when we shut down
+   // that task.
+   OsStatus running = mPersistenceTimer.stop();
+
+   // Stop the persist task.
+   // This makes sure that if mPersistenceTimer fires later, it won't have
+   // any effect.
+   mPersistTask.requestShutdown();
+   while (!mPersistTask.isShutDown())
+   {
+      OsTask::delay(100);
+   }
+
+   if (running == OS_SUCCESS)
+   {
+      // Timer was running; database was dirty.
+      mSubscriptionDBInstance->store();
+   }
+
+   // Free the DB instance, if necessary.
+   SubscriptionDB::releaseInstance();
+}
+
+/* ============================ MANIPULATORS ============================== */
+void SipPersistentSubscriptionMgr::initialize(OsMsgQ* pMsgQ)
+{
+   // initialize the base class
+   SipSubscriptionMgr::initialize(pMsgQ);
+   
    // Start the persist task.
    mPersistTask.start();
 
@@ -245,39 +283,6 @@ SipPersistentSubscriptionMgr::SipPersistentSubscriptionMgr(
       }
    }
 }
-
-// Destructor
-SipPersistentSubscriptionMgr::~SipPersistentSubscriptionMgr()
-{
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipPersistentSubscriptionMgr::~");
-
-   // Save the IMDB to disk if it is dirty.
-   // Stop the timer first, so if it has fired, its message is in
-   // mPersistTask's queue, and will be finished when we shut down
-   // that task.
-   OsStatus running = mPersistenceTimer.stop();
-
-   // Stop the persist task.
-   // This makes sure that if mPersistenceTimer fires later, it won't have
-   // any effect.
-   mPersistTask.requestShutdown();
-   while (!mPersistTask.isShutDown())
-   {
-      OsTask::delay(100);
-   }
-
-   if (running == OS_SUCCESS)
-   {
-      // Timer was running; database was dirty.
-      mSubscriptionDBInstance->store();
-   }
-
-   // Free the DB instance, if necessary.
-   SubscriptionDB::releaseInstance();
-}
-
-/* ============================ MANIPULATORS ============================== */
 
 UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
    const SipMessage& subscribeRequest,
