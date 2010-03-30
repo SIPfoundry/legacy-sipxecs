@@ -222,19 +222,14 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
 {
    // mDialogs contains list of dialogs being actively managed at this set
    // i.e. trying, early, confirmed FROM this contact.
-   bool ret = false;
+   bool bSendPartialUpdate = false;
    bFullContentChanged = false;
 
    if (notifyDialogs)
    {
       UtlString state;
       notifyDialogs->getState(state);
-      // partial updates are always sent to all members of the group.
-      // full updates are only sent if they contain new dialogs.
-      if (state == STATE_PARTIAL)
-      {
-         ret = true;
-      }
+
       UtlSListIterator* itor = notifyDialogs->getDialogIterator();
       Dialog* pNewDialog;
       while ( (pNewDialog= dynamic_cast <Dialog*> ((*itor)())))
@@ -267,7 +262,7 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
                OsSysLog::add(FAC_SAA, PRI_DEBUG,
                      "Appearance::updateState removed dialog: '%s', %zu now in list",
                      uniqueDialogId.data(), mDialogs.entries());
-               ret = true;
+               bSendPartialUpdate = true;
                bFullContentChanged = true;
             }
             else
@@ -284,7 +279,7 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
                   OsSysLog::add(FAC_SAA, PRI_DEBUG,
                         "Appearance::updateState updated dialog: '%s', %zu in list",
                         uniqueDialogId.data(), mDialogs.entries());
-                  ret = true;
+                  bSendPartialUpdate = true;
                   bFullContentChanged = true;
                }
             }
@@ -296,6 +291,11 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
                OsSysLog::add(FAC_SAA, PRI_DEBUG,
                      "Appearance::updateState ignoring terminated dialog: '%s', %zu in list",
                      uniqueDialogId.data(), mDialogs.entries());
+               if (state == STATE_PARTIAL)
+               {
+                  delete notifyDialogs->removeDialog(pNewDialog);
+                  OsSysLog::add(FAC_SAA, PRI_DEBUG, "deleting new terminated dialog!");
+               }
             }
             else
             {
@@ -305,7 +305,7 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
                      "Appearance::updateState added dialog: '%s', %zu now in list",
                      uniqueDialogId.data(), mDialogs.entries());
                bFullContentChanged = true;
-               ret = true;
+               bSendPartialUpdate = true;
             }
          }
       }
@@ -330,8 +330,24 @@ bool Appearance::updateState(SipDialogEvent *notifyDialogs, bool& bFullContentCh
             }
          }
       }
+      // Partial updates are always sent to all members of the group unless they are empty.
+      // Full updates are only sent if they contain changed dialogs.
+      if (state == STATE_PARTIAL)
+      {
+         // check to see that there are dialogs
+         UtlSListIterator* itor = notifyDialogs->getDialogIterator();
+         while (!bSendPartialUpdate &&  (*itor)())
+         {
+            bSendPartialUpdate = true;
+         }
+         delete itor;
+         if (!bSendPartialUpdate)
+         {
+            OsSysLog::add(FAC_SAA, PRI_DEBUG, "not sending empty partial update!");
+         }
+      }
    }
-   return ret;
+   return bSendPartialUpdate;
 }
 
 
