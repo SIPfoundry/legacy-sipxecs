@@ -838,6 +838,7 @@ class DialogContext {
             sdpOffer = SipUtilities.getSessionDescription(triggeringResponse);
         } else {
             logger.debug("ITSP has set always relay media -- rewriting SDP ");
+           
             this.getRtpSession().getReceiver().setSessionDescription(sdpOffer);
         }
 
@@ -859,6 +860,12 @@ class DialogContext {
 
 
         }  else {
+        	 if ( this.isLanFacing() || (this.itspInfo != null && !this.itspInfo.isGlobalAddressingUsed())) {
+             	this.getRtpSession().getReceiver().setUseGlobalAddressing(false);
+             } else {
+            	 this.getRtpSession().getReceiver().setUseGlobalAddressing(true);
+                     
+             }
         	Request sdpOfferInvite = dialog.createRequest(Request.INVITE);
         	ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(triggeringResponse, ReferencesHeader.CHAIN);
         	sdpOfferInvite.setHeader(referencesHeader);
@@ -1265,10 +1272,19 @@ class DialogContext {
 		return this.pendingReInvite;
 	}
 
+	/**
+	 * A re-invite is pending for this dialog context.
+	 * @param serverTransaction
+	 */
 	public void setPendingReInvite(ServerTransaction serverTransaction ) {
 		this.pendingReInvite = serverTransaction;
 	}
 
+	public boolean isLanFacing() {
+		return this.getSipProvider() == Gateway.getLanProvider();
+	}
+
+	
 
 
 

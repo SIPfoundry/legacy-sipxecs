@@ -2292,7 +2292,12 @@ class CallControlManager implements SymmitronResetHandler {
 
 
         SessionDescription responseSessionDescription;
+        dialogContext.setLastResponse(response);
 
+        logger.debug("continuationOperation = " + continuationOperation);
+        DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog);
+        logger.debug("peerDialog.pendingAction = " + peerDialogContext.getPendingAction());
+        
         if (response.getContentLength().getContentLength() != 0) {
             /*
              * Reasonable response.
@@ -2306,16 +2311,13 @@ class CallControlManager implements SymmitronResetHandler {
              */
             RtpSession peerRtpSession = DialogContext.getPeerRtpSession(transactionContext
                     .getContinuationData().getDialog());
+           
 
             responseSessionDescription = peerRtpSession.getReceiver().getSessionDescription();
+           
 
         }
-
-        dialogContext.setLastResponse(response);
-
-        logger.debug("continuationOperation = " + continuationOperation);
-        DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog);
-        logger.debug("peerDialog.pendingAction = " + peerDialogContext.getPendingAction());
+  
 
 
         if (continuationOperation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
@@ -2535,6 +2537,7 @@ class CallControlManager implements SymmitronResetHandler {
                 DialogContext.get(dialog).setPendingAction(PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK);
                 DialogContext.get(dialog).setLastResponse(response);
                 peerDialogContext.setPendingAction(PendingDialogAction.NONE);
+               
                 peerDialogContext.sendSdpReOffer(responseSessionDescription,responseEvent);
             } else {
             	SessionDescription sd = dialogContext.getRtpSession().getReceiver().getSessionDescription();

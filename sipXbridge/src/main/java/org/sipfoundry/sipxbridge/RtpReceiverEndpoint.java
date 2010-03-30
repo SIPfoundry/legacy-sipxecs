@@ -87,13 +87,14 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
         if (this.sessionDescription != null && logger.isDebugEnabled()) {
             logger.debug("RtpReceiverEndpoint.setSessionDescription() Old SD  = " + this.sessionDescription);
             logger.debug("RtpReceiverEndpoint.setSessionDescription() newSD = " + sessionDescription);
+            logger.debug("setSessionDescription at : " + SipUtilities.getStackTrace());
         }
         
         
       
 
         try {
-           
+             	
             String address = useGlobalAddressing ? getGlobalAddress() : getIpAddress();
 
             this.sessionDescription = sessionDescription;
@@ -135,9 +136,10 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
     void setUseGlobalAddressing(boolean globalAddressingUsed) {
             logger.debug("setUseGlobalAddressing " + globalAddressingUsed);
              this.useGlobalAddressing = globalAddressingUsed;
-            if ( this.sessionDescription != null ) {
+             // Reset the address in the sessoin description.
+             if ( this.sessionDescription != null ) {
                 this.setSessionDescription(sessionDescription);
-            }
+             }
     }
 
 }
