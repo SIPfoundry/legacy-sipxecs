@@ -43,6 +43,7 @@ public class PortRangeManager {
     }
 
     public PortRangeManager(int lowbound, int highbound) {
+    	logger.debug("PortRangeManger: lowbound = " + lowbound + " highbound = " + highbound);
         this.portRangeLowboundMap = new TreeMap<Integer, PortRange>();
         this.portRangeHighboundMap = new TreeMap<Integer, PortRange>();
         this.portRangeQueue = new PriorityQueue<PortRange>(100,
@@ -87,6 +88,8 @@ public class PortRangeManager {
             res = 0;
         else
             res = 1;
+        
+        logger.debug("PortRangeManger: allocate size = " + size + " Parity = " + parity);
         while (it.hasNext()) {
             PortRange candidate = it.next();
 
@@ -120,6 +123,7 @@ public class PortRangeManager {
                 candidate.setHigherBound(candidate.getLowerBound() + size);
                 return candidate;
             } else  {
+            	logger.debug("Allocaton failed available port ranges = " + this.toString());
                 return null;
             }
 
