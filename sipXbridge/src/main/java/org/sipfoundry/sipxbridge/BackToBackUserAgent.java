@@ -1154,6 +1154,8 @@ public class BackToBackUserAgent implements Comparable {
                     Request.INVITE);
 
             FromHeader fromHeader = (FromHeader) request.getHeader(FromHeader.NAME).clone();
+            String fromTag = Integer.toString(Math.abs(new Random().nextInt()));
+            fromHeader.setTag(fromTag);
 
             /*
              * Change the domain of the inbound request to that of the sipx proxy. Change the user
@@ -1883,6 +1885,7 @@ public class BackToBackUserAgent implements Comparable {
             /*
              * Send the request.
              */
+            
             ct.sendRequest();
             /*
              * Kick off our session timer.

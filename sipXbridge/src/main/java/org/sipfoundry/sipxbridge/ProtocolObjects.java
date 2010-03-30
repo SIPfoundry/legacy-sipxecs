@@ -102,6 +102,7 @@ public class ProtocolObjects {
             stackProperties.setProperty("gov.nist.javax.sip.TLS_CLIENT_PROTOCOLS", "SSLv3, TLSv1");
             // Interval between pings ( to avoid DOS attack ).
             stackProperties.setProperty("gov.nist.javax.sip.MIN_KEEP_ALIVE_TIME_SECONDS", "1000");
+            stackProperties.setProperty("gov.nist.javax.sip.RFC_2543_SUPPORT_ENABLED","false");
                
             Logger stackLogger  = Logger.getLogger(StackLoggerImpl.class);
             stackLogger.addAppender(Gateway.logAppender);

@@ -23,6 +23,7 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.ListIterator;
 import java.util.Locale;
+import java.util.Random;
 import java.util.Set;
 import java.util.TimerTask;
 
@@ -921,12 +922,10 @@ class CallControlManager implements SymmitronResetHandler {
             DialogContext peerDialogContext = (DialogContext) peerDialog.getApplicationData();
 
             if (logger.isDebugEnabled()) {
-            	logger.debug("peerDialog = " + peerDialog);
+            	logger.debug("peerDialog = " + peerDialog + " peerDialogState = " + peerDialog.getState());
             	logger.debug("dialogContext : " + dialogContext + " peerDialogContext " + peerDialogContext);
             	if (peerDialogContext != null ) {
-            		if (peerDialogContext.getLastResponse() == null) {
-            			logger.debug("peerDialogContext.lastResponse " + peerDialogContext.getLastResponse());
-            		}
+                 	logger.debug("peerDialogContext.lastResponse " + peerDialogContext.getLastResponse());
             		logger.debug("peerDialogContext.pendingAction = " + peerDialogContext.getPendingAction());
             	} else {
             		logger.debug("peerDialogContext is null " );
@@ -2062,6 +2061,8 @@ class CallControlManager implements SymmitronResetHandler {
                         && transactionContext.getServerTransaction().getState() != TransactionState.TERMINATED) {
                     Response forwardedResponse = SipUtilities.createResponse(transactionContext
                             .getServerTransaction(), response.getStatusCode());
+                    
+                    
                     SipUtilities.setSessionDescription(forwardedResponse, sessionDescription);
                     ContactHeader responseContactHeader = (ContactHeader) response.getHeader(ContactHeader.NAME);
                     String contactUser;
