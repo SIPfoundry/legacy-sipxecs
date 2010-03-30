@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
+import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -285,6 +286,8 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
             location = ((ServerRoleLocation) entity).getLocation();
         } else if (entity instanceof Location) {
             location = (Location) entity;
+        } else if (entity instanceof NatLocation) {
+            location = ((NatLocation) entity).getLocation();
         }
         if (null != location) {
             BridgeSbc bridgeSbc = getBridgeSbc(location);
@@ -301,6 +304,8 @@ public abstract class SbcDeviceManagerImpl extends SipxHibernateDaoSupport<SbcDe
             location = ((ServerRoleLocation) entity).getLocation();
         } else if (entity instanceof Location) {
             location = (Location) entity;
+        } else if (entity instanceof NatLocation) {
+            location = ((NatLocation) entity).getLocation();
         }
         if (null != location) {
             BridgeSbc bridgeSbc = getBridgeSbc(location);
