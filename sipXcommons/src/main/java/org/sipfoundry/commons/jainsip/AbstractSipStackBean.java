@@ -95,6 +95,7 @@ public abstract class AbstractSipStackBean {
                 org.sipfoundry.commons.siprouter.ProxyRouter.class.getName());
         m_properties.setProperty("gov.nist.javax.sip.STACK_LOGGER", StackLoggerImpl.class.getName());
         m_properties.setProperty("gov.nist.javax.sip.SERVER_LOGGER", ServerLoggerImpl.class.getName());
+        m_properties.setProperty("gov.nist.javax.sip.RFC_2543_SUPPORT_ENABLED", "false");
         
     
 
