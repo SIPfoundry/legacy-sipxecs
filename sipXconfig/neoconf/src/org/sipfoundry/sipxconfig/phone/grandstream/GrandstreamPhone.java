@@ -133,6 +133,18 @@ public class GrandstreamPhone extends Phone {
         return (GrandstreamModel) getModel();
     }
 
+    public int getLineNumber(int lineId) {
+        int lineOffset = 0;
+        Iterator ilines = getLines().iterator();
+        for (; ilines.hasNext(); lineOffset++) {
+            if (((Line) ilines.next()).getId() == lineId) {
+                return lineOffset + 1;
+            }
+        }
+
+        return 0;
+    }
+
     /**
      * Generate files in text format. Won't be usable by phone, but you can use grandstreams
      * config tool to convert manually. This is mostly for debugging
@@ -300,8 +312,8 @@ public class GrandstreamPhone extends Phone {
 
         @SettingEntry(path = GXW_HUNTGROUP_PATH)
         public String getHuntgroup() {
-            // Should use the line number: line1="1", line2="2", etc.
-            int lineNumber = 0;
+            // Use the line number: line1="1", line2="2", etc.
+            int lineNumber = m_phone.getLineNumber(m_line.getId());
             return Integer.toString(lineNumber);
         }
 
