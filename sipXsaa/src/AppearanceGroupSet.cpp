@@ -109,6 +109,15 @@ void AppearanceGroupSet::removeAppearanceGroup(const char* user)
       OsSysLog::add(FAC_SAA, PRI_DEBUG,
                     "AppearanceGroupSet::removeAppearanceGroup removed AppearanceGroup '%s'",
                     user);
+      // Now unpublish to terminate subscriptions to this no-longer-shared line.
+      mAppearanceAgent->getEventPublisher().unpublish(
+            user,
+            DIALOG_SLA_EVENT_TYPE, //eventTypeKey
+            DIALOG_EVENT_TYPE,     //eventType
+            // Tell subscriber that SA events are no longer available for this user.
+            SipSubscribeServer::terminationReasonNoresource
+            );
+
    }
 }
 

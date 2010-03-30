@@ -183,15 +183,6 @@ AppearanceGroup::~AppearanceGroup()
          OsTask::delay(changeDelay);
       }
    }
-
-   // now unpublish to free memory
-   getAppearanceAgent()->getEventPublisher().unpublish(
-         mSharedUser.data(),
-         DIALOG_SLA_EVENT_TYPE, //eventTypeKey
-         DIALOG_EVENT_TYPE,     //eventType
-         // Tell subscriber that SA events are no longer available for this user.
-         SipSubscribeServer::terminationReasonNoresource
-         );
 }
 
 /* ============================ MANIPULATORS ============================== */
