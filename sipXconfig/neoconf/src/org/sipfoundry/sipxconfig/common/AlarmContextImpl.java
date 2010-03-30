@@ -10,16 +10,14 @@
 package org.sipfoundry.sipxconfig.common;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.alarm.AlarmServerActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.AlarmApi;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
-import org.springframework.context.ApplicationEvent;
-import org.springframework.context.ApplicationListener;
 
-public class AlarmContextImpl implements AlarmContext, ApplicationListener {
+public class AlarmContextImpl implements AlarmContext {
     private ApiProvider<AlarmApi> m_alarmApiProvider;
     private LocationsManager m_locationsManager;
 
@@ -35,7 +33,9 @@ public class AlarmContextImpl implements AlarmContext, ApplicationListener {
 
     public void raiseAlarm(String alarmId, String... alarmParams) {
         try {
-            getAlarmApi().raiseAlarm(getHost(), alarmId, ParamsUtils.escape(alarmParams));
+            Location primaryLocation = getPrimaryLocation();
+            getAlarmApi(primaryLocation).raiseAlarm(primaryLocation.getFqdn(), alarmId,
+                    ParamsUtils.escape(alarmParams));
         } catch (XmlRpcRemoteException e) {
             throw new UserException(e.getCause());
         }
@@ -43,25 +43,21 @@ public class AlarmContextImpl implements AlarmContext, ApplicationListener {
 
     public void reloadAlarms() {
         try {
-            getAlarmApi().reloadAlarms(getHost());
+            Location[] locations = m_locationsManager.getLocations();
+            for (Location location : locations) {
+                getAlarmApi(location).reloadAlarms(getPrimaryLocation().getFqdn());
+            }
         } catch (XmlRpcRemoteException e) {
             throw new UserException(e.getCause());
         }
     }
 
-    public void onApplicationEvent(ApplicationEvent event) {
-        if (event instanceof AlarmServerActivatedEvent) {
-            // send "reloadAlarms" command to the supervisor
-            reloadAlarms();
-        }
+    private Location getPrimaryLocation() {
+        return m_locationsManager.getPrimaryLocation();
     }
 
-    private String getHost() {
-        return m_locationsManager.getPrimaryLocation().getFqdn();
-    }
-
-    private AlarmApi getAlarmApi() {
-        return m_alarmApiProvider.getApi(m_locationsManager.getPrimaryLocation().getProcessMonitorUrl());
+    private AlarmApi getAlarmApi(Location location) {
+        return m_alarmApiProvider.getApi(location.getProcessMonitorUrl());
     }
 
     static final class ParamsUtils {

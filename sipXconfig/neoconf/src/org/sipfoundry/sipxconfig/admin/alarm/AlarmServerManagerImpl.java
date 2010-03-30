@@ -170,8 +170,6 @@ public class AlarmServerManagerImpl extends SipxHibernateDaoSupport<AlarmGroup> 
 
         // replicate new alarm types configuration
         replicateAlarmsConfiguration(alarms);
-
-        m_replicationContext.publishEvent(new AlarmServerActivatedEvent(this));
     }
 
     public AlarmServer getAlarmServer() {
