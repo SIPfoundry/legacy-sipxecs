@@ -144,6 +144,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 && user.getBranch() != null) {
             user.getAddressBookEntry().setBranchAddress(user.getBranch().getAddress());
         }
+        if (user.getBranch() == null && user.getAddressBookEntry() != null) {
+            user.getAddressBookEntry().setUseBranchAddress(false);
+            user.getAddressBookEntry().setBranchAddress(null);
+        }
         getHibernateTemplate().saveOrUpdate(user);
 
         m_configFileManager.activateConfigFiles();
