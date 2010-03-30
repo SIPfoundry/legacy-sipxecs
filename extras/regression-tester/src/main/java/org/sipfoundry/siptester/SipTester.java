@@ -64,9 +64,7 @@ public class SipTester {
 
 	private static Map<String, String> branchMap = new HashMap<String, String>();
 
-	private static Map<String, String> toTagMap = new HashMap<String, String>();
-
-	private static Map<String, String> fromTagMap = new HashMap<String, String>();
+	private static Map<String, String> tagMap = new HashMap<String, String>();
 
 	static {
 		try {
@@ -851,18 +849,18 @@ public class SipTester {
 	public static void mapToTag(ResponseExt traceResponse, ResponseExt response) {
 		String traceToTag = traceResponse.getToHeader().getTag();
 		String actualToTag = response.getToHeader().getTag();
-		SipTester.toTagMap.put(traceToTag, actualToTag);
+		SipTester.tagMap.put(traceToTag, actualToTag);
 	}
 
 	public static void mapFromTag(RequestExt traceRequest, RequestExt request) {
 		String traceFromTag = traceRequest.getFromHeader().getTag();
 		String actualFromTag = request.getFromHeader().getTag();
-		SipTester.fromTagMap.put(traceFromTag, actualFromTag);
+		SipTester.tagMap.put(traceFromTag, actualFromTag);
 	}
 
 	public static String getMappedFromTag(String traceFromTag) {
-		if (SipTester.fromTagMap.get(traceFromTag) != null) {
-			return SipTester.fromTagMap.get(traceFromTag);
+		if (SipTester.tagMap.get(traceFromTag) != null) {
+			return SipTester.tagMap.get(traceFromTag);
 		} else {
 			logger.debug("Map not found for " + traceFromTag);
 			return traceFromTag;
@@ -870,8 +868,8 @@ public class SipTester {
 	}
 
 	public static String getMappedToTag(String traceToTag) {
-		if (SipTester.toTagMap.get(traceToTag) != null) {
-			return SipTester.toTagMap.get(traceToTag);
+		if (SipTester.tagMap.get(traceToTag) != null) {
+			return SipTester.tagMap.get(traceToTag);
 		} else {
 			logger.debug("Map not found for " + traceToTag);
 			return traceToTag;
