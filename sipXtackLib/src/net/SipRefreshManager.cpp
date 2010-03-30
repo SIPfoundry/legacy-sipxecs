@@ -1229,7 +1229,7 @@ void SipRefreshManager::handleSipMessage(SipMessageEvent& eventMessage)
             if (   (   responseCode == SIP_REQUEST_TIMEOUT_CODE
                     || responseCode == SIP_LOOP_DETECTED_CODE)
                 && !(   method.compareTo(SIP_SUBSCRIBE_METHOD) == 0
-                     && foundEarlyDialog)
+                     && state->mRequestState == REFRESH_REQUEST_PENDING)
                 && ++state->mTransientErrorCount <= sTransientErrorLimit
                 && (unsigned long)state->mExpiration > OsDateTime::getSecsSinceEpoch() )
             {
