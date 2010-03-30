@@ -14,7 +14,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -38,6 +37,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     private static final String DOMAIN_CONFIG_ERROR = "Unable to load initial domain-config file.";
 
     private static final Log LOG = LogFactory.getLog(DomainManagerImpl.class);
+    private static final String SIP_DOMAIN_NAME = "SIP_DOMAIN_NAME";
 
     private String m_domainConfigFilename;
 
@@ -138,7 +138,7 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
 
     private void parseDomainConfig(Domain domain, Properties domainConfig) {
         domain.setSipRealm(domainConfig.getProperty("SIP_REALM"));
-        domain.setName(domainConfig.getProperty("SIP_DOMAIN_NAME"));
+        domain.setName(domainConfig.getProperty(SIP_DOMAIN_NAME));
         domain.setSharedSecret(domainConfig.getProperty("SHARED_SECRET"));
         domain.setAliases(getAlliasesFromDomainConfig(domainConfig));
     }
@@ -164,19 +164,12 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
     }
 
     private Set<String> getAlliasesFromDomainConfig(Properties domainConfig) {
-        List<String> infoLocations = new ArrayList<String>();
-        Location[] locations = m_locationsManager.getLocations();
-        for (Location location : locations) {
-            infoLocations.add(location.getAddress());
-            infoLocations.add(location.getFqdn());
-        }
-
         Set<String> aliases = new LinkedHashSet<String>();
         String[] domainConfigAliases = StringUtils.split(domainConfig.getProperty("SIP_DOMAIN_ALIASES"),
                 DomainConfiguration.SEPARATOR_CHAR);
         if (domainConfigAliases != null) {
             for (String alias : domainConfigAliases) {
-                if (!infoLocations.contains(alias)) {
+                if (!alias.equals(domainConfig.getProperty(SIP_DOMAIN_NAME))) {
                     aliases.add(alias);
                 }
             }

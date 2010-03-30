@@ -96,6 +96,7 @@ public class DomainManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("realm.example.org", domain.getSipRealm());
         assertNotNull(domain.getAliases());
         assertEquals("alias.example.org", domain.getAliases().iterator().next());
+        assertFalse(domain.getAliases().contains("domain.example.org"));
         assertNotNull(domain.getSharedSecret());
     }
 
