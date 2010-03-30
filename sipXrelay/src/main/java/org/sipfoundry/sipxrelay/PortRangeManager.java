@@ -128,6 +128,8 @@ public class PortRangeManager {
             }
 
         }
+    	logger.debug("Allocaton failed available port ranges = " + this.toString());
+        
         return null;
 
     }
