@@ -12,6 +12,7 @@
     <span jwcid="@If" condition="ognl:locationBean.isNew() || !registered" renderTag="false">
       <span jwcid="@common/QuickHelp" value="message:quick.help.new"/>
     </span>
+    <span jwcid="@common/QuickHelp" value="message:quick.help.configurelocation"/>
     <form jwcid="@Form" delegate="bean:validator">
       <span jwcid="@admin/commserver/LocationPanel" locationBean="ognl:locationBean" callback="ognl:callback"/>
     </form>
@@ -20,6 +21,7 @@
     <span jwcid="@If" condition="ognl:locationBean.isNew() || !registered" renderTag="false">
       <span jwcid="@common/QuickHelp" value="message:quick.help.new"/>
     </span>
+    <span jwcid="@common/QuickHelp" value="message:quick.help.configurebundles"/>
     <form jwcid="@Form" delegate="bean:validator">
       <span jwcid="@admin/commserver/ConfigureBundlesPanel" locationBean="ognl:locationBean" callback="ognl:callback"/>
     </form>
