@@ -333,9 +333,9 @@ UtlBoolean SipDialogMgr::earlyDialogExistsFor(const char* establishedDialogHandl
     if(!SipDialog::isEarlyDialog(handle))
     {
         lock();
-        // Looking for an dialog that matches this handle, if there
+        // Looking for a dialog that matches this handle, if there
         // is not an exact match see if there is an early dialog
-        // that matches the given presumably established dialog handle
+        // that matches the given, presumably established, dialog handle.
         SipDialog* dialog = findDialog(handle,
                                        TRUE, // if established, match early dialog
                                        FALSE); // if early, match established dialog
