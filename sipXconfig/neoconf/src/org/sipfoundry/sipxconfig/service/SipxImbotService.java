@@ -24,6 +24,8 @@ public class SipxImbotService extends SipxService implements LoggingEntity {
 
     private String m_docDir;
 
+    private boolean m_available;
+
     @Required
     public void setDocDir(String docDirectory) {
         m_docDir = docDirectory;
@@ -72,5 +74,14 @@ public class SipxImbotService extends SipxService implements LoggingEntity {
 
     public String getHttpPort() {
         return getSettingValue(HTTP_PORT);
+    }
+
+    public void setAvailable(boolean available) {
+        m_available = available;
+    }
+
+    @Override
+    public boolean isAvailable() {
+        return m_available;
     }
 }

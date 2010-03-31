@@ -11,12 +11,16 @@ package org.sipfoundry.sipxconfig.site.user;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
 import org.sipfoundry.sipxconfig.site.moh.MusicOnHoldPage;
@@ -29,11 +33,16 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public abstract class UserNavigation extends BeanNavigation {
 
+    private static final String PERSONAL_ATTENDANT = "personal-attendant";
+
     @Parameter(required = false, defaultValue = "true")
     public abstract void setRenderCondition(boolean renderCondition);
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject("spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
 
     @InjectPage(value = SpeedDialPage.PAGE)
     public abstract SpeedDialPage getSpeedDialPage();
@@ -168,6 +177,18 @@ public abstract class UserNavigation extends BeanNavigation {
         return page;
     }
 
+    public String getGroupsToHide() {
+        List<String> names = new LinkedList<String>();
+        names.add("voicemail");
+        names.add(PERSONAL_ATTENDANT);
+        names.add("callfwd");
+        names.add("moh");
+        if (!getSipxServiceManager().getServiceByBeanId("sipxImbotService").isAvailable()) {
+            names.add("im_notification");
+        }
+        return StringUtils.join(names, ",");
+    }
+
     public boolean isConferencesTabActive() {
         return UserConferences.PAGE.equals(getPage().getPageName());
     }
@@ -250,7 +271,7 @@ public abstract class UserNavigation extends BeanNavigation {
             }
             if (group.getName().equals("permission")) {
                 result.addAll(group.getValues());
-            } else if (group.getName().equals("personal-attendant")) {
+            } else if (group.getName().equals(PERSONAL_ATTENDANT)) {
                 // skip this group
                 continue;
             } else {

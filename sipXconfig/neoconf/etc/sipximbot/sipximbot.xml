@@ -49,7 +49,7 @@
       <type>
         <string required="yes" />
       </type>
-      <value>MyAssistant</value>
+      <value>MyBuddy</value>
     </setting>
     <setting name="imPassword" hidden="yes">
       <type>

@@ -7,7 +7,7 @@
       </span>
       <div jwcid="@common/LeftNavigation" renderCondition="ognl:renderCondition">
         <span jwcid="@setting/SettingsNavigation" bean="ognl:bean"
-          activeSetting="ognl:activeSetting" groupsToHide="literal:voicemail,personal-attendant,callfwd,moh"
+          activeSetting="ognl:activeSetting" groupsToHide="ognl:groupsToHide"
           editSettingsListener="listener:editSettings">
           <span jwcid="@common/Tab" isActive="ognl:identificationTabActive">
             <a jwcid="editUserLink@DirectLink" listener="listener:editUser"

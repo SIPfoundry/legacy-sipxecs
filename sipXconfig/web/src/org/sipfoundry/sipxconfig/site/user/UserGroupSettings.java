@@ -12,8 +12,10 @@ package org.sipfoundry.sipxconfig.site.user;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InitialValue;
@@ -28,6 +30,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
@@ -79,6 +82,9 @@ public abstract class UserGroupSettings extends GroupSettings {
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
+
+    @InjectObject("spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
 
     @Persist
     public abstract SpeedDialGroup getSpeedDialGroup();
@@ -271,5 +277,15 @@ public abstract class UserGroupSettings extends GroupSettings {
     private void updatePhones() {
         Collection<Integer> ids = getPhoneContext().getPhoneIdsByUserGroupId(getGroupId());
         getProfileManager().generateProfiles(ids, true, null);
+    }
+
+    public String getGroupsToHide() {
+        List<String> names = new LinkedList<String>();
+        names.add(VOICEMAIL);
+        names.add(MOH);
+        if (!getSipxServiceManager().getServiceByBeanId("sipxImbotService").isAvailable()) {
+            names.add("im_notification");
+        }
+        return StringUtils.join(names, ",");
     }
 }

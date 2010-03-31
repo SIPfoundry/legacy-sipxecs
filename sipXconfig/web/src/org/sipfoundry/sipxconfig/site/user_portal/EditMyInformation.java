@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
 import org.sipfoundry.sipxconfig.site.user.UserForm;
@@ -41,6 +42,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     @InjectObject(value = "spring:conferenceBridgeContext")
     public abstract ConferenceBridgeContext getConferenceBridgeContext();
+
+    @InjectObject("spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
 
     public abstract String getPin();
 
@@ -162,7 +166,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             tabNames.add("menu");
         }
 
-        tabNames.add("myAssistant");
+        if (getSipxServiceManager().getServiceByBeanId("sipxImbotService").isAvailable()) {
+            tabNames.add("myAssistant");
+        }
 
         setAvailableTabNames(tabNames);
     }

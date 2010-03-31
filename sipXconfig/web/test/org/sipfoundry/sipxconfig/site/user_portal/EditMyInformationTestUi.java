@@ -100,15 +100,6 @@ public class EditMyInformationTestUi extends WebTestCase {
         assertElementPresent("user:imDisplayName");
     }
 
-    public void testTabMyAssistantDisplay() {
-        clickLink("menu.myInformation");
-        clickLink("link:myAssistant");
-        SiteTestHelper.assertNoException(tester);
-        SiteTestHelper.assertNoUserError(tester);
-        assertButtonPresent("pa:enablePA");
-        assertButtonPresent("form:apply");
-    }
-
     public void testTabInfoDisplay() {
         clickLink("menu.myInformation");
         clickLink("link:info");

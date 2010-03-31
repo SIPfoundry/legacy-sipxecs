@@ -14,7 +14,7 @@
           source="ognl:settings.values"
           activeSetting="ognl:parentSetting"
           editSettingsListener="listener:editGroupSettings"
-          groupsToHide="literal:voicemail,moh">
+          groupsToHide="ognl:groupsToHide">
       <span jwcid="@common/TabNavigation"
             tabNames="ognl:availableTabNames"
             selectedTab="ognl:tab"

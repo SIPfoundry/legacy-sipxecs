@@ -430,4 +430,8 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
     public void onConfigChange() {
         // intentionally empty
     }
+
+    public boolean isAvailable() {
+        return true;
+    }
 }
