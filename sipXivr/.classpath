@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/log4j.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/dom4j.jar" sourcepath="LIB_SRC/dom4j/1.6.1/src.zip"/>
@@ -16,8 +15,9 @@
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-logging.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/javamail.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-common.jar"/>
+        <classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-client.jar"/>
+        <classpathentry kind="var" path="SIPX_COMMONS/lib/ws-commons-util.jar"/>
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar" sourcepath="SIPX_SRC_TOP/sipXopenfire"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sipXopenfire"/>
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXrest/sipxrest.jar"/>
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
