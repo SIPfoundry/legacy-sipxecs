@@ -295,10 +295,6 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
    SipMessage& subscribeResponse,
    SipSubscribeServerEventHandler& handler)
 {
-   OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                 "SipPersistentSubscriptionMgr::updateDialogInfo "
-                 "resourceId = '%s', eventTypeKey = '%s', eventType = '%s'",
-                 resourceId.data(), eventTypeKey.data(), eventType.data());
 
    UtlBoolean ret;
 

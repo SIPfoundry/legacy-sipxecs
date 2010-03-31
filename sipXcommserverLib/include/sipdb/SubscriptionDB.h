@@ -116,7 +116,7 @@ public:
     void getUnexpiredSubscriptions (
         const UtlString& component,
         const UtlString& key,
-        const UtlString& eventType,
+        const UtlString& eventTypeKey,
         const int& timeNow,
         ResultSet& rResultSet );
 
@@ -136,7 +136,7 @@ public:
         const UtlString& to,
         const UtlString& from,
         const UtlString& callid,
-        const UtlString& eventType,
+        const UtlString& eventTypeKey,
         const UtlString& id,
         int timeNow,
         int updatedNotifyCseq,
@@ -148,7 +148,7 @@ public:
         const UtlString& to,
         const UtlString& from,
         const UtlString& callid,
-        const UtlString& eventType,
+        const UtlString& eventTypeKey,
         const UtlString& id,
         const int& timeNow,
         const int& expires,

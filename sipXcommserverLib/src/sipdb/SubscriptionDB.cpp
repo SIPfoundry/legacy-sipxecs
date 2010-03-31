@@ -463,7 +463,7 @@ SubscriptionDB::insertRow (
               "toUri=",to,
               "and fromUri=",from,
               "and callid=",callid,
-              "and eventtype=",eventType,
+              "and eventtypekey=",eventTypeKey,
               "and id=",( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data() );
 
         dbCursor< SubscriptionRow > existingCursor( dbCursorForUpdate );
@@ -905,7 +905,7 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
         const UtlString& to,
         const UtlString& from,
         const UtlString& callid,
-        const UtlString& eventType,
+        const UtlString& eventTypeKey,
         const UtlString& id,
         int timeNow,
         int updatedNotifyCseq,
@@ -926,11 +926,11 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
         OsSysLog::add(FAC_DB, PRI_DEBUG, "SubscriptionDB::updateNotifyUnexpiredSubscription <<<<<<<<<<<< query:\n"
                       "  toUri='%s'\n"
                       "  callid='%s'\n"
-                      "  eventtype='%s'\n"
+                      "  eventtypekey='%s'\n"
                       "  id='%s'",
                       to.data(),
                       callid.data(),
-                      eventType.data(),
+                      eventTypeKey.data(),
                       ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
                       );
 #       endif
@@ -944,7 +944,7 @@ SubscriptionDB::updateNotifyUnexpiredSubscription (
         // the subscriptions by call-id, to-tag, from-tag, event, and event-id.
         query="toUri=",to,
               "and callid=",callid,
-              "and eventtype=",eventType,
+              "and eventtypekey=",eventTypeKey,
               "and id=",(id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
 	  ;
         if ( cursor.select(query) > 0 )
@@ -1021,7 +1021,7 @@ SubscriptionDB::updateSubscribeUnexpiredSubscription (
         const UtlString& to,
         const UtlString& from,
         const UtlString& callid,
-        const UtlString& eventType,
+        const UtlString& eventTypeKey,
         const UtlString& id,
         const int& timeNow,
         const int& expires,
@@ -1045,12 +1045,12 @@ SubscriptionDB::updateSubscribeUnexpiredSubscription (
                       "  toUri='%s'\n"
                       "  fromUri='%s'\n"
                       "  callid='%s'\n"
-                      "  eventtype='%s'\n"
+                      "  eventtypekey='%s'\n"
                       "  id='%s'",
                       to.data(),
                       from.data(),
                       callid.data(),
-                      eventType.data(),
+                      eventTypeKey.data(),
                       ( id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
                       );
 #       endif
@@ -1061,7 +1061,7 @@ SubscriptionDB::updateSubscribeUnexpiredSubscription (
         query="toUri=",to,
               "and fromUri=",from,
               "and callid=",callid,
-              "and eventtype=",eventType,
+              "and eventtypekey=",eventTypeKey,
               "and id=",(id.isNull() ? SPECIAL_IMDB_NULL_VALUE : id.data())
 	  ;
         if ( cursor.select(query) > 0 )
@@ -1097,7 +1097,7 @@ void
 SubscriptionDB::getUnexpiredSubscriptions (
     const UtlString& component,
     const UtlString& key,
-    const UtlString& eventType,
+    const UtlString& eventTypeKey,
     const int& timeNow,
     ResultSet& rResultSet )
 {
@@ -1115,7 +1115,7 @@ SubscriptionDB::getUnexpiredSubscriptions (
         // Now select the remaining current events
         dbCursor< SubscriptionRow > cursor( dbCursorForUpdate );
         dbQuery query;
-        query="key=",key,"and eventtype=",eventType;
+        query="key=",key,"and eventtypekey=",eventTypeKey;
         int foundRows = cursor.select(query);
         if ( foundRows > 0 )
         {
@@ -1135,6 +1135,8 @@ SubscriptionDB::getUnexpiredSubscriptions (
                     new UtlInt ( cursor->subscribecseq );
                 UtlString* eventtypeValue =
                     new UtlString ( cursor->eventtype );
+                UtlString* eventtypekeyValue =
+                    new UtlString ( cursor->eventtypekey );
                 UtlString* idValue = new UtlString(
                   (  (0 == strcmp(cursor->id, SPECIAL_IMDB_NULL_VALUE))
                    ? ""
@@ -1161,6 +1163,7 @@ SubscriptionDB::getUnexpiredSubscriptions (
                 UtlString* expiresKey = new UtlString( gExpiresKey );
                 UtlString* subscribecseqKey = new UtlString( gSubscribecseqKey );
                 UtlString* eventtypeKey = new UtlString( gEventtypeKey );
+                UtlString* eventtypekeyKey = new UtlString( gEventtypekeyKey );
                 UtlString* idKey = new UtlString( gIdKey );
                 UtlString* toKey = new UtlString( gToKey );
                 UtlString* fromKey = new UtlString( gFromKey );
@@ -1181,6 +1184,8 @@ SubscriptionDB::getUnexpiredSubscriptions (
                     expiresKey, expiresValue);
                 record.insertKeyAndValue (
                     subscribecseqKey, subscribecseqValue);
+                record.insertKeyAndValue (
+                    eventtypekeyKey, eventtypekeyValue);
                 record.insertKeyAndValue (
                     eventtypeKey, eventtypeValue);
                 record.insertKeyAndValue (
