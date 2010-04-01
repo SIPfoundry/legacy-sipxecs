@@ -995,15 +995,20 @@ class SipUtilities {
 
 				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
 					Object format = it1.next();
-					Integer fmt = new Integer(format.toString());
-					if (!codecs.contains(fmt)) {
-						/*
-						 * Preserve the telephone event lines -- this upsets
-						 * some ITSPs otherwise. AT&T Hack.
-						 */
-						if (fmt != 100 && fmt != 101) {
-							it1.remove();
+					try {
+						Integer fmt = new Integer(format.toString());
+						if (!codecs.contains(fmt)) {
+							/*
+							 * Preserve the telephone event lines -- this upsets
+							 * some ITSPs otherwise. AT&T Hack.
+							 */
+							if (fmt != 100 && fmt != 101) {
+								it1.remove();
+							}
 						}
+					} catch (NumberFormatException ex) {
+						logger.warn("Could not parse media format " + format);
+						continue;
 					}
 				}
 
@@ -1017,16 +1022,21 @@ class SipUtilities {
 					if (attr.getName().equalsIgnoreCase("rtpmap")) {
 						String attribute = attr.getValue();
 						String[] attrs = attribute.split(" ");
-						int rtpMapCodec = Integer.parseInt(attrs[0]);
+						try {
+							int rtpMapCodec = Integer.parseInt(attrs[0]);
 
-						if (!codecs.contains(rtpMapCodec)) {
-							/*
-							 * Preserve the telephone event lines -- this upsets
-							 * some ITSPs otherwise. AT&T Hack.
-							 */
-							if (rtpMapCodec != 100 && rtpMapCodec != 101) {
-								it1.remove();
+							if (!codecs.contains(rtpMapCodec)) {
+								/*
+								 * Preserve the telephone event lines -- this upsets
+								 * some ITSPs otherwise. AT&T Hack.
+								 */
+								if (rtpMapCodec != 100 && rtpMapCodec != 101) {
+									it1.remove();
+								}
 							}
+						} catch ( NumberFormatException ex) {
+							logger.warn("could not parse RTP Map " + attrs[0]);
+							continue;
 						}
 					} else if (attr.getName().equalsIgnoreCase("crypto")) {
 						it1.remove();
