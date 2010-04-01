@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
+import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -30,6 +31,9 @@ import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathL
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathPhoneDefaults;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+
+
+import static org.easymock.EasyMock.expectLastCall;
 import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 public class CounterpathPhoneTest extends TestCase {
@@ -42,6 +46,7 @@ public class CounterpathPhoneTest extends TestCase {
         CounterpathPhoneModel counterpathModel = new CounterpathPhoneModel("counterpath");
         counterpathModel.setProfileTemplate("counterpath/counterpath.ini.vm");
         counterpathModel.setModelId("counterpathCMCEnterprise");
+        System.setProperty("sipxconfig.hostname", "sipfoundry.org");
         counterpathModel.setMaxLineCount(5);
         m_phone = new CounterpathPhone();
         m_phone.setModel(counterpathModel);
@@ -84,6 +89,16 @@ public class CounterpathPhoneTest extends TestCase {
         m_phone.setLocationsManager(locationsManagerMock);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+
+        IMocksControl locationsManagerControl = EasyMock.createNiceControl();
+        LocationsManager locationsManager = locationsManagerControl.createMock(LocationsManager.class);
+        m_phone.setLocationsManager(locationsManager);
+        Location mockLocation = new Location();
+        mockLocation.setFqdn("sipfoundry.org");
+        locationsManager.getPrimaryLocation();
+        expectLastCall().andReturn(mockLocation).anyTimes();
+        locationsManagerControl.replay();
+
         m_phone.generateProfiles(location);
         String expected = IOUtils.toString(getClass().getResourceAsStream("cmc-enterprise.ini"));
         System.out.println("((((" + expected + "))))");

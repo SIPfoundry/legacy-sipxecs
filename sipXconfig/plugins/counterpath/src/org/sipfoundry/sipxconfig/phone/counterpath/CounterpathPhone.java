@@ -162,7 +162,7 @@ public class CounterpathPhone extends Phone {
 
         @SettingEntry(path = RESOURCE_LISTS_PATH)
         public String geResourceListsPath() {
-            return "http://" + getPhoneContext().getPhoneDefaults().getDomainName() + "/webdav";
+            return "http://" +  getLocationsManager().getPrimaryLocation().getFqdn() + "/webdav";
         }
 
         @SettingEntry(path = RESOURCE_LISTS_FILENAME)
