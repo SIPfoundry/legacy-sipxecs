@@ -13,6 +13,7 @@
         var start_position = 1;
 		var text;
 		var url_base = "http://" + getUrlBase();
+
         function scrollTimer() {
 
                 if (timer) clearTimeout(timer);
@@ -35,8 +36,9 @@
 
                 // keep on keepin' on
                 if (text != undefined && text.search(/END/) != -1) {
-	                alert("Sipx has been updated and now is restarting. You will be redirected to sipx home page!\nPlease wait while sipx is restarting!");
-	                location.href = url_base;
+	                updatePageComponentsAfterUpdate();
+	                clearTimeout(timer);
+	                timer = setTimeout('checkServer()', 2000);
                 } else
 					timer = setTimeout("scrollTimer()", 1000);
         }
@@ -46,12 +48,57 @@
 			var pos = host.indexOf(":");
 			if (pos != -1)
 				return host.substr(0, pos);
-			else return host;
+			else
+				return host;
 		}
+
+		function updatePageComponentsAfterUpdate() {
+			$('#scrollPanel').hide();
+			$('#installationIndicator').hide();
+			$('#restartingIndicator').show();
+			$('#updateTitle').text("Server is restarting...");
+		}
+
+		function removeBrokenLinks() {
+			$('#navigation').hide();
+			$('.bannerLinkDivider').hide();
+			$('.linkHome').hide();
+			$('.linkHelp').hide();
+			$('.linkLogout').hide();
+			$('#searchForm').hide();
+		}
+
+		function checkServer() {
+			$.ajax({
+			  url: location.href,
+			  cache: false,
+			  success: function(data, status) {
+				if (data != undefined && data != '') {
+					serverIsUp();
+				} else
+					timer = setTimeout('checkServer()', 2000);
+			  },
+			  error: function() {
+				timer = setTimeout('checkServer()', 2000);
+			  }
+			});
+		}
+
+		function serverIsUp() {
+			$('#restartingIndicator').hide();
+			$('#updateTitle').text("Restart complete.");
+			$('#goToLoginButton').show();
+			$('#goToLoginButton').click(function() {
+				location.href = url_base;
+			});
+		}
+
     ]]>
     </body>
     <initialization>
 		jQuery(document).ready(function() {
+				removeBrokenLinks();
+
 				logtextDiv = document.getElementById('logtext');
 				checkbox = document.getElementById('scroll');
 				timer = setTimeout("scrollTimer()", 1000);

@@ -19,7 +19,6 @@ import org.apache.tapestry.annotations.Asset;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdate;
@@ -28,7 +27,6 @@ import org.sipfoundry.sipxconfig.admin.update.UpdateApi;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
-import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.INSTALLING;
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
@@ -42,6 +40,9 @@ public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBe
 
     @Asset("/images/installationProgressBar.gif")
     public abstract IAsset getInstallationProgressBar();
+
+    @Asset("/images/loading.gif")
+    public abstract IAsset getLoadingImage();
 
     @Asset("/images/package.png")
     public abstract IAsset getPackageIcon();
@@ -60,9 +61,6 @@ public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBe
 
     @InjectObject("spring:packageUpdateManager")
     public abstract PackageUpdateManager getPackageUpdateManager();
-
-    @InjectPage(value = WaitingPage.PAGE)
-    public abstract WaitingPage getWaitingPage();
 
     @InitialValue(value = "ognl:{}")
     public abstract List<PackageUpdate> getUpdatedPackages();

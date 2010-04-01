@@ -2,6 +2,7 @@
     <span jwcid="@Script" scriptAsset="asset:script" />
     <span jwcid="@common/ErrorMsg"></span>
     <div jwcid="@If" condition="ognl:!isInstalling">
+	    <span jwcid="@common/QuickHelp" value="message:quick.help.main" />
 	    <form jwcid="@common/AutoRefreshForm" interval="10" updateComponents="ognl:{'packageList'}" delegate="bean:validator">
 		    <div id="updateBox">
 		        <h3 id="statusText"><span jwcid="@Insert" value="ognl:messages.getMessage(packageUpdateManager.state)">No updates available</span></h3>
@@ -46,36 +47,43 @@
 		    </div>
 	    </form>
 	    <br/><br/>
+	    <div jwcid="@Any" id="packageList">
+			<span jwcid="@If" condition="ognl:packageUpdateManager.availablePackages != null && !packageUpdateManager.availablePackages.isEmpty()">
+			    <b><span jwcid="@Insert" value="message:label.toBeUpdated"/></b><br/>
+	            <table jwcid="tableView@common/Table"
+	                   columns="packageName,currentVersion,updatedVersion"
+	                   row="ognl:package" source="ognl:packageUpdateManager.availablePackages">
+	                <span jwcid="packageNameColumnValue@Block">
+	                    <img jwcid="@Image" image="asset:packageIcon" align="top" />
+	                    <span jwcid="@Insert" value="ognl:package.packageName" />
+	                </span>
+	                <span jwcid="currentVersionColumnValue@Block">
+	                    <i><span jwcid="@Insert" value="ognl:package.currentVersion" /></i>
+	                </span>
+	                <span jwcid="updatedVersionColumnValue@Block">
+	                    <b><span jwcid="@Insert" value="ognl:package.updatedVersion" /></b>
+	                </span>
+	            </table>
+
+		    </span>
+		</div>
 	</div>
 	<div jwcid="@Else">
-		<h3><span jwcid="@Insert" value="ognl:messages.getMessage(packageUpdateManager.state)"></span></h3>
-	    <img id="loadingIndicator" jwcid="@Image" image="asset:installationProgressBar" />
+		<span jwcid="@common/QuickHelp" value="message:quick.help.installation" />
+		<h3>
+			<img id="restartingIndicator" jwcid="@Image" image="asset:loadingImage" style="display:none"/>
+			<span id="updateTitle"><span jwcid="@Insert" value="message:label.installing"/></span>
+		</h3>
+	    <img id="installationIndicator" jwcid="@Image" image="asset:installationProgressBar" />
+	    <input type="button" value="Go to login" id="goToLoginButton" style="display:none"/>
 		<br/><br/>
 		<b><span jwcid="@Insert" value="message:label.installationLog"/></b><br/>
-		<script src="http://code.jquery.com/jquery-latest.js"></script>
 		<span jwcid="@Script" scriptAsset="asset:displayLogScript" />
 		<div id="logtext"></div>
 		<br/>
-		<label for="scroll">Scroll log</label> <input type="checkbox" id="scroll" checked/>
+		<div id="scrollPanel">
+			<label for="scroll"><span key="label.scrolLog">Scroll Log</span></label>
+			<input type="checkbox" id="scroll" checked/>
+		</div>
      </div>
-	<div jwcid="@Any" id="packageList">
-		<span jwcid="@If" condition="ognl:!isInstalling && packageUpdateManager.availablePackages != null && !packageUpdateManager.availablePackages.isEmpty()">
-		    <b><span jwcid="@Insert" value="message:label.toBeUpdated"/></b><br/>
-            <table jwcid="tableView@common/Table"
-                   columns="packageName,currentVersion,updatedVersion"
-                   row="ognl:package" source="ognl:packageUpdateManager.availablePackages">
-                <span jwcid="packageNameColumnValue@Block">
-                    <img jwcid="@Image" image="asset:packageIcon" align="top" />
-                    <span jwcid="@Insert" value="ognl:package.packageName" />
-                </span>
-                <span jwcid="currentVersionColumnValue@Block">
-                    <i><span jwcid="@Insert" value="ognl:package.currentVersion" /></i>
-                </span>
-                <span jwcid="updatedVersionColumnValue@Block">
-                    <b><span jwcid="@Insert" value="ognl:package.updatedVersion" /></b>
-                </span>
-            </table>
-
-	    </span>
-	</div>
 </div>
