@@ -48,10 +48,10 @@ public class InternalPhonebookVcardHeader implements PhonebookFileEntryHelper {
         Address officeAddress = new Address();
         officeAddress.setStreet(row[16]);
         officeAddress.setZip(row[17]);
-        officeAddress.setCity(row[18]);
-        officeAddress.setOfficeDesignation(row[19]);
-        officeAddress.setCountry(row[20]);
-        officeAddress.setState(row[21]);
+        officeAddress.setCountry(row[18]);
+        officeAddress.setState(row[19]);
+        officeAddress.setCity(row[20]);
+        officeAddress.setOfficeDesignation(row[21]);
         abe.setOfficeAddress(officeAddress);
 
         return abe;

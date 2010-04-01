@@ -13,10 +13,14 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
@@ -174,6 +178,50 @@ public class PhonebookManagerTest extends TestCase {
         Phonebook phonebook1 = new Phonebook();
         context.addEntries(phonebook1, getClass().getResourceAsStream("phonebook.vcf"));
         assertEquals(1, phonebook1.getEntries().size());
+    }
+
+    public void testParseContactUsingPhonebookEntry() {
+        InputStream testPhonebookFile = getClass().getResourceAsStream("StevenSpielberg.vcf");
+        Reader reader = new InputStreamReader(testPhonebookFile);
+        VcardParserImpl parser = new VcardParserImpl();
+        Map<String, PhonebookEntry> entries = new TreeMap<String, PhonebookEntry>();
+
+        parser.parse(reader, new PhonebookManagerImpl.PhonebookEntryMaker(entries, false));
+        List<PhonebookEntry> entriesList = new ArrayList(entries.values());
+
+        assertEquals(1, entriesList.size());
+
+        PhonebookEntry entry = entriesList.get(0);
+
+        assertEquals("Steven", entry.getFirstName());
+        assertEquals("Spielberg", entry.getLastName());
+        assertEquals("999", entry.getNumber());
+
+        AddressBookEntry abe = entry.getAddressBookEntry();
+        assertEquals("9986", abe.getCellPhoneNumber());
+        assertEquals("080332", abe.getHomePhoneNumber());
+        assertEquals("080-45", abe.getFaxNumber());
+        assertEquals("stevens@sipx.com", abe.getEmailAddress());
+        assertEquals("stevens123@sipx.com", abe.getAlternateEmailAddress());
+        assertEquals("Qantom", abe.getCompanyName());
+        assertEquals("Test Engineer", abe.getJobTitle());
+        assertEquals("SCS", abe.getJobDept());
+
+        Address homeAddress = abe.getHomeAddress();
+        assertEquals("3rd Phase JP Nagar", homeAddress.getStreet());
+        assertEquals("560078", homeAddress.getZip());
+        assertEquals("India", homeAddress.getCountry());
+        assertEquals("Ktaka", homeAddress.getState());
+        assertEquals("Bangalore", homeAddress.getCity());
+
+        Address officeAddress = abe.getOfficeAddress();
+        assertEquals("Andheri East", officeAddress.getStreet());
+        assertEquals("400010", officeAddress.getZip());
+        assertEquals("India", officeAddress.getCountry());
+        assertEquals("Maharastra", officeAddress.getState());
+        assertEquals("Mumbai", officeAddress.getCity());
+        assertEquals("PostOffice", officeAddress.getOfficeDesignation());
+
     }
 
     public void testExportVCard() throws Exception {
