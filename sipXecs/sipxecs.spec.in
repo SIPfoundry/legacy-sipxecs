@@ -33,6 +33,7 @@ Requires: sipx-freeswitch >= 1.0
 Requires: sipx-freeswitch-codec-passthru-amr 
 Requires: sipx-freeswitch-codec-passthru-g723_1 
 Requires: sipx-freeswitch-codec-passthru-g729 
+Requires: sipximbot >= %version
 Requires: sipxivr >= %version
 Requires: sipxopenfire >= %version
 Requires: sipxpage >= %version

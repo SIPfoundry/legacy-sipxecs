@@ -24,7 +24,7 @@ public class SipxImbotService extends SipxService implements LoggingEntity {
 
     private String m_docDir;
 
-    private boolean m_available;
+    private boolean m_available = true;
 
     @Required
     public void setDocDir(String docDirectory) {

@@ -130,6 +130,10 @@ sipXcallController : sipXrest
 sipXcdrLog : sipXrest 
 	@echo sipXcdrLog
 
+.PHONY: sipXimbot
+sipXimbot : sipXrest sipXcommons sipXopenfire
+	@echo sipXimbot
+
 .PHONY: sipXecs
 # List all components as dependencies of sipXecs, in alphabetical order.
 sipXecs : \

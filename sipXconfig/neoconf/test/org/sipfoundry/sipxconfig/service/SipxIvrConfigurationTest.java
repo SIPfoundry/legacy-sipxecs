@@ -55,8 +55,8 @@ public class SipxIvrConfigurationTest extends SipxServiceTestBase {
         m_restService.setSettingValue("rest-config/httpsPort", "6666");
 
         m_imbotService = new SipxImbotService();
-        m_imbotService.setModelDir("scsimbot");
-        m_imbotService.setModelName("scsimbot.xml");
+        m_imbotService.setModelDir("sipximbot");
+        m_imbotService.setModelName("sipximbot.xml");
         m_imbotService.setModelFilesContext(TestHelper.getModelFilesContext());
         m_imbotService.setSettingValue("imbot/httpPort", "8086");
 

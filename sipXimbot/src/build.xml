@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="sipXimbot" default="jar" basedir="." >
+
+  <property name="debug" value="true"/>
+  <patternset id="test.classes" excludes="**"/>
+  <property name="build.dir" value="${top.build.dir}"/>
+  <import file="ant-targets.xml"/>
+
+  <path id="base.path" >
+    <pathelement location="${sipxcommons.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${dom4j.jar}"/>
+    <pathelement location="${commons-io.jar}"/>
+    <pathelement location="${jaxen.jar}"/>
+    <pathelement location="${commons-codec.jar}"/>
+    <pathelement location="${commons-logging.jar}"/>
+    <pathelement location="${javax.servlet.jar}"/>
+    <pathelement location="${jetty.jar}"/>
+    <pathelement location="${javamail.jar}"/>
+    <pathelement location="${sipxopenfireplugin.jar}"/>
+    <pathelement location="${xmlrpc-common.jar}"/>
+    <pathelement location="${smack.jar}"/>
+    <pathelement location="${smackx.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file">
+
+    <jar jarfile="${build.dir}/dist/sipXimbot.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+      <fileset dir="${src.dir}/src/main/java" >
+        <include name="**/*.properties" /> 
+      </fileset>
+    </jar>
+  </target>
+
+  <!--
+    -  I N S T A L L
+    -->
+  <target name="install">
+
+    <!-- BINARIES/LIB/SCRIPTS -->
+    <delete dir="${dest.dir}${sipximbot.lib.dir}"/>
+    <mkdir dir="${dest.dir}${sipximbot.lib.dir}"/>
+    <copy file="${src.dir}/etc/sipximbot-prompts.properties" todir="${dest.dir}${conf.dir}/imbot" />
+    <copy todir="${dest.dir}${sipximbot.lib.dir}">
+       <fileset file="${build.dir}/dist/sipXimbot.jar"/>
+    </copy>
+
+  </target>
+
+  <target name="uninstall">
+    <delete file="${dest.dir}${bin.dir}/sipximbot.sh"/>
+    <delete dir="${dest.dir}${sipximbot.lib.dir}"/>
+  </target>
+
+</project>

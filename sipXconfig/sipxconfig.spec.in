@@ -325,6 +325,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
 %dir %{sipxpbxconf}/sipxconfig
 %config(noreplace) %{sipxpbxconf}/sipxconfig/*
+%config(noreplace) %{sipxpbxconf}/sipximbot/*
 %config(noreplace) %{sipxpbxconf}/scsimbot/*
 %config(noreplace) %{sipxpbxconf}/sipxivr/*
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*

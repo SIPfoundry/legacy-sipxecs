@@ -86,7 +86,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     private XMPPServer server;
     private Localizer localizer;
     private boolean isInitialized = false;
-    private AbstractMessagePacketInterceptor abstractMessagePacketInterceptor = null;
+    private List<AbstractMessagePacketInterceptor> abstractMessagePacketInterceptors = new ArrayList<AbstractMessagePacketInterceptor>();
 
     private static String DEFAULT_MUC_SERVICE = "conference";
     
@@ -355,6 +355,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 
                 String extrasDirName = extrasDirNameForClassLoader + "/lib";
                 File extrasDir = new File(extrasDirName);
+		loadDefault();
                 loadExtras(pluginClassLoader, extrasDir);
             }
             else{
@@ -390,6 +391,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         isInitialized = true;
     }
     
+    void loadDefault() {
+	DefaultMessagePacketInterceptor originalInterceptor = new DefaultMessagePacketInterceptor();
+	originalInterceptor.start(this);
+	abstractMessagePacketInterceptors.add(originalInterceptor);
+    }
     
     void loadExtras(ClassLoader classLoader, File extrasDir){
         // inspect all jars in the extras dir
@@ -415,6 +421,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                         AbstractMessagePacketInterceptor abstractMessagePacketInterceptor = (AbstractMessagePacketInterceptor)packetInterceptorClass.newInstance();
                         abstractMessagePacketInterceptor.start(this);
                         InterceptorManager.getInstance().addInterceptor(abstractMessagePacketInterceptor);
+			abstractMessagePacketInterceptors.add(abstractMessagePacketInterceptor);
                     }
                 }
                 catch(Throwable e){
@@ -435,9 +442,10 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         if( accountsParser != null ){
             accountsParser.stopScanner();
         }
-        if( abstractMessagePacketInterceptor != null ){
+        for(AbstractMessagePacketInterceptor abstractMessagePacketInterceptor : abstractMessagePacketInterceptors){
             InterceptorManager.getInstance().removeInterceptor(abstractMessagePacketInterceptor);
         }
+	abstractMessagePacketInterceptors.clear();
         CallWatcher.destroy();
         
         multiUserChatManager = null;
@@ -453,7 +461,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         logAppender = null;
         SipXOpenfirePlugin.instance = null;
         accountsParser = null;
-        abstractMessagePacketInterceptor = null;
     }
 
     public String getName() {
