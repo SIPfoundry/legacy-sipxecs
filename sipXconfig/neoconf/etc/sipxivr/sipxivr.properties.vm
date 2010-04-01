@@ -14,6 +14,7 @@ ivr.operatorAddr=sip:operator@${service.domainName}
 ivr.sipxchangeDomainName=${service.domainName}
 ivr.realm=${service.realm}
 ivr.httpsPort=$ivr.getSetting('httpsPort').Value
+ivr.voiceMailExpiry=$ivr.getSetting('voiceMailExpiry').Value
 ivr.mwiUrl=https://${location.fqdn}:${statusService.httpsPort}/cgi/StatusEvent.cgi
 ivr.configUrl=https://${location.fqdn}:8443
 ivr.3pccSecureUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}

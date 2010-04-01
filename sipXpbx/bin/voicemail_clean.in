@@ -5,10 +5,28 @@
 # way before it was deleted last time, only the last delete date will
 # be used in determining the age of this message.
 
-. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+check_prop_file_exists() {
+    local exists=0
+    if ! test -f "$1"
+    then
+        echo "Property file not found: '$1'" >&2
+        exists=1
+    fi
+    return ${exists}
+}
+get_prop_value() {
+# ensure property file exists and then pull out the
+# requested property value
+    check_prop_file_exists "$1" \
+    && perl -n \
+        -e 'use English;' \
+        -e 's/#.*$//;' \
+        -e "/^\\s*$2\\s*=\\s*/ && print join( ' ', split( /[\\s,]+/, \$POSTMATCH ));" \
+        $1
+}
 
 MAILSTORE_DIR=@SIPX_VXMLDATADIR@/mailstore
-DAYS=`sipx_config_value @SIPX_CONFDIR@/voicemail-config VOICEMAIL_AGE_LIMIT`
+DAYS=`get_prop_value @SIPX_CONFDIR@/sipxivr.properties ivr.voiceMailExpiry`
 
 # Override the DAYS variable with optional command line argument
 if [ "$1" == "--days" ]; then
@@ -20,11 +38,11 @@ if [ "$1" == "--days" ]; then
 fi
 
 CleanList=`mktemp -t voicemail_clean.XXXXXX`
-trap "rm $TMP* 2>/dev/null" 0
+trap "rm ${CleanList} 2>/dev/null" 0
 
 if [ -d ${MAILSTORE_DIR} ]
 then
-    for deleted_dir in `find ${MAILSTORE_DIR} -type d -name deleted -maxdepth 2`
+    for deleted_dir in `find ${MAILSTORE_DIR} -maxdepth 2 -type d -name deleted `
     do
         if cd "${deleted_dir}" > /dev/null 2>&1
         then
