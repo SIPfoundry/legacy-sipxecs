@@ -55,7 +55,6 @@ then
   AC_CONFIG_SUBDIRS(sipXrls)
   AC_CONFIG_SUBDIRS(sipXsaa)
   AC_CONFIG_SUBDIRS(sipXsupervisor)
-  AC_CONFIG_SUBDIRS(sipXimbot)
 fi
 
 AC_ARG_ENABLE(tools,
