@@ -992,60 +992,63 @@ class SipUtilities {
 						.next();
 				Vector formats = mediaDescription.getMedia().getMediaFormats(
 						true);
+				String mediaType = mediaDescription.getMedia().getMediaType();
 
-				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
-					Object format = it1.next();
-					try {
-						Integer fmt = new Integer(format.toString());
-						if (!codecs.contains(fmt)) {
-							/*
-							 * Preserve the telephone event lines -- this upsets
-							 * some ITSPs otherwise. AT&T Hack.
-							 */
-							if (fmt != 100 && fmt != 101) {
-								it1.remove();
-							}
-						}
-					} catch (NumberFormatException ex) {
-						logger.warn("Could not parse media format " + format);
-						continue;
-					}
-				}
-
-				Vector attributes = mediaDescription.getAttributes(true);
-				for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
-					Attribute attr = (Attribute) it1.next();
-					if (logger.isDebugEnabled()) {
-						logger.debug("attrName = " + attr.getName());
-					}
-
-					if (attr.getName().equalsIgnoreCase("rtpmap")) {
-						String attribute = attr.getValue();
-						String[] attrs = attribute.split(" ");
+				if ( mediaType.equals("audio")) {
+					for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+						Object format = it1.next();
 						try {
-							int rtpMapCodec = Integer.parseInt(attrs[0]);
-
-							if (!codecs.contains(rtpMapCodec)) {
+							Integer fmt = new Integer(format.toString());
+							if (!codecs.contains(fmt)) {
 								/*
 								 * Preserve the telephone event lines -- this upsets
 								 * some ITSPs otherwise. AT&T Hack.
 								 */
-								if (rtpMapCodec != 100 && rtpMapCodec != 101) {
+								if (fmt != 100 && fmt != 101) {
 									it1.remove();
 								}
 							}
-						} catch ( NumberFormatException ex) {
-							logger.warn("could not parse RTP Map " + attrs[0]);
+						} catch (NumberFormatException ex) {
+							logger.warn("Could not parse media format " + format);
 							continue;
 						}
-					} else if (attr.getName().equalsIgnoreCase("crypto")) {
-						it1.remove();
-						logger.debug("Not adding crypto");
-					} else if (attr.getName().equalsIgnoreCase("encryption")) {
-						it1.remove();
-						logger.debug("Not adding encryption");
 					}
 
+					Vector attributes = mediaDescription.getAttributes(true);
+					for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
+						Attribute attr = (Attribute) it1.next();
+						if (logger.isDebugEnabled()) {
+							logger.debug("attrName = " + attr.getName());
+						}
+
+						if (attr.getName().equalsIgnoreCase("rtpmap")) {
+							String attribute = attr.getValue();
+							String[] attrs = attribute.split(" ");
+							try {
+								int rtpMapCodec = Integer.parseInt(attrs[0]);
+
+								if (!codecs.contains(rtpMapCodec)) {
+									/*
+									 * Preserve the telephone event lines -- this upsets
+									 * some ITSPs otherwise. AT&T Hack.
+									 */
+									if (rtpMapCodec != 100 && rtpMapCodec != 101) {
+										it1.remove();
+									}
+								}
+							} catch ( NumberFormatException ex) {
+								logger.warn("could not parse RTP Map " + attrs[0]);
+								continue;
+							}
+						} else if (attr.getName().equalsIgnoreCase("crypto")) {
+							it1.remove();
+							logger.debug("Not adding crypto");
+						} else if (attr.getName().equalsIgnoreCase("encryption")) {
+							it1.remove();
+							logger.debug("Not adding encryption");
+						}
+
+					}
 				}
 
 			}
