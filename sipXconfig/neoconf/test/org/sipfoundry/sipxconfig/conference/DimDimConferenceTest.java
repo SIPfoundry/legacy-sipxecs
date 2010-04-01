@@ -25,15 +25,16 @@ public class DimDimConferenceTest extends TestCase {
     public void testGetCreateMeetingUrl() {
         DimDimConference dimDimConference = new DimDimConference(m_conference);
 
+        m_conference.setSettingTypedValue("web-meeting/dimdim-host", "my.dimdim.com");
         m_conference.setSettingTypedValue("web-meeting/did", "6131234567");
         m_conference.setSettingTypedValue("web-meeting/user", "dimUser");
         m_conference.setSettingTypedValue("web-meeting/password", "dimPass");
 
         assertTrue(dimDimConference.isConfigured());
         assertEquals(
-                "http://webmeeting.dimdim.com/portal/start.action?name=dimUser&password=dimPass&confname=my_conf&internToll=12345&internToll=6131234567",
+                "http://my.dimdim.com/portal/start.action?name=dimUser&password=dimPass&confname=my_conf&internToll=12345&internToll=6131234567",
                 dimDimConference.getCreateMeetingUrl());
-        assertEquals("http://webmeeting.dimdim.com/portal/JoinForm.action?meetingRoomName=dimUser", dimDimConference
+        assertEquals("http://my.dimdim.com/portal/JoinForm.action?meetingRoomName=dimUser", dimDimConference
                 .getJoinMeetingUrl());
     }
 

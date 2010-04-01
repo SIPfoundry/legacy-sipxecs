@@ -61,11 +61,10 @@ public class DimDimConference {
             params2.put("displayname", displayName);
         }
 
-        StringBuilder uri = new StringBuilder("http://webmeeting.dimdim.com/portal/start.action?");
-        uri.append(paramsToQuery(params1));
-        uri.append("&");
-        uri.append(paramsToQuery(params2));
-        return uri.toString();
+        String uri = String.format("http://%s/portal/start.action?%s&%s",
+            getDimDimHost(), paramsToQuery(params1), paramsToQuery(params2));
+
+        return uri;
     }
 
     public String getJoinMeetingUrl() {
@@ -76,13 +75,18 @@ public class DimDimConference {
         params.put("meetingRoomName", getUser());
         addAttendeePasscode(params);
         addAttendeePwd(params);
-        StringBuilder uri = new StringBuilder("http://webmeeting.dimdim.com/portal/JoinForm.action?");
-        uri.append(paramsToQuery(params));
-        return uri.toString();
+
+        String uri = String.format("http://%s/portal/JoinForm.action?%s",
+                getDimDimHost(), paramsToQuery(params));
+        return uri;
     }
 
     public Setting getSettings() {
         return m_conference.getSettings().getSetting("web-meeting");
+    }
+
+    public String getDimDimHost() {
+        return m_conference.getSettingValue("web-meeting/dimdim-host").toString();
     }
 
     String getUser() {

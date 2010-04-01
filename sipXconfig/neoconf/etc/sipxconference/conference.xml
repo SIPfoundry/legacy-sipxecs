@@ -66,6 +66,12 @@
     <setting name="FS_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET" hidden="yes" />
   </group>
   <group name="web-meeting">
+    <setting name="dimdim-host">
+      <type>
+        <hostname/>
+      </type>
+      <value>webmeeting.dimdim.com</value>
+    </setting>
     <setting name="user">
     </setting>
     <setting name="password">
