@@ -57,6 +57,8 @@ public class ContactInformationResource extends UserResource {
         if (addressBook == null) {
             user.setAddressBookEntry(reprAddressBook);
         } else {
+            //the IM id needs to be uneditable via rest.(XX-8022)
+            reprAddressBook.setImId(addressBook.getImId());
             addressBook.update(reprAddressBook);
             user.setAddressBookEntry(addressBook);
         }

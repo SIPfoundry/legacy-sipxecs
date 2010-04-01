@@ -100,7 +100,9 @@ public class ContactInformationResourceTest extends TestCase {
     }
 
     public void testStoreXml() throws Exception {
-        m_user.setAddressBookEntry(new AddressBookEntry());
+        AddressBookEntry abe = new AddressBookEntry();
+        abe.setImId("someId");
+        m_user.setAddressBookEntry(abe);
         ContactInformationResource resource = new ContactInformationResource();
         resource.setCoreContext(m_coreContext);
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
@@ -121,6 +123,7 @@ public class ContactInformationResourceTest extends TestCase {
         assertEquals("US", m_user.getAddressBookEntry().getOfficeAddress().getCountry());
         assertEquals("MA", m_user.getAddressBookEntry().getOfficeAddress().getState());
         assertEquals("02114", m_user.getAddressBookEntry().getOfficeAddress().getZip());
+        assertEquals("someId", m_user.getAddressBookEntry().getImId());
     }
 
     public void _testRepresentXmlUserWithBranch() throws Exception {
@@ -255,6 +258,7 @@ public class ContactInformationResourceTest extends TestCase {
         officeAddress.setZip("02114");
         addressBook.setOfficeAddress(officeAddress);
         addressBook.setEmailAddress("john.doe@example.com");
+        addressBook.setImId("myId");
         m_user.setAddressBookEntry(addressBook);
     }
 }

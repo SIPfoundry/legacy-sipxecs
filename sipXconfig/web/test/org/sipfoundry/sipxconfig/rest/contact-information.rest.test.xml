@@ -12,6 +12,7 @@
     <state>MA</state>
     <zip>02114</zip>
   </officeAddress>
+  <imId>myId</imId>
   <emailAddress>john.doe@example.com</emailAddress>
   <useBranchAddress>false</useBranchAddress>
   <avatar>http://www.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&amp;d=wavatar</avatar>
