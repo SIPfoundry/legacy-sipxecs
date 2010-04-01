@@ -143,7 +143,6 @@ sipXecs : \
 	sipXcommserverLib \
 	sipXconfig \
 	sipXfreeSwitch \
-	sipXimbot \
 	sipXivr \
 	sipXmediaAdapterLib \
 	sipXmediaLib \
