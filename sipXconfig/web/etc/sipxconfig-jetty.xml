@@ -49,13 +49,4 @@
     </Arg>
   </Call>
 
-  <Set name="RequestLog">
-   <New class="org.mortbay.http.NCSARequestLog">
-   <Arg>yyyy_mm_dd.request.log</Arg>
-     <Set name="retainDays">2</Set>
-     <Set name="append">true</Set>
-     <Set name="extended">true</Set>
-     <Set name="LogTimeZone">GMT</Set>
-   </New>
-  </Set>
 </Configure>
