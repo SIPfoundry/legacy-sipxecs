@@ -17,12 +17,17 @@ import org.apache.hivemind.Messages;
 import org.apache.tapestry.IExternalPage;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.Bean;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.LocalizationUtils;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor;
+import org.sipfoundry.sipxconfig.search.IndexManager;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 
 public abstract class SearchPage extends SipxBasePage implements IExternalPage,
@@ -42,6 +47,12 @@ public abstract class SearchPage extends SipxBasePage implements IExternalPage,
     public abstract EditPageProvider getEditPageProvider();
 
     public abstract BeanAdaptor.Identity getResultItem();
+
+    @InjectObject("spring:indexManager")
+    public abstract IndexManager getIndexManager();
+
+    @Bean
+    public abstract SipxValidationDelegate getValidator();
 
     public void activateExternalPage(Object[] parameters, IRequestCycle cycle_) {
         String query = (String) TapestryUtils.assertParameter(String.class, parameters, 0);
@@ -66,8 +77,7 @@ public abstract class SearchPage extends SipxBasePage implements IExternalPage,
 
     public String getFoundMsg() {
         Collection results = getResults();
-        int foundCount = results != null ? results.size() : 0;
-        return getMessages().format("msg.found", new Integer(foundCount));
+        return getMessages().format("msg.found", new Integer(getFoundCount()));
     }
 
     public IPage activateEditPage(IRequestCycle cycle, String klass, Object id) {
@@ -96,5 +106,23 @@ public abstract class SearchPage extends SipxBasePage implements IExternalPage,
             }
         }
         return getMessages().getMessage("label.default.type");
+    }
+
+    public int getFoundCount() {
+        Collection results = getResults();
+        return results != null ? results.size() : 0;
+    }
+
+    public void rebuildSearchIndex() {
+
+        try {
+            getIndexManager().indexAll();
+        } catch (RuntimeException e) {
+            // Just a precaution, in case we hit any bug from Lucene...
+            getValidator().record(new UserException("&msg.rebuildSearchIndex.error"), getMessages());
+            return;
+        }
+
+        getValidator().recordSuccess(getMessages().getMessage("msg.rebuildSearchIndex.success"));
     }
 }
