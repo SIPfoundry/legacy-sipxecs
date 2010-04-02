@@ -46,7 +46,6 @@ public class CounterpathPhoneTest extends TestCase {
         CounterpathPhoneModel counterpathModel = new CounterpathPhoneModel("counterpath");
         counterpathModel.setProfileTemplate("counterpath/counterpath.ini.vm");
         counterpathModel.setModelId("counterpathCMCEnterprise");
-        System.setProperty("sipxconfig.hostname", "sipfoundry.org");
         counterpathModel.setMaxLineCount(5);
         m_phone = new CounterpathPhone();
         m_phone.setModel(counterpathModel);
@@ -85,20 +84,12 @@ public class CounterpathPhoneTest extends TestCase {
         LocationsManager locationsManagerMock = EasyMock.createMock(LocationsManager.class);
         locationsManagerMock.getLocationByBundle("imBundle");
         EasyMock.expectLastCall().andReturn(locationMock);
+        locationsManagerMock.getPrimaryLocation();
+        expectLastCall().andReturn(locationMock).anyTimes();
         EasyMock.replay(locationsManagerMock);
         m_phone.setLocationsManager(locationsManagerMock);
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
-
-        IMocksControl locationsManagerControl = EasyMock.createNiceControl();
-        LocationsManager locationsManager = locationsManagerControl.createMock(LocationsManager.class);
-        m_phone.setLocationsManager(locationsManager);
-        Location mockLocation = new Location();
-        mockLocation.setFqdn("sipfoundry.org");
-        locationsManager.getPrimaryLocation();
-        expectLastCall().andReturn(mockLocation).anyTimes();
-        locationsManagerControl.replay();
-
         m_phone.generateProfiles(location);
         String expected = IOUtils.toString(getClass().getResourceAsStream("cmc-enterprise.ini"));
         System.out.println("((((" + expected + "))))");
