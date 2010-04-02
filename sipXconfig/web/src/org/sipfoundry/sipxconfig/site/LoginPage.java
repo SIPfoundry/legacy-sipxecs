@@ -26,6 +26,10 @@ import org.sipfoundry.sipxconfig.site.user.FirstUser;
 public abstract class LoginPage extends PageWithCallback implements PageBeginRenderListener {
 
     public static final String PAGE = "LoginPage";
+    private static final String USER_AGENT = "User-Agent";
+    private static final String FIREFOX = "Firefox/";
+    private static final String IE7 = "MSIE 7";
+    private static final String IE8 = "MSIE 8";
 
     @InjectObject("spring:coreContext")
     public abstract CoreContext getCoreContext();
@@ -51,5 +55,11 @@ public abstract class LoginPage extends PageWithCallback implements PageBeginRen
             getValidator().record(new ValidatorException(getMessages().getMessage("message.loginError")));
         }
 
+    }
+
+    public boolean isSupportedBrowser() {
+        String userAgent = getRequest().getHeader(USER_AGENT);
+        return StringUtils.contains(userAgent, FIREFOX) || StringUtils.contains(userAgent, IE7) || StringUtils
+                .contains(userAgent, IE8);
     }
 }
