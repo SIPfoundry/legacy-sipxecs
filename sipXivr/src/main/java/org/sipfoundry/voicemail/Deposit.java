@@ -266,7 +266,7 @@ public class Deposit {
             digit = null;
             if (!recorded) {
                 m_message.setIsToBeStored(true);  // So if they hang up now, we'll save what we got.
-                m_vm.recordMessage(wavPath);
+                m_vm.recordMessage(wavPath, "0*#i");
     
                 digit = m_fses.getDtmfDigit();
                                
@@ -476,11 +476,16 @@ public class Deposit {
                         
             boolean recorded = false ;
             boolean playMessage = false;
+            boolean retry = false;
             for(;;) {
                 // Record the message
                 if (!recorded) {
                     m_message.setIsToBeStored(true);  // So if they hang up now, we'll save what we got.
-                    m_vm.recordMessage(wavPath);
+                    if (retry == false) {
+                        m_vm.recordMessage(wavPath,"01#i");
+                    } else {
+                        m_vm.recordMessage(wavPath, "0#i");
+                    }
         
                     String digit = m_fses.getDtmfDigit();
                     if (digit != null && digit.equals("0")) {
@@ -558,7 +563,8 @@ public class Deposit {
                     m_message.setIsToBeStored(false);
                     m_loc.play("send_record_message", "");
                     recorded = false ;
-                    continue ;
+                    retry = true;
+                    continue;
                 }
             }
             break;

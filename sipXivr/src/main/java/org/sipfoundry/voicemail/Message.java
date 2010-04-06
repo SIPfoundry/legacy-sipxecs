@@ -164,20 +164,25 @@ public class Message {
         // Calculate the duration (in seconds) from the Wav file
         File wavFile = getWavFile();
         if (wavFile != null) {
-            try {
-                AudioInputStream ais = AudioSystem.getAudioInputStream(wavFile);
-                float secs =  ais.getFrameLength() / ais.getFormat().getFrameRate();
-                m_duration = Math.round(secs); // Round up.
-            } catch (EOFException e) {
-                m_duration = 0;            
-            } catch (Exception e) {
-                String trouble = "Message::getDuration Problem determining duration of "+getWavFile().getPath();
-                LOG.error(trouble, e);
-                throw new RuntimeException(trouble, e);            
-            }
+            m_duration = getDuration(wavFile);
         }
         return m_duration;
     }
+
+    public static long getDuration(File wavFile) {
+        try {
+            AudioInputStream ais = AudioSystem.getAudioInputStream(wavFile);
+            float secs =  ais.getFrameLength() / ais.getFormat().getFrameRate();
+            return Math.round(secs); // Round up.
+            } catch (EOFException e) {
+                return 0;
+              } 
+            catch (Exception e) {
+                String trouble = "Message::getDuration Problem determining duration of "+wavFile.getPath();
+                LOG.error(trouble, e);
+                throw new RuntimeException(trouble, e);
+            }
+   }
 
     public long getTimestamp() {
         return m_timestamp;

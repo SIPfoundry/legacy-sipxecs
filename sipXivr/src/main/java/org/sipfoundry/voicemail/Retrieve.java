@@ -801,7 +801,7 @@ public class Retrieve {
         LOG.info("Retrieve::sendMessage "+m_ident);
 
         Message message = null;
-        
+
         // "Record your message, then press #"
         // 
         // "To play this message, press 1."
@@ -1079,16 +1079,6 @@ public class Retrieve {
                         continue voicemailOptions;
                     }
                     String originalPin = choice1.getDigits();
-                                      
-                    String realm = m_loc.getConfig().getRealm();
-                    if (!user.isPinCorrect(originalPin, realm)) {
-                        errorCount++;
-                        LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pin invalid.");
-                        // "The personal identification number you have entered is not valid."
-                        m_loc.play("pin_invalid", "");
-                        continue;
-                    }
-                    
                     String newPin = "";
 
                     for(;;) {
@@ -1125,7 +1115,16 @@ public class Retrieve {
                         LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pins do not match.");
                         // "The two personal identification numbers you have entered do not match."
                         m_loc.play("pin_mismatch", "");
-                    }                   
+                    }
+                    
+                    String realm = m_loc.getConfig().getRealm();
+                    if (!user.isPinCorrect(originalPin, realm)) {
+                        errorCount++;
+                        LOG.info("Retrieve::voicemailOptions:changePin "+m_ident+" Pin invalid.");
+                        // "The personal identification number you have entered is not valid."
+                        m_loc.play("pin_invalid", "");
+                        continue;
+                    }
                     
                     try {
                         // Use sipXconfig's RESTful interface to change the PIN
@@ -1265,7 +1264,7 @@ public class Retrieve {
     File recordDialog(String recordFragment, String confirmMenuFragment) {
         File wavFile = makeTempWavFile();
         String wavPath = wavFile.getPath();
-    
+        
         boolean recordWav = true ;
         boolean playWav = false;
         for(;;) {
@@ -1280,7 +1279,7 @@ public class Retrieve {
                 String digit = c.getDigits();
                 LOG.debug("Retrieve::recordDialog collected ("+digit+")");
                 if (digit.length() == 0 || !"*0".contains(digit) ) {
-                    m_vm.recordMessage(wavPath);
+                    m_vm.recordMessage(wavPath, "0*#i");
                     digit = m_fses.getDtmfDigit();
                     if (digit == null) {
                         digit = "";
@@ -1334,8 +1333,15 @@ public class Retrieve {
     
             // "2" means accept the recording
             if (digit.equals("2")) {
-                LOG.info(String.format("Retrieve::recordDialog "+m_ident+" accepted recording (%s)", wavPath));
-                return wavFile;
+                long duration = Message.getDuration(wavFile);
+                if (duration > 2) {
+                    LOG.info(String.format("Retrieve::recordDialog "+m_ident+" accepted recording (%s)", wavPath));
+                    return wavFile;
+                } else {
+                    m_loc.play("msg_too_short", "");
+                    recordWav = true;
+                    continue ;
+                }
             }
     
             // "3" means "erase" and re-record

@@ -191,7 +191,7 @@ public class CpMsgDialog{
        
         String wavPath = wavFile.getPath();
     
-        m_vm.recordMessage(wavPath);
+        m_vm.recordMessage(wavPath, "#");
         String digit = m_vm.getLoc().getFreeSwitchEventSocketInterface().getDtmfDigit();
         if (digit == null) {
             digit = "";
