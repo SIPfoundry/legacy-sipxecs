@@ -52,7 +52,7 @@ public class SipXVCardProvider implements VCardProvider {
     static final String DEFAULT_SECRET = "unknown";
     static final String MODIFY_METHOD = "PUT";
     static final String QUERY_METHOD = "GET";
-    static final String PA_USER = "myassistant";
+    static final String PA_USER = "mybuddy";
     static final String AVATAR_ELEMENT = "PHOTO";
     static final int MAX_ATTEMPTS = 12; // Try 12 times at most when connects to sipXconfig
     static final int ATTEMPT_INTERVAL = 5000; // 5 seconds
