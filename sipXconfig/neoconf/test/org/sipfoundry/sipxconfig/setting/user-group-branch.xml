@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <branch branch_id="1000" name="branch1" description="" />
+  <branch branch_id="1001" name="branch2" description="" />
+  <branch branch_id="1002" name="branch3" description="" />
+
+  <users user_name="user1" user_id="1000" branch_id="1000" user_type="C"/>
+  <users user_name="user2" user_id="1001" user_type="C"/>
+  <users user_name="user3" user_id="1002" branch_id="1001" user_type="C"/>
+  <users user_name="user4" user_id="1003" branch_id="1001" user_type="C"/>
+  <users user_name="user5" user_id="1004" user_type="C"/>
+  <users user_name="user6" user_id="1005" branch_id="1002" user_type="C"/>
+
+  <value_storage value_storage_id="1000" />
+  <value_storage value_storage_id="1001" />
+
+  <group_storage group_id="1000" resource="user" weight="1000" name="group1" branch_id="1000" />
+  <group_storage group_id="1001" resource="user" weight="1001" name="group2" branch_id="1001" />
+
+  <user_group user_id="1000" group_id="1000"/>
+  <user_group user_id="1001" group_id="1000"/>
+  <user_group user_id="1004" group_id="1001"/>
+</dataset>

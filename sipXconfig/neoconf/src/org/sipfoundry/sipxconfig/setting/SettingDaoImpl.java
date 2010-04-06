@@ -204,6 +204,27 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
         return members;
     }
 
+    public Map<Integer, Long> getGroupBranchMemberCountIndexedByBranchId(Class branchOwner) {
+        String query = "select g.branch.id, count(*) from " + branchOwner.getName() + " o join "
+            + "o.groups g where o.branch = null group by g.branch.id";
+        List<Object[]> l = getHibernateTemplate().find(query);
+        Map<Integer, Long> members = asMap(l);
+
+        return members;
+    }
+
+    public Map<Integer, Long> getAllBranchMemberCountIndexedByBranchId(Class branchOwner) {
+        Map<Integer, Long> mapBranch = getBranchMemberCountIndexedByBranchId(branchOwner);
+        Map<Integer, Long> mapGroupBranch = getGroupBranchMemberCountIndexedByBranchId(branchOwner);
+        for (Integer branchId : mapGroupBranch.keySet()) {
+            Long noOwners1 = mapBranch.get(branchId);
+            Long noOwners2 = mapGroupBranch.get(branchId);
+            mapBranch.put(branchId, (noOwners1 == null ? 0 : noOwners1) + noOwners2);
+        }
+
+        return mapBranch;
+    }
+
     public static Map asMap(List<Object[]> l) {
         Map m = new HashMap(l.size());
         for (int i = 0; i < l.size(); i++) {

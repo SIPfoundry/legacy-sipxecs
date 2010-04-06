@@ -8,6 +8,8 @@
  */
 package org.sipfoundry.sipxconfig.setting;
 
+import java.util.Map;
+
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
@@ -46,6 +48,32 @@ public class SettingDaoTestIntegration extends IntegrationTestCase {
         } catch (UserException ex) {
 
         }
+    }
+
+    public void testGetBranchMemberCountIndexedByBranchId() {
+        loadDataSet("setting/user-group-branch.xml");
+        Map<Integer, Long> branchesMap = m_settingDao.getBranchMemberCountIndexedByBranchId(User.class);
+        assertEquals(3, branchesMap.size());
+        assertEquals(1, branchesMap.get(1000).longValue());
+        assertEquals(2, branchesMap.get(1001).longValue());
+        assertEquals(1, branchesMap.get(1002).longValue());
+    }
+
+    public void testGetGroupBranchMemberCountIndexedByBranchId() {
+        loadDataSet("setting/user-group-branch.xml");
+        Map<Integer, Long> branchesMap = m_settingDao.getGroupBranchMemberCountIndexedByBranchId(User.class);
+        assertEquals(2, branchesMap.size());
+        assertEquals(1, branchesMap.get(1000).longValue());
+        assertEquals(1, branchesMap.get(1001).longValue());
+    }
+
+    public void testGetAllBranchMemberCountIndexedByBranchId() {
+        loadDataSet("setting/user-group-branch.xml");
+        Map<Integer, Long> branchesMap = m_settingDao.getAllBranchMemberCountIndexedByBranchId(User.class);
+        assertEquals(3, branchesMap.size());
+        assertEquals(2, branchesMap.get(1000).longValue());
+        assertEquals(3, branchesMap.get(1001).longValue());
+        assertEquals(1, branchesMap.get(1002).longValue());
     }
 
     public void setCoreContext(CoreContext coreContext) {

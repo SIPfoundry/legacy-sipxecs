@@ -73,7 +73,7 @@ public abstract class BranchTable extends BaseComponent implements PageBeginRend
     @Override
     public void pageBeginRender(PageEvent event) {
         if (getUserCounts() == null) {
-            setUserCounts(getSettingContext().getBranchMemberCountIndexedByBranchId(User.class));
+            setUserCounts(getSettingContext().getAllBranchMemberCountIndexedByBranchId(User.class));
         }
         if (getServerCounts() == null) {
             setServerCounts(getSettingContext().getBranchMemberCountIndexedByBranchId(Location.class));

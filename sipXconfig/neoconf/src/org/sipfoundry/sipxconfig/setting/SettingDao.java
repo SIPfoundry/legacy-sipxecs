@@ -54,11 +54,26 @@ public interface SettingDao extends DataObjectSource {
     Map<Integer, Long> getGroupMemberCountIndexedByGroupId(Class groupOwner);
 
     /**
-     * Get the number of members in each branch
+     * Get the number of members in each set branch
      *
      * @return map {branchId as Integer, count as Integer}
      */
     Map<Integer, Long> getBranchMemberCountIndexedByBranchId(Class branchOwner);
+
+    /**
+     * Get the number of members in each inherited group branch
+     *
+     * @return map {branchId as Integer, count as Integer}
+     */
+    Map<Integer, Long> getGroupBranchMemberCountIndexedByBranchId(Class branchOwner);
+
+    /**
+     * Get all number of members in each branch
+     * (set branch number members + inherited group branch number members)
+     *
+     * @return map {branchId as Integer, count as Integer}
+     */
+    Map<Integer, Long> getAllBranchMemberCountIndexedByBranchId(Class branchOwner);
 
     /**
      * convienence: find and create group if not found
