@@ -58,3 +58,7 @@ missingok
         @FREESWITCH_PREFIX@/bin/fs_cli -x "fsctl send_sighup" >/dev/null 2>&1
     endscript
 }
+
+@SIPX_LOGDIR@/openfire/*.log {
+    copytruncate
+}
