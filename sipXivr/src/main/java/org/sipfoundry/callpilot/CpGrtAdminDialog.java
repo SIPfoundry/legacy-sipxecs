@@ -106,7 +106,7 @@ public class CpGrtAdminDialog {
                 // Record your {thingy} then press #
                 loc.play(recordFragment, "*#");
 
-                m_vm.recordMessage(wavPath,"*#");
+                m_vm.recordMessage(wavPath);
                 String digit = loc.getFreeSwitchEventSocketInterface().getDtmfDigit();
                 if (digit == null) {
                     digit = "";

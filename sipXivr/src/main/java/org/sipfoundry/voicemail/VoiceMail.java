@@ -312,18 +312,19 @@ public class VoiceMail {
      * @param wavName
      * @return The Recording object
      */
-    public Record recordMessage(String wavName, String digitMask) {
+    public Record recordMessage(String wavName) {
         // Flush any typed ahead digits
         m_fses.trimDtmfQueue("") ;
         LOG.info(String.format("Recording message (%s)", wavName));
         Record rec = new Record(m_fses, m_locCurr.getPromptList("beep"));
         rec.setRecordFile(wavName) ;
         rec.setRecordTime(300); 
-        rec.setDigitMask(digitMask); // XX-7944 Only specific digits can stop the recording
+        rec.setDigitMask("0123456789*#i"); // Any digit can stop the recording
         rec.go();
         return rec;
     }
-
+    
+ 
     /**
      * Transfer to the operator
      */
