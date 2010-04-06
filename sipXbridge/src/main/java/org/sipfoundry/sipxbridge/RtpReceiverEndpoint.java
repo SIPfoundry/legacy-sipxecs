@@ -97,7 +97,12 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
              	
             String address = useGlobalAddressing ? getGlobalAddress() : getIpAddress();
 
-            this.sessionDescription = sessionDescription;
+            /*
+             * Filter the codecs to the allow set. This filter is applied only for
+             * audio codecs.
+             */
+            this.sessionDescription = SipUtilities.cleanSessionDescription(sessionDescription);
+            
             /*
              * draft-ietf-sipping-sip-offeranswer-08 section 5.2.5 makes it clear that a UA cannot
              * change the session id field of the o-line when making a subsequent offer/answer.

@@ -1021,7 +1021,7 @@ class SipUtilities {
 							logger.debug("attrName = " + attr.getName());
 						}
 
-						if (attr.getName().equalsIgnoreCase("rtpmap")) {
+						if (attr.getName().equalsIgnoreCase("rtpmap") || attr.getName().equalsIgnoreCase("fmtp")) {
 							String attribute = attr.getValue();
 							String[] attrs = attribute.split(" ");
 							try {
@@ -2185,6 +2185,12 @@ class SipUtilities {
 
 	public static String getTopmostViaTransport(Request request) {
 		return ((RequestExt) request).getTopmostViaHeader().getTransport();
+	}
+
+	public static SessionDescription cleanSessionDescription(
+			SessionDescription sessionDescription) {
+		HashSet<Integer> codecs = Gateway.getAllowableCodecs();
+		return SipUtilities.cleanSessionDescription(sessionDescription,codecs);
 	}
 
 }

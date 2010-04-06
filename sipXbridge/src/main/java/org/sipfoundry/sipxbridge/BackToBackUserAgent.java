@@ -1270,10 +1270,6 @@ public class BackToBackUserAgent implements Comparable {
              */
             SessionDescription sd = SipUtilities.getSessionDescription(request);
             
-            /*
-             * Only allow a subset of codecs if specified by user.
-             */
-            SipUtilities.cleanSessionDescription(sd, Gateway.getAllowableCodecs());
             
            
             if (! checkSessionDescription(sd,serverTransaction) ) {
@@ -1757,9 +1753,7 @@ public class BackToBackUserAgent implements Comparable {
                 return;
             }
             
-            /* Restrict offer to the codecs allowed if such a limit is specified. */
-            SipUtilities.cleanSessionDescription(outboundSessionDescription, Gateway.getAllowableCodecs());
-            
+               
             if (!this.checkSessionDescription(outboundSessionDescription, serverTransaction)) {
             	return;
             }
