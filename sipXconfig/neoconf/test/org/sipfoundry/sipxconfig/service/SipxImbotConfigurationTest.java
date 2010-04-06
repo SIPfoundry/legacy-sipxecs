@@ -33,8 +33,8 @@ public class SipxImbotConfigurationTest extends SipxServiceTestBase {
     public void setUp() {
         Location location = createDefaultLocation();
         m_imbotService = new SipxImbotService();
-        m_imbotService.setModelDir("sipximbot");
-        m_imbotService.setModelName("sipximbot.xml");
+        m_imbotService.setModelDir("scsimbot");
+        m_imbotService.setModelName("scsimbot.xml");
         initCommonAttributes(m_imbotService);
 
         m_imbotService.setDocDir("/usr/share/www/doc");
@@ -86,7 +86,7 @@ public class SipxImbotConfigurationTest extends SipxServiceTestBase {
     public void testWrite() throws Exception {
         SipxImbotConfiguration out = new SipxImbotConfiguration();
         out.setSipxServiceManager(m_sipxServiceManager);
-        out.setTemplate("sipximbot/sipximbot.properties.vm");
+        out.setTemplate("scsimbot/scsimbot.properties.vm");
         out.setLocationsManager(m_locationsManager);
         assertCorrectFileGeneration(out, "expected-sipximbot.properties");
 

@@ -33,7 +33,7 @@
   </type>
   <group name="imbot">
     <setting name="log.file" hidden="yes">
-      <value>sipximbot.log</value>
+      <value>scsimbot.log</value>
     </setting>
     <setting name="log.level" hidden="yes">
       <type refid="loglevel" />

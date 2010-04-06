@@ -349,9 +349,9 @@
   </bean>
 
   <bean id="sipxImbotService" class="org.sipfoundry.sipxconfig.service.SipxImbotService" parent="sipxService" scope="prototype">
-    <property name="processName" value="sipXimbot" />
-    <property name="modelName" value="sipximbot.xml" />
-    <property name="modelDir" value="sipximbot" />
+    <property name="processName" value="scsimbot" />
+    <property name="modelName" value="scsimbot.xml" />
+    <property name="modelDir" value="scsimbot" />
     <property name="editable" value="true" />
     <property name="configurations">
       <list>
@@ -370,8 +370,8 @@
 
   <bean id="sipxImbotConfiguration" class="org.sipfoundry.sipxconfig.service.SipxImbotConfiguration" scope="prototype"
     parent="serviceConfigurationFile">
-    <property name="template" value="sipximbot/sipximbot.properties.vm" />
-    <property name="name" value="sipximbot.properties" />
+    <property name="template" value="scsimbot/scsimbot.properties.vm" />
+    <property name="name" value="scsimbot.properties" />
     <property name="locationsManager" ref="locationsManager" />
   </bean>
 

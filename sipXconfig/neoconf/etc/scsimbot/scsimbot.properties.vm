@@ -1,6 +1,6 @@
 #set($imbot=${service.getSettings().getSetting('imbot')})
 log.level=$imbot.getSetting('log.level').Value
-log.file=${service.logDir}/sipximbot.log
+log.file=${service.logDir}/scsimbot.log
 
 imbot.docDirectory=${service.docDir}
 imbot.sipxchangeDomainName=${service.domainName}

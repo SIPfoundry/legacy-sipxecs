@@ -204,8 +204,8 @@ public class XmppAccountInfoTest extends TestCase {
         replay(m_conferenceContext);
 
         m_sipxImbotService.setBeanName(SipxImbotService.BEAN_ID);
-        m_sipxImbotService.setModelDir("sipximbot");
-        m_sipxImbotService.setModelName("sipximbot.xml");
+        m_sipxImbotService.setModelDir("scsimbot");
+        m_sipxImbotService.setModelName("scsimbot.xml");
         m_sipxImbotService.setModelFilesContext(m_neoconfModelFilesContext);
         m_sipxImbotService.setSettingValue("imbot/imId", "MyAssistant");
         m_sipxImbotService.setSettingValue("imbot/imPassword", "password");
