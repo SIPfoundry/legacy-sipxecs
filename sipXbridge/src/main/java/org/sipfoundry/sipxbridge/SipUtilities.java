@@ -893,6 +893,27 @@ class SipUtilities {
 					"Unexpected exception getting media formats", ex);
 		}
 	}
+	
+	static boolean hasAudoMediaType(SessionDescription sessionDescription) {
+		try {
+			Vector mediaDescriptions = sessionDescription
+					.getMediaDescriptions(true);
+			for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
+				MediaDescription mediaDescription = (MediaDescription) it
+				.next();
+				if(mediaDescription.getMedia().getMediaType().equals("audio")) {
+					return true;
+				}
+			}
+			return false;
+		} catch (Exception ex) {
+			logger.fatal("Unexpected exception!", ex);
+			throw new SipXbridgeException(
+					"Unexpected exception testing media formats", ex);
+		}
+	
+
+	}
 
 	/**
 	 * Extract the Media formats that are not Telephone events.
@@ -910,13 +931,15 @@ class SipUtilities {
 			for (Iterator it = mediaDescriptions.iterator(); it.hasNext();) {
 				MediaDescription mediaDescription = (MediaDescription) it
 						.next();
-				Vector formats = mediaDescription.getMedia().getMediaFormats(
-						true);
-				for (Iterator it1 = formats.iterator(); it1.hasNext();) {
-					Object format = it1.next();
-					int fmt = new Integer(format.toString());
-					if (fmt != 100 && fmt != 101) {
-						retval.add(fmt);
+				if (mediaDescription.getMedia().getMediaType().equals("audio")) {
+					Vector formats = mediaDescription.getMedia()
+							.getMediaFormats(true);
+					for (Iterator it1 = formats.iterator(); it1.hasNext();) {
+						Object format = it1.next();
+						int fmt = new Integer(format.toString());
+						if (fmt != 100 && fmt != 101) {
+							retval.add(fmt);
+						}
 					}
 				}
 			}

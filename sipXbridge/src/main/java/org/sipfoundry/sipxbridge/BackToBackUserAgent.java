@@ -682,7 +682,8 @@ public class BackToBackUserAgent implements Comparable {
     	 /*
          * Could not find any acceptable codecs. Reject the INVITE with 488.
          */
-        if ( SipUtilities.getNonTelephoneEventMediaFormats(sessionDescription).isEmpty() )  {
+        if ( SipUtilities.hasAudoMediaType(sessionDescription) && 
+        		SipUtilities.getNonTelephoneEventMediaFormats(sessionDescription).isEmpty() )  {
         	Response errorResponse = SipUtilities.createResponse(serverTransaction, Response.NOT_ACCEPTABLE_HERE);
         	serverTransaction.sendResponse(errorResponse);
         	this.tearDownNow();
