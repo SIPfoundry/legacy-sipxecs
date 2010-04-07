@@ -60,6 +60,31 @@ public class AlarmsPageTestUi extends WebTestCase {
         deleteAllGroups();
     }
 
+    public void testSmsNotification() {
+        reloadPage();
+        createGroup();
+
+        SiteTestHelper.setScriptingEnabled(getTester(), true);
+        clickLinkWithExactText("one");
+        SiteTestHelper.assertNoException(tester);
+        setWorkingForm("alarmGroupForm");
+        clickLink("addLink");
+        assertLinkPresent("deleteLink");
+        assertElementPresent("TextField");
+        setTextField("TextField", "123");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(getTester());
+        setTextField("TextField", "");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(getTester());
+        setTextField("TextField", "example@domain.com");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(getTester());
+
+        reloadPage();
+        deleteAllGroups();
+    }
+
     private void editGroup() throws IOException {
         clickLinkWithExactText("one");
         SiteTestHelper.assertNoException(tester);
