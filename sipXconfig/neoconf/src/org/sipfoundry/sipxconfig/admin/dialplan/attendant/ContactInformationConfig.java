@@ -155,6 +155,7 @@ public class ContactInformationConfig extends XmlFile {
 
     @Override
     public boolean isReplicable(Location location) {
-        return m_sipxServiceManager.isServiceInstalled(location.getId(), SipxImbotService.BEAN_ID);
+        return m_sipxServiceManager.isServiceInstalled(location.getId(), SipxImbotService.BEAN_ID)
+                && m_sipxServiceManager.getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable();
     }
 }

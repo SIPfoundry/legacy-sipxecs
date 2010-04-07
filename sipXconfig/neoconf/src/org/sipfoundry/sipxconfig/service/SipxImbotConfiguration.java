@@ -42,7 +42,8 @@ public class SipxImbotConfiguration extends SipxServiceConfiguration {
 
     @Override
     public boolean isReplicable(Location location) {
-        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxImbotService.BEAN_ID);
+        return getSipxServiceManager().isServiceInstalled(location.getId(), SipxImbotService.BEAN_ID)
+                && getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable();
     }
 
     @Required

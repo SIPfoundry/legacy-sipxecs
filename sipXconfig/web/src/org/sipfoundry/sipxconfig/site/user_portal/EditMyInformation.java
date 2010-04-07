@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user.EditPinComponent;
@@ -166,7 +167,7 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             tabNames.add("menu");
         }
 
-        if (getSipxServiceManager().getServiceByBeanId("sipxImbotService").isAvailable()) {
+        if (getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
             tabNames.add("myAssistant");
         }
 

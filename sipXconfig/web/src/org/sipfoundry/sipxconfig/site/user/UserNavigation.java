@@ -20,6 +20,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectPage;
 import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.common.BeanNavigation;
@@ -183,7 +184,7 @@ public abstract class UserNavigation extends BeanNavigation {
         names.add(PERSONAL_ATTENDANT);
         names.add("callfwd");
         names.add("moh");
-        if (!getSipxServiceManager().getServiceByBeanId("sipxImbotService").isAvailable()) {
+        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
             names.add("im_notification");
         }
         return StringUtils.join(names, ",");

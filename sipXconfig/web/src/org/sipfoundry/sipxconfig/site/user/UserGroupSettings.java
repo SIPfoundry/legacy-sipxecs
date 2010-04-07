@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -283,7 +284,7 @@ public abstract class UserGroupSettings extends GroupSettings {
         List<String> names = new LinkedList<String>();
         names.add(VOICEMAIL);
         names.add(MOH);
-        if (!getSipxServiceManager().getServiceByBeanId("sipxImbotService").isAvailable()) {
+        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
             names.add("im_notification");
         }
         return StringUtils.join(names, ",");
