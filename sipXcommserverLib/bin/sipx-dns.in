@@ -14,7 +14,7 @@ Feedback=QUIET
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-digOpts="+noidentify +nocmd +nocomments +noquestion +nostats +noauthority"
+digOpts="+noidentify +nocmd +nocomments +noquestion +nostats +noauthority +noadditional"
 
 showUsage() {
     cat <<USAGE
@@ -575,6 +575,7 @@ validate_ns_records () {
         target=`normName ${fulltarget}`
         liveservers=`dns_ns ${name}`
 
+        resolves=NO
         for returned in ${liveservers}
         do
             if [ "${target}" = "${returned}" ]
@@ -615,6 +616,7 @@ validate_a_records () {
     | strip_space_and_comments \
     | while read fullname intag rectype target extrajunk ; do
         name=`normName ${fullname}`
+        resolves=NO
         # look for a direct A record that points to the target address
         for ip in `dns_a ${name}`
         do
@@ -683,6 +685,7 @@ validate_domain_naptr_records () {
             | sed -e 's/_sip\._tcp\./SIP TCP /' \
             | sed -e 's/_sip\._udp\./SIP UDP /' \
             `
+        resolves=NO
         # look for a NAPTR record that points to the target
         for proto in \
             `dig  -t naptr ${digOpts} ${fullname} \
@@ -849,7 +852,7 @@ validate_service_srv_records () {
             | sed -e 's/_sip\._udp\./SIP UDP /' \
             `
         target=`normName ${fulltarget}`
-
+        resolves=NO
         # look for an SRV record that points to the target server
         for server in \
             `dig  -t srv ${digOpts} ${protoname} \
@@ -904,7 +907,7 @@ validate_xmpp_srv_records () {
             | sed -e 's/_xmpp-client\._tcp\./XMPP CLIENT TCP /' \
             `
         target=`normName ${fulltarget}`
-
+        resolves=NO
         # look for an SRV record that points to the target server
         for server in \
             `dig  -t srv ${digOpts} ${protoname} \
