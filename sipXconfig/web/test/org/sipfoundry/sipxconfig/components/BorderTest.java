@@ -36,7 +36,6 @@ import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.skin.SkinControl;
-import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
