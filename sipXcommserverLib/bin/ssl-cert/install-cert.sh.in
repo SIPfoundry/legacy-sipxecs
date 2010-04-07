@@ -241,9 +241,12 @@ then
         fi
 
         echo "Installing '${caName}.crt' certificate as a trusted CA"
-        cp -v "${caName}.crt" "${InstallPrefix}${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
-        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
-        chmod 0644            "${InstallPrefix}${InstallDir}/ssl/authorities/${caName}.crt" || exit 1
+	# remove whitespaces
+	installedCaName=$( echo "${caName}" | sed "s/ //g" )
+
+        cp -v "${caName}.crt" "${InstallPrefix}${InstallDir}/ssl/authorities/${installedCaName}.crt" || exit 1
+        chown ${sipXuser}     "${InstallPrefix}${InstallDir}/ssl/authorities/${installedCaName}.crt" || exit 1
+        chmod 0644            "${InstallPrefix}${InstallDir}/ssl/authorities/${installedCaName}.crt" || exit 1
 
         # regenerate the hash symlinks for the certificate store
         @bindir@/ssl-cert/ca_rehash "${InstallPrefix}${InstallDir}/ssl/authorities"
