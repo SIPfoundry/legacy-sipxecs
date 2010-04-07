@@ -58,6 +58,10 @@ sip-voIpProt.SIP.serverFeatureControl.dnd, NON-BLANK DEFAULT
 sip-voIpProt.SIP.allowTransferOnProceeding, DEFAULT = '2' XX-8030 & XTRN-229
 ^sip-tcpIpApp.sntp.daylightSavings, These will depend on the locale that the system is in.
 
+sip-tone.dtmf.rfc2833Payload, DEPAULT = '101'
+sip-voIpProt.SIP.useContactInReferTo, DEFAULT = '0'
+sip-voice.audioProfile.G7221.24kbps.payloadType, DEFAULT = '127'
+
 ^phone1-attendant.behaviors.display.spontaneousCallAppearances.normal, XTRN-357
 
 # If the generated profile has Lines programmed, then the following attributes will
