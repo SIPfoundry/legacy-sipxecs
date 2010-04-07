@@ -22,7 +22,9 @@ ivr.callHistoryUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}/cdr/
 #if (${sipxServiceManager.isServiceInstalled('sipxOpenfireService')})
 ivr.openfireHost=$!{sipxServiceManager.getServiceParam('openfire-host')}
 ivr.openfireXmlRpcPort=$!{sipxServiceManager.getServiceParam('openfire-xml-rpc-port')}
+#if (${sipxServiceManager.getServiceByBeanId('sipxImbotService').isAvailable()})
 ivr.sendIMUrl=http://$!{sipxServiceManager.getServiceParam('openfire-host')}:$!{imbotService.httpPort}/IM
+#end
 #end
 ivr.nameDialPrefix=$ivr.getSetting('nameDialPrefix').Value
 ivr.defaultTui=$ivr.getSetting('defaultTui').Value
