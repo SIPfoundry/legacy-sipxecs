@@ -11,7 +11,7 @@
 					<div id="login-title">
 						<span jwcid="@If" condition="ognl:!supportedBrowser">
 							<div class="user-error">
-								<span jwcid="@InsertText" value="ognl:messages.getMessage('browser.unsupported')" raw="true" />
+								<span jwcid="@Insert" value="ognl:messages.getMessage('browser.unsupported')" raw="true" />
 							</div>
 						</span>
 						<span key="login.title">Welcome</span>

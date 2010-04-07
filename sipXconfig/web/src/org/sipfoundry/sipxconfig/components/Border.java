@@ -28,6 +28,7 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.InjectState;
 import org.apache.tapestry.annotations.Parameter;
+import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.callback.ExternalCallback;
 import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.components.Block;
@@ -38,6 +39,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.event.PageValidateListener;
 import org.apache.tapestry.link.StaticLink;
 import org.apache.tapestry.web.WebRequest;
+import org.apache.tapestry.web.WebSession;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.VersionInfo;
@@ -47,6 +49,7 @@ import org.sipfoundry.sipxconfig.site.LoginPage;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.common.LeftNavigation;
 import org.sipfoundry.sipxconfig.site.user.FirstUser;
+import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 @ComponentClass(allowInformalParameters = false)
 public abstract class Border extends BaseComponent implements PageValidateListener, PageBeginRenderListener {
@@ -112,6 +115,11 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public abstract void setBaseUrl(String baseUrl);
 
+    @Persist(value = "client")
+    public abstract String getInitialSessionId();
+
+    public abstract void setInitialSessionId(String sessionId);
+
     @Parameter(required = true)
     public abstract String getBorderTitle();
 
@@ -120,6 +128,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
             String baseUrl = getRequest().getContextPath();
             setBaseUrl(baseUrl);
         }
+
     }
 
     @Override
@@ -154,6 +163,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     }
 
     public void pageValidate(PageEvent event) {
+
         if (!isLoginRequired()) {
             return;
         }
@@ -163,8 +173,29 @@ public abstract class Border extends BaseComponent implements PageValidateListen
             throw new PageRedirectException(FirstUser.PAGE);
         }
 
-        // If there are users, but no one is logged in, then force a login
         UserSession user = getUserSession();
+
+        // XX-6132: prevent mixing session - store and check original session id against the
+        // current one
+        WebSession session = getRequest().getSession(false);
+        if (session != null) {
+            String initialSessionId = getInitialSessionId();
+            String currentSessionId = session.getId();
+
+            if (initialSessionId == null) {
+                setInitialSessionId(currentSessionId);
+            }
+
+            if (!getInitialSessionId().equals(currentSessionId)) {
+                if (user.isAdmin()) {
+                    throw new PageRedirectException(Home.PAGE);
+                } else {
+                    throw new PageRedirectException(ManageVoicemail.PAGE);
+                }
+            }
+        }
+
+        // If there are users, but no one is logged in, then force a login
         if (!user.isLoggedIn()) {
             redirectToLogin(getPage(), event.getRequestCycle());
         }

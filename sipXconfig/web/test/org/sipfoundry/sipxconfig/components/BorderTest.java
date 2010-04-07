@@ -23,6 +23,7 @@ import org.apache.tapestry.callback.ICallback;
 import org.apache.tapestry.components.Block;
 import org.apache.tapestry.engine.IEngineService;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.web.ServletWebRequest;
 import org.apache.tapestry.web.WebRequest;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -195,6 +196,11 @@ public class BorderTest extends TestCase {
         }
 
         @Override
+        public WebRequest getRequest() {
+            return EasyMock.createNiceControl().createMock(WebRequest.class);
+        }
+
+        @Override
         protected void redirectToLogin(IPage page, IRequestCycle cycle) {
             throw new PageRedirectException("LoginPage");
         }
@@ -250,11 +256,6 @@ public class BorderTest extends TestCase {
         }
 
         @Override
-        public WebRequest getRequest() {
-            return null;
-        }
-
-        @Override
         public TapestryContext getTapestry() {
             return null;
         }
@@ -286,6 +287,17 @@ public class BorderTest extends TestCase {
         @Override
         public Messages getMessages() {
             return new FullMessages();
+        }
+
+        @Override
+        public String getInitialSessionId() {
+            // TODO Auto-generated method stub
+            return null;
+        }
+
+        @Override
+        public void setInitialSessionId(String sessionId) {
+            // TODO Auto-generated method stub
         }
     }
 
