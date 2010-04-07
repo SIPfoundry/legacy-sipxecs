@@ -204,7 +204,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         // redirect the user to the home page since they are not worthy.
         // (We should probably use an error page instead of just tossing them home.)
         if (!user.isAdmin() && isRestricted()) {
-            throw new PageRedirectException(Home.PAGE);
+            throw new PageRedirectException(ManageVoicemail.PAGE);
         }
     }
 

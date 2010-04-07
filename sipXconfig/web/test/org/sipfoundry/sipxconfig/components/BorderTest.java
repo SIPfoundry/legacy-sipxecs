@@ -36,6 +36,7 @@ import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.skin.SkinControl;
+import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expect;
@@ -69,7 +70,7 @@ public class BorderTest extends TestCase {
             restricted.pageValidate(null);
             fail("should redirect to login page");
         } catch (PageRedirectException e) {
-            assertEquals("Home", e.getTargetPageName());
+            assertEquals("vm/ManageVoicemail", e.getTargetPageName());
         }
     }
 
