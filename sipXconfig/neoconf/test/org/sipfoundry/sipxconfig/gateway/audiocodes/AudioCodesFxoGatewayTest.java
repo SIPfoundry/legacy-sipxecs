@@ -71,7 +71,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_gateway.setSerialNumber("001122334455");
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
 
-        // call this to inject dummy data
+        m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
 
         m_gateway.generateProfiles(location);
         String actual_lines[] = location.toString("001122334455.ini").split("\n");

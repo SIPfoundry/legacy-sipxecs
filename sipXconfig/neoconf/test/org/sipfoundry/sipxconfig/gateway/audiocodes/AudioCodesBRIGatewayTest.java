@@ -68,6 +68,7 @@ public class AudioCodesBRIGatewayTest extends TestCase {
         m_gateway.setSettingValue("SIP_general/SOURCENUMBERMAPIP2TEL", "*,0,$$,$$,$$,$$,*,1,*");
         m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED", "1");
         m_gateway.setSettingValue("SIP_coders/CoderName", "g711Alaw64k|g729");
+        m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
 
         m_gateway.generateProfiles(location);
         String actual_lines[] = location.toString("001122334455.ini").split("\n");

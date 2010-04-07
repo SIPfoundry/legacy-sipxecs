@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
@@ -60,7 +63,13 @@ public class AudioCodesGatewayDefaults {
 
     @SettingEntry(path = "Network/NTPServerIP")
     public String getNtpServer() {
-        return m_defaults.getNtpServer();
+        String ntpIpAddress;
+        try {
+            ntpIpAddress = InetAddress.getByName(m_defaults.getNtpServer()).getHostAddress();
+        } catch (UnknownHostException e) {
+            ntpIpAddress = "0.0.0.0";
+        }
+        return ntpIpAddress;
     }
 
     @SettingEntry(path = "Network/DNSPriServerIP")

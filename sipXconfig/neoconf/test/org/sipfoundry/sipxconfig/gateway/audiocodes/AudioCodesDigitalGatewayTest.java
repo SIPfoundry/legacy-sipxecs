@@ -76,6 +76,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
             m_gateway.setSettingValue("advanced_general/SAS/SASRegistrationTime", "5");
             m_gateway.setSettingValue("advanced_general/SAS/SASShortNumberLength", "4");
         }
+        m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
 
         m_gateway.generateProfiles(location);
         String actual_lines[] = location.toString("001122334455.ini").split("\n");
