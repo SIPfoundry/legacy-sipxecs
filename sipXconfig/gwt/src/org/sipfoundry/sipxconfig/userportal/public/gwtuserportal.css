@@ -42,3 +42,8 @@ td.titleFormStyleDisabled
 {
 	margin:10px;
 }
+
+.gwtEmbeddedWidgets
+{
+    background-color:transparent;
+}
