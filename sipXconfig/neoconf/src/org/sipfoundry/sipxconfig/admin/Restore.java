@@ -36,6 +36,8 @@ public class Restore implements Serializable, WaitingListener {
     private static final String SPACE = " ";
 
     private static final int INCOMPATIBLE_VERSIONS = 5;
+    private static final int INVALID_CONFIGURATION_ARCHIVE = 7;
+    private static final int INVALID_VOICEMAIL_ARCHIVE = 8;
 
     private static final String RESTORE_LOG = "sipx-restore.log";
 
@@ -74,6 +76,10 @@ public class Restore implements Serializable, WaitingListener {
             int code = process.waitFor();
             if (code == INCOMPATIBLE_VERSIONS && verify) {
                 throw new UserException("&message.wrongVersion");
+            } else if (code == INVALID_CONFIGURATION_ARCHIVE && verify) {
+                throw new UserException("&message.wrongConfigurationFileToRestore");
+            } else if (code == INVALID_VOICEMAIL_ARCHIVE && verify) {
+                throw new UserException("&message.wrongVoicemailFileToRestore");
             }
         } catch (IOException e) {
             LOG.error(String.format(ERROR, StringUtils.join(cmdLine, SPACE)));

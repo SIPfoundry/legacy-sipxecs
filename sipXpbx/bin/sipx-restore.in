@@ -180,6 +180,19 @@ then
   fi
 fi
 
+#sanity check - we check if configuration/voicemail archives are indeed configuration/voicemail files respectively
+if [[ `tar --list --file=$CONFIGURATION_PATH | grep db.tar` != db.tar ]];
+then
+  echo "Configuration archive seems invalid (it's either corrupt or incomplete, or it may be a voicemail archive)"
+  exit 7
+fi
+
+if [[ `tar --list --file=$VOICEMAIL_PATH | grep db.tar` = db.tar ]];
+then
+  echo "Voicemail archive seems invalid (it looks like a configuration archive)"
+  exit 8
+fi
+
 if [ $CHECK_ARCHIVE = "yes" ]
 then
   echo "Archive seems to be O.K. You can proceed with restoring"
