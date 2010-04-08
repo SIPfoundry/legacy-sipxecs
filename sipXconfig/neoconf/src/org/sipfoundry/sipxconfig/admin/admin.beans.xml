@@ -12,6 +12,7 @@
   </bean>
 
   <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl" autowire="byType">
+    <property name="sessionFactory" ref="sessionFactory"/>
     <property name="binDirectory" value="${sysdir.bin}" />
     <property name="libExecDirectory" value="${sysdir.libexec}" />
     <lookup-method name="createLocalBackupPlan" bean="localBackupPlan" />
