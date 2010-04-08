@@ -343,12 +343,11 @@ public class SipXOpenfirePlugin implements Plugin, Component {
        
         // add packet interceptors found in extras directory.
         if( this.getClass().getClassLoader() instanceof PluginClassLoader ){
-            log.info("bobjoly is instanceof ");                
 
             String extrasDirNameForClassLoader = System.getProperty("openfire.home");
             if (extrasDirNameForClassLoader != null) {
                 extrasDirNameForClassLoader += "/extras/sipXecs";
-                log.info("bobjoly extras " + extrasDirNameForClassLoader );
+                log.info("extras directory is " + extrasDirNameForClassLoader );
                 /* PluginClassLoader automatically adds /lib to the supplied directory
                    so pass it a directory that does not already have it */
                 PluginClassLoader pluginClassLoader = (PluginClassLoader)this.getClass().getClassLoader();
