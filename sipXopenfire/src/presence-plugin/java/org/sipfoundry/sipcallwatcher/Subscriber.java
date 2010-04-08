@@ -247,6 +247,7 @@ public class Subscriber implements SipListener {
 
             // create Request URI
             SipURI requestURI = addressFactory.createSipURI(toUser, toSipAddress);
+            requestURI.setTransportParam("tcp");
 
             // Create ViaHeaders
             // TODO: do this right
