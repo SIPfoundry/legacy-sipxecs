@@ -759,7 +759,7 @@ public class UserPhonebookSearch implements EntryPoint {
     }
 
     private static class AvatarSection extends VLayout {
-        private static final String DEFAULT_AVATAR_URL = "http://gravatar.com/avatar";
+        private static final String DEFAULT_AVATAR_URL = "https://secure.gravatar.com/avatar";
 
         private final Img m_avatar;
         private final Label m_contactName;

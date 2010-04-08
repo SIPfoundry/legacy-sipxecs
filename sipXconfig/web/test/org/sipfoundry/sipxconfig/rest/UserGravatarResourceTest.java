@@ -71,6 +71,6 @@ public class UserGravatarResourceTest extends TestCase {
         StringWriter writer = new StringWriter();
         representation.write(writer);
         String generated = writer.toString();
-        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", generated);
+        assertEquals("https://secure.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", generated);
     }
 }

@@ -174,7 +174,7 @@ public class ContactInformationResourceTest extends TestCase {
         assertEquals("02114", m_user.getAddressBookEntry().getOfficeAddress().getZip());
         assertEquals("John", m_user.getFirstName());
         assertEquals("Doe", m_user.getLastName());
-        assertEquals("http://www.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=wavatar", new Gravatar(
+        assertEquals("https://secure.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=wavatar", new Gravatar(
                 m_user).getUrl());
     }
 
@@ -202,7 +202,7 @@ public class ContactInformationResourceTest extends TestCase {
         assertEquals("02114", m_user.getAddressBookEntry().getOfficeAddress().getZip());
         assertEquals("John", m_user.getFirstName());
         assertEquals("Doe", m_user.getLastName());
-        assertEquals("http://www.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=wavatar", new Gravatar(
+        assertEquals("https://secure.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&d=wavatar", new Gravatar(
                 m_user).getUrl());
     }
 

@@ -4,7 +4,7 @@
     "last-name": "LastName1",
     "number": "200",
     "contact-information": {
-      "avatar": "http://gravatar.com/avatar"
+      "avatar": "https://secure.gravatar.com/avatar"
     }
   },
   {
@@ -12,7 +12,7 @@
     "last-name": "LastName2",
     "number": "201",
     "contact-information": {
-      "avatar": "http://gravatar.com/avatar"
+      "avatar": "https://secure.gravatar.com/avatar"
     }
   }
 ]}

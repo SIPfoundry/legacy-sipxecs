@@ -21,16 +21,16 @@ public class GravatarTest extends TestCase {
 
         Gravatar gravatar = new Gravatar(user);
         String url = gravatar.getUrl();
-        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", url);
+        assertEquals("https://secure.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", url);
 
         gravatar = new Gravatar("iHaveAn@email.com");
         url = gravatar.getUrl();
-        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", url);
+        assertEquals("https://secure.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&d=wavatar", url);
 
         gravatar.setSize(100);
         gravatar.setType(Gravatar.DefaultType.monsterid);
         url = gravatar.getUrl();
-        assertEquals("http://www.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=100&d=monsterid", url);
+        assertEquals("https://secure.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=100&d=monsterid", url);
 
         String signupURl = gravatar.getSignupUrl();
         assertEquals("http://en.gravatar.com/site/signup/ihavean@email.com", signupURl);

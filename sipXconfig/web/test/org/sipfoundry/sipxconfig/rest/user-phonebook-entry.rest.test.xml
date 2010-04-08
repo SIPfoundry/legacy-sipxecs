@@ -11,6 +11,6 @@
     <officeAddress>
       <zip>1234</zip>
     </officeAddress>
-    <avatar>http://gravatar.com/avatar</avatar>
+    <avatar>https://secure.gravatar.com/avatar</avatar>
   </contact-information>
 </entry>

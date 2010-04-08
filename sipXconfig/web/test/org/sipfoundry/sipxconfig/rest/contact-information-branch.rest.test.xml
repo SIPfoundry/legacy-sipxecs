@@ -9,7 +9,7 @@
     <street>Branch Street</street>
   </officeAddress>
   <emailAddress>john.doe@example.com</emailAddress>
-  <avatar>http://www.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&amp;d=wavatar</avatar>
+  <avatar>https://secure.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&amp;d=wavatar</avatar>
   <firstName>John</firstName>
   <lastName>Doe</lastName>
 </contact-information>

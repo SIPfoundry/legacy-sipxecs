@@ -25,7 +25,7 @@ public abstract class Avatar extends BaseComponent {
 
     public IAsset getAvatarAsset() {
         Gravatar gravatar = new Gravatar(getUser());
-        String url = defaultString(gravatar.getUrl(), "http://gravatar.com/avatar");
+        String url = defaultString(gravatar.getUrl(), "https://secure.gravatar.com/avatar");
         return new ExternalAsset(url, null);
     }
 

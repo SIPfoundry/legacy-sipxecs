@@ -21,7 +21,7 @@ import static org.apache.commons.lang.StringUtils.defaultString;
  */
 public class Gravatar {
 
-    public static final String DEFAULT_AVATAR = "http://gravatar.com/avatar";
+    public static final String DEFAULT_AVATAR = "https://secure.gravatar.com/avatar";
 
     public enum DefaultType {
         identicon, monsterid, wavatar
@@ -58,7 +58,7 @@ public class Gravatar {
         }
 
         String md5Email = md5Hex(m_email.toLowerCase());
-        return format("http://www.gravatar.com/avatar/%s?s=%d&d=%s", md5Email, m_size, m_type);
+        return format(DEFAULT_AVATAR + "/%s?s=%d&d=%s", md5Email, m_size, m_type);
     }
 
     /**
