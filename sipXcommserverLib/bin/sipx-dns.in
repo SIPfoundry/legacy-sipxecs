@@ -495,9 +495,16 @@ _xmpp-server._tcp.${SipDomain}. IN      SRV     1  0 ${XMPPServerPort} ${server}
 _xmpp-client._tcp.${SipDomain}. IN      SRV     1  0 ${XMPPClientPort} ${server}.
 
 ; SRV record for XMPP SERVER CHAT ROOM TCP ${SipDomain}
-;     priority: 1  weight: 0  port: 5269  server: ${server}
+;     priority: 1  weight: 0  port: 5222  server: ${server}
+;     NOTE: the XMPP client port is used here as this is the port used 
+;           by openfire to service multi-user chat requests.
 ;
-_xmpp-server._tcp.conference.${SipDomain}. IN      SRV     1  0 ${XMPPServerPort} ${server}.
+_xmpp-server._tcp.conference.${SipDomain}. IN      SRV     1  0 ${XMPPClientPort} ${server}.
+
+; SRV record for XMPP CLIENT CHAT ROOM TCP ${SipDomain}
+;     priority: 1  weight: 0  port: 5222  server: ${server}
+;
+_xmpp-client._tcp.conference.${SipDomain}. IN      SRV     1  0 ${XMPPClientPort} ${server}.
 EOF
         fi
     done
