@@ -146,6 +146,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         getHibernateTemplate().saveOrUpdate(entry);
     }
 
+    public void updatePhonebookEntry(PhonebookEntry entry) {
+        getHibernateTemplate().merge(entry);
+    }
+
     public void deletePhonebookEntry(PhonebookEntry entry) {
         getHibernateTemplate().delete(entry);
     }
@@ -155,16 +159,16 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             super("A phonebook already exists with that name.");
         }
     }
-    public boolean isThisDuplicatePhonebookEntry(PhonebookEntry newEntry, User user) {
+    public PhonebookEntry getDuplicatePhonebookEntry(PhonebookEntry newEntry, User user) {
         PhoneEntryComparator entriesComparator = new PhoneEntryComparator();
         Collection<Phonebook>allUserPhonebooks = getAllPhonebooksByUser(user);
         Collection<PhonebookEntry> entries = getEntries(allUserPhonebooks, user);
         for (PhonebookEntry entry : entries) {
             if (entriesComparator.compare(entry, newEntry) == 0) {
-                return true;
+                return entry;
             }
         }
-        return false;
+        return null;
     }
 
     @Required

@@ -43,7 +43,6 @@ public class UserPhonebookEntryResource extends UserResource {
     private PhonebookManager m_phonebookManager;
     private String m_entryId;
 
-
     @Override
     public void init(Context context, Request request, Response response) {
         super.init(context, request, response);
@@ -78,6 +77,11 @@ public class UserPhonebookEntryResource extends UserResource {
             return;
         }
 
+        if (m_phonebookManager.getDuplicatePhonebookEntry(newEntry, getUser()) != null) {
+            setDuplicateEntryStatus();
+            return;
+        }
+
         User user = getUser();
         Phonebook privatePhonebook = m_phonebookManager.getPrivatePhonebookCreateIfRequired(user);
         newEntry.setPhonebook(privatePhonebook);
@@ -93,23 +97,23 @@ public class UserPhonebookEntryResource extends UserResource {
             return;
         }
 
+        PhonebookEntry duplicateEntry = m_phonebookManager.getDuplicatePhonebookEntry(newEntry, getUser());
+        if (duplicateEntry != null && !duplicateEntry.getId().equals(Integer.parseInt(m_entryId))) {
+            setDuplicateEntryStatus();
+            return;
+        }
+
         Phonebook privatePhonebook = m_phonebookManager.getPrivatePhonebook(getUser());
         if (privatePhonebook != null) {
             newEntry.setPhonebook(privatePhonebook);
-            Collection<PhonebookEntry> entries = privatePhonebook.getEntries();
-            ArrayList<String> ids = new ArrayList<String>();
-            for (PhonebookEntry entry : entries) {
-                ids.add(String.valueOf(entry.getId()));
-            }
-            if (!ids.contains(m_entryId)) {
-                entries.add(newEntry);
-                m_phonebookManager.savePhonebook(privatePhonebook);
-            } else {
-                PhonebookEntry entry = m_phonebookManager.getPhonebookEntry(Integer.parseInt(m_entryId));
-                entry.update(newEntry);
-                m_phonebookManager.savePhonebookEntry(entry);
-            }
+            PhonebookEntry entry = m_phonebookManager.getPhonebookEntry(Integer.parseInt(m_entryId));
+            entry.update(newEntry);
+            m_phonebookManager.updatePhonebookEntry(entry);
         }
+    }
+
+    private void setDuplicateEntryStatus() {
+        getResponse().setStatus(PHONEBOOK_DUPLICATE_ENTRY_ERROR, "Duplicate Entry");
     }
 
     @Override
@@ -144,10 +148,6 @@ public class UserPhonebookEntryResource extends UserResource {
                 getResponse().setStatus(Status.CLIENT_ERROR_BAD_REQUEST, "Invalid Email Address");
                 return false;
             }
-        }
-        if (m_phonebookManager.isThisDuplicatePhonebookEntry(newEntry, getUser())) {
-            getResponse().setStatus(PHONEBOOK_DUPLICATE_ENTRY_ERROR, "Duplicate Entry");
-            return false;
         }
         return true;
     }

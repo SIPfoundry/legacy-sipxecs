@@ -448,4 +448,15 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         Collection<PhonebookEntry> entries = m_phonebookManager.getEntries(new ArrayList<Phonebook>(), user);
         assertEquals(3, entries.size());
     }
+
+    public void testGetDuplicatePhonebookEntry() throws Exception {
+        loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
+        PhonebookEntry newEntry = new PhonebookEntry();
+        newEntry.setFirstName("John");
+        newEntry.setNumber("10020");
+        User user1002 = m_coreContext.loadUser(1002);
+        assertNotNull(m_phonebookManager.getDuplicatePhonebookEntry(newEntry, user1002));
+        User user1001 = m_coreContext.loadUser(1001);
+        assertNull(m_phonebookManager.getDuplicatePhonebookEntry(newEntry, user1001));
+    }
 }

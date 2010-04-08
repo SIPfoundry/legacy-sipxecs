@@ -71,6 +71,8 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     void savePhonebookEntry(PhonebookEntry entry);
 
+    void updatePhonebookEntry(PhonebookEntry entry);
+
     void deletePhonebookEntry(PhonebookEntry entry);
 
     /**
@@ -93,5 +95,5 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     GeneralPhonebookSettings getGeneralPhonebookSettings();
 
-    boolean isThisDuplicatePhonebookEntry(PhonebookEntry newEntry, User user);
+    PhonebookEntry getDuplicatePhonebookEntry(PhonebookEntry newEntry, User user);
 }

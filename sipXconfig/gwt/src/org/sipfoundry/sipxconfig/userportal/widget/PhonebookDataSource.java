@@ -189,8 +189,6 @@ public class PhonebookDataSource extends DataSource {
     }
 
     public void addEntry(String entryId, ValuesManager vm, final String successMessage) {
-//        HttpRequestBuilder.doPost(getPhoneBookEntryUrl(entryId), buildJsonRequest(vm).toString(), CONTENT_TYPE,
-//                VARIANT, successMessage);
         RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.POST, getPhoneBookEntryUrl(entryId));
         reqBuilder.setHeader(CONTENT_TYPE, VARIANT);
         try {
