@@ -58,6 +58,8 @@ AC_ARG_WITH([dailydir],
   [DAILYDIR=${withval}],[DAILYDIR='$(sysconfdir)/cron.daily'])
 AC_SUBST([DAILYDIR])
 
+AC_ARG_VAR(SIPX_PROJECTS, [What are all the known sipx projects, feel set them for enhanced sipxecs-config utility])
+
 CHECK_POSTGRES
 CHECK_SERVICEDIR
 
@@ -71,6 +73,7 @@ AC_CONFIG_FILES([include/Makefile])
 AC_CONFIG_FILES([src/Makefile])
 AC_CONFIG_FILES([src/test/Makefile])
 AC_CONFIG_FILES([src/wwwcontent/Makefile])
+AC_CONFIG_FILES([bin/sipxecs-config])
 
 AM_CONDITIONAL(DO_RPMBUILD, test x$enable_rpmbuild = xyes)
 

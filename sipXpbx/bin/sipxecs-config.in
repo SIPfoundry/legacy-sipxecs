@@ -67,7 +67,7 @@ EOF
         ;;
 
     COMPONENTS)
-	for Component in @subdirs@
+	for Component in @SIPX_PROJECTS@
 	do
 	    # sipXecs is not a proper component, and has no *-config script.
             if [ ${Component} != sipXecs ]
