@@ -22,7 +22,7 @@ public class Localizer
         localizationTable = props;
     }
 
-    String localize( String promptToLocalize ){
+    public String localize( String promptToLocalize ){
         return localizationTable.getProperty( promptToLocalize, "<<error - not localized>>");
     }
     
