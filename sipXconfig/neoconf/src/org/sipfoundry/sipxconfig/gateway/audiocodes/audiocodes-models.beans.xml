@@ -22,6 +22,7 @@
     </property>
     <property name="supportedFeatures">
 	  <set>
+	        <value>trunkGateway</value>
 		<value>digital</value>
 	  </set>
     </property>
@@ -65,6 +66,7 @@
     </property>
 	<property name="supportedFeatures">
 	  <set>
+	        <value>trunkGateway</value>
 		<value>digital</value>
 		<value>bri</value>
 	  </set>
@@ -91,6 +93,7 @@
     </property>
 	<property name="supportedFeatures">
 	  <set>
+	        <value>trunkGateway</value>
 		<value>fxo</value>
 	  </set>
     </property>

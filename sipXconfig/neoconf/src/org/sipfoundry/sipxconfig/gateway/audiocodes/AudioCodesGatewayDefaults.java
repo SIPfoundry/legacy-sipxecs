@@ -107,4 +107,19 @@ public class AudioCodesGatewayDefaults {
     public String getAllowedIPs() {
         return m_defaults.getProxyServerAddr();
     }
+
+    @SettingEntry(path = "advanced_general/SAS/SASDefaultGatewayIP")
+    public String getSasGatewayIP() {
+        return m_fxoGateway.getAddress();
+    }
+
+    @SettingEntry(path = "tel2ip-call-routing/tel-to-ip-normal/ProxyAddress")
+    public String getNormalProxy() {
+        return m_defaults.getDomainName();
+    }
+
+    @SettingEntry(path = "tel2ip-call-routing/tel-to-ip-failover/ProxyAddress")
+    public String getFailoverProxy() {
+        return (m_fxoGateway.getAddress() + ":5080");
+    }
 }

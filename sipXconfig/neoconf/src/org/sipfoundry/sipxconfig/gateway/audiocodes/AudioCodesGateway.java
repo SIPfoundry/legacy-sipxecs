@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.gateway.audiocodes;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -30,14 +31,26 @@ public abstract class AudioCodesGateway extends Gateway {
         "Media_RTP_RTPC/Telephony/FXSLoopCharacteristicsFilename";
     private static final String REL_5_4_OR_LATER = "5.4orLater";
     private static final String REL_5_6_OR_LATER = "5.6orLater";
+    private static final String REL_6_0_OR_LATER = "6.0orLater";
     private static final String[] COPY_FILES = {CALL_PROGRESS_TONES_FILE, FXS_LOOP_CHARACTERISTICS_FILE};
 
+    private List<Ip2TelRoute> m_ip2TelRoutes = new ArrayList<Ip2TelRoute>();
+    private List<Tel2IpRoute> m_tel2IpRoutes = new ArrayList<Tel2IpRoute>();
+
     public AudioCodesGateway() {
-        setDeviceVersion(AudioCodesModel.REL_5_6);
+        setDeviceVersion(AudioCodesModel.REL_6_0);
     }
 
     public void setDefaultVersionId(String defaultVersionId) {
         setDeviceVersion(DeviceVersion.getDeviceVersion(BEAN_ID + defaultVersionId));
+    }
+
+    public List<Ip2TelRoute> getIp2telroutes() {
+        return m_ip2TelRoutes;
+    }
+
+    public List<Tel2IpRoute> getTel2iproutes() {
+        return m_tel2IpRoutes;
     }
 
     @Override
@@ -50,6 +63,10 @@ public abstract class AudioCodesGateway extends Gateway {
         } else if (myVersion == AudioCodesModel.REL_5_6) {
             myVersion.addSupportedFeature(REL_5_4_OR_LATER);
             myVersion.addSupportedFeature(REL_5_6_OR_LATER);
+        } else if (myVersion == AudioCodesModel.REL_6_0) {
+            myVersion.addSupportedFeature(REL_5_4_OR_LATER);
+            myVersion.addSupportedFeature(REL_5_6_OR_LATER);
+            myVersion.addSupportedFeature(REL_6_0_OR_LATER);
         }
     }
 
@@ -57,6 +74,40 @@ public abstract class AudioCodesGateway extends Gateway {
     public void initialize() {
         AudioCodesGatewayDefaults defaults = new AudioCodesGatewayDefaults(this, getDefaults());
         addDefaultBeanSettingHandler(defaults);
+        // Add the default Ip2Tel route used in both Normal and Failover mode
+        for (int ipRouteId = 1; ipRouteId <= 4; ipRouteId++) {
+            String ipRoute = Integer.toString(ipRouteId);
+            Ip2TelRoute outgoingRoute = new Ip2TelRoute();
+            outgoingRoute.setGateway(this);
+            outgoingRoute.setRouteId(ipRoute);
+            outgoingRoute.setSettingDestManipulation(
+                "ip2tel-call-routing/ip-to-tel-manipulation/DestManipulation" + ipRoute);
+            m_ip2TelRoutes.add(outgoingRoute);
+        }
+        // Add the default Tel2Ip Nonmal routes
+        Tel2IpRoute normalRoute = new Tel2IpRoute();
+        normalRoute.setGateway(this);
+        normalRoute.setRouteId(Integer.toString(1));
+        normalRoute.setDescription("Normal");
+        normalRoute.setSettingProxyAddress("tel2ip-call-routing/tel-to-ip-normal/ProxyAddress");
+        normalRoute.setSettingProxyKeepalive("tel2ip-call-routing/tel-to-ip-normal/ProxyKeepalive");
+        normalRoute.setSettingDestManipulation("tel2ip-call-routing/tel-to-ip-normal/DestManipulation");
+        m_tel2IpRoutes.add(normalRoute);
+        // Add the default Tel2Ip Failover routes
+        Tel2IpRoute failoverRoute = new Tel2IpRoute();
+        failoverRoute.setGateway(this);
+        failoverRoute.setRouteId(Integer.toString(2));
+        failoverRoute.setDescription("Failover");
+        failoverRoute.setSettingProxyAddress("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress");
+        failoverRoute.setSettingProxyKeepalive("tel2ip-call-routing/tel-to-ip-failover/ProxyKeepalive");
+        failoverRoute.setSettingDestManipulation("tel2ip-call-routing/tel-to-ip-failover/DestManipulation");
+        m_tel2IpRoutes.add(failoverRoute);
+    }
+
+    public void initializeIp2TelRoute(@SuppressWarnings("unused") Ip2TelRoute route) {
+    }
+
+    public void initializeTel2IpRoute(@SuppressWarnings("unused") Tel2IpRoute route) {
     }
 
     @Override

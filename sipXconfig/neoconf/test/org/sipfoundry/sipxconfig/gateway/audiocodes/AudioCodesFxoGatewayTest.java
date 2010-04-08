@@ -40,6 +40,7 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         m_model.setModelId("audiocodes");
         m_model.setModelDir("audiocodes");
         Set<String> features = new HashSet<String>();
+        features.add("trunkGateway");
         features.add("fxo");
         m_model.setSupportedFeatures(features);
         m_model.setMaxPorts(4);
@@ -72,6 +73,9 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
 
         m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
+        if(AudioCodesModel.REL_6_0 == version) {
+            m_gateway.setSettingValue("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress", "10.10.10.50:5080");
+        }
 
         m_gateway.generateProfiles(location);
         String actual_lines[] = location.toString("001122334455.ini").split("\n");
@@ -111,7 +115,6 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         defaultsCtrl.replay();
 
         m_gateway.setDefaults(defaults);
-        assertEquals("mysipdomain.com", m_gateway.getSettingValue("SIP_Proxy_Registration/ProxyIP"));
 
         defaultsCtrl.verify();
     }

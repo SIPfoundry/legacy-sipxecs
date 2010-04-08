@@ -34,6 +34,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         model.setModelId("audiocodes");
         model.setModelDir("audiocodes");
         Set<String> features = new HashSet<String>();
+        features.add("trunkGateway");
         features.add("digital");
         model.setSupportedFeatures(features);
         model.setMaxPorts(4);
@@ -77,6 +78,9 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
             m_gateway.setSettingValue("advanced_general/SAS/SASShortNumberLength", "4");
         }
         m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
+        if(AudioCodesModel.REL_6_0 == version) {
+           m_gateway.setSettingValue("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress", "10.10.10.50:5080");
+        }
 
         m_gateway.generateProfiles(location);
         String actual_lines[] = location.toString("001122334455.ini").split("\n");

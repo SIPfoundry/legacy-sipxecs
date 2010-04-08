@@ -36,6 +36,29 @@
       </option>
     </enum>
   </type>
+  <type id="route-mode-type">
+    <enum>
+      <option>
+        <value>0</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+    </enum>
+  </type>
+  <type id="proxy-keepalive-type">
+    <enum>
+      <option>
+        <value>0</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+      <option>
+        <value>2</value>
+      </option>
+    </enum>
+  </type>
   <type id="preffered-codecs-type">
     <multi-enum labelKeyPrefix="codec">
       <option>
@@ -406,7 +429,7 @@
       <value>1</value>
     </setting>
     <!-- do not specify ProxyName, instead specify ProxyIP as FQDN -->
-    <setting name="ProxyIP" advanced="yes"/>
+    <setting name="ProxyIP" unless="6.0orLater" advanced="yes"/>
     <setting name="EnableProxyKeepAlive" advanced="yes">
       <type>
         <enum>
@@ -447,7 +470,7 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="SendInviteToProxy" advanced="yes" unless="5.6">
+    <setting name="SendInviteToProxy" advanced="yes" unless="5.6orLater">
       <type>
         <boolean/>
       </type>
@@ -702,13 +725,13 @@
     </group>
   </group>
   <group name="advanced_general" advanced="yes">
-    <setting name="SecureCallsFromIP" advanced="yes" unless="fxs">
+    <setting name="SecureCallsFromIP" advanced="yes" if="trunkGateway">
       <type>
         <boolean/>
       </type>
       <value>0</value>
     </setting>
-    <setting name="AllowedIPs" advanced="yes" unless="fxs">
+    <setting name="AllowedIPs" advanced="yes" if="trunkGateway" unless="6.0orLater">
       <profileName>$$</profileName>
       <type>
         <string/>
@@ -927,7 +950,7 @@
         <type>
           <integer min="0" max="5"/>
         </type>
-        <value>0</value>
+        <value>1</value>
       </setting>
       <setting name="RedundantSASProxySet" if="5.6orLater" advanced="yes">
         <type>
@@ -937,6 +960,115 @@
       </setting>
       <setting name="SASShortNumberLength" if="5.4">
         <value/>
+      </setting>
+    </group>
+  </group>
+  <group name="ip2tel-call-routing" if="6.0orLater">
+    <group name="ip-to-tel-manipulation">
+      <setting name="DestManipulation1">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value>*, *, 0, 0</value>
+      </setting>
+      <setting name="DestManipulation2">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value></value>
+      </setting>
+      <setting name="DestManipulation3">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value></value>
+      </setting>
+      <setting name="DestManipulation4">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value></value>
+      </setting>
+    </group>
+  </group>
+  <group name="tel2ip-call-routing" if="6.0orLater">
+    <setting name="RouteModeTel2IP" advanced="yes">
+      <type refid="route-mode-type"/>
+      <value>1</value>
+    </setting>
+    <setting name="EnableAltMapTel2IP" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <group name="tel-to-ip-normal">
+      <setting name="ProxyAddress">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+      </setting>
+      <setting name="ProxyKeepalive">
+        <profileName>$ignore$</profileName>
+        <type refid="proxy-keepalive-type"/>
+        <value>1</value>
+      </setting>
+      <setting name="DestManipulation">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value>*, *, 0, 0</value>
+      </setting>
+    </group>
+    <group name="tel-to-ip-failover">
+      <setting name="ProxyAddress">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+      </setting>
+      <setting name="ProxyKeepalive">
+        <profileName>$ignore$</profileName>
+        <type refid="proxy-keepalive-type"/>
+        <value>0</value>
+      </setting>
+      <setting name="DestManipulation">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value>*, *, 0, 0</value>
+      </setting>
+    </group>
+    <group name="tel-to-ip-route-cause" advanced="yes">
+      <setting name="AltRouteCauseTel2Ip_0">
+        <type>
+          <string/>
+        </type>
+        <value>408</value>
+      </setting>
+      <setting name="AltRouteCauseTel2Ip_1">
+        <type>
+          <string/>
+        </type>
+        <value>487</value>
+      </setting>
+      <setting name="AltRouteCauseTel2Ip_2">
+        <type>
+          <string/>
+        </type>
+        <value>488</value>
+      </setting>
+      <setting name="AltRouteCauseTel2Ip_3">
+        <type>
+          <string/>
+        </type>
       </setting>
     </group>
   </group>
