@@ -964,6 +964,10 @@
     </group>
   </group>
   <group name="ip2tel-call-routing" if="6.0orLater">
+    <setting name="RouteModeIP2Tel" advanced="yes">
+      <type refid="route-mode-type"/>
+      <value>1</value>
+    </setting>
     <group name="ip-to-tel-manipulation">
       <setting name="DestManipulation1">
         <profileName>$ignore$</profileName>
