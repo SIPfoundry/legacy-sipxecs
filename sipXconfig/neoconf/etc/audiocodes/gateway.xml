@@ -430,7 +430,7 @@
     </setting>
     <!-- do not specify ProxyName, instead specify ProxyIP as FQDN -->
     <setting name="ProxyIP" unless="6.0orLater" advanced="yes"/>
-    <setting name="EnableProxyKeepAlive" advanced="yes">
+    <setting name="EnableProxyKeepAlive" unless="6.0orLater" advanced="yes">
       <type>
         <enum>
           <option>
@@ -446,7 +446,7 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="ProxyKeepAliveTime">
+    <setting name="ProxyKeepAliveTime" unless="6.0orLater" >
       <type>
         <integer/>
       </type>
@@ -946,7 +946,13 @@
       <setting name="SASDefaultGatewayIP">
         <value/>
       </setting>
-      <setting name="SASProxySet" if="5.6orLater">
+      <setting name="SASProxySet" if="5.6">
+        <type>
+          <integer min="0" max="5"/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="SASPROXYSET" if="6.0orLater">
         <type>
           <integer min="0" max="5"/>
         </type>
