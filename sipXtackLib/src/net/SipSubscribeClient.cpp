@@ -753,7 +753,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionDialog(const UtlString& dialogHand
          dialogState->mpGroupState->
             mpStateCallback(SUBSCRIPTION_TERMINATED,
                             dialogState->mpGroupState->data(),
-                            dialogHandle.data(),
+                            dialogState->data(),
                             dialogState->mpGroupState->mpApplicationData,
                             -1, // no response code
                             NULL, // no response text
@@ -801,7 +801,7 @@ UtlBoolean SipSubscribeClient::endSubscriptionDialogByNotifier(const UtlString& 
          dialogState->mpGroupState->
             mpStateCallback(SUBSCRIPTION_TERMINATED,
                             dialogState->mpGroupState->data(),
-                            dialogHandle.data(),
+                            dialogState->data(),
                             dialogState->mpGroupState->mpApplicationData,
                             -1, // no response code
                             NULL, // no response text
@@ -1104,7 +1104,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
             // Do the callback with the new expiration time.
             groupState->mpStateCallback(dialogState->mState,
                                         groupState->data(),
-                                        dialogHandle,
+                                        dialogState->data(),
                                         groupState->mpApplicationData,
                                         responseCode,
                                         responseText,
@@ -1171,7 +1171,7 @@ void SipSubscribeClient::refreshCallback(SipRefreshManager::RefreshRequestState 
                   // Do the callback with the new state.
                   groupState->mpStateCallback(dialogState->mState,
                                               groupState->data(),
-                                              dialogHandle,
+                                              dialogState->data(),
                                               groupState->mpApplicationData,
                                               responseCode,
                                               responseText,
