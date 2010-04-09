@@ -258,6 +258,15 @@ public class ConfigurationParser {
                 "setCallerId", 0);
 
 
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "default-preferred-identity"),
+                "setUseDefaultPreferredIdentity",0, new Class[] {
+                    Boolean.class
+                });
+
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "preferred-identity"),
+                "setPreferredCallerId", 0);
+        
+
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "is-user-phone"),
                 "setUserPhone", 0, new Class[] {
             Boolean.class

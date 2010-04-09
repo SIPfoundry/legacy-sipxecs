@@ -18,6 +18,7 @@ import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.extensions.SessionExpires;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
+import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 import gov.nist.javax.sip.header.ims.PrivacyHeader;
 import gov.nist.javax.sip.message.Content;
 import gov.nist.javax.sip.message.MessageExt;
@@ -655,11 +656,17 @@ class SipUtilities {
 				fromDisplayName = "sipxbridge";
 			}
 
-			Address address = itspAccount.getCallerAlias();
+			Address address = itspAccount.getCallerAlias(from.getAddress());
 			PAssertedIdentityHeader passertedIdentityHeader = null;
 			if (address != null) {
 				passertedIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
 						.createPAssertedIdentityHeader(address);
+			}
+			Address paddress = itspAccount.getPreferredCallerAlias(from.getAddress());
+			PPreferredIdentityHeader ppreferredIdentityHeader = null;
+			if (paddress != null) {
+				ppreferredIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+						.createPPreferredIdentityHeader(paddress);
 			}
 
 			PrivacyHeader privacyHeader = null;
@@ -670,7 +677,15 @@ class SipUtilities {
 			 * From: header Domain determination.
 			 */
 			String domain = fromDomain;
-			if (fromUser.equalsIgnoreCase("anonymous")
+			if (passertedIdentityHeader != null || ppreferredIdentityHeader != null) {
+				// ITSP wants to use P-Asserted-Identity or P-Preferred-Identity.
+				// Generate From header from the account identification.
+				if (itspAccount.getUserName() != null
+						&& itspAccount.getDefaultDomain() != null) {
+					fromUser = itspAccount.getUserName();
+					domain = itspAccount.getDefaultDomain();
+				}
+			} else if (fromUser.equalsIgnoreCase("anonymous")
 					&& fromDomain.equalsIgnoreCase("invalid")) {
 				privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
 						.createPrivacyHeader("id");
@@ -685,14 +700,6 @@ class SipUtilities {
 					}
 				} else {
 					domain = itspAccount.getProxyDomain();
-				}
-			} else if (passertedIdentityHeader == null) {
-				// ITSP does not want to use P-Asserted-Identity.
-				// Generate From header for account identification.
-				if (itspAccount.getUserName() != null
-						&& itspAccount.getDefaultDomain() != null) {
-					fromUser = itspAccount.getUserName();
-					domain = itspAccount.getDefaultDomain();
 				}
 			}
 
@@ -761,10 +768,17 @@ class SipUtilities {
 					toHeader, list, maxForwards);
 
 			/*
-			 * Attach the PreferredIdentity header if we generated one.
+			 * Attach the P-Asserted Identity header if we generated one.
 			 */
 			if (passertedIdentityHeader != null) {
 				request.setHeader(passertedIdentityHeader);
+			}
+
+			/*
+			 * Attach the P-Preferred Identity header if we generated one.
+			 */
+			if (ppreferredIdentityHeader != null) {
+				request.setHeader(ppreferredIdentityHeader);
 			}
 
 			/*

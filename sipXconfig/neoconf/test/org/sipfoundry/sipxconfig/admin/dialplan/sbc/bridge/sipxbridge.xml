@@ -40,6 +40,7 @@
     <use-global-addressing>true</use-global-addressing>
     <strip-private-headers>false</strip-private-headers>
     <default-asserted-identity>true</default-asserted-identity>
+    <default-preferred-identity>false</default-preferred-identity>
     <is-user-phone>true</is-user-phone>
     <loose-route-invite>true</loose-route-invite>
     <itsp-registrar-address>10.1.1.1</itsp-registrar-address>

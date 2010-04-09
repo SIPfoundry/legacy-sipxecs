@@ -112,6 +112,23 @@
         Override the default asserted identity.
       </description>
     </setting>
+    <setting name="default-preferred-identity" advanced="yes">
+      <label>Use default preferred identity</label>
+      <type refid="switch"></type>
+      <value>false</value>
+      <description>
+	The preferred identity header may be used by the ITSP to determine the originating
+	party for call setup requests.
+        If checked (default), use the default preferred identity.
+        Otherwise, you must enter a username@domain to override the default.
+      </description>
+    </setting>
+    <setting name="preferred-identity" advanced="yes">
+      <label>Preferred identity</label>
+      <description>
+        Override the default preferred identity.
+      </description>
+    </setting>
     <setting name="is-user-phone" advanced="yes">
       <label>User part of INVITE SIP URI is a phone number</label>
       <type refid="switch"></type>

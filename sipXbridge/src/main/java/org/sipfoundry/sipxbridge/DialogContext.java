@@ -15,6 +15,7 @@ import gov.nist.javax.sip.header.extensions.MinSE;
 import gov.nist.javax.sip.header.extensions.ReferencesHeader;
 import gov.nist.javax.sip.header.extensions.SessionExpiresHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
+import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 import gov.nist.javax.sip.message.SIPResponse;
 
 import java.text.ParseException;
@@ -698,12 +699,19 @@ class DialogContext {
                 reInvite.removeHeader(SupportedHeader.NAME);
                 reInvite.removeHeader("remote-party-Id");
                 if ( this.itspInfo != null ) {
-                    Address address = this.itspInfo.getCallerAlias();
+                    Address address = this.itspInfo.getCallerAlias(dialog.getLocalParty());
                     PAssertedIdentityHeader passertedIdentityHeader = null;
                     if (address != null) {
                         passertedIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
                         .createPAssertedIdentityHeader(address);
                         reInvite.setHeader(passertedIdentityHeader);
+                    }
+                    Address paddress = this.itspInfo.getPreferredCallerAlias(dialog.getLocalParty());
+                    PPreferredIdentityHeader ppreferredIdentityHeader = null;
+                    if (paddress != null) {
+                    	ppreferredIdentityHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
+                        .createPPreferredIdentityHeader(paddress);
+                        reInvite.setHeader(ppreferredIdentityHeader);
                     }
                 } else {
                     logger.warn("Could not find ITSP Information. Sending re-INVITE anyway.");

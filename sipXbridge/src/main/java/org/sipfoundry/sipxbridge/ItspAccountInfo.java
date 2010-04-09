@@ -154,6 +154,21 @@ public class ItspAccountInfo  {
     private boolean useDefaultAssertedIdentity;
 
     /*
+     * The preferred Identity override.
+     */
+    private String preferredCallerId;
+
+    /*
+     * Computed from the preferred Identity ( so we dont keep re-computing this)
+     */
+    private Address preferredCallerAlias;
+
+    /*
+     * If set to true use the default preferred Identity.
+     */
+    private boolean useDefaultPreferredIdentity;
+
+    /*
      * Determines whether the Sip Request URI User name is a phone number.
      */
     private boolean isUserPhone = true;
@@ -639,32 +654,45 @@ public class ItspAccountInfo  {
 
 
     public String getCallerId() {
-        if (!useDefaultAssertedIdentity) {
-            return this.callerId;
-        } else if (this.getDefaultDomain() != null ) {
-            return this.getUserName() + "@" + this.getDefaultDomain();
-        } else {
-            return null;
-        }
-
+        return this.callerId;
     }
+    
+    public String getPreferredCallerId() {
+        return this.preferredCallerId;
+    }
+    
+    private String getDefaultCallerId() {
+	    if (this.getDefaultDomain() == null ) {
+		    return null;
+	    }
+	    return this.getUserName() + "@" + this.getDefaultDomain();
+    }
+    
 
-    protected Address getCallerAlias() {
+    protected Address getCallerAlias(Address from) {
+    	if (!this.useDefaultAssertedIdentity) {
+    		return getAlias(this.callerId);
+    	}
+    	return from;
+    }
+    
+
+    protected Address getPreferredCallerAlias(Address from) {
+    	if (!this.useDefaultPreferredIdentity) {
+    		return getAlias(this.preferredCallerId);
+    	}
+    	return from;
+    }
+    
+    private Address getAlias(String userId) {
         try {
-            if (this.callerAlias != null) {
-                return this.callerAlias;
+            if (userId != null) {
+                String callerId = "sip:" + userId;
+                SipURI sipUri = (SipURI) ProtocolObjects.addressFactory
+                        .createURI(callerId);
+                return ProtocolObjects.addressFactory.createAddress(sipUri);
             } else {
-                if (this.getCallerId() != null) {
-                    String callerId = "sip:" + this.getCallerId();
-                    SipURI sipUri = (SipURI) ProtocolObjects.addressFactory
-                            .createURI(callerId);
-
-                    this.callerAlias = ProtocolObjects.addressFactory
-                            .createAddress(sipUri);
-                    return this.callerAlias;
-                } else {
-                    return null;
-                }
+                return null;
             }
         } catch (Exception ex) {
             return null;
@@ -693,6 +721,15 @@ public class ItspAccountInfo  {
      */
     public void setUseDefaultAssertedIdentity(boolean flag) {
         this.useDefaultAssertedIdentity = flag;
+    }
+
+    /**
+     * set the flag to use default preferred identity.
+     *
+     * @param flag
+     */
+    public void setUseDefaultPreferredIdentity(boolean flag) {
+        this.useDefaultPreferredIdentity = flag;
     }
 
     /**

@@ -40,6 +40,7 @@
     <strip-private-headers>false</strip-private-headers>
     <default-asserted-identity>false</default-asserted-identity>
     <asserted-identity>juser@itsp.example.com</asserted-identity>
+    <default-preferred-identity>false</default-preferred-identity>
     <is-user-phone>false</is-user-phone>
     <loose-route-invite>true</loose-route-invite>
     <itsp-registrar-address>10.1.1.1</itsp-registrar-address>

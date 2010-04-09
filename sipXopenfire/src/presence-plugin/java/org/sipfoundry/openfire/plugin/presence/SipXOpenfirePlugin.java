@@ -355,7 +355,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 
                 String extrasDirName = extrasDirNameForClassLoader + "/lib";
                 File extrasDir = new File(extrasDirName);
-		loadDefault();
+                loadDefault();
                 loadExtras(pluginClassLoader, extrasDir);
             }
             else{
@@ -392,9 +392,9 @@ public class SipXOpenfirePlugin implements Plugin, Component {
     }
     
     void loadDefault() {
-	DefaultMessagePacketInterceptor originalInterceptor = new DefaultMessagePacketInterceptor();
-	originalInterceptor.start(this);
-	abstractMessagePacketInterceptors.add(originalInterceptor);
+        DefaultMessagePacketInterceptor originalInterceptor = new DefaultMessagePacketInterceptor();
+        originalInterceptor.start(this);
+        abstractMessagePacketInterceptors.add(originalInterceptor);
     }
     
     void loadExtras(ClassLoader classLoader, File extrasDir){
@@ -421,7 +421,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                         AbstractMessagePacketInterceptor abstractMessagePacketInterceptor = (AbstractMessagePacketInterceptor)packetInterceptorClass.newInstance();
                         abstractMessagePacketInterceptor.start(this);
                         InterceptorManager.getInstance().addInterceptor(abstractMessagePacketInterceptor);
-			abstractMessagePacketInterceptors.add(abstractMessagePacketInterceptor);
+                        abstractMessagePacketInterceptors.add(abstractMessagePacketInterceptor);
                     }
                 }
                 catch(Throwable e){

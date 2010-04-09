@@ -2,7 +2,7 @@
 ## emit 'setting value' pair - skipping _ignored_ settings
 #macro(emit_setting $s $t)
 #if($s.ProfileName != '$ignore$')
-#if(!($s.ProfileName == 'asserted-identity' && $hideAssertedIdentity == 'true'))
+#if(!(($s.ProfileName == 'asserted-identity' || $s.ProfileName == 'preferred-identity') && $hideAssertedIdentity == 'true'))
 #if($s.ProfileName == 'itsp-proxy-domain')
     <${s.ProfileName}>$!{t.address}</${s.ProfileName}>
 #else
@@ -17,7 +17,7 @@
 #macro(emit_group $g $t)
   <${g.ProfileName}>
 #foreach ($s in $g.Values)
-#if($s.ProfileName == 'default-asserted-identity')
+#if($s.ProfileName == 'default-asserted-identity' || $s.ProfileName == 'default-preferred-identity')
   #set($hideAssertedIdentity = ${s.Value})
 #end
 #emit_setting($s $t)
