@@ -263,6 +263,8 @@ public class UserPhonebookSearch implements EntryPoint {
             setAlternateRecordStyles(true);
             setDataSource(phonebookDS);
             setAutoFetchData(true);
+            setLoadingDataMessage(s_searchConstants.loadingDataPrompt());
+            setLoadingMessage(s_searchConstants.loadingDataPrompt());
 
             setCellHeight(25);
             setHeaderHeight(35);

@@ -168,4 +168,6 @@ public interface SearchConstants extends ConstantsWithLookup {
     String addPhonebookEntryFailed();
 
     String duplicatePhonebookEntry();
+
+    String loadingDataPrompt();
 }

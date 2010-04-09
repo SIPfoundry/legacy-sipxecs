@@ -23,6 +23,7 @@ public abstract class PagedPhonebookDataSource extends PhonebookDataSource {
         setRecordXPath("/phonebook/entries/entry");
         setDataURL("/sipxconfig/rest/my/pagedphonebook");
         setPageNumber(1);
+        setShowPrompt(false);
     }
 
     public void setPageNumber(int pageNumber) {
