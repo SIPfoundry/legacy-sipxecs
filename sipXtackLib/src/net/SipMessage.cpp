@@ -3456,64 +3456,65 @@ void SipMessage::getDialogHandleReverse(UtlString& dialogHandle) const
 
 UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod) const
 {
-   const char* value = getHeaderValue(0, SIP_CSEQ_FIELD);
-   if(value)
+   // Provide definitive output values, even if processing fails, because
+   // many callers do not check the return value.
+   if (sequenceNum)
    {
-        // Too slow:
-       /*UtlString sequenceNumString;
-      NameValueTokenizer::getSubField(value, 0,
-               SIP_SUBFIELD_SEPARATORS, &sequenceNumString);
-      *sequenceNum = atoi(sequenceNumString.data());
-
-      NameValueTokenizer::getSubField(value, 1,
-               SIP_SUBFIELD_SEPARATORS, sequenceMethod);*/
-
-        // Ignore white space in the begining
-        int valueStart = strspn(value, SIP_SUBFIELD_SEPARATORS);
-
-        // Find the end of the sequence number
-        int numStringLen = strcspn(&value[valueStart], SIP_SUBFIELD_SEPARATORS)
-            - valueStart;
-
-        // Get the method
-        if(sequenceMethod)
-        {
-            *sequenceMethod = &value[numStringLen + valueStart];
-            NameValueTokenizer::frontBackTrim(sequenceMethod, SIP_SUBFIELD_SEPARATORS);
-
-            if(numStringLen > MAXIMUM_INTEGER_STRING_LENGTH)
-            {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "SipMessage::getCSeqField CSeq field '%.*s' containes %d digits, which exceeds MAXIMUM_INTEGER_STRING_LENGTH (%d).  Truncated.\n",
-                             numStringLen, &value[valueStart], numStringLen,
-                             MAXIMUM_INTEGER_STRING_LENGTH);
-               numStringLen = MAXIMUM_INTEGER_STRING_LENGTH;
-            }
-        }
-
-        if(sequenceNum)
-        {
-            // Convert the sequence number
-            char numBuf[MAXIMUM_INTEGER_STRING_LENGTH + 1];
-            memcpy(numBuf, &value[valueStart], numStringLen);
-            numBuf[numStringLen] = '\0';
-            *sequenceNum = atoi(numBuf);
-        }
+      *sequenceNum = -1;
    }
-    else
-    {
-        if(sequenceNum)
-        {
-            *sequenceNum = -1;
-        }
+   if (sequenceMethod)
+   {
+      sequenceMethod->remove(0);
+   }
 
-        if(sequenceMethod)
-        {
-            sequenceMethod->remove(0);
-        }
-    }
+   const char* value = getHeaderValue(0, SIP_CSEQ_FIELD);
+   UtlBoolean ret = value != NULL;
+   if (value)
+   {
+      // Ignore white space at the begining.
+      int valueStart = strspn(value, SIP_SUBFIELD_SEPARATORS);
 
-    return(value != NULL);
+      // Find the end of the sequence number.
+      int numStringLen =
+         strcspn(&value[valueStart], SIP_SUBFIELD_SEPARATORS)
+         - valueStart;
+
+      // Get the method.
+      if (sequenceMethod)
+      {
+         *sequenceMethod = &value[numStringLen + valueStart];
+         NameValueTokenizer::frontBackTrim(sequenceMethod, SIP_SUBFIELD_SEPARATORS);
+         ret &= !sequenceMethod->isNull();
+      }
+
+      // Get the sequence number.
+      if (sequenceNum)
+      {
+         char* endptr;
+         errno = 0;
+         long result = strtol(&value[valueStart], &endptr, 10);
+         if (errno == 0 &&
+             (result >= 0 && result <= INT_MAX) &&
+             (*endptr == ' ' || *endptr == '\t' || *endptr == '\r'))
+         {
+            // Conversion was successful.  Convert the result to int and store it.
+            *sequenceNum = result;
+         }
+         else
+         {
+            ret = FALSE;
+            OsSysLog::add(FAC_SIP, PRI_ERR,
+                          "SipMessage::getCSeqField "
+                          "CSeq header value '%s' contains invalid number part, "
+                          "or it was followed by an unexpected character.  "
+                          "Problem was detected after %d characters were processed.",
+                          &value[valueStart],
+                          endptr - &value[valueStart]);
+         }
+      }
+   }
+
+   return ret;
 }
 
 UtlBoolean SipMessage::getContactUri(int addressIndex, UtlString* uri) const
