@@ -170,7 +170,6 @@
       </set>
     </property>
   </bean>
-
   <bean id="polycom4000" parent="polycomModel">
     <property name="label" value="Polycom SoundStation IP 4000" />
     <property name="maxLineCount" value="1" />
@@ -181,6 +180,17 @@
         <value>voiceQualityMonitoring</value>
         <value>IP_4000_CodecPref</value>
         <value>pre_3.2.0_model</value>
+      </set>
+    </property>
+  </bean>
+    <bean id="polycom5000" parent="polycomModel">
+    <property name="label" value="Polycom SoundStation IP 5000" />
+    <property name="maxLineCount" value="1" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>IP_5000_CodecPref</value>
       </set>
     </property>
   </bean>

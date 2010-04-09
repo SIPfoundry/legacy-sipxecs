@@ -299,6 +299,17 @@
 		  </type>
         <value>G722|G711Mu|G711A|G729AB</value>
       </setting>
+      <setting name="IP_5000" if="IP_5000_CodecPref">
+        <type>
+          <multi-enum labelKeyPrefix="codec">
+            <option><value>G711Mu</value></option>
+            <option><value>G711A</value></option>
+            <option><value>G729AB</value></option>
+            <option><value>G722</value></option>
+          </multi-enum>
+        </type>
+        <value>G722|G711Mu|G711A|G729AB</value>
+      </setting>
       <setting name="IP_6000" if="IP_6000_CodecPref">
         <type>
           <multi-enum labelKeyPrefix="codec">
@@ -465,7 +476,7 @@
           <value>160</value>
         </setting>
       </group>
-      <group name="G722" if="IP_650_CodecPref||IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref">
+      <group name="G722" if="IP_650_CodecPref||IP_5000_CodecPref||IP_6000_CodecPref||IP_7000_CodecPref||VVX_1500_CodecPref">
         <setting name="payloadSize">
           <type>
             <!-- 10, 20, 30, ...80 -->

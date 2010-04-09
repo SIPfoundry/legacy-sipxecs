@@ -65,6 +65,7 @@ public class CodecConfigurationForModelTest extends TestCase {
         assertCodecConfigurationForModel(CodecGroupType.OTHERS, "polycom600");
         assertCodecConfigurationForModel(CodecGroupType.IP_650, "polycom650");
         assertCodecConfigurationForModel(CodecGroupType.IP_4000, "polycom4000");
+        assertCodecConfigurationForModel(CodecGroupType.IP_5000, "polycom5000");
         assertCodecConfigurationForModel(CodecGroupType.IP_6000, "polycom6000");
         assertCodecConfigurationForModel(CodecGroupType.IP_7000, "polycom7000");
         assertCodecConfigurationForModel(CodecGroupType.VVX_1500, "polycomVVX1500");

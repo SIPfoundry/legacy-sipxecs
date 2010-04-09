@@ -109,6 +109,7 @@ public class CodecGroupsTest extends TestCase {
         IP_300("IP_300"),
         IP_650("IP_650"),
         IP_4000("IP_4000"),
+        IP_5000("IP_5000"),
         IP_6000("IP_6000"),
         IP_7000("IP_7000"),
         VVX_1500("VVX_1500");
@@ -149,6 +150,10 @@ public class CodecGroupsTest extends TestCase {
 
         // IP_4000 has the same options as OTHERS.  (But NOT if we ever implement XX-6596.)
         CODECGROUP_OPTION_MAP.put(CodecGroupType.IP_4000, OTHERS_SET);
+
+        HashSet<String> IP_5000_SET = new HashSet<String>(OTHERS_SET);
+        IP_5000_SET.add("G722");
+        CODECGROUP_OPTION_MAP.put(CodecGroupType.IP_5000, IP_5000_SET);
 
         HashSet<String> IP_6000_SET = new HashSet<String>(IP_650_SET);
         IP_6000_SET.add("G7221C.24kbps");
@@ -210,7 +215,14 @@ public class CodecGroupsTest extends TestCase {
         IP_4000_LIST.add("G711Mu");
         IP_4000_LIST.add("G711A");
         CODECGROUP_SELECTED_MAP.put(CodecGroupType.IP_4000, IP_4000_LIST);
-
+        
+        ArrayList<String> IP_5000_LIST = new ArrayList<String>();
+        IP_5000_LIST.add("G722");
+        IP_5000_LIST.add("G711Mu");
+        IP_5000_LIST.add("G711A");
+        IP_5000_LIST.add("G729AB");
+        CODECGROUP_SELECTED_MAP.put(CodecGroupType.IP_5000, IP_5000_LIST);
+        
         ArrayList<String> IP_6000_LIST = new ArrayList<String>();
         IP_6000_LIST.add("G7221C.48kbps");
         IP_6000_LIST.add("Siren14.48kbps");
