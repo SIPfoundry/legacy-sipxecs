@@ -218,5 +218,11 @@
       <value>NONE</value>
       <description>Defines the payload to use for media (RTP) keepalive. </description>
     </setting>
+    <setting name="route-by-to-header" advanced="yes">
+      <label>Route by To Header</label>
+      <type refid="switch"></type>
+      <value>false</value>
+      <description>Some ITSPs use the "To" header to control routing instead of the request URI in SIP message start line. If you need to set this to true, please inform your ITSP they are not following the standard.</description>
+    </setting>
   </group>
 </model>

@@ -236,6 +236,11 @@ public class ItspAccountInfo  {
     private String authenticationUserName;
     
 
+    /**
+     * Rewrite To field into message start line request uri for incoming messages
+     */
+    private boolean isRouteByHeader;
+
     /*
      * This scans the failure counter table and removes records after a timeout period.
      */
@@ -890,20 +895,30 @@ public class ItspAccountInfo  {
         return Gateway.getWanProvider(this.outboundTransport.toLowerCase());
     }
 
-	public void setAuthenticationUserName(String authenticationUserName) {
-		this.authenticationUserName = authenticationUserName;
-	}
+    public void setAuthenticationUserName(String authenticationUserName) {
+        this.authenticationUserName = authenticationUserName;
+    }
 
-	public String getAuthenticationUserName() {
-		return authenticationUserName;
-	}
-	
-	public UserCredentials getUserCredentials() {
-		String userName = this.authenticationUserName == null ? this.userName : this.authenticationUserName;
-		
-		UserCredentialsImpl retval = new UserCredentialsImpl(userName, this.getSipDomain(), this.getPassword());
-		
-		return retval;
-	}
+    public String getAuthenticationUserName() {
+        return authenticationUserName;
+    }
+    
+    public UserCredentials getUserCredentials() {
+        String userName = this.authenticationUserName == null ? this.userName : this.authenticationUserName;
+            
+        UserCredentialsImpl retval = new UserCredentialsImpl(userName, this.getSipDomain(), this.getPassword());
+            
+        return retval;
+    }
 
+    /**
+     * Rewrite To field into message start line request uri for incoming messages
+     */
+    public boolean isRouteByToHeader() {
+        return this.isRouteByHeader;
+    }
+
+    public void setRouteByToHeader(boolean routeByToHeader) {
+        this.isRouteByHeader = routeByToHeader;
+    }
 }

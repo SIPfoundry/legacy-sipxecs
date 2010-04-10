@@ -1138,8 +1138,14 @@ public class BackToBackUserAgent implements Comparable {
 
             SipURI uri = null;
             if (!Gateway.isInboundCallsRoutedToAutoAttendant()) {
-                uri = ProtocolObjects.addressFactory.createSipURI(incomingRequestURI.getUser(),
+            	if (itspAccountInfo.isRouteByToHeader()) {
+                	ToHeader toHeader = (ToHeader) request.getHeader(ToHeader.NAME);
+                    uri = (SipURI)toHeader.getAddress().getURI().clone();
+                    uri.setHost(Gateway.getSipxProxyDomain());
+            	} else {
+            		uri = ProtocolObjects.addressFactory.createSipURI(incomingRequestURI.getUser(),
                         Gateway.getSipxProxyDomain());
+            	}
             } else {
                 String destination = Gateway.getAutoAttendantName();
                 if (destination.indexOf("@") == -1) {
@@ -1173,7 +1179,7 @@ public class BackToBackUserAgent implements Comparable {
                         + autoAttendantName);
                 Address toAddress = ProtocolObjects.addressFactory.createAddress(toUri);
                 toHeader = ProtocolObjects.headerFactory.createToHeader(toAddress, null);
-            } else {
+             } else {
                 toHeader = (ToHeader) request.getHeader(ToHeader.NAME).clone();
                 ((SipURI) toHeader.getAddress().getURI()).setHost(Gateway.getSipxProxyDomain());
                 ((SipURI) toHeader.getAddress().getURI()).removePort();

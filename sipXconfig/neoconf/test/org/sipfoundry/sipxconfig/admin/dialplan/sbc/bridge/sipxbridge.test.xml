@@ -49,6 +49,7 @@
     <sip-session-timer-interval-seconds>1800</sip-session-timer-interval-seconds>
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
     <rtp-keepalive-method>NONE</rtp-keepalive-method>
+    <route-by-to-header>false</route-by-to-header>
   </itsp-account>
 
 </sipxbridge-config>
