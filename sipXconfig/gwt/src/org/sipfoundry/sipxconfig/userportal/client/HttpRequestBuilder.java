@@ -8,6 +8,8 @@
  */
 package org.sipfoundry.sipxconfig.userportal.client;
 
+import java.util.Map;
+
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.http.client.Request;
 import com.google.gwt.http.client.RequestBuilder;
@@ -39,7 +41,7 @@ public final class HttpRequestBuilder extends RequestBuilder {
 
     public static void doPut(String url, String successMessage) {
         HttpRequestBuilder builder = new HttpRequestBuilder(PUT, url);
-        sendRequest(builder, null, successMessage);
+        sendRequest(builder, null, successMessage, null);
     }
 
     public static void doPut(String url, String postData, String contentType, String variant) {
@@ -47,9 +49,14 @@ public final class HttpRequestBuilder extends RequestBuilder {
     }
 
     public static void doPut(String url, String postData, String contentType, String variant, String successMessage) {
+        doPut(url, postData, contentType, variant, successMessage, null);
+    }
+
+    public static void doPut(String url, String postData, String contentType, String variant, String successMessage,
+            Map<Integer, String> statuses) {
         HttpRequestBuilder builder = new HttpRequestBuilder(PUT, url);
         builder.setHeader(contentType, variant);
-        sendRequest(builder, postData, successMessage);
+        sendRequest(builder, postData, successMessage, statuses);
     }
 
     public static void doDelete(String url) {
@@ -58,7 +65,7 @@ public final class HttpRequestBuilder extends RequestBuilder {
 
     public static void doDelete(String url, String successMessage) {
         HttpRequestBuilder builder = new HttpRequestBuilder(DELETE, url);
-        sendRequest(builder, null, successMessage);
+        sendRequest(builder, null, successMessage, null);
     }
 
     public static void doDelete(String url, String contentType, String variant) {
@@ -68,7 +75,7 @@ public final class HttpRequestBuilder extends RequestBuilder {
     public static void doDelete(String url, String contentType, String variant, String successMessage) {
         HttpRequestBuilder builder = new HttpRequestBuilder(DELETE, url);
         builder.setHeader(contentType, variant);
-        sendRequest(builder, null, successMessage);
+        sendRequest(builder, null, successMessage, null);
     }
 
     public static void doPost(String url, String postData, String contentType, String variant) {
@@ -76,20 +83,31 @@ public final class HttpRequestBuilder extends RequestBuilder {
     }
 
     public static void doPost(String url, String postData, String contentType, String variant, String successMessage) {
-        HttpRequestBuilder builder = new HttpRequestBuilder(POST, url);
-        builder.setHeader(contentType, variant);
-        sendRequest(builder, postData, successMessage);
+        doPost(url, postData, contentType, variant, successMessage, null);
     }
 
-    private static void sendRequest(HttpRequestBuilder builder, String postData, final String successMessage) {
+    public static void doPost(String url, String postData, String contentType, String variant,
+            String successMessage, Map<Integer, String> errorStatuses) {
+        HttpRequestBuilder builder = new HttpRequestBuilder(POST, url);
+        builder.setHeader(contentType, variant);
+        sendRequest(builder, postData, successMessage, errorStatuses);
+    }
+
+    private static void sendRequest(HttpRequestBuilder builder, String postData, final String successMessage,
+            final Map<Integer, String> errorStatuses) {
         try {
             builder.sendRequest(postData, new RequestCallback() {
                 public void onResponseReceived(Request request, Response response) {
                     int httpStatusCode = response.getStatusCode();
                     if (httpStatusCode != Response.SC_ACCEPTED && httpStatusCode != Response.SC_OK
                             && httpStatusCode != Response.SC_NO_CONTENT) {
-                        StringBuilder errorMsg = new StringBuilder(s_searchConstants.requestFailed());
-                        errorMsg.append("\n" + String.valueOf(httpStatusCode) + " " + response.getStatusText());
+                        StringBuilder errorMsg = new StringBuilder();
+                        if (errorStatuses != null && errorStatuses.containsKey(httpStatusCode)) {
+                            errorMsg.append(errorStatuses.get(httpStatusCode));
+                        } else {
+                            errorMsg.append(s_searchConstants.requestFailed() + "\n");
+                            errorMsg.append(String.valueOf(httpStatusCode) + " " + response.getStatusText());
+                        }
                         SC.warn(errorMsg.toString());
                     } else {
                         if (successMessage != null) {

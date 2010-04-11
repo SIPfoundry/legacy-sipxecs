@@ -170,4 +170,6 @@ public interface SearchConstants extends ConstantsWithLookup {
     String duplicatePhonebookEntry();
 
     String loadingDataPrompt();
+
+    String editDuplicatePhonebookEntry();
 }
