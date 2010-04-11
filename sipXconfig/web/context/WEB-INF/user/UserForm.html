@@ -21,14 +21,16 @@
       <tr jwcid="groupsPanel" for="user:groups">
           <span jwcid="@common/GroupMultiSelect"
 				value="ognl:groupsString"
-				source="ognl:availableGroups"/>
+				source="ognl:coreContext.groups"/>
       </tr>
       <tr jwcid="@If" condition="ognl:user.inheritedBranch != null">
 		<td colspan=2>
 			<b><span jwcid="@Insert" value="ognl:messages.format('inherited.branch', user.inheritedBranch.name)"/>
 		</td>
       </tr>
-      <tr jwcid="@branch/BranchSelection" branch="ognl:user.branch"/>
+      <tr jwcid="@If" condition="ognl:user.inheritedBranch == null || (user.branch !=null && user.inheritedBranch !=null && user.branch.name != user.inheritedBranch.name)">
+         <tr jwcid="@branch/BranchSelection" branch="ognl:user.branch"/>
+      </tr>
       <tr jwcid="aliasesPanel" for="user:aliases">
 		<input jwcid="aliases" id="user:aliases" type="text"/>
       </tr>

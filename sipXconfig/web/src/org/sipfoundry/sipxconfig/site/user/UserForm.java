@@ -53,9 +53,6 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
     public abstract void setGroupsString(String groups);
 
-    @Parameter(required = true)
-    public abstract List<Group> getAvailableGroups();
-
     // Update the User object if input data is valid
     @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
@@ -98,10 +95,23 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
             String groupsString = getGroupsString();
             if (groupsString != null) {
-                List groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID, groupsString, false);
-                user.setGroupsAsList(groups);
+                List<Group> groups = getSettingDao().getGroupsByString(User.GROUP_RESOURCE_ID, groupsString, false);
+                //Make sure that the actual group selection can be accepted
+                if (groupsAvailable(groups)) {
+                    user.setGroupsAsList(groups);
+                }
             }
         }
+    }
+
+    private boolean groupsAvailable(List<Group> groups) {
+        for (Group group : groups) {
+            if (!getUser().isGroupAvailable(group)) {
+                recordError("invalid.group", null);
+                return false;
+            }
+        }
+        return true;
     }
 
     // If the userName is empty and the user extension pool is enabled, then
@@ -178,10 +188,12 @@ public abstract class UserForm extends BaseComponent implements EditPinComponent
 
     private void recordError(String messageId, String arg) {
         IValidationDelegate delegate = TapestryUtils.getValidator(getPage());
-
-        String message = MessageFormat.format(getMessages().getMessage(messageId), new Object[] {
-            arg
-        });
+        String message = null;
+        if (arg != null) {
+            message = MessageFormat.format(getMessages().getMessage(messageId), arg);
+        } else {
+            message = getMessages().getMessage(messageId);
+        }
 
         delegate.record(message, ValidationConstraint.CONSISTENCY);
     }

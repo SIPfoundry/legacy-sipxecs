@@ -276,6 +276,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         }
     }
 
+    /**
+     * Checks if the inherited branch is the same with the actual branch when they are not null
+     * @param user
+     */
     private void checkBranch(User user) {
         Branch inheritedBranch = user.getInheritedBranch();
         Branch branch = user.getBranch();

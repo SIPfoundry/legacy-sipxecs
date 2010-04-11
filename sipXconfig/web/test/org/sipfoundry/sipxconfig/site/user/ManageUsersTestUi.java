@@ -68,19 +68,26 @@ public class ManageUsersTestUi extends WebTestCase {
         tester.setTextField("cp:confirmPassword", "1234");
         tester.setTextField("gms:groups", "group1");
         tester.clickButton("form:apply");
+        //group1 branch is inherited
+        assertElementNotPresent("branchSelection");
         SiteTestHelper.assertNoUserError(tester);
 
         //ceate a user with group group1 and with a branch different than inherited group branch
         SiteTestHelper.home(tester);
         clickLink("ManageUsers");
         clickLink("AddUser");
-        tester.setTextField("user:userId", "x");
+        tester.setTextField("user:userId", "y");
         tester.setTextField("cp:password", "1234");
         tester.setTextField("cp:confirmPassword", "1234");
         tester.setTextField("gms:groups", "group1");
         tester.selectOption("branchSelection", "seedBranch1");
         tester.clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
+        tester.setTextField("gms:groups", "");
+        tester.setTextField("cp:password", "1234");
+        tester.setTextField("cp:confirmPassword", "1234");
+        tester.clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
     }
 
     public void testGroupFilter() throws Exception {

@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import java.util.List;
-
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -22,7 +20,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.setting.EditGroup;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDialManager;
@@ -55,11 +52,6 @@ public abstract class EditUser extends PageWithCallback implements PageBeginRend
     public abstract User getUser();
 
     public abstract void setUser(User user);
-
-    public List<Group> getAvailableGroups() {
-        User user = getUser() == null ? getCoreContext().loadUser(getUserId()) : getUser();
-        return getCoreContext().getAvailableGroups(user);
-    }
 
     public void commit() {
         if (!TapestryUtils.isValid(this)) {

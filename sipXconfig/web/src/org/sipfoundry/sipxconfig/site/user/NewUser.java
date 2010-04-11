@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.site.user;
 
-import java.util.List;
-
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -29,7 +27,6 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
-import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 import org.sipfoundry.sipxconfig.site.admin.ExtensionPoolsPage;
@@ -68,10 +65,6 @@ public abstract class NewUser extends PageWithCallback implements PageBeginRende
     public abstract boolean isStay();
 
     public abstract String getButtonPressed();
-
-    public List<Group> getAvailableGroups() {
-        return getCoreContext().getGroups();
-    }
 
     public IPage commit(IRequestCycle cycle) {
         if (!TapestryUtils.isValid(this)) {

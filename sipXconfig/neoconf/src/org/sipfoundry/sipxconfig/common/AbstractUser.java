@@ -18,6 +18,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.restlet.Client;
 import org.restlet.data.Method;
 import org.restlet.data.Protocol;
@@ -614,6 +615,18 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
         }
 
         return result;
+    }
+    /**
+     * Determines if the passed group is available
+     */
+    @Override
+    public boolean isGroupAvailable(Group group) {
+        if (getBranch() != null && group.getBranch() != null
+                && !StringUtils.equals(getBranch().getName(), group.getBranch().getName())) {
+            return false;
+        } else {
+            return super.isGroupAvailable(group);
+        }
     }
 
 }
