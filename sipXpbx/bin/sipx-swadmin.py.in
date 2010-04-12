@@ -73,12 +73,13 @@ def update():
     flag = fcntl.fcntl(sys.stderr.fileno(), fcntl.F_GETFL)
     fcntl.fcntl(sys.stderr.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
 
-    yumBase = yum.YumBase()
-    sipxPackage = yumBase.rpmdb.searchAll("sipxecs-release")
-    if len(sipxPackage) > 0:
-        yumProcess = os.system("yum update -y --disablerepo=* --enablerepo=sipxecs*")
-    else:
-        yumProcess = os.system("yum update -y")
+#    Commented out open source check to allow operating system updates to happen via sipXconfig
+#    yumBase = yum.YumBase()
+#    sipxPackage = yumBase.rpmdb.searchAll("sipxecs-release")
+#    if len(sipxPackage) > 0:
+#        yumProcess = os.system("yum update -y --disablerepo=* --enablerepo=sipxecs*")
+#    else:
+    yumProcess = os.system("yum update -y")
     sys.stdout.flush()
     print "Package update complete.\n"
     sys.stderr.write('***END***\n')
