@@ -13,6 +13,7 @@ import gov.nist.javax.sip.TransactionExt;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.TimerTask;
 
 import javax.sip.ClientTransaction;
 import javax.sip.Dialog;
@@ -176,6 +177,17 @@ public class SipListenerImpl implements SipListenerExt {
                         "SIPX_BRIDGE_AUTHENTICATION_FAILED",
                         accountInfo.getSipDomain());
                 accountInfo.setAlarmSent(true);
+            }
+            
+            if ( method.equals(Request.REGISTER)) {
+            	 /*
+                 * Try again to register after 10 minutes ( maybe somebody pulled the
+                 * plug or is trying to reconfigure the system).
+                 */
+                if (accountInfo.registrationTimerTask == null) {
+                    TimerTask ttask = new RegistrationTimerTask(accountInfo,null,1L);
+                    Gateway.getTimer().schedule(ttask, 10 * 60 * 1000);
+                }
             }
             return;
 
