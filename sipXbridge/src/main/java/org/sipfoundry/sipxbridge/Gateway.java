@@ -272,7 +272,7 @@ public class Gateway {
                     .getSymmitronXmlRpcPort();
             isSecure = Gateway.getBridgeConfiguration().isSecure();
 
-            symmitronClient = new SymmitronClient(address, symmitronPort,
+            symmitronClient = new SymmitronClient("sipxbridge", address, symmitronPort,
                     isSecure, callControlManager);
             symmitronClients.put(address, symmitronClient);
         }

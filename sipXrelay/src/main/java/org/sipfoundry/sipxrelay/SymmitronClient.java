@@ -30,7 +30,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 public class SymmitronClient {
 
 	private static final Logger logger = Logger
-			.getLogger("org.sipfoundry.sipxbridge");
+			.getLogger("org.sipfoundry.sipxrelay");
 
 	private String clientHandle;
 	
@@ -41,6 +41,8 @@ public class SymmitronClient {
 	private SymmitronResetHandler resetHandler;
 
 	private String serverAddress;
+	
+	private String clientName;
 
 	private static Timer timer = new Timer();
 
@@ -49,7 +51,7 @@ public class SymmitronClient {
 		String handle = (String) map.get(Symmitron.INSTANCE_HANDLE);
 
 		if (!handle.equals(serverHandle)) {
-			clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
+			clientHandle = clientName + ":" + Math.abs(new Random().nextLong());
 			this.signIn();
 			return true;
 		} else {
@@ -120,7 +122,7 @@ public class SymmitronClient {
 		return this.serverHandle;
 	}
 
-	public SymmitronClient(String serverAddress, int port,
+	public SymmitronClient(String clientName, String serverAddress, int port,
 			boolean isSipxRelaySecure, SymmitronResetHandler resetHandler)
 			throws SymmitronException {
 		try {
@@ -135,6 +137,7 @@ public class SymmitronClient {
 						+ ":" + port));
 
 				this.serverAddress = serverAddress;
+				this.clientName = clientName;
 
 				config.setEnabledForExceptions(true);
 				config.setEnabledForExtensions(true);
@@ -149,7 +152,7 @@ public class SymmitronClient {
 
 			xmlRpcClient.setConfig(config);
 			xmlRpcClient.setMaxThreads(32);
-			clientHandle = "sipxbridge:" + Math.abs(new Random().nextLong());
+			clientHandle = clientName + ":" + Math.abs(new Random().nextLong());
 			client = new SynchronizedXmlRpcClient(xmlRpcClient);
 			this.signIn();
 			logger.debug("signedIn : " + protocol + "://" + serverAddress + ":"
