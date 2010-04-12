@@ -3509,7 +3509,7 @@ UtlBoolean SipMessage::getCSeqField(int* sequenceNum, UtlString* sequenceMethod)
                           "or it was followed by an unexpected character.  "
                           "Problem was detected after %d characters were processed.",
                           &value[valueStart],
-                          endptr - &value[valueStart]);
+                          (int)(endptr - &value[valueStart]));
          }
       }
    }
