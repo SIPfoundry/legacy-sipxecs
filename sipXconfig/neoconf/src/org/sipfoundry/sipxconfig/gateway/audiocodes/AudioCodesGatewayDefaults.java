@@ -21,6 +21,13 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * derived from the same base.
  */
 public class AudioCodesGatewayDefaults {
+    private static final String OPTION_ZERO = "0";
+    private static final String OPTION_ONE = "1";
+    private static final String AUTH_PER_ENDPOINT = OPTION_ZERO;
+    private static final String AUTH_PER_GATEWAY = OPTION_ONE;
+    private static final String CSMODE_DESTPHONE = OPTION_ZERO;
+    private static final String CSMODE_CYCLICASCEND = OPTION_ONE;
+
     private AudioCodesGateway m_fxoGateway;
 
     private AudioCodesFxsGateway m_fxsGateway;
@@ -45,9 +52,9 @@ public class AudioCodesGatewayDefaults {
     public String getChannelSelecMode() {
         if (m_fxoGateway != null) {
             //
-            return "1";
+            return CSMODE_CYCLICASCEND;
         }
-        return "0";
+        return CSMODE_DESTPHONE;
     }
 
     @SettingEntry(path = "SIP_Proxy_Registration/SIPDestinationPort")
@@ -55,10 +62,19 @@ public class AudioCodesGatewayDefaults {
         return m_defaults.getProxyServerSipPort();
     }
 
-    @SettingEntry(paths = { "SIP_Proxy_Registration/ProxyIP", "SIP_Proxy_Registration/RegistrarIP",
+    @SettingEntry(paths = { "SIP_Proxy_Registration/ProxyIP", "SIP_Proxy_Registration/ProxyIp",
+            "SIP_Proxy_Registration/RegistrarIP",
             "SIP_Proxy_Registration/SIPGatewayName" })
     public String getDomainName() {
         return m_defaults.getDomainName();
+    }
+
+    @SettingEntry(path = "SIP_Proxy_Registration/AuthenticationMode")
+    public String getAuthenticationMode() {
+        if (m_fxoGateway != null) {
+            return AUTH_PER_GATEWAY;
+        }
+        return AUTH_PER_ENDPOINT;
     }
 
     @SettingEntry(path = "Network/NTPServerIP")
@@ -70,6 +86,12 @@ public class AudioCodesGatewayDefaults {
             ntpIpAddress = "0.0.0.0";
         }
         return ntpIpAddress;
+    }
+
+    @SettingEntry(path = "Network/NTPServerUTCOffset")
+    public String getNTPServerUTCOffset() {
+        // Get the offset in seconds where GMT=0.
+        return Integer.toString(m_defaults.getTimeZone().getOffset() * 60);
     }
 
     @SettingEntry(path = "Network/DNSPriServerIP")

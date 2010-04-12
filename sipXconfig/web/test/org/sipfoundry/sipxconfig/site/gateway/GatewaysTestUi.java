@@ -119,12 +119,12 @@ public class GatewaysTestUi extends WebTestCase {
         clickButton("form:apply");
         assertNoUserError(tester);
 
-        clickLink("link:Network.label");
+        clickLink("link:SIP_DTMF.label");
         assertNoUserError(tester);
-        setTextField("setting:DNSPriServerIP", "4.3.2.1");
+        setTextField("setting:MaxDigits", "12");
         clickButton("form:apply");
         assertNoUserError(tester);
-        assertTextFieldEquals("setting:DNSPriServerIP", "4.3.2.1");
+        assertTextFieldEquals("setting:MaxDigits", "12");
     }
 
     /**

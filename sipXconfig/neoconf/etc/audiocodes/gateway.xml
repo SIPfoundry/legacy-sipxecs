@@ -430,6 +430,7 @@
     </setting>
     <!-- do not specify ProxyName, instead specify ProxyIP as FQDN -->
     <setting name="ProxyIP" unless="6.0orLater" advanced="yes"/>
+    <setting name="ProxyIp" if="6.0orLater" unless="trunkGateway" advanced="yes"/>
     <setting name="EnableProxyKeepAlive" unless="6.0orLater" advanced="yes">
       <type>
         <enum>
@@ -969,7 +970,7 @@
       </setting>
     </group>
   </group>
-  <group name="ip2tel-call-routing" if="6.0orLater">
+  <group name="ip2tel-call-routing" if="6.0orLater" unless="fxs">
     <setting name="RouteModeIP2Tel" advanced="yes">
       <type refid="route-mode-type"/>
       <value>1</value>
@@ -1005,7 +1006,7 @@
       </setting>
     </group>
   </group>
-  <group name="tel2ip-call-routing" if="6.0orLater">
+  <group name="tel2ip-call-routing" if="6.0orLater" unless="fxs">
     <setting name="RouteModeTel2IP" advanced="yes">
       <type refid="route-mode-type"/>
       <value>1</value>
@@ -1540,7 +1541,7 @@
     <setting name="NTPServerIP"/>
     <setting name="NTPServerUTCOffset">
       <type>
-        <integer min="0" max="24"/>
+        <integer min="-43200" max="43200"/>
       </type>
       <value>0</value>
     </setting>

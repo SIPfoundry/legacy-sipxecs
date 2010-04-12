@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.gateway.audiocodes;
 import java.io.File;
 
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
 import org.sipfoundry.sipxconfig.phone.Line;
@@ -26,10 +27,30 @@ public class AudioCodesFxsGateway extends Phone {
     private static final String CALL_PROGRESS_TONES_FILE = "Media_RTP_RTPC/Telephony/CallProgressTonesFilename";
     private static final String FXS_LOOP_CHARACTERISTICS_FILE =
         "Media_RTP_RTPC/Telephony/FXSLoopCharacteristicsFilename";
+    private static final String REL_5_4_OR_LATER = "5.4orLater";
+    private static final String REL_5_6_OR_LATER = "5.6orLater";
+    private static final String REL_6_0_OR_LATER = "6.0orLater";
     private static final String[] COPY_FILES = {CALL_PROGRESS_TONES_FILE, FXS_LOOP_CHARACTERISTICS_FILE};
 
     public AudioCodesFxsGateway() {
-        setDeviceVersion(AudioCodesModel.REL_5_0);
+        setDeviceVersion(AudioCodesModel.REL_6_0);
+    }
+
+    @Override
+    public void setDeviceVersion(DeviceVersion version) {
+        super.setDeviceVersion(version);
+        DeviceVersion myVersion = getDeviceVersion();
+
+        if (myVersion == AudioCodesModel.REL_5_4) {
+            myVersion.addSupportedFeature(REL_5_4_OR_LATER);
+        } else if (myVersion == AudioCodesModel.REL_5_6) {
+            myVersion.addSupportedFeature(REL_5_4_OR_LATER);
+            myVersion.addSupportedFeature(REL_5_6_OR_LATER);
+        } else if (myVersion == AudioCodesModel.REL_6_0) {
+            myVersion.addSupportedFeature(REL_5_4_OR_LATER);
+            myVersion.addSupportedFeature(REL_5_6_OR_LATER);
+            myVersion.addSupportedFeature(REL_6_0_OR_LATER);
+        }
     }
 
     @Override

@@ -94,7 +94,7 @@ PSTNPREFIX=${prefix},${trunk_id},*,*,0
 #end
 
 #end
-## fxs paramaters only
+## fxs parameters only
 #if(${gateway.ModelDefinitions.contains("fxs")})
 [Lines]
 #foreach ($line in $phone.lines)
@@ -137,6 +137,8 @@ ${s.ProfileName}_$port_id=$!{s.Value}
 #end
 #end
 
+## Start of trunkGateway parameters
+#if(${gateway.ModelDefinitions.contains("trunkGateway")})
 ## Tel to IP Routing Table
 [ PREFIX ]
 FORMAT PREFIX_Index = PREFIX_DestinationPrefix, PREFIX_DestAddress, PREFIX_SourcePrefix, PREFIX_ProfileId, PREFIX_MeteringCode, PREFIX_DestPort, PREFIX_SrcIPGroupID, PREFIX_DestHostPrefix, PREFIX_DestIPGroupID, PREFIX_SrcHostPrefix, PREFIX_TransportType, PREFIX_SrcTrunkGroupID;
@@ -202,6 +204,8 @@ FORMAT ProxySet_Index = ProxySet_EnableProxyKeepAlive, ProxySet_ProxyKeepAliveTi
 ProxySet $route_id = $keepalive, 60, 0, 0, 0;
 #end
 [ \ProxySet ]
+## end of trunkGateway parameters
+#end
 
 ## parameters that are not configurable per gateway go here
 [IniFileOnlyParams]
