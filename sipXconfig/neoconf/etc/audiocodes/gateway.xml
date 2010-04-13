@@ -632,7 +632,7 @@
       </type>
       <value>3</value>
     </setting>
-    <collection name="TxDTMFOption" size="5">
+    <collection name="TxDTMFOption" size="2">
       <setting name="TxDTMFOption">
         <type>
           <enum>
