@@ -1,6 +1,6 @@
 AC_PREREQ(2.57)
 
-AC_INIT(sipXecs-doc, 4.1.7, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXecs-doc, 4.2.0, sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
