@@ -1,0 +1,223 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+
+if [ `uname -s` = FreeBSD ]
+then
+    : ${ServiceDir:=@PREFIX@/etc/rc.d}
+else
+    : ${ServiceDir:=/etc/init.d}
+fi
+: ${Chown:=chown}
+: ${SubstituteUser:=su}
+: ${Psql:=psql}
+: ${PostgresUser:=@POSTGRESQL_USER@}
+
+# This function determines the correct service name for Postgres.
+postgresService() {
+    # If the user has already specified $Service, do not modify it.
+    if test -n "$POSTGRES_SERVICE"
+    then
+        echo -e "$POSTGRES_SERVICE"
+
+    elif [ -f ${ServiceDir}/rhdb ]
+    then
+        # Red Hat Enterprise / CentOS use the name rhdb
+        echo -e rhdb
+
+    elif [ -f /etc/init.d/postgresql-* ]
+    then
+        # Debian uses a service name appended with the version number
+        # E.g. postgresql-7.4 or postgresql-8.2
+        echo -e `ls /etc/init.d/postgresql-* | sed -e 's/\/etc\/init.d\///'`
+
+    else
+        # SUSE, Fedora, FreeBSD and others use the name postgresql
+        echo -e postgresql
+    fi
+}
+
+# Make sure we are running as root during installation setup
+assertRoot() {
+    user=`whoami`
+    if [ "${user}" != "root" ]; then
+      echo "Error: Must be root to run this setup script."
+      exit 1
+    fi
+}
+
+
+# Configure postgres to accept TCP connections for communication
+# from Java
+postgresSetup() {
+
+  assertRoot
+
+  # Set up the server.
+  Service=`postgresService`
+
+  # May not by running, so test first
+  # FreeBSD prints: "neither postmaster nor postgres running"
+  if ! ${ServiceDir}/${Service} status | egrep "stopped|unused|neither" > /dev/null
+  then
+      ${ServiceDir}/${Service} stop 2>&1 1> /dev/null
+  fi
+
+  # Custom
+  if test -z $PGDATA
+  # $PGDATA is set as an env variable for user postgres, but not for root
+  then
+      if [ `uname -s` = FreeBSD ]
+      then
+          PGDATA=@PREFIX@/${PostgresUser}/data
+      elif test -d /var/lib/postgresql
+      then
+          # Gentoo
+          PGDATA=/var/lib/postgresql/data
+      elif test -d /var/lib/pgsql
+      then
+          # Redhat, Fedora, CentOS & SUSE
+          PGDATA=/var/lib/pgsql/data
+      else
+          # Debian Etch
+          # Set PGDATA to the configuration directory. On Debian the database is already
+          # initialized and there is no initdb command
+          PGDATA=`ls -d /etc/postgresql/*.*/main`
+      fi
+  fi
+
+  # There are situations where the postgres db is not initialized
+  # on startup either because distro does not initialize it by default or
+  # pgsql data directory had to be deleted because it was bad.
+  if [ ! -f $PGDATA/PG_VERSION ] || [ ! -d $PGDATA/base ]
+  then
+      if [ -f /etc/redhat-release ] || [ -f /etc/SuSE-release ]
+      then
+	  if ${ServiceDir}/$Service dummy | grep initdb &>/dev/null
+	  then
+              # Fedora 8 uses "service postgresql initdb"
+              ${ServiceDir}/$Service initdb &>/dev/null
+	  else
+              # Most distributions use a separate command "initdb"
+              # to initialize the db which can also be called by
+	      # starting and stopping server. Although you could call
+	      # initdb directly there is various other housekeeping that
+	      # the service script handles so leverage it here.
+              ${ServiceDir}/$Service start &>/dev/null
+              ${ServiceDir}/$Service stop &>/dev/null
+	  fi
+      elif [ `uname -s` = FreeBSD ] ; then
+              # FreeBSD 6.2 and 7.0 use "@PREFIX@/etc/rc.d/postgresql initdb"
+              # The test using grep above fails on FreeBSD
+              ${ServiceDir}/$Service initdb &>/dev/null
+      else
+          # Debian Etch initializes the DB during installation
+	  # however, if the database is corrupt or blown away, this
+	  # will reset postgres database on distros like Debian
+          $SubstituteUser - ${PostgresUser} -c "initdb --pgdata=$PGDATA" > /dev/null
+      fi
+  fi
+
+  # Create backup file (possibly) requiring update
+  if [ ! -f $PGDATA/pg_hba.conf-sipx.bak ]
+  then
+     cp $PGDATA/pg_hba.conf $PGDATA/pg_hba.conf.sipx.bak
+  fi
+
+  # Will allow this script to add user.  Needs to be listed before
+  # other permission or it will not take effect.
+  if ! grep '^local *all *all *trust\b' $PGDATA/pg_hba.conf >/dev/null
+  then
+     echo "local all all trust" > $PGDATA/pg_hba.conf.tmp
+     cat $PGDATA/pg_hba.conf >> $PGDATA/pg_hba.conf.tmp
+     mv $PGDATA/pg_hba.conf.tmp $PGDATA/pg_hba.conf
+  fi
+
+  # Will allow jdbc to connect.  Needs to be listed before
+  # other permission or it will not take effect.
+  if ! grep '^host *all *all *127.0.0.1\/32 *trust\b' $PGDATA/pg_hba.conf >/dev/null
+  then
+     echo "host all all 127.0.0.1/32 trust" > $PGDATA/pg_hba.conf.tmp
+     cat $PGDATA/pg_hba.conf >> $PGDATA/pg_hba.conf.tmp
+     mv $PGDATA/pg_hba.conf.tmp $PGDATA/pg_hba.conf
+  fi
+
+  # Open up TCP/IP connections
+  sed -i-sipx.bak -e 's/\#tcpip_socket\s=\sfalse/tcpip_socket = true/g' \
+          $PGDATA/postgresql.conf
+  ${Chown} ${PostgresUser}:${PostgresUser} $PGDATA/postgresql.conf
+
+  # Postmaster to allow connections
+  echo "-i" > $PGDATA/postmaster.opts.default
+  chmod 664 $PGDATA/postmaster.opts.default
+  ${Chown} ${PostgresUser}:${PostgresUser} $PGDATA/postmaster.opts.default
+
+  ${ServiceDir}/$Service start
+  # Wait 3 seconds to allow slow systems to start the db server
+  sleep 3
+}
+
+# Have postgres start automatically with system reboot
+setPostgresRunlevels() {
+    # Arrange for Postgres to be started automatically in runlevels 3
+    # and 5.
+    # Check if we can use chkconfig.
+    if [ -f /sbin/chkconfig ]
+    then
+        # We have to specify the runlevels because the default set of
+        # runlevels for Postgres is empty.
+        /sbin/chkconfig --level 35 $Service on
+    elif test ! -f "/sbin/insserv" && test ! -f "/etc/debian_version"; then
+        # On SUSE and Debian postgres is put into runlevel automatically
+        echo "Check whether $Service starts automatically after reboot."
+    fi
+}
+
+exitIfUnnecessary() {
+  if ${Psql} -U ${PostgresUser} -l &>/dev/null; then
+    ## echo "Postgres already allows connections"
+    exit 0
+  fi
+}
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        -h|--help|*)
+            Action=HELP
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+if [ ${Action} = RUN ]
+then
+  exitIfUnnecessary
+  postgresSetup
+  setPostgresRunlevels
+elif [ ${Action} = HELP ]
+then
+cat <<USAGE
+Usage: pgpatch.sh [-h|--help]
+
+Patches PostgresSQL configuration file to initialize postgresql for communicating
+with sipxconfig and sipxproxy and create initial database. Will most likely need
+root permissions.
+
+Notable environment variables:
+
+    POSTGRES_SERVICE   a guess is made to determine the name for the
+                       Postgres service.
+                       If the guess is incorrect, then set this to the name of
+                       the script in /etc/init.d that starts/stops
+                       the Postgres database.  The possibilities that
+                       we are aware of are "postgresql" and "rhdb".
+
+USAGE
+
+fi

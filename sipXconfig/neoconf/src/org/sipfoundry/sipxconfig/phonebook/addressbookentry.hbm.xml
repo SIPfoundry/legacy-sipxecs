@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.phonebook" default-lazy="false">
+
+  <class name="AddressBookEntry" table="address_book_entry">
+    <id name="id" column="address_book_entry_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">abe_seq</param>
+      </generator>
+    </id>
+    <property name="jobTitle" />
+    <property name="jobDept" />
+    <property name="companyName" />
+    <property name="assistantName" />
+    <property name="cellPhoneNumber" />
+    <property name="homePhoneNumber" />
+    <property name="assistantPhoneNumber" />
+    <property name="faxNumber" />
+    <property name="imId" />
+    <property name="imPassword" />
+    <property name="imDisplayName" />
+    <property name="alternateImId" />
+    <property name="location" />
+    <property name="useBranchAddress" />
+    <property name="emailAddress" />
+    <property name="alternateEmailAddress" />
+	<many-to-one name="homeAddress" class="org.sipfoundry.sipxconfig.phonebook.Address"
+    unique="true"
+    cascade="all"
+    column="home_address_id"/>
+	<many-to-one name="officeAddress" class="org.sipfoundry.sipxconfig.phonebook.Address"
+    unique="true"
+    cascade="all"
+    column="office_address_id"/>
+    <many-to-one name="branchAddress" class="org.sipfoundry.sipxconfig.phonebook.Address"
+    unique="false"
+    cascade="none"
+    column="branch_address_id"/>
+  </class>
+</hibernate-mapping>

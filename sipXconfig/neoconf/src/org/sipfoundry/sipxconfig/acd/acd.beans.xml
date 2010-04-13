@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="acdComponent" abstract="true" class="org.sipfoundry.sipxconfig.acd.AcdComponent"
+    parent="beanWithSettings">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="coreContext" ref="coreContext"/>
+    <property name="callGroupContext" ref="callGroupContext"/>
+  </bean>
+
+  <bean id="acdServer" class="org.sipfoundry.sipxconfig.acd.AcdServer" parent="acdComponent"
+    singleton="false">
+    <property name="location" ref="location"/>
+    <property name="port" value="8110"/>
+    <property name="acdContext">
+      <ref local="acdContextImpl"/>
+    </property>
+    <property name="sipxServiceManager" ref="sipxServiceManager"/>
+    <property name="loggingManager" ref="loggingManager"/>
+  </bean>
+  <bean id="acdAgent" class="org.sipfoundry.sipxconfig.acd.AcdAgent" parent="acdComponent"
+    singleton="false"/>
+  <bean id="acdLine" class="org.sipfoundry.sipxconfig.acd.AcdLine" parent="acdComponent"
+    singleton="false"/>
+  <bean id="acdQueue" class="org.sipfoundry.sipxconfig.acd.AcdQueue" parent="acdComponent"
+    singleton="false"/>
+  <bean id="acdAudio" class="org.sipfoundry.sipxconfig.acd.AcdAudio" parent="acdComponent"
+    singleton="false"/>
+
+  <bean id="acdContextImpl" class="org.sipfoundry.sipxconfig.acd.AcdContextImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="locationsManager" ref="locationsManager"/>
+	<property name="sipxServiceManager" ref="sipxServiceManager"/>
+	<property name="acdBundle" ref="acdBundle"/>
+	<property name="aliasManager" ref="aliasManager"/>
+  </bean>
+
+  <bean id="acdContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.AcdContext"/>
+    <property name="target" ref="acdContextImpl"/>
+  </bean>
+
+  <bean id="acdMigrationTrigger" class="org.sipfoundry.sipxconfig.acd.AcdMigrationTrigger">
+    <property name="acdContext">
+      <ref local="acdContext"/>
+    </property>
+    <property name="taskNames">
+      <list>
+        <value>acd_migrate_line_extensions</value>
+        <value>acd_migrate_overflow_queues</value>
+        <value>acd_server_migrate_acd_service</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="acdProvisioningContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces"
+      value="org.sipfoundry.sipxconfig.acd.AcdProvisioningContext"/>
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+        <value>hibernateInterceptor</value>
+      </list>
+    </property>
+    <property name="target">
+      <bean class="org.sipfoundry.sipxconfig.acd.AcdProvisioningContextImpl">
+        <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+        <property name="sessionFactory" ref="sessionFactory"/>
+        <property name="serviceConfigurator" ref="serviceConfigurator"/>
+		<property name="sipxServiceManager" ref="sipxServiceManager"/>
+        <property name="jobContext" ref="jobContext"/>
+      </bean>
+    </property>
+  </bean>
+
+</beans>

@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<alarm_groups xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarmgroups-00-00">
+  <!-- Per-alarmgroup definitions. -->
+  <definitions>
+    <group id="emergency">
+      <email>
+        <contact>test_email1@example.com</contact>
+        <contact>test_email2@example.com</contact>
+      </email>
+      <sms>
+      </sms>
+      <trap>
+        <trap-receiver-contact>
+          <trap-receiver-address>47.152.236.68</trap-receiver-address>
+          <community-string>ses</community-string>
+          <port-number>162</port-number>
+        </trap-receiver-contact>
+      </trap>
+    </group>
+  </definitions>
+</alarm_groups>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/spring-2.0.4.jar" sourcepath="/LIB_SRC/spring/2.0.4/src.zip"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-logging-1.1.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/velocity-1.5.jar" sourcepath="/LIB_SRC/velocity/1.5/src.zip"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
+</classpath>

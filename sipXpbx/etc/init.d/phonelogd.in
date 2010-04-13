@@ -1,0 +1,237 @@
+#!/bin/bash
+#
+# chkconfig: 35 90 10
+# description: This script starts up a dedicated instance of syslogd to receive logging from phones
+#
+# processname: phonelog
+# pidfile: @SIPX_LOGDIR@/phone/var/run/syslog.pid
+#
+# Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+#
+### BEGIN INIT INFO
+# Provides:       phonelog
+# Required-Start: $network $remote_fs
+# Required-Stop:
+# Default-Start:  3 5
+# Default-Stop:
+# Description:    Start the syslog instance for logging from phones
+### END INIT INFO
+
+# This is an interactive program; we need the current locale.
+[ -f /etc/profile.d/lang.sh ] && . /etc/profile.d/lang.sh
+
+if [ "$LANG" = "ja" -o "$LANG" = "ja_JP.eucJP" ]; then
+    # We can't Japanese on normal console at boot time.
+    # So, force to set LANG=C
+    if [ "$TERM" = "linux" ] ; then
+        LANG=C
+    fi
+fi
+
+## Source function library.
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+SyslogCmd=/sbin/rsyslogd
+if [ ! -x "${SyslogCmd}" ]
+then
+   cat 1>&2 <<EOF
+The program '${SyslogCmd}' not installed or not executable.
+The phonelogd service requires that rsyslog be installed.
+phonelogd disabled.
+EOF
+   exit 1
+else
+    # calculate the correct arguments based on the major version
+    rsyslogVersion=$(${SyslogCmd} -v | perl -ne 'm/^rsyslogd\s+(\d+)/ && print $1')
+    RsyslogVersionArgs=""
+    if [ -z "${rsyslogVersion}" ]
+    then
+        echo "rsyslogd version check failed - phonelogd disabled." 1>&2
+        exit 1
+    elif [ ${rsyslogVersion} -ge 3 ]
+    then
+        RsyslogVersionArgs="-c3"
+    else
+        RsyslogVersionArgs="-r514"
+    fi
+fi
+
+ExitStatus=0
+
+Enabled=`sipx_config_value @SIPX_CONFDIR@/phonelog-config PHONELOG_ENABLED`
+
+PhoneLogRoot=@SIPX_LOGDIR@/phone
+# PidFile must agree with 'pidfile:' line in comments above
+#   this is actually fixed because on CentOS5 it cannot be changed
+PidFile=${PhoneLogRoot}/var/run/syslogd.pid
+
+as_sipxpbxuser () {
+    iam=`whoami`
+    if [ "${iam}" = "root" ]
+    then
+        exec su @SIPXPBXUSER@ -c "$0 $*"
+    elif [ "${iam}" != "@SIPXPBXUSER@" ]
+    then
+        echo "$0 $* must be run as either root or @SIPXPBXUSER@" 1>&2
+        exit 1
+    fi
+}
+
+do_start () {
+    ## set up the chroot environment (done as SIPXPBXUSER)
+    $0 setup
+
+    chroot ${PhoneLogRoot} ${SyslogCmd} -f phonelog.conf -x -i /var/run/syslogd.pid ${RsyslogVersionArgs}
+}
+
+do_stop () {
+    if [ -e ${PidFile} ]
+    then
+        running=`cat ${PidFile} 2>/dev/null`
+        if [ -n "${running}" ] && proc_alive ${running}
+        then
+            kill -TERM "${running}"
+        fi
+        rm -f ${PidFile}
+    fi
+}
+
+copy2chroot () {
+    local file=$1
+    local dir=$(dirname ${file})
+
+    if [ -e ${PhoneLogRoot}${file} ]
+    then
+        if ! cmp ${file} ${PhoneLogRoot}${file} 2> /dev/null
+        then
+            rm -f ${PhoneLogRoot}${file}
+            cp ${file} ${PhoneLogRoot}${file}
+        fi
+    else
+        test -d ${PhoneLogRoot}${dir} || mkdir -p ${PhoneLogRoot}${dir}
+        cp ${file} ${PhoneLogRoot}${file}
+    fi
+}
+
+do_setup () {
+    # if needed, construct the chroot environment for the phonelog daemon
+    test -d ${PhoneLogRoot}         || mkdir ${PhoneLogRoot}
+    test -d ${PhoneLogRoot}/dev     || mkdir ${PhoneLogRoot}/dev # needed for socket we don't use
+    test -d ${PhoneLogRoot}/var     || mkdir ${PhoneLogRoot}/var
+    test -d ${PhoneLogRoot}/var/run || mkdir ${PhoneLogRoot}/var/run # needed for pid file
+
+    # copy the configuration into the chroot
+    cp @SIPX_CONFDIR@/phonelog.conf ${PhoneLogRoot}/phonelog.conf
+
+    # link any dynamic libraries needed by the daemon executable
+    syslog_libs=""
+    if [ -d /usr/lib/rsyslog ]
+    then
+        syslog_libs=$(ls /usr/lib/rsyslog/*.so 2> /dev/null)
+    elif [ -d /usr/lib64/rsyslog ]
+    then
+        syslog_libs=$(ls /usr/lib64/rsyslog/*.so 2> /dev/null)
+    fi
+    for obj in ${SyslogCmd} $syslog_libs
+    do
+        copy2chroot $obj
+        for lib in $(ldd "$obj" | perl -pe 's|^.*=>\s*||; s|\s*\(.*$||; s|^\s*||')
+        do
+            copy2chroot $lib
+        done
+    done
+}
+
+if [ "${Enabled}" = "TRUE" ]
+then
+   case "$1" in
+     start)
+           ### Verify that the phonelog service is not already running.
+           if [ -e ${PidFile} ]
+           then
+               echo "   Found ${PidFile}..."
+               echo "         checking for running phonelog process..."
+               running=`cat ${PidFile} 2>/dev/null`
+               if [ -n "${running}" ] && proc_alive ${running}
+               then
+                   echo -n " The phonelogd may already be running (pid ${running})."
+                   echo -n " Try stop or restart."
+                   echo_failure
+                   echo ""
+                   ExitStatus=1
+               else
+                   # stale pid file found? - do stop just in case
+                   echo " phonelogd not found - running restart"
+                   exec $0 restart
+               fi
+           else
+               do_start
+               ExitStatus=$?
+           fi
+           ;;
+     stop)
+           do_stop
+           ;;
+     status)
+           if [ -e ${PidFile} ]
+           then
+               running=`cat ${PidFile} 2>/dev/null`
+               if [ -n "${running}" ] && proc_alive ${running}
+               then
+                  ExitStatus=0
+                  echo "running (${running})"
+               else
+                  ExitStatus=1
+                  echo "process not found - try restart"
+               fi
+           else
+               ExitStatus=0
+               echo "not running"
+           fi
+           ;;
+
+     configtest)
+           test -r @SIPX_CONFDIR@/phonelog.conf
+           ExitStatus=$?
+           ;;
+
+     reconfigure)
+           if [ -e ${PidFile} ]
+           then
+               running=`cat ${PidFile} 2>/dev/null`
+               if [ -n "${running}" ] && proc_alive ${running}
+               then
+                  kill -HUP ${running}
+               else
+                  ExitStatus=1
+                  echo "process not found - try restart"
+               fi
+           else
+               ExitStatus=0
+               echo "not running"
+           fi
+           ;;
+
+     restart)
+           do_stop
+           do_start
+           ExitStatus=$?
+           ;;
+
+     setup)
+           as_sipxpbxuser $* # ensures that setup is run as @SIPXPBXUSER@
+           do_setup
+           ;;
+
+     *)
+           echo $"Usage: $0 {start|stop|status|configtest|reconfigure|setup|restart}"
+           exit 1
+   esac
+else
+   echo "(Unconfigured)" 1>&2
+   ExitStatus=0
+fi
+
+exit ${ExitStatus}

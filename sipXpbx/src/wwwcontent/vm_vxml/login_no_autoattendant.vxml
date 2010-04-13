@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+    <!--
+        This script takes care of voicemail owner login.
+    -->
+    <form id="vmowner">
+        <property name="interdigittimeout" value="3s" />
+        <property name="timeout" value="10s" />
+        <var name="login_attempts" expr="0"/>
+
+        <!-- Parameters passed in when invoked by the subroutine -->
+        <var name="msgavailable" expr="'yes'"/>
+        <var name="mailbox" />
+        <var name="extn" />
+        <var name="from" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+
+        <!-- Action attribute is required by the CGI -->
+        <var name="action" expr="'login'"/>
+
+        <!-- Check if caller dialed into the mediaserver from a known extension.
+            If yes, extn is set to a valid value. Do not prompt the user for an extension.
+            If no, extn is set to "-1". Prompt the user for both the extension and pin.
+        -->
+        <block>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'welcome.wav'"/>
+            </prompt>
+        </block>
+
+        <block>
+            <if cond="extn == '-1' || extn == '' || extn =='undefined'">
+                <clear namelist="extension"/>
+                <goto nextitem="extension" />
+            <else />
+                <assign name="extension" expr="extn"/>
+                <goto nextitem="pin"/>
+            </if>
+        </block>
+
+
+        <!-- Get user's extension -->
+        <field name="extension" type="digits?minlength=1;maxlength=100">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'dial_extn_short.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="extension== '#'">
+                    <clear namelist="extension"/>
+                    <goto nextitem="extension"/>
+                <else />
+                    <goto nextitem="pin"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+
+        <!-- Get pin -->
+        <field name="pin" cond="extension != 'undefined'" type="digits?minlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'dial_pin.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="pin== '#'">
+                    <clear namelist="extension pin"/>
+                    <goto nextitem="extension"/>
+                <else/>
+                    <goto nextitem="login"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+
+        <!-- Call the CGI to do the login (to look up IMDB database, create mailbox folders if necessary, etc ) -->
+        <subdialog name="login" cond="pin != 'undefined'" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action extension pin">
+            <filled>
+                <if cond="login.result == 'success'">
+                    <assign name="mailbox" expr="login.mailboxid" />
+                    <goto nextitem="playstatus"/>
+                <elseif cond="login_attempts == '2'"/>
+                    <!-- Extension and pin do not match. Only 3 attempts allowed. -->
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_pin.wav'" />
+                        <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'"/>
+                    </prompt>
+                    <disconnect/>
+                <else/>
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_pin.wav'" />
+                    <assign name="login_attempts" expr="login_attempts + 1"/>
+                    <if cond="extn == extension">
+                        <clear namelist="pin"/>
+                        <goto nextitem="pin"/>
+                    <else/>
+                        <clear namelist="extension pin"/>
+                        <goto nextitem="extension"/>
+                    </if>
+                </if>
+            </filled>
+        </subdialog>
+
+        <!--    Plays mailbox status like
+             "You have 2 unheard messages, 5 heard messages and 1 saved message"
+         -->
+        <block name="playstatus" cond="login.result == 'success'">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'you_have.wav'"/>
+            </prompt>
+            <if cond="login.unheard > 0">
+                <prompt>
+                    <say-as type="number">
+                        <value expr="login.unheard"/>
+                    </say-as>
+                </prompt>
+                <prompt cond="login.unheard > 1">
+                    <audio expr="mediaserverurl + promptsalias + 'unheard_msgs.wav'"/>
+                </prompt>
+                <prompt cond="login.unheard==1">
+                    <audio expr="mediaserverurl + promptsalias + 'unheard_msg.wav'"/>
+                </prompt>
+            </if>
+
+            <if cond="(login.total - login.unheard) > 0">
+                <if cond="login.unheard > 0">
+                    <prompt cond="login.saved == 0">
+                        <audio expr="mediaserverurl + promptsalias + 'and.wav'"/>
+                    </prompt>
+                </if>
+                <prompt>
+                    <say-as type="number">
+                        <value expr="(login.total - login.unheard)"/>
+                    </say-as>
+                </prompt>
+                <prompt cond="(login.total - login.unheard) > 1">
+                    <audio expr="mediaserverurl + promptsalias + 'heard_msgs.wav'"/>
+                </prompt>
+                <prompt cond="(login.total - login.unheard) == 1">
+                    <audio expr="mediaserverurl + promptsalias + 'heard_msg.wav'"/>
+                </prompt>
+            </if>
+
+            <if cond="login.saved > 0">
+                <prompt cond="login.total > 0">
+                    <audio expr="mediaserverurl + promptsalias + 'and.wav'"/>
+                </prompt>
+                <prompt>
+                    <say-as type="number">
+                        <value expr="login.saved"/>
+                    </say-as>
+                </prompt>
+                <prompt cond="login.saved > 1">
+                    <audio expr="mediaserverurl + promptsalias + 'saved_msgs.wav'"/>
+                </prompt>
+                <prompt cond="login.saved == 1">
+                    <audio expr="mediaserverurl + promptsalias + 'saved_msg.wav'"/>
+                </prompt>
+            </if>
+
+            <if cond="(login.total + login.saved) == 0">
+                <prompt>
+                    <audio expr="mediaserverurl + promptsalias + 'no_msgs_in_inbox.wav'"/>
+                </prompt>
+            </if>
+            <goto nextitem="mainmenu"/>
+        </block>
+
+        <!-- Proceed to the main menu -->
+        <subdialog name="mainmenu" cond="login.result == 'success'" method="get" src="mainmenu.vxml">
+            <param name="mailbox" expr="mailbox" />
+            <param name="extn" expr="extn" />
+            <param name="from" expr="from" />
+            <param name="mediaserverurl" expr="mediaserverurl" />
+            <param name="securemediaserverurl" expr="securemediaserverurl" />
+            <param name="isRecordSystemPromptsEnabled" expr="login.isRecordSystemPromptsEnabled" />
+        </subdialog>
+
+        <subdialog name="dialbyname" cond="extension == '9'" srcexpr="securemediaserverurl + dialbynameurl'">
+            <param name="from" expr="from" />
+            <param name="mediaserverurl" expr="mediaserverurl" />
+            <param name="securemediaserverurl" expr="securemediaserverurl" />
+        </subdialog>
+
+    </form>
+</vxml>

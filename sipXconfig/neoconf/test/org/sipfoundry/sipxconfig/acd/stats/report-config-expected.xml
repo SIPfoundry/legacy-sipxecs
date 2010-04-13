@@ -1,0 +1,6 @@
+CONFIG_SERVER_REPORT = "ENABLED"
+CONFIG_SERVER_AGENT_URL = "http://example.org:8120;"
+DB_NAME = "SIPXACD_HISTORY"
+DB_URI = "dbi:Pg:#{DB_NAME}:localhost"
+DB_USER = "postgres"
+LOCATION_FQDN="example.org;"

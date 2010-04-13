@@ -1,0 +1,22 @@
+    <div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+	  <span jwcid="@common/ErrorMsg"></span>
+	  <form jwcid="editScheduleForm@Form" delegate="bean:validator" listener="listener:submit">
+	     <span jwcid="@common/ItemCommon" item="ognl:schedule" nameValidator="spring-validators:required" useEnabled="literal:false" useExtension="literal:false"/>
+		  <ul class="component-links">
+			<li>
+				<a jwcid="addPeriod@LinkSubmit" selected="ognl:action" tag="add"><span key="add">Add Period</span></a>
+			</li>
+		  </ul>
+	      <fieldset>
+	        <table>
+	          <tbody>
+	            <!-- iterate here -->
+	            <tr jwcid="@For" source="ognl:workingHours" value="ognl:workingHour" index="ognl:index" volatile="true">
+				  <span jwcid="@common/ScheduleWorkingHours" workingHour="ognl:workingHour" index="ognl:index" deleteListener="listener:deletePeriod"/>
+				</tr>
+	          </tbody>
+	        </table>
+	      </fieldset>
+	    <span jwcid="@common/FormActions" callback="ognl:callback" listener="listener:commit"/>
+	  </form>
+    </div>

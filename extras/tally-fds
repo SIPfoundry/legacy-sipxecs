@@ -1,0 +1,114 @@
+#! /usr/bin/perl
+
+# -d turns on debugging prints
+if ($ARGV[0] eq '-d') {
+    shift;
+    $debug = 1;
+}
+# -s shows time to the second rather than to the minute
+if ($ARGV[0] eq '-s') {
+    shift;
+    $seconds = 1;
+}
+
+# The time (to the minute) of the previous log line.
+$last_time = '';
+# The line number of the previous log line.
+$last_line = 0;
+# The status string to be printed for this minute.
+# Start using '.' to designate stdin, stdout, and stderr.
+$status_initial = '...';
+$current_status = $status_initial;
+# The status string to be printed for the next minute.
+$next_status = $status_initial;
+
+# Pattern to extract the time from the log line.
+$time_pattern = $seconds ? "..................." : "................";
+
+# Print the header.
+print "Time", ' ' x (length($time_pattern)-4), "\tLine\tOpen\tFDs--->\n";
+
+# Read the log.
+while (<>) {
+    # Get the time and line number.
+    ($current_time, $current_line) = /"($time_pattern).*":(\d+):/o;
+
+    # If the component restarts, clear the status.
+    if ($current_line < $last_line - 100) {
+	$next_status = $status_initial;
+    }
+    $last_line = $current_line;
+
+    # If the minute has changed, print the last minute's status.
+    if ($current_time ne $last_time) {
+	&print;
+	$last_time = $current_time;
+	$next_status =~ s/ +$//;
+	$current_status = $next_status;
+	$start_line = $current_line;
+    }
+
+    # Update the status based on the current log line.
+    if (/::_ created UDP unshared socket (\d+):/) {
+	&set($1, 'u');
+    } elsif (/::_ created UDP shared socket (\d+):/) {
+	&set($1, 'U');
+    } elsif (/::_ created TCP unshared socket (\d+):/) {
+	&set($1, 't');
+    } elsif (/::_ created TCP shared socket (\d+):/) {
+	&set($1, 'T');
+    } elsif (/OsConnectionSocket::.* connected (\d+) to /) {
+	&set($1, 't');
+    } elsif (/close socket (\d+)/) {
+	&clear($1);
+    } elsif (/OsServerTaskWaitable::_ pipe\(\) opened (\d+) -> (\d+)/) {
+	&set($1, 'w');
+	&set($2, 'r');
+    } elsif (/OsServerTaskWaitable::~ closed (\d+) -> (\d+)/) {
+	&clear($1);
+	&clear($2);
+    }	
+}
+&print;
+
+exit 0;
+
+sub set {
+    my($index, $value) = @_;
+
+    print "set $index '$value' $_" if $debug;
+    $current_status .= ' ' x ($index - length($current_status))
+	if $index > length($current_status);
+    $next_status .= ' ' x ($index - length($next_status))
+	if $index > length($next_status);
+    substr($current_status, $index, 1) = $value;
+    substr($next_status, $index, 1) = $value;
+}
+
+sub clear {
+    my($index) = @_;
+
+    print "clear $index $_" if $debug;
+    $next_status .= ' ' x ($index - length($next_status))
+	if $index > length($next_status);
+    substr($next_status, $index, 1) = ' ';
+}
+
+sub print {
+    if ($last_time ne '') {
+	print "$last_time\t$start_line\t";
+
+	# Count the number of open fd's.
+	$count = 0;
+	$max = -1;
+	for ($i = 0; $i < length($current_status); $i++) {
+	    $c = substr($current_status, $i, 1);
+	    if (!($c eq ' ' || $c eq '.')) {
+		$count++;
+		$max = $i;
+	    }
+	}
+
+	print "$count/$max\t$current_status\n";
+    }
+}

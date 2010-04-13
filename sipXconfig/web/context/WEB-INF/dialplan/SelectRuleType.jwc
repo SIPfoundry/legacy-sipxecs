@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.dialplan.SelectRuleType">
+  <!--
+    - P R O P E R T I E S
+  -->
+  <inject property="dialingRuleFactory" object="spring:dialingRuleFactory" />
+  <property name="ruleBeanId" />
+
+  <!--
+    - B E A N S
+  -->
+  <bean name="localizedRuleModel" class="org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator" lifecycle="page">
+    <set name="model" value="rawRuleModel"/>
+    <set name="resourcePrefix" value="literal:rule."/>
+    <set name="messages" value="messages"/>
+  </bean>
+
+  <bean name="ruleModel" class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator" lifecycle="page">
+    <set name="model" value="bean:localizedRuleModel" />
+    <set name="extraLabel" value="message:label.addNewRule" />
+    <set name="extraOption" value="null" />
+  </bean>
+
+  <!--
+    - C O M P O N E N T S
+  -->
+  <component id="ruleTypeSelection" type="PropertySelection">
+    <binding name="value" value="ruleBeanId" />
+    <binding name="model" value="bean:ruleModel" />
+    <binding name="onchange" value="literal:javascript:this.form.submit();" />
+  </component>
+</component-specification>

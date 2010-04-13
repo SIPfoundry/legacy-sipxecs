@@ -1,0 +1,39 @@
+--- ./jasper/src/share/org/apache/jasper/servlet/JasperLoader.java.orig	2004-11-24 15:00:08.751634094 -0500
++++ ./jasper/src/share/org/apache/jasper/servlet/JasperLoader.java	2004-11-24 15:00:43.654696722 -0500
+@@ -103,7 +103,6 @@
+     private CodeSource codeSource = null;
+     private String className = null;
+     private ClassLoader parent = null;
+-    private SecurityManager securityManager = null;
+     private PrivilegedLoadClass privLoadClass = null;
+ 
+     JasperLoader(URL [] urls, String className, ClassLoader parent,
+@@ -115,7 +114,6 @@
+ 	this.className = className;
+ 	this.parent = parent;
+         this.privLoadClass = new PrivilegedLoadClass();
+-	this.securityManager = System.getSecurityManager();
+     }
+ 
+     /**
+@@ -174,7 +172,8 @@
+                           
+         // (.5) Permission to access this class when using a SecurityManager
+ 	int dot = name.lastIndexOf('.');
+-        if (System.getSecurityManager() != null) {     
++        SecurityManager securityManager = System.getSecurityManager(); 
++        if (securityManager != null) {     
+             if (dot >= 0) {                
+                 try {                    
+                     securityManager.checkPackageAccess(name.substring(0,dot));
+--- ./jasper/build.xml.orig	2004-11-24 14:59:32.379653077 -0500
++++ ./jasper/build.xml	2004-11-24 15:00:43.761690783 -0500
+@@ -208,7 +208,7 @@
+ 
+     <!-- Executable commands -->
+     <mkdir dir="${jasper.dist}/bin"/>
+-    <copy dest="${jasper.dist}/bin">
++    <copy todir="${jasper.dist}/bin">
+       <fileset dir="${jasper.build}/bin" />
+     </copy>
+     <fixcrlf srcdir="${jasper.dist}/bin" includes="*.sh" eol="lf"/>

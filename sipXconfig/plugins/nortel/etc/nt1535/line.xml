@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="restricted-port-number">
+    <integer required="yes" min="1024" max="32000" />
+  </type>
+  <group name='VOIP'>
+    <setting name='name' />
+    <setting name='authname' hidden="yes"/>
+    <setting name='display_name' />
+    <setting name='password' />
+    <setting name='type'>
+      <type>
+        <enum>
+          <option>
+            <value>private</value>
+          </option>
+          <option>
+            <value>shared</value>
+          </option>
+        </enum>
+      </type>
+      <value>private</value>
+    </setting>
+    <setting name='proxy_address' advanced="yes"></setting>
+    <setting name='proxy_port' advanced="yes">
+      <type refid="restricted-port-number" />
+      <value>5060</value>
+    </setting>
+  </group>
+</model>

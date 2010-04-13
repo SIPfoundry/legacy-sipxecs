@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditEmergencyRouting">
+  <!--
+  - P R O P E R T I E S
+  -->
+  <inject property="dialPlanContext" object="spring:dialPlanContext"/>
+  <inject property="gatewayContext" object="spring:gatewayContext"/>
+  <property name="emergencyRouting"/>
+  <property name="exceptionsMap"/>
+  <property name="exceptionItem"/>
+  <!--
+  - B E A N S
+  -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <bean name="gatewayModel" class="org.sipfoundry.sipxconfig.site.gateway.GatewaySelectionModel">
+    <set name="gateways">gatewayContext.gateways</set>
+  </bean>
+  <!--
+  - C O M P O N E N T S
+  -->
+  <component id="form" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+  </component>
+  <component id="errors" type="common/ErrorMsg"/>
+  <component id="gatewaysLink" type="PageLink">
+    <binding name="page" value="literal:ListGateways"/>
+  </component>
+  <component id="addExceptionLink" type="DirectLink">
+    <binding name="listener" value="listener:addException"/>
+  </component>
+  <component id="gatewaysLabel" type="FieldLabel">
+    <binding name="field" value="components.gateways"/>
+    <binding name="displayName" value="message:gateway"/>
+  </component>
+  <component id="gateways" type="PropertySelection">
+    <binding name="value" value="emergencyRouting.defaultGateway"/>
+    <binding name="model" value="bean:gatewayModel"/>
+    <binding name="validators" value="validators:required"/>
+  </component>
+  <component id="externalNumberLabel" type="FieldLabel">
+    <binding name="field" value="components.externalNumber"/>
+  </component>
+  <component id="externalNumber" type="TextField">
+    <binding name="value" value="emergencyRouting.externalNumber"/>
+    <binding name="validators" value="spring-validators:validSipUserId,required"/>
+    <binding name="displayName" value="message:externalEmergencyNumber"/>
+  </component>
+  <component id="exceptions" type="ListEdit">
+    <binding name="source" value="exceptionsMap.keys"/>
+    <binding name="value" value="exceptionsMap.key"/>
+    <binding name="listener" value="listener:synchronizeExceptionItem"/>
+  </component>
+  <component id="exception" type="dialplan/RoutingExceptionEditor">
+    <binding name="deleteListener" value="listener:deleteException"/>
+    <binding name="exception" value="exceptionItem"/>
+    <binding name="gateways" value="gatewayContext.gateways"/>
+  </component>
+  <component id="formActions" type="common/FormActions">
+    <binding name="callback" value="callback"/>
+    <binding name="listener" value="listener:commit"/>
+  </component>
+</page-specification>

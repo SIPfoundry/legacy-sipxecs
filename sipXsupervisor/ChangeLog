@@ -1,0 +1,117 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+        http://track.sipfoundry.org/browse?XPB
+
+Release Notes - sipXpbx - Version 2.6.2
+
+** Bug
+    * [XPB-134] - Replication CGI - Prints wrong error message
+    * [XPB-135] - Voicemail store incorporates domain name in path
+    * [XPB-138] - Logging@INFO from the Mediaserver CGI
+    * [XPB-144] - Support graceful degradation of sipX services in response to depletion of system resources
+    * [XPB-149] - E-mail errors logged by VM system.
+    * [XPB-150] - Log messages "UpdateMessageStates : Message XXX not found in inbox"
+    * [XPB-158] - A bulk of cron complaints about the syntax of /etc/logrotate.d/sipxchange
+    * [XPB-162] - Show the version of installed sipx rpms through a script
+    * [XPB-168] - 2.6:  Detect when watchdog.pid exists but watchdog is not running
+    * [XPB-171] - Mediaserver web UI unable to authenticate even users with 'valid' permission
+    * [XPB-186] - Failed dependencies while trying to upgrade - From sipx2.6.2 to 2.6.2
+    * [XPB-188] - Upgrading to RHE Final Candidate does not retain original configuration
+
+
+** Task
+    * [XPB-104] - Revise ulimit handling
+    * [XPB-145] - Disk space planning
+
+** Improvement
+    * [XPB-136] - Default log level for httpd
+    * [XPB-141] - Check certificate name against server name at startup
+    * [XPB-154] - "/sbin/service sipxpbx start" command should indicate when all services have started.
+
+
+Release Notes - sipXpbx - Version 2.6.1
+
+** Bug
+    * [XPB-1] - INSTALL weak
+    * [XPB-15] - Clean up startup/shutdown
+    * [XPB-27] - Duplicate files sipXpbx/main/etc/cert/openssl.tmpl and openssl.id.tmpl
+    * [XPB-43] - replicationcgi has bugs in finding /var paths
+    * [XPB-44] - System stopped responding
+    * [XPB-47] - Certificate file names not the same everywhere
+    * [XPB-48] - Config variable APACHE2_HTTPD has incorrect value.
+    * [XPB-49] - make rpm for sipXpbx results in error constructing startup script
+    * [XPB-52] - Certificate installation as per installation document cannot be done
+    * [XPB-53] - Installation instructions for sipXpbx apache configuration incorrect
+    * [XPB-54] - Remove RoboHelp log files from distribution
+    * [XPB-55] - httpd-sipxchange-configserver-pw.conf not installed as part of make install
+    * [XPB-56] - Make installation sipXpbx apache - mediaserver-config is incorrect
+    * [XPB-58] - Where is httpd.conf?
+    * [XPB-59] - Installig creates /usr/local/sipx/etc/sipxpbx/@SIPXVXMLDATA@
+    * [XPB-60] - httpd-sipxchange-configserver-pw.conf is referenced but missing.
+    * [XPB-61] - authentication not checked
+    * [XPB-63] - gen-ssl-keys.sh gives wrong path for install-cert.sh
+    * [XPB-64] - install-cert.sh gives error when trying to install the self signed cert
+    * [XPB-65] - httpd conf files referenced incorrectly
+    * [XPB-66] - Apache can't find libmod_cplusplus.so
+    * [XPB-67] - Incorrect 'install' in install-cert.sh.in
+    * [XPB-68] - Missing "then" after "elif" in script sipxpbx.
+    * [XPB-69] - Incorrect paths listed in .../etc/sipxpbx/httpd* files
+    * [XPB-85] - Add "LoadModule mod_ssl.so" to httpd.conf
+    * [XPB-86] - Have "su" clear BASH_ENV
+    * [XPB-87] - Add mod_ssl to the list of RPMs to be fetched and installed.
+    * [XPB-89] - Replication Cgi tries to find resourcemap.xml in the wrong place
+    * [XPB-90] - Set up CWD for sipX processes
+    * [XPB-91] - libcrypto.so.0.9.7 needed by sipXcallLib build 20041015030043
+    * [XPB-93] - Phones not getting profiles from the config server.
+    * [XPB-94] - sipXvxml should create all parent directories for mailstore, if required
+    * [XPB-95] - cannot find apr headers when building sipXpbx
+    * [XPB-101] - Need to get directory ownership/permissions correct
+    * [XPB-102] - Put cache files in SIPX_TMPDIR
+    * [XPB-103] - Web UI (http://host) does not respond
+    * [XPB-105] - Deleted voicemail messages are never purged
+    * [XPB-108] - Watchdog restart notification command is broken
+    * [XPB-111] - Change logging prirority of sipxpbx start / stop
+    * [XPB-114] - Core dump from watchdog
+    * [XPB-115] - Make RPM require mod_ssl rpm
+    * [XPB-116] - Prohibit starting pbx when it's already started
+    * [XPB-117] - sipxpbx startup - Test for fully qualified hostname
+    * [XPB-121] - In e-mail notification of new voicemail, "Show Voicemail Inbox" link does not work
+    * [XPB-122] - In e-mail notification of new voicemail, "Delete message" link does not work
+    * [XPB-129] - Accessing config server admin ui gives 500 internal error
+
+** New Feature
+    * [XPB-4] - Need Documentation for sipXpbx
+    * [XPB-30] - RPM for pbx
+
+** Task
+    * [XPB-36] - Handling of SIPXCHANGE_HOME has never been resolved
+    * [XPB-37] - Handling of /home/sipxchange has never been resolved
+    * [XPB-50] - Create Xerces-C RPM
+    * [XPB-104] - Revise ulimit handling
+    * [XPB-106] - Logging levels should be adjusted for released version.
+
+** Improvement
+    * [XPB-17] - linux user id should be configurable
+    * [XPB-41] - Move Apache log files into /usr/local/sipx/var/log
+    * [XPB-124] - Remove duplicate file tree sipXpbx/src/mediaservercgi/userui
+
+
+Release Notes - sipXpbx - Version 2.5.2
+
+** Bug
+    * [XPB-2] - Clean up generation/installation of SSL Certificates
+    * [XPB-7] - Failed unittest
+    * [XPB-11] - Watchdog trying to start apache from the wrong location
+    * [XPB-12] - Error while starting apache2
+    * [XPB-13] - watchdog stop doesn't work
+    * [XPB-15] - Clean up startup/shutdown
+    * [XPB-16] - Major memory leak in watchdog (e.g. 642MB after 1hr)
+
+** Improvement
+    * [XPB-8] - Clean up code to remove all warnings.
+
+Release Notes - sipXpbx - Version 2.5.1
+
+** Bug
+    * [XPB-6] - wont build with sipXportLib

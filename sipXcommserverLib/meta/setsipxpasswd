@@ -1,0 +1,142 @@
+#!/usr/bin/perl
+###
+### setsipxpasswd
+###
+use Getopt::Long;
+use Digest::MD5  qw(md5_hex);
+
+$Credential = 'credential.xml';
+$Help=0;
+$DefaultPassword = '1234';
+$Usage = <<HELP;
+
+setsipxpasswd [ --credential <credential.xml-file-name> ] [ password ]
+
+  Edit a credential.xml file in place to reset the passwords.
+  All users are set to the same password ($DefaultPassword).
+
+HELP
+
+GetOptions( 'credential|c=s' => \$Credential,
+            'help|h'         => \$Help
+            )
+    || exit -1;
+
+$Password = shift || $DefaultPassword;
+
+if ( ($#ARGV > -1) || $Help )
+{
+    print STDERR $Usage;
+    exit $Help ? 0 : 1;
+}
+
+open( OLD, "<$Credential" )
+    || die "Can't open '$Credential': $!\n";
+
+open( NEW, ">$Credential.NEW" )
+    || die "Can't open '$Credential.NEW': $!\n";
+
+$user='';
+$realm='';
+$sawPass=0;
+$sawPin=0;
+$state='NoItem';
+
+while( <OLD> )
+{
+    if ( $state eq 'NoItem' )
+    {
+        if ( m|<item\b| )
+        {
+            die "'$Credential' is not well-formed at line $.\n"
+                if ( $user || $realm );
+            $state = 'InItem';
+            $user='';
+            $realm='';
+            $sawPass=0;
+            $sawPin=0;
+        }
+    }
+    elsif ( $state eq 'InItem' )
+    {
+        if ( m|</item\b| )
+        {
+            if ( $user && $realm )
+            {
+                ## add a passtoken element for a user that did not have one
+                print NEW newtoken('passtoken',$user,$realm,$Password) 
+                    if (! $sawPass);
+                print NEW newtoken('pintoken',$user,$realm,$Password) 
+                    if (! $sawPin);
+                $sawPass=0;
+                $sawPin=0;
+                $user='';
+                $realm='';
+            }
+            $state = 'NoItem';
+        }
+        elsif ( m|<userid\b.*>(.*)</userid\b.*>| )
+        {
+            $user=$1;
+        }
+        elsif ( m|<realm\b.*>(.*)</realm\b.*>| )
+        {
+            $realm=$1;
+        }
+        elsif ( m|<passtoken\b| )
+        {
+            $sawPass=1;
+            if ( $user && $realm )
+            {
+                ## replace this passtoken element
+                print NEW newtoken('passtoken',$user,$realm,$Password);
+                $_ = ''; # discard the old passtoken line
+            }
+            else
+            {
+                die "user or realm missing at line $.\n";
+            }
+        }
+        elsif ( m|<pintoken\b| )
+        {
+            $sawPin=1;
+            if ( $user && $realm )
+            {
+                ## replace this passtoken element
+                print NEW newtoken('pintoken',$user,$realm,$Password);
+                $_ = ''; # discard the old passtoken line
+            }
+            else
+            {
+                die "user or realm missing at line $.\n";
+            }
+        }
+    }
+    print NEW;
+}
+
+close OLD;
+close NEW;
+
+rename "$Credential", "$Credential.OLD"
+    || die "Can't rename '$Credential' to '$Credential.OLD'";
+
+rename "$Credential.NEW", "$Credential"
+    || die "Can't rename '$Credential.NEW' to '$Credential'";
+
+exit;
+
+
+sub newtoken
+{
+    my $tokentype=shift;
+    my $user=shift;
+    my $realm=shift;
+    my $password=shift;
+    return 
+        "<$tokentype>"
+        .&md5_hex("$user:$realm:$password")
+        ."</$tokentype>"
+        ."<!-- $password -->\n"
+        ;
+}

@@ -1,0 +1,35 @@
+
+<p>
+The following UML shows the relationships between the classes used to
+implement a plugin interface.
+</p>
+
+<IMG SRC="PluginUml.png" BORDER="0" width="1020" height="430" USEMAP="#PluginOverview.map" />
+<MAP NAME="PluginOverview.map">
+<AREA SHAPE="RECT" COORDS="27,0,264,75" HREF="class_plugin.html">
+<AREA SHAPE="RECT" COORDS="341,0,605,104" HREF="class_plugin_hooks.html">
+<AREA SHAPE="RECT" COORDS="483,224,838,300" HREF="class_plugin_iterator.html">
+</MAP>
+
+<p>
+To define a plugin interface, a component creates a class derived from
+<a href='class_plugin.html'>Plugin</a>.  This defines the interface(s)
+specific to the plugin; for example, in RegisterPlugin it defines a
+takeAction interface that allows each plugin to take some action when
+a REGISTER request is accepted.
+</p>
+
+<p>
+The <a href='class_plugin_hooks.html'>PluginHooks</a> class is
+instantiated and its readConfig interface called by a the component to
+actually read what plugins have been configured for each class it
+defines that is derived from <a href='class_plugin.html'>Plugin</a>.
+</p>
+
+<p>
+To actually invoke each configured plugin, the component instantiates
+a <a href='class_plugin_iterator.html'>PluginIterator</a> object on
+the <a href='class_plugin_hooks.html'>PluginHooks</a> object it
+configured, and then invokes the action interface using each <a
+href='class_plugin.html'>Plugin</a> object that it returns.
+</p>

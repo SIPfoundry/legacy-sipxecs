@@ -1,0 +1,23 @@
+<div class="tableDiv">
+<table jwcid="tableView@contrib:TableView" id="registrations:list" class="component"
+  source="ognl:registrations"
+  pageSize="-1"
+  columns="ognl:columnNames">
+  <thead>
+    <tr>
+      <span jwcid="tableColumns@contrib:TableColumns"/>
+    </tr>
+  </thead>
+  <tbody>
+    <span jwcid="tableRows@contrib:TableRows"
+      row="ognl:currentRow"
+      class="ognl:beans.rowClass.next"
+      volatile="true">
+      <span jwcid="tableValues@contrib:TableValues"/>
+    </span>
+    <span jwcid="expiresColumnValue@Block">
+      <span jwcid="@Insert" value="ognl:expires"/>
+    </span>
+  </tbody>
+</table>
+</div>

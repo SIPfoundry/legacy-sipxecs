@@ -1,0 +1,685 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+
+  <group name="Ext">
+    <label>Ext</label>
+    <setting name="Line_Enable" advanced="yes">
+      <label>Line Enable</label>
+      <profileName>General</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="User_ID" advanced="yes">
+      <label>User ID</label>
+      <profileName>Subscriber_Information</profileName>
+      <value />
+    </setting>
+    <setting name="Display_Name">
+      <label>Display Name</label>
+      <profileName>Subscriber_Information</profileName>
+      <value />
+    </setting>
+    <setting name="Password" advanced="yes">
+      <label>Password</label>
+      <profileName>Subscriber_Information</profileName>
+      <type>
+        <string password="yes" />
+      </type>
+      <value />
+    </setting>
+  </group>
+
+  <group name="Share_Line_Appearance">
+    <label>Share Line Appearance</label>
+    <setting name="Share_Ext">
+      <label>Share Ext</label>
+      <profileName>Share_Line_Appearance</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>private</value>
+          </option>
+          <option>
+            <value>shared</value>
+          </option>
+        </enum>
+      </type>
+      <value>private</value>
+    </setting>
+    <setting name="Shared_User_ID" advanced="yes">
+      <label>Shared User ID</label>
+      <profileName>Share_Line_Appearance</profileName>
+      <value />
+    </setting>
+    <setting name="Subscription_Expires" advanced="yes">
+      <label>Subscription Expires</label>
+      <profileName>Share_Line_Appearance</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+  </group>
+
+  <group name="NAT_Settings">
+    <label>NAT Settings</label>
+    <setting name="NAT_Mapping_Enable">
+      <label>NAT Mapping Enable</label>
+      <profileName>NAT_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="NAT_Keep_Alive_Enable" advanced="yes">
+      <label>NAT Keep Alive Enable</label>
+      <profileName>NAT_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="NAT_Keep_Alive_Msg">
+      <label>NAT Keep Alive Msg</label>
+      <profileName>Ext_1/NAT_Settings</profileName>
+      <value>$NOTIFY</value>
+    </setting>
+    <setting name="NAT_Keep_Alive_Dest">
+      <label>NAT Keep Alive Dest</label>
+      <profileName>Ext_1/NAT_Settings</profileName>
+      <value>$PROXY</value>
+    </setting>
+  </group>
+
+  <group name="Network_Settings">
+    <label>Network Settings</label>
+    <setting name="SIP_TOS_DiffServ_Value" advanced="yes">
+      <label>SIP TOS DiffServ Value</label>
+      <profileName>Network_Settings</profileName>
+      <value>0x68</value>
+    </setting>
+    <setting name="SIP_CoS_Value" advanced="yes">
+      <label>SIP CoS Value</label>
+      <profileName>Network_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="RTP_TOS_DiffServ_Value" advanced="yes">
+      <label>RTP TOS DiffServ Value</label>
+      <profileName>Network_Settings</profileName>
+      <value>0xb8</value>
+    </setting>
+    <setting name="RTP_COS_Value" advanced="yes">
+      <label>RTP COS Value</label>
+      <profileName>Network_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+        </enum>
+      </type>
+      <value>6</value>
+    </setting>
+    <setting name="Network_Jitter_Level" advanced="yes">
+      <label>Network Jitter Level</label>
+      <profileName>Network_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>low</value>
+          </option>
+          <option>
+            <value>medium</value>
+          </option>
+          <option>
+            <value>high</value>
+          </option>
+          <option>
+            <value>very high</value>
+          </option>
+          <option>
+            <value>extremely high</value>
+          </option>
+        </enum>
+      </type>
+      <value>high</value>
+    </setting>
+    <setting name="Jitter_Buffer_Adjustment" advanced="yes">
+      <label>Jitter Buffer Adjustment</label>
+      <profileName>Network_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>up and down</value>
+          </option>
+          <option>
+            <value>up only</value>
+          </option>
+          <option>
+            <value>down only</value>
+          </option>
+          <option>
+            <value>disable</value>
+          </option>
+        </enum>
+      </type>
+      <value>up and down</value>
+    </setting>
+  </group>
+
+  <group name="SIP_Settings">
+    <label>SIP Settings</label>
+    <setting name="SIP_Port">
+      <label>SIP Port</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="SIP_100REL_Enable" advanced="yes">
+      <label>SIP 100REL Enable</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="EXT_SIP_Port" advanced="yes">
+      <label>EXT SIP Port</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value />
+    </setting>
+    <setting name="Auth_Resync-Reboot" advanced="yes">
+      <label>Auth Resync-Reboot</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="SIP_Proxy-Require" advanced="yes">
+      <label>SIP Proxy-Require</label>
+      <profileName>SIP_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="SIP_Remote-Party-ID" advanced="yes">
+      <label>SIP Remote-Party-ID</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Referor_Bye_Delay" advanced="yes">
+      <label>Referor Bye Delay</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="Refer-To_Target_Contact" advanced="yes">
+      <label>Refer-To Target Contact</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Referee_Bye_Delay" advanced="yes">
+      <label>Referee Bye Delay</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="SIP_Debug_Option">
+      <label>SIP Debug Option</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>1-line</value>
+          </option>
+          <option>
+            <value>1-line excl. OPT</value>
+          </option>
+          <option>
+            <value>1-line excl. NTFY</value>
+          </option>
+          <option>
+            <value>1-line excl. REG</value>
+          </option>
+          <option>
+            <value>1-line excl. OPT|NTFY|REG</value>
+          </option>
+          <option>
+            <value>full</value>
+          </option>
+          <option>
+            <value>full excl. OPT</value>
+          </option>
+          <option>
+            <value>full excl. NTFY</value>
+          </option>
+          <option>
+            <value>full excl. REG</value>
+          </option>
+          <option>
+            <value>full excl. OPT|NTFY|REG</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="Refer_Target_Bye_Delay" advanced="yes">
+      <label>Refer Target Bye Delay</label>
+      <profileName>SIP_Settings</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="Sticky_183" advanced="yes">
+      <label>Sticky 183</label>
+      <profileName>SIP_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+  </group>
+
+  <group name="Call_Feature_Settings">
+    <label>Call Feature Settings</label>
+    <setting name="Blind_Attn-Xfer_Enable">
+      <label>Blind Attn-Xfer Enable</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="MOH_Server" advanced="yes">
+      <label>MOH Server</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Message_Waiting">
+      <label>Message Waiting</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Default_Ring">
+      <label>Default Ring</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>No Ring</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+          <option>
+            <value>9</value>
+          </option>
+          <option>
+            <value>10</value>
+          </option>
+          <option>
+            <value>User 1</value>
+          </option>
+          <option>
+            <value>User 2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="Auth_Page" advanced="yes">
+      <label>Auth Page</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Auth_Page_Realm" advanced="yes">
+      <label>Auth Page Realm</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Auth_Page_Password" advanced="yes">
+      <label>Auth Page Password</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <type>
+        <string password="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="Conference_Bridge_URL" advanced="yes">
+      <label>Conference Bridge URL</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Mailbox_ID">
+      <label>Mailbox ID</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="Voice_Mail_Server" advanced="yes">
+      <label>Voice Mail Server</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="State_Agent" advanced="yes">
+      <label>State Agent</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="CFWD_Notifier" advanced="yes">
+      <label>CFWD Notifier</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <value />
+    </setting>
+    <setting name="CFWD_Notify_Serv" advanced="yes">
+      <label>CFWD Notify Serv</label>
+      <profileName>Call_Feature_Settings</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+  </group>
+
+  <group name="Proxy_and_Registration">
+    <label>Proxy and Registration</label>
+    <setting name="Proxy">
+      <label>Proxy</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <value />
+    </setting>
+    <setting name="Use_Outbound_Proxy" advanced="yes">
+      <label>Use Outbound Proxy</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Outbound_Proxy" advanced="yes">
+      <label>Outbound Proxy</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <value />
+    </setting>
+    <setting name="Use_OB_Proxy_In_Dialog" advanced="yes">
+      <label>Use OB Proxy In Dialog</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Register">
+      <label>Register</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Make_Call_Without_Reg">
+      <label>Make Call Without Reg</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Register_Expires" advanced="yes">
+      <label>Register Expires</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="Ans_Call_Without_Reg">
+      <label>Ans Call Without Reg</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Use_DNS_SRV" advanced="yes">
+      <label>Use DNS SRV</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="DNS_SRV_Auto_Prefix" advanced="yes">
+      <label>DNS SRV Auto Prefix</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Proxy_Fallback_Intvl" advanced="yes">
+      <label>Proxy Fallback Intvl</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="Proxy_Redundancy_Method" advanced="yes">
+      <label>Proxy Redundancy Method</label>
+      <profileName>Proxy_and_Registration</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>Normal</value>
+          </option>
+          <option>
+            <value>Based on SRV Port</value>
+          </option>
+        </enum>
+      </type>
+      <value>Normal</value>
+    </setting>
+  </group>
+
+  <group name="Audio">
+    <label>Audio</label>
+    <setting name="Preferred_Codec">
+      <label>Preferred Codec</label>
+      <profileName>Audio</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>G711u</value>
+          </option>
+          <option>
+            <value>G711a</value>
+          </option>
+          <option>
+            <value>G726-16</value>
+          </option>
+          <option>
+            <value>G726-24</value>
+          </option>
+          <option>
+            <value>G726-32</value>
+          </option>
+          <option>
+            <value>G726-40</value>
+          </option>
+          <option>
+            <value>G729a</value>
+          </option>
+          <option>
+            <value>G723</value>
+          </option>
+        </enum>
+      </type>
+      <value>G711u</value>
+    </setting>
+    <setting name="G729a_Enable">
+      <label>G729a Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G723_Enable">
+      <label>G723 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G726-16_Enable">
+      <label>G726-16 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G726-24_Enable">
+      <label>G726-24 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G726-32_Enable">
+      <label>G726-32 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="G726-40_Enable">
+      <label>G726-40 Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Release_Unused_Codec" advanced="yes">
+      <label>Release Unused Codec</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="Use_Pref_Codec_Only">
+      <label>Use Pref Codec Only</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="Silence_Supp_Enable">
+      <label>Silence Supp Enable</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>no</value>
+    </setting>
+    <setting name="DTMF_Process_AVT" advanced="yes">
+      <label>DTMF Process AVT</label>
+      <profileName>Audio</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+    <setting name="DTMF_Tx_Method" advanced="yes">
+      <label>DTMF Tx Method</label>
+      <profileName>Audio</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>InBand</value>
+          </option>
+          <option>
+            <value>AVT</value>
+          </option>
+          <option>
+            <value>INFO</value>
+          </option>
+          <option>
+            <value>Auto</value>
+          </option>
+          <option>
+            <value>Inband+INFO</value>
+          </option>
+          <option>
+            <value>AVT+INFO</value>
+          </option>
+        </enum>
+      </type>
+      <value>Auto</value>
+    </setting>
+  </group>
+
+  <group name="Dial_Plan">
+    <label>Dial Plan</label>
+    <setting name="Dial_Plan">
+      <label>Dial Plan</label>
+      <profileName>Dial_Plan</profileName>
+      <value>(*xx|[3469]11|0|00|[2-9]xxxxxx|1xxx[2-9]xxxxxxS0|xxxxxxxxxxxx.)</value>
+    </setting>
+    <setting name="Enable_IP_Dialing" advanced="yes">
+      <label>Enable IP Dialing</label>
+      <profileName>Dial_Plan</profileName>
+      <type refid="yes-no" />
+      <value>yes</value>
+    </setting>
+  </group>
+</model>

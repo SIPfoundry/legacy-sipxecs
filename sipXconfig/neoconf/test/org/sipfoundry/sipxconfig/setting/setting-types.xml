@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+  <group name="group">
+    <setting name="int_setting_0">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <integer min="3" max="15" required="yes" />
+      </type>
+      <value>7</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="int_setting_1">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>7</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="real_setting_0">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <real min="3.14" max="15.12" required="yes" />
+      </type>
+      <value>5.0</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="real_setting_1">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <real />
+      </type>
+      <value>5.0</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="str_setting_def">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="str_setting">
+      <label>Setting Label</label>
+      <profileName>Setting Profile Name</profileName>
+      <type>
+        <string minLen="3" maxLen="15" password="yes" required="yes">
+          <pattern>kuku</pattern>
+        </string>
+      </type>
+      <value>bongo</value>
+      <description>Setting Description</description>
+    </setting>
+    <setting name="hostname_setting">
+      <label>hostname setting</label>
+      <type>
+        <hostname />
+      </type>
+      <value>example.com</value>
+    </setting>
+    <setting name="ipaddr_setting">
+      <label>ipaddr setting</label>
+      <type>
+        <ipaddr required="true" />
+      </type>
+      <value>10.1.1.2</value>
+    </setting>
+    <setting name="phonepadpin_setting">
+      <label>phonepad pin setting</label>
+      <type>
+        <phonepadpin />
+      </type>
+      <value>1234#*</value>
+    </setting>
+    <setting name="enum_setting">
+      <label>Enum setting label</label>
+      <type>
+        <enum>
+          <option>
+            <label>Zero</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>XXX</label>
+            <value>something</value>
+          </option>
+          <option>
+            <value>no_label_value</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="boolean_default">
+      <label>Boolean setting label</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="boolean_setting">
+      <label>Boolean setting label</label>
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
+    <setting name="enabled_setting">
+      <label>Modified boolean type</label>
+      <type>
+        <boolean>
+          <true>
+            <value>ENABLED</value>
+          </true>
+          <false>
+            <value>DISABLED</value>
+          </false>
+        </boolean>
+      </type>
+      <value>DISABLED</value>
+    </setting>
+    <setting name="file_setting">
+      <label>File setting label</label>
+      <type>
+        <file required="yes">
+          <directory>/tmp</directory>
+          <contentType>audio/x-wav</contentType>
+        </file>
+      </type>
+      <value />
+    </setting>
+    <setting name="file_setting_zip">
+      <label>ZIP File setting label</label>
+      <type>
+        <file required="yes">
+          <contentType>application/zip</contentType>
+          <exclude>
+            <filename>exclude.1</filename>
+            <filename>exclude.2</filename>
+            <filename>exclude.2</filename> <!-- Intentional duplicate. -->
+            <filename>path/////exclude.3</filename> <!-- Intentional extra separators. -->
+            <filename></filename> <!-- Intentionally empty. -->
+          </exclude>
+        </file>
+      </type>
+      <value />
+    </setting>
+    <setting name="enum_setting_2">
+      <label>Another enum setting</label>
+      <type>
+        <enum>
+          <option>
+            <value>VALUE_0</value>
+          </option>
+          <option>
+            <value>VALUE_1</value>
+          </option>
+          <option>
+            <value>VALUE_2</value>
+          </option>
+        </enum>
+      </type>
+      <value>VALUE_0</value>
+    </setting>
+    <setting name="enum_setting_3">
+      <label>Another enum setting</label>
+      <type>
+        <enum labelKeyPrefix="type.enum3">
+          <option>
+            <value>VALUE_0</value>
+          </option>
+          <option>
+            <value>VALUE_2</value>
+          </option>
+        </enum>
+      </type>
+      <value>VALUE_0</value>
+    </setting>
+    <setting name="sip_uri_setting">
+      <type>
+        <sip-uri required="true" userPartOnly="true" />
+      </type>
+    </setting>
+    <setting name="multi_enum_setting">
+      <label>multi-enum setting</label>
+      <type>
+        <multi-enum>
+          <option>
+            <value>VALUE_0</value>
+          </option>
+          <option>
+            <value>VALUE_1</value>
+          </option>
+          <option>
+            <value>VALUE_2</value>
+          </option>
+        </multi-enum>
+      </type>
+      <value>VALUE_0|VALUE_2</value>
+    </setting>
+    <setting name="multi_enum_setting_sep">
+      <label>multi-enum setting</label>
+      <type>
+        <multi-enum separator=" ">
+          <option>
+            <value>VALUE_0</value>
+          </option>
+          <option>
+            <value>VALUE_1</value>
+          </option>
+          <option>
+            <value>VALUE_2</value>
+          </option>
+        </multi-enum>
+      </type>
+      <value>VALUE_0 VALUE_2</value>
+    </setting>
+  </group>
+</model>

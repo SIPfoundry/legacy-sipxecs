@@ -1,0 +1,14 @@
+<!DOCTYPE dataset SYSTEM "../../../sipxconfig-db.dtd">
+<dataset>
+    <value_storage 
+	  value_storage_id="1000"/> 
+    <group_storage 
+	  resource="user"
+      weight="1000"  
+      name="joe admin"
+      group_id="1000"/> 
+    <setting_value 
+  		value_storage_id="1000"
+	  	value="ENABLE" 
+    	path="permission/superadmin"/> 
+</dataset>

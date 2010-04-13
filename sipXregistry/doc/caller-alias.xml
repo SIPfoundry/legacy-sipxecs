@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="yes" ?>
+<!--
+  - Example caller-alias.xml file for example.edu
+  -->
+<items type="caller-alias" xmlns='http://www.sipfoundry.org/sipX/schema/xml/caller-alias-00-00'>
+    <item>
+      <!--
+       - When extension 301 calls to example.org (the non-profit foundation associated
+       - with our Example University), the call is going to be routed as a SIP call
+       - via a session border controller (see example fallbackrules.xml), so we want
+       - the callers identity presented as a good looking SIP URL.
+       -->
+        <identity>301@example.edu</identity>
+        <target_domain>example.org</target_domain>
+        <caller_alias>"John Doe" &lt;sip:john.doe@example.edu&gt;</caller_alias>
+    </item>
+    <item>
+      <!--
+       - John Doe (extension 301) has a direct number, so when he calls out
+       - through the PSTN gateway, we want his direct number in the caller id.
+       -->
+        <identity>301@example.edu</identity>
+        <target_domain>pstn-gateway.example.edu</target_domain>
+        <caller_alias>"John Doe" &lt;sip:9785551234@example.edu&gt;</caller_alias>
+    </item>
+    <item>
+      <!--
+       - Other users do not have direct numbers, so when they call out through the
+       - PSTN gateway, we want the main university number in the caller id.
+       - An item with no identity element matches any identity that is not matched
+       - explicitly in some other item (order is not significant).
+       -->
+        <target_domain>pstn-gateway.example.edu</target_domain>
+        <caller_alias>"Example University" &lt;sip:9785551200@example.edu&gt;</caller_alias>
+    </item>
+</items>

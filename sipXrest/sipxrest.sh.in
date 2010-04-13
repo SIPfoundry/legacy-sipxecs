@@ -1,0 +1,123 @@
+#!/bin/sh
+
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+# Create a truststore of the same Certificate Authorities the
+# other SIP servers use.
+# Declare script variables in a manner that unit test
+# (or end user I suppose) can override
+
+Action=RUN
+
+
+Status=0
+Args=""
+
+SslDir=@SIPX_CONFDIR@/ssl
+AuthoritiesDir=$SslDir/authorities
+KeyStorePassword=changeit
+TrustStorePassword=changeit
+KeyStoreOpts="\
+      -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
+      -Djavax.net.ssl.keyStorePassword=$KeyStorePassword"
+
+
+setTruststoreOpts() {    
+    # List of authorities accepted system-wide
+    if [ -d $AuthoritiesDir ]
+    then
+      TrustStore=$SslDir/authorities.jks
+      TrustStoreOpts="\
+      	-Djavax.net.ssl.trustStore=$TrustStore \
+     	-Djavax.net.ssl.trustStoreType=JKS \
+        -Djavax.net.ssl.trustStorePassword=$TrustStorePassword"
+    else
+      # make empty as extra measure to ensure doesn't come from env. var
+      # this is when Java's CA database has required certs
+      TrustStoreOpts=""
+    fi
+}
+
+
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        --profile)
+            Action=PROFILE
+            ;;
+
+        *)
+            Args="$1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/sipxrest-config.xml \
+  "
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXrest/*.jar  @SIPX_JAVADIR@/sipXcommons/*.jar @SIPX_JAVADIR@/sipXrest/plugins/*.jar`
+ClassPath=$LibPath
+PluginDir=@SIPX_JAVADIR@/sipXrest/plugins
+
+X509Algorithm=`$JavaCmd \
+       -classpath "$ClassPath" \
+       org.sipfoundry.commons.x509selector.X509Selector`
+
+setTruststoreOpts
+# need to run this again because we need to set 
+# command line options.
+
+case ${Action} in
+   RUN)
+      echo $$ > @SIPX_RUNDIR@/sipxrest.pid
+      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
+         -Dplugin.dir=$PluginDir                        \
+	 $TrustStoreOpts 				\
+	 $KeyStoreOpts					\
+	 -Djetty.x509.algorithm=$X509Algorithm		\
+	 -Djetty.ssl.password=$TrustStorePassword	\
+	 -Djetty.ssl.keypassword=$KeyStorePassword	\
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+         -Dsipxrest.command=start 			  \
+         -cp $ClassPath org.sipfoundry.sipxrest.RestServer \
+	 $Args
+     ;;
+
+   STOP)
+     #Failsafe kill.
+     sipx_stop sipxrest @SIPX_RUNDIR@/sipxrest.pid
+     ;;
+  
+
+   CONFIGTEST)
+     Status=0
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipxrest.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+	 Status=1
+     fi
+     ;;
+esac
+
+exit $Status

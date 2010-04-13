@@ -1,0 +1,12 @@
+#!@BASH@ -p
+
+## Detect and remove the obsolete stunnel configuration for 
+## distributed systems (replaced by sipxcallresolver-agent)
+if [ -r /etc/init.d/stunnel ] && grep sipxha /etc/init.d/stunnel > /dev/null 2>&1
+then
+   /sbin/service stunnel stop    > /dev/null 2>&1
+   rm -f /etc/init.d/stunnel     > /dev/null 2>&1
+   rm -rf @SIPX_CONFDIR@/stunnel > /dev/null 2>&1
+fi
+
+@bindir@/sipxcallresolver.sh --setup

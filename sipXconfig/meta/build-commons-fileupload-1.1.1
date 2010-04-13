@@ -1,0 +1,22 @@
+#!/bin/sh 
+# commons-fileutils-1.1.1 is a special version of 1.1 release that has "lowercase filename" bug fixed.
+#
+# Problem description is here: http://www.nabble.com/lowercase-filenames-t1173250.html
+
+# Get 1.1 sources
+
+svn co http://svn.apache.org/repos/asf/jakarta/commons/proper/fileupload/tags/FILEUPLOAD_1_1 commons-fileupload-1.1.1
+
+# Apply the patch
+
+cd commons-fileupload-1.1.1
+patch -p0 < ../lowercase-fix.patch
+
+# Build using ant
+
+ant
+
+# The .jar can be found in target directory.
+
+
+

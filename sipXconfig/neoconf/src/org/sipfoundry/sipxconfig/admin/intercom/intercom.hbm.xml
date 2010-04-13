@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.intercom" default-lazy="false">
+
+  <!--
+    - I N T E R C O M
+    -->
+  <class name="Intercom" table="intercom">
+    <id name="id" column="intercom_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">intercom_seq</param>
+      </generator>
+    </id>
+    <property name="enabled"/>
+    <property name="prefix"/>
+    <property name="timeout"/>
+    <property name="code"/>
+  	<set name="groups" table="intercom_phone_group" sort="natural" cascade="save-update">
+      <key column="intercom_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
+    </set>
+  </class>
+
+</hibernate-mapping>

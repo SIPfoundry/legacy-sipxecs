@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- models -->
+  <bean id="clearoneMax" parent="abstractPhoneModel">
+    <property name="beanId" value="clearone" />
+    <property name="label" value="ClearOne MAX IP" />
+    <property name="maxLineCount" value="1" />
+    <property name="profileTemplate" value="clearone/C1MAXIP.txt.vm" />
+	<property name="vendor" value="ClearOne"/>
+  </bean>
+
+  <!-- implementation -->
+  <bean id="clearone" class="org.sipfoundry.sipxconfig.phone.clearone.ClearonePhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+</beans>

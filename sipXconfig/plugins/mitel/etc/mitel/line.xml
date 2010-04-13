@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534" />
+  </type>
+  <group name="sip">
+    <label>SIP</label>
+    <setting name="State">
+      <label>Enabled</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="ID"></setting>
+    <setting name="DispName"></setting>
+    <setting name="Pwd"></setting>
+    <setting name="AuthName"></setting>
+    <setting name="Realm"></setting>
+    <setting name="RegSvr"></setting>
+    <setting name="RegPort">
+      <value>5060</value>
+    </setting>
+    <setting name="RegScheme">
+      <value>2</value>
+    </setting>
+    <setting name="ProxySvr"></setting>
+    <setting name="ProxyPort">
+      <value>5060</value>
+    </setting>
+    <setting name="ProxyScheme">
+      <value>2</value>
+    </setting>
+    <setting name="VMSvr"></setting>
+    <setting name="VMPort">
+      <value>5060</value>
+    </setting>
+    <setting name="VMScheme">
+      <value>2</value>
+    </setting>
+    <setting name="OutSvr"></setting>
+    <setting name="OutPort">
+      <value>5060</value>
+    </setting>
+    <setting name="OutCtr">
+      <value>0</value>
+    </setting>
+    <setting name="Ring">
+      <value>1</value>
+    </setting>
+    <setting name="Line">
+      <value>0</value>
+    </setting>
+    <setting name="EventSvr">
+      <value></value>
+    </setting>
+    <setting name="EventPort">
+      <value>5060</value>
+    </setting>
+    <setting name="EventScheme">
+      <value>2</value>
+    </setting>
+  </group>
+</model>

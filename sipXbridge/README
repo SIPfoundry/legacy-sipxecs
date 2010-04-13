@@ -1,0 +1,7 @@
+SipXbridge is ITSP bridge geared towards the needs of the SIPX PBX system.
+It aims to provide media and signaling gatewaying functionality  between
+SIP endpoints inside a firewall /NAT and an external ITSP gateway.
+
+The following wiki page will give you details on how to configure and run sipxbridge.
+
+http://wiki.sipfoundry.org/display/oldxx/SipXbridge+Overview+and+Configuration

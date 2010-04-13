@@ -1,0 +1,56 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/sipxsupervisor.pid
+     exec @bindir@/sipxsupervisor $Args
+     ;;
+
+   CONFIGTEST)
+        for procspec in @SIPX_DATADIR@/process.d/*-process.xml
+        do
+          @SIPX_BINDIR@/sipx-validate-xml $procspec
+          Status=$(($Status+$?))
+        done
+        if [ -f @SIPX_CONFDIR@/alarm-config.xml ]
+        then
+           @SIPX_BINDIR@/sipx-validate-xml @SIPX_CONFDIR@/alarm-config.xml
+           Status=$(($Status+$?))
+        fi
+        if [ -f @SIPX_CONFDIR@/alarm-groups.xml ]
+        then
+           @SIPX_BINDIR@/sipx-validate-xml @SIPX_CONFDIR@/alarm-groups.xml
+           Status=$(($Status+$?))
+        fi
+        for alarmspec in @SIPX_CONFDIR@/alarms/*.xml
+        do
+          @SIPX_BINDIR@/sipx-validate-xml $alarmspec
+          Status=$(($Status+$?))
+        done
+        ;;
+esac
+
+exit $Status

@@ -1,0 +1,113 @@
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <!--
+      - supervisor1
+      -    group1
+      -      peon1
+      -      peon2
+      -    group3
+      -      peon1
+      -      peon5
+      -    group4
+      -      -empty-
+      -  supervisor2
+      -     group2
+      -      peon3
+      -->
+    <users user_name="peon1" 		
+        user_id="1001"
+        pintoken="1234"
+        user_type="C"/>
+    <users user_name="peon2" 		
+        user_id="1002"
+        pintoken="1234"
+        user_type="C"/>
+    <users user_name="peon3" 		
+        user_id="1003"
+        pintoken="1234"
+        user_type="C"/>
+    <users user_name="peon4" 		
+        user_id="1004"
+        pintoken="1234"
+        user_type="C"/>
+    <users user_name="peon5" 		
+        user_id="1005"
+        pintoken="1234"
+        user_type="C"/>
+    <users user_name="supervisor1" 		
+        user_id="2001"
+        pintoken="1234"
+        user_type="C"/>
+    <users user_name="supervisor2" 		
+        user_id="2002"
+        pintoken="1234"
+        user_type="C"/>
+    <value_storage
+		value_storage_id="1001"/> 
+    <value_storage 
+		value_storage_id="1002"/> 
+    <value_storage 
+		value_storage_id="1003"/> 
+    <value_storage 
+		value_storage_id="1004"/> 
+    <group_storage
+       group_id="1001"
+       resource="user"
+       weight="1001"
+       name="Group1"/>
+    <group_storage
+       group_id="1002"
+       resource="user"
+       weight="1002"
+       name="Group2"/>
+    <group_storage
+       group_id="1003"
+       resource="user"
+       weight="1003"
+       name="Group3"/>
+    <group_storage
+       group_id="1004"
+       resource="user"
+       weight="1004"
+       name="Group4"/>
+
+    <!-- supervisor1 => groups 1,3,4   -->
+  	<supervisor 
+	  	group_id="1001"
+	    user_id="2001"/>
+  	<supervisor 
+	  	group_id="1003"
+	    user_id="2001"/>
+  	<supervisor 
+	  	group_id="1004"
+	    user_id="2001"/>
+	    
+    <!-- supervisor2 => groups 2   -->
+  	<supervisor 
+	  	group_id="1002"
+	    user_id="2002"/>
+	    
+    <!-- group1 => peons 1,2 -->
+	<user_group
+	    group_id="1001"
+	    user_id="1001"/>
+	<user_group
+	    group_id="1001"
+	    user_id="1002"/>
+	    
+    <!-- group2 => peons 1,2 -->
+	<user_group
+	    group_id="1002"
+	    user_id="1003"/>
+
+    <!-- group3 => peons 1,5 -->
+	<user_group
+	    group_id="1003"
+	    user_id="1001"/>	    
+	<user_group
+	    group_id="1003"
+	    user_id="1005"/>
+
+    <!-- group4 => empty -->
+
+</dataset>

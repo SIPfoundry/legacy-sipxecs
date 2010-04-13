@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.acd.EditAcdLine">
+
+  <inject property="acdContext" object="spring:acdContext" />
+  <inject property="tapestry" object="spring:tapestry" />
+
+  <property name="acdQueueId" persist="session" />
+  <property name="acdLineId" persist="session" />
+  <property name="acdLine" />
+
+  <property name="acdServerId" persist="session" />
+  <property name="queuesModel" />
+
+  <!--
+    - B E A N S
+  -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+
+  <!--
+    - C O M P O N E N T S
+  -->
+
+  <component id="form" type="Form">
+    <binding name="delegate" value="bean:validator" />
+  </component>
+
+  <component id="commonFieldset" type="common/ItemCommon">
+    <binding name="item" value="acdLine" />
+    <binding name="useEnabled" value="false" />
+    <binding name="useExtension" value="true" />
+    <binding name="nameValidator" value="spring-validators:validSipUserId,required"/>
+  </component>
+
+  <component id="queueSelectionPanel" type="common/FieldPanel">
+    <binding name="field" value="components.queueSelection" />
+    <binding name="label" value="message:label.queue" />
+    <binding name="description" value="message:description.queue" />
+  </component>
+  <component id="queueSelection" type="PropertySelection">
+    <binding name="model" value="tapestry.instructUserToSelect(queuesModel, messages)" />
+    <binding name="value" value="acdQueueId" />
+  </component>
+
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
+    <binding name="settings" value="acdLine.settings" />
+    <binding name="renderGroupTitle" value="false" />
+  </component>
+
+  <component id="formActions" type="common/FormActions">
+    <binding name="listener" value="listener:apply" />
+    <binding name="callback" value="callback" />
+  </component>
+</page-specification>

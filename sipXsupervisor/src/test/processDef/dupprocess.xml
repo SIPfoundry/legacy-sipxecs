@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Good</name>
+  <version>2.0.0</version><!-- this distinguishes it from goodprocess.xml -->
+  <commands>
+    <configtest>
+      <defaultDir>/var/log/goodprocess</defaultDir>
+      <execute>/bin/goodprocess1.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <user>gooduser</user>
+      <execute>/bin/goodprocess2.sh</execute>
+    </start>
+    <stop>
+      <execute>/bin/goodprocess3.sh</execute>
+      <parameter>--stop</parameter>
+      <parameter>--really</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>/var/run/goodprocess.pid</pid>
+    <log>/var/log/goodprocess.log</log>
+  </status>
+  <resources>
+    <file>/etc/sipxpbx/goodprocess.xml</file>
+    <osconfig required='false'>/etc/sipxpbx/goodprocess-config</osconfig>
+    <imdb configAccess='read-only'>goodtable</imdb>
+    <sqldb>
+       <dbname>GOOD</dbname>
+    </sqldb>
+  </resources>
+</sipXecs-process>

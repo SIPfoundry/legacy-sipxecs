@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataset>
+  <schedule_hours schedule_hours_id="0" schedule_id="102" start="1970-01-01 09:00:00" stop="1970-01-01 18:00:00"
+    day="Monday" />
+  <schedule_hours schedule_hours_id="0" schedule_id="100" start="1970-01-01 09:00:00" stop="1970-01-01 18:00:00"
+    day="Monday" />
+  <schedule_hours schedule_hours_id="0" schedule_id="101" start="1970-01-01 09:00:00" stop="1970-01-01 18:00:00"
+    day="Saturday" />
+  <schedule_hours schedule_hours_id="1" schedule_id="100" start="1970-01-01 09:00:00" stop="1970-01-01 18:00:00"
+    day="Tuesday" />
+  <schedule_hours schedule_hours_id="1" schedule_id="101" start="1970-01-01 09:00:00" stop="1970-01-01 18:00:00"
+    day="Sunday" />
+  <schedule_hours schedule_hours_id="2" schedule_id="100" start="1970-01-01 09:00:00" stop="1970-01-01 18:00:00"
+    day="Wednesday" />
+  <schedule_hours schedule_hours_id="3" schedule_id="100" start="1970-01-01 09:00:00" stop="1970-01-01 18:00:00"
+    day="Thursday" />
+  <schedule_hours schedule_hours_id="4" schedule_id="100" start="1970-01-01 09:00:00" stop="1970-01-01 18:00:00"
+    day="Friday" />
+  <schedule_hours schedule_hours_id="5" schedule_id="104" start="1970-01-01 09:00:00" stop="1970-01-01 18:00:00"
+    day="Monday" />
+</dataset>

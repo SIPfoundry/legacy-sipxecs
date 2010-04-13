@@ -1,0 +1,86 @@
+<configuration name="conference.conf" description="sipX MeetMe Audio Conference">
+#if(${bridge})
+  <caller-controls>
+    <group name="sipx-default">
+      <control action="mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_MUTE}")"/>
+      <control action="deaf mute" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_DEAF_MUTE}")"/>
+      <control action="energy up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_UP}")"/>
+      <control action="energy equ" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_RESET}")"/>
+      <control action="energy dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_ENERGY_DOWN}")"/>
+      <control action="vol talk up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_UP}")"/>
+      <control action="vol talk zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_RESET}")"/>
+      <control action="vol talk dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_TALK_DOWN}")"/>
+      <control action="vol listen up" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_UP}")"/>
+      <control action="vol listen zero" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_RESET}")"/>
+      <control action="vol listen dn" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_VOLUME_DOWN}")"/>
+      <control action="hangup" digits="$bridge.getSettingValue("${Bridge.CALL_CONTROL_HANGUP}")"/>
+    </group>
+  </caller-controls>
+  <profiles>
+    <profile name="default">
+      <param name="domain" value="$domain.getName()"/>
+      <param name="caller-controls" value="sipx-default"/>
+      <param name="rate" value="8000"/>
+      <param name="interval" value="20"/>
+      <param name="energy-level" value="0"/>
+      <param name="member-flags" value="waste"/>
+      <param name="sound-prefix" value="$bridge.getAudioDirectory()"/>
+      <param name="ack-sound" value="beep.wav"/>
+      <param name="nack-sound" value="beep.wav"/>
+      <param name="muted-sound" value="conf/mutingYourself.wav"/>
+      <param name="unmuted-sound" value="conf/unMutingYourself.wav"/>
+      <param name="alone-sound" value="conf/rollcallYouAreTheOnly.wav"/>
+      <param name="enter-sound" value="conf/JoinTone.wav"/>
+      <param name="exit-sound" value="conf/ExitTone.wav"/>
+      <param name="kicked-sound" value="conf/ByeBye.wav"/>
+      <param name="locked-sound" value="conf/lockingConference.wav"/>
+      <param name="max-members-sound" value="conf/lockingConference.wav"/>
+      <param name="is-locked-sound" value="conf/lockingConference.wav"/>
+      <param name="is-unlocked-sound" value="beep.wav"/>
+      <param name="pin-sound" value="conf/confid.wav"/>
+      <param name="bad-pin-sound" value="conf/authfailed.wav"/>
+      <param name="caller-id-name" value="$${outbound_caller_name}"/>
+      <param name="caller-id-number" value="$${outbound_caller_id}"/>
+      <param name="comfort-noise" value="0"/>
+      <param name="moh-sound" value="$mohLocalStreamUrl"/>
+    </profile>
+#foreach($conference in $conferences)
+    <profile name="${conference.getExtension()}">
+      <param name="domain" value="$domain.getName()"/>
+      <param name="caller-controls" value="sipx-default"/>
+      <param name="rate" value="8000"/>
+      <param name="interval" value="20"/>
+      <param name="energy-level" value="0"/>
+      <param name="member-flags" value="waste"/>
+      <param name="sound-prefix" value="$bridge.getAudioDirectory()"/>
+      <param name="ack-sound" value="beep.wav"/>
+      <param name="nack-sound" value="beep.wav"/>
+      <param name="muted-sound" value="conf/mutingYourself.wav"/>
+      <param name="unmuted-sound" value="conf/unMutingYourself.wav"/>
+      <param name="alone-sound" value="conf/rollcallYouAreTheOnly.wav"/>
+      <param name="enter-sound" value="conf/JoinTone.wav"/>
+      <param name="exit-sound" value="conf/ExitTone.wav"/>
+      <param name="kicked-sound" value="conf/ByeBye.wav"/>
+      <param name="locked-sound" value="conf/lockingConference.wav"/>
+      <param name="max-members-sound" value="conf/lockingConference.wav"/>
+      <param name="is-locked-sound" value="conf/lockingConference.wav"/>
+      <param name="is-unlocked-sound" value="beep.wav"/>
+      <param name="pin-sound" value="conf/confid.wav"/>
+      <param name="bad-pin-sound" value="conf/authfailed.wav"/>
+      <param name="caller-id-name" value="$${outbound_caller_name}"/>
+      <param name="caller-id-number" value="$${outbound_caller_id}"/>
+      <param name="comfort-noise" value="0"/>
+#set($conf_max_members = ${conference.getSettingTypedValue(${Conference.MAX_LEGS})})
+#if($conf_max_members)
+      <param name="max-members" value="$conf_max_members"/>
+#end
+#if(${conference.mohPortAudioEnabled})
+      <param name="moh-sound" value="$portAudioUrl"/>
+#else
+      <param name="moh-sound" value="$mohLocalStreamUrl"/>
+#end
+    </profile>
+#end
+  </profiles>
+#end
+</configuration>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="CiscospaModel" class="org.sipfoundry.sipxconfig.phone.linksys.CiscospaModel" parent="abstractPhoneModel"
+    abstract="true">
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="CiscospaPhoneStandard" abstract="true" parent="CiscospaModel">
+    <property name="beanId" value="CiscospaPhone" />
+    <property name="modelDir" value="Ciscospa" />
+    <property name="profileTemplate" value="linksys/config.vm" />
+  </bean>
+
+  <bean id="SPA501G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA501G" />
+    <property name="maxLineCount" value="1" />
+    <property name="psn" value="501G" />
+  </bean>
+  <bean id="SPA502G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA502G" />
+    <property name="maxLineCount" value="2" />
+    <property name="psn" value="502G" />
+  </bean>
+  <bean id="SPA504G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA504G" />
+    <property name="maxLineCount" value="4" />
+    <property name="psn" value="504G" />
+
+  </bean>
+  <bean id="SPA508G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA508G" />
+    <property name="maxLineCount" value="8" />
+    <property name="psn" value="508G" />
+  </bean>
+  <bean id="SPA509G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA509G" />
+    <property name="maxLineCount" value="12" />
+    <property name="psn" value="509G" />
+  </bean>
+  <bean id="SPA525G" parent="linksysPhoneStandard">
+    <property name="label" value="Cisco SPA525G" />
+    <property name="maxLineCount" value="12" />
+    <property name="psn" value="525G" />
+  </bean>
+  
+  <bean id="CiscospaPhone" class="org.sipfoundry.sipxconfig.phone.linksys.CiscospaPhone" singleton="false"
+    parent="abstractPhone">
+  </bean> 
+</beans>

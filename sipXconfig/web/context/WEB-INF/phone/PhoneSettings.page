@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.PhoneSettings">
+  <!--
+    - P R O P E R T I E S
+    -->
+  <property name="phoneId"  persist="session"/>
+  <property name="phone" />
+  <property name="parentSettingName"  persist="session"/>
+  <property name="parentSetting" />
+  <inject property="phoneContext" object="spring:phoneContext"/>
+  <!-- B E A N S -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <!--
+    - C O M P O N E N T S
+    -->
+  <component id="settingDescription" type="Insert">
+    <binding name="value" value="parentSetting.description"/>
+  </component>
+  <component id="settingsForm" type="setting/SettingsForm">
+    <binding name="settings" value="parentSetting"/>
+    <binding name="cancelListener" value="listener:cancel"/>
+    <binding name="okListener" value="listener:ok"/>
+    <binding name="applyListener" value="listener:apply"/>
+    <binding name="validator" value="bean:validator"/>
+  </component>
+</page-specification>

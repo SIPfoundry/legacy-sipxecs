@@ -1,0 +1,18 @@
+{
+	"types" : {
+		"CDR" : {
+			"pluralLabel" : "CDRs"
+		}
+	},
+	"properties" : {
+		"end_time" : {
+			"valueType" : "date"
+		},
+		"start_time" : {
+			"valueType" : "date"
+		},
+		"connect_time" : {
+			"valueType" : "date"
+		}
+	},
+	"items" : [

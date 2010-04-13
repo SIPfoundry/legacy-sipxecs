@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.gateway" default-lazy="false">
+  <!--
+    - Gateway
+  -->
+  <class name="Gateway" table="gateway" discriminator-value="gwGeneric">
+    <id name="id" column="gateway_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">gateway_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id" />
+    <property name="name" />
+    <property name="address" />
+    <property name="addressPort" />
+    <property name="addressTransport" column="address_transport" type="org.sipfoundry.sipxconfig.gateway.Gateway$UserType" />
+    <property name="prefix" />
+    <property name="description" />
+    <property name="serialNumber" />
+    <property name="beanId" column="bean_id" insert="false" update="false" />
+    <property name="modelId" />
+    <property name="enabled" />
+    <property name="deviceVersion" column="device_version_id" type="org.sipfoundry.sipxconfig.device.DeviceVersion$Type" />
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+    <many-to-one name="sbcDevice" column="sbc_device_id" unique="true"
+      class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice" />
+
+    <component name="callerAliasInfo" class="GatewayCallerAliasInfo">
+      <property name="defaultCallerAlias" />
+      <property name="anonymous" not-null="true" />
+      <property name="ignoreUserInfo" not-null="true" />
+      <property name="transformUserExtension" not-null="true" />
+      <property name="addPrefix" />
+      <property name="keepDigits" not-null="true" />
+      <property name="enableCallerId" not-null="true" />
+      <property name="callerId" />
+      <property name="displayName" />
+      <property name="urlParameters" />
+    </component>
+
+    <list name="ports" cascade="all-delete-orphan">
+      <key column="gateway_id" not-null="true" />
+      <list-index column="position" />
+      <one-to-many class="FxoPort" />
+    </list>
+
+    <many-to-one name="branch" column="branch_id" not-found="ignore" />
+    <property name="shared" />
+  </class>
+
+  <!-- L I N E -->
+  <class name="FxoPort" table="fxo_port">
+    <id name="id" column="fxo_port_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">fxo_port_seq</param>
+      </generator>
+    </id>
+    <many-to-one name="gateway" column="gateway_id" class="Gateway" not-null="true" insert="false"
+      update="false" foreign-key="fk_fxo_port_gateway" />
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" foreign-key="fk_fxo_port_value_storage" />
+  </class>
+
+  <query name="gatewayIds">
+    <![CDATA[select g.id from Gateway g]]>
+  </query>
+
+  <query name="gatewayIdsWithSerialNumber">
+    <![CDATA[select g.id from Gateway g where g.serialNumber = :value]]>
+  </query>
+
+  <query name="gatewaysForBranch">
+    <![CDATA[from Gateway g where g.branch = :branch]]>
+  </query>
+
+  <sql-query name="sipTrunks">
+    <return-scalar type="int" column="id" />
+    <return-scalar type="string" column="address" />
+    <![CDATA[select gtw.gateway_id as id, st.value as address
+      	from gateway as gtw, setting_value as st
+      	where gtw.value_storage_id=st.value_storage_id
+      	and st.path='trunk/route';]]>
+  </sql-query>
+</hibernate-mapping>

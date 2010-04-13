@@ -1,0 +1,29 @@
+This is a translation tool based on the goolge translation API. 
+To run this tool :
+
+1. Build it. 
+
+ant compile
+
+2. Run it :
+
+The syntax is:
+
+translate.sh -Dsource.language=sourceLangauge -Dsource.file=propertiesFile -Dtarget.language=targetLanguage -Dtarget.file=targetfile
+
+Example:
+
+translate.sh -Dsource.language=ENGLISH -Dsource.file=../../sipXconfig/neoconf/etc/sipxconference/conference.properties -Dtarget.language=FRENCH -Dtarget.file=conference_fr.properties
+
+To translate a set of files proceed as follows:
+1. Edit translateall.sh and change the target_language as needed.
+2. Place the filepaths in sourcefiles
+3. sh trnslateall.sh
+
+The output will be placed in the same place as the files in the sourcefiles directory. For example 
+
+../../sipXconfig/neoconf/etc/sipxconference/conference.properties
+
+Gets translated to
+
+../../sipXconfig/neoconf/etc/sipxconference/FRENCH-conference.properties

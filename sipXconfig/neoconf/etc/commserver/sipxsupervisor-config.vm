@@ -1,0 +1,2 @@
+SUPERVISOR_HOST : ${supervisorHost}
+SUPERVISOR_LOG_LEVEL : ${supervisorLogLevel}

@@ -1,0 +1,7 @@
+SIP_DOMAIN_NAME : example.edu
+SIP_DOMAIN_ALIASES : sipx.example.edu sipx.example.edu:5080
+SIP_REALM : example.edu
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : sipx.example.edu
+DEFAULT_LANGUAGE : en
+SHARED_SECRET : BbBbCcCcDdAaAaEeEeFfFf22

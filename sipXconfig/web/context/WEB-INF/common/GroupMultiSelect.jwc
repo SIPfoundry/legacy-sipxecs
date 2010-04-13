@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.components.GroupMultiSelect" allow-body="no"
+  allow-informal-parameters="no">
+	<description>Auto complete a text fields with list of groups. Phone or User Groups</description>
+  <parameter name="source"/>
+  <parameter name="value"/>
+  <property name="groupCandidates"/>
+</component-specification>

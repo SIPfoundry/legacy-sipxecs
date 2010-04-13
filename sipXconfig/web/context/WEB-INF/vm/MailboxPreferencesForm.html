@@ -1,0 +1,189 @@
+<div jwcid="@If" condition="ognl:mailboxManager.enabled" renderTag="false">
+  <span jwcid="@If" condition="ognl:admin" renderTag="false">
+    <ul class="component-links">
+      <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+    </ul>
+  </span>
+  <span jwcid="@If" condition="ognl:admin && voicemailTuiModel.optionCount > 1" renderTag="false">
+    <tr jwcid="@common/FieldPanel" for="user:voicemailTui"
+      field="component:voicemailTui"
+      label="message:label.voicemailTui"
+      description="message:description.voicemailTui">
+      <select jwcid="voicemailTui@PropertySelection"
+        id="user:voicemailTui"
+        value="ognl:preferences.voicemailTui"
+        model="ognl:voicemailTuiModel"
+        onchange="javascript:this.form.submit();"
+        />
+    </tr>
+  </span>
+  <tr jwcid="@common/FieldPanel" for="user:activeGreeting"
+    field="component:activeGreeting"
+    label="message:label.activeGreeting"
+    description="message:description.activeGreeting">
+    <select jwcid="activeGreeting@PropertySelection"
+      id="user:activeGreeting"
+      value="ognl:preferences.activeGreeting"
+      model="ognl:activeGreetingModel" />
+  </tr>
+  <span jwcid="@If" condition="ognl:depositCpui" renderTag="false">
+    <tr jwcid="@common/FieldPanel" for="user:busyPrompt"
+      field="component:busyPrompt"
+      label="message:label.busyPrompt"
+      description="message:description.busyPrompt">
+      <checkbox jwcid="busyPrompt@Checkbox"
+        id="user:busyPrompt"
+        value="ognl:preferences.busyPrompt" />
+    </tr>
+  </span>
+  <span jwcid="@If" condition="ognl:advanced" renderTag="false">
+    <tr jwcid="@common/FieldPanel" for="user:externalMwi"
+      field="component:externalMwi"
+      label="message:label.externalMwi"
+      description="message:description.externalMwi">
+      <input jwcid="externalMwi@TextField" id="user:externalMwi" 
+       value="ognl:preferences.externalMwi" 
+       validators="spring-validators:validPhoneOrAor"
+       maxlength=255
+       size=20 />
+    </tr>
+  </span>
+  <tr>
+	<td colspan="2"><h3><label jwcid="@Insert" value="message:label.primaryEmail"/></h3></td>
+  </tr>
+  <tr jwcid="@common/FieldPanel" for="user:emailAddress"
+    field="component:emailAddress"
+    label="message:label.emailAddress"
+    description="message:description.emailAddress">
+    <input jwcid="emailAddress@TextField" id="user:emailAddress"
+      value="ognl:preferences.emailAddress"
+      validators="validators:email"
+      autocomplete="off" />
+  </tr>
+  <tr jwcid="@common/FieldPanel" for="user:voicemailProperties"
+    field="component:voicemailProperties"
+    label="message:label.voicemailProperties"
+    description="message:description.voicemailProperties">
+    <span jwcid="voicemailProperties@PropertySelection" id="user:voicemailProperties"
+      model="ognl:voicemailPropertiesModel"
+      value="ognl:preferences.attachVoicemailToEmail"
+      onchange="javascript:this.form.submit();"/>
+  </tr>
+  <div jwcid="@If" condition="ognl:preferences.emailNotificationEnabled" renderTag="false">
+	 <tr jwcid="@common/FieldPanel" for="user:emailFormat"
+	    field="component:emailFormat"
+	    label="message:label.emailFormat"
+	    description="message:description.emailFormat">
+	    <select jwcid="emailFormat@PropertySelection" id="user:emailFormat"
+	      value="ognl:preferences.emailFormat"
+	      model="ognl:mailFormatModel" />
+	 </tr>
+	 <tr jwcid="@common/FieldPanel" for="user:includeAudioAttachment"
+      field="component:includeAudioAttachment"
+      label="message:label.includeAudioAttachment"
+      description="message:description.includeAudioAttachment">
+      <checkbox jwcid="includeAudioAttachment@Checkbox"
+		        id="user:includeAudioAttachment"
+		        value="ognl:preferences.includeAudioAttachment" />
+	 </tr>
+  </div>
+  <div jwcid="@If" condition="ognl:preferences.synchronizeWithImapServer" renderTag="false">
+	<div jwcid="@If" condition="ognl:admin" renderTag="false">
+		<tr jwcid="@common/FieldPanel" for="user:imapHost"
+	      field="component:imapHost"
+	      label="message:label.imapHost"
+	      description="message:description.imapHost">
+	      <input jwcid="imapHost@TextField" id="user:imapHost"
+	        value="ognl:preferences.imapHost"/>
+	    </tr>
+	    <tr jwcid="@common/FieldPanel" for="user:imapPort"
+	      field="component:imapPort"
+	      label="message:label.imapPort"
+	      description="message:description.imapPort">
+	      <input jwcid="imapPort@TextField" id="user:imapPort"
+	        value="ognl:preferences.imapPort"/>
+	    </tr>
+	    <tr jwcid="@common/FieldPanel" for="user:imapTLS"
+	      field="component:imapTLS"
+	      label="message:label.imapTLS"
+	      description="message:description.imapTLS">
+	      <checkbox jwcid="imapTLS@Checkbox"
+			        id="user:imapTLS"
+			        value="ognl:preferences.imapTLS" />
+	    </tr>
+	</div>
+    <div jwcid="@If" condition="ognl:preferences.imapServerConfigured && !admin" renderTag="false">
+		<tr jwcid="@common/FieldPanel" for="user:imapAccount"
+	      field="component:imapAccount"
+	      label="message:label.imapAccount"
+	      description="message:description.imapAccount">
+	      <input jwcid="imapAccount@TextField" id="user:imapAccount"
+	        value="ognl:preferences.imapAccount"/>
+	    </tr>
+	    <tr jwcid="@common/FieldPanel" for="user:imapPassword"
+	      field="component:imapPassword"
+	      label="message:label.imapPassword"
+	      description="message:description.imapPassword">
+	      <input jwcid="imapPassword@TextField" id="user:imapPassword"
+	        value="ognl:preferences.imapPassword"/>
+	    </tr>
+	  </div>
+  </div>
+  <tr>
+	<td colspan="2"><h3><label jwcid="@Insert" value="message:label.additionalEmail"/></h3></td>
+  </tr>
+  <tr jwcid="@common/FieldPanel" for="user:alternateEmailAddress"
+    field="component:alternateEmailAddress"
+    label="message:label.alternateEmailAddress"
+    description="message:description.alternateEmailAddress">
+    <input jwcid="alternateEmailAddress@TextField" id="user:alternateEmailAddress"
+      value="ognl:preferences.alternateEmailAddress"
+      validators="validators:email"
+      autocomplete="off"/>
+  </tr>
+  <tr jwcid="@common/FieldPanel" for="user:voicemailToAlternateEmailNotification"
+	  field="component:voicemailToAlternateEmailNotification"
+	  label="message:label.voicemailToAlternateEmailNotification"
+	  description="message:description.voicemailToAlternateEmailNotification">
+	<span jwcid="voicemailToAlternateEmailNotification@PropertySelection" id="user:voicemailToAlternateEmailNotification"
+		  model="ognl:alternateEmailNotifyModel"
+		  value="ognl:preferences.voicemailToAlternateEmailNotification"
+		  onchange="javascript:this.form.submit();"/>
+  </tr>
+  <div jwcid="@If" condition="ognl:preferences.emailNotificationAlternateEnabled" renderTag="false">
+	 <tr jwcid="@common/FieldPanel" for="user:alternateEmailFormat"
+	    field="component:alternateEmailFormat"
+	    label="message:label.alternateEmailFormat"
+	    description="message:description.alternateEmailFormat">
+	    <select jwcid="alternateEmailFormat@PropertySelection" id="user:alternateEmailFormat"
+	      value="ognl:preferences.alternateEmailFormat"
+	      model="ognl:mailFormatModel"
+	      />
+	 </tr>
+	 <tr jwcid="@common/FieldPanel" for="user:includeAudioAttachmentAlternateEmail"
+      field="component:includeAudioAttachmentAlternateEmail"
+      label="message:label.includeAudioAttachmentAlternateEmail"
+      description="message:description.includeAudioAttachmentAlternateEmail">
+      <checkbox jwcid="includeAudioAttachmentAlternateEmail@Checkbox"
+		        id="user:includeAudioAttachmentAlternateEmail"
+		        value="ognl:preferences.includeAudioAttachmentAlternateEmail" />
+	 </tr>
+  </div>
+</div>
+<div jwcid="@Else" renderTag="false">
+  <tr>
+    <td colspan="3">
+      <div class="not-available" id="mailbox:disabled">
+        <span><span key="message.voicemailDisabled"/></span>
+        <ul>
+          <li><label class="settingLabel"><span key="label.emailAddress"/></label> -
+            <span class="settingDescription"><span key="description.emailAddress"/></span></li>
+          <li><label class="settingLabel"><span key="label.activeGreeting"/></label> -
+            <span class="settingDescription"><span key="description.activeGreeting"/></span></li>
+          <li><label class="settingLabel"><span key="label.attachVoicemailToEmail"/></label> -
+            <span class="settingDescription"><span key="description.attachVoicemailToEmail"/></span></li>
+        </ul>
+      </div>
+    </td>
+  </tr>
+</div>

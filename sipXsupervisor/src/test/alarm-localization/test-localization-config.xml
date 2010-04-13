@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+   <definitions>
+      <alarm id="TEST_LOG">
+         <code>SCF00011</code>
+         <severity>alert</severity>
+         <component>alarmTest</component>
+         <action log="true"
+                  email="default"
+                  />
+         <filter max_reports="3"/>
+      </alarm>
+      <alarm id="PARAMETER_SUBSTITUTION">
+         <code>SCF23089</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+      </alarm>
+      <alarm id="MISSING_TRANSLATION">
+         <code>SCF24189</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+      </alarm>
+      <alarm id="SPECIAL_CHARACTERS">
+         <code>SCF39289</code>
+         <severity>debug</severity>
+         <component>sipXsupervisor</component>
+      </alarm>
+   </definitions>
+</alarm_server>

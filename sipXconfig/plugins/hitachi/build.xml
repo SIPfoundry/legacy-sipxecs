@@ -1,0 +1,9 @@
+<project name="hitachi" default="default">
+
+  <property name="project.dir" value="plugins/hitachi" />
+  <property name="plugin.models.dir" value="etc/hitachi" />
+  <property name="plugin.name" value="hitachi-phones" />
+
+  <import file="../plugins.build.xml" />
+
+</project>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.gateway.GatewayCallerAliasInfoPanel">
+  <component id="defaultCallerAliasPanel" type="common/FieldPanel">
+    <binding name="field" value="components.defaultCallerAlias" />
+    <binding name="label" value="message:label.defaultCallerAlias" />
+    <binding name="description" value="message:description.defaultCallerAlias" />
+  </component>
+  <component id="defaultCallerAlias" type="TextField">
+    <binding name="value" value="gcai.defaultCallerAlias" />
+    <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="displayName" value="message:label.defaultCallerAlias" />
+  </component>
+
+  <component id="anonymousPanel" type="common/FieldPanel">
+    <binding name="field" value="components.anonymous" />
+    <binding name="label" value="message:label.anonymous" />
+    <binding name="description" value="message:description.anonymous" />
+  </component>
+  <component id="anonymous" type="Checkbox">
+    <binding name="value" value="gcai.anonymous" />
+    <binding name="displayName" value="message:label.anonymous" />
+  </component>
+
+  <component id="ignoreUserInfoPanel" type="common/FieldPanel">
+    <binding name="field" value="components.ignoreUserInfo" />
+    <binding name="label" value="message:label.ignoreUserInfo" />
+    <binding name="description" value="message:description.ignoreUserInfo" />
+  </component>
+  <component id="ignoreUserInfo" type="Checkbox">
+    <binding name="value" value="gcai.ignoreUserInfo" />
+    <binding name="displayName" value="message:label.ignoreUserInfo" />
+  </component>
+
+  <component id="transformUserExtensionPanel" type="common/FieldPanel">
+    <binding name="field" value="components.transformUserExtension" />
+    <binding name="label" value="message:label.transformUserExtension" />
+    <binding name="description" value="message:description.transformUserExtension" />
+  </component>
+  <component id="transformUserExtension" type="Checkbox">
+    <binding name="value" value="gcai.transformUserExtension" />
+    <binding name="displayName" value="message:label.transformUserExtension" />
+  </component>
+
+  <component id="addPrefixPanel" type="common/FieldPanel">
+    <binding name="field" value="components.addPrefix" />
+    <binding name="label" value="message:label.addPrefix" />
+    <binding name="description" value="message:description.addPrefix" />
+  </component>
+  <component id="addPrefix" type="TextField">
+    <binding name="value" value="gcai.addPrefix" />
+    <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="displayName" value="message:label.addPrefix" />
+  </component>
+
+  <component id="keepDigitsPanel" type="common/FieldPanel">
+    <binding name="field" value="components.keepDigits" />
+    <binding name="label" value="message:label.keepDigits" />
+    <binding name="description" value="message:description.keepDigits" />
+  </component>
+  <component id="keepDigits" type="TextField">
+    <binding name="value" value="gcai.keepDigits" />
+    <binding name="translator" value="translator:sipxnumber,omitZero=true" />
+    <binding name="validators" value="validators:required,min=-1,max=99" />
+    <binding name="displayName" value="message:label.keepDigits" />
+  </component>
+
+</component-specification>

@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="Trunk">
+    <setting name="ProtocolType">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+          <option>
+            <value>9</value>
+          </option>
+          <option>
+            <value>10</value>
+          </option>
+          <option>
+            <value>11</value>
+          </option>
+          <option>
+            <value>12</value>
+          </option>
+          <option>
+            <value>13</value>
+          </option>
+          <option>
+            <value>14</value>
+          </option>
+          <option>
+            <value>15</value>
+          </option>
+          <option>
+            <value>16</value>
+          </option>
+          <option>
+            <value>17</value>
+          </option>
+          <option>
+            <value>18</value>
+          </option>
+          <option>
+            <value>19</value>
+          </option>
+          <option>
+            <value>20</value>
+          </option>
+          <option>
+            <value>21</value>
+          </option>
+          <option>
+            <value>23</value>
+          </option>
+          <option>
+            <value>31</value>
+          </option>
+          <option>
+            <value>35</value>
+          </option>
+          <option>
+            <value>40</value>
+          </option>
+        </enum>
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="ClockMaster">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="LineCode">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="FramingMethod">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>a</value>
+          </option>
+          <option>
+            <value>c</value>
+          </option>
+          <option>
+            <value>A</value>
+          </option>
+          <option>
+            <value>B</value>
+          </option>
+          <option>
+            <value>C</value>
+          </option>
+          <option>
+            <value>D</value>
+          </option>
+          <option>
+            <value>F</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="Prefix" advanced="yes">
+      <profileName>$$</profileName>
+      <type>
+        <string required="yes"/>
+      </type>
+      <value>*</value>
+    </setting>
+    <setting name="MinChannel" advanced="yes">
+      <profileName>$$</profileName>
+      <type>
+        <integer min="1" max="32" required="yes"/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="MaxChannel">
+      <profileName>$$</profileName>
+      <type>
+        <integer min="1" max="99" required="yes"/>
+      </type>
+      <value>23</value>
+    </setting>
+    <setting name="ChannelSelectMode" advanced="yes">
+      <profileName>$$</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="TrunkGroup_X_FirstPhoneNumber" advanced="yes" unless="fxs">
+      <profileName>$ignore$</profileName>
+      <type>
+        <string/>
+      </type>
+      <value>Unknown00</value>
+    </setting>
+  </group>
+  <group name="ISDN">
+    <setting name="TerminationSide">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ISDNIBehavior" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+    </setting>
+    <setting name="ISDNOutCallsBehavior" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+    </setting>
+    <setting name="ISDNInCallsBehavior" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+    </setting>
+    <setting name="ISDNGeneralCCBehavior" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+    </setting>
+    <setting name="NFASGroupNumber" advanced="yes">
+      <type>
+        <integer min="0" max="4"/>
+      </type>
+    </setting>
+    <setting name="ISDNNFASInterfaceID" advanced="yes">
+      <type>
+        <integer min="0" max="100"/>
+      </type>
+    </setting>
+    <setting name="DchConfig" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="PlayRBTone2Trunk" advanced="yes"/>
+    <setting name="LocalISDNRBSource" advanced="yes"/>
+    <setting name="PIForDisconnectMsg" advanced="yes"/>
+    <setting name="ISDNTransferCapability" advanced="yes"/>
+    <setting name="TrunkTransferMode" advanced="yes"/>
+    <setting name="RemoveCallingNameForTrunk" advanced="yes" if="6.0orLater"/>
+    <setting name="ProgressIndicator2ISDN" advanced="yes"/>
+    <setting name="ISDNRxOverlap" advanced="yes"/>
+  </group>
+</model>

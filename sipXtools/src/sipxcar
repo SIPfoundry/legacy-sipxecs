@@ -1,0 +1,232 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+require 'getoptlong'
+require 'tempfile'
+
+# shouldn't have been in archive
+IGNORED_FILES = [ /.*sipxregistry-.*.tgz$/, /.*libmod_sipxauth.so.*/ ]
+
+class SipxConfigArchiveReader
+  attr_accessor :verbose
+  
+  def initialize(archive_dir = '/var/sipxdata/upgrade', archive_ext = '-current.tgz', root_dir = '/')
+	@archives_dir = archive_dir
+	@archive_ext = archive_ext
+	@root_dir = root_dir
+  end
+
+  alias oldBackquote `
+  def `(cmd)
+    if verbose
+      puts cmd
+    end
+    return oldBackquote(cmd)
+  end
+
+  def modified(*optional_pkgs)
+    get_archives(optional_pkgs).each { |archive|
+      get_archive_file_listings(archive).each { |file|      
+          line = modified_line(archive, file)              
+          puts line if line
+	  }
+    }
+  end
+  
+  def ignore?(file)
+    IGNORED_FILES.each {|ignore|
+      return true if ignore.match(file)
+    }
+    return false
+  end
+  
+  def modified_line(archive, file)
+    return nil if ignore?(file)
+
+    installed_file = installed_file(file)
+   
+    return "? #{installed_file}" if ! File.exists?(installed_file)
+
+    orig = File.read(installed_file)
+	local = get_archive_file_contents(archive, file)
+
+	return "M #{installed_file}" if orig != local
+	
+	return nil
+  end
+  
+  def installed_file(file) 
+    "#{@root_dir}#{file}"
+  end
+  
+  def list(*optional_pkgs)
+    get_files(optional_pkgs).each {|file| puts file }
+  end
+    
+  def diff(*optional_installed_files)
+    file_operation(optional_installed_files) {|archive, file|
+      diff = get_differences(archive, file)
+	  puts diff if ( diff && ! diff.empty? )
+    }    
+  end
+  
+  def reset(*optional_installed_files)
+    file_operation(optional_installed_files) {|archive, file|
+      contents = get_archive_file_contents(archive, file)
+	  File.open(installed_file(file), 'w') { |out|
+	    out.write contents
+	  }
+    }    
+  end
+
+  def file_operation(optional_installed_files)
+    get_archives([]).each { |archive|
+      get_archive_file_listings(archive).each { |file|      
+        installed_file = installed_file(file) 
+	    if optional_installed_files.empty? || optional_installed_files.index(installed_file)
+	      yield archive, file
+	    end
+	  }
+    }
+  end
+
+  def get_differences(archive, file)
+ 	 installed_file = installed_file(file)
+     return nil if ignore?(file)
+ 	 
+ 	 # would like to report entire contents as diff but not clear how
+ 	 return nil if ! File.exists?(installed_file)
+ 	 
+	 # write config contents to temp file, run diff
+	 temp = Tempfile.new(File.basename(file))
+     temp.open.write get_archive_file_contents(archive, file)		          
+     temp.open.close
+     difference = get_file_differences(temp.path, installed_file)
+	 temp.unlink
+	 return difference	 
+  end  
+  
+  def get_files(packages)
+    files = []
+    archives = get_archives(packages)
+    archives.each { |archive|
+ 	  files.concat(get_archive_file_listings(archive))
+    }
+    files
+  end
+  
+  # paths are absolute
+  def get_file_differences(file1, file2)
+    `diff -u #{file1} #{file2}`
+  end
+  
+  def get_archive_file_listings(archive)
+    `tar -tzf  #{archive} | grep -v '/$'`.split("\n")
+  end
+  
+  def get_archive_file_contents(archive, file)
+    `tar -xzOf #{archive} #{file}`
+  end
+    
+  def get_archives(packages)  	
+  	if packages.empty?
+	  archives = get_directory_listing
+	else
+	  archives = packages.collect {|p| 
+	  	p = "#{@archives_dir}/#{p}#{@archive_ext}"
+	  }
+    end
+    archives
+  end
+  
+  def get_directory_listing
+    Dir["#{@archives_dir}/*#{@archive_ext}"]
+  end
+
+  def packages
+    puts get_packages.join("\n")
+  end
+  
+  def get_packages
+    get_directory_listing.collect! {|tar| 
+        tar = File.basename(tar, @archive_ext)
+    }
+  end
+  
+  def apply(*patch_files)
+    patch_files.each {|patch|
+      `patch -d #{@root_dir} -p0 < #{patch}`
+    }
+  end
+end
+
+def usage_exit(error_code=1)
+      usage = <<__EOU__
+
+  sipX Configuration Archive Reader
+
+Usage:
+ GENERAL
+  #{ $0 } [-h|--help] [-v|--verbose]
+
+ BY PACKAGE
+ #{ $0 } [-l|--list] [-m|--modified] [package ...]
+                    
+ BY FILE
+  #{ $0 } [-r|--reset] [-d|--diff] [configuration-file ...]
+                    
+ OTHER
+  #{ $0 } [-a|--apply] [patch-file ...]
+
+  (see man page for more information)
+  
+__EOU__
+
+      STDERR << usage
+      exit error_code
+end
+
+if __FILE__ == $0
+  OptSet = [
+    ['--help','-h', GetoptLong::NO_ARGUMENT],
+    ['--verbose','-v', GetoptLong::NO_ARGUMENT],    
+    ['--apply','-a', GetoptLong::NO_ARGUMENT],
+    ['--modified','-m', GetoptLong::NO_ARGUMENT],
+    ['--diff','-d', GetoptLong::NO_ARGUMENT],
+    ['--list','-l', GetoptLong::NO_ARGUMENT],
+    ['--reset','-r', GetoptLong::NO_ARGUMENT],
+  ]
+
+  car = SipxConfigArchiveReader.new
+  opts = GetoptLong.new(*OptSet)
+  args = []
+  action = 'packages'
+  begin
+    opts.each do |name, arg|
+      case name
+        when '--help'
+          usage_exit 0
+        when '--modified', '--list', '--diff', '--reset', '--apply'
+          action = name.gsub(/--/, '')
+        when '--verbose'
+          car.verbose = true
+        else
+          usage_exit
+        end
+    end
+
+    args.concat(ARGV)
+    
+  rescue StandardError => bang
+    puts bang
+    usage_exit
+  end
+
+  begin
+    car.send(action, *args)
+  end
+end
+

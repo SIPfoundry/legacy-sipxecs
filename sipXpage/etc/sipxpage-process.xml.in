@@ -1,0 +1,26 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>PageServer</name>
+  <version>@VERSION@</version>
+  <commands>
+    <configtest>
+      <execute>@SIPX_BINDIR@/sipxpage.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>@SIPX_BINDIR@/sipxpage.sh</execute>
+    </start>
+    <stop>
+      <execute>@SIPX_BINDIR@/sipxpage.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>@SIPX_RUNDIR@/sipxpage.pid</pid>
+    <log>@SIPX_LOGDIR@/sipxpage.log</log>
+  </status>
+  <resources>
+    <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
+    <file>@SIPX_CONFDIR@/sipxpage.properties</file>
+  </resources>
+</sipXecs-process>

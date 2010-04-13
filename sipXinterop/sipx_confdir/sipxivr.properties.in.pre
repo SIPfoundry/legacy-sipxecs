@@ -1,0 +1,17 @@
+log.level=DEBUG
+log.file=@SIPX_LOGDIR@/sipxivr.log
+
+freeswitch.eventSocketPort=8084
+
+ivr.dataDirectory=@SIPX_VXMLDATADIR@
+ivr.mailstoreDirectory=@SIPX_VXMLDATADIR@/mailstore
+ivr.promptsDirectory=@SIPX_VXMLDATADIR@/prompts
+ivr.scriptsDirectory=@wwwdir@/doc/aa_vxml
+ivr.docDirectory=@wwwdir@/doc
+ivr.organizationPrefs=@SIPX_VXMLDATADIR@/organizationprefs.xml
+ivr.operatorAddr=sip:operator@@SIP_DOMAIN_NAME@
+ivr.sipxchangeDomainName=@SIP_DOMAIN_NAME@
+ivr.realm=@SIP_DOMAIN_NAME@
+ivr.httpsPort=8085
+ivr.mwiUrl=https://@INTEROP_HOST@:8101/cgi/StatusEvent.cgi
+ivr.configUrl=https://@INTEROP_HOST@:8443

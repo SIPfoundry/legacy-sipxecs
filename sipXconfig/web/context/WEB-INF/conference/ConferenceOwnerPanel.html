@@ -1,0 +1,21 @@
+    <table>
+        <tr jwcid="@common/FieldPanel"
+            field="component:conferenceOwner" for="conferenceOwner"
+            label="message:label.conferenceOwner"
+            description="message:description.conferenceOwner">
+
+            <input jwcid="conferenceOwner@Hidden" value="ognl:conference.owner" />
+
+            <span jwcid="@If" condition="ognl:conference.hasOwner">
+                <img jwcid="@Image" image="asset:userIcon" align="absmiddle" />
+                <span jwcid="@Insert" value="ognl:conference.owner.displayName" />
+                (<span jwcid="@Insert" value="ognl:conference.owner.userName" />)
+                <input id="changeOwner" jwcid="@Submit" listener="listener:changeOwner" value="message:label.changeOwner" />
+                <input id="unassign" jwcid="@Submit" listener="listener:unassign" value="message:label.unassign" />
+            </span>
+            <span jwcid="@Else">
+            (none)
+            <input id="assign" jwcid="@Submit" listener="listener:changeOwner" value="message:label.assignOwner" />
+            </span>
+        </tr>
+    </table>

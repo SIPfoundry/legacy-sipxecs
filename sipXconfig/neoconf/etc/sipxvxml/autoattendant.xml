@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model>
+  <type id="upload-prompt">
+    <file variable="yes" />
+  </type>
+  <group name="dtmf">
+    <setting name="interDigitTimeout">
+      <type>
+        <integer min="1" required="yes" />
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="overallDigitTimeout">
+      <type>
+        <integer min="1" required="yes" />
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="maxDigits">
+      <type>
+        <integer min="1" required="yes" />
+      </type>
+      <value>10</value>
+    </setting>
+  </group>
+  <group name="onfail">
+    <setting name="noinputCount">
+      <type>
+        <integer min="0" max="10" required="yes" />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="nomatchCount">
+      <type>
+        <integer min="0" max="10" required="yes" />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="transfer">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="transfer-extension">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="transfer-prompt">
+      <type refid="upload-prompt" />
+      <value />
+    </setting>
+  </group>
+</model>

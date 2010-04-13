@@ -1,0 +1,425 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+- XML Schema for sipX alarm configuration
+-->
+<schema
+    xmlns:h='http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <annotation>
+    <documentation>
+      Definition of alarm
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='alarm_server'>
+    <complexType>
+      <sequence>
+        <element ref='h:settings' minOccurs='0' maxOccurs='1' />
+        <element ref='h:definitions' minOccurs='0' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='settings'>
+    <annotation>
+      <documentation>
+        Global configuration settings for the alarm server.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:language' minOccurs='0' maxOccurs='1' />
+        <element ref='h:actions' minOccurs='1' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='language'>
+    <annotation>
+      <documentation>
+        Configures the language used in alarm notifications.
+      </documentation>
+    </annotation>
+    <complexType>
+      <simpleContent>
+        <extension base="string">
+        </extension>
+      </simpleContent>
+    </complexType>
+  </element>
+
+  <element name='actions'>
+    <annotation>
+      <documentation>
+        Global configuration settings for alarm actions.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:log' minOccurs='0' maxOccurs='1' />
+        <element ref='h:email' minOccurs='0' maxOccurs='1' />
+        <element ref='h:sms' minOccurs='0' maxOccurs='1' />
+        <element ref='h:trap' minOccurs='0' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='log'>
+    <annotation>
+      <documentation>
+        Settings for the log notifier.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:file' minOccurs='1' maxOccurs='1' />
+      </sequence>
+      <attribute name="enabled" type="boolean"/>
+    </complexType>
+  </element>
+
+  <element name="file">
+    <annotation>
+      <documentation>
+        The log file for alarms.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='email'>
+    <annotation>
+      <documentation>
+        Settings for the email notifier.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:email-notification-addr' minOccurs='0' maxOccurs='1' />
+        <element ref='h:contact' minOccurs='0'  maxOccurs='5'/>
+        <element ref='h:email-subject' minOccurs='0' />
+        <element ref='h:email-intro' minOccurs='0' />
+        <element ref='h:email-alarm' minOccurs='0' />
+        <element ref='h:email-time' minOccurs='0' />
+        <element ref='h:email-host' minOccurs='0' />
+        <element ref='h:email-severity' minOccurs='0' />
+        <element ref='h:email-description' minOccurs='0' />
+        <element ref='h:email-resolution' minOccurs='0' />
+        <element ref='h:email-from' minOccurs='0' />
+      </sequence>
+      <attribute name="enabled" type="boolean"/>
+    </complexType>
+  </element>
+
+  <element name='sms'>
+    <annotation>
+      <documentation>
+        Settings for the SMS notifier.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:email-notification-addr' minOccurs='0' maxOccurs='1' />
+        <element ref='h:contact' minOccurs='0'  maxOccurs='5'/>
+        <element ref='h:email-subject' minOccurs='0' />
+        <element ref='h:email-intro' minOccurs='0' />
+        <element ref='h:email-host' minOccurs='0' />
+        <element ref='h:email-from' minOccurs='0' />
+      </sequence>
+      <attribute name="enabled" type="boolean"/>
+    </complexType>
+  </element>
+
+  <element name='trap'>
+    <annotation>
+      <documentation>
+        Settings for the Trap notifier.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="enabled" type="boolean"/>
+    </complexType>
+  </element>
+
+  <element name="email-notification-addr">
+    <annotation>
+      <documentation>
+        The address from which alarm notifications will be sent.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="contact">
+    <annotation>
+      <documentation>
+        An email address to which alarm notifications will be sent.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="email-subject">
+    <annotation>
+      <documentation>
+        The string for the email subject in email notifications
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="email-intro">
+    <annotation>
+      <documentation>
+        The string for the email intro in email notifications
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="email-alarm">
+    <annotation>
+      <documentation>
+        The string for the email alarm in email notifications
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="email-time">
+    <annotation>
+      <documentation>
+        The string for the email time in email notifications
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="email-host">
+    <annotation>
+      <documentation>
+        The string for the email host in email notifications
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="email-severity">
+    <annotation>
+      <documentation>
+        The string for the email severity in email notifications
+      </documentation>
+    </annotation>
+    <simpleType>
+       <restriction base="string">
+       </restriction>
+    </simpleType>
+  </element>
+
+  <element name="email-description">
+    <annotation>
+      <documentation>
+        The string for the email description in email notifications
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="email-resolution">
+    <annotation>
+      <documentation>
+        The string for the email resolution in email notifications
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="email-from">
+    <annotation>
+      <documentation>
+        The string for the email from in email notifications
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='definitions'>
+    <annotation>
+      <documentation>
+        List of individual alarm definitions.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:alarm' minOccurs='1' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='alarm'>
+    <annotation>
+      <documentation>
+        Individual alarm definition.  Note that these elements may be spread among
+        several xml files, so none are marked as required.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:code' minOccurs='0' />
+        <element ref='h:severity' minOccurs='0' />
+        <element ref='h:component' minOccurs='0' />
+        <element ref='h:action' minOccurs='0' />
+        <element ref='h:filter' minOccurs='0' />
+        <element ref='h:description' minOccurs='0' />
+        <element ref='h:resolution' minOccurs='0' />
+        <element ref='h:shorttitle' minOccurs='0' />
+      </sequence>
+      <attribute name="id" type="string" use="required"/>
+    </complexType>
+  </element>
+
+  <element name="code">
+    <annotation>
+      <documentation>
+        The external alarm code used in notifications.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="severity">
+    <annotation>
+      <documentation>
+        The alarm severity.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+         <enumeration value="debug" />
+         <enumeration value="info" />
+         <enumeration value="notice" />
+         <enumeration value="warning" />
+         <enumeration value="error" />
+         <enumeration value="crit" />
+         <enumeration value="alert" />
+         <enumeration value="emerg" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="component">
+    <annotation>
+      <documentation>
+        The component which generated the alarm.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='action'>
+    <annotation>
+      <documentation>
+        Individual action settings for this alarm.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="log" type="boolean"/>
+      <attribute name="email" type="string"/>
+    </complexType>
+  </element>
+
+  <element name='filter'>
+    <annotation>
+      <documentation>
+        Optional individual filter settings for this alarm.
+      </documentation>
+    </annotation>
+    <complexType>
+      <attribute name="min_threshold" type="integer"/>
+      <attribute name="max_reports" type="integer"/>
+    </complexType>
+  </element>
+
+  <element name="shorttitle">
+    <annotation>
+      <documentation>
+        A short title for the alarm condition.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="description">
+    <annotation>
+      <documentation>
+        A description of the alarm condition.  Placeholds for runtime parameters
+        may be included in the message with the following syntax: {0}.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="resolution">
+    <annotation>
+      <documentation>
+        Guidelines or advice for the customer to assist with resolving the
+        issue.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+</schema>

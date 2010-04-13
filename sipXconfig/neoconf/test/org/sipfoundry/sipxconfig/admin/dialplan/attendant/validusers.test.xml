@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validusers xmlns="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00">
+  <user>
+    <identity>301@example.com</identity>
+    <userName>301</userName>
+    <aliases>
+      <alias>jdoe</alias>
+      <alias>18003010000</alias>
+    </aliases>
+    <displayName>John Adams</displayName>
+    <contact>"John Adams"&lt;sip:301@example.com&gt;</contact>
+    <pintoken>9c78d7b04fa11fe0086eb25933b01af3</pintoken>
+    <passtoken>9c78d7b04fa11fe0086eb25933b01af3</passtoken>
+    <inDirectory>true</inDirectory>
+    <hasVoicemail>true</hasVoicemail>
+    <userBusyPrompt>true</userBusyPrompt>
+    <voicemailTui>stdui</voicemailTui>
+    <canRecordPrompts>false</canRecordPrompts>
+    <canTuiChangePin>true</canTuiChangePin>
+    <email>
+      <address>301@sipx.org</address>
+      <imap synchronize="false">
+        <host>imap.host.exampl.com</host>
+        <port>143</port>
+        <useTLS>false</useTLS>
+        <account>jdoe</account>
+        <password>cGFzc3dvcmQ=</password>
+      </imap>
+    </email>
+  </user>
+  <user>
+    <identity>302@example.com</identity>
+    <userName>302</userName>
+    <aliases/>
+    <displayName>George Washington</displayName>
+    <contact>"George Washington"&lt;sip:302@example.com&gt;</contact>
+    <pintoken>6833fd1fc2dd908dc99a3a457d88b812</pintoken>
+    <passtoken>6833fd1fc2dd908dc99a3a457d88b812</passtoken>
+    <inDirectory>false</inDirectory>
+    <hasVoicemail>true</hasVoicemail>
+    <userBusyPrompt>true</userBusyPrompt>
+    <voicemailTui>stdui</voicemailTui>
+    <canRecordPrompts>true</canRecordPrompts>
+    <canTuiChangePin>true</canTuiChangePin>
+    <email>
+      <address>302@sipx.org</address>
+      <notification attachAudio="false">FULL</notification>
+    </email>
+    <email>
+      <address>302@sipxecs.org</address>
+      <notification attachAudio="true">BRIEF</notification>
+    </email>
+  </user>
+  <user>
+    <identity>500@example.com</identity>
+    <userName>500</userName>
+    <contact>sip:500@example.com</contact>
+    <inDirectory>false</inDirectory>
+  </user>
+  <user>
+    <identity>501@example.com</identity>
+    <userName>501</userName>
+    <contact>sip:501@example.com</contact>
+    <inDirectory>false</inDirectory>
+  </user>
+</validusers>

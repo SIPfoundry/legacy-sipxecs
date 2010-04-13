@@ -1,0 +1,1 @@
+alter table paging_group add column timeout integer not null default 60;

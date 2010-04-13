@@ -1,0 +1,553 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+    <!--
+        Deposit Voicemail
+    -->
+    <form id="incoming">
+        <property name="interdigittimeout" value="3s" />
+        <property name="timeout" value="7s" />
+
+        <!-- Record noinput count
+	     For some reason, the input count does not increment in record.
+	     This is a manual way to count the noinput events.
+	-->
+        <var name="record_reprompt" expr="'0'" />
+
+        <!-- Parameters passed in by the subroutine that invoked this VXML -->
+        <var name="mailbox" />
+        <var name="from" />
+        <var name="frommailbox" expr="mailbox"/>
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+
+        <!-- Parameter indicating the process that invoked this VXML script.
+            Possible values:    "incoming" if called by deposit.cgi
+                                "sendmessage" if called by mainmenu.vxml
+        -->
+        <var name="called_by" />
+        <!-- URL of the greeting. Passed in only when invoked by deposit.cgi -->
+        <var name="msgurl" />
+        <var name="msgurltype" />
+
+        <!-- Flag to indicate how the user reached the recording so that appropriate message confirmation is played.
+            Deposit - plays 'Your message has been recorded.'
+            Send message - plays 'Message sent.'
+            Deposit to additional extensions - plays 'Your message has been copied.'
+        -->
+        <var name="recording_source" expr="called_by" />
+
+        <!-- Parameters for invoking the CGI -->
+        <var name="action" expr="'savemessage'"/>
+        <var name="size" />
+        <var name="duration" />
+        <var name="timestamp" />
+        <var name="termchar" />
+        <var name="alreadyrecorded" />
+        <block>
+            <assign name="alreadyrecorded" expr="'0'" />
+        </block>
+
+        <!-- Flag to indicate if the user has recorded the message -->
+        <var name="save_message" expr="'yes'" />
+
+        <!-- Flag to indicate if the user has disconnected the call -->
+        <var name="call_disconnected" expr="'no'" />
+
+        <!-- Play the user's greeting -->
+        <field name="playgreeting" cond="alreadyrecorded=='0'">
+            <grammar>*</grammar>
+            <prompt cond="called_by == 'sendmessage'" timeout="1s">
+                <audio expr="mediaserverurl + promptsalias + 'record_your_message.wav'" />
+            </prompt>
+            <prompt cond="msgurltype == 'url'" timeout="1s">
+                <audio expr="msgurl"/>
+                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn_no_operator.wav'" />
+            </prompt>
+            <prompt cond="msgurltype == 'name'" timeout="1s">
+                <audio expr="msgurl"/>
+                <audio expr="mediaserverurl + promptsalias + 'is_not_available.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'please_leave_a_msg.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn_no_operator.wav'" />
+            </prompt>
+            <prompt cond="msgurltype == 'extension'" timeout="1s">
+                <audio expr="mediaserverurl + promptsalias + 'default_greeting_prefix.wav'" />
+            </prompt>
+            <prompt cond="msgurltype == 'extension'" timeout="1s">
+                <say-as type="number:digits">
+                    <value expr="msgurl"/>
+                </say-as>
+            </prompt>
+            <prompt cond="msgurltype == 'extension'" timeout="1s">
+                <audio expr="mediaserverurl + promptsalias + 'is_not_available.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'please_leave_a_msg.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn_no_operator.wav'" />
+            </prompt>
+            <prompt cond="msgurltype == 'alphanumeric'" timeout="1s">
+                <audio expr="mediaserverurl + promptsalias + 'default_greeting_prefix.wav'" />
+            </prompt>
+            <prompt cond="msgurltype == 'alphanumeric'" timeout="1s">
+                <say-as type="acronym">
+                    <value expr="msgurl"/>
+                </say-as>
+            </prompt>
+            <prompt cond="msgurltype == 'alphanumeric'" timeout="1s">
+                <audio expr="mediaserverurl + promptsalias + 'is_not_available.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'please_leave_a_msg.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'deposit_greeting_extn_no_operator.wav'" />
+            </prompt>
+            <filled>
+                <if cond="playgreeting == '*'" >
+                    <assign name="save_message" expr="'no'" />
+                    <if cond="called_by == 'sendmessage'">
+                        <prompt bargein="false">
+                            <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                        </prompt>
+                        <return />
+                    <else />
+                        <assign name="action" expr="'login'" />
+		        <goto nextitem="login" />
+                    </if>
+                <else />
+                    <assign name="alreadyrecorded" expr="'0'" />
+                    <goto nextitem="vm" />
+                </if>
+            </filled>
+            <noinput>
+                <assign name="alreadyrecorded" expr="'0'" />
+                <goto nextitem="vm" />
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt/>
+            </nomatch>
+        </field>
+
+	<!-- Proceed to login menu -->
+	<subdialog name="login" cond="action=='login'" method="get"
+          src="login.vxml">
+	    <param name="mailbox" expr="mailbox" />
+	    <param name="extn" expr="mailbox" />
+	    <param name="from" expr="from" />
+	    <param name="mediaserverurl" expr="mediaserverurl" />
+	    <param name="securemediaserverurl" expr="securemediaserverurl" />
+	</subdialog>
+
+        <!-- Record the voicemail message -->
+        <record name="vm" cond="alreadyrecorded=='0'" beep="true" finalsilence="8000ms" dtmfterm="true">
+            <filled>
+                <assign name="duration" expr="vm$.duration"/>
+                <assign name="size" expr="vm$.size"/>
+                <assign name="timestamp" expr="vm$.timestamp"/>
+                <assign name="termchar" expr="vm$.termchar"/>
+                <if cond="vm$.termchar=='*'">
+                    <if cond="called_by == 'sendmessage'">
+                        <prompt bargein="false">
+                            <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                        </prompt>
+                        <return />
+                    <else />
+                        <assign name="save_message" expr="'yes'" />
+                        <assign name="confirm" expr="'1'" />
+                        <goto nextitem="recording" />
+                    </if>
+                <else />
+                    <assign name="save_message" expr="'yes'" />
+                    <assign name="alreadyrecorded" expr="'1'" />
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+            <noinput>
+                <if cond="record_reprompt=='0'">
+                        <assign name="record_reprompt" expr="'1'" />
+                        <reprompt/>
+                <elseif cond="record_reprompt=='1'" />
+                        <assign name="record_reprompt" expr="'2'" />
+                        <reprompt/>
+                <else />
+                        <prompt bargein="false">
+                            <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                            <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                        </prompt>
+                        <disconnect/>
+                </if>
+            </noinput>
+        </record>
+
+        <!-- Prompt user's to confirm that their message can be sent -->
+        <field name="confirm"  cond="vm != 'undefined'" type="digits?minlength=1;maxlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'deposit_options.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'" />
+            </prompt>
+            <filled>
+                <if cond="confirm == '1'">
+                    <!-- Play back the recorded message -->
+                    <assign name="save_message" expr="'yes'" />
+                    <prompt>
+                        <value expr="vm"/>
+                    </prompt>
+                    <clear namelist="confirm"/>
+                    <goto nextitem="confirm"/>
+                <elseif cond="confirm == '2'"/>
+                    <!-- proceed with delivering the message -->
+                    <assign name="save_message" expr="'yes'" />
+                    <if cond="called_by == 'sendmessage'">
+                        <goto nextitem="copymessage"/>
+                    <else/>
+                        <goto nextitem="recording" />
+                    </if>
+                <elseif cond="confirm == '3'"/>
+                    <!-- Cancel the recording and try again -->
+                    <assign name="save_message" expr="'no'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'record_your_message.wav'" />
+                    </prompt>
+                    <clear namelist="vm confirm alreadyrecorded"/>
+                    <goto nextitem="vm" />
+                <elseif cond="confirm == '*'" />
+                    <!-- Cancel -->
+                    <assign name="save_message" expr="'no'" />
+                    <if cond="called_by == 'sendmessage'">
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                        </prompt>
+                        <return />
+                    <else />
+                        <prompt bargein="false">
+                            <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                        </prompt>
+                        <disconnect />
+                    </if>
+                <else />
+                    <!-- Reprompt -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="confirm" />
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <if cond="called_by == 'sendmessage'">
+                    <assign name="save_message" expr="'no'" />
+                <else/>
+                    <assign name="save_message" expr="'yes'" />
+                </if>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <reprompt/>
+            </nomatch>
+        </field>
+
+        <!-- Invoke the CGI for depositing the voicemail for a single recipient -->
+        <subdialog cond="confirm == '2'" name="recording" srcexpr="securemediaserverurl + cgiurl" method="post" enctype="audio/x-wav" namelist="vm action duration from mailbox timestamp size termchar">
+            <filled>
+                <assign name="save_message" expr="'no'" />
+                <if cond="recording.result == 'success'">
+                    <if cond="vm$.termchar=='*' || confirm == '*'">
+                        <if cond="called_by == 'sendmessage'">
+                            <prompt>
+                                <audio expr="mediaserverurl + promptsalias + 'msg_sent.wav'" />
+                            </prompt>
+                            <return />
+                        <else />
+                            <prompt bargein="false">
+                                <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                            </prompt>
+                            <disconnect />
+                        </if>
+                    <elseif cond="call_disconnected == 'yes'" />
+                        <exit/>
+                    <elseif cond="recording_source == 'moreoptions'" />
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'msg_copied.wav'" />
+                        </prompt>
+                        <goto nextitem="moreoptions"/>
+                    <elseif cond="called_by == 'sendmessage'" />
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'msg_sent.wav'" />
+                        </prompt>
+                        <goto nextitem="moreoptions"/>
+                    <else />
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'msg_recorded.wav'" />
+                        </prompt>
+                        <goto nextitem="moreoptions"/>
+                    </if>
+                <elseif cond="recording.result == 'failed'" />
+                    <goto nextitem="failure" />
+                <elseif cond="recording.result == 'msgtooshort'" />
+                    <prompt>
+                       <audio expr="mediaserverurl + promptsalias + 'msg_too_short.wav'" />
+                    </prompt>
+                    <clear namelist="recording confirm vm" />
+                    <assign name="save_message" expr="'no'" />
+                    <assign name="alreadyrecorded" expr="'0'" />
+                    <goto nextitem="playgreeting"/>
+                <elseif cond="recording.result == 'invalidextn'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'extn_invalid.wav'" />
+                    </prompt>
+                    <clear namelist="recording moreoptions copymessage" />
+                    <goto nextitem="copymessage"/>
+                </if>
+            </filled>
+        </subdialog>
+
+        <!-- Check with user if they want the same message have to be delivered to someone else -->
+        <field name="moreoptions" cond="confirm == '2'" type="digits?minlength=1;maxlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'copy_to_extn.wav'" />
+            </prompt>
+            <filled>
+                <if cond="moreoptions == '1'">
+                    <goto nextitem="copymessage"/>
+                <elseif cond="moreoptions == '*'"/>
+                    <if cond="called_by == 'sendmessage'">
+                        <return/>
+                    <else />
+                        <prompt bargein="false">
+                            <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                        </prompt>
+                        <disconnect />
+                    </if>
+                <else />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="moreoptions" />
+                    <goto nextitem="moreoptions" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+
+        <!-- Prompt user for other extensions to which they want to deliver the same voicemail -->
+        <field name="copymessage" cond="moreoptions == '1' || called_by == 'sendmessage'" type="digits?minlength=1;maxlength=100">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'dial_extn.wav'" />
+            </prompt>
+            <filled>
+                <if cond="copymessage == '8'">
+                    <goto nextitem="selectdistlist"/>
+                <elseif cond="copymessage == '9'"/>
+                    <goto nextitem="dialbyname"/>
+                <elseif cond="copymessage == '*'" />
+                    <if cond="called_by == 'sendmessage'">
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                        </prompt>
+                        <return />
+                    <else />
+                        <prompt bargein="false">
+                            <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                        </prompt>
+                        <disconnect />
+                    </if>
+                <else />
+                    <!-- Set the mailbox as the extension just dialed -->
+                    <assign name="mailbox" expr="copymessage"/>
+                    <if cond="called_by == 'sendmessage'">
+                        <assign name="recording_source" expr="'sendmessage'" />
+                    <else />
+                        <assign name="recording_source" expr="'moreoptions'" />
+                    </if>
+                    <clear namelist="moreoptions recording copymessage"/>
+                    <goto nextitem="recording"/>
+                </if>
+            </filled>
+            <noinput count="1">
+                <prompt>
+                    <audio expr="mediaserverurl + promptsalias + 'dial_extn.wav'" />
+                </prompt>
+                <goto nextitem="copymessage"/>
+            </noinput>
+            <noinput count="2">
+                <prompt>
+                    <audio expr="mediaserverurl + promptsalias + 'dial_extn.wav'" />
+                </prompt>
+                <goto nextitem="copymessage"/>
+            </noinput>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+
+        <!-- Prompt user for the distribution list to deliver the same voicemail -->
+        <field name="selectdistlist" cond="moreoptions == '1' || called_by == 'sendmessage'" type="digits?minlength=1;maxlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'select_dist_list.wav'" />
+            </prompt>
+            <filled>
+                <if cond="selectdistlist == '*'" >
+                    <if cond="called_by == 'sendmessage'">
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                        </prompt>
+                        <return />
+                    <else />
+                        <prompt bargein="false">
+                            <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                        </prompt>
+                        <disconnect />
+                    </if>
+                <else />
+                    <!-- Set the disttribution list as the digit just dialed -->
+                    <assign name="distlist" expr="selectdistlist"/>
+                    <assign name="action" expr="'sendbydistlist'"/>
+                    <if cond="called_by == 'sendmessage'">
+                        <assign name="recording_source" expr="'sendmessage'" />
+                    <else />
+                        <assign name="recording_source" expr="'moreoptions'" />
+                    </if>
+                    <clear namelist="moreoptions recording copymessage selectdistlist"/>
+                    <goto nextitem="sendbydistlist"/>
+                </if>
+            </filled>
+            <noinput count="1">
+                <prompt>
+                    <audio expr="mediaserverurl + promptsalias + 'select_dist_list.wav'" />
+                </prompt>
+                <goto nextitem="selectdistlist"/>
+            </noinput>
+            <noinput count="2">
+                <prompt>
+                    <audio expr="mediaserverurl + promptsalias + 'select_dist_list.wav'" />
+                </prompt>
+                <goto nextitem="selectdistlist"/>
+            </noinput>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+
+        <!-- Invoke the CGI for depositing the voicemail for a distribution list -->
+        <subdialog cond="confirm == '2'" name="sendbydistlist" srcexpr="securemediaserverurl + cgiurl" method="post" enctype="audio/x-wav" namelist="vm action duration from frommailbox distlist timestamp size termchar">
+            <filled>
+	        <assign name="action" expr="'savemessage'"/>
+                <assign name="save_message" expr="'no'" />
+                <if cond="sendbydistlist.result == 'success'">
+                    <if cond="vm$.termchar=='*' || confirm == '*'">
+                        <if cond="called_by == 'sendmessage'">
+                            <prompt>
+                                <audio expr="mediaserverurl + promptsalias + 'msg_sent.wav'" />
+                            </prompt>
+                            <return />
+                        <else />
+                            <prompt bargein="false">
+                                <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                            </prompt>
+                            <disconnect />
+                        </if>
+                    <elseif cond="call_disconnected == 'yes'" />
+                        <exit/>
+                    <elseif cond="recording_source == 'moreoptions'" />
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'msg_copied.wav'" />
+                        </prompt>
+                        <goto nextitem="moreoptions"/>
+                    <elseif cond="called_by == 'sendmessage'" />
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'msg_sent.wav'" />
+                        </prompt>
+                        <goto nextitem="moreoptions"/>
+                    <else />
+                        <prompt>
+                            <audio expr="mediaserverurl + promptsalias + 'msg_recorded.wav'" />
+                        </prompt>
+                        <goto nextitem="moreoptions"/>
+                    </if>
+                <elseif cond="sendbydistlist.result == 'failed'" />
+                    <goto nextitem="failure" />
+                <elseif cond="sendbydistlist.result == 'msgtooshort'" />
+                    <prompt>
+                       <audio expr="mediaserverurl + promptsalias + 'msg_too_short.wav'" />
+                    </prompt>
+                    <clear namelist="sendbydistlist confirm vm" />
+                    <assign name="save_message" expr="'no'" />
+                    <assign name="alreadyrecorded" expr="'0'" />
+                    <goto nextitem="playgreeting"/>
+                <elseif cond="sendbydistlist.result == 'invalidlist'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'dist_list_invalid.wav'" />
+                    </prompt>
+                    <clear namelist="sendbydistlist moreoptions copymessage" />
+                    <goto nextitem="selectdistlist"/>
+                </if>
+            </filled>
+        </subdialog>
+
+        <subdialog name="dialbyname" cond="copymessage == '9'" srcexpr="securemediaserverurl + dialbynameurl">
+            <param name="from" expr="from" />
+            <param name="mediaserverurl" expr="mediaserverurl" />
+            <param name="securemediaserverurl" expr="securemediaserverurl" />
+            <param name="fromdeposit" expr="'yes'" />
+            <filled>
+                <if cond="dialbyname.extension != '-1'">
+                    <assign name="mailbox" expr="dialbyname.extension"/>
+                    <if cond="called_by == 'sendmessage'">
+                        <assign name="recording_source" expr="'sendmessage'" />
+                    <else />
+                        <assign name="recording_source" expr="'moreoptions'" />
+                    </if>
+                    <clear namelist="moreoptions recording copymessage"/>
+                    <goto nextitem="recording"/>
+                <else />
+                    <clear namelist="dialbyname copymessage"/>
+                    <goto nextitem="copymessage" />
+                </if>
+            </filled>
+        </subdialog>
+
+        <field name="failure" cond="recording.result == 'failed'">
+            <grammar>1|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+            </prompt>
+            <filled>
+                <if cond="failure=='*'">
+                    <disconnect />
+                <else/>
+                    <assign name="save_message" expr="'yes'" />
+                    <clear namelist="recording" />
+                    <goto nextitem="recording"/>
+                </if>
+            </filled>
+        </field>
+
+        <catch event="telephone.disconnect.hangup">
+            <if cond="vm$.size > 0">
+                <if  cond="save_message == 'yes'" >
+                    <assign name="duration" expr="vm$.duration"/>
+                    <assign name="size" expr="vm$.size"/>
+                    <assign name="timestamp" expr="vm$.timestamp"/>
+                    <assign name="termchar" expr="vm$.termchar"/>
+                    <assign name="call_disconnected" expr="'yes'" />
+                    <assign name="confirm" expr="'1'" />
+                    <goto nextitem="recording" />
+                <else />
+                    <exit />
+                </if>
+            <else />
+                <exit />
+            </if>
+        </catch>
+    </form>
+</vxml>

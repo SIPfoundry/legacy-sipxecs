@@ -1,0 +1,7 @@
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <paging_group paging_group_id="100" page_group_number="111" description="Sales" enabled="true" sound="TadaTada.wav" timeout="60" />
+  <paging_group paging_group_id="101" page_group_number="112" description="Engineering" enabled="false"
+    sound="TadaTada.wav" timeout="60" />
+  <paging_group paging_group_id="102" page_group_number="113" description="Support" enabled="true" sound="fanfare.wav" timeout="600"/>
+</dataset>

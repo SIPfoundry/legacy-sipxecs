@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <!--
+    - D I A L   P L A N S
+  -->
+
+  <bean id="exchangeUmMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.ExchangeMediaServer" scope="prototype">
+    <property name="label" value="Exchange Voicemail Server" />
+    <property name="localizationContext" ref="localizationContext" />
+  </bean>
+
+  <bean id="freeswitchMediaServer" class="org.sipfoundry.sipxconfig.admin.dialplan.FreeswitchMediaServer" scope="prototype">
+    <property name="label" value="Internal Voicemail Server" />
+    <property name="localizationContext" ref="localizationContext" />
+    <!-- FIXME: freeswitch port and location should be computed by SipxFreeswitchService -->
+    <property name="port" value="15060" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="mediaServerFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.MediaServerFactory" scope="singleton">
+    <property name="beanIds">
+      <list>
+        <value>exchangeUmMediaServer</value>
+        <value>freeswitchMediaServer</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="defaultInternalRule" class="org.sipfoundry.sipxconfig.admin.dialplan.InternalRule" abstract="true">
+    <property name="name" value="Voicemail" />
+    <property name="description" value="Default voicemail dialing plan" />
+    <property name="enabled" value="true" />
+    <property name="mediaServerFactory" ref="mediaServerFactory" />
+    <property name="mediaServerType" value="freeswitchMediaServer" />
+  </bean>
+
+  <bean id="defaultAttendantRule" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule" abstract="true">
+    <property name="name" value="AutoAttendant" />
+    <property name="description" value="Default autoattendant dialing plan" />
+    <property name="enabled" value="true" />
+    <property name="mediaServer" ref="freeswitchMediaServer" />
+  </bean>
+
+  <bean id="defaultEmergencyRule" class="org.sipfoundry.sipxconfig.admin.dialplan.EmergencyRule" abstract="true">
+    <property name="name" value="Emergency" />
+    <property name="description" value="Emergency dialing plan" />
+    <property name="enabled" value="false" />
+  </bean>
+
+  <bean id="defaultLongDistanceRule" class="org.sipfoundry.sipxconfig.admin.dialplan.LongDistanceRule" abstract="true">
+    <property name="permissionManager" ref="permissionManager" />
+    <property name="name" value="Long Distance" />
+    <property name="description" value="Long distance dialing plan" />
+    <property name="enabled" value="false" />
+  </bean>
+
+  <bean id="defaultTollFreeRule" parent="defaultLongDistanceRule" abstract="true">
+    <property name="name" value="Toll free" />
+    <property name="description" value="Toll free dialing" />
+    <property name="areaCodes" value="800, 866, 877, 888" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+
+  <bean id="defaultRestrictedRule" parent="defaultLongDistanceRule" abstract="true">
+    <property name="name" value="Restricted" />
+    <property name="description" value="Restricted dialing" />
+    <property name="areaCodes" value="900" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+
+  <bean id="defaultInternationalRule" parent="defaultLongDistanceRule" abstract="true">
+    <property name="name" value="International" />
+    <property name="description" value="International dialing" />
+    <property name="longDistancePrefix" value="011" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+
+  <bean id="defaultLocalRule" parent="defaultLongDistanceRule" abstract="true">
+    <property name="name" value="Local" />
+    <property name="description" value="Local dialing" />
+    <property name="pstnPrefix" value="9" />
+    <property name="longDistancePrefix" value="" />
+    <property name="longDistancePrefixOptional" value="true" />
+    <property name="externalLen" value="7" />
+    <property name="permissionName" value="LocalDialing" />
+  </bean>
+
+  <bean id="defaultCustomRule" class="org.sipfoundry.sipxconfig.admin.dialplan.CustomDialingRule" scope="prototype">
+    <property name="permissionManager" ref="permissionManager" />
+  </bean>
+
+  <bean id="siteToSiteRule" class="org.sipfoundry.sipxconfig.admin.dialplan.SiteToSiteDialingRule" scope="prototype">
+    <property name="permissionManager" ref="permissionManager" />
+  </bean>
+
+  <bean id="defaultDialPlan" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlan" scope="prototype"
+    abstract="true">
+  </bean>
+
+  <!-- list all the rules that should be accessible from Add New Rule menu -->
+  <bean id="defaultDialingRuleFactory" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleFactory"
+    abstract="true">
+  </bean>
+
+  <!-- this is the list of rules that are accesible from Add New Rule dropdown menu -->
+  <!-- some of the bean names here refer to beans defined in etc/dialplan/dialrules.beans.xml -->
+  <bean id="dialingRuleFactory" parent="defaultDialingRuleFactory">
+    <property name="beanIds">
+      <list>
+        <value>internalRule</value>
+        <value>defaultCustomRule</value>
+        <value>longDistanceRule</value>
+        <value>localRule</value>
+        <value>emergencyRule</value>
+        <value>internationalRule</value>
+        <value>attendantRule</value>
+        <value>siteToSiteRule</value>
+      </list>
+    </property>
+  </bean>
+
+  <!--
+    - D I A L P L A N  C O N T E X T
+  -->
+  <bean id="dialPlanContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="aliasManager" ref="aliasManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
+    <lookup-method name="getDialPlanActivationManager" bean="dialPlanActivationManager" />
+  </bean>
+
+  <bean id="dialPlanContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext" />
+    <property name="target">
+      <ref local="dialPlanContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="eagerDialPlanActivationManager" class="org.sipfoundry.sipxconfig.admin.dialplan.EagerDialPlanActivationManager">
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="sbcProfileManager" ref="sbcProfileManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="locationsManager" ref="locationsManager" />
+    <lookup-method name="getGatewayProfileManager" bean="gatewayProfileManager" />
+    <lookup-method name="getGatewayContext" bean="gatewayContext" />
+    <!-- using eager replication and serviceConfiguration -->
+    <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
+    <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
+  </bean>
+
+  <bean id="dialPlanActivationManager" class="org.sipfoundry.sipxconfig.admin.dialplan.LazyDialPlanActivationManager"
+    init-method="init">
+    <property name="target" ref="eagerDialPlanActivationManager" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
+  </bean>
+
+  <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules" parent="defaultConfigurationFile">
+    <property name="name" value="mappingrules.xml" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="fallbackRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.FallbackRules" parent="defaultConfigurationFile">
+    <property name="name" value="fallbackrules.xml" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="authRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.AuthRules" parent="defaultConfigurationFile">
+    <property name="name" value="authrules.xml" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="forwardingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ForwardingRules" parent="defaultConfigurationFile">
+    <property name="name" value="forwardingrules.xml" />
+    <property name="template" value="commserver/forwardingrules.vm" />
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="sbcManager" ref="sbcManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+  </bean>
+
+  <bean id="dialingRuleCollector" class="org.sipfoundry.sipxconfig.admin.dialplan.DialingRuleCollector" />
+
+  <bean id="dialPlanConfigGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.ConfigGenerator"
+    dependency-check="objects">
+    <property name="mappingRules">
+      <ref local="mappingRules" />
+    </property>
+    <property name="fallbackRules">
+      <ref local="fallbackRules" />
+    </property>
+    <property name="authRules">
+      <ref local="authRules" />
+    </property>
+    <property name="forwardingRules">
+      <ref local="forwardingRules" />
+    </property>
+    <property name="dialingRuleProvider">
+      <ref local="dialingRuleCollector" />
+    </property>
+  </bean>
+
+  <!-- A T T E N D A N T -->
+  <bean id="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant" scope="prototype"
+    parent="beanWithSettings">
+    <property name="promptsDirectory" value="${sysdir.vxml.prompts}" />
+  </bean>
+
+  <bean id="operatorPrototype" parent="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant">
+    <property name="systemId" value="operator" />
+    <property name="name" value="Operator" />
+    <property name="prompt" value="autoattendant.wav" />
+  </bean>
+
+  <bean id="afterhourPrototype" parent="autoAttendant" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant">
+    <property name="systemId" value="afterhour" />
+    <property name="name" value="After hours" />
+    <property name="prompt" value="afterhours.wav" />
+  </bean>
+
+  <bean id="autoAttendantManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="aliasManager" ref="aliasManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="settingDao" ref="settingDao" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="autoAttendantManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager" />
+    <property name="target" ref="autoAttendantManagerImpl" />
+  </bean>
+
+  <bean id="attendantMigrationContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContextImpl">
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean id="attendantMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationContext" />
+    <property name="target">
+      <ref local="attendantMigrationContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="attendantMigrationTrigger" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMigrationTrigger">
+    <property name="attendantMigrationContext" ref="attendantMigrationContext" />
+    <property name="taskNames">
+      <list>
+        <value>dial_plan_migrate_attendant_rules</value>
+        <value>attendant_defaults</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="createAttendantTask" class="org.sipfoundry.sipxconfig.admin.dialplan.CreateAttendantTask">
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="taskNames">
+      <list>
+        <value>operator</value>
+        <value>afterhour</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="resetDialPlanTask" class="org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask">
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="defaultDialPlanId" value="na.dialPlan" />
+    <property name="taskNames">
+      <list>
+        <value>dial-plans</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="cleanupDialPlanTask" class="org.sipfoundry.sipxconfig.admin.dialplan.CleanupDialPlanTask">
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="taskNames">
+      <list>
+        <value>cleanup-dial-plans</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="autoAttendantsConfig" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.AutoAttendantsConfig"
+    parent="defaultConfigurationFile">
+    <property name="name" value="autoattendants.xml" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="restartRequired" value="false" />
+  </bean>
+
+  <bean id="attendantSaveDefaultGroup" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.OnAutoAttendantGroupSave">
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="sipxIvrService" ref="sipxIvrService" />
+  </bean>
+</beans>

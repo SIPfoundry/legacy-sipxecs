@@ -1,0 +1,7 @@
+<context name="default">
+  <extension name="IVR">
+    <condition field="destination_number" expression="^IVR$">
+      <action application="socket" data="@INTEROP_ADDR@:8084 async"/>
+    </condition>
+  </extension>
+</context>

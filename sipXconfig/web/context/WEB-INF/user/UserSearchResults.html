@@ -1,0 +1,13 @@
+<fieldset>
+  <table jwcid="userTable@common/Table" id="user:list"
+    source="ognl:users"
+    columns="ognl:columns"
+    initialSortColumn="lastName"
+    row="ognl:currentUser"
+    selections="ognl:selections">
+    <div jwcid="userNameColumnValue@Block">
+      <img jwcid="@Image" image="ognl:userIcon" align="absmiddle" title="ognl:userIconTitle" />
+      <span jwcid="@Insert" value="ognl:currentUser.userName" />
+    </div>
+  </table>
+</fieldset>

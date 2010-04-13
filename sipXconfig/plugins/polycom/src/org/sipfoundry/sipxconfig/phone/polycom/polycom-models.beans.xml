@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="polycomModel" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomModel"
+    abstract="true" >
+	<property name="vendor" value="Polycom"/>
+    <property name="staticProfileFilenames">
+      <list>
+        <value>polycom_phone1_2.1.X.cfg</value>
+        <value>polycom_sip_2.1.X.cfg</value>
+        <value>polycom_phone1_3.1.X.cfg</value>
+        <value>polycom_sip_3.1.X.cfg</value>
+        <value>polycom_phone1.cfg</value>
+        <value>polycom_sip.cfg</value>
+      </list>
+    </property>
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="polycom300" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 300/301" />
+    <property name="maxLineCount" value="2" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>IP_300_CodecPref</value>
+        <value>pre_3.2.0_model</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom321" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 321" />
+    <property name="maxLineCount" value="2" />
+    <property name="supportedFeatures">
+      <set>
+        <value>voiceQualityMonitoring</value>
+        <value>intercom</value>
+        <value>OTHERS_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom330" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 320/330" />
+    <property name="maxLineCount" value="2" />
+    <property name="supportedFeatures">
+      <set>
+        <value>voiceQualityMonitoring</value>
+        <value>intercom</value>
+        <value>OTHERS_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom335" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 335" />
+    <property name="maxLineCount" value="2" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>IP_650_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom331" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 331" />
+    <property name="maxLineCount" value="2" />
+    <property name="supportedFeatures">
+      <set>
+        <value>voiceQualityMonitoring</value>
+        <value>intercom</value>
+        <value>OTHERS_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom430" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 430" />
+    <property name="maxLineCount" value="2" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>OTHERS_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom450" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 450" />
+    <property name="maxLineCount" value="3" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>IP_650_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom500" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 500/501" />
+    <property name="maxLineCount" value="3" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>pre_3.2.0_model</value>
+        <value>OTHERS_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom550" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 550/560" />
+    <property name="maxLineCount" value="4" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>IP_650_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom600" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 600/601" />
+    <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>OTHERS_CodecPref</value>
+        <value>pre_3.2.0_model</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom650" parent="polycomModel">
+    <property name="label" value="Polycom SoundPoint IP 650/670" />
+    <property name="maxLineCount" value="34" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>IP_650_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycomVVX1500" parent="polycomModel">
+    <property name="label" value="Polycom VVX IP 1500" />
+    <property name="maxLineCount" value="6" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>VVX_1500_CodecPref</value>
+        <value>video</value>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="polycom4000" parent="polycomModel">
+    <property name="label" value="Polycom SoundStation IP 4000" />
+    <property name="maxLineCount" value="1" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>voiceQualityMonitoring</value>
+        <value>IP_4000_CodecPref</value>
+        <value>pre_3.2.0_model</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom6000" parent="polycomModel">
+    <property name="label" value="Polycom SoundStation IP 6000" />
+    <property name="maxLineCount" value="1" />
+    <property name="supportedFeatures">
+      <set>
+        <value>disableCallList</value>
+        <value>intercom</value>
+        <value>IP_6000_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom7000" parent="polycomModel">
+    <property name="label" value="Polycom SoundStation IP 7000" />
+    <property name="maxLineCount" value="1" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+        <value>nway-conference</value>
+        <value>localConferenceCallHold</value>
+        <value>singleKeyPressConference</value>
+        <value>IP_7000_CodecPref</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="polycom" class="org.sipfoundry.sipxconfig.phone.polycom.PolycomPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+  <bean id="polycomFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="upload" />
+    <property name="modelFilePath" value="polycom/upload.xml" />
+    <property name="label" value="Polycom SoundPoint IP/SoundStation IP/VVX" />
+  </bean>
+</beans>

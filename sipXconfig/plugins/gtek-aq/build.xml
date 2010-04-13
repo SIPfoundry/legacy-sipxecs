@@ -1,0 +1,9 @@
+<project name="gtek-aq" default="default">
+
+  <property name="project.dir" value="plugins/gtek-aq" />
+  <property name="plugin.models.dir" value="etc/gtek-aq" />
+  <property name="plugin.name" value="gtek-aq-phones" />
+
+  <import file="../plugins.build.xml" />
+
+</project>

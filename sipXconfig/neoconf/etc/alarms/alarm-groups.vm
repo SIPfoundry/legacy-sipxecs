@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<alarm_groups xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarmgroups-00-00">
+  <!-- Per-alarmgroup definitions. -->
+  <definitions>
+#foreach ($group in ${groups})
+    <group id="$group.name">
+      <email>
+#foreach ($address in ${group.contactEmailAddresses})
+        <contact>$address</contact>
+#end
+      </email>
+      <sms>
+#foreach ($address in ${group.contactSmsAddresses})
+        <contact>$address</contact>
+#end
+      </sms>
+      <trap>
+#foreach ($trapaddress in ${group.contactSnmpAddresses})
+        <trap-receiver-contact>
+          <trap-receiver-address>$trapaddress.hostAddress</trap-receiver-address>
+          <community-string>$trapaddress.communityString</community-string>
+          <port-number>$trapaddress.port</port-number>
+        </trap-receiver-contact>
+#end
+      </trap>
+    </group>
+#end
+  </definitions>
+</alarm_groups>

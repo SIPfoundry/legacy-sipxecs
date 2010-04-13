@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="binary">
+    <file>
+      <contentType>application/binary</contentType>
+    </file>
+  </type>
+  <type id="zip">
+    <file>
+      <contentType>application/zip</contentType>
+    </file>
+  </type>
+  <group name="nortel12x0Firmware">
+    <label>Avaya 1210/1220/1230 IP Deskphone Firmware Files</label>
+    <setting name="image12x0.zip">
+      <type refid="zip"/>
+    </setting>
+  </group>
+</model>

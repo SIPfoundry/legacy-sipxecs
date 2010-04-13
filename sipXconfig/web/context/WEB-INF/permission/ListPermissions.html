@@ -1,0 +1,47 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li><a href="#" jwcid="@PageLink" page="dialplan/EditFlexibleDialPlan">
+        <span key="link.dialPlans">Dial Plans</span></a></li>
+    </ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <ul class="component-links">
+    <li>
+      <a jwcid="addLink@DirectLink" id="permissions:add" listener="listener:add">
+        <span key="link.add">Add Permission</span>
+      </a>
+    </li>
+  </ul>
+  <form jwcid="@Form" id="permissions:form"
+    delegate="bean:validator"
+    listener="listener:formSubmit">
+    <table jwcid="@common/Table" id="permissions:list"
+      source="ognl:permissionManager.callPermissions"
+      columns="* label,defaultValue,description"
+      row="ognl:currentRow"
+      converter="bean:converter"
+      selections="bean:selections"
+      rowInfo="bean:rowInfo">
+      <span jwcid="labelColumnValue@Block">
+        <span jwcid="editRowLink@DirectLink"
+            listener="listener:edit" parameters="ognl:currentRow.primaryKey">
+          <span jwcid="@Insert" value="ognl:currentLabel"/>
+        </span>
+      </span>
+      <span jwcid="defaultValueColumnValue@Block">
+        <span jwcid="@common/EnabledColumn" value="ognl:currentRow.defaultValue"/>
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="delete@Submit"
+          id="permissions:delete"
+          selected="ognl:rowsToDelete"
+          tag="ognl:allSelected"
+          value="message:button.delete" />
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+  </form>
+</div>

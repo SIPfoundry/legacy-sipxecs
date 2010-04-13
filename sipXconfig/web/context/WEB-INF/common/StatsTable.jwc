@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.apache.tapestry.contrib.table.components.Table" allow-body="yes"
+  allow-informal-parameters="yes">
+  <description>Read-only table - now row selecting and always volatile</description>
+  <parameter name="source" required="yes"/>
+  <parameter name="columns" required="yes"/>
+  <parameter name="initialSortColumn" required="no"/>
+  <parameter name="row" required="no"/>
+  <parameter name="usePager" required="no" default-value="false"/>
+  <inject property="tableVariables" object="spring:tableVariables"/>
+
+<!--  <reserved-parameter name="converter"/> -->
+  <reserved-parameter name="selection"/>
+
+  <!-- B E A N S -->
+  <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render"/>
+
+  <!-- C O M P O N E N T S  -->
+  <component id="tableElement" type="Any" inherit-informal-parameters="yes">
+  </component>
+  <component id="ifRenderPages" type="If">
+    <binding name="condition" value="usePager"/>
+  </component>
+  <component id="tableView" type="contrib:TableView">
+    <binding name="source" value="source"/>
+    <binding name="columns" value="columns"/>
+    <binding name="pageSize" value="usePager ? tableVariables.tablePageSize : -1"/>
+    <binding name="initialSortColumn" value="initialSortColumn"/>
+    <binding name="element" value="literal:span"/>
+    <binding name="columnSettingsContainer" value="container"/>
+  </component>
+  <component id="tablePages" type="contrib:TablePages"/>
+  <component id="tableColumns" type="contrib:TableColumns"/>
+  <component id="tableRows" type="contrib:TableRows">
+    <inherited-binding name="row" parameter-name="row"/>
+    <binding name="class" value="beans.rowClass.next"/>
+  </component>
+  <component id="tableValues" type="contrib:TableValues"/>
+  <component id="tablePagesCell" type="Any">
+    <!-- need an extra column for a footer -->
+    <binding name="colspan" value="components.tableView.tableModel.columnModel.columnCount"/>
+    <binding name="element" value="literal:td"/>
+  </component>
+</component-specification>

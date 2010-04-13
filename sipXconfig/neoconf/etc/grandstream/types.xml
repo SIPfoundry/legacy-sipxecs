@@ -1,0 +1,195 @@
+<type id="byte">
+    <integer min="0" max="255"/>
+</type>
+<type id="gscodec">
+    <enum>
+        <option>
+            <label>PCMU</label><value>0</value>
+        </option>
+        <option>
+            <label>G.726-32</label><value>2</value>
+        </option>
+        <option>
+            <label>GSM</label><value>3</value>
+        </option>
+        <option>
+            <label>G.723.1</label><value>4</value>
+        </option>
+        <option>
+            <label>PCMA</label><value>8</value>
+        </option>
+        <option>
+            <label>G.728</label><value>15</value>
+        </option>
+        <option>
+            <label>G.729A/B</label><value>18</value>
+        </option>
+        <option>
+            <label>iLBC</label><value>98</value>
+        </option>
+        <option>
+            <label>G.722</label><value>9</value>
+        </option>
+    </enum>
+</type>
+<type id="gs-fxs-gxw-codec">
+    <enum>
+        <option>
+            <label>PCMU</label><value>0</value>
+        </option>
+        <option>
+            <label>PCMA</label><value>8</value>
+        </option>
+        <option>
+            <label>G.723.1</label><value>4</value>
+        </option>
+        <option>
+            <label>G.729A/B</label><value>18</value>
+        </option>
+        <option>
+            <label>G.726-32</label><value>2</value>
+        </option>
+        <option>
+            <label>AAL2-G726-16</label><value>100</value>
+        </option>
+        <option>
+            <label>AAL2-G726-24</label><value>102</value>
+        </option>
+        <option>
+            <label>AAL2-G726-32</label><value>104</value>
+        </option>
+        <option>
+            <label>AAL2-G726-40</label><value>103</value>
+        </option>
+        <option>
+            <label>iLBC</label><value>98</value>
+        </option>
+        <option>
+            <label>G726E</label><value>99</value>
+        </option>
+    </enum>
+</type>
+<type id="gstimezone">
+    <enum>
+        <option>
+            <label>GMT-12:00 (International Date Line West)</label><value>0</value>
+        </option>
+        <option>
+            <label>GMT-11:00 (Midway Island, Samoa)</label><value>60</value>
+        </option>
+        <option>
+            <label>GMT-10:00 (US Hawaiian Time)</label><value>120</value>
+        </option>
+        <option>
+            <label>GMT-9:00 (US Alaska Time)</label><value>180</value>
+        </option>
+        <option>
+            <label>GMT-8:00 (US Pacific Time, Los Angeles)</label><value>240</value>
+        </option>
+        <option>
+            <label>GMT-7:00 (US Mountain Time, Denver)</label><value>300</value>
+        </option>
+        <option>
+            <label>GMT-6:00 (US Central Time, Chicago)</label><value>360</value>
+        </option>
+        <option>
+            <label>GMT-5:00 (US Eastern Time, New York)</label><value>420</value>
+        </option>
+        <option>
+            <label>GMT-4:00 (Atlantic Time, Quebec)</label><value>480</value>
+        </option>
+        <option>
+            <label>GMT-3:00 (Greenland)</label><value>540</value>
+        </option>
+        <option>
+            <label>GMT-2:00 (Mid-Atlantic</label><value>600</value>
+        </option>
+        <option>
+            <label>GMT-1:00 (Azores, Cape Verdi Is.)</label><value>660</value>
+        </option>
+        <option>
+            <label>GMT (London, Dublin, Lisbon, Casablanca)</label><value>720</value>
+        </option>
+        <option>
+            <label>GMT+1:00 (Paris, Berlin, Rome, Madrid, Brussels)</label><value>780</value>
+        </option>
+        <option>
+            <label>GMT+2:00 (Israel, Cairo, Athens, Helsinki, Istanbul)</label><value>840</value>
+        </option>
+        <option>
+            <label>GMT+3:00 (Moscow, Kuwait, Baghdad, Tehran, Nairobi)</label><value>900</value>
+        </option>
+        <option>
+            <label>GMT+4:00 (Abu Dhabi, Baku)</label><value>960</value>
+        </option>
+        <option>
+            <label>GMT+5:00 (Islamabad, Ekaterinburg, Karachi)</label><value>1020</value>
+        </option>
+        <option>
+            <label>GMT+5:30 (Chennai, New Delhi, Mumbai)</label><value>1050</value>
+        </option>
+        <option>
+            <label>GMT+5:45 (Kathmandu)</label><value>1065</value>
+        </option>
+        <option>
+            <label>GMT+6:00 (Almaty, Astana, Dhaka, Novosibirsk)</label><value>1080</value>
+        </option>
+        <option>
+            <label>GMT+6:30 (Rangoon)</label><value>1110</value>
+        </option>
+        <option>
+            <label>GMT+7:00 (Bankok, Jakarta, Hanoi, Krasnoyarsk)</label><value>1140</value>
+        </option>
+        <option>
+            <label>GMT+8:00 (Beijing, Singapore, Taipei, Perth)</label><value>1200</value>
+        </option>
+        <option>
+            <label>GMT+9:00 (Japan, Korea, Yakutsk)</label><value>1260</value>
+        </option>
+        <option>
+            <label>GMT+9:30 (Adelaide, Darwin)</label><value>1290</value>
+        </option>
+        <option>
+            <label>GMT+10:00 (Sydney, Melbourne, Guam, Hobart)</label><value>1320</value>
+        </option>
+        <option>
+            <label>GMT+11:00 (Magadan, Solomon Is., New Caledonia)</label><value>1380</value>
+        </option>
+        <option>
+            <label>GMT+12:00 (Auckland, Wellington, Fiji)</label><value>1440</value>
+        </option>
+        <option>
+            <label>GMT+13:00 (Nuku'alofa)</label><value>1500</value>
+        </option>
+    </enum>
+</type>
+<type id="gxpaccount">
+    <enum>
+        <option>
+            <label>Account 1</label><value>0</value>
+        </option>
+        <option>
+            <label>Account 2</label><value>1</value>
+        </option>
+        <option>
+            <label>Account 3</label><value>2</value>
+        </option>
+        <option>
+            <label>Account 4</label><value>3</value>
+        </option>
+        
+    </enum>
+</type>
+<type id="dtmfOptions">
+    <enum>
+        <option>
+            <label>in audio</label><value>0</value>
+        </option>
+        <option>
+            <label>via RTP</label><value>1</value>
+        </option>
+        <option>
+            <label>via SIP INFO</label><value>2</value>
+        </option>
+    </enum>
+</type>

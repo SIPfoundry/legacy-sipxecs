@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.phone.AddPhoneUser">
+  <description>add a description</description>
+  <!--
+	  - P R O P E R T I E S
+	  -->
+  <property name="phone" />
+  <property name="phoneId"  persist="session"/>
+  <property name="returnToEditPhone" />
+  <inject property="phoneContext" object="spring:phoneContext"/>
+  <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="tapestry" object="spring:tapestry"/>
+  <property name="simpleSearch"  initial-value="true" persist="session"/>
+  <!--
+      - B E A N S
+      -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <!--
+      - C O M P O N E N T S
+      -->
+  <component id="toggleSearchType" type="common/ToggleLink">
+    <binding name="toggle" value="simpleSearch"/>
+    <binding name="labelOff" value="message:search.simple"/>
+    <binding name="labelOn" value="message:search.advanced"/>
+  </component>
+  <component id="selectUserForm" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+  </component>
+  <component id="searchForm" type="user/UserSearch">
+    <binding name="cancelListener" value="listener:cancel"/>
+    <binding name="simpleSearch" value="simpleSearch"/>
+  </component>
+  <component id="searchResults" type="user/UserSearchResults">
+    <binding name="users" value="components.searchForm.users"/>
+  </component>
+  <component id="returnToEditPhone" type="Hidden">
+    <binding name="value" value="returnToEditPhone"/>
+  </component>
+  <component id="select" type="Submit">
+    <binding name="listener" value="listener:select"/>
+  </component>
+</page-specification>

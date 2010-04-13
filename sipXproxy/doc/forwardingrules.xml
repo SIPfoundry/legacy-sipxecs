@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<routes>
+  <!--
+   - Routes may contain one or more route elements,
+   - each of which has a unique identifier attribute mappingType
+   - (the mappingType is for use in the user interface and logging)
+  -->
+  <route mappingType="local">
+    <!--
+     - A route may contain:
+     -   A sequence of domain specifiers: routeFrom, routeIPv4subnet, or routeDnsWildcard,
+     -   followed by a single methodMatch element,
+     -   optionally followed by a single routeTo element.
+     -
+     - The domain part of the request target URI is compared with each domain specifier
+     - until one matches.
+     -   If one domain specifier matches, then each methodMatch is evaluated.
+     -   If none match, and a final routeTo is present, that routeTo element is used.
+    -->
+    <routeFrom>example.com:5060</routeFrom>
+    <routeFrom>10.1.1.39:5060</routeFrom>
+    <routeFrom>sipx.example.com:5060</routeFrom>
+    <!--
+      - Despite the name, the contents of a routeFrom specifies the destination of a URI
+      -->
+
+    <methodMatch>
+      <!--
+       - If any one of the domain specifiers matched, then each methodMatch is evaluated
+       - one at a time until one matches.
+       -
+       - A methodMatch may contain zero or more fieldMatch elements,
+       - optionally followed by a single routeTo element.
+       - Each methodPattern is evaluated; if any one matches, then the fieldMatch elements that
+       - follow are evaluated.
+       -->
+      <methodPattern>SUBSCRIBE</methodPattern>
+      <methodPattern>PUBLISH</methodPattern>
+
+      <fieldMatch fieldName="Event">
+        <!--
+          - A fieldMatch may contain zero or more fieldPattern elements,
+          - followed by a single routeTo element.
+          - Each fieldPattern is evaluated; if any one matches, then the routeTo is used
+          - The pattern value is a Perl compatible regular expression (implictly anchored
+          - so that it must match the entire header value).
+          -->
+        <fieldPattern>message-summary.*</fieldPattern> <!-- Message waiting indication events -->
+        <routeTo>sipx.example.com:5100;transport=tcp</routeTo>
+      </fieldMatch>
+
+      <!-- If no fieldMatch matches, and there is a routeTo, then that routeTo is used -->
+      <routeTo>rr.sipx.example.com</routeTo>
+      <!-- All other SUBSCRIBE requests go to the SIP registry service -->
+
+    </methodMatch>
+
+    <!-- All other requests go to the SIP registry service -->
+    <routeTo>rr.sipx.example.com</routeTo>
+  </route>
+
+  <route mappingType='local ip address'>
+    <description>
+      Any host address in the local subnets is routed to the auth proxy.
+    </description>
+
+    <routeIPv4subnet>10.1.1/24</routeIPv4subnet>
+    <routeIPv4subnet>10.1.20/24</routeIPv4subnet>
+
+    <routeTo>ap.sipx.example.com</routeTo>
+  </route>
+
+  <route mappingType='enterprise servers'>
+    <description>
+      Any host name in our own domain
+    </description>
+
+    <routeDnsWildcard>*.example.com</routeDnsWildcard>
+
+    <routeTo>ap.sipx.example.com</routeTo>
+  </route>
+
+  <route mappingType='extranet destinations'>
+    <description>
+      Any foreign domain - route via session border controller.
+    </description>
+
+    <routeDnsWildcard>*</routeDnsWildcard>
+    <routeIPv4subnet>0/0</routeIPv4subnet>
+
+    <routeTo>ap.sipx.example.com,sbc.example.com</routeTo>
+  </route>
+
+</routes>

@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="LinksysModel" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysModel" parent="abstractPhoneModel"
+    abstract="true">
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="linksysPhoneStandard" abstract="true" parent="LinksysModel">
+    <property name="beanId" value="linksysPhone" />
+    <property name="modelDir" value="linksys" />
+    <property name="profileTemplate" value="linksys/config.vm" />
+  </bean>
+
+  <bean id="linksys901" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys SPA901" />
+    <property name="maxLineCount" value="1" />
+    <property name="psn" value="901" />
+  </bean>
+  <bean id="linksys921" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys SPA921" />
+    <property name="maxLineCount" value="1" />
+    <property name="psn" value="921" />
+  </bean>
+  <bean id="linksys922" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys SPA922" />
+    <property name="maxLineCount" value="1" />
+    <property name="psn" value="922" />
+
+  </bean>
+  <bean id="linksys941" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys SPA941" />
+    <property name="maxLineCount" value="4" />
+    <property name="psn" value="941" />
+  </bean>
+  <bean id="linksys942" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys SPA942" />
+    <property name="maxLineCount" value="4" />
+    <property name="psn" value="942" />
+  </bean>
+  <bean id="linksys962" parent="linksysPhoneStandard">
+    <property name="label" value="Linksys SPA962" />
+    <property name="maxLineCount" value="6" />
+    <property name="psn" value="962" />
+  </bean>
+  <bean id="linksysAtaStandard" abstract="true" parent="LinksysModel">
+    <property name="beanId" value="linksysAta" />
+    <property name="modelDir" value="linksys" />
+    <property name="profileTemplate" value="linksys/ata-config.vm" />
+    <property name="settingsFile" value="ata.xml" />
+    <property name="lineSettingsFile" value="ata-line.xml" />
+  </bean>
+  <bean id="linksys2102" parent="linksysAtaStandard">
+    <property name="label" value="Linksys Ata2102" />
+    <property name="maxLineCount" value="2" />
+    <property name="psn" value="2102" />
+  </bean>
+  <bean id="linksys3102" parent="linksysAtaStandard">
+    <property name="label" value="Linksys Ata3102" />
+    <property name="maxLineCount" value="2" />
+    <property name="psn" value="3102" />
+  </bean>
+  <bean id="linksys8000" parent="linksysAtaStandard">
+    <property name="label" value="Linksys SPA8000" />
+    <property name="maxLineCount" value="8" />
+    <property name="psn" value="8000" />
+  </bean>
+
+  <bean id="linksysPhone" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+
+  <bean id="linksysAta" class="org.sipfoundry.sipxconfig.phone.linksys.LinksysAta" singleton="false"
+    parent="abstractPhone">
+  </bean>
+</beans>

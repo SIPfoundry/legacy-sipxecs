@@ -1,0 +1,48 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <h2><span jwcid="@Insert" value="ognl:upload.specification.label"/></h2>
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="uploadForm@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <span jwcid="nameDescriptionEdit@common/ItemCommon"
+            useExtension="ognl:false"
+            useEnabled="ognl:false"
+            useFieldset="ognl:false"
+            item="ognl:upload"/>
+        </tbody>
+      </table>
+    </fieldset>
+    <span jwcid="@If" condition="ognl:! upload.isNew()">
+      <span jwcid="@If" condition="ognl:upload.deployed">
+        <p><strong><span key="warning"/></strong></p>
+      </span>
+      <fieldset jwcid="@setting/SettingsFieldset"
+        settings="ognl:upload.settings"
+        renderGroupTitle="ognl:true"
+        enabled="ognl:! upload.deployed"/>
+      </span>
+      <span jwcid="applyOkCancel@common/FormActions"
+        listener="listener:onSave"
+        callback="ognl:callback">
+        <span jwcid="@If" condition="ognl:! upload.isNew()">
+          <li jwcid="@If" condition="ognl:upload.deployed">
+            <input id="upload:inactivate"
+              jwcid="inactivate@Submit"
+              selected="ognl:active"
+              tag="ognl:false"
+              value="message:label.inactivate"
+              listener="ognl:components.applyOkCancel.listeners.onApply" />
+          </li>
+          <li jwcid="@Else">
+            <input id="upload:activate"
+              jwcid="activate@Submit"
+              selected="ognl:active"
+              tag="ognl:true"
+              value="message:label.activate"
+              listener="ognl:components.applyOkCancel.listeners.onApply" />
+          </li>
+        </span>
+      </span>
+  </form>
+</div>

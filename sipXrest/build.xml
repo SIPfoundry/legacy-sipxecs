@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+
+<project name="sipxrest" default="jar" basedir=".">
+<description>
+      Build file
+</description>
+
+
+	<!--
+
+
+	  Command                   Description
+	  ================================================================
+        ant            compile   compile
+	ant 	       clean     clean the classes,javadocs and logs
+	ant            sipxrest  run the sipxrest server with default args.
+	-->
+
+
+
+
+  	<import file="ant-targets.xml"/>
+  	<property name="dist.dir" value="${top.build.dir}/dist" />
+  	<property name="test.results.dir" value="${build.dir}/test-results" />
+  	<property name="test.classes.dir" value="${build.dir}/tests"/>
+<!-- <property name="src" location="${src.dir}/src/main/java;${src.dir}/src/test/java" />   -->
+	<property name="src" location="${src.dir}/src/main/java" />
+	<property name="classes" location="${classes.dir}" />
+	<property name="doc" location="${src.dir}/doc" />
+	<property name="lib" location="${src.dir}/lib" />
+	<property name="tools" location="${src.dir}/tools" />
+	<property name="junit.reports" value="${src.dir}/junit" />
+	<property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
+
+<!-- The libraries -->
+	<path id="test.path">
+		<pathelement location="${classes}" />
+		<pathelement location="${sipxcommons}" />
+		<pathelement location="${log4j}" />
+		<pathelement location="${jainsip}" />
+		<pathelement location="${junit}" />
+		<pathelement location="${servlet-jar}" />
+		<pathelement location="${jetty-jar}" />
+		<pathelement location="${dnsjava}" />
+		<pathelement location="${commons-logging-api}" />
+		<pathelement location="${commons-logging}" />
+		<pathelement location="${commons-digester}" />
+		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${commons-codec}" />
+                <pathelement location="${noelios-restlet-ext-servlet}" />
+                <pathelement location="${noelios-restlet}" />
+                <pathelement location="${restlet}" />
+                <pathelement location="${sipxrest.dir}/sipXrest.jar" />
+	</path>
+
+	<path id="base.path">
+		<pathelement location="${classes}" />
+		<pathelement location="${sipxcommons}" />
+		<pathelement location="${log4j}" />
+		<pathelement location="${jainsip}" />
+		<pathelement location="${servlet-jar}" />
+		<pathelement location="${jetty-jar}" />
+		<pathelement location="${dnsjava}" />
+		<pathelement location="${commons-logging-api}" />
+		<pathelement location="${commons-logging}" />
+		<pathelement location="${commons-digester}" />
+		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${commons-codec}" />
+		<pathelement location="${ws-commons-util}" />
+                <pathelement location="${noelios-restlet-ext-servlet}" />
+                <pathelement location="${noelios-restlet}" />
+                <pathelement location="${restlet}" />
+	</path>
+ 	<patternset id="test.classes">
+	</patternset>
+
+ 	<patternset id="regression.classes">
+	</patternset>
+
+  	<!--
+    	- I N I T
+    	- Create output directories.
+    	-->
+  	<target name="init" unless="subdirs"
+    		description="[internal] create standard output directories">
+
+    		<echo>entering ${ant.project.name}</echo>
+    		<mkdir dir="${classes.dir}" />
+    		<mkdir dir="${dist.dir}" />
+    		<mkdir dir="${test.results.dir}"/>
+    		<mkdir dir="${test.classes.dir}"/>
+  	</target>
+
+	 <target name="version.properties"
+    			description="[internal] Generats a properies file w/versioning info">
+
+    		<propertyfile file="${version.file}" comment="xpressa build" >
+        		<entry  key="version"       value="${xpressa.version}" />
+        		<entry  key="buildNumber"   value="${xpressa.build.number}" />
+        		<entry  key="built"         value="now"
+                		type="date"         pattern="MMM dd yyyy HH:mm:ss" />
+       			<entry  key="optionalComment"  value="${xpressa.build.comment}" />
+    		</propertyfile>
+  	</target>
+
+
+<!-- Compile the soruce code and install the test cases. -->
+
+	<target name="compiletest"  description="compile tests ">
+		<!-- Compile the java code from ${src} into ${classes} -->
+		<echo>test path ${test.path}</echo>
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src.dir}/src/test/java"
+			destdir="${classes}"
+			debug="${javac.debug}"
+			optimize= "${javac.optimize}"
+			debuglevel = "${javac.debuglevel}"
+		 	classpathref="test.path" deprecation="off">
+	        </javac>
+		<jar jarfile="${build.dir}/dist/restleta.jar">
+			<fileset dir="${classes}" >
+				<include name="org/sipfoundry/sipxrest/testa/**/*.class" />
+			</fileset>
+			 <fileset dir="${src.dir}/src/test/java/org/sipfoundry/sipxrest/testa" >
+			         <include name="plugin.xml" />
+			</fileset>
+		</jar>
+    	        <copy file="${build.dir}/dist/restleta.jar" todir="${dest.dir}${sipxrest.dir}/plugins"/>
+		<jar jarfile="${build.dir}/dist/restletb.jar">
+			<fileset dir="${classes}" >
+				<include name="org/sipfoundry/sipxrest/testb/**/*.class" />
+			</fileset>
+			 <fileset dir="${src.dir}/src/test/java/org/sipfoundry/sipxrest/testb" >
+			         <include name="plugin.xml" />
+			</fileset>
+		</jar>
+    	        <copy file="${build.dir}/dist/restletb.jar" todir="${dest.dir}${sipxrest.dir}/plugins"/>
+	</target>
+
+<!-- Compile the soruce code exclude the test cases. -->
+	<target name="compile-exclude-tests"  description="compile the source no tests">
+		<!-- Compile the java code from ${src} into ${classes} -->
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src.dir}/src/main/java"
+			destdir="${classes}"
+			debug="${javac.debug}"
+			optimize= "${javac.optimize}"
+			debuglevel = "${javac.debuglevel}"
+		 	classpathref="base.path" deprecation="off" >
+		</javac>
+	</target>
+
+<!-- BUILD a Jar file -->
+	<target name="jar" 
+	depends="compile-exclude-tests" description="create a jar file" >
+		<mkdir dir="${build.dir}/dist" />
+		<copy file="${build.dir}/config.properties" todir="${classes}" />
+		<jar jarfile="${build.dir}/dist/sipxrest.jar">
+			<fileset dir="${classes}" >
+				<include name="**/*.class" />
+				<include name="config.properties" />
+			</fileset>
+		</jar>
+	</target>
+
+     <target name="install">
+    	<mkdir dir="${dest.dir}${sipxrest.dir}"/>
+    	<mkdir dir="${dest.dir}${sipxrest.dir}/plugins"/>
+    	<copy file="${build.dir}/dist/sipxrest.jar" todir="${dest.dir}${sipxrest.dir}"/>
+    </target>
+
+
+<!-- unit tests  -->
+
+<!-- Delete existing directories to ensure removal of old classes -->
+<target name="clean" description="clean up previous build" >
+	<delete dir="${classes}" />
+	<delete dir="${doc}/javadoc" />
+</target>
+
+
+
+
+</project>

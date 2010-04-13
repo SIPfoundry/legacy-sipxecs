@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.conference" default-lazy="false">
+
+  <class name="Bridge" table="meetme_bridge">
+    <id name="id" column="meetme_bridge_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">meetme_seq</param>
+      </generator>
+    </id>
+    <many-to-one name="service" class="org.sipfoundry.sipxconfig.service.LocationSpecificService"
+                 column="location_specific_service_id" />
+
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" foreign-key="fk_meetme_bridge_value_storage" />
+
+    <set name="conferences" inverse="true" table="meetme_conference" cascade="all,delete-orphan">
+      <key column="meetme_bridge_id" />
+      <one-to-many class="Conference" />
+    </set>
+  </class>
+
+  <class name="Conference" table="meetme_conference">
+    <id name="id" column="meetme_conference_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">meetme_seq</param>
+      </generator>
+    </id>
+    <property name="enabled" />
+    <property name="name" />
+    <property name="description" />
+    <property name="extension" />
+
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" foreign-key="fk_meetme_conference_value_storage" />
+
+    <many-to-one name="bridge" column="meetme_bridge_id" class="Bridge" not-null="true" lazy="proxy"
+      foreign-key="fk_meetme_conference_bridge" />
+
+    <many-to-one name="owner" column="owner_id" class="org.sipfoundry.sipxconfig.common.User" foreign-key="fk_owner_id"
+      not-null="false" lazy="proxy" />
+  </class>
+
+  <query name="conferenceIdsWithAlias">
+    <![CDATA[select conf.id from Conference conf where conf.name = :value or conf.extension = :value]]>
+  </query>
+
+  <query name="conferenceByName">
+    <![CDATA[from Conference conf where conf.name = :value]]>
+  </query>
+
+  <query name="conferencesByOwner">
+    <![CDATA[from Conference conf where conf.owner = :owner]]>
+  </query>
+
+  <query name="bridgeForLocationId">
+    <![CDATA[from Bridge bridge where bridge.service.location.id = :locationId]]>
+  </query>
+
+  <query name="bridgeByHost">
+    <![CDATA[from Bridge bridge where bridge.service.location.fqdn = :value]]>
+  </query>
+
+  <query name="searchConferences">
+    <![CDATA[from Conference conf left join conf.owner owner
+    where lower(conf.name) like lower(:name)
+    or conf.extension = :ext
+    or lower(conf.description) like lower(:description)
+    or owner.userName = :ownerUName
+    or lower(owner.firstName) like lower(:ownerName)
+    or lower(owner.lastName) like lower(:ownerName)
+    or lower(owner.firstName||' '||owner.lastName) like lower(:ownerName)
+    or lower(owner.lastName||' '||owner.firstName) like lower(:ownerName)
+    ]]>
+  </query>
+
+</hibernate-mapping>

@@ -1,0 +1,48 @@
+<?xml version="1.0" ?>
+<xmpp-account-info xmlns="http://www.sipfoundry.org/sipX/schema/xml/xmpp-account-info-00-00">
+
+<user>
+  <user-name>user1</user-name>
+  <sip-user-name>user1</sip-user-name>
+  <display-name>Mr. User One </display-name>
+  <password>123</password>
+  <on-the-phone-message>I am on the phone so buzz off. </on-the-phone-message>
+</user>
+
+<user>
+   <user-name>user2</user-name>
+   <sip-user-name>user2</sip-user-name>
+   <display-name>Mr. User Two </display-name>
+   <password>123</password>
+   <on-the-phone-message>I am on the phone so buzz off. </on-the-phone-message>
+</user>
+
+<group>
+  <group-name>somegroup</group-name>
+  <description>my group</description>
+  <administrator>user1</administrator>
+  <user>
+    <user-name>user1</user-name>
+  </user>
+  <user>
+    <user-name>user2</user-name>
+  </user>
+</group>
+
+<chat-room>
+  <subdomain>subdomain</subdomain>
+  <room-owner>user1</room-owner>
+  <room-name>mychat</room-name>
+  <moderated>false</moderated>
+  <members-only>false</members-only>
+  <log-room-conversations>false</log-room-conversations>
+  <is-public-room>true</is-public-room>
+  <is-persistent>true</is-persistent>
+  <description>My chat room</description>
+  <password>password</password>
+  <conference-extension>201</conference-extension>
+  <conference-pin>1234</conference-pin>
+</chat-room>
+
+</xmpp-account-info>
+

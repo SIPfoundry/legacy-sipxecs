@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource-lists xmlns="urn:ietf:params:xml:ns:resource-lists" xmlns:cp="counterpath:buddy">
+<list name="SIMPLE Buddy List">
+<display-name>SIMPLE Buddy List</display-name>
+<entry uri="sip:205@bcmdesk2180.ca.nortel.com">
+<display-name>test test</display-name>
+</entry>
+<entry uri="sip:207@bcmdesk2180.ca.nortel.com">
+<display-name>worker1 worker</display-name>
+</entry>
+</list></resource-lists>

@@ -1,0 +1,93 @@
+# G E N E R A L
+version=@VERSION@
+top.dir=@abs_top_srcdir@
+optimize=@JAVAC_OPTIMIZED@
+debug=@JAVAC_DEBUG@
+deprecation=off
+prefix=@PREFIX@
+bin.dir=@bindir@
+lib.dir=@libdir@
+service.dir=@SERVICEDIR@
+localstate.dir=@localstatedir@
+dest.dir=
+yum_exists=@YUM_EXISTS@
+
+# comma-separated combination of 'lines' 'source' and 'var' only valid
+# when debug is on
+debuglevel=lines
+
+# S I P X P B X  / S I P X C O N F I G
+sipxecs.name=@SIPXECS_NAME@
+sipxconfig.phone.dir=@SIPX_VARDIR@/configserver/phone
+sipxpbx.default.firmware=@SIPX_DATADIR@/devicefiles
+sipxpbx.backup.dir=@SIPX_VARDIR@/backup
+sipxpbx.download.dir=@SIPX_DOWNLOADDIR@
+sipxpbx.upgrade.dir=@SIPX_VARDIR@/upgrade
+sipxpbx.bin.dir=@SIPX_BINDIR@
+sipxecs.java.dir=@SIPX_JAVADIR@
+sipxecs.thirdparty.dir=@SIPX_DATADIR@
+sipxconfig.lib.dir=@SIPX_JAVADIR@/sipXconfig
+sipxcommons.lib.dir=@SIPX_JAVADIR@/sipXcommons
+sipxpbx.process.dir=@SIPX_DATADIR@/process.d
+sipxpbx.alarms.strings.dir=@PREFIX@/share/sipxecs/alarms/
+sipxpbx.mibs.dir=@PREFIX@/share/sipxecs/mibs/
+sipxpbx.conf.dir=@SIPX_CONFDIR@
+sipxpbx.var.dir=@SIPX_VARDIR@
+sipxpbx.reports.dir=@SIPX_VARDIR@/reports
+sipxpbx.lib.dir=@SIPX_LIBDIR@
+sipxpbx.libexec.dir=@SIPX_LIBEXECDIR@
+sipxvxml.data.dir=@SIPX_VXMLDATADIR@
+sipxpark.audio.dir=@SIPX_VARDIR@/parkserver/music
+sipxpage.audio.dir=@SIPX_VARDIR@/sipxpage/music
+sipxconfig.upload.dir=@SIPX_VARDIR@/upload
+sipxconfig.phonebook.dir=@SIPX_VARDIR@/phonebook
+sipxvxml.data.dir=@SIPX_VXMLDATADIR@
+www.dir=@wwwdir@
+xargs.replace=@XARGS_REPLACE@
+sipxpbx.libexec.dir=@SIPX_LIBEXECDIR@
+
+sipxpbx.user=@SIPXPBXUSER@
+acd.history.test.db=SIPXACD_HISTORY_TEST
+acd.history.db.schema=${top.dir}/report/etc/schema.sql
+acd.history.db.enableUpgradesPatch=${top.dir}/report/etc/enable_upgrades.sql
+acd.history.db.locationFqdnPatch=${top.dir}/report/etc/location_fqdn.sql
+
+cdr.test.db=SIPXCDR_TEST
+cdr.db.schema=${top.dir}/report/etc/cdr_schema.sql
+
+sipxconfig.db.pds=SIPXCONFIG_TEST
+sipxconfig.db.user=@POSTGRESQL_USER@
+sipxpbx.log.dir=@SIPX_LOGDIR@
+sipxpbx.run.dir=@SIPX_RUNDIR@
+sipxpbx.tmp.dir=@SIPX_TMPDIR@
+sipxconfig.war=${top.build.dir}/web/dist/sipxconfig.war
+sipxsetup.war=${top.build.dir}/jsetup/dist/sipxsetup.war
+sipxconfig.jar=${top.build.dir}/neoconf/dist/sipxconfig.jar
+# hack for plugin test
+neoconf.tests.classes=${top.build.dir}/neoconf/tests
+# very optional
+sipfoundry.org.dir=@SIPFOUNDRY_ORG@
+neoconf.etc.dir=${top.dir}/neoconf/etc
+
+openssl=@OPENSSL@
+clover.jar=@CLOVER_JAR@
+bash=@BASH@
+@MRTG_ENABLED@
+
+#soap api unit testing
+ruby=@RUBY@
+wsdl2ruby=@WSDL2RUBY@
+@RUBY_BINDINGS_ENABLED@
+agent.wsdl=${top.dir}/agent/lib/sipxconfig-agent.wsdl
+agent.bindings.src.dir=${top.build.dir}/neoconf/dist/agent-bindings-src
+agent.bindings.dir=${top.build.dir}/neoconf/dist/agent-bindings-classes
+agent-bindings.jar=${top.build.dir}/neoconf/dist/agent-bindings.jar
+
+cdr.wsdl=${top.dir}/meta/sipxcallresolver.wsdl
+cdr.bindings.src.dir=${top.build.dir}/neoconf/dist/cdr-bindings-src
+cdr.bindings.dir=${top.build.dir}/neoconf/dist/cdr-bindings-classes
+cdr-bindings.jar=${top.build.dir}/neoconf/dist/cdr-bindings.jar
+
+# SYSTEM CLASSPATHS
+classpath.build=@CLASSPATH_BUILD@
+classpath.run=@CLASSPATH_RUN@

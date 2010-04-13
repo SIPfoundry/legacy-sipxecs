@@ -1,0 +1,407 @@
+#!@bash@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+
+Action=RUN
+Status=0
+Args=""
+
+# Declare script variables in a manner that unit test
+# (or end user I suppose) can override
+: ${SslDir:=@sipxpbx.conf.dir@/ssl}
+: ${AuthoritiesDir:=$SslDir/authorities}
+: ${JavaCmd:=`@bin.dir@/sipx-config --java`}
+: ${ConfigFiles:=@sipxpbx.conf.dir@/sipxconfig.properties}
+: ${PidFile:=@sipxpbx.run.dir@/sipxconfig.pid}
+: ${DatabaseProject:=@sipxpbx.conf.dir@/database/database.xml}
+: ${LibDir:=@sipxconfig.lib.dir@}
+: ${CommonsLibDir:=@sipxcommons.lib.dir@}
+: ${Psql:=psql}
+: ${ServiceDir:=@service.dir@}
+: ${SubstituteUser:=su}
+: ${Chown:=chown}
+: ${LogDir:=@sipxpbx.log.dir@}
+: ${TmpDir:=@sipxpbx.tmp.dir@}
+: ${RunningUser:=@sipxpbx.user@}
+: ${StorePassword:=changeit}
+: ${PostgresUser:=@sipxconfig.db.user@}
+: ${FirstRunFile:=@sipxpbx.conf.dir@/.first-run}
+: ${SipxUtils:=@sipxpbx.libexec.dir@/sipx-utils.sh}
+: ${SipxConfigEnv:=@sipxpbx.conf.dir@/sipxconfigrc}
+
+. ${SipxUtils}
+
+if [ -f "$SipxConfigEnv" ]
+then
+  . ${SipxConfigEnv}
+fi
+
+Database=SIPXCONFIG
+RequiredDatabaseVersion=11
+IndexDir=${TmpDir}/index
+
+# jars that we expect to be installed on the system
+ADDITIONAL_JARS="\
+	log4j \
+	ant \
+	ant-launcher"
+
+# set primary system hostname (assume sipxconfig is only run on primary system)
+PRIMARY_HOSTNAME=`hostname -f`
+
+# Create a truststore of the same Certificate Authorities the
+# other SIP servers use.
+setTrustStoreOpts() {
+    # List of authorities accepted system-wide
+    if [ -d $AuthoritiesDir ]
+    then
+      TrustStore=$SslDir/authorities.jks
+      # password on command line is not security issue. catrust and directory has appropriate
+      # permissions, password is required by keystores
+      TrustStoreOpts="\
+     -Djavax.net.ssl.trustStore=$TrustStore \
+     -Djavax.net.ssl.trustStoreType=JKS \
+     -Djavax.net.ssl.trustStorePassword=$StorePassword"
+    else
+      # make empty as extra measure to ensure doesn't come from env. var
+      # this is when Java's CA database has required certs
+      TrustStoreOpts=""
+    fi
+}
+
+
+
+
+# Take a list of files or directories
+# and expand pathnames to create a string for PATH-based variables
+classpath() {
+    # initialize with additional JARS
+    Cpath=@classpath.run@
+    for f in $@; do
+      Cpath=$Cpath:$f
+    done
+    echo $Cpath
+}
+
+# Incase system failed suddenly, clear previous locks
+clearIndexLocks() {
+  rm ${IndexDir}/*.lock 2>/dev/null
+}
+
+# Turn control over to ant to run database command
+databaseCommand() {
+
+    databaseCheck
+
+    clearIndexLocks
+
+    Classpath=`classpath \
+        @sipxpbx.conf.dir@ \
+        ${CommonsLibDir}/*.jar \
+        ${LibDir}/*.jar`
+
+    JavaOpts="$SIPXCONFIG_OPTS"
+
+    # XCF-1275 - Do not want to suppress output if there is an error
+    # however want to be quiet if everything is ok for clean rpm install
+    # output
+    # ant.library.dir needs to be set - but should not point to any jars
+    CmdOut=`$JavaCmd \
+        $JavaOpts \
+        -Dant.library.dir=${TmpDir} \
+        -Djava.net.preferIPv4Stack=true \
+        -classpath $Classpath \
+        org.apache.tools.ant.launch.Launcher \
+        -emacs \
+        -quiet \
+        -Dlib.dir=${LibDir} \
+        -Dlog.dir=${LogDir} \
+        -Dtmp.dir=${TmpDir} \
+        -Dsipxconfig.db.user=${PostgresUser} \
+        -Dsipxconfig.hostname=$PRIMARY_HOSTNAME \
+        -f ${DatabaseProject} \
+        $@`
+
+    if [ $? != "0" ]; then
+       echo "$CmdOut" | grep -v '^Unable to locate tools.jar' >&2
+    fi
+}
+
+runningUserCheck() {
+  CurrentUser=`id -un`
+  if [ "$CurrentUser" != "$RunningUser" ]; then
+    echo "Only user $RunningUser can run this command." 1>&2
+    return 1
+  fi
+  return 0
+}
+
+
+# Creates a marker file used to determine if installation/upgrade has taken place
+firstRunSet() {
+    touch $FirstRunFile
+}
+
+# Checks if this is the first run after installation/upgrade
+firstRunCheck() {
+    if [ -f $FirstRunFile ]; then
+        databaseCommand drop-index first-run
+        rm --force $FirstRunFile
+    fi
+}
+
+
+
+# Run Web interface
+onWebUi() {
+
+    runningUserCheck || exit 1
+
+    firstRunCheck
+
+    databaseCommand upgrade
+    databaseVersionCheck
+
+    setTrustStoreOpts
+
+    JavaOpts="$SIPXCONFIG_OPTS"
+
+    clearIndexLocks
+
+    X509Algorithm=`$JavaCmd \
+       -classpath "$Classpath" \
+       org.sipfoundry.sipxconfig.common.X509Selector`
+
+    # Used in sipxconfig-jetty.xml only
+    SystemProps="\
+        -Djava.io.tmpdir=${TmpDir} \
+        -Djetty.lib.dir=@sipxconfig.lib.dir@ \
+        -Djetty.conf.dir=@sipxpbx.conf.dir@ \
+        -Djetty.log.dir=${LogDir} \
+        -Djetty.x509.algorithm=${X509Algorithm} \
+        -Dorg.apache.lucene.lockdir=${IndexDir} \
+        -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+        -Djava.awt.headless=true"
+
+    KeyStoreOpts="\
+      -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
+      -Djavax.net.ssl.keyStorePassword=$StorePassword"
+
+    Classpath=`classpath \
+        @sipxpbx.conf.dir@ \
+        ${CommonsLibDir}/*.jar \
+        ${LibDir}/*.jar`
+
+    echo $$ > ${PidFile}
+
+    exec $JavaCmd \
+       $SystemProps \
+       $JavaOpts \
+       $TrustStoreOpts \
+       $KeyStoreOpts \
+       -classpath "$Classpath" \
+       org.mortbay.jetty.Server @sipxpbx.conf.dir@/sipxconfig-jetty.xml
+}
+
+stopWebUi() {
+    sipx_stop sipxconfig ${PidFile}
+}
+
+# Return false if postgres is
+#  1. not running
+#  2. running but not setup to communicate w/java or ${Psql} command
+#  3. Database is not created
+databaseCheck() {
+    ${Psql} --list --field-separator , --no-align --username ${PostgresUser} \
+    | cut -d , -f 1 \
+    | grep "${Database}"$ > /dev/null 2>&1
+}
+
+# Check the database version.  If it is wrong, then exit, because it's dangerous to
+# run sipXconfig on top of the wrong database version.
+databaseVersionCheck() {
+    dbver=`${Psql} --tuples-only --no-align \
+           --command "select max(vh.version) from version_history vh;" \
+           ${Database} ${PostgresUser}`
+    if [ $? -ne 0 -o "$dbver" = "" ]
+    then
+        echo "Error: could not get the database version.  Exiting now."
+        exit 1
+    fi
+    if [ "$dbver" -ne $RequiredDatabaseVersion ]
+    then
+        if [ $dbver -eq 0 ]
+        then
+            cat <<EOF
+    Error: bad ${Database} database version.
+    This database was created by a prerelease version of sipXconfig.
+    You should drop and recreate the database by running:
+
+        @bin.dir@/sipxconfig.sh --database drop create
+
+    Exiting now.
+EOF
+        else
+            cat <<EOF
+    Error: bad ${Database} database version.
+    Expected version $RequiredDatabaseVersion, got version $dbver.
+    This database was created or modified by a newer version of sipXconfig.
+    Exiting now.
+EOF
+        fi
+        exit 1
+    fi
+}
+
+# Called as root in sipxpbx startup script to do initial setup,
+# but can be called manually and is harmless if called multiple times.
+onSetup() {
+   # pgpatch is part of sipXcommserverlib and also used by sipxcallresolver.sh
+   # pgpatch initializes the Postgresql database, patches the postgres configuration,
+   # and configures appropriate runlevels (it runs postgresSetup and setPostgresRunlevels)
+   # patching of postgres config is necessary because default authentication needs
+   # to be changed from "ident sameuser" to "trust". sipXecs configures the database
+   # under the user postgres and not the user sipXecs runs under
+
+   @bin.dir@/pgpatch.sh
+   if ! databaseCheck
+   then
+       echo "Initializing configuration database..."
+       databaseCommand create
+       # echo "Configuration database created"
+   fi
+}
+
+# simple diagnostics
+configtest() {
+    if ! databaseCheck
+    then
+      cat <<EOF
+    Postgres configuration database not detected.
+    Run (as root:)
+
+       @bin.dir@/sipxconfig.sh --setup
+EOF
+      Status=1
+    fi
+    Status=$(($Status+$?))
+}
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        -c|--configtest)
+            Action=CONFIGTEST
+            ;;
+
+        -s|--setup)
+            Action=SETUP
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        --first-run)
+            Action=FIRST_RUN
+            ;;
+
+        -d|--database)
+            Action=DATABASE
+            shift
+            Args="${@}"
+            break 2
+            ;;
+
+        --nop)
+            Action=NOP
+            ;;
+
+        -h|--help|*)
+            Action=HELP
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+if [ ${Action} = CONFIGTEST ]
+then
+    configtest
+    exit $Status
+elif [ ${Action} = DATABASE ]
+then
+    databaseCommand $Args
+elif [ ${Action} = RUN ]
+then
+    onWebUi
+elif [ ${Action} = SETUP ]
+then
+    onSetup
+elif [ ${Action} = STOP ]
+then
+    stopWebUi
+elif [ ${Action} = FIRST_RUN ]
+then
+    firstRunSet
+elif [ ${Action} = HELP ]
+then
+
+cat <<USAGE
+Usage: sipxconfig.sh [-d|--database commands ...]
+                     [-c|--configtest]
+                     [-s|--setup]
+                     [--first-run]
+                     [-h|--help]
+
+Start Web UI administration for sipXpbx and for remotely provisioned
+SIP-based phones.
+
+Options include:
+
+  none                 Runs web admin ui
+
+  --database commands  Runs an operation on the database. Database commands
+                       are detailed below
+
+  --configtest         Run diagnostics
+
+  --setup              Initialize postgresql for communicating with sipxconfig
+                       and create initial database. Will most likely need
+                       root permissions.
+
+  --first-run          Force first-run mode - makes sipXconfig behave as if it was
+                       freshly installed or upgraded.
+
+Common Database commands include:
+
+   drop                Drops ${Database} database
+
+   create              Create new ${Database} database
+
+   upgrade             Upgrade database from a previous version by applying
+                       patches to the database schema.  This will only
+                       upgrade if nec.
+
+   reset-superadmin    Clear the password of the superadmin user.
+                       This lets you log in if you've forgotten the superadmin
+                       password.  But for security, you should immediately log
+                       in and set superadmin's password.
+
+   -p                  Full list all available commands
+
+Notable environment variables:
+
+    POSTGRES_SERVICE   a guess is made to determine the name for the
+                       Postgres service.
+                       If the guess is incorrect, then set this to the name of
+                       the script in /etc/init.d that starts/stops
+                       the Postgres database.  The possibilities that
+                       we are aware of are "postgresql" and "rhdb".
+
+USAGE
+
+fi

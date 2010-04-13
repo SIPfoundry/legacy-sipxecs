@@ -1,0 +1,60 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation"
+    tabNames="ognl:{'configureAlarms', 'notificationGroups', 'historyAlarms'}"
+    selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
+  </div>
+  <div jwcid="configureAlarmsTab@Block">
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <ul class="component-links">
+      <li><span jwcid="downloadLink@common/DownloadLink"
+          id="downloadLink"
+          fileName="ognl:alarmServerManager.alarmNotificationMibFileName"
+          dirName="ognl:alarmServerManager.mibsDirectory"
+          contentType="literal:application/octet-stream">
+          <span key="link.download"/>
+        </span>
+      </li>
+  </ul>
+    <form jwcid="@Form" id="configAlarmForm" delegate="bean:validator">
+      <fieldset>
+        <table>
+          <tbody>
+            <tr jwcid="@common/FieldPanel" for="enableEmailNotification"
+              field="component:enableEmailNotification"
+              label="message:label.enableAlarmServerEmailNotification">
+              <span jwcid="enableEmailNotification@Checkbox"
+                id="enableEmailNotification"
+                value="ognl:alarmServer.alarmNotificationEnabled" />
+            </tr>
+            <tr jwcid="@common/FieldPanel" for="fromEmailAddress"
+              field="ognl:components.fromEmailAddress" label="message:label.fromEmailAddress">
+              <span jwcid="fromEmailAddress@TextField" id="fromEmailAddress"
+                value="ognl:alarmServer.fromEmailAddress"
+                displayName="message:label.fromEmailAddress"/>
+            </tr>
+          </tbody>
+        </table>
+      </fieldset>
+      <fieldset>
+        <legend><span key="label.alarms"/></legend>
+      </fieldset>
+      <div jwcid="@admin/AlarmTypes" validator="bean:validator"
+        selections="ognl:selections"
+        alarms="ognl:alarms"
+        alarmGroupModel="ognl:alarmGroupModel"/>
+        <ul jwcid="formActions@common/FormActions" listener="listener:activate"/>
+    </form>
+  </div>
+  <div jwcid="notificationGroupsTab@Block">
+    <div jwcid="@common/QuickHelp" value="message:quick.help.emailNotificationContacts" />
+	<form jwcid="alarmGroupsForm@Form" delegate="bean:validator">
+	  <span jwcid="notificationGroupsComponent@admin/AlarmGroupsPanel"/>
+	</form>
+  </div>
+  <div jwcid="historyAlarmsTab@Block">
+    <span jwcid="historyAlarmsComponent@admin/HistoryAlarmsPanel" validator="bean:validator"/>
+  </div>
+</div>

@@ -1,0 +1,207 @@
+#! /usr/bin/perl
+
+# Program to reformat tcpdump output into siptrace format.
+
+# Note:  When running tcpdump, use the options '-s 1500 -x -tttt'.
+# '-s 1500 -x' gives a hex dump of the entire packet.  (Use a larger number
+# if your interface supports longer packets.)
+# '-tttt' prints the timestamps in GMT to high precision.
+
+# Currently, does not handle fragmented packets.
+
+$debug = 0;
+
+$TCP = 1;
+$UDP = 2;
+$UNKNOWN = 3;
+
+$frame_counter = 0;
+
+print "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n";
+print "<sipTrace>\n";
+
+# Read the input file.
+for ($_ = <>, chomp; $_; ) {
+    # The current line should be a packet description line.
+    split(' ', $_);
+    print STDERR $_, "\n" if $debug;
+
+    # Extract the fixed fields.
+    $date = $_[0];
+    $time = $_[1];
+    # Skip non-IP packets.
+    if ($_[2] ne 'IP') {
+	# Skip this line and any following data lines.
+	do {
+	    $_ = <>;
+	} while ($_ =~ /^\t/);
+	chomp;
+	next;
+    }
+    # Check the date and time have the right format, and the 3rd field is "IP".
+    if (!($date =~ /^\d\d\d\d-\d\d-\d\d$/ &&
+	  $time =~ /^\d\d:\d\d:\d\d/)) {
+	print STDERR "Uninterpretable input line where packet header expected: $_\n";
+	# Skip this line and any following data lines.
+	do {
+	    $_ = <>;
+	} while ($_ =~ /^\t/);
+	chomp;
+	next;
+    }
+    # Assemble GMT.
+    $Z = $date . 'T' . $time . 'Z';
+
+    # Get the source and destination.
+    $_[5] =~ s/:$//;
+    $_[3] =~ s/\.([^.]+)$/:$1/;
+    $_[5] =~ s/\.([^.]+)$/:$1/;
+    if ($_[4] eq '>') {
+	$source = $_[3];
+	$dest = $_[5];
+    } elsif ($_[4] eq '>') {
+	$source = $_[5];
+	$dest = $_[4];
+    } else {
+	print STDERR "Uninterpretable direction indicator in packet header: $_\n";
+	$_ = <>;
+	chomp;
+	next;
+    }
+
+    # Get the packet type.
+    if ($_[6] eq 'UDP,') {
+	$type = $UDP;
+	# $length is the reported number of bytes of user data.
+	$length = $_[8];
+    } elsif ($_[6] =~ /^([SFPRWE]+|\.)$/ &&
+	       $_[7] =~ /^(\d+:\d+\(\d+\)$|[a-z][a-z][a-z]$|<)/) {
+	$type = $TCP;
+	# $length is the reported number of bytes of user data, or 0 if none.
+	$length = ($_[7] =~ /^\d+:\d+\((\d+)\)/) ? $1 : 0;
+    } else {
+	# Don't report.
+	$type = $UNKNOWN;
+    }
+    
+    # Get the data lines.
+    # Only examine the first 49 characters of a line, in case it has been
+    # hex-dump'ed, which adds ASCII data after the hex data.
+    $data = '';
+    for ($_ = <>, chomp;
+	 $hex = substr($_, 0, 49), $hex =~ /^\t0x[0-9a-f]+:[ 0-9a-f]*$/;
+	 $_ = <>, chomp) {
+	$hex =~ s/^\t0x[0-9a-f]+://;
+	$hex =~ s/ //g;
+	$data .= $hex;
+    }
+    # Pack the packet into a string.
+    $data = pack('H*', $data);
+
+    # Extract the user data, based on the packet type.
+    if ($type == $UNKNOWN) {
+	# Unknown.
+	# Skip the packet.
+    } elsif ($type == $UDP) {
+	# UDP
+	if (!((vec($data, 0, 8) & 0xF0) == 0x40 && vec($data, 9, 8) == 17)) {
+	    print STDERR "UDP packet has wrong version or protocol.\n";
+	    next;
+	}
+	# Remove the IP header based on the IHL field, and the 8 byte
+	# UDP header.
+	$data = substr($data, (vec($data, 0, 8) & 0x0F) * 4 + 8);
+	if (length($data) != $length) {
+	    print STDERR "Truncated packet?\n";
+	}
+	# If the packet is SIP, process the packet.
+	if (&SIP_message($data)) {
+	    &input_message($Z, $source, $dest, $data);
+	}
+    } else {
+	# TCP
+	print STDERR "TCP packet.\n";
+    }
+}
+
+print "</sipTrace>\n";
+
+exit 0;
+
+# Test whether a string is a SIP message.
+sub SIP_message {
+    my($message) = @_;
+
+    # Check that the message is a valid SIP message.
+
+    # Must start with a request line or a response line.
+    if (!($message =~ m%^([a-z]+) \S+ SIP/2\.0\r\n%i ||
+	  $message =~ m%^SIP/2\.0 (\d\d\d) (.*)\r\n%)) {
+	return 0;
+    }
+    # Each following line must end with CR-LF, and the headers must end
+    # with CR-LF-CR-LF.
+    if (!($message =~ m%^((.*\r\n)+\r\n)%)) {
+	return 0;
+    }
+    $headers = $1;
+    if (!($headers =~ m%\ncontent-length:\s*(\d+)%i)) {
+	return 0;
+    }
+    $length = $1;
+    if (!($length == length($message) - length($headers))) {
+	return 0;
+    }
+
+    return 1;
+}
+
+# Process a SIP message.
+sub input_message {
+    my($Z, $source, $dest, $message) = @_;
+
+    print STDERR "\&input_message($message)\n" if $debug;
+
+    # Get the branch IDs.
+    @branches = ($message =~ m/\nVia:.*;branch=([^;\r\n]+)/gi);
+
+    # Assemble the transaction ID.
+    ($cseq) = ($message =~ m/\ncseq:\s*(\d+)/i);
+    ($callid) = ($message =~ m/\ncall-id:\s*([^;\r\n]+)/i);
+    ($fromtag) = ($message =~ m/\nfrom:.*tag=([^;\r\n]+)/i);
+    ($totag) = ($message =~ m/\nto:.*tag=([^;\r\n]+)/i);
+    ($transid) = ("$cseq,$callid,$fromtag,$totag");
+
+    print "\t<branchNode>\n";
+    print "\t\t<branchIdSet>\n";
+    foreach $b (@branches) {
+	print "\t\t\t<branchId>$b</branchId>\n";
+    }
+    print "\t\t</branchIdSet>\n";
+    print "\t\t<time>$Z</time>\n";
+    print "\t\t<source>$source</source>\n";
+    print "\t\t<destination>$dest</destination>\n";
+    print "\t\t<sourceAddress>$source</sourceAddress>\n";
+    print "\t\t<destinationAddress>$dest</destinationAddress>\n";
+    print "\t\t<transactionId>$transid</transactionId>\n";
+
+    if ($message =~ m%^([a-z]+) \S+ SIP/2\.0\r%i) {
+	print "\t\t<method>$1</method>\n";
+    }
+
+    if ($message =~ m%^SIP/2\.0 (\d\d\d) (.*)\r%) {
+	print "\t\t<responseCode>$1</responseCode>\n";
+	print "\t\t<responseText>$2</responseText>\n";
+    }
+
+    print "\t\t<frameId>", $frame_counter++, "</frameId>\n";
+    print "\t\t<message><![CDATA[";
+
+    # Break up any "]]>" sequences in the message.
+    $message =~ s/]]>/]]]]><![CDATA[>/g;
+    print $message;
+
+    print "]]></message>\n";
+    print "\t</branchNode>\n";
+
+}

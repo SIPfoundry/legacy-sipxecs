@@ -1,0 +1,1423 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+  <group name="networkSettings">
+    <label>Network Settings</label>
+    <setting name="networkSetup">
+      <label>Network Setup</label>
+      <type>
+        <enum>
+          <option>
+            <value>manual</value>
+          </option>
+          <option>
+            <value>dhcp</value>
+          </option>
+        </enum>
+      </type>
+      <value>dhcp</value>
+      <description>
+        If dhcp is selected, the phone use DHCP to get network settings from DHCP server. If manual is selected, the
+        phone use network settings defined in fields given below. These network-settings fields have the same meaning as
+        the network settings for other network devices and operating systems &lt;br/&gt; ( &lt; networkSettings &gt; )
+        &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="ipAddress">
+      <label>IP Address</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description>( &lt; ipAddress &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="netmask">
+      <label>Netmask</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description>( &lt; netmask &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="gateway">
+      <label>Gateway</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description>( &lt; gateway &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="domainName">
+      <label>Domain Name</label>
+      <type>
+        <hostname />
+      </type>
+      <value></value>
+      <description>( &lt; domainName &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="dnsServer1">
+      <label>DNS 1</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description>( &lt; dnsServer1 &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="dnsServer2">
+      <label>DNS 2</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description>( &lt; dnsServer2 &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="dnsServer3">
+      <label>DNS 3</label>
+      <type>
+        <ipaddr />
+      </type>
+      <value></value>
+      <description>( &lt; dnsServer3 &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <group name="qos">
+      <label>QOS</label>
+      <description>QOS settings are independent of the network settings</description>
+      <setting name="qosDscp">
+        <label>DSCP</label>
+        <type>
+          <enum>
+            <option>
+              <value>0x00</value>
+            </option>
+            <option>
+              <value>0x01</value>
+            </option>
+            <option>
+              <value>0x02</value>
+            </option>
+            <option>
+              <value>0x03</value>
+            </option>
+            <option>
+              <value>0x04</value>
+            </option>
+            <option>
+              <value>0x05</value>
+            </option>
+            <option>
+              <value>0x06</value>
+            </option>
+            <option>
+              <value>0x07</value>
+            </option>
+            <option>
+              <value>0x08</value>
+            </option>
+            <option>
+              <value>0x09</value>
+            </option>
+            <option>
+              <value>0x0a</value>
+            </option>
+            <option>
+              <value>0x0b</value>
+            </option>
+            <option>
+              <value>0x0c</value>
+            </option>
+            <option>
+              <value>0x0d</value>
+            </option>
+            <option>
+              <value>0x0e</value>
+            </option>
+            <option>
+              <value>0x0f</value>
+            </option>
+            <option>
+              <value>0x10</value>
+            </option>
+            <option>
+              <value>0x11</value>
+            </option>
+            <option>
+              <value>0x12</value>
+            </option>
+            <option>
+              <value>0x13</value>
+            </option>
+            <option>
+              <value>0x14</value>
+            </option>
+            <option>
+              <value>0x15</value>
+            </option>
+            <option>
+              <value>0x16</value>
+            </option>
+            <option>
+              <value>0x17</value>
+            </option>
+            <option>
+              <value>0x18</value>
+            </option>
+            <option>
+              <value>0x19</value>
+            </option>
+            <option>
+              <value>0x1a</value>
+            </option>
+            <option>
+              <value>0x1b</value>
+            </option>
+            <option>
+              <value>0x1c</value>
+            </option>
+            <option>
+              <value>0x1d</value>
+            </option>
+            <option>
+              <value>0x1e</value>
+            </option>
+            <option>
+              <value>0x1f</value>
+            </option>
+            <option>
+              <value>0x20</value>
+            </option>
+            <option>
+              <value>0x21</value>
+            </option>
+            <option>
+              <value>0x22</value>
+            </option>
+            <option>
+              <value>0x23</value>
+            </option>
+            <option>
+              <value>0x24</value>
+            </option>
+            <option>
+              <value>0x25</value>
+            </option>
+            <option>
+              <value>0x26</value>
+            </option>
+            <option>
+              <value>0x27</value>
+            </option>
+            <option>
+              <value>0x28</value>
+            </option>
+            <option>
+              <value>0x29</value>
+            </option>
+            <option>
+              <value>0x2a</value>
+            </option>
+            <option>
+              <value>0x2b</value>
+            </option>
+            <option>
+              <value>0x2c</value>
+            </option>
+            <option>
+              <value>0x2d</value>
+            </option>
+            <option>
+              <value>0x2e</value>
+            </option>
+            <option>
+              <value>0x2f</value>
+            </option>
+            <option>
+              <value>0x30</value>
+            </option>
+            <option>
+              <value>0x31</value>
+            </option>
+            <option>
+              <value>0x32</value>
+            </option>
+            <option>
+              <value>0x33</value>
+            </option>
+            <option>
+              <value>0x34</value>
+            </option>
+            <option>
+              <value>0x35</value>
+            </option>
+            <option>
+              <value>0x36</value>
+            </option>
+            <option>
+              <value>0x37</value>
+            </option>
+            <option>
+              <value>0x38</value>
+            </option>
+            <option>
+              <value>0x39</value>
+            </option>
+            <option>
+              <value>0x3a</value>
+            </option>
+            <option>
+              <value>0x3b</value>
+            </option>
+            <option>
+              <value>0x3c</value>
+            </option>
+            <option>
+              <value>0x3d</value>
+            </option>
+            <option>
+              <value>0x3e</value>
+            </option>
+            <option>
+              <value>0x3f</value>
+            </option>
+          </enum>
+        </type>
+        <value>0x00</value>
+        <description>
+          The Differentiated Services Code Point, or DSCP, tells the network how to handle the data packets transmitted
+          by the phone and what the performance requirement are with regards to, for example, delay, loss and jitter.
+          The normal settings VoIP is 0x2e &lt;br/&gt; ( &lt; qosDscp &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="qosVlanId">
+        <label>VLAN-ID (0-4095)</label>
+        <type>
+          <integer min="0" max="4095" />
+        </type>
+        <value>0</value>
+        <description>
+          The VLAN-ID identifies the VLAN on which the phone resides &lt;br/&gt; ( &lt; qosVlanId &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
+
+  </group>
+
+  <group name="phoneSettings">
+    <label>Phone Settings</label>
+
+    <!--
+      <setting name="displayname">
+      <label>Display Name</label>
+      <type>
+      <string maxLen="22"/>
+      </type>
+      <value />
+      <description>Display Name ( &lt; displayname &gt; ) &lt;br/&gt; </description>
+      </setting>
+    -->
+
+    <setting name="dndControl">
+      <label>DND</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, the phone switches to do-not-disturb mode &lt;br/&gt; ( &lt; dndControl &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="blinkLightOnIncomingCall">
+      <label>Blink Light on Incoming Calls</label>
+      <type refid="on-off" />
+      <value>TRUE</value>
+      <description>
+        If checked, the LED lamp on the top of the phone starts blinking on incoming calls &lt;br/&gt; ( &lt;
+        blinkLightOnIncomingCall &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="intercomTimeout">
+      <label>Intercom Timeout(sec)</label>
+      <type>
+        <integer min="0" max="65536" />
+      </type>
+      <value>15</value>
+      <description>
+        Intercom timeout is the time in seconds after which an inbound intercom call disconnects. Intercom timeout is
+        disabled if this value is set to 0 &lt;br/&gt; ( &lt; intercomTimeout &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <!--
+      <setting name="intercomPrefix">
+      <label>Intercom Prefix</label>
+      <type>
+      <string />
+      </type>
+      <value />
+      <description>
+      Append Intercom Prefix
+      &lt;br/&gt; </description>
+      </setting>
+      
+      <setting name="appendIntercomPrefix">
+      <label>Append Intercom Prefix</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+      Append prefix in Intercom Call
+      &lt;br/&gt; </description>
+      </setting>
+      
+      <setting name="enableAutologin">
+      <label>Enable Auto Login</label>
+      <type refid="on-off" />
+      <value>TRUE</value>
+      <description>
+      Automatic Login
+      &lt;br/&gt; </description>
+      </setting>
+    -->
+
+    <setting name="imBeepAlert">
+      <label>Enable IM Beep Alert</label>
+      <type refid="on-off" />
+      <value>TRUE</value>
+      <description>
+        If checked, the phone beeps when it receives an IM &lt;br/&gt; ( &lt; imBeepAlert &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <!--
+      <setting name="natAddress">
+      <label>NAT Address</label>
+      <type>
+      <hostname />
+      </type>
+      <value />
+      <description>
+      NAT Address
+      &lt;br/&gt; </description>
+      </setting>
+    -->
+
+    <setting name="syslogServer">
+      <label>Syslog Server</label>
+      <type>
+        <hostname />
+      </type>
+      <value />
+      <description>
+        IP address of a syslog server for logging of SIP messages received from and sent to the phone &lt;br/&gt; ( &lt;
+        syslogServer &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="enableSessionTimer">
+      <label>Enable Session Timer</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, the phone uses a 'keepalive' mechanism in order to better detect whether a call has been
+        disconnected &lt;br/&gt; ( &lt; enableSessionTimer &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="sessionTimerInSec">
+      <label>Session Timer(sec)</label>
+      <type>
+        <integer min="30" max="3600" />
+      </type>
+      <value>30</value>
+      <description>
+        Time after which the 'keepalive' is sent &lt;br/&gt; ( &lt; sessionTimerInSec &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="sessionRefresherFlag">
+      <label>Enable Session Refresher Flag</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>( &lt; sessionRefresherFlag &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="secureAudioScheme">
+      <label>Secure Audio Scheme (SRTP)</label>
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>best effort</value>
+          </option>
+          <option>
+            <value>SRTP Only</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+      <description>
+        If none is selected, Secure Audio Scheme is disabled. In the best effort scheme phone tries to establish secure
+        connection, if it fails then audio is transmitted unsecurely. If SRTP Only scheme is selected then only secure
+        audio is allowed &lt;br/&gt; ( &lt; secureAudioScheme &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="defaultOutgoingLine">
+      <label>Default Outgoing Line</label>
+      <type>
+        <enum>
+          <option>
+            <value>Line1</value>
+          </option>
+          <option>
+            <value>Line2</value>
+          </option>
+          <option>
+            <value>Last used line</value>
+          </option>
+        </enum>
+      </type>
+      <value>Last used line</value>
+      <description>
+        If Line1 or Line2 is selected, then the selected line is used as default line for making calls. If Last used
+        line is selected, then the last active line is used to make outgoing calls &lt;br/&gt; ( &lt;
+        defaultOutgoingLine &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <!--
+      <setting name="groupPagingPrefix">
+      <label>Group Paging Prefix</label>
+      <type>
+      <integer />
+      </type>
+      <value></value>
+      <description>
+      Group Paging Prefix
+      &lt;br/&gt; </description>
+      </setting>
+    -->
+
+    <setting name="hotDeskingAutoLogin">
+      <label>Hot Desking Auto Login</label>
+      <type refid="on-off" />
+      <value>TRUE</value>
+      <description>
+        If checked, then phone logs in automatically using the User IDs that are configured for Line 1 or Line 2 or both
+        &lt;br/&gt; ( &lt; hotDeskingAutoLogin &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+  </group>
+
+  <group name="timesettings">
+    <label>Time Settings</label>
+    <setting name="timeSettings">
+      <label>Time Servers</label>
+      <type>
+        <enum>
+          <option>
+            <value>manual</value>
+          </option>
+          <option>
+            <value>default</value>
+          </option>
+        </enum>
+      </type>
+      <value>default</value>
+      <description>
+        If default is selected, the default time servers which are pre-configured in the phone are used. Select manual
+        to configure the time servers manually &lt;br/&gt; ( &lt; timesettings &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="ntpIp">
+      <label>Time Server 1</label>
+      <type>
+        <hostname />
+      </type>
+      <description>Domain name or IP address of time server 1 &lt;br/&gt; ( &lt; ntpIp &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="ntpIp2">
+      <label>Time Server 2</label>
+      <type>
+        <hostname />
+      </type>
+      <description>Domain name or IP address of time server 2 &lt;br/&gt; ( &lt; ntpIp2 &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="timezone">
+      <label>Time Zone</label>
+      <type>
+        <enum>
+          <option>
+            <value>-12:00 Date Line</value>
+          </option>
+          <option>
+            <value>-11:00 Nome</value>
+          </option>
+          <option>
+            <value>-10:00 Hawaii</value>
+          </option>
+          <option>
+            <value>-09:00 Alaska</value>
+          </option>
+          <option>
+            <value>-08:00 Pacific</value>
+          </option>
+          <option>
+            <value>-08:00 Tijuana</value>
+          </option>
+          <option>
+            <value>-07:00 Arizona</value>
+          </option>
+          <option>
+            <value>-07:00 Mountain</value>
+          </option>
+          <option>
+            <value>-06:00 Central</value>
+          </option>
+          <option>
+            <value>-06:00 Mexico city</value>
+          </option>
+          <option>
+            <value>-06:00 Saskatchewan</value>
+          </option>
+          <option>
+            <value>-05:00 Bogota, Lima</value>
+          </option>
+          <option>
+            <value>-05:00 Eastern</value>
+          </option>
+          <option>
+            <value>-05:00 Indiana</value>
+          </option>
+          <option>
+            <value>-04:00 Atlantic</value>
+          </option>
+          <option>
+            <value>-04:00 Caracas</value>
+          </option>
+          <option>
+            <value>-04:00 Santiago</value>
+          </option>
+          <option>
+            <value>-03:30 NewFoundland</value>
+          </option>
+          <option>
+            <value>-03:00 Brasilia</value>
+          </option>
+          <option>
+            <value>-03:00 Georgetown</value>
+          </option>
+          <option>
+            <value>-02:00 Mid-Atlantic</value>
+          </option>
+          <option>
+            <value>-01:00 Azores</value>
+          </option>
+          <option>
+            <value>+00:00 Casablanca</value>
+          </option>
+          <option>
+            <value>+00:00 GMT London</value>
+          </option>
+          <option>
+            <value>+01:00 Amsterdam</value>
+          </option>
+          <option>
+            <value>+01:00 Belgrade</value>
+          </option>
+          <option>
+            <value>+01:00 Brussels</value>
+          </option>
+          <option>
+            <value>+01:00 Sarajevo</value>
+          </option>
+          <option>
+            <value>+02:00 Athens</value>
+          </option>
+          <option>
+            <value>+02:00 Minsk</value>
+          </option>
+          <option>
+            <value>+02:00 Bucharest</value>
+          </option>
+          <option>
+            <value>+02:00 Cairo</value>
+          </option>
+          <option>
+            <value>+02:00 Harare</value>
+          </option>
+          <option>
+            <value>+02:00 Helsinki</value>
+          </option>
+          <option>
+            <value>+02:00 Jerusalem</value>
+          </option>
+          <option>
+            <value>+03:00 Baghdad</value>
+          </option>
+          <option>
+            <value>+03:00 Moscow</value>
+          </option>
+          <option>
+            <value>+03:00 Nairobi</value>
+          </option>
+          <option>
+            <value>+03:30 Tehran, Iran</value>
+          </option>
+          <option>
+            <value>+04:00 Abu Dhabi</value>
+          </option>
+          <option>
+            <value>+04:00 Baku</value>
+          </option>
+          <option>
+            <value>+04:00 Tbilisi</value>
+          </option>
+          <option>
+            <value>+04:30 Afghanistan</value>
+          </option>
+          <option>
+            <value>+05:00 Yekaterinburg</value>
+          </option>
+          <option>
+            <value>+05:00 Pakistan</value>
+          </option>
+          <option>
+            <value>+05:30 India</value>
+          </option>
+          <option>
+            <value>+06:00 Astana</value>
+          </option>
+          <option>
+            <value>+06:00 Srilanka</value>
+          </option>
+          <option>
+            <value>+07:00 Bangkok</value>
+          </option>
+          <option>
+            <value>+08:00 Beijing</value>
+          </option>
+          <option>
+            <value>+08:00 Perth</value>
+          </option>
+          <option>
+            <value>+08:00 Singapore</value>
+          </option>
+          <option>
+            <value>+08:00 Taipei</value>
+          </option>
+          <option>
+            <value>+09:00 Japan</value>
+          </option>
+          <option>
+            <value>+09:00 Seoul</value>
+          </option>
+          <option>
+            <value>+09:00 Yakutsk</value>
+          </option>
+          <option>
+            <value>+09:30 Adelaide</value>
+          </option>
+          <option>
+            <value>+09:30 Darwin</value>
+          </option>
+          <option>
+            <value>+10:00 Brisbane</value>
+          </option>
+          <option>
+            <value>+10:00 Canberra</value>
+          </option>
+          <option>
+            <value>+10:00 Guam</value>
+          </option>
+          <option>
+            <value>+10:00 Hobart</value>
+          </option>
+          <option>
+            <value>+10:00 Vladivostok</value>
+          </option>
+          <option>
+            <value>+11:00 Solomon Is</value>
+          </option>
+          <option>
+            <value>+12:00 New Zealand</value>
+          </option>
+          <option>
+            <value>+12:00 Fiji</value>
+          </option>
+        </enum>
+      </type>
+      <value>+00:00 GMT London</value>
+      <description>( &lt; timezone &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="dstAutoAdjust">
+      <label>Enable DST</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, this will enable the Daylight Saving Time for the selected timezone, if applicable &lt;br/&gt; (
+        &lt; dstAutoAdjust &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+  </group>
+
+  <group name="autoconfig">
+    <label>Autoconfig</label>
+    <setting name="autoconfigOption">
+      <label>Autoconfig</label>
+      <type>
+        <enum>
+          <option>
+            <value>tftp</value>
+          </option>
+          <option>
+            <value>http</value>
+          </option>
+          <option>
+            <value>https</value>
+          </option>
+          <option>
+            <value>none</value>
+          </option>
+        </enum>
+      </type>
+      <value>tftp</value>
+      <description>
+        Select tftp/http/https protocol for auto provisioning &lt;br/&gt; ( &lt; autoconfig &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="autoConfigAddress">
+      <label>Autoconfig Address</label>
+      <type>
+        <hostname />
+      </type>
+      <value />
+      <description>
+        Domain name or IP address of auto provisioning server &lt;br/&gt; ( &lt; autoConfigAddress &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="autoConfigProfile">
+      <label>Autoconfig Profile</label>
+      <type>
+        <enum>
+          <option>
+            <value>Profile-C</value>
+          </option>
+          <option>
+            <value>NONE</value>
+          </option>
+        </enum>
+      </type>
+      <value>Profile-C</value>
+      <description>
+        If Profile-C is selected, the phone uses the profile 'Profile-C'. If NONE is selected auto-configuration is
+        disabled &lt;br/&gt; ( &lt; autoConfigProfile &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="autoConfigPath" hidden="yes">
+      <label>Autoconfig Path</label>
+      <type>
+        <string />
+      </type>
+      <value>SipTone/config</value>
+      <description>Autoconfig Server Path &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="autoConfigHttpProxy">
+      <label>Autoconfig Http Proxy</label>
+      <type>
+        <hostname />
+      </type>
+      <value />
+      <description>
+        Domain name or IP address of the Http proxy server &lt;br/&gt; ( &lt; autoConfigHttpProxy &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="autoConfigHttpPort">
+      <label>Autoconfig Http Port</label>
+      <type>
+        <integer max="65536" />
+      </type>
+      <value />
+      <description>
+        Port number of the Http proxy server &lt;br/&gt; ( &lt; autoConfigHttpPort &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="autoConfigEveryBoot">
+      <label>Autoconfig Every Boot</label>
+      <type refid="on-off" />
+      <value>TRUE</value>
+      <description>
+        If checked, the phone loads the configuration file every time it boots &lt;br/&gt; ( &lt; autoConfigEveryBoot
+        &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <group name="autoconfigCert">
+      <label>Autoconfig Certificates</label>
+
+      <setting name="autocfgClientCertificate">
+        <label>Client Certificate Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Autoconfig Client Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; autocfgClientCertificate &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="autocfgClientPrivateKey">
+        <label>Client Private Key Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Autoconfig Client Private Key HTTPS/HTTP Url &lt;br/&gt; ( &lt; autocfgClientPrivateKey &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="autocfgCACertificate">
+        <label>CA Certificate Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Autoconfig CA Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; autocfgCACertificate &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
+
+  </group>
+
+  <group name="presence">
+    <label>Presence</label>
+    <setting name="sipRlsUri">
+      <label>RLS Subscription URI</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        URI that the phone subscribes to get BLF SIP Events &lt;br/&gt; ( &lt; sipRlsUri &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+  </group>
+
+  <group name="memKeys">
+    <label>Memory Keys</label>
+    <setting name="mem1">
+      <label>MEM 1</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+      <description>
+        Select line to be used for making outgoing calls when onhook, and for sending subscription for presence or
+        dialog event.
+      </description>
+    </setting>
+
+    <setting name="simpleMem1">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>If checked, the phone sends presence event subscribe for this MEM entry. &lt;br/&gt;</description>
+    </setting>
+
+
+    <setting name="mem2">
+      <label>MEM 2</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem2">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem3">
+      <label>MEM 3</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem3">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem4">
+      <label>MEM 4</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem4">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem5">
+      <label>MEM 5</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem5">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem6">
+      <label>MEM 6</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem6">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem7">
+      <label>MEM 7</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem7">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem8">
+      <label>MEM 8</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem8">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem9">
+      <label>MEM 9</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem9">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem10">
+      <label>MEM 10</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem10">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem11">
+      <label>MEM 11</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem11">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem12">
+      <label>MEM 12</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem12">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem13">
+      <label>MEM 13</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem13">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem14">
+      <label>MEM 14</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem14">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem15">
+      <label>MEM 15</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem15">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+
+    <setting name="mem16">
+      <label>MEM 16</label>
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="simpleMem16">
+      <label>SIMPLE for Presence</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description></description>
+    </setting>
+  </group>
+
+  <group name="upgrade">
+    <label>Upgrade</label>
+    <setting name="upgradeOption">
+      <label>Upgrade Protocol</label>
+      <type>
+        <enum>
+          <option>
+            <value>tftp</value>
+          </option>
+          <option>
+            <value>ftp</value>
+          </option>
+          <option>
+            <value>http</value>
+          </option>
+          <option>
+            <value>https</value>
+          </option>
+        </enum>
+      </type>
+      <value>tftp</value>
+      <description>
+        Select tftp/ftp/http/https protocol for firmware upgrade &lt;br/&gt; ( &lt; upgrade &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <group name="tftpOrFtp">
+      <label>TFTP/FTP</label>
+
+      <setting name="tftpOrFtpUpgradeServer">
+        <label>Upgrade Server</label>
+        <type>
+          <hostname />
+        </type>
+        <value></value>
+        <description>
+          Domain name or IP address of TFTP/FTP firmware upgrade server &lt;br/&gt; ( &lt; tftpOrFtpUpgradeServer &gt; )
+          &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="tftpOrFtpUpgradeFile">
+        <label>Upgrade File</label>
+        <type>
+          <string />
+        </type>
+        <value>st5image.bin</value>
+        <description>
+          This is the path relative to the starting download directory on the file server &lt;br/&gt; ( &lt;
+          tftpOrFtpUpgradeFile &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
+
+    <group name="httpsOrHttp">
+      <label>HTTPS/HTTP</label>
+
+      <setting name="httpOrHttpsUrl">
+        <label>Upgrade Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Url to the HTTPS/HTTP upgrade server &lt;br/&gt; ( &lt; httpOrHttpsUrl &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="httpOrHttpsProxy">
+        <label>Proxy</label>
+        <type>
+          <hostname />
+        </type>
+        <value></value>
+        <description>
+          Domain name or IP address of the HTTPS/HTTP proxy server &lt;br/&gt; ( &lt; httpOrHttpsProxy &gt; )
+          &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="httpOrHttpsPort">
+        <label>Proxy Port</label>
+        <type>
+          <integer min="0" max="65536" />
+        </type>
+        <value></value>
+        <description>
+          Port number of the HTTPS/HTTP proxy server &lt;br/&gt; ( &lt; httpOrHttpsPort &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
+
+    <group name="upgradeCert">
+      <label>Upgrade Certificates</label>
+
+      <setting name="upgradeClientCertUrl">
+        <label>Client Certificate Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Upgrade Client Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; upgradeClientCertUrl &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="upgradeClientKeyUrl">
+        <label>Client Key Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Upgrade Client Key HTTPS/HTTP Url &lt;br/&gt; ( &lt; upgradeClientKeyUrl &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+
+      <setting name="upgradeCaCertUrl">
+        <label>CA Certificate Url</label>
+        <type>
+          <string />
+        </type>
+        <value></value>
+        <description>
+          Upgrade CA Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; upgradeCaCertUrl &gt; ) &lt;br/&gt;
+        </description>
+      </setting>
+    </group>
+
+  </group>
+
+</model>

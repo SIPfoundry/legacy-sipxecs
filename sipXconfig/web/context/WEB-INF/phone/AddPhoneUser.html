@@ -1,0 +1,22 @@
+<span jwcid="@common/Border" borderTitle="ognl:borderTitle">
+	<span jwcid="@phone/PhoneLabel" phone="ognl:phone"/>
+        <span jwcid="@common/ErrorMsg"/>
+        <span jwcid="@common/QuickHelp" value="message:help.text"/>
+	<form jwcid="selectUserForm">
+		<ul class="component-links">
+			<li>
+                <a  href="#" id="search:toggle" jwcid="toggleSearchType">Advanced Search</a>
+			</li>
+		</ul>
+		<span jwcid="searchForm">
+			<span jwcid="returnToEditPhone"/>
+		</span>
+		<span jwcid="searchResults"/>
+		<ul class="component-submit">
+			<li>
+				<input id="user:select" jwcid="select" type="submit"
+					value="message:button.select"/>
+			</li>
+		</ul>
+	</form>
+</span>

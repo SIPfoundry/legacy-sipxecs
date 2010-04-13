@@ -1,0 +1,18 @@
+<phonebook>
+  <entry>
+    <first-name>FirstName1</first-name>
+    <last-name>LastName1</last-name>
+    <number>200</number>
+    <contact-information>
+      <avatar>https://secure.gravatar.com/avatar</avatar>
+    </contact-information>
+  </entry>
+  <entry>
+    <first-name>FirstName2</first-name>
+    <last-name>LastName2</last-name>
+    <number>201</number>
+    <contact-information>
+      <avatar>https://secure.gravatar.com/avatar</avatar>
+    </contact-information>
+  </entry>
+</phonebook>

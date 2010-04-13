@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+  <bean id="abstractBundle" abstract="true" class="org.sipfoundry.sipxconfig.service.SipxServiceBundle">
+    <property name="autoEnable" value="true" />
+    <property name="resetAffectLocation" value="false" />
+  </bean>
+
+  <bean id="managementBundle" parent="abstractBundle">
+    <constructor-arg value="management" />
+    <property name="onlyPrimary" value="true" />
+    <property name="min" value="1" />
+    <property name="max" value="1" />
+  </bean>
+
+  <bean id="primarySipRouterBundle" parent="abstractBundle">
+    <constructor-arg value="primarySipRouter" />
+    <property name="onlyPrimary" value="true" />
+    <property name="min" value="1" />
+    <property name="max" value="1" />
+  </bean>
+
+  <bean id="redundantSipRouterBundle" parent="abstractBundle">
+    <constructor-arg value="redundantSipRouter" />
+    <property name="onlyRemote" value="true" />
+    <property name="max" value="2" />
+  </bean>
+
+  <bean id="voicemailBundle" parent="abstractBundle">
+    <constructor-arg value="voicemail" />
+    <property name="max" value="1" />
+  </bean>
+
+  <bean id="borderControllerBundle" parent="abstractBundle">
+    <constructor-arg value="borderController" />
+  </bean>
+
+  <bean id="acdBundle" parent="abstractBundle">
+    <constructor-arg value="acd" />
+    <property name="resetAffectLocation" value="true" />
+  </bean>
+
+  <bean id="conferenceBundle" parent="abstractBundle">
+    <constructor-arg value="conference" />
+  </bean>
+
+  <bean id="imBundle" parent="abstractBundle">
+    <constructor-arg value="im" />
+    <property name="max" value="1" />
+  </bean>
+
+</beans>

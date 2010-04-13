@@ -1,0 +1,40 @@
+Apologies to Robert Service
+(http://www.traditionalmusic.co.uk/folk-song-lyrics/Cremation_of_Sam_McGee.htm)
+
+There are strange things done
+during midnight fun
+by those who toil with codes.
+And the IRC logs, and even some blogs
+mention features and bugs on their nodes.
+
+The project's late nights
+have seen some delights,
+but the strangest they ever did see,
+was the night of the scrum
+and the realization
+of the release of 4 dot 3.
+
+Now 4 dot 3 was origin-ally
+just for developer's--after all.
+But market gurus, thought
+"What the who?", 
+(they didn't get that at all!)
+"We can ship twice as much!",
+they thought in a rush,
+"We can double our output, and then",
+"we can ship 4 dot 4, without too much more!"
+And then the real madness began.
+
+For 4 dot 3, 'twas never to be,
+for once they set out on this road,
+they began to realize,
+(to no one's surprise,)
+That the numbers could be overrode!
+
+"'5 oh' sounds much better", 
+they said to each other
+"Or perhaps, 'Two Thousand and Ten'"
+"Bigger!", they cried, so then 'twas decide--
+"Release Infinity dot 10!"
+
+--Woof!

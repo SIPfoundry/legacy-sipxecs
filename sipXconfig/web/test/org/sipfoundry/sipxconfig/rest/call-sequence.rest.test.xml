@@ -1,0 +1,35 @@
+<call-sequence>
+  <rings>
+    <ring>
+      <expiration>25</expiration>
+      <type>If no response</type>
+      <enabled>true</enabled>
+      <number>200</number>
+    </ring>
+    <ring>
+      <expiration>26</expiration>
+      <type>At the same time</type>
+      <enabled>true</enabled>
+      <number>201</number>
+    </ring>
+    <ring>
+      <expiration>27</expiration>
+      <type>If no response</type>
+      <enabled>true</enabled>
+      <number>202</number>
+    </ring>
+    <ring>
+      <expiration>28</expiration>
+      <type>At the same time</type>
+      <enabled>true</enabled>
+      <number>203</number>
+    </ring>
+    <ring>
+      <expiration>29</expiration>
+      <type>If no response</type>
+      <enabled>true</enabled>
+      <number>204</number>
+    </ring>
+  </rings>
+  <withVoicemail>false</withVoicemail>
+</call-sequence>

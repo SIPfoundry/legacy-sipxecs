@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<routes xmlns="http://www.sipfoundry.org/sipX/schema/xml/forwardingrules-00-00">
+
+  <route mappingType="local">
+
+    <description>
+      Matches the SIPXCHANGE_DOMAIN_NAME (and all aliases for it).
+      Routes SUBSCRIBE for message waiting indication to the status server.
+      Routes SUBSCRIBE for "reg" events to the reg event server.
+      All other requests go to the SIP registry/redirect service.
+    </description>
+
+
+    <routeFrom>${SIPXCHANGE_DOMAIN_NAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+
+    <routeFrom>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+
+    <routeFrom>${MY_FULL_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+
+    <routeFrom>${MY_HOSTNAME}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+
+    <routeFrom>${INTEROP_ALIAS_UDP}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+    <routeFrom>${INTEROP_ALIAS_TCP}:${PROXY_SERVER_SIP_PORT}</routeFrom>
+
+    <methodMatch>
+      <description>
+        Message waiting indication subscriptions go to the status server.
+	"reg" event subscriptions go to the reg event server.
+        All other SUBSCRIBE requests go to the SIP registry service.
+      </description>
+
+      <methodPattern>SUBSCRIBE</methodPattern>
+
+      <fieldMatch fieldName="Event">
+        <fieldPattern>message-summary.*</fieldPattern>
+        <routeTo>&lt;${STATUS_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
+      </fieldMatch>
+
+      <fieldMatch fieldName="Event">
+        <fieldPattern>reg</fieldPattern>
+        <routeTo>&lt;${REGISTRAR_REG_EVENT_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
+      </fieldMatch>
+
+      <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
+
+    </methodMatch>
+    <routeTo>&lt;${REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT};transport=tcp&gt;</routeTo>
+
+  </route>
+
+</routes>

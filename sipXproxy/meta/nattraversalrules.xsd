@@ -1,0 +1,365 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX nattraversalrules
+  -->
+<schema
+    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/nattraversalrules-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/nattraversalrules-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+  <annotation>
+    <documentation>
+      Settings that are used by the sipXecs NAT Traversal Feature
+    </documentation>
+    <documentation source='http://scm.sipfoundry.org/rep/sipX/main/sipXproxy/doc/nattraversalrules.xml'/>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='nattraversal'>
+    <annotation>
+      <documentation>
+        Contains information related to the NAT traversal feature 
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:info' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:localtopology' minOccurs='1' maxOccurs='1'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='info'>
+    <annotation>
+      <documentation>
+        Contains information about the state of the NAT traversal feature 
+      </documentation>
+    </annotation>
+    <complexType>
+      <all>
+        <element ref='dmp:state' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:behindnat' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:useSTUN' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:stun-server-address' minOccurs='0' maxOccurs='1'/>
+        <element ref='dmp:rediscovery-time' minOccurs='0' maxOccurs='1'/>        
+        <element ref='dmp:publicaddress' minOccurs='0' maxOccurs='1'/>
+        <element ref='dmp:proxyhostport' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:relayaggressiveness' minOccurs='1' maxOccurs='1'/>        
+        <element ref='dmp:concurrentrelays' minOccurs='1' maxOccurs='1'/>        
+        <element ref='dmp:mediarelayexternaladdress' minOccurs='0' maxOccurs='1'/>        
+        <element ref='dmp:mediarelaynativeaddress' minOccurs='0' maxOccurs='1'/>        
+        <element ref='dmp:mediarelayxml-rpc-port' minOccurs='1' maxOccurs='1'/>        
+        <element ref='dmp:publicport' minOccurs='0' maxOccurs='1'/>        
+        <element ref='dmp:port-range' minOccurs='1' maxOccurs='1'/>        
+        <element ref='dmp:log-level' minOccurs='0' maxOccurs='1'/>        
+        <element ref='dmp:log-directory' minOccurs='0' maxOccurs='1'/>           
+        <element ref='dmp:secureXMLRPC' minOccurs='0' maxOccurs='1'/>       
+        <element ref='dmp:sipx-supervisor-host' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:sipx-supervisor-xml-rpc-port' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:rejectStrayPackets' minOccurs='0' maxOccurs='1'/>
+      </all>
+    </complexType>
+  </element>
+  
+  <element name='state'>
+    <annotation>
+      <documentation>
+        State of the NAT traversal feature.  
+        'enabled' indicates that the feature is active.
+        'disabled' indicates that the feature is not active.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+         <pattern value="enabled|disabled" />
+      </restriction>
+    </simpleType>
+  </element>
+  
+  <element name='behindnat' type="boolean">
+    <annotation>
+      <documentation>
+        Indicates whether or not sipXecs is located behind a NAT.  
+      </documentation>
+    </annotation>
+  </element>
+  
+  <element name='useSTUN' type="boolean">
+    <annotation>
+      <documentation>
+        Indicates whether or not rely on STUN server to determine sipXecs's public IP address  
+      </documentation>
+    </annotation>
+  </element>
+  
+  <element name='stun-server-address'>
+    <annotation>
+      <documentation>
+        IP address of hostname of STUN server to use.  
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+      </restriction>
+    </simpleType>
+  </element>  
+
+  <element name='publicaddress'>
+    <annotation>
+      <documentation>
+        Address of sipXecs as it appears on the public side of the NAT that 
+        sipXecs is behind.  This parameter can be omitted if 'behindnat' element
+        is false.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+        <pattern value="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='rediscovery-time'>
+    <annotation>
+      <documentation>
+        Time interval in seconds between STUN requests
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='1'/>
+        <maxInclusive value='2147483647'/>
+      </restriction>
+    </simpleType>
+  </element>
+  
+  <element name='concurrentrelays'>
+    <annotation>
+      <documentation>
+        Maximum number of concurrent media relays that can be utilized at once.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='1'/>
+        <maxInclusive value='10000'/>
+      </restriction>
+    </simpleType>
+  </element>
+  
+  <element name='relayaggressiveness'>
+    <annotation>
+      <documentation>
+        When set to 'Aggressive', a media relay will be used between two Remote NATed endpoints that 
+        have the same public IP address.  When set to 'Conservative', the media between two such
+        endpoints will be sent point-to-point.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+         <pattern value="Aggressive|Conservative" />
+      </restriction>
+    </simpleType>
+  </element>
+  
+  <element name='proxyhostport'>
+    <annotation>
+      <documentation>
+        Address and port of the sipXproxy
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+        <pattern value="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{4,5}" />
+      </restriction>
+    </simpleType>
+  </element>
+ 
+  <element name='mediarelayexternaladdress'>
+    <annotation>
+      <documentation>
+        Public address of the Media Relay.  If not present and 'Use STUN' is enabled, that 
+        address will be determined via STUN.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+        <pattern value="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" />
+      </restriction>
+    </simpleType>
+  </element>
+  
+  <element name='mediarelaynativeaddress'>
+    <annotation>
+      <documentation>
+        Private address of the Media Relay.  
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+        <pattern value="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='mediarelayxml-rpc-port'>
+    <annotation>
+      <documentation>
+        Port to use to communicate with Media Relay over XML-RPC
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='1024'/>
+        <maxInclusive value='65535'/>
+      </restriction>
+    </simpleType>
+  </element>
+  
+  <element name='publicport'>
+    <annotation>
+      <documentation>
+        Port of sipXecs as it appears on the public side of the NAT that 
+        sipXecs is behind.  This parameter can be omitted if 'behindnat' element
+        is false.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='1024'/>
+        <maxInclusive value='65535'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='port-range'>
+    <annotation>
+      <documentation>
+        Range of ports utilized by the Media Relay  
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+        <pattern value="[0-9]{4,5}:[0-9]{4,5}" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='log-level'>
+    <annotation>
+      <documentation>
+        Logging level for sipXrelay
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+         <pattern value="DEBUG|INFO|NOTICE|WARNING|ERR|CRIT|ALERT|EMERG" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='log-directory'>
+    <annotation>
+      <documentation>
+        Logging directory for sipXrelay
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='secureXMLRPC' type="boolean">
+    <annotation>
+      <documentation>
+        When true, XMLRPC is exchnaged over HTTPS, otherwise HTTP is used.  
+        If absent, HTTPS is assumed.  
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='sipx-supervisor-host'>
+    <annotation>
+      <documentation>
+        FQDN of the server
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='sipx-supervisor-xml-rpc-port'>
+    <annotation>
+      <documentation>
+        Port to use to communicate with sipxsupvervisor over XML-RPC
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='1024'/>
+        <maxInclusive value='65535'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='rejectStrayPackets' type="boolean">
+    <annotation>
+      <documentation>
+        When set to TRUE ( default ), packets not originating from where
+        the relay expects send packets are are rejected otherwise stray
+        packets are relayed.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='localtopology'>
+    <annotation>
+      <documentation>
+        Contains information that describes local subnets 
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence minOccurs='0' maxOccurs='unbounded'>
+        <choice>
+	  <element ref='dmp:ipV4subnet'/>
+	  <element ref='dmp:dnsWildcard'/>
+        </choice>
+      </sequence>
+    </complexType>
+  </element>
+  
+  <element name='ipV4subnet'>
+    <annotation>
+      <documentation>
+        A series of IPv4 address decimal octet values separated by dots (.), 
+        followed by a forward slash (/) and a decimal number of bits to 
+        be used as a subnet mask value.  
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+        <pattern value="[0-9]{1,3}(\.[0-9]{1,3}){0,3}/[0-9]{1,2}" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='dnsWildcard'>
+    <annotation>
+      <documentation>
+        A DNS name whose leftmost label is '*'.
+        The asterisk ('*') in the pattern matches any sequence of dns name tokens
+        and dots.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+         <pattern value="\*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*[a-zA-Z0-9]*)*" />
+      </restriction>
+    </simpleType>
+  </element>
+</schema>
+

@@ -1,0 +1,70 @@
+#@BASH@
+
+#Declare script variables
+: ${Psql:=psql}
+: ${PgUser:=@POSTGRESQL_USER@}
+: ${ConfDir:=@SIPX_CONFDIR@}
+: ${DbVersion:=2}
+: ${DbPatchDir:=${ConfDir}/report}
+: ${DbPatchLog:=${LogDir}/sipacdreportpatch.log}
+
+Database=SIPXACD_HISTORY
+
+#Creates database if not found
+@bindir@/sipxconfig-report --setup
+
+# How to add a database patch:
+#
+# Add a file containing SQL statements in the sipXproxy/etc/database directory.
+# Be sure to add the file to the sql_schemas list in Makefile.am and to the %files
+# section in sipxproxy.spec.in
+#
+# Define an upgrade path - put the file name (without extension .sql) in one or
+# more of the upgrade lists below.
+
+# special patch that upgrades DB version to the latest version - only use once
+VersionPatch="upgrade_version"
+
+PsqlCmd="${Psql} --quiet --tuples-only --no-align --username ${PgUser} --dbname ${Database}"
+
+UpgradePatches2=""
+UpgradePatches1="location_fqdn $VersionPatch"
+Today=`date`
+
+# Apply database patches
+databasePatch() {
+    version=`${PsqlCmd} -c "select max(version) from version_history"`
+    UpgradePatches=$(eval "echo \$$(echo UpgradePatches${version})")
+    if [ -n "${UpgradePatches}" ]; then
+        echo "${Today}" >> ${DbPatchLog}
+	echo "Patch list: ${UpgradePatches}" >> ${DbPatchLog}
+        for patch in $UpgradePatches; do
+            if [ ${patch} = ${VersionPatch} ]; then
+                echo "Upgrading DB schema version to ${DbVersion}" >> ${DbPatchLog}
+		${PsqlCmd} -c "insert into version_history values ('${DbVersion}', '${Today}')" >>${DbPatchLog} 2>&1
+            elif [ -f ${DbPatchDir}/${patch}.sql ]; then
+                # Apply patch only if not found in the patch list
+                if ! ${PsqlCmd} -c "select name from patch where name = '${patch}'" | grep ${patch} >>${DbPatchLog} 2>&1; then
+                   echo "Applying patch ${DbPatchDir}/${patch}.sql" >> ${DbPatchLog}
+                   ${PsqlCmd} -f ${DbPatchDir}/${patch}.sql >>${DbPatchLog} 2>&1
+                   ${PsqlCmd} -c "insert into patch values ('${patch}')" >>${DbPatchLog} 2>&1
+                fi
+            else
+                echo "Error: Database patch file ${patch}.sql not found." >> ${DbPatchLog}
+            fi
+        done
+    fi
+}
+
+# Apply initial patch adding version_history table if needed
+initialPatch() {
+    table="version_history"
+    query="select tablename from pg_tables where schemaname='public' AND tablename = '${table}'"
+    if ! ${PsqlCmd} -c "${query}" | grep ${table} >>${DbPatchLog} 2>&1; then
+        echo "Applying ${DbPatchDir}/enable_upgrades.sql patch." >>  ${DbPatchLog}
+        ${PsqlCmd} -f ${DbPatchDir}/enable_upgrades.sql >>${DbPatchLog} 2>&1
+    fi
+}
+
+initialPatch
+databasePatch

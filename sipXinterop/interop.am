@@ -1,0 +1,9 @@
+# To be included by other makefiles in this tree
+
+INTEROP_SUBSTITUTE = \
+   $(LocalizeSipXconfig) \
+      -e "s,@SIPX_INTEROP\@,@SIPX_DATADIR@/interop"',g' \
+      -e 's,@APACHE2_MOD\@,@APACHE2_MOD@,g' \
+      -e 's,@HTTP_ROOTDIR\@,@wwwdir@/doc,g' \
+      -e 's,@INTEROP_DEFAULT_SERIAL_EXPIRES\@,5,g'
+

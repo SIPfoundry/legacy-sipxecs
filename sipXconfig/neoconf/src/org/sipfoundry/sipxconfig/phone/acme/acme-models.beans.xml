@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <!-- Link to this file will be displayed in UI -->
+  <bean name="acmeNtp" class="org.sipfoundry.sipxconfig.device.Resource">
+    <constructor-arg value="NTP Configuration" />
+    <constructor-arg value="/etc/ntp.conf" />
+  </bean>
+
+  <bean id="acmePhoneStandard" class="org.sipfoundry.sipxconfig.phone.PhoneModel"
+    parent="abstractPhoneModel">
+    <property name="beanId" value="acmePhone" />
+    <property name="label" value="Acme" />
+    <property name="maxLineCount" value="3" />
+    <property name="profileTemplate" value="acmePhone/config.vm" />
+    <property name="resources">
+      <list>
+        <ref bean="acmeNtp" />
+      </list>
+    </property>
+    <property name="versions">
+      <list>
+        <bean id="org.sipfoundry.sipxconfig.phone.acme.AcmePhone.VERSION1"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+        <bean id="org.sipfoundry.sipxconfig.phone.acme.AcmePhone.VERSION2"
+          class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="acmePhone" class="org.sipfoundry.sipxconfig.phone.acme.AcmePhone"
+    scope="prototype" parent="abstractPhone">
+  </bean>
+</beans>

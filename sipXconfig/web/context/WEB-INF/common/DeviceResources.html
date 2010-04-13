@@ -1,0 +1,15 @@
+<div class="help" jwcid="@If" condition="ognl:render">
+  <b><span key="msg.resources">Device resources</span></b>
+  <ul>
+    <li jwcid="@For"
+      source="ognl:deviceDescriptor.resources"
+      value="ognl:resource">
+      <a jwcid="@common/DownloadLink"
+      	fileName="ognl:resource.fileName"
+        dirName="ognl:resource.dirName"
+        contentType="ognl:resource.mimeType">
+        <span jwcid="@Insert" value="ognl:resource.name"/>
+      </a>
+    </li>
+  </ul>
+</div>

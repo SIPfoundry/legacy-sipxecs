@@ -1,0 +1,42 @@
+<html jwcid="@Shell"
+  stylesheets="ognl:tapestry.getStylesheets(#this)"
+  title="message:product.name">
+<link jwcid="@Relation" type="image/x-icon" rel="shortcut icon" href="/sipxconfig/skin/favicon.ico" />
+<body jwcid="@Body" id="loginPage">
+  <div id="login-content">
+		<div id="loginFormSectionBox">
+			<div id="loginFormTopSection"></div>
+				<div id="login-form">
+					<div id="login-logo">&nbsp;</div>
+					<div id="login-title">
+						<span jwcid="@If" condition="ognl:!supportedBrowser">
+							<div class="user-error">
+								<span jwcid="@Insert" value="ognl:messages.getMessage('browser.unsupported')" raw="true" />
+							</div>
+						</span>
+						<span key="login.title">Welcome</span>
+					</div>
+					<form method="post" action="/sipxconfig/j_acegi_security_check" >
+						<fieldset id="loginForm">
+							<span key="login.prompt">Please login</span><br/><br/>
+
+							<label class="settingLabel" for="j_username"><span key="label.userName">User ID</span></label><br/>
+							<input type="text" name="j_username" value="" id="j_username" /><br/>
+
+							<label class="settingLabel" for="j_password"><span key="label.password">PIN</span></label><br/>
+							<input type="password" name="j_password" value="" id="j_password" />
+						</fieldset>
+						<ul class="form-actions">
+							<li><input jwcid="@Any" type="submit" value="message:button.submit" id="login:submit" /></li>
+						</ul>
+					</form>
+				</div>
+				<div id="login-errors">
+					<span jwcid="@common/ErrorMsg" />
+				</div>
+			<div id="loginFormBottomSection"></div>
+		</div>
+  </div>
+
+</body>
+</html>

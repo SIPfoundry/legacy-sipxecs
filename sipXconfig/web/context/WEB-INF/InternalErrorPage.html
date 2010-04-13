@@ -1,0 +1,16 @@
+<html jwcid="shell">
+  <body jwcid="@Body">
+    <div id="banner">
+      <span class="hide" key="title">sipXconfig</span>
+    </div>
+    <span class="user-error">
+      <p/>
+      <p>An internal error has occurred. Click <a jwcid="restart">here</a> to continue.</p>
+    </span>
+    <div jwcid="@Any" id="exceptionDisplay" class="ognl:coreContext.debug ? '' : 'hide'">
+      <span jwcid="@ExceptionDisplay" exceptions="ognl:exceptions"/>
+      <p/>
+      <span jwcid="@RequestDisplay"/>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,448 @@
+body
+{
+	background:#778da5 url(/sipxconfig/images/layout/backgroundVerticalLine.png) repeat-x scroll left top;
+}
+
+a:link
+{
+	color: #000099;
+}
+
+a:visited
+{
+	color: #660099;
+}
+
+a:hover,a:active
+{
+	color: #006699;
+}
+
+h1
+{
+	color: #003333;
+}
+
+h2
+{
+	color: #003333;
+}
+
+h3
+{
+	color: #003333;
+}
+
+
+legend
+{
+	color: #000;
+}
+
+.hack
+{
+	color: #f60;
+}
+
+li div.tabLink:hover, li div.tabLink:active
+{
+	background: #e7eef8;
+}
+
+li.tab a:link,
+li.tab a:hover,
+li.tab a:visited
+{
+    color: #000000;
+}
+
+li.tab .active a:link,
+li.tab .active a:hover,
+li.tab .active a:visited
+{
+	
+	color: #000;
+	font-weight: 700;
+	text-decoration: none;
+}
+
+#voicemailFolders li.tab a:link,
+#voicemailFolders li.tab a:hover,
+#voicemailFolders li.tab a:visited
+{
+    background:url('/sipxconfig/images/folder.png') left no-repeat;	
+}
+
+#voicemailFolders li.tab .active a:link,
+#voicemailFolders li.tab .active a:hover,
+#voicemailFolders li.tab .active a:visited
+{
+    background:url('/sipxconfig/images/folder.png') left no-repeat;	
+}
+
+
+
+#banner
+{
+	color: #fff;
+}
+
+#logo, #login-logo {
+	background: url(/sipxconfig/skin/logo.png) no-repeat left;
+    	width: 15.5em;
+}
+
+#banner-links a
+{
+	color: #fff;
+}
+
+#banner-links a:hover,
+#banner-links a:active
+{
+	color: #efc300;
+}
+
+#navigation
+{
+	
+}
+
+#navigation li
+{
+	
+}
+
+#navigation li li {
+    	background: #ffffff;
+    	border-left:1px solid #bebebe;
+    	border-right:1px solid #bebebe;
+	border-top:1px solid #bebebe;
+}
+
+#navigation li li a {
+    border-bottom-color: #666666;
+    font-weight: normal;
+}
+
+#navigation a
+{
+	font-weight: bold;
+	font-family: Arial, Verdana, sans-serif;
+	color: #000000;
+}
+
+#navigation a:hover,
+#navigation a.over
+{
+	color: #003333;
+	background: #E7EEF8;
+}
+
+#navigation A.heading:hover,
+#navigation A.heading.over
+{
+	background:none;
+}
+
+#contentContainer {
+    
+}
+
+.highlight
+{
+	border-color: #699;
+}
+
+#footer
+{
+	color: #ffffff;	
+}
+
+p.message
+{
+	color: red;
+}
+
+.settingDescription
+{
+
+}
+
+table.component
+{
+	border-color: #c0c0c2;
+	background: #fff;
+}
+
+table.component thead,
+table.component tbody tr th
+{
+	color: #595a5b;
+	background: #e6e6e6 url(/sipxconfig/images/layout/tableHeaderBackground.png) repeat-x scroll left top;
+}
+
+table.component thead tr th,
+table.component tbody tr th
+{
+	border-color: #1B2B31;
+}
+
+table.component th a
+{
+	color: #595A5B;
+}
+
+table.component tfoot tr td
+{
+	background: #FFFFFF;
+	border-color: #C0C0C2;
+}
+
+tr.even, tr.even-unheard
+{
+	background: #fff;
+}
+
+tr.odd, tr.odd-unheard
+{
+	background: #fff;
+}
+
+tr.odd-unheard, tr.even-unheard
+{
+        font-weight: bold;
+}
+
+div.date
+{
+	color: #FFFFFF;
+}
+
+div.help
+{
+	color: #355563;
+}
+
+form.with-sections fieldset
+{
+	background: #FFFFCC;
+	border-color: #FFFFCC;
+}
+
+form.with-sections legend
+{
+	background: #F0E68C;
+}
+
+.cloud
+{
+}
+
+.user-error
+{
+	color: #CC3333;
+}
+
+.user-warning
+{
+	color: #BB44FF;
+}
+
+.user-success
+{
+	color: #3399FF;
+}
+
+.not-available
+{
+        border-style:dashed; 
+        border-width:1px; 
+        border-color:#777777;
+}
+
+.enabled
+{
+	color: #007733;
+}
+
+.disabled
+{
+	color: #0011cc;
+	font-style: italic;
+}
+
+#comments
+{
+	color: #000033;
+}
+
+div.autocomplete {
+  background: #fff;
+}
+
+div.autocomplete ul {
+  border:1px solid #888;
+}
+
+div.autocomplete ul li.selected {
+  background-color: #ffb;
+}
+
+div.autocomplete ul strong.highlight {
+  color: #800;
+}
+
+.inactive {
+    color: #AAA;
+}
+
+.active {
+	color: #000;
+	background:#e7eef8;
+}
+
+#searchContainer.styled {
+    background: url(/sipxconfig/skin/search.png) no-repeat left #FFF;
+    border: 1px solid #000;
+}
+
+#searchContainer.styled input {
+	border: none !important;
+}
+
+.linkHome {
+    background: url(/sipxconfig/skin/home.png) no-repeat left;
+}
+
+.linkHelp {
+    background: url(/sipxconfig/skin/help.png) no-repeat left;
+}
+
+.linkLogout {
+    background: url(/sipxconfig/skin/logout.png) no-repeat left;
+}
+
+.linkHome:hover,
+.linkHome:active {
+    background: url(/sipxconfig/skin/home-hover.png) no-repeat left;
+}
+
+.linkHelp:hover,
+.linkHelp:active {
+    background: url(/sipxconfig/skin/help-hover.png) no-repeat left;
+}
+
+.linkLogout:hover,
+.linkLogout:hover {
+    background: url(/sipxconfig/skin/logout-hover.png) no-repeat left;
+}
+
+.testDescription {
+    border-color: #000000;
+}
+
+.testDescription .tooltipTitle {
+	background: #8B5E4B;
+	color: #FFFFFF;
+	font-weight: bold;
+}
+
+.testDescription .tooltipBody {
+    background: #E0D2C8;
+    color: #000000;
+}
+
+.service-disabled {
+    font-style: italic;
+    color: #A8A8A8;
+}
+
+.service-error {
+    font-weight: bold;
+    color: #CC3333; 
+}
+
+#updateBox {
+	width: 500px;
+    border: 1px solid #243942;
+    background: #EFF3F6;
+    padding: 10px;
+}
+
+#updateBox h3 {
+    margin: 0;	
+}
+
+#updateBox #statusText {
+	font-weight: bold;
+}
+
+#updateBox #newVersion {
+    font-size: 18px;
+    font-weight: bold;
+    color: #003333;
+}
+
+.avatar img {
+	border: 5px solid  #F0F0F0;
+}
+
+
+#login-form {
+  color:#b9b9b9;
+}
+
+#login-title {
+  color: #b9b9b9;
+}
+
+#loginFormSectionBox {
+	background:#000000;	
+}
+
+.roundedSectionBoxTopLeft, 
+.roundedSectionBoxTopRight, 
+.roundedSectionBoxBottomLeft, 
+.roundedSectionBoxBottomRight,
+.roundedNavSectionBoxTopLeft, 
+.roundedNavSectionBoxTopRight, 
+.roundedNavSectionBoxBottomLeft, 
+.roundedNavSectionBoxBottomRight 
+{ 
+	background: transparent url(/sipxconfig/images/layout/roundedSectionBoxCorners.gif) no-repeat;
+}
+.roundedSectionBoxInside,
+.roundedNavSectionBoxInside
+{
+	border-left: 1px solid #bebebe;
+	border-right: 1px solid #bebebe;
+	background: #ffffff;
+	color: #000000;
+}
+
+.roundedMainSectionBoxTopLeft, 
+.roundedMainSectionBoxTopRight, 
+.roundedMainSectionBoxBottomLeft, 
+.roundedMainSectionBoxBottomRight 
+{ 
+	background: transparent url(/sipxconfig/images/layout/roundedSectionBoxCornersMain.gif) no-repeat;
+}
+.roundedMainSectionBoxInside {
+	border-left: 1px solid #bebebe;
+	border-right: 1px solid #bebebe;
+	background: #eeeeee;
+	color: #000000;
+}
+
+.roundedIndicatorSectionBoxTopLeft, 
+.roundedIndicatorSectionBoxTopRight, 
+.roundedIndicatorSectionBoxBottomLeft, 
+.roundedIndicatorSectionBoxBottomRight 
+{ 
+	background: transparent url(/sipxconfig/images/layout/roundedIndicatorSectionBoxCorners.png) no-repeat;
+}
+.roundedIndicatorSectionBoxInside {
+	color: #ffffff;
+	background: #425063 url(/sipxconfig/images/layout/roundedIndicatorSectionBoxBackground.png) repeat-x;
+}

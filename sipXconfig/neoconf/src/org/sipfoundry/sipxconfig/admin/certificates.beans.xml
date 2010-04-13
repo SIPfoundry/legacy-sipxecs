@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="certificateManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.CertificateManager</value>
+    </property>
+    <property name="target">
+      <ref local="certificateManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="certificateManagerImpl" class="org.sipfoundry.sipxconfig.admin.CertificateManagerImpl" autowire="byType">
+	<property name="binCertDirectory" value="${sysdir.bin}/ssl-cert"/>
+    <property name="certDirectory" value="${sysdir.var}/configserver/web-cert"/>
+	<property name="sslDirectory" value="${sysdir.etc}/ssl"/>
+	<property name="sslAuthDirectory" value="${sysdir.etc}/ssl/authorities"/>
+	<property name="libExecDirectory" value="${sysdir.libexec}" />
+    <property name="certdbDirectory" value="${sysdir.var}/certdb" />
+	<property name="sipxServiceManager" ref="sipxServiceManager"/>
+	<property name="processContext" ref="sipxProcessContext"/>
+	<!-- eagerly replicate certificate files -->
+	<property name="sipxReplicationContext" ref="sipxReplicationContextImpl"/>
+	<property name="locationsManager" ref="locationsManager" />
+	<property name="softwareAdminApiProvider" ref="softwareAdminApiProvider" />
+  </bean>
+</beans>

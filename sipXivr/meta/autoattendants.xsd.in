@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+	targetNamespace="http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00"
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00">
+
+	<element name="id" type="normalizedString">
+		<annotation>
+			<documentation>
+				The id of the Auto Attendant
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="name" type="normalizedString">
+		<annotation>
+			<documentation>
+				The name of the Auto Attendant
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="prompt" type="normalizedString">
+		<annotation>
+			<documentation>
+				The prompt to play on entry
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="dialPad">
+		<annotation>
+			<documentation>Digit</documentation>
+		</annotation>
+		<simpleType>
+			<restriction base="normalizedString">
+				<enumeration value="0"></enumeration>
+				<enumeration value="1"></enumeration>
+				<enumeration value="2"></enumeration>
+				<enumeration value="3"></enumeration>
+				<enumeration value="4"></enumeration>
+				<enumeration value="5"></enumeration>
+				<enumeration value="6"></enumeration>
+				<enumeration value="7"></enumeration>
+				<enumeration value="8"></enumeration>
+				<enumeration value="9"></enumeration>
+				<enumeration value="*"></enumeration>
+				<enumeration value="#"></enumeration>
+			</restriction>
+		</simpleType>
+	</element>
+
+
+	<element name="action">
+		<annotation>
+			<documentation>Actons</documentation>
+		</annotation>
+		<simpleType>
+			<restriction base="normalizedString">
+				<enumeration value="dial_by_name"></enumeration>
+				<enumeration value="disconnect"></enumeration>
+				<enumeration value="operator"></enumeration>
+				<enumeration value="repeat_prompt"></enumeration>
+				<enumeration value="transfer_to_another_aa_menu"></enumeration>
+				<enumeration value="transfer_out"></enumeration>
+				<enumeration value="voicemail_access"></enumeration>
+				<enumeration value="voicemail_deposit"></enumeration>
+			</restriction>
+		</simpleType>
+	</element>
+
+	<element name="initialTimeout" type="int">
+		<annotation>
+			<documentation>
+				Time to wait (in mS) for the first digit to be
+				pressed.
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="interDigitTimeout" type="int">
+		<annotation>
+			<documentation>
+				Time to wait (in mS) for next digit to be
+				pressed.
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="extraDigitTimeout" type="int">
+		<annotation>
+			<documentation>
+				Time to wait (in mS) for the "return" digit
+				to be pressed.
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="maximumDigits" type="int">
+		<annotation>
+			<documentation>
+				Maximum number of digits to accept.
+				to be pressed
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="noInputCount" type="int">
+		<annotation>
+			<documentation>
+				Keep prompting this many times if no input
+				(digits) is detected
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="invalidResponseCount" type="int">
+		<annotation>
+			<documentation>
+				Keep prompting this many times if unmapped
+				digits are detected
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="transferOnFailures" type="boolean">
+		<annotation>
+			<documentation>
+				If true, instead of hanging up on failure
+				transfer the call to the "transferUrl" destination.
+			</documentation>
+		</annotation>
+	</element>
+	
+	<element name="transferUrl" type="normalizedString">
+		<annotation>
+			<documentation>
+				SIP URL to send the call on failures
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="transferPrompt" type="normalizedString">
+		<annotation>
+			<documentation>
+				Prompt to play before transfer on failure
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="date" type="normalizedString"></element>
+	<element name="from" type="normalizedString"></element>
+	<element name="to" type="normalizedString"></element>
+	<element name="extension" type="normalizedString"></element>
+	<element name="parameter" type="normalizedString"></element>
+
+	<element name="menuItem">
+		<complexType>
+			<sequence>
+                <element ref="tns:dialPad" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:action" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:extension" maxOccurs="1" minOccurs="0">
+				</element>
+                <element ref="tns:parameter" maxOccurs="1" minOccurs="0">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="dtmf">
+		<complexType>
+			<sequence>
+                <element ref="tns:initialTimeout" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:interDigitTimeout" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:extraDigitTimeout" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:maximumDigits" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="invalidResponse">
+		<complexType>
+			<sequence>
+                <element ref="tns:noInputCount" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:invalidResponseCount" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:transferOnFailures" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:transferUrl" maxOccurs="1" minOccurs="0">
+				</element>
+                <element ref="tns:transferPrompt" maxOccurs="1" minOccurs="0">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="holiday">
+		<complexType>
+			<sequence>
+                <element ref="tns:id" maxOccurs="1" minOccurs="0">
+				</element>
+                <element ref="tns:date" maxOccurs="unbounded" minOccurs="0">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="monday">
+		<complexType>
+			<sequence>
+                <element ref="tns:from" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:to" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="tuesday">
+		<complexType>
+			<sequence>
+                <element ref="tns:from" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:to" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="wednesday">
+		<complexType>
+			<sequence>
+                <element ref="tns:from" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:to" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="thursday">
+		<complexType>
+			<sequence>
+                <element ref="tns:from" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:to" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="friday">
+		<complexType>
+			<sequence>
+                <element ref="tns:from" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:to" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="saturday">
+		<complexType>
+			<sequence>
+                <element ref="tns:from" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:to" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="sunday">
+		<complexType>
+			<sequence>
+                <element ref="tns:from" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:to" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="menuItems">
+		<complexType>
+			<sequence>
+                <element ref="tns:menuItem" maxOccurs="unbounded" minOccurs="0">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="autoattendant">
+
+		<complexType>
+			<sequence>
+                <element ref="tns:name" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:prompt" maxOccurs="1" minOccurs="0">
+				</element>
+                <element ref="tns:menuItems" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:dtmf" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:invalidResponse" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+                        <attribute name="id" type="string" use="required"/>
+                        <attribute name="special" type="boolean" use="optional" default="false"/>
+		</complexType>
+	</element>
+
+	<element name="schedule">
+		<complexType>
+			<sequence>
+                <element ref="tns:holiday" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:regularhours" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:afterhours" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+                        <attribute name="id" type="string" use="required"/>
+		</complexType>
+	</element>
+
+	<element name="schedules">
+		<complexType>
+			<sequence>
+                <element ref="tns:schedule" maxOccurs="unbounded" minOccurs="0">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="autoattendants">
+		<complexType>
+			<sequence>
+				<element ref="tns:autoattendant" maxOccurs="unbounded"
+					minOccurs="0">
+				</element>
+				<element ref="tns:schedules" maxOccurs="1"
+					minOccurs="1">
+				</element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="regularhours">
+		<complexType>
+			<sequence>
+				<element ref="tns:id" maxOccurs="1" minOccurs="0"></element>
+				<element ref="tns:monday" maxOccurs="1" minOccurs="0"></element>
+				<element ref="tns:tuesday" maxOccurs="1" minOccurs="0"></element>
+				<element ref="tns:wednesday" maxOccurs="1" minOccurs="0"></element>
+				<element ref="tns:thursday" maxOccurs="1" minOccurs="0"></element>
+				<element ref="tns:friday" maxOccurs="1" minOccurs="0"></element>
+				<element ref="tns:saturday" maxOccurs="1" minOccurs="0"></element>
+				<element ref="tns:sunday" maxOccurs="1" minOccurs="0"></element>
+			</sequence>
+		</complexType>
+	</element>
+
+	<element name="afterhours">
+		<complexType>
+			<sequence>
+				<element ref="tns:id" maxOccurs="1" minOccurs="0"></element>
+			</sequence>
+		</complexType>
+	</element>
+</schema>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="testPhoneModel" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.TestPhoneModel">
+    <property name="label" value="Test Phone" />
+  </bean>
+
+  <bean id="testPhone" class="org.sipfoundry.sipxconfig.phone.TestPhone" singleton="false" parent="abstractPhone" />
+</beans>

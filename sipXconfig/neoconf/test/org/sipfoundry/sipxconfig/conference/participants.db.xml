@@ -1,0 +1,27 @@
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <location location_id="1000" name="b1 server" fqdn="host.example.com" primary_location="false" use_stun="false"
+    public_port="5060" registered="true" start_rtp_port="30000" stop_rtp_port="31000" stun_interval="60" />
+  <location location_id="1001" name="b2 server" fqdn="host2.example.com" primary_location="false" use_stun="false"
+    public_port="5060" registered="true" start_rtp_port="30000" stop_rtp_port="31000" stun_interval="60" />
+
+  <location_specific_service location_specific_service_id="1" location_id="1000"
+    sipx_service_id="15" enable_on_next_upgrade="true" />
+
+  <location_specific_service location_specific_service_id="2" location_id="1001"
+    sipx_service_id="15" enable_on_next_upgrade="true" />
+
+  <meetme_bridge meetme_bridge_id="2005" location_specific_service_id="1" />
+  <meetme_bridge meetme_bridge_id="2006" location_specific_service_id="2" />
+
+  <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3001" name="conf_name_3001"
+    description="conf_desc_3001" extension="1699" owner_id="1002" enabled="0" />
+  <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3002" name="conf_name_3002"
+    description="conf_desc_3002" extension="1700" owner_id="1002" enabled="0" />
+  <meetme_conference meetme_bridge_id="2006" meetme_conference_id="3003" name="conf_name_3003"
+    description="conf_desc_3003" extension="1701" owner_id="1002" enabled="0" />
+  <meetme_conference meetme_bridge_id="2006" meetme_conference_id="3004" name="conference_name_3004"
+    description="conf_desc_3003" extension="1703" owner_id="1003" enabled="0" />
+  <meetme_conference meetme_bridge_id="2006" meetme_conference_id="3005" name="conference_no_owner"
+    description="conf_desc_3005" extension="1704" enabled="0" />
+</dataset>

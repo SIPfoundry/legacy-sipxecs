@@ -1,0 +1,186 @@
+<?xml version="1.0"?>
+
+<project name="sipxcallcontroller" default="jar" basedir=".">
+<description>
+      Build file
+</description>
+
+
+	<!--
+
+
+	  Command                   Description
+	  ================================================================
+        ant            compile   compile
+	ant 	       clean     clean the classes,javadocs and logs
+	ant            sipxcallcontroller  run the sipxcallcontroller with default args.
+	-->
+
+
+
+
+  	<import file="ant-targets.xml"/>
+  	<property name="dist.dir" value="${top.build.dir}/dist" />
+  	<property name="test.results.dir" value="${build.dir}/test-results" />
+  	<property name="test.classes.dir" value="${build.dir}/tests"/>
+	<property name="src" location="${src.dir}/src/main/java" />
+	<property name="classes" location="${classes.dir}" />
+	<property name="doc" location="${src.dir}/doc" />
+	<property name="lib" location="${src.dir}/lib" />
+	<property name="tools" location="${src.dir}/tools" />
+	<property name="junit.reports" value="${src.dir}/junit" />
+	<property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
+
+<!-- The libraries -->
+	<path id="test.path">
+		<pathelement location="${classes}" />
+		<pathelement location="${sipxcommons}" />
+		<pathelement location="${sipxrest}" />
+		<pathelement location="${log4j}" />
+		<pathelement location="${jainsip}" />
+		<pathelement location="${junit}" />
+		<pathelement location="${servlet-jar}" />
+		<pathelement location="${jetty-jar}" />
+		<pathelement location="${dnsjava}" />
+		<pathelement location="${commons-logging-api}" />
+		<pathelement location="${commons-logging}" />
+		<pathelement location="${commons-digester}" />
+		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${commons-codec}" />
+                <pathelement location="${noelios-restlet-ext-servlet}" />
+                <pathelement location="${noelios-restlet}" />
+                <pathelement location="${restlet}" />
+	</path>
+
+	<path id="base.path">
+		<pathelement location="${classes}" />
+		<pathelement location="${sipxcommons}" />
+		<pathelement location="${sipxrest}" />
+		<pathelement location="${log4j}" />
+		<pathelement location="${jainsip}" />
+		<pathelement location="${servlet-jar}" />
+		<pathelement location="${jetty-jar}" />
+		<pathelement location="${dnsjava}" />
+		<pathelement location="${commons-logging-api}" />
+		<pathelement location="${commons-logging}" />
+		<pathelement location="${commons-digester}" />
+		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${commons-codec}" />
+		<pathelement location="${ws-commons-util}" />
+                <pathelement location="${noelios-restlet-ext-servlet}" />
+                <pathelement location="${noelios-restlet}" />
+                <pathelement location="${restlet}" />
+	</path>
+ 	<patternset id="test.classes">
+	</patternset>
+
+ 	<patternset id="regression.classes">
+	</patternset>
+
+  	<!--
+    	- I N I T
+    	- Create output directories.
+    	-->
+  	<target name="init" unless="subdirs"
+    		description="[internal] create standard output directories">
+
+    		<echo>entering ${ant.project.name}</echo>
+    		<mkdir dir="${classes.dir}" />
+    		<mkdir dir="${dist.dir}" />
+    		<mkdir dir="${test.results.dir}"/>
+    		<mkdir dir="${test.classes.dir}"/>
+  	</target>
+
+	 <target name="version.properties"
+    			description="[internal] Generats a properies file w/versioning info">
+
+    		<propertyfile file="${version.file}" comment="xpressa build" >
+        		<entry  key="version"       value="${xpressa.version}" />
+        		<entry  key="buildNumber"   value="${xpressa.build.number}" />
+        		<entry  key="built"         value="now"
+                		type="date"         pattern="MMM dd yyyy HH:mm:ss" />
+       			<entry  key="optionalComment"  value="${xpressa.build.comment}" />
+    		</propertyfile>
+  	</target>
+
+
+<!-- Compile the soruce code -->
+
+	<target name="compile.test"  description="compile the source and tests ">
+		<!-- Compile the java code from ${src} into ${classes} -->
+		<echo>Nothing to do yet!</echo>
+		<!--
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src}"
+			destdir="${classes}"
+			debug="${javac.debug}"
+			optimize= "${javac.optimize}"
+			debuglevel = "${javac.debuglevel}"
+		 	classpathref="test.path" deprecation="off" />
+			<assertions>
+				<enable />
+			</assertions>
+		-->
+	</target>
+
+	<target name="compile-exclude-tests"  description="compile the source no tests">
+		<!-- Compile the java code from ${src} into ${classes} -->
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src.dir}/src/main/java"
+			destdir="${classes}"
+			debug="${javac.debug}"
+			optimize= "${javac.optimize}"
+			debuglevel = "${javac.debuglevel}"
+		 	classpathref="base.path" deprecation="off" />
+			<assertions>
+				<enable />
+			</assertions>
+	</target>
+
+<!-- BUILD a Jar file -->
+	<target name="jar" depends="compile-exclude-tests" description="create a jar file" >
+		<mkdir dir="${build.dir}/dist" />
+		<copy file="${build.dir}/config.properties" todir="${classes}" />
+		<jar jarfile="${build.dir}/dist/sipXcallController.jar">
+			<fileset dir="${classes}" >
+				<include name="**/*.class" />
+				<include name="config.properties" />
+			</fileset>
+			<fileset dir="${src.dir}" >
+				<include name="plugin.xml" />
+			</fileset>
+		</jar>
+	</target>
+
+     <target name="install">
+    	<mkdir dir="${dest.dir}${sipxrest.dir}/plugins"/>
+    	<copy file="${build.dir}/dist/sipXcallController.jar" todir="${dest.dir}${sipxrest.dir}/plugins"/>
+    </target>
+
+
+<!-- unit tests  -->
+
+<!-- Delete existing directories to ensure removal of old classes -->
+<target name="clean" description="clean up previous build" >
+	<delete dir="${classes}" />
+	<delete dir="${doc}/javadoc" />
+</target>
+
+<!-- Start call controller from ant.  for experimental purposes only. WARNING cleans logs  -->
+<target name="sipxcallcontroller" description="Start sipXcallController" depends="clean,compile" >
+     <java fork="yes" classname="org.sipfoundry.callcontroller.CallController">
+           <classpath>
+		  <pathelement location="${classes}" />
+                  <fileset dir="./lib">
+                         <include name="**/*.jar" />
+                  </fileset>
+           </classpath>
+           <jvmarg value="-Dconf.dir=/usr/local/sipx/etc/sipxpbx"/>
+     </java>
+</target>
+
+
+
+</project>

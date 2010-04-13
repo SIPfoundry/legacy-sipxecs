@@ -1,0 +1,152 @@
+
+Method: configurationParameter.version
+   Inputs:
+    string    dbName           Name of the database.
+    Outputs:
+    string    version_id       The version identifier.
+
+    This method should be called by a configuration application to
+    confirm that it is using a compatible definition of the database
+    definition.  If the returned version_id does not match what the
+    configuration application expects, it should not modify the configuration..
+
+
+Method: configurationParameter.get
+
+  Parameters  Type      Name             Description
+  Inputs:
+              string    db_name          configuration data set name
+              array
+                string  parameter-name   name of parameter to return
+  Outputs:
+              struct
+                string  parameter-name   parameter value
+
+  Returns a struct containing the name and value for each parameter in the input array
+  of parameter names.
+
+  If any parameter in the set is undefined, a PARAMETER_UNDEFINED fault is returned.
+
+  To get all the parameters in the database, call this method with just the db_name.
+  When called with just the db_name, if the dataset is empty (there are no parameters
+  defined), a DATASET_EMPTY fault is returned.
+
+  <!-- Example call to configurationParameter.get with parameter list -->
+  <?xml version="1.0"?>
+  <methodCall>
+    <methodName>configurationParameter.get</methodName>
+    <params>
+      <param>
+        <value><string>registrar-config</string></value> <!-- dbname -->
+      </param>
+      <param>
+        <value> <!-- list of parameter names -->
+          <array>
+            <data>
+              <value><string>SIP_REGISTRAR_TCP_PORT</string></value>
+              <value><string>SIP_REGISTRAR_DOMAIN_NAME</string></value>
+            </data>
+          </array>
+        </value>
+      </param>
+    </params>
+  </methodCall>
+
+  <!-- Example response to configurationParameter.get with parameter list -->
+  <?xml version="1.0"?>
+  <methodResponse>
+    <params>
+      <param>
+        <value>
+          <struct> <!-- each element is a parameter name and value -->
+            <member>
+              <name>SIP_REGISTRAR_TCP_PORT</name>
+              <value><int>5070</int></value>
+            </member>
+            <member>
+              <name>SIP_REGISTRAR_DOMAIN_NAME</name>
+              <value><string>pingtel.com</string></value>
+            </member>
+          </struct>
+        </value>
+      </param>
+    </params>
+  </methodResponse>
+
+
+Method: configurationParameter.set
+
+  Parameters  Type      Name             Description
+  Inputs:
+              string    db_name          configuration data set name
+              struct
+                string  parameter-name   value
+    ...
+  Outputs:
+              integer                    number of values set
+
+  Sets each 'parameter' / 'value' pair in 'db_name'.  Either all
+  sets are made or none are made.
+
+
+  <!-- Example call to configurationParameter.set -->
+  <?xml version="1.0"?>
+  <methodCall>
+    <methodName>configurationParameter.set</methodName>
+    <params>
+      <param> <!-- dbname -->
+        <value><string>registrar-config</string></value>
+      </param>
+      <param> <!-- structure of name-value pairs -->
+        <value>
+          <struct>
+            <member>
+              <name>SIP_REGISTRAR_TCP_PORT</name>
+              <value><int>5070</int></value>
+            </member>
+            <member>
+              <name>SIP_REGISTRAR_DOMAIN_NAME</name>
+              <value><string>pingtel.com</string></value>
+            </member>
+          </struct>
+        </value>
+      </param>
+    </params>
+  </methodCall>
+
+
+
+Method: configurationParameter.delete
+
+  Parameters  Type      Name             Description
+  Inputs:
+              string    db_name          configuration data set name
+            array
+              string    parameter        parameter name (key)
+  Outputs:
+              integer                    number of values deleted
+
+  Removes 'parameter' from 'db_name'.  This causes the value of
+  'parameter' to be undefined.  It is not an error to invoke the
+  delete method on an undefined parameter.
+
+  <!-- Example call to configurationParameter.delete -->
+  <?xml version="1.0"?>
+  <methodCall>
+    <methodName>configurationParameter.delete</methodName>
+    <params>
+      <param> <!-- dbname -->
+        <value><string>registrar-config</string></value>
+      </param>
+      <param>
+        <value> <!-- list of parameter names to delete -->
+          <array>
+            <data>
+              <value><string>SIP_REGISTRAR_TCP_PORT</string></value>
+              <value><string>SIP_REGISTRAR_DOMAIN_NAME</string></value>
+            </data>
+          </array>
+        </value>
+      </param>
+    </params>
+  </methodCall>

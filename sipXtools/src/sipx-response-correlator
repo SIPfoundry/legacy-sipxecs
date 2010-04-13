@@ -1,0 +1,257 @@
+#! /usr/bin/perl
+
+# Correlate requests and responses in proxy log.
+
+# Find all incoming requests and outgoing responses that were the 1st
+# leg (direct from the phone).  Correlate request, 1st (non-100)
+# provisional response, and final response.
+
+# Get arguments.
+# --csv means to generate output in CSV format.
+# --all means to report on all transactions, not just the ones with one Via.
+# --ignore-date means to ignore the Date: header inserted by the UAC (in case
+#       it is incorrect).
+# --progress[=n] means to print # on stderr every n (default 1000) input lines
+#	processed.
+while (1) {
+    if ($ARGV[0] eq '--csv') {
+	$csv = 1;
+	shift @ARGV;
+    } elsif ($ARGV[0] eq '--all') {
+	$all_transactions = 1;
+	shift @ARGV;
+    } elsif ($ARGV[0] eq '--ignore-date') {
+	$ignore_date = 1;
+	shift @ARGV;
+    } elsif ($ARGV[0] =~ /^--progress(=(\d+))?$/) {
+	$progress = $2 || 1000;
+	shift @ARGV;
+    } elsif ($ARGV[0] eq '--') {
+	shift;
+	last;
+    } elsif ($ARGV[0] =~ /^-/) {
+	die "Unknown argument '$ARGV[0]'\n";
+    } else {
+	last;
+    }
+}
+
+$= = 1_000_000;
+
+# Do not buffer stderr.
+$oldfh = select(STDERR); $| = 1; select($oldfh);
+
+# Table to translate the alphabetic months (from RFC 3261, section
+# 25.1, production 'month') into two-digit numeric months.
+%month_translate = (
+		    'Jan', '01',
+		    'Feb', '02',
+		    'Mar', '03',
+		    'Apr', '04',
+		    'May', '05',
+		    'Jun', '06',
+		    'Jul', '07',
+		    'Aug', '08',
+		    'Sep', '09',
+		    'Oct', '10',
+		    'Nov', '11',
+		    'Dec', '12'
+		    );
+
+$first_line = 1;
+while (<>) {
+    # If this is the first line, check its format.
+    if ($first_line) {
+	$first_line = 0;
+
+	if (!/^"20\d\d-\d\d-\d\dT\d\d:\d\d:\d\d[.\d]*Z":\d+:/) {
+	    print STDERR "Are you sure this is a sipX log file?  The first line has incorrect syntax:\n";
+	    print STDERR "\t", $_;
+	}
+    }
+
+    # Handle the progress indicator.
+    $total_lines++;
+    if ($progress) {
+	print STDERR '#' if $total_lines % $progress == 0;
+    }
+
+    if (($method, $uri) = /:INCOMING:.*---- Port:[ \d]*----\\n([A-Z0-9]+) ((sips?:|UNKNOWN|tel:)[^ ]*)/) {
+	# Incoming request.
+	if ($all_transactions || !/branch=.*branch=/) {
+	    # Get the branch parameter of the first Via.
+	    ($time_log, $branch) =
+		m/^"(..........................).*?branch=([^\\;]*)/; #";
+	    $time_header = '';
+	    if (!$ignore_date) {
+		if (($date) = m/\\nDate: *([^\\]*)/i) {
+		    # The grammar for the Date header in RFC 3261 is remarkably
+		    # rigid, which is convenient for us.
+		    if (($day, $month, $year, $t) =
+			$date =~
+			m/(\d\d)\s+(\w\w\w)\s+(\d\d\d\d)\s+(\d\d:\d\d:\d\d)/) {
+			$time_header = $year . '-' . $month_translate{$month} . '-' . $day .
+			    'T' . $t;
+		    }
+		}
+	    }
+            # Mark the branch specially if this is a CANCEL.
+            $branch .= ' ' if /\\ncseq: *\d* *cancel/i;
+            $sortdate = $time_header ne '' ? $time_header : $time_log;
+	    $sortdate{$branch} = $sortdate unless defined($sortdate{$branch}) && $sortdate{$branch} lt $sortdate;
+	    if (!(defined($reqtime{$branch}) && $reqtime{$branch} lt $time_log)) {
+                if ($method eq 'SUBSCRIBE' || $method eq 'NOTIFY') {
+		    # For SUBSCRIBE or NOTIFY, use as the method "Sxx" or "Nxx",
+		    # where "xx" is the first two letters of the event-type.
+	            ($event) = m/\\nEvent: *([^\\;]*)/i;
+                    $method = substr($method, 0, 1) . substr($event . '  ', 0, 2);
+                } elsif ($method eq 'REGISTER') {
+		    # For REGISTER, use the To-URI instead of the rquest-URI,
+		    # as it includes the user-part.
+		    my ($u, $v);
+		    ($u) = m/\\nTo: *(([^\\]|\\")*)/i;
+		    ($v) = $u =~ m/<(.*)>/;
+		    $uri =
+			$v ne '' ? $v :
+			$u ne '' ? $u :
+			$uri;
+                }
+                $uri =~ s/^sips?://i;
+                $req = substr($method, 0, 3) . ' ' . $uri;
+	        $req{$branch} = $req;
+                # The request may have been seen as incoming in the log of a different process.
+		if (!(defined($reqtime{$branch}) && $reqtime{$branch} lt $time_log)) {
+	            $reqtime{$branch} = $time_log;
+                    $reqdate{$branch} = $time_header;
+                }
+            }
+	}
+    } elsif (($response) = /:OUTGOING:.*----\\nSIP\/2\.0 (\d\d\d) /) {
+	# Outgoing response.
+        # Exclude 100 responses, and ones with multiple Via's.
+	if ($response ne '100' && ($all_transactions || !/branch=.*branch=/)) {
+	    # Get the branch parameter of the first Via.
+	    ($time_log, $branch) = m/^"(..........................).*?branch=([^\\;]*)/; #";
+	    ($date) = m/\\nDate: *([^\\]*)/i;
+            # Mark the branch specially if this is a CANCEL.
+            $branch .= ' ' if /\\ncseq: *\d* *cancel/i;
+	    $sortdate{$branch} = $time_log unless defined($sortdate{$branch}) && $sortdate{$branch} lt $time_log;
+            if (substr($response, 0, 1) eq '1') {
+		# Provisional response.
+		if (!(defined($provtime{$branch}) && $provtime{$branch} lt $time_log)) {
+		    $prov{$branch} = $response;
+		    $provtime{$branch} = $time_log;
+		    $provdate{$branch} = $date;
+		}
+	    } else {
+		# Final response.
+	        if (!(defined($resptime{$branch}) && $resptime{$branch} lt $time_log)) {
+		    $resp{$branch} = $response;
+		    $resptime{$branch} = $time_log;
+		    $respdate{$branch} = $date;
+		}
+	    }
+	}
+    }
+}
+
+print STDERR "\n" if $progress;
+
+if ($csv) {
+    print "\"Branch\",\"Sort time\",\"First time\",\"Request time\",",
+          "\"Request received\",\"Provisional response\",\"Provisional sent\",",
+          "\"Final response\",\"Final sent\",",
+          "\"Method\",\"Request URI\"",
+          "\n";
+}
+foreach $branch (sort { $sortdate{$a} cmp $sortdate{$b} } keys(%sortdate)) {
+    my($i, $first_time);
+    # Get the times for the request.
+    my(@times) = ($reqdate{$branch},
+		  $reqtime{$branch},
+		  $provtime{$branch},
+		  $resptime{$branch});
+    # @print_times is global so the format can see it.
+    @print_times = ();
+    # Change all but the first into relative times, and
+    # truncate them to the final 8 characters.
+    $first_time = undef;
+    #print "A", join('|', @times), "\n";
+    for ($i = 0; $i <= $#times; $i++) {
+	if ($times[$i]) {
+	    if (defined($first_time)) {
+		$print_times[$i] =
+		    &tdiff(substr($times[$i], 11), $first_time);
+	    } else {
+		$first_time = substr($times[$i], 11);
+		$print_times[$i] = $first_time;
+	    }
+	}
+    }
+    #print "B", join('|', @times), "\n";
+    if ($csv) {
+	$method = substr($req{$branch}, 0, 3);
+	$uri = substr($req{$branch}, 4);
+	print &quote($branch), ',',
+	      &quote($sortdate{$branch}), ',',
+	      &quote($first_time), ',', &quote($times[0]), ',',
+	      &quote($times[1]), ',',
+	      &quote($prov{$branch}), ',', &quote($times[2]), ',',
+	      &quote($resp{$branch}), ',', &quote($times[3]), ',',
+	      &quote($method), ',', &quote($uri),
+	      "\n";
+    } else {
+	# Trim relatively constant parts off the beginning of the branch value.
+	$branch_print = $branch;
+	1 while $branch_print =~ s/^(z9hG4bK|-|sipXecs|sipX|XX-)//i;
+
+	# Do the formatted print.
+	write STDOUT;
+    }
+}
+
+format STDOUT_TOP =
+Branch     Request   Request   Provisional   Final         Method
+(trimmed)  sent      received      sent          sent          Req-URI sip(s):+
+
+.
+
+format STDOUT =
+@<<<<<<<<  @<<<<<<<  @<<<<<<<  @>> @<<<<<<<  @>> @<<<<<<<  @<<<<<<<<<<<<<<<<<<<<
+{ $branch_print,
+           $print_times[0],
+		     $print_times[1],
+			       $prov{$branch}, $print_times[2],
+					     $resp{$branch}, $print_times[3],
+							   $req{$branch} }
+.
+
+# Calculate the difference between two times.
+sub tdiff {
+    my($time, $base) = @_;
+
+    return '' if $time eq '';
+    return $time if $base eq '';
+    {
+	my($a, $b, $c, $time_sec, $base_sec);
+
+	($a, $b, $c) = split(/:/, $time);
+	$time_sec = 3600 * $a + 60 * $b + $c;
+	($a, $b, $c) = split(/:/, $base);
+	$base_sec = 3600 * $a + 60 * $b + $c;
+	$time_sec = $time_sec - $base_sec;
+	# If the time of day has wrapped, correct for it.
+	$time_sec += 24 * 60 * 60 if $time_sec < - 12 * 60 * 60;
+	return 
+	    $time_sec == 0 ? ' 0' :
+	    $time_sec < 0 ? $time_sec . '' :
+	    '+' . $time_sec;
+    }
+}
+
+# Quote a value to appear in a CSV file.
+sub quote {
+    my($arg) = @_;
+    $arg =~ s/"/""/g; #";
+    $arg = '"' . $arg . '"';
+}

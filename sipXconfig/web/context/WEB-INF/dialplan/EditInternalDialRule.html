@@ -1,0 +1,54 @@
+<div jwcid="dialRuleCommon@dialplan/DialRuleCommon" ruleId="ognl:ruleId"
+   rule="ognl:rule" callback="ognl:callback" renderGateways="ognl:false" availableSchedules="ognl:availableSchedules">
+  <div jwcid="@common/QuickHelp" value="message:quick.helpExchange"></div>
+  <fieldset>
+    <table>
+      <tbody>
+        <tr jwcid="@common/FieldPanel"
+          field="component:extensionLen"
+          label="message:label.extensionLen"
+          description="message:description.extensionLen"
+          for="dialplan:localExtensionLen">
+          <input jwcid="extensionLen@TextField" id="dialplan:localExtensionLen"
+            value="ognl:rule.localExtensionLen" displayName="message:label.extensionLen"
+            translator="translator:sipxnumber,omitZero=true" validators="validators:required,min=1,max=99"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel"
+          field="component:voiceMail"
+          label="message:label.voiceMail"
+          description="message:description.voiceMail"
+          for="dialplan:voiceMail" >
+           <input jwcid="voiceMail@TextField" id="dialplan:voiceMail" maxlength="40"
+              type="text" value="ognl:rule.voiceMail" validators="spring-validators:validPhone"
+              displayName="message:label.voiceMail"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel"
+          field="component:voiceMailPrefix"
+          label="message:label.voiceMailPrefix"
+          description="message:description.voiceMailPrefix"
+          for="dialplan:voiceMailPrefix">
+            <input jwcid="voiceMailPrefix@TextField" id="dialplan:voiceMailPrefix" maxlength="40"
+              value="ognl:rule.voiceMailPrefix" validators="spring-validators:validPhone"
+              displayName="message:label.voiceMailPrefix"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel"
+          field="component:mediaServer"
+          label="message:label.mediaServer"
+          description="message:description.mediaServer"
+          for="dialplan:mediaServer">
+            <select jwcid="mediaServer@PropertySelection" id="dialplan:mediaServer"
+              model="ognl:mediaServerTypeModel" value="ognl:rule.mediaServerType"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel"
+          field="component:mediaServerHostname"
+          label="message:label.mediaServerHostname"
+          description="message:description.mediaServerHostname"
+          for="dialplan:externalVoicemailServerAddress">
+            <input jwcid="mediaServerHostname@TextField" id="dialplan:externalVoicemailServerAddress"
+               value="ognl:rule.mediaServerHostname"
+               validators="spring-validators:voicemailHostnameValidator,validHostOrIp"/>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+</div>

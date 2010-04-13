@@ -1,0 +1,24 @@
+<table jwcid="@If" condition="ognl:assetExists">
+  <tr>
+    <td>
+      <span jwcid="@Insert" value="ognl:asset"/>
+    </td>
+    <td>
+      <a jwcid="downloadLink@common/DownloadLink" id="link:download"
+        dirName="ognl:assetDir"
+        fileName="ognl:asset"
+        contentType="ognl:contentType">
+        <span jwcid="@Insert" value="ognl:downloadLabel"/>
+      </a>
+    </td>
+    <td>
+      <a jwcid="deleteLink@LinkSubmit" tag="ognl:asset" selected="ognl:deleteAsset" disabled="ognl:disabled">
+        <span key="label.delete">Delete</span>
+      </a>
+    </td>
+  </tr>
+</table>
+<div jwcid="@Else" renderTag="false">
+  <input type="file" jwcid="promptUpload@Upload"
+    file="ognl:uploadAsset" disabled="ognl:disabled"/>
+</div>

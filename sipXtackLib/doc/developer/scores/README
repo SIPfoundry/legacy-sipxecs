@@ -1,0 +1,63 @@
+The SipSrvLookup class uses a new algorithm for implementing the
+"weight" function of DNS SRV records.
+
+The official algorithm is specified in RFC 2782:
+
+    The following algorithm SHOULD be used to order the SRV RRs of the
+    same priority:
+
+    To select a target to be contacted next, arrange all SRV RRs (that
+    have not been ordered yet) in any order, except that all those with
+    weight 0 are placed at the beginning of the list.
+
+    Compute the sum of the weights of those RRs, and with each RR
+    associate the running sum in the selected order. Then choose a uniform
+    random number between 0 and the sum computed (inclusive), and select
+    the RR whose running sum value is the first in the selected order
+    which is greater than or equal to the random number selected. The
+    target host specified in the selected SRV RR is the next one to be
+    contacted by the client.  Remove this SRV RR from the set of the
+    unordered SRV RRs and apply the described algorithm to the unordered
+    SRV RRs to select the next target host.  Continue the ordering process
+    until there are no unordered SRV RRs.
+
+It turns out that exactly the same results can be gotten with a
+simpler algorithm:
+
+    For each server, calculate a "score" as follows:  If its weight is 0,
+    its score is "infinity" (in practice, 100 suffices).  If its weight is
+    non-zero, its score is calculated by choosing a random number between
+    0 and 1, taking the negative of the logarithm of that number, and
+    dividing the result by the weight.  (Thus, the score is always a
+    positive number.)
+
+    Then, sort the servers into order of increasing scores, so that the
+    servers with the *smallest* scores are used first.
+
+We implement this latter algorithm.
+
+The math that shows that the new algorithm produces the same results
+as the RFC 2782 algorithm is in LaTeX format in theory.tex and in
+printable Postscript in theory.ps.
+
+A program that executes the algorithm and tallies the results is
+experiment.pl.  For various sets of weights, the results are in
+experiment.out.
+
+The process of computing the scores is reasonably fast on modern
+processors because they have floating point units that calculate logs.
+The program timing.c shows that each calculation takes about 220ns on
+a 2400MHz x86.
+
+If your processor does not have a floating point processor, the
+scoring formula can be implemented in fixed-point arithmetic.  See the
+code in timing_fixed.c for details.  The general idea is to calculate
+logs base 2 rather than base e (which makes no difference, since logs
+to one base are proportional to logs to another base), and do so in
+scaled fixed-point arithmetic, rather than floating point arithmetic.
+That is, to calculate int(256 * log2(rand()).  The code in
+timing_fixed.c does this by shifting the random number up until a 1
+bit is in the highest position, in order to determine the integer part
+of the log, and then using a table lookup to determine the 8 bits of
+the fractional part of the log.  This sequence takes about 80ns on the
+same processor.

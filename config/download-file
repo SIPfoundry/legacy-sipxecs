@@ -1,0 +1,71 @@
+#!/bin/sh
+
+# Download a file, wrapper to wget w/convience
+#  creates output dir if doesn't exist
+#  if wget fails, doesn't create zero length file
+# Future
+#  verify md5 sums
+
+ExitCode=0
+TempDir=/tmp
+
+Action=DOWNLOAD
+while [ x"$1" != x ]
+do
+    case $1 in
+
+        --help|-h)
+        Action=USAGE
+        ;;
+
+        *)
+        if [ x"$LocalFile" = x ]
+        then
+	    LocalFile=$1
+        elif [ x"$Url" = x ]
+        then
+	    Url=$1
+        else
+	    Action=USAGE
+            ExitCode=1
+            break
+        fi
+        ;;
+     esac
+
+     shift
+done
+
+if [ x"$Action" = xDOWNLOAD ]
+then
+    LocalDir=`dirname $LocalFile`
+    mkdir -p $LocalDir
+    # wget will create a file even if it error
+    if ! wget --output-document=$LocalFile $Url
+    then
+      rm $LocalFile
+      ExitCode=1
+    fi
+
+elif [ x"$Action" = USAGE ]
+then
+
+cat <<USAGE
+
+Usage:
+
+   download-file [-h|--help] localfile url
+
+Options are:
+
+   --help         This help message
+
+   localfile      local file to create
+
+   url            URL of file
+
+USAGE
+
+fi
+
+exit $ExitCode

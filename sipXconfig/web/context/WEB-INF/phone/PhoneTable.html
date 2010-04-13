@@ -1,0 +1,29 @@
+<table  id="phone:list" jwcid="newPhoneTable@common/Table"
+  source="ognl:source"
+  columns="* serialNumber,!lines,modelId:model.label + version,description"
+  usePager="ognl:true"
+  row="ognl:phone"
+  selections="ognl:selections">
+  <span jwcid="serialNumberColumnValue@Block">
+    <a jwcid="editPhoneLink@DirectLink"
+      listener="listener:editPhone"
+      parameters="ognl:phone.primaryKey">
+      <span jwcid="@Insert" value="ognl:phone.serialNumber"/>
+    </a>
+  </span>
+  <span jwcid="linesColumnValue@Block">
+    <span jwcid="editLines@For"
+      source="ognl:phone.lines"
+      value="ognl:line">
+      <a jwcid="lineLink@DirectLink"
+        listener="listener:editLine"
+        parameters="ognl:line.primaryKey">
+        <span jwcid="@Insert" value="ognl:line.displayLabel"/>
+      </a>
+    </span>
+  </span>
+  <span jwcid="modelIdColumnValue@Block">
+    <span jwcid="@Insert" value="ognl:phone.model.label"/>
+    <span jwcid="@Insert" value="ognl:version"/>
+  </span>
+</table>

@@ -1,0 +1,9 @@
+Need three users : 
+
+user1 sip password 123
+user2 sip password 123
+user3 sip password 123
+
+Set up call forwarding for user2.
+
+Set up a dial plan so that 93 calls a pstn number.

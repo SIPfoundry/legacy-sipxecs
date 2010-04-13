@@ -1,0 +1,3 @@
+In order to provide third party jar version independence, versionless jar files, created via soft links, are supplied.  Users wishing to use the latest version of a third party jar which is upplied by sipxcommons need only specify the versionless representation in their class path.
+
+Note that when upgrading a third party jar in sipxcommons, it is necessary to also update the corresponding soft link.

@@ -1,0 +1,45 @@
+<span jwcid="$content$">
+  <span jwcid="@If" condition="ognl:showRefresh" renderTag="false">
+	  <span jwcid="@If" condition="ognl:auto" renderTag="false">
+	    <span jwcid="@Script"
+	      scriptAsset="asset:autoRefreshFormScript"
+	      interval="ognl:currentInterval"
+	      refreshButton="component:refresh"
+	      checkbox="auto"
+	      stopOnError="ognl:stopOnError"
+	      />
+	  </span>
+	  <ul class="component-links">
+	    <li>
+	      <form jwcid="intervalForm@Form" delegate="bean:validator">
+	        <span jwcid="auto@Checkbox" value="ognl:auto"/>
+	      </form>
+	    </li>
+	    <li>
+	<!-- uncomment to use standard text field
+	      <span jwcid="interval@TextField" maxlength="4" size="4"
+	        value="ognl:interval"
+	        validators="validators:required,min=30,max=6000"
+	        translator="sipxnumber,omitZero=true"/>&nbsp;
+	-->
+	      <span key="refreshEvery">Refresh every</span>&nbsp;
+	      <span jwcid="interval@InlineEditBox" value="ognl:currentInterval" maxlength="4" size="4"/>&nbsp;
+	      <span key="seconds">seconds</span>
+	    </li>
+	  </ul>
+	  <span jwcid="@common/QuickHelp" value="message:refreshHelp"/>
+  </span>
+  <form jwcid="refreshForm@Form" delegate="bean:validator">
+    <div jwcid="@Any" id="refreshedContent">
+      <div jwcid="@RenderBody"/>
+    </div>
+    <ul class="component-submit">
+      <li jwcid="@RenderBlock" block="ognl:actionBlock"/>
+      <li jwcid="ifShowRefreshId@If" condition="ognl:showRefresh">
+        <input jwcid="refresh@Submit"
+          value="message:button.refresh"
+          updateComponents="ognl:componentsToUpdate"/>
+      </li>
+    </ul>
+  </form>
+</span>

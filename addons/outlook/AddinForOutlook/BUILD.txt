@@ -1,0 +1,22 @@
+How to build the Add in for outlook
+
+Prerequisite
+The “add in” is written in C# under visual studio 2005. The following references are required to build
+	Microsoft .Net 2.0
+	Office Object Library 12.0 -  Office.dll (comes with outlook 2007 )
+	Outlook object library 12.0 – Microsoft.Office.Interop.outlook.dll (part of outlook 2007 PIA – Primary Interoperate Assembly, could be downloaded from microsoft or included in the office 2007 installation CD)
+	Visual studio 2005 for C#.
+
+To Build
+1) (If you already have unzipped code base, skip this step) unzip the source code *.zip  to a directory. 
+2) Open the solution file:AddinForOutlook.sln under the top directory from visual studio 2005
+3) Three projects are included in the solution, 
+	AddinForOutlook          –      the main project which generates the AddinForOutlook.Dll
+	AddinForOutlookSetup  -     to build the Microsoft Installer file (.MSI file ) and its setup.exe file.
+	AddinForOutlookSetupExt  - the extension to the installer.
+
+4)  Select “build solution” from “build” menu item in the studio  which will cause both .dll and the .msi (and its setup.exe) to be built under the subdirectory “release” of AddinForOutlookSetup.
+
+To Install
+Copy setup.exe and the AddinForOutlook.msi to target machine, and click “setup.exe” and then follow the instruction to install.
+

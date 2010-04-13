@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin" default-lazy="false">
+
+  <class name="org.sipfoundry.sipxconfig.common.InitializationTask" table="initialization_task">
+    <id name="task" column="name" type="string">
+      <generator class="assigned" />
+    </id>
+  </class>
+
+  <class name="CronSchedule" table="cron_schedule">
+    <id name="id" column="cron_schedule_id" type="int" unsaved-value="-1">
+      <generator class="native" />
+    </id>
+    <property name="cronString" />
+    <property name="enabled" />
+  </class>
+
+  <query name="taskNames">
+    <![CDATA[select t.task from org.sipfoundry.sipxconfig.common.InitializationTask t]]>
+  </query>
+
+  <query name="taskByName">
+    <![CDATA[from org.sipfoundry.sipxconfig.common.InitializationTask t where t.task = :task]]>
+  </query>
+
+</hibernate-mapping>

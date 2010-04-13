@@ -1,0 +1,38 @@
+<project name="gwt" default="default">
+  <property name="checkstyle.severity" value="error" />
+  <property name="project.dir" value="gwt" />
+  <import file="../ant-targets.xml" />
+  <property name="output" value="${classes.dir}/gwt" />
+  <!-- D E F A U L T -->
+  <path id="base.path">
+    <pathelement location="${gwt-user.jar}" />
+    <pathelement location="${gwt-dev-linux.jar}" />
+    <pathelement location="${smartgwt.jar}" />
+    <pathelement location="${smartgwt-skins.jar}" />
+  </path>
+  <target name="default" depends="gwt.compile.module" />
+
+  <target name="gwt.compile.module" depends="clean">
+    <mkdir dir="${output}" />
+    <antcall target="gwt.compile.module.userportal" />
+  </target>
+
+  <target name="gwt.compile.module.userportal">
+    <java classname="com.google.gwt.dev.Compiler" fork="true">
+      <jvmarg value="-Xmx512M" />
+      <jvmarg value="-Xms256m" />
+      <arg value="-style" />
+      <arg value="PRETTY" />
+      <arg value="-war" />
+      <arg value="${output}" />
+      <arg value="org.sipfoundry.sipxconfig.userportal.user_phonebook_search" />
+      <arg value="org.sipfoundry.sipxconfig.userportal.contact_information" />
+      <classpath>
+        <pathelement location="src" />
+      </classpath>
+      <classpath refid="base.path" />
+    </java>
+    <move file="${output}/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/org.sipfoundry.sipxconfig.userportal.user_phonebook_search.nocache.js" tofile="${output}/org.sipfoundry.sipxconfig.userportal.user_phonebook_search/nocache.js" />
+    <move file="${output}/org.sipfoundry.sipxconfig.userportal.contact_information/org.sipfoundry.sipxconfig.userportal.contact_information.nocache.js" tofile="${output}/org.sipfoundry.sipxconfig.userportal.contact_information/nocache.js" />
+  </target>
+</project>

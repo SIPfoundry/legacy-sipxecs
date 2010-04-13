@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.upload" default-lazy="false">
+
+  <class name="Upload" table="upload" discriminator-value="upload">
+    <id name="id" column="upload_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">upload_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id"/>
+    <property name="name"/>
+    <property name="deployed"/>
+    <property name="beanId" column="bean_id" insert="false" update="false"/>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+    <property name="specificationId"/>
+    <property name="description"/>
+  </class>
+
+  <query name="upload">
+    <![CDATA[from Upload u order by u.name]]>
+  </query>
+
+  <query name="deployedUploadBySpecification">
+    <![CDATA[from Upload u where u.deployed = 't' and u.specificationId = :spec]]>
+  </query>
+
+  <query name="uploadName">
+    <![CDATA[from Upload u where u.name = :name]]>
+  </query>
+
+</hibernate-mapping>

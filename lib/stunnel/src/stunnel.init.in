@@ -1,0 +1,49 @@
+#!/bin/sh
+# Sample stunnel SysV startup file
+# Copyright by Michal Trojnara 2002,2007,2008
+### BEGIN INIT INFO
+# Provides: stunnel
+# Default-Start: 2 3 4 5
+# Default-Stop: 0 1 6
+# Short-Description: start and stop NetworkManager
+# Description: Starts and stops the stunnel process
+### END INIT INFO
+
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+DAEMON=@prefix@/bin/stunnel
+PIDFILE=@prefix@/var/run/stunnel/stunnel.pid
+
+test -f $DAEMON || exit 0
+
+case "$1" in
+    start)
+        echo -n "Starting universal SSL tunnel: stunnel"
+        $DAEMON || echo -n " failed"
+        echo "."
+        ;;
+    stop)
+        echo -n "Stopping universal SSL tunnel: stunnel"
+        if test -r $PIDFILE; then
+            kill `cat $PIDFILE` 2> /dev/null || echo -n " failed"
+        else
+            echo -n " no PID file"
+        fi
+        echo "."
+        ;;
+     restart|force-reload)
+        echo "Restarting universal SSL tunnel"
+        $0 stop
+        sleep 1
+        $0 start
+        echo "done."
+        ;;
+    *)
+        N=${0##*/}
+        N=${N#[SK]??}
+        echo "Usage: $N {start|stop|restart|force-reload}" >&2
+        exit 1
+        ;;
+esac
+
+exit 0
+

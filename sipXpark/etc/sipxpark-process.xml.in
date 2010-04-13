@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>ParkServer</name>
+  <version>@VERSION@</version>
+  <commands>
+    <configtest>
+      <execute>@SIPX_BINDIR@/sipxpark.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>@SIPX_BINDIR@/sipxpark.sh</execute>
+    </start>
+    <stop>
+      <execute>@SIPX_BINDIR@/sipxpark.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>@SIPX_RUNDIR@/sipxpark.pid</pid>
+    <log>@SIPX_LOGDIR@/sipxpark.log</log>
+  </status>
+  <resources>
+    <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
+    <file>@SIPX_CONFDIR@/sipxpark-config</file>
+    <file>@SIPX_CONFDIR@/orbits.xml</file>
+    <imdb>credential</imdb>
+    <imdb configAccess='read-only'>subscription</imdb>
+  </resources>
+</sipXecs-process>

@@ -1,0 +1,386 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="true-false">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="registration">
+    <setting name="username">
+      <value />
+    </setting>
+    <setting name="display_name">
+      <value />
+    </setting>
+    <setting name="domain">
+      <value />
+    </setting>
+    <setting name="enabled" advanced="yes">
+      <type refid="true-false" />
+      <value>true</value>
+    </setting>
+    <setting name="register" advanced="yes">
+      <type refid="true-false" />
+      <value>true</value>
+    </setting>
+    <setting name="reregister_in_seconds" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="password" advanced="yes">
+      <type>
+        <string password="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="authorization_username" hidden="yes">
+      <value />
+    </setting>
+  </group>
+  <group name="mwi_notification">
+    <setting name="subscribe_to_message_waiting">
+      <type refid="true-false" />
+      <value>true</value>
+    </setting>
+    <setting name="message_waiting_maximum_time_before_resubscribe_in_seconds">
+      <type>
+        <integer />
+      </type>
+      <value>180</value>
+    </setting>
+    <setting name="message_waiting_minimum_time_before_resubscribe_in_seconds">
+      <type>
+        <integer />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="message_waiting_refresh_interval_in_seconds">
+      <type>
+        <integer />
+      </type>
+      <value>300</value>
+    </setting>
+  </group>
+  <group name="presence">
+    <setting name="presence_operating_mode">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="presence_p2p_poll_time_in_seconds">
+      <type>
+        <integer />
+      </type>
+      <value>300</value>
+    </setting>
+    <setting name="presence_server_refresh_interval_in_seconds">
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="workgroup_show_on_start">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="allow_dialog_subscriptions" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="resources">
+    <setting name="resource_list_method">
+      <type>
+        <enum>
+          <option>
+            <value>local</value>
+          </option>
+          <option>
+            <value>webdav</value>
+          </option>
+          <option>
+            <value>xcap</value>
+          </option>
+        </enum>
+      </type>
+      <value>local</value>
+    </setting>
+    <setting name="resource_list_use_sip_credentials">
+      <type refid="true-false" />
+      <value>true</value>
+    </setting>
+    <setting name="resource_lists_poll_time">
+      <type>
+        <integer />
+      </type>
+      <value>600</value>
+    </setting>
+  </group>
+  <group name="network">
+    <group name="network_rtp_session">
+      <setting name="enable_session_timer">
+        <type refid="true-false" />
+        <value>false</value>
+      </setting>
+      <setting name="default_session_refresh_interval_in_seconds">
+        <type>
+          <integer />
+        </type>
+        <value>60</value>
+      </setting>
+      <setting name="prefered_session_fresher">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>3</value>
+            </option>
+            <option>
+              <value>4</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="network_firewall">
+      <setting name="ice_enabled">
+        <type refid="true-false" />
+        <value>false</value>
+      </setting>
+      <setting name="outbound_proxy">
+        <value />
+      </setting>
+      <setting name="override_sip_listen_port">
+        <type refid="true-false" />
+        <value>false</value>
+      </setting>
+      <setting name="override_stun_server">
+        <type refid="true-false" />
+        <value>false</value>
+      </setting>
+      <setting name="port_range_enable">
+        <type refid="true-false" />
+        <value>false</value>
+      </setting>
+      <setting name="port_range_min">
+        <type>
+          <integer />
+        </type>
+        <value />
+      </setting>
+      <setting name="port_range_max">
+        <type>
+          <integer />
+        </type>
+        <value />
+      </setting>
+      <setting name="send_internal_ip_address">
+        <type refid="true-false" />
+        <value>true</value>
+      </setting>
+      <setting name="send_sip_keep_alive_messages">
+        <type refid="true-false" />
+        <value>true</value>
+      </setting>
+      <setting name="sip_tcp_port_keep_alive_time_in_seconds">
+        <type>
+          <integer />
+        </type>
+        <value>30</value>
+      </setting>
+      <setting name="sip_udp_port_keep_alive_time_in_seconds">
+        <type>
+          <integer />
+        </type>
+        <value>30</value>
+      </setting>
+      <setting name="stun_server">
+        <value />
+      </setting>
+      <setting name="turn_enabled">
+        <type refid="true-false" />
+        <value>false</value>
+      </setting>
+      <setting name="turn_server">
+        <value />
+      </setting>
+      <setting name="turn_domain">
+        <value />
+      </setting>
+      <setting name="turn_use_sip_credentials">
+        <type refid="true-false" />
+        <value>true</value>
+      </setting>
+      <setting name="turn_username">
+        <value />
+      </setting>
+      <setting name="turn_password">
+        <value />
+      </setting>
+      <setting name="use_outbound_proxy">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>0XFFFFFFFF</value>
+            </option>
+          </enum>
+        </type>
+        <value>0XFFFFFFFF</value>
+      </setting>
+    </group>
+    <group name="sip_signaling">
+      <setting name="maximum_time_before_reregistration_in_seconds">
+        <type>
+          <integer />
+        </type>
+        <value>1800</value>
+      </setting>
+      <setting name="minimum_time_before_reregistration_in_seconds">
+        <type>
+          <integer />
+        </type>
+        <value>20</value>
+      </setting>
+      <setting name="use_proxy_for_outbound_calls">
+        <type refid="true-false" />
+        <value>false</value>
+      </setting>
+      <setting name="override_outbound_proxy">
+        <type refid="true-false" />
+        <value>false</value>
+      </setting>
+      <setting name="proxy">
+        <value />
+      </setting>
+      <setting name="transport">
+        <type>
+          <enum>
+            <option>
+              <value>automatic</value>
+            </option>
+            <option>
+              <value>tcp</value>
+            </option>
+            <option>
+              <value>udp</value>
+            </option>
+            <option>
+              <value>tls</value>
+            </option>
+          </enum>
+        </type>
+        <value>automatic</value>
+      </setting>
+      <setting name="enable_rinstance">
+        <type refid="true-false" />
+        <value>true</value>
+      </setting>
+    </group>
+  </group>
+  <group name="voicemail">
+    <setting name="forward_always" hidden="yes">
+      <type refid="true-false" />
+      <value>false</value>
+    </setting>
+    <setting name="forward_always_uri" hidden="yes">
+      <value />
+    </setting>
+    <setting name="forward_busy" hidden="yes">
+      <type refid="true-false" />
+      <value>false</value>
+    </setting>
+    <setting name="forward_busy_uri" hidden="yes">
+      <value />
+    </setting>
+    <setting name="voicemail_url">
+      <value />
+    </setting>
+  </group>
+  <group name="xmpp-config">
+    <setting name="enabled" hidden="yes">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="domain" hidden="yes" />
+    <setting name="username" hidden="yes" />
+    <setting name="password" hidden="yes" />
+    <setting name="account_name" hidden="yes" />
+    <setting name="xmpp_connect_timeout_s" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name="xmpp_resource">
+      <value />
+    </setting>
+    <setting name="protocol" hidden="yes">
+      <value>xmpp</value>
+    </setting>
+    <setting name="xmpp_port_selection" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="xmpp_connect_port" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value />
+    </setting>
+    <setting name="xmpp_priority">
+      <type>
+        <integer min="-127" max="128" />
+      </type>
+      <value />
+    </setting>
+  </group>
+</model>

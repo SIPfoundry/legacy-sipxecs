@@ -1,0 +1,102 @@
+#!/bin/sh
+
+OPERATION="ZoneAdmin"
+source @SIPX_BINDIR@/sipx-archive-common
+
+# Look for the INTERACTIVE flag first, before processing any other command-line arguments.
+INTERACTIVE="yes"
+for arg in "$@"
+do
+  case $arg in
+    -n|--non-interactive)
+      INTERACTIVE="no"
+      # Re-direct stderr and stdout to a log file.
+      rm -rf @SIPX_LOGDIR@/sipx-zoneadmin.log
+      exec 3<>@SIPX_LOGDIR@/sipx-zoneadmin.log
+      exec 2>&3
+      exec 1>&3
+      ;;
+  esac
+done
+
+operation_stamp
+
+if [ "`whoami`" != root ]
+then
+  echo "You must be root in order to regenerate zone files."
+  exit 4
+fi
+
+usage() {
+  echo
+  echo Usage: $0 parameters
+  echo
+  echo "   Regenerate the specified zone files."
+  echo
+  echo Parameters:
+  echo "   -h|--help                     Display this help text."
+  echo "   -n|--non-interactive          Do not run in interactive mode."
+  echo
+}
+
+# Process the rest of the command-line arguments.
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -n|--non-interactive)
+      # Ignore at this point.
+      ;;
+
+    -h|--help)
+      usage
+      exit
+      ;;
+
+    *)
+      Args="$Args $1"
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+if test -f /etc/SuSE-release; then
+  ZONE_PATH="/var/lib/named"
+else
+  ZONE_PATH="/var/named"
+fi
+
+# Generate the zone file
+domname=`dnsdomainname`
+
+grep DNS_MODE /etc/named.conf > /tmp/dnsmode.conf
+sed -i 's/\/\/ DNS_MODE/DNS_MODE/g' /tmp/dnsmode.conf
+. /tmp/dnsmode.conf
+
+if [ $DNS_MODE == "Manual" ]; then
+  # DNS is manually configured so don't change zone file
+  echo "Using manual zone file for:"
+  echo $domname
+else if [ $DNS_MODE == "Caching" ]; then
+  # DNS is caching-only so don't change zone file
+  echo "Using caching-only zone file for:"
+  echo $domname
+else
+  echo "Generating zone file for:"
+  echo $domname
+  echo $Args
+
+  cat > "${ZONE_PATH}/${domname}.zone" <<EOF
+; WARNING: Zone file configuration is a sipX automatically generated file.
+;          Contents may be overwritten unless you set the named.conf DNS_MODE.
+;
+EOF
+
+  @SIPX_BINDIR@/sipx-dns $domname $Args >> ${ZONE_PATH}/${domname}.zone
+  chgowner=`/bin/chown named:named ${ZONE_PATH}/${domname}.zone`
+
+  # Reload the zone files into the DNS server.
+  # If the DNS server is not running this will do nothing.
+  reload=`/usr/sbin/rndc reload`
+  echo $reload
+fi
+fi

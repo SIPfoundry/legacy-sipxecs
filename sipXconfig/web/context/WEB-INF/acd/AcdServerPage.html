@@ -1,0 +1,48 @@
+<body jwcid="$content$">
+  <div jwcid="border" borderTitle="ognl:borderTitle">
+    <div jwcid="@common/BreadCrumbNavigation" breadCrumbs="ognl:breadCrumbs"/>
+    <span jwcid="tabs"/>
+    <div id="settings-content">
+      <span jwcid="configBlock@Block">
+        <span jwcid="@common/ErrorMsg"/>
+        <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+        <form jwcid="form" id="acdServer">
+          <fieldset>
+            <table>
+              <tbody>
+                <tr jwcid="hostPanel">
+                  <span jwcid="hostField"/>
+                </tr>
+                <tr jwcid="portPanel">
+                  <span jwcid="portField"/>
+                </tr>
+              </tbody>
+            </table>
+          </fieldset>
+          <fieldset jwcid="settingsFieldset" id="form:acdServer"/>
+          <span jwcid="formActions"/>
+        </form>
+      </span>
+      <span jwcid="queuesBlock@Block">
+        <form jwcid="queuesForm">
+          <span jwcid="acdQueuesPanel"/>
+        </form>
+      </span>
+      <span jwcid="linesBlock@Block">
+        <form jwcid="linesForm">
+          <span jwcid="acdLinesPanel"/>
+        </form>
+      </span>
+      <span jwcid="agentsStatsBlock@Block">
+        <span jwcid="acdAgentsStatsPanel"/>
+      </span>
+      <span jwcid="callsStatsBlock@Block">
+        <span jwcid="acdCallsStatsPanel"/>
+      </span>
+      <span jwcid="queuesStatsBlock@Block">
+        <span jwcid="acdQueuesStatsPanel"/>
+      </span>
+      <span jwcid="tabContent"/>
+    </div>
+  </div>
+</body>

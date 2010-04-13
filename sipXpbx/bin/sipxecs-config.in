@@ -1,0 +1,98 @@
+#!/bin/sh
+
+##
+## Copyright (C) 2009 Nortel Networks, certain elements licensed under a Contributor Agreement.
+## Contributors retain copyright to elements licensed under a Contributor Agreement.
+## Licensed to the User under the LGPL license.
+##
+
+# Print overall configuration information about sipXecs.
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+# The default operation is PRINT, with ${Info} being the line of words to print.
+Action=PRINT
+Info=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --components)
+            Action=COMPONENTS
+            ;;
+
+        --components-version-build)
+            Action=COMPONENTS_VERSION_BUILD
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+	    # If the option was not valid, give an error message and print
+	    # the usage message.
+	    echo "Unknown switch '${1}'" 1>&2
+	    Action=USAGE
+            ;;
+    esac
+
+    shift # always consume 1 argument
+done
+
+if [ "${Action}" = "PRINT" -a "${Info}" = "" ]
+then
+    Action=USAGE
+fi
+
+case ${Action} in
+
+    USAGE)
+        cat <<EOF
+Usage: sipxecs-config [OPTIONS]
+
+     Option:      Displays:
+
+    --components  list all sipXecs components, one per line
+    --components-version-build
+                  execute "*-config --version --build" for all components
+
+    --help        this message
+EOF
+
+	# Give success exit, as did earlier versions of this script.
+	# (Without the '0', exit would return the exit status of the previous
+	# command.)
+        exit 0
+        ;;
+
+    COMPONENTS)
+	for Component in @subdirs@
+	do
+	    # sipXecs is not a proper component, and has no *-config script.
+            if [ ${Component} != sipXecs ]
+	    then
+		echo ${Component}
+	    fi
+	done
+	;;
+
+    COMPONENTS_VERSION_BUILD)
+	echo "sipXecs version information:"
+	for Project in ` @SIPX_BINDIR@/sipxecs-config --components |
+			 tr A-Z a-z |
+			 sort ` ; do
+	    echo -n "  $Project "
+	    # Test if the *-config script was installed.
+	    if [ -x @SIPX_BINDIR@/${Project}-config ]
+	    then
+		@SIPX_BINDIR@/${Project}-config --version --build
+	    else
+		echo "not installed"
+	    fi
+	done
+	;;
+
+esac
+
+exit 0

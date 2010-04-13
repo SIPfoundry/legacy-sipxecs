@@ -1,0 +1,50 @@
+<div jwcid="@common/Border"  borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation"
+	tabNames="ognl:{'manage', 'special'}"
+	selectedTab="ognl:tab"/>
+  <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
+</div>
+<div jwcid="manageTab@Block">
+  <div jwcid="@common/QuickHelp" value="message:help.attendantConfig">attendant config help text here...</div>
+  <span jwcid="@common/ErrorMsg"/>
+  <ul class="component-links">
+    <li>
+      <a jwcid="defaultAttendantGroupLink@DirectLink" id="defaultAttendantGroup"
+        href="#" listener="listener:defaultGroup">
+        <span key="link.defaultGroup">Default Settings</span>
+      </a>
+    </li>
+    <li>
+      <a jwcid="addAttendantLink@DirectLink" id="addAttendant" href="#"
+        listener="listener:add">
+        <span key="link.add">Add Attendant</span>
+      </a>
+    </li>
+  </ul>
+  <form jwcid="attendantListForm@Form" delegate="bean:validator">
+    <table jwcid="tableView@common/Table" id="list:attendant"
+      columns="literal:* name,description"
+      source="ognl:autoAttendantManager.autoAttendants"
+      row="ognl:currentRow"
+      selections="bean:selections">
+      <span jwcid="nameColumnValue@Block">
+        <span jwcid="editRowLink@DirectLink" listener="listener:edit"
+          parameters="ognl:currentRow.id">
+          <span jwcid="nameText@Insert" value="ognl:currentRow.name"/>
+        </span>
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="deleteButton@Submit" id="list:attendant:delete"
+          value="message:button.delete" listener="listener:deleteSelected"/>
+        <span jwcid="@common/Confirm" component="component:deleteButton" prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+  </form>
+</div>
+<div jwcid="specialTab@Block">
+  <form jwcid="@Form" delegate="bean:validator">
+    <span jwcid="specialAttendant@dialplan/SpecialAttendantPanel"></span>
+  </form>
+</div>

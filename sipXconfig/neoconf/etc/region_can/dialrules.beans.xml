@@ -1,0 +1,97 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--
+    - North America Dial Plan Template - Canadian French text
+  -->
+
+  <!--  common properties for all rules: name, description -->
+
+  <!-- properties: voiceMail, voiceMailPrefix -->
+  <bean id="can.internalRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Messagerie vocale" />
+    <property name="description" value="Plan de numérotation de messagerie vocale par défaut" />
+    <property name="voiceMail" value="101" />
+    <property name="voiceMailPrefix" value="8" />
+  </bean>
+
+  <!-- properties: extension, attendantAliases -->
+  <bean id="can.attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="Répondeur automatique" />
+    <property name="description" value="Plan de numérotation de répondeur automatique par défaut" />
+    <property name="extension" value="100" />
+    <property name="attendantAliases" value="operator 0" />
+  </bean>
+
+  <!-- properties: optionalPrefix, emergencyNumber -->
+  <bean id="can.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Urgence" />
+    <property name="description" value="Plan de numérotation d'urgence" />
+    <property name="optionalPrefix" value="9" />
+    <property name="emergencyNumber" value="911" />
+  </bean>
+
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
+    longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
+  <bean id="can.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="name" value="Longue distance" />
+    <property name="description" value="Plan de numérotation longue distance" />
+    <property name="pstnPrefixOptional" value="true" />
+    <property name="pstnPrefix" value="9" />
+    <property name="longDistancePrefixOptional" value="false" />
+    <property name="longDistancePrefix" value="1" />
+    <property name="externalLen" value="10" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+
+  <bean id="can.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+    <property name="name" value="Numéros gratuits" />
+    <property name="description" value="Composition de numéros gratuits" />
+    <property name="areaCodes" value="800, 866, 877, 888" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+
+  <bean id="can.restrictedRule" parent="defaultRestrictedRule" singleton="false">
+    <property name="name" value="Restreint" />
+    <property name="description" value="Numéros restreints" />
+    <property name="areaCodes" value="900" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+
+  <bean id="can.internationalRule" parent="defaultInternationalRule" singleton="false">
+    <property name="name" value="International" />
+    <property name="description" value="Composition de numéros à l'international" />
+    <property name="longDistancePrefix" value="011" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+
+  <bean id="can.localRule" parent="defaultLocalRule" singleton="false">
+    <property name="name" value="Local" />
+    <property name="description" value="Composition de numéros locaux" />
+    <property name="pstnPrefix" value="9" />
+    <property name="longDistancePrefix" value="" />
+    <property name="longDistancePrefixOptional" value="true" />
+    <property name="externalLen" value="7" />
+    <property name="permissionName" value="LocalDialing" />
+  </bean>
+
+  <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
+  <!-- this is the list of rules that admin will see after installation and after reverting to default -->
+  <bean id="can.dialPlan" parent="defaultDialPlan" singleton="false">
+    <property name="rules">
+      <list>
+        <ref bean="can.emergencyRule" />
+        <ref bean="can.internationalRule" />
+        <ref bean="can.localRule" />
+        <ref bean="can.longDistanceRule" />
+        <ref bean="can.restrictedRule" />
+        <ref bean="can.tollFreeRule" />
+        <ref bean="can.attendantRule" />
+        <ref bean="can.internalRule" />
+      </list>
+    </property>
+  </bean>
+
+</beans>

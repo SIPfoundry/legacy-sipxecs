@@ -1,0 +1,213 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
+    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+
+<!--
+
+  Checkstyle configuration that checks the sun coding conventions from:
+
+    - the Java Language Specification at
+      http://java.sun.com/docs/books/jls/second_edition/html/index.html
+
+    - the Sun Code Conventions at http://java.sun.com/docs/codeconv/
+
+    - the Javadoc guidelines at
+      http://java.sun.com/j2se/javadoc/writingdoccomments/index.html
+
+    - the JDK Api documentation http://java.sun.com/j2se/docs/api/index.html
+
+    - some best practices
+
+  Checkstyle is very configurable. Be sure to read the documentation at
+  http://checkstyle.sf.net (or in your downloaded distribution).
+
+  Most Checks are configurable, be sure to consult the documentation.
+
+  To completely disable a check, just comment it out or delete it from the file.
+
+  Finally, it is worth reading the documentation.
+
+-->
+
+<module name="Checker">
+  <property name="severity" value="${checkstyle.severity}" default="info"/>
+  
+  <!-- Checks that a package.html file exists for each package.     -->
+  <!-- See http://checkstyle.sf.net/config_javadoc.html#PackageHtml -->
+  <!-- module name="PackageHtml"/ -->
+  
+  <!-- Checks whether files end with a new line.                        -->
+  <!-- See http://checkstyle.sf.net/config_misc.html#NewlineAtEndOfFile -->
+  <module name="NewlineAtEndOfFile">
+    <property name="lineSeparator" value="lf"/>
+  </module>
+  
+  <!-- Setup exclusions / suppressions                       -->
+  <!-- http://checkstyle.sourceforge.net/config.html#Filters -->
+  <module name="SuppressionFilter">
+    <property name="file" value="${top.dir}/meta/checkstyle-suppressions.xml"/>
+  </module>
+
+  <!-- Checks that property files contain the same keys.         -->
+  <!-- See http://checkstyle.sf.net/config_misc.html#Translation -->
+  <!-- module name="Translation"/-->
+  
+  <module name="TreeWalker">
+  
+    <!-- Checks for Javadoc comments.                     -->
+    <!-- See http://checkstyle.sf.net/config_javadoc.html -->
+    <module name="JavadocStyle">
+      <property name="checkFirstSentence" value="false"/>
+    </module>
+    
+    <!-- Checks for Naming Conventions.                  -->
+    <!-- See http://checkstyle.sf.net/config_naming.html -->
+    <module name="ConstantName"/>
+    <module name="LocalFinalVariableName"/>
+    <module name="LocalVariableName"/>
+    <module name="MemberName">
+      <property name="format" value="^m_[a-z][a-zA-Z0-9]*_?$"/>
+    </module>
+    <module name="MethodName">
+      <property name="format" value="^[a-z][a-zA-Z0-9]*_?$"/>
+    </module>
+    <module name="PackageName"/>
+    <module name="ParameterName">
+      <property name="format" value="^[a-z][a-zA-Z0-9]*_?$"/>
+    </module>
+    <module name="StaticVariableName">
+      <property name="format" value="^s_[a-z][a-zA-Z0-9]*$"/>
+    </module>
+    <module name="TypeName"/>
+    
+    <!-- Checks for Headers                                -->
+    <!-- See http://checkstyle.sf.net/config_header.html   -->
+    <module name="RegexpHeader">
+      <!-- The follow property value demonstrates the ability     -->
+      <!-- to have access to ANT properties. In this case it uses -->
+      <!-- the ${basedir} property to allow Checkstyle to be run  -->
+      <!-- from any directory within a project. See property      -->
+      <!-- expansion,                                             -->
+      <!-- http://checkstyle.sf.net/config.html#properties        -->
+      <property name="headerFile" value="${top.dir}/meta/java.header"/>
+    </module>
+    
+    <!-- Following interprets the header file as regular expressions. -->
+    <!-- <module name="RegexpHeader"/>                                -->
+    
+    <!-- Checks for imports                              -->
+    <!-- See http://checkstyle.sf.net/config_import.html -->
+    <module name="AvoidStarImport"/>
+    <module name="IllegalImport"/>
+    <module name="RedundantImport"/>
+    <module name="UnusedImports"/>
+    <module name="ImportOrder">
+      <property name="groups" value="java,javax"/>
+      <property name="ordered" value="true"/>
+      <property name="separated" value="true"/>
+    </module>
+    
+    <!-- Checks for Size Violations.                    -->
+    <!-- See http://checkstyle.sf.net/config_sizes.html -->
+    <module name="FileLength"/>
+    <module name="LineLength">
+      <property name="max" value="120"/>
+    </module>
+    <module name="MethodLength"/>
+    <module name="ParameterNumber"/>
+    
+    <!-- Checks for whitespace                               -->
+    <!-- See http://checkstyle.sf.net/config_whitespace.html -->
+    <module name="EmptyForIteratorPad"/>
+    <module name="MethodParamPad"/>
+    <module name="NoWhitespaceAfter"/>
+    <module name="NoWhitespaceBefore"/>
+    <module name="OperatorWrap"/>
+    <module name="ParenPad"/>
+    <module name="TypecastParenPad"/>
+    <module name="TabCharacter"/>
+    <module name="WhitespaceAfter"/>
+    <module name="WhitespaceAround">
+      <!-- take out generics start/end, hopefully better way soon -->
+      <property name="tokens" value="ASSIGN, BAND, BAND_ASSIGN, BOR, BOR_ASSIGN, BSR, BSR_ASSIGN, BXOR, BXOR_ASSIGN, COLON, DIV, DIV_ASSIGN, EQUAL, GE, GT, LAND, LCURLY, LE, LITERAL_ASSERT, LITERAL_CATCH, LITERAL_DO, LITERAL_ELSE, LITERAL_FINALLY, LITERAL_FOR, LITERAL_IF, LITERAL_RETURN, LITERAL_SYNCHRONIZED, LITERAL_TRY, LITERAL_WHILE, LOR, LT, MINUS, MINUS_ASSIGN, MOD, MOD_ASSIGN, NOT_EQUAL, PLUS, PLUS_ASSIGN, QUESTION, RCURLY, SL, SLIST, SL_ASSIGN, SR, SR_ASSIGN, STAR, STAR_ASSIGN, TYPE_EXTENSION_AND,  WILDCARD_TYPE"/>  
+    </module>
+    
+    <!-- Modifier Checks                                    -->
+    <!-- See http://checkstyle.sf.net/config_modifiers.html -->
+    <module name="ModifierOrder"/>
+    <module name="RedundantModifier">
+      <property name="severity" value="ignore"/>
+    </module>
+    
+    <!-- Checks for blocks. You know, those {}'s         -->
+    <!-- See http://checkstyle.sf.net/config_blocks.html -->
+    <module name="AvoidNestedBlocks"/>
+    <module name="EmptyBlock"/>
+    <module name="LeftCurly"/>
+    <module name="NeedBraces"/>
+    <module name="RightCurly"/>
+    
+    <!-- Checks for common coding problems               -->
+    <!-- See http://checkstyle.sf.net/config_coding.html -->
+    <module name="AvoidInlineConditionals">
+      <property name="severity" value="ignore"/>
+    </module>
+    <module name="DoubleCheckedLocking"/> <!-- MY FAVOURITE -->
+    <module name="EmptyStatement"/>
+    <module name="EqualsHashCode"/>
+    <module name="HiddenField"/>
+    <module name="IllegalInstantiation"/>
+    <module name="InnerAssignment"/>
+    <module name="MagicNumber">
+        <property name="tokens" value="NUM_DOUBLE, NUM_FLOAT"/>
+    </module>
+    <module name="MissingSwitchDefault"/>
+    <module name="RedundantThrows"/>
+    <module name="SimplifyBooleanExpression"/>
+    <module name="SimplifyBooleanReturn"/>
+    <module name="DeclarationOrder"/>
+    <module name="ParameterAssignment"/>
+    <module name="ExplicitInitialization"/>
+    <module name="DefaultComesLast"/>
+    <module name="MultipleStringLiterals">
+      <property name="ignoreStringsRegexp" value="(unused)|(ognl:.*)|true|false"/>
+    </module>
+    <module name="MultipleVariableDeclarations"/>
+    
+    <!-- Checks for class design                         -->
+    <!-- See http://checkstyle.sf.net/config_design.html -->
+    <!--module name="DesignForExtension"/-->
+    <module name="FinalClass"/>
+    <module name="HideUtilityClassConstructor"/>
+    <module name="InterfaceIsType"/>
+    <module name="VisibilityModifier"/>
+    
+    <!-- Miscellaneous other checks.                   -->
+    <!-- See http://checkstyle.sf.net/config_misc.html -->
+    <module name="ArrayTypeStyle"/>
+    <module name="UpperEll"/>
+    
+    <!-- Indentation checks -->
+    <!-- See http://checkstyle.sourceforge.net/config_misc.html#Indentation -->
+    <module name="Indentation">
+      <property name="caseIndent" value="0"/>
+    </module>
+    
+    <!-- Making sure logging is used -->
+    <module name="GenericIllegalRegexp">
+      <property name="severity" value="warning"/>
+      <property name="format" value="System\.(out|err)\.print"/>
+      <property name="ignoreComments" value="true"/>
+      <property name="message"
+        value="System.err or System.out used: use commons logging instead."/>
+    </module>
+
+    <!-- Trailing spaces -->
+    <module name="Regexp">
+      <property name="format" value="[ \t]+$"/>
+      <property name="illegalPattern" value="true"/>
+      <property name="message" value="Trailing whitespace"/>
+    </module>
+  </module>
+</module>

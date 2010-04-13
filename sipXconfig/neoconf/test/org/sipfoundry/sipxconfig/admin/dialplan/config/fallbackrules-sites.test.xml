@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00">
+  <hostMatch>
+    <hostPattern>example.org</hostPattern>
+    <hostPattern>sipx.example.org</hostPattern>
+    <hostPattern>sipx</hostPattern>
+    <hostPattern>192.168.1.1</hostPattern>
+    <userMatch>
+      <!--my test name-->
+      <description>my test description</description>
+      <callTag>CUST</callTag>
+      <userPattern>x.</userPattern>
+      <callerLocationMatch>
+        <callerLocation>Montreal</callerLocation>
+        <transform>
+          <user>444</user>
+          <host>montreal.example.org</host>
+          <headerparams>expires=60</headerparams>
+          <fieldparams>q=0.95</fieldparams>
+        </transform>
+      </callerLocationMatch>
+      <callerLocationMatch>
+        <callerLocation>Lisbon</callerLocation>
+        <transform>
+          <user>9444</user>
+          <host>lisbon.example.org</host>
+          <headerparams>expires=60</headerparams>
+          <fieldparams>q=0.95</fieldparams>
+        </transform>
+      </callerLocationMatch>
+    </userMatch>
+    <userMatch>
+      <!--emergency name-->
+      <description>emergency description</description>
+      <callTag>EMERG</callTag>
+      <userPattern>sos</userPattern>
+      <userPattern>911</userPattern>
+      <userPattern>9911</userPattern>
+      <callerLocationMatch>
+        <callerLocation>Montreal</callerLocation>
+        <transform>
+          <user>444</user>
+          <host>montreal.example.org</host>
+          <headerparams>expires=60</headerparams>
+          <fieldparams>q=0.95</fieldparams>
+        </transform>
+      </callerLocationMatch>
+      <callerLocationMatch>
+        <callerLocation>Lisbon</callerLocation>
+        <transform>
+          <user>9444</user>
+          <host>lisbon.example.org</host>
+          <headerparams>expires=60</headerparams>
+          <fieldparams>q=0.95</fieldparams>
+        </transform>
+      </callerLocationMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

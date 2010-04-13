@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="nakedUploadSpecificationSource"
+    class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+    <constructor-arg>
+      <value>org.sipfoundry.sipxconfig.upload.UploadSpecification</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="uploadSpecificationSource" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
+    <property name="modelSource" ref="nakedUploadSpecificationSource" />
+  </bean>
+
+  <bean id="uploadManagerImpl"
+    class="org.sipfoundry.sipxconfig.upload.UploadManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="specificationSource" ref="nakedUploadSpecificationSource"/>
+  </bean>
+
+  <bean id="uploadManager"
+    class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.upload.UploadManager</value>
+    </property>
+    <property name="target">
+      <ref local="uploadManagerImpl"/>
+    </property>
+  </bean>
+
+  <bean id="upload" class="org.sipfoundry.sipxconfig.upload.Upload"
+    singleton="false" parent="beanWithSettings">
+    <property name="uploadSpecificationSource" ref="uploadSpecificationSource"/>
+  </bean>
+
+  <bean id="uploadUtil" class="org.sipfoundry.sipxconfig.upload.UploadUtil">
+    <property name="uploadSpecificationSource" ref="uploadSpecificationSource"/>
+    <property name="uploadManager" ref="uploadManager"/>
+  </bean>
+
+  <bean id="uploadTask" class="org.sipfoundry.sipxconfig.upload.UploadTask">
+    <property name="uploadUtil" ref="uploadUtil"/>
+  </bean>
+
+  <bean id="defaultSystemFirmwareInstall" class="org.sipfoundry.sipxconfig.upload.DefaultSystemFirmwareInstall">
+    <property name="uploadUtil" ref="uploadUtil"/>
+    <property name="firmwareDirectory" value="${sysdir.default.firmware}"/>
+  </bean>
+
+  <bean id="unmanagedUpload" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="upload"/>
+    <property name="modelFilePath" value="unmanagedPhone/upload.xml"/>
+    <property name="label" value="Unmanaged (T)FTP Files"/>
+    <property name="managed" value="false"/>
+  </bean>
+
+</beans>

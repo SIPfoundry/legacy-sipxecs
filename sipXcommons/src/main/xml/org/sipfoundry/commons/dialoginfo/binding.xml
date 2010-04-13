@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<binding>
+  <namespace uri="urn:ietf:params:xml:ns:dialog-info" default="elements"/>
+  <mapping name="dialog-info" class="org.sipfoundry.commons.dialoginfo.DialogInfo">
+    <collection field="dialogList">
+      <structure map-as="org.sipfoundry.commons.dialoginfo.Dialog"/>
+    </collection>
+    <value name="version" field="version" usage="required" style="attribute"/>
+    <value name="state" field="state" usage="required" style="attribute"/>
+    <value name="entity" field="entity" usage="required" style="attribute"/>
+  </mapping>
+  <mapping name="dialog" class="org.sipfoundry.commons.dialoginfo.Dialog">
+    <structure field="state" usage="required" map-as="org.sipfoundry.commons.dialoginfo.State"/>
+    <value name="duration" field="duration" usage="optional"/>
+    <structure field="replaces" usage="optional" map-as="org.sipfoundry.commons.dialoginfo.DialogReplaces"/>
+    <structure name="referred-by" field="referredBy" usage="optional" type="org.sipfoundry.commons.dialoginfo.Identity"/>
+    <structure name="route-set" usage="optional" test-method="validateRouteSet">
+      <collection field="routeSetList">
+        <value name="hop" type="java.lang.String"/>
+      </collection>
+    </structure>
+    <structure name="local" field="local" usage="optional" type="org.sipfoundry.commons.dialoginfo.Participant"/>
+    <structure name="remote" field="remote" usage="optional" type="org.sipfoundry.commons.dialoginfo.Participant"/>
+    <value name="id" field="id" usage="required" style="attribute"/>
+    <value name="call-id" field="callId" usage="optional" style="attribute"/>
+    <value name="local-tag" field="localTag" usage="optional" style="attribute"/>
+    <value name="remote-tag" field="remoteTag" usage="optional" style="attribute"/>
+    <value name="direction" field="direction" usage="optional" style="attribute"/>
+  </mapping>
+  <mapping name="replaces" class="org.sipfoundry.commons.dialoginfo.DialogReplaces">
+    <value name="call-id" field="callId" usage="required" style="attribute"/>
+    <value name="local-tag" field="localTag" usage="required" style="attribute"/>
+    <value name="remote-tag" field="remoteTag" usage="required" style="attribute"/>
+  </mapping>
+  <mapping class="org.sipfoundry.commons.dialoginfo.Participant" abstract="true">
+    <structure name="identity" field="identity" usage="optional" type="org.sipfoundry.commons.dialoginfo.Identity"/>
+    <structure field="target" usage="optional" map-as="org.sipfoundry.commons.dialoginfo.ParticipantTarget"/>
+    <structure field="sessionDescription" usage="optional" map-as="org.sipfoundry.commons.dialoginfo.SessionDescription"/>
+    <value name="cseq" field="cseq" usage="optional"/>
+  </mapping>
+  <mapping name="target" class="org.sipfoundry.commons.dialoginfo.ParticipantTarget">
+    <collection field="paramList">
+      <structure map-as="org.sipfoundry.commons.dialoginfo.ParticipantTargetParam"/>
+    </collection>
+    <value name="uri" field="uri" usage="required" style="attribute"/>
+  </mapping>
+  <mapping name="param" class="org.sipfoundry.commons.dialoginfo.ParticipantTargetParam">
+    <value name="pname" field="pname" usage="required" style="attribute"/>
+    <value name="pval" field="pval" usage="required" style="attribute"/>
+  </mapping>
+  <mapping class="org.sipfoundry.commons.dialoginfo.Identity" abstract="true">
+    <value field="element" usage="required" style="text"/>
+    <value name="display-name" field="displayName" usage="optional" style="attribute"/>
+  </mapping>
+  <mapping name="session-description" class="org.sipfoundry.commons.dialoginfo.SessionDescription">
+    <value field="element" usage="required" style="text"/>
+    <value name="type" field="type" usage="required" style="attribute"/>
+  </mapping>
+  <mapping name="state" class="org.sipfoundry.commons.dialoginfo.State">
+    <value field="element" usage="required" style="text"/>
+    <value name="event" field="event" usage="optional" style="attribute"/>
+    <value name="code" field="code" usage="optional" style="attribute"/>
+  </mapping>
+</binding>

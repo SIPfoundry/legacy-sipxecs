@@ -1,0 +1,361 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="SIP_GLOBAL">
+    <label>SIP Golbal Settings</label>
+    <setting name="LISTEN_PORT">
+      <label>Listen Port</label>
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="RTP_PORT_BASE">
+      <label>RTP Port Base</label>
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>10000</value>
+    </setting>
+    <setting name="FIRST_CODEC">
+      <label>First Codec</label>
+      <type>
+        <enum>
+          <option>
+            <label>G.711 aLaw</label>
+            <value>G711A</value>
+          </option>
+          <option>
+            <label>G.711 uLaw</label>
+            <value>G711U</value>
+          </option>
+          <option>
+            <label>G.729A</label>
+            <value>G729</value>
+          </option>
+          <option>
+            <label>G.723.1</label>
+            <value>G723</value>
+          </option>
+        </enum>
+      </type>
+      <value>G711A</value>
+    </setting>
+    <setting name="SECOND_CODEC">
+      <label>Second Codec</label>
+      <type>
+        <enum>
+          <option>
+            <label>G.711 aLaw</label>
+            <value>G711A</value>
+          </option>
+          <option>
+            <label>G.711 uLaw</label>
+            <value>G711U</value>
+          </option>
+          <option>
+            <label>G.729A</label>
+            <value>G729</value>
+          </option>
+          <option>
+            <label>G.723.1</label>
+            <value>G723</value>
+          </option>
+        </enum>
+      </type>
+      <value>G711U</value>
+    </setting>
+    <setting name="THIRD_CODEC">
+      <label>Third Codec</label>
+      <type>
+        <enum>
+          <option>
+            <label>G.711 aLaw</label>
+            <value>G711A</value>
+          </option>
+          <option>
+            <label>G.711 uLaw</label>
+            <value>G711U</value>
+          </option>
+          <option>
+            <label>G.729A</label>
+            <value>G729</value>
+          </option>
+          <option>
+            <label>G.723.1</label>
+            <value>G723</value>
+          </option>
+        </enum>
+      </type>
+      <value>G729</value>
+    </setting>
+    <setting name="FOURTH_CODEC">
+      <label>Fourth Codec</label>
+      <type>
+        <enum>
+          <option>
+            <label>G.711 aLaw</label>
+            <value>G711A</value>
+          </option>
+          <option>
+            <label>G.711 uLaw</label>
+            <value>G711U</value>
+          </option>
+          <option>
+            <label>G.729A</label>
+            <value>G729</value>
+          </option>
+          <option>
+            <label>G.723.1</label>
+            <value>G723</value>
+          </option>
+        </enum>
+      </type>
+      <value>G723</value>
+    </setting>
+    <setting name="G711AFRAMESIZE">
+      <label>G.711 aLaw Frame Size</label>
+      <type>
+        <integer min="20" max="80" />
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name="G711UFRAMESIZE">
+      <label>G.711 uLaw Frame Size</label>
+      <type>
+        <integer min="20" max="80" />
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name="G723FRAMESIZE">
+      <label>G.723 Frame Size</label>
+      <type>
+        <integer min="30" max="120" />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name="G729FRAMESIZE">
+      <label>G.729 Frame Size</label>
+      <type>
+        <integer min="20" max="80" />
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name="SIGNAL_TOS">
+      <label>Signal ToS</label>
+      <type>
+        <integer min="0" max="5" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="VOICE_TOS">
+      <label>Voice ToS</label>
+      <type>
+        <integer min="0" max="5" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="RFC2833_TYPE">
+      <label>RFC2833 Payload Type</label>
+      <type>
+        <integer min="96" max="128" />
+      </type>
+      <value>101</value>
+    </setting>
+  </group>
+
+  <group name="AUTO_UPGRADE">
+    <setting name="SWITCH">
+      <label>Enable Auto Upgrade</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="SERVERIP">
+      <label>Server IP</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="FILENAME">
+      <label>File Name</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+
+  <group name="VLAN">
+    <setting name="SWITCH">
+      <label>Enable VLAN</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="IDENTIFIER">
+      <label>Identifier (0~4094)</label>
+      <type>
+        <integer min="0" max="4094" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PRIORITY">
+      <label>Priority (0~7)</label>
+      <type>
+        <integer min="0" max="7" />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+
+  <group name='NTP_SERVER'>
+    <setting name='PRIMARY_SERVER'>
+      <value />
+    </setting>
+    <setting name='TIMEZONE'>
+      <type>
+        <enum>
+          <option>
+            <label>-12:00</label>
+            <value>-12:00</value>
+          </option>
+          <option>
+            <label>-11:00</label>
+            <value>-11:00</value>
+          </option>
+          <option>
+            <label>-10:00</label>
+            <value>-10:00</value>
+          </option>
+          <option>
+            <label>-09:00</label>
+            <value>-09:00</value>
+          </option>
+          <option>
+            <label>-08:00</label>
+            <value>-08:00</value>
+          </option>
+          <option>
+            <label>-07:00</label>
+            <value>-07:00</value>
+          </option>
+          <option>
+            <label>-06:00</label>
+            <value>-06:00</value>
+          </option>
+          <option>
+            <label>-05:00</label>
+            <value>-05:00</value>
+          </option>
+          <option>
+            <label>-04:00</label>
+            <value>-04:00</value>
+          </option>
+          <option>
+            <label>-03:00</label>
+            <value>-03:00</value>
+          </option>
+          <option>
+            <label>-02:00</label>
+            <value>-02:00</value>
+          </option>
+          <option>
+            <label>-01:00</label>
+            <value>-01:00</value>
+          </option>
+          <option>
+            <label>+01:00</label>
+            <value>+01:00</value>
+          </option>
+          <option>
+            <label>+01:00</label>
+            <value>+01:00</value>
+          </option>
+          <option>
+            <label>+02:00</label>
+            <value>+02:00</value>
+          </option>
+          <option>
+            <label>+03:00</label>
+            <value>+03:00</value>
+          </option>
+          <option>
+            <label>+04:00</label>
+            <value>+04:00</value>
+          </option>
+          <option>
+            <label>+05:00</label>
+            <value>+05:00</value>
+          </option>
+          <option>
+            <label>+06:00</label>
+            <value>+06:00</value>
+          </option>
+          <option>
+            <label>+07:00</label>
+            <value>+07:00</value>
+          </option>
+          <option>
+            <label>+08:00</label>
+            <value>+08:00</value>
+          </option>
+          <option>
+            <label>+09:00</label>
+            <value>+09:00</value>
+          </option>
+          <option>
+            <label>+10:00</label>
+            <value>+10:00</value>
+          </option>
+          <option>
+            <label>+11:00</label>
+            <value>+11:00</value>
+          </option>
+          <option>
+            <label>+12:00</label>
+            <value>+12:00</value>
+          </option>
+          <option>
+            <label>+0:00</label>
+            <value>+0:00</value>
+          </option>
+        </enum>
+      </type>
+      <value>-08:00</value>
+    </setting>
+    <setting name='SYNCTIME'>
+      <type>
+        <enum>
+          <option>
+            <label>1 hours</label>
+            <value>01:00</value>
+          </option>
+          <option>
+            <label>3 hours</label>
+            <value>03:00</value>
+          </option>
+          <option>
+            <label>6 hours</label>
+            <value>06:00</value>
+          </option>
+          <option>
+            <label>12 hours</label>
+            <value>12:00</value>
+          </option>
+        </enum>
+      </type>
+      <value>06:00</value>
+    </setting>
+    <setting name="SWITCH">
+      <label>Enable VLAN</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+
+</model>

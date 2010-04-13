@@ -1,0 +1,58 @@
+<html title="Caller Sensitive E911 Routing">
+  <head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+  </head>
+  <body jwcid="$content$">
+    <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+      <div class="help">
+        <p> <span key="help">Please configure your phones to forward emergency calls to the PSTN gateway directly. You should use
+          the caller sensitive forwarding feature only if your phone does not support direct forwarding to a gateway for emergency calls. <br/> <br/>
+          If this feature is enabled all emergency calls will be forwarded to the default gateway. Optionally you can configure a set of
+          phone numbers that will be forwarded to the alternative gateway. <br/> <br/></span>
+          <span key="help.first">Click </span><a jwcid="gatewaysLink" href="" title="Edit Gateways"><span key="help.here">here</span></a>
+          <span key="help.tail"> to edit a list of available gateways.</span></p>
+      </div>
+      <h2><span key="title">Emergency Routing</span></h2>
+      <form jwcid="form">
+        <ul class="component-links">
+          <li> <a jwcid="addExceptionLink" id="erouting:addException" href="#"><span key="link.addExceptions">Add Exceptions</span></a>
+          </li>
+        </ul>
+        <span jwcid="errors"/>
+        <fieldset>
+          <legend> </legend>
+          <p class="message" key="red.message">Use this feature only if phones do not support direct routing of emergency calls to PSTN gateways.</p>
+          <table>
+            <tbody>
+              <tr>
+                <td>
+                  <span jwcid="externalNumberLabel" key="link.delExceptions">External emergency number</span>
+                </td>
+                <td>
+                  <input jwcid="externalNumber" id="erouting:emergencyNumber" maxlength="40" type="text" size="13"
+                    value="911"/>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <span jwcid="gatewaysLabel">Gateway</span>
+                </td>
+                <td>
+                  <select jwcid="gateways" id="erouting:gateway" size="1">
+                    <option value="1">10.2.3.4</option>
+                    <option value="2">10.45.6.3</option>
+                    <option value="2">128.12.23.4</option>
+                  </select>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </fieldset>
+        <fieldset jwcid="exceptions">
+          <span jwcid="exception"/>
+        </fieldset>
+        <ul jwcid="formActions"/>
+      </form>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<ul class="component-links">
+  <li>
+	<a jwcid="@DirectLink"  listener="listener:addAlarmGroup" id="link.addAlarmGroup">
+	  <span key="add">Add Group</span>
+	</a>
+  </li>
+</ul>
+<table jwcid="@common/Table" id="alarmGroups:list"
+	columns="* name,enabled,description"
+	source="ognl:groups"
+	row="ognl:currentRow"
+	selections="bean:selections">
+  <tr jwcid="nameColumnValue@Block">
+	<td jwcid="editRowLink@DirectLink"
+		listener="listener:editAlarmGroup"
+		parameters="ognl:currentRow.id">
+	  <span jwcid="@Insert" value="ognl:currentRow.name"/>
+	</td>
+  </tr>
+  <tr jwcid="enabledColumnValue@Block">
+	<td jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+  </tr>
+</table>
+<ul class="component-submit">
+  <li>
+	<input jwcid="delete@Submit" id="alarmGroups:delete"
+		listener="listener:delete"
+		selected="ognl:selectedRows"
+		tag="ognl:allSelected"
+		value="message:button.delete" />
+	  <span jwcid="@common/Confirm"
+		  component="component:delete"
+		  prompt="message:confirm.delete"/>
+  </li>
+</ul>

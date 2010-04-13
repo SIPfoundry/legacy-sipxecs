@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--  The default dial plan for Italy  -->
+
+  <!-- properties: voiceMail, voiceMailPrefix -->
+  <bean id="it.voicemailRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Casella Vocale" />
+    <property name="description" value="Regola di composizione predefinita Casella Vocale" />
+    <property name="voiceMail" value="101" />
+    <property name="voiceMailPrefix" value="8" />
+  </bean>
+
+  <!-- properties: extension, attendantAliases -->
+  <bean id="it.attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="AutoRisponditore" />
+    <property name="description" value="Regola di composizione predefinita AutoRisponditore" />
+    <property name="extension" value="100" />
+    <property name="attendantAliases" value="operator 0" />
+  </bean>
+
+  <!-- properties: optionalPrefix, emergencyNumber -->
+  <bean id="it.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Carabineri" />
+    <property name="description" value="Emergenza - Carabinieri" />
+    <property name="emergencyNumber" value="112" />
+  </bean>
+  <bean id="it.policeEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Polizia di Stato" />
+    <property name="description" value="Emergenza - Polizia di Stato" />
+    <property name="emergencyNumber" value="113" />
+  </bean>
+  <bean id="it.childEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Emergenza Infanzia" />
+    <property name="description" value="Emergenza Infanzia - Gestito da Telefono Azzurro" />
+    <property name="emergencyNumber" value="114" />
+  </bean>
+  <bean id="it.fireEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Vigili del Fuoco" />
+    <property name="description" value="Emergenza - Vigili del Fuoco" />
+    <property name="emergencyNumber" value="115" />
+  </bean>
+  <bean id="it.financialEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Guardia di Finanza" />
+    <property name="description" value="Emergenza - Guardia di Finanza" />
+    <property name="emergencyNumber" value="117" />
+  </bean>
+  <bean id="it.ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Emergenza sanitaria" />
+    <property name="description" value="Emergenza - Servizio Sanitario" />
+    <property name="emergencyNumber" value="118" />
+  </bean>
+
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
+    longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
+  <bean id="it.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="name" value="Nazionali" />
+    <property name="description" value="Chiamate Nazionali" />
+    <property name="longDistancePrefix" value="0" />
+    <property name="areaCodes" value="1,2,3,4,5,6,7,8,9" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="it.universalNumberRule" parent="it.longDistanceRule" singleton="false">
+    <property name="name" value="Numeri Universali" />
+    <property name="description" value="Numeri Universali" />
+    <property name="longDistancePrefix" value="" />
+    <property name="areaCodes" value="199" />
+    <property name="externalLen" value="9" />
+  </bean>
+  <bean id="it.premiumRateRule" parent="it.longDistanceRule" singleton="false">
+    <property name="name" value="Servizi a valore aggiunto" />
+    <property name="description" value="Numeri telefonci per cui è prevista una tariffazione superiore a quella usuale" />
+    <property name="longDistancePrefix" value="" />
+    <property name="areaCodes" value="144,166,178,709,89" />
+    <property name="externalLen" value="9" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="it.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+    <property name="name" value="Numeri Verdi" />
+    <property name="description" value="Numeri Verdi" />
+    <property name="longDistancePrefix" value="" />
+    <property name="areaCodes" value="80" />
+    <property name="externalLen" value="9" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+  <bean id="it.infolineRule" parent="it.longDistanceRule" singleton="false">
+    <property name="name" value="Addebito ripartito" />
+    <property name="description" value="Numeri ad addebito ripartito" />
+    <property name="longDistancePrefix" value="" />
+    <property name="areaCodes" value="84" />
+  </bean>
+  <bean id="it.mobileRule" parent="it.longDistanceRule" singleton="false">
+    <property name="name" value="Telefoni cellulari" />
+    <property name="description" value="Chiamate ai telefoni Cellulari" />
+    <property name="longDistancePrefix" value="" />
+    <property name="areaCodes" value="3" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="Mobile" />
+  </bean>
+
+  <bean id="it.internationalRule" parent="defaultInternationalRule" singleton="false">
+    <property name="name" value="Internazionali" />
+    <property name="description" value="Chiamate Internazionali" />
+    <property name="longDistancePrefix" value="00" />
+    <property name="areaCodes" value="" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+  <bean id="it.operatorAssistedRule" parent="it.longDistanceRule" singleton="false">
+    <property name="name" value="Assitite da Operaratore" />
+    <property name="description" value="Chiamate nazionali ed internazionali assistite da operatore" />
+    <property name="longDistancePrefix" value="" />
+    <property name="areaCodes" value="170" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+
+  <bean id="it.miscServicesRule" parent="defaultLocalRule" singleton="false">
+    <property name="name" value="Servizi Vari" />
+    <property name="description" value="Servizi informativi e di emergenza vari" />
+    <property name="pstnPrefix" value="" />
+    <property name="areaCodes" value="151,152,153" />
+    <property name="externalLen" value="-1" />
+  </bean>
+  <bean id="it.clientServicesRule" parent="it.miscServicesRule" singleton="false">
+    <property name="name" value="Servizio Clienti Operatori" />
+    <property name="description" value="Servizio Clienti Operatori Telefonci" />
+    <property name="areaCodes" value="18,19,119,130,133,139,154,155,156,158,159,187,190,191" />
+  </bean>
+  <bean id="it.directoryAssistanceRule" parent="it.miscServicesRule" singleton="false">
+    <property name="name" value="Servizi Abbonati" />
+    <property name="description" value="Servizi Informazioni Elenco Abbonati" />
+    <property name="areaCodes" value="12" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="it.childAbuseRule" parent="it.miscServicesRule" singleton="false">
+    <property name="name" value="Telefono Azzurro" />
+    <property name="description" value="Telefono Azzurro - Linea per i bambini" />
+    <property name="areaCodes" value="19696" />
+    <property name="externalLen" value="5" />
+  </bean>
+
+  <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
+  <!-- this is the list of rules that admin will see after installation and after reverting to default -->
+  <bean id="it.dialPlan" parent="defaultDialPlan" singleton="false">
+    <property name="rules">
+      <list>
+        <ref bean="it.voicemailRule" />
+        <ref bean="it.attendantRule" />
+        <ref bean="it.emergencyRule" />
+        <ref bean="it.policeEmergencyRule" />
+        <ref bean="it.childEmergencyRule" />
+        <ref bean="it.fireEmergencyRule" />
+        <ref bean="it.financialEmergencyRule" />
+        <ref bean="it.ambulanceEmergencyRule" />
+        <ref bean="it.longDistanceRule" />
+        <ref bean="it.universalNumberRule" />
+        <ref bean="it.premiumRateRule" />
+        <ref bean="it.tollFreeRule" />
+        <ref bean="it.infolineRule" />
+        <ref bean="it.mobileRule" />
+        <ref bean="it.internationalRule" />
+        <ref bean="it.operatorAssistedRule" />
+        <ref bean="it.miscServicesRule" />
+        <ref bean="it.clientServicesRule" />
+        <ref bean="it.directoryAssistanceRule" />
+        <ref bean="it.childAbuseRule" />
+      </list>
+    </property>
+  </bean>
+
+</beans>

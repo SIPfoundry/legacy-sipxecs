@@ -1,0 +1,38 @@
+<span jwcid="$content$">
+  <tr>
+    <td>
+      <select jwcid="schedule" size="1">
+        <option value="0">Workday</option>
+        <option value="1" selected="selected">Weekend</option>
+      </select>
+    </td>
+    <td>
+      <select jwcid="enabled" size="1">
+        <option value="0">Disabled</option>
+        <option value="1" selected="selected">Enabled</option>
+      </select>
+    </td>
+    <td>
+      <select jwcid="type" id="parallel" size="1">
+        <option value="1">At the same time</option>
+        <option value="2" selected="selected">If no response</option>
+      </select>
+    </td>
+    <td>
+      <span jwcid="numberLabel">forward to</span>
+    </td>
+    <td>
+      <input jwcid="number" maxlength="40" type="text" id="forward" value="915083443344" size="13"/>
+    </td>
+    <td>
+      <span jwcid="expirationLabel">ring</span>
+    </td>
+    <td>
+      <input jwcid="expiration" maxlength="10" type="text" id="delay" size="3"/>
+      <span key="seconds">seconds</span>
+    </td>
+    <td>
+      <a jwcid="deleteRing" href="#"><span key="button.delete">Delete</span></a>
+    </td>
+  </tr>
+</span>

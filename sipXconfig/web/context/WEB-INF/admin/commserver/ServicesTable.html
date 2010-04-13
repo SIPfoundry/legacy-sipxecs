@@ -1,0 +1,46 @@
+<form jwcid="@common/AutoRefreshForm" actionBlock="component:actions">
+    <table jwcid="tableView@common/Table" id="servicesTable"
+      source="ognl:serviceStatus"
+      selections="ognl:selections"
+      columns="* serviceName, status, !role"
+      usePager="ognl:false"
+      converter="bean:serverStatusConverter"
+      row="ognl:currentRow"
+      index="ognl:currentRowId">
+      <span jwcid="statusColumnValue@Block">
+        <span jwcid="@admin/commserver/ServiceStatusDisplay" status="ognl:currentRow"
+              serviceLocation="ognl:serviceLocation" rowId="ognl:currentRowId">Running</span>
+      </span>
+      <span jwcid="serviceNameColumnValue@Block">
+        <span jwcid="@If" condition="ognl:needsRestart">
+          <img jwcid="@Image" image="asset:restartIcon"/>
+        </span>
+        <span jwcid="@Else">
+		  <img jwcid="@Image" image="asset:serviceIcon" align="absmiddle" />
+        </span>
+        <span jwcid="@If" condition="ognl:currentRowHasServiceLink">
+          <a jwcid="editSipxService@DirectLink" listener="listener:editService"
+            parameters="ognl:{currentRow.serviceBeanId, serviceLocation.id}" >
+            <span jwcid="@Insert" value="ognl:serviceLabel" />
+          </a>
+        </span>
+        <span jwcid="@Else">
+          <span jwcid="@Insert" value="ognl:serviceLabel" />
+        </span>
+      </span>
+      <span jwcid="roleColumnValue@Block">
+        <span jwcid="@Insert" value="ognl:serviceRoles" />
+      </span>
+    </table>
+</form>
+<ul jwcid="actions@Block">
+  <li jwcid="@If" condition="ognl:coreContext.debug">
+    <input jwcid="startButton@Submit" id="services:start" action="listener:start" value="message:button.start" />
+  </li>
+  <li jwcid="@If" condition="ognl:coreContext.debug">
+    <input jwcid="stopButton@Submit" id="services:stop" action="listener:stop" value="message:button.stop" />
+  </li>
+  <li>
+    <input jwcid="restartButton@Submit" id="services:restart" action="listener:restart" value="message:button.restart" />
+  </li>
+</ul>

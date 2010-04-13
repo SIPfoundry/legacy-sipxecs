@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="gsModel" abstract="true" parent="abstractPhoneModel"
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamModel">
+    <property name="beanId" value="grandstream" />
+    <property name="profileTemplate" value="grandstream/grandstream.vm" />
+	<property name="vendor" value="Grandstream"/>
+	<property name="restartSupported" value="true" />
+  </bean>
+  <bean id="gsPhoneBt100" parent="gsModel">
+    <property name="label" value="Grandstream BudgeTone 10x" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+  <bean id="gsPhoneBt200" parent="gsModel">
+    <property name="label" value="Grandstream BudgeTone 200" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+  <bean id="gsPhoneGxp2020" parent="gsModel">
+    <property name="label" value="Grandstream GXP2020" />
+    <property name="maxLineCount" value="6" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="gsPhoneGxp2010" parent="gsModel">
+    <property name="label" value="Grandstream GXP2010" />
+    <property name="maxLineCount" value="4" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="gsPhoneGxp2000" parent="gsModel">
+    <property name="label" value="Grandstream GXP2000" />
+    <property name="maxLineCount" value="4" />
+  </bean>
+  <bean id="gsPhoneGxp1200" parent="gsModel">
+    <property name="label" value="Grandstream GXP1200" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+  <bean id="gsPhoneGxv3000" parent="gsModel">
+    <property name="label" value="Grandstream GXV3000" />
+    <property name="maxLineCount" value="3" />
+  </bean>
+  <bean id="gsFxsGxw4004" parent="gsModel">
+    <property name="label" value="Grandstream GXW4004" />
+    <property name="maxLineCount" value="4" />
+    <property name="isFxsGxw" value="true" />
+    <property name="restartSupported" value="false" />
+    <property name="externalLinesSupported" value="false" />
+  </bean>
+  <bean id="gsFxsGxw4008" parent="gsModel">
+    <property name="label" value="Grandstream GXW4008" />
+    <property name="maxLineCount" value="8" />
+    <property name="isFxsGxw" value="true" />
+    <property name="restartSupported" value="false" />
+    <property name="externalLinesSupported" value="false" />
+  </bean>
+  <bean id="gsHt286" parent="gsModel">
+    <property name="label" value="Grandstream HandyTone 286" />
+    <property name="maxLineCount" value="1" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="gsHt386" parent="gsModel">
+    <property name="label" value="Grandstream HandyTone 386" />
+    <property name="maxLineCount" value="2" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="gsHt486" parent="gsModel">
+    <property name="label" value="Grandstream HandyTone 486" />
+    <property name="maxLineCount" value="1" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="gsHt488" parent="gsModel">
+    <property name="label" value="Grandstream HandyTone 488" />
+    <property name="maxLineCount" value="2" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="gsHt496" parent="gsModel">
+    <property name="label" value="Grandstream HandyTone 496" />
+    <property name="maxLineCount" value="2" />
+    <property name="isHandyTone" value="true" />
+  </bean>
+  <bean id="grandstreamProfileGenerator"
+    class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamProfileGenerator">
+  </bean>
+  <bean id="grandstream" class="org.sipfoundry.sipxconfig.phone.grandstream.GrandstreamPhone" singleton="false"
+    parent="abstractPhone">
+    <property name="profileGenerator" ref="grandstreamProfileGenerator" />
+  </bean>
+  <bean id="gsPhoneFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="upload" />
+    <property name="modelFilePath" value="grandstream/upload.xml" />
+    <property name="label" value="Grandstream" />
+  </bean>
+</beans>

@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <!--
+    SpringBeanRouter finds all resources in the application context. Aliases starting from '/' are bind as routes for
+    referenced resources.
+  -->
+  <bean id="restletSpringBeanRouter" class="org.sipfoundry.sipxconfig.rest.SipxSpringBeanRouter" />
+
+  <bean id="phonesResource" class="org.sipfoundry.sipxconfig.rest.PhonesResource" scope="prototype">
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="phoneModelSource" ref="phoneModelSource" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="phonesResource" alias="/phone" />
+
+  <bean id="phonebookResource" class="org.sipfoundry.sipxconfig.rest.PhonebookResource" scope="prototype">
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="phonebookResource" alias="/phonebook/{name}" />
+
+  <bean id="phonebooksResource" class="org.sipfoundry.sipxconfig.rest.PhonebooksResource" scope="prototype">
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="phonebooksResource" alias="/phonebook" />
+
+  <bean id="userPhonebookResource" class="org.sipfoundry.sipxconfig.rest.UserPhonebookSearchResource" scope="prototype">
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="modifiable" value="false" />
+    <property name="readable" value="true" />
+  </bean>
+  <alias name="userPhonebookResource" alias="/my/search/phonebook?query={search-term}" />
+
+  <bean id="userPhonebookResourceAll" class="org.sipfoundry.sipxconfig.rest.UserPhonebookResource" parent="userPhonebookResource">
+    <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="userPhonebookResourceAll" alias="/my/phonebook" />
+
+  <bean id="userPagedPhonebookResource" class="org.sipfoundry.sipxconfig.rest.UserPagedPhonebookResource" parent="userPhonebookResource">
+    <property name="readable" value="true" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="userPagedPhonebookResource" alias="/my/pagedphonebook?start={start-row}&amp;end={end-row}" />
+
+  <bean id="userPhonebookEntry" class="org.sipfoundry.sipxconfig.rest.UserPhonebookEntryResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+	<property name="phonebookManager" ref="phonebookManager" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="userPhonebookEntry" alias="/my/phonebook/entry/{entryId}" />
+
+  <bean id="showContactsOnPhone" class="org.sipfoundry.sipxconfig.rest.ShowContactsOnPhoneResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+	<property name="phonebookManager" ref="phonebookManager" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="showContactsOnPhone" alias="/my/phonebook/showContactsOnPhone/{value}" />
+
+  <bean id="googleImportResource" class="org.sipfoundry.sipxconfig.rest.GoogleImportResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="googleImportResource" alias="/my/phonebook/googleImport" />
+
+  <bean id="callResource" class="org.sipfoundry.sipxconfig.rest.CallResource" scope="prototype">
+    <property name="sipService" ref="sip" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="callResource" alias="/my/call/{to}" />
+
+  <bean id="voicemailPinResource" class="org.sipfoundry.sipxconfig.rest.VoicemailPinResource" scope="prototype">
+    <property name="domainManager" ref="domainManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="voicemailPinResource" alias="/my/voicemail/pin/{pin}" />
+
+  <bean id="personalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="personalAttendantOperatorResource" alias="/my/voicemail/operator/{operator}" />
+
+  <bean id="resetPersonalAttendantOperatorResource" class="org.sipfoundry.sipxconfig.rest.PersonalAttendantOperatorResource" scope="prototype">
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="resetPersonalAttendantOperatorResource" alias="/my/voicemail/operator/" />
+
+  <bean id="forwardingResource" class="org.sipfoundry.sipxconfig.rest.ForwardingResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
+    <property name="available" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="forwardingResource" alias="/my/forward" />
+
+  <bean id="voicemailResource" class="org.sipfoundry.sipxconfig.rest.VoicemailResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="privateUserKeyManager" ref="privateUserKeyManager" />
+    <property name="available" value="true" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="voicemailResource" alias="/my/feed/voicemail/{folder}" />
+
+  <bean id="voicemailResourceDownload" class="org.sipfoundry.sipxconfig.rest.VoicemailResourceDownload" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
+  </bean>
+  <alias name="voicemailResourceDownload" alias="/my/voicemail/{folder}/{messageId}" />
+
+  <bean id="contactInformationResource" class="org.sipfoundry.sipxconfig.rest.ContactInformationResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="available" value="true" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="contactInformationResource" alias="/my/contact-information" />
+
+  <bean id="avatarResource" class="org.sipfoundry.sipxconfig.rest.UserAvatarResource" scope="prototype">
+	<property name="coreContext" ref="coreContext" />
+	<property name="available" value="true" />
+	<property name="modifiable" value="false" />
+	<property name="readable" value="true" />
+  </bean>
+  <alias name="gravatarResource" alias="/my/avatar" />
+
+  <bean id="autoAttendantsResource" class="org.sipfoundry.sipxconfig.rest.AutoAttendantsResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="readable" value="true" />
+  </bean>
+  <alias name="autoAttendantsResource" alias="/auto-attendant" />
+
+  <bean id="selectSpecialAttendantResource" class="org.sipfoundry.sipxconfig.rest.SelectSpecialAttendantResource"
+    scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="available" value="false" />
+    <property name="readable" value="false" />
+  </bean>
+  <alias name="selectSpecialAttendantResource" alias="/auto-attendant/{attendant}/special" />
+
+  <bean id="specialAttendantResource" class="org.sipfoundry.sipxconfig.rest.SpecialAttendantResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="autoAttendantManager" ref="autoAttendantManager" />
+    <property name="readable" value="true" />
+  </bean>
+  <alias name="specialAttendantResource" alias="/auto-attendant/specialmode" />
+
+  <bean id="profileResource" class="org.sipfoundry.sipxconfig.rest.ProfileResource" scope="prototype">
+    <property name="phoneContext" ref="phoneContext" />
+  </bean>
+  <alias name="profileResource" alias="/phone/{serialNumber}/profile/{name}" />
+
+  <bean id="configServerTimeResource" class="org.sipfoundry.sipxconfig.rest.ConfigServerTimeResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="readable" value="true" />
+  </bean>
+  <alias name="configServerTimeResource" alias="/my/time" />
+
+  <bean id="mailboxPrefsGetResource" class="org.sipfoundry.sipxconfig.rest.ActiveGreetingResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="mailboxPrefsGetResource" alias="/my/mailbox/{user}/preferences/activegreeting" />
+
+  <bean id="mailboxPrefsPutResource" class="org.sipfoundry.sipxconfig.rest.ActiveGreetingResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="true" />
+  </bean>
+  <alias name="mailboxPrefsPutResource" alias="/my/mailbox/{user}/preferences/activegreeting/{greeting}" />
+
+</beans>

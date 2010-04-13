@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan.sbc" default-lazy="false">
+
+  <class name="Sbc" table="sbc" abstract="true" discriminator-value="D">
+    <id name="id" column="sbc_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">sbc_seq</param>
+      </generator>
+    </id>
+    <discriminator column="sbc_type" type="character" />
+    <property name="enabled" />
+    <many-to-one name="sbcDevice" class="SbcDevice" column="sbc_device_id" unique="true"/>
+    <component name="routes" class="SbcRoutes">
+      <list name="domains" table="sbc_route_domain">
+        <key column="sbc_id" foreign-key="fk_sbc_route_domain_sbc" />
+        <index column="index" />
+        <element type="string" column="domain" not-null="true" />
+      </list>
+      <list name="subnets" table="sbc_route_subnet">
+        <key column="sbc_id" foreign-key="fk_sbc_route_subnet_sbc" />
+        <index column="index" />
+        <element type="string" column="subnet" not-null="true" />
+      </list>
+    </component>
+
+    <subclass name="AuxSbc" discriminator-value="A"></subclass>
+    <subclass name="DefaultSbc" discriminator-value="D"></subclass>
+  </class>
+
+  <class name="SbcDevice" table="sbc_device" discriminator-value="sbcGeneric">
+    <id name="id" column="sbc_device_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">sbc_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id" />
+    <property name="beanId" column="bean_id" insert="false" update="false" />
+    <property name="modelId" />
+    <property name="name" />
+    <property name="description" />
+    <property name="address" />
+    <property name="port" />
+    <property name="serialNumber" />
+    <property name="deviceVersion" column="device_version_id"
+      type="org.sipfoundry.sipxconfig.device.DeviceVersion$Type" />
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+    <many-to-one name="branch" column="branch_id" not-found="ignore" />
+  </class>
+
+  <query name="sbcIds">
+    <![CDATA[select sbc.id from SbcDevice sbc]]>
+  </query>
+
+  <query name="countSbcWithSameName">
+    <![CDATA[select count (*) from SbcDevice sbc where sbc.id = :sbcId and sbc.name = :sbcName]]>
+  </query>
+
+  <query name="anotherSbcWithSameName">
+    <![CDATA[select count (*) from SbcDevice sbc where sbc.name = :sbcName]]>
+  </query>
+
+  <query name="sbcsForSbcDeviceId">
+    <![CDATA[from Sbc sbc where sbc.sbcDevice.id = :sbcId]]>
+  </query>
+
+  <query name="sbcDevicesForBranch">
+    <![CDATA[from SbcDevice s where s.branch = :branch]]>
+  </query>
+
+  <sql-query name="allSbcs">
+    <return-scalar type="int" column="id" />
+    <return-scalar type="string" column="address" />
+    <![CDATA[select sbc_id as id, address
+      	from Sbc sbc]]>
+  </sql-query>
+
+  <query name="countSbcsByType">
+    <![CDATA[select count (*) from SbcDevice sbc where sbc.beanId = :sbcBeanId]]>
+  </query>
+</hibernate-mapping>

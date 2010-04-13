@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <group name="nat">
+    <setting name="enabled" hidden="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>enabled</value>
+          </true>
+          <false>
+            <value>disabled</value>
+          </false>
+        </boolean>
+      </type>
+      <value>enabled</value>
+    </setting>
+    <setting name="behind-nat" hidden="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>true</value>
+    </setting>
+    <setting name="media-relay-temperament">
+      <type>
+        <enum>
+          <option>
+            <value>Conservative</value>
+          </option>
+          <option>
+            <value>Aggressive</value>
+          </option>
+        </enum>
+      </type>
+      <value>Conservative</value>
+    </setting>
+    <setting name="reject-stray-packets">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>true</value>
+    </setting>
+  </group>
+  <group name="relay-config">
+    <setting name="SIP_RELAY_LOG_LEVEL" hidden="yes">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="xml-rpc-port" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>9090</value>
+    </setting>
+  </group>
+</model>

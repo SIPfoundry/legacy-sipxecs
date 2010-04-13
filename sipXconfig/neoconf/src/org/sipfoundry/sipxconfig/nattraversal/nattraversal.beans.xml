@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="natTraversalManager" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalManagerImpl">
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+  </bean>
+
+    <bean id="NatTraversalDefaultsMigrationTask" class="org.sipfoundry.sipxconfig.nattraversal.NatTraversalDefaultsMigrationTask">
+    <property name="natTraversalManager" ref="natTraversalManager"/>
+    <property name="taskNames">
+      <list>
+        <value>nattraversal_prefs_negatation</value>
+        <value>nattraversal_prefs_migration</value>
+      </list>
+    </property>
+  </bean>
+</beans>

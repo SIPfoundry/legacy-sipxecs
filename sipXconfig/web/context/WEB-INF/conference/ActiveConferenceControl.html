@@ -1,0 +1,90 @@
+<span jwcid="@conference/DimDimConferenceLink" dimDimConference="ognl:dimDimConference" />
+<form jwcid="@common/AutoRefreshForm" actionBlock="component:actionButtons"
+      updateComponents="ognl:{'messageArea', 'conferencesTable'}"
+      stopOnError="true">
+    <table jwcid="tableView@common/Table"
+           id="conferencesTable"
+           columns="* status,name,nickname"
+           row="ognl:currentMember"
+           converter="ognl:converter"
+           source="ognl:members"
+           selections="bean:selections">
+        <span jwcid="nameColumnValue@Block">
+            <img jwcid="@Image" image="asset:userIcon" align="top" />
+            <span jwcid="@Insert" value="ognl:currentMember.name" />
+        </span>
+        <span jwcid="statusColumnValue@Block">
+            <span jwcid="@conference/ConferenceMemberStatus"
+                  conferenceMember="ognl:currentMember" />
+        </span>
+        <span jwcid="nicknameColumnValue@Block">
+            <a jwcid="@DirectLink" listener="listener:editCurrentMember" parameters="ognl:{currentMember.uuid}">
+              <span jwcid="@Insert" value="ognl:nicknameForCurrentMember" />
+            </a>
+        </span>
+    </table>
+    <span jwcid="@Script"
+          scriptAsset="asset:controlCheckboxScript" />
+</form>
+<div jwcid="actionButtons@Block">
+    <li>
+        <input jwcid="deafButton@Submit" id="conference:deafUser"
+           value="message:button.deaf"
+           updateComponents="ognl:{'messageArea', 'conferencesTable', 'refreshedContent'}"
+           action="listener:deafUsers" />
+    </li>
+    <li>
+        <input jwcid="undeafButton@Submit" id="conference:undeafUser"
+           value="message:button.undeaf"
+           updateComponents="ognl:{'messageArea', 'conferencesTable', 'refreshedContent'}"
+           action="listener:undeafUsers" />
+    </li>
+    <li>
+        <input jwcid="muteButton@Submit" id="conference:muteUser"
+           value="message:button.mute"
+           updateComponents="ognl:{'messageArea', 'conferencesTable', 'refreshedContent'}"
+           action="listener:muteUsers" />
+    </li>
+    <li>
+        <input jwcid="unMuteButton@Submit" id="conference:unmuteUser"
+           value="message:button.unmute"
+           updateComponents="ognl:{'messageArea', 'conferencesTable', 'refreshedContent'}"
+           action="listener:unmuteUsers" />
+    </li>
+    <li>
+        <input jwcid="kickButton@Submit" id="conference:kickUser"
+           value="message:button.kick"
+           updateComponents="ognl:{'messageArea', 'conferencesTable', 'refreshedContent'}"
+           action="listener:kickUsers" />
+    </li>
+</div>
+
+<form jwcid="@Form" delegate="ognl:validator">
+    <div jwcid="@Any" id="conferenceControls">
+        <span jwcid="@Script"
+              scriptAsset="asset:script"
+              placeholder="message:text.number" />
+        <div>
+            <ul class="component-submit">
+                <li>
+
+                   <input jwcid="inviteNumber@TextField" class="inactive"
+                          validators="spring-validators:required,validPhoneOrAor"
+                          id="conference:inviteNumber" size="30" value="ognl:inviteFieldValue" />
+                   <input jwcid="inviteButton@Submit" id="conference:inviteParticipant"
+                          value="message:button.invite"
+			  updateComponents="ognl:{'messageArea', 'conferencesTable', 'refreshedContent'}"
+                          action="listener:inviteParticipant" />
+                </li>
+                <!-- temporarily commented out until it gets implemented
+                <li>
+                   <input jwcid="lockButton@Submit" id="conference:lockConference"
+                          value="message:button.lock"
+                          updateComponents="ognl:{'messageArea', 'conferenceControls', 'refreshedContent'}"
+                          action="listener:lockConference" />
+                </li>
+                 -->
+            </ul>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Description of sipXconfig model files  -->
+<!ENTITY % flag "(yes|no)">
+
+<!ELEMENT description (#PCDATA)>
+<!ELEMENT group (label?,profileName?,description?,(setting|group|collection)*)>
+<!ATTLIST group
+  name NMTOKEN #REQUIRED
+  advanced %flag; "no"
+  hidden %flag; "no"
+  if CDATA #IMPLIED
+  unless CDATA #IMPLIED
+  copy-of NMTOKEN #IMPLIED>
+<!ELEMENT label (#PCDATA)>
+<!ELEMENT model (type*,group+)>
+<!ELEMENT profileName (#PCDATA)>
+<!ELEMENT setting (label?,profileName?,type?,value?,description?)>
+<!ATTLIST setting
+  name NMTOKEN #REQUIRED
+  advanced %flag; "no"
+  hidden %flag; "no"
+  if CDATA #IMPLIED
+  unless CDATA #IMPLIED
+  copy-of NMTOKEN #IMPLIED>
+<!ELEMENT collection (label?,setting*,description?)>
+<!ATTLIST collection
+  name NMTOKEN #REQUIRED
+  size CDATA #REQUIRED
+  advanced %flag; "no"
+  hidden %flag; "no">
+
+<!ELEMENT value (#PCDATA)>
+
+<!-- settings type system -->
+<!ELEMENT type (string|integer|enum|multi-enum|ipaddr|hostname|bitmap|boolean|real|file|sip-uri|phonepadpin)?>
+<!ATTLIST type
+    required %flag; "no"
+    id ID #IMPLIED
+    refid IDREF #IMPLIED>
+
+<!ELEMENT integer EMPTY>
+<!ATTLIST integer
+    required %flag; "no"
+    min NMTOKEN #IMPLIED
+	max NMTOKEN #IMPLIED>
+
+<!ELEMENT real EMPTY>
+<!ATTLIST real
+    required %flag; "no"
+    min NMTOKEN #IMPLIED
+	max NMTOKEN #IMPLIED>
+
+<!ELEMENT string (pattern?)>
+<!ATTLIST string
+    required %flag; "no"
+    minLen NMTOKEN #IMPLIED
+    maxLen NMTOKEN #IMPLIED
+    password %flag; "no">
+
+<!ELEMENT ipaddr EMPTY>
+<!ATTLIST ipaddr
+    required %flag; "no">
+
+<!ELEMENT hostname EMPTY>
+<!ATTLIST hostname
+    required %flag; "no">
+
+<!ELEMENT bitmap EMPTY>
+<!ATTLIST bitmap
+    required %flag; "no"
+    maxBits NMTOKEN "32">
+
+<!ELEMENT boolean (true?,false?)>
+<!ELEMENT true (value)>
+<!ELEMENT false (value)>
+
+<!ELEMENT pattern (#PCDATA)>
+
+<!ELEMENT file (directory?,contentType?,exclude?)>
+<!ATTLIST file
+    required %flag; "no"
+    variable %flag; "no">
+
+<!ELEMENT directory (#PCDATA)>
+<!ELEMENT contentType (#PCDATA)>
+<!ELEMENT exclude (filename+)>
+
+<!ELEMENT filename (#PCDATA)>
+
+<!ELEMENT sip-uri EMPTY>
+<!ATTLIST sip-uri
+    required %flag; "no"
+    userPartOnly %flag; "no">
+
+
+<!ELEMENT phonepadpin EMPTY>
+<!ATTLIST phonepadpin
+    required %flag; "no">
+
+<!-- enumeration type is a list of options, each option has a value and may have label -->
+<!-- if not label is provided, value is used as a label -->
+<!ELEMENT enum (option+)>
+<!ATTLIST enum
+  labelKeyPrefix NMTOKEN #IMPLIED>
+
+<!ELEMENT multi-enum (option+)>
+<!ATTLIST multi-enum
+  separator CDATA #IMPLIED
+  labelKeyPrefix NMTOKEN #IMPLIED>
+
+<!ELEMENT option (label?,value)>

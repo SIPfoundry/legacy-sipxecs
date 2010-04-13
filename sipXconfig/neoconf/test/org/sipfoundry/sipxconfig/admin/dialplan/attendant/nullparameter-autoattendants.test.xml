@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<autoattendants xmlns="http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00">
+  <autoattendant id="operator">
+    <name>operator</name>
+    <prompt>prompts/operator.wav</prompt>
+    <menuItems>
+      <menuItem>
+        <dialPad>#</dialPad>
+        <action>voicemail_access</action>
+        <parameter>sip:101@example.org</parameter>
+      </menuItem>
+      <menuItem>
+        <dialPad>*</dialPad>
+        <action>repeat_prompt</action>
+      </menuItem>
+      <menuItem>
+        <dialPad>0</dialPad>
+        <action>operator</action>
+      </menuItem>
+      <menuItem>
+        <dialPad>9</dialPad>
+        <action>dial_by_name</action>
+      </menuItem>
+    </menuItems>
+    <dtmf>
+      <initialTimeout>7000</initialTimeout>
+      <interDigitTimeout>3000</interDigitTimeout>
+      <extraDigitTimeout>3000</extraDigitTimeout>
+      <maximumDigits>10</maximumDigits>
+    </dtmf>
+    <invalidResponse>
+      <noInputCount>2</noInputCount>
+      <invalidResponseCount>2</invalidResponseCount>
+      <transferOnFailures>false</transferOnFailures>
+    </invalidResponse>
+  </autoattendant>
+  <autoattendant id="xcf-1" special="true">
+    <name>abc</name>
+    <prompt>prompts/prompt.wav</prompt>
+    <menuItems>
+      <menuItem>
+        <dialPad>1</dialPad>
+        <action>disconnect</action>
+      </menuItem>
+    </menuItems>
+    <dtmf>
+      <initialTimeout>7000</initialTimeout>
+      <interDigitTimeout>3000</interDigitTimeout>
+      <extraDigitTimeout>3000</extraDigitTimeout>
+      <maximumDigits>10</maximumDigits>
+    </dtmf>
+    <invalidResponse>
+      <noInputCount>2</noInputCount>
+      <invalidResponseCount>2</invalidResponseCount>
+      <transferOnFailures>true</transferOnFailures>
+      <transferUrl>sip:999@example.org</transferUrl>
+      <transferPrompt>prompts/test.wav</transferPrompt>
+    </invalidResponse>
+  </autoattendant>
+  <schedules/>
+</autoattendants>

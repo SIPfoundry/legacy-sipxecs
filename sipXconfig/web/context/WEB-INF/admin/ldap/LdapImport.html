@@ -1,0 +1,22 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+  <ul>
+    <li><a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="job.status">Job Status</span></a></li>
+    <li><a jwcid="@PageLink" page="admin/ldap/LdapServer" href="#"><span key="ldap.server">LDAP Server</span></a></li>
+  </ul>
+  </div>
+  <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
+  <span jwcid="@common/ErrorMsg" />
+  <form jwcid="importForm">
+    <ul class="form-actions">
+      <li><input jwcid="verify" id="import:verify" type="submit" value="Verify" /></li>
+      <li><input jwcid="import" id="import:ok" type="submit" value="Import" /></li>
+    </ul>
+    <fieldset>
+      <span jwcid="scheduleEditor"/>
+    </fieldset>
+    <ul class="form-actions">
+      <li><input jwcid="applySchedule" id="ldap:schedule:apply" type="submit" value="Apply"/></li>
+    </ul>
+</form>
+</div>

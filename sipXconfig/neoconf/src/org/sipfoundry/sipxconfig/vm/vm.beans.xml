@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="mailboxManagerImpl" class="org.sipfoundry.sipxconfig.vm.MailboxManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="distributionListsReader">
+      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsReader" />
+    </property>
+    <property name="distributionListsWriter">
+      <bean class="org.sipfoundry.sipxconfig.vm.DistributionListsWriter">
+        <property name="velocityEngine" ref="velocityEngine" />
+      </bean>
+    </property>
+    <property name="personalAttendantWriter">
+      <bean class="org.sipfoundry.sipxconfig.vm.attendant.PersonalAttendantWriter">
+        <property name="generator" ref="velocityProfileGenerator" />
+        <property name="coreContext" ref="coreContext" />
+      </bean>
+    </property>
+    <property name="mailboxPreferencesWriter">
+      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesWriter">
+        <property name="velocityEngine" ref="velocityEngine" />
+      </bean>
+    </property>
+    <property name="coreContext" ref="coreContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="locationsManager" ref="locationsManager"/>
+  </bean>
+
+  <bean id="mailboxManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.vm.MailboxManager</value>
+    </property>
+    <property name="target">
+      <ref local="mailboxManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="mailboxManagerUserDelete" factory-bean="mailboxManagerImpl" factory-method="createUserDeleteListener" />
+
+  <bean id="mailboxPreferencesMigrationTask" class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesMigrationTask">
+    <property name="mailboxPreferencesReader">
+      <bean class="org.sipfoundry.sipxconfig.vm.MailboxPreferencesReader" />
+    </property>
+    <property name="coreContext" ref="coreContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="permissionManager" ref="permissionManager" />
+    <property name="taskNames">
+      <list>
+        <value>mailbox_prefs_migration</value>
+      </list>
+    </property>
+  </bean>
+
+</beans>

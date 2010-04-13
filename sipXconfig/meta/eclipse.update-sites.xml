@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bookmarks>
+   <site name="spindle" url="http://spindle.sf.net/updates" web="false" selected="true" local="false"/>
+   <site name="subclipse" url="http://subclipse.tigris.org/update" web="false" selected="true" local="false"/>
+   <site name="velocity" url="http://veloedit.sourceforge.net/updates/" web="false" selected="true" local="false"/>
+   <site name="Spring IDE update site" url="http://springide.org/updatesite" web="false" selected="true" local="false"/>
+   <site name="TMate Software Update Site" url="http://tmate.org/svn" web="false" selected="true" local="false"/>
+   <site name="Eclipse.org update site" url="http://update.eclipse.org/updates/3.0" web="false" selected="false" local="false"/>
+   <site name="jetty launcher" url="http://jettylauncher.sourceforge.net/updates" web="false" selected="true" local="false"/>
+   <site name="The Eclipse Project update site" url="http://update.eclipse.org/updates/3.2" web="false" selected="false" local="false"/>
+   <site name="Callisto Discovery Site" url="http://download.eclipse.org/callisto/releases" web="false" selected="true" local="false"/>
+   <site name="Subclipse 1.0.x (Eclipse 3.0/3.1)" url="http://subclipse.tigris.org/update_1.0.x" web="false" selected="false" local="false"/>
+   <site name="Subclipse 1.2.x (Eclipse 3.2+)" url="http://subclipse.tigris.org/update_1.2.x" web="false" selected="false" local="false"/>   
+   <site name="EMF/SDO/XSD Secondary Update Site" url="http://download.eclipse.org/tools/emf/updates/" web="false" selected="false" local="false"/>
+</bookmarks>

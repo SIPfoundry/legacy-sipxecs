@@ -1,0 +1,41 @@
+This is an abstract description of the locking system used in
+SipRefreshManager.
+
+----------------------------------------------------------------------
+
+Problem:  We have a set of objects, and the objects contain timers.
+When a timer fires, the event routine may modify the object containing
+the timer.  In addition, methods called by other threads may modify
+the objects, and may create and delete objects.  The nastiest part of
+the problem is the race between an externally-called method that wants
+to delete an object and the event routine of a timer within the
+object.
+
+Solution:
+
+The set is given a lock.
+
+A method that wishes to modify the objects must be holding the lock.
+
+Each timer is attached to some object.  If a timer is started, that
+implies that its containing object exists.  Thus, in order to delete
+an object, a method must *synchronously* stop all timers within the
+object first.
+
+Timer event routines must not block (since they are event routines).
+This means that they can not take the lock, and because of that, they
+cannot modify the objects.  Instead, timers should be constructed
+using the OsTimer::(OsMsg*, OsMsgQ*) constructor, so that their event
+routines only copy an identifier of the containing object into an
+OsMsg and queue it for a processing OsServerTask.  (The OsTimer
+itself, its contained OsMsg, and the containing object are assured of
+existing, because the timer, in order to fire, must at that moment be
+started.)
+
+This leads to a race condition:  Between when a timer fires and when
+the processing of the message its firing generates, the state of the
+relevant object may have changed.  For SipRefreshManager, the
+event-message-processing-method does not check for this, as the
+method's only action is to send the refreshing request (SUBSCRIBE or
+REGISTER), and that causes no functional failure if the refresh object
+has just been deleted.

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin" default-lazy="false">
+
+  <!--
+    - Backup Plan
+  -->
+  <class name="BackupPlan" table="backup_plan" discriminator-value="L">
+    <id name="id" column="backup_plan_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">backup_plan_seq</param>
+      </generator>
+    </id>
+    <discriminator column="backup_type" type="character" />
+    <property name="limitedCount" />
+    <property name="configs" />
+    <property name="voicemail" />
+    <property name="emailAddress" />
+    <bag name="schedules" inverse="true" table="daily_backup_schedule" cascade="all">
+      <key column="backup_plan_id" />
+      <one-to-many class="DailyBackupSchedule" />
+    </bag>
+    <subclass name="LocalBackupPlan" discriminator-value="L"></subclass>
+    <subclass name="FtpBackupPlan" discriminator-value="F">
+      <many-to-one name="ftpConfiguration" column="ftp_configuration_id" cascade="all"
+        foreign-key="fk_backup_plan_ftp_configuration" />
+    </subclass>
+  </class>
+  <!--
+    - Daily Backup Schedule
+  -->
+  <class name="DailyBackupSchedule" table="daily_backup_schedule">
+    <id name="id" column="daily_backup_schedule_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">daily_backup_schedule_seq</param>
+      </generator>
+    </id>
+    <property name="enabled" />
+    <property name="time" column="time_of_day" />
+    <property name="scheduledDay" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType" />
+    <many-to-one name="backupPlan" column="backup_plan_id" class="BackupPlan" />
+  </class>
+</hibernate-mapping>

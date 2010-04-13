@@ -1,0 +1,36 @@
+<ul class="component-links">
+  <li>
+    <!-- a jwcid="addNumberLink@tacos:AjaxLinkSubmit"
+      listener="listener:add"
+      updateComponents="ognl:{'speeddial:list'}" -->
+    <div jwcid="render@Any">
+    <span jwcid="@If" condition="ognl:!addNumberLinkDisabled">
+      <a jwcid="addNumberLink@LinkSubmit"
+        selected="ognl:add" tag="ognl:true">
+        <span key="link.addNumber">Add</span>
+      </a>
+     </span>
+     </div>
+  </li>
+</ul>
+<table id="speeddial:list">
+  <thead>
+    <tr>
+      <th><span key="label.label">Label</span></th>
+      <th><span key="label.number">Number</span></th>
+      <th><span key="label.blf">BLF</span></th>
+      <th colspan="3"><!-- delete, up, down --></th>
+    </tr>
+  </thead>
+  <span jwcid="@Hidden" value="ognl:buttonsSize" />
+  <tbody jwcid="@For" source="ognl:buttons" value="ognl:button"
+    index="ognl:index" volatile="ognl:true">
+    <tr jwcid="@speeddial/ButtonEditor"
+      button="ognl:button"
+      index="ognl:index"
+      removeIndex="ognl:removeIndex"
+      moveIndex="ognl:moveIndex"
+      moveOffset="ognl:moveOffset"
+      buttonsSize="ognl:buttonsSize"/>
+  </tbody>
+</table>

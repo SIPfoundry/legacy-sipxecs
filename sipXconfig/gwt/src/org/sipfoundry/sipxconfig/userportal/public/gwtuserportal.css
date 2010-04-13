@@ -1,0 +1,49 @@
+.detail, .detailLabel
+{
+	padding:3px;
+}
+
+td.staticTextStyle {
+	padding:5px;
+}
+
+.titleFormStyle, .titleFormStyleFocused, .titleFormStyleError
+{
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:9px;
+}
+
+td.titleFormStyleDisabled
+{
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:9px;
+}
+
+.gwtContactNameStyle
+{
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:12px;
+	font-weight:bold;
+}
+.gwtExpandedContact
+{
+	background:inherit;
+}
+
+.gwtHeading
+{
+	font-family:Verdana,Arial,Helvetica,sans-serif;
+	font-size:24px;
+	font-weight:bold;
+	margin:10px;
+}
+
+.gwtAvatarImg
+{
+	margin:10px;
+}
+
+.gwtEmbeddedWidgets
+{
+    background-color:transparent;
+}

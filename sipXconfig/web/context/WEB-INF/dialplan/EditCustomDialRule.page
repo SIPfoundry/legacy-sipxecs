@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.dialplan.EditDialRule">
+  <!--
+    - B E A N S
+  -->
+  <bean name="permissionAdapter" class="org.sipfoundry.sipxconfig.site.permission.PermissionOptionAdapter"
+    lifecycle="request">
+    <set name="locale" value="locale" />
+  </bean>
+  <bean name="permissionTypeModel"
+    class="org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel" lifecycle="request">
+    <set name="collection" value="permissionManager.callPermissions" />
+    <set name="adapter" value="bean:permissionAdapter" />
+  </bean>
+
+  <!--
+    - C O M P O N E N T S
+  -->
+
+</page-specification>
+

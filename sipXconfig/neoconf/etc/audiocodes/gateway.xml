@@ -1,0 +1,1977 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="upload-file">
+    <file variable="yes">
+      <contentType>application/binary</contentType>
+    </file>
+  </type>
+  <type id="number-plan">
+    <enum>
+      <option>
+        <value>0</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+      <option>
+        <value>9</value>
+      </option>
+    </enum>
+  </type>
+  <type id="modem-transport-type">
+    <enum>
+      <option>
+        <value>0</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+      <option>
+        <value>2</value>
+      </option>
+      <option>
+        <value>3</value>
+      </option>
+    </enum>
+  </type>
+  <type id="route-mode-type">
+    <enum>
+      <option>
+        <value>0</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+    </enum>
+  </type>
+  <type id="proxy-keepalive-type">
+    <enum>
+      <option>
+        <value>0</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+      <option>
+        <value>2</value>
+      </option>
+    </enum>
+  </type>
+  <type id="preffered-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>g711Alaw64k</value>
+      </option>
+      <option>
+        <value>g711Ulaw64k</value>
+      </option>
+      <option>
+        <value>g729</value>
+      </option>
+      <option>
+        <value>g7231</value>
+      </option>
+      <option>
+        <value>g726</value>
+      </option>
+    </multi-enum>
+  </type>
+  <group name="SIP_general">
+    <setting name="SOURCENUMBERMAPIP2TEL" advanced="yes" if="digital">
+      <value/>
+    </setting>
+    <setting name="REMOVECLIWHENRESTRICTED" advanced="yes" if="digital">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PRACKMode" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="ChannelSelectMode" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="EnableEarlyMedia" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="SIPSessionExpires" hidden="yes">
+      <value>0</value>
+    </setting>
+    <setting name="MINSE" hidden="yes">
+      <value>10</value>
+    </setting>
+    <setting name="SessionExpiresMethod" hidden="yes">
+      <value>0</value>
+    </setting>
+    <setting name="AssertedIDMode" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="UseTelURIForAssertedID" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="IsFaxUsed">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="DetFaxOnAnswerTone" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="SIPTransportType" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="LocalSIPPort" advanced="yes">
+      <value>5060</value>
+    </setting>
+    <setting name="TCPLocalSIPPort" advanced="yes">
+      <value>5060</value>
+    </setting>
+    <setting name="TLSLocalSIPPort" advanced="yes">
+      <value>5061</value>
+    </setting>
+    <setting name="EnableSIPS" hidden="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableTCPConnectionReuse" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="SIPDestinationPort" hidden="yes">
+      <value>5060</value>
+    </setting>
+    <setting name="IPAlertTimeout" advanced="yes">
+      <type>
+        <integer min="0" max="3600"/>
+      </type>
+      <value>180</value>
+    </setting>
+    <setting name="EnableRPIheader" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="AddTON2RPI" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableHistoryInfo" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="UseSourceNumberAsDisplayName" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="UseDisplayNameAsSourceNumber" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ProgressIndicator2IP" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>-1</value>
+          </option>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>-1</value>
+    </setting>
+    <setting name="PlayRBTone2IP" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PlayRBTone2Tel" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="EnableGRUU" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="UserAgentDisplayInfo" advanced="yes">
+      <type>
+        <string maxLen="50"/>
+      </type>
+    </setting>
+    <setting name="SIPSDPSessionOwner" advanced="yes" unless="5.0">
+      <type>
+        <string maxLen="39"/>
+      </type>
+      <value>AudiocodesGW</value>
+    </setting>
+    <setting name="SIPSubject" advanced="yes">
+      <type>
+        <string maxLen="50"/>
+      </type>
+    </setting>
+    <setting name="MultiPtimeFormat" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableReasonHeader" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="3xxBehavior" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="SIPReroutingMode" if="5.6orLater" advanced="yes">
+      <type>
+        <integer min="0" max="2"/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnablePChargingVector" advanced="yes" unless="5.0">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableVMURI" advanced="yes" unless="5.0">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="SipT1Rtx" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>500</value>
+    </setting>
+    <setting name="SipT2Rtx" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>4000</value>
+    </setting>
+    <setting name="SipMaxRtx" advanced="yes">
+      <type>
+        <integer min="1" max="7"/>
+      </type>
+      <value>7</value>
+    </setting>
+  </group>
+  <group name="SIP_coders">
+    <setting name="CoderName">
+      <type refid="preffered-codecs-type"/>
+      <value>g711Ulaw64k</value>
+    </setting>
+  </group>
+  <group name="SIP_Proxy_Registration">
+    <setting name="IsProxyUsed" hidden="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <!-- do not specify ProxyName, instead specify ProxyIP as FQDN -->
+    <setting name="ProxyIP" unless="6.0orLater" advanced="yes"/>
+    <setting name="ProxyIp" if="6.0orLater" unless="trunkGateway" advanced="yes"/>
+    <setting name="EnableProxyKeepAlive" unless="6.0orLater" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ProxyKeepAliveTime" unless="6.0orLater" >
+      <type>
+        <integer/>
+      </type>
+      <value>5</value>
+    </setting>
+    <setting name="IsFallbackUsed" hidden="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PreferRouteTable" hidden="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="AlwaysSendToProxy" hidden="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="SendInviteToProxy" advanced="yes" unless="5.6orLater">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="IsRegisterNeeded" hidden="yes" if="fxs">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <!-- do not set 'RegistrarName' - set 'RegistrarIP' to FQDN instead -->
+    <setting name="RegistrarIP" advanced="yes" if="fxs"/>
+    <setting name="RegistrationTime" advanced="yes" if="fxs">
+      <type>
+        <integer min="10" max="2000000"/>
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="RegistrationTimeDivider" advanced="yes" if="fxs">
+      <type>
+        <integer min="1" max="100"/>
+      </type>
+      <value>50</value>
+    </setting>
+    <setting name="RegistrationRetryTime" advanced="yes" if="fxs">
+      <type>
+        <integer min="10" max="3600"/>
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name="SIPGatewayName" advanced="yes"/>
+    <setting name="DNSQueryType" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="UseGatewayNameForOptions" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="isProxyHotSwap" unless="5.0">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="HotSwapRtx" advanced="yes" unless="5.0">
+      <type>
+        <integer min="1" max="30"/>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="Cnonce" if="fxs" advanced="yes">
+      <value>Default_Cnonce</value>
+    </setting>
+    <setting name="UserName" if="5.4orLater">
+      <value></value>
+    </setting>
+    <setting name="Password" if="5.4orLater">
+      <type>
+        <string password="yes" />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="AuthenticationMode" if="5.4orLater">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="SIPChallengeCachingMode" advanced="yes" unless="5.0">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="MutualAuthenticationMode" advanced="yes" unless="5.0">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="trunk-subscription" hidden="yes" if="digital" unless="bri">
+    <setting name="SubscriptionMode" hidden="yes">
+      <value>1</value>
+    </setting>
+  </group>
+  <group name="fxs-subscription" hidden="yes" if="fxs">
+    <setting name="SubscriptionMode" hidden="yes">
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="SIP_DTMF">
+    <setting name="MaxDigits">
+      <type>
+        <integer max="49" min="1"/>
+      </type>
+      <value>14</value>
+    </setting>
+    <setting name="TimeBetweenDigits" advanced="yes">
+      <type>
+        <integer max="10" min="1"/>
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="RxDTMFOption">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <collection name="TxDTMFOption" size="5">
+      <setting name="TxDTMFOption">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>3</value>
+            </option>
+            <option>
+              <value>4</value>
+            </option>
+            <option>
+              <value>5</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+    </collection>
+    <setting name="RFC2833PayloadType">
+      <type>
+        <integer min="96" max="127"/>
+      </type>
+      <value>96</value>
+    </setting>
+    <setting name="DigitMapping" if="fxs">
+      <type>
+        <string maxLen="152"/>
+      </type>
+    </setting>
+    <setting name="TimeForDialTone" if="fxs">
+      <type>
+        <integer/>
+      </type>
+      <value>16</value>
+    </setting>
+    <setting name="HotLineToneDuration" if="fxs">
+      <type>
+        <integer min="0" max="60"/>
+      </type>
+      <value>16</value>
+    </setting>
+    <setting name="IsSpecialDigits" advanced="yes" if="fxs">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="HookFlashOption" advanced="yes" if="fxs">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <group name="FlashHook" advanced="yes" unless="digital">
+      <setting name="MinFlashHookTime" if="fxs">
+        <type>
+          <integer min="25" max="300"/>
+        </type>
+        <value>300</value>
+      </setting>
+      <setting name="FlashHookPeriod" if="fxs">
+        <type>
+          <integer min="25" max="1500"/>
+        </type>
+        <value>700</value>
+      </setting>
+      <setting name="FlashHookPeriod" if="fxo">
+        <type>
+          <integer min="25" max="1500"/>
+        </type>
+        <value>790</value>
+      </setting>
+    </group>
+  </group>
+  <group name="advanced_general" advanced="yes">
+    <setting name="SecureCallsFromIP" advanced="yes" if="trunkGateway">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="AllowedIPs" advanced="yes" if="trunkGateway" unless="6.0orLater">
+      <profileName>$$</profileName>
+      <type>
+        <string/>
+      </type>
+    </setting>
+    <setting name="EnableDigitDelivery" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableDigitDelivery2IP" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableDIDWink" advanced="yes" unless="digital">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="RegretTime" advanced="yes" if="fxs">
+      <type>
+        <integer/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="DelayBeforeDIDWink" if="fxs">
+      <type>
+        <integer min="0" max="1000"/>
+      </type>
+      <value>0</value>
+    </setting>
+    <group name="Disconnect" advanced="yes">
+      <setting name="EnableReversalPolarity" unless="digital">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="EnableCurrentDisconnect" unless="digital">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="DisconnectOnBrokenConnection">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="BrokenConnectionEventTimeout">
+        <type>
+          <integer max="1000" min="1"/>
+        </type>
+        <value>100</value>
+      </setting>
+      <setting name="EnableSilenceDisconnect">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="FarEndDisconnectSilencePeriod">
+        <type>
+          <integer max="28800" min="10"/>
+        </type>
+        <value>120</value>
+      </setting>
+      <setting name="FarEndDisconnectSilenceMethod">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>3</value>
+            </option>
+          </enum>
+        </type>
+        <value>2</value>
+      </setting>
+      <setting name="FarEndDisconnectSilenceThreshold">
+        <type>
+          <integer max="100" min="1"/>
+        </type>
+        <value>8</value>
+      </setting>
+    </group>
+    <group name="CDR" advanced="yes">
+      <setting name="GwDebugLevel" advanced="yes">
+        <type>
+          <integer max="6" min="0"/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="CDRSyslogServerIP">
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="CDRReportLevel">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <setting name="EnableBusyOut" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="DefaultReleaseCause" hidden="yes">
+      <value>3</value>
+    </setting>
+    <setting name="GWAppDelayTime" advanced="yes">
+      <type>
+        <integer min="0" max="45"/>
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="MaxActiveCalls" advanced="yes">
+      <type>
+        <integer required="yes"/>
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="MaxCallDuration" advanced="yes">
+      <type>
+        <integer required="yes"/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableLanWatchDog" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableUserInfoUsage" hidden="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="CutThrough" advanced="yes" if="fxs">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <group name="SAS" unless="fxs">
+      <profileName>Stand-Alone Survivability</profileName>
+      <setting name="EnableSAS">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="SASBindingMode" if="5.4orLater">
+        <type>
+          <boolean/>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="SASSurvivabilityMode" if="5.6orLater">
+        <type>
+          <integer min="0" max="2"/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="SASEnableENUM" if="5.6orLater">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="SASRegistrationTime" if="5.4orLater">
+        <type>
+          <integer min="0" max="2000000"/>
+        </type>
+        <value>20</value>
+      </setting>
+      <setting name="SASLocalSIPUDPPort">
+        <value>5080</value>
+      </setting>
+      <setting name="SASLocalSIPTCPPort" if="5.4orLater">
+        <value>5080</value>
+      </setting>
+      <setting name="SASLocalSIPTLSPort" if="5.4orLater">
+        <value>5081</value>
+      </setting>
+      <setting name="SASDefaultGatewayIP">
+        <value/>
+      </setting>
+      <setting name="SASProxySet" if="5.6">
+        <type>
+          <integer min="0" max="5"/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="SASPROXYSET" if="6.0orLater">
+        <type>
+          <integer min="0" max="5"/>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="RedundantSASProxySet" if="5.6orLater" advanced="yes">
+        <type>
+          <integer min="-1" max="5"/>
+        </type>
+        <value>-1</value>
+      </setting>
+      <setting name="SASShortNumberLength" if="5.4">
+        <value/>
+      </setting>
+    </group>
+  </group>
+  <group name="ip2tel-call-routing" if="6.0orLater" unless="fxs">
+    <setting name="RouteModeIP2Tel" advanced="yes">
+      <type refid="route-mode-type"/>
+      <value>1</value>
+    </setting>
+    <group name="ip-to-tel-manipulation">
+      <setting name="DestManipulation1">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value>*, *, 0, 0</value>
+      </setting>
+      <setting name="DestManipulation2">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value></value>
+      </setting>
+      <setting name="DestManipulation3">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value></value>
+      </setting>
+      <setting name="DestManipulation4">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value></value>
+      </setting>
+    </group>
+  </group>
+  <group name="tel2ip-call-routing" if="6.0orLater" unless="fxs">
+    <setting name="RouteModeTel2IP" advanced="yes">
+      <type refid="route-mode-type"/>
+      <value>1</value>
+    </setting>
+    <setting name="EnableAltMapTel2IP" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <group name="tel-to-ip-normal">
+      <setting name="ProxyAddress">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+      </setting>
+      <setting name="ProxyKeepalive">
+        <profileName>$ignore$</profileName>
+        <type refid="proxy-keepalive-type"/>
+        <value>1</value>
+      </setting>
+      <setting name="DestManipulation">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value>*, *, 0, 0</value>
+      </setting>
+    </group>
+    <group name="tel-to-ip-failover">
+      <setting name="ProxyAddress">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+      </setting>
+      <setting name="ProxyKeepalive">
+        <profileName>$ignore$</profileName>
+        <type refid="proxy-keepalive-type"/>
+        <value>0</value>
+      </setting>
+      <setting name="DestManipulation">
+        <profileName>$ignore$</profileName>
+        <type>
+          <string/>
+        </type>
+        <value>*, *, 0, 0</value>
+      </setting>
+    </group>
+    <group name="tel-to-ip-route-cause" advanced="yes">
+      <setting name="AltRouteCauseTel2Ip_0">
+        <type>
+          <string/>
+        </type>
+        <value>408</value>
+      </setting>
+      <setting name="AltRouteCauseTel2Ip_1">
+        <type>
+          <string/>
+        </type>
+        <value>487</value>
+      </setting>
+      <setting name="AltRouteCauseTel2Ip_2">
+        <type>
+          <string/>
+        </type>
+        <value>488</value>
+      </setting>
+      <setting name="AltRouteCauseTel2Ip_3">
+        <type>
+          <string/>
+        </type>
+      </setting>
+    </group>
+  </group>
+  <group name="advanced-supplementary-services">
+    <setting name="EnableHold">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="HoldFormat" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableTransfer">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="EnableForward" hidden="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableCallWaiting">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="NumberOfWaitingIndications" if="fxs" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="TimeBetweenWaitingIndications" if="fxs" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="TimeBeforeWaitingIndications" if="fxs" advanced="yes">
+      <type>
+        <integer min="0" max="100"/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="WaitingBeepDuration" if="fxs" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>300</value>
+    </setting>
+    <setting name="HookFlashCode" advanced="yes">
+      <type>
+        <string maxLen="25"/>
+      </type>
+    </setting>
+    <group name="trunk-mwi" if="digital" unless="bri">
+      <setting name="EnableMWI">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="MwiSourceNumber" advanced="yes"/>
+      <setting name="DefaultNumber" advanced="yes">
+        <value>ServedUser</value>
+      </setting>
+      <setting name="VoiceMailInterface" hidden="yes">
+        <type>
+          <integer/>
+        </type>
+        <value>3</value>
+      </setting>
+    </group>
+    <group name="fxs-mwi" if="fxs">
+      <setting name="EnableMWI">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="MWIAnalogLamp" advanced="yes">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="MWIDisplay" advanced="yes">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="EnableMWISubscription">
+        <type>
+          <boolean/>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="MWIServerIP" advanced="yes"/>
+      <setting name="MWIExpirationTime" advanced="yes">
+        <type>
+          <integer min="10" max="72000"/>
+        </type>
+        <value>7200</value>
+      </setting>
+      <setting name="SubscribeRetryTime" advanced="yes">
+        <type>
+          <integer min="10" max="7200"/>
+        </type>
+        <value>120</value>
+      </setting>
+      <setting name="StutterToneDuration" advanced="yes">
+        <type>
+          <integer min="1000" max="6000"/>
+        </type>
+        <value>2000</value>
+      </setting>
+    </group>
+  </group>
+  <group name="keypad" if="fxs">
+    <group name="dnd">
+      <setting name="KeyCFDoNotDisturb">
+        <type>
+          <string/>
+        </type>
+      </setting>
+      <setting name="KeyCFDeact">
+        <type>
+          <string/>
+        </type>
+      </setting>
+    </group>
+    <group name="clid">
+      <setting name="KeyCLIR">
+        <type>
+          <string/>
+        </type>
+      </setting>
+      <setting name="KeyCLIRDeact">
+        <type>
+          <string/>
+        </type>
+      </setting>
+    </group>
+    <group name="hotline">
+      <setting name="KeyHotLine">
+        <type>
+          <string/>
+        </type>
+      </setting>
+      <setting name="KeyHotLineDeact">
+        <type>
+          <string/>
+        </type>
+      </setting>
+    </group>
+  </group>
+  <group name="digital-trunk" if="digital" unless="bri">
+    <setting name="PCMLawSelect">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="LineBuildOutLoss">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="TraceLevel">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <group name="TDM" advanced="yes">
+      <setting name="TDMBusClockSource">
+        <type>
+          <enum>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>4</value>
+            </option>
+          </enum>
+        </type>
+        <value>4</value>
+      </setting>
+      <setting name="TDMBusLocalReference">
+        <type>
+          <integer/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="TDMBusPSTNAutoClockEnable">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+  </group>
+  <group name="bri" if="bri">
+    <setting name="PCMLawSelect">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="LineBuildOutLoss">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="TraceLevel">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <group name="TDM" advanced="yes">
+      <setting name="TDMBusClockSource">
+        <type>
+          <enum>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>4</value>
+            </option>
+          </enum>
+        </type>
+        <value>4</value>
+      </setting>
+      <setting name="TDMBusLocalReference">
+        <type>
+          <integer/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="TDMBusPSTNAutoClockEnable">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+  </group>
+  <group name="applications-advanced-fxo" if="fxo">
+    <setting name="IsTwoStageDial" hidden="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="IsWaitForDialTone" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="WaitForDialTime" advanced="yes">
+      <type>
+        <integer min="0" max="2000"/>
+      </type>
+      <value>1000</value>
+    </setting>
+    <setting name="FXOBetweenRingTime" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>8</value>
+    </setting>
+    <setting name="TimeForReorderTone" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EnableVoiceDetection" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="RingsBeforeCallerID" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="SendMetering2IP" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="DisconnectOnBusyTone">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="DisconnectOnDialTone" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="GuardTimeBetweenCalls" advanced="yes">
+      <type>
+        <integer min="0" max="10"/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="TrunkGroup_1_FirstPhoneNumber" advanced="yes" unless="fxs">
+      <profileName>$ignore$</profileName>
+      <type>
+        <string/>
+      </type>
+      <value>Unknown00</value>
+    </setting>
+  </group>
+  <group name="Network">
+    <setting name="DHCPEnable" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="DisableNAT" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="STATICNATIP" advanced="yes">
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="DNSPriServerIP">
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="DNSSecServerIP">
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="NTPServerIP"/>
+    <setting name="NTPServerUTCOffset">
+      <type>
+        <integer min="-43200" max="43200"/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="NTPUpdateInterval">
+      <type>
+        <integer max="214783647" min="0"/>
+      </type>
+      <value>86400</value>
+    </setting>
+    <setting name="ENABLESTUN" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="STUNSERVERPRIMARYIP" advanced="yes">
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="STUNSERVERSECONDARYIP" advanced="yes">
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="EnablePPPoE" unless="5.4orLater">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PPPoEUserName" unless="5.4orLater"/>
+    <setting name="PPPoEPassword" unless="5.4orLater"/>
+    <setting name="PPPoEServerName" unless="5.4orLater"/>
+    <setting name="PPPoEStaticIPAddress" unless="5.4orLater">
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="PPPoERecoverIPAddress" advanced="yes" unless="5.4orLater">
+      <value>10.4.10.4</value>
+    </setting>
+    <setting name="PPPoERecoverSubnetMask" advanced="yes" unless="5.4orLater">
+      <value>255.255.0.0</value>
+    </setting>
+    <setting name="PPPoERecoverDfgwAddress" advanced="yes" unless="5.4orLater">
+      <value>10.4.10.1</value>
+    </setting>
+    <setting name="EnableSyslog" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="SyslogServerIP" advanced="yes">
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="SyslogServerPort" advanced="yes">
+      <type>
+        <integer/>
+      </type>
+      <value>514</value>
+    </setting>
+  </group>
+  <group name="Media">
+    <group name="Voice" advanced="yes">
+      <setting name="VoiceVolume">
+        <type>
+          <integer min="-32" max="31"/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="InputGain" advanced="yes">
+        <type>
+          <integer min="-32" max="31"/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="EnableSilenceCompression">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="EnableEchoCanceller">
+        <type>
+          <boolean/>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="DTMFTransportType">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>3</value>
+            </option>
+          </enum>
+        </type>
+        <value>3</value>
+      </setting>
+      <setting name="DTMFVolume">
+        <type>
+          <integer min="-31" max="0"/>
+        </type>
+        <value>-11</value>
+      </setting>
+      <setting name="AnswerDetectorSensitivity">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="Fax">
+      <setting name="FaxTransportMode">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>3</value>
+            </option>
+          </enum>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="FaxModemBypassCoderType">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+          </enum>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="FaxBypassPayloadType" advanced="yes">
+        <type>
+          <integer min="96" max="120"/>
+        </type>
+        <value>102</value>
+      </setting>
+      <setting name="FaxRelayRedundancyDepth" advanced="yes">
+        <type>
+          <integer min="0" max="2"/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="FaxRelayEnhancedRedundancyDepth" advanced="yes">
+        <type>
+          <integer min="0" max="4"/>
+        </type>
+        <value>2</value>
+      </setting>
+      <setting name="FaxRelayECMEnable" advanced="yes">
+        <type>
+          <boolean/>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="FaxRelayMaxRate" advanced="yes">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>3</value>
+            </option>
+            <option>
+              <value>4</value>
+            </option>
+            <option>
+              <value>5</value>
+            </option>
+          </enum>
+        </type>
+        <value>5</value>
+      </setting>
+      <setting name="FaxModemBypassM" advanced="yes">
+        <type>
+          <integer min="1" max="3"/>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="CNGDetectorMode">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="CID">
+      <setting name="EnableCallerID">
+        <type>
+          <boolean/>
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="CallerIDType">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+            <option>
+              <value>4</value>
+            </option>
+            <option>
+              <value>16</value>
+            </option>
+            <option>
+              <value>17</value>
+            </option>
+            <option>
+              <value>18</value>
+            </option>
+            <option>
+              <value>19</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="Modem" advanced="yes">
+      <setting name="V21ModemTransportType">
+        <type refid="modem-transport-type"/>
+        <value>0</value>
+      </setting>
+      <setting name="V22ModemTransportType">
+        <type refid="modem-transport-type"/>
+        <value>0</value>
+      </setting>
+      <setting name="V23ModemTransportType">
+        <type refid="modem-transport-type"/>
+        <value>0</value>
+      </setting>
+      <setting name="V32ModemTransportType">
+        <type refid="modem-transport-type"/>
+        <value>0</value>
+      </setting>
+      <setting name="V34ModemTransportType">
+        <type refid="modem-transport-type"/>
+        <value>0</value>
+      </setting>
+    </group>
+  </group>
+  <group name="Media_RTP_RTPC" advanced="yes">
+    <setting name="DJBufMinDelay" advanced="yes">
+      <type>
+        <integer min="0" max="150"/>
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="DJBufOptFactor" advanced="yes">
+      <type>
+        <integer max="13" min="0"/>
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="RTPRedundancyDepth" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="RFC2198PayloadType" advanced="yes">
+      <type>
+        <integer min="96" max="127"/>
+      </type>
+      <value>104</value>
+    </setting>
+    <setting name="EnableStandardSIDPayloadType" advanced="yes">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="BaseUDPPort" advanced="yes">
+      <value>6000</value>
+    </setting>
+    <setting name="RemoteBaseUDPPort">
+      <type>
+        <integer max="64000"/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="L1L1ComplexTxUDPPort">
+      <type>
+        <integer max="64000"/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="L1L1ComplexRxUDPPort">
+      <type>
+        <integer max="64000"/>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="ComfortNoiseNegotiation">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+    </setting>
+    <group name="Telephony">
+      <setting name="CallProgressTonesFilename" advanced="yes">
+        <type refid="upload-file"/>
+        <value>usa_tones_12.dat</value>
+      </setting>
+      <setting name="FXSLoopCharacteristicsFilename" advanced="yes">
+        <type refid="upload-file"/>
+        <value>MP11x-02-1-FXS_16KHZ.dat</value>
+      </setting>
+      <setting name="CountryCoefficients" advanced="yes">
+        <value>70</value>
+      </setting>
+      <setting name="LifeLineType">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+  </group>
+  <group name="Management_Interface">
+    <group name="SNMP">
+      <setting name="SNMPManagerIsUsed_0">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="SNMPManagerTableIP_0"/>
+      <setting name="SNMPPort" advanced="yes">
+        <!--number -->
+        <value>161</value>
+      </setting>
+      <setting name="SNMPManagerTrapPort" advanced="yes">
+        <!--number -->
+        <value>162</value>
+      </setting>
+      <setting name="SNMPManagerTrapSendingEnable">
+        <type>
+          <boolean/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="SNMPTRUSTEDMGR_0" advanced="yes">
+        <value>0.0.0.0</value>
+      </setting>
+      <setting name="SNMPREADONLYCOMMUNITYSTRING_0">
+        <type>
+          <string password="yes"/>
+        </type>
+      </setting>
+      <setting name="SNMPREADWRITECOMMUNITYSTRING_0">
+        <type>
+          <string password="yes"/>
+        </type>
+      </setting>
+      <setting name="SNMPTRAPCOMMUNITYSTRING">
+        <type>
+          <string password="yes"/>
+        </type>
+        <value>trapuser</value>
+      </setting>
+    </group>
+  </group>
+</model>

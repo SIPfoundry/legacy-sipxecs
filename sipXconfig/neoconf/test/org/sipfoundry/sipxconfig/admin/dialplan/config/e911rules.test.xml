@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urle911-00-00'>    
+    <defaultMatch>
+        <transform>
+            <user>919</user>
+            <host>10.2.3.4</host>
+        </transform>
+    </defaultMatch>
+    <userMatch>
+        <userPattern>823124234@domain.com</userPattern>
+        <userPattern>723124234@domain.com</userPattern>
+        <userPattern>422344234@domain.com</userPattern>
+        <transform>
+            <user>9911</user>
+            <host>47.1.2.22</host>
+        </transform>
+    </userMatch>
+    <userMatch>
+        <userPattern>623124234@domain.com</userPattern>
+        <userPattern>723125344@domain.com</userPattern>
+        <userPattern>8354234@domain.com</userPattern>
+        <userPattern>422344234@domain.com</userPattern>
+        <transform>
+            <user>911</user>
+            <host>10.1.2.1:9000</host>
+        </transform>
+    </userMatch>
+    <userMatch>
+        <userPattern>523124234@domain.com</userPattern>
+        <transform>
+            <user>922</user>
+            <host>xxx.yyy.com:5060</host>
+            <urlparams>transport=tcp</urlparams>
+        </transform>
+    </userMatch>
+</mappings>

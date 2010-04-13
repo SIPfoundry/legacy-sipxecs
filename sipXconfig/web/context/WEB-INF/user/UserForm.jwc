@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.user.UserForm">
+  <description>UserForm shows/edits a User</description>
+  <parameter name="alwaysShowSipPassword" default-value="false"/>
+
+  <!--
+  - P R O P E R T I E S
+  -->
+  <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="settingDao" object="spring:settingDao"/>
+  <inject property="extensionPoolContext" object="spring:extensionPoolContext"/>
+
+  <property name="pin"/>
+  <property name="showSipPassword" persist="session"/>
+  <!-- space-delimited list of aliases -->
+  <property name="aliasesString"/>
+  <property name="groupsString"/>
+  <bean name="mailboxPreferences" class="org.sipfoundry.sipxconfig.vm.MailboxPreferences"/>
+  <!--
+  - C O M P O N E N T S
+  -->
+  <component id="firstNamePanel" type="common/FieldPanel">
+    <binding name="field" value="components.firstName"/>
+    <binding name="label" value="message:label.firstName"/>
+  </component>
+  <component id="firstName" type="TextField">
+    <binding name="value" value="user.firstName"/>
+    <binding name="displayName" value="message:label.firstName"/>
+  </component>
+  <component id="lastNamePanel" type="common/FieldPanel">
+    <binding name="field" value="components.lastName"/>
+    <binding name="label" value="message:label.lastName"/>
+  </component>
+  <component id="lastName" type="TextField">
+    <binding name="value" value="user.lastName"/>
+    <binding name="displayName" value="message:label.lastName"/>
+  </component>
+  <component id="userIdPanel" type="common/FieldPanel">
+    <binding name="field" value="components.userId"/>
+    <binding name="label" value="message:label.userId"/>
+    <binding name="description" value="message:description.userId"/>
+  </component>
+  <component id="userId" type="TextField">
+    <binding name="value" value="user.userName"/>
+    <binding name="validators" value="spring-validators:validSipUserId,required"/>
+    <binding name="displayName" value="message:label.userId"/>
+  </component>
+   <component id="pin" type="user/ConfirmPassword">
+    <binding name="password" value="pin"/>
+    <binding name="passwordDisplayName" value="message:label.pin"/>
+    <binding name="passwordDescription" value="message:description.pin"/>
+    <binding name="confirmPasswordDisplayName" value="message:label.pin2"/>
+    <binding name="passwordMismatchMessage" value="message:error.pinMismatch"/>
+    <binding name="passwordValidator" value="spring-validators:validPin,required"/>
+  </component>
+  <component id="sipPasswordPanel" type="common/FieldPanel">
+    <binding name="field" value="components.sipPassword"/>
+    <binding name="label" value="message:label.sipPassword"/>
+    <binding name="description" value="message:description.sipPassword"/>
+  </component>
+  <component id="sipPassword" type="TextField">
+    <binding name="value" value="user.sipPassword"/>
+    <binding name="displayName" value="message:label.sipPassword"/>
+    <binding name="validators" value="spring-validators:validPin,required"/>
+  </component>
+  <component id="groupsPanel" type="common/FieldPanel">
+    <!-- Tacos/Tapestry Bug
+      - give the right value for field, and autocomplete renders double
+      -->
+    <binding name="field" value="components.groupsX"/>
+    <binding name="label" value="message:label.groups"/>
+    <binding name="description" value="message:description.groups"/>
+  </component>
+  <component id="aliasesPanel" type="common/FieldPanel">
+    <binding name="field" value="components.aliases"/>
+    <binding name="label" value="message:label.aliases"/>
+    <binding name="description" value="message:description.aliases"/>
+  </component>
+  <component id="aliases" type="TextField">
+    <binding name="value" value="aliasesString"/>
+    <binding name="size" value="50"/>
+    <binding name="validators" value="spring-validators:validUsernamePatternSequence"/>
+    <binding name="displayName" value="message:label.aliases"/>
+  </component>
+
+  <component id="ifRenderSipPassword" type="If">
+    <binding name="condition" value="alwaysShowSipPassword || showSipPassword"/>
+  </component>
+  <component id="ifRenderToggle" type="If">
+    <binding name="condition" value="!alwaysShowSipPassword"/>
+  </component>
+
+  <component id="toggleShowSipPassword" type="common/ToggleLink">
+    <binding name="toggle" value="showSipPassword"/>
+  </component>
+</component-specification>

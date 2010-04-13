@@ -1,0 +1,1 @@
+PHONELOG_ENABLED : $!settings.getSetting('PHONELOG_ENABLED').Value

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="resourceListGenerator" class="org.sipfoundry.sipxconfig.speeddial.ResourceLists"
+    parent="defaultConfigurationFile">
+    <property name="name" value="resource-lists.xml"/>
+    <property name="coreContext" ref="coreContext" />
+    <property name="speedDialManager" ref="speedDialManager" />
+    <property name="restartRequired" value="false" />
+  </bean>
+
+  <bean id="speedDialManager" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.speeddial.SpeedDialManager</value>
+    </property>
+    <property name="target">
+      <ref local="speedDialManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="speedDialManagerImpl" class="org.sipfoundry.sipxconfig.speeddial.SpeedDialManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
+  </bean>
+
+  <bean id="speedDialManagerUserDelete" factory-bean="speedDialManagerImpl"
+    factory-method="createUserDeleteListener" />
+
+  <bean id="speedDialManagerUserGroupDelete" factory-bean="speedDialManagerImpl"
+    factory-method="createUserGroupDeleteListener" />
+
+</beans>

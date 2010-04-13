@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="lipModel" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="lg-nortel" />
+    <property name="label" value="LG Nortel IP Phone 6804" />
+    <property name="maxLineCount" value="4" />
+    <property name="profileTemplate" value="lg-nortel/mac.cfg.vm" />
+    <property name="vendor" value="LG-Nortel"/>
+    <property name="emergencyConfigurable" value="true"/>
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <!-- models -->
+  <bean id="lip6804" parent="lipModel">
+    <property name="label" value="LG Nortel IP Phone 6804" />
+    <property name="maxLineCount" value="4" />
+  </bean>
+  <bean id="lip6812" parent="lipModel">
+    <property name="label" value="LG Nortel IP Phone 6812" />
+    <property name="maxLineCount" value="11" />
+  </bean>
+  <bean id="lip6830" parent="lipModel">
+    <property name="label" value="LG Nortel IP Phone 6830" />
+    <property name="maxLineCount" value="24" />
+  </bean>
+
+  <!-- implementation -->
+  <bean id="lg-nortel" class="org.sipfoundry.sipxconfig.phone.lg_nortel.LgNortelPhone" singleton="false"
+    parent="abstractPhone">
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="lg-nortelFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="upload" />
+    <property name="modelFilePath" value="lg-nortel/upload.xml" />
+    <property name="label" value="LG Nortel IP Phone 68xx" />
+  </bean>
+</beans>

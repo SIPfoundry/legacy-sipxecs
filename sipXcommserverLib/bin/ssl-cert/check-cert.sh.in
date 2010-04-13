@@ -1,0 +1,436 @@
+#!@BASH@
+###
+### Check name and date in ssl certificate
+###
+
+ExitStatus=0
+ShowCert="NO"
+Feedback=NORMAL
+ExpireWarn=30
+ExpireFail=0
+Names=""
+CAdir=@SIPX_CONFDIR@/ssl/authorities
+openssl=@OPENSSL@
+Certificates=""
+FailedCerts=""
+CheckAs=CLIENTSERVER
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## Verbose
+        ##
+        -v|--verbose)
+            Feedback=VERBOSE
+            ;;
+
+        ##
+        ##
+        ##
+        -w|--warning)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <warning-days> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                ExpireWarn=${2}
+                shift # consume the switch
+            fi
+            ;;
+
+        -f|--fail)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <failure-days> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                ExpireFail=${2}
+                shift # consume the switch
+            fi
+            ;;
+
+        -n|--name)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Names="${Names} ${2}"
+                shift # consume the switch
+            fi
+            ;;
+
+        -a|--authority)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <authority-file> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Authority=${2}
+                shift # consume the switch
+            fi
+            ;;
+
+        -ca|--certificate-authority)
+            CheckAs=AUTHORITY
+            ;;
+
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            Certificates="${Certificates} ${1}"
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+if [ "${Action}" = "USAGE" -o -z "${Certificates}" ]
+then
+    cat <<USAGE
+
+Usage:
+
+    check-cert [ -v | --verbose ]
+               [ {-w | --warning} <warning-days> ]
+               [ {-f | --fail} <failure-days> ]
+               [ {-n | --name} <name> ]...
+               [ {-a | --authority} <authority-file> ]...
+               [ {-ca | --certificate-authority} ]
+               <certificate-file> ...
+
+    Checks signature validity, name, and expiration of each certificate.
+
+    Prints a warning if a certificate will expire
+      in less than <warning-days> (default is 30)
+
+    Returns failure (and prints message) if a certificate expires
+      in less than <failure-days> (default is 0)
+
+    Always returns a failure if any certificate has expired.
+
+    The --name option may be repeated any number of times, and if it is
+    given, the certificate must declare at least one of the names as a
+    valid subject name.  If the certificate uses the subjectAltName
+    extension to declare subjects, then only those names are used; if not
+    then the certificate common name is used.
+
+    The acceptable certificate authorities must be installed in the
+         ${CAdir}
+    directory unless the --authority switch is used to point to an
+    authority certificate.
+
+    The --certificate-authority option causes the certificate-file to be 
+    validated as a CA certificate (suitable for signing other certificates).
+USAGE
+    exit
+fi
+
+if [ -d ${CAdir} ]
+then
+    InstalledAuthorities=`find ${CAdir} \( -name \*.crt -o -name \*.crl -o -name \*.pem \) 2> /dev/null`
+    if [ -n "${InstalledAuthorities}" ]
+    then
+        AuthSwitch="-CApath"
+        AuthTarget=${CAdir}
+    fi
+fi
+
+if [ -f "${Authority}" ]
+then
+    # for now, assume that an authority check is looking for a self-signed cert
+    AuthSwitch="-CAfile"
+    AuthTarget=${Authority}
+fi
+
+if [ ${CheckAs} = "CLIENTSERVER" -a -z "${AuthSwitch}" ]
+then
+    cat 1>&2 <<EOF
+    No certificate authorities found - cannot validate certificate
+     Authorities directory: ${CAdir}
+     Authority certificate: "${Authority}"
+EOF
+    ExitStatus=1
+    FailedCerts="${Certificates}"
+fi
+
+cert_names () {
+    # print the unique names in the certificate, translating a URI:sip: form to just the domain
+    local certFile
+    certFile=$1
+    local subjectAltNameValues
+    subjectAltNameValues=`\
+        ${openssl} x509 -in "${certFile}" -text \
+                        -nameopt RFC2253,multiline -certopt no_pubkey,no_sigdump -noout \
+        | grep --after-context=1 'X509v3 Subject Alternative Name:' \
+        | tail -n 1`
+    if [ -z "${subjectAltNameValues}" ]
+    then
+        # no subjectAltName values in certificate, so output just the common name
+        ${openssl} x509 -in "${certFile}" -subject -nameopt RFC2253,multiline -noout \
+        | perl -ne 'use English; m/^ +commonName += / && print $POSTMATCH' \
+        | tr A-Z a-z
+    else
+        # there are subjectAltName values, so use only those and ignore the common name
+        echo ${subjectAltNameValues} \
+        | perl -ne 's/\bURI:sip://g, s/\bDNS://g; print join "\n", split ",";' \
+        | tr A-Z a-z \
+        | sort -u
+    fi
+}
+
+issuerName () {
+    local name
+    name=`${openssl} x509 -in "${1}" -noout -issuer | sed s/issuer=// 2> /dev/null`
+    echo "${name}"
+}
+
+subjectName () {
+    local name
+    name=`${openssl} x509 -in "${1}" -noout -subject | sed s/subject=// 2> /dev/null`
+    echo "${name}"
+}
+
+isSelfSigned () {
+    local issuer
+    issuer=`issuerName ${1}`
+    local subject
+    subject=`subjectName ${1}`
+
+    test -n "${issuer}" -a -n "${subject}" -a  "${issuer}" = "${subject}"
+}
+
+numCertsTested=0
+for Certificate in ${Certificates}
+do
+    numCertsTested+=1
+
+    # Validate the signatures and issuers
+    #   (also checks expiration, but does not provide advance warning as below)
+    CheckFile=`mktemp -t check-cert.XXXXXX`
+    trap "rm -f ${CheckFile} > /dev/null 2>&1" 0
+    cat /dev/null > ${CheckFile}
+
+    case ${CheckAs} in
+        CLIENTSERVER)
+            case ${Certificate} in
+                *-sip.*)
+                    # do not check for web usages on a sip certificate
+                    ;;
+                *)
+                    ${openssl} verify ${AuthSwitch} "${AuthTarget}" -purpose sslclient \
+                        "${Certificate}" \
+                        > ${CheckFile} 2>&1
+                    if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
+                    then
+                        echo "Invalid as client certificate." 1>&2
+                        sed 's/^/    /' ${CheckFile} 1>&2
+                        ExitStatus=1
+                        FailedCerts="${FailedCerts} ${Certificate}"
+                    fi
+                    cat /dev/null > ${CheckFile}
+                    ${openssl} verify ${AuthSwitch} "${AuthTarget}" -purpose sslserver \
+                        "${Certificate}" \
+                        > ${CheckFile} 2>&1
+                    if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
+                    then
+                        echo "Invalid as server certificate." 1>&2
+                        sed 's/^/    /' ${CheckFile} 1>&2
+                        ExitStatus=1
+                        FailedCerts="${FailedCerts} ${Certificate}"
+                    fi
+                    ;;
+            esac
+            ;;
+        
+        AUTHORITY)
+            # figure out if this is self-signed
+            isSelfSigned "${Certificate}"
+            IsSelfSigned=$?
+            if [ ${IsSelfSigned} -eq 0 ]
+            then
+                if [ "${Feedback}" = "VERBOSE" ]
+                then
+                    echo "Is a self-signed certificate." 1>&2
+                fi
+                AuthSwitch="-CAfile"
+                AuthTarget="${Certificate}"
+            else
+                # not self-signed - must be validated by some other cert we already have installed
+                echo "Is not a self-signed certificate;" 1>&2
+                echo "   using installed authorities to validate as an intermediate CA certificate." 1>&2
+                AuthSwitch="-CApath"
+                AuthTarget="${Certificate}"
+            fi
+
+            if ${openssl} x509 -purpose -noout -in "${Certificate}" \
+                | grep -E '^SSL (client|server) CA : Yes$' > /dev/null 2>&1
+            then
+                if [ "${Feedback}" = "VERBOSE" ]
+                then
+                    echo "Is tagged for use as a CA certificate." 1>&2
+                fi
+            elif [ ${IsSelfSigned} -eq 0 ]
+            then
+                # self-signed but not tagged for use as a CA certificate
+                # this isn't really correct, but some systems do it, 
+                # so accept it, but issue a warning in verbose mode
+                if [ "${Feedback}" = "VERBOSE" ]
+                then
+                    echo "Is not tagged for use as a CA certificate." 1>&2
+                fi
+            else
+                # neither self-signed nor tagged as a CA cert - reject
+                echo "Is not tagged for use as a CA certificate and is not self-signed." 1>&2
+                FailedCerts="${FailedCerts} ${Certificate}"
+                ExitStatus=1
+            fi
+
+            if [ ${ExitStatus} -eq 0 ]
+            then
+                ${openssl} verify ${AuthSwitch} "${AuthTarget}" "${Certificate}" \
+                    > ${CheckFile} 2>&1
+                if ! echo "${Certificate}: OK" | diff - ${CheckFile} > /dev/null 2>&1
+                then
+                    echo "Is not valid." 1>&2
+                    sed 's/^/    /' ${CheckFile} 1>&2
+                    ExitStatus=1
+                    FailedCerts="${FailedCerts} ${Certificate}"
+                else
+                    if [ "${Feedback}" = "VERBOSE" ]
+                    then
+                        echo "Is acceptable as a CA certificate." 1>&2
+                    fi
+                fi
+            fi
+            cat /dev/null > ${CheckFile}
+            ;;
+    esac
+
+    rm -f ${CheckFile}
+
+    # Check subject name if any correct answers are provided
+    if [ -n "${Names}" ]
+    then
+        CertNames=`cert_names ${Certificate}` # extract unique names from the certificate (above)
+        UniqueNames=`for n in ${Names}; do echo $n | tr A-Z a-z; done | sort -u`
+        Matched="NO"
+        for tgtName in ${UniqueNames}
+        do
+            for crtName in ${CertNames}
+            do
+                if [ "${tgtName}" = "${crtName}" ]; then Matched="YES"; fi
+            done
+        done
+        if [ "${Matched}" = "NO" ]
+        then
+            echo "Subject is not one of: " 1>&2
+            for name in ${UniqueNames}; do echo "    ${name}" 1>&2; done
+            echo "  Actual subject names are: " 1>&2
+            for name in ${CertNames}; do echo "    ${name}" 1>&2; done
+            echo "" 1>&2
+            ExitStatus=1
+            FailedCerts="${FailedCerts} ${Certificate}"
+            ShowCert="SHOW"
+        fi
+    fi
+
+    # Check expiration
+    warnSeconds=$((${ExpireWarn} * 3600 * 24))
+    failSeconds=$((${ExpireFail} * 3600 * 24))
+
+    cert_expires=`${openssl} x509 -in "${Certificate}" -noout -enddate | sed 's/notAfter=//'`
+    now=`date +%s`
+    if [ $? -eq 0 ] # date command support epoch format
+    then
+        exp=`date @DATE_PARSE_ARGS@"${cert_expires}" +%s`
+        if [ $? -eq 0 ] # date can fail for some dates and not others in some timezones - strange
+        then
+            # both dates converted to epoch seconds - compare them
+            remaining=$(($exp - $now))
+
+            if [ ${remaining} -le 0 ] # cert expired
+            then
+                echo "SSL certificate '${Certificate}' expired: ${cert_expires}" 1>&2
+                ExitStatus=1
+                FailedCerts="${FailedCerts} ${Certificate}"
+
+            elif [ ${failSeconds} -gt 0 -a ${remaining} -le ${failSeconds} ]
+            then
+                echo "SSL certificate '${Certificate}' expires in less than ${ExpireFail} days: ${cert_expires}" 1>&2
+                ExitStatus=1
+                FailedCerts="${FailedCerts} ${Certificate}"
+
+            elif [ ${remaining} -le ${warnSeconds} ]
+            then
+                echo "SSL certificate '${Certificate}' expires in less than ${ExpireWarn} days: ${cert_expires}" 1>&2
+                ShowCert="SHOW"
+            fi
+        else
+            echo "Your 'date' command does not support %s format - cannot calculate expiration." 1>&2
+            echo "SSL certificate '${Certificate}' expires: ${cert_expires}" 1>&2
+            ShowCert="SHOW"
+        fi
+        else
+        echo "Your 'date' command does not support %s format - cannot calculate expiration." 1>&2
+        echo "SSL certificate '${Certificate}' expires: ${cert_expires}" 1>&2
+        ShowCert="SHOW"
+    fi
+
+    if [ "${Feedback}" = "VERBOSE" ]
+    then
+        cert_name=`subjectName "${Certificate}"`
+        caName=`issuerName "${Certificate}"`
+
+        echo "Name:    ${cert_name}"
+        echo "Issuer:  ${caName}"
+        echo "Expires: ${cert_expires}"
+    fi
+
+done
+
+if [ ${numCertsTested} -eq 0 ]
+then
+    echo "No SSL certificate found." 1>&2
+    FailedCerts="${FailedCerts} ${Certificate}"
+    ExitStatus=1
+fi
+
+if [ ${ExitStatus} -ne 0 -o "${ShowCert}" = "SHOW" ]
+then
+    echo "SSL certificates: ${Certificates}" 1>&2
+fi
+
+if [ ${ExitStatus} -ne 0 ]
+then
+    echo "Check failed for ${FailedCerts}" 1>&2
+fi
+
+exit ${ExitStatus}
+
+
+# DUMP x509v3 = openssl x509 -in /opt/ssl-sipit/ssl.crt -text -certopt ca_default -certopt no_sigdump -certopt no_validity -certopt no_serial -certopt no_subject -certopt no_signame -noout
+#         X509v3 extensions:
+#             X509v3 Basic Constraints:
+#             CA:FALSE
+#             X509v3 Subject Alternative Name:
+#             URI:sip:pt.sipit.net, DNS:scott.pt.sipit.net
+#             X509v3 Subject Key Identifier:
+#             C1:54:B1:12:21:E5:70:ED:93:26:57:38:97:A9:CA:B4:8B:D4:74:D2

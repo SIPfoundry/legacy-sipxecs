@@ -1,0 +1,4 @@
+SpeedNumber,Name,PhoneNumber,Information
+#foreach($entry in $cfg.Phonebook)
+$velocityCount,"$!entry.FirstName $!entry.LastName",$entry.Number,
+#end

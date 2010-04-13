@@ -1,0 +1,13 @@
+/* Opera does not render floating help boxes properly without setting display property for fieldsets that contain them */
+#content fieldset
+{
+    display: table;
+}
+
+#contentContainer #leftNav {
+	width:15%;
+}
+.roundedSectionBoxInsideContent {
+	display:inline-block;
+	width:100%;
+}

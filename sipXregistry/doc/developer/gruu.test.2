@@ -1,0 +1,19 @@
+#! /bin/bash
+
+# Test GRUU functionality - translation.
+
+cd sipXregistry/doc/developer || exit 1
+
+SERVER=212.247.207.174
+DOMAIN=dale.pi.sipit.net
+CONTACT=sip:222@212.247.207.174
+CALL_ID="$( date -u +%Y-%m-%dT%H:%M:%SZ )@$CONTACT"
+
+sipsend \
+	---verbose \
+	--to 222@$DOMAIN \
+	--from $CONTACT \
+	--call-id $CALL_ID \
+	--contact '<$CONTACT>' \
+	--cseq 10 \
+	$SERVER:5070 INVITE sip:gruu~a68fd5b479343af6@dale.pi.sipit.net

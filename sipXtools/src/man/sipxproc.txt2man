@@ -1,0 +1,54 @@
+SIPXPROC(1)
+===========
+
+NAME
+----
+sipxproc - Utilities to deal with the sipX processes.   
+
+SYNOPSIS
+--------
+sipxproc [options] [sipx-process-name ...]
+
+DESCRIPTION
+-----------
+Provides a command line access to restarting one or more processes controlled by the sipX system.
+
+OPTIONS
+-------
+ -h|--help         This help text
+ -v|--verbose      Dump debugging output to screen
+ -s|--start        Start processes
+ -k|--stop         Stop processes
+ -r|--restart      Restart processes
+ -l|--status       Current status of processes
+  
+ENVIRONMENT
+-----------
+NONE
+  
+EXAMPLE
+-------  
+Show all the processes and their statuses
+
+ $ sipxproc
+
+Restart just the sipXconfig web interface
+
+ $ sipxproc -r ConfigServer
+    
+Combine with CLI scheduling to restart the proxy and 11 PM.   
+
+ $ echo "sipxproc -r SIPXProxy" | at 23:00
+ 
+HINTS
+-----
+For friendlier web user interface for viewing, starting, stoping sipX process see 
+"Services" module of the sipXconfig web admin interface.    
+  
+BUGS
+----
+see http://tracker.sipfoundry.org
+  
+AUTHOR
+------
+Douglas Hubler <dhubler@pingtel.com>

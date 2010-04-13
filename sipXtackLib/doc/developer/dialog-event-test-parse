@@ -1,0 +1,66 @@
+#! /usr/bin/perl
+
+$pad{'dialog-info'} = '  ';
+$pad{'dialog'} = '    ';
+$pad{'state'} = '      ';
+$pad{'local'} = '      ';
+$pad{'remote'} = '      ';
+$pad{'identity'} = '        ';
+$pad{'target'} = '        ';
+
+while (1) {
+    $read_message = 0;
+    while (<>) {
+	# Beware that if a message body does not end with newline,
+	# the following flag line will not be at the beginning of a line.
+	last if /====================END====================$/;
+	if ($read_message && /^user-agent: *(.*)/i) {
+	    $user_agent = $1;
+	} elsif	($user_agent eq '' && /^Read SIP message:/) {
+	    $read_message = 1;
+	}
+    }
+    $message = '';
+    while (<>) {
+	$end_found = s/\Q++++++++++++++++++++END++++++++++++++++++++\E$//;
+	$message .= $_;
+	last if $end_found;
+    }
+    last if $message eq '';
+    if (substr($message, 0, 7) eq 'NOTIFY ') {
+	process_message($message);
+    }
+}
+
+print "Test of user agent '$user_agent'.\n\n";
+
+$sep = "-------------------------------------------------------------------\n";
+print $sep;
+for $sub (sort keys %listing) {
+    print $listing{$sub};
+    print $sep;
+}
+
+exit 0;
+
+sub process_message {
+    my($message) = @_;
+
+    $e = index($message, "\n\n");
+    $header = substr($message, 0, $e);
+    $body = substr($message, $e+2);
+    $body =~ s/\t/ /g;
+    $body =~ s/ *\n */ /g;
+    $body =~ s/  +/ /g;
+    $body =~ s/ +</</g;
+    $body =~ s/> +/>/g;
+    $body =~ s/<([-a-z]+)/"\n" . $pad{$1} . "<" . $1/ge;
+    $body .= "\n";
+
+    ($call_id) = $header =~ m/\ncall-id: *(.*)\n/i;
+
+    if (!defined($listing{$call_id})) {
+	$listing{$call_id} .= $header . "\n\n";
+    }
+    $listing{$call_id} .= $body . "\n";
+}

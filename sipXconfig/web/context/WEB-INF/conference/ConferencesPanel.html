@@ -1,0 +1,76 @@
+    <span jwcid="@If" condition="ognl:enableAdd">
+    <ul class="component-links">
+        <li>
+            <a jwcid="addLink@LinkSubmit"  id="conference:add"
+                selected="ognl:action"
+                tag="ognl:addListener">
+                <span key="add_link">Add New Conference</span>
+            </a>
+        </li>
+    </ul>
+    </span>
+    <ul jwcid="@If"
+      condition="ognl:renderFilter"
+      class="component-submit">
+      <li>
+        <span jwcid="@setting/GroupFilter"
+          selectedGroupId="ognl:selectedGroupId"
+          groups="ognl:coreContext.groups"
+          queryText="ognl:queryText"
+          searchMode="ognl:searchMode"/>
+      </li>
+    </ul>
+	<table jwcid="@common/Table" id="conference:list" class="component"
+        columns="ognl:tableColumns"
+        source="ognl:filteredConferences"
+        row="ognl:currentRow"
+        usePager="ognl:true"
+        selections="ognl:selections">
+		<span jwcid="nameColumnValue@Block">
+		    <span jwcid="@If" renderTag="false" condition="ognl:isConferenceLocked(currentRow)">
+		          <img jwcid="@Image" image="asset:lockedIcon" align="absmiddle" />
+		    </span>
+			<a jwcid="@DirectLink" listener="ognl:selectListener" parameters="ognl:currentRow.id">
+                <span jwcid="@Insert" value="ognl:currentRow.name"/>
+            </a>
+		</span>
+		<span jwcid="ownerColumnValue@Block">
+		    <span jwcid="@If" condition="ognl:currentRow.hasOwner">
+		      <span jwcid="@If" condition="ognl:currentRow.owner.displayName != null">
+		          <span jwcid="@Insert" value="ognl:currentRow.owner.displayName" />
+		      </span>
+		      <span jwcid="@Else">
+		          <span jwcid="@Insert" value="ognl:currentRow.owner.userName" />
+		      </span>
+		    </span>
+		</span>
+        <span jwcid="enabledColumnValue@Block">
+            <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+        </span>
+        <span jwcid="activeColumnValue@Block">
+            <span jwcid="@conference/ActiveValue"
+                itemId="ognl:currentRow.id"
+                calculateListener="listener:calculateActiveValue"
+                activateListener="ognl:selectActiveListener"/>
+        </span>
+	</table>
+
+	<div jwcid="conferenceActions@Block">
+        <li>
+            <input jwcid="lockButton@Submit" id="conference:lock"
+                value="message:button.lock"
+                action="listener:lockConferences" />
+        </li>
+        <li>
+            <input jwcid="unlockButton@Submit" id="conference:unlock"
+                value="message:button.unlock"
+                action="listener:unlockConferences" />
+        </li>
+        <li jwcid="@If" condition="ognl:enableDelete">
+			<input jwcid="delete@Submit" id="conference:delete"
+			    selected="ognl:rowsToDelete"
+			    tag="ognl:selections.allSelected"
+			    action="listener:deleteConferences"
+			    value="message:button.delete" />
+        </li>
+    </div>

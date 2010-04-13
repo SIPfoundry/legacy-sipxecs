@@ -1,0 +1,300 @@
+<?xml version="1.0"?>
+
+<!-- INSTRUCTIONS FOR DESIGNERS WISHING TO ADD AN ALARM
+  Each sipX alarm is defined in the definitions section below.
+  Each alarm should have a unique id, which is an internal (not customer-visible) string.
+  Each alarm also has a unique code, which is customer-visible, and should be of the form
+  "SPXnnnnn" where nnn is a sequential number.  Add new alarms at the end of the file.
+  The severity, component, and actions for each alarm are specified here.
+  Current actions are log and email, and the default for both is "true" if not specified.
+  Strings containing the alarm description, and suggested actions to resolve it, must
+  be added in the meta/alarms/sipXalarms-strings.xml file.
+  -->
+
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+
+   <!-- Per-alarm definitions.  Only the actions are (or could be) configurable. -->
+   <definitions>
+      <alarm id="PROCESS_STARTED">
+         <code>SPX00001</code>
+         <severity>info</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="default"
+                  />
+      </alarm>
+      <alarm id="PROCESS_RESTARTED">
+         <code>SPX00002</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="disabled"
+                  />
+      </alarm>
+      <alarm id="PROCESS_FAILED">
+         <code>SPX00004</code>
+         <severity>crit</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="default"
+                  />
+      </alarm>
+      <alarm id="LOGIN_FAILED">
+         <code>SPX00005</code>
+         <severity>warning</severity>
+         <component>sipXconfig</component>
+         <action log="true"
+                 email="default"
+                 />
+         <filter min_threshold="3"
+                 />
+      </alarm>
+      <alarm id="THRESH_CPUUTIL_EXCEEDED">
+         <code>SPX00006</code>
+         <severity>warning</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="THRESH_CPUUTIL_OK">
+         <code>SPX00007</code>
+         <severity>info</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="THRESH_DISK_EXCEEDED">
+         <code>SPX00008</code>
+         <severity>warning</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="THRESH_DISK_OK">
+         <code>SPX00009</code>
+         <severity>info</severity>
+         <component>monitoring</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="EMERG_NUMBER_DIALED">
+         <code>SPX00012</code>
+         <severity>crit</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="STUN_ADDRESS_DISCOVERY_FAILED">
+         <code>SPX00013</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+         <filter max_reports="1"
+                 />
+      </alarm>
+      <alarm id="STUN_ADDRESS_DISCOVERY_RECOVERED">
+         <code>SPX00014</code>
+         <severity>info</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+         <filter max_reports="1"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_AUTHENTICATION_FAILED">
+         <code>SPX00015</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_OPERATION_TIMED_OUT">
+         <code>SPX00016</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
+         <code>SPX00017</code>
+         <severity>info</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="STUN_ADDRESS_ERROR">
+         <code>SPX00018</code>
+         <severity>crit</severity>
+         <component>sipXconfig</component>
+         <action log="true"
+                 email="default"
+                 />
+         <filter max_reports="1"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ITSP_SERVER_FAILURE">
+         <code>SPX00019</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND">
+         <code>SPX00020</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="SOFTWARE_UPDATE_AVAILABLE">
+         <code>SPX00021</code>
+         <severity>info</severity>
+         <component>sipXconfig</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR">
+         <code>SPX00022</code>
+         <severity>info</severity>
+         <component>sipXconfig</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_FAILED_TO_INITIALIZE_MEDIA_RELAY">
+         <code>SPX00023</code>
+         <severity>crit</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_LOST_CONTACT_WITH_MEDIA_RELAY">
+         <code>SPX00024</code>
+         <severity>error</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTED">
+         <code>SPX00025</code>
+         <severity>warning</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTING">
+         <code>SPX00026</code>
+         <severity>error</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RECONNECTED">
+         <code>SPX00027</code>
+         <severity>info</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS">
+         <code>SPX00028</code>
+         <severity>crit</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="STUN_PUBLIC_ADDRESS_CHANGED">
+         <code>SPX00029</code>
+         <severity>info</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="PROCESS_CONFIGTEST_FAILED">
+         <code>SPX00030</code>
+         <severity>crit</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="PROCESS_RESOURCE_REQUIRED">
+         <code>SPX00031</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="PROCESS_CONFIG_MISMATCH">
+         <code>SPX00032</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="MEDIA_RELAY_STRAY_PACKETS_DETECTED">
+         <code>SPX00039</code>
+         <severity>crit</severity>
+         <component>sipXrelay</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR">
+         <code>SPX00040</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="TLS_CERTIFICATE_MISMATCH">
+         <code>SPX00041</code>
+         <severity>crit</severity>
+         <component>sipXbridge</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+
+      <!-- Add new alarms above this line.
+          Remember to add strings into meta/alarms/sipXalarms-strings.xml also.
+          Notes:
+            Make sure the block begins with the 'alarm' tag and ends with '/alarm'.
+            'id=' the id can be any unique string (no spaces).  This is how the alarm is raised
+                  by application code.
+            'code' should be unique, and of the form SPXnnnnn, incremented for each new alarm
+            'severity' is one of debug, info, notice, warning, error, crit
+            'component' as appropriate (e.g. sipXconfig, sipXregistrar, etc)
+            'action' is optional.  Default for all notifiers is "true".
+            'filter' specifies optional rudimentary thresholds:
+               'min_threshold' means the alarm should only be reported after this many occurrences
+                               in a short time.  Default is 0 (i.e. report always).
+               'max_reports'   means the alarm should only be reported this many times
+                               in a short time.  Default is INT_MAX (i.e. report always).
+      -->
+   </definitions>
+</alarm_server>

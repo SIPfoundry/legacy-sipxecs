@@ -1,0 +1,74 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'menu', 'options'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg" />
+    <form jwcid="form@Form" delegate="bean:validator">
+      <span id="attendant:form" />
+      <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+      <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+        listener="listener:commit"/>
+    </form>
+  </div>
+
+  <div jwcid="menuTab@Block">
+    <div class="help">
+      <dl>
+      <dt><span key="helpH1">Upload new prompt:</span></dt>
+      <dd><span key="helpT1">Uploaded sound files must be 8khz /
+      16 bit PCM samples, signed, little-endian, 1 channel (mono), .wav
+      header (implied 128kbps) </span></dd>
+      </dl>
+      <dl>
+      <dt><span key="helpH2">Actions</span></dt>
+      <dd><span key="helpT2">To allow the attendant user to dial
+      someone's extension at any time, do not assign an action to the first
+      digit of the digits in the range of internal extensions. For example,
+      if your internal extensions all start with 1, leave 1 blank. </span></dd>
+      <dt><span key="helpH3">Operator</span></dt>
+      <dd><span key="helpT3">Route call to extension 0</span></dd>
+      <dt><span key="helpH4">Dial by name prompt</span></dt>
+      <dd><span key="helpT4">The user will be prompted to dial a
+      person's name using the keypad. </span></dd>
+      <dt><span key="helpH5">Repeat Prompt</span></dt>
+      <dd><span key="helpT5">Play the initial greeting again</span></dd>
+      <dt><span key="helpH6">Voicemail login</span></dt>
+      <dd><span key="helpT6">The user will be directed to the
+      voicemail system and prompted to log in. </span></dd>
+      <dt><span key="helpH7">Disconnect</span></dt>
+      <dd><span key="helpT7">Play a good-bye message and end the
+      call.</span></dd>
+      <dt><span key="helpH8">Auto Attendant</span></dt>
+      <dd><span key="helpT8">Go to another auto attendant menu.</span></dd>
+      <dt><span key="helpH9">Goto Extension</span></dt>
+      <dd><span key="helpT9">Route the call directly to another
+      extension listed in the parameter field.</span></dd>
+      <dt><span key="helpH10">Deposit Voicemail</span></dt>
+      <dd><span key="helpT10">Transfer the call directly to a
+      voicemail box listed in the parameter field.</span></dd>
+      </dl>
+    </div>
+    <fieldset>
+      <table>
+        <tr jwcid="common@common/ItemCommon" item="ognl:attendant"
+          useEnabled="ognl:false" useFieldset="ognl:false"/>
+        <tr jwcid="attendantPromptLabel@common/FieldPanel"
+          label="message:attendant.prompt"
+          field="ognl:components.attendantPromptSelector.prompt">
+          <span jwcid="attendantPromptSelector@common/AssetSelectorMultiple"
+            asset="ognl:attendant.prompt" assetDir="ognl:attendant.promptsDirectory"
+            errorMsg="message:error.select" contentType="literal:audio/x-wav"/>
+        </tr>
+      </table>
+    </fieldset>
+    <fieldset jwcid="@dialplan/AttendantMenuPanel" menu="ognl:attendant.menu">
+      <li>
+        <input jwcid="reset@Submit" id="attendant:reset"
+          value="message:button.resetToDefaults" listener="listener:reset"/>
+      </li>
+    </fieldset>
+  </div>
+  <div jwcid="optionsTab@Block">
+    <fieldset jwcid="settingsFieldset@setting/SettingsFieldset"
+      settings="ognl:attendant.settings" renderGroupTitle="true"/>
+  </div>
+</div>

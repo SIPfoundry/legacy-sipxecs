@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/commons-digester.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/log4j.jar"/>
+	<classpathentry kind="src" path="src/presence-plugin/java"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/activation.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/bouncycastle.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/commons-el.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/hsqldb.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/jasper-compiler.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/jasper-runtime.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/jdic.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/jtds.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/mail.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/mysql.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/openfire.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/postgres.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/servlet.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/startup.jar"/>
+	<classpathentry kind="var" path="OPENFIRE_ROOT/plugins/kraken/lib/plugin-kraken.jar"/>
+	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar" sourcepath="/SIPX_SRC_TOP/sipXcommons"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-beanutils.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-collections.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/com.noelios.restlet.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/dnsjava.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/dom4j.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jain-sip-sdp.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/javax.servlet.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jdom-1.0.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/junit.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/org.restlet.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/ws-commons-util.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/xmlrpc-client.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/xmlrpc-common.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/xmlrpc-server.jar"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
+</classpath>

@@ -1,0 +1,98 @@
+$TXT
+$ speed dial phone
+line0Name=Bill User
+line0Url=201@sipfoundry.org
+
+line1Name=Bob User
+line1Url=202@sipfoundry.org
+
+line2Name=
+line2Url=
+
+line3Name=
+line3Url=
+
+line4Name=
+line4Url=
+
+line5Name=
+line5Url=
+
+line6Name=
+line6Url=
+
+line7Name=
+line7Url=
+
+line8Name=
+line8Url=
+
+line9Name=
+line9Url=
+
+
+$ Service Domain Settings
+ph1Realm1Active=1
+ph1Realm1DisplayName=Joe User
+ph1Realm1UserName=
+ph1Realm1RegisterName=juser
+ph1Realm1RegisterPass=1234
+ph1Realm1DomainServ=sipfoundry.org
+ph1Realm1ProxyServ=
+ph1Realm1Outbound=
+
+$ Auto Config Version
+AutoConfigVersion=1
+
+$ Phone Forward
+ph1AllFwd=0
+ph1BusyFwd=0
+ph1NoAnsFwd=0
+ph1AllFwdName=
+ph1AllFwdUrl=
+ph1BusyFwdName=
+ph1BusyFwdUrl=
+ph1NoAnsFwdName=
+ph1NoAnsFwdUrl=
+ph1NoAnsTimeOut=4
+
+$ MoH Settings
+ph1HoldRFCEnable=1
+NMOH=~~mh~@sipfoundry.org
+
+$ SNTP_Settings
+SNTPEnable=0
+SNTP1stServ=ntp.example.org
+SNTP2ndServ=
+SNTPTimeZone=-05:00
+SNTPSyncTime=00:06:00
+
+$ Port Settings
+ph1SIPPort=5060
+ph1RTPPort=10000
+
+$ Codec Settings
+CodecPri1=1
+CodecPri2=2
+CodecPri3=3
+CodecPri4=4
+G723Enable=1
+G723pkl=3
+G711G729pkl=2
+
+$ SIP Other Settings
+DTMF=1
+ph1RportEnable=1
+SIPExpireTime=3600
+
+$ STUN Settings
+ph1STUNEnable=0
+STUNServ=
+STUNPort=3478
+
+$ VLAN Settings
+VLANEnable=0
+VLANTag=1
+VLANPriority=
+VLANCFI=
+

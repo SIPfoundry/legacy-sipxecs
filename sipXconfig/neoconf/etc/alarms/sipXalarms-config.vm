@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!-- INSTRUCTIONS FOR DESIGNERS WISHING TO ADD AN ALARM
+     Each sipX alarm is defined in the alarm_definitions section below.
+     Each alarm should have a unique id, which is an internal (not customer-visible) string.
+     Each alarm also has a unique code, which is customer-visible, and should be of the form
+     SPXnnnnn where nnn is a sequential number.  Add new alarms at the end of the file.
+     The severity, component, and actions for each alarm are specified here.
+     Current action are log and email, and the default for both is "true" if not specified.
+     Strings containing the alarm description, and suggested actions to resolve it, must
+     be added in the AlarmStrings.xml.in file.  These strings could be localized for
+     different languages.
+     -->
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+	<!-- Per-alarm definitions.  Only the action are (or could be) configurable. -->
+   <definitions>
+#foreach ($alarm in ${alarms})
+      <alarm id="$alarm.alarmId">
+         <code>$alarm.code</code>
+         <severity>$alarm.severity</severity>
+         <component>$alarm.component</component>
+         <action log="$alarm.logEnabled"
+                 email="$alarm.groupName"
+                 />
+         <filter min_threshold="$alarm.minThreshold"
+                 />
+      </alarm>
+#end
+      <!-- Add new alarms above this line.
+          Remember to add strings into AlarmStrings.xml also.
+          Notes:
+            Make sure the block begins with the 'alarm' tag and ends with '/alarm'.
+            'id=' the id can be any unique string (no spaces).  This is how the alarm is raised
+                  by application code.
+            'code' should be unique, and of the form SPXnnnnn, incremented for each new alarm
+            'severity' is one of debug, info, notice, warning, err, crit
+            'component' as appropriate (e.g. sipXconfig, sipXregistrar, etc)
+            'action' is optional.  Default for all notifiers is "true".
+            'filter' specifies thresholds:
+               'min_threshold' means the alarm should only be reported after this many occurrences
+                               in a short time.  Default is 0 (i.e. report always).
+               'max_reports'   means the alarm should only be reported this many times
+                               in a short time.  Default is INT_MAX (i.e. report always).
+      -->
+   </definitions>
+</alarm_server>

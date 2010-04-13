@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+
+  <bean id="sfLogLayout" class="org.sipfoundry.sipxconfig.sip.log4j.SipFoundryLayout">
+    <property name="facility" value="JAVA" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="sfLogAppender" class="org.sipfoundry.sipxconfig.sip.log4j.SipFoundryAppender">
+    <constructor-arg ref="sfLogLayout" />
+    <constructor-arg value="${sysdir.log}/sipxconfig.log" />
+  </bean>
+
+  <bean id="initStackAdvice" class="org.sipfoundry.sipxconfig.sip.InitStackAdvice">
+    <property name="stack" ref="sipImpl" />
+  </bean>
+
+  <bean id="sipImpl" class="org.sipfoundry.sipxconfig.sip.SipServiceImpl">
+    <property name="transport" value="udp" />
+    <property name="port" value="5180" />
+    <property name="logAppender" ref="sfLogAppender" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="properties">
+      <value>
+        javax.sip.STACK_NAME=sipXconfig
+        gov.nist.javax.sip.TRACE_LEVEL=LOG4J
+        gov.nist.javax.sip.LOG_MESSAGE_CONTENT=true
+        gov.nist.javax.sip.LOG_FACTORY=org.sipfoundry.sipxconfig.sip.log4j.SipFoundryLogRecordFactory
+        gov.nist.javax.sip.THREAD_POOL_SIZE=1
+        gov.nist.javax.sip.REENTRANT_LISTENER=true
+        LEVEL=ERROR
+      </value>
+    </property>
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="sip" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.sip.SipService" />
+    <property name="target" ref="sipImpl" />
+    <property name="interceptorNames">
+      <list>
+        <value>initStackAdvice</value>
+      </list>
+    </property>
+  </bean>
+</beans>

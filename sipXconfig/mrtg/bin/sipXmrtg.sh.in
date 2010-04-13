@@ -1,0 +1,86 @@
+#!@BASH@
+
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac
+    shift # always consume 1
+done
+
+SIPXPBXUSER=@SIPXPBXUSER@
+SIPXPBXGROUP=@SIPXPBXGROUP@
+SIPX_VARDIR=@SIPX_VARDIR@
+SIPX_CONFDIR=@SIPX_CONFDIR@
+SIPX_RUNDIR=@SIPX_RUNDIR@
+SIPX_LOGDIR=@SIPX_LOGDIR@
+
+MRTG_CONFIG_FILE="$SIPX_CONFDIR/mrtg/mrtg.cfg"
+MRTG_PID_FILE="$SIPX_RUNDIR/sipXmrtg.pid"
+MRTG_BIN=@MRTG_BINARY@
+MRTG_LOG_FILE="$SIPX_LOGDIR/sipXmrtg.log"
+
+# Re-direct stderr and stdout to a log file.
+rm -rf $MRTG_LOG_FILE
+exec 3<>$MRTG_LOG_FILE
+exec 2>&3
+exec 1>&3
+echo `date`
+
+MRTG_COMMAND="env LANG=C LC_ALL=C $MRTG_BIN --user $SIPXPBXUSER --group $SIPXPBXGROUP $MRTG_CONFIG_FILE --lock-file $MRTG_CONFIG_FILE.l --confcache-file $MRTG_CONFIG_FILE.ok"
+
+case ${Action} in
+   RUN)
+     echo $$ > $MRTG_PID_FILE
+     # Re-direct stderr and stdout to a log file.
+     rm -rf $MRTG_LOG_FILE
+     exec 3<>$MRTG_LOG_FILE
+     exec 2>&3
+     exec 1>&3
+     echo `date`
+
+     exec $MRTG_COMMAND
+     ;;
+
+   STOP)
+     sipx_stop sipXmrtg $MRTG_PID_FILE
+     rm -f $MRTG_CONFIG_FILE.l
+     rm -f $MRTG_CONFIG_FILE.ok
+     ;;
+
+   CONFIGTEST)
+     Status=0
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipXmrtg.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+	 Status=1
+     fi
+
+     ;;
+esac
+
+exit $Status

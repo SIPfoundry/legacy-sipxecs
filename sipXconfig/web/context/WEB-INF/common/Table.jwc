@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.apache.tapestry.contrib.table.components.Table"
+  allow-body="yes" allow-informal-parameters="yes">
+  <description>
+    sipXconfig version of a standard table - has sipXconfig styles for rows - provides checkboxes
+    for selecting rows
+  </description>
+
+  <asset name="tableScript" path="context:/WEB-INF/common/Table.script" />
+
+  <parameter name="source" required="yes" />
+  <parameter name="columns" required="yes" />
+  <parameter name="converter" required="no" />
+  <parameter name="initialSortColumn" required="no" />
+  <parameter name="initialSortOrder" required="no" default-value="true" />
+  <parameter name="row" required="no"/>
+  <parameter name="index" required="no"/>
+  <parameter name="rowInfo" required="no" default-value="bean:defaultRowInfo" />
+  <parameter name="rowClass" required="no" default-value="bean:rowClass" />
+  <parameter name="selections" required="no" />
+  <parameter name="usePager" required="no" default-value="false" />
+  <parameter name="volatile" required="no" default-value="false" />
+  <inject property="tableVariables" object="spring:tableVariables" />
+
+  <!-- B E A N S -->
+  <bean name="rowClass" class="org.apache.tapestry.bean.EvenOdd" lifecycle="render" />
+  <bean name="defaultRowInfo" class="org.sipfoundry.sipxconfig.site.common.SimpleRowInfo" lifecycle="page" />
+
+  <!-- C O M P O N E N T S  -->
+  <component id="tableElement" type="Any" inherit-informal-parameters="yes">
+  </component>
+  <component id="ifRenderPages" type="If">
+    <binding name="condition" value="usePager" />
+  </component>
+  <component id="tableView" type="contrib:TableView">
+    <binding name="source" value="source" />
+    <binding name="columns" value="columns" />
+    <binding name="pageSize" value="usePager ? tableVariables.tablePageSize : -1" />
+    <binding name="initialSortColumn" value="initialSortColumn" />
+    <binding name="initialSortOrder" value="initialSortOrder" />
+    <binding name="element" value="literal:span" />
+    <binding name="columnSettingsContainer" value="container" />
+  </component>
+  <component id="tablePages" type="contrib:TablePages" />
+  <component id="tableColumns" type="contrib:TableColumns" />
+  <component id="tableRows" type="contrib:TableRows">
+    <inherited-binding name="row" parameter-name="row" />
+    <inherited-binding name="index" parameter-name="index" />
+    <inherited-binding name="volatile" parameter-name="volatile" />
+    <binding name="class" value="rowClass.next" />
+    <inherited-binding name="converter" parameter-name="converter" />
+  </component>
+  <component id="tableValues" type="contrib:TableValues" />
+  <component id="renderSelectedRow" type="If">
+     <!-- otherwise it renders an empty cell, but a cell none-the-less -->
+    <binding name="condition" value="rowInfo.isSelectable(tableRow)" />
+  </component>
+  <component id="selectedRow" type="contrib:ControlledCheckbox">
+    <binding name="value" value="selections.selected[#this.rowInfo.getSelectId(tableRow)]" />
+  </component>
+  <component id="tablePagesCell" type="Any">
+    <!-- need an extra column for a footer -->
+    <binding name="colspan" value="components.tableView.tableModel.columnModel.columnCount + 1" />
+  </component>
+</component-specification>

@@ -1,0 +1,501 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=1
+Args=""
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
+# Declare script variables in a manner that unit test
+# (or end user I suppose) can override
+: ${ConfDir:=@SIPX_CONFDIR@}
+: ${SslDir:=${ConfDir}/ssl}
+: ${AuthoritiesDir:=${SslDir}/authorities}
+: ${PidFile:=@SIPX_RUNDIR@/sipxcallresolver.pid}
+: ${LibOdbcDir:=@ODBC_LIBDIR@}
+: ${Psql:=psql}
+if [ `uname -s` = FreeBSD ] ; then
+    : ${ServiceDir:=@PREFIX@/etc/rc.d}
+else
+    : ${ServiceDir:=/etc/init.d}
+fi
+: ${SubstituteUser:=su}
+: ${Chown:=chown}
+: ${LogDir:=@SIPX_LOGDIR@}
+: ${TmpDir:=@SIPX_TMPDIR@}
+: ${RunningUser:=@SIPXPBXUSER@}
+: ${PgUser:=@POSTGRESQL_USER@}
+: ${PgSchema:=${ConfDir}/cdr/schema.sql}
+: ${RubyCmd:=@RUBY@}
+: ${DbVersion:=6}
+: ${DbPatchDir:=${ConfDir}/cdr}
+: ${DbPatchLog:=${LogDir}/sipcdrpatch.log}
+: ${CallResolverLog:=${LogDir}/sipcallresolver.log}
+: ${CallResolverMain:=@GEM_LIB_DIR@/sipxcallresolver-2.0.0/lib/main.rb}
+
+resolverArgs="--confdir ${ConfDir} --logdir ${LogDir}"
+Database=SIPXCDR
+Today=`date`
+
+PsqlCmd="${Psql} --quiet --tuples-only --no-align --username ${PgUser} --dbname ${Database}"
+
+# Make sure we are running as root during installation setup
+assertRoot() {
+    user=`whoami`
+    if [ "${user}" != "root" ]; then
+      echo "Error: Must be root to run sipxcallresolver.sh script." >&2
+      exit 1
+    fi
+}
+
+# This function determines the correct service name for Postgres.
+postgresService() {
+    # If the user has already specified $Service, do not modify it.
+    if test -n "$POSTGRES_SERVICE"
+    then
+        echo -e "$POSTGRES_SERVICE"
+
+    elif [ -f ${ServiceDir}/rhdb ]
+    then
+        # Red Hat Enterprise / CentOS use the name rhdb
+        echo -e rhdb
+
+    elif [ -f /etc/init.d/postgresql-* ]
+    then
+        # Debian uses a service name appended with the version number
+        # E.g. postgresql-7.4 or postgresql-8.2
+        echo -e `ls /etc/init.d/postgresql-* | sed -e 's/\/etc\/init.d\///'`
+
+    else
+        # SUSE, Fedora, FreeBSD and others use the name postgresql
+        echo -e postgresql
+    fi
+}
+
+# This function configures the Postgresql ODBC drivers.
+configOdbcDrivers() {
+    # Generate a global odbcinst.ini file.
+    odbcinst -v -i -d -r <<EOF
+# Included in the unixODBC package
+[PostgreSQL]
+Description = ODBC for PostgreSQL
+Driver = ${LibOdbcDir}/psqlodbc.so
+Setup = ${LibOdbcDir}/libodbcpsqlS.so
+FileUsage = 1
+EOF
+}
+
+# How to add a database patch:
+#
+# Add a file containing SQL statements in the sipXproxy/etc/database directory.
+# Be sure to add the file to the sql_schemas list in Makefile.am and to the %files
+# section in sipxproxy.spec.in
+#
+# Define an upgrade path - put the file name (without extension .sql) in one or
+# more of the upgrade lists below.
+
+# special patch that upgrades DB version to the latest version - only use once
+VersionPatch="upgrade_version"
+
+UpgradePatches6=""
+UpgradePatches5="transaction $VersionPatch"
+UpgradePatches4="reference contact calldirection transaction $UpgradePatches5"
+UpgradePatches3="index_on_time $UpgradePatches4"
+UpgradePatches2="view_cdrs $UpgradePatches3"
+UpgradePatches1="refer_uri $UpgradePatches2"
+
+# Apply database patches
+databasePatch() {
+    version=`${PsqlCmd} -c "select max(version) from version_history"`
+    UpgradePatches=$(eval "echo \$$(echo UpgradePatches${version})")
+    if [ -n "${UpgradePatches}" ]; then
+	    echo "${Today}" >> ${DbPatchLog}
+		echo "Patch list: ${UpgradePatches}" >> ${DbPatchLog}
+        for patch in $UpgradePatches; do
+            if [ ${patch} = ${VersionPatch} ]; then
+                echo "Upgrading DB schema version to ${DbVersion}" >> ${DbPatchLog}
+            	${PsqlCmd} -c "insert into version_history values ('${DbVersion}', '${Today}')" >>${DbPatchLog} 2>&1
+            elif [ -f ${DbPatchDir}/${patch}.sql ]; then
+                # Apply patch only if not found in the patch list
+                if ! ${PsqlCmd} -c "select name from patch where name = '${patch}'" | grep ${patch} >>${DbPatchLog} 2>&1; then
+                   echo "Applying patch ${DbPatchDir}/${patch}.sql" >> ${DbPatchLog}
+                   ${PsqlCmd} -f ${DbPatchDir}/${patch}.sql >>${DbPatchLog} 2>&1
+                   ${PsqlCmd} -c "insert into patch values ('${patch}')" >>${DbPatchLog} 2>&1
+                fi
+            else
+                echo "Error: Database patch file ${patch}.sql not found." >> ${DbPatchLog}
+            fi
+        done
+   fi
+}
+
+# Setup database
+databaseCommand() {
+    databaseCheck Silent
+
+    case ${1} in
+       create)
+         createdb --quiet -U ${PgUser} --encoding=UNICODE ${Database}
+         ${PsqlCmd} -f ${PgSchema}
+       ;;
+
+       drop)
+         dropdb --quiet -U ${PgUser} ${Database}
+       ;;
+   esac
+}
+
+# Return false if postgres is
+#  1. not running
+#  2. running but not setup to communicate w/java or ${Psql} command
+#  3. Database is not created
+databaseCheck() {
+   if ${Psql} -l -U ${PgUser} | grep "${Database}" >/dev/null 2>&1; then
+      return 0
+   fi
+   #  Check if psql command works at all
+   if ${Psql} -l -U ${PgUser} >/dev/null 2>&1; then
+      if [ "$1" != "Silent" ]; then
+         cat <<ERROR
+
+Error: The SIPXCDR database does not exist.
+Login as root and run the sipxcallresolver.sh script with the --setup parameter.
+   $0 --setup
+
+ERROR
+      fi
+      return 1
+   fi
+   # FreeBSD does not support 'ps -C cmd'
+   procs=`ps -U @POSTGRESQL_USER@`
+   if ! expr match "$procs" '.*postmaster.*' >/dev/null; then
+      if [ "$1" != "Silent" ]; then
+         echo "  Error: PostgreSQL is not running."
+      fi
+      return 1
+   fi
+   # Check postgres configuration
+   Service=`postgresService`
+
+   if test -z $PGDATA
+   # $PGDATA is set as an env variable for user ${PgUser}, but not for root
+   then
+      if [ `uname -s` = FreeBSD ]
+      then
+          PGDATA=~@POSTGRESQL_USER@/data
+      elif test -d /var/lib/postgresql/data
+      then
+          # Gentoo
+          PGDATA=/var/lib/postgresql/data
+      elif test -d /var/lib/pgsql/data
+      then
+          # Redhat, Fedora, CentOS & SUSE
+          PGDATA=/var/lib/pgsql/data
+      else
+          # Debian Etch
+          # Set PGDATA to the configuration directory. On Debian the database is already
+          # initialized and there is no initdb command
+          PGDATA=`ls -d /etc/postgresql/*.*/main`
+      fi
+   fi
+
+   # Check for conf file
+   if [ -f $PGDATA/pg_hba.conf ]; then
+      if ! grep '^local *all *all *trust.*' $PGDATA/pg_hba.conf >/dev/null; then
+         if [ "$1" != "Silent" ]; then
+         cat <<ERROR
+
+Error: $PGDATA/pg_hba.conf is not set up for local connections.
+Login as root and run the sipxcallresolver.sh script with the --setup parameter.
+   $0 --setup
+
+ERROR
+         fi
+      else
+         echo "Error:  Unknown database error."
+      fi
+   fi
+   return 1
+}
+
+
+# Check if there are multiple proxy processes running at the same time.
+# This can be a scenario for logging failures.
+proxyCheck() {
+   ok=0
+   # FreeBSD does not support 'ps -C cmd'
+   procs=`ps -U @SIPXPBXUSER@`
+   if expr match "$procs" '.*sipXproxy[^.].*' >/dev/null; then
+      # At least one sipXproxy is running, check for another one
+      if expr match "$procs" '.*sipXproxy[^.].*sipXproxy[^.].*' >/dev/null; then
+         cat <<ERROR
+Multiple proxy check failed:
+  Found at least two running sipXproxy processes.
+  This is a potential cause of CSE logging failures!
+
+ERROR
+         # FreeBSD does not support 'ps -C cmd'
+         ps -U @SIPXPBXUSER@ | grep 'sipXproxy$'
+         echo
+         ok=1
+      fi
+   fi
+
+   return $ok
+}
+
+configCheck() {
+   Status=0
+
+   if ! proxyCheck; then
+     Status=1
+   fi
+
+   if ! databaseCheck; then
+      Status=1
+   fi
+
+   if ! cat @SIPX_CONFDIR@/sipXproxy-config | grep SIPX_PROXY_CALL_STATE_DB | grep ENABLE >/dev/null ; then
+      cat <<ERROR
+
+  Warning: proxy is not configured to log call state events to a database:
+  No Call Detail Records will be generated.
+
+ERROR
+      Status=1
+   fi
+
+   # Don't check configuration of call resolver for distributed machines
+   if [ ${Action} = CONFIGTEST ]; then
+
+      if ! sipx_config_exists @SIPX_CONFDIR@/callresolver-config ; then
+          resolveOk=0
+          Status=1
+      else
+          resolveOk=1
+
+          resolveConfig=`sipx_config_value  @SIPX_CONFDIR@/callresolver-config SIP_CALLRESOLVER_PURGE`
+          if ! test "${resolveConfig}" = "ENABLE"; then
+              cat <<ERROR
+
+  Warning: callresolver is not configured for purging old records.
+  This will prevent the call resolver from automatically purging old database
+  records on a regular basis.
+  Add the line:
+
+     SIP_CALLRESOLVER_PURGE  : ENABLE
+
+  to @SIPX_CONFDIR@/sipxcallresolver/callresolver-config.vm
+
+ERROR
+              resolveOk=0
+              Status=1
+          fi
+      fi
+
+      if [ ! -f ${CallResolverMain} ]; then
+         cat <<ERROR
+
+  Error: ${CallResolverMain} not found (installation error).
+
+ERROR
+         Status=1
+      fi
+   fi
+
+}
+
+
+# Check the database version.  If it is wrong, then exit, because it's dangerous to
+# run call resolver on top of the wrong database version.
+databaseVersionCheck() {
+   dbver=`${Psql} --no-align --tuples-only -c "select max(vh.version) from version_history vh;" ${Database} ${PgUser}`
+   if [ "$dbver" = "" ]
+   then
+      echo "  Error: could not get the database version."
+	   return 1
+    fi
+    if [ "$dbver" != $DbVersion ]
+    then
+       if [ "$dbver" == 0 ]
+       then
+          cat <<ERROR
+
+Error: bad ${Database} database version.
+You should drop and recreate the database:
+  $0 --database drop create
+
+ERROR
+       else
+         cat <<ERROR
+
+Error: bad ${Database} database version.
+Expected version $DbVersion, got version $dbver.
+This database was created or modified by a different version of sipxcallresolver.
+
+ERROR
+        fi
+        return 1
+    fi
+    return 0
+}
+
+removeOldCronEntry()
+{
+    # Remove crontab entry for sipxcallresolver if there is one
+    if [ -f @SIPX_SYSCONFDIR@/crontab ]; then
+       if grep sipxcallresolver @SIPX_SYSCONFDIR@/crontab >/dev/null; then
+          sed -e 's/^.*sipxcallresolver.*$//' @SIPX_SYSCONFDIR@/crontab > @SIPX_SYSCONFDIR@/crontab.tmp
+          mv @SIPX_SYSCONFDIR@/crontab.tmp @SIPX_SYSCONFDIR@/crontab
+       fi
+    fi
+}
+
+# In version 3.6 sipxcallresover was run as root.
+# After upgrade we need to make sure that log files are writeable by sipx user
+fixFileAccess()
+{
+    if [ -f $1 ]; then
+        chmod a+w $1
+    fi
+}
+
+
+# Called after installation or upgrade by distro's package infrastructure
+# but can be called manually and is harmless if called multiple times.
+onSetup() {
+    assertRoot
+    configOdbcDrivers
+    removeOldCronEntry
+    fixFileAccess ${DbPatchLog}
+    fixFileAccess ${CallResolverLog}
+    @bindir@/pgpatch.sh
+    if ! databaseCheck Silent
+    then
+       databaseCommand create
+       # echo 'CDR database created'
+    fi
+}
+
+# Start CDR call resolver
+onStartup() {
+    # Check database version - don't run if it's wrong
+    echo $$ > ${PidFile}
+    databasePatch
+    if ! databaseVersionCheck; then
+       exit 1
+    fi
+
+    exec ${RubyCmd} ${CallResolverMain} ${resolverArgs}
+}
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        -c|--configtest)
+            Action=CONFIGTEST
+            ;;
+
+        -s|--setup)
+            Action=SETUP
+            ;;
+
+        -d|--database)
+            Action=DATABASE
+            shift
+            Args="${@}"
+            break 2
+            ;;
+
+        --patch)
+            Action=PATCH
+            ;;
+
+        --distrib-configtest)
+            Action=DISTRIBTEST
+            ;;
+
+        --nop)
+            Action=NOP
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        -h|--help)
+            Action=HELP
+            ;;
+		--start|--end|--daemon)
+			resolverArgs="${resolverArgs} ${1} "
+			;;
+        *)
+            resolverArgs="${resolverArgs} \"${1}\" "
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+if [ ${Action} = CONFIGTEST ]; then
+    configCheck
+    exit $Status
+elif [ ${Action} = DISTRIBTEST ]; then
+    configCheck
+    exit $Status
+elif [ ${Action} = DATABASE ]; then
+    databaseCommand $Args
+elif [ ${Action} = RUN ]; then
+    onStartup
+elif [ ${Action} = STOP ]; then
+    sipx_stop sipxcallresolver @SIPX_RUNDIR@/sipxcallresolver.pid
+elif [ ${Action} = SETUP ]; then
+    onSetup
+elif [ ${Action} = PATCH ]; then
+    databasePatch
+else
+
+cat <<USAGE
+Usage: $0 [-d|--database commands ...]
+                  [-c|--configtest]
+                  [-s|--setup]
+                  [-h|--help]
+
+Set up CDR database and processing for sipXpbx.
+
+Options include:
+
+  none                 Process a single batch of call events and exit.
+
+  --daemon			   Daemonize call resolver - it remains running and keeps processing incoming call events.
+
+  --database commands  Runs an operation on the database. Database commands
+                       are detailed below
+
+  --configtest         Run diagnostics
+
+  --setup              Initialize postgresql for communicating with sipxconfig
+                       and create initial database. Needs root permissions.
+
+Common Database commands include:
+
+   drop                Drops ${Database} database
+
+   create              Create new ${Database} database
+
+Notable environment variables:
+
+    POSTGRES_SERVICE   a guess is made to determine the name for the
+                       Postgres service.
+                       If the guess is incorrect, then set this to the name of
+                       the script in /etc/init.d that starts/stops
+                       the Postgres database.  The possibilities that
+                       we are aware of are "postgresql" and "rhdb".
+
+USAGE
+
+fi

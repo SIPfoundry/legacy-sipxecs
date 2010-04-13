@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.phonebook.ManagePhonebooks">
+  <description>add a description</description>
+  <inject property="phonebookManager" object="spring:phonebookManager" />
+  <property name="currentRow" />
+  <property name="selections"  initial-value="new org.sipfoundry.sipxconfig.components.SelectMap()"/>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <component id="phonebookManagement" type="Form">
+    <binding name="delegate" value="bean:validator"/>
+  </component>
+  <component id="phonebookTable" type="common/Table">
+    <binding name="columns" value="literal:* name,description"/>
+    <binding name="source" value="phonebookManager.phonebooks"/>
+    <binding name="row" value="currentRow"/>
+    <binding name="selections" value="selections"/>
+  </component>
+  <component id="nameColumnValue" type="Block"/>
+  <component id="editPhonebookLink" type="DirectLink">
+    <binding name="listener" value="listener:edit"/>
+    <binding name="parameters" value="currentRow.primaryKey"/>
+  </component>
+  <component id="phonebookLabel" type="Insert">
+    <binding name="value" value="currentRow.name"/>
+  </component>
+  <component id="addPhonebook" type="DirectLink">
+    <binding name="listener" value="listener:addPhonebook"/>
+  </component>
+  <component id="delete" type="Submit">
+    <binding name="listener" value="listener:deletePhonebooks"/>
+    <binding name="value" value="message:label.delete"/>
+  </component>
+</page-specification>

@@ -1,0 +1,62 @@
+## Velocity macros
+## emit 'setting value' pair - skipping _ignored_ settings
+#macro(emit_setting $s)
+#if($s.ProfileName != '$ignore$')
+${s.ProfileName} $!{s.Value}
+#end
+#end
+## emit setting line for every setting in the group
+#macro(emit_group $g)
+[${g.ProfileName}]
+#foreach ($s in $g.Values)
+#emit_setting($s)
+#end
+
+#end
+#macro(emit_groups_by_name $group_names)
+#foreach ($gn in $group_names)
+#emit_group($phone.Settings.getSetting("$gn"))
+#end
+#end
+;================================================================================================
+; LIP-68XX configuration information
+;================================================================================================
+
+#emit_groups_by_name(['LAN']) 
+#emit_groups_by_name(['NETTIME'])
+#emit_groups_by_name(['VOIP'])
+#if($has_blf)
+broadsoft_blf enable
+blf_url $speeddial.getResourceListId(true)
+
+#end
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+line${line_id}_${setting.ProfileName} $!{setting.Value}
+#end
+
+#end
+#end
+#set($dial = $phone.Settings.getSetting('DIAL'))
+#if($dial.getSetting('emergency_number').Value)
+[ROUTE]
+add sip 1024 $!dial.getSetting('emergency_number').Value 0 null null null $!dial.getSetting('emergency_address').Value
+
+#end
+#emit_groups_by_name(['DSP', 'FWRD', 'DIAL', 'CALL', 'SNMP', 'SYSTEM'])
+#set($lowercase = "$phone.SerialNumber")
+#set($caps = "${lowercase.toUpperCase()}")
+include ${caps}-phonebook.csv phonebook
+
+#if ($phone.Settings.getSetting('PROVISION').getSetting('overwrite').Value != 0)
+#emit_groups_by_name(['PROVISION']) 
+#end
+#foreach ($button in $speeddials)
+#if($velocityCount == 1)
+[PROG]
+#end
+#set($button_id = $velocityCount + $speeddial_offset)
+add $button_id 1 $button.Number
+#end

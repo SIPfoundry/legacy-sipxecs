@@ -1,0 +1,54 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <bean id="csvParser" class="org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl" />
+
+  <bean id="csvRowInserter" parent="rowInserter" class="org.sipfoundry.sipxconfig.bulk.csv.CsvRowInserter">
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="settingDao" ref="settingDao" />
+    <property name="permissionManager" ref="permissionManager" />
+    <property name="phoneModelSource" ref="phoneModelSource" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="resetPin" value="1234" />
+  </bean>
+
+  <bean id="bulkManagerImpl" class="org.sipfoundry.sipxconfig.bulk.csv.BulkManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="csvParser">
+      <ref local="csvParser" />
+    </property>
+    <property name="rowInserter">
+      <ref local="csvRowInserter" />
+    </property>
+  </bean>
+
+  <bean id="bulkManager" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.bulk.csv.BulkManager</value>
+    </property>
+    <property name="target">
+      <ref local="bulkManagerImpl" />
+    </property>
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+        <value>hibernateInterceptor</value>
+      </list>
+    </property>
+  </bean>
+
+  <!-- used in tests only -->
+  <bean id="bulkManagerDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.bulk.csv.BulkManager</value>
+    </property>
+    <property name="target">
+      <ref local="bulkManagerImpl" />
+    </property>
+  </bean>
+</beans>

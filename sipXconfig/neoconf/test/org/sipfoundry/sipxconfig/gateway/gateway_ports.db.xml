@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <gateway gateway_id="1001" bean_id="gwAudiocodesMediant" model_id="audiocodesMediant1X4_4_FXO" name="test gateway"
+    anonymous="false" keep_digits="0" transform_user_extension="false" ignore_user_info="false" address_port="0"
+    address_transport="udp" enable_caller_id="false" shared="false" enabled="true"/>
+
+  <fxo_port gateway_id="1001" fxo_port_id="1000" position="0" />
+  <fxo_port gateway_id="1001" fxo_port_id="1002" position="1" />
+  <fxo_port gateway_id="1001" fxo_port_id="1005" position="2" />
+</dataset>

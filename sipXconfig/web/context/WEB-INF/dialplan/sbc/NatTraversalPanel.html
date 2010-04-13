@@ -1,0 +1,25 @@
+<fieldset>
+  <table>
+    <tbody>
+      <span jwcid="@common/FieldPanel" for="enabled"
+        label="message:label.enableNatTraversal"
+        field="component:enabled"
+        description="message:description.enableNatTraversal">
+        <input jwcid="enabled@Checkbox" value="ognl:natTraversal.enabled"/>
+      </span>
+      <span jwcid="@common/FieldPanel" for="behindnat"
+        label="message:label.behindnat"
+        field="component:behindnat"
+        description="message:description.behindnat">
+        <input jwcid="behindnat@Checkbox" value="ognl:natTraversal.behindnat"/>
+      </span>
+    </tbody>
+  </table>
+</fieldset>
+<ul class="component-submit">
+  <li>
+	<input jwcid="activate@Submit" id="natTraversal:apply"
+		   value="message:button.activate"
+           listener="listener:activateNatTraversal" />
+  </li>
+</ul>

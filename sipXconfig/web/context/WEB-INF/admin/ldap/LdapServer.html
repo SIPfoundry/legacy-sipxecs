@@ -1,0 +1,35 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg" />
+
+  <span jwcid="@If" condition="ognl:stage.equals('connection')">
+    <div jwcid="@common/QuickHelp" value="message:quick.helpConnection"></div>
+  </span>
+  <span jwcid="@If" condition="ognl:stage.equals('objectClasses')">
+    <div jwcid="@common/QuickHelp" value="message:quick.helpObjectClasses"></div>
+  </span>
+  <span jwcid="@If" condition="ognl:stage.equals('attrs')">
+    <div jwcid="@common/QuickHelp" value="message:quick.helpAttrMap"></div>
+  </span>
+
+  <form jwcid="form">
+    <div jwcid="connectionBlock@Block">
+      <fieldset jwcid="ldapConnectionPanel" />
+      <ul class="form-actions">
+        <li><input jwcid="applyConnectionParams" type="submit" /></li>
+      </ul>
+    </div>
+    <div jwcid="objectClassesBlock@Block">
+      <fieldset jwcid="ldapObjectClassPanel" />
+      <ul class="form-actions">
+        <li><input jwcid="applyObjectClassesSelection" type="submit" /></li>
+      </ul>
+    </div>
+    <div jwcid="attrsBlock@Block">
+      <fieldset jwcid="ldapAttrMapPanel" />
+      <ul class="form-actions">
+        <li><input jwcid="applyAttrMap" type="submit" /></li>
+      </ul>
+    </div>
+    <span jwcid="tabContent"/>
+  </form>
+</div>

@@ -1,0 +1,44 @@
+<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg" />
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <form jwcid="@Form" delegate="bean:validator">
+    <ul class="component-links">
+      <li>
+        <a jwcid="@DirectLink" id="locations:add" listener="listener:addLocation">
+          <span key="link.addLocation">Add Location</span>
+        </a>
+      </li>
+    </ul>
+    <table jwcid="@common/Table" id="locations:list"
+      source="ognl:locations"
+      columns="* name, address, description:name, registered"
+      row="ognl:currentRow"
+      selections="bean:selections">
+      <span jwcid="nameColumnValue@Block">
+        <img jwcid="@Image" image="asset:serverIcon" align="absmiddle" />
+        <span jwcid="editLocationLink@DirectLink"
+            listener="listener:editLocation" parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="ognl:currentRow.fqdn"/>
+        </span>
+      </span>
+      <span jwcid="registeredColumnValue@Block">
+        <span jwcid="@common/EnabledColumn" value="ognl:currentRow.registered" keyPrefix="label.status"/>
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input id="locations:sendProfiles"
+          jwcid="sendProfiles@Submit"
+          action="listener:generateProfiles"
+          value="message:button.sendProfiles" />
+      </li>
+      <li>
+        <input jwcid="delete@Submit"
+          id="locations:delete"
+          action="listener:deleteLocations"
+          value="message:button.delete" />
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+  </form>
+</div>

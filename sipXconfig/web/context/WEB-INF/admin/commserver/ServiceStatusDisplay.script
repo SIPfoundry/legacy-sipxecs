@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+    "-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+    "http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+    <input-symbol key="rowId" required="yes" />
+    <input-symbol key="showDetailsLabel" required="yes" />
+    <input-symbol key="hideDetailsLabel" required="yes" />
+    
+    <body>
+        <unique>
+	    <![CDATA[
+           dojo.require("dojo.lfx.*");
+        
+           var visible = new Array();
+        
+           function loadDetails(link, rowId) {
+               showLoadingIcon(rowId);
+               showMessageArea(rowId);
+               visible[rowId] = true;
+           }
+        
+           function toggleDetails(link, rowId) {
+               if (visible[rowId]) {
+                   hideMessageArea(rowId);
+                   link.innerHTML = "${showDetailsLabel}";
+                   visible[rowId] = false;
+               } else {
+                   showMessageArea(rowId);
+                   link.innerHTML = "${hideDetailsLabel}";
+                   
+                   visible[rowId] = true;              
+               }
+           }
+        
+            function showLoadingIcon(rowId) {
+                var loadingIcon = dojo.byId("loadingIcon-" + rowId);
+                if (loadingIcon) {
+                   loadingIcon.style.display = "inline";
+                }
+            }
+                
+            function hideLoadingIcon(rowId) {                            
+                var loadingIcon = dojo.byId("loadingIcon-" + rowId);
+                if (loadingIcon) {                
+                    loadingIcon.style.display = "none";
+                }
+            }               
+                
+            function showMessageArea(rowId) {
+                var messageArea = dojo.byId("messageDetail-" + rowId);
+                if (messageArea) {
+                   dojo.lfx.wipeIn(messageArea, 250).play();
+                }
+            }    
+            
+            function hideMessageArea(rowId) {   
+                var messageArea = dojo.byId("messageDetail-" + rowId);
+                if (messageArea) {
+                    dojo.lfx.wipeOut(messageArea, 250).play();
+                }                
+            }           
+	    ]]>
+        </unique>
+    </body>
+    
+    <initialization>
+        <![CDATA[
+            visible[${rowId}] = false;        
+        ]]>
+    </initialization>
+    
+</script>

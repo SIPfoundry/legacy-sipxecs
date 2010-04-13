@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00">
+  <hostMatch>
+    <hostPattern>@SIP_DOMAIN_NAME@</hostPattern>
+  </hostMatch>
+</mappings>

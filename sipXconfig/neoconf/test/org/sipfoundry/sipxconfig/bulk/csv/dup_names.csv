@@ -1,0 +1,4 @@
+"Username","Pintoken","Sip Password","FirstName","LastName","Alias","Email", "UserGroup","SerialNumber","Model","Phone Group","Phone Description"
+"300","1234","12ab","Johnx","Lennon","jlennon","jlennon@example.com", "Beatles","0004F20342AE","acmePhoneStandard","all","Room"
+"300","1234","13bc","Ringo","Star","sss","sss@example.com", "Beatles","0004F20343F5","acmePhoneStandard","all","Green"
+"400","1234","14av","Conference room",,,,"Common","00E075F370E7","acmePhoneStandard","all",

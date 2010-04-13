@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+   <definitions>
+      <alarm id="TEST_LOG">
+         <description>This is a test of the log function.  Single parameter should be here: {0},
+            and that's all that is required</description>
+         <resolution>This also tests parameter insertion, and single quote.</resolution>
+      </alarm>
+      <alarm id="PARAMETER_SUBSTITUTION">
+         <description>Parameter {1}, then parameter {0}</description>
+         <resolution>Check for bugs in assembleMsg!</resolution>
+      </alarm>
+      <alarm id="SPECIAL_CHARACTERS">
+         <description>Print special characters such as &lt;, &gt;, and &amp; properly.</description>
+         <resolution>Text must be escaped in the strings file, and unescaped before sending notifications.</resolution>
+      </alarm>
+      <alarm id="MISSING_TRANSLATION">
+         <description>This is missing from the _fr strings file.</description>
+         <resolution>It should be displayed in English.</resolution>
+      </alarm>
+   </definitions>
+</alarm_server>

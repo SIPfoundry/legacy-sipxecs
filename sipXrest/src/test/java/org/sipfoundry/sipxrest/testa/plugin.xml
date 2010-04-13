@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<rest-service xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxrest-service-00-00">
+<plugin-class>org.sipfoundry.sipxrest.testa.PluginA</plugin-class>
+<security-level>LOCAL-AND-REMOTE</security-level>
+<uri-prefix>/testplugin/a</uri-prefix>
+<service-description>
+This is test plugin A. You can invoke it using the URI 
+testplugin/a?agent=user1 where user1 is a valid user in your user database.
+</service-description>
+</rest-service>

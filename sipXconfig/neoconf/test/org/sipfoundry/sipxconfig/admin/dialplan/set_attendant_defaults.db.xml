@@ -1,0 +1,6 @@
+<!DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd">
+<dataset>
+  <attendant_group auto_attendant_id="1000" 
+    group_id="[group_id]"/>
+  
+</dataset>

@@ -1,0 +1,597 @@
+#!/bin/bash
+# -*- mode: shell-script;-*-
+#
+# Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+#
+###################################################
+
+Action=DEFAULT
+Feedback=NORMAL
+Version=@VERSION@
+Password="1234"
+SuperadminPassword="9999"
+Hostname=""
+
+# if you change the following, also update:
+#    sipx_confdir/freeswitch/conf/sip_profiles/sipX_profile.xml
+SpecialPassword="5678" # if you change this, also update 
+
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## handle a flag with no value followiing
+        ##
+        -v|--verbose)
+            Feedback=VERBOSE
+            ;;
+
+        ##
+        ## Override system hostname
+        ##
+        -h|--hostname)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <fqdn> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Hostname="${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        ##
+        ## Override the real version string (use with caution)
+        ##
+        -V|--Version)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <verion> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Version="${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            while [ $# -ne 1 ]
+            do 
+                Uninterpreted="${Uninterpreted} ${2}"
+                shift # consume all but one
+            done
+            ;;
+
+        ##
+        ## handle an unknown argument
+        ##
+        -*)
+            Action=USAGE
+            break
+            ;;
+        *)
+            Action=USAGE
+            break
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+MyName=$(basename ${0})
+
+if [ "${Action}" = "USAGE" ]
+then
+    cat <<USAGE
+
+Usage:
+    
+    ${MyName}
+            [ -p | --password <password> ]
+
+USAGE
+    exit
+fi
+
+if ! perl -e 'eval "require File::ReadBackwards;" || die "\n";' 
+then
+    cat <<EOF
+ Missing prerequisite - Load the Perl module File::ReadBackwards:
+    yum install -y perl-File-ReadBackwards
+EOF
+    exit 1
+fi
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+# Determine the SIP Domain and Realm.
+SIP_DOMAIN_NAME=$(sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME) || exit 1
+SIP_REALM=$(sipx_config_value @SIPX_CONFDIR@/domain-config SIP_REALM) || exit 1
+INTEROP_HOST=${Hostname:-$(hostname -f)}
+INTEROP_ADDR=$(dig -t a +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${INTEROP_HOST} \
+    | awk "/^${INTEROP_HOST}/ {print \$5}" )
+InteropVersion=$(cat @SIPX_INTEROP@/SVN-VERSION; echo -n " "; cat @SIPX_INTEROP@/BUILDSTAMP) \
+    || exit 1
+
+if ! grep ^DEFAULT_LANGUAGE @SIPX_CONFDIR@/domain-config > /dev/null 2>&1 
+then
+    echo "DEFAULT_LANGUAGE : en" >> @SIPX_CONFDIR@/domain-config
+fi
+
+if ! grep ^SHARED_SECRET @SIPX_CONFDIR@/domain-config > /dev/null 2>&1 
+then
+    secret=$(openssl rand -base64 18) || exit 1
+    echo "SHARED_SECRET : ${secret}" >> @SIPX_CONFDIR@/domain-config
+fi
+
+if [ $(whoami) != root ]
+then
+    echo "${MyName} must be executed as root"
+    exit 1
+fi
+
+cat <<EOF
+Check this configuration data:
+
+  SIPX_DATADIR    @SIPX_DATADIR@
+  SIPX_DBDIR      @SIPX_DBDIR@
+  SIPX_CONFDIR    @SIPX_CONFDIR@
+
+  SIP_DOMAIN_NAME ${SIP_DOMAIN_NAME}
+  SIP_REALM       ${SIP_REALM}
+  INTEROP_HOST    ${INTEROP_HOST}
+  INTEROP_ADDR    ${INTEROP_ADDR}
+
+  Config Version  ${Version}
+
+This command will disable the configuration service and overwrite the current configuration
+with a configuration customized for interoperability testing.
+
+There is no way to undo this without reinstalling your software.
+
+EOF
+read -p "Press 'Y' to proceed: " -n 1 Confirmation
+echo ""
+
+if [ "${Confirmation}" = "Y" -o "${Confirmation}" = "y" ]
+then
+cat <<EOF
+
+Proceeding
+
+EOF
+else
+cat <<EOF
+
+Aborted
+
+EOF
+    exit
+fi
+
+# Stop sipXecs
+
+if ! @SERVICEDIR@/sipxecs stop
+then
+    cat <<EOF 1>&2
+WARNING: Failed to stop sipXecs 
+        (this is ok if you have not configured it to start automatically)
+EOF
+fi
+
+cat <<EOF
+
+Installing interop configuration
+
+EOF
+
+function target_dir {
+
+    if [ -z "${1}" -o "${1}" = "." ]; then return; fi
+
+    local dir=$(dirname ${1})
+    local parent=$(dirname ${dir})
+
+    if [ ! -d ${dir} ]
+    then
+        target_dir ${parent}
+
+        if [ ${Feedback} = VERBOSE ]; then echo -n "Create directory ${dir}"; fi
+
+        mkdir ${dir} || exit 1
+        chown @SIPXPBXUSER@:@SIPXPBXGROUP@ ${dir}
+    fi
+}
+
+function process_substitutions { # file
+
+    target_dir $(dirname ${2})
+
+    if [ ${Feedback} = VERBOSE ]; then echo -n "Install $(basename ${2}) "; fi
+
+    sed \
+        -e "s/@SIP_DOMAIN_NAME@/${SIP_DOMAIN_NAME}/g" \
+        -e "s/@SIP_REALM@/${SIP_REALM}/g" \
+        -e "s/@INTEROP_HOST@/${INTEROP_HOST}/g" \
+        -e "s/@INTEROP_ADDR@/${INTEROP_ADDR}/g" \
+        -e "s/@INTEROP_VERSION@/${InteropVersion}/g" \
+        "${1}" > "${2}"
+    if [ $? -eq 0 ]
+    then
+        if [ ${Feedback} = VERBOSE ]; then echo ""; fi
+    else 
+        echo " FAILED"
+    fi
+}
+
+function return_digest_A1 { # username, realm, password
+   username=${1}
+   realm=${2}
+   password=${3}
+   A1=`echo -n "${username}:${realm}:${password}"|md5sum|cut -d" " -f1`
+   echo ${A1}
+}
+
+function setServiceState { # servicename, state
+    local service=$1
+    local state=$2
+
+    case $state in
+        Enabled|Disabled)
+            ;;
+        *)
+            echo "Invalid state '${state}' for service '${service}'" 1>&2
+            exit 1
+            ;;
+    esac
+
+    if [ ${Feedback} = VERBOSE ]; then echo ${state} ${service}; fi
+
+    echo ${state}  > @SIPX_VARDIR@/process-state/${service}
+    chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_VARDIR@/process-state/${service}
+
+    echo ${Version} > @SIPX_VARDIR@/process-cfgver/${service}
+    chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_VARDIR@/process-cfgver/${service}
+}
+
+target_dir @SIPX_VARDIR@/process-state
+target_dir @SIPX_VARDIR@/process-cfgver
+
+setServiceState FreeSWITCH             Enabled
+setServiceState SIPRegistrar           Enabled
+setServiceState ParkServer             Enabled
+setServiceState SIPStatus              Enabled
+setServiceState sipXivr                Enabled
+setServiceState ResourceListServer     Enabled
+setServiceState SipXrelay              Enabled
+setServiceState SIPXProxy              Enabled
+
+setServiceState MediaServer            Disabled
+setServiceState ConfigServer           Disabled
+setServiceState SharedAppearanceAgent  Disabled
+setServiceState CallResolver-Agent     Disabled
+setServiceState SipXbridge             Disabled
+setServiceState CallResolver           Disabled
+setServiceState ACDServer              Disabled
+setServiceState PresenceServer         Disabled
+setServiceState PageServer             Disabled
+
+target_dir @SIPX_DBDIR@
+target_dir @SIPX_CONFDIR@
+target_dir @SIPX_CONFDIR@/freeswitch/conf
+target_dir @SIPX_CONFDIR@/freeswitch/conf/mrcp_profiles
+target_dir @SIPX_CONFDIR@/freeswitch/conf/directory
+
+function generate_credential_user { # username, realm, passtoken_password, pintoken_password, file
+   username=${1}
+   realm=${2}
+   passtoken_password=${3}
+   pintoken_password=${4}
+   out_file=${5}
+   cat >> ${out_file} <<EOF
+<item>
+    <realm>${realm}</realm>
+    <uri>sip:${username}@${realm}</uri>
+    <userid>${username}</userid>
+    <passtoken>${passtoken_password}</passtoken>
+    <pintoken>$(return_digest_A1 ${username} ${realm} ${pintoken_password})</pintoken>
+    <authtype>DIGEST</authtype>
+</item>
+EOF
+}
+
+# @SIPX_DBDIR@/credential.xml - Generate from scratch
+if [ ${Feedback} = VERBOSE ]; then echo -n "Generate credentials "; fi
+cat <<EOF > @SIPX_DBDIR@/credential.xml
+<?xml version="1.0" standalone="yes" ?>
+<items type="credential" xmlns="http://www.sipfoundry.org/sipX/schema/xml/credential-00-00">
+EOF
+generate_credential_user "superadmin" ${SIP_REALM} ${SuperadminPassword} DOESNOTMATTER @SIPX_DBDIR@/credential.xml
+for gg in {10..99}
+do # The 89 Groups
+   for y in {1..9}
+   do # The 9 Users per Group
+      generate_credential_user 1${gg}${y} ${SIP_REALM} ${Password} ${Password} @SIPX_DBDIR@/credential.xml
+      if [ ${Feedback} = VERBOSE ]; then echo -n "."; fi
+   done
+done
+
+for special_id in ~~id~park ~~id~media ~~id~acd ~~id~config ~~id~sipXrls ~~id~registrar ~~id~sipXsaa ~~id~xmpprlsclient
+do
+
+   if [ ${Feedback} = VERBOSE ]; then echo -n "."; fi
+
+   cat <<EOF >> @SIPX_DBDIR@/credential.xml
+    <item>
+        <realm>${SIP_REALM}</realm>
+        <uri>sip:${special_id}@${SIP_DOMAIN_NAME}</uri>
+        <userid>${special_id}</userid>
+        <passtoken>${SpecialPassword}</passtoken>
+        <pintoken></pintoken>
+        <authtype>DIGEST</authtype>
+    </item>
+EOF
+done
+echo "</items>" >> @SIPX_DBDIR@/credential.xml
+if [ ${Feedback} = VERBOSE ]; then echo ""; fi
+
+# @SIPX_DBDIR@/permission.xml
+if [ ${Feedback} = VERBOSE ]; then echo -n "Generate permissions "; fi
+cat <<EOF > @SIPX_DBDIR@/permission.xml
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<items type="permission" xmlns="http://www.sipfoundry.org/sipX/schema/xml/permission-00-00">
+EOF
+for gg in {10..99}; do # The 89 Groups
+   for y in {1..2}; do # Users 1gg1 and 1gg2 have Voicemail
+       cat <<EOF >> @SIPX_DBDIR@/permission.xml
+  <item>
+    <identity>1${gg}${y}@${SIP_DOMAIN_NAME}</identity>
+    <permission>Voicemail</permission>
+  </item>
+  <item>
+    <identity>1${gg}${y}@${SIP_DOMAIN_NAME}</identity>
+    <permission>FreeswitchVoicemailServer</permission>
+  </item>
+  <item>
+    <identity>~~vm~1${gg}${y}@${SIP_DOMAIN_NAME}</identity>
+    <permission>FreeswitchVoicemailServer</permission>
+  </item>
+EOF
+   done
+   for y in {7..9}; do # Users 1gg7, 1gg8, and 1gg9 have BigShot
+cat <<EOF >> @SIPX_DBDIR@/permission.xml
+  <item>
+    <identity>1${gg}${y}@${SIP_DOMAIN_NAME}</identity>
+    <permission>BigShot</permission>
+  </item>
+EOF
+   done
+   if [ ${Feedback} = VERBOSE ]; then echo -n "."; fi
+done
+echo "</items>" >> @SIPX_DBDIR@/permission.xml
+if [ ${Feedback} = VERBOSE ]; then echo ""; fi
+
+# @SIPX_DBDIR@/alias.xml 
+if [ ${Feedback} = VERBOSE ]; then echo -n "Generate aliases "; fi
+cat <<EOF > @SIPX_DBDIR@/alias.xml
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<items type="alias" xmlns="http://www.sipfoundry.org/sipX/schema/xml/alias-00-00">
+EOF
+for gg in {10..99}; do # The 89 Groups
+   cat <<EOF >> @SIPX_DBDIR@/alias.xml
+   <!-- serial fork 5${gg}0 -> 1${gg}3, 1${gg}4, 1${gg}5, 1${gg}6 -->
+EOF
+   for e in 3 4 5 6; do 
+       cat <<EOF >> @SIPX_DBDIR@/alias.xml
+   <item> 
+      <identity>5${gg}0@${SIP_DOMAIN_NAME}</identity> 
+      <contact>&lt;1${gg}${e}@${SIP_DOMAIN_NAME}&gt;;q=0.$((8 - ${e}))</contact>
+   </item>
+EOF
+   done
+   cat <<EOF >> @SIPX_DBDIR@/alias.xml
+   <!-- parallel fork 6${gg}0 -> 1${gg}3, 1${gg}4, 1${gg}5, 1${gg}6 -->
+EOF
+   for e in 3 4 5 6; do 
+   cat <<EOF >> @SIPX_DBDIR@/alias.xml
+   <item> 
+      <identity>6${gg}0@${SIP_DOMAIN_NAME}</identity> 
+      <contact>&lt;1${gg}${e}@${SIP_DOMAIN_NAME}&gt;</contact>
+   </item>
+EOF
+   done
+   if [ ${Feedback} = VERBOSE ]; then echo -n "."; fi
+done
+   cat <<EOF >> @SIPX_DBDIR@/alias.xml
+   <!-- a series of translations that go over the 20-hop limit -->
+      <item>
+         <identity>9000@${SIP_DOMAIN_NAME}</identity>
+         <contact>sip:9000_1@${SIP_DOMAIN_NAME}</contact>
+      </item>
+EOF
+for x in {1..21}; do # 21 hops
+   next=`expr ${x} + 1`
+   cat <<EOF >> @SIPX_DBDIR@/alias.xml
+      <item>
+         <identity>9000_${x}@${SIP_DOMAIN_NAME}</identity>
+         <contact>sip:9000_${next}@${SIP_DOMAIN_NAME}</contact>
+      </item>
+EOF
+done
+cat <<EOF >> @SIPX_DBDIR@/alias.xml
+</items>
+EOF
+if [ ${Feedback} = VERBOSE ]; then echo ""; fi
+
+# Fix all the @SIPX_DBDIR@ permissions.
+chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_DBDIR@/*
+
+# @SIPX_CONFDIR@/resource-lists.xml
+if [ ${Feedback} = VERBOSE ]; then echo -n "Generate resource-lists "; fi
+cat <<EOF > @SIPX_CONFDIR@/resource-lists.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<lists xmlns="http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01">
+EOF
+for gg in {10..99}; do # The 89 Groups 
+   # 1gg2, 1gg6, and 1gg9 are in the Resource List.
+    cat <<EOF >> @SIPX_CONFDIR@/resource-lists.xml
+<list user="~~rl~F~${gg}" user-cons="~~rl~C~${gg}">
+    <name>1${gg}n</name>
+EOF
+   for n in 2 6 9; do 
+       cat <<EOF >> @SIPX_CONFDIR@/resource-lists.xml
+    <resource uri="sip:1${gg}${n}@${SIP_DOMAIN_NAME};sipx-noroute=VoiceMail;sipx-userforward=false">
+      <name>1${gg}${n}</name>
+    </resource>
+EOF
+   done
+   echo "</list>" >> @SIPX_CONFDIR@/resource-lists.xml
+   if [ ${Feedback} = VERBOSE ]; then echo -n "."; fi
+done
+cat <<EOF >> @SIPX_CONFDIR@/resource-lists.xml
+</lists>
+EOF
+if [ ${Feedback} = VERBOSE ]; then echo ""; fi
+
+function generate_validusers_user { # username, realm, pintoken_password, file
+   username=${1}
+   realm=${2}
+   pintoken_password=${3}
+   out_file=${4}
+   cat <<EOF >> ${out_file}
+  <user>
+    <identity>${username}@${realm}</identity>
+    <userName>${username}</userName>
+    <aliases/>
+    <displayName>${username}</displayName>
+    <contact>"${username}"&lt;sip:${username}@${realm}&gt;</contact>
+    <pintoken>$(return_digest_A1 ${username} ${realm} ${pintoken_password})</pintoken>
+    <passtoken>${pintoken_password}</passtoken>
+    <inDirectory>false</inDirectory>
+    <hasVoicemail>false</hasVoicemail>
+    <canRecordPrompts>false</canRecordPrompts>
+    <canTuiChangePin>false</canTuiChangePin>
+  </user>
+EOF
+}
+
+# Generate @SIPX_CONFDIR@/orbits.xml - 
+if [ ${Feedback} = VERBOSE ]; then echo -n "Generate orbits"; fi
+cat <<EOF > @SIPX_CONFDIR@/orbits.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<orbits xmlns="http://www.sipfoundry.org/sipX/schema/xml/orbits-00-00">
+  <music-on-hold>
+    <background-audio>file:///var/sipxdata/parkserver/music/default.wav</background-audio>
+  </music-on-hold>
+EOF
+for gg in {10..99}
+do # The 89 Groups
+   for y in {1..9}
+   do # The 9 Orbits per Group
+       cat <<EOF >> @SIPX_CONFDIR@/orbits.xml
+  <orbit>
+    <name>5${gg}${y}</name>
+    <extension>5${gg}${y}</extension>
+    <background-audio>file:///var/sipxdata/parkserver/music/default.wav</background-audio>
+    <description>Parking orbit 5${gg}${y}</description>
+ </orbit>
+EOF
+   done
+   if [ ${Feedback} = VERBOSE ]; then echo -n "."; fi
+done
+cat <<EOF >> @SIPX_CONFDIR@/orbits.xml
+</orbits>
+EOF
+if [ ${Feedback} = VERBOSE ]; then echo ""; fi
+
+# @SIPX_CONFDIR@/validusers.xml 
+if [ ${Feedback} = VERBOSE ]; then echo -n "Generate validusers "; fi
+cat <<EOF > @SIPX_CONFDIR@/validusers.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<validusers xmlns="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00">
+EOF
+generate_validusers_user "superadmin" ${SIP_REALM} ${SuperadminPassword} @SIPX_CONFDIR@/validusers.xml
+for gg in {10..99}; do # The 89 Groups
+   for y in {1..9}; do # The 9 Users per Group
+      generate_validusers_user 1${gg}${y} ${SIP_DOMAIN_NAME} ${Password} @SIPX_CONFDIR@/validusers.xml
+      if [ ${Feedback} = VERBOSE ]; then echo -n "."; fi
+   done
+   if [ ${Feedback} = VERBOSE ]; then echo -n "."; fi
+done
+if [ ${Feedback} = VERBOSE ]; then echo ""; fi
+cat <<EOF >> @SIPX_CONFDIR@/validusers.xml
+</validusers>
+EOF
+if [ ${Feedback} = VERBOSE ]; then echo ""; fi
+
+for template in $(find @SIPX_INTEROP@/conf -name \*.in)
+do
+    conf=$(echo ${template} | sed -e 's,@SIPX_INTEROP@/conf,,' -e 's,.in$,,')
+    process_substitutions ${template} @SIPX_CONFDIR@/${conf}
+
+    chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_CONFDIR@/${conf}
+done
+
+for dummy in @SIPX_INTEROP@/db/*.in
+do
+    db=$(basename ${dummy} .in)
+    process_substitutions ${dummy} @SIPX_DBDIR@/${db}
+
+    chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_DBDIR@/${db}
+done
+
+# Add the HTML CGI content to @HTTP_ROOTDIR@.
+target_dir @HTTP_ROOTDIR@
+
+SRC_HTTPD_ROOTDIR="@SIPX_INTEROP@/http_rootdir"
+for filename in ${SRC_HTTPD_ROOTDIR}/*.pre
+do
+   new_filename=$(basename ${filename} .pre)
+   process_substitutions ${filename} @HTTP_ROOTDIR@/${new_filename}
+   chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @HTTP_ROOTDIR@/${new_filename}
+   case ${new_filename} in
+       *.cgi)
+           chmod +x @HTTP_ROOTDIR@/${new_filename}
+           ;;
+   esac
+done
+
+for filename in ${SRC_HTTPD_ROOTDIR}/*.{gif,png,jar}
+do
+   new_filename=$(basename ${filename})
+   if [ ${Feedback} = VERBOSE ]; then echo "Install ${new_filename}"; fi
+   cp ${filename} @HTTP_ROOTDIR@/${new_filename}
+   chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @HTTP_ROOTDIR@/${new_filename}
+done
+
+SRC_HTTPD_CONFDIR="@SIPX_INTEROP@/http_confdir"
+for filename in ${SRC_HTTPD_CONFDIR}/*
+do
+    case ${filename} in
+        *.in)
+            new_filename=$(basename ${filename} .in)
+            process_substitutions ${filename} @SIPX_CONFDIR@/${new_filename}
+            ;;
+        *)
+            new_filename=$(basename ${filename})
+            cp ${filename} @SIPX_CONFDIR@/${new_filename}
+            ;;
+    esac
+    chown @SIPXPBXUSER@:@SIPXPBXGROUP@ @SIPX_CONFDIR@/${new_filename}
+done
+
+
+cat <<EOF
+
+ Installation Complete (sipXecs has not been restarted)
+EOF
+
+
+
+

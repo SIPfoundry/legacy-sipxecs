@@ -1,0 +1,136 @@
+#!/usr/bin/perl
+
+use English;
+
+# Set default log file.
+$Log= $ARGV[0] || '/var/log/sipxpbx/sipXproxy.log.1';
+
+# Recipients for the report.
+$Recipients='interop-config@pingtel.com';
+
+chomp($MyHostname=`hostname -f`);
+
+format STDOUT_TOP =
+
+    Usage Report for @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                         $MyHostname
+       From: @>>>>>>>>> @>>>>Z
+             $startdate, $starttime
+         To: @>>>>>>>>> @>>>>Z
+             $date,      $time
+.
+
+format STDOUT =
+
+.
+
+format BYHOST_TOP =
+    Messages    Hostname or IP
+    --------    -----------------------------------------------------------------------------
+.
+format BYHOST =
+    @#######    @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
+  $HostSeen{$host} , $host
+.
+
+format BYAGENT_TOP =
+
+    Messages    User Agent
+                                                                  Hostname or IP   Messages
+    --------    ----------------------------------------------------------------   --------
+.
+format BYAGENT =
+    @#######    @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...
+  $AgentSeen{$agent},   $agent
+                ^>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>   ^>>>>>>>~~
+                                                                       $hosts,     $hostcount
+
+.
+
+open STDOUT, "| mail -s 'Usage Report for $MyHostname' '$Recipients'";
+
+if (open(LOG, "<$Log"))
+{
+    while(<LOG>)
+    {
+        # Get the date and time stamp
+        ($date, $time) = /^"(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/; # "
+        if ( ! $startdate )
+        {
+            $startdate = $date;
+            $starttime = $time;
+        }
+
+        # Extract the remote host names from the INCOMING lines
+        if ( /:INCOMING:.*----Remote Host:(.+)---- Port:/ )
+        {
+            $host = &hostname($1);
+
+            if ($host ne $MyHostname) # ignore messages from myself
+            {
+                $HostSeen{$host}++;
+
+                if (/^.*\\r\\nUser-Agent:\s*(.*?)\\r\\n/i && $1)
+                {
+                    $agent=$1;
+                    $AgentSeen{$agent}++;
+                    $AgentSeenAt{$agent}->{$host}++;
+                }
+            }
+        }
+    }
+    close LOG;
+
+    write; # dummy line to force printing the report header
+
+    $FORMAT_FORMFEED = "\n"; # don't insert formfeeds between pages
+
+    $FORMAT_LINES_LEFT = 0; # force new headings at next write
+    $FORMAT_TOP_NAME = BYHOST_TOP;
+    $FORMAT_NAME = BYHOST;
+    foreach $host ( sort {$HostSeen{$b} <=> $HostSeen{$a}} keys %HostSeen )
+    { 
+        $hosts = '';
+        $hostcount = '';
+
+        write;
+    }
+
+    $FORMAT_LINES_LEFT = 0; # force new headings at next write
+    $FORMAT_TOP_NAME = BYAGENT_TOP;
+    $FORMAT_NAME = BYAGENT;
+    foreach $agent ( sort keys %AgentSeen )
+    { 
+        $hosts = '';
+        $hostcount = '';
+        foreach ( sort {$AgentSeenAt{$agent}->{$b} <=> $AgentSeenAt{$agent}->{$a}} keys %{$AgentSeenAt{$agent}} )
+        {
+            $hosts     .= "$_\r";
+            $hostcount .= "$AgentSeenAt{$agent}->{$_}\r";
+        }
+        write;
+    }
+}
+else
+{
+    # failed to open log file
+    print "Failed to open '$Log':\n\t$!\n";
+}
+
+close STDOUT;
+
+sub hostname
+{
+    my ($addr) = $_[0];
+    if ( ! $NameCache{$addr} )
+    {
+        my (@bytes,$packedaddr,$host_name);
+        @bytes = split(/\./, $_[0]);
+        $packedaddr = pack("C4",@bytes);
+        $host_name = (gethostbyaddr($packedaddr, 2))[0];
+        $NameCache{$addr} = $host_name || $addr;
+    }
+    return $NameCache{$addr};
+}
+
+

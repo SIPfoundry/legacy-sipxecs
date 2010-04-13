@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="abstractGatewayModel" class="org.sipfoundry.sipxconfig.gateway.GatewayModel" abstract="true">
+    <property name="defaultProfileLocation" ref="tftpProfileLocation" />
+  </bean>
+
+  <bean id="genericGatewayStandard" parent="abstractGatewayModel">
+    <property name="beanId" value="gwGeneric" />
+    <!-- do not require serial number for unmanaged gateways -->
+    <property name="serialNumberPattern" value="" />
+    <property name="label" value="Unmanaged gateway" />
+  </bean>
+
+  <bean id="sipTrunkStandard" class="org.sipfoundry.sipxconfig.gateway.SipTrunkModel" parent="abstractGatewayModel">
+    <property name="label" value="SIP trunk" />
+  </bean>
+
+  <bean id="gwGeneric" class="org.sipfoundry.sipxconfig.gateway.Gateway" singleton="false" parent="beanWithSettings">
+    <property name="profileGenerator" ref="velocityProfileGenerator" />
+    <property name="gatewayModelSource" ref="nakedGatewayModelSource" />
+    <property name="defaults" ref="phoneDefaults" />
+  </bean>
+
+  <bean id="gwSipTrunk" class="org.sipfoundry.sipxconfig.gateway.SipTrunk" singleton="false" parent="gwGeneric">
+    <property name="modelFilesContext" ref="modelFilesContext" />
+  </bean>
+
+  <bean id="nakedGatewayModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+    <constructor-arg>
+      <value>org.sipfoundry.sipxconfig.gateway.GatewayModel</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="gatewayModelSource" class="org.sipfoundry.sipxconfig.gateway.GatewayModelSource">
+    <property name="modelSource" ref="nakedGatewayModelSource" />
+  </bean>
+
+  <bean id="itspTemplateModelSource" class="org.sipfoundry.sipxconfig.gateway.ItspTemplateModelSource">
+    <property name="modelSource" ref="nakedGatewayModelSource" />
+  </bean>
+
+  <!-- gateway context -->
+  <bean id="gatewayContextImpl" class="org.sipfoundry.sipxconfig.gateway.GatewayContextImpl">
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
+  </bean>
+
+  <bean id="gatewayContextSbcDeviceDelete" factory-bean="gatewayContextImpl" factory-method="createSbcDeviceDeleteListener" />
+
+  <bean id="gatewayContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.gateway.GatewayContext</value>
+    </property>
+    <property name="target">
+      <ref local="gatewayContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="gatewaySource" class="org.sipfoundry.sipxconfig.gateway.GatewaySource">
+    <property name="gatewayContext">
+      <ref local="gatewayContext" />
+    </property>
+  </bean>
+
+  <bean id="gatewayRestartManager" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
+    <property name="deviceSource">
+      <ref local="gatewaySource" />
+    </property>
+    <property name="jobContext" ref="jobContext" />
+    <property name="sleepInterval" value="5000" />
+    <property name="executorService" ref="restartExecutorService" />
+  </bean>
+
+  <bean id="eagerGatewayProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">
+    <property name="deviceSource">
+      <ref local="gatewaySource" />
+    </property>
+    <property name="restartManager">
+      <ref local="gatewayRestartManager" />
+    </property>
+    <property name="jobContext" ref="jobContext" />
+  </bean>
+
+  <bean id="gatewayProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
+    <property name="target">
+      <ref local="eagerGatewayProfileManager" />
+    </property>
+    <property name="sleepInterval" value="5000" />
+  </bean>
+
+  <bean id="sipTrunkMigrationContextImpl" class="org.sipfoundry.sipxconfig.gateway.SipTrunkMigrationContextImpl">
+    <property name="gatewayContext">
+      <ref local="gatewayContext" />
+    </property>
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="sbcModelSource" ref="nakedSbcModelSource" />
+  </bean>
+
+  <bean id="sipTrunkMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.gateway.SipTrunkMigrationContext</value>
+    </property>
+    <property name="target">
+      <ref local="sipTrunkMigrationContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="sipTrunkMigrationTrigger" class="org.sipfoundry.sipxconfig.gateway.SipTrunkMigrationTrigger">
+    <property name="sipTrunkMigrationContext">
+      <ref local="sipTrunkMigrationContext" />
+    </property>
+    <property name="taskNames">
+      <list>
+        <value>sip_trunk_address_migrate_sbc_device</value>
+      </list>
+    </property>
+  </bean>
+</beans>

@@ -1,0 +1,27 @@
+#-----------------------------------------------------------------------
+#Aastra SIP IP Phones Directory List
+#-----------------------------------------------------------------------
+
+#--------
+# Note :
+#--------
+
+# Line number and Mode are optional. When Line number is 
+# not present the entry is assigned to line 1 and when Mode 
+# attribute (public and private) is not present the entry
+# is assigned to "Private".
+
+# Mode attributes:
+# Private : toggles a number in the directory list to private.
+# Public : allows a number in the directory list to be sent to 
+#          the headset.
+
+#-------
+
+#----------------------------------------
+#Name, Number, Line, Lable, Mode
+#----------------------------------------
+#foreach($entry in $cfg.Phonebook)
+$!entry.FirstName $!entry.LastName,$entry.Number
+#end
+

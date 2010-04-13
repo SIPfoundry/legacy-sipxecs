@@ -1,0 +1,199 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'generate', 'import', 'authorities'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <div jwcid="generateTab@Block">
+    <div jwcid="@common/QuickHelp" value="message:quick.help.generate"></div>
+    <form jwcid="generateForm@Form" delegate="bean:validator">
+      <fieldset>
+        <table>
+          <tr>
+			<td>
+              <span jwcid="countryLabel@FieldLabel"
+			        field="component:country"/>
+			</td>
+			<td>
+              <span jwcid="country@TextField"
+			        value="ognl:country"
+			        displayName="message:label.country"
+			        validators="spring-validators:required,validCountryName"/>
+			</td>
+		  </tr>
+          <tr>
+			<td>
+              <span jwcid="stateLabel@FieldLabel"
+				    field="component:state"/>
+			</td>
+            <td>
+              <span jwcid="state@TextField"
+				    value="ognl:state"
+				    displayName="message:label.state"
+				    validators="validators:required"/>
+			</td>
+		  </tr>
+          <tr>
+			<td>
+              <span jwcid="localityLabel@FieldLabel"
+				    field="component:locality"/>
+			</td>
+			<td>
+              <span jwcid="locality@TextField"
+				    value="ognl:locality"
+				    displayName="message:label.locality"
+				    validators="validators:required"/>
+			</td>
+		  </tr>
+          <tr>
+			<td>
+              <span jwcid="organizationLabel@FieldLabel"
+				    field="component:organization"/>
+			</td>
+			<td>
+              <span jwcid="organization@TextField"
+				    value="ognl:organization"
+				    displayName="message:label.organization"
+				    validators="validators:required"/>
+			</td>
+		  </tr>
+          <tr jwcid="@common/FieldPanel"
+			  for="server:id"
+			  field="component:server"
+			  label="message:label.server"
+		      defaultValue="ognl:defaultServer">
+              <input jwcid="server@TextField"
+                     id="server:id"
+				     value="ognl:server"
+				     displayName="message:label.server"
+				     validators="spring-validators:required,validHostOrIp"/>
+		  </tr>
+          <tr>
+			<td>
+              <span jwcid="emailLabel@FieldLabel"
+				    field="component:email"/>
+			</td>
+			<td>
+              <span jwcid="email@TextField"
+				    value="ognl:email"
+				    displayName="message:label.email"
+				    validators="validators:required,email"/>
+			</td>
+		  </tr>
+          <tr>
+            <td>
+              <span jwcid="generate@Submit"
+				    id="generate"
+				    action="listener:generate"
+				    value="message:button.generate"/>
+			</td>
+            <td/>
+		  </tr>
+        </table>
+      </fieldset>
+      <span key="label.csr" renderTag="false"/><br/>
+      <textarea id="csrText" rows="16" readonly="readonly" class="textBox">
+<span jwcid="@Insert" value="ognl:csr"/>
+      </textarea>
+    </form>
+  </div>
+  <div jwcid="importTab@Block">
+    <div jwcid="@common/QuickHelp" value="message:quick.help.import"></div>
+	<form jwcid="importForm@Form" delegate="bean:validator">
+      <fieldset>
+		<span jwcid="importMethod@RadioGroup"
+              selected="ognl:importMethodSelected">
+        <table>
+          <tr>
+			<td>
+              <span jwcid="crtFileRadio@Radio"
+                    value="ognl:@org.sipfoundry.sipxconfig.site.admin.ManageCertificates@UPLOAD"
+				    onchange="javascript:this.form.submit();"/>
+			</td>
+			<td>
+			  <span jwcid="crtFileRadioLabel@FieldLabel" field="component:crtFileRadio" displayName="message:label.file"/>
+			</td>
+			<td>
+              <span jwcid="crtRadio@Radio"
+                    value="ognl:@org.sipfoundry.sipxconfig.site.admin.ManageCertificates@TEXT"
+                    onchange="javascript:this.form.submit();"/>
+            </td>
+            <td>
+			  <span jwcid="crtRadioLabel@FieldLabel" field="component:crtRadio" displayName="message:label.text"/>
+			</td>
+          </tr>
+        </table>
+        <table>
+          <span jwcid="@If" condition="ognl:!uploadDisabled">
+          <tr>
+            <td>
+              <span jwcid="crtFileLabel@FieldLabel"
+			        field="component:crtFile"/>
+            </td>
+			<td>
+			  <span jwcid="crtFile@Upload"
+                    file="ognl:uploadCrtFile"
+                    displayName="message:label.crtFile"
+                    disabled="ognl:uploadDisabled"/>
+			</td>
+		 </tr>
+		 <tr>
+            <td>
+              <span jwcid="keyFileLabel@FieldLabel"
+			        field="component:keyFile"/>
+            </td>
+			<td>
+			  <span jwcid="keyFile@Upload"
+                    file="ognl:uploadKeyFile"
+                    displayName="message:label.keyFile"
+                    disabled="ognl:uploadDisabled"/>
+			</td>
+          </tr>
+          </span>
+          <span jwcid="@If" condition="ognl:uploadDisabled">
+          <tr>
+            <td>
+              <span jwcid="crtLabel@FieldLabel"
+                    field="component:crt"/>
+			</td>
+	      </tr>
+          <tr>
+            <td>
+              <span jwcid="crt@TextArea"
+                    value="ognl:certificate"
+                    displayName="message:label.crt"
+                    rows="8"
+                    cols="65"
+                    disabled="ognl:textDisabled"/>
+			</td>
+           </tr>
+           <tr>
+             <td>
+               <span jwcid="keyLabel@FieldLabel"
+                    field="component:key"/>
+			 </td>
+           </tr>
+           <tr>
+             <td>
+               <span jwcid="key@TextArea"
+                     value="ognl:key"
+                     displayName="message:label.key"
+                     rows="8"
+                     cols="65"
+                     disabled="ognl:textDisabled"/>
+			 </td>
+           </tr>
+          </span>
+        </table>
+        <span jwcid="import@Submit"
+              id="import"
+              action="listener:importCertificate"
+              value="message:button.import"/>
+		</span>
+      </fieldset>
+    </form>
+  </div>
+  <div jwcid="authoritiesTab@Block">
+	<span jwcid="@admin/CertificateAuthorities"/>
+  </div>
+</div>

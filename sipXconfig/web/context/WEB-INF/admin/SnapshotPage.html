@@ -1,0 +1,91 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@If" condition="ognl:snapshot.initialized" renderTag="false">
+    <form jwcid="resultForm@common/AutoRefreshForm"
+      delegate="bean:validator"
+	  interval="5"
+	  componentsToUpdate="ognl:{'message'}">
+	  <span jwcid="@common/ErrorMsg"/>
+	  <fieldset id="message">
+	    <div jwcid="ifRunning@If" condition="ognl:snapshot.refreshing" renderTag="false">
+	      <img jwcid="@Image" image="asset:loadingImage"/>
+	      <span key="messages.running">Running</span>
+	    </div>
+        <div jwcid="ifResultsPresent@Else" renderTag="false">
+          <table>
+            <tr jwcid="ifSnapshotSuccess@If" condition="ognl:snapshot.success">
+              <td class="user-success">
+                <span jwcid="@Insert" value="ognl:generationSuccessMsg"/>
+              </td>
+            </tr>
+            <tr jwcid="@For" source="ognl:snapshot.results" value="ognl:result">
+              <td jwcid="ifResultSuccess@If" condition="ognl:result.success">
+                <a jwcid="snapshotLink@common/DownloadLink"
+                  fileName="ognl:result.file.name"
+                  dirName="ognl:result.dir"
+                  contentType="tar/x-gzip">
+                  <span jwcid="linkText@Insert" value="ognl:result.fqdn"/>
+		        </a>
+		      </td>
+		    </tr>
+	      </table>
+        </div>
+      </fieldset>
+    </form>
+  </div>
+  <div jwcid="@Else">
+	<span jwcid="@common/ErrorMsg"/>
+  </div>
+  <div jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <form jwcid="snapshotForm@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="credentialsPanel@common/FieldPanel" for="snapshot:credentials"
+            field="component:credentialsCheck"
+            label="message:label.credentials"
+            description="message:description.credentials">
+            <span jwcid="credentialsCheck@Checkbox" id="snapshot:credentials"
+                value="ognl:snapshot.credentials"
+                disabled="ognl:snapshot.profiles"/>
+          </tr>
+          <tr jwcid="profilesPanel@common/FieldPanel" for="snapshot:profiles"
+            field="component:profilesCheck"
+            label="message:label.profiles"
+            description="message:description.profiles">
+            <span jwcid="profilesCheck@Checkbox" id="snapshot:profiles" value="ognl:snapshot.profiles" />
+          </tr>
+          <tr jwcid="cdrPanel@common/FieldPanel" for="snapshot:cdr"
+            field="component:cdrCheck"
+            label="message:label.cdr"
+            description="message:description.cdr">
+            <span jwcid="cdrCheck@Checkbox" id="snapshot:cdr" value="ognl:snapshot.cdr"/>
+          </tr>
+          <tr jwcid="logsPanel@common/FieldPanel" for="snapshot:logs"
+            field="component:logsCheck"
+            label="message:label.logs"
+            description="message:description.logs">
+            <span jwcid="logsCheck@Checkbox" id="snapshot:logs" value="ognl:snapshot.logs"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" field="component:filterTime"
+            for="snapshot:filterTime"
+            label="message:label.filterTime"
+            description="message:description.filterTime">
+              <span jwcid="filterTime@Checkbox"
+                id="snapshot:filterTime"
+                value="ognl:snapshot.filterTime"
+                displayName="message:label.filterTime" />
+          </tr>
+          <tr jwcid="startDate@common/DateTimeEditor"
+            datetime="ognl:startDate"
+            label="message:label.startDate" />
+          <tr jwcid="endDate@common/DateTimeEditor"
+            datetime="ognl:endDate"
+            label="message:label.endDate" />
+        </tbody>
+      </table>
+    </fieldset>
+    <span jwcid="actions@common/FormActions"
+      listener="listener:createSnapshot"
+      successMessage="message:msg.success"/>
+  </form>
+</div>

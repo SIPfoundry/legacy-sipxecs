@@ -1,0 +1,21 @@
+  <table jwcid="tableView" id="bridge:list">
+    <span jwcid="nameColumnValue@Block">
+      <span jwcid="editRowLink@DirectLink" listener="ognl:selectListener"
+            parameters="ognl:currentRow.id">
+        <span jwcid="nameText"/>
+      </span>
+    </span>
+    <span jwcid="enabledColumnValue@Block">
+      <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+    </span>
+    <span jwcid="activeConferencesColumnValue@Block">
+         <a jwcid="@DirectLink" class="goLink" listener="ognl:selectActiveListener"
+            parameters="ognl:currentRow.id">
+            <span jwcid="@Insert" value="ognl:currentRow.conferences.size()" />
+            (
+      <span jwcid="@conference/ActiveValue" itemId="ognl:currentRow.id"
+        calculateListener="listener:calculateActiveValue"/>
+            )
+         </a>
+    </span>
+  </table>

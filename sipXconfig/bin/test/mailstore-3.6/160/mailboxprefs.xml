@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<prefs>
+    <activegreeting>standard</activegreeting>
+    <notification>
+        <contact type="email" attachments="no">dhubler@pingtel.com</contact>
+        <contact type="email" attachments="yes">douglas@hubler.us</contact>
+    </notification>
+</prefs>

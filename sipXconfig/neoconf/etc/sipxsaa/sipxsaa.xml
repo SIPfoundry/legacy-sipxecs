@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <group name="logging" hidden="yes">
+    <setting name="SIP_SAA_LOG_LEVEL">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+  </group>
+</model>

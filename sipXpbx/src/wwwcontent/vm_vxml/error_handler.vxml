@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<vxml version="1.0" application="root.vxml">
+    <!-- This is vxml file is for error handling -->
+    <meta content="Harippriya" name="author" />
+    <form>
+        <var name="errortype" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+
+        <block name="invalidextn" cond="errortype == 'invalidextn'">
+            <prompt bargein="false">
+                <audio expr="mediaserverurl + promptsalias + 'extn_invalid.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+            </prompt>
+            <disconnect />
+        </block>
+    </form>
+</vxml>
+
+

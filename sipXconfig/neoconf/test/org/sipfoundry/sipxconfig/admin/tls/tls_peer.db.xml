@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd">
+<dataset>
+  <users user_name="user1" user_id="1000" pintoken="1234" user_type="C"/>
+  <users user_name="user2" user_id="1001" pintoken="1234" user_type="C"/>
+  <users user_name="~~tp~peer1" user_id="1002" user_type="I"/>
+  <users user_name="~~tp~peer2" user_id="1003" user_type="I"/>
+  <tls_peer tls_peer_id="1" name="tlspeer1" internal_user_id="1002"/>
+  <tls_peer tls_peer_id="2" name="tlspeer2" internal_user_id="1003"/>
+</dataset>

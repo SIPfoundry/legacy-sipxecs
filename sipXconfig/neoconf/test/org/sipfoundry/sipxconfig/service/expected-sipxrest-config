@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<rest-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/rest-config-00-00">
+  <ip-address>192.168.1.1</ip-address>
+  <https-port>6666</https-port>
+  <external-http-port>6667</external-http-port>
+  <sipx-proxy-domain>example.org</sipx-proxy-domain>
+  <log-directory>/var/log/sipxpbx</log-directory>
+  <log-level>CRIT</log-level>
+  <sip-port>6050</sip-port>
+</rest-config>

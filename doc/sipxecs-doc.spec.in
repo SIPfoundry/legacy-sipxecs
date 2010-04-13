@@ -1,0 +1,47 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+BuildArch: noarch
+
+# do not build a debuginfo package
+%define debug_package %{nil}
+
+Summary: sipXecs Enterprise Communications Server Documentation
+License: L-GPL
+Group: Telecommunications
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org
+
+Source: %name-%version.tar.gz
+
+Requires: sipxcommserverlib-doc == %version
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+sipXecs is an IP PBX with integrated voice mail, ACD, multiple auto attendents, and web-based system configuration and management tool.  This package provides system and design documentation.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%docdir %{_datadir}/doc/sipxecs
+%{_datadir}/doc/sipxecs
+
+%post
+
+%preun

@@ -1,0 +1,11 @@
+<?xml version="1.0" ?>
+<rest-service xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxrest-service-00-00">
+<plugin-class>org.sipfoundry.sipxrest.testb.PluginB</plugin-class>
+<security-level>LOCAL-ONLY</security-level>
+<uri-prefix>/testplugin/b</uri-prefix>
+<service-description>
+<![CDATA[ This is test plugin B. You can invoke it using the URI 
+testplugin/a where user1 is a valid user in your user database.
+You cannot invoke this restlet from a remote location ( outside the proxy domain ). ]]>
+</service-description>
+</rest-service>

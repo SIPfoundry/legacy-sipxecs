@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<!-- This file contains top-level configuration for the Alarm Server -->
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+  <settings>
+   <!-- The language to use for alarm notifications.  Strings will be loaded first from the base
+        alarm-strings-file, then from alarm-strings-file_<language> (so any missing strings will
+        be displayed in English) -->
+   <language>en</language>
+   <!-- Configurable global settings for alarm actions -->
+   <actions>
+      <log enabled="true">
+         <file>${logDirectory}/sipXalarms.log</file>
+      </log>
+      <email enabled="${enabled}">
+         <!-- Alarm notification emails will be sent from this address. -->
+         <email-notification-addr>${fromEmailAddress}</email-notification-addr>
+      </email>
+      <sms enabled="${enabled}">
+         <!-- Alarm notification SMS will be sent from this address. -->
+         <email-notification-addr>${fromEmailAddress}</email-notification-addr>
+      </sms>
+      <!--  Alarm notification Trap enable flag. -->
+      <trap enabled="${enabled}"/>
+   </actions>
+  </settings>
+</alarm_server>

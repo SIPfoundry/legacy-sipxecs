@@ -1,0 +1,71 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX alias definitions
+  -->
+<schema
+    xmlns:a='http://www.sipfoundry.org/sipX/schema/xml/alias-00-00'
+    xmlns:sip='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/alias-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <import
+      namespace="http://www.sipfoundry.org/sipX/schema/xml/sip-00-01"
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
+      />
+
+  <annotation>
+    <documentation>
+      Definitions of aliases for the sipX Redirect Server
+    </documentation>
+    <documentation source='http://scm.sipfoundry.org/rep/sipXregistry/main/doc/Redirection.txt'/>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='items'>
+    <complexType>
+      <sequence>
+        <element ref='a:item' minOccurs='0' maxOccurs='unbounded' />
+      </sequence>
+      <attribute name='type'>
+        <simpleType>
+          <restriction base='normalizedString'>
+            <enumeration value='alias'/>
+          </restriction>
+        </simpleType>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name='item'>
+    <annotation>
+      <documentation>
+        Specifies a mapping from a single identity to a single contact
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='a:identity' />
+        <element ref='a:contact' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='identity' type='sip:user_at_domain'>
+    <annotation>
+      <documentation>
+        The input address to be matched; if it matches, the contact is returned
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='contact' type='sip:name_addr'>
+    <annotation>
+      <documentation>
+        The value to be returned in the redirect response for the accompanying identity
+      </documentation>
+    </annotation>
+  </element>
+
+</schema>

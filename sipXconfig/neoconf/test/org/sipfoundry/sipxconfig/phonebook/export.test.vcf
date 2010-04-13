@@ -1,0 +1,30 @@
+BEGIN:vCard
+VERSION:3.0
+FN:Jean Luc Picard
+N:Picard;Jean Luc;;;
+TEL;TYPE=WORK:1234
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+FN:Luke Skywalker
+N:Skywalker;Luke;;;
+TEL;TYPE=WORK:1235
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+FN:Frank Dawson
+N:Dawson;Frank;;;
+TEL;TYPE=WORK:+1-919-676-9515
+TEL;TYPE=HOME:+34 (445) 43 22
+TEL;TYPE=CELL:+34(345)112-345
+TEL;TYPE=FAX:+1-919-676-9564
+ADR;TYPE=WORK:Lotus PostOffice;;6544 Battleford Drive;Raleigh;NC;27613-3502;U.S.A.
+ADR;TYPE=HOME:;;501 E. Middlefield Rd.;Mountain View;CA;94043;U.S.A.
+EMAIL;TYPE=PREF:Frank_Dawson@Lotus.com
+EMAIL:fdawson@earthlink.net
+ORG:Lotus Development Corporation;IT Dept
+TITLE:Senior Programmer
+END:vCard
+

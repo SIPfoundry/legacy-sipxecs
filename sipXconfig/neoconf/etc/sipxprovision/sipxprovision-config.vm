@@ -1,0 +1,7 @@
+log.level=$!{provisionService.logLevel}
+log.file=$!{provisionService.logDir}/sipxprovision.log
+provision.servlet.port=$!{settings.getSetting('servletPort').Value}
+provision.sipxchangeDomainName=$!{provisionService.domainName}
+provision.username=$!{provisionService.userName}
+provision.password=$!{provisionService.sipPassword}
+provision.configUrl=https://$!{locationsManager.getPrimaryLocation().getFqdn()}:8443

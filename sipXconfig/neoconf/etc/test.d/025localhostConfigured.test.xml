@@ -1,0 +1,37 @@
+<test name="localhostConfigured">
+  <label>'localhost' configuration</label>
+  <description>Map localhost to IPv4 address 127.0.0.1</description>
+  <longDescription>
+    Verify that localhost is mapped to IPv4 address: 127.0.0.1 only
+  </longDescription>
+  <command>
+    <exec>sipx-test-localhostConfigured</exec>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="1">
+      <status>Error</status>
+      <msg>Invalid mapping of 'localhost' found</msg>
+      <description>
+        The name 'localhost' must map to only the IPv4 address 127.0.0.1
+        Any other IPv4 address for that name may
+        cause routing or authentication errors.
+        Remove bad addresses from /etc/hosts.
+      </description>
+    </result>
+    <result exit="2">
+      <status>Error</status>
+      <msg>
+        'localhost' mapping missing
+      </msg>
+      <description>
+        The name 'localhost' must map to the IPv4 address 127.0.0.1
+        Add the following line to /etc/hosts:
+        127.0.0.1		localhost.localdomain localhost
+      </description>
+    </result>
+  </results>
+</test>

@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>SIPStatus</name>
+  <version>@VERSION@</version>
+  <commands>
+    <configtest>
+      <execute>@SIPX_BINDIR@/sipstatus.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>@SIPX_BINDIR@/sipstatus.sh</execute>
+    </start>
+    <stop>
+      <execute>@SIPX_BINDIR@/sipstatus.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>@SIPX_RUNDIR@/sipstatus.pid</pid>
+    <log>@SIPX_LOGDIR@/sipstatus.log</log>
+  </status>
+  <resources>
+    <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
+    <file>@SIPX_CONFDIR@/status-config</file>
+    <file>@SIPX_CONFDIR@/status-plugin.xml</file>
+    <imdb configAccess='read-only'>subscription</imdb>
+    <imdb>userstatic</imdb>
+  </resources>
+</sipXecs-process>

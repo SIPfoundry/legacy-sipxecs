@@ -1,0 +1,63 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
+pidfile=@SIPX_RUNDIR@/sipstatus.pid
+
+case ${Action} in
+   RUN)
+     echo $$ > ${pidfile}
+     exec @bindir@/sipstatus $Args
+     ;;
+
+   STOP)
+     sipx_stop sipstatus ${pidfile}
+     ;;
+
+   CONFIGTEST)
+     Status=0
+
+     sipx_config_exists @SIPX_CONFDIR@/status-config
+     Status=$(($Status+$?))
+     sipx_config_exists @SIPX_CONFDIR@/status-plugin.xml
+     Status=$(($Status+$?))
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipstatus.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+	 Status=1
+     fi
+
+     ;;
+esac
+
+exit $Status

@@ -1,0 +1,101 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX presence state information.
+  -->
+<schema
+    xmlns:h='http://www.sipfoundry.org/sipX/schema/xml/presence-state-00-00'
+    xmlns:sip_types='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/presence-state-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <import namespace='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
+      />
+
+  <annotation>
+    <documentation>
+      Definition of presence state information file.
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='items'>
+    <annotation>
+      <documentation>
+        Contains the entire database; a collection of database rows.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:item' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+      <attribute name='type' type='string' fixed='presence-state'>
+	<annotation>
+	  <documentation>
+	    Specifies that this is a sipXpresence state information file.
+	  </documentation>
+	</annotation>
+      </attribute>
+      <attribute name='timestamp' type='integer'>
+	<annotation>
+	  <documentation>
+	    Gives the Unix epoch when the state was stored.
+	  </documentation>
+	</annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name='item'>
+    <annotation>
+      <documentation>
+        Contains one presence state item, which is a representation of a
+	SipPresenceEvent.  These SipPresenceEvents are restricted to the
+	forms that appear in SipPresenceMonitor::mPresenceEventList.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:id'/>
+        <element ref='h:contact'/>
+        <element ref='h:status'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='id' type='ID'>
+    <annotation>
+      <documentation>
+         The 'id' of the Tuple.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='contact' type='sip_types:sip_URI'>
+    <annotation>
+      <documentation>
+        The 'contact' of the Tuple, which is the user about which this
+	row gives the status.
+	Currently, these URIs have the host-port of sipXpresence, but
+	eventually, they will be the AORs.  See XECS-1424.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='status'>
+    <annotation>
+      <documentation>
+        The 'status' of the Tuple, which is either 'open' or 'closed'.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='normalizedString'>
+	<enumeration value='open'/>
+	<enumeration value='closed'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+</schema>

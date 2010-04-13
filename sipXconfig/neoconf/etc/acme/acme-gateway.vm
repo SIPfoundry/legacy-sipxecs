@@ -1,0 +1,9 @@
+# This is automatically generated configuration file for ACME gateway
+FixedParameter=FixedValue
+
+#foreach ($group in $gateway.Settings.Values)
+[${group.ProfileName}]
+#foreach ($setting in $group.Values)
+${setting.ProfileName}=$!{setting.Value}
+#end
+#end

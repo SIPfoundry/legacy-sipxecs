@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+   <definitions>
+      <alarm id="PROCESS_FAILED">
+         <shorttitle>Process cannot be restarted!</shorttitle>
+         <description>Process {0} was found in a non-running state, and failed MAX restarts.  Process cannot be restarted!</description>
+         <resolution>If the process is required, check logs for more details.</resolution>
+      </alarm>
+      <alarm id="LOGIN_FAILED">
+         <shorttitle>Login failed</shorttitle>
+         <description>Login attempt as '{0}' failed several times in a short period.</description>
+         <resolution>If condition recurs, may indicate an attempt to break in. </resolution>
+      </alarm>
+   </definitions>
+</alarm_server>

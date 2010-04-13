@@ -1,0 +1,46 @@
+<html jwcid="@Shell"
+  title="message:product.name"
+  stylesheets="ognl:stylesheets">
+<body jwcid="@Body">
+  <div id="banner">
+     <div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
+  </div>
+  <span jwcid="@common/ErrorMsg"/>
+  <div jwcid="@If" condition="ognl:renderLicense">
+    <form jwcid="@Form" delegate="bean:validator" focus="false">
+      <fieldset>
+        <legend><span key="prompt.license"/></legend>
+        <textarea jwcid="@TextArea" value="ognl:license" rows="35" cols="100" readonly="true"/>
+      </fieldset>
+      <ul class="form-actions">
+      <li>
+        <input jwcid="@Submit"
+          tag="ognl:true"
+          selected="ognl:licenseAccepted"
+          value="message:button.agree"/>
+      </li>
+      </ul>
+    </form>
+  </div>
+  <div jwcid="@Else">
+    <div class="help">
+      <p><span key="help1">who's superadmin</span></p>
+      <p><span key="help2">PIN advice.</span></p>
+    </div>
+    <form jwcid="@Form" delegate="bean:validator">
+      <fieldset id="firstuser:form">
+        <legend><span key="prompt">Please choose a PIN for the "superadmin" user</span></legend>
+        <table>
+          <tbody jwcid="pin@user/ConfirmPassword"
+            password="ognl:pin"
+            passwordDisplayName="message:label.newPin"
+            confirmPasswordDisplayName="message:label.confirmNewPin"
+            passwordMismatchMessage="message:message.newPinMismatch"
+            passwordValidator="spring-validators:validPin,required"/>
+        </table>
+      </fieldset>
+      <ul jwcid="@common/FormActions" listener="listener:commit"/>
+    </form>
+  </div>
+</body>
+</html>

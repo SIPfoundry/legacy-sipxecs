@@ -1,0 +1,21 @@
+<contact-information>
+  <jobTitle>Data Entry Assistant</jobTitle>
+  <jobDept>Data Management Services</jobDept>
+  <companyName>Museum of Science</companyName>
+  <homeAddress>
+    <city>NY</city>
+  </homeAddress>
+  <officeAddress>
+    <street>1 Science Park</street>
+    <city>Boston</city>
+    <country>US</country>
+    <state>MA</state>
+    <zip>02114</zip>
+  </officeAddress>
+  <imId>myId</imId>
+  <emailAddress>john.doe@example.com</emailAddress>
+  <useBranchAddress>false</useBranchAddress>
+  <avatar>https://secure.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&amp;d=wavatar</avatar>
+  <firstName>John</firstName>
+  <lastName>Doe</lastName>
+</contact-information>

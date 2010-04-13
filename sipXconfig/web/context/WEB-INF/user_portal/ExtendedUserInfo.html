@@ -1,0 +1,12 @@
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+  <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin"/>
+  <span jwcid="@common/ErrorMsg"/>
+  <div class="avatar">
+    <div jwcid="@user/Avatar" user="ognl:user" />
+  </div>
+  <form jwcid="extendedUserInfoForm@Form" validator="bean:validator">
+	<span jwcid="@user_portal/ExtendedUserInfoComponent"
+		user="ognl:user"
+		userSession="ognl:userSession"/>
+  </form>
+</div>

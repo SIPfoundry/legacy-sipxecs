@@ -1,0 +1,2 @@
+SUPERVISOR_HOST : sipx.example.org
+SUPERVISOR_LOG_LEVEL : DEBUG

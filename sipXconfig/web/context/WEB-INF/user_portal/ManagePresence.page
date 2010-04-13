@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.user_portal.ManagePresence">
+  <description>Change Presence Server Status</description>
+  <inject property="userSession" type="state" object="userSession"/>
+  <inject property="tapestry" object="spring:tapestry"/>
+
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+
+  <component id="locationSelector" type="PropertySelection">
+    <binding name="model" value="locationSelectionModel" />
+    <binding name="value" value="currentLocationId" />
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
+  </component>
+</page-specification>

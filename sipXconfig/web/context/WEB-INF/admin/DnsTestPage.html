@@ -1,0 +1,53 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <div jwcid="showPrompt@If" condition="ognl:dnsTestContext.runTestNeeded" class="user-warning">
+    <span key="prompt.runtest">Run test needed</span>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+
+  <form jwcid="dnsTestForm@Form" delegate="bean:validator">
+    <fieldset>
+      <span jwcid="@common/FieldPanel" for="provideDns" field="component:provideDns"
+        label="message:label.provideDns"
+        description="message:description.provideDns">
+        <span jwcid="provideDns@Checkbox" id="provideDns" value="ognl:provideDns"/>
+      </span>
+      <p>
+        <input jwcid="runTest@Submit" listener="listener:execute" value="message:button.runtest"/>
+      </p>
+      <div jwcid="testResults@If" condition="ognl:!dnsTestContext.runTestNeeded" renderTag="false">
+        <span jwcid="@If" condition="ognl:!dnsTestContext.valid"  renderTag="false">
+          <img jwcid="@Image" image="asset:dnsErrorImage" align="absmiddle" />
+          <b><span jwcid="@Insert" value="message:validationDns.labelError"/></b><br/>
+        </span>
+        <span jwcid="@Else" renderTag="false">
+          <img jwcid="@Image" image="asset:dnsSuccessImage" align="absmiddle" />
+          <b><span jwcid="@Insert" value="message:validationDns.labelSuccess"/></b><br/>
+        </span>
+        <span jwcid="validation@Insert" value="message:validationDns.description" />
+        <ul>
+          <span jwcid="dnsTestLink@common/ToggleLink" toggle="ognl:showTestResults"
+            labelOn="message:test.hideDetails"
+            labelOff="message:test.showDetails"/>
+        </ul>
+      </div>
+    </fieldset>
+    <span jwcid="@If" condition="ognl:showTestResults" renderTag="false">
+      <textarea id="dnsTestStatus" rows="30" readonly="readonly" class="textBox">
+<span jwcid="@Insert" value="ognl:dnsTestContext.result" />
+      </textarea>
+    </span>
+  </form>
+  <form jwcid="detailedHelpForm@Form">
+    <fieldset style="list-style-type:none">
+      <span jwcid="detailedHelpLink@common/ToggleLink" toggle="ognl:showDetailedHelp"
+        labelOn="message:toggle.hideDetailedHelp"
+        labelOff="message:toggle.showDetailedHelp"/>
+    </fieldset>
+    <span jwcid="@If" condition="ognl:showDetailedHelp" renderTag="false">
+    <span key="title.detailedHelp" renderTag="false"/><br/>
+    <textarea id="detailedHelp"rows="30" readonly="readonly" style="margin-left:9px" class="textBox">
+<span jwcid="@Insert" value="message:detailedHelp" />
+    </textarea>
+    </span>
+  </form>
+</div>

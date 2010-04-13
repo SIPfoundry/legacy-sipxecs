@@ -1,0 +1,91 @@
+SUDO = sudo
+
+DIST_SRC=$(DEST_SRC)/$(distdir).tar.gz
+RPM=$(DEST_RPM)/@PACKAGE@-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm
+DEVEL_RPM=$(DEST_RPM)/@PACKAGE@-devel-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm
+DEBUG_RPM=$(DEST_RPM)/@PACKAGE@-debuginfo-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm
+
+DEFAULT_RPMS = $(RPM) $(DEVEL_RPM)
+SRPM = $(DEST_SRPM)/@PACKAGE@-$(SIPX_VERSION).src.rpm
+
+RPM_INSTALL_FLAGS = --upgrade --nodeps --quiet --noscripts --notriggers --verbose --hash --force
+RPM_UNINSTALL_FLAGS = --erase --nodeps --quiet --noscripts --notriggers --verbose
+
+.PHONY: install-rpm
+install-rpm :
+	$(SUDO) rpm $(RPM_INSTALL_FLAGS) $(RPMS)
+
+## The SVN-VERSION file is created to record the version
+##  in the distribution tarball; it is not used in a subversion working copy
+##  (see config/subdir.am).
+## 	 the indirection is needed so that the svn-version script does not
+## 	 try to read from the SVN-VERSION file that its parent shell just opened
+SVN-VERSION:
+	@abs_top_srcdir@/config/svn-version @abs_top_srcdir@ > SVN-VERSION.new
+	mv SVN-VERSION.new SVN-VERSION
+
+uninstall-rpm :
+	$(SUDO) rpm $(RPM_UNINSTALL_FLAGS) $(shell rpm -qp $(RPMS))
+
+list-rpm :
+	@echo $(RPMS)
+
+.PHONY : rpm
+rpm : dist additional-package-files $(SRPM) $(RPMS)
+
+RELEASE=$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@)
+
+.PHONY: build-rpm
+build-rpm :
+	rpmbuild -ta --define="buildno $(RELEASE)" --define="use_ibm_jvm $(USE_IBM_JVM)" $(DIST_SRC)
+
+$(RPMS) : build-rpm
+	cp @RPMBUILD_TOPDIR@/RPMS/$(RPM_TARGET_ARCH)/`basename $@` $@
+
+$(SRPM) : build-rpm
+	cp @RPMBUILD_TOPDIR@/SRPMS/`basename $@` $@
+
+.PHONY : additional-package-files
+additional-package-files: \
+	$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.gz.md5 \
+	$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2 \
+	$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2.md5
+
+$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.gz: dist
+
+$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.gz.md5: $(DIST_SRC)
+	md5sum $< > $@
+
+$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2: $(DIST_SRC)
+	zcat $< | bzip2 --compress --stdout > $@
+
+$(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2.md5: $(DEST_SRC)/@PACKAGE@-$(VERSION).tar.bz2
+	md5sum $< > $@
+
+# RPM Spec file
+@PACKAGE@.spec : @PACKAGE@.spec.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/@PACKAGE@.spec.in > @PACKAGE@.spec
+
+dist-hook : $(distdir)/@PACKAGE@.spec clean-svn
+
+# 'rpmbuild -ta' searches root of tarball for first *.spec file to build
+# RPM from
+$(distdir)/@PACKAGE@.spec:
+	cp @PACKAGE@.spec $(distdir)
+
+# Alternative is to do svn export, but it's very handy to be able to
+# create a dist tarball from a working svn checkout
+clean-svn:
+	rm -rf `find $(distdir) -type d -name .svn`
+
+# Override default tarball creation, need to support paths > 99 chars
+# change tar options: "chof" to "chf", which implies the tarball is not
+# compatible with legacy systems.  See 'man tar' for more info
+# Other dist types will have the same problem, but I am not overriding
+# on them yet as we do support them at this time nor do I have time to
+# check/maintain them, yet.
+
+dist dist-all : distdir
+	$(AMTAR) chf - $(distdir) | GZIP=$(GZIP_ENV) gzip -c >$(DIST_SRC)
+	$(am__remove_distdir)

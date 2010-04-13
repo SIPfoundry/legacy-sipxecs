@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messagedescriptor>
+  <id>160@pingtel.com</id>
+  <from>&quot;COHEN+MICHAEL++&quot;&lt;sip:7817249453@pingtel.com&gt;;tag%3D1c1058951906</from>
+  <durationsecs>40</durationsecs>
+  <timestamp>Fri, 2-Mar-2007 07:51:03 AM EST</timestamp>
+  <subject>Voice Message 00050654</subject>
+  <priority>normal</priority>
+</messagedescriptor>

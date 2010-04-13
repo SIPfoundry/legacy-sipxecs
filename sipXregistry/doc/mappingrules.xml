@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  - Example mappingrules.xml file
+  -->
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+  <hostMatch>
+    <!-- the host part of the target URI must match at least one hostPattern -->
+    <hostPattern>example.edu</hostPattern>
+    <hostPattern>sipx.example.edu</hostPattern>
+    <hostPattern>10.1.20.20</hostPattern>
+
+    <userMatch>
+      <!-- the user part of the target URI must match -->
+      <userPattern>2xxxx</userPattern> <!-- 'x' represents any digit -->
+
+      <permissionMatch>
+        <!-- the target URI must have one of the permissions in permissions.xml -->
+        <permission>Voicemail</permission>
+
+        <!-- if all tests pass, tranform the URI to a new target contact -->
+        <transform>
+          <!--
+            - Transform URI to Deposit to Users Voice Mail
+            - {digits} substitutes the user part of the target URI
+            - {mediaserver} and {voicemail} substitute values from
+            - the registrar-config file (SIP_REGISTRAR_MEDIA_SERVER and
+            - SIP_REGISTRAR_VOICEMAIL_SERVER respectively).
+            -
+            - {digits-escaped} is the same substitution as above but HTTP
+            - escaped (mainly for plus sign, so +5551212 comes through as
+            - a http URL parameter correctly)
+            -->
+          <url>&lt;sip:{digits}@{mediaserver};voicexml={voicemail}%2Fsipx-cgi%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits-escaped}&gt;;q=0.1</url>
+        </transform>
+
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <!-- the user part of the target URI must match -->
+      <userPattern>888711xxxx</userPattern> <!-- 'x' represents any digit -->
+
+      <permissionMatch>
+        <!-- no permission checks for this one -->
+
+        <transform>
+          <!--
+            - change direct inward dial number to extension
+            - {vdigits} substitutes from the first variable
+            - digit to the end of the user part.  Alternatively
+            - {digits} can be used which substitutes the userId
+            - part of the incoming request URI.
+            -->
+          <user>{vdigits}</user>
+          <host>sipx.example.edu</host>
+        </transform>
+
+      </permissionMatch>
+    </userMatch>
+
+  </hostMatch>
+</mappings>

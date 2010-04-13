@@ -1,0 +1,15 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'serverToServer','logging'}" selectedTab="ognl:tab" />
+  <div id="settings-content">
+	<span jwcid="@common/ErrorMsg"/>
+    <form jwcid="serverToServerForm@Form" delegate="bean:validator">
+	  <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+    </form>
+  </div>
+  <div jwcid="serverToServerTab@Block">
+    <span jwcid="serverToServer@openfire/InstantMessagingPanel" settingGroup="openfire-server-to-server" />
+  </div>
+  <div jwcid="loggingTab@Block">
+    <span jwcid="logging@openfire/InstantMessagingPanel" settingGroup="message-logging" />
+  </div>
+</div>

@@ -1,0 +1,29 @@
+<table jwcid="userTable@common/Table" id="user:list"
+  columns="* userName,firstName,lastName,!imId,!aliases:aliasesString"
+  usePager="true"
+  source="ognl:tableModel"
+  row="ognl:currentUser"
+  selections="ognl:selections"
+  initialSortColumn="userName">
+  <div jwcid="userNameColumnValue@Block">
+    <img jwcid="@Image" image="ognl:userIcon" align="absmiddle" title="ognl:userIconTitle" />
+    <span jwcid="@If" condition="ognl:userListener != null" renderTag="false">
+      <a href="#" jwcid="userNameLink@DirectLink"
+        listener="ognl:userListener"
+        parameters="ognl:currentUser.id">
+        <span jwcid="@Insert" value="ognl:currentUser.userName" />
+      </a>
+    </span>
+    <span jwcid="@Else" renderTag="false">
+      <span jwcid="@Insert" value="ognl:currentUser.userName" />
+    </span>
+  </div>
+  <div jwcid="imIdColumnValue@Block">
+    <span jwcid="@If" condition="ognl:userImAccount.enabled">
+      <span jwcid="@Insert" class="enabled" value="ognl:userImAccount.imId" />
+    </span>
+    <span jwcid="@Else">
+      <span jwcid="@Insert" class="disabled" value="ognl:userImAccount.imId" />
+    </span>
+  </div>
+</table>

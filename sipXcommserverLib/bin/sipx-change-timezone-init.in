@@ -1,0 +1,25 @@
+#@BASH@
+
+## Source function library.
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# Ensure that sipx-sudo-date is owned by root and
+# that the UID permission bit is set.
+if test -e @SIPX_LIBEXECDIR@/sipx-sudo-timezone
+then
+    is_file_owned_by_username @SIPX_LIBEXECDIR@/sipx-sudo-timezone "root"
+    if [ $? -ne 0 ]
+    then
+        chown root:@SIPXPBXGROUP@ @SIPX_LIBEXECDIR@/sipx-sudo-timezone
+    fi
+
+    is_file_grouped_by_username @SIPX_LIBEXECDIR@/sipx-sudo-timezone @SIPXPBXGROUP@
+    if [ $? -ne 0 ]
+    then
+        chown root:@SIPXPBXGROUP@ @SIPX_LIBEXECDIR@/sipx-sudo-timezone
+    fi
+    if test ! -x @SIPX_LIBEXECDIR@/sipx-sudo-timezone -o ! -u @SIPX_LIBEXECDIR@/sipx-sudo-timezone
+    then
+        chmod 4750 @SIPX_LIBEXECDIR@/sipx-sudo-timezone
+    fi
+fi

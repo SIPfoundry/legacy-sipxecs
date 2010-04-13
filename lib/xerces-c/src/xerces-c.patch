@@ -1,0 +1,11 @@
+Index: samples/CreateDOMDocument/CreateDOMDocument.cpp
+===================================================================
+@@ -87,7 +87,7 @@
+ //  main
+ // ---------------------------------------------------------------------------
+ 
+-int main(int argC, char* /* argV[] */)
++int main(int argC, char** /* argV[] */)
+ {
+     // Initialize the XML4C2 system.
+     try

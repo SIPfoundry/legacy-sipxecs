@@ -1,0 +1,190 @@
+#! /bin/sh
+
+# Test the redirector modules.
+
+# To be run from the sipXregistry/doc/developer directory.  Looks for
+# ../../config.log or ../../build/config.log to find the values of the
+# SIPX_* configuration variables.  From $SIPX_CONFDIR/config.defs, it
+# determines the SIP configuration, including the domain name and the
+# registry port number.
+
+# Starts and stops sipregistrar itself.  If sipregistrar is already
+# running, this script will fail.
+
+# Executes a series of tests by sending requests to sipregistrar and
+# recording the responses.  Tests are composed of methods and
+# extensions.  Treatment of extensions is fixed by loading the IMDB
+# and $SIPX_CONFDIR/*.xml files at the start of this script.
+
+# Each test request is logged to stdout, along with the response line
+# and Contact: headers from the responses.  Any lines in
+# $SIPX_LOGDIR/sipregistrar.log containing "SipRedirector" are also
+# logged.  It may help to set "SIP_REGISTRAR_LOG_LEVEL : DEBUG" in
+# $SIPX_CONFDIR/registrar-config.
+
+# Tests:
+#
+
+# Debugging statements start with '##'.
+
+# Set up the configuration variables.
+
+# Absolute directory name for temporary files.
+TMPDIR=${TMPDIR:-/tmp}/$$
+mkdir $TMPDIR
+
+# Read the config.log file to get the SIPX_* variables.
+# Determine the real file name.
+F1=../../config.log
+F2=../../build/config.log
+
+if [[ -e $F1 ]]
+then
+    CONFIG_FILE=$F1
+elif [[ -e $F2 ]]
+then
+    CONFIG_FILE=$F2
+else
+    echo >&2 "Cannot find config file in either '$F1' or '$F2'"
+    exit 1
+fi
+
+# Extract the variable definitions.
+grep '^[A-Za-z0-9_]*=' $CONFIG_FILE >$TMPDIR/config
+source $TMPDIR/config
+
+# Recursively substitute variable references in the definitions.
+function substitute_in () {
+    while eval "[[ \"\$$1\" =~ '\\\$' ]]"
+    do
+      ##eval "echo Replacing \"\$$1\""
+      eval "eval \"$1=\$$1\""
+      ##eval "echo with \"\$$1\""
+    done
+}
+# Here are the variables we need.
+substitute_in SIPX_BINDIR
+substitute_in SIPX_CONFDIR
+substitute_in SIPX_DBDIR
+substitute_in SIPX_LOGDIR
+##echo SIPX_BINDIR=$SIPX_BINDIR
+##echo SIPX_CONFDIR=$SIPX_CONFDIR
+##echo SIPX_DBDIR=$SIPX_DBDIR
+##echo SIPX_LOGDIR=$SIPX_LOGDIR
+
+# Kill the old log file
+##rm $SIPX_LOGDIR/sipregistrar.log
+
+# Get the config.defs parameters.
+source $SIPX_CONFDIR/config.defs
+
+echo Loading IMDB...
+
+# Get the global call pick-up code.
+GLOBAL_CALL_PICKUP=$(
+    grep <$SIPX_CONFDIR/registrar-config \
+	'^ *SIP_REGISTRAR_GLOBAL_PICKUP_ID *:' |
+    sed -e 's/^ *SIP_REGISTRAR_GLOBAL_PICKUP_ID *: *//' -e 's/ *$//'
+    )
+# Provide "*76" as the default.
+GLOBAL_CALL_PICKUP="${GLOBAL_CALL_PICKUP:-*76}"
+# Get the call pick-up code.
+CALL_PICKUP=$(
+    grep <$SIPX_CONFDIR/registrar-config \
+	'^ *SIP_REGISTRAR_CALL_PICKUP_ID *:' |
+    sed -e 's/^ *SIP_REGISTRAR_CALL_PICKUP_ID *: *//' -e 's/ *$//'
+    )
+# Provide "*77" as the default.
+CALL_PICKUP="${CALL_PICKUP:-*77}"
+
+# Set up the configuration files.
+
+# Set up the mapping rules.
+#cat >$SIPX_CONFDIR/mappingrules.xml <<EOF
+#<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+#<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+#
+#  <!-- Restrict changes to the local domain -->
+#  <hostMatch>
+#    <hostPattern>$SIPXCHANGE_DOMAIN_NAME</hostPattern>
+#
+#    <userMatch>
+#      <userPattern>400</userPattern>
+#      <permissionMatch>
+#        <transform>
+#          <url>&lt;sip:400mapped@{mediaserver}&gt;</url>
+#        </transform>
+#      </permissionMatch>
+#    </userMatch>
+#
+#    <userMatch>
+#      <userPattern>xxx</userPattern>
+#      <permissionMatch>
+#        <transform>
+#          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}&gt;;q=0.1</url>
+#        </transform>
+#      </permissionMatch>
+#    </userMatch>
+#
+#  </hostMatch>
+#</mappings>
+#EOF
+
+# Start the registrar.
+
+pushd $SIPX_LOGDIR >/dev/null
+#$SIPX_BINDIR/sipregistrar >$TMPDIR/registrar &
+popd >/dev/null
+# Wait for it to be ready.
+##echo sleep 5
+sleep 5
+##jobs
+
+##netstat -a --inet -p
+
+# Perform the tests.
+
+#    "<test@$SIPXCHANGE_DOMAIN_NAME>" \
+#    "<${CALL_PICKUP}@$SIPXCHANGE_DOMAIN_NAME>" \
+#    "<${CALL_PICKUP}7@$SIPXCHANGE_DOMAIN_NAME>" \
+for EXTENSION in \
+    "<${CALL_PICKUP}222@$SIPXCHANGE_DOMAIN_NAME>" \
+
+do 
+  for METHOD in INVITE
+  do
+    # Remember how long the log file is now.
+    L=$( wc -l <$SIPX_LOGDIR/sipregistrar.log )
+
+    # Show the test.
+    echo
+    echo Test: $METHOD $EXTENSION
+    echo
+    # Execute the test.
+    sipsend >$TMPDIR/output \
+	$SIPXCHANGE_DOMAIN_NAME:$REGISTRAR_SERVER_SIP_PORT $METHOD \
+	$EXTENSION
+    # Show the interesting parts of the response: the reply line and the
+    # Contact: headers.
+    head -1 $TMPDIR/output
+    grep -i '^Contact:' $TMPDIR/output
+    echo
+    # Show the addContact lines from sipregistrar.log.
+    tail --lines=+$L $SIPX_LOGDIR/sipregistrar.log |
+    grep 'SipRegistrar:"SipRedirect' |
+    grep -vE 'SipRedirectorRegDB|SipRedirectorMapping' |
+    sed -e 's/^"[-0-9]*T\([0-9:.]*Z\).*:SipRegistrar:"/\1:"/'
+    echo
+
+    # Allow log file to be flushed to disk.
+    sleep 5
+  done
+done
+
+# Stop the registrar.
+
+# Note how the job name must be specified.
+#kill -TERM %\$SIPX_BINDIR/sipregistrar
+
+##sleep 1
+##ps -C sipregistrar

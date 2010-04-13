@@ -1,0 +1,277 @@
+<?xml version="1.0"?>
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="restricted-port-number">
+    <integer required="yes" min="1024" max="32000" />
+  </type>
+  <type id="on-off">
+    <boolean>
+      <true>
+        <value>1</value>
+      </true>
+      <false>
+        <value>0</value>
+      </false>
+    </boolean>
+  </type>
+  <group name='LAN'>
+    <setting name='tftp_server_address' />
+  </group>
+  <group name='VOIP'>
+    <setting name='outbound_proxy_server' />
+    <setting name='proxy_type ' advanced="yes">
+      <value>SCS</value>
+    </setting>
+    <setting name='outbound_proxy_port' advanced="yes">
+      <type refid="restricted-port-number" />
+      <value>5060</value>
+    </setting>
+    <setting name='backup_proxy_server' advanced="yes" />
+    <setting name='backup_proxy_port' advanced="yes">
+      <type refid="restricted-port-number" />
+      <value>5060</value>
+    </setting>
+    <setting name='sip_service_domain' advanced="yes" />
+    <setting name="moh_url" advanced="yes" />
+    <setting name='preferred_codec'>
+      <value>pcmu pcma g729 amr g723 h264 h263</value>
+    </setting>
+  </group>
+  <group name='NETTIME'>
+    <setting name='sntp_server_address'>
+      <value />
+    </setting>
+    <setting name='timezone'>
+      <type>
+        <enum>
+          <option>
+            <value>60</value><!--GMT-12:00 Int.Date Line, West-->
+          </option>
+          <option>
+            <value>61</value><!--GMT-11:00 Midway/Samoa-->
+          </option>
+          <option>
+            <value>1</value><!--GMT-10:00 Hawaii-->
+          </option>
+          <option>
+            <value>62</value><!--GMT-09:00 Alaska-->
+          </option>
+          <option>
+            <value>2</value><!--GMT-08:00 Los Angeles, Califonnia-->
+          </option>
+          <option>
+            <value>3</value><!--GMT-08:00 Pacific Standard-->
+          </option>
+          <option>
+            <value>4</value><!--GMT-07:00 Mountain Standard-->
+          </option>
+          <option>
+            <value>5</value><!--GMT-06:00 Central Standard-->
+          </option>
+          <option>
+            <value>6</value><!--GMT-06:00 Mexico City, Mexico-->
+          </option>
+          <option>
+            <value>7</value><!--GMT-06:00 Saskatc., Canada-->
+          </option>
+          <option>
+            <value>8</value><!--GMT-05:00 Bogota, Colombia-->
+          </option>
+          <option>
+            <value>9</value><!--GMT-05:00 Eastern Standard-->
+          </option>
+          <option>
+            <value>10</value><!--GMT-05:00 Lima, Peru-->
+          </option>
+          <option>
+            <value>11</value><!--GMT-05:00 New York, NY-->
+          </option>
+          <option>
+            <value>12</value><!--GMT-04:00 Atlantic Standard-->
+          </option>
+          <option>
+            <value>13</value><!--GMT-04:00 Caracas, Venezuela-->
+          </option>
+          <option>
+            <value>14</value><!--GMT-04:00 La Paz, Bolivia-->
+          </option>
+          <option>
+            <value>15</value><!--GMT-03:30 Newfoundland-->
+          </option>
+          <option>
+            <value>16</value><!--GMT-03:00 Brasilia, Brazil-->
+          </option>
+          <option>
+            <value>17</value><!--GMT-03:00 Buenos Aires, Argentina-->
+          </option>
+          <option>
+            <value>18</value><!--GMT-03:00 Georgetown, Guyana-->
+          </option>
+          <option>
+            <value>63</value><!--GMT-02:00 Nuuk, Greenland-->
+          </option>
+          <option>
+            <value>19</value><!--GMT-01:00 Azores, Portugal-->
+          </option>
+          <option>
+            <value>20</value><!--GMT-01:00 Cape Verde-->
+          </option>
+          <option>
+            <value>21</value><!--GMT 00:00 Casablanca, Morocco-->
+          </option>
+          <option>
+            <value>22</value><!--GMT 00:00 Lisbon, Portugal-->
+          </option>
+          <option>
+            <value>23</value><!--GMT 00:00 London, England-->
+          </option>
+          <option>
+            <value>24</value><!--GMT+01:00 Amsterdam, Nertherlands-->
+          </option>
+          <option>
+            <value>25</value><!--GMT+01:00 Berlin, Germany-->
+          </option>
+          <option>
+            <value>26</value><!--GMT+01:00 Bern, Switzerland-->
+          </option>
+          <option>
+            <value>27</value><!--GMT+01:00 Brussels, Belgium-->
+          </option>
+          <option>
+            <value>28</value><!--GMT+01:00 Central Europeon-->
+          </option>
+          <option>
+            <value>59</value><!--GMT+01:00 Copenhagen, Denmark-->
+          </option>
+          <option>
+            <value>29</value><!--GMT+01:00 Madrid, Spain-->
+          </option>
+          <option>
+            <value>30</value><!--GMT+01:00 Oslo, Norway-->
+          </option>
+          <option>
+            <value>31</value><!--GMT+01:00 Paris, France-->
+          </option>
+          <option>
+            <value>32</value><!--GMT+01:00 Rome, Italy-->
+          </option>
+          <option>
+            <value>33</value><!--GMT+01:00 Stocholm, Sweden-->
+          </option>
+          <option>
+            <value>34</value><!--GMT+01:00 Vienna, Austria-->
+          </option>
+          <option>
+            <value>35</value><!--GMT+02:00 Athens, Greece-->
+          </option>
+          <option>
+            <value>36</value><!--GMT+02:00 Harare, Zimbabwe-->
+          </option>
+          <option>
+            <value>37</value><!--GMT+02:00 Helsinki, Finland-->
+          </option>
+          <option>
+            <value>38</value><!--GMT+02:00 Istanbul, Turkey-->
+          </option>
+          <option>
+            <value>39</value><!--GMT+02:00 Jerusalem, Israel-->
+          </option>
+          <option>
+            <value>40</value><!--GMT+03:00 Kuwait-->
+          </option>
+          <option>
+            <value>41</value><!--GMT+03:00 Moscow, Russia-->
+          </option>
+          <option>
+            <value>42</value><!--GMT+03:00 Nairobi, Kenya-->
+          </option>
+          <option>
+            <value>43</value><!--GMT+03:00 Riyard, Saudi Arabia-->
+          </option>
+          <option>
+            <value>44</value><!--GMT+03:30 Tehran, Iran-->
+          </option>
+          <option>
+            <value>45</value><!--GMT+04:00 Abu Dhabi, UAE-->
+          </option>
+          <option>
+            <value>46</value><!--GMT+04:00 Tblisi, Georgia-->
+          </option>
+          <option>
+            <value>47</value><!--GMT+04:30 Kabul, Afghanistan-->
+          </option>
+          <option>
+            <value>64</value><!--GMT+05:00 Islamabad, Pakistan-->
+          </option>
+          <option>
+            <value>48</value><!--GMT+05:30 New Delhi, India-->
+          </option>
+          <option>
+            <value>65</value><!--GMT+06:00 Dhaka, Bangladesh-->
+          </option>
+          <option>
+            <value>66</value><!--GMT+06:30 Yangon, Myanmar-->
+          </option>
+          <option>
+            <value>49</value><!--GMT+07:00 Bankok, Thailand-->
+          </option>
+          <option>
+            <value>50</value><!--GMT+07:00 Jakarta, Indonesia-->
+          </option>
+          <option>
+            <value>51</value><!--GMT+08:00 Bejing, China-->
+          </option>
+          <option>
+            <value>52</value><!--GMT+09:00 Seoul, Korea-->
+          </option>
+          <option>
+            <value>53</value><!--GMT+09:00 Tokyo, Japan-->
+          </option>
+          <option>
+            <value>54</value><!--GMT+09:30 Darwin, Australia-->
+          </option>
+          <option>
+            <value>55</value><!--GMT+10:00 Guam Standard-->
+          </option>
+          <option>
+            <value>67</value><!--GMT+11:00 Solomon Islands-->
+          </option>
+          <option>
+            <value>56</value><!--GMT+12:00 Marshall Islands-->
+          </option>
+          <option>
+            <value>57</value><!--GMT+12:00 Auckland, Wellington-->
+          </option>
+          <option>
+            <value>58</value><!--GMT+13:00 Nuku'Alofa-->
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name='ntp_on'>
+      <type refid="on-off" />
+      <value>1</value>
+    </setting>
+    <setting name='dst_on'>
+      <type refid="on-off" />
+      <value>0</value>
+    </setting>
+  </group>
+  <group name='VERSION'>
+    <setting name='hw_version'>
+      <type>
+        <string required="yes" />
+      </type>
+      <value>1.0</value>
+    </setting>
+    <setting name='sw_version'>
+      <type>
+        <string required="yes" />
+      </type>
+      <value>0.1.90</value>
+    </setting>
+  </group>
+</model>

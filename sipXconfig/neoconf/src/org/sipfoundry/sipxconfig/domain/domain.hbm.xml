@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.domain" default-lazy="false">
+
+  <class name="Domain" table="domain">
+    <id name="id" column="domain_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">domain_seq</param>
+      </generator>
+    </id>
+    <property name="name"/>
+    <set name="aliases" cascade="all" table="domain_alias">
+      <key column="domain_id"/>
+      <element type="string" column="alias"/>
+    </set>
+    <property name="sharedSecret"/>
+    <property name="sipRealm"/>
+  </class>
+
+  <query name="domain">
+    <![CDATA[from Domain]]>
+  </query>
+
+</hibernate-mapping>

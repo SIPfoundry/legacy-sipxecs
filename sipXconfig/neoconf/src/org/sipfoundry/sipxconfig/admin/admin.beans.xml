@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="adminContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.AdminContext</value>
+    </property>
+    <property name="target">
+      <ref local="adminContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="adminContextImpl" class="org.sipfoundry.sipxconfig.admin.AdminContextImpl" autowire="byType">
+    <property name="sessionFactory" ref="sessionFactory"/>
+    <property name="binDirectory" value="${sysdir.bin}" />
+    <property name="libExecDirectory" value="${sysdir.libexec}" />
+    <lookup-method name="createLocalBackupPlan" bean="localBackupPlan" />
+    <lookup-method name="createFtpBackupPlan" bean="ftpBackupPlan" />
+  </bean>
+
+  <bean id="softwareAdminApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="SwAdminRpc." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.admin.commserver.SoftwareAdminApi" />
+    <property name="timeout" value="10000" />
+  </bean>
+
+  <bean id="snapshot" class="org.sipfoundry.sipxconfig.admin.Snapshot">
+    <property name="destDirectory" value="${sysdir.tmp}" />
+    <property name="softwareAdminApiProvider" ref="softwareAdminApiProvider" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="restore" class="org.sipfoundry.sipxconfig.admin.Restore">
+    <property name="binDirectory" value="${sysdir.bin}" />
+    <property name="logDirectory" value="${sysdir.log}" />
+  </bean>
+
+  <bean id="ftpRestore" class="org.sipfoundry.sipxconfig.admin.FtpRestore" parent="restore">
+  </bean>
+
+  <bean id="initializeSystemTask" class="org.sipfoundry.sipxconfig.admin.DataInitializer">
+    <property name="adminContext" ref="adminContext" />
+  </bean>
+
+  <bean id="backupPlan" class="org.sipfoundry.sipxconfig.admin.BackupPlan" abstract="true">
+    <property name="mailSenderContext" ref="mailSenderContext" />
+    <property name="emailFromAddress" value="backup" />
+  </bean>
+
+  <bean id="localBackupPlan" class="org.sipfoundry.sipxconfig.admin.LocalBackupPlan" parent="backupPlan"></bean>
+
+  <bean id="ftpBackupPlan" class="org.sipfoundry.sipxconfig.admin.FtpBackupPlan" parent="backupPlan"></bean>
+
+  <bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource">
+    <property name="basename">
+      <value>org.sipfoundry.sipxconfig.admin.mail</value>
+    </property>
+  </bean>
+
+  <bean id="firstRun" class="org.sipfoundry.sipxconfig.admin.FirstRunTask">
+    <property name="coreContext" ref="coreContext" />
+    <property name="adminContext" ref="adminContext" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="resetDialPlanTask" ref="resetDialPlanTask" />
+    <property name="gatewayContext" ref="gatewayContext" />
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="gatewayProfileManager" ref="gatewayProfileManager" />
+    <property name="phoneProfileManager" ref="phoneProfileManager" />
+    <property name="taskName" value="first-run" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="pagingContext" ref="pagingContext" />
+    <property name="sbcManager" ref="sbcManager" />
+    <property name="alarmServerManager" ref="alarmServerManager" />
+  </bean>
+
+  <bean id="exportCsv" class="org.sipfoundry.sipxconfig.admin.ExportCsv">
+    <property name="coreContext" ref="coreContext" />
+    <property name="phoneContext" ref="phoneContext" />
+  </bean>
+
+  <bean id="defaultConfigurationFile" abstract="true">
+    <property name="directory" value="${sysdir.etc}" />
+  </bean>
+
+  <bean id="updateApi" class="org.sipfoundry.sipxconfig.admin.update.UpdateApiXmlRpc">
+    <property name="softwareAdminApiProvider" ref="softwareAdminApiProvider" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="packageUpdateManager" class="org.sipfoundry.sipxconfig.admin.update.PackageUpdateManagerImpl">
+    <property name="alarmContext" ref="alarmContext" />
+    <property name="updateApi" ref="updateApi" />
+  </bean>
+
+  <bean id="checkForUpdatesTask" class="org.springframework.scheduling.timer.MethodInvokingTimerTaskFactoryBean">
+    <property name="targetObject" ref="packageUpdateManager" />
+    <property name="targetMethod" value="checkForUpdates" />
+  </bean>
+
+  <bean id="checkForUpdatesTrigger" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+    <property name="fixedRate" value="true" />
+    <!-- wait 10 minutes before checking -->
+    <property name="delay" value="600000" />
+    <!-- once a day -->
+    <property name="period" value="86400000" />
+    <property name="timerTask" ref="checkForUpdatesTask" />
+  </bean>
+
+  <bean id="loggingManager" class="org.sipfoundry.sipxconfig.admin.LoggingManagerImpl">
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="acdContext" ref="acdContext" />
+  </bean>
+
+  <bean id="dnsTestContextImpl" class="org.sipfoundry.sipxconfig.admin.DnsTestContextImpl">
+    <constructor-arg ref="commandContext" />
+    <constructor-arg value="sipx-dns" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="dnsTestContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.DnsTestContext" />
+    <property name="target" ref="dnsTestContextImpl" />
+  </bean>
+
+  <bean id="auditLogContext" class="org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl"/>
+
+  <bean id="restartListener" class="org.sipfoundry.sipxconfig.admin.RestartListener" scope="prototype">
+	<property name="sipxProcessContext" ref="sipxProcessContext" />
+  </bean>
+
+</beans>

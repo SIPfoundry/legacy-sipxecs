@@ -1,0 +1,13 @@
+<span jwcid="@If" condition="ognl:conferenceMember.canHear">
+    <img jwcid="@Image" image="asset:soundIcon" align="top" />
+</span>
+<span jwcid="@Else">
+    <img jwcid="@Image" image="asset:deafIcon" align="top" />
+</span>
+
+<span jwcid="@If" condition="ognl:conferenceMember.canSpeak">
+    <img jwcid="@Image" image="asset:talkIcon" align="top" />
+</span>
+<span jwcid="@Else">
+    <img jwcid="@Image" image="asset:muteIcon" align="top" />
+</span>

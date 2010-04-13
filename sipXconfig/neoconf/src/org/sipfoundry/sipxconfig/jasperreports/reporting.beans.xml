@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="jasperReportContextImpl" class="org.sipfoundry.sipxconfig.jasperreports.JasperReportContextImpl">
+    <property name="tmpDirectory" value="${sysdir.tmp}" />
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean id="jasperReportContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.jasperreports.JasperReportContext" />
+    <property name="target">
+      <ref local="jasperReportContextImpl" />
+    </property>
+  </bean>
+</beans>

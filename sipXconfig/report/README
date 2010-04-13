@@ -1,0 +1,20 @@
+-- SAMPLE REPORTS
+select agent_uri, sum(terminate_time - pick_up_time) as
+  total_handle_duration from acd_call_stat
+  group by agent_uri
+  order by agent_uri;
+
+select agent_uri, sum(sign_out_time - sign_in_time) as
+ time_signed_in from acd_agent_stat
+ group by agent_uri
+ order by agent_uri;
+
+select agent_uri, avg(terminate_time - pick_up_time) as avg_handle_duration
+ from acd_call_stat where state = 'terminate'
+ group by agent_uri
+ order by agent_uri;
+
+select agent_uri, count(*) as num_calls
+ from acd_call_stat where state = 'terminate'
+ group by agent_uri
+ order by agent_uri;

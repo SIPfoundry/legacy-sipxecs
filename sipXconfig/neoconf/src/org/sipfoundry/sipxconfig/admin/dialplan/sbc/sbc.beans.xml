@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+  "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+  <bean id="sbcManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
+    <property name="natTraversalManager" ref="natTraversalManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+  </bean>
+
+  <bean id="sbcManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager" />
+    <property name="target">
+      <ref local="sbcManagerImpl" />
+    </property>
+  </bean>
+
+  <!--
+    Configure standard private networks by default.
+    see: http://en.wikipedia.org/wiki/Private_network
+  -->
+  <bean id="defaultSbcRoutes" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes" scope="prototype">
+    <property name="subnets">
+      <list>
+        <value>10.0.0.0/8</value>
+        <value>172.16.0.0/12</value>
+        <value>192.168.0.0/16</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="sbcDeviceManagerImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
+    <property name="borderControllerBundle" ref="borderControllerBundle" />
+    <property name="sipXbridgeSbcModel" ref="sipXbridgeSbcModel" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
+    <lookup-method name="getDialPlanActivationManager" bean="dialPlanActivationManager" />
+    <lookup-method name="getSipxProcessContext" bean="sipxProcessContext" />
+  </bean>
+
+  <bean id="sbcDeviceManagerSbcDeviceDelete" factory-bean="sbcDeviceManagerImpl"
+    factory-method="createSbcDeviceDeleteListener" />
+
+  <bean id="sbcDeviceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
+    depends-on="sbcDeviceManagerSbcDeviceDelete">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager" />
+    <property name="target">
+      <ref local="sbcDeviceManagerImpl" />
+    </property>
+  </bean>
+
+  <!-- SBC plugin support -->
+  <bean id="abstractSbcModel" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor" abstract="true">
+    <property name="defaultProfileLocation" ref="tftpProfileLocation" />
+  </bean>
+
+  <bean id="nakedSbcModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+    <constructor-arg>
+      <value>org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="sbcModelSource" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
+    <property name="modelSource" ref="nakedSbcModelSource" />
+  </bean>
+
+  <bean id="sbcGenericModel" parent="abstractSbcModel">
+    <property name="beanId" value="sbcGeneric" />
+    <property name="label" value="Unmanaged SBC" />
+    <property name="serialNumberPattern" value="" />
+    <property name="restartSupported" value="false" />
+    <property name="projectionSupported" value="false" />
+  </bean>
+
+  <bean id="sbcGeneric" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice" scope="prototype"
+    parent="beanWithSettings">
+    <property name="profileGenerator" ref="velocityProfileGenerator" />
+    <property name="modelSource" ref="sbcModelSource" />
+    <property name="defaults" ref="phoneDefaults" />
+  </bean>
+
+  <bean id="sbcDeviceSource" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceSource">
+    <property name="sbcDeviceManager">
+      <ref local="sbcDeviceManager" />
+    </property>
+  </bean>
+
+  <bean id="sbcRestartManager" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
+    <property name="deviceSource">
+      <ref local="sbcDeviceSource" />
+    </property>
+    <property name="jobContext" ref="jobContext" />
+    <property name="sleepInterval" value="5000" />
+    <property name="executorService" ref="restartExecutorService" />
+  </bean>
+
+  <bean id="eagerSbcProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">
+    <property name="deviceSource">
+      <ref local="sbcDeviceSource" />
+    </property>
+    <property name="restartManager">
+      <ref local="sbcRestartManager" />
+    </property>
+    <property name="jobContext" ref="jobContext" />
+  </bean>
+
+  <bean id="sbcProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
+    <property name="target">
+      <ref local="eagerSbcProfileManager" />
+    </property>
+    <property name="sleepInterval" value="5000" />
+  </bean>
+
+  <bean id="sbcMigrationContextImpl" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="sbcModelSource" ref="nakedSbcModelSource" />
+  </bean>
+
+  <bean id="sbcMigrationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationContext</value>
+    </property>
+    <property name="target">
+      <ref local="sbcMigrationContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="sbcMigrationTrigger" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcMigrationTrigger">
+    <property name="sbcMigrationContext">
+      <ref local="sbcMigrationContext" />
+    </property>
+    <property name="taskNames">
+      <list>
+        <value>sbc_address_migrate_sbc_device</value>
+      </list>
+    </property>
+  </bean>
+</beans>

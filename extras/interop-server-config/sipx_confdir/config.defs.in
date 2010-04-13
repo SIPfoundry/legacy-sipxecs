@@ -1,0 +1,140 @@
+##### Information about this SIPxchange deployment #####
+
+#### SIP Domain Name
+# The recommended way to configure your server is to employ DNS SRV
+# records to direct SIP requests for your domain to this server.
+#
+# If you edit this file, run http-sipxchange-config.sh.
+# :TODO: Add a fuller description of which files need to be edited to have
+# changes take effect, and what script(s) need to be run to finish the job.
+#
+# By default the SIPXCHANGE_DOMAIN_NAME is set to fully qualified 
+# host name (e.g. myhost.domain.com).
+# If you use DNS SRV, the SIPXCHANGE_DOMAIN_NAME should be set 
+# to domain name (e.g. domain.com), so comment out the assignment
+# below that uses -f and uncomment the one that uses -d:
+#
+SIPXCHANGE_DOMAIN_NAME=`hostname -f`
+# SIPXCHANGE_DOMAIN_NAME=`hostname -d`
+# Special values for the aliases used by the interop configuration:
+INTEROP_ALIAS_UDP="udp.${SIPXCHANGE_DOMAIN_NAME}"
+INTEROP_ALIAS_TCP="tcp.${SIPXCHANGE_DOMAIN_NAME}"
+
+#### Core Limit
+# Control whether or not core files are saved in a server failure.
+# should be either '0' for no core files or 'unlimited' to allow them.
+#
+SIPX_CORELIMIT=unlimited
+
+# the realm string used in authentication challenges
+SIPXCHANGE_REALM=${SIPXCHANGE_DOMAIN_NAME}
+
+##### Information about this server #####
+MY_FULL_HOSTNAME=`hostname -f`
+MY_HOSTNAME=`hostname -s`
+MY_IP_ADDR=`@SIPX_BINDIR@/get_def_addr`
+
+##### In High Availability configurations, the names of the primary
+##### and secondary servers.  Otherwise empty.
+MASTER_HOSTNAME=
+DISTRIBUTED_HOSTNAME=
+
+##### IP <-> PSTN Gateway addresses -- IP addresses (recommended) or host names #####
+GW_DEFAULT_ADDR=
+GW_800_DIALING_ADDR=${GW_DEFAULT_ADDR}
+GW_900_DIALING_ADDR=${GW_DEFAULT_ADDR}
+  
+# Note: To permit emergency calls even when the DNS service is
+# unavailable, an IP address (rather than a host name) should be
+# specified for the gateway used for emergency dialing.
+GW_EMERGENCY_DIALING_ADDR=${GW_DEFAULT_ADDR}
+  
+GW_INTL_DIALING_ADDR=${GW_DEFAULT_ADDR}
+GW_LONG_DISTANCE_DIALING_ADDR=${GW_DEFAULT_ADDR}
+GW_LOCAL_DIALING_ADDR=${GW_DEFAULT_ADDR}
+
+##### Service addresses and ports #####
+# For service addresses, use IP addresses (recommended) or host names
+PROXY_SERVER_ADDR=${MY_IP_ADDR}
+PROXY_SERVER_SIP_PORT=5060
+PROXY_SERVER_SIP_SECURE_PORT=5061
+PROXY_SERVER_SIP_SRV_OR_HOSTPORT=${SIPXCHANGE_DOMAIN_NAME}
+PROXY_SERVER_SIP_HOSTPORT=${PROXY_SERVER_ADDR}:${PROXY_SERVER_SIP_PORT}
+
+REGISTRAR_SERVER_ADDR=${MY_IP_ADDR}
+REGISTRAR_SERVER_SIP_PORT=5070
+REGISTRAR_SERVER_SIP_SECURE_PORT=5071
+REGISTRAR_SERVER_SIP_SRV_OR_HOSTPORT=${REGISTRAR_SERVER_ADDR}:${REGISTRAR_SERVER_SIP_PORT}
+REGISTRAR_REG_EVENT_SIP_PORT=5075
+REGISTRAR_REG_EVENT_SIP_SRV_OR_HOSTPORT=${REGISTRAR_SERVER_ADDR}:${REGISTRAR_REG_EVENT_SIP_PORT}
+
+CALLRESOLVER_AGENT_ADDR=${MY_IP_ADDR}
+CALLRESOLVER_AGENT_PORT=8130
+CALLRESOLVER_CALL_STATE_DB=ENABLE
+
+CONFIG_SERVER_ADDR=${MY_IP_ADDR}
+CONFIG_SERVER_HOST=${MY_FULL_HOSTNAME}
+CONFIG_SERVER_HTTP_PORT=8090
+CONFIG_SERVER_HTTPS_PORT=8091
+CONFIG_SERVER_SIP_PORT=5090
+CONFIG_SERVER_SIP_SECURE_PORT=5091
+CONFIG_SERVER_SERVER_SIP_SRV_OR_HOSTPORT=${CONFIG_SERVER_ADDR}:${CONFIG_SERVER_SIP_PORT}
+CONFIG_SERVER_AGENT_ADDR=${MY_IP_ADDR}
+CONFIG_SERVER_AGENT_PORT=8120
+
+WATCHDOG_SERVER_XMLRPC_PORT=8092
+
+MEDIA_SERVER_ADDR=${MY_IP_ADDR}
+MEDIA_SERVER_HTTP_PORT=8090
+MEDIA_SERVER_HTTPS_PORT=8091
+MEDIA_SERVER_SIP_PORT=5100
+MEDIA_SERVER_SIP_SECURE_PORT=5101
+MEDIA_SERVER_SIP_SRV_OR_HOSTPORT=${MEDIA_SERVER_ADDR}:${MEDIA_SERVER_SIP_PORT}
+
+STATUS_SERVER_ADDR=${MY_IP_ADDR}
+STATUS_SERVER_HTTP_PORT=8100
+STATUS_SERVER_HTTPS_PORT=8101
+STATUS_SERVER_SIP_PORT=5110
+STATUS_SERVER_SIP_SECURE_PORT=5111
+STATUS_SERVER_SIP_SRV_OR_HOSTPORT=${STATUS_SERVER_ADDR}:${STATUS_SERVER_SIP_PORT}
+
+VOICEMAIL_SERVER_ADDR=${MY_IP_ADDR}
+VOICEMAIL_SERVER_HOSTNAME=${MY_FULL_HOSTNAME}
+VOICEMAIL_SERVER_HTTP_PORT=8090
+VOICEMAIL_SERVER_HTTPS_PORT=8091
+
+ORBIT_SERVER_ADDR=${MY_IP_ADDR}
+ORBIT_SERVER_SIP_PORT=5120
+ORBIT_SERVER_SIP_SECURE_PORT=5121
+ORBIT_SERVER_SIP_SRV_OR_HOSTPORT=${ORBIT_SERVER_ADDR}:${ORBIT_SERVER_SIP_PORT}
+
+PRESENCE_SERVER_ADDR=${MY_IP_ADDR}
+PRESENCE_SERVER_SIP_PORT=5130
+PRESENCE_SERVER_HTTP_PORT=8111
+PRESENCE_SERVER_SIP_SRV_OR_HOSTPORT=${PRESENCE_SERVER_ADDR}:${PRESENCE_SERVER_SIP_PORT}
+
+ACD_SERVER_PROVISIONING_PORT=8110
+
+RLS_ADDR=${MY_IP_ADDR}
+RLS_SIP_PORT=5140
+RLS_SIP_SECURE_PORT=5141
+RLS_SIP_SRV_OR_HOSTPORT=${RLS_ADDR}:${RLS_SIP_PORT}
+
+PAGE_LOG_DIR=@SIPX_LOGDIR@
+PAGE_SERVER_ADDR=${MY_IP_ADDR}
+PAGE_SERVER_SIP_PORT=5160
+PAGE_SERVER_SIP_SECURE_PORT=5161
+PAGE_SERVER_SIP_SRV_OR_HOSTPORT=${PAGE_SERVER_ADDR}:${PAGE_SERVER_SIP_PORT}
+
+##### Media server customizations ######
+# Length of extensions for use in the media server
+EXTENSION_LENGTH=4
+
+# Voicemail retention period in days.  Voicemail older than this will be deleted
+# by the voicemail_clean.sh script when it is run.
+VOICEMAIL_AGE_LIMIT=1
+
+##### Installation directories ######
+BIN_DIR=@SIPX_BINDIR@
+VAR_DIR=@SIPX_VARDIR@
+SIPX_CONFDIR=@SIPX_CONFDIR@

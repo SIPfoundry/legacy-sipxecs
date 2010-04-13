@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<items type="userstatic">
+  <item>
+    <from_uri>sip:IVR@example.org</from_uri>
+    <contact>sip:63948809@example.org</contact>
+    <identity>8809@example.org</identity>
+    <callid>static-mwi-8809@example.org</callid>
+    <event>message-summary</event>
+    <to_uri>sip:8809@example.org</to_uri>
+  </item>
+  <item>
+    <from_uri>sip:IVR@example.org</from_uri>
+    <contact>sip:63948810@example.org</contact>
+    <identity>8810@example.org</identity>
+    <callid>static-mwi-8810@example.org</callid>
+    <event>message-summary</event>
+    <to_uri>sip:8810@example.org</to_uri>
+  </item>
+  <item>
+    <from_uri>sip:IVR@example.org</from_uri>
+    <contact>sip:63948811@example.org</contact>
+    <identity>8811@example.org</identity>
+    <callid>static-mwi-8811@example.org</callid>
+    <event>message-summary</event>
+    <to_uri>sip:8811@example.org</to_uri>
+  </item>
+</items>

@@ -1,0 +1,17 @@
+<fieldset jwcid="@setting/SettingsFieldset"
+    settings="ognl:mohSettings"
+    renderGroupTitle="ognl:false"/>
+<fieldset jwcid="@common/AssetSelectorMultiple"
+          asset="ognl:asset"
+          assetDir="ognl:userAudioDirectory"
+          errorMsg="message:error.select"
+          contentType="literal:audio/x-wav"
+          includeUploadButton="ognl:true"
+          checkForEmptyAssets="ognl:false" />
+
+<ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback">
+  <li><input jwcid="updatePhones@Submit"
+             listener="listener:onUpdatePhones"
+             id="form:updatePhones"
+             value="message:button.updatePhones"/></li>
+</ul>

@@ -1,0 +1,51 @@
+<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+  <span jwcid="@Script" scriptAsset="asset:script" />
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <span jwcid="downloadLink@common/DownloadLink"
+          id="downloadLink"
+          fileName="ognl:configurationDiagnosticContext.preflightInstaller.name"
+          dirName="ognl:configurationDiagnosticContext.preflightInstaller.parent"
+          contentType="literal:application/octet-stream">
+          <span key="preflight.text"/>
+        </span>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:preflight.quick.help"/>
+  <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions" interval="5">
+    <div class="tableDiv">
+    <table id="configdiag:list" class="component">
+      <thead>
+        <tr>
+          <th><span key="label"/></th>
+          <th><span key="lastRunTime"/></th>
+          <th><span key="status"/></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr jwcid="@For" index="ognl:currentRowId"
+          source="ognl:configurationTests"
+          volatile="ognl:true"
+          value="ognl:configurationTest">
+          <td jwcid="@admin/configdiag/DiagnosticDetail"
+            test="ognl:configurationTest"
+            dateFormat="ognl:dateFormat"
+            rowClass="ognl:rowClass.next"
+            rowId="ognl:currentRowId"
+            />
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <ul jwcid="actions@Block">
+      <li>
+          <input id="configdiag:runAllTests" jwcid="runAllTests@Submit"
+            updateComponents="ognl:{'refreshedContent'}"
+            listener="listener:runAllTests"
+            value="message:button.runAllTests"/>
+      </li>
+    </ul>
+  </form>
+</div>

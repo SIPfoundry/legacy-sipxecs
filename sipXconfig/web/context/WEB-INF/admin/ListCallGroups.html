@@ -1,0 +1,28 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+	<ul class="component-links">
+		<li>
+            <a jwcid="addLink" id="callgroups:add" href="edit-call-group.html">
+            <span key="add_link">Add Hunt Group</span></a>
+        </li>
+	</ul>
+    <form jwcid="form">
+		<span id="callgroups:form"/>
+    	<table jwcid="tableView" id="callgroups:list" class="component">
+			<span jwcid="nameColumnValue">
+				<span jwcid="editRowLink"><span jwcid="nameText"/></span>
+			</span>
+            <span jwcid="enabledColumnValue@Block">
+              <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+            </span>
+		</table>
+		<ul class="component-submit">
+			<li>
+				<input jwcid="duplicate" id="callgroups:duplicate" type="submit" />
+			</li>
+			<li>
+				<input type="submit" jwcid="delete" id="callgroups:delete" />
+                <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+			</li>
+		</ul>
+	</form>
+</div>

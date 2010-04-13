@@ -1,0 +1,78 @@
+# This file is included in place of ssl.conf.
+# It is included _before_ httpd-sipxchange-common.conf 
+
+<IfDefine SSL>
+
+Listen 443
+Listen 8091
+
+# The following is (mostly) copied from ssl.conf.
+# See that file for comments.
+SSLCertificateFile @SIPX_CONFDIR@/ssl/ssl.crt
+SSLCertificateKeyFile @SIPX_CONFDIR@/ssl/ssl.key
+
+AddType application/x-x509-ca-cert .crt
+AddType application/x-pkcs7-crl    .crl
+
+SSLSessionCache         dbm:@SIPX_TMPDIR@/ssl_scache
+SSLSessionCacheTimeout  300
+
+SSLMutex  file:@SIPX_TMPDIR@/ssl_mutex
+
+SSLRandomSeed startup builtin
+SSLRandomSeed connect builtin
+
+SSLCipherSuite ALL:!ADH:!EXPORT56:RC4+RSA:+HIGH:+MEDIUM:+LOW:+SSLv2:+EXP:+eNULL
+
+<VirtualHost *:8091>
+    SSLEngine on
+
+    # This is available on port 8090 if there is no SSL, otherwise it is here
+    ScriptAlias /cgi-bin/ "@HTTP_ROOTDIR@/cgi-bin/"
+
+    # The following is (mostly) copied from ssl.conf.
+    # See that file for comments.
+    Alias /mailboxes/ "@SIPX_DATADIR@/mediaserver/data/"
+
+    ErrorLog @SIPX_LOGDIR@/httpd_error_log
+    TransferLog @SIPX_LOGDIR@/httpd_access_log
+
+    <Files ~ "\.(cgi|shtml|phtml|php3?)\$">
+        SSLOptions +StdEnvVars
+    </Files>
+    <Directory "@HTTP_ROOTDIR@/cgi-bin">
+        SSLOptions +StdEnvVars
+    </Directory>
+
+    CustomLog @SIPX_LOGDIR@/httpd_access_log \
+              "%t %h %{SSL_PROTOCOL}x %{SSL_CIPHER}x \"%r\" %b"
+
+    ######
+    #
+    # Special rules for fetching localized files based upon either one of :
+    #
+    # 1) Accept-Language: tag-subtag -> prefer-language = tag-subtag
+    # 2) /language/rfc1766:tag-subtag/url.extension -> url, prefer-language = tag-subtag
+    # 3) url?prefer-language=tag-subtag -> url, prefer-language = tag-subtag
+
+    AddLanguage en .en
+    AddLanguage pl-male   .pl-male
+    AddLanguage pl-female .pl-female
+
+    DefaultLanguage en
+    LanguagePriority en
+    ForceLanguagePriority Prefer Fallback
+
+    RewriteEngine on
+    RewriteLog @SIPX_LOGDIR@/httpd_rewrite_log
+    RewriteLogLevel 0
+     
+    RewriteCond  %{QUERY_STRING} ^prefer-language=(.*)$  [nc]
+    RewriteRule  ^(.*)\..+?$  $1?   [L,PT,env=prefer-language:%1]
+
+    RewriteCond  %{REQUEST_URI} ^/language/([a-zA-Z0-9\-]+)(/.*)\..+?$  [nc]
+    RewriteRule  ^ %2 [L,PT,env=prefer-language:%1]
+
+</VirtualHost>
+
+</IfDefine>

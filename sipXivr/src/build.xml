@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="sipXivr" default="jar" basedir="." >
+
+  <property name="debug" value="true"/>
+  <patternset id="test.classes" excludes="**"/>
+  <property name="build.dir" value="${top.build.dir}"/>
+  <import file="ant-targets.xml"/>
+
+  <path id="base.path" >
+    <pathelement location="${sipxcommons.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${dom4j.jar}"/>
+    <pathelement location="${commons-io.jar}"/>
+    <pathelement location="${jaxen.jar}"/>
+    <pathelement location="${commons-codec.jar}"/>
+    <pathelement location="${commons-logging.jar}"/>
+    <pathelement location="${javax.servlet.jar}"/>
+    <pathelement location="${jetty.jar}"/>
+    <pathelement location="${javamail.jar}"/>
+    <pathelement location="${sipxopenfireplugin.jar}"/>
+    <pathelement location="${xmlrpc-common.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file">
+
+    <jar jarfile="${build.dir}/dist/sipXivr.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+      <fileset dir="${src.dir}/src/main/java" >
+        <include name="**/*.properties" /> 
+      </fileset>
+    </jar>
+  </target>
+
+  <!--
+    -  I N S T A L L
+    -->
+  <target name="install">
+
+    <!-- BINARIES/LIB/SCRIPTS -->
+    <delete dir="${dest.dir}${sipxivr.lib.dir}"/>
+    <mkdir dir="${dest.dir}${sipxivr.lib.dir}"/>
+    <copy todir="${dest.dir}${sipxivr.lib.dir}">
+       <fileset file="${build.dir}/dist/sipXivr.jar"/>
+    </copy>
+
+  </target>
+
+  <target name="uninstall">
+    <delete file="${dest.dir}${bin.dir}/sipxivr.sh"/>
+    <delete dir="${dest.dir}${sipxivr.lib.dir}"/>
+  </target>
+
+</project>

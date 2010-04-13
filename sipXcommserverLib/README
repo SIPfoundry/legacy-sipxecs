@@ -1,0 +1,17 @@
+  This project is used to hold code used in common by a number of the
+  sipX family servers. It is not intended to be useful as a standalone
+  project.
+
+  fastdb
+      A shared-memory database used to hold frequently accessed data
+      in a number of relational tables. Our implementation is derived
+      from FastDB by Konstantin Knizhnik.
+
+  sipdb
+      Application specific wrapper classes for the tables we store in
+      fastdb. These classes also implement an XML persistence
+      mechanism for these tables.
+
+  digitmaps
+      Parsing and processing of an XML mapping rules format used to
+      parse and transform SIP URLs, IPv4 address, and FQDN addresses.

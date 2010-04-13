@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <branch branch_id="1" name="branch1" description="first_"/>
+  <branch branch_id="2" name="branch2" description="second"/>
+  <branch branch_id="3" name="branch3" description="third_"/>
+  <branch branch_id="4" name="branch4" description="fourth"/>
+  <branch branch_id="5" name="branch5" description="fifth_"/>
+</dataset>

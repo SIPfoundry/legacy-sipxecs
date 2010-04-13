@@ -1,0 +1,5 @@
+SIP_DOMAIN_NAME : sipfoundry.org
+SIP_REALM : realm
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : localhost
+

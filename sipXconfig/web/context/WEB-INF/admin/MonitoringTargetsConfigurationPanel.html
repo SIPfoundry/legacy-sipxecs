@@ -1,0 +1,19 @@
+<div jwcid="@common/QuickLinks">
+  <ul>
+    <li>
+      <a jwcid="@PageLink" page="admin/StatisticsPage" id="link:statisticsPage">
+        <span key="link.statisticsPage">Statistics</span>
+      </a>
+    </li>
+  </ul>
+</div>
+
+<span jwcid="@common/QuickHelp" value="message:targets.help"/>
+
+<form jwcid="targets@Form" delegate="ognl:validator">
+  <span jwcid="targetsTable@admin/TargetsTable"
+    targets="ognl:targets"
+    callback="ognl:callback"
+    selections="ognl:selections"
+    host="ognl:host"/>
+</form>

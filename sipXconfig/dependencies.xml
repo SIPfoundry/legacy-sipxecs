@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+ - add project dependencies here
+ - 
+ - calling depend.xxx target should ensure that all projects on which xxx depends will have their 
+ - ant default target called    
+-->
+<project name="dependencies" default="depend.all">
+  <target name="depend.all" depends="depend.neoconf, depend.gwt, depend.web">
+  </target>
+
+  <target name="depend.web" depends="depend.neoconf, depend.gwt">
+    <ant dir="${top.dir}/web" inheritAll="false"/>
+  </target>
+
+  <target name="depend.gwt" depends="depend.neoconf">
+    <ant dir="${top.dir}/gwt" inheritAll="false"/>
+  </target>
+
+  <target name="depend.neoconf">
+    <ant dir="${top.dir}/neoconf" inheritAll="false"/>
+  </target>
+</project>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.alarm" default-lazy="false">
+
+  <class name="AlarmServer" table="alarm_server">
+    <id name="id" column="alarm_server_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">alarm_server_seq</param>
+      </generator>
+    </id>
+    <property name="alarmNotificationEnabled" />
+    <property name="fromEmailAddress" />
+  </class>
+
+  <class name="AlarmGroup" table="alarm_group">
+    <id name="id" column="alarm_group_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">alarm_group_seq</param>
+      </generator>
+    </id>
+    <property name="name" />
+    <property name="description" />
+    <property name="enabled" />
+    <list name="smsAddresses" table="alarm_group_smscontacts">
+      <key column="alarm_group_id" />
+      <index column="index" />
+      <element type="string" column="address" not-null="true" />
+    </list>
+    <list name="emailAddresses" table="alarm_group_emailcontacts">
+      <key column="alarm_group_id" />
+      <index column="index" />
+      <element type="string" column="address" not-null="true" />
+    </list>
+    <list name="snmpAddresses" table="alarm_group_snmpcontacts">
+      <key column="alarm_group_id" />
+      <index column="index" />
+      <composite-element class="org.sipfoundry.sipxconfig.admin.alarm.AlarmTrapReceiver">
+          <property name="hostAddress" column="address" not-null="true" type="string"/>
+          <property name="port" column="port" not-null="true" type="int"/>
+          <property name="communityString" column="community_string" not-null="true" type="string"/>
+      </composite-element>
+    </list>
+    <set name="users" table="user_alarm_group">
+      <key column="alarm_group_id" />
+      <many-to-many column="user_id" class="org.sipfoundry.sipxconfig.common.User" />
+    </set>
+  </class>
+
+  <class name="Alarm" table="alarm_code">
+    <id name="id" column="alarm_seq_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">alarm_code_seq</param>
+      </generator>
+    </id>
+    <property name="alarmId" column="alarm_code_id" />
+    <property name="groupName" column="email_group" />
+    <property name="minThreshold" column="min_threshold" />
+  </class>
+
+  <query name="countAlarmGroupWithSameName">
+    <![CDATA[select count (*) from AlarmGroup pg where pg.id = :alarmGroupId and pg.name = :alarmGroupName]]>
+  </query>
+
+  <query name="anotherAlarmGroupWithSameName">
+    <![CDATA[select count (*) from AlarmGroup pg where pg.name = :alarmGroupName]]>
+  </query>
+
+  <query name="alarmForAlarmId">
+    <![CDATA[from Alarm al where al.alarmId = :alarmId]]>
+  </query>
+
+</hibernate-mapping>

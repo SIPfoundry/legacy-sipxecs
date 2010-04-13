@@ -1,0 +1,71 @@
+To (re-)set-up a sipX system for a particular host name and IP address:
+
+1. The host's name does not need to match the SIP domain, as long as
+the RFC 3263 process resolves the SIP domain to the host's IP address.
+
+2. If you put the host's name in /etc/hosts as a name for 127.0.0.1
+(which allows your host to know its name even if its network
+connection is down), put your host's preferred FQDN as the *first*
+hostname in the line for 127.0.0.1.  Otherwise, sipxecs-setup's
+getfqdn() will decide that your host is "localhost.localdomain".
+
+3. Delete etc/sipxpbx/ssl, to prepare for installing new certificates.
+
+4. Run bin/sipxecs-setup (does not need to run as root, but must be
+run from a screen terminal).  Give it the correct SIP domain name.
+
+5. Set SIP_DOMAIN_NAME, SIP_REALM, and CONFIG_HOSTS in
+etc/sipxpbx/domain-config.  *Note that the realm must match the realm
+used in the user credentials currently in the config database or else
+the users' passwords must be reentered via the GUI.
+
+6. Add all of the host's IP addreses to this Allow command:
+
+    etc/sipxpbx/httpd-sipxchange-common.conf.in
+
+    # protect the sipxchange cgi-bin directory from unauthorized access
+    <Directory "/home/dworley/sandbox-147/sipX/../dir-local/share/www/cgi-bin">
+        # Standard directory settings taken from httpd.conf
+        #AllowOverride All  # Commented out by Mike M.
+        Order Deny,Allow
+        Deny from all
+>>>>    Allow from 127.0.0.1 47.16.90.165 %FULLY_QUALIFIED_HOSTNAME%
+        Satisfy any
+    </Directory>
+
+5. Delete the contents of var/log/sipxpbx so you can easily see the
+post-revision messages.
+
+6. If DNS for the chosen SIP domain does not resolve to the IP address
+of the host, comment out these lines in bin/sipXproxy.sh, which are a
+startup test for that problem:
+
+    if false; then   # <--- Add this line
+	 if [ ${proxy_config_status} -eq 0 ]
+	 then
+	     myIp=`sipx_config_value /home/dworley/sandbox-147/sipX/../dir-local/etc/sipxpbx/sipXproxy-config SIPX_PROXY_BIND_IP 2> /dev/null`
+	     if ! sip_resolves_to ${myDomain} ${myIp}
+	     then
+		 cat <<ERROR
+	SIP route to SIPXCHANGE_DOMAIN_NAME '${myDomain}' is not to my IP address: ${myIp}
+	See the installation guide on setting the DNS SRV records and domain names
+    ERROR
+		 Status=1
+	     fi
+	 fi
+    fi    # <--- Add this line
+
+7. Do the first-run processing by executing "bin/sipxconfig.sh --first-run".
+
+8. Clear the superadmin password by executing "bin/sipxconfig.sh
+--database reset-superadmin".  (Necessary if the SIP realm has
+changed.)
+
+9. Run "etc/init.d/sipxecs start" (as root) to start sipX.
+
+10. Log into the web UI.
+
+11. Go to the Servers page, set up one server, the host, with its IP
+address.  Send profiles to it.  Restart all services.  Note: Do *not*
+stop all services and then start all services, as that will stop
+sipXconfig.  (See XCF-3591.)

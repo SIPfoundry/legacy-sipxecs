@@ -1,0 +1,19 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@setting/SettingsForm"
+    settings="ognl:settings"
+    cancelListener="listener:cancel"
+    okListener="listener:ok"
+    applyListener="listener:apply"
+    validator="bean:validator"/>
+  <h3>Results:</h3>
+  <!--
+  <div jwcid="@For"
+    source="ognl:settings"
+    value="ognl:currentSetting">
+    <span jwcid="@Insert" value="ognl:currentSetting.name"/>
+    <span jwcid="@Insert" value=": ("/>
+    <span jwcid="@Insert" value="ognl:currentSetting.value"/>
+    <span jwcid="@Insert" value=")"/>
+  </div>
+  -->
+</div>

@@ -1,0 +1,32 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg" validator="bean:validator"/>
+  <form jwcid="branchForm@Form" delegate="ognl:validator">
+    <div jwcid="@common/ItemCommon"
+      item="ognl:branch"
+      nameValidator="spring-validators:required,noWhitespace"
+      useEnabled="false"
+      useExtension="false">
+      <tr jwcid="@user_portal/AddressPanel"
+        addr="ognl:branch.address"
+        panelLabel="message:address"
+        office="true"/>
+      <tr jwcid="@common/FieldPanel" for="phoneNumber" field="component:phoneNumber" label="message:phoneNumber">
+        <input jwcid="phoneNumber@TextField" id="phoneNumber"
+          value="ognl:branch.phoneNumber"
+          validators="validators:maxLength=255"
+          displayName="message:phoneNumber"
+          maxlength="255"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="faxNumber" field="component:faxNumber" label="message:faxNumber">
+        <input jwcid="faxNumber@TextField" id="faxNumber"
+          value="ognl:branch.faxNumber"
+          validators="validators:maxLength=255"
+          displayName="message:faxNumber"
+          maxlength="255"/>
+      </tr>
+    </div>
+    <span jwcid="@common/FormActions"
+      listener="listener:apply"
+      callback="ognl:callback" />
+  </form>
+</div>

@@ -1,0 +1,21 @@
+#! /bin/bash
+
+# Test GRUU functionality - registration.
+
+cd sipXregistry/doc/developer || exit 1
+
+SERVER=212.247.207.174
+DOMAIN=dale.pi.sipit.net
+CONTACT=sip:222@212.247.207.174
+CALL_ID="$( date -u +%Y-%m-%dT%H:%M:%SZ )@$CONTACT"
+
+sipsend \
+	---verbose \
+	---credentials 222 1234 \
+	--to 222@$DOMAIN \
+	--from 222@$DOMAIN \
+	--call-id $CALL_ID \
+	--contact "<$CONTACT>;+sip.instance=\"<urn:123456780>\"" \
+	--cseq 10 \
+	---header 'Supported: gruu' \
+	$SERVER REGISTER sip:$DOMAIN

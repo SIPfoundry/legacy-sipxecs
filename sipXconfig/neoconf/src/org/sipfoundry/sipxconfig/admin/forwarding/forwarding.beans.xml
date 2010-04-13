@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--
+    - F O R W A R D I N G  C O N T E X T
+  -->
+
+  <bean id="forwardingContextImpl" class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="coreContext" ref="coreContextImpl" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
+  </bean>
+
+  <bean id="forwardingContextUserDelete" factory-bean="forwardingContextImpl" factory-method="createUserDeleteListener" />
+
+  <bean id="forwardingContextUserGroupDelete" factory-bean="forwardingContextImpl" factory-method="createUserGroupSaveDeleteListener" />
+
+  <bean id="forwardingContextScheduleDelete" factory-bean="forwardingContextImpl" factory-method="createScheduleDeleteListener" />
+
+  <bean id="forwardingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
+    depends-on="forwardingContextUserDelete,forwardingContextUserGroupDelete,forwardingContextScheduleDelete">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext" />
+    <property name="target">
+      <ref local="forwardingContextImpl" />
+    </property>
+  </bean>
+</beans>

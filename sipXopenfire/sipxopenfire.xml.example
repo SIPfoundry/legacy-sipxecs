@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<sipxopenfire-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxopenfire-00-00">
+<sipx-proxy-domain>sipxtest.sipxtest.net</sipx-proxy-domain>
+<sipx-proxy-port>5060</sipx-proxy-port>
+<user-name>watcher</user-name>
+<password>123</password>
+<resource-list>~~rl~F~watcher</resource-list>
+<watcher-address>sipxtest.sipxtest.net</watcher-address>
+<watcher-port>5064</watcher-port>
+<log-directory>/usr/local/sipx/var/log/sipxpbx</log-directory>
+<log-level>DEBUG</log-level>
+<openfire-xml-rpc-port>9094</openfire-xml-rpc-port>
+<openfire-host>sipxtest.sipxtest.net</openfire-host>
+</sipxopenfire-config>

@@ -1,0 +1,37 @@
+## Velocity macros
+#macro(generate_severs_list $servers_list $label)
+#foreach ($server in $servers_list)
+		<$label>
+			<host>$server.host</host>
+			<port>$server.port</port>
+		</$label>
+#end
+#end
+<?xml version="1.0" ?>
+<sipxopenfire-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxopenfire-00-00">
+	<sipx-proxy-domain>$settings.getSetting('settings/sipx-proxy-domain').Value</sipx-proxy-domain>
+	<sipx-proxy-port>$settings.getSetting('settings/sipx-proxy-port').Value</sipx-proxy-port>
+	<user-name>$username</user-name>
+	<password>$password</password>
+	<resource-list>$resource-list</resource-list>
+	<watcher-address>$settings.getSetting('settings/watcher-address').Value</watcher-address>
+	<watcher-port>$settings.getSetting('settings/watcher-port').Value</watcher-port>
+	<log-directory>$service.logDir</log-directory>
+	<log-level>$service.logLevelsMappings.get("${settings.getSetting('settings/log-level').Value}")</log-level>
+	<openfire-xml-rpc-port>$settings.getSetting('settings/openfire-xml-rpc-port').Value</openfire-xml-rpc-port>
+	<openfire-host>$settings.getSetting('settings/openfire-host').Value</openfire-host>
+	<sipxrest-ip-address>$!{restService.address}</sipxrest-ip-address>
+	<sipxrest-https-port>$!{restService.httpsPort}</sipxrest-https-port>
+	<sipxrest-external-http-port>$!{restService.extHttpPort}</sipxrest-external-http-port>
+	<server-to-server>
+		<enabled>$settings.getSetting('openfire-server-to-server/enabled').Value</enabled>
+		<port>$settings.getSetting('openfire-server-to-server/port').Value</port>
+		<disconnect-on-idle>$settings.getSetting('openfire-server-to-server/disconnect-on-idle').Value</disconnect-on-idle>
+		<idle-timeout>$settings.getSetting('openfire-server-to-server/idle-timeout').Value</idle-timeout>
+		<any-can-connect>$settings.getSetting('openfire-server-to-server/any-can-connect').Value</any-can-connect>
+#generate_severs_list($allowedServers, 'allowed-servers')
+#generate_severs_list($disallowedServers, 'disallowed-servers')
+	</server-to-server>
+	<IM-message-logging>$settings.getSetting('message-logging/enabled').Value</IM-message-logging>
+	<IM-message-logging-directory>$service.logDir</IM-message-logging-directory>
+</sipxopenfire-config>

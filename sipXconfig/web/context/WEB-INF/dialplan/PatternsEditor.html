@@ -1,0 +1,44 @@
+<span jwcid="$content$">
+  <span jwcid="@Hidden" value="ognl:size" listener="listener:sizeChanged"/>
+  <tr jwcid="@For" source="ognl:patterns" index="ognl:index"
+    value="ognl:pattern" volatile="ognl:true">
+    <td>
+      <label jwcid="prefixLabel@FieldLabel" field="component:prefix"
+        label="message:label.prefix">Prefix</label>
+    </td>
+    <td>
+      <input jwcid="prefix@TextField" id="pattern:prefix" maxlength="40" type="text"
+        value="ognl:pattern.prefix"
+        validators="spring-validators:validMappingRuleSipUserId"
+        displayName="message:label.prefix"/>
+    </td>
+    <td><span jwcid="@Insert" value="message:label.and"/></td>
+    <td>
+      <select jwcid="@PropertySelection" id="pattern:digits" size="1"
+        value="ognl:pattern.digits" model="bean:digitsModel">
+        <option value="3">3 digits</option>
+        <option value="4">4 digits</option>
+        <option value="5">5 digits</option>
+        <option value="6">6 digits</option>
+        <option value="7" selected="selected">7 digits</option>
+        <option value="8">8 digits</option>
+      </select>
+    </td>
+    <td>
+      <span jwcid="@If" condition="ognl:patterns.size - 1 == index">
+        <a jwcid="@LinkSubmit" href="#" id="pattern:add"
+          selected="ognl:addPattern" tag="ognl:true">
+          <span key="link.add">Add</span>
+        </a>
+      </span>
+    </td>
+    <td>
+      <span jwcid="@If" condition="ognl:patterns.size > 1">
+        <a jwcid="@LinkSubmit" href="#" id="pattern:delete"
+          selected="ognl:indexToRemove" tag="ognl:index">
+          <span key="link.delete">Delete</span>
+        </a>
+      </span>
+    </td>
+  </tr>
+</span>

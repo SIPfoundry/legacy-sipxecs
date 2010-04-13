@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification allow-body="no" allow-informal-parameters="no">
+  <!--
+      - P A R A M E T E R S
+      -->
+
+  <parameter name="lcp"/>
+  <!--
+      - P R O P E R T I E S
+      -->
+  <!--
+      - C O M P O N E N T S
+      -->
+  <component id="hostPanel" type="common/FieldPanel">
+    <binding name="field" value="components.host"/>
+    <binding name="label" value="message:label.host"/>
+    <binding name="description" value="message:description.host"/>
+  </component>
+  <component id="host" type="TextField">
+    <binding name="value" value="lcp.host"/>
+    <binding name="validators" value="validators:required,maxLength=255"/>
+    <binding name="displayName" value="message:label.host"/>
+  </component>
+
+  <component id="portPanel" type="common/FieldPanel">
+    <binding name="field" value="components.port"/>
+    <binding name="label" value="message:label.port"/>
+    <binding name="description" value="message:description.port"/>
+    <binding name="defaultValue" value="message:default.port"/>
+  </component>
+  <component id="port" type="TextField">
+    <binding name="value" value="lcp.port"/>
+    <binding name="translator" value="translator:sipxnumber,omitZero=true"/>
+    <binding name="validators" value="validators:required"/>
+    <binding name="displayName" value="message:label.port"/>
+  </component>
+
+  <component id="principalPanel" type="common/FieldPanel">
+    <binding name="field" value="components.principal"/>
+    <binding name="label" value="message:label.principal"/>
+    <binding name="description" value="message:description.principal"/>
+  </component>
+  <component id="principal" type="TextField">
+    <binding name="value" value="lcp.principal"/>
+    <binding name="validators" value="validators:maxLength=255"/>
+    <binding name="displayName" value="message:label.principal"/>
+  </component>
+
+  <component id="secret" type="user/ConfirmPassword">
+    <binding name="password" value="lcp.secret"/>
+    <binding name="passwordDisplayName" value="message:label.secret"/>
+    <binding name="passwordDescription" value="message:description.secret"/>
+    <binding name="confirmPasswordDisplayName" value="message:label.secret2"/>
+    <binding name="passwordValidator" value="validators:maxLength=255"/>
+  </component>
+
+</component-specification>

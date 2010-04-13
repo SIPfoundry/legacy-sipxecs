@@ -1,0 +1,19 @@
+#navigation li ul {
+	top: 2em;
+	left: 0em;
+}
+
+#navigation  ul li {
+	z-index: 500;
+}
+
+#navigation  ul li ul li  {
+	z-index: 600;
+}
+
+table.component .descriptionColumnValue,
+table.component .errorColumnValue
+{
+   /* IE6 does not support pre-wrap */
+   white-space: normal;
+}

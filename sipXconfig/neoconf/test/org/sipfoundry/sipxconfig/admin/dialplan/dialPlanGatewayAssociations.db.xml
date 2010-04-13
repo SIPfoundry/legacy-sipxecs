@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<!DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd">
+<dataset>
+  <dial_plan dial_plan_id="0" />
+
+  <gateway gateway_id="1001" bean_id="gwAudiocodesMediant" model_id="audiocodesMediant1X4_4_FXO" name="test gateway"
+    anonymous="false" keep_digits="0" transform_user_extension="false" ignore_user_info="false" address_port="0"
+    address_transport="udp" enable_caller_id="false" shared="false" enabled="true"/>
+
+  <dialing_rule dialing_rule_id="0" name="CustomRule" position="0" enabled="true" dial_plan_id="0" />
+  <custom_dialing_rule custom_dialing_rule_id="0" call_pattern_digits="1" call_pattern_prefix="1" />
+
+  <dialing_rule dialing_rule_id="1" name="CustomRule1" position="1" enabled="true" dial_plan_id="0" />
+  <custom_dialing_rule custom_dialing_rule_id="1" call_pattern_digits="1" call_pattern_prefix="1" />
+
+  <dialing_rule dialing_rule_id="2" name="CustomRule2" position="2" enabled="true" dial_plan_id="0" />
+  <custom_dialing_rule custom_dialing_rule_id="2" call_pattern_digits="1" call_pattern_prefix="1" />
+
+  <dialing_rule dialing_rule_id="3" name="AttendantRule" position="3" enabled="true" dial_plan_id="0" />
+  <attendant_dialing_rule attendant_dialing_rule_id="3" after_hours_attendant_enabled="true"
+    holiday_attendant_enabled="false" working_time_attendant_enabled="false" />
+
+  <dialing_rule dialing_rule_id="4" name="EmergencyRule" position="4" enabled="true" dial_plan_id="0" />
+  <emergency_dialing_rule emergency_dialing_rule_id="4" emergency_number="911"
+    optional_prefix="1" />
+
+  <dialing_rule dialing_rule_id="5" name="InternalRule" position="5" enabled="true" dial_plan_id="0" />
+  <internal_dialing_rule internal_dialing_rule_id="5" local_extension_len="3" />
+
+  <dialing_rule dialing_rule_id="6" name="InternationalRule" position="6" enabled="true" dial_plan_id="0" />
+  <international_dialing_rule international_dialing_rule_id="6" international_prefix="011" />
+
+  <dialing_rule dialing_rule_id="7" name="LocalRule" position="7" enabled="true" dial_plan_id="0" />
+  <local_dialing_rule external_len="3" local_dialing_rule_id="7" pstn_prefix="9" />
+
+  <dialing_rule dialing_rule_id="8" name="LongDistanceRule" position="8" enabled="true" dial_plan_id="0" />
+  <long_distance_dialing_rule external_len="3" pstn_prefix_optional="true"
+    long_distance_prefix_optional="true" international_dialing_rule_id="8" />
+
+  <dialing_rule dialing_rule_id="9" name="SiteToSiteRule" position="9" enabled="true" dial_plan_id="0" />
+  <site_to_site_dialing_rule site_to_site_dialing_rule_id="9" call_pattern_digits="1" call_pattern_prefix="1" />
+
+  <dialing_rule_gateway dialing_rule_id="0" gateway_id="1001" index="0" />
+  <dialing_rule_gateway dialing_rule_id="1" gateway_id="1001" index="1" />
+</dataset>

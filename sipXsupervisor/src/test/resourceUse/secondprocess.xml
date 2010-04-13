@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Second</name>
+  <version>1.0.0</version>
+  <commands>
+    <configtest>
+      <defaultDir>/var/log/secondprocess</defaultDir>
+      <execute>/bin/secondprocess1.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <user>seconduser</user>
+      <execute>/bin/secondprocess2.sh</execute>
+    </start>
+    <stop>
+      <execute>/bin/secondprocess3.sh</execute>
+      <parameter>--stop</parameter>
+      <parameter>--really</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>/var/run/secondprocess.pid</pid>
+    <log>/var/log/secondprocess.log</log>
+  </status>
+  <resources>
+    <file>/etc/sipxpbx/secondprocess.xml</file>
+    <file>/etc/sipxpbx/common.xml</file>
+    <directory>
+      <path>/etc/sipxpbx/commondir</path>
+      <filePattern configAccess='read-only'>*-second.xml</filePattern>
+      <filePattern configAccess='read-only'>*-common.xml</filePattern>
+    </directory>
+    <osconfig required='false'>/etc/sipxpbx/secondprocess-config</osconfig>
+    <imdb configAccess='read-only'>secondtable</imdb>
+    <sqldb>
+       <dbname>SECOND</dbname>
+    </sqldb>
+  </resources>
+</sipXecs-process>

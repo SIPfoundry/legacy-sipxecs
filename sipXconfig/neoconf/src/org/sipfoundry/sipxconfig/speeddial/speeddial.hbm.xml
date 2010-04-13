@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.speeddial" default-lazy="false">
+
+  <class name="SpeedDial" table="speeddial">
+    <id name="id" column="speeddial_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">speeddial_seq</param>
+      </generator>
+    </id>
+    <many-to-one name="user" column="user_id" foreign-key="fk_speeddial_user" not-null="true" />
+    <list name="buttons" table="speeddial_button">
+      <key column="speeddial_id" />
+      <index column="position" />
+      <composite-element class="Button">
+        <property name="label" />
+        <property name="number" />
+        <property name="blf" />
+      </composite-element>
+    </list>
+  </class>
+
+  <class name="SpeedDialGroup" table="speeddial_group">
+    <id name="id" column="speeddial_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">speeddial_group_seq</param>
+      </generator>
+    </id>
+    <many-to-one name="userGroup" column="group_id" foreign-key="fk_speeddial_group" not-null="true" />
+    <list name="buttons" table="speeddial_group_button">
+      <key column="speeddial_id" />
+      <index column="position" />
+      <composite-element class="Button">
+        <property name="label" />
+        <property name="number" />
+        <property name="blf" />
+      </composite-element>
+    </list>
+  </class>
+
+  <query name="speedDialForUserId">
+    <![CDATA[FROM SpeedDial sd WHERE sd.user.id = :userId]]>
+  </query>
+  <query name="speedDialForGroupId">
+    <![CDATA[FROM SpeedDialGroup sd WHERE sd.userGroup.id = :userGroupId]]>
+  </query>
+</hibernate-mapping>

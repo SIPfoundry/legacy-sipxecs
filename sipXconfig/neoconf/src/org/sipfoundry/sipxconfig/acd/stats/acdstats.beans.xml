@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="acdHistoryDataSource" parent="dataSource">
+    <property name="jdbcUrl" value="jdbc:postgresql://localhost/SIPXACD_HISTORY" />
+  </bean>
+
+  <bean id="acdHistoricalStatsImpl" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStatsImpl">
+    <property name="dataSource" ref="acdHistoryDataSource" />
+    <property name="reportScript" value="${sysdir.bin}/sipxconfig-report"/>
+    <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+    <property name="acdHistoricalConfiguration" ref="acdHistoricalConfiguration" />
+  </bean>
+
+  <bean id="acdHistoricalStats" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalStats"/>
+    <property name="target" ref="acdHistoricalStatsImpl"/>
+  </bean>
+
+  <bean id="acdHistoricalConfiguration" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalConfigurationFile" parent="defaultConfigurationFile">
+    <property name="name" value="sipxconfig-report-config" />
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="report/sipxconfig-report-config.vm" />
+    <property name="dbUser" value="${sipxconfig.db.user}" />
+    <property name="agentPort" value="${acdServer.agentPort}" />
+    <property name="acdContext" ref="acdContext" />
+  </bean>
+
+  <!--
+    - If you change these reports, you need to update AcdHistoryPage.properties to reflect
+    - new column names
+    -->
+  <bean id="agentAvailablityReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value><![CDATA[
+    select agent_uri,
+     sign_in_time,
+     sign_out_time
+    from acd_agent_stat
+    where sign_in_time >= ? and sign_out_time < ? and location_fqdn = ?
+      ]]></value>
+    </property>
+  </bean>
+
+  <bean id="agentAvailablitySummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value><![CDATA[
+    select agent_uri,
+     sum(sign_out_time - sign_in_time) as time_signed_in,
+     max(sign_out_time - sign_in_time) as max_time_signed_in
+    from acd_agent_stat
+    where sign_in_time >= ? and sign_out_time < ? and location_fqdn = ?
+    group by agent_uri
+      ]]></value>
+    </property>
+  </bean>
+
+  <bean id="agentActivityReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value><![CDATA[
+    select c.agent_uri,
+     count(*) as num_calls,
+     sum(c.terminate_time - c.pick_up_time) as handle_duration,
+     avg(c.terminate_time - c.pick_up_time) as avg_handle_duration,
+     max(c.terminate_time - c.pick_up_time) as max_handle_duration,
+     min(c.terminate_time - c.pick_up_time) as min_handle_duration
+    from acd_call_stat as c
+    where
+     c.agent_uri in (select distinct agent_uri from acd_agent_stat) and
+     c.state = 'terminate' and
+     c.terminate_time >= ? and c.pick_up_time < ?  and location_fqdn = ?
+    group by c.agent_uri
+      ]]></value>
+    </property>
+  </bean>
+
+  <bean id="queueOfferedSummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value><![CDATA[
+    select queue_uri,
+      count(*) as num_calls,
+      count(pick_up_time) as num_calls_answered,
+      count(*) - count(pick_up_time) as num_calls_abandoned
+     from acd_call_stat
+     where
+      terminate_time >= ? and enter_time < ? and location_fqdn = ?
+     group by queue_uri
+      ]]></value>
+    </property>
+  </bean>
+
+  <bean id="queueAnsweredSummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value><![CDATA[
+    select queue_uri,
+      count(*) as num_calls,
+      avg(pick_up_time - enter_time) as avg_wait_time,
+      max(pick_up_time - enter_time) as max_wait_time
+     from acd_call_stat
+     where state = 'terminate' and
+      terminate_time >= ? and pick_up_time < ? and location_fqdn = ?
+     group by queue_uri
+      ]]></value>
+    </property>
+  </bean>
+
+  <bean id="queueAbandonedSummary" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value><![CDATA[
+    select queue_uri,
+      count(*) as num_calls,
+      avg(terminate_time - enter_time) as avg_wait_time,
+      max(terminate_time - enter_time) as max_wait_time
+     from acd_call_stat
+     where state = 'unanswered' and
+      terminate_time >= ? and enter_time < ? and location_fqdn = ?
+     group by queue_uri
+      ]]></value>
+    </property>
+  </bean>
+
+  <bean id="queueAbandonedCalls" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value><![CDATA[
+    select queue_uri,
+      enter_time,
+      terminate_time - enter_time as abandon_time,
+      from_uri
+     from acd_call_stat
+     where state = 'unanswered' and
+      terminate_time >= ? and enter_time < ? and location_fqdn = ?
+      ]]></value>
+    </property>
+  </bean>
+
+  <bean id="agentDetailReport" class="org.sipfoundry.sipxconfig.acd.stats.AcdHistoricalReport">
+    <property name="query">
+      <value><![CDATA[
+    select agent_uri,
+      queue_uri,
+      enter_time,
+      terminate_time,
+      terminate_time - enter_time as duration,
+      from_uri
+     from acd_call_stat
+     where state = 'terminate' and
+      terminate_time >= ? and pick_up_time < ? and location_fqdn = ?
+      ]]></value>
+    </property>
+  </bean>
+</beans>

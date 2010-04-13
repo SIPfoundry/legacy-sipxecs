@@ -1,0 +1,61 @@
+<shortcuts>
+  <skipIfNotSupported/>
+  <programGroup defaultName="SIPFOUNDRY"
+                location="startMenu"/>
+  <shortcut
+    name="sipviewer"
+    target="javaw"
+    commandLine="-jar &quot;$INSTALL_PATH&quot;/sipviewer.jar"
+    workingDirectory="$INSTALL_PATH"
+    description="SIP Trace Viewer"
+    iconIndex="0"
+    initialState="noShow"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="no">
+    <createForPack name="Base_WINDOWS"/>
+    <os family="windows"/>
+  </shortcut>
+
+  <shortcut
+    name="uninstall sipviewer"
+    target="javaw"
+    commandLine="-jar &quot;$INSTALL_PATH&quot;/Uninstaller/uninstaller.jar"
+    workingDirectory="$INSTALL_PATH"
+    description="SIP Trace Viewer"
+    iconIndex="0"
+    initialState="noShow"
+    programGroup="yes"
+    desktop="no"
+    applications="no"
+    startMenu="no"
+    startup="no">
+    <createForPack name="Base_WINDOWS"/>
+    <os family="windows"/>
+  </shortcut>
+
+   
+   
+    <shortcut
+     name="SIPVIEWER"
+     programGroup="yes"
+     desktop="yes"
+     applications="no"
+     startMenu="no"
+     startup="no"
+     target="java"
+     commandLine="-jar $INSTALL_PATH/sipviewer.jar"
+     terminal=""
+     initialState="noShow"
+     iconIndex="0"
+     workingDirectory="$HOME"
+     type="Application"
+     encoding="UTF-8"
+     description="Trace Verifier">
+     <createForPack name="Base_LINUX" />
+     <os family="unix" />
+   </shortcut>
+</shortcuts>
+

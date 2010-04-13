@@ -1,0 +1,260 @@
+#!@BASH@
+
+OPERATION="Restore"
+source @SIPX_BINDIR@/sipx-archive-common
+
+# HACK: allow access to Postgress tools and JVM - those paths should be determined by autoconf
+export PATH=$PATH:/usr/bin
+
+CHECK_VERSION="no"
+CHECK_ARCHIVE="no"
+
+# Look for the INTERACTIVE flag first, before processing any other command-line arguments.
+INTERACTIVE="yes"
+for arg in "$@"
+do
+  case $arg in
+    -n|--non-interactive)
+      INTERACTIVE="no"
+      # Re-direct stderr and stdout to a log file.
+      rm -rf @SIPX_LOGDIR@/sipx-restore.log
+      exec 3<>@SIPX_LOGDIR@/sipx-restore.log
+      exec 2>&3
+      exec 1>&3
+      ;;
+    esac
+done
+
+operation_stamp
+
+if [ "`whoami`" != root ]
+then
+  echo "You must be root in order to restore."
+  exit 4
+fi
+
+usage() {
+  echo
+  echo Usage: $0 parameters
+  echo
+  echo "   Restore the specified Configuration and/or Voicemail archive(s.)  At least one archive"
+  echo "   must be specified."
+  echo
+  echo Parameters:
+  echo "   -h|--help                     Display this help text."
+  echo "   -n|--non-interactive          Do not run in interactive mode.  All output is logged"
+  echo "                                 to sipx-restore.log."
+  echo "   -c|--configuration <archive>  Restore the specified Configuration archive."
+  echo "   -v|--voicemail <archive>      Restore the specified voicemail archive."
+  echo "   -e|--enforce-version          Verify the version number."
+  echo "   --verify                      Just verify the archive. Should be used with -e switch"
+  echo
+}
+
+bad_archive() {
+  echo "Invalid archive file path: '$1'."
+  exit 3
+}
+
+# Process the rest of the command-line arguments.
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -n|--non-interactive)
+      # Ignore at this point.
+      ;;
+
+    -h|--help)
+      usage
+      exit
+      ;;
+
+    -v|--voicemail)
+      # Parse and check the Voicemail archive file path.
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -f "${2}" ]
+      then
+        # The extra argument specifies a regular file.
+        # Store it, then consume it.
+        VOICEMAIL_PATH="${2}"
+        shift
+      else
+        bad_archive ${2}
+      fi
+      ;;
+
+    -c|--configuration)
+      # Parse and check the Configuration archive file path.
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -f "${2}" ]
+      then
+        # The extra argument specifies a regular file.
+        # Store it, then consume it.
+        CONFIGURATION_PATH="${2}"
+        shift
+      else
+        bad_archive ${2}
+      fi
+      ;;
+
+    -e|--enforce-version)
+      CHECK_VERSION="yes"
+      ;;
+
+    --verify)
+      CHECK_ARCHIVE="yes"
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      bad_usage
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+# Ensure at least one archive was specified.
+if [ -z "$CONFIGURATION_PATH" ] &&  [ -z "$VOICEMAIL_PATH" ]
+then
+  echo "Must specify at least one archive file to restore."
+  bad_usage
+fi
+
+# If Configuration is to be restored, then PostgreSQL must be running.
+if [ -n "$CONFIGURATION_PATH" ]
+then
+  postgresql_running
+fi
+
+# Check the version
+if [ $CHECK_VERSION = "yes" ]
+then
+  # Get the current sipxconfig version
+  CURRENT_VERSION=$(@SIPX_BINDIR@/sipxpbx-config --version | awk -F'-' '{ print $1 ;}')
+  #Get the current MAJOR version. We will be able to backup-restore different post 4.0 versions.
+  CURRENT_VERSION_MAJOR=`expr substr $CURRENT_VERSION 1 1`;
+
+  # If a configuration backup is specified
+  if [ -n "$CONFIGURATION_PATH" ]
+  then
+    # Extract the version file (to current directory)
+    tar --gzip --extract --file=$CONFIGURATION_PATH version
+    ARCHIVED_VERSION=$(cat version | awk -F'-' '{ print $1 ;}')
+    ARCHIVED_VERSION_MAJOR=`expr substr $ARCHIVED_VERSION 1 1`;
+    # Remove the version file
+    rm -f version
+    # XX-5479: Starting in 4.0, backups taken can be restored to later releases.
+    if [ $CURRENT_VERSION_MAJOR -lt 4 -o  $ARCHIVED_VERSION_MAJOR -lt 4 ]
+    then
+      if [ "$ARCHIVED_VERSION" != "$CURRENT_VERSION" ]
+      then
+        echo "Current version ($CURRENT_VERSION) is different than the backed-up version ($ARCHIVED_VERSION)"
+        exit 5
+      fi
+    fi
+  fi
+
+  # If a voicemail backup is specified
+  if [ -n "$VOICEMAIL_PATH" ]
+  then
+    tar --gzip --extract --file=$VOICEMAIL_PATH version
+    ARCHIVED_VERSION=$(cat version | awk -F'-' '{ print $1 ;}')
+    ARCHIVED_VERSION_MAJOR=`expr substr $ARCHIVED_VERSION 1 1`;
+    # Remove the version file
+    rm -f version
+    # XX-5479: Starting in 4.0, backups taken can be restored to later releases.
+    if [ $CURRENT_VERSION_MAJOR -lt 4 -o  $ARCHIVED_VERSION_MAJOR -lt 4 ]
+    then
+      if [ "$ARCHIVED_VERSION" != "$CURRENT_VERSION" ]
+      then
+        echo "Current version ($CURRENT_VERSION) is different than the backed-up version ($ARCHIVED_VERSION)"
+        exit 5
+      fi
+    fi
+  fi
+fi
+
+#sanity check - we check if configuration/voicemail archives are indeed configuration/voicemail files respectively
+if [[ `tar --list --file=$CONFIGURATION_PATH | grep db.tar` != db.tar ]];
+then
+  echo "Configuration archive seems invalid (it's either corrupt or incomplete, or it may be a voicemail archive)"
+  exit 7
+fi
+
+if [[ `tar --list --file=$VOICEMAIL_PATH | grep db.tar` = db.tar ]];
+then
+  echo "Voicemail archive seems invalid (it looks like a configuration archive)"
+  exit 8
+fi
+
+if [ $CHECK_ARCHIVE = "yes" ]
+then
+  echo "Archive seems to be O.K. You can proceed with restoring"
+  exit 6
+fi
+
+# Stop all services.  After this point, the script MUST NOT exit without
+# starting all the services back up again.
+@BASH@ -p @SERVICEDIR@/sipxecs stop
+
+# *** BEGIN Configuration ***
+PATH_DB_TAR=@SIPX_TMPDIR@/$DB_TAR
+if [ -n "$CONFIGURATION_PATH" ]
+then
+
+  # Configuration database.
+  echo -n "Restoring the '$CONFIG_DATABASE_NAME' database contents..."
+
+  @SIPX_BINDIR@/sipxconfig.sh --database drop createdb > /dev/null
+  tar -xzvC @SIPX_TMPDIR@ $DB_TAR < $CONFIGURATION_PATH
+  cat $PATH_DB_TAR | pg_restore -U @POSTGRESQL_USER@ -d $CONFIG_DATABASE_NAME 2> /dev/null
+  rm $PATH_DB_TAR
+  echo "done."
+
+  # Configuration files.
+  echo -n "Restoring configuration files..."
+  tar xzvC / --exclude $DB_TAR < $CONFIGURATION_PATH
+  echo "done."
+
+  # Re-install the local SSL files - it's always a safe thing to do.
+  if [ -d $SIPX_CERTDB_DIR ]
+  then
+    echo -n "Re-installing local SSL files from $SIPX_CERTDB_DIR..."
+    pushd $SIPX_CERTDB_DIR > /dev/null
+    @SIPX_BINDIR@/ssl-cert/install-cert.sh 
+    popd > /dev/null
+    echo "done."
+  fi
+
+  # Restore NTP configuration
+  echo -n "Restoring /etc/ntp.conf file..."
+  NTPConfigFile="ntp.conf.backup"
+  tar --gzip --extract --file=$CONFIGURATION_PATH -C @SIPX_TMPDIR@  $NTPConfigFile
+  @SIPX_BINDIR@/sipx-time-manager --set-configuration @SIPX_TMPDIR@/$NTPConfigFile
+  rm -f @SIPX_TMPDIR@/$NTPConfigFile
+  echo "done."
+  
+fi # *** END Configuration ***
+
+# *** BEGIN Voicemail ***
+if [ -n "$VOICEMAIL_PATH"  ]
+then
+
+  # Voicemail files.
+  echo -n "Restoring voicemail files..."
+  tar xzvC / < $VOICEMAIL_PATH
+  echo "done."
+
+fi # *** END Voicemail ***
+
+#run "first-run" task to force regenerating the configuration files
+@BASH@ -p @SIPX_BINDIR@/sipxconfig.sh --first-run
+
+# Start all services.
+@BASH@ -p @SERVICEDIR@/sipxecs start

@@ -1,0 +1,94 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/QuickHelp" value="message:timezone.quickHelp" />
+  <span jwcid="errors@common/ErrorMsg"/>
+  <form jwcid="timeZoneForm@Form" delegate="bean:validator">
+    <ul class="component-links">
+      <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+    </ul>
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="gmtOffset" field="component:gmtOffset"
+		      label="message:label.gmtOffset" description="message:description.gmtOffset">
+            <span jwcid="gmtOffset@TextField" id="gmtOffset" translator="translator:integer"
+              validators="validators:required,min=-720,max=780"
+              displayName="message:label.gmtOffset" value="ognl:deviceTimeZone.offset"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="enableDSTSettings" field="component:enableDSTSettings"
+		      label="message:label.enableDSTSettings">
+            <span jwcid="enableDSTSettings@Checkbox" id="enableDSTSettings" value="ognl:deviceTimeZone.useDaylight"/>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <fieldset jwcid="@If" condition="ognl:advanced">
+      <legend><span key="label.dstSettings"/></legend>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="dstSavings" field="component:dstSavings"
+		      label="message:label.dstSavings" description="message:description.dstSavings">
+            <span jwcid="dstSavings@TextField" id="dstSavings" translator="translator:integer"
+              validators="validators:required,min=-720,max=780"
+              displayName="message:label.dstSavings" value="ognl:deviceTimeZone.dstSavings"/>
+          </tr>
+        </tbody>
+      </table>
+      <table>
+        <tbody>
+          <tr>
+            <td nowrap="nowrap">
+              <label class="settingLabel" jwcid="@FieldLabel"
+                field="component:startTime"
+                displayName="message:label.startDst">DST Start</label>
+            </td>
+            <td>
+              <span jwcid="startTime@TextField" id="startTime"
+                validators="validators:required"
+                translator="hivemind:spring:timeOfDayTranslator"
+                value="ognl:startTime" size="10"/>
+            </td>
+            <td>
+              <span jwcid="startDayOfWeek@PropertySelection" id="startDayOfWeek" model="ognl:selectDayOfWeekModel"
+                value="ognl:startDayOfWeek"/>
+            </td>
+            <td>
+              <span jwcid="startWeek@PropertySelection" id="startWeek" model="ognl:selectWeekModel"
+                value="ognl:startWeek"/>
+            </td>
+            <td>
+              <span jwcid="startMonth@PropertySelection" id="startMonth"
+                model="ognl:selectMonthModel"
+                value="ognl:startMonth"/>
+            </td>
+          </tr>
+          <tr>
+            <td nowrap="nowrap">
+              <label class="settingLabel" jwcid="@FieldLabel"
+                field="component:stopTime"
+                displayName="message:label.stopDst">DST End</label>
+            </td>
+            <td>
+              <span jwcid="stopTime@TextField" id="stopTime"
+                validators="validators:required"
+                translator="hivemind:spring:timeOfDayTranslator"
+                value="ognl:stopTime" size="10"/>
+            </td>
+            <td>
+              <span jwcid="stopDayOfWeek@PropertySelection" id="stopDayOfWeek" model="ognl:selectDayOfWeekModel"
+                value="ognl:stopDayOfWeek"/>
+            </td>
+            <td>
+              <span jwcid="stopWeek@PropertySelection" id="stopWeek" model="ognl:selectWeekModel"
+                value="ognl:stopWeek"/>
+            </td>
+            <td>
+              <span jwcid="stopMonth@PropertySelection" id="stopMonth" model="ognl:selectMonthModel"
+                value="ognl:stopMonth"/>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <fieldset jwcid="@common/FormActions" listener="listener:submit" />
+  </form>
+</div>

@@ -1,0 +1,21 @@
+{"car": {
+  "model": "Opel",
+  "wheels": [
+    {
+      "position": 0,
+      "str": "even"
+    },
+    {
+      "position": 1,
+      "str": "odd"
+    },
+    {
+      "position": 2,
+      "str": "even"
+    },
+    {
+      "position": 3,
+      "str": "odd"
+    }
+  ]
+}}

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="deviceFinder" class="org.sipfoundry.sipxconfig.phone.DeviceFinder">
+    <property name="binDirectory" value="${sysdir.bin}" />
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="gatewayContext" ref="gatewayContext" />
+  </bean>
+
+  <bean id="nakedPhoneModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+    <constructor-arg>
+      <value>org.sipfoundry.sipxconfig.phone.PhoneModel</value>
+    </constructor-arg>
+  </bean>
+
+  <bean id="phoneModelSource" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
+    <property name="modelSource" ref="nakedPhoneModelSource" />
+  </bean>
+
+  <bean id="emergencyConfigurableModelSource" class="org.sipfoundry.sipxconfig.phone.EmergencyPhoneModelSource">
+    <property name="modelSource" ref="phoneModelSource" />
+  </bean>
+
+  <bean id="phoneContextImpl" class="org.sipfoundry.sipxconfig.phone.PhoneContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="settingDao" ref="settingDaoImpl" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="systemDirectory" value="${sysdir.etc}" />
+    <property name="phoneDefaults" ref="phoneDefaults" />
+    <property name="intercomManager" ref="intercomManager" />
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="speedDialManager" ref="speedDialManager" />
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
+  </bean>
+
+  <bean id="phoneContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.phone.PhoneContext</value>
+    </property>
+    <property name="target">
+      <ref local="phoneContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="phoneSource" class="org.sipfoundry.sipxconfig.phone.PhoneSource">
+    <property name="phoneContext" ref="phoneContext" />
+  </bean>
+
+  <bean id="phoneRestartManager" class="org.sipfoundry.sipxconfig.device.ScheduledRestartManagerImpl">
+    <property name="deviceSource">
+      <ref local="phoneSource" />
+    </property>
+    <property name="jobContext" ref="jobContext" />
+    <property name="sleepInterval" value="5000" />
+    <property name="executorService" ref="restartExecutorService" />
+  </bean>
+
+  <bean id="eagerPhoneProfileManager" class="org.sipfoundry.sipxconfig.device.ProfileManagerImpl">
+    <property name="deviceSource">
+      <ref local="phoneSource" />
+    </property>
+    <property name="restartManager">
+      <ref local="phoneRestartManager" />
+    </property>
+    <property name="jobContext" ref="jobContext" />
+  </bean>
+
+  <bean id="phoneProfileManager" class="org.sipfoundry.sipxconfig.device.LazyProfileManagerImpl" init-method="init">
+    <property name="target">
+      <ref local="eagerPhoneProfileManager" />
+    </property>
+    <property name="sleepInterval" value="5000" />
+  </bean>
+
+  <bean id="abstractPhone" class="org.sipfoundry.sipxconfig.phone.Phone" singleton="false" parent="beanWithSettings"
+    abstract="true">
+    <property name="phoneModelSource" ref="nakedPhoneModelSource" />
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="profileGenerator" ref="velocityProfileGenerator" />
+    <property name="sipService" ref="sip" />
+    <property name="profileDir">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+  </bean>
+
+  <bean id="abstractPhoneModel" abstract="true" class="org.sipfoundry.sipxconfig.phone.PhoneModel">
+    <property name="defaultProfileLocation" ref="tftpProfileLocation" />
+    <property name="maxLineCount" value="4" />
+    <property name="settingsFile" value="phone.xml" />
+    <property name="lineSettingsFile" value="line.xml" />
+  </bean>
+
+  <bean id="line" class="org.sipfoundry.sipxconfig.phone.Line" singleton="false" parent="beanWithSettings" />
+</beans>

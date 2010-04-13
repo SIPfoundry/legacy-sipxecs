@@ -1,0 +1,37 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <p><span jwcid="@setting/GroupLabel" group="ognl:group"/></p>
+  <p>
+    <strong><span key="label.model">Model</span>:</strong>&nbsp;
+    <span jwcid="@Insert" value="ognl:phone.model.label"/>
+  </p>
+  <form jwcid="@Form">
+    <p jwcid="@If" condition="ognl:phoneModel.versions.length > 0">
+      <strong><span key="label.firmware">Firmware Version</span>:</strong>&nbsp;
+      <span jwcid="selectVersion@PropertySelection"
+        model="bean:versions"
+        value="ognl:deviceVersion"
+        displayName="message:label.firmware"
+        onchange="literal:javascript:this.form.submit();" />
+    </p>
+  </form>
+  <div jwcid="@common/LeftNavigation">
+    <strong><span key="label.phones">Phones</span></strong>
+    <span jwcid="@setting/SettingsNavigation" bean="ognl:phone" activeSetting="ognl:phoneActiveSetting"
+      editSettingsListener="listener:editPhoneSettingsClicked">
+    </span>
+
+    <strong><span key="label.lines">Lines</span></strong>
+    <span jwcid="@setting/SettingsNavigation" bean="ognl:line" activeSetting="ognl:lineActiveSetting"
+      editSettingsListener="listener:editLineSettingsClicked">
+    </span>
+  </div>
+
+  <p><span jwcid="@Insert" value="ognl:editFormSettingDescription"/></p>
+  <span jwcid="@setting/SettingsForm"
+    validator="bean:validator"
+    applyListener="listener:apply"
+    okListener="listener:ok"
+    cancelListener="listener:cancel"
+    settings="ognl:editFormSetting"
+    requiredEnabled="ognl:false" />
+</div>

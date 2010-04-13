@@ -1,0 +1,38 @@
+  <ul jwcid="ifRenderToggle" class="component-links">
+    <li jwcid="toggleShowSipPassword"></li>
+  </ul>
+  <fieldset>
+    <table>
+      <tr jwcid="userIdPanel" for="user:userId">
+        <input jwcid="userId" id="user:userId" type="text" autocomplete="off"/>
+      </tr>
+      <tr jwcid="lastNamePanel" for="user:lastName">
+        <input jwcid="lastName" id="user:lastName" type="text" autocomplete="off"/>
+      </tr>
+      <tr jwcid="firstNamePanel" for="user:firstName">
+        <input jwcid="firstName" id="user:firstName" type="text" autocomplete="off"/>
+      </tr>
+      <tr jwcid="pin"/>
+      <tr jwcid="ifRenderSipPassword">
+        <span jwcid="sipPasswordPanel" for="user:sipPassword">
+          <input jwcid="sipPassword" id="user:sipPassword" type="text"/>
+        </span>
+      </tr>
+      <tr jwcid="groupsPanel" for="user:groups">
+          <span jwcid="@common/GroupMultiSelect"
+				value="ognl:groupsString"
+				source="ognl:coreContext.groups"/>
+      </tr>
+      <tr jwcid="@If" condition="ognl:user.inheritedBranch != null">
+		<td colspan=2>
+			<b><span jwcid="@Insert" value="ognl:messages.format('inherited.branch', user.inheritedBranch.name)"/>
+		</td>
+      </tr>
+      <tr jwcid="@If" condition="ognl:user.inheritedBranch == null || (user.branch !=null && user.inheritedBranch !=null && user.branch.name != user.inheritedBranch.name)">
+         <tr jwcid="@branch/BranchSelection" branch="ognl:user.branch"/>
+      </tr>
+      <tr jwcid="aliasesPanel" for="user:aliases">
+		<input jwcid="aliases" id="user:aliases" type="text"/>
+      </tr>
+    </table>
+  </fieldset>

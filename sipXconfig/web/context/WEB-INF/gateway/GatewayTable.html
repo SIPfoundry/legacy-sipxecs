@@ -1,0 +1,19 @@
+<table jwcid="table" id="list:gateway">
+	<span jwcid="nameColumnValue@Block">
+		<span jwcid="@If" condition="ognl:currentRow.shared">
+		<img jwcid="@Image" image="asset:sharedGwIcon" align="absmiddle" alt="sharedIcon"/>
+		</span>
+		<span jwcid="editRowLink"><span jwcid="nameText"/></span>
+	</span>
+	<span jwcid="modelColumnValue@Block">
+		<span jwcid="@Insert" value="ognl:currentRow.model.label"/>
+	</span>
+	<span jwcid="siteColumnValue@Block">
+		<span jwcid="@If" condition="ognl:currentRow.branch != null">
+			<span jwcid="@Insert" value="ognl:currentRow.branch.name"/>
+		</span>
+		<span jwcid="@Else">
+			<span key="all"/>
+		</span>
+	</span>
+</table>

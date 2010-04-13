@@ -1,0 +1,266 @@
+#! /usr/bin/env python
+
+import time, calendar, sys, os, time
+from getopt import getopt
+
+hlpMsg = """
+Usage:  sipx-log-cut -i <input log file> -s <start timestamp> [-e <end timestamp>] [-t]
+
+        If end timestamp (-e) is omitted, the physical end of log file will be used.
+        '-t' option is used to force output to the stdout rather than to an ouput file.
+
+        Output file: <input file>.cut
+
+Example:
+
+        sipx-log-cut -i sipXproxy.log -s '2004-12-08 17:45:30' -e '2004-12-08 18:12:52'
+        sipx-log-cut -s '17:45:30' -i sipXproxy.log -t
+
+Returns: 0 - Success in parsing the arguments and log file, and log entries may have 
+             been cut.  Also, the search end time is later than the last log entry in
+             the input file.  (i.e. The input file does not contain an entry older than
+             the specified time span.)
+         1 - General error.
+         2 - Success in parsing the arguments and log file, and log entries may have 
+             been cut.  But, the search end time is earlier than the last log entry in
+             the input file.  In other words there's no use looking in any older log
+             files, they won't contain any entries in the specified time span.
+
+Note:   use date along with time in timestamps if you have multiday input log file
+        (otherwise you may get much bigger file than you expect)
+
+"""
+optLst = 'i:s:e:t'
+
+def date2sec (dateStr):
+    if dateStr [10] == 'T':
+        dateStr = '%s %s' % (dateStr[:10], dateStr[11:])
+    if dateStr.find('GMT') < 0:
+        dateStr += ' GMT'
+    dateStruct=time.strptime(dateStr, "%Y-%m-%d %H:%M:%S %Z")
+    return calendar.timegm(dateStruct)
+
+def setLongFilePtr (longPtr):
+    m = 1            # This is a workaround for old Python's versions that don't accept
+    while 1:         # long integers as an argument to seek method
+        try:
+            dltPos = int(longPtr/m)
+            fi.seek(dltPos, 0)
+            break
+        except:
+            m += 1
+    #print "INIT POS:", longPtr, "dltPos =", dltPos, "m =", m
+    curPos = fi.tell()
+    while curPos < longPtr:
+        offs = longPtr - curPos
+        if offs > dltPos: offs = dltPos
+        fi.seek(offs, 1)
+        curPos = fi.tell()
+    return long(curPos)
+
+def getTimeAtPos (longPtr):
+    if setLongFilePtr (longPtr) != longPtr:
+        sys.exit ("\n\t*** Failed to move over the input log file (new position: %s)***\n" % newPos)
+    fi.readline()
+    line    = fi.readline()
+    if not line:
+        # Look for a last non-empty line in the file
+        fi.seek(-1000, 2)
+        for line in fi: pass
+    #print 'LINE: {%s}' % line
+    timeStr = line[1:i1]
+    try:    timeSec = date2sec(timeStr)
+    except: sys.exit ("\n\t*** Failed to retrieve timestamp from the input file near the position %s ***\n" % longPtr)
+    #print '%s ---> %s' % (timeStr, timeSec)
+    return timeSec
+  
+    
+
+#--- Parse command line args
+
+try:
+    argLst, addLst = getopt (sys.argv[1:], optLst)
+except:
+    sys.exit("\n\t*** Invalid command line ***\n" + hlpMsg)
+if not argLst:
+    sys.exit("\n\t*** At least one command line option required to run this script ***\n" + hlpMsg)
+
+argLst = dict(argLst)
+if not argLst.has_key('-i') or not argLst.has_key('-s'):
+    sys.exit("\n\t*** Missing command line arguments ('-i' and/or '-s') ***\n" + hlpMsg)
+
+#--- Open input/output files
+
+inpFile = argLst['-i']
+try:
+    fi = file (inpFile, 'r')
+except:
+    sys.exit ('\n\t*** Input file %s cannot be found ***\n' % inpFile)
+if argLst.has_key('-t'):
+    outFile = 'stdout'
+    fo = sys.stdout
+else:
+    outFile = argLst['-i'] + '.cut'
+    try:
+        fo = file (outFile, 'w')
+    except:
+        sys.exit ('\n\t*** Output file %s cannot be created ***\n' % inpFile)
+print >> sys.stderr, '\nInput file:  %s\nOutput file: %s\n' % (inpFile, outFile)
+
+#--- Retrieve start/end timestamps from the file
+
+# Starting timestamp in the input file
+startLine = fi.readline()
+i = startLine.find ('.', 1, 50)
+if i: i1 = i
+else: i1 = startLine.find ('"', 1, 50)
+actStartTimeStr = startLine[1:i1]
+
+# Ending timestamp in the input file
+try:    fi.seek(-5000, 2)
+except: sys.exit ('\n\t*** Input file appears to be too small for this script (%s bytes) ***\n' % os.path.getsize(inpFile))
+for endLine in fi: pass
+i = endLine.find ('.', 1, 50)
+if i: i2 = i
+else: i2 = endLine.find ('"', 1, 50)
+actEndTimeStr   = endLine[1:i2]
+
+print >> sys.stderr, 'File start timestamp detected: %s\nFile stop timestamp detected: %s\n' % (actStartTimeStr, actEndTimeStr)
+
+try:
+    actStartTime = date2sec(actStartTimeStr)
+    actEndTime   = date2sec(actEndTimeStr)
+except Exception, d:
+    sys.exit ("\n\t*** Failed to retrieve timestamps from either first or last line of the input file (%s) ***\n" % str(d))
+if i1 != i2:
+    sys.exit ("\n\t*** Timestamps have different format in the first and last line of the log file ***\n")
+
+#--- Get required start/end timestamps formatted in seconds
+
+if not argLst.has_key('-e'):
+    argLst['-e'] = actEndTimeStr
+try:
+    startTime = date2sec(argLst['-s'])
+except:
+    sys.exit ("\n\t*** Invalid start timestamp '%s' in the command line ***\n" %
+              argLst['-s'])
+try:
+    endTime   = date2sec(argLst['-e'])
+except:
+    sys.exit ("\n\t*** Invalid end timestamp '%s' in the command line ***\n" %
+              argLst['-e'])
+print >> sys.stderr, "Search start time: %s" % argLst['-s']
+print >> sys.stderr, "Search stop  time: %s" % argLst['-e']
+
+# Check that start and end times are in the correct order
+if startTime > endTime:
+    sys.exit ("\n\t*** Specified start time is after specified end time ***\n")
+
+# Check if all the file log entries are before the time span.
+if endTime < actStartTime:
+    print >> sys.stderr, '\n\tThe file log entries are all newer than the search start time.  (Keep looking back.)\n'
+    sys.exit (0)
+
+# Check if all the file log entries are after the time span.
+if startTime > actEndTime:
+    print >> sys.stderr, '\n\tThe file log entries are all older than the search start time.  (Stop looking back.)\n'
+    sys.exit (2)
+
+# Adjust the search start time if it is before the first log entry.
+if startTime < actStartTime:
+    print >> sys.stderr, '\n\tAdjusted start (Min) time to: %s' % actStartTimeStr
+    startTime = actStartTime
+    startTimeInThisLog=False
+else:
+    startTimeInThisLog=True
+
+# Adjust the search end time if it is after the last log entry.
+if endTime > actEndTime:
+    print >> sys.stderr, '\n\tAdjusted stop (Max) time to: %s' % actEndTimeStr
+    endTime = actEndTime
+
+#--- Calculate a scale factor
+
+fileScale = long (os.path.getsize(inpFile))
+timeScale = actEndTime - actStartTime
+scaleFact = float (fileScale) / float (timeScale)
+#print >> sys.stderr, 'fileScale: %s, timeScale: %s, scaleFact: %s' % (fileScale, timeScale, str(scaleFact))
+
+#--- Search for the end of the extracted portion of the file
+
+if actEndTimeStr > endTime: midPos = long(float(endTime - actStartTime) * scaleFact)
+else:                       midPos = fileScale
+foundTime = getTimeAtPos (midPos)
+if foundTime > endTime:
+    lowPos = long(0)
+    higPos = midPos
+else:
+    lowPos = midPos
+    higPos = fileScale
+dlt = higPos - lowPos
+#print >> sys.stderr, 'Delta=%s, time found=%s, looking for time=%s' % (dlt, foundTime, endTime)
+while dlt > 50:
+    midPos = lowPos + dlt / 2
+    foundTime = getTimeAtPos (midPos)
+    #print >> sys.stderr, 'Pos=%s, time here=%s, looking for time=%s' % (midPos, foundTime, endTime)
+    if foundTime > endTime:
+        higPos = midPos
+    else:
+        lowPos = midPos
+    dlt = higPos - lowPos
+if midPos == lowPos:
+    midPos = higPos
+    foundTime = getTimeAtPos (midPos)
+endPos = fi.tell()
+
+#--- Search for the start of the extracted portion of the file
+
+if actStartTimeStr < startTime: midPos = long(float(startTime - actStartTime) * scaleFact)
+else:                           midPos = 0
+foundTime = getTimeAtPos (midPos)
+if foundTime < startTime:
+    lowPos = midPos
+    higPos = fileScale
+else:
+    lowPos = 0
+    higPos = midPos
+dlt = higPos - lowPos
+#print >> sys.stderr, 'Delta=%s, time found=%s, looking for time=%s' % (dlt, foundTime, endTime)
+while dlt > 50:
+    midPos = lowPos + dlt / 2
+    foundTime = getTimeAtPos (midPos)
+    #print >> sys.stderr, 'Pos=%s, time here=%s, looking for time=%s' % (midPos, foundTime, endTime)
+    if foundTime < startTime:
+        lowPos = midPos
+    else:
+        higPos = midPos
+    dlt = higPos - lowPos
+if midPos == higPos:
+    midPos = lowPos
+foundTime = getTimeAtPos (midPos)
+setLongFilePtr (midPos)
+if midPos > 0: fi.readline()
+startPos = fi.tell()
+
+#--- Copying portion of input file to output file
+
+print >> sys.stderr, '\nFound fragment of the input file (%d bytes), now copying to the output file %s' % (endPos-startPos, outFile)
+fi.close()
+fi = file (inpFile, 'r')
+fi.seek(startPos)
+#print >> sys.stderr, 'STARTED %s' % time.strftime('%x %X')
+while fi.tell() < endPos:
+    try:
+        fo.write(fi.readline())
+    except KeyboardInterrupt:
+        sys.exit ("\n\t*** Interrupted ***\n")
+#print >> sys.stderr, 'DONE    %s' % time.strftime('%x %X')
+
+fi.close()
+if outFile != 'stdout': fo.close()
+print >> sys.stderr, "\nDONE.\n"
+
+# If the start time is in this log
+if startTimeInThisLog:
+    print >> sys.stderr, '\n\tThe oldest log file entry is older than the search start time.  (Stop looking back.)\n'
+    sys.exit (2)

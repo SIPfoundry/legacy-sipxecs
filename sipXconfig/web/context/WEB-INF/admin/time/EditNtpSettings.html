@@ -1,0 +1,22 @@
+<span jwcid="@common/QuickHelp" value="message:ntpSettings.quickHelp" />
+<form jwcid="@Form" delegate="bean:validator">
+  <ul class="component-links">
+    <li jwcid="@common/ToggleLink"
+      toggle="ognl:showNtpServers"
+      labelOn="message:label.showNtpConfiguration"
+      labelOff="message:label.showNtpServers">
+    </li>
+  </ul>
+  <span jwcid="@If" condition="ognl:showNtpServers">
+  <span jwcid="@common/ListPanel"
+    label="message:label.ntpServers"
+    addLinkLabel="message:link.addServer"
+    itemDisplayName="message:label.ntpServer"
+    validators="spring-validators:required"
+    source="ognl:ntpServers"/>
+  </span>
+  <fieldset jwcid="@Else">
+    <span jwcid="@TextArea" rows="30" cols="80" value="ognl:ntpConfig"/>
+  </fieldset>
+  <span jwcid="submitNtpConfig@Submit" value="message:button.apply" action="listener:submitNtpConfig"/>
+</form>

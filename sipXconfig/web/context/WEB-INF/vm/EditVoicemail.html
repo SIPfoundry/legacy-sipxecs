@@ -1,0 +1,25 @@
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+  <span id="voicemail:edit"/>
+  <h1>
+    <span key="title.editVoicemail"/>
+  </h1>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <form jwcid="@Form" delegate="bean:validator">
+			<fieldset>
+				<table>
+					<tbody>
+						<tr jwcid="@common/FieldPanel" for="vm:subject" field="component:subject" description="message:subject.description"
+                   label="message:subject.label">
+              <td>
+                <input jwcid="subject@TextField" id="vm:subject" maxlength="40" type="text" value="ognl:voicemail.subject"
+                      validators="validators:required"/>
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</fieldset>
+      <span jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
+    </form>
+  </div>
+</div>

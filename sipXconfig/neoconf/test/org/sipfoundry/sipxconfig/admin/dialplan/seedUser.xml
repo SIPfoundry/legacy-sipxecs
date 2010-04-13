@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd">
+<dataset>
+  <users first_name="sam" last_name="" user_name="alpha" pintoken="x" user_id="1001" user_type="C"/>
+</dataset>

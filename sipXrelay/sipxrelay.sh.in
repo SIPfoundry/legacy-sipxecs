@@ -1,0 +1,118 @@
+#!/bin/sh
+
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+SslDir=@SIPX_CONFDIR@/ssl
+AuthoritiesDir=$SslDir/authorities
+KeyStorePassword=changeit
+TrustStorePassword=changeit
+KeyStoreOpts="\
+      -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
+      -Djavax.net.ssl.keyStorePassword=$KeyStorePassword"
+
+
+setTruststoreOpts() {    
+    # List of authorities accepted system-wide
+    if [ -d $AuthoritiesDir ]
+    then
+      TrustStore=$SslDir/authorities.jks
+      TrustStoreOpts="\
+      	-Djavax.net.ssl.trustStore=$TrustStore \
+     	-Djavax.net.ssl.trustStoreType=JKS \
+        -Djavax.net.ssl.trustStorePassword=$TrustStorePassword"
+    else
+      # make empty as extra measure to ensure doesn't come from env. var
+      # this is when Java's CA database has required certs
+      TrustStoreOpts=""
+    fi
+}
+
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        *)
+            Args="$1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/sipxrelay.xml \
+  "
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
+JavaCmd=`@SIPX_BINDIR@/sipx-config --java` 
+LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
+ClassPath=$LibPath
+
+X509Algorithm=`$JavaCmd \
+       -classpath "$ClassPath" \
+       org.sipfoundry.commons.x509selector.X509Selector`
+
+setTruststoreOpts
+ 
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/sipxrelay.pid
+
+
+     exec $JavaCmd -server -Dconf.dir=@SIPX_CONFDIR@  \
+	 $TrustStoreOpts				\
+	 $KeyStoreOpts					\
+	 -Dsipxrelay.command=start \
+	 -Djetty.x509.algorithm=$X509Algorithm 	\
+	 -Djetty.ssl.password=changeit			\
+	 -Djetty.ssl.keypassword=changeit		\
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+         -cp $ClassPath org.sipfoundry.sipxrelay.SymmitronServer \
+         $Args
+     ;;
+
+   STOP)
+     sipx_stop sipxrelay @SIPX_RUNDIR@/sipxrelay.pid
+     ;;
+
+   CONFIGTEST)
+     Status=0
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipxrelay.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+	 Status=1
+     fi
+     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@   		\
+	 -Dsipxrelay.command=configtest 		\
+	 $TrustStoreOpts				\
+	 $KeyStoreOpts					\
+	 -Djetty.x509.algorithm=$X509Algorithm 		\
+	 -Djetty.ssl.password=changeit			\
+	 -Djetty.ssl.keypassword=changeit		\
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+         -cp $ClassPath org.sipfoundry.sipxrelay.SymmitronServer \
+         $Args
+     ;;
+
+esac
+
+exit $Status

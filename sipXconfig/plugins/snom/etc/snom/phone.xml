@@ -1,0 +1,1941 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+  <group name="Basic_Settings">
+    <setting name="web_language">
+      <type>
+        <enum>
+          <option>
+            <value>English</value>
+          </option>
+          <option>
+            <value>Espanol</value>
+          </option>
+          <option>
+            <value>Deutsch</value>
+          </option>
+          <option>
+            <value>Francais</value>
+          </option>
+          <option>
+            <value>Italiano</value>
+          </option>
+          <option>
+            <value>Nederlands</value>
+          </option>
+          <option>
+            <value>Portugues</value>
+          </option>
+          <option>
+            <value>Suomi</value>
+          </option>
+          <option>
+            <value>Svenska</value>
+          </option>
+          <option>
+            <value>Dansk</value>
+          </option>
+          <option>
+            <value>Norsk</value>
+          </option>
+        </enum>
+      </type>
+      <value>English</value>
+    </setting>
+    <setting name="language">
+      <type>
+        <enum>
+          <option>
+            <value>English</value>
+          </option>
+          <option>
+            <value>English(UK)</value>
+          </option>
+          <option>
+            <value>Espanol</value>
+          </option>
+          <option>
+            <value>Deutsch</value>
+          </option>
+          <option>
+            <value>Francais</value>
+          </option>
+          <option>
+            <value>Italiano</value>
+          </option>
+          <option>
+            <value>Cestina</value>
+          </option>
+          <option>
+            <value>Nederlands</value>
+          </option>
+          <option>
+            <value>Polski</value>
+          </option>
+          <option>
+            <value>Portugues</value>
+          </option>
+          <option>
+            <value>Slovencina</value>
+          </option>
+          <option>
+            <value>Suomi</value>
+          </option>
+          <option>
+            <value>Svenska</value>
+          </option>
+          <option>
+            <value>Dansk</value>
+          </option>
+          <option>
+            <value>Norsk</value>
+          </option>
+        </enum>
+      </type>
+      <value>English</value>
+    </setting>
+    <setting name="active_line">
+      <profileName>active_line$</profileName>
+      <type>
+        <integer min="1" max="12" />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="display_method">
+      <type>
+        <enum>
+          <option>
+            <value>full_contact</value>
+          </option>
+          <option>
+            <value>display_name</value>
+          </option>
+          <option>
+            <value>display_number</value>
+          </option>
+          <option>
+            <value>display_name_number</value>
+          </option>
+        </enum>
+      </type>
+      <value>display_name</value>
+    </setting>
+    <setting name="date_us_format">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="time_24_format">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="with_flash">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="call_completion">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="peer_to_peer_cc">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="auto_dial">
+      <type>
+        <enum>
+          <option>
+            <value>off</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>10</value>
+          </option>
+          <option>
+            <value>15</value>
+          </option>
+        </enum>
+      </type>
+      <value>5</value>
+    </setting>
+    <setting name="block_url_dialing">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="challenge_response" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="cmc_feature" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="cw_dialtone" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="conf_hangup" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="transfer_on_hangup" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="call_join_xfer" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="contrast">
+      <profileName>contrast!</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+          <option>
+            <value>9</value>
+          </option>
+          <option>
+            <value>10</value>
+          </option>
+          <option>
+            <value>11</value>
+          </option>
+          <option>
+            <value>12</value>
+          </option>
+          <option>
+            <value>13</value>
+          </option>
+          <option>
+            <value>14</value>
+          </option>
+          <option>
+            <value>15</value>
+          </option>
+          <option>
+            <value>16</value>
+          </option>
+          <option>
+            <value>17</value>
+          </option>
+          <option>
+            <value>18</value>
+          </option>
+          <option>
+            <value>19</value>
+          </option>
+          <option>
+            <value>20</value>
+          </option>
+          <option>
+            <value>21</value>
+          </option>
+          <option>
+            <value>22</value>
+          </option>
+          <option>
+            <value>23</value>
+          </option>
+          <option>
+            <value>24</value>
+          </option>
+          <option>
+            <value>25</value>
+          </option>
+          <option>
+            <value>26</value>
+          </option>
+          <option>
+            <value>27</value>
+          </option>
+          <option>
+            <value>28</value>
+          </option>
+          <option>
+            <value>29</value>
+          </option>
+          <option>
+            <value>30</value>
+          </option>
+        </enum>
+      </type>
+      <value>15</value>
+    </setting>
+    <setting name="use_backlight">
+      <profileName>use_backlight$</profileName>
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="guess_number" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="guess_start_length" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="partial_lookup" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="deny_all_feature" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="admin_mode" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="admin_mode_password">
+      <type>
+        <string />
+      </type>
+      <value>0000</value>
+    </setting>
+    <setting name="callpickup_dialoginfo" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+  </group>
+  <group name="SIP_Stack_Settings">
+    <setting name="rtp_port_start">
+      <type>
+        <integer min="1024" max="65535" />
+      </type>
+      <value>49152</value>
+    </setting>
+    <setting name="rtp_port_end">
+      <type>
+        <integer min="1024" max="65535" />
+      </type>
+      <value>65535</value>
+    </setting>
+    <setting name="network_id_port" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="sip_retry_t1" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>500</value>
+    </setting>
+    <setting name="session_timer" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="timer_support" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="dirty_host_ttl" advanced="yes">
+      <type>
+        <integer />
+      </type>
+    </setting>
+    <setting name="max_forwards" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>70</value>
+    </setting>
+    <setting name="enum_suffix" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>e164.arpa</value>
+    </setting>
+    <setting name="trace" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="logon_wizard">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_phone" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="publish_presence" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="refer_brackets" hidden="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="require_prack" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="send_prack" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="offer_gruu" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="offer_mpo" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="filter_registrar" hidden="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="challenge_reboot" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="challenge_checksync" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="short_form" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="support_rtcp" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="tcp_listen" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+  </group>
+  <group name="Redirection">
+    <setting name="redirect_event">
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>all</value>
+          </option>
+          <option>
+            <value>busy</value>
+          </option>
+          <option>
+            <value>time</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="redirect_time">
+      <type>
+        <integer min="0" />
+      </type>
+      <value />
+    </setting>
+    <setting name="redirect_number">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="redirect_busy_number">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="redirect_time_number">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="redirect_always_on_code" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="redirect_always_off_code" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="redirect_busy_on_code" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="redirect_busy_off_code" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="redirect_time_on_code" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="redirect_time_off_code" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <group name="Basic_Network_Settings">
+    <setting name="dhcp" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="timezone">
+      <type>
+        <enum>
+          <option>
+            <value />
+          </option>
+          <option>
+            <value>USA-10</value>
+          </option>
+          <option>
+            <value>USA-9</value>
+          </option>
+          <option>
+            <value>CAN-8</value>
+          </option>
+          <option>
+            <value>MEX-8</value>
+          </option>
+          <option>
+            <value>USA-8</value>
+          </option>
+          <option>
+            <value>CAN-7</value>
+          </option>
+          <option>
+            <value>MEX-7</value>
+          </option>
+          <option>
+            <value>USA-7</value>
+          </option>
+          <option>
+            <value>CAN-6</value>
+          </option>
+          <option>
+            <value>CHL-6</value>
+          </option>
+          <option>
+            <value>MEX-6</value>
+          </option>
+          <option>
+            <value>USA-6</value>
+          </option>
+          <option>
+            <value>BHS-5</value>
+          </option>
+          <option>
+            <value>CAN-5</value>
+          </option>
+          <option>
+            <value>CUB-5</value>
+          </option>
+          <option>
+            <value>USA-5</value>
+          </option>
+          <option>
+            <value>CAN-4</value>
+          </option>
+          <option>
+            <value>CHL-4</value>
+          </option>
+          <option>
+            <value>PRY-4</value>
+          </option>
+          <option>
+            <value>BMU-4</value>
+          </option>
+          <option>
+            <value>FLK-4</value>
+          </option>
+          <option>
+            <value>TTB-4</value>
+          </option>
+          <option>
+            <value>CAN-3.5</value>
+          </option>
+          <option>
+            <value>GRL-3</value>
+          </option>
+          <option>
+            <value>ARG-3</value>
+          </option>
+          <option>
+            <value>BRA2-3</value>
+          </option>
+          <option>
+            <value>BRA1-3</value>
+          </option>
+          <option>
+            <value>BRA-2</value>
+          </option>
+          <option>
+            <value>PRT-1</value>
+          </option>
+          <option>
+            <value>FRO-0</value>
+          </option>
+          <option>
+            <value>IRL-0</value>
+          </option>
+          <option>
+            <value>PRT-0</value>
+          </option>
+          <option>
+            <value>ESP-0</value>
+          </option>
+          <option>
+            <value>GBR-0</value>
+          </option>
+          <option>
+            <value>ALB+1</value>
+          </option>
+          <option>
+            <value>AUT+1</value>
+          </option>
+          <option>
+            <value>BEL+1</value>
+          </option>
+          <option>
+            <value>CAI+1</value>
+          </option>
+          <option>
+            <value>CHA+1</value>
+          </option>
+          <option>
+            <value>HRV+1</value>
+          </option>
+          <option>
+            <value>CZE+1</value>
+          </option>
+          <option>
+            <value>DNK+1</value>
+          </option>
+          <option>
+            <value>FRA+1</value>
+          </option>
+          <option>
+            <value>GER+1</value>
+          </option>
+          <option>
+            <value>HUN+1</value>
+          </option>
+          <option>
+            <value>ITA+1</value>
+          </option>
+          <option>
+            <value>LUX+1</value>
+          </option>
+          <option>
+            <value>MAK+1</value>
+          </option>
+          <option>
+            <value>NLD+1</value>
+          </option>
+          <option>
+            <value>NAM+1</value>
+          </option>
+          <option>
+            <value>NOR+1</value>
+          </option>
+          <option>
+            <value>POL+1</value>
+          </option>
+          <option>
+            <value>SVK+1</value>
+          </option>
+          <option>
+            <value>ESP+1</value>
+          </option>
+          <option>
+            <value>SWE+1</value>
+          </option>
+          <option>
+            <value>CHE+1</value>
+          </option>
+          <option>
+            <value>GIB+1</value>
+          </option>
+          <option>
+            <value>YUG+1</value>
+          </option>
+          <option>
+            <value>WAT+1</value>
+          </option>
+          <option>
+            <value>BLR+2</value>
+          </option>
+          <option>
+            <value>BGR+2</value>
+          </option>
+          <option>
+            <value>CYP+2</value>
+          </option>
+          <option>
+            <value>EGY+2</value>
+          </option>
+          <option>
+            <value>EST+2</value>
+          </option>
+          <option>
+            <value>FIN+2</value>
+          </option>
+          <option>
+            <value>GAZ+2</value>
+          </option>
+          <option>
+            <value>GRC+2</value>
+          </option>
+          <option>
+            <value>ISR+2</value>
+          </option>
+          <option>
+            <value>JOR+2</value>
+          </option>
+          <option>
+            <value>LVA+2</value>
+          </option>
+          <option>
+            <value>LBN+2</value>
+          </option>
+          <option>
+            <value>MDA+2</value>
+          </option>
+          <option>
+            <value>RUS+2</value>
+          </option>
+          <option>
+            <value>ROU+2</value>
+          </option>
+          <option>
+            <value>SYR+2</value>
+          </option>
+          <option>
+            <value>TUR+2</value>
+          </option>
+          <option>
+            <value>UKR+2</value>
+          </option>
+          <option>
+            <value>EAT+3</value>
+          </option>
+          <option>
+            <value>IRQ+3</value>
+          </option>
+          <option>
+            <value>RUS+3</value>
+          </option>
+          <option>
+            <value>IRN+3.5</value>
+          </option>
+          <option>
+            <value>ARM+4</value>
+          </option>
+          <option>
+            <value>AZE+4</value>
+          </option>
+          <option>
+            <value>GEO+4</value>
+          </option>
+          <option>
+            <value>KAZ+4</value>
+          </option>
+          <option>
+            <value>RUS+4</value>
+          </option>
+          <option>
+            <value>KAZ+5</value>
+          </option>
+          <option>
+            <value>KGZ+5</value>
+          </option>
+          <option>
+            <value>PAK+5</value>
+          </option>
+          <option>
+            <value>RUS+5</value>
+          </option>
+          <option>
+            <value>IND+5.5</value>
+          </option>
+          <option>
+            <value>KAZ+6</value>
+          </option>
+          <option>
+            <value>RUS+6</value>
+          </option>
+          <option>
+            <value>CHN+7</value>
+          </option>
+          <option>
+            <value>RUS+7</value>
+          </option>
+          <option>
+            <value>THA+7</value>
+          </option>
+          <option>
+            <value>SGP+8</value>
+          </option>
+          <option>
+            <value>KOR+8</value>
+          </option>
+          <option>
+            <value>AUS+8</value>
+          </option>
+          <option>
+            <value>JPN+9</value>
+          </option>
+          <option>
+            <value>AUS+9.5</value>
+          </option>
+          <option>
+            <value>AUS+10</value>
+          </option>
+          <option>
+            <value>AUS2+10</value>
+          </option>
+          <option>
+            <value>AUS3+10</value>
+          </option>
+          <option>
+            <value>RUS+10</value>
+          </option>
+          <option>
+            <value>AUS+10.5</value>
+          </option>
+          <option>
+            <value>NZL+12</value>
+          </option>
+          <option>
+            <value>RUS+12</value>
+          </option>
+          <option>
+            <value>NZL+12.75</value>
+          </option>
+          <option>
+            <value>TON+13</value>
+          </option>
+        </enum>
+      </type>
+      <value>USA-5</value>
+    </setting>
+    <setting name="utc_offset">
+      <profileName>utc_offset$</profileName>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="dst">
+      <profileName>dst$</profileName>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="ntp_server">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="ntp_refresh_timer" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+  </group>
+  <group name="Advanced_Network_Settings">
+    <setting name="http_user" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="http_pass" advanced="yes">
+      <type>
+        <string password="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="http_proxy" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="http_port" advanced="yes">
+      <type>
+        <integer min="80" max="65535" />
+      </type>
+      <value>80</value>
+    </setting>
+    <setting name="https_port" advanced="yes">
+      <type>
+        <integer min="80" max="65535" />
+      </type>
+      <value>443</value>
+    </setting>
+    <setting name="webserver_type" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>http</value>
+          </option>
+          <option>
+            <value>https</value>
+          </option>
+          <option>
+            <value>http_https</value>
+          </option>
+          <option>
+            <value>off</value>
+          </option>
+        </enum>
+      </type>
+      <value>http_https</value>
+    </setting>
+    <setting name="webserver_cert" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="register_http_contact" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="http_scheme" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="lcserver1" hidden="yes">
+      <type>
+        <hostname />
+      </type>
+      <value />
+    </setting>
+    <setting name="snmp_port" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>161</value>
+    </setting>
+    <setting name="snmp_trusted_addresses" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="syslog_server">
+      <type>
+        <hostname />
+      </type>
+      <value />
+    </setting>
+    <setting name="ethernet_detect">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="ethernet_replug">
+      <type>
+        <enum>
+          <option>
+            <value>nothing</value>
+          </option>
+          <option>
+            <value>reboot</value>
+          </option>
+        </enum>
+      </type>
+      <value>nothing</value>
+    </setting>
+    <setting name="eth_net" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>auto</value>
+          </option>
+          <option>
+            <value>10half</value>
+          </option>
+          <option>
+            <value>10full</value>
+          </option>
+          <option>
+            <value>100half</value>
+          </option>
+          <option>
+            <value>100full</value>
+          </option>
+        </enum>
+      </type>
+      <value>auto</value>
+    </setting>
+    <setting name="eth_pc" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>auto</value>
+          </option>
+          <option>
+            <value>10half</value>
+          </option>
+          <option>
+            <value>10full</value>
+          </option>
+          <option>
+            <value>100half</value>
+          </option>
+          <option>
+            <value>100full</value>
+          </option>
+        </enum>
+      </type>
+      <value>auto</value>
+    </setting>
+  </group>
+  <group name="Quality_of_Service_and_DTMF_Settings">
+    <setting name="codec_tos" advanced="yes">
+      <type>
+        <integer min="0" max="255" />
+      </type>
+      <value>160</value>
+    </setting>
+    <setting name="signaling_tos" advanced="yes">
+      <type>
+        <integer min="0" max="255" />
+      </type>
+      <value>160</value>
+    </setting>
+    <setting name="vlan">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="dtmf_payload_type" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>101</value>
+    </setting>
+  </group>
+  <group name="LDAP">
+    <setting name="ldap_server">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ldap_port" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>389</value>
+    </setting>
+    <setting name="ldap_base">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ldap_username">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ldap_password">
+      <type>
+        <string password="yes" />
+      </type>
+    </setting>
+    <setting name="ldap_max_hits" advanced="yes">
+      <type>
+        <integer min="1" />
+      </type>
+      <value>50</value>
+    </setting>
+  </group>
+  <group name="Updates_and_settings">
+    <setting name="update_policy">
+      <type>
+        <enum>
+          <option>
+            <value>auto_update</value>
+          </option>
+          <option>
+            <value>ask_for_update</value>
+          </option>
+          <option>
+            <value>never_update_firm</value>
+          </option>
+          <option>
+            <value>never_update_boot</value>
+          </option>
+          <option>
+            <value>settings_only</value>
+          </option>
+          <option>
+            <value>never_update</value>
+          </option>
+        </enum>
+      </type>
+      <value>settings_only</value>
+    </setting>
+    <setting name="firmware_interval">
+      <type>
+        <integer />
+      </type>
+      <value>1440</value>
+    </setting>
+    <setting name="firmware_status">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="subscribe_config" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="pnp_config" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+  </group>
+  <group name="Audio_Settings">
+    <setting name="tone_scheme">
+      <type>
+        <enum>
+          <option>
+            <value>AUS</value>
+          </option>
+          <option>
+            <value>AUT</value>
+          </option>
+          <option>
+            <value>CHN</value>
+          </option>
+          <option>
+            <value>DNK</value>
+          </option>
+          <option>
+            <value>FRA</value>
+          </option>
+          <option>
+            <value>GER</value>
+          </option>
+          <option>
+            <value>GBR</value>
+          </option>
+          <option>
+            <value>IND</value>
+          </option>
+          <option>
+            <value>ITA</value>
+          </option>
+          <option>
+            <value>JPN</value>
+          </option>
+          <option>
+            <value>MEX</value>
+          </option>
+          <option>
+            <value>NLD</value>
+          </option>
+          <option>
+            <value>NOR</value>
+          </option>
+          <option>
+            <value>NZL</value>
+          </option>
+          <option>
+            <value>ESP</value>
+          </option>
+          <option>
+            <value>SWE</value>
+          </option>
+          <option>
+            <value>SWI</value>
+          </option>
+          <option>
+            <value>USA</value>
+          </option>
+        </enum>
+      </type>
+      <value>USA</value>
+    </setting>
+    <setting name="vol_speaker">
+      <profileName>vol_speaker$</profileName>
+      <type>
+        <integer min="1" max="15" />
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="vol_handset">
+      <profileName>vol_handset$</profileName>
+      <type>
+        <integer min="1" max="15" />
+      </type>
+      <value>11</value>
+    </setting>
+    <setting name="vol_headset">
+      <profileName>vol_headset$</profileName>
+      <type>
+        <integer min="1" max="15" />
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="vol_speaker_mic">
+      <profileName>vol_speaker_mic$</profileName>
+      <type>
+        <integer min="1" max="8" />
+      </type>
+      <value>5</value>
+    </setting>
+    <setting name="vol_handset_mic">
+      <profileName>vol_handset_mic$</profileName>
+      <type>
+        <integer min="1" max="8" />
+      </type>
+      <value>5</value>
+    </setting>
+    <setting name="vol_headset_mic">
+      <profileName>vol_headset_mic$</profileName>
+      <type>
+        <integer min="1" max="8" />
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="mute">
+      <profileName>mute$</profileName>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="disable_speaker">
+      <profileName>disable_speaker$</profileName>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="headset_device">
+      <profileName>headset_device$</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>headset_rj</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="audio_device_indicator">
+      <profileName>audio_device_indicator$</profileName>
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="ringer_headset_device">
+      <profileName>ringer_headset_device$</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>speaker</value>
+          </option>
+          <option>
+            <value>headset</value>
+          </option>
+        </enum>
+      </type>
+      <value>speaker</value>
+    </setting>
+    <setting name="key_tones">
+      <profileName>key_tones$</profileName>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="holding_reminder">
+      <profileName>holding_reminder$</profileName>
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="call_waiting">
+      <profileName>call_waiting$</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>on</value>
+          </option>
+          <option>
+            <value>visual</value>
+          </option>
+          <option>
+            <value>off</value>
+          </option>
+        </enum>
+      </type>
+      <value>on</value>
+    </setting>
+    <setting name="mwi_notification">
+      <profileName>mwi_notification$</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>silent</value>
+          </option>
+          <option>
+            <value>beep</value>
+          </option>
+          <option>
+            <value>reminder</value>
+          </option>
+        </enum>
+      </type>
+      <value>silent</value>
+    </setting>
+    <setting name="mwi_dialtone">
+      <profileName>mwi_dialtone$</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>normal</value>
+          </option>
+          <option>
+            <value>stutter</value>
+          </option>
+        </enum>
+      </type>
+      <value>stutter</value>
+    </setting>
+    <setting name="release_sound">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="silence_compression" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="dtmf_speaker_phone">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+  </group>
+  <group name="Ringer_Settings">
+    <setting name="family_ring_sound">
+      <type refid="ringer" />
+      <value>Ringer1</value>
+    </setting>
+    <setting name="friends_ring_sound">
+      <type refid="ringer" />
+      <value>Ringer1</value>
+    </setting>
+    <setting name="colleagues_ring_sound">
+      <type refid="ringer" />
+      <value>Ringer1</value>
+    </setting>
+    <setting name="custom_melody_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="ring_sound">
+      <type refid="ringer" />
+      <value>Ringer1</value>
+    </setting>
+    <setting name="ringing_time">
+      <type>
+        <integer min="0" max="86400" />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="alert_info_playback">
+      <profileName>alert_info_playback$</profileName>
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+  </group>
+  <group name="Key_Mapping">
+    <setting name="intercom_enabled">
+      <profileName>intercom_enabled$</profileName>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="answer_after_policy" advanced="yes">
+      <profileName>answer_after_policy$</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>off</value>
+          </option>
+          <option>
+            <value>idle</value>
+          </option>
+          <option>
+            <value>always</value>
+          </option>
+        </enum>
+      </type>
+      <value>always</value>
+    </setting>
+    <setting name="no_dnd" advanced="yes">
+      <profileName>no_dnd$</profileName>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="speaker_dialer" advanced="yes">
+      <profileName>speaker_dialer$</profileName>
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+  </group>
+  <group name="Action_URLs">
+    <setting name="action_dnd_on_url">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="action_dnd_off_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_redirection_on_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_redirection_off_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_incoming_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_outgoing_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_setup_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_offhook_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_onhook_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_missed_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_connected_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="action_disconnected_url">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <group name="Privacy">
+    <setting name="privacy_in">
+      <profileName>privacy_in$</profileName>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="privacy_out">
+      <profileName>privacy_out$</profileName>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="presence_timeout">
+      <profileName>presence_timeout$</profileName>
+      <type>
+        <integer />
+      </type>
+      <value>15</value>
+    </setting>
+  </group>
+  <!-- Should this be set here, or by the user ? -->
+  <!--  <group name="Address_Book">
+    </group>
+    <group name="Speed_Dial">
+    </group> -->
+  <group name="Phone_Customization">
+    <setting name="calling_title" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>lang_calling</value>
+    </setting>
+    <setting name="connected_title" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>lang_connected</value>
+    </setting>
+    <setting name="ringing_title" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>lang_ringing</value>
+    </setting>
+    <setting name="enter_number_title" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>lang_enter_number</value>
+    </setting>
+    <setting name="held_by_title" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>lang_held_by</value>
+    </setting>
+    <setting name="disconnected_title" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>lang_terminated_finished</value>
+    </setting>
+  </group>
+  <group name="Other">
+    <setting name="dnd_mode">
+      <profileName>dnd_mode$</profileName>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="dnd_on_code" advanced="yes">
+      <profileName>dnd_on_code$</profileName>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="dnd_off_code" advanced="yes">
+      <profileName>dnd_off_code$</profileName>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="edit_alpha_mode">
+      <profileName>edit_alpha_mode$</profileName>
+      <type>
+        <enum>
+          <option>
+            <value>123</value>
+          </option>
+          <option>
+            <value>abc</value>
+          </option>
+          <option>
+            <value>ABC</value>
+          </option>
+          <option>
+            <value>kana</value>
+          </option>
+        </enum>
+      </type>
+      <value>123</value>
+    </setting>
+    <setting name="preselection_nr" advanced="yes">
+      <profileName>preselection_nr$</profileName>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="auto_connect" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="auto_connect_type" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>auto_connect_type_handsfree</value>
+          </option>
+          <option>
+            <value>auto_connect_type_handset</value>
+          </option>
+        </enum>
+      </type>
+      <value>auto_connect_type_handsfree</value>
+    </setting>
+    <setting name="reboot_after_nr" advanced="yes">
+      <type>
+        <integer min="0" max="3600" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="cancel_on_hold" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="cancel_missed" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="cancel_desktop" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="log_level" advanced="yes">
+      <type>
+        <integer min="0" max="9" />
+      </type>
+      <value>5</value>
+    </setting>
+    <setting name="flood_tracing" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="aoc_amount_display" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>off</value>
+          </option>
+          <option>
+            <value>charged</value>
+          </option>
+          <option>
+            <value>balance</value>
+          </option>
+        </enum>
+      </type>
+      <value>off</value>
+    </setting>
+    <setting name="aoc_pulse_currency" advanced="yes">
+      <type>
+        <string maxLen="1" />
+      </type>
+      <value />
+    </setting>
+    <setting name="aoc_cost_pulse" advanced="yes">
+      <type>
+        <real />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="keyboard_lock">
+      <profileName>keyboard_lock$</profileName>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="keyboard_lock_pw" advanced="yes">
+      <profileName>keyboard_lock_pw$</profileName>
+      <type>
+        <string password="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="keyboard_lock_emergency" advanced="yes">
+      <profileName>keyboard_lock_emergency$</profileName>
+      <type>
+        <string />
+      </type>
+      <value>911 112 110 999 997 998</value>
+    </setting>
+    <setting name="support_idna" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="auto_logoff_time" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value />
+    </setting>
+    <setting name="text_softkey" if="360" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="ringer_animation" if="360" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="message_led_other" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="xml_notify" if="360" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+  </group>
+  <group name="fkeys">
+    <group name="fkey0">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey1">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey2">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey3">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey4">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey5">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey6" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey7" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey8" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey9" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey10" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+    <group name="fkey11" unless="snom300">
+      <setting name="context">
+        <type refid="fkey-context" />
+        <value>active</value>
+      </setting>
+      <setting name="type">
+        <type refid="fkey" />
+        <value>line</value>
+      </setting>
+      <setting name="number">
+        <type>
+          <string />
+        </type>
+        <value></value>
+      </setting>
+    </group>
+  </group>
+</model>

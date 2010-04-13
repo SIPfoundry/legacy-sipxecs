@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  <group name='network'>
+    <label>Network</label>
+    <setting name="dhcpenable">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="tftp_config">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="pppoe_enable">
+      <type>
+        <boolean></boolean>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+</model>

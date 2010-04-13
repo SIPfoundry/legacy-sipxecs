@@ -1,0 +1,134 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+require 'getoptlong'
+require 'rexml/document'
+
+class SipDbDumper 
+
+  def initialize(out = STDOUT)
+    @out = out
+    @record_delim = "\n"
+    @field_delim = "\t"
+  end
+
+  def dump(*files)
+    files.each {|file|
+      doc = REXML::Document.new(File.new(file))
+      items = doc.elements['items']
+      type = items.attributes['type']
+      timestamp = items.attributes['timestamp']
+      if timestamp == nil
+        reftime = Time.now
+      else
+        reftime = Time.at(timestamp.to_i)
+      end
+      dump_items(@out, type, items.elements, reftime)
+    }
+  end
+
+  def dump_items(sinc, type, items, reftime)
+    items.each {|item|
+      item.elements.each {|entry|
+        text = entry.get_text.to_s
+        full_candidate = "dump_#{type}_#{entry.name}"
+        if methods.index(full_candidate) 
+          send(full_candidate, sinc, entry.name, text, reftime)
+        else
+          partial_candidate = "dump_#{entry.name}"
+          if methods.index(partial_candidate) 
+            send(partial_candidate, sinc, entry.name, text, reftime)
+          else
+            dump_item(sinc, entry.name, text, reftime)
+          end
+        end
+      }
+      sinc.write @record_delim
+    }
+  end
+  
+  def dump_item(sinc, name, text, reftime)
+    sinc.write name
+    sinc.write '='
+    sinc.write text
+    sinc.write @field_delim
+  end
+  
+  # To add a new custom field, all you need to do is use this convention
+  # to be called:
+  #
+  #   def dump_{field name}
+  #     handle here
+  #   end
+  #
+  # if you only want to handle fields from only one type of database
+  #
+  #   def dump_{db type}_{field name}
+  #     handle here
+  #   end
+  #
+  def dump_contact(sinc, name, text, reftime)
+    dump_item(sinc, name, text, reftime)
+    host = text.match(/@([^;&>:]*)/)[1]
+    dump_item(sinc, "contact_host", host, reftime)    
+  end
+  
+  def dump_expires(sinc, name, text, reftime)
+    dump_item(sinc, name, text, reftime)
+    expires = text.to_i
+    expired = reftime > Time.at(expires) ? "true" : "false"
+    dump_item(sinc, "expired", expired, reftime)
+  end
+end
+
+
+def usage_exit(error_code=1)
+      usage = <<__EOU__
+
+  sipXecs In Memory Database (IMDB) data dumper
+
+Usage:
+  #{ $0 } [-h|--help] [-v|--verbose] [imdb-xml-files...]
+
+  (see man page for more information)
+  
+__EOU__
+
+      (error_code == 0 ? STDOUT : STDERR) << usage
+      exit error_code
+end
+
+if __FILE__ == $0
+  OptSet = [
+    ['--help','-h', GetoptLong::NO_ARGUMENT],
+    ['--verbose','-v', GetoptLong::NO_ARGUMENT],    
+  ]
+
+  dumper = SipDbDumper.new
+  opts = GetoptLong.new(*OptSet)
+  action = 'dump'
+  begin
+    opts.each do |name, arg|
+      case name
+        when '--help'
+          usage_exit 0
+        when '--verbose'
+          dumper.verbose = true
+        else
+          usage_exit
+        end
+    end
+
+  rescue StandardError => bang
+    puts bang
+    usage_exit
+  end
+
+  begin
+    dumper.send(action, *ARGV)
+  end
+end
+

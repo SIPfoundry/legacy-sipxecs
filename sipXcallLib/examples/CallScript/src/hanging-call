@@ -1,0 +1,4 @@
+# Script to leave a dangling call
+call sip:555@cdhcp139.pingtel.com
+pause random 10000
+# End without hanging up.

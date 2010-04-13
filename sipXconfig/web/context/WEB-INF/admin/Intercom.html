@@ -1,0 +1,49 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li><a jwcid="@PageLink" page="phone/ManagePhones" href="#"><span key="link.phones">Phones</span></a></li>
+      <li><a jwcid="@PageLink" page="dialplan/EditFlexibleDialPlan" href="#"><span key="link.dialPlans">Dial Plan</span></a></li>
+    </ul>
+  </div>
+  <span jwcid="@setting/GroupCloud" groups="ognl:phoneContext.groups"/>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <span jwcid="@phone/PhoneModelLabels" models="ognl:phonesWithIntercom.models"/>
+  <span jwcid="@common/QuickHelp" value="message:quick.help.aastra"/>
+  <span jwcid="errors"/>
+  <form jwcid="form">
+    <ul class="component-links">
+      <li jwcid="toggleShowCode"></li>
+    </ul>
+    <fieldset>
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <label for="intercom:enable">
+                <span key="label.enableIntercom">Enabled</span>
+              </label>
+            </td>
+            <td>
+              <input jwcid="enableIntercom" type="checkbox" id="intercom:enable" checked="checked"/>
+            </td>
+          </tr>
+          <tr jwcid="groupsPanel" for="intercom:groups">
+            <input jwcid="groups"/>
+          </tr>
+          <tr jwcid="prefixPanel" for="intercom:prefix">
+            <input jwcid="prefix" id="intercom:prefix" type="text"/>
+          </tr>
+          <tr jwcid="timeoutPanel" for="intercom:timeout">
+            <input jwcid="timeout" id="intercom:timeout" type="text"/>
+          </tr>
+          <span jwcid="renderCode">
+            <tr jwcid="codePanel" for="intercom:code">
+              <input jwcid="code" id="intercom:code" type="text"/>
+            </tr>
+          </span>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions"/>
+	</form>
+</div>

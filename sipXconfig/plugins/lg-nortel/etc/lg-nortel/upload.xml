@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="zip">
+    <file>
+      <contentType>application/zip</contentType>
+    </file>
+  </type>
+  <group name="firmware">
+    <label>LG Nortel Firmware</label>
+    <description></description>
+    <setting name="sip.zip">
+      <label>Firmware Archive (zip)</label>
+      <type refid="zip"/>
+      <description>Example file name: lip68xx_v1216.zip</description>
+    </setting>
+  </group>
+</model>

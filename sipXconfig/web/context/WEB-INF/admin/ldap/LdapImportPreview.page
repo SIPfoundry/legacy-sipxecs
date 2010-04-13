@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.admin.ldap.LdapImportPreview">
+  <description>Page for importing users from LDAP server</description>
+  <inject property="ldapImportManager" object="spring:eagerLdapImportManager" />
+
+  <inject property="tapestry" object="spring:tapestry" />
+
+  <property name="user" />
+  <property name="groupsString" />
+  <property name="index" persist="session" />
+  <property name="example" persist="session" />
+  <property name="file" persist="session"/>
+
+  <!--
+    - B E A N S
+  -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+
+  <!--
+    - C O M P O N E N T S
+  -->
+  <component id="download" type="common/DownloadLink">
+    <binding name="fileName" value="file.name" />
+    <binding name="dirName" value="file.parent" />
+    <binding name="contentType" value="literal:text/comma-separated-values" />
+  </component>
+
+  <component id="renderDownload" type="If">
+    <binding name="condition" value="file != null" />
+  </component>
+
+  <component id="previewForm" type="Form">
+    <binding name="delegate" value="bean:validator" />
+  </component>
+
+  <component id="ok" type="Submit">
+    <binding name="value" value="message:button.ok" />
+    <binding name="listener" value="listener:ok" />
+  </component>
+
+  <component id="next" type="Submit">
+    <binding name="value" value="message:button.next" />
+    <binding name="listener" value="listener:next" />
+  </component>
+
+  <component id="ifRenderNext" type="If">
+    <binding name="condition" value="(example != null) and (index lt (example.size() - 1))"></binding>
+  </component>
+
+  <component id="ifRenderPrevious" type="If">
+    <binding name="condition" value="index gt 0"></binding>
+  </component>
+
+  <component id="previous" type="Submit">
+    <binding name="value" value="message:button.previous" />
+    <binding name="listener" value="listener:previous" />
+  </component>
+
+  <component id="firstNamePanel" type="common/FieldPanel">
+    <binding name="field" value="components.firstName" />
+    <binding name="label" value="message:label.firstName" />
+  </component>
+  <component id="firstName" type="TextField">
+    <binding name="value" value="user.firstName" />
+    <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.firstName" />
+  </component>
+
+  <component id="lastNamePanel" type="common/FieldPanel">
+    <binding name="field" value="components.lastName" />
+    <binding name="label" value="message:label.lastName" />
+  </component>
+  <component id="lastName" type="TextField">
+    <binding name="disabled" value="true" />
+    <binding name="value" value="user.lastName" />
+    <binding name="displayName" value="message:label.lastName" />
+  </component>
+
+  <component id="userIdPanel" type="common/FieldPanel">
+    <binding name="field" value="components.userId" />
+    <binding name="label" value="message:label.userId" />
+  </component>
+  <component id="userId" type="TextField">
+    <binding name="value" value="user.userName" />
+    <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.userId" />
+  </component>
+
+  <component id="sipPasswordPanel" type="common/FieldPanel">
+    <binding name="field" value="components.sipPassword" />
+    <binding name="label" value="message:label.sipPassword" />
+  </component>
+  <component id="sipPassword" type="TextField">
+    <binding name="value" value="user.sipPassword" />
+    <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.sipPassword" />
+  </component>
+
+  <component id="groupsPanel" type="common/FieldPanel">
+    <binding name="field" value="components.groups" />
+    <binding name="label" value="message:label.groups" />
+  </component>
+  <component id="groups" type="TextField">
+    <binding name="value" value="groupsString" />
+    <binding name="size" value="50" />
+    <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.groups" />
+  </component>
+
+  <component id="aliasesPanel" type="common/FieldPanel">
+    <binding name="field" value="components.aliases" />
+    <binding name="label" value="message:label.aliases" />
+  </component>
+  <component id="aliases" type="TextField">
+    <binding name="value" value="user.aliasesString" />
+    <binding name="size" value="50" />
+    <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.aliases" />
+  </component>
+
+  <component id="emailPanel" type="common/FieldPanel">
+    <binding name="field" value="components.email" />
+    <binding name="label" value="message:label.email" />
+  </component>
+  <component id="email" type="TextField">
+    <binding name="value" value="user.emailAddress" />
+    <binding name="size" value="50" />
+    <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.email" />
+  </component>
+
+  <component id="imIdPanel" type="common/FieldPanel">
+    <binding name="field" value="components.imId" />
+    <binding name="label" value="message:label.imId" />
+  </component>
+  <component id="imId" type="TextField">
+    <binding name="value" value="user.imId" />
+    <binding name="disabled" value="true" />
+    <binding name="displayName" value="message:label.imId" />
+  </component>
+
+</page-specification>

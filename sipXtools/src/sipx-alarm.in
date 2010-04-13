@@ -1,0 +1,135 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+require 'pp'
+require 'getoptlong'
+require 'xmlrpc/client'
+require 'openssl/x509'
+
+port = "8092" 
+
+# Allow the required SSL certificate information to be set.
+module XMLRPC   
+   class Client 
+      def key=(x)
+         @http.key = x
+      end
+      def cert=(x)
+         @http.cert = x
+      end
+      def verify_mode=(x)
+         @http.verify_mode = x
+      end
+      def cert_store=(x)
+         @http.cert_store = x
+      end
+      def open_timeout=(x)
+         @http.open_timeout = x
+      end
+      def read_timeout=(x)
+         @http.read_timeout = x
+      end
+   end
+end
+
+def usage_exit(error_code=1)
+      usage = <<__EOU__
+
+  Usage: #{ $0 } parameters
+
+    Interface with the sipXpbx watchdog monitored process XMLRPC interface.
+
+  Parameters:
+  -h|--help           This help text
+  -n|--host hostname  Remote server, e.g. HA slave (default is localhost)
+  -p|--port portnum   Server port (default is 8092)
+  --alarmId id [parameters]      Raise an alarm with the specified ID and parameter string
+  --getAlarmCount     Get the number of alarms raised since last reset
+  --reloadAlarms      Reload alarm definitions and strings
+
+__EOU__
+
+      STDERR << usage
+      exit error_code
+end
+
+if 0 == ARGV.length
+   usage_exit
+end   
+
+if __FILE__ == $0
+  OptSet = [
+      ['--host','-n',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--port','-p',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--alarmId',            GetoptLong::REQUIRED_ARGUMENT],
+      ['--reloadAlarms',       GetoptLong::NO_ARGUMENT],
+      ['--getAlarmCount',      GetoptLong::NO_ARGUMENT],
+      ['--help','-h',          GetoptLong::NO_ARGUMENT]
+   ]
+end
+
+client_host = `hostname -f`.chomp
+server_host = String.new(client_host)
+
+# The default action if no other is specified.
+action = 'raiseAlarm'
+
+opts = GetoptLong.new(*OptSet)
+argument = nil
+paramlist = []
+block = nil
+begin
+   opts.each do |name, arg|
+      case name
+         when '--help'
+            usage_exit 0
+         when '--host'
+            server_host = arg
+         when '--port'
+            port = arg
+         when '--getAlarmCount', '--reloadAlarms'
+            action = name.gsub(/--/, '')
+         when '--alarmId'
+            argument = arg
+            action = "raiseAlarm"
+         else
+            usage_exit
+         end
+     end
+
+   rescue StandardError => bang
+      puts bang
+      usage_exit
+   end
+
+# all remaining arguments are passed as parameter strings
+   ARGV.each do |arg|
+       paramlist.push(arg)
+   end
+
+params = [ client_host ]
+case action
+when 'raiseAlarm'
+    params.push(argument)
+    if paramlist 
+        params.push(paramlist)
+    end
+else
+   # No parms required for all other actions
+end
+
+client = XMLRPC::Client.new2("https://" << server_host << ":" << port << "/RPC2")
+
+# SSL certificate information
+client.verify_mode = OpenSSL::SSL::VERIFY_PEER
+client.cert = OpenSSL::X509::Certificate.new(File.read('@SIPX_CONFDIR@/ssl/ssl.crt'))
+client.key = OpenSSL::PKey::RSA.new(File.read('@SIPX_CONFDIR@/ssl/ssl.key'))
+client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
+client.open_timeout = 10 
+client.read_timeout = 60
+
+pp client.call('Alarm.' << action, *params)
+

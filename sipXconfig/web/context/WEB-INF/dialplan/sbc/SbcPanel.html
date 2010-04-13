@@ -1,0 +1,30 @@
+<fieldset>
+  <p>
+    <input jwcid="@Checkbox" value="ognl:sbc.enabled" id="sbc:enabled"/>
+    <label for="sbc:enabled"><span key="enabled"/></label>
+  </p>
+  <table>
+    <tbody>
+      <tr jwcid="@common/FieldPanel" for="sbcDevice"
+        field="ognl:null"
+        label="message:label.address"
+        description="message:description.address">
+        <span jwcid="sbcDevice@common/SbcDeviceSelect"
+          selectedSbcDevice="ognl:selectedSbcDevice"
+		  enforceInternetCallingSupport="ognl:enforceInternetCallingSupport" />
+      </tr>
+    </tbody>
+  </table>
+</fieldset>
+<fieldset jwcid="@common/ListPanel"
+  label="message:label.domains"
+  addLinkLabel="message:link.addDomain"
+  itemDisplayName="message:label.domain"
+  validators="spring-validators:required,validDnsWildcard"
+  source="ognl:sbc.routes.domains"/>
+<fieldset jwcid="@common/ListPanel"
+  label="message:label.subnets"
+  addLinkLabel="message:link.addSubnet"
+  itemDisplayName="message:label.subnet"
+  validators="spring-validators:required,validIPv4subnet"
+  source="ognl:sbc.routes.subnets"/>

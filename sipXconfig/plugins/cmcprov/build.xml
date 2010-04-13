@@ -1,0 +1,75 @@
+<project name="cmcprov" default="default">
+  <property name="project.dir" value="plugins/cmcprov" />
+  <property file="config.properties" />
+  <property name="checkstyle.severity" value="error" />
+
+  <import file="../../ant-targets.xml" />
+
+  <property name="dist.dir" value="${build.dir}/dist/" />
+  <property name="style.dir" value="${build.dir}/style" />
+  <property name="test.results.dir" value="${build.dir}/test-results" />
+  <property name="junit.results.dir" value="${build.dir}/junit" />
+  <property name="test.classes.dir" value="${build.dir}/tests"/>
+  <property name="clover.dir" value="${build.dir}/clover"/>
+
+  <property name="cmcprov.package" value="org/sipfoundry/sipxconfig/cmcprov" />
+  <property name="cmcprov.war" value="${dist.dir}/cmcprov.war" />
+
+  <path id="base.path">
+    <pathelement path="${sipxconfig.jar}" />
+    <pathelement path="${spring.jar}" />
+    <pathelement path="${hibernate.jar}" />
+    <pathelement path="${servlet.jar}" />
+    <pathelement path="${commons-io.jar}" />
+    <pathelement path="${commons-lang.jar}" />
+    <pathelement path="${commons-logging.jar}" />
+  </path>
+
+  <target name="init" depends="ant-targets.init">
+    <mkdir dir="${dist.dir}/war-root" />
+  </target>
+
+  <target name="distclean">
+    <delete file="${dist.dir}/../cmcprov.properties" />
+    <delete file="${dist.dir}/../config.properties" />
+    <delete dir="${classes.dir}"/>
+    <delete dir="${test.classes.dir}"/>
+    <delete dir="${junit.results.dir}"/>
+    <delete dir="${test.results.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${clover.dir}"/>
+    <delete dir="${style.dir}"/>
+  </target>
+
+  <target name="install" depends="war" description="Copy war file into lib dir">
+    <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
+      <fileset file="${cmcprov.war}" />
+    </copy>
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy file="${build.dir}/cmcprov.properties" todir="${dest.dir}${sipxpbx.conf.dir}/counterpath"/>
+  </target>
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="war" />
+
+  <!-- W A R -->
+  <target name="war" depends="init,compile" description="assemble cmcprov war">
+	<copy file="${build.dir}/config.properties" todir="${classes.dir}" />
+    <condition property="include.testpage">
+      <equals arg1="${debug}" arg2="on" />
+    </condition>
+    <war warfile="${cmcprov.war}" webxml="context/WEB-INF/web.xml" basedir="${dist.dir}/war-root">
+      <webinf dir="context/WEB-INF">
+        <!-- avoid warning about already there -->
+        <exclude name="web.xml" />
+      </webinf>
+      <classes dir="${classes.dir}" />
+      <classes dir="${src.dir}">
+        <include name="**/*.png" />
+        <include name="**/*.css" />
+        <include name="**/*.xml" />
+        <include name="**/*.properties" />
+      </classes>
+    </war>
+  </target>
+</project>

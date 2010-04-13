@@ -1,0 +1,56 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/QuickHelp" value="message:domain.description" />
+  <span jwcid="errors@common/ErrorMsg"/>
+  <form jwcid="form@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="namePanel@common/FieldPanel" for="domain:name"
+            field="ognl:components.name" label="message:label.name"
+            description="message:description.name">
+            <input jwcid="name@TextField" id="domain:name" type="text"
+              value="ognl:domain.name"
+              validators="spring-validators:required,validHostOrIp"
+              displayName="message:label.name"/>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <fieldset>
+      <legend><span key="label.aliasSection">Domain Aliases</span></legend>
+      <p><span key="description.alias"/></p>
+      <ul class="component-links">
+        <li><a jwcid="addAliasLink@LinkSubmit"
+          action="listener:submit">
+          <span key="add.label">Add Alias</span></a>
+        </li>
+      </ul>
+      <table>
+        <tbody>
+            <tr jwcid="aliases@For"
+              source="ognl:aliases" index="ognl:index"
+              volatile="ognl:true">
+              <td>
+                <label jwcid="aliasLabel@FieldLabel"
+                  field="component:alias"
+                  label="message:label.alias">Alias</label>
+              </td>
+              <td>
+                <input jwcid="alias@TextField" type="text"
+                  value="ognl:alias" validators="spring-validators:required,validHostOrIp,domainAliasValidator"
+                  displayName="message:label.alias"/>
+              </td>
+              <td>
+                <a href="#" jwcid="removeAlias@DirectLink"
+                  listener="listener:removeAlias"
+                  parameters="ognl:index">
+                  <span key="label.removeAlias">Remove Alias</span></a>
+              </td>
+            </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions"
+      listener="listener:commit" successMessage="message:msg.actionSuccess"/>
+	</form>
+</div>

@@ -1,0 +1,145 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: OS Abstraction and OS Utilities library for sipX modules
+License: Pingtel Commercial License
+Group: Development/Libraries
+Vendor: Pingtel Corp
+Packager: Pingtel <support@pingtel.com>
+Url: http://www.pingtel.com
+
+# sipXphone would require 0.9.7c to decrypt profiles to get access to
+# certain new alg.  If this is still nec., this may need to be
+# changed.  But in the meantime, Red Hat Enterprise 3.0 as of 08/16/04
+# still uses 0.9.7a, so this is used. There's a HUGE implications of
+# requiring RHEnterpise users to jeopardize their system by upgrading
+# security package to a RH uncertified version.
+Requires: openssl >= 0.9.7a
+Requires: pcre >= 4.5
+
+Source: %name-%version.tar.gz
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+This library provides a set of classes that provide an operating
+system abstraction from a majority of OS provided functions. All of
+the sipX projects use this library to ensure easy porting to any
+operating system. The library currently provides classes that
+encapsulate functions and operations for:
+
+  * Threads
+  * Locks and Mutexes
+  * Semaphores
+  * Messages and Queues
+  * Timers
+  * Time and Date
+  * Sockets
+  * File and Directory
+  * Operating System Processes
+  * Dynamic loading of shared libraries and symbols
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+# Install header files
+%package devel
+Requires: openssl-devel >= 0.9.7a
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name
+
+%description devel
+This library provides a set of classes that provide an operating
+system abstraction from a majority of OS provided functions. All of
+the sipX projects use this library to ensure easy porting to any
+operating system. The library currently provides classes that
+encapsulate functions and operations for:
+
+  * Threads
+  * Locks and Mutexes
+  * Semaphores
+  * Messages and Queues
+  * Timers
+  * Time and Date
+  * Sockets
+  * File and Directory
+  * Operating System Processes
+  * Dynamic loading of shared libraries and symbols
+
+This package contains the neccessary header files and static libraries
+helpful to build projects from the sipX library
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+# Do Not Clean - when we are building a set of sipX RPMs, we need the
+#                dependencies to be here.
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_bindir}/syslogviewer
+%attr(755,root,root) %{_bindir}/sipx-upgrade
+%attr(755,root,root) %{_libdir}/libsipXport.la
+%attr(755,root,root) %{_libdir}/libsipXport.so*
+%attr(755,root,root) %{_bindir}/sipx-config
+%attr(755,root,root) %{_bindir}/%name-config
+
+%files devel
+%defattr(644,root,root,755)
+%docdir doc
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
+
+%attr(755,root,root) %{_libdir}/libsipXunit.la
+%attr(755,root,root) %{_libdir}/libsipXunit.a
+%attr(755,root,root) %{_libdir}/libsipXport.a
+
+%{_includedir}/os/*
+%{_includedir}/utl/*
+%{_includedir}/xmlparser/*
+%{_includedir}/sipxunit/*
+
+%post
+# Correct the group of any sipX file that has group 4294967295.
+# (Actually, it will catch any file with a group number that is
+# not in /etc/group.)
+# This is done here in sipXportLib so it completes before the
+# components that call pkg-upgrade are installed, to avoid the
+# bug in pkg-upgrade triggered by such files.
+# Suppress error output, as all good RPM scriptlets should produce no
+# output at all.
+( find %{_sysconfdir}/sipxpbx \
+	%{_localstatedir}/sipxdata/sipdb \
+	%{_localstatedir}/log/sipxpbx \
+	%{_localstatedir}/sipxdata/mediaserver/data \
+	%{_datadir}/www/cgi-bin/replication \
+     -nogroup |
+         xargs chgrp @SIPXPBXGROUP@
+  # Ensure a success exit value, as the preceding 'find' may have found
+  # no files.
+  true
+) 2>/dev/null

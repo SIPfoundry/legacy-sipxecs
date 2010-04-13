@@ -1,0 +1,318 @@
+#!/bin/sh
+#
+# openfire	Stops and starts the Openfire XMPP service.
+#
+# chkconfig: 2345 99 1
+# description: Openfire is an XMPP server, which is a server that facilitates \
+#              XML based communication, such as chat.
+# config: /opt/openfire/conf/openfire.xml
+# config: /etc/sysconfig/openfire
+# pidfile: @SIPX_RUNDIR@/sipxopenfire.pid
+# 
+# This script has currently been tested on Redhat, CentOS, and Fedora  based
+# systems.
+#
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+#####
+# Begin setup work
+#####
+
+Action="START"
+# Initialization
+OPENFIRE_HOME="@OPENFIRE_HOME@"
+OPENFIRE_LIB="${OPENFIRE_HOME}/lib"
+JAVACMD=`@SIPX_BINDIR@/sipx-config --java`
+LibPath=`perl -e 'print join(":", @ARGV);' ${OPENFIRE_LIB}/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar  @SIPX_JAVADIR@/sipXopenfire/*.jar `
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/sipxopenfire.xml "
+SIPX_OPENFIRE_DIR=@SIPX_JAVADIR@/sipXopenfire
+
+OPENFIRE_USER="@SIPXPBXUSER@"
+ANT_DATABASE_DIR="@SIPX_CONFDIR@"
+
+ANT_DATABASE_SCRIPT="${ANT_DATABASE_DIR}/sipxopenfire-database.xml"
+TMP_DIR="/tmp"
+
+# Prepare local java class path
+LOCALCLASSPATH="${LibPath}"
+
+# Export any necessary variables
+export JAVA_HOME JAVACMD
+
+OPENFIRE_LOGDIR="@SIPX_LOGDIR@"
+
+OPENFIRE=bin/openfire
+
+PIDFILE="@SIPX_RUNDIR@/sipxopenfire.pid"
+
+
+
+
+#####
+# End setup work
+#####
+
+
+
+start() {
+        # Start daemons.
+        echo -n "Starting openfire: "
+	PWD=`pwd`
+
+   # Set the openfire debug level based on the sipxopenfire log level
+   SIPXOPENFIRE_LOGLEVEL=`grep "<log-level>.*<.log-level>" $CONFIG_FILES | cut -f2 -d">" | cut -f1 -d"<"`
+   if [ $SIPXOPENFIRE_LOGLEVEL == "DEBUG" ]
+   then
+      sed -e "s/<enabled>.*<\/enabled>/<enabled>true<\/enabled>/g" "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" > ${OPENFIRE_HOME}/conf/openfire.xml 
+   else
+      sed -e "s/<enabled>.*<\/enabled>/<enabled>false<\/enabled>/g" "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" > ${OPENFIRE_HOME}/conf/openfire.xml      
+   fi
+
+	# Write out the config information so the plugin can read it.
+	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
+	echo "localization.file=@SIPX_CONFDIR@/openfire/sipxopenfire-prompts.properties" >> ${TMP_DIR}/sipx.properties
+	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
+	${OPENFIRE_HOME}/${OPENFIRE} start
+	sleep 10
+	ps aux | grep openfire | grep 'startup\.jar' | awk '{print $2}' > ${PIDFILE}
+}
+
+stop() {
+	# Stop daemons.
+	echo -n "Shutting down openfire: "
+	exec ${OPENFIRE_HOME}/${OPENFIRE} stop
+        # failsafe.
+	ps aux | grep openfire | grep 'startup\.jar' | awk '{print $2}' > ${PIDFILE}
+        kill  -9 `cat ${PIDFILE}`
+}
+
+restart() {
+	stop
+	sleep 10 # give it a few moments to shut down
+	start
+}
+
+spewOutHelp() {
+echo  "sipxopenfire.sh is a shell script that controls the openfire daemon running on this machine "
+echo  " sipxopenfire.sh --start  "
+echo  "             starts the daemon"
+echo
+echo  " sipxopenfire.sh --stop "
+echo  "              stops the daemon "
+echo
+echo  " sipxopenfire.sh --restart "
+echo  "              restarts the daemon  "
+echo
+echo  " sipxopenfire.sh [-d | --database] "
+echo  "             This runs the following database subcommands "
+echo  "	     drop  " 
+echo  "               drops the database"
+echo  "	     create "
+echo  "                  creates the database but no tables. Must be run as root"
+echo  "	     create-tables "
+echo  "                  create database tables."
+echo  "	     setup -Ddomain=xmppdomain -Dfqdn=hostfqdn -DconfigDir=sipx_configdir"
+echo  "                   create admin user and set up the domain."
+echo  "                   xmppdomian is the DNS domain name for the xmpp server"
+echo  "                   admin user password is admin."
+echo
+echo  " sipxopenfire.sh [-a | --admin_console]"
+echo  "             This runs the following admin console subcommands "
+echo  "             enable" 
+echo  "               Enable http and https access to the openfire admin console"
+echo  "             disable" 
+echo  "               Disable http and https access to the openfire admin console"
+echo  "             NOTE: You must restart the 'SipXopenfire' service"
+
+}
+
+
+status() {
+	pid=`ps ax --width=1000 | grep openfire | grep 'startup\.jar' | awk '{print $1}'`
+	if [ $pid = "" ]; then
+		echo "openfire is not running"
+		RETVAL=0
+	else 
+	        echo "Openfire is running"
+	fi
+}
+
+configtest() {
+	echo "sipxopenfire configtest"
+}
+
+# Called as root in sipxpbx startup script to do initial setup,
+# but can be called manually and is harmless if called multiple times.
+onSetup() {
+   # pgpatch is part of sipXcommserverlib and also used by sipxcallresolver.sh
+   # pgpatch initializes the Postgresql database, patches the postgres configuration,
+   # and configures appropriate runlevels (it runs postgresSetup and setPostgresRunlevels)
+   # patching of postgres config is necessary because default authentication needs
+   # to be changed from "ident sameuser" to "trust". sipXecs configures the database
+   # under the user postgres and not the user sipXecs runs under
+
+   @bindir@/pgpatch.sh
+   if ! databaseCheck
+   then
+       echo "Initializing openfire configuration database..."
+       databaseCommand create
+       # echo "Configuration database created"
+   fi
+}
+
+# Return false if postgres is 
+#  1. not running 
+#  2. running but not setup to communicate w/java or ${Psql} command
+#  3. Database is not created
+databaseCheck() {
+    psql --list --field-separator , --no-align --username postgres \
+    | cut -d , -f 1 \
+    | grep "openfire"$ > /dev/null 2>&1
+}
+
+
+# Turn control over to ant to run database command
+databaseCommand() {
+
+    databaseCheck
+
+    
+    # XCF-1275 - Do not want to suppress output if there is an error
+    # however want to be quiet if everything is ok for clean rpm install
+    # output
+    # ant.library.dir needs to be set - but should not point to any jars
+    CmdOut=`$JAVACMD \
+        -classpath $LOCALCLASSPATH \
+        -Dant.library.dir=${TMP_DIR} \
+        -Dsipxopenfire.db.user=postgres \
+        org.apache.tools.ant.launch.Launcher \
+        -f ${ANT_DATABASE_SCRIPT} \
+        $@`
+
+    if [ $? != "0" ]; then
+       echo "$CmdOut" | grep -v '^Unable to locate tools\.jar' >&2
+    fi       
+}
+
+# Enable or disable the Openfire admin console so that administrators have
+# the choice to access the Openfire admin console directly via http or https 
+# therefore bypassing sipXconfig.
+updateAdminConsole() {
+    case $@ in
+
+        enable)
+
+            # Overwrite a key file that control access to the admin console web interface
+            cp -f ${SIPX_OPENFIRE_DIR}/conf/web.xml.enable_openfire_admin_console \
+                  ${OPENFIRE_HOME}/plugins/admin/webapp/WEB-INF/web.xml
+            echo "The admin console has been enabled. The change will take effect the next time Openfire is restarted."
+            echo "To access the admin console use http://<host>:9094 or https://<host>:9095"
+            ;;
+            
+        disable)
+
+            # Overwrite a key file that control access to the admin console web interface
+            cp -f ${SIPX_OPENFIRE_DIR}/conf/web.xml.disable_openfire_admin_console \
+                  ${OPENFIRE_HOME}/plugins/admin/webapp/WEB-INF/web.xml
+            echo "The admin console has been disabled. The change will take effect the next time Openfire is restarted."
+            ;;
+            
+        *)
+            echo "Invalid parameter: $@ => expected enable or disable"
+            ;;
+    esac           
+}
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        --restart)
+            Action=RESTART
+            ;;
+
+        --status)
+            Action=STATUS
+            ;;
+
+         --setup)
+            Action=SETUP
+            ;;
+
+         -d|--database)
+            Action=DATABASE
+            shift
+            Args="${@}"
+            break 2
+            ;;
+
+         -a|--admin_console)
+            Action=ADMIN_CONSOLE
+            shift
+            Args="${@}"
+            break 2
+            ;;
+
+	--help)
+          Action=HELP
+          ;;
+
+
+        *)
+            Args="$1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+# Handle how we were called.
+case "$Action" in
+	START)
+		start
+		;;
+	STOP)
+		stop
+		;;
+	CONFIGTEST)
+		configtest
+		;;
+	RESTART)
+		restart
+		;;
+	STATUS) 
+		status
+		;;
+
+        DATABASE)
+               databaseCommand $Args
+		;;
+
+        ADMIN_CONSOLE)
+               updateAdminConsole $Args
+               ;;
+
+        SETUP)
+	       onSetup
+               ;;
+
+        HELP)
+	      spewOutHelp
+              ;;
+
+
+	*)
+		echo "Usage $0 {start|stop|restart|status|database|setup|help}"
+		RETVAL=1
+esac
+
+exit $RETVAL

@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+   <definitions>
+      <alarm id="TEST_LOG">
+         <shorttitle>Short title for test log</shorttitle>
+         <description>This is a test of the log function.  Single parameter should be here: {0},
+            and that's all that is required</description>
+         <resolution>This also tests parameter insertion, and single quote.</resolution>
+      </alarm>
+      <alarm id="NO_LOG">
+         <description>This should not be logged</description>
+         <resolution>Set log=true in actions element</resolution>
+      </alarm>
+      <alarm id="MISSING_DESCRIPTION">
+         <resolution>Add description.  Default should be id.</resolution>
+      </alarm>
+      <alarm id="DUPLICATE_ID">
+         <description>This is the first instance of the duplicate id.</description>
+         <resolution>The second instance should be flagged, however its strings over-write this.</resolution>
+      </alarm>
+      <alarm id="DUPLICATE_ID">
+         <description>Strings from the second instance of the duplicate id over-write the first by design.
+                      However the rest of the data comes from the first instance.</description>
+         <resolution>The duplicate id is flagged in sipXsupervisor.log</resolution>
+      </alarm>
+      <alarm id="DUPLICATE_CODE_1">
+         <description>This is the first instance of the duplicate code.</description>
+      </alarm>
+      <alarm id="DUPLICATE_CODE_2">
+         <description>This is the second instance of the duplicate code.</description>
+         <resolution>It should cause a test failure, but how?</resolution>
+      </alarm>
+      <alarm id="UNKNOWN_SEVERITY">
+         <description>Unknown severity.</description>
+         <resolution>Severity should be one of 'debug info notice warning error crit alert emerg'</resolution>
+      </alarm>
+      <alarm>
+         <description>Missing ID</description>
+         <resolution>Add an id=" attribute in the alarm tag</resolution>
+      </alarm>
+      <alarm id="PARAMETER_SUBSTITUTION">
+         <description>Parameter {1}, then parameter {0}</description>
+         <resolution>Check for bugs in assembleMsg!</resolution>
+      </alarm>
+      <alarm id="SPECIAL_CHARACTERS">
+         <description>Print special characters such as &lt;, &gt;, and &amp; properly.</description>
+         <resolution>Text must be escaped in the strings file, and unescaped before sending notifications.</resolution>
+      </alarm>
+      <alarm id="MIN_THRESHOLD">
+         <description>This should only be logged the second time</description>
+         <resolution>within a short interval.</resolution>
+      </alarm>
+      <alarm id="DIFF_CONFIG_XML">
+         <description>The config data for this alarm is in a separate file.</description>
+         <resolution>The alarm server should load it and handle it normally.</resolution>
+      </alarm>
+      <alarm id="MESSAGE_WITH_NEWLINES">
+         <shorttitle>Short title for MESSAGE_WITH_NEWLINES</shorttitle>
+         <description>The description or parameters&#xA;may contain newlines.</description>
+         <resolution>The resolution also&#xA;may contain newlines.</resolution>
+      </alarm>
+      <alarm id="PARAMETER_WITH_RESERVED_CHARS">
+         <shorttitle>Short title for PARAMETER_WITH_RESERVED_CHARS</shorttitle>
+         <description>Parameters may contain xml reserved characters e.g. &apos;{0}&apos;</description>
+         <resolution>Parameters may be xml-escaped before sending, and will be unescaped before rendering.</resolution>
+      </alarm>
+   </definitions>
+</alarm_server>

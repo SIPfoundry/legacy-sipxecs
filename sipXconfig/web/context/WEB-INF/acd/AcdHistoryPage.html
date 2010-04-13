@@ -1,0 +1,51 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"/>
+    <div jwcid="@common/LeftNavigation" renderCondition="ognl:acdHistoricalStats.enabled && acdContext.servers.size>0">
+        <span jwcid="@common/TabControl">
+          <span jwcid="@For" source="ognl:acdHistoricalStats.reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
+            <span jwcid="@common/Tab" isActive="ognl:availableReportsIndexItem.equals(reportName)">
+              <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:availableReportsIndexItem" id="ognl:'report' + reportIndex">
+                <span jwcid="@Insert" value="ognl:messages.getMessage('label.' + availableReportsIndexItem)"/>
+              </a>
+            </span>
+          </span>
+        </span>
+    </div>
+    <span jwcid="@If" condition="ognl:acdHistoricalStats.enabled && acdContext.servers.size>0">
+        <form jwcid="@Form">
+          <fieldset>
+            <label><span key="label.selectServer">Hosts</span></label>
+            <span jwcid="locationSelector@PropertySelection"
+              model="ognl:locationSelectionModel"
+              value="ognl:currentLocationId"
+              onchange="literal:javascript:this.form.submit();"/>
+          </fieldset>
+        </form>
+        <div id="settings-content">
+          <span jwcid="@Insert" value="ognl:messages.getMessage('description.' + reportName)"/>
+          <span jwcid="@common/QuickHelp" value="message:acdHistory.help"/>
+          <ul class="component-links">
+            <li>
+              <a jwcid="@common/ExportLink" id="acdHistory:export" listener="listener:export">
+                  <span key="link.export">Export</span>
+              </a>
+            </li>
+          </ul>
+          <span jwcid="@cdr/CdrDates" startTime="ognl:startTime" endTime="ognl:endTime"/>
+          <table jwcid="@common/StatsTable" id="acd:history:list" class="component"
+            source="ognl:rows"
+            columns="ognl:columns"
+            row="ognl:row"
+            usePager="ognl:true">
+          </table>
+        </div>
+  </span>
+  <span jwcid="@Else">
+    <span jwcid="@If" condition="ognl:acdContext.servers.size>0">
+	<span key="historicialStatsDisabled" id="user:error" class="user-error" raw="true"/>
+    </span>
+    <span jwcid="@Else">
+		<span key="acdMissing" id="user:error" class="user-error" raw="true"/>
+    </span>
+  </span>
+</div>

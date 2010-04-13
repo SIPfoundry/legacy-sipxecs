@@ -1,0 +1,24 @@
+BEGIN:VCARD
+VERSION:3.0
+FN:ąćęłńóśżź ąćę
+N:ąćę;ąćęłńóśżź;;;
+TEL;TYPE=WORK:1231
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:ąćęłńóśżź ąćę4
+N:ąćę4;ąćęłńóśżź;;;
+TEL;TYPE=WORK:1234
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:ąćęłńóśżź2 ąćę2
+N:ąćę2;ąćęłńóśżź2;;;
+TEL;TYPE=WORK:1232
+END:VCARD
+BEGIN:VCARD
+VERSION:3.0
+FN:ąćęłńóśżź3 ąćę3
+N:ąćę3;ąćęłńóśżź3;;;
+TEL;TYPE=WORK:1233
+END:VCARD

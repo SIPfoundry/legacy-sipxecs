@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<schedules>
+  <autoattendant>
+    <holidays>
+      <date>01-Jan-2006</date>
+      <filename>afterhour</filename>
+    </holidays>
+    <regularhours>
+      <monday>
+        <from>08:00</from>
+        <to>18:00</to>
+      </monday>
+      <tuesday>
+        <from>08:00</from>
+        <to>18:00</to>
+      </tuesday>
+      <wednesday>
+        <from>08:00</from>
+        <to>18:00</to>
+      </wednesday>
+      <thursday>
+        <from>08:00</from>
+        <to>18:00</to>
+      </thursday>
+      <friday>
+        <from>08:00</from>
+        <to>17:00</to>
+      </friday>
+      <filename>operator</filename>
+    </regularhours>
+    <afterhours>
+      <filename>afterhour</filename>
+    </afterhours>
+  </autoattendant>
+</schedules>

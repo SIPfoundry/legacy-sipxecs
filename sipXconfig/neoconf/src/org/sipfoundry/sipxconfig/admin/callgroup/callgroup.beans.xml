@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="callGroupContextImpl" class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="coreContext" ref="coreContextImpl" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="aliasManager" ref="aliasManager" />
+    <property name="acdContext" ref="acdContext" />
+  </bean>
+
+  <bean id="callGroupContextUserDelete" factory-bean="callGroupContextImpl" factory-method="createUserDeleteListener" />
+
+  <bean id="callGroupContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
+    depends-on="callGroupContextUserDelete">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext" />
+    <property name="target">
+      <ref local="callGroupContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="callGroupSipPasswordInit" class="org.sipfoundry.sipxconfig.admin.callgroup.CallGroupSipPasswordInit">
+    <property name="callGroupContext" ref="callGroupContext" />
+    <property name="taskNames">
+      <list>
+        <value>callgroup-password-init</value>
+      </list>
+    </property>
+  </bean>
+
+</beans>

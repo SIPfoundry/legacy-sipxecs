@@ -1,0 +1,33 @@
+"syslogviewer" is a simple program to reformat sipX log file lines
+into a more easily readable format.
+
+Normally, syslogviewer is in the SIPX_BINDIR directory.  Its arguments
+are:
+
+Usage:
+        syslogviewer [-h | --help] [-i | --indent] [-f[nn]]
+                     [of=output]
+                     [input]
+
+
+        --help  Print this help message.
+        --indent        Indent messages and continued lines.
+        -f[nn]  Fold lines that are over nn (default 80) characters.
+                Implies --indent.
+        if=     Specify input file name (deprecated - use file name directly).
+        of=     Specify output file name.
+        input - input file name.
+
+Its basic operation is to locate "\n" in the log file lines and turn
+them into newlines, thus formatting SIP messages line they appear on
+the line.  "\r" combinations are deleted entirely.
+
+If "-i" is specified, after the line breaks, the next line is indented
+with a tab character.
+
+If "-f" is specified, lines that occupy over 80 columns will be
+broken.  "-fNN" specifies a line length of NN columns rather than 80.
+The latter parts of broken lines will each be indented 4 spaces.  If
+"-i" is specified also, the leading tabs it generates will be counted
+as 8 columns, and a tabbed line that is broken will be indented 8
+columns (one tab and 4 spaces).

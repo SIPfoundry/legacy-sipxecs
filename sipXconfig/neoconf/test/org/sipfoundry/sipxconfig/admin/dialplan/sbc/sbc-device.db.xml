@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../../../sipxconfig-db.dtd">
+<dataset>
+  <sbc_device sbc_device_id="1000" address="10.1.2.3" port="5060" bean_id="sbcGeneric" model_id="sbcGenericModel" name="Sbc1000"
+    serial_number="001122334455" description="desc0"/>
+  <sbc_device sbc_device_id="1001" address="10.1.2.4" port="5060" bean_id="sbcGeneric" model_id="sbcGenericModel" name="Sbc1001"
+    serial_number="101122334455" description="description1"/>
+  <sbc_device sbc_device_id="1002" address="10.1.2.5" port="5060" bean_id="sbcGeneric" model_id="sbcGenericModel" name="Sbc1002"
+    serial_number="201122334455" />
+  <sbc_device sbc_device_id="1003" address="10.1.2.6" port="5060" bean_id="sbcSipXbridge" model_id="sipXbridgeSbcModel" name="SbcBridge"
+    serial_number="301122334455" description="bridgeDesc" />
+</dataset>

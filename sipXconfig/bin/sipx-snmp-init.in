@@ -1,0 +1,78 @@
+#!@BASH@
+
+usage() {
+  echo
+  echo Usage: $0
+  echo
+  echo "   Configures the snmp service"
+  echo
+  echo Parameters:
+  echo "   -h|--help                     Display this help text."
+  echo
+}
+
+if [ "`whoami`" != root ]
+then
+  echo "You must be root in order to run this script."
+  exit 4
+fi
+
+SIPX_USER=@SIPXPBXUSER@
+SERVICE_DIR=@SERVICEDIR@
+
+
+# Process the command-line arguments.
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -h|--help)
+      usage
+      exit
+      ;;
+    *)
+      echo "Unknown option: ${1}"
+      bad_usage
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+
+
+#########################################
+# SNMP CONFIGURATION
+#########################################
+if [ -d /etc/snmp ]
+then
+  cd /etc/snmp
+  if [ -f snmpd.conf ]
+  then
+    mv snmpd.conf snmpd.conf.old
+  fi
+
+  cat > ./snmpd.conf <<EOF
+rocommunity sipxecs
+
+disk /
+EOF
+
+  chown $SIPX_USER:$SIPX_USER /etc/snmp/snmpd.conf
+
+
+    if [ -f /sbin/chkconfig ]
+    then
+      # RedHat / Fedora
+      chkconfig snmpd on
+      # Stop it first and suppress output to prevent unnecessary errors
+      service snmpd stop > /dev/null
+      service snmpd start
+    else
+      # SUSE (SUSE adds snmpd to the runlevel automatically upon installation)
+      $SERVICE_DIR/snmpd stop > /dev/null
+      $SERVICE_DIR/snmpd start
+    fi
+else
+  echo "Directory /etc/snmp does not exist. Please verify your snmp instalation."
+  echo "Exiting..."
+  exit
+fi

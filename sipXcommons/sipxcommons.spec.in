@@ -1,0 +1,79 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Common server side Java packages and supporting third-parth JAR's for sipX
+License: LGPL
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXcommons
+
+Source: %name-%version.tar.gz
+
+Requires: shadow-utils
+
+%if %{use_ibm_jvm}
+Requires: java-ibm >= 1.6
+Requires: java-ibm-unrestricted
+%else
+Requires: java >= 1.6
+%endif
+
+%if %{_vendor} == suse
+Requires: openssl >= 0.9.8k
+%endif
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Common server side Java packages and supporting third-parth JAR's for sipX
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%pre
+# If needed, change open source daemon user name to @SIPXPBXUSER@.
+# The open source names that have been used are 'sipx' and 'sipxpbx'.
+for openname in sipx sipxpbx; do
+  if [ "@SIPXPBXUSER@" != "${openname}" ] &&
+     ! id -u "@SIPXPBXUSER@" > /dev/null 2>&1 &&
+     id -u ${openname} > /dev/null 2>&1
+  then
+     /usr/sbin/usermod -l @SIPXPBXUSER@ ${openname}
+  fi
+done
+
+# If there is no daemon user, create it.
+# Red Hat's useradd command adds the group automatically,
+# but SUSE does not.
+# The -f option means to create the group only if it does not already exist.
+/usr/sbin/groupadd -f @SIPXPBXGROUP@
+if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
+   /usr/sbin/useradd \
+       -c "sipX service daemon" \
+       -d %{_sysconfdir}/sipxpbx \
+       -s /bin/bash \
+       -g @SIPXPBXGROUP@ \
+       @SIPXPBXUSER@ > /dev/null 2>&1
+fi
+
+%post
+
+%files
+%defattr(644,root,root,755)
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXcommons

@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.acd" default-lazy="false">
+
+	<class name="AcdServer" table="acd_server">
+		<id name="id" column="acd_server_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">acd_seq</param>
+			</generator>
+		</id>
+		<property name="port"/>
+		<many-to-one name="location" column="location_id" unique="true"
+			class="org.sipfoundry.sipxconfig.admin.commserver.Location" />
+		<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+		<set name="lines" inverse="true" table="acd_line" cascade="all,delete-orphan">
+			<key column="acd_server_id"/>
+			<one-to-many class="AcdLine"/>
+		</set>
+		<set name="queues" inverse="true" table="acd_queue" cascade="all,delete-orphan">
+			<key column="acd_server_id"/>
+			<one-to-many class="AcdQueue"/>
+		</set>
+		<set name="agents" inverse="true" table="acd_agent" cascade="all,delete-orphan" lazy="true">
+			<key column="acd_server_id"/>
+			<one-to-many class="AcdAgent"/>
+		</set>
+	</class>
+
+	<class name="AcdLine" table="acd_line">
+		<id name="id" column="acd_line_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">acd_seq</param>
+			</generator>
+		</id>
+    <property name="name"/>
+    <property name="description"/>
+    <property name="extension"/>
+		<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+		<many-to-one name="acdServer" column="acd_server_id" class="AcdServer" not-null="true"/>
+		<join table="acd_line_queue" inverse="true" optional="true">
+			<key column="acd_line_id"/>
+			<many-to-one name="acdQueue" column="acd_queue_id" not-null="true" cascade="all"/>
+		</join>
+	</class>
+
+	<class name="AcdQueue" table="acd_queue">
+		<id name="id" column="acd_queue_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">acd_seq</param>
+			</generator>
+		</id>
+    <property name="name"/>
+    <property name="description"/>
+		<list name="agents" table="acd_queue_agent" cascade="all">
+			<key column="acd_queue_id" />
+			<index column="agent_position" type="int"/>
+			<many-to-many column="acd_agent_id" class="AcdAgent"/>
+		</list>
+		<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+		<many-to-one name="acdServer" column="acd_server_id" class="AcdServer" not-null="true"/>
+		<set name="lines" table="acd_line_queue" lazy="true">
+			<key column="acd_queue_id"/>
+			<many-to-many column="acd_line_id" class="AcdLine" unique="true"/>
+		</set>
+    <many-to-one cascade="none" name="overflowQueue" column="overflow_queue_id" class="AcdQueue"/>
+	</class>
+
+	<class name="AcdAgent" table="acd_agent">
+		<id name="id" column="acd_agent_id" type="int" unsaved-value="-1">
+			<generator class="sequence">
+				<param name="sequence">acd_seq</param>
+			</generator>
+		</id>
+		<many-to-one name="acdServer" column="acd_server_id" class="AcdServer" not-null="true"
+      foreign-key="fk_acd_agent_server" lazy="proxy"/>
+		<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+		<many-to-one name="user" cascade="save-update" column="user_id" not-null="true"
+			class="org.sipfoundry.sipxconfig.common.User"/>
+		<list name="queues" table="acd_agent_queue" cascade="all">
+			<key column="acd_agent_id"/>
+			<index column="queue_position" type="int"/>
+			<many-to-many column="acd_queue_id" class="AcdQueue"/>
+		</list>
+	</class>
+
+	<query name="agentForUser">
+		<![CDATA[from AcdAgent agent where agent.user = :user]]>
+	</query>
+
+	<query name="agentForUserAndServer">
+		<![CDATA[from AcdAgent agent where agent.user = :user and agent.acdServer = :acdServer]]>
+	</query>
+
+	<query name="queuesForOverflowQueue">
+		<![CDATA[from AcdQueue queue where queue.overflowQueue = :overflowQueue]]>
+	</query>
+
+  <query name="usersWithAgents">
+    <![CDATA[select distinct u from User u, AcdAgent a join a.user as auser where auser.id = u.id order by u.userName]]>
+  </query>
+
+  <query name="usersWithAgentsForServer">
+    <![CDATA[select distinct u from User u, AcdAgent a join a.user as auser where auser.id = u.id and a.acdServer = :acdServer order by u.userName]]>
+  </query>
+
+  <query name="queuesForUsers">
+		<![CDATA[select distinct q from AcdQueue q, AcdAgent a
+      join a.user as auser
+      join a.queues as aqueues
+      where auser.id in (:userIds) and a.acdServer.id = :serverId and aqueues.id = q.id order by q.name]]>
+  </query>
+
+  <query name="valueStorage">
+		<![CDATA[from ValueStorage vs]]>
+  </query>
+
+  <sql-query name="allAcdServers">
+    <return-scalar type="int" column="id" />
+    <return-scalar type="string" column="host" />
+    <![CDATA[select acd_server_id as id, host from acd_server]]>
+  </sql-query>
+
+  <query name="acdServerForLocationId">
+    <![CDATA[from AcdServer acdServer where acdServer.location.id = :locationId]]>
+  </query>
+
+  <query name="acdLineIdsWithAlias">
+    <![CDATA[select line.id from AcdLine line where line.name = :value or line.extension = :value]]>
+  </query>
+</hibernate-mapping>

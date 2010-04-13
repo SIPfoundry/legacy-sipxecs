@@ -1,0 +1,17 @@
+<test name="hostname">
+  <label>Hostname</label>
+  <description>Hostname FQDN validation</description>
+  <command>
+    <exec>sipx-test-hostname</exec>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="1">
+      <status>Error</status>
+      <msg>Hostname is not qualified</msg>
+    </result>
+  </results>
+</test>

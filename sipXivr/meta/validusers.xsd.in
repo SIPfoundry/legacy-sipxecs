@@ -1,0 +1,251 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   targetNamespace="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/validusers-00-00"
+   elementFormDefault="qualified">
+
+   <element name="displayName" type="normalizedString">
+      <annotation>
+         <documentation>
+            SIP Display Name of this user. Used to generate the
+            digit-to-name dialing mappings in the Auto Attendant,
+            for the "dial-by-name" feature.
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="identity" type="normalizedString">
+      <annotation>
+         <documentation>
+            Identity of the user (including domain)
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="userName" type="normalizedString">
+      <annotation>
+         <documentation>User part of the Identity</documentation>
+      </annotation>
+   </element>
+
+   <element name="alias" type="normalizedString">
+      <annotation>
+         <documentation>Alternate User part</documentation>
+      </annotation>
+   </element>
+
+   <element name="pintoken" type="normalizedString">
+      <annotation>
+         <documentation>
+            Hash of the user's voice mail PIN.
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="passtoken" type="normalizedString">
+      <annotation>
+         <documentation>
+            Hash of the user's SIP password.
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="inDirectory" type="boolean">
+      <annotation>
+         <documentation>
+            true if this user is listed in the auto attendant
+            directory.
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="hasVoicemail" type="boolean">
+      <annotation>
+         <documentation>
+            true if this user has a voicemail box
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="userBusyPrompt" type="boolean">
+      <annotation>
+         <documentation>
+            true if callers to this user can get the user busy prompt
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="voicemailTui" type="normalizedString">
+      <annotation>
+         <documentation>
+            identifier for the user voicemail Telephony User Interface
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="canRecordPrompts" type="boolean">
+      <annotation>
+         <documentation>
+            true if this user can record system prompts
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="canTuiChangePin" type="boolean">
+      <annotation>
+         <documentation>
+            true if this user can change his pin via the Telephone User Interface
+         </documentation>
+      </annotation>
+   </element>
+        
+   <element name="contact" type="normalizedString">
+      <annotation>
+         <documentation>
+            Full URL of where to call (including display name)
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="aliases">
+      <annotation>
+         <documentation>Aliases for user name</documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:alias" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="mailbox" type="normalizedString">
+      <annotation>
+         <documentation>
+            Mailbox (userName) to include in the distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="systemlist" type="normalizedString">
+      <annotation>
+         <documentation>
+            System distribution list to include in the distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="digits" type="normalizedString">
+      <annotation>
+         <documentation>
+            The digits to dial to select this distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="id" type="normalizedString">
+      <annotation>
+         <documentation>
+            The id of the distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="audio" type="normalizedString">
+      <annotation>
+         <documentation>
+            The audio that describes the distribution list
+         </documentation>
+      </annotation>
+   </element>
+
+   <element name="list">
+      <annotation>
+         <documentation>Voicemail Distribution list</documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:mailbox" minOccurs="0" maxOccurs="unbounded"/>
+            <element ref="tns:systemlist" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+         <attribute name="digits" type="string" use="optional"/>
+         <attribute name="id" type="string" use="optional"/>
+         <attribute name="audio" type="string" use="optional"/>
+      </complexType>
+   </element>
+
+   <element name="distributions">
+      <annotation>
+         <documentation>
+            Voicemail Distribution lists for user 
+         </documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element ref="tns:list" minOccurs="0" maxOccurs="unbounded"/>
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="email">
+      <annotation>
+         <documentation>Voicemail preferences for user</documentation>
+      </annotation>
+      <complexType>
+         <sequence>
+            <element name="address" type="normalizedString" minOccurs="0"/>
+            <element name="notification" minOccurs="0">
+               <complexType>
+                  <simpleContent>
+                     <extension base="normalizedString">
+                        <attribute name="attachAudio" type="boolean" use="optional"/>
+                     </extension>
+                  </simpleContent>
+               </complexType>
+            </element>
+            <element name="imap" minOccurs="0" maxOccurs="1">
+               <complexType>
+                  <sequence>
+                     <element name="host" type="normalizedString" minOccurs="0"/>
+                     <element name="port" type="normalizedString" minOccurs="0"/>
+                     <element name="useTLS" type="boolean" minOccurs="0"/>
+                     <element name="account" type="normalizedString" minOccurs="0"/>
+                     <element name="password" type="normalizedString" minOccurs="0"/>
+                  </sequence>
+                  <attribute name="synchronize" type="boolean" use="optional"/>
+               </complexType>
+            </element>
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="user">
+      <complexType mixed="false">
+         <sequence>
+            <element ref="tns:identity" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:userName" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:aliases" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:displayName" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:contact" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:pintoken" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:passtoken" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:inDirectory" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:hasVoicemail" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:userBusyPrompt" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:voicemailTui" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:canRecordPrompts" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:canTuiChangePin" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:distributions" maxOccurs="1" minOccurs="0"/>
+            <element ref="tns:email" maxOccurs="2" minOccurs="0"/>
+         </sequence>
+      </complexType>
+   </element>
+
+   <element name="validusers">
+      <complexType>
+         <sequence>
+            <element ref="tns:user" maxOccurs="unbounded" minOccurs="0"/>
+         </sequence>
+      </complexType>
+   </element>
+</schema>

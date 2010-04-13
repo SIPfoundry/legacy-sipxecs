@@ -1,0 +1,24 @@
+#macro( param $s ) <${s.ProfileName}> $!{s.Value} </${s.ProfileName}> #end
+## add comment - description or label if description is empty
+#macro( comment $s )  <!-- #if(${s.Description}) ${s.Description} #else $!{s.Label} #end -->
+#end
+<C1MAXSIPCONFIG>
+#foreach ($group in $phone.Settings.Values)
+## ignore all groups with ProfileName $ignore$
+#if($group.ProfileName != '$ignore$')
+#foreach ($setting in $group.Values)
+  #param($setting)  #comment($setting)  
+#end
+#end
+#end
+#foreach ($line in $phone.lines)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+## ignore all settings with ProfileName $ignore$
+#if($setting.ProfileName != '$ignore$')
+  #param($setting)  #comment($setting)
+#end  
+#end
+#end
+#end
+</C1MAXSIPCONFIG>

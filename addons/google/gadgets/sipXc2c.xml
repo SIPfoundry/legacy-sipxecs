@@ -1,0 +1,733 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs title="sipXecs Call" 
+               title_url="http://www.sipfoundry.org/" 
+               height="250" width="400" 
+               thumbnail="http://sipxecs.sipfoundry.org/sipxecs_icon.png"
+               screenshot="http://sipx-wiki.calivia.com/images/7/7f/SipXC2C.PNG" 
+               description=" Click to Call via sipXecs call server "  
+               author="Xingjun Chu" 
+               author_email="chuxingjun@gmail.com"  
+               scrolling="true">
+      <Require feature="locked-domain"/>
+    <OAuth>
+      <Service name="google">
+        <Access url="https://www.google.com/accounts/OAuthGetAccessToken" method="GET" />
+        <Request url="https://www.google.com/accounts/OAuthGetRequestToken?scope=http://www.google.com/m8/feeds/" method="GET" />
+        <Authorization url="https://www.google.com/accounts/OAuthAuthorizeToken?oauth_callback=http://oauth.gmodules.com/gadgets/oauthcallback" />
+      </Service>
+    </OAuth>
+    </ModulePrefs>
+   
+  <UserPref name="serverName" display_name="Server Name" default_value="192.168.0.1"/>
+  <UserPref name="serverPort" display_name="SSL Port" default_value="6666"/>
+  <UserPref name="userName" display_name="User Name" default_value="unknown"/>
+  <UserPref name="pinNumber" display_name="Pin Number" default_value="unknown"/>
+  <Content type="html"><![CDATA[
+              
+  <script src="http://gadget-doc-examples.googlecode.com/svn/trunk/opensocial-gadgets/popup.js"></script>
+  
+  <style>
+  #main {
+    margin: 0px;
+    padding: 0px;
+    font-size: small;
+  }
+  </style>
+  
+  
+<script type="text/javascript">   
+function makeCall(form) 
+{
+    var calledNumber = form.inputbox.value;        
+ 	
+ 	var confirmMessage = "Are you sure to call " + calledNumber + "??";
+ 	if (form.calleeName.value != "unknown")
+ 	{
+ 		confirmMessage = "Are you sure to call " + form.calleeName.value + " at " + calledNumber + "??";
+ 	}
+ 	
+ 	var ok = confirm(confirmMessage);
+ 	if (ok == true)
+ 	{
+   		c2ccall(calledNumber);
+ 	}
+};
+
+function onChange_handler(form)
+{
+	var listObj = form.contactList; 
+    var index = listObj.selectedIndex;
+    form.inputbox.value = listObj.options[index].value;
+    
+    form.calleeName.value = listObj.options[index].text;    
+    form.gcontactList.selectedIndex = 0;
+    
+};
+
+function onChange_handler_g(form)
+{
+	var listObj = form.gcontactList; 
+    var index = listObj.selectedIndex;
+    form.inputbox.value = listObj.options[index].value;	
+    
+    form.calleeName.value = listObj.options[index].text;    
+    form.contactList.selectedIndex = 0;
+}
+
+function findContact(form)
+{
+	findContactInPhonebook(form);
+	
+	if(form.calleeName.value == "unknown")
+	{
+		findContactInGoogleContacts(form);
+	}	
+	else
+	{
+		form.gcontactList.selectedIndex = 0;
+	}
+};
+
+function findContactInPhonebook(form)
+{
+	var listObj = form.contactList; 
+	var i = 0;	
+    for (i = 0; i < listObj.length; i++)
+    {
+    	if (form.inputbox.value == listObj.options[i].value)
+    	{
+    		listObj.selectedIndex = i;
+    		form.calleeName.value = listObj.options[i].text;
+    		return;
+    	}
+    }
+        
+    listObj.selectedIndex = 0;
+    form.calleeName.value = "unknown";
+};
+
+function findContactInGoogleContacts(form)
+{
+	var i = 0;	        
+    var glistObj = form.gcontactList; 
+    for (i = 0; i < glistObj.length; i++)
+    {
+    	if (form.inputbox.value == glistObj.options[i].value)
+    	{
+    		glistObj.selectedIndex = i;
+    		form.calleeName.value = glistObj.options[i].text;
+    		return;
+    	}
+    }
+        
+    glistObj.selectedIndex = 0;
+    form.calleeName.value = "unknown";
+};
+
+
+
+// ******** BASE64 ***********************
+var Base64 = {
+
+        // private property
+        _keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
+
+        // public method for encoding
+        encode : function (input) {
+                var output = "";
+                var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+                var i = 0;
+
+                input = Base64._utf8_encode(input);
+
+                while (i < input.length) {
+
+                        chr1 = input.charCodeAt(i++);
+                        chr2 = input.charCodeAt(i++);
+                        chr3 = input.charCodeAt(i++);
+
+                        enc1 = chr1 >> 2;
+                        enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
+                        enc3 = ((chr2 & 15) << 2) | (chr3 >> 6);
+                        enc4 = chr3 & 63;
+
+                        if (isNaN(chr2)) {
+                                enc3 = enc4 = 64;
+                        } else if (isNaN(chr3)) {
+                                enc4 = 64;
+                        }
+
+                        output = output +
+                        this._keyStr.charAt(enc1) + this._keyStr.charAt(enc2) +
+                        this._keyStr.charAt(enc3) + this._keyStr.charAt(enc4);
+
+                }
+
+                return output;
+        },
+
+        // public method for decoding
+        decode : function (input) {
+                var output = "";
+                var chr1, chr2, chr3;
+                var enc1, enc2, enc3, enc4;
+                var i = 0;
+
+                input = input.replace(/[^A-Za-z0-9\+\/\=]/g, "");
+
+                while (i < input.length) {
+
+                        enc1 = this._keyStr.indexOf(input.charAt(i++));
+                        enc2 = this._keyStr.indexOf(input.charAt(i++));
+                        enc3 = this._keyStr.indexOf(input.charAt(i++));
+                        enc4 = this._keyStr.indexOf(input.charAt(i++));
+
+                        chr1 = (enc1 << 2) | (enc2 >> 4);
+                        chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
+                        chr3 = ((enc3 & 3) << 6) | enc4;
+
+                        output = output + String.fromCharCode(chr1);
+
+                        if (enc3 != 64) {
+                                output = output + String.fromCharCode(chr2);
+                        }
+                        if (enc4 != 64) {
+                                output = output + String.fromCharCode(chr3);
+                        }
+
+                }
+
+                output = Base64._utf8_decode(output);
+
+                return output;
+
+        },
+
+        // private method for UTF-8 encoding
+        _utf8_encode : function (string) {
+                string = string.replace(/\r\n/g,"\n");
+                var utftext = "";
+
+                for (var n = 0; n < string.length; n++) {
+
+                        var c = string.charCodeAt(n);
+
+                        if (c < 128) {
+                                utftext += String.fromCharCode(c);
+                        }
+                        else if((c > 127) && (c < 2048)) {
+                                utftext += String.fromCharCode((c >> 6) | 192);
+                                utftext += String.fromCharCode((c & 63) | 128);
+                        }
+                        else {
+                                utftext += String.fromCharCode((c >> 12) | 224);
+                                utftext += String.fromCharCode(((c >> 6) & 63) | 128);
+                                utftext += String.fromCharCode((c & 63) | 128);
+                        }
+
+                }
+
+                return utftext;
+        },
+
+        // private method for UTF-8 decoding
+        _utf8_decode : function (utftext) {
+                var string = "";
+                var i = 0;
+                var c = c1 = c2 = 0;
+
+                while ( i < utftext.length ) {
+
+                        c = utftext.charCodeAt(i);
+
+                        if (c < 128) {
+                                string += String.fromCharCode(c);
+                                i++;
+                        }
+                        else if((c > 191) && (c < 224)) {
+                                c2 = utftext.charCodeAt(i+1);
+                                string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
+                                i += 2;
+                        }
+                        else {
+                                c2 = utftext.charCodeAt(i+1);
+                                c3 = utftext.charCodeAt(i+2);
+                                string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
+                                i += 3;
+                        }
+
+                }
+
+                return string;
+        }
+
+}//base64 end
+
+function c2ccall(calledNumber) 
+{
+    var params = {};  
+    //params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.TEXT;      
+    var url = "https://" + prefs.getString("serverName") + ":" + prefs.getString("serverPort") + "/callcontroller/" + prefs.getString("userName") + "/" + calledNumber;        
+    params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.POST;
+     
+	var username = prefs.getString("userName"); 
+	var password = prefs.getString("pinNumber"); 
+	var basicAuthToken = Base64.encode(username + ':' + password); 
+
+	params[gadgets.io.RequestParameters.HEADERS] = {"Authorization" : "Basic " + basicAuthToken };     
+    gadgets.io.makeRequest(url, c2ccallcb, params);    
+};
+
+
+function c2ccallcb(obj) 
+{ 
+    //[] errors , data, headers (object) also could be checked.              
+  	if (obj.rc >= 200 && obj.rc < 300)
+  	{
+  		alert(" The call has been successfully initiated!");
+  	}
+  	else
+  	{
+  		alert(" Failed to initiated the call! status code:" + obj.rc + "\nDetails: " + obj.text);  
+    }
+      
+};
+
+function initializeGadget()
+{
+    //document.body.background = "http://www.sipfoundry.org/templates/ja_zibal/images/logo-sipfoundry.jpg";
+   	initializeContactList();
+	//initializeContactInfo();
+	fetchData(1);
+	
+}
+
+
+
+
+// not used 
+function displayGreeting () 
+{
+     // Get current time
+     var today = new Date();
+     var time = today.getTime();
+     var html = "";
+  
+     // Based on the time of day, display an appropriate greeting
+     var hour = today.getHours();
+     var salutation = "Afternoon";
+     if (hour < 12) {
+       salutation = "Morning";
+     } else if (hour > 17) {
+       salutation = "Evening";
+     }
+
+     // Set the background color according to the mycolor userpref
+     var element = document.getElementById('content_div');  
+     element.style.height=250;
+     // Set the background color according to the mycolor userpref   
+     element.style.backgroundColor="blue"; //prefs.getString("mycolor"); 
+
+     // Display a greeting based on the myname userpref
+     html += "<br><FONT SIZE=6>Good " + salutation + ", " +
+           prefs.getString("userName") + "!!!<br><br></FONT>";
+
+     // If the "Show Photo?" checkbox is checked, display photo.
+     //if (prefs.getBool("mychoice") == true) {
+     //  html += '<img src="' + prefs.getString("myphoto") + '">';
+     //}
+     element.innerHTML = html;
+          
+}
+   
+function initializeContactList() 
+{    
+	try
+	{
+        var params = {};
+                  
+        params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.DOM;  
+    	var url = "https://" + prefs.getString("serverName") + ":8443/sipxconfig/rest/my/phonebook";        
+    	params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.GET;
+     
+		var username = prefs.getString("userName"); 
+		var password = prefs.getString("pinNumber"); 
+		var basicAuthToken = Base64.encode(username + ':' + password); 
+
+		params[gadgets.io.RequestParameters.HEADERS] = {"Authorization" : "Basic " + basicAuthToken };     
+    	gadgets.io.makeRequest(url, contactListCB, params);
+    	}
+    catch(err)
+  	{
+  	txt="There was an error on this page.\n\n";
+  	txt+="Error description: " + err.description + "\n\n";
+  	txt+="Click OK to continue.\n\n";
+  	alert(txt);
+  	}
+    	    
+};
+      
+function contactListCB(obj) 
+{ 
+        // obj.data contains a Document DOM element corresponding to the
+        // page that was requested
+        
+        if (obj == null) return;
+        
+        if (obj.data)
+        {
+        	var domdata = obj.data;
+        	if (domdata == null)
+        	{
+        		return;
+        	}
+        }
+        else
+        {
+        	return;
+       	} 
+        
+        // Get a list of the <entry> element nodes in the file
+        var itemList = domdata.getElementsByTagName("entry");
+
+        for (var i = 0; i < itemList.length ; i++) 
+        { 
+        	var nodeList = itemList.item(i).childNodes;
+        	for (var j = 0; j < nodeList.length ; j++) 
+        	{
+          		var node = nodeList.item(j);
+          		if (node.nodeName == "first-name") 
+          		{
+            		var fname = node.firstChild.nodeValue;
+          		}
+          		
+          		if (node.nodeName == "last-name") 
+          		{
+            		var lname = node.firstChild.nodeValue;
+          		}
+          		
+          		if (node.nodeName == "number") 
+          		{
+            		var phoneNumber = node.firstChild.nodeValue; 
+          		}
+        } 
+
+	    if (phoneNumber != undefined)
+	    { 
+           	addItem("contactList", (fname == undefined ? "unknown" : fname) + "," + (lname == undefined? "unknown" : lname), phoneNumber);
+        }           
+      }
+      
+      sortList("contactList");
+       
+};
+
+
+function initializeContactInfo() {    
+        var params = {};  
+        params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.DOM;  
+    	var url = "https://" + prefs.getString("serverName") + ":8443/sipxconfig/rest/my/contact-information";        
+    	params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.GET;
+     
+		var username = prefs.getString("userName"); 
+		var password = prefs.getString("pinNumber"); 
+		var basicAuthToken = Base64.encode(username + ':' + password); 
+
+		params[gadgets.io.RequestParameters.HEADERS] = {"Authorization" : "Basic " + basicAuthToken };     
+    	gadgets.io.makeRequest(url, contactInfoCB, params);    
+};
+      
+function contactInfoCB(obj) { 
+        var domdata = obj.data;
+        
+        // Get a list of the <contact-information> element nodes in the file
+        var itemList = domdata.getElementsByTagName("contact-information");
+ 
+        var nodeList = itemList.item(0).childNodes; //only one.
+
+        for (var j = 0; j < nodeList.length ; j++) {
+          var node = nodeList.item(j);
+          if (node.nodeName == "avatar") 
+          {
+             var avatar = node.firstChild.nodeValue;
+             break;
+          }
+          if (node.nodeName == "gravatarUrl") 
+          {
+            var avatar = node.firstChild.nodeValue;
+            break;
+          }
+        }
+         
+//     if ((prefs.getBool("mychoice") == true) && (avatar != undefined) && avatar.toUpperCase().indexOf("HTTP") == 0) 
+//     {
+//       	var html = '<div><img src="' + prefs.getString(avatar) + '"></div>';                
+//          document.getElementById('contactInfo_div').innerHTML = html;
+//     }
+
+    };
+
+
+function addItem(listName, text, value) 
+{
+        var sel = document.getElementById(listName);
+        var opt = document.createElement("option");
+        opt.setAttribute("value", value);
+        opt.appendChild(document.createTextNode(text));
+        sel.appendChild(opt);
+        
+        if (sel.options.length > 10)
+        {
+        	sel.setAttribute("size", 5);
+        }
+}
+   
+/*        
+function addItem(listName, text, value)
+{
+  var elOptNew = document.createElement('option');
+  elOptNew.text = text;
+  elOptNew.value = value;
+  var elSel = document.getElementById(listName);
+
+  try {
+    elSel.add(elOptNew, null); // standards compliant; doesn't work in IE
+  }
+  catch(ex) {
+    elSel.add(elOptNew); // IE only
+  }
+}
+*/  
+   
+//***** For granting permission **************   
+function showOneSection(toshow) 
+{
+      var sections = [ 'main', 'approval', 'waiting' ];
+      for (var i=0; i < sections.length; ++i) {
+        var s = sections[i];
+        var el = document.getElementById(s);
+        if (s === toshow) {
+          el.style.display = "block";
+        } else {
+          el.style.display = "none";
+        }
+      }
+}
+
+
+
+    // Process returned JSON feed to display data.
+function showResults(result) 
+{
+
+try
+{
+      list = result.feed.entry;
+      //alert(result.toJSONString());
+      var startIndex = result.feed.openSearch$startIndex.$t;
+      var pageSize = result.feed.openSearch$itemsPerPage.$t;
+      var totalContacts = result.feed.openSearch$totalResults.$t;
+      
+      //alert("startIndex = " + startIndex + " pageSize " + pageSize + "total " + totalContacts);
+            
+      for(var i = 0; i < list.length; i++) 
+      {
+        entry = list[i];        
+        var contactName = "unknown";
+        if (entry.title)
+        {
+        	contactName = entry.title.$t;
+            //alert("title: adding contactName is " + contactName);
+        }
+        else if (entry.gd$email) {
+            contactName = entry.gd$email[0].address;
+            //alert("email: adding contactName is " + contactName);
+        }
+        
+        if ( entry.gd$phoneNumber != undefined && entry.gd$phoneNumber) {
+        	//alert("phoneNumber is not null")
+        	for(var k = 0; k < entry.gd$phoneNumber.length; k++)
+        	{        
+        	    var phoneType = entry.gd$phoneNumber[k].rel;
+        	    var index = phoneType.lastIndexOf("#");
+        	    if (index != -1)
+        	    {
+        	    	//alert("add Item " + k  + " type " + phoneType.substr(index + 1));
+    	    		addItem("gcontactList", contactName + "(" + phoneType.substr(index + 1) + ")", entry.gd$phoneNumber[k].$t);
+    	    	}
+    	    	else
+    	    	{
+        	    	//alert("add Item " + k  + " type unknown" );
+    	    		addItem("gcontactList", contactName + "(unknowntype)", entry.gd$phoneNumber[k].$t);
+    	    	}
+	        }
+                    
+        }
+        
+      }
+      
+      if (parseInt(totalContacts) > parseInt(startIndex) + parseInt(pageSize))
+      {
+      	fetchData(parseInt(startIndex) + parseInt(pageSize));
+      }
+      else
+      {
+      		sortList("gcontactList");
+      }
+      	
+      
+    }
+	catch(err)
+  	{
+  		txt="There was an error on this page.\n\n";
+  		txt+="Error description: " + err.description + "\n\n";
+  		txt+="Click OK to continue.\n\n";
+  		alert(txt);
+  	}
+ }
+
+    // Invoke makeRequest() to fetch data from the service provider endpoint.
+    // Depending on the results of makeRequest, decide which version of the UI
+    // to ask showOneSection() to display. If user has approved access to his
+    // or her data, display data.
+    // If the user hasn't approved access yet, response.oauthApprovalUrl contains a
+    // URL that includes a Google-supplied request token. This is presented in the
+    // gadget as a link that the user clicks to begin the approval process.
+ function fetchData(startIndex) {
+      var params = {};
+      url = "http://www.google.com/m8/feeds/contacts/default/base?alt=json" + "&start-index=" + startIndex;
+      params[gadgets.io.RequestParameters.CONTENT_TYPE] = gadgets.io.ContentType.JSON;
+      params[gadgets.io.RequestParameters.AUTHORIZATION] = gadgets.io.AuthorizationType.OAUTH;
+      params[gadgets.io.RequestParameters.OAUTH_SERVICE_NAME] = "google";
+      params[gadgets.io.RequestParameters.OAUTH_USE_TOKEN] = "always";
+      params[gadgets.io.RequestParameters.METHOD] = gadgets.io.MethodType.GET;
+
+      gadgets.io.makeRequest(url, function (response) {
+        if (response.oauthApprovalUrl) {
+          // Create the popup handler. The onOpen function is called when the user
+          // opens the popup window. The onClose function is called when the popup
+          // window is closed.
+          var popup = shindig.oauth.popup({
+            destination: response.oauthApprovalUrl,
+            windowOptions: null,
+            onOpen: function() { showOneSection('waiting'); },
+            onClose: function() { fetchData(1); }
+          });
+          // Use the popup handler to attach onclick handlers to UI elements.  The
+          // createOpenerOnClick() function returns an onclick handler to open the
+          // popup window.  The createApprovedOnClick function returns an onclick
+          // handler that will close the popup window and attempt to fetch the user's
+          // data again.
+          var personalize = document.getElementById('personalize');
+          personalize.onclick = popup.createOpenerOnClick();
+          var approvaldone = document.getElementById('approvaldone');
+          approvaldone.onclick = popup.createApprovedOnClick();
+          showOneSection('approval');
+        } else if (response.data) {
+            showOneSection('main');
+            showResults(response.data);
+        } else {
+            // The response.oauthError and response.oauthErrorText values may help debug
+            // problems with your gadget.
+            var main = document.getElementById('main');
+            var err = document.createTextNode('OAuth error: ' +
+              response.oauthError + ': ' + response.oauthErrorText);
+            main.appendChild(err);
+            showOneSection('main');
+        }
+      }, params);
+}   
+  
+function sortMultiDimensional(a,b)
+{ 
+   return ((a[0] < b[0]) ? -1 : ((a[0] > b[0]) ? 1 : 0));
+}
+
+function sortList(listName) { 
+	var selectBox = document.getElementById(listName); 
+	var selectArray = new Array(); 
+
+	for (var i = 1; i < selectBox.length; i++) 
+	{ 
+		selectArray[i-1] = new Array(); 
+		selectArray[i-1][0] = selectBox.options[i].text; 
+		selectArray[i-1][1] = selectBox.options[i].value; 
+	} 
+
+	selectArray.sort(sortMultiDimensional); 
+
+	for (var j = 0; j < selectBox.length - 1; j++) 
+	{ 
+		selectBox.options[j+1].text = selectArray[j][0]; 
+		selectBox.options[j+1].value = selectArray[j][1]; 
+	} 
+}   
+   
+// ***** Main Program body *****
+
+// Get userprefs
+var prefs = new gadgets.Prefs();
+      
+// Pass the userprefs for this module instance to the function
+// (allows users to include multiple module instances on their page)
+gadgets.util.registerOnLoadHandler(initializeGadget); 
+
+document.onkeypress = myKeyPressHandler;
+
+function myKeyPressHandler(e) 
+{    
+		var whichKey = (document.all) ? event.keyCode:e.keyCode;
+		if (whichKey == 13) // Enter key
+		{
+			makeCall(document.myform);
+			return false;
+		}
+		
+		return true;		
+}  
+</script>
+
+<FORM NAME="myform"><BR>
+<table>
+	<TR><TD></TD><TD><img src="http://sipxecs.sipfoundry.org/sipxecs_logo.png"></TD></TR>
+	<TR><TD><INPUT TYPE="button" NAME="button" Value="Call" onClick="makeCall(this.form)"/></TD>
+	<TD>
+	<INPUT TYPE="text" NAME="inputbox" VALUE="" onChange="findContact(this.form)"/>
+	</TD>
+	</TR>
+	<TR><TD></TD>
+	<TD>
+	<SELECT NAME="contactList" ID= "contactList" onChange="onChange_handler(this.form)">
+		<option value="N/A">Phonebook ...</option>
+	</SELECT>
+	</TD>
+	</TR>	
+    <TR><TD></TD>    
+	<TD>
+	<SELECT NAME="gcontactList" ID="gcontactList" onChange="onChange_handler_g(this.form)">
+		<option value="N/A">Google contacts ...</option>
+	</SELECT>
+	</TD>
+	</TR>	
+</table>
+<input TYPE="hidden" VALUE="unknown" NAME="calleeName" />
+</FORM>   
+
+<div id="contact_div"></div>
+<div id="contactInfo_div"></div>
+<div id="main" style="display: none"></div>
+<div id="approval" style="display: none">
+    <img src="http://gadget-doc-examples.googlecode.com/svn/trunk/images/new.gif">
+    <a href="#" id="personalize">Please grant access to google contacts ...</a>
+</div>
+
+<div id="waiting" style="display: none">
+    Please click
+    <a href="#" id="approvaldone">I've approved access</a>
+    once you've approved access to your data.
+</div>
+      
+ ]]>  
+</Content>
+</Module>

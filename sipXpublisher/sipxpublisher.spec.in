@@ -1,0 +1,80 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  %{buildno}
+
+Summary:  SIP SUBSCRIBE/NOTIFY Server
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
+
+Source:   %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= %version
+Requires: sipxpbx >= %version
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+A modular server for handling SIP event subscriptions; event package types
+can be added through a dynamically linked library interface, configured through
+a simple XML plugin configuration file.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+%package devel
+Requires: %name
+Requires: sipxcommserverlib-devel >= %version
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name
+
+%description devel
+Developer support for sipXpublisher.  This is needed in order to create event package
+plug-in modules.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%doc CONTRIBUTORS %name.configlog
+%docdir doc
+%attr(755,root,root) %{_bindir}/sipstatus.sh
+%attr(755,root,root) %{_bindir}/sipstatus
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_datadir}/sipxecs/process.d/sipstatus-process.xml
+
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/statusserver/*
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
+
+%pre
+
+%post

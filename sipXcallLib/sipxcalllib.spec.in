@@ -1,0 +1,105 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Call processing library
+License: LGPL
+Group: Development/Libraries
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXcallLib
+
+Source: %name-%version.tar.gz
+
+Requires: sipxtacklib >= %version
+Requires: sipxmedialib >= %version
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+The call processing subsystem provides the core to all sipX end points
+or user agents (e.g. sipXphone and sipXvxml). The sipXcallLib library
+contains technologies related to call processing:
+
+* cp - An abstracted Call Processing model
+
+* ptapi - A C++ version of JTAPI call model
+
+* ps - An abstraction for virtual (or physical) phone set objects
+  (e.g. lamps, hookswitch)
+
+* tao - A transport layer designed to decouple (and remote) the
+  application layer from call processing.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+# Install header files
+%package devel
+Requires: %name
+Requires: sipxtacklib-devel >= %version
+Requires: sipxmedialib-devel >= %version
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name
+
+%description devel
+The call processing subsystem provides the core to all sipX end points
+or user agents (e.g. sipXphone and sipXvxml). The sipXcallLib library
+contains technologies related to call processing:
+
+* cp - An abstracted Call Processing model
+
+* ptapi - A C++ version of JTAPI call model
+
+* ps - An abstraction for virtual (or physical) phone set objects
+  (e.g. lamps, hookswitch)
+
+* tao - A transport layer designed to decouple (and remote) the
+  application layer from call processing.
+
+This package contains the neccessary header files and static libraries
+helpful to build projects from the sipX library
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_libdir}/libsipXcall.la
+%attr(755,root,root) %{_libdir}/libsipXcall.so*
+%attr(755,root,root) %{_bindir}/%name-config
+
+%files devel
+%defattr(644,root,root,755)
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
+
+%{_libdir}/libsipXcall.a
+%{_includedir}/cp/*
+%{_includedir}/ps/*
+%{_includedir}/ptapi/*
+%{_includedir}/tao/*
+%{_includedir}/tapi/*

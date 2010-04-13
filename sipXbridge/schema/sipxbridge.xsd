@@ -1,0 +1,519 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+
+			SIPXBridge takes a configuration file which specifies where
+			it is running ( ip address and port ) and all the accounts
+			that it manages. When it starts, it registers with each
+			of the ITSP accounts specified in the nested itsp-account
+			elelements that need such registration.
+
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:element name="sipxbridge-config" type="SipxBridgeConfig" />
+
+	<xs:complexType name="SipxBridgeConfig">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				The confiuration of the IP addresses and ports of the
+				SIPX Bridge.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+			<xs:element name="bridge-configuration"
+				type="BridgeConfiguration" minOccurs="1" maxOccurs="1" />
+			<xs:element name="itsp-account" type="ItspAccountInfo"
+				minOccurs="1" maxOccurs="unbounded" />
+		</xs:sequence>
+	</xs:complexType>
+
+
+
+	<xs:complexType name="BridgeConfiguration">
+		<xs:sequence>
+			<xs:element name="global-address" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The publicly routable address of the bridge ( only relevant if global addressing
+						is needed by any of the associated ITSPs).If something is specified, then the stun
+						parameters are ignored. If neither STUN nor global address is specified and global
+						addressing is needed by an ITSP then it is a configuration error.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="global-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The global ITSP facing port (if required by ITSP).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="external-address" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The ITSP facing address. The ITSP will send
+						signaling here. If sipxbridge is running behind a NAT this is the
+						a private address.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="external-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="5080">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The ITSP facing port. The ITSP will send
+						signaling here.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="local-address" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy facing address. The SIPX proxy
+						will send signaling here.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="local-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="5090">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy facing port. The SIPX proxy will
+						send signaling here.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sipx-proxy-domain" type="xs:string"
+				minOccurs="1" maxOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy domain. This is normally set by sipxconfig.
+						If you are starting sipxbridge manually, you need to fill in this field.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sipx-proxy-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="5060">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy port. In case you are not
+						defining a DNS SRV record for the proxy you can
+						specify a proxy port. In this case, the
+						sipx-proxy-domain should be the FQDN or IP address
+						of the sipx proxy.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="sipx-proxy-transport" type="xs:string"
+				minOccurs="0" maxOccurs="1" default="tcp">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The SIPX proxy transport (if you want to use a
+                                                specific value you can set this tag).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="sip-keepalive-seconds" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="20">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Keepalive timer for SIP Signaling.  Sipxbridge will ping the ITSP with
+						this interval to keep the NAT pinhone open
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="media-keepalive-seconds" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Keepalive timer for RTP. Each RTP stream facing the ITSP will
+						start a timer that runs with this timeout (in seconds).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="music-on-hold-support-enabled" type="xs:boolean"
+				maxOccurs="1" minOccurs="0" default="false">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not sipxbridge Music On Hold support is enabled.
+						Phones should disable their MOH support if sipxbridge support
+						for MOH is enabled.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="music-on-hold-address" type="xs:string"
+				maxOccurs="1" minOccurs="0" default="~~mh~">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The MOH server address. This can be a host@domain.
+						If the domain part is missing, it defaults to the sipx domain.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="music-on-hold-delay-miliseconds" type="xs:integer"
+				maxOccurs="1" minOccurs="0" default="500">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The delay after which MOH will start to play.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="music-on-hold-supported-codecs" type="xs:string"
+				maxOccurs="1" minOccurs="0" default="PCMU,PCMA">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Codecs supported by the MOH ( Park ) server
+						(allows us to short circuit the MOH setup if these codecs
+						are not supported in the ITSP SDP OFFER).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="secure-xml-rpc" type="xs:boolean"
+				maxOccurs="1" minOccurs="0" default="false">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not xml rpc communication with sipxbridge will be secure
+						(i.e. use https transport).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="log-level" maxOccurs="1" minOccurs="0"
+				default="WARN">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Log configuration. Defaults to INFO level.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="OFF" />
+						<xs:enumeration value="INFO" />
+						<xs:enumeration value="WARN" />
+						<xs:enumeration value="ERROR" />
+						<xs:enumeration value="DEBUG" />
+						<xs:enumeration value="TRACE" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+
+			<xs:element name="stun-server-address" type="xs:string"
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The stun server address used to determine the
+						global address of the bridge. If this is not present
+						then stun01.sipphone.com is used for global address discovery.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="stun-interval" type="xs:integer" default="30" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The rediscovery period (seconds) used to determine if the NAT has
+						rebooted and aquired a new global IP address.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="log-directory" type="xs:string" maxOccurs="1" minOccurs="0"
+				default="/var/log/sipxpbx">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Log directory. Defaults to /var/log/sipxbpx. The log file name is hard coded
+						to "sipxbridge.log".
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="route-inbound-calls-to-extension" type="xs:string"
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Where to send inbound calls. If nothing is specified, inbound calls are
+						directly routed to the specified number in the inbound request.
+						You can specify the SIPX auto attendant name  ( operator ) here.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sipxrelay-host" type="xs:string"
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                              Where sipxrelay is running. If not specified, it is assumed to be colocated with sipxbridge
+					      and outbound calls will use the relay location of the via header of the outbound INVITE.
+					      Note that nattraversalrules.xml specifes the xml-rpc port of sipxrelay.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sipxrelay-xml-rpc-port" type="xs:integer"
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                              Where sipxrelay is running. If not specified, it is assumed to be colocated with sipxbridge
+					      and outbound calls will use the relay location of the via header of the outbound INVITE.
+					      Note that nattraversalrules.xml specifes the xml-rpc port of sipxrelay.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="xml-rpc-port" type="xs:integer"
+				maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The port for sipxconfig to talk to this instance of sipxbridge.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="call-limit" type="xs:integer"
+				maxOccurs="1" minOccurs="0" default="-1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                                Max Number of calls supported by sipxbridge. The default is "unlimited" which means the limit is governed by
+                                                the available relays. This allows you to impose a finer grained limit.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="ItspAccountInfo">
+		<xs:annotation>
+			<xs:documentation xml:lang="en">
+				The information that is specific to a given ITSP
+				account.
+			</xs:documentation>
+		</xs:annotation>
+		<xs:sequence>
+
+			<xs:element name="enabled"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not this accountis enabled.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="registration-interval" type="xs:integer"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The registration interval.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="sip-session-timer-interval-seconds" type="xs:integer" default="1800" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The Session Timer interval (for in-DIALOG re-INVITES)
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="itsp-proxy-domain" type="xs:string"
+				maxOccurs="1" minOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The domain for the SIP Register Request defaults
+						to the proxy domain.  This is a required parameter.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="itsp-proxy-listening-port" type="xs:integer"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The outbound proxy port. If not specified, the default 5060 is used.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="itsp-proxy-address" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The outbound proxy. If not specified,
+						the proxy domain is used to look up the outbound
+						proxy.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="itsp-transport" type="xs:string"
+				default="udp" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The outbound proxy transport.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="itsp-registrar-address" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						SipxBridge will Register with the itsp-registrar-address if registration is required.
+						If nothing is specified, then itsp-registrar-address is assumed to be
+						the same as itsp proxy address.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="itsp-registrar-listening-port" type="xs:integer"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                                The port where the ITSP registar is listening for inbound signaling.
+						If not specified, the same port as the itsp-proxy-listening-port is used.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="user-name" type="xs:string" maxOccurs="1"
+				minOccurs="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The authentication user name attached to the account.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="is-user-phone"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not the supplied user-name is a phone number. If set to true
+						then the Request URI and To header will include the user=phone parameter.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="password" type="xs:string" maxOccurs="1"
+				minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The password for the account.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="strip-private-headers" type="xs:boolean"
+				default="false" minOccurs="1" maxOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                        When set to true, sensitive headers that can reveal identity such as
+                                        Subject, Call-Info, Organization, User-Agent, Reply-To and In-Reply-To will be stripped
+                                        in all requests and responses.  Display Name will be stripped where ever it appears.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+
+			<xs:element name="asserted-identity" type="xs:string"
+				maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+                                         The identity to use in "P-Assetrted-Identy" header for outbound signaling. This is an
+                                         override for the default.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="use-global-addressing" type="xs:boolean"
+				default="false" maxOccurs="1" minOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not to use global address for call setup signaling.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="register-on-initialization"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not to REGISTER on initialization.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="loose-route-invite"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not to to use route header (with lr parameter) on call setup INVITE.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="sip-keepalive-method"
+				default="CR-LF" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						 Defines the mechanism to use for SIP keepalive.  If undefined,
+       						 empty SIP packets (CR-LF) is used for SIP keepalive.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="NONE" />
+						<xs:enumeration value="CR-LF" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+			<xs:element name="rtp-keepalive-method"
+				 default="NONE" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						 Defines the mechanism to use for RTP keepalive.  If undefined,
+						 empty UDP packets are used.
+					</xs:documentation>
+				</xs:annotation>
+				<xs:simpleType>
+					<xs:restriction base="xs:string">
+						<xs:enumeration value="NONE" />
+						<xs:enumeration value="USE-EMPTY-PACKET" />
+						<xs:enumeration value="REPLAY-LAST-SENT-PACKET" />
+						<xs:enumeration value="USE-DUMMY-RTP-PAYLOAD" />
+					</xs:restriction>
+				</xs:simpleType>
+			</xs:element>
+
+			<xs:element name="always-relay-media"
+				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Controls whether media is always relayed or not.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

@@ -1,0 +1,22 @@
+<phones>
+  <phone>
+    <serialNumber>000000c0ffee</serialNumber>
+    <model>testPhoneModel</model>"
+    <description>Phone 1 - YES</description>
+  </phone>
+  <phone>
+    <serialNumber>000000c0ffee</serialNumber>
+    <model>testPhoneModel</model>"
+    <description>NO - duplictate serial number</description>
+  </phone>
+  <phone>
+    <serialNumber>0004f21ed0d3</serialNumber>
+    <model>noSuchPhoneModel</model>"
+    <description>NO - invalid model</description>
+  </phone>
+  <phone>
+    <serialNumber>111000c0ffee</serialNumber>
+    <model>testPhoneModel</model>"
+    <description>Phone 2 - YES</description>
+  </phone>
+</phones>

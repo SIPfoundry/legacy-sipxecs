@@ -1,0 +1,2 @@
+extern const char* @PACKAGE@Version;
+extern const char* @PACKAGE@BuildStamp;

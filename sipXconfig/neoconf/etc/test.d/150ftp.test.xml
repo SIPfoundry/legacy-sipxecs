@@ -1,0 +1,82 @@
+<test name="ftp">
+  <label>FTP Test</label>
+  <description>
+    Verify that the specified FTP server is functioning properly.
+  </description>
+  <longDescription>
+      Phone configuration files produced by the @sipxecs.name@ Configuration Server
+      can optionally be served by an FTP server. This test verifies that
+      the specified FTP server can be used to retrieve a special phone
+      configuration test file which has been produced by the Configuration
+      Server.
+  </longDescription>
+  <command>
+    <exec>preflight</exec>
+    <arg>-v</arg>
+    <arg>--ftp-test</arg>
+    <arg>${hostname}</arg>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+      <description>
+          The FTP server did not respond to the connection request.
+      </description>
+    </result>
+    <result exit="155">
+      <status>Error</status>
+      <msg>FTP Server address is malformed.</msg>
+    </result>
+    <result exit="156">
+      <status>Error</status>
+      <msg>FTP server address could not be resolved.</msg>
+      <description>
+        The specified FTP server address could not be resolved to an IP
+        address. Verify that the DNS server(s) have a valid entry.
+      </description>
+    </result>
+    <result exit="157">
+      <status>Error</status>
+      <msg>FTP server is unreachable.</msg>
+      <description>
+        The resolved IP address of the specified FTP server did not respond to
+        ICMP pings. Verify that the server is running and reachable from
+        this network.
+      </description>
+    </result>
+    <result exit="158">
+      <status>Error</status>
+      <msg>FTP client encountered unrecoverable error.</msg>
+      <description>
+        The test client has suffered an unrecoverable network failure.
+        Please see the details for further information.
+      </description>
+    </result>
+    <result exit="159">
+      <status>Error</status>
+      <msg>FTP get of test file failed.</msg>
+      <description>
+        The specified FTP server failed to serve the test configuration file.
+        Verify that the FTP server is running and properly configured.
+      </description>
+    </result>
+    <result exit="160">
+      <status>Error</status>
+      <msg>FTP test file did not verify.</msg>
+      <description>
+        The test file that was retrieved from the specified FTP server was
+        found to be corrupted. Please contact technical support for
+        further assistance.
+      </description>
+    </result>
+  </results>
+</test>

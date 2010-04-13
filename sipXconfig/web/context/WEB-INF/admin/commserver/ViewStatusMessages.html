@@ -1,0 +1,31 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+    <ul>
+        <li jwcid="@For" source="ognl:statusMessages.statusMessages" value="ognl:currentMessage">
+            <span jwcid="@Insert" value="ognl:messages.getMessage(currentMessage.prefix)" />:
+            <span jwcid="@Insert" value="ognl:currentMessage.message" />
+        </li>
+    </ul>
+
+    <span jwcid="@If" condition="ognl:!statusMessages.stdOut.empty" renderTag="false">
+        <h3><span key="label.stdout" /></h3>
+        <ul>
+            <li jwcid="@For" source="ognl:statusMessages.stdOut" value="ognl:currentMessage">
+                <span jwcid="@Insert" value="ognl:currentMessage.message" />
+            </li>
+        </ul>
+    </span>
+
+
+    <span jwcid="@If" condition="ognl:!statusMessages.stdErr.empty" renderTag="false">
+	    <h3><span key="label.stderr" /></h3>
+	    <ul>
+	        <li jwcid="@For" source="ognl:statusMessages.stdErr" value="ognl:currentMessage">
+	            <span jwcid="@Insert" value="ognl:currentMessage.message" />
+	        </li>
+	    </ul>
+    </span>
+
+    <a class="backLink" jwcid="@DirectLink" listener="listener:returnToServices"><span key="link.back">Go back</span></a>
+
+</div>
+

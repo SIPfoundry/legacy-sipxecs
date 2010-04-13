@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.bulk.ldap" default-lazy="false">
+
+  <class name="LdapConnectionParams" table="ldap_connection">
+    <id name="id" column="ldap_connection_id" type="int" unsaved-value="-1">
+      <generator class="native" />
+    </id>
+    <property name="host" />
+    <property name="port" />
+    <property name="principal" />
+    <property name="secret" />
+    <many-to-one name="schedule" class="org.sipfoundry.sipxconfig.admin.CronSchedule"
+      cascade="all" foreign-key="ldap_connection_cron_schedule">
+      <column name="cron_schedule_id" />
+    </many-to-one>
+  </class>
+
+  <class name="AttrMap" table="ldap_attr_map">
+    <id name="id" column="ldap_attr_map_id" type="int" unsaved-value="-1">
+      <generator class="native" />
+    </id>
+    <property name="defaultGroupName" />
+    <property name="defaultPin" />
+    <property name="searchBase" />
+    <property name="objectClass" />
+    <property name="filter" />
+    <map name="userToLdap" table="ldap_user_property_to_ldap_attr">
+      <key column="ldap_attr_map_id"
+        foreign-key="fk_ldap_user_property_to_ldap_attr_ldap_attr_map" />
+      <index column="user_property" type="string" />
+      <element column="ldap_attr" type="string" />
+    </map>
+    <bag name="selectedObjectClasses" table="ldap_selected_object_classes">
+      <key column="ldap_attr_map_id" foreign-key="fk_ldsp_selected_object_classes_ldap_attr_map"></key>
+      <element column="object_class" type="string" />
+    </bag>
+  </class>
+</hibernate-mapping>

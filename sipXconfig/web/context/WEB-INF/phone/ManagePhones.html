@@ -1,0 +1,43 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li><a jwcid="@PageLink" page="user/ManageUsers" href="#"><span key="users">Users</span></a>
+      </li>
+      <li><a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="jobStatus">Job Status</span></a>
+      </li>
+    </ul>
+  </div>
+  <div jwcid="@common/QuickHelp" value="message:help.restart">restart help text...</div>
+  <span jwcid="@common/ErrorMsg"/>
+  <div jwcid="@If" condition="ognl:generateProfileIds != null">
+  	<span jwcid="@device/ConfirmProfileGeneration"
+        validator="bean:validator"
+        profileManager="ognl:phoneProfileManager"
+        deviceIds="ognl:generateProfileIds"/>
+  </div>
+  <div jwcid="@Else">
+  <form jwcid="phoneManagement@Form" delegate="bean:validator">
+    <ul class="component-links">
+      <li>
+        <span jwcid="@phone/ModelSelector"/>
+      </li>
+    </ul>
+    <ul class="component-submit">
+      <li>
+        <span jwcid="@setting/GroupFilter"
+          selectedGroupId="ognl:groupId"
+          groups="ognl:phoneContext.groups"
+          queryText="ognl:queryText"
+          searchMode="ognl:searchMode"
+          unassignedOptionAvailable="ognl:true"
+          unassignedMode="ognl:unassignedMode" />
+      </li>
+    </ul>
+    <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:tableModel"/>
+    <ul jwcid="@phone/PhoneTableActions"
+      selections="bean:selections"
+      generateProfileIds="ognl:generateProfileIds"
+      actionModel="ognl:actionModel"/>
+  </form>
+  </div>
+</div>

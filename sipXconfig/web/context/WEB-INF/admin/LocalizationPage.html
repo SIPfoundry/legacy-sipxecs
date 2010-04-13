@@ -1,0 +1,48 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickHelp" value="message:description" />
+  <span jwcid="@common/ErrorMsg" />
+  <form jwcid="languageForm@Form">
+	<fieldset>
+	    <table>
+	      <tr>
+			<td jwcid="@common/InstalledLanguages" language="ognl:language" />
+		  </tr>
+		</table>
+		<ul class="component-submit">
+		  <li>
+			<span jwcid="setLanguage@Submit" action="listener:changeLanguage" value="message:button.setLanguage"/>
+		  </li>
+		</ul>
+	</fieldset>
+  </form>
+  <form jwcid="regionForm@Form">
+	<fieldset>
+	  <table>
+		<tr>
+		  <td jwcid="regionLabel@common/FieldPanel" field="component:region" label="message:label.region" description="message:region.description" for="localization:region">
+			<input jwcid="region@PropertySelection" model="ognl:regionList" value="ognl:region" id="localization:region"/>
+		  </td>
+		</tr>
+	  </table>
+		<ul class="component-submit">
+		  <li>
+			<span jwcid="changeRegion@Submit" action="listener:changeRegion" value="message:button.changeRegion"/>
+		  </li>
+		</ul>
+	</fieldset>
+  </form>
+  <form jwcid="installForm@Form">
+	<fieldset>
+	  <table>
+		<tr jwcid="@common/FieldPanel" field="component:localization" label="message:label.localizationPackage" description="message:localizationPackage.description">
+			<td jwcid="localization@Upload" file="ognl:uploadFile" />
+		</tr>
+	  </table>
+		<ul class="component-submit">
+		  <li>
+			<span jwcid="install@Submit" action="listener:uploadLocalizationPackage" value="message:button.install"/>
+		</li>
+	  </ul>
+	</fieldset>
+  </form>
+</div>

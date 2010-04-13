@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <users 
+        user_id="[user_id]"
+        first_name="FirstName"
+        last_name="LastName"
+        is_shared="false"
+        pintoken="password"
+        sip_password="sippassword"
+        user_name="userid"
+        value_storage_id="[null]"
+        address_book_entry_id="[address_book_entry_id]"
+        branch_id="[null]"
+        user_type="C"
+        />
+    <user_alias user_id="[user_id]" alias="1234"/>
+</dataset>

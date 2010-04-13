@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.paging" default-lazy="false">
+
+  <class name="PagingServer" table="paging_server">
+    <id name="id" column="paging_server_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">paging_group_seq</param>
+      </generator>
+    </id>
+    <property name="prefix" />
+    <property name="sipTraceLevel" />
+  </class>
+
+  <class name="PagingGroup" table="paging_group">
+    <id name="id" column="paging_group_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">paging_group_seq</param>
+      </generator>
+    </id>
+    <property name="pageGroupNumber" />
+    <property name="description" />
+    <property name="enabled" />
+    <property name="sound" />
+    <property name="timeout" />
+    <set name="users" table="user_paging_group">
+      <key column="paging_group_id" />
+      <many-to-many column="user_id" class="org.sipfoundry.sipxconfig.common.User" />
+    </set>
+  </class>
+
+  <query name="countPagingGroupWithSameName">
+    <![CDATA[select count (*) from PagingGroup pg where pg.id = :pagingGroupId and pg.pageGroupNumber = :pageGroupNumber]]>
+  </query>
+
+  <query name="anotherPagingGroupWithSameName">
+    <![CDATA[select count (*) from PagingGroup pg where pg.pageGroupNumber = :pageGroupNumber]]>
+  </query>
+</hibernate-mapping>

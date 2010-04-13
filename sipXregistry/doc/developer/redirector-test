@@ -1,0 +1,350 @@
+#! /bin/sh
+
+# Test the redirector modules.
+
+# To be run from the sipXregistry/doc/developer directory.  Looks for
+# ../../config.log or ../../build/config.log to find the values of the
+# SIPX_* configuration variables.  From $SIPX_CONFDIR/config.defs, it
+# determines the SIP configuration, including the domain name and the
+# registry port number.
+
+# Starts and stops sipregistrar itself.  If sipregistrar is already
+# running, this script will fail.
+
+# Executes a series of tests by sending requests to sipregistrar and
+# recording the responses.  Tests are composed of methods and
+# extensions.  Treatment of extensions is fixed by loading the
+# $SIPX_DBDIR/*.xml and $SIPX_CONFDIR/*.xml files at the start of this
+# script.
+
+# Each test request is logged to stdout, along with the response line
+# and Contact: headers from the responses.  Any lines in
+# $SIPX_LOGDIR/sipregistrar.log containing "SipRedirector" are also
+# logged.  It may help to set "SIP_REGISTRAR_LOG_LEVEL : DEBUG" in
+# $SIPX_CONFDIR/registrar-config.
+
+# Tests:
+#
+# 100 - no contacts
+# 200 - a registration
+# 300 - an alias
+# 400 - mapping rule with no permission test
+# 401 - mapping rule with permission test
+# 500 - fallback rule is activated
+# 501 - fallback rule is not activated
+# *76 - global call pick-up
+
+# Debugging statements start with '##'.
+
+# Set up the configuration variables.
+
+# Absolute directory name for temporary files.
+TMPDIR=${TMPDIR:-/tmp}/$$
+mkdir $TMPDIR
+
+# Read the config.log file to get the SIPX_* variables.
+# Determine the real file name.
+F1=../../config.log
+F2=../../build/config.log
+
+if [[ -e $F1 ]]
+then
+    CONFIG_FILE=$F1
+elif [[ -e $F2 ]]
+then
+    CONFIG_FILE=$F2
+else
+    echo >&2 "Cannot find config file in either '$F1' or '$F2'"
+    exit 1
+fi
+
+# Extract the variable definitions.
+grep '^[A-Za-z0-9_]*=' $CONFIG_FILE >$TMPDIR/config
+source $TMPDIR/config
+
+# Recursively substitute variable references in the definitions.
+function substitute_in () {
+    while eval "[[ \"\$$1\" =~ '\\\$' ]]"
+    do
+      ##eval "echo Replacing \"\$$1\""
+      eval "eval \"$1=\$$1\""
+      ##eval "echo with \"\$$1\""
+    done
+}
+# Here are the variables we need.
+substitute_in SIPX_BINDIR
+substitute_in SIPX_CONFDIR
+substitute_in SIPX_DBDIR
+substitute_in SIPX_LOGDIR
+##echo SIPX_BINDIR=$SIPX_BINDIR
+##echo SIPX_CONFDIR=$SIPX_CONFDIR
+##echo SIPX_DBDIR=$SIPX_DBDIR
+##echo SIPX_LOGDIR=$SIPX_LOGDIR
+
+# Get the config.defs parameters.
+source $SIPX_CONFDIR/config.defs
+
+# Get the global call pick-up code.
+GLOBAL_CALL_PICKUP=$(
+    grep <$SIPX_CONFDIR/registrar-config \
+	'^ *SIP_REGISTRAR_GLOBAL_PICKUP_ID *:' |
+    sed -e 's/^ *SIP_REGISTRAR_GLOBAL_PICKUP_ID *: *//' -e 's/ *$//'
+    )
+# Provide "*76" as the default.
+GLOBAL_CALL_PICKUP="${GLOBAL_CALL_PICKUP:-*76}"
+
+# Set up the configuration files.
+
+echo Loading IMDB...
+
+# Set up the registration database.
+# Calculate an appropriate expiration time for registrations.
+EXPIRES=$( date -d'next hour' +%s )
+cat >$TMPDIR/registration.xml <<EOF
+<?xml version="1.0" standalone="yes" ?>
+<items type="registration">
+    <item>
+        <callid>3f82496d-e14dcfcb-cf605e4@10.1.20.231</callid>
+        <cseq>4</cseq>
+        <uri>sip:200@$SIPXCHANGE_DOMAIN_NAME</uri>
+        <contact>&lt;sip:200@10.1.20.231;transport=udp&gt;</contact>
+        <qvalue />
+        <expires>$EXPIRES</expires>
+    </item>
+    <item>
+        <callid>3f82496d-e14dcfcb-cf605e4xx@10.1.20.231</callid>
+        <cseq>4</cseq>
+        <uri>sip:501@$SIPXCHANGE_DOMAIN_NAME</uri>
+        <contact>&lt;sip:501@10.1.20.231;transport=udp&gt;</contact>
+        <qvalue />
+        <expires>$EXPIRES</expires>
+    </item>
+</items>
+EOF
+# Set up the IMDB.
+cp $TMPDIR/registration.xml $SIPX_DBDIR/registration.xml
+
+# Set up the alias database.
+cat >$TMPDIR/alias.xml <<EOF
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<items type="alias" xmlns='http://www.sipfoundry.org/sipX/schema/xml/alias-00-00'>
+    <item>
+        <identity>300@$SIPXCHANGE_DOMAIN_NAME</identity>
+        <contact>&quot;Carol Roe&quot;&lt;sip:300alias@$SIPXCHANGE_DOMAIN_NAME&gt;</contact>
+    </item>
+    <item>
+        <identity>600@$SIPXCHANGE_DOMAIN_NAME</identity>
+        <contact>&lt;sip:600-1@$SIPXCHANGE_DOMAIN_NAME&gt;</contact>
+    </item>
+    <item>
+        <identity>600@$SIPXCHANGE_DOMAIN_NAME</identity>
+        <contact>&lt;sip:600-2@$SIPXCHANGE_DOMAIN_NAME&gt;</contact>
+    </item>
+    <!-- Make sure that one q field parameter uses "q" and one uses "Q",
+         to test for case-insensitivity of processing routines. -->
+    <item>
+        <identity>600@$SIPXCHANGE_DOMAIN_NAME</identity>
+        <contact>&lt;sip:600-3@$SIPXCHANGE_DOMAIN_NAME&gt;;q=0.8</contact>
+    </item>
+    <item>
+        <identity>600@$SIPXCHANGE_DOMAIN_NAME</identity>
+        <contact>&lt;sip:600-4@$SIPXCHANGE_DOMAIN_NAME&gt;;Q=0</contact>
+    </item>
+</items>
+EOF
+# Set up the IMDB.
+cp $TMPDIR/alias.xml $SIPX_DBDIR/alias.xml
+
+# Set up the permission database.
+cat >$TMPDIR/permission.xml <<EOF
+<?xml version="1.0" standalone="yes" ?>
+<items type="permission">
+    <item>
+        <identity>401@$SIPXCHANGE_DOMAIN_NAME</identity>
+        <permission>Voicemail</permission>
+    </item>
+</items>
+EOF
+# Set up the IMDB.
+cp $TMPDIR/permission.xml $SIPX_DBDIR/permission.xml
+
+# Set up the mapping rules.
+cat >$SIPX_CONFDIR/mappingrules.xml <<EOF
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+
+  <!-- Restrict changes to the local domain -->
+  <hostMatch>
+    <hostPattern>$SIPXCHANGE_DOMAIN_NAME</hostPattern>
+
+    <userMatch>
+      <userPattern>400</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:400mapped@{mediaserver}&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+    <userMatch>
+      <userPattern>xxx</userPattern>
+      <permissionMatch>
+        <permission>Voicemail</permission>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}%2Fcgi-bin%2Fvoicemail%2Fmediaserver.cgi%3Faction%3Ddeposit%26mailbox%3D{digits}&gt;;q=0.1</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+  </hostMatch>
+</mappings>
+EOF
+
+# Set up the fallback rules.
+cat >$SIPX_CONFDIR/fallbackrules.xml <<EOF
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00'>
+
+  <hostMatch>
+    <hostPattern>$SIPXCHANGE_DOMAIN_NAME</hostPattern>
+
+    <userMatch>
+      <userPattern>5xx</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>{digits}fallback</user>
+          <host></host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+
+  </hostMatch>
+</mappings>
+EOF
+
+# Set up the credential database.
+cat >$TMPDIR/credential.xml <<EOF
+<?xml version="1.0" standalone="yes" ?>
+<items type="credential">
+    <item>
+        <realm>$SIPXCHANGE_DOMAIN_NAME</realm>
+        <uri>&quot;Mary Smith&quot;&lt;sip:111@$SIPXCHANGE_DOMAIN_NAME&gt;</uri>
+        <userid>111</userid>
+        <passtoken>fdaaefb0775a705718981664d9491386</passtoken>
+        <authtype>DIGEST</authtype>
+    </item>
+    <item>
+        <realm>$SIPXCHANGE_DOMAIN_NAME</realm>
+        <uri>&quot;James Johnson&quot;&lt;sip:222@$SIPXCHANGE_DOMAIN_NAME&gt;</uri>
+        <userid>222</userid>
+        <passtoken>f3ba4d42a7eaaa8e2d3a6817c60fb5fb</passtoken>
+        <authtype>DIGEST</authtype>
+    </item>
+    <item>
+        <realm>$SIPXCHANGE_DOMAIN_NAME</realm>
+        <uri>&quot;Patricia Williams&quot;&lt;sip:333@$SIPXCHANGE_DOMAIN_NAME&gt;</uri>
+        <userid>333</userid>
+        <passtoken>c323b1e835c5913cf9a59d8a64906036</passtoken>
+        <authtype>DIGEST</authtype>
+    </item>
+    <item>
+        <realm>$SIPXCHANGE_DOMAIN_NAME</realm>
+        <uri>&quot;John Jones&quot;&lt;sip:444@$SIPXCHANGE_DOMAIN_NAME&gt;</uri>
+        <userid>444</userid>
+        <passtoken>2c859ae17993ed13c08dd67ea41e09c5</passtoken>
+        <authtype>DIGEST</authtype>
+    </item>
+    <item>
+        <realm>$SIPXCHANGE_DOMAIN_NAME</realm>
+        <uri>&quot;Linda Brown&quot;&lt;sip:555@$SIPXCHANGE_DOMAIN_NAME&gt;</uri>
+        <userid>555</userid>
+        <passtoken>851a8e95b813f5683a796ce2f7418904</passtoken>
+        <authtype>DIGEST</authtype>
+    </item>
+    <item>
+        <realm>$SIPXCHANGE_DOMAIN_NAME</realm>
+        <uri>&quot;Robert Davis&quot;&lt;sip:666@$SIPXCHANGE_DOMAIN_NAME&gt;</uri>
+        <userid>666</userid>
+        <passtoken>61600dbe3fe660002c8fb74c1d4b0436</passtoken>
+        <authtype>DIGEST</authtype>
+    </item>
+    <item>
+        <realm>$SIPXCHANGE_DOMAIN_NAME</realm>
+        <uri>&quot;Barbara Miller&quot;&lt;sip:777@$SIPXCHANGE_DOMAIN_NAME&gt;</uri>
+        <userid>777</userid>
+        <passtoken>9a111ef4e0f3856f48c906f1246b874c</passtoken>
+        <authtype>DIGEST</authtype>
+    </item>
+    <item>
+        <realm>$SIPXCHANGE_DOMAIN_NAME</realm>
+        <uri>&quot;Michael Wilson&quot;&lt;sip:888@$SIPXCHANGE_DOMAIN_NAME&gt;</uri>
+        <userid>888</userid>
+        <passtoken>42fb2e244198e35052ec33597f7ea273</passtoken>
+        <authtype>DIGEST</authtype>
+    </item>
+    <item>
+        <realm>$SIPXCHANGE_DOMAIN_NAME</realm>
+        <uri>&quot;Elizabeth Moore&quot;&lt;sip:999@$SIPXCHANGE_DOMAIN_NAME&gt;</uri>
+        <userid>999</userid>
+        <passtoken>096cb66b3266075b5aa07097efb6f86d</passtoken>
+        <authtype>DIGEST</authtype>
+    </item>
+</items>
+EOF
+# Set up the IMDB.
+cp $TMPDIR/credential.xml $SIPX_DBDIR/credential.xml
+
+# Start the registrar.
+
+# Have to pushd/popd rather than using cd with ( ... ), because we need
+# to have sipregistrar as a direct subjob of this bash.
+pushd $SIPX_LOGDIR >/dev/null
+$SIPX_BINDIR/sipregistrar >$TMPDIR/registrar &
+popd >/dev/null
+# Wait for it to be ready.
+##echo sleep 5
+sleep 5
+##jobs
+
+##netstat -a --inet -p
+
+# Perform the tests.
+
+for EXTENSION in 100 200 300 400 401 500 501 600 "~~sp~allcredentials"
+do 
+  for METHOD in INVITE SUBSCRIBE
+  do
+    # Remember how long the log file is now.
+    L=$( wc -l <$SIPX_LOGDIR/sipregistrar.log )
+
+    # Show the test.
+    echo
+    echo Test: $METHOD "$EXTENSION@$SIPXCHANGE_DOMAIN_NAME"
+    echo
+    # Execute the test.
+    sipsend >$TMPDIR/output \
+	$SIPXCHANGE_DOMAIN_NAME:$REGISTRAR_SERVER_SIP_PORT $METHOD \
+	"$EXTENSION@$SIPXCHANGE_DOMAIN_NAME"
+    # Show the interesting parts of the response: the reply line and the
+    # Contact: headers.
+    head -1 $TMPDIR/output
+    grep -i '^Contact:' $TMPDIR/output
+    echo
+    # Show the addContact lines from sipregistrar.log.
+    tail --lines=+$L $SIPX_LOGDIR/sipregistrar.log |
+    grep 'SipRegistrar:"SipRedirector' |
+    sed -e 's/^.*:SipRegistrar:"/"/'
+    echo
+
+    # Allow log file to be flushed to disk.
+    sleep 5
+  done
+done
+
+# Stop the registrar.
+
+# Note how the job name must be specified.
+kill -TERM %\$SIPX_BINDIR/sipregistrar
+
+##sleep 1
+##ps -C sipregistrar

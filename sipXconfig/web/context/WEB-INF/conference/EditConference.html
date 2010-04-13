@@ -1,0 +1,79 @@
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:tabNames" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@If" condition="ognl:bridgeId != null">
+	    <div id="breadcrumbs">
+	        <a jwcid="@PageLink" page="conference/ListBridges"><span key="crumb.conferencing" /></a>
+	        <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" />
+	        <a jwcid="@DirectLink" listener="listener:viewBridge" parameters="ognl:bridge.id">
+	            <span jwcid="@Insert" value="ognl:bridge.name" />
+	        </a>
+	        <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" />
+	        <span jwcid="@If" condition="ognl:conference.isNew()"><span key="crumb.newConference"/></span>
+	        <span jwcid="@Else"><span jwcid="@Insert" value="ognl:conference.name" /></span>
+	    </div>
+    </span>
+    <span jwcid="@Any" id="messageArea">
+        <span jwcid="@common/ErrorMsg" />
+    </span>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <div jwcid="configTab@Block">
+    <form jwcid="form@Form" id="conference:form"
+      delegate="bean:validator"
+      listener="listener:formSubmit">
+      <span jwcid="@If" condition="ognl:userSession.isAdmin()">
+         <fieldset jwcid="itemCommon" nameValidator="spring-validators:required,validSipUserId" />
+         <fieldset jwcid="@conference/ConferenceOwnerPanel" conference="ognl:conference" />
+         <span jwcid="@If" condition="ognl:conference.isNew() && bridgeId == null">
+         <table>
+            <div jwcid="@conference/BridgeSelector" bridge="ognl:bridge" validators="validators:required[%error.bridgeSelect]" />
+         </table>
+         </span>
+      </span>
+      <span jwcid="@Else">
+	      <table>
+	          <tr>
+	              <td><label>Name</label></td>
+	              <td><span jwcid="@Insert" value="ognl:conference.name" /></td>
+	          </tr>
+	          <tr>
+	              <td><label>Extension</label></td>
+	              <td><span jwcid="@Insert" value="ognl:conference.extension" /></td>
+	          </tr>
+	      </table>
+          <fieldset jwcid="@common/ItemCommon" item="ognl:conference"
+			useEnabled="ognl:true" useExtension="ognl:false" useName="ognl:false" />
+      </span>
+      <fieldset jwcid="@If" condition="ognl:conference.hasOwner">
+        <table>
+          <tr jwcid="@common/FieldPanel" for="autorecord" field="component:autorecord"
+              label="message:label.autorecord" description="message:description.autorecord">
+            <input jwcid="autorecord@Checkbox" id="conference:autorecord" value="ognl:conference.autorecorded" />
+          </tr>
+        </table>
+      </fieldset>
+      <fieldset jwcid="@setting/SettingsFieldset"
+        settings="ognl:conference.configSettings"
+        renderGroupTitle="false" />
+      <span jwcid="formActions"/>
+    </form>
+  </div>
+  <div jwcid="participantsTab@Block">
+     <div jwcid="@conference/ActiveConferenceControl" conference="ognl:conference" validator="bean:validator" />
+  </div>
+  <div jwcid="dimdimTab@Block">
+     <div jwcid="@conference/DimDimPanel"
+       conference="ognl:conference"
+       callback="ognl:callback"
+       validator="bean:validator" />
+  </div>
+
+  <div jwcid="chatTab@Block">
+     <div jwcid="@conference/ChatPanel"
+       conference="ognl:conference"
+       callback="ognl:callback"
+       validator="bean:validator" />
+  </div>
+
+</div>

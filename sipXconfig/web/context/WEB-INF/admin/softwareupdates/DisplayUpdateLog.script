@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+    "-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+    "http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+	<include-script resource-path="/org/sipfoundry/sipxconfig/js/jquery-1.4.2.min.js"/>
+    <body>
+    <![CDATA[
+
+        var logtextDiv, checkbox;
+
+		var timer = null;
+        var start_position = 1;
+		var text;
+		var url_base = "http://" + getUrlBase();
+
+        function scrollTimer() {
+
+                if (timer) clearTimeout(timer);
+
+				var url = url_base + "/retrieve-update-log.cgi?start_pos=" + start_position;
+				$.getJSON(url + "&jsoncallback=?", function(data) {
+					text = data.Message;
+
+					if (text != undefined) {
+						start_position += (text.split(/<br\/>/g).length - 1);
+						text = text.replace(/\n/g, "<br/>");
+
+						logtextDiv.innerHTML=logtextDiv.innerHTML + text;
+
+						if (checkbox.checked == true)
+							logtextDiv.scrollTop = logtextDiv.scrollHeight;
+					}
+				});
+
+
+                // keep on keepin' on
+                if (text != undefined && text.search(/END/) != -1) {
+	                updatePageComponentsAfterUpdate();
+	                clearTimeout(timer);
+	                timer = setTimeout('checkServer()', 2000);
+                } else
+					timer = setTimeout("scrollTimer()", 1000);
+        }
+
+		function getUrlBase() {
+			var host = location.host;
+			var pos = host.indexOf(":");
+			if (pos != -1)
+				return host.substr(0, pos);
+			else
+				return host;
+		}
+
+		function updatePageComponentsAfterUpdate() {
+			$('#scrollPanel').hide();
+			$('#installationIndicator').hide();
+			$('#restartingIndicator').show();
+			$('#updateTitle').text("Server is restarting...");
+		}
+
+		function removeBrokenLinks() {
+			$('#navigation').hide();
+			$('.bannerLinkDivider').hide();
+			$('.linkHome').hide();
+			$('.linkHelp').hide();
+			$('.linkLogout').hide();
+			$('#searchForm').hide();
+		}
+
+		function checkServer() {
+			$.ajax({
+			  url: location.href,
+			  cache: false,
+			  success: function(data, status) {
+				if (data != undefined && data != '') {
+					serverIsUp();
+				} else
+					timer = setTimeout('checkServer()', 2000);
+			  },
+			  error: function() {
+				timer = setTimeout('checkServer()', 2000);
+			  }
+			});
+		}
+
+		function serverIsUp() {
+			$('#restartingIndicator').hide();
+			$('#updateTitle').text("Restart complete.");
+			$('#goToLoginButton').show();
+			$('#goToLoginButton').click(function() {
+				location.href = url_base;
+			});
+		}
+
+    ]]>
+    </body>
+    <initialization>
+		jQuery(document).ready(function() {
+				removeBrokenLinks();
+
+				logtextDiv = document.getElementById('logtext');
+				checkbox = document.getElementById('scroll');
+				timer = setTimeout("scrollTimer()", 1000);
+	        });
+    </initialization>
+</script>

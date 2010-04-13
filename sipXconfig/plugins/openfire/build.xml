@@ -1,0 +1,7 @@
+<project name="openfire" default="default">
+
+	<property name="project.dir" value="plugins/openfire" />
+	<property name="plugin.models.dir" value="etc/openfire" />
+	<property name="plugin.name" value="openfire-service" />
+	<import file="../plugins.build.xml" />
+</project>

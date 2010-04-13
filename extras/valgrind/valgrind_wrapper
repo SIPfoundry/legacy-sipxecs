@@ -1,0 +1,52 @@
+#! /bin/bash
+###
+### Wrapper for valgrind
+###
+### Use this to run a sipXecs component under valgrind for memory usage checking. 
+### To install this for some component sipxABC:
+###  
+### 1) Copy this script to PREFIX/bin/valgrind_wrapper
+###
+### 2) Copy valgrind.suppressions.sipX into PREFIX/etc/sipxpbx/
+###
+### 3) Edit PREFIX/etc/sipxpbx/process.d/sipxabc.process.xml
+###    Find this element:
+###            <start control="true">
+###                <execute command="PREFIX/bin/sipxabc.sh"
+###                         parameters=""
+###                         defaultdir="PREFIX/var/log/sipxpbx" />
+###            </start>
+###    Change the 'execute' element to:
+###                <execute command="PREFIX/bin/sipxabc.sh.vg"
+###                         parameters=""
+###                         defaultdir="PREFIX/var/log/sipxpbx" />
+###
+### 4) Copy PREFIX/bin/sipxabc.sh to PREFIX/bin/sipxabc.sh.vg
+###
+### 5) Edit PREFIX/bin/sipxabc.sh.vg
+###    Find the line where the binary component is executed:
+###
+###       exec PREFIX/bin/sipabc $Args
+###
+###    Change to:
+###
+###       exec PREFIX/bin/valgrind_wrapper PREFIX/bin/sipabc $Args
+###
+### The valgrind output will be in PREFIX/log/sipxpbx/sipxabc.valgrind.log
+### (note that most of the output is not written until the process exits).
+###
+
+target=`basename $1`
+confdir=`sipxportlib-config --conf`
+logdir=`sipxportlib-config --log`
+
+### Add the following to get memcheck to give you suppressions for each leak
+#    --gen-suppressions=all \
+
+exec valgrind \
+    --tool=memcheck \
+    --freelist-vol=10000000 \
+    --suppressions=${confdir}/valgrind.suppressions.sipX \
+    --leak-check=full \
+    "$@" \
+    2> ${logdir}/${target}.valgrind.log

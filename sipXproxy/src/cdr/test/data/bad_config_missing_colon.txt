@@ -1,0 +1,2 @@
+# comment line, should be ignored
+this config line is missing a colon, so it will cause a parse error

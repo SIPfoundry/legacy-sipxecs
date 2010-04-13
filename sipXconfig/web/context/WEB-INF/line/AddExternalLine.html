@@ -1,0 +1,32 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+      <span jwcid="@common/ErrorMsg"/>
+	  <form jwcid="@Form" delegate="ognl:beans.validator">
+      <fieldset id="form:externalLine">
+        <table>
+          <tbody>
+            <tr jwcid="displayNamePanel">
+                <input jwcid="displayName" id="line:displayName"/>
+            </tr>
+            <tr jwcid="userIdPanel">
+                <input jwcid="userId" id="line:userId"/>
+            </tr>
+            <tr jwcid="passwordConfirmPanel"/>
+            <tr jwcid="registrationServerPanel">
+                <input jwcid="registrationServer" id="line:registrationServer"/>
+            </tr>
+            <tr jwcid="voiceMailPanel">
+                <input jwcid="voiceMail" id="line:voiceMail"/>
+            </tr>
+          </tbody>
+        </table>
+        </fieldset>
+        <ul jwcid="formActions"/>
+		</form>
+	</div>
+</body>
+</html>

@@ -1,0 +1,110 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <p jwcid="@If" condition="ognl:backupFiles.empty">
+    <div jwcid="@common/QuickHelp" value="message:description" />
+  </p>
+  <p jwcid="@Else">
+    <span jwcid="@If" condition="ognl:ftpBackupPlanActive">
+      <span key="ftpBackupCompleted">Success...</span>
+    </span>
+    <span jwcid="@Else">
+      <span key="backupCompleted">Success...</span>
+      <div jwcid="@common/QuickHelp" value="message:helpText" />
+      <ul>
+        <li jwcid="results@For" source="ognl:backupFiles" value="ognl:backupFile">
+          <span jwcid="link@common/DownloadLink"
+            fileName="ognl:backupFile.name"
+            dirName="ognl:backupFile.parentFile.path"
+            contentType="literal:tar/x-gzip">
+            <span jwcid="@Insert" value="ognl:backupFile.path"/>
+          </span>
+        </li>
+      </ul>
+    </span>
+  </p>
+  <span jwcid="@common/ErrorMsg" />
+  <form jwcid="backupPlan@Form" listener="listener:formSubmit">
+    <table>
+      <tbody>
+         <tr jwcid="@common/FieldPanel"
+             for="backupPlan:type"
+             field="component:type"
+             label="message:backupPlan.label"
+             description="message:backupPlan.description">
+                <select jwcid="type@PropertySelection"
+                  model="ognl:backupPlanTypeModel"
+                  value="ognl:backupPlanType"
+                  id="backupPlan:type"
+                  onchange="javascript:this.form.submit();"/>
+          </tr>
+        </tbody>
+      </table>
+  </form>
+  <span jwcid="F_Panel@Block">
+     <span jwcid="configuration@admin/BackupRestoreConfigurationPanel" />
+  </span>
+  <span jwcid="L_Panel@Block"/>
+  <span jwcid="@RenderBlock" block="ognl:components.get(backupPlanType + '_Panel')" />
+
+  <form jwcid="form@Form" delegate="bean:validator">
+    <fieldset>
+      <legend><span key="label.files"/></legend>
+      <table>
+        <tbody>
+          <tr>
+            <td>
+              <input jwcid="checkConfigs@Checkbox" id="backup:check:configs" value="ognl:backupPlan.configs"/>
+              <label for="backup:check:configs"><span key="label.configs"/></label>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <input jwcid="checkVoicemail@Checkbox" id="backup:check:voicemail" value="ognl:backupPlan.voicemail"/>
+              <label for="backup:check:voicemail"><span key="label.voicemail"/></label>
+            </td>
+          </tr>
+          <tr jwcid="@common/FieldPanel"
+            for="backup:limit"
+            label="message:label.limitCount"
+            field="component:limitCount"
+            description="message:description.limitCount">
+              <select id="backup:limit" jwcid="limitCount@PropertySelection"
+                model="ognl:backupLimitSelectionModel"
+                value="ognl:backupPlan.limitedCount" />
+          </tr>
+          <tr jwcid="@common/FieldPanel"
+            for="backup:emailAddress"
+            label="message:label.emailAddress"
+            field="component:emailAddress"
+            description="message:description.emailAddress" >
+              <input jwcid="emailAddress@TextField"
+                id="backup:emailAddress"
+                value="ognl:backupPlan.emailAddress"
+                displayName="message:label.emailAddress"
+                validators="validators:email"/>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul class="form-actions">
+      <li><input jwcid="backup@Submit" id="backup:now" listener="listener:backup" value="message:backupNow" /></li>
+    </ul>
+    <div jwcid="@common/QuickHelp" value="message:msg.schedule" />
+    <fieldset>
+      <legend><span key="label.schedule">Schedule</span></legend>
+      <p jwcid="schedulesIterate@For" source="ognl:backupPlan.schedules" value="ognl:schedule">
+        <input jwcid="dailyScheduleEnabled@Checkbox" value="ognl:schedule.enabled" />
+        <select jwcid="dailyScheduledDay@PropertySelection"
+          model="bean:scheduledDaysPropertyModel"
+          value="ognl:schedule.scheduledDay" />
+        <input jwcid="dailyScheduledTime@TextField"
+			validators="validators:required"
+			translator="hivemind:spring:timeOfDayTranslator"
+			value="ognl:schedule.timeOfDay"
+			displayName="message:label.timeOfDay"/>
+      </p>
+      <ul class="form-actions">
+        <li><input jwcid="ok@Submit" id="backup:ok" listener="listener:ok" value="message:button.apply" /></li>
+      </ul>
+    </fieldset>
+  </form>
+</div>

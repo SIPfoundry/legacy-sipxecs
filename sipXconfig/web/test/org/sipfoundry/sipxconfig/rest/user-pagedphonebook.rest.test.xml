@@ -1,0 +1,29 @@
+<phonebook>
+  <size>5</size>
+  <filtered-size>2</filtered-size>
+  <start-row>0</start-row>
+  <end-row>2</end-row>
+  <show-on-phone>n/a</show-on-phone>
+  <google-domain>mydomain.com</google-domain>
+  <entries>
+    <entry>
+      <id>-1</id>
+      <first-name>FirstName1</first-name>
+      <last-name>LastName1</last-name>
+      <number>200</number>
+      <contact-information>
+        <avatar>https://secure.gravatar.com/avatar</avatar>
+      </contact-information>
+    </entry>
+    <entry>
+      <id>-1</id>
+      <first-name>FirstName2</first-name>
+      <last-name>LastName2</last-name>
+      <number>201</number>
+      <contact-information>
+        <emailAddress>iHaveAn@email.com</emailAddress>
+        <avatar>https://secure.gravatar.com/avatar/3b3be63a4c2a439b013787725dfce802?s=80&amp;d=wavatar</avatar>
+      </contact-information>
+    </entry>
+  </entries>
+</phonebook>

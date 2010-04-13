@@ -1,0 +1,34 @@
+<!DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd">
+<dataset>
+  <dial_plan dial_plan_id="500"/>
+  
+  <auto_attendant auto_attendant_id="1000" name="a0" prompt="kuku.wav"/>
+  <auto_attendant auto_attendant_id="1001" name="a1" prompt="kuku.wav"/>
+  <auto_attendant auto_attendant_id="1002" name="a2" prompt="kuku.wav"/>
+  
+  <dialing_rule dialing_rule_id="2002" name="attendant_rule" position="0" dial_plan_id="500"
+    enabled="false"/>
+  
+  <attendant_dialing_rule attendant_dialing_rule_id="2002" working_time_attendant_id="1000"
+    working_time_attendant_enabled="false" holiday_attendant_id="1001"
+    holiday_attendant_enabled="true" after_hours_attendant_id="1002"
+    after_hours_attendant_enabled="true" extension="333" attendant_aliases="operator 0"/>
+  
+  <attendant_working_hours index="0" attendant_dialing_rule_id="2002" day="Monday" enabled="true"
+    start="2005-01-01 00:05:00.0" stop="2005-01-01 00:19:25.0"/>
+  <attendant_working_hours index="1" attendant_dialing_rule_id="2002" day="Tuesday" enabled="true"
+    start="2005-01-01 00:05:00.0" stop="2005-01-01 00:19:25.0"/>
+  <attendant_working_hours index="2" attendant_dialing_rule_id="2002" day="Wednesday" enabled="true"
+    start="2005-01-01 00:05:00.0" stop="2005-01-01 00:19:25.0"/>
+  <attendant_working_hours index="3" attendant_dialing_rule_id="2002" day="Thursday" enabled="true"
+    start="2005-01-01 00:05:00.0" stop="2005-01-01 00:19:25.0"/>
+  <attendant_working_hours index="4" attendant_dialing_rule_id="2002" day="Friday" enabled="true"
+    start="2005-01-01 00:05:00.0" stop="2005-01-01 19:25:00.0"/>
+  <attendant_working_hours index="5" attendant_dialing_rule_id="2002" day="Saturday" enabled="false"
+    start="2005-01-01 00:05:00.0" stop="2005-01-01 00:19:25.0"/>
+  <attendant_working_hours index="6" attendant_dialing_rule_id="2002" day="Sunday" enabled="false"
+    start="2005-01-01 00:05:00.0" stop="2005-01-01 00:19:25.0"/>
+  
+  <holiday_dates attendant_dialing_rule_id="2002" position="0" date="2005-05-12 00:00:00.0"/>
+  <holiday_dates attendant_dialing_rule_id="2002" position="1" date="2007-10-23 00:00:00.0"/>
+</dataset>

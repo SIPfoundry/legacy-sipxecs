@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!--
+  - Example fallbackrules.xml file
+  -->
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00'>
+  <hostMatch>
+    <hostPattern>example.edu</hostPattern>
+    <hostPattern>sipx.example.edu</hostPattern>
+    <hostPattern>10.1.20.20</hostPattern>
+
+    <userMatch>
+      <!-- Emergency dialing.  Allow both "911" and "9911". -->
+      <userPattern>sos</userPattern>
+      <userPattern>911</userPattern>
+      <userPattern>9911</userPattern>
+      <!-- Calls known to be coming from the boston site use only the boston gateway -->
+      <callerLocationMatch>
+        <callerLocation>boston</callerLocation>
+        <transform>
+          <user>911</user>
+          <host>pstn-boston-tw.example.edu</host>
+        </transform>
+      </callerLocationMatch>
+      <!-- Calls known to be coming from the boston site use only the seattle gateway -->
+      <callerLocationMatch>
+        <callerLocation>seattle</callerLocation>
+        <transform>
+          <user>911</user>
+          <host>pstn-seattle-tw.example.edu</host>
+        </transform>
+      </callerLocationMatch>
+      <!-- Calls whose location is not known use the shared gateway -->
+      <transform>
+        <user>911</user>
+        <host>pstn-gw.example.edu</host>
+      </transform>
+    </userMatch>
+
+    <userMatch>
+      <!-- 800 number dialing.  Allow optional "1" or "91" prefixes. -->
+      <userPattern>91800xxxxxxx.</userPattern>
+      <userPattern>1800xxxxxxx.</userPattern>
+      <userPattern>800xxxxxxx.</userPattern>
+      <transform>
+        <user>800{vdigits}</user>
+        <host>pstn-gw.example.edu</host>
+      </transform>
+    </userMatch>
+
+    <userMatch>
+      <!-- Local/long distance number dialing.
+           Allow optional "1" or "91" prefixes. -->
+      <userPattern>91[2-9]xxxxxxxxx.</userPattern>
+      <userPattern>1[2-9]xxxxxxxxx.</userPattern>
+      <userPattern>[2-9]xxxxxxxxx.</userPattern>
+      <!-- Calls known to be coming from the boston site prefer the boston gateway -->
+      <callerLocationMatch>
+        <callerLocation>boston</callerLocation>
+        <transform>
+          <user>{vdigits}</user>
+          <host>pstn-boston-tw.example.edu</host>
+          <fieldparams name='q'>0.9</fieldparams>
+        </transform>
+        <transform>
+          <user>{vdigits}</user>
+          <host>pstn-gw.example.edu</host>
+          <fieldparams name='q'>0.8</fieldparams>
+        </transform>
+      </callerLocationMatch>
+      <!-- Calls known to be coming from the boston site prefer the seattle gateway -->
+      <callerLocationMatch>
+        <callerLocation>seattle</callerLocation>
+        <transform>
+          <user>{vdigits}</user>
+          <host>pstn-seattle-tw.example.edu</host>
+          <fieldparams name='q'>0.9</fieldparams>
+        </transform>
+        <transform>
+          <user>{vdigits}</user>
+          <host>pstn-gw.example.edu</host>
+          <fieldparams name='q'>0.8</fieldparams>
+        </transform>
+      </callerLocationMatch>
+      <transform>
+        <user>{vdigits}</user>
+        <host>pstn-gw.example.edu</host>
+      </transform>
+    </userMatch>
+
+    <userMatch>
+      <!-- International number dialing.
+           Do not allow dialing intl numbers with a "9" prefix as this
+           would conflict with the long distance pattern "[2-9]xxxxxxxxx." -->
+      <userPattern>011x.</userPattern>
+      <transform>
+        <user>011{vdigits}</user>
+        <host>pstn-gw.example.edu</host>
+      </transform>
+    </userMatch>
+
+  </hostMatch>
+
+  <hostMatch>
+    <!-- Calls to example.org are routed via SIP through a session border controller -->
+    <hostPattern>example.org</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <transform>
+        <headerparams name='route'>sbc.example.edu</headerparams>
+      </transform>
+    </userMatch>
+  </hostMatch>
+
+</mappings>

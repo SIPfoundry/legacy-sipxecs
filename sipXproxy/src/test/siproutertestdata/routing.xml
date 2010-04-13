@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<routes>
+  <route mappingType="alias">
+
+    <routeFrom>external.example.net</routeFrom>
+
+    <routeTo>registrar.example.com</routeTo>
+
+  </route>
+  <route mappingType="local">
+
+    <routeFrom>example.com</routeFrom>
+    <routeFrom>internal.example.com</routeFrom>
+
+    <methodMatch>
+
+      <methodPattern>SUBSCRIBE</methodPattern>
+
+      <fieldMatch fieldName="Event">
+        <!-- Message waiting indication events -->
+        <fieldPattern>message-summary.*</fieldPattern>
+
+        <routeTo>status.example.com</routeTo>
+      </fieldMatch>
+
+      <!-- All other SUBSCRIBE requests go to the SIP registry service -->
+      <routeTo>REGISTRAR_SERVER_SUBSCRIBE</routeTo>
+
+    </methodMatch>
+
+    <!-- All other requests go to the SIP registry service -->
+    <routeTo>&lt;registrar.example.com;x-sipx-routetoreg&gt;</routeTo>
+
+  </route>
+</routes>

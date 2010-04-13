@@ -1,0 +1,86 @@
+<div jwcid="@common/Border" shellDelegate="bean:exhibitDelegate" borderTitle="ognl:borderTitle">
+  <link jwcid="@Relation"
+    href="/sipxconfig/app?component=export&page=cdr%2FCdrExhibit&service=export&session=T"
+    type="application/json"
+    rel="exhibit/data" />
+  <script jwcid="@Script" scriptAsset="asset:exhibitScript"/>
+  <dev style="display: none;">
+      <a jwcid="export@common/ExportLink" id="cdr:export" listener="listener:export">
+         <span key="link.export">Export</span>
+      </a>
+  </dev>
+  <div id="settings-content">
+    <div class="right-column">
+      <div ex:role="facet" ex:facetClass="TextSearch"></div>
+      <div ex:role="facet"
+        ex:expression=".callee_aor"
+        ex:sortMode="count"
+        ex:height="20em"
+        ex:facetLabel="To">
+      </div>
+      <div ex:role="facet"
+        ex:expression=".caller_aor"
+        ex:sortMode="count"
+        ex:height="20em"
+        ex:facetLabel="From">
+      </div>
+      <div ex:role="facet"
+        ex:expression=".termination"
+        ex:height="5em"
+        ex:facetLabel="Status">
+      </div>
+    </div>
+    <div class="component">
+      <div ex:role="viewPanel">
+        <div ex:role="view"
+          ex:orders=".start_time"
+          ex:possibleOrders=".start_time, .end_time, .caller_aor, .callee_aor, .termination">
+        </div>
+        <div ex:role="view"
+          ex:viewClass="Thumbnail"
+          ex:orders=".start_time"
+          ex:possibleOrders=".start_time, .end_time, .caller_aor, .callee_aor, .termination">
+        </div>
+        <div ex:role="exhibit-view"
+          ex:viewClass="Exhibit.TabularView"
+          ex:columns=".start_time, .end_time, .caller_aor, .callee_aor, .termination"
+          ex:columnLabels="Start, End, From, To, Status"
+          ex:columnFormats="date { mode: short }, date { mode: short }, text, text, text"
+          ex:rowStyler="sipxZebraStyler"
+          ex:tableStyler="sipxTableStyler"
+          ex:sortColumn="0"
+          ex:sortAscending="true">
+        </div>
+        <div ex:role="view"
+          ex:viewClass="Timeline"
+          ex:start=".start_time"
+          ex:end=".end_time"
+          ex:timelineHeight="600"
+          ex:topBandHeight="90"
+          ex:topBandUnit="hour"
+          ex:topBandPixelsPerUnit="480"
+          ex:bottomBandUnit="day"
+          ex:bottomBandPixelsPerUnit="48"
+          ex:colorKey=".termination">
+        </div>
+        <table ex:role="lens" class="cdr">
+          <tr>
+            <td>
+              <div>
+                Start: <span ex:content=".start_time"></span>
+                End: <span ex:content=".end_time"></span>
+              </div>
+              <div>
+                From: <span ex:content=".caller_aor"></span>
+                To: <span ex:content=".callee_aor"></span>
+              </div>
+              <div>
+                Status: <span ex:content=".termination"></span> <span ex:content=".failure_reason"></span>
+              </div>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

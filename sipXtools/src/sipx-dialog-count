@@ -1,0 +1,43 @@
+#!/usr/bin/perl
+
+my %Messages;
+my %Method;
+my %First;
+
+my $time;
+my $callid;
+
+while (<>)
+{
+    if ( m/^"(\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d)\.\d+Z":.*Call-Id: +(.+?)\\r\\n/i )
+    {
+        $time=$1;
+        $callid=$2;
+
+        if ( ! defined $Messages{$callid} )
+        {
+            $First{$callid} = $time;
+            if ( m|:INCOMING:.*"Read SIP message:.*Port: +\d+----\\n(\w+)\s+\S+\s+SIP/2\.0\\r\\n| )
+            {
+                $Method{$callid} = $1;
+            }
+        }
+
+        $Messages{$callid}++;
+    }
+}
+
+format STDOUT_TOP = 
+   Messages        Method           Time            Call-Id
+--------------   ----------   -------------------   ------------------------------------------------
+.
+
+format = 
+@#############   @>>>>>>>>>   @<<<<<<<<<<<<<<<<<<   @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+$Messages{$_},   $Method{$_} || "?", $First{$_},  $_
+.
+
+foreach ( sort { $Messages{$b} <=> $Messages{$a} } keys %Messages )
+{
+    write;
+}

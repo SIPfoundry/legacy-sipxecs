@@ -1,0 +1,31 @@
+'Twas the Night before shipping
+and throughout the source,
+no one was coding, 'cept Ranga of course!
+
+The buildbot was compiling its objects with care.
+Tracking symbols and binaries with flair.
+But just on a rather silly dare
+Ranga committed once more.
+
+The buildbot began to chug once again
+Through symbol and source file with legerdemain,
+Then suddenly it croaked and ground to a halt
+Was Damian or Woof this time at fault?
+Or perhaps this time it was Scott?
+ 
+'twas Scott allright in his usual style.
+It seems he had thrown in in a rather large pile
+Of un-adulterated Perl.
+
+And buildbot he started to do his thing again
+By this time, he had started to feel the pain
+Of many a re-compile
+
+What riches this time would the big machine bring
+While it ground on and did do it its thing.
+Would it make us all into persons of wealth 
+Or merely ruin our mental health?
+
+
+
+--Woof!

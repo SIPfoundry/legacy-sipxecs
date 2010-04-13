@@ -1,0 +1,51 @@
+  <table>
+    <tbody>
+      <tr jwcid="@common/FieldPanel"
+        for="location:fqdn"
+        label="message:label.fqdn"
+        field="component:fqdn"
+        description="message:description.fqdn" >
+        <input jwcid="fqdn@TextField"
+          id="location:fqdn"
+          value="ognl:locationBean.fqdn"
+          validators="spring-validators:required"
+          displayName="message:label.fqdn"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        for="location:address"
+        label="message:label.address"
+        field="component:address"
+        description="message:description.address" >
+        <input jwcid="address@TextField"
+          id="location:address"
+          value="ognl:locationBean.address"
+          validators="spring-validators:required,validIPv4"
+          displayName="message:label.address"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        for="location:description"
+        field="component:description"
+        label="message:description">
+        <textarea jwcid="description@TextArea"
+          id="location:description"
+          value="ognl:locationBean.name"
+          validators="validators:required,maxLength=255"
+          displayName="message:description"
+          cols="45" rows="5">
+        </textarea>
+      </tr>
+      <tr jwcid="@common/FieldPanel"
+        for="location:password"
+        label="message:label.password"
+        field="component:password"
+        description="message:description.password" >
+        <input jwcid="password@TextField"
+          id="location:password"
+          value="ognl:locationBean.password"
+          validators="spring-validators:required"
+          displayName="message:label.password"/>
+      </tr>
+      <tr jwcid="@branch/BranchSelection" branch="ognl:locationBean.branch"/>
+    </tbody>
+  </table>
+<ul jwcid="@common/FormActions" listener="listener:saveLocation" callback="ognl:callback"/>

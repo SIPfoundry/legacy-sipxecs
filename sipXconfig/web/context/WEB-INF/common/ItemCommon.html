@@ -1,0 +1,40 @@
+<fieldset jwcid="@common/OptionalElement" element="ognl:useFieldset ? 'fieldset' : null">
+  <table jwcid="@common/OptionalElement" element="ognl:useFieldset ? 'table' : null">
+    <tbody jwcid="@common/OptionalElement" element="ognl:useFieldset ? 'tbody' : null">
+    <span jwcid="ifUseEnabled@If" condition="ognl:useEnabled">
+      <tr jwcid="@common/FieldPanel" for="item:enabled" field="component:enabled" label="message:enabled">
+      	<input jwcid="enabled@Checkbox" type="checkbox" id="item:enabled" value="ognl:#this.item.enabled" disabled="ognl:disableEnabledCheckbox"/>
+      </tr>
+    </span>
+    <span jwcid="ifUseName@If" condition="ognl:useName">
+     <tr jwcid="@common/FieldPanel" for="item:name" field="component:name" label="message:name">
+		<!--[if IE]>
+		<input type="text" style="display: none;" disabled="disabled" size="1" />
+		<![endif]-->
+        <input jwcid="name@TextField" id="item:name"
+          maxlength="40"
+          validators="ognl:nameValidator"
+          displayName="message:name"
+          value="ognl:#this.item.name"/>
+     </tr>
+    </span>
+    <span jwcid="ifUseExtension@If" condition="ognl:useExtension">
+      <tr jwcid="@common/FieldPanel" for="item:extension" field="component:extension" label="message:extension">
+      	<input jwcid="extension@TextField" id="item:extension"
+          value="ognl:#this.item.extension"
+          validators="ognl:extensionValidator"
+          displayName="message:extension"
+          maxlength="15"/>
+      </tr>
+    </span>
+    <tr jwcid="@common/FieldPanel" for="item:description"  field="component:description" label="message:description">
+        <textarea jwcid="description@TextArea" id="item:description"
+          value="ognl:#this.item.description"
+          validators="validators:maxLength=255[Maximum allowed characters is 255]"
+          cols="45" rows="5">
+        </textarea>
+    </tr>
+    <tr jwcid="@RenderBody" />
+    </tbody>
+  </table>
+</fieldset>

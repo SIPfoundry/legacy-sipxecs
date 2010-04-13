@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/log4j.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/dom4j.jar" sourcepath="LIB_SRC/dom4j/1.6.1/src.zip"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-io.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/jaxen.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-codec.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/javax.servlet.jar" sourcepath="JRE_SRC"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/jetty.jar" sourcepath="LIB_SRC/jetty/src.zip"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-logging.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/javamail.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-common.jar"/>
+        <classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-client.jar"/>
+        <classpathentry kind="var" path="SIPX_COMMONS/lib/ws-commons-util.jar"/>
+	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar" sourcepath="SIPX_SRC_TOP/sipXopenfire"/>
+	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXrest/sipxrest.jar"/>
+	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
+</classpath>

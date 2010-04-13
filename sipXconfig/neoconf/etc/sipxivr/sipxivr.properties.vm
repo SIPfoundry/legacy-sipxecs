@@ -1,0 +1,30 @@
+#set($ivr=${service.getSettings().getSetting('ivr')})
+log.level=$ivr.getSetting('log.level').Value
+log.file=${service.logDir}/sipxivr.log
+
+freeswitch.eventSocketPort=$ivr.getSetting('freeswitch.eventSocketPort').Value
+
+ivr.dataDirectory=${service.vxmlDir}
+ivr.mailstoreDirectory=${service.mailstoreDir}
+ivr.promptsDirectory=${service.promptsDir}
+ivr.scriptsDirectory=${service.scriptsDir}
+ivr.docDirectory=${service.docDir}
+ivr.organizationPrefs=${service.vxmlDir}/organizationprefs.xml
+ivr.operatorAddr=sip:operator@${service.domainName}
+ivr.sipxchangeDomainName=${service.domainName}
+ivr.realm=${service.realm}
+ivr.httpsPort=$ivr.getSetting('httpsPort').Value
+ivr.voiceMailExpiry=$ivr.getSetting('voiceMailExpiry').Value
+ivr.mwiUrl=https://${location.fqdn}:${statusService.httpsPort}/cgi/StatusEvent.cgi
+ivr.configUrl=https://${location.fqdn}:8443
+ivr.3pccSecureUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}
+ivr.callHistoryUrl=https://$!{restService.fqdn}:$!{restService.httpsPort}/cdr/
+#if (${sipxServiceManager.isServiceInstalled('sipxOpenfireService')})
+ivr.openfireHost=$!{sipxServiceManager.getServiceParam('openfire-host')}
+ivr.openfireXmlRpcPort=$!{sipxServiceManager.getServiceParam('openfire-xml-rpc-port')}
+#if (${sipxServiceManager.getServiceByBeanId('sipxImbotService').isAvailable()})
+ivr.sendIMUrl=http://$!{sipxServiceManager.getServiceParam('openfire-host')}:$!{imbotService.httpPort}/IM
+#end
+#end
+ivr.nameDialPrefix=$ivr.getSetting('nameDialPrefix').Value
+ivr.defaultTui=$ivr.getSetting('defaultTui').Value

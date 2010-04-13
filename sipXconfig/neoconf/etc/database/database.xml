@@ -1,0 +1,1181 @@
+<!--
+  - Manages database creation, dropping and upgrading.  The file is processed
+  - by ANT and thus the format complies with ANT project files.
+  -
+  - How to add a database patch for a new feature
+  -
+  -   1. add sql commands to a file called xxx.sql in this directory, where xxx is any
+  -      meaningful label you choose to represent your new feature
+  -
+  -   2. define a ant target xxx by copying a patch in the section for the database version
+  -      defined at the top of schema.sql
+  -
+  -      Example:
+  
+      <target name="xxx" unless="xxx">
+          <db-patch patch="xxx"/>
+      </target>
+  
+  -
+  -   3. add a reference to your patch in the ant target for the last version
+  - 
+  -      Example:
+  -
+      <target name="versionN" ... >
+      ...
+      <antcall target="xxx"/>  
+  
+  
+  -
+  - How to run some code to initialize tables beyond simple SQL.  
+  -  1. Follow the same instructions for adding a patch and add this to your SQL
+  -
+  -       insert into initialization_task (name) values ('xxx');
+  -
+  -    where 'xxx' is any meaningful lable you choose to represent your new operation
+  - 
+  -   2. The follow instructions in 
+  -
+  -        sipXconfig/neoconf/src/org/sipfoundry/sipXconfig/common/InitializationTask.java
+  -
+  -     on how to catch the initialization task event
+  -
+  -
+  - How to write a database patch that will reset itself in case you anticipate more changes to the
+  - schema.  Otherwise, you end up writing patches to the patches, and this can be messy.  The only
+  - disadvantage to this is that each time the system starts up, your data will be reset, but for 
+  - brand new features in development, this is usually accepatable
+  -
+  - 1. Create sql patch file as you normally would and add a reference to it in the versionN section
+  -
+  - 2. By altering the dependency you will be telling ant to always reset and always apply your patch
+  
+
+      <target name="reset-xxx" if="xxx">
+          <sipx-sql>
+              drop table aaa_bbb;
+              drop sequence aaa_bbb_seq;
+              delete from patch where name = 'xxx
+          </sipx-sql>
+      </target>
+
+      <target name="xxx" depends="reset-xxx">
+          <db-patch patch="xxx"/>
+      </target>
+
+  -
+  -  TO TEST AND USE YOUR PATCH
+  -
+  -    cd sipXconfig/neoconf
+  -    ant reset-db
+  -
+  -
+-->
+<project name="database" basedir=".">
+  <property name="sipxconfig.db.name" value="SIPXCONFIG" />
+  <property name="sipxconfig.db.user" value="@sipxconfig.db.user@" />
+  <property name="sipxconfig.db.password" value="" />
+  <property name="sql.dir" location="${basedir}" />
+  <property name="sipxpbx.conf.dir" location="${basedir}/.." />
+  <property name="sipxconfig.db.url" value="jdbc:postgresql://localhost/${sipxconfig.db.name}" />
+  <property name="dblink.sql" location="/usr/share/pgsql/contrib/dblink.sql" />
+  <property name="log.dir" value="${basedir}" />
+  <property name="migration.log" value="${log.dir}/sipxconfig-2.8-db-migration.log" />
+  <property name="tmp.dir" value="${basedir}" />
+  <property name="sipxconfig.hostname" value="@sipxconfig.hostname@" />
+
+  <target name="patches">
+    <!-- ANT BUG: sql task has issues when output=absolute file path -->
+    <sipx-sql print="yes" output="${tmp.dir}/patches.properties" showheaders="no">
+      select name || '=true' from patch; select 'version' || version ||
+      '=true' from version_history;
+    </sipx-sql>
+    <loadproperties srcfile="${tmp.dir}/patches.properties" />
+    <delete file="${tmp.dir}/patches.properties" />
+  </target>
+
+  <!-- sets flag if any initialization needs to be done -->
+  <target name="tasks">
+    <sipx-sql print="yes" output="${tmp.dir}/tasks.properties"
+      showheaders="no">
+      select 'initialize=true' from initialization_task having count(*)
+      > 0;
+    </sipx-sql>
+    <loadproperties srcfile="${tmp.dir}/tasks.properties" />
+    <delete file="${tmp.dir}/tasks.properties" />
+  </target>
+
+  <target name="drop" depends="drop-index" description="drops database!">
+    <exec executable="dropdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} ${sipxconfig.db.name}" />
+    </exec>
+  </target>
+
+  <!-- creates database void of schema -->
+  <target name="createdb">
+    <sleep seconds="3" />
+    <!-- sporadic template1 in use, allow dropdb to disconnect... -->
+    <exec executable="createdb" failonerror="true">
+      <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE ${sipxconfig.db.name}" />
+    </exec>
+  </target>
+
+  <!-- Resets database for unit testing -->
+  <target name="unittest-reset" depends="drop,create,upgrade-no-init" />
+
+  <!-- 
+    - NOTE: Creating a database and apply schema. Does not run any patches or initialize task.
+  -->
+  <target name="create" depends="createdb,schema" description="create database with schema" />
+
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11" />
+
+  <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,initialize" />
+
+  <target name="initialize" depends="tasks" if="initialize">
+    <sipx-task output="/dev/null" beanId="initializeSystemTask">
+      <arg value="noexit" />
+    </sipx-task>
+  </target>
+
+  <!--
+    - Add service to system from CLI.  
+    -  Example:
+    -    -Dservice.id=ntpService -Dservice.address=address-or-hostname
+  -->
+  <target name="add-service" depends="upgrade">
+    <sipx-task beanId="addServiceTask">
+      <arg value="${service.name}" />
+      <arg value="${service.id}" />
+      <arg value="${service.address}" />
+    </sipx-task>
+  </target>
+
+  <target name="add-upload" depends="upgrade">
+    <sipx-task beanId="uploadTask">
+      <arg value="${upload.spec}" />
+      <arg value="${file.setting}" />
+      <arg value="${upload.file}" />
+    </sipx-task>
+  </target>
+
+  <!--
+    - Drop lucene index. It'll get recreated when we restart the application
+  -->
+  <target name="drop-index">
+    <delete dir="${tmp.dir}/index" failonerror="false" />
+  </target>
+
+  <!-- List each dependency on a separate line below to make source control merging easier -->
+  <target name="version1" description="upgrade from version 0" unless="version2">
+    <antcall target="conference_name_uniqueness" />
+    <antcall target="upload" />
+    <antcall target="grandstreamV2" />
+    <antcall target="upload_deployed" />
+    <antcall target="attendant_schedule" />
+    <sipx-version version="2" />
+  </target>
+
+  <target name="version2" description="upgrade from version 1" unless="version3">
+    <antcall target="attendant_settings" />
+    <antcall target="group-names-no-spaces" />
+    <antcall target="attendant_defaults" />
+    <sipx-version version="3" />
+  </target>
+
+  <target name="version3" description="upgrade from version 2" unless="version4">
+    <antcall target="settings-refactoring" />
+    <antcall target="ldap" />
+    <antcall target="supervisor" />
+    <antcall target="intercom" />
+    <antcall target="device-version" />
+    <antcall target="long-distance-rule" />
+    <antcall target="gateway-prefix" />
+    <antcall target="permission" />
+    <antcall target="park-orbit-settings" />
+    <antcall target="caller-alias" />
+    <antcall target="domain" />
+    <antcall target="caller-alias-2" />
+    <sipx-version version="4" />
+  </target>
+
+  <!-- bumped up ver only to keep 3.6 from running incompat. 3.7 db versions -->
+  <target name="version4" description="upgrade from version 3" unless="version5">
+    <sipx-version version="5" />
+  </target>
+
+  <target name="version5" description="upgrade from version 4" unless="version6">
+    <antcall target="afterhour" />
+    <antcall target="unmanaged-to-acme" />
+    <antcall target="model-refactoring" />
+    <antcall target="phonebook" />
+    <antcall target="clear-uploads" />
+    <antcall target="speeddial" />
+    <antcall target="acd" />
+    <antcall target="acd_agents" />
+    <antcall target="acd_ext" />
+    <antcall target="service" />
+    <antcall target="enable-schedule" />
+    <antcall target="forwardrulemode" />
+    <antcall target="fxo-port" />
+    <antcall target="update-ac-model" />
+    <antcall target="sbc" />
+    <antcall target="sbc-aux" />
+    <sipx-version version="6" />
+  </target>
+
+  <target name="version6" description="upgrade from version 5" unless="version7">
+    <antcall target="callgroup-fallback-destination" />
+    <antcall target="time_of_day" />
+    <antcall target="backup-configs-converge" />
+    <antcall target="schedules-per-user-group" />
+    <antcall target="internal-rule-media-server" />
+    <antcall target="personal-attendant" />
+    <antcall target="backup-email-address" />
+    <antcall target="callforwardexternal" />
+    <antcall target="domain-add-shared-secret" />
+    <antcall target="gateway-port" />
+    <antcall target="schedules-per-dialing-rule" />
+    <antcall target="callgroup-vmail-destination" />
+    <antcall target="localization" />
+    <antcall target="callgroup-userforward" />
+    <antcall target="paging-group" />
+    <antcall target="paging-server" />
+    <antcall target="sbc-device" />
+    <antcall target="first-run-task" />
+    <antcall target="personal-attendant-language" />
+    <antcall target="override-language-not-null" />
+    <antcall target="special-users" />
+    <!-- temporary patches -->
+    <antcall target="create-special-users" />
+    <antcall target="gateway-port-fix" />
+    <antcall target="localization-fix" />
+    <sipx-version version="7" />
+  </target>
+
+  <target name="version7" description="upgrade from version 6" unless="version8">
+    <antcall target="callgroup-credentials" />
+    <antcall target="AA-transfer-out" />
+    <antcall target="migrate-audiocodes-mediant" />
+    <sipx-version version="8" />
+  </target>
+
+  <target name="version8" description="upgrade from version 7" unless="version9">
+  	<antcall target="sbc-reference-sbc-device" />
+  	<antcall target="gateway-reference-sbc-device" />
+    <antcall target="sbc-device-add-port" />
+    <antcall target="user-vcard-file"/>
+    <antcall target="paging-group-add-timeout"/>
+  	<antcall target="location"/>
+    <antcall target="paging-server-advanced" />
+  	<antcall target="sipx-service" />
+  	<antcall target="add-proxy-service" />
+  	<antcall target="add-registrar-service" />
+	<antcall target="nat-traversal" />
+	<antcall target="backup-ftp" />
+    <antcall target="user-conferences" />
+    <antcall target="discovered-devices"/>
+  	<antcall target="add-sipx-supervisor-service"/>
+    <antcall target="add-park-service"/>
+    <antcall target="add-presence-service"/>
+    <antcall target="add-ivr-service"/>
+  	<antcall target="location-sipx-service"/>
+    <antcall target="add-additional-sipx-services"/>
+    <antcall target="remove-user-based-dialing"/>
+    <antcall target="caller-alias-add-sip-uri"/>
+    <antcall target="alarm-server"/>
+    <antcall target="add-alarm-from-email"/>
+    <antcall target="location-fqdn"/>
+    <antcall target="add-freeswitch-service"/>
+    <antcall target="add-sipx-relay-service"/>
+    <antcall target="add-location-specific-service"/>
+    <antcall target="backup-ftp-fix" />
+    <antcall target="location-add-password" />
+	<antcall target="acd-server-reference-location" />
+    <antcall target="gateway-location" />
+    <antcall target="add-device-timezone"/>
+    <antcall target="add-mrtg-service"/>
+  	<antcall target="location-add-primary" />  	
+  	<antcall target="conference-bridge-service" />
+    <antcall target="location-bundle" />
+    <antcall target="domain-add-realm" />
+    <antcall target="location-add-status" />
+    <antcall target="nat-location" />
+    <!-- temporary patches -->
+    <antcall target="clean-sipx-service-values"/>
+    <antcall target="backup-ftp-fix-empty-type-2" />
+    <antcall target="drop_zipupload"/>
+    <antcall target="migrate-grandstream" />
+    <antcall target="delete-volatile-gateways" />
+    <sipx-version version="9"/>
+  </target>
+
+  <target name="version9" description="upgrade from version 8" unless="version10">
+    <antcall target="site-to-site-rule" />
+    <antcall target="attendant_dialing_rule_migrate" />
+    <sipx-version version="10"/>
+  </target>
+
+  <target name="version10" description="upgrade from version 9" unless="version11">
+    <antcall target="speeddial_group" />
+	<antcall target="add_addressbook_entry_info" />
+  	<antcall target="add-user-shared-field" />
+    <antcall target="add_addressbook_entry_info_2" />
+    <antcall target="add-saa-service" />
+    <antcall target="add_phonebook_file_entry" />
+    <antcall target="special-attendant" />
+    <antcall target="branch" />
+    <antcall target="private-user-key" />
+    <antcall target="add_addressbook_imDisplayName" />
+    <antcall target="branch-address" />
+    <antcall target="remove-legacy-media-server" />
+	<antcall target="phonebook-add-user" />
+    <antcall target="add_addrbookentry_use_brnch_addr" />
+    <antcall target="alarm-groups" />
+    <antcall target="alarm-codes" />
+    <antcall target="add_branch_office_designation" />
+    <antcall target="add-im-password" />
+    <antcall target="add-addressbook-email" />
+    <antcall target="gateway-enabled" />
+    <antcall target="park-server-migration-task" />
+    <antcall target="migrate-pregroup-alarm-contacts" />
+    <antcall target="tls_peer" />
+    <antcall target="internal_user" />
+    <antcall target="remove-enable-meetme-conference" />
+    <antcall target="change-nortel-phones-model" />
+    <antcall target="multiple_phonebook_entry_types" />
+    <antcall target="phonebook_entries_update_task" />
+    <antcall target="add_google_domain" />
+	<antcall target="general_phonebook_settings" />
+    <antcall target="change-nortel12x0-phone-to-avaya" />
+    <antcall target="alarm-groups-add-snmp-contacts" />
+    <antcall target="show_phonebook_on_phone" />
+    <antcall target="change-callCenter-to-ACD" />
+    <antcall target="drop_phone_branch" />
+    <antcall target="address" />
+    <antcall target="update_usebranch_default_value" />
+    <sipx-version version="11"/>
+  </target>
+
+  <target name="version11" description="upgrade from version 10" unless="version12">
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="12" -->
+  </target>
+
+  <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
+    <!-- migrate nattraversal defaults from 4.0 to 4.2 Defaults changed from false to true -->
+    <sipx-sql>
+      insert into initialization_task (name) values
+      ('nattraversal_prefs_migration');
+    </sipx-sql>
+    <mark-patch-applied patch="nattraversal_defaults" />
+  </target>
+
+
+  <target name="time_of_day" unless="time_of_day">
+    <db-patch patch="time_of_day" />
+  </target>
+
+  <target name="backup-configs-converge" unless="backup-configs-converge">
+    <db-patch patch="backup-configs-converge" />
+  </target>
+
+  <target name="schedules-per-user-group" unless="schedules-per-user-group">
+    <db-patch patch="schedules-per-user-group" />
+  </target>
+
+  <target name="internal-rule-media-server" unless="internal-rule-media-server">
+    <db-patch patch="internal-rule-media-server" />
+  </target>
+
+  <target name="personal-attendant" unless="personal-attendant">
+    <db-patch patch="personal-attendant" />
+  </target>
+
+  <target name="enable-schedule" unless="enable-schedule">
+    <db-patch patch="enable-schedule" />
+  </target>
+
+  <target name="backup-email-address" unless="backup-email-address">
+    <db-patch patch="backup-email-address" />
+  </target>
+
+  <target name="backup-ftp" unless="backup-ftp">
+    <db-patch patch="backup-ftp"/>
+  </target>
+
+  <target name="gateway-location" unless="gateway-location" >
+    <db-patch patch="gateway-location" />
+  </target>
+
+  <target name="backup-ftp-fix" unless="backup-ftp-fix">
+    <db-patch patch="backup-ftp-fix"/>
+  </target>
+
+  <target name="speeddial" unless="speeddial">
+    <db-patch patch="speeddial" />
+  </target>
+
+  <target name="service" unless="service">
+    <db-patch patch="service" />
+  </target>
+
+  <target name="clear-uploads" unless="clear-uploads">
+    <db-patch patch="clear-uploads" />
+  </target>
+
+  <target name="phonebook" unless="phonebook">
+    <db-patch patch="phonebook" />
+  </target>
+
+  <target name="model-refactoring" unless="model-refactoring">
+    <db-patch patch="model-refactoring" />
+  </target>
+
+  <target name="unmanaged-to-acme" unless="unmanaged-to-acme">
+    <sipx-sql>
+      update phone set bean_id = 'acmePhone' where bean_id =
+      'unmanagedPhone';
+    </sipx-sql>
+    <mark-patch-applied patch="unmanaged-to-acme" />
+  </target>
+
+  <target name="afterhour" unless="afterhour">
+    <!-- add default afterhour attendant -->
+    <sipx-sql>
+      insert into initialization_task (name) values ('afterhour');
+    </sipx-sql>
+    <mark-patch-applied patch="afterhour" />
+  </target>
+
+  <target name="domain" unless="domain">
+    <db-patch patch="domain" />
+  </target>
+
+  <target name="supervisor" unless="supervisor">
+    <db-patch patch="supervisor" />
+  </target>
+
+  <target name="intercom" unless="intercom">
+    <db-patch patch="intercom" />
+  </target>
+
+  <target name="settings-refactoring" unless="settings-refactoring">
+    <db-patch patch="settings-refactoring" />
+  </target>
+
+  <target name="ldap" unless="ldap">
+    <db-patch patch="ldap" />
+  </target>
+
+  <target name="device-version" unless="device-version">
+    <sipx-sql>
+      alter table phone add column device_version_id varchar(32); alter
+      table gateway add column device_version_id varchar(32); update
+      phone set device_version_id = 'polycom1.6' where bean_id =
+      'polycom';
+    </sipx-sql>
+    <mark-patch-applied patch="device-version" />
+  </target>
+
+  <target name="long-distance-rule" unless="long-distance-rule">
+    <db-patch patch="long-distance-rule" />
+  </target>
+
+  <target name="gateway-prefix" unless="gateway-prefix">
+    <sipx-sql>
+      alter table gateway add column prefix varchar(255);
+    </sipx-sql>
+    <mark-patch-applied patch="gateway-prefix" />
+  </target>
+
+  <target name="permission" unless="permission">
+    <db-patch patch="permission" />
+  </target>
+
+  <target name="park-orbit-settings" unless="park-orbit-settings">
+    <db-patch patch="park-orbit-settings" />
+  </target>
+
+  <target name="caller-alias" unless="caller-alias">
+    <db-patch patch="caller-alias" />
+  </target>
+
+  <target name="caller-alias-2" unless="caller-alias-2">
+    <db-patch patch="caller-alias-2" />
+  </target>
+
+  <target name="attendant_defaults" unless="attendant_defaults">
+    <!-- remove spaces to enable things like auto-completion -->
+    <sipx-sql>
+      insert into initialization_task (name) values
+      ('attendant_defaults');
+    </sipx-sql>
+    <mark-patch-applied patch="attendant_defaults" />
+  </target>
+
+  <target name="group-names-no-spaces" unless="group-names-no-spaces">
+    <!-- remove spaces to enable things like auto-completion -->
+    <sipx-sql>
+      update group_storage set name = replace(name, ' ', '-');
+    </sipx-sql>
+    <mark-patch-applied patch="group-names-no-spaces" />
+  </target>
+
+  <target name="attendant_settings" unless="attendant_settings">
+    <db-patch patch="attendant_settings" />
+  </target>
+
+  <target name="conference_name_uniqueness" unless="conference_name_uniqueness">
+    <sipx-sql>
+      alter table meetme_conference add constraint conference_name_key
+      unique(name);
+    </sipx-sql>
+    <mark-patch-applied patch="conference_name_uniqueness" />
+  </target>
+
+  <target name="upload" unless="upload">
+    <db-patch patch="upload" />
+  </target>
+
+  <target name="grandstreamV2" unless="grandstreamV2">
+    <db-patch patch="grandstreamV2" />
+  </target>
+
+  <target name="upload_deployed" unless="upload_deployed">
+    <db-patch patch="upload_deployed" />
+  </target>
+
+  <target name="attendant_schedule" unless="attendant_schedule">
+    <db-patch patch="attendant_schedule" />
+  </target>
+
+  <target name="schema" unless="schema">
+    <sipx-sql>
+      <transaction src="${sql.dir}/schema.sql" />
+    </sipx-sql>
+  </target>
+
+  <target name="migrate-2.8" depends="migrate-2.8-run,initialize" description="migrate existing 2.8 PDS database, note clears all existing 3.0 data" />
+
+  <target name="import-2.8" depends="import-2.8-run,migrate-2.8" description="import 2.8 PDS database from backup file, note clears all existing 3.0 data" />
+
+  <target name="reset-superadmin" depends="upgrade" description="initialize superadmin user, administation group and resets password to blank">
+    <sipx-task beanId="resetAdministrator" />
+  </target>
+
+  <target name="first-run" depends="upgrade" description="Make sipXconfig behave as it was just installed or upgraded.">
+    <sipx-sql>
+      insert into initialization_task (name) values ('first-run');
+    </sipx-sql>
+  </target>
+
+  <target name="polycom-2.0" description="Migrate all polycom phones to generate 2.0 profiles">
+    <property name="polycom-from-id" value="1.6" />
+    <property name="polycom-to-id" value="2.0" />
+    <antcall target="migrate-polycom" />
+  </target>
+  <target name="migrate-polycom">
+    <sipx-sql>
+      update phone set device_version_id = 'polycom${polycom-to-id}'
+      where bean_id = 'polycom';
+    </sipx-sql>
+    <replace file="${sipxpbx.conf.dir}/sipxconfig.properties">
+      <replacefilter token="polycom.defaultVersionId=${polycom-from-id}" value="polycom.defaultVersionId=${polycom-to-id}" />
+    </replace>
+  </target>
+
+  <target name="forwardrulemode" unless="forwardrulemode">
+    <db-patch patch="forwardrulemode" />
+  </target>
+
+  <target name="fxo-port" unless="fxo-port">
+    <db-patch patch="fxo-port" />
+  </target>
+
+  <!-- temporary patch: audiocodes model_id changed during development -->
+  <target name="update-ac-model" unless="update-ac-model">
+    <sipx-sql>
+      update phone SET model_id='audiocodesMP118_FXS' where model_id =
+      'audiocodesFxs';
+    </sipx-sql>
+  </target>
+
+  <target name="sbc" unless="sbc">
+    <db-patch patch="sbc" />
+  </target>
+
+  <target name="sbc-aux" unless="sbc-aux">
+    <db-patch patch="sbc-aux" />
+  </target>
+
+  <target name="callgroup-fallback-destination" unless="callgroup-fallback-destination">
+    <db-patch patch="callgroup-fallback-destination" />
+  </target>
+
+  <target name="callgroup-vmail-destination" unless="callgroup-vmail-destination">
+    <db-patch patch="callgroup-vmail-destination" />
+  </target>
+
+  <target name="callgroup-userforward" unless="callgroup-userforward">
+    <db-patch patch="callgroup-userforward" />
+  </target>
+
+  <target name="sbc-device" unless="sbc-device">
+    <db-patch patch="sbc-device" />
+  </target>
+
+  <target name="callforwardexternal" unless="callforwardexternal">
+    <db-patch patch="callforwardexternal" />
+  </target>
+
+  <target name="domain-add-shared-secret" unless="domain-add-shared-secret">
+    <db-patch patch="domain-add-shared-secret" />
+  </target>
+
+  <target name="first-run-task" unless="first-run-task">
+    <!-- first-run task supersedes older domain initialization tasks -->
+    <sipx-sql>
+      delete from initialization_task where name = 'initialize-domain';
+      delete from initialization_task where name = 'initialize-domain-secret';
+      insert into initialization_task (name) values ('first-run');
+    </sipx-sql>
+    <mark-patch-applied patch="first-run-task" />
+  </target>
+  
+  <target name="create-special-users" unless="create-special-users">
+    <!-- this is temporary:
+        - make sure that 'first-run' task is rerun to create special users
+        - no need to roll it in after freeze since only one patch needs to do that 
+    -->
+    <sipx-sql>
+      delete from initialization_task where name = 'first-run';
+      insert into initialization_task (name) values ('first-run');
+    </sipx-sql>
+    <mark-patch-applied patch="create-special-users" />
+  </target>
+  
+  <target name="gateway-port" unless="gateway-port">
+    <db-patch patch="gateway-port" />
+  </target>
+
+  <target name="gateway-port-fix" unless="gateway-port-fix">
+    <db-patch patch="gateway-port-fix" />
+  </target>
+
+  <target name="schedules-per-dialing-rule" unless="schedules-per-dialing-rule">
+    <db-patch patch="schedules-per-dialing-rule" />
+  </target>
+
+  <target name="localization" unless="localization">
+    <db-patch patch="localization" />
+  </target>
+
+  <target name="personal-attendant-language" unless="personal-attendant-language">
+    <db-patch patch="personal-attendant-language" />
+  </target>
+
+  <target name="paging-group" unless="paging-group">
+    <db-patch patch="paging-group" />
+  </target>
+
+  <target name="paging-server" unless="paging-server">
+    <db-patch patch="paging-server" />
+  </target>
+
+  <target name="override-language-not-null" unless="override-language-not-null">
+    <db-patch patch="override-language-not-null" />
+  </target> 
+
+  <target name="special-users" unless="special-users">
+    <db-patch patch="special-users"/>    
+  </target>
+
+  <!-- do not roll in after upgrade - it's used to fix XCF-1934 only -->
+  <target name="localization-fix" unless="localization-fix">
+    <sipx-sql>
+      delete from localization where region = 'region_na';
+    </sipx-sql>
+    <mark-patch-applied patch="localization-fix" />
+  </target>
+
+  <!-- Version 7 patches -->
+  <target name="callgroup-credentials" unless="callgroup-credentials">
+    <db-patch patch="callgroup-credentials"/>
+  </target>
+
+  <target name="AA-transfer-out" unless="AA-transfer-out">
+    <sipx-sql>
+      update attendant_menu_item set action = 'transfer_out' where action =
+      'transfer_to_extension';
+    </sipx-sql>
+    <mark-patch-applied patch="AA-transfer-out" />
+  </target>
+
+  <target name="migrate-audiocodes-mediant" unless="migrate-audiocodes-mediant">
+    <db-patch patch="migrate-audiocodes-mediant"/>
+  </target>
+
+  <target name="sbc-reference-sbc-device" unless="sbc-reference-sbc-device">
+    <db-patch patch="sbc-reference-sbc-device"/>
+  </target>
+
+  <target name="gateway-reference-sbc-device" unless="gateway-reference-sbc-device">
+    <db-patch patch="gateway-reference-sbc-device"/>
+  </target>
+
+  <target name="sbc-device-add-port" unless="sbc-device-add-port">
+    <db-patch patch="sbc-device-add-port"/>
+  </target>
+
+  <target name="user-vcard-file" unless="user-vcard-file">
+    <db-patch patch="user-vcard-file"/>
+  </target>
+  	
+  <target name="paging-group-add-timeout" unless="paging-group-add-timeout">
+    <db-patch patch="paging-group-add-timeout"/>
+  </target>	
+
+  <target name="location" unless="location">
+    <db-patch patch="location"/>
+  </target>
+
+  <target name="sipx-service" unless="sipx-service">
+    <db-patch patch="sipx-service"/>
+  </target>
+
+  <target name="paging-server-advanced" unless="paging-server-advanced">
+    <db-patch patch="paging-server-advanced" />
+  </target>
+	
+  <target name="add-sipx-supervisor-service" unless="add-sipx-supervisor-service">
+	<db-patch patch="add-sipx-supervisor-service"/>
+  </target>	
+
+  <target name="add-proxy-service" unless="add-proxy-service">
+    <db-patch patch="add-proxy-service"/>
+  </target>
+
+  <target name="add-registrar-service" unless="add-registrar-service">
+    <db-patch patch="add-registrar-service"/>
+  </target>
+
+  <target name="nat-traversal" unless="nat-traversal">
+    <db-patch patch="nat-traversal"/>
+  </target>
+
+  <target name="user-conferences" unless="user-conferences">
+    <db-patch patch="user-conferences" />
+  </target>
+
+  <target name="discovered-devices" unless="discovered-devices">
+    <db-patch patch="discovered-devices"/>
+  </target>
+
+  <target name="add-park-service" unless="add-park-service">
+    <db-patch patch="add-park-service"/>
+  </target>
+	
+  <target name="add-presence-service" unless="add-presence-service">
+    <db-patch patch="add-presence-service"/>
+  </target>
+
+  <target name="add-ivr-service" unless="add-ivr-service">
+    <db-patch patch="add-ivr-service"/>
+  </target>
+  
+  <target name="add-mrtg-service" unless="add-mrtg-service">
+    <db-patch patch="add-mrtg-service"/>
+  </target>
+
+  <target name="location-sipx-service" unless="location-sipx-service">
+    <db-patch patch="location-sipx-service"/>
+  </target>
+
+  <target name="add-additional-sipx-services" unless="add-additional-sipx-services">
+    <db-patch patch="add-additional-sipx-services"/>
+  </target>
+
+  <target name="add-freeswitch-service" unless="add-freeswitch-service">
+    <db-patch patch="add-freeswitch-service"/>
+  </target>
+  
+  <target name="remove-user-based-dialing" unless="remove-user-based-dialing">
+    <db-patch patch="remove-user-based-dialing"/>
+  </target>
+
+  <target name="caller-alias-add-sip-uri" unless="caller-alias-add-sip-uri">
+    <db-patch patch="caller-alias-add-sip-uri"/>
+  </target>
+
+  <target name="alarm-server" unless="alarm-server">
+	<db-patch patch="alarm-server"/>
+  </target>
+
+  <target name="add-alarm-from-email" unless="add-alarm-from-email">
+	<db-patch patch="add-alarm-from-email"/>
+  </target>
+
+  <target name="location-fqdn" unless="location-fqdn">
+	<db-patch patch="location-fqdn"/>
+  </target>
+
+  <target name="add-sipx-relay-service" unless="add-sipx-relay-service">
+	<db-patch patch="add-sipx-relay-service"/>
+  </target>
+
+  <target name="add-location-specific-service" unless="add-location-specific-service">
+	<db-patch patch="add-location-specific-service"/>
+  </target>
+
+  <target name="location-add-password" unless="location-add-password">
+	<db-patch patch="location-add-password"/>
+  </target>
+
+  <target name="location-add-primary" unless="location-add-primary">
+    <db-patch patch="location-add-primary"/>
+  </target>
+
+  <target name="acd-server-reference-location" unless="acd-server-reference-location">
+  	<db-patch patch="acd-server-reference-location"/>
+  </target>
+
+  <target name="clean-sipx-service-values" unless="clean-sipx-service-values">
+    <sipx-sql>
+      delete from setting_value where path='domain/USER_CONFIGURED_DOMAIN_ALIASES';
+      delete from setting_value where path='domain/SIP_REGISTRAR_DOMAIN_ALIASES';
+    </sipx-sql>
+  </target>
+
+  <target name="backup-ftp-fix-empty-type-2" unless="backup-ftp-fix-empty-type-2">
+    <sipx-sql>
+      update backup_plan set backup_type = 'L' where backup_type != 'F';
+    </sipx-sql>
+  </target>
+
+  <target name="add-device-timezone" unless="add-device-timezone">
+    <db-patch patch="add-device-timezone"/>
+  </target>
+
+  <target name="conference-bridge-service" unless="conference-bridge-service">
+    <db-patch patch="conference-bridge-service" />
+  </target>
+
+  <target name="location-bundle" unless="location-bundle">
+    <db-patch patch="location-bundle" />
+  </target>
+
+  <target name="domain-add-realm" unless="domain-add-realm">
+    <db-patch patch="domain-add-realm" />
+  </target>
+
+  <target name="location-add-status" unless="location-add-status">
+    <db-patch patch="location-add-status"/>
+  </target>
+
+  <target name="nat-location" unless="nat-location">
+	<db-patch patch="nat-location"/>
+  </target>
+
+  <target name="migrate-grandstream" unless="migrate-grandstream">
+    <db-patch patch="migrate-grandstream"/>
+  </target>
+
+  <target name="delete-volatile-gateways" unless="delete-volatile-gateways">
+    <db-patch patch="volatile-clearance"/>
+  </target>
+
+  <target name="add-user-shared-field" unless="add-user-shared-field">
+    <db-patch patch="add-user-shared-field"/>
+  </target>
+
+  <target name="add-saa-service" unless="add-saa-service">
+    <db-patch patch="add-saa-service"/>
+  </target>
+
+  <target name="park-server-migration-task" unless="park-server-migration-task">
+    <db-patch patch="park-server-migration-task"/>
+  </target>
+
+	<!--
+    Migration Targets Legend
+    
+    migrate-2.8          - PDS to SIPXCONFIG, 2.8 release to 3.0 release
+  -->
+
+  <!-- 
+    2.8 Migration
+    Because 2.8 database schema was entirely different than 3.0 schema, we have one giant migration script
+    written in PL/pgSQL db language and uses the 'dblink' module, a postgres contrib package to 
+    translate data.
+  -->
+  <target name="migrate-2.8-setup">
+    <exec executable="createlang" failonerror="true">
+      <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}" />
+    </exec>
+    <condition property="dblink-present">
+      <available file="${dblink.sql}" />
+    </condition>
+    <fail unless="dblink-present">
+      Failed to find dblink SQL ${dblink.sql}. You either need to
+      install dblink which is part of the postgres contrib (rh: yum
+      install postgresql-contrib) or specify your dblink file by passing
+      to this script the following parameter:
+
+      -Ddblink.sql=path to dblink.sql file
+
+    </fail>
+    <sipx-sql>
+      <transaction src="${dblink.sql}" />
+    </sipx-sql>
+  </target>
+  <target name="migrate-2.8-run" depends="drop,create-3.0,upgrade-no-init,migrate-2.8-setup">
+    <echo>
+      see migration log file for errors or warnings about potential data
+      loss:
+    </echo>
+    <echo>${migration.log}</echo>
+    <exec executable="psql" output="${migration.log}" failonerror="true">
+      <arg line="-a --set ON_ERROR_STOP=true -U ${sipxconfig.db.user} ${sipxconfig.db.name} -f ${sql.dir}/migrate-2.8.sql" />
+    </exec>
+  </target>
+
+  <target name="create-3.0" depends="createdb">
+    <sipx-sql>
+      <transaction src="${sql.dir}/schema-3.0.sql" />
+    </sipx-sql>
+  </target>
+
+  <target name="import-2.8-run">
+    <fail unless="pds.tar.gz">
+      Missing parameter
+
+      You must specify complete path to pds.tar.gz file. Is one of the
+      output files from running backup-configs.sh on a 2.8 system.
+
+      Example: sipxconfig.sh -d
+      -Dpds.tar.gz=/var/backup-configs/pds.tar.gz import-2.8
+
+    </fail>
+    <exec executable="createuser" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} --createdb --no-adduser sipxchange" />
+    </exec>
+    <exec executable="dropdb" outputproperty="eatme">
+      <arg line="-U ${sipxconfig.db.user} PDS" />
+    </exec>
+    <sleep seconds="3" />
+    <!-- sporadic template1 in use, allow dropdb to disconnect... -->
+    <exec executable="createdb" failonerror="true">
+      <arg line="-q -U ${sipxconfig.db.user} --encoding=UNICODE PDS" />
+    </exec>
+    <!-- ignore error in this task, importing database can fail if going from Postgres 7 to 8 -->
+    <exec executable="/bin/sh" failonerror="false" outputproperty="eatme">
+      <arg value="-c" />
+      <arg value="zcat ${pds.tar.gz} | pg_restore -U ${sipxconfig.db.user} -d PDS" />
+    </exec>
+  </target>
+
+  <!--
+    Patches that use the SQL Procedural Language (PL/pgSQL) should depend on this task to ensure
+    the language is created.  Because 'failonerror' is 'false', it can be run without problem even
+    when the language is already created.
+  -->
+  <target name="createlang-plpgsql">
+    <exec executable="createlang" failonerror="false">
+      <arg line="-U ${sipxconfig.db.user} plpgsql ${sipxconfig.db.name}" />
+    </exec>
+  </target>
+
+  <!--
+    - version1 patches
+  -->
+  <!-- 
+    - The phone uniqueness constraint was a mistake, get rid of it, 
+    - NOTE: Do not copy/paste this task to to create a new patch
+    - THIS is not a patch, rather a left-over task incase a customer has this
+    - issue.  Original schema was fixed.
+  -->
+  <target name="repair_phone_description_uniqueness">
+    <sipx-sql>
+      alter table phone drop constraint phone_description_key;
+    </sipx-sql>
+  </target>
+
+  <target name="acd" unless="acd">
+    <db-patch patch="acd" />
+  </target>
+  <target name="acd_agents" unless="acd_agents">
+    <db-patch patch="acd_agents" />
+  </target>
+  <target name="acd_ext" unless="acd_ext">
+    <db-patch patch="acd_ext" />
+  </target>
+  <target name="drop_zipupload" unless="drop_zipupload">
+    <db-patch patch="drop_zipupload" />
+  </target>
+  <target name="site-to-site-rule" unless="site-to-site-rule">
+    <db-patch patch="site-to-site-rule"/>
+  </target>
+  <target name="attendant_dialing_rule_migrate" unless="attendant_dialing_rule_migrate">
+    <db-patch patch="attendant_dialing_rule_migrate"/>
+  </target>
+  <target name="add_addressbook_entry_info" unless="add_addressbook_entry_info">
+    <db-patch patch="add_addressbook_entry_info"/>
+  </target>
+  <target name="add_addressbook_entry_info_2" unless="add_addressbook_entry_info_2">
+    <db-patch patch="add_addressbook_entry_info_2"/>
+  </target>
+  <target name="add-im-password" unless="add-im-password">
+    <db-patch patch="add-im-password"/>
+  </target>
+
+  <target name="speeddial_group" unless="speeddial_group">
+    <db-patch patch="speeddial_group"/>
+  </target>
+  <target name="add_phonebook_file_entry" unless="add_phonebook_file_entry">
+    <db-patch patch="add_phonebook_file_entry"/>
+  </target>
+  <target name="special-attendant" unless="special-attendant">
+    <db-patch patch="special-attendant"/>
+  </target>
+  <target name="branch" unless="branch">
+    <db-patch patch="branch"/>
+  </target>
+  <target name="private-user-key" unless="private-user-key">
+    <db-patch patch="private-user-key"/>
+  </target>
+  <target name="add_addressbook_imDisplayName" unless="add_addressbook_imDisplayName">
+    <db-patch patch="add_addressbook_imDisplayName"/>
+  </target>
+  <target name="branch-address" unless="branch-address">
+    <db-patch patch="branch-address"/>
+  </target>
+  <target name="remove-legacy-media-server" unless="remove-legacy-media-server">
+    <db-patch patch="remove-legacy-media-server"/>
+  </target>
+  <target name="phonebook-add-user" unless="phonebook-add-user">
+	<db-patch patch="phonebook-add-user"/>
+  </target>
+  <target name="add_addrbookentry_use_brnch_addr" unless="add_addrbookentry_use_brnch_addr">
+    <db-patch patch="add_addrbookentry_use_brnch_addr"/>
+  </target>
+  <target name="alarm-groups" unless="alarm-groups">
+    <db-patch patch="alarm-groups"/>
+  </target>
+  <target name="alarm-codes" unless="alarm-codes">
+    <db-patch patch="alarm-codes"/>
+  </target>
+  <target name="alarm-groups-add-snmp-contacts" unless="alarm-groups-add-snmp-contacts">
+    <db-patch patch="alarm-groups-add-snmp-contacts"/>
+  </target>
+  <target name="add_branch_office_designation" unless="add_branch_office_designation">
+    <db-patch patch="add_branch_office_designation"/>
+  </target>
+  <target name="add-addressbook-email" unless="add-addressbook-email">
+    <db-patch patch="add-addressbook-email"/>
+  </target>
+  <target name="gateway-enabled" unless="gateway-enabled">
+    <db-patch patch="gateway-enabled"/>
+  </target>
+  <target name="migrate-pregroup-alarm-contacts" depends="createlang-plpgsql" unless="migrate-pregroup-alarm-contacts">
+    <db-patch patch="migrate-pregroup-alarm-contacts"/>
+  </target>
+  <target name="tls_peer" unless="tls_peer">
+    <db-patch patch="tls_peer"/>
+  </target>
+  <target name="internal_user" unless="internal_user">
+    <db-patch patch="internal_user"/>
+  </target>
+  <target name="remove-enable-meetme-conference" unless="remove-enable-meetme-conference">
+    <db-patch patch="remove-enable-meetme-conference"/>
+  </target>
+  <target name="change-nortel-phones-model" unless="change-nortel-phones-model">
+    <db-patch patch="change-nortel-phones-model"/>
+  </target>
+  <target name="multiple_phonebook_entry_types" unless="multiple_phonebook_entry_types">
+    <db-patch patch="multiple_phonebook_entry_types"/>
+  </target>
+  <target name="phonebook_entries_update_task" unless="phonebook_entries_update_task">
+    <db-patch patch="phonebook_entries_update_task"/>
+  </target>
+  <target name="add_google_domain" unless="add_google_domain">
+    <db-patch patch="add_google_domain"/>
+  </target>
+  <target name="change-nortel12x0-phone-to-avaya" unless="change-nortel12x0-phone-to-avaya">
+    <db-patch patch="change-nortel12x0-phone-to-avaya"/>
+  </target>
+  <target name="show_phonebook_on_phone" unless="show_phonebook_on_phone">
+    <db-patch patch="show_phonebook_on_phone"/>
+  </target>
+  <target name="change-callCenter-to-ACD" unless="change-callCenter-to-ACD">
+    <db-patch patch="change-callCenter-to-ACD"/>
+  </target>
+  <target name="general_phonebook_settings" unless="general_phonebook_settings">
+	<db-patch patch="general_phonebook_settings"/>
+  </target>
+  <target name="drop_phone_branch" unless="drop_phone_branch">
+    <db-patch patch="drop_phone_branch"/>
+  </target>
+  <target name="address" unless="address">
+    <db-patch patch="address"/>
+  </target>
+  <target name="update_usebranch_default_value" unless="update_usebranch_default_value">
+    <db-patch patch="update_usebranch_default_value"/>
+  </target>
+
+  <!--
+    - SUPPORT UTILITIES
+  -->
+  <!-- Run SQL on SIPXCONFIG database and update patch list if successful -->
+  <macrodef name="db-patch">
+    <attribute name="patch" />
+    <sequential>
+      <sipx-sql>
+        <transaction src="${sql.dir}/@{patch}.sql" />
+      </sipx-sql>
+      <mark-patch-applied patch="@{patch}" />
+    </sequential>
+  </macrodef>
+
+  <!-- patch list as successful -->
+  <macrodef name="mark-patch-applied">
+    <attribute name="patch" />
+    <sequential>
+      <sipx-sql>insert into patch (name) values ('@{patch}');</sipx-sql>
+      <property name="@{patch}" value="true" />
+    </sequential>
+  </macrodef>
+
+  <!-- Run SQL on SIPXCONFIG database -->
+  <presetdef name="sipx-sql">
+    <sql driver="org.postgresql.Driver" url="${sipxconfig.db.url}" userid="${sipxconfig.db.user}" password="${sipxconfig.db.password}" classpath="${jdbc-driver.jar}" />
+  </presetdef>
+
+  <!-- declare schema version -->
+  <macrodef name="sipx-version">
+    <attribute name="version" />
+    <sequential>
+      <sipx-sql>
+        insert into version_history (version, applied) values
+        (@{version}, now());
+      </sipx-sql>
+    </sequential>
+  </macrodef>
+
+  <!-- run spring beans implementing SystemTaskRunner from CLI -->
+  <macrodef name="sipx-task">
+    <attribute name="beanId" />
+    <attribute name="output" default="/dev/stdout" />
+    <element name="task-body" optional="yes" implicit="yes" />
+    <sequential>
+      <java classname="org.sipfoundry.sipxconfig.common.SystemTaskRunner" output="@{output}">
+        <sysproperty key="org.apache.lucene.lockdir" value="${tmp.dir}/index" />
+        <sysproperty key="jetty.log.dir" value="${log.dir}" />
+      	<sysproperty key="sipxconfig.hostname" value="${sipxconfig.hostname}" />
+        <arg value="@{beanId}" />
+        <task-body />
+      </java>
+    </sequential>
+  </macrodef>
+
+</project>

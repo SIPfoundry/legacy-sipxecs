@@ -1,0 +1,299 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+require 'pp'
+require 'getoptlong'
+require 'net/https'
+require 'xmlrpc/client'
+require 'openssl/x509'
+require 'base64'
+
+port = "8092"
+
+# Allow the required SSL certificate information to be set.
+module XMLRPC
+   class Client
+      def key=(x)
+         @http.key = x
+      end
+      def cert=(x)
+         @http.cert = x
+      end
+      def verify_mode=(x)
+         @http.verify_mode = x
+      end
+      def cert_store=(x)
+         @http.cert_store = x
+      end
+      def open_timeout=(x)
+         @http.open_timeout = x
+      end
+      def read_timeout=(x)
+         @http.read_timeout = x
+      end
+   end
+end
+
+def usage_exit(error_code=1)
+      usage = <<__EOU__
+
+  Usage: #{ $0 } parameters
+
+    Interface with the sipXpbx watchdog monitored process XMLRPC interface.
+
+  Parameters:
+  -h|--help           This help text
+  -n|--host hostname  Remote server, e.g. HA slave (default is localhost)
+  -p|--port portnum   Server port (default is 8092)
+  -s|--start          Start the specified monitored process
+  -k|--stop           Stop the specified monitored process
+  -r|--restart        Restart the specified monitored process
+  -l|--state          Current state of all monitored processes
+  -m|--getStatusMessages          Display output from the specified service
+  -c|--getConfigVersion Get the configuration version of the specified service
+  -u|--setConfigVersion Set the configuration version of the specified service
+  -v|--serviceVersion The service version value to update
+  -f|--file           Get the named file
+  -d|--delete         Delete the named file
+  -t|--runConfigtest          Run the configtest for the specified service
+  --getConfigtestMessages     Return messages from the configtest for the specified service
+  -S|--snapshot         Execute snapshot on a local/remote system. Snapshot arguments may
+                        be specified after an empty option -- (two minus symbols)
+                        e.g. sipxproc --snapshot -- --snapshot_arg_1 x --snapshot_arg_2 y
+  -E|--execStatus       Returns the execution status of any of the following commands :
+                           snapshot, checkUpdate, checkSwVersion, updateSwVersion
+  -C|--checkUpdate      Check for Software Updates
+  -V|--checkSwVersion   Check Software Version
+  -U|--updateSwVersion  Update Software
+  -R|--restartSipXecs   Restart the SipXecs services
+  -B|--rebootSystem     Reboot the system
+
+__EOU__
+
+      STDERR << usage
+      exit error_code
+end
+
+if __FILE__ == $0
+  OptSet = [
+      ['--start','-s',         GetoptLong::REQUIRED_ARGUMENT],
+      ['--stop','-k',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--restart','-r',       GetoptLong::REQUIRED_ARGUMENT],
+      ['--state','-l',         GetoptLong::NO_ARGUMENT],
+      ['--getStatusMessages','-m',  GetoptLong::REQUIRED_ARGUMENT],
+      ['--getConfigVersion','-c', GetoptLong::REQUIRED_ARGUMENT],
+      ['--setConfigVersion','-u', GetoptLong::REQUIRED_ARGUMENT],
+      ['--serviceVersion','-v',       GetoptLong::REQUIRED_ARGUMENT],
+      ['--file','-f',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--delete','-d',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--runConfigtest','-t',        GetoptLong::REQUIRED_ARGUMENT],
+      ['--getConfigtestMessages',     GetoptLong::REQUIRED_ARGUMENT],
+      ['--host','-n',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--port','-p',          GetoptLong::REQUIRED_ARGUMENT],
+      ['--snapshot','-S',         GetoptLong::NO_ARGUMENT],
+      ['--execStatus', '-E',      GetoptLong::REQUIRED_ARGUMENT],
+      ['--checkUpdate','-C',      GetoptLong::NO_ARGUMENT],
+      ['--checkSwVersion','-V',   GetoptLong::NO_ARGUMENT],
+      ['--updateSwVersion','-U',  GetoptLong::NO_ARGUMENT],
+      ['--restartSipXecs','-R',  GetoptLong::NO_ARGUMENT],
+      ['--rebootSystem','-B',  GetoptLong::NO_ARGUMENT],
+      ['--help','-h',          GetoptLong::NO_ARGUMENT]
+   ]
+end
+
+client_host = `hostname -f`.chomp
+server_host = String.new(client_host)
+
+# The default action if no other is specified.
+action = 'getStateAll'
+
+opts = GetoptLong.new(*OptSet)
+argument = nil
+serviceversion = nil
+filepath = nil
+aliaslist = []
+alias1 = nil
+block = nil
+rpcname = 'ProcMgmtRpc.'
+begin
+   opts.each do |name, arg|
+      case name
+         when '--help'
+            usage_exit 0
+         when '--getConfigVersion'
+            # One string argument must be specified.
+            action = name.gsub(/--/, '')
+            argument = arg
+            aliaslist.push(argument)
+         when '--setConfigVersion'
+            # One string arguments must be specified.
+            action = name.gsub(/--/, '')
+            argument = arg
+            aliaslist.push(argument)
+         when '--serviceVersion'
+            # One string arguments must be specified.
+            serviceversion = arg
+         when '--file'
+            # One string arguments must be specified.
+            action = name.gsub(/--/, '')
+            filepath = arg
+         when '--delete'
+            # One string arguments must be specified.
+            action = name.gsub(/--/, '')
+            filepath = arg
+         when '--start', '--stop', '--restart'
+            # One string argument must be specified.
+            action = name.gsub(/--/, '')
+            argument = arg
+            aliaslist.push(argument)
+            block = true
+         when '--snapshot'
+            rpcname = 'SwAdminRpc.'
+            action = 'snapshot'
+            argument = []
+            if ARGV.length > 1 && ARGV.shift == "--"
+               while ARGV.length > 0
+                  argument << ARGV.shift
+               end
+            end
+         when '--execStatus'
+            rpcname = 'SwAdminRpc.'
+            action = 'execStatus'
+
+            case arg
+            when 'checkUpdate'
+               argument = 'check-update'
+            when 'checkSwVersion'
+               argument = 'version'
+            when 'updateSwVersion'
+               argument = 'update'
+            else
+               argument = arg
+            end
+         when '--checkUpdate'
+            rpcname = 'SwAdminRpc.'
+            action = 'exec'
+            argument = 'check-update'
+         when '--checkSwVersion'
+            rpcname = 'SwAdminRpc.'
+            action = 'exec'
+            argument = 'version'
+         when '--updateSwVersion'
+            rpcname = 'SwAdminRpc.'
+            action = 'exec'
+            argument = 'update'
+         when '--restartSipXecs'
+            rpcname = 'SwAdminRpc.'
+            action = 'exec'
+            argument = 'restart'
+         when '--rebootSystem'
+            rpcname = 'SwAdminRpc.'
+            action = 'exec'
+            argument = 'reboot'
+         when '--getStatusMessages', '--runConfigtest', '--getConfigtestMessages'
+            # One string argument must be specified.
+            action = name.gsub(/--/, '')
+            alias1 = arg
+         when '--state'
+            # The default 'action'.  Applies to all processes (so none can be specified.)
+         when '--host'
+            server_host = arg
+         when '--port'
+            port = arg
+         else
+            usage_exit
+         end
+     end
+
+   rescue StandardError => bang
+      puts bang
+      usage_exit
+   end
+
+if 0 != ARGV.length
+   usage_exit
+end
+
+params = [ client_host ]
+case action
+when 'start', 'stop', 'restart'
+    params.push(aliaslist)
+    params.push(block)
+when 'getStatusMessages', 'runConfigtest', 'getConfigtestMessages'
+    params.push(alias1)
+when 'getConfigVersion'
+    params.push(argument)
+when 'setConfigVersion'
+    params.push(argument)
+    params.push(serviceversion)
+when 'exec', 'snapshot', 'execStatus'
+    params.push(argument)
+else
+   # No parms required for all other actions
+end
+
+exitStatus = 0
+
+case action
+when 'file'
+  client = Net::HTTP.new(server_host, port)
+
+  # SSL certificate information
+  client.use_ssl = true
+  client.verify_mode = OpenSSL::SSL::VERIFY_PEER
+  client.cert = OpenSSL::X509::Certificate.new(File.read('@SIPX_CONFDIR@/ssl/ssl.crt'))
+  client.key = OpenSSL::PKey::RSA.new(File.read('@SIPX_CONFDIR@/ssl/ssl.key'))
+  client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
+  client.open_timeout = 10
+  client.read_timeout = 60
+
+  request  = Net::HTTP::Get.new(filepath)
+  response = client.request(request)
+
+  puts response.body
+
+  if response.code != '200'
+    exitStatus = -1
+  end
+
+when 'delete'
+  client = Net::HTTP.new(server_host, port)
+
+  # SSL certificate information
+  client.use_ssl = true
+  client.verify_mode = OpenSSL::SSL::VERIFY_PEER
+  client.cert = OpenSSL::X509::Certificate.new(File.read('@SIPX_CONFDIR@/ssl/ssl.crt'))
+  client.key = OpenSSL::PKey::RSA.new(File.read('@SIPX_CONFDIR@/ssl/ssl.key'))
+  client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
+  client.open_timeout = 10
+  client.read_timeout = 60
+
+  request  = Net::HTTP::Delete.new(filepath)
+  response = client.request(request)
+
+  puts response.body
+
+  if response.code != '200'
+    exitStatus = -1
+  end
+
+else
+  client = XMLRPC::Client.new2("https://" << server_host << ":" << port << "/RPC2")
+
+  # SSL certificate information
+  client.verify_mode = OpenSSL::SSL::VERIFY_PEER
+  client.cert = OpenSSL::X509::Certificate.new(File.read('@SIPX_CONFDIR@/ssl/ssl.crt'))
+  client.key = OpenSSL::PKey::RSA.new(File.read('@SIPX_CONFDIR@/ssl/ssl.key'))
+  client.cert_store = OpenSSL::X509::Store.new.add_path('@SIPX_CONFDIR@/ssl/authorities')
+  client.open_timeout = 10
+  client.read_timeout = 60
+
+  result = client.call(rpcname << action, *params)
+  pp result
+
+end
+
+exit(exitStatus)

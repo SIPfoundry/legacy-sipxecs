@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+    <backup_plan 
+		backup_plan_id="[backup_plan_id]"
+		limited_count="50"
+		configs="1"
+		voicemail="1"
+		email_address="[null]"
+		backup_type="[backup_type]"
+        ftp_configuration_id="[null]"
+     /> 
+</dataset>

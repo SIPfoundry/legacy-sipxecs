@@ -1,0 +1,52 @@
+REGTIMES(1)
+===========
+
+NAME
+----
+regtimes - displays a report of registrations
+
+SYNOPSIS
+--------
+regtimes  [ { --help | -h } ]
+          [ { --summary | -s } ]
+          <sipregistrar.log>...
+
+DESCRIPTION
+-----------
+Show intervals for renewal of registrations.  The time for
+each registration of each contact is shown, with when the 
+previous expiration would have expired, the actual time it
+was renewed and the difference between them.  If the refresh
+is late (there was a period when the registration had expired),
+then that is flagged.
+
+Note that in an HA system, you must provide the logs for all
+registrars or the output will report errors that did not happen.
+
+OPTIONS
+-------
+--summary   Successful refreshes are combined into a single line, 
+            which considerably shortens the output. 
+
+ENVIRONMENT
+-----------  
+Requires that the Perl module DateTime::Format::ISO8601 is installed.
+
+To install from CPAN, use:
+ cpan force install DateTime::Format::ISO8601
+
+(there is a bug detected in the unit test that does not seem to
+be a problem for this module, but it means that you must use the
+'force' command to install it)
+  
+SEE ALSO
+--------
+monitor-spread
+
+BUG
+---
+see http://tracker.sipfoundry.org
+  
+AUTHOR
+------
+Scott Lawrence

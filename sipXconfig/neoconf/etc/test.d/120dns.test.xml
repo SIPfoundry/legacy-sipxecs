@@ -1,0 +1,69 @@
+<test name="dns">
+  <label>DNS Test</label>
+  <description>
+    Verify that the DNS server(s) supplied by the DHCP server can
+    properly resolve the SIP domain.
+  </description>
+  <longDescription>
+      Verify that the DNS server(s) supplied by the network's DHCP server can
+      properly resolve the given SIP domain and that the information returned
+      is valid.
+  </longDescription>
+  <command>
+    <exec>preflight</exec>
+    <arg>-v</arg>
+    <arg>--dns-test</arg>
+    <arg>${domain}</arg>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+    </result>
+    <result exit="139">
+      <status>Error</status>
+      <msg>SRV target could not be resolved.</msg>
+      <description>
+        Name resolution of the specified SIP domain returned one or more SRV
+        records which specified an unreachable host. Ensure that the SRV
+        records being supplied by the DNS server(s) are properly configured.
+        Please see the test log for further details.
+      </description>
+    </result>
+    <result exit="141">
+      <status>Error</status>
+      <msg>Unable to resolve SIP domain.</msg>
+      <description>
+        The specified SIP domain could not be resolved. Verify that the DNS
+        server(s) have been properly provisioned for this domain.
+      </description>
+    </result>
+    <result exit="142">
+      <status>Error</status>
+      <msg>SIP domain is unreachable.</msg>
+      <description>
+        The address that the specified SIP domain resolved to does not respond
+        to ICMP pings. Verify that the server is running and reachable from
+        this network.
+      </description>
+    </result>
+    <result exit="143">
+      <status>Warning</status>
+      <msg>DNS Server did not report any SRV records.</msg>
+      <description>
+        DNS SRV records are used for call routing control and server redundancy.
+        Name resolution of the specified SIP domain did not report any SRV
+        records. Please verify that SRV records are properly configured on the
+        the DNS server(s).
+      </description>
+    </result>
+  </results>
+</test>

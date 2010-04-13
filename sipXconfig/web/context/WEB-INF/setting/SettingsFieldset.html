@@ -1,0 +1,49 @@
+<ul jwcid="ifToggle@If" condition="ognl:renderAdvancedToggle && showAdvancedToggle" class="component-links">
+  <li jwcid="@common/ToggleLink" toggle="ognl:showAdvanced"/>
+</ul>
+<fieldset>
+  <table>
+    <tbody>
+      <span jwcid="forSetting@For"
+        source="ognl:flattenedSettings"
+        value="ognl:currentSetting"
+        volatile="ognl:true"
+        renderTag="ognl:false">
+        <tr jwcid="@RenderBlock" block="ognl:currentBlock" />
+      </span>
+    </tbody>
+  </table>
+</fieldset>
+<div jwcid="groupBlock@Block">
+  <span jwcid="ifGroup@If" condition="ognl:renderGroup" renderTag="ognl:false">
+    <tr>
+      <td colspan="2">
+        <h3><label jwcid="@Insert" value="ognl:label"/></h3>
+        <span jwcid="@Insert" value="ognl:description" raw="true" />
+      </td>
+    </tr>
+  </span>
+</div>
+<div jwcid="settingBlock@Block">
+  <span jwcid="ifRender@If" condition="ognl:renderSetting" renderTag="ognl:false">
+    <span jwcid="@setting/SettingEditor"
+      setting="ognl:currentSetting"
+      enabled="ognl:settingEnabled"
+      requiredEnabled="ognl:requiredEnabled"
+      messageSource="ognl:messageSource" />
+  </span>
+  <span jwcid="elseHide@Else" renderTag="ognl:false">
+    <span jwcid="hiddenValue@Hidden" value="ognl:currentSetting.value"/>
+  </span>
+</div>
+<div jwcid="arrayBlock@Block">
+  <tr>
+    <td colspan="2">
+      <span jwcid="@setting/SettingsGrid"
+        setting="ognl:currentSetting"
+        enabled="ognl:enabled"
+        requiredEnabled="ognl:requiredEnabled"
+        messageSource="ognl:messageSource" />
+    </td>
+  </tr>
+</div>

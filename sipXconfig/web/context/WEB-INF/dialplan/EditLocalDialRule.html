@@ -1,0 +1,35 @@
+<div jwcid="dialRuleCommon" availableSchedules="ognl:availableSchedules">
+  <fieldset>
+    <legend>Details</legend>
+      <table>
+        <tbody>
+	      <tr>
+            <td>
+              <label for="dialplan:pstnPrefix">
+                <span jwcid="pstnPrefixLabel">PSTN Calls Prefix</span>:
+              </label>
+            </td>
+            <td>
+              <input jwcid="pstnPrefix" id="dialplan:pstnPrefix" maxlength="40" type="text" value="9" />
+            </td>
+           </tr>
+           <tr>
+            <td>
+              <label for="dialplan:externalLen">
+                <span jwcid="externalLenLabel">External Number Length</span>:</label>
+            </td>
+            <td>
+              <select jwcid="externalLen" id="dialplan:externalLen" size="1">
+                <option value="3" selected="selected">7 digits</option>
+                <option value="4">6 digits</option>
+                <option value="5">7 digits</option>
+                <option value="6">8 digits</option>
+                <option value="6">9 digits</option>
+                <option value="6">10 digits</option>
+              </select>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+  </fieldset>
+</div>

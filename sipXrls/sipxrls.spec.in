@@ -1,0 +1,80 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  %{buildno}
+
+Summary:  SIP Dialog Resource List Server
+License:  LGPL
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   SIPfoundry
+Packager: SIPfoundry <sipx-dev@list.sipfoundry.org>
+Url:      http://www.sipfoundry.org/sipXrls
+
+Source:   %name-%version.tar.gz
+
+Requires: sipxcalllib >= %version
+Requires: sipxcommserverlib >= %version
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+TBD
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+%package devel
+Requires: %name
+Requires: sipxcalllib-devel >= %version
+Requires: sipxcommserverlib-devel >= %version
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name
+
+%description devel
+Developer support for sipXrls.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrls-process.xml
+
+%docdir doc
+%attr(755,root,root) %{_bindir}/sipx-snapshot-rls
+%attr(755,root,root) %{_bindir}/sipxrls.sh
+%attr(755,root,root) %{_bindir}/sipxrls
+%attr(755,root,root) %{_bindir}/%name-config
+
+%attr(755,root,root) %{_datadir}/sipxecs/schema/resource-lists.xsd
+
+%files devel
+%defattr(644,root,root,755)
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
+
+%pre
+
+%post

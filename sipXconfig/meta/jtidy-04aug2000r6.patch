@@ -1,0 +1,13 @@
+--- jtidy-04aug2000r6/build.xml.orig	2006-03-02 18:02:50.000000000 -0500
++++ jtidy-04aug2000r6/build.xml	2006-03-02 19:07:29.000000000 -0500
+@@ -58,7 +58,9 @@
+ 	 includes="**/*.java"
+ 	 deprecation="on"
+ 	 optimize="${optimize}"
+-	 debug="${debug}"/>
++	 debug="${debug}"
++	 source="1.4"
++	 target="1.4"/>
+  </target>
+ 
+  <!-- ================================================================= -->

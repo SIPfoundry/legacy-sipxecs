@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+  <auto_attendant auto_attendant_id="1000" name="Operator" system_id="operator" description="aa description"
+    prompt="thankyou_goodbye.wav" />
+  <attendant_special_mode attendant_special_mode_id="1" enabled="true" auto_attendant_id="1000" />
+</dataset>

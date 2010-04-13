@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="alarmServerConfiguration" class="org.sipfoundry.sipxconfig.admin.alarm.AlarmServerConfiguration"
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="commserver/alarm-config.vm" />
+    <property name="name" value="alarm-config.xml" />
+	<property name="sipxServiceManager" ref="sipxServiceManager" />
+	<property name="alarmServerManager" ref="alarmServerManager" />
+  </bean>
+
+  <bean id="alarmsConfiguration" class="org.sipfoundry.sipxconfig.admin.alarm.AlarmConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="alarms/sipXalarms-config.vm" />
+    <property name="name" value="alarms/sipXalarms-config.xml" />
+  </bean>
+
+  <bean id="alarmGroupsConfiguration" class="org.sipfoundry.sipxconfig.admin.alarm.AlarmGroupsConfiguration"
+    scope="prototype" parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="alarms/alarm-groups.vm" />
+    <property name="name" value="alarm-groups.xml" />
+	<property name="sipxServiceManager" ref="sipxServiceManager" />
+	<property name="alarmServerManager" ref="alarmServerManager" />
+  </bean>
+
+  <bean id="alarmServerManagerImpl" class="org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="alarmsConfiguration" ref="alarmsConfiguration" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxUser" value="${sysdir.user}" />
+    <property name="logDirectory" value="${sysdir.log}" />
+    <property name="configDirectory" value="${sysdir.etc}" />
+    <property name="alarmsStringsDirectory" value="${sysdir.alarmsStrings}" />
+    <property name="mibsDirectory" value="${sipxpbx.mibs.dir}" />
+  </bean>
+
+  <bean id="alarmServerManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.alarm.AlarmServerManager" />
+    <property name="target" ref="alarmServerManagerImpl" />
+  </bean>
+
+  <bean id="alarmContextUserDelete" factory-bean="alarmServerManagerImpl" factory-method="createUserDeleteListener" />
+
+  <bean id="alarmHistoryManager" class="org.sipfoundry.sipxconfig.admin.alarm.AlarmHistoryManagerImpl">
+    <property name="logDirectory" value="${sysdir.log}" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+</beans>

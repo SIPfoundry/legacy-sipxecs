@@ -1,0 +1,117 @@
+
+System Description
+-----------------
+
+The tester consists of a number of test clients
+Each test client is a process that can house user agent.
+
+Each user agent:
+
+- Sets up a SIP/RTP session with the conference bridge.
+- Streams a media that is encoded 8 bit ULAW encoding at the conferece bridge
+- Listen for incoming media stream.
+- Computes the "power level" of the incoming media stream every 100 samples.
+
+At the end of streaming the file the average standard deviation of the power signal
+(i.e. the average of the standard deviation computed by each client)
+is computed and recorded as a function of the number of clients. 
+
+If the mixing is perfect, the standard deviation of the mixed stream power 
+level should be 0. Higher the standard deviation indicates poorer mixing.
+
+To build the tester
+-------------------
+
+Edit configure.properties and fix the location for the commons directory.
+ant compile compiles things. 
+
+
+To configure and start the tester
+---------------------------------
+
+- Start the conference bridge. The conference bridge particulars are made 
+known to the tester in a file called testerconfig.xml which is read by the
+tester at startup and it looks as follows:
+
+<sipx-proxy-domain>example.com</sipx-proxy-domain>
+<sipx-proxy-address>sipxpbx.example.com</sipx-proxy-address>
+<sipx-proxy-port>5060</sipx-proxy-port>
+<conference-extension>301</conference-extension>
+<test-duration>45</test-duration>
+
+
+Here you should have set up the conference to run at extension 301. 
+The tester does not do authentication hence set the password not be set.
+
+- You can run multiple tester clients from different processes. 
+  Each tester client has a defintion in a file called testerconfig.xml
+  Each tester client process is invoked as follows:
+
+  ant tester -DclientId=1
+
+Where client1 has a defintion in testerconfig.xml as follows:
+
+<tester-client>
+	<client-id>client1</client-id>
+	<xml-rpc-port>8087</xml-rpc-port>
+	<tester-host>192.168.5.240</tester-host>
+	<media-file>testmedia/250hz.au</media-file>
+	<tester-sip-base-port>5230</tester-sip-base-port>
+	<tester-rtp-base-port>30000</tester-rtp-base-port>
+	<media-file> ... </media-file>
+</tester-client>
+
+
+media-file is a file which will be streamed
+after the call is set up. If you specify nothing here, the
+media is chosen round Round Robin fashion from one of the monotone
+frequencies in testmedia. For mixing experiments, leave the media-file
+tag out.
+
+When all the tester clients are started, the controller ( which is the
+first tester client ) signals each one to go using an xml RPC command to
+do this. At that time, the tester client will establish a SIP/SDP/RTP
+session with the conference bridge and stream media to it ( or listen
+passively ).
+
+Various manual experiments are possible:
+ - Test mixing in the presence of white noise by joining the conference 
+   when white noise is streaming.
+
+When the test is done, the result will be appended to the
+file called result.txt and the testers will exit.
+
+
+Preliminary results
+------------------
+
+I simulated all the test clients on a single machine which was the same
+machine as the machine on which the bridge and the rest of sipx runs.
+Based on my preliminary observations, mixing starts to break down at
+about 5 simultaneous streams.  I was not able to connect more than 6
+participants simultaneously.
+
+The results should be repeated using at least two machines to do the test 
+to include network delay and jitter into the test results.
+
+For an example of what can be generated, please run the "plotit.sh" script
+which will plot my results using gnuplot.
+
+Future work
+-----------
+
+Included is a pcap capture facility that can play back media streams
+from wirshark captures of the media. If deemed useful, we can 
+at a future date, simulate live conferences in the presence of 
+noise to see how intelligible the speech is to a human observer.
+
+
+Acknowledgement
+--------------
+
+ Woof! suggested the metric to use to evaluate goodness of 
+ mixing which has been used here with some modifications.
+ The tester recycles some code developed by Woof! for the paging server.
+
+
+

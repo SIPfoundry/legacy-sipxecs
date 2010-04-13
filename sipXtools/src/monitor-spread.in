@@ -1,0 +1,274 @@
+#!/bin/sh
+
+################################################################
+#### Start Configuration Variable Defaults
+################################################################
+
+### these can be set using command line arguments
+Site="sipXpbx"
+DefaultReportAddress="root"
+SourceAddress="root"
+AlarmTotal=100
+RegLimit=2
+SampleInterval=60
+Send="DELTA"
+
+################################################################
+
+### these cannot be set from the command line
+MonCacheDir=@SIPX_VARDIR@/monitor-cache
+ExpireSpread=@SIPX_BINDIR@/expire-spread
+SendMail=/usr/lib/sendmail
+
+################################################################
+#### End Configuration Variables
+################################################################
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        -u|--unconditional)
+            Send="UNCONDITIONAL"
+            ;;
+
+        -a|--alarm)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <alarm-address> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                if [ -z "${ReportAddress}" ]
+                then
+                    ReportAddress=${2}
+                else
+                    ReportAddress="${ReportAddress},${2}"
+                fi
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -f|--from)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <from-address> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                SourceAddress=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -s|--site)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <site-label> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                Site=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -i|--interval)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <sample-interval> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                SampleInterval=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -e|--expect)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <expected-registrations> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                AlarmTotal=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -r|--regtime)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <registration-time> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                RegLimit=${2}
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            Action=USAGE
+            break
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+if [ "${Action}" = "USAGE" ]
+then
+    cat <<USAGE
+
+Usage:
+
+   monitor-spread [-u | --unconditional]
+                  [-a | --alarm    <alarm-address>]
+                  [-f | --from     <from-address>]
+                  [-s | --site     <site-label>]
+                  [-i | --interval <sample-interval>]
+                  [-e | --expect   <expected-registrations>]
+                  [-r | --regtime  <registration-time>]
+
+                  --unconditional - send a checkpoint report even if there are no alarms
+                  <alarm-address> - reporting email address
+                                    (may be used multiple times)
+                  <from-address>  - source address for report email
+                  <site-label>    - name of the site (for subject line)
+                  <sample-interval>        - time intervals for histogram [60]
+                  <expected-registrations> - number of registrations expected
+                  <registration-time>      - default maximum registration time
+
+   Runs 'expire-spread' and sends email if certain alarm conditions are true.
+
+   Best used from cron with crontab entries like these:
+
+15,30,45 * * * * monitor-spread --expect 25 --site 'Example Corp.' --alarm admin@example.com
+0 * * * * monitor-spread --unconditional -e 25 -s 'Example Corp.' -a admin@example.com
+
+USAGE
+    exit
+fi
+
+Host=`hostname -f`
+
+test -d ${MonCacheDir} || mkdir ${MonCacheDir}
+
+cd ${MonCacheDir} > /dev/null
+
+if [ -s alarms ]
+then
+    Last="HAD_ALARM"
+else
+    Last="NO_ALARM"
+fi
+
+test -e result.3 && rm -f result.3
+test -e result.2 && mv -f result.2 result.3
+test -e result.1 && mv -f result.1 result.2
+
+${ExpireSpread} --real --sample ${SampleInterval} --db @SIPX_DBDIR@/registration.xml \
+> result.1
+
+sendit () {
+    cat - alarms <<EOF > message
+To: ${ReportAddress:=$DefaultReportAddress}
+From: ${SourceAddress}
+Subject: ${Site} Monitor $1 ${Host}
+X-sipX-Monitor: $1
+X-sipX-Monitor-Site: ${Site}
+X-sipX-Monitor-Host: ${Host}
+
+EOF
+    results=""
+    for r in 1 2 3
+    do
+      if [ -r result.$r ]
+      then
+          results="$results result.$r"
+      fi
+    done
+    echo "" >> message
+    grep -h -e '^Timestamp:' ${results} >> message
+    echo "" >> message
+    echo "Live should be steady over ${AlarmTotal} ?" >> message
+    grep -h -e '^Live:' ${results} >> message
+    echo "" >> message
+    echo "PeakRate values should be below 2.0, MUST be below 5.0" >> message
+    grep -h -e '^PeakRate:' ${results} >> message
+    echo "" >> message
+    echo "Latest values should advance and be about ${RegLimit} hours greater than Timestamp" >> message
+    grep -h -e '^Latest:' ${results} >> message
+    echo "" >> message
+    echo "FirstPeak shows the earliest time that has the peak value" >> message
+    grep -h -e '^FirstPeak:' ${results} >> message
+    echo "" >> message
+    echo "Earliest values should advance and be greater than Timestamp" >> message
+    grep -h -e '^Earliest:' ${results} >> message
+    echo "" >> message
+    echo "Most Recent Histogram - ${SampleInterval} second samples:" >> message
+    cat  result.1 >> message
+
+    ${SendMail} -i -t -f "${ReportAddress:=$DefaultReportAddress}" < message
+}
+
+value() {
+    if [ -r result.$2 ]
+    then
+        awk "\$1 == \"$1\" {print \$2}" result.$2
+    else
+        echo $3
+    fi
+}
+
+cat /dev/null > alarms
+
+t1=`value Timestamp: 1 00:00:00`
+t2=`value Timestamp: 2 00:00:00`
+
+if [ "${t1}" = "${t2}" ]
+then
+    echo "Timestamps Not Changing" >> alarms
+fi
+
+l1=`value Latest: 1 00:00:00`
+l2=`value Latest: 2 00:00:00`
+
+if [ "${l1}" = "${l2}" ]
+then
+    echo "Latest Not Changing" >> alarms
+fi
+
+
+# Uncomment below to alarm when total count falls
+#     this may produce more frequent alarms
+c1=`value Live: 1 0`
+if [ ${AlarmTotal} -gt 0 -a ${c1} -lt ${AlarmTotal} ]
+then
+    echo "Live Count ${c1} < --expect ${AlarmTotal}" >> alarms
+fi
+
+if [ -s alarms ]
+then
+    sendit "Alarm"
+elif [ "${Last}" = "HAD_ALARM" ]
+then
+    echo "Alarm Cleared - Last 3 samples:" > alarms
+    sendit "Alarm Cleared"
+    cat /dev/null > alarms
+elif [ "${Send}" = "UNCONDITIONAL" ]
+then
+    echo "Routine Check - Last 3 samples:" > alarms
+    sendit "Checkpoint"
+    cat /dev/null > alarms
+fi

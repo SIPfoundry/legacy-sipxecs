@@ -1,0 +1,34 @@
+<span jwcid="errorMsg"/>
+<span jwcid="@If" condition="ognl:acdServerPresent">
+  <form jwcid="@Form">
+    <fieldset>
+      <label><span key="label.selectServer">Hosts</span></label>
+        <span jwcid="locationSelector" />
+     </fieldset>
+  </form>
+
+  <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions">
+    <table id="list.presence" jwcid="userTable">
+      <span jwcid="statusColumnValue@Block">
+        <span jwcid="statusLabel"/>
+      </span>
+    </table>
+    <ul jwcid="actions@Block" class="component-submit">
+      <li>
+        <input id="signInButton" jwcid="signInButton@Submit"
+          updateComponents="ognl:{'refreshedContent'}"
+          listener="listener:signIn"
+          value="message:signIn"/>
+      </li>
+      <li>
+        <input id="signOutButton" jwcid="signOutButton@Submit"
+          updateComponents="ognl:{'refreshedContent'}"
+          listener="listener:signOut"
+          value="message:signOut"/>
+      </li>
+    </ul>
+  </form>
+</span>
+<span jwcid="@Else">
+  <p class="user-error" id="presence-disabled"><span key="noServersFound.error">No ACD servers found .</span></p>
+</span>

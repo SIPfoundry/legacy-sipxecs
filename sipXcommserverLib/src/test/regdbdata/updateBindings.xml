@@ -1,0 +1,16 @@
+<?xml version="1.0" standalone="yes" ?>
+<items type="registration">
+    <item>
+        <callid>ID2</callid>
+        <cseq>200</cseq>
+        <uri>sip:200@testdomain.example.com</uri>
+        <contact>sip:200@10.1.1.20</contact>
+        <qvalue></qvalue>
+        <expires>100</expires>
+        <instance_id></instance_id>
+        <gruu></gruu>
+        <path>&lt;sip:pleasevisitme.com&gt;,&lt;sip:metooplease.com&gt;</path>
+        <primary>seqOne</primary>
+        <update_number>3</update_number>
+    </item>
+</items>

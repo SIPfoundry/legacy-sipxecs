@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="phonebookManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.phonebook.PhonebookManager</value>
+    </property>
+    <property name="target">
+      <ref local="phonebookManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="vcardParser" class="org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl" />
+
+  <bean id="vcardWriter" class="org.sipfoundry.sipxconfig.phonebook.VcardWriter" />
+
+  <bean id="phonebookCsvParser" class="org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl">
+    <property name="skipHeaderLine" value="false" />
+  </bean>
+
+  <bean id="phonebookManagerImpl" class="org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="phonebookManagementEnabled" value="true" />
+    <property name="csvParser" ref="phonebookCsvParser" />
+    <property name="vcardParser" ref="vcardParser" />
+    <property name="vcardWriter" ref="vcardWriter" />
+    <property name="vcardEncoding" value="UTF-8" />
+	<property name="generalPhonebookSettings" ref="generalPhonebookSettings" />
+  </bean>
+
+  <bean id="filePhonebookEntryUpgradeTask" class="org.sipfoundry.sipxconfig.phonebook.FilePhonebookEntryUpgradeTask">
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="taskNames">
+      <list>
+        <value>phonebook_entries_update_task</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="generalPhonebookSettings"
+	class="org.sipfoundry.sipxconfig.phonebook.GeneralPhonebookSettings">
+	<property name="modelFilesContext" ref="modelFilesContext"/>
+  </bean>
+
+</beans>

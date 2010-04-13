@@ -1,0 +1,74 @@
+<test name="tftp">
+  <label>TFTP Test</label>
+  <description>
+    Verify that the specified TFTP server is functioning properly.
+  </description>
+  <longDescription>
+    Phone configuration files produced by the @sipxecs.name@ Configuration Server
+    can optionally be served by a TFTP server. This test verifies that
+    the specified TFTP server can be used to retrieve a special phone
+    configuration test file which has been produced by the Configuration Server.
+  </longDescription>
+  <command>
+    <exec>preflight</exec>
+    <arg>-v</arg>
+    <arg>--tftp-test</arg>
+    <arg>${hostname}</arg>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+    </result>
+    <result exit="149">
+      <status>Error</status>
+      <msg>TFTP server address could not be resolved.</msg>
+      <description>
+          The specified TFTP server address could not be resolved to an IP
+          address. Verify that the DNS server(s) have a valid entry.
+      </description>
+    </result>
+    <result exit="151">
+      <status>Error</status>
+      <msg>TFTP server is unreachable.</msg>
+      <description>
+        The resolved IP address of the specified TFTP server did not respond
+        to ICMP pings. Verify that the server is running and reachable from
+        this network.
+      </description>
+    </result>
+    <result exit="152">
+      <status>Error</status>
+      <msg>TFTP client encountered unrecoverable error.</msg>
+      <description>
+          The test client has suffered an unrecoverable network failure.
+          Please see the details for further information.
+      </description>
+    </result>
+    <result exit="153">
+      <status>Error</status>
+      <msg>TFTP get of test file failed.</msg>
+      <description>
+        The specified TFTP server failed to serve the test configuration file.
+        Verify that the TFTP server is running and properly configured.
+      </description>
+    </result>
+    <result exit="154">
+      <status>Error</status>
+      <msg>TFTP test file did not verify.</msg>
+      <description>
+        The test file that was retrieved from the specified TFTP server was
+        found to be corrupted. Please contact technical support for
+        further assistance.
+      </description>
+    </result>
+  </results>
+</test>

@@ -1,0 +1,904 @@
+
+body
+{
+	font-family:Arial, Verdana, Helvetica, sans-serif;
+	font-size:12px;
+	margin:0;
+	padding:0;
+	min-width:850px;
+}
+
+h1
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:24px;
+}
+
+h2
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:20px;
+	margin:0px;
+	display:inline-block;
+}
+
+h3
+{
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:16px;
+	font-weight:bolder;
+}
+
+h4
+{
+	font-weight:bold;
+	font-size:100%;
+}
+
+h5
+{
+	font-style:italic;
+	font-size:100%;
+}
+
+h6
+{
+	font-variant:small-caps;
+	font-size:100%;
+}
+
+dt
+{
+	font-weight:bold;
+}
+
+dd
+{
+	text-indent:0;
+	margin-top:5px;
+	margin-bottom:5px;
+}
+
+pre,tt,code,kbd,samp
+{
+	font-family:monospace;
+}
+
+ul
+{
+	list-style-type:none;
+}
+
+legend
+{
+	font-weight:bold;
+	font-size:120%;
+}
+
+ul.htabs, ul.vtabs
+{
+	list-style:none;
+	padding:2px;
+	white-space:nowrap;
+	margin:0;
+	padding:0 0 0 0;
+}
+
+ul.vtabs li
+{
+	display:inline;
+	margin: 0;
+}
+
+li.tab
+{
+	padding: 0.2em 0;
+}
+
+li.tab a:link,
+li.tab a:hover,
+li.tab a:visited
+{
+        text-decoration: none;
+    	padding-left:10px;
+    	display: block;
+}
+
+li div.tabLink
+{
+	margin: .2em 0;
+}
+
+#voicemailFolders li.tab {
+	text-indent:10px;
+}
+
+#login-content {
+ height: 100%;
+}
+
+#login-sidebar {
+  position: absolute;
+  background: url('/sipxconfig/skin/loginBackgroundGradient.png') top right repeat-y #F2F2F2;
+  width: 50%;
+  min-height: 100%;
+  height: 100%;
+  // IE6 hack
+  //height: 800px;
+}
+
+#login-ad {
+  position: absolute;
+  background: url(/sipxconfig/skin/login.jpg) no-repeat left;
+  margin-top: 91px;
+  width: 95%;
+  height: 250px;
+  border-top: 1px solid #FFFFFF;
+  border-bottom: 1px solid #FFFFFF;
+}
+
+#login-errors .user-error {
+    background: url('/sipxconfig/images/error.png') top left no-repeat; 
+    padding-left: 20px;
+    height: 1.5em;
+    width: 500px;
+    margin-top: 50px;
+    margin-left: 5px;
+}
+
+#login-form {
+  padding-left: 20px;
+  padding-top: 7px;
+}
+
+#login-title {
+  font-size: 22px;
+  font-weight: bold;
+  padding: 5px;
+}
+
+#login-form input {
+    height: auto;
+}
+#login-form input[type="text"], input[type="password"] {
+    width:240px;
+}
+#login-form input[type="submit"] {
+    margin-left:140px;	
+}
+#login-form label {
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom:5px;
+    margin-top:10px;
+    display:inline-block;
+}
+
+fieldset#loginForm legend {
+  font-size: 24px;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bolder;
+}
+
+#login-form form {
+  margin: 4px;
+  padding: 3px;
+}
+
+#loginFormSectionBox {
+	width:350px;	
+	margin-top: 92px;
+	margin-left:auto;
+	margin-right:auto;
+	border:3px solid #3F4D5D;
+}
+
+#lastmodified
+{
+	text-align:right;
+	font-style:italic;
+}
+
+#home-graphic
+{
+    margin: 50px 0 50px 100px;
+    height: 220px;
+    width: 300px;
+}
+
+#logo {
+    height: 38px;
+    width:165px;
+    float:left;
+}
+#login-logo {
+    height: 40px;
+}
+
+#banner
+{
+	height:18px;
+	padding-bottom:20px;
+	padding-top:2px;
+}
+
+#banner-links
+{
+	text-align: right;
+	float:right;
+}
+
+#banner-links a
+{
+	text-decoration:none;
+	padding:5px 5px 5px 20px;
+}
+
+#banner-links form
+{
+	display:inline;
+}
+
+#navigation
+{       
+
+}
+
+#navigation ul,
+#navigation form
+{
+	margin: 0;
+	padding: 0;
+	display:inline-block;
+}
+
+#navigation li {
+	float: left;
+	position: relative;
+	min-width:115px;
+	text-align:center;
+	margin: 0;
+	padding-top: 0;
+	padding-bottom: 0;
+	padding-left: 0;
+	padding-right:2px;
+}
+
+#navigation li li {
+    	margin-left:-1px;
+    	min-width:113px;
+    	padding-right:0px;
+    	width:100%;
+}
+
+#navigation li ul {
+	display: none;
+	position: absolute;
+	border-bottom:1px solid #bebebe;
+	margin-right:2px;
+}
+
+#navigation li:hover ul,
+#navigation li.over ul { 
+	display: block; 
+    	z-index: 500;
+}
+
+#navigation a {
+	display: block;
+	text-decoration: none;
+	padding: 2px 0;
+}
+
+#navigation li li a {
+
+}
+
+#contentContainer {
+	width: 100%;
+    	float: left;
+}    
+
+#contentContainer #leftNav {
+	float: left;       
+	padding-left:10px;
+	min-width:166px;
+	word-wrap: break-word;
+}
+
+#content
+{	
+    margin-left:10px;
+    float:left;
+    width:65%;
+}
+
+.tableDiv
+{
+    overflow:auto;
+}
+
+.textBox
+{
+    width: 100%;
+    overflow: auto;
+}
+
+#settings-nav ul
+{
+	list-style-type:none;
+	margin:2px;
+	padding:2px;
+}
+
+#settings-nav a
+{
+	white-space:nowrap;
+}
+
+#settings-content
+{
+	margin-left:0;
+}
+
+.highlight
+{
+	border-style: dashed;
+	border-width: 1px;
+}
+
+#footer
+{
+	/* clear:both is important for IE guillotine bug */
+	clear:both;
+    text-align:center;
+    padding: 15px;
+}
+
+#footer p 
+{
+    margin: 0;
+    padding: 3px;
+}
+
+.pageLabel
+{
+	font-weight:bold;
+}
+
+p.message
+{
+	font-weight:bold;
+}
+
+.settingDefault
+{
+	font-style:italic;
+}
+
+.settingDescription,
+table.component .settingDescription
+{
+	font-size:80%;
+	white-space:normal;
+}
+
+li
+{
+	margin-top:5px;
+	margin-bottom:5px;
+}
+
+ul.component-links
+{
+	list-style-type:none;
+	text-align:right;
+	margin:0px;
+}
+
+ul.component-links li,
+ul.component-links li form
+{
+	display:inline;
+	padding-left:1em;
+}
+
+ul.component-submit
+{
+	list-style-type:none;
+	margin:0px;
+	padding:0;
+	margin-bottom:0px;
+}
+
+ul.component-submit li
+{
+	white-space:nowrap;
+	display:inline;
+	margin-right:5px;
+}
+
+table.component
+{
+	border-style: solid;
+	border-width: 1px;
+    	width: 100%;
+    	border-spacing:1px;
+}
+
+table.component thead tr th,
+table.component tbody tr th
+{
+	white-space:nowrap;
+	padding:3px 5px;
+}
+
+table.component th a
+{
+    text-decoration:none;
+}
+
+table.component tbody tr td
+{
+	white-space:nowrap;
+	border-collapse:collapse;
+	padding:3px 5px;
+}
+
+table.component tbody tr.even td, table.component tbody tr.odd td
+{
+	border-bottom: 1px solid #DADADC;
+}
+
+table.component tfoot tr td
+{
+	text-align:center;
+	white-space:nowrap;
+	padding:3px;
+}
+
+table.component .descriptionColumnValue,
+table.component .errorColumnValue
+{
+   /* because of CSS's forward compatibility guidelines, user agents pick the last one they support */
+   white-space: normal;        /* wrap (CSS 2) */
+   white-space: -moz-pre-wrap; /* wrap, but preserve newlines (Mozilla) */
+   white-space: -o-pre-wrap;   /* wrap, but preserve newlines (Opera 7) */
+   white-space: pre-wrap;      /* wrap, but preserve newlines (CSS 2.1) */
+}
+
+
+ul.component-selection
+{
+	list-style-type:none;
+	margin:0 2px 2px;
+	padding:0;
+}
+
+ul.component-selection li
+{
+	display:inline;
+	margin:0 5px;
+}
+
+ul.component-selection li a
+{
+	text-decoration:none;
+	font-size:.8em;
+}
+
+.component-action
+{
+	font-style:italic;
+}
+
+ul.component-pager
+{
+	list-style-type:none;
+}
+
+ul.component-pager li
+{
+	display:inline;
+	margin:0 5px;
+}
+
+div.date
+{
+    padding:0px;
+    margin:0px;
+    display:inline;
+}
+
+div.right-column,
+div.help
+{
+    clear:right;
+    float:right;
+    margin-right:-23%;
+}
+
+div.help
+{
+	width:20%;
+	word-wrap: break-word;
+}
+
+div.right-column
+{
+    width:25%;
+}
+
+div.help ul
+{
+	padding-left: 1em;
+	margin-left: 0;
+}
+
+div.search 
+{
+	padding:0 5px 0 0;
+	margin: 0;
+}
+
+div.reports
+{
+	clear:left;
+    float:left;
+    margin:5px 0;
+    padding:5px;
+	border-style: dashed;
+	border-color: #C0C0C0;
+	border-width: 1px 1px 1px 1px;
+	background-color: #F0F0F0;
+	width: 260px;
+}
+
+p.reportLabel {
+	background: none #D7D7D9;
+	border: solid #C0C0C0 1px;
+	display: block;
+	font-size: 1em;
+	line-height: 1;
+	margin: 0;
+	padding: 4px;
+	text-align: justify;
+	text-indent: 0;
+	width: auto;
+}
+
+fieldset
+{
+	margin:0px;
+	border-style:none;
+	padding:0px;
+}
+
+label
+{
+	font-size:120%;
+	padding-right:1em;
+}
+
+img
+{
+	border:none;
+}
+
+form.with-sections fieldset
+{
+	border-top-width:2em;
+	border-style:solid !important;
+}
+
+fieldset td
+{
+	padding:3px;
+}
+
+.page-label
+{
+	font-weight:bold;
+	margin:2px;
+	padding:2px;
+}
+
+ul.form-actions
+{
+	list-style-type:none;
+	text-align:left;
+	margin-bottom:0px;
+}
+
+ul.form-actions li
+{
+	display:inline;
+}
+
+.banner-logo
+{
+	display:none;
+}
+
+.hide
+{
+	display:none;
+}
+
+.user-error, 
+.user-warning,
+.user-success
+{
+	font-weight:bold;
+}
+
+.fwd-voicemail
+{
+	font-style: italic;
+	margin-left: 2em;
+}
+
+.cloud
+{
+	padding: .5em 1em;
+	width: 40%;
+	float: left;
+	margin-bottom: 1em;
+	margin-right: 1em;
+}
+
+table.cloud thead 
+{
+	text-align: left;
+}
+
+table.cloud tbody tr td
+{
+  padding: 0.5em 0;
+}
+
+div.col
+{
+	float:left;
+	width:25em;
+}
+
+div.autocomplete {
+  width: 350px;
+}
+
+div.autocomplete ul {
+  margin:0;
+  padding:0;
+  width:100%;
+  list-style-type:none;
+}
+
+div.autocomplete ul li {
+  margin:0;
+  padding:3px;
+}
+
+div.autocomplete ul strong.highlight {
+  margin:0;
+  padding:0;
+}
+
+#searchContainer.styled {
+    padding: 3px 1px 3px 20px;
+    vertical-align: middle;
+}
+
+.width_100_percent {
+  width:100%;
+}
+
+html, body {
+  height: 100%;
+  min-height: 100%;
+}
+
+.testDescription {
+    position: absolute;
+    width: 400px;
+    border-style: solid;
+    border-width: 1px;
+    top: 0;
+    left: 0;
+    text-align: left;
+}
+
+.hidden {
+	display: none;
+}
+
+.visible {
+    display: block;
+}
+
+.testDescription .tooltipBody {
+    padding: 2px;
+}
+
+.status-Success {
+	padding-left: 20px;
+    background: transparent url('/sipxconfig/images/tick.png') left no-repeat ;
+}
+
+.status-Error {
+	padding-left: 20px;
+    background: transparent url('/sipxconfig/images/cross.png') left no-repeat ;
+}
+
+.status-Unknown {
+	padding-left: 20px;
+    background: transparent url('/sipxconfig/images/unknown.png') left no-repeat ;
+}
+
+.status-InProgress {
+   padding-left: 20px;
+   background: transparent url('/sipxconfig/images/loading.gif') left no-repeat ;
+}
+
+.goLink {
+    padding-left: 20px;
+    background: transparent url('/sipxconfig/images/go.png') left no-repeat;
+}
+
+.backLink {
+    padding-left: 20px;
+    background: transparent url('/sipxconfig/images/back.png') left no-repeat;
+}
+
+#servicesTable .statusColumnValue {
+    width: 70%;
+    white-space:normal;
+}
+
+.avatar {
+	width: 30%;
+	float: right;
+}
+
+.avatar img {
+	margin: 10px;
+}
+
+.phonebookIframe {
+	width: 100%;
+	height: 490px;
+	background: inherit;
+}
+
+.contactInformationIframe {
+	width: 500px;
+	height: 498px;
+	background: inherit;
+}
+
+.bannerLinkDivider {
+	background:transparent url(/sipxconfig/images/layout/bannerLinkDivider.png) no-repeat scroll left top;
+	margin-left:5px;
+	margin-right:5px;
+	padding-top:3px;
+}
+#bodyContentContainer {
+	margin-left:auto;
+	margin-right:auto;
+	width:98%;
+	max-width:3000px;
+}
+
+.roundedSectionBoxTopLeft, 
+.roundedSectionBoxTopRight, 
+.roundedSectionBoxBottomLeft, 
+.roundedSectionBoxBottomRight,
+.roundedNavSectionBoxTopLeft, 
+.roundedNavSectionBoxTopRight, 
+.roundedNavSectionBoxBottomLeft, 
+.roundedNavSectionBoxBottomRight,
+.roundedMainSectionBoxTopLeft, 
+.roundedMainSectionBoxTopRight, 
+.roundedMainSectionBoxBottomLeft, 
+.roundedMainSectionBoxBottomRight, 
+.roundedIndicatorSectionBoxTopLeft, 
+.roundedIndicatorSectionBoxTopRight 
+{ 
+	height: 8px;
+	font-size: 2px;
+}
+.roundedSectionBoxTopLeft, 
+.roundedSectionBoxBottomLeft,
+.roundedNavSectionBoxTopLeft, 
+.roundedNavSectionBoxBottomLeft,
+.roundedMainSectionBoxTopLeft, 
+.roundedMainSectionBoxBottomLeft, 
+.roundedIndicatorSectionBoxTopLeft 
+{ 
+	margin-right: 5px;
+}
+.roundedSectionBoxTopRight, 
+.roundedSectionBoxBottomRight,
+.roundedNavSectionBoxTopRight, 
+.roundedNavSectionBoxBottomRight,
+.roundedMainSectionBoxTopRight, 
+.roundedMainSectionBoxBottomRight, 
+.roundedIndicatorSectionBoxTopRight 
+{ 
+	margin-left: 5px;
+	margin-top: -8px;
+}
+.roundedSectionBoxTopRight, 
+.roundedNavSectionBoxTopRight, 
+.roundedMainSectionBoxTopRight, 
+.roundedIndicatorSectionBoxTopRight 
+{
+	background-position: 100% 0;
+}
+.roundedSectionBoxBottomLeft, 
+.roundedNavSectionBoxBottomLeft,
+.roundedMainSectionBoxBottomLeft,
+.roundedIndicatorSectionBoxBottomLeft 
+{ 
+	background-position: 0 -8px;
+}
+.roundedSectionBoxBottomRight,
+.roundedNavSectionBoxBottomRight,
+.roundedMainSectionBoxBottomRight,
+.roundedIndicatorSectionBoxBottomRight 
+{ 
+	background-position: 100% -8px;
+}
+.roundedSectionBoxInside, 
+.roundedIndicatorSectionBoxInside
+{
+	padding-left: 10px;
+	padding-right:10px;
+}
+.roundedSectionBoxInside {
+	min-height:200px;
+}
+.roundedSectionBoxInside form {
+	overflow-x:auto;
+} 
+#leftNav li {
+	margin:0px;
+}
+
+#contentContainerSectionTop {
+	margin-top:-7px;
+	padding-bottom:10px;
+}
+.roundedSectionBoxInsideContent {
+	width:100%;
+	display:inline-block;
+}
+.roundedMainSectionBoxInsideContent 
+{
+	display:inline-block;
+	width:100%;
+}
+.roundedNavSectionBoxInside {
+	padding-left: 0px;
+	padding-right:0px;
+}
+.roundedIndicatorSectionBoxInside {
+	margin-left:1px;
+	margin-right:1px;
+	font-size:12pt;
+}
+
+div.adminPortal,
+div.userPortal
+{
+	text-align:center;
+}
+
+#logtext {
+	height: 400px;
+	width: 600px;
+	overflow: auto;
+	border: 1px solid #666;
+	background-color: #ccc;
+	padding: 8px;
+}

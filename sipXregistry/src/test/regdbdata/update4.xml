@@ -1,0 +1,29 @@
+<?xml version="1.0" standalone="yes" ?>
+<items type="registration">
+  <item>
+    <callid>01@origin</callid>         <!-- call id of the registration dialog -->
+    <cseq>203</cseq>                   <!-- cseq number of the registration -->
+    <uri>sip:user1@example.com</uri>   <!-- Target URI (address) -->
+    <contact>&lt;sip:line-01@192.168.1.101&gt;</contact>    <!-- contact -->
+    <qvalue></qvalue>                  <!-- q value used as priority -->
+    <expires>3600</expires>            <!-- expiration time (unix epoch time) -->
+    <primary>r1</primary>              <!-- primary registrar for this registration -->
+    <update_number>13</update_number>   <!-- database update number -->
+    <instance_id></instance_id>
+    <gruu></gruu>
+    <path></path>
+  </item>
+  <item>
+    <callid>02@origin</callid>         <!-- call id of the registration dialog -->
+    <cseq>204</cseq>                   <!-- cseq number of the registration -->
+    <uri>sip:user1@example.com</uri>   <!-- Target URI (address) -->
+    <contact>&lt;sip:line-02@192.168.1.102&gt;</contact>    <!-- contact -->
+    <qvalue></qvalue>                  <!-- q value used as priority -->
+    <expires>3600</expires>            <!-- expiration time (unix epoch time) -->
+    <primary>r1</primary>              <!-- primary registrar for this registration -->
+    <update_number>13</update_number>   <!-- database update number -->
+    <instance_id></instance_id>
+    <gruu></gruu>
+    <path></path>
+  </item>
+</items>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.setting.GroupFilter" allow-body="no"
+  allow-informal-parameters="no">
+
+  <description>Drop-down box for filtering and searching</description>
+
+  <parameter name="selectedGroupId" required="yes"/>
+  <parameter name="queryText" required="yes"/>
+  <parameter name="searchMode" required="yes"/>
+  <parameter name="unassignedOptionAvailable" required="no"/>
+  <parameter name="unassignedMode" required="no"/>
+
+  <inject property="tapestry" object="spring:tapestry"/>
+
+  <property name="groupId"/>
+
+  <bean name="propertyRenderer" class="org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer"/>
+
+  <component id="groupFilter" type="common/FlexiblePropertySelection">
+    <binding name="value" value="groupId"/>
+    <binding name="model" value="selectionModel"/>
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
+    <binding name="renderer" value="bean:propertyRenderer"/>
+  </component>
+  <component id="queryText" type="TextField">
+    <binding name="value" value="queryText"/>
+  </component>
+  <component id="searchButton" type="Submit">
+    <binding name="value" value="message:button.search"/>
+  </component>
+  <component id="renderQuery" type="If">
+    <binding name="condition" value="searchMode"/>
+  </component>
+</component-specification>

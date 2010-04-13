@@ -1,0 +1,15 @@
+<ul class="form-actions">
+  <li jwcid="@If" condition="ognl:callback">
+    <input jwcid="ok" id="form:ok" type="button"/>
+  </li>
+  <li jwcid="@If" condition="ognl:includeApplyButton">
+    <input jwcid="apply" id="form:apply" type="button"/>
+  </li>
+  <li jwcid="@If" condition="ognl:includeRefreshButton">
+    <input jwcid="refresh" id="form:refesh" type="button"/>
+  </li>
+  <li jwcid="@If" condition="ognl:callback">
+    <input jwcid="cancel" id="form:cancel" type="button"/>
+  </li>
+  <span jwcid="@RenderBody"/>
+</ul>

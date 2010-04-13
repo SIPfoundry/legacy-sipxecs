@@ -1,0 +1,40 @@
+include config/subdir.am
+include config/dist.am
+
+all: BUILDSTAMP
+
+## BUILDSTAMP records the subversion revision, date/time, which builder built
+## this, and the repository branch (if it is not main).
+## It also creates a C source file config/sipX-buildstamp.cpp containing
+## the same information.
+
+.PHONY: BUILDSTAMP
+BUILDSTAMP:
+	@echo -n "Generating BUILDSTAMP: "
+	@test -d config || mkdir config
+	@echo "$(SIPX_BUILDSTAMP)" > BUILDSTAMP
+	@${LocalizeSipXconfig} \
+		-e "s/@SIPX_VERSION\@/$(SIPX_VERSION)/" \
+		-e "s/@SIPX_BUILDSTAMP\@/$(SIPX_BUILDSTAMP)/" \
+		-e "s/sipx/SipX/" \
+	    $(srcdir)/config/sipX-buildstamp.cpp.in \
+	> config/@PACKAGE@-buildstamp.cpp
+	@${LocalizeSipXconfig} \
+		-e "s/sipx/SipX/" \
+	    $(srcdir)/config/sipX-buildstamp.h.in \
+	> config/@PACKAGE@-buildstamp.h
+	@echo "$(SIPX_BUILDSTAMP)"
+
+# automake doesn't like this inside the conditional
+.PHONY : doc
+
+# CONFIG_DISTCLEANFILES are files to be added to DISTCLEANFILES in any
+# makefile that includes config as an external subdirectory.
+CONFIG_DISTCLEANFILES = \
+	config/config.sub \
+	config/depcomp \
+	config/install-sh \
+	config/ltmain.sh \
+	config/missing \
+	config/@PACKAGE@-buildstamp.cpp \
+	config/@PACKAGE@-buildstamp.h

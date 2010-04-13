@@ -1,0 +1,104 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'dialingRules','schedules'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="dialingRulesTab@Block">
+    <div jwcid="@common/QuickLinks">
+      <ul>
+        <li><a jwcid="@PageLink" page="gateway/ListGateways" id="link:gateways">
+          <span key="link.gateways">Gateways</span></a>
+        </li>
+        <li><a jwcid="@PageLink" page="permission/ListPermissions" id="link:permissions">
+          <span key="link.permissions">Permissions</span></a>
+        </li>
+      </ul>
+    </div>
+    <div jwcid="@common/QuickHelp" value="message:quick.help"/>
+    <form jwcid="@Form" id="dialplan:list:form"
+      delegate="bean:validator"
+      listener="listener:formSubmit">
+      <ul class="component-links">
+        <li><span jwcid="selectRuleType@dialplan/SelectRuleType"/></li>
+        <li>
+          <a jwcid="revert@DirectLink" id="dialplan:revert" listener="listener:revert">
+            <span key="link.revert">Reset</span>
+          </a>
+        </li>
+      </ul>
+      <table jwcid="@common/Table" id="dialplan:list"
+        columns="* !name,!enabled,!type,!description,!schedule"
+        source="ognl:dialPlanContext.rules"
+        row="ognl:currentRow"
+        selections="bean:selections">
+        <tr jwcid="nameColumnValue@Block">
+          <td jwcid="editRowLink@DirectLink"
+            listener="listener:edit"
+            parameters="ognl:currentRow.id">
+            <span jwcid="@Insert" value="ognl:currentRow.name"/>
+          </td>
+        </tr>
+        <tr jwcid="enabledColumnValue@Block">
+          <td jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+        </tr>
+        <tr jwcid="typeColumnValue@Block">
+          <td jwcid="@Insert" value="ognl:currentRow.type" format="bean:typeFormat"/>
+        </tr>
+        <tr jwcid="scheduleColumnValue@Block">
+          <span jwcid="@If" condition="ognl:currentRow.schedule!=null">
+            <td jwcid="editScheduleRow@DirectLink" listener="listener:editSchedule" parameters="ognl:currentRow.schedule.id">
+              <span jwcid="@Insert" value="ognl:currentRow.schedule.name"/>
+            </td>
+          </span>
+          <span jwcid="@Else">
+            <td jwcid="@Insert" value="message:schedule.always"/>
+          </span>
+        </tr>
+      </table>
+      <ul class="component-submit">
+        <li>
+          <input jwcid="duplicate@Submit" id="dialplan:duplicate"
+            selected="ognl:rowsToDuplicate"
+            tag="ognl:allSelected"
+            value="message:button.duplicate" />
+        </li>
+        <li>
+          <input jwcid="delete@Submit" id="dialplan:delete"
+            selected="ognl:selectedRows"
+            tag="ognl:allSelected"
+            value="message:button.delete" />
+          <span jwcid="@common/Confirm"
+            component="component:delete"
+            prompt="message:confirm.delete"/>
+        </li>
+        <li>
+          <input jwcid="moveUp@Submit" id="dialplan:move:up"
+            selected="ognl:rowsToMoveUp"
+            tag="ognl:allSelected"
+            value="message:button.moveUp" />
+        </li>
+        <li>
+          <input jwcid="moveDown@Submit" id="dialplan:move:down"
+            selected="ognl:rowsToMoveDown"
+            tag="ognl:allSelected"
+            value="message:button.moveDown" />
+        </li>
+      </ul>
+    </form>
+  </span>
+  <span jwcid="schedulesTab@Block">
+    <div jwcid="@common/QuickHelp" value="message:schedules.quick.help"/>
+    <form jwcid="schedules@Form" delegate="bean:validator">
+      <ul class="component-links">
+        <li>
+          <a id="addSchedule" jwcid="addSchedule@DirectLink" listener="listener:addSchedule">
+            <span key="link.addSchedule">Add Schedule</span>
+          </a>
+        </li>
+      </ul>
+      <span jwcid="schedulesTable@setting/SchedulesTable" schedules="ognl:generalSchedules"
+          viewSchedulesListener="listener:editSchedule" changed="ognl:changed" />
+    </form>
+  </span>
+</div>

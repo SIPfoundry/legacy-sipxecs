@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<dataset>
+  <ring ring_id="1001" user_id="1001" number="231001" expiration="401" enabled="true" ring_type="If no response"
+    position="0" schedule_id="102" />
+  <ring ring_id="1002" user_id="1000" number="231002" expiration="402" enabled="true" ring_type="If no response"
+    position="0" />
+  <ring ring_id="1003" user_id="1000" number="231003" expiration="403" enabled="true" ring_type="If no response"
+    position="1" schedule_id="100" />
+  <ring ring_id="1004" user_id="1000" number="231004" expiration="404" enabled="false" ring_type="If no response"
+    position="2" schedule_id="101" />
+  <ring ring_id="1005" user_id="1001" number="231005" expiration="405" enabled="true" ring_type="If no response"
+    position="1" />
+</dataset>

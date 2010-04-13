@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--  The default dial plan for Germany  -->
+
+  <!-- properties: voiceMail, voiceMailPrefix -->
+  <bean id="de.voicemailRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Anrufbeantworter" />
+    <property name="description" value="Wählplan für den Anrufbeantworter" />
+    <property name="voiceMail" value="101" />
+    <property name="voiceMailPrefix" value="8" />
+  </bean>
+  <!-- properties: extension, attendantAliases -->
+  <bean id="de.attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="Automatische Vermittlung" />
+    <property name="description" value="Wählplan für die automatische Vermittlung" />
+    <property name="extension" value="100" />
+    <property name="attendantAliases" value="operator 0" />
+  </bean>
+
+  <!-- properties: optionalPrefix, emergencyNumber -->
+  <bean id="de.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Notrufnummer" />
+    <property name="description" value="Notrufnummer für Deutschland" />
+    <property name="emergencyNumber" value="112" />
+  </bean>
+  <bean id="de.policeRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Polizei" />
+    <property name="description" value="Notrufnummer für die Polizei" />
+    <property name="emergencyNumber" value="110" />
+  </bean>
+
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
+       longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
+  <bean id="de.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="name" value="Ferngespräche" />
+    <property name="description" value="Wählplan für Ferngespräche" />
+    <property name="longDistancePrefixOptional" value="false" />
+    <property name="longDistancePrefix" value="0" />
+    <property name="externalLen" value="-1" />
+    <property name="areaCodes" value="20,21,22,23,24,30,33,34,35,36,38,40,42,43,45,51,52,61,62,68,69,71,72,89,91,94" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="de.altLongDistanceRule" parent="de.longDistanceRule" singleton="false">
+    <property name="name" value="Alternative Betreiber" />
+    <property name="description" value="Wählplan für Ferngespräche über alternative Netzbetreiber" />
+    <property name="areaCodes" value="10" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="de.premiumRateRule" parent="de.longDistanceRule" singleton="false">
+    <property name="name" value="Premium-Dienste" />
+    <property name="description" value="Anwahl von Premium Diensten" />
+    <property name="areaCodes" value="900" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="de.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+    <property name="name" value="Free Phone" />
+    <property name="description" value="Entgeltfreie Telefondienste" />
+    <property name="areaCodes" value="800" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+  <bean id="de.personalNumberRule" parent="de.longDistanceRule" singleton="false">
+    <property name="name" value="Persönliche Rufnummern" />
+    <property name="description" value="Anwahl von individuellen (Vanity) Nummern" />
+    <property name="areaCodes" value="700" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="de.internationalRule" parent="defaultInternationalRule" singleton="false">
+    <property name="name" value="International" />
+    <property name="description" value="Wählen von internationalen Nummern" />
+    <property name="longDistancePrefix" value="00" />
+    <property name="areaCodes" value="" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+  <bean id="de.carrierInfoRule" parent="de.longDistanceRule" singleton="false">
+    <property name="name" value="Anbieteransage" />
+    <property name="description" value="Bandansage des aktuellen Pre-Selection-Anbieter" />
+    <property name="areaCodes" value="31" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+
+
+  <bean id="de.mobileRule" parent="de.longDistanceRule" singleton="false">
+    <property name="name" value="Mobiltelefone" />
+    <property name="description" value="Wählen von Mobilteilnehmern" />
+    <property name="areaCodes" value="15, 16, 17" />
+    <property name="externalLen" value="11" />
+    <property name="permissionName" value="Mobile" />
+  </bean>
+
+  <bean id="de.infolineRule" parent="de.longDistanceRule" singleton="false">
+    <property name="name" value="Auskunftsdienste" />
+    <property name="description" value="Informationsdienste, welche keine Vorwahl benötigen" />
+    <property name="areaCodes" value="118, 194" />
+    <property name="longDistancePrefix" value="" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="de.servicesRule" parent="de.longDistanceRule" singleton="false">
+    <property name="name" value="Verschiedene Dienste" />
+    <property name="description" value="Harmonisierte Dienste von sozialem Wert" />
+    <property name="areaCodes" value="116" />
+    <property name="externalLen" value="6" />
+    <property name="longDistancePrefix" value="" />
+  </bean>
+
+  <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
+  <!-- this is the list of rules that admin will see after installation and after -->
+  <!-- reverting to default -->
+  <bean id="de.dialPlan" parent="defaultDialPlan" singleton="false">
+    <property name="rules">
+      <list>
+        <ref bean="de.voicemailRule" />
+        <ref bean="de.attendantRule" />
+        <ref bean="de.emergencyRule" />
+        <ref bean="de.policeRule" />
+        <ref bean="de.longDistanceRule" />
+        <ref bean="de.altLongDistanceRule" />
+        <ref bean="de.premiumRateRule" />
+        <ref bean="de.tollFreeRule" />
+        <ref bean="de.personalNumberRule" />
+        <ref bean="de.internationalRule" />
+        <ref bean="de.carrierInfoRule" />
+        <ref bean="de.mobileRule" />
+        <ref bean="de.infolineRule" />
+        <ref bean="de.servicesRule" />
+      </list>
+    </property>
+  </bean>
+
+</beans>

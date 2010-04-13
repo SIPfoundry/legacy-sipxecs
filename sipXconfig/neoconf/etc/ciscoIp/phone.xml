@@ -1,0 +1,898 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="hh:mm">
+    <string>
+      <pattern>[0-2]?\d:[0-6]\d</pattern>
+    </string>
+  </type>
+  <type id="month">
+    <enum>
+      <option>
+        <label>January</label>
+        <value>1</value>
+      </option>
+      <option>
+        <label>February</label>
+        <value>2</value>
+      </option>
+      <option>
+        <label>March</label>
+        <value>3</value>
+      </option>
+      <option>
+        <label>April</label>
+        <value>4</value>
+      </option>
+      <option>
+        <label>May</label>
+        <value>5</value>
+      </option>
+      <option>
+        <label>June</label>
+        <value>6</value>
+      </option>
+      <option>
+        <label>July</label>
+        <value>7</value>
+      </option>
+      <option>
+        <label>August</label>
+        <value>8</value>
+      </option>
+      <option>
+        <label>September</label>
+        <value>9</value>
+      </option>
+      <option>
+        <label>October</label>
+        <value>10</value>
+      </option>
+      <option>
+        <label>November</label>
+        <value>11</value>
+      </option>
+      <option>
+        <label>December</label>
+        <value>12</value>
+      </option>
+    </enum>
+  </type>
+  <type id="dayofweek">
+    <enum>
+      <option>
+        <label>Sunday</label>
+        <value>1</value>
+      </option>
+      <option>
+        <label>Monday</label>
+        <value>2</value>
+      </option>
+      <option>
+        <label>Tuesday</label>
+        <value>3</value>
+      </option>
+      <option>
+        <label>Wednesday</label>
+        <value>4</value>
+      </option>
+      <option>
+        <label>Thursday</label>
+        <value>5</value>
+      </option>
+      <option>
+        <label>Friday</label>
+        <value>6</value>
+      </option>
+      <option>
+        <label>Saturday</label>
+        <value>7</value>
+      </option>
+    </enum>
+  </type>
+  <type id="ciscofeature">
+    <enum>
+      <option>
+        <label>disabled by default</label>
+        <value>0</value>
+      </option>
+      <option>
+        <label>enabled by default</label>
+        <value>1</value>
+      </option>
+      <option>
+        <label>disabled permanently</label>
+        <value>2</value>
+      </option>
+      <option>
+        <label>enabled permanently</label>
+        <value>3</value>
+      </option>
+    </enum>
+  </type>
+  <group name="call">
+    <label>Call Features</label>
+    <setting name="anonymous_call_block">
+      <type refid="ciscofeature"/>
+      <value>0</value>
+      <description>Configure anonymous call block.</description>
+    </setting>
+    <setting name="autocomplete">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>Configure automatic completion of numbers.</description>
+    </setting>
+    <setting name="call_hold_ringback">
+      <type refid="ciscofeature"/>
+      <value>0</value>
+      <description>Configure ringback when another party on hold.</description>
+    </setting>
+    <setting name="call_waiting">
+      <type refid="ciscofeature"/>
+      <value>0</value>
+      <description>Configure call waiting.</description>
+    </setting>
+    <setting name="callerid_blocking">
+      <type refid="ciscofeature"/>
+      <value>0</value>
+      <description>Configure caller ID blocking.</description>
+    </setting>
+    <setting name="cnf_join_enable">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>Should conference bridge attempt to join the two leaf nodes when hang 
+        up.</description>
+    </setting>
+    <setting name="dnd_control">
+      <type refid="ciscofeature"/>
+      <value>0</value>
+      <description>Sets the Do Not Disturb feature.</description>
+    </setting>
+    <setting name="enable_vad">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>Enable voice activation detection (VAD).</description>
+    </setting>
+    <setting name="local_cfwd_enable">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>Whether the phone can do local call forwarding.</description>
+    </setting>
+    <setting name="remote_party_id">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>Whether the phone sends or accepts the remote party ID.</description>
+    </setting>
+    <setting name="semi_attended_transfer">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>Whether the caller can transfer the call while the call is 
+        ringing.</description>
+    </setting>
+    <setting name="stutter_msg_waiting">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>Enables a stutter dial tone when there is a message waiting.</description>
+    </setting>
+  </group>
+  <group name="datetime">
+    <label>Date/Time Parameters</label>
+    <setting name="date_format">
+      <type>
+        <enum>
+          <option>
+            <value>M/D/Y</value>
+          </option>
+          <option>
+            <value>D/M/Y</value>
+          </option>
+          <option>
+            <value>Y/M/D</value>
+          </option>
+          <option>
+            <value>Y/D/M</value>
+          </option>
+          <option>
+            <value>Y-M-D</value>
+          </option>
+          <option>
+            <value>YY-M-D</value>
+          </option>
+        </enum>
+      </type>
+      <value>YY-M-D</value>
+      <description>Format for dates.</description>
+    </setting>
+    <setting name="dst_auto_adjust">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>Whether daylight savings time is automatically adjusted.</description>
+    </setting>
+    <setting name="dst_offset">
+      <type>
+        <integer min="-12" max="12"/>
+      </type>
+      <value>1</value>
+      <description>Offset from the phone time when DST is in effect.</description>
+    </setting>
+    <setting name="dst_start_day">
+      <type>
+        <integer min="0" max="31"/>
+      </type>
+      <value>0</value>
+      <description>Day of the month on which DST begins.</description>
+    </setting>
+    <setting name="dst_start_day_of_week">
+      <type refid="dayofweek"/>
+      <value>1</value>
+      <description>Day of the week on which DST begins.</description>
+    </setting>
+    <setting name="dst_start_month">
+      <type refid="month"/>
+      <value>4</value>
+      <description>Month in which DST begins.</description>
+    </setting>
+    <setting name="dst_start_time">
+      <type refid="hh:mm"/>
+      <value/>
+      <description>Time of day on which DST begins.</description>
+    </setting>
+    <setting name="dst_start_week_of_month">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <label>last week</label>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+      <description>Week of month in which DST begins.</description>
+    </setting>
+    <setting name="dst_stop_day">
+      <type>
+        <integer min="0" max="31"/>
+      </type>
+      <value>0</value>
+      <description>Day of the month on which DST ends.</description>
+    </setting>
+    <setting name="dst_stop_day_of_week">
+      <type refid="dayofweek"/>
+      <value>1</value>
+      <description>Day of the week on which DST ends.</description>
+    </setting>
+    <setting name="dst_stop_month">
+      <type refid="month"/>
+      <value>10</value>
+      <description>Month in which DST ends.</description>
+    </setting>
+    <setting name="dst_stop_time">
+      <type refid="hh:mm"/>
+      <value/>
+      <description>Time of day on which DST ends.</description>
+    </setting>
+    <setting name="dst_stop_week_of_month">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <label>last week</label>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>8</value>
+      <description>Week of month in which DST ends.</description>
+    </setting>
+    <setting name="dst_offset">
+      <type>
+        <integer min="-12" max="12"/>
+      </type>
+      <value>1</value>
+      <description>Offset from the phone time when DST is in effect.</description>
+    </setting>
+    <setting name="time_format_24hr">
+      <type>
+        <enum>
+          <option>
+            <label>12 hour default</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>24 hour default</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>12 hour permanent</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>24 hour permanent</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+      <description>Whether a 12- or 24-hour time is displayed on the LCD.</description>
+    </setting>
+    <setting name="time_zone">
+      <type>
+        <enum>
+          <option>
+            <value>IDL</value>
+          </option>
+          <option>
+            <value>NT</value>
+          </option>
+          <option>
+            <value>AHST</value>
+          </option>
+          <option>
+            <value>IMT</value>
+          </option>
+          <option>
+            <value>YST</value>
+          </option>
+          <option>
+            <value>PST</value>
+          </option>
+          <option>
+            <value>MST</value>
+          </option>
+          <option>
+            <value>CST</value>
+          </option>
+          <option>
+            <value>EST</value>
+          </option>
+          <option>
+            <value>AST</value>
+          </option>
+          <option>
+            <value>NST</value>
+          </option>
+          <option>
+            <value>BST</value>
+          </option>
+          <option>
+            <value>AT</value>
+          </option>
+          <option>
+            <value>WAT</value>
+          </option>
+          <option>
+            <value>GMT</value>
+          </option>
+          <option>
+            <value>CET</value>
+          </option>
+          <option>
+            <value>EET</value>
+          </option>
+          <option>
+            <value>BT</value>
+          </option>
+          <option>
+            <value>IT</value>
+          </option>
+          <option>
+            <value>ZP4</value>
+          </option>
+          <option>
+            <value>AFG</value>
+          </option>
+          <option>
+            <value>ZP5</value>
+          </option>
+          <option>
+            <value>IST</value>
+          </option>
+          <option>
+            <value>ZP6</value>
+          </option>
+          <option>
+            <value>SUM</value>
+          </option>
+          <option>
+            <value>WAST</value>
+          </option>
+          <option>
+            <value>HST</value>
+          </option>
+          <option>
+            <value>JST</value>
+          </option>
+          <option>
+            <value>CAST</value>
+          </option>
+          <option>
+            <value>EAST</value>
+          </option>
+          <option>
+            <value>EADT</value>
+          </option>
+          <option>
+            <value>NZST</value>
+          </option>
+        </enum>
+      </type>
+      <value>EST</value>
+      <description>Time zone in which the phone is located.</description>
+    </setting>
+  </group>
+  <group name="phone">
+    <label>Phone parameters</label>
+    <setting name="dial_template">
+      <value>dialplan</value>
+      <description>Template with which you specify which file to download for a dial 
+        plan.</description>
+    </setting>
+    <setting name="directory_url">
+      <value></value>
+      <description>URL of the external directory server.</description>
+    </setting>
+    <setting name="dtmf_inband">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>Enable In-band DTMF signaling format.</description>
+    </setting>
+    <setting name="dtmf_outofband">
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>avt</value>
+          </option>
+          <option>
+            <value>avt_always</value>
+          </option>
+        </enum>
+      </type>
+      <value>avt</value>
+      <description>Out-of-band DTMF signaling format (none, avt, avt_always).</description>
+    </setting>
+    <setting name="logo_url">
+      <value></value>
+      <description>URL of the logo file for the phone display.</description>
+    </setting>
+    <setting name="messages_uri">
+      <value></value>
+      <description>Number or URI to call when messages button is pressed.</description>
+    </setting>
+    <setting name="phone_label">
+      <type>
+        <string maxLen="11"/>
+      </type>
+      <value></value>
+      <description>Text to display on the top right status line of the LCD.</description>
+    </setting>
+    <setting name="services_url">
+      <value></value>
+      <description>URL of the services BTXML files accessed when the services button is 
+        pressed.</description>
+    </setting>
+  </group>
+  <group name="network">
+    <label>Network parameters</label>
+    <setting name="dyn_dns_addr_1">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>IP address of a dynamic DNS server.</description>
+    </setting>
+    <setting name="dyn_dns_addr_2">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>IP address of a secondary dynamic DNS server.</description>
+    </setting>
+    <setting name="dyn_tftp_addr" advanced="yes">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>IP address of a secondary, dynamic TFTP server. After initially querying 
+        sipXconfig TFTP server, the phone will rerequest the configuration files from the new 
+        TFTP server. Do not configure this value unless you intend to maintain additional TFTP 
+        server independent from sipXconfig.</description>
+    </setting>
+    <setting name="http_proxy_addr">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>IP address of the HTTP proxy server.</description>
+    </setting>
+    <setting name="http_proxy_port">
+      <type>
+        <integer/>
+      </type>
+      <value>80</value>
+      <description>Port number of the HTTP proxy server.</description>
+    </setting>
+    <setting name="nat_address">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>WAN IP address of the NAT or firewall server.</description>
+    </setting>
+    <setting name="nat_enable">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>Enables NAT.</description>
+    </setting>
+    <setting name="nat_received_processing">
+      <type>
+        <boolean/>
+      </type>
+      <value>0</value>
+      <description>Enables NAT received processing.</description>
+    </setting>
+    <setting name="network_media_type">
+      <type>
+        <enum>
+          <option>
+            <value>Auto</value>
+          </option>
+          <option>
+            <value>Full100</value>
+          </option>
+          <option>
+            <value>Half100</value>
+          </option>
+          <option>
+            <value>Full10</value>
+          </option>
+          <option>
+            <value>Half10</value>
+          </option>
+        </enum>
+      </type>
+      <value>Auto</value>
+      <description>Ethernet port negotiation mode.</description>
+    </setting>
+    <setting name="network_port2_type">
+      <type>
+        <enum>
+          <option>
+            <value>Hub/Switch</value>
+          </option>
+          <option>
+            <value>PC</value>
+          </option>
+        </enum>
+      </type>
+      <value>Hub/Switch</value>
+      <description>Configures the device type that is connected to port 2 of the 
+        phone.</description>
+    </setting>
+    <setting name="telnet_level">
+      <type>
+        <enum>
+          <option>
+            <label>Disabled</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>Enabled</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Enabled/Privileged</label>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+      <description>Enables Telnet for the phone.</description>
+    </setting>
+    <setting name="phone_password">
+      <type>
+        <string maxLen="31"/>
+      </type>
+      <value>cisco</value>
+      <description>Password to be used for console or Telnet access.</description>
+    </setting>
+    <setting name="phone_prompt">
+      <type>
+        <string maxLen="15"/>
+      </type>
+      <value>SIP Phone</value>
+      <description>Prompt to display during Telnet or console access.</description>
+    </setting>
+    <setting name="sntp_mode">
+      <type>
+        <enum>
+          <option>
+            <value>unicast</value>
+          </option>
+          <option>
+            <value>multicast</value>
+          </option>
+          <option>
+            <value>anycast</value>
+          </option>
+          <option>
+            <value>directedbroadcast</value>
+          </option>
+        </enum>
+      </type>
+      <value>anycast</value>
+      <description>Mode in which the phone listens for the SNTP server.</description>
+    </setting>
+    <setting name="sntp_server">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>IP address of the SNTP server from which the phone obtains time 
+        data.</description>
+    </setting>
+  </group>
+  <group name="sip">
+    <label>SIP Parameters</label>
+    <setting name="call_stats">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>Enable DHCP.</description>
+    </setting>
+    <setting name="start_media_port">
+      <type>
+        <integer min="16384" max="32766"/>
+      </type>
+      <value>32766</value>
+      <description>Start RTP range for media.</description>
+    </setting>
+    <setting name="end_media_port">
+      <type>
+        <integer min="16384" max="32766"/>
+      </type>
+      <value>32766</value>
+      <description>End RTP range for media.</description>
+    </setting>
+    <setting name="outbound_proxy">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>IP address of the outbound proxy server.</description>
+    </setting>
+    <setting name="outbound_proxy_port">
+      <type>
+        <integer/>
+      </type>
+      <value>5060</value>
+      <description>Port number of the outbound proxy server.</description>
+    </setting>
+    <setting name="preferred_codec">
+      <type>
+        <enum>
+          <option>
+            <value>g711ulaw</value>
+          </option>
+          <option>
+            <value>g711alaw</value>
+          </option>
+          <option>
+            <value>g729a</value>
+          </option>
+          <option>
+            <value>none</value>
+          </option>
+        </enum>
+      </type>
+      <value>g711ulaw</value>
+      <description>Codec to use when a call is initiated.</description>
+    </setting>
+    <setting name="proxy_backup">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>IP address of the backup proxy server or gateway.</description>
+    </setting>
+    <setting name="proxy_backup_port">
+      <type>
+        <integer/>
+      </type>
+      <value>5060</value>
+      <description>Port number of the backup proxy server.</description>
+    </setting>
+    <setting name="proxy_emergency">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>IP address of the emergency proxy server or gateway.</description>
+    </setting>
+    <setting name="proxy_emergency_port">
+      <type>
+        <integer/>
+      </type>
+      <value>5060</value>
+      <description>Port number of the emergency proxy server.</description>
+    </setting>
+    <setting name="proxy_register">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>The phone must register with a proxy server during 
+        initialization.</description>
+    </setting>
+    <setting name="sip_invite_retx">
+      <type>
+        <integer/>
+      </type>
+      <value>6</value>
+      <description>Maximum number of times that an INVITE request will be 
+        retransmitted.</description>
+    </setting>
+    <setting name="sip_retx">
+      <type>
+        <integer/>
+      </type>
+      <value>6</value>
+      <description>Maximum number of times that a SIP message other than an INVITE request will 
+        be retransmitted.</description>
+    </setting>
+    <setting name="timer_invite_expires">
+      <type>
+        <integer/>
+      </type>
+      <value>180</value>
+      <description>Amount of time, in seconds, after which a SIP INVITE expires.</description>
+    </setting>
+    <setting name="timer_registry_delta">
+      <type>
+        <integer min="0" max="32767"/>
+      </type>
+      <value>5</value>
+      <description>Configures the time interval at which reregistration will 
+        occur.</description>
+    </setting>
+    <setting name="timer_register_expires">
+      <type>
+        <integer/>
+      </type>
+      <value>3600</value>
+      <description>Amount of time, in seconds, after which a REGISTRATION request 
+        expires.</description>
+    </setting>
+    <setting name="timer_t1">
+      <type>
+        <integer/>
+      </type>
+      <value>500</value>
+      <description>Lowest value, in ms, of the retransmission timer for SIP 
+        messages.</description>
+    </setting>
+    <setting name="timer_t2">
+      <type>
+        <integer/>
+      </type>
+      <value>4000</value>
+      <description>Highest value, in ms, of the retransmission timer for SIP 
+        messages.</description>
+    </setting>
+    <setting name="tos_media">
+      <type>
+        <integer min="0" max="5"/>
+      </type>
+      <value>5</value>
+      <description>Type of service (ToS) levelfor the media stream being used.</description>
+    </setting>
+    <setting name="user_info">
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>phone</value>
+          </option>
+          <option>
+            <value>ip</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+      <description>Configures the "user=" parameter in the REGISTER message.</description>
+    </setting>
+    <setting name="voip_control_port">
+      <type>
+        <integer min="1025" max="65535"/>
+      </type>
+      <value>5060</value>
+      <description>UDP port user for SIP messages.</description>
+    </setting>
+  </group>
+  <group name="upgrade">
+    <label>Upgrade Parameters</label>
+    <setting name="image_version">
+      <value></value>
+      <description>Firmware version that the phone should use (without filename 
+        extension).</description>
+    </setting>
+    <setting name="language" hidden="yes">
+      <value></value>
+      <description>For future use, only English is supported.</description>
+    </setting>
+    <setting name="sync">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+      <description>Value against which to compare the sync value before a remote reboot is 
+        performed.</description>
+    </setting>
+    <setting name="tftp_cfg_dir">
+      <value></value>
+      <description>Path to the TFTP subdirectory in which phone-specific configuration files 
+        are stored.</description>
+    </setting>
+  </group>
+</model>

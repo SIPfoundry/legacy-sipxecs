@@ -1,0 +1,1233 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app
+        xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+        version="2.4">
+
+    <display-name>Openfire</display-name>
+
+    <context-param>
+        <param-name>javax.servlet.jsp.jstl.fmt.localizationContext</param-name>
+        <param-value>openfire_i18n</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>javax.servlet.jsp.jstl.fmt.locale</param-name>
+        <param-value>zh_CN</param-value>
+    </context-param>
+
+    <filter>
+        <filter-name>AuthCheck</filter-name>
+        <filter-class>org.jivesoftware.admin.AuthCheckFilter</filter-class>
+        <init-param>
+            <param-name>excludes</param-name>
+            <param-value>
+                login.jsp,index.jsp?logout=true,setup/index.jsp,setup/setup-*,.gif,.png,error-serverdown.jsp,setup/clearspace-integration-prelogin.jsp
+            </param-value>
+        </init-param>
+    </filter>
+
+    <filter>
+        <filter-name>PluginFilter</filter-name>
+        <filter-class>org.jivesoftware.admin.PluginFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>Set Character Encoding</filter-name>
+        <filter-class>org.jivesoftware.util.SetCharacterEncodingFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>LocaleFilter</filter-name>
+        <filter-class>org.jivesoftware.util.LocaleFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>sitemesh</filter-name>
+        <filter-class>com.opensymphony.module.sitemesh.filter.PageFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>AuthCheck</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>PluginFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>Set Character Encoding</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>LocaleFilter</filter-name>
+        <url-pattern>*.jsp</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>AuthCheck</filter-name>
+        <servlet-name>PluginServlet</servlet-name>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>PluginFilter</filter-name>
+        <servlet-name>PluginServlet</servlet-name>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sitemesh</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>AuthCheck</filter-name>
+        <servlet-name>dwr-invoker</servlet-name>
+    </filter-mapping>
+
+
+    <listener>
+        <listener-class>org.jivesoftware.openfire.XMPPContextListener</listener-class>
+    </listener>
+
+    <servlet>
+        <servlet-name>PluginServlet</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.container.PluginServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>FaviconServlet</servlet-name>
+        <servlet-class>org.jivesoftware.util.FaviconServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet>
+        <servlet-name>dwr-invoker</servlet-name>
+        <servlet-class>uk.ltd.getahead.dwr.DWRServlet</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>PluginIconServlet</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.container.PluginIconServlet</servlet-class>
+    </servlet>
+
+    <!--<servlet>
+        <servlet-name>WebDAVLiteServlet</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.webdav.WebDAVLiteServlet</servlet-class>
+    </servlet>-->
+
+
+    
+<!--
+Automatically created by Apache Jakarta Tomcat JspC.
+Place this fragment in the web.xml before all icon, display-name,
+description, distributable, and context-param elements.
+-->
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.error_002dserverdown_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.error_002dserverdown_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.group_002dedit_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.group_002dedit_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.plugin_002dadmin_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.plugin_002dadmin_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.compression_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.compression_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dlocale_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.server_002dlocale_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.connection_002dmanagers_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.connection_002dmanagers_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dtasks_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002dtasks_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dcreate_002dpermission_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002dcreate_002dpermission_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002drestart_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.server_002drestart_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.clearspace_002dintegration_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.clearspace_002dintegration_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.profile_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.profile_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.session_002dconflict_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.session_002dconflict_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dservice_002dsummary_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002dservice_002dsummary_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.media_002dproxy_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.media_002dproxy_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dproperties_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002dproperties_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.system_002demailtest_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.system_002demailtest_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.ldap_002dserver_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.ldap_002dserver_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.file_002dtransfer_002dproxy_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.file_002dtransfer_002dproxy_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002ddb_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.server_002ddb_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dtabs_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002dtabs_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.http_002dbind_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.http_002dbind_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.component_002dsession_002dsummary_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.component_002dsession_002dsummary_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002dcreate_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002droom_002dcreate_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.session_002dsummary_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.session_002dsummary_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.reg_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.reg_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.ldap_002dgroup_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.ldap_002dgroup_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dsummary_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002dsummary_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002doccupants_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002droom_002doccupants_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002ddelete_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002droom_002ddelete_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.manage_002dupdates_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.manage_002dupdates_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dsearch_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002dsearch_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.system_002dcache_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.system_002dcache_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.component_002dsession_002ddetails_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.component_002dsession_002ddetails_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.ssl_002dsigning_002drequest_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.ssl_002dsigning_002drequest_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.logviewer_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.logviewer_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.system_002demail_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.system_002demail_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.available_002dplugins_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.available_002dplugins_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dproperties_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.server_002dproperties_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.index_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.index_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002droster_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002ddb_002dstats_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.server_002ddb_002dstats_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.ldap_002duser_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.ldap_002duser_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.security_002daudit_002dviewer_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.security_002daudit_002dviewer_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_002dview_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002droster_002dview_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.external_002dcomponents_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.external_002dcomponents_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dservice_002dcreate_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002dservice_002dcreate_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_002dedit_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002droster_002dedit_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.ssl_002dcertificates_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.ssl_002dcertificates_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.clearspace_002dadmin_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.clearspace_002dadmin_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dmessage_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002dmessage_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002ddelete_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002ddelete_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.chatroom_002dhistory_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.chatroom_002dhistory_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.private_002ddata_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.private_002ddata_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dprops_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.server_002dprops_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_002dadd_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002droster_002dadd_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.group_002dsummary_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.group_002dsummary_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dservice_002dedit_002dform_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002dservice_002dedit_002dform_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dsession_002dsummary_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.server_002dsession_002dsummary_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.group_002dcreate_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.group_002dcreate_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.offline_002dmessages_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.offline_002dmessages_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.group_002ddelete_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.group_002ddelete_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dhistory_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002dhistory_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dsession_002ddetails_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.server_002dsession_002ddetails_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dlockout_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002dlockout_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002dsummary_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002droom_002dsummary_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dcreate_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002dcreate_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.error_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.error_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.ssl_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.ssl_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.import_002dcertificate_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.import_002dcertificate_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002dedit_002dform_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002droom_002dedit_002dform_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dsysadmins_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002dsysadmins_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.log_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.log_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.session_002ddetails_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.session_002ddetails_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002daffiliations_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002droom_002daffiliations_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_002ddelete_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002droster_002ddelete_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.server2server_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.server2server_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.login_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.login_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dedit_002dform_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002dedit_002dform_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.clearspace_002dstatus_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.clearspace_002dstatus_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dservice_002ddelete_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.muc_002dservice_002ddelete_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.system_002dclustering_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.system_002dclustering_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.stun_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.stun_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dpassword_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.user_002dpassword_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.audit_002dpolicy_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.audit_002dpolicy_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dgroup_005ftest_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dgroup_005ftest_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dgroup_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dgroup_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002ddatasource_002dstandard_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002ddatasource_002dstandard_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dclearspace_002dintegration_005ftest_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dclearspace_002dintegration_005ftest_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.clearspace_002dintegration_002dprelogin_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.clearspace_002dintegration_002dprelogin_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002duser_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dldap_002duser_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dserver_005ftest_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dserver_005ftest_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.index_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.index_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dserver_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dserver_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dadmin_002dsettings_005ftest_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dadmin_002dsettings_005ftest_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dcompleted_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dcompleted_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dadmin_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dadmin_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dhost_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dhost_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dfinished_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dfinished_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dclearspace_002dintegration_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dclearspace_002dintegration_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dprofile_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dprofile_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002ddatasource_002dsettings_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002ddatasource_002dsettings_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002duser_005ftest_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002dldap_002duser_005ftest_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002ddatasource_002djndi_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.setup.setup_002ddatasource_002djndi_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.js.jscalendar.i18n_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.js.jscalendar.i18n_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.decorators.main_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.decorators.main_jsp</servlet-class>
+    </servlet>
+
+    <servlet>
+        <servlet-name>org.jivesoftware.openfire.admin.decorators.setup_jsp</servlet-name>
+        <servlet-class>org.jivesoftware.openfire.admin.decorators.setup_jsp</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.error_002dserverdown_jsp</servlet-name>
+        <url-pattern>/error-serverdown.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.group_002dedit_jsp</servlet-name>
+        <url-pattern>/group-edit.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.plugin_002dadmin_jsp</servlet-name>
+        <url-pattern>/plugin-admin.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.compression_002dsettings_jsp</servlet-name>
+        <url-pattern>/compression-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dlocale_jsp</servlet-name>
+        <url-pattern>/server-locale.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.connection_002dmanagers_002dsettings_jsp</servlet-name>
+        <url-pattern>/connection-managers-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dtasks_jsp</servlet-name>
+        <url-pattern>/muc-tasks.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dcreate_002dpermission_jsp</servlet-name>
+        <url-pattern>/muc-create-permission.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002drestart_jsp</servlet-name>
+        <url-pattern>/server-restart.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.clearspace_002dintegration_jsp</servlet-name>
+        <url-pattern>/clearspace-integration.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.profile_002dsettings_jsp</servlet-name>
+        <url-pattern>/profile-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.session_002dconflict_jsp</servlet-name>
+        <url-pattern>/session-conflict.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dservice_002dsummary_jsp</servlet-name>
+        <url-pattern>/muc-service-summary.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.media_002dproxy_jsp</servlet-name>
+        <url-pattern>/media-proxy.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dproperties_jsp</servlet-name>
+        <url-pattern>/user-properties.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.system_002demailtest_jsp</servlet-name>
+        <url-pattern>/system-emailtest.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.ldap_002dserver_jsp</servlet-name>
+        <url-pattern>/ldap-server.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.file_002dtransfer_002dproxy_jsp</servlet-name>
+        <url-pattern>/file-transfer-proxy.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002ddb_jsp</servlet-name>
+        <url-pattern>/server-db.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dtabs_jsp</servlet-name>
+        <url-pattern>/user-tabs.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.http_002dbind_jsp</servlet-name>
+        <url-pattern>/http-bind.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.component_002dsession_002dsummary_jsp</servlet-name>
+        <url-pattern>/component-session-summary.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002dcreate_jsp</servlet-name>
+        <url-pattern>/muc-room-create.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.session_002dsummary_jsp</servlet-name>
+        <url-pattern>/session-summary.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.reg_002dsettings_jsp</servlet-name>
+        <url-pattern>/reg-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.ldap_002dgroup_jsp</servlet-name>
+        <url-pattern>/ldap-group.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dsummary_jsp</servlet-name>
+        <url-pattern>/user-summary.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002doccupants_jsp</servlet-name>
+        <url-pattern>/muc-room-occupants.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002ddelete_jsp</servlet-name>
+        <url-pattern>/muc-room-delete.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.manage_002dupdates_jsp</servlet-name>
+        <url-pattern>/manage-updates.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dsearch_jsp</servlet-name>
+        <url-pattern>/user-search.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.system_002dcache_jsp</servlet-name>
+        <url-pattern>/system-cache.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.component_002dsession_002ddetails_jsp</servlet-name>
+        <url-pattern>/component-session-details.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.ssl_002dsigning_002drequest_jsp</servlet-name>
+        <url-pattern>/ssl-signing-request.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.logviewer_jsp</servlet-name>
+        <url-pattern>/logviewer.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.system_002demail_jsp</servlet-name>
+        <url-pattern>/system-email.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.available_002dplugins_jsp</servlet-name>
+        <url-pattern>/available-plugins.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dproperties_jsp</servlet-name>
+        <url-pattern>/server-properties.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.index_jsp</servlet-name>
+        <url-pattern>/index.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_jsp</servlet-name>
+        <url-pattern>/user-roster.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002ddb_002dstats_jsp</servlet-name>
+        <url-pattern>/server-db-stats.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.ldap_002duser_jsp</servlet-name>
+        <url-pattern>/ldap-user.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.security_002daudit_002dviewer_jsp</servlet-name>
+        <url-pattern>/security-audit-viewer.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_002dview_jsp</servlet-name>
+        <url-pattern>/user-roster-view.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.external_002dcomponents_002dsettings_jsp</servlet-name>
+        <url-pattern>/external-components-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dservice_002dcreate_jsp</servlet-name>
+        <url-pattern>/muc-service-create.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_002dedit_jsp</servlet-name>
+        <url-pattern>/user-roster-edit.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.ssl_002dcertificates_jsp</servlet-name>
+        <url-pattern>/ssl-certificates.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.clearspace_002dadmin_jsp</servlet-name>
+        <url-pattern>/clearspace-admin.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dmessage_jsp</servlet-name>
+        <url-pattern>/user-message.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002ddelete_jsp</servlet-name>
+        <url-pattern>/user-delete.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.chatroom_002dhistory_002dsettings_jsp</servlet-name>
+        <url-pattern>/chatroom-history-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.private_002ddata_002dsettings_jsp</servlet-name>
+        <url-pattern>/private-data-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dprops_jsp</servlet-name>
+        <url-pattern>/server-props.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_002dadd_jsp</servlet-name>
+        <url-pattern>/user-roster-add.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.group_002dsummary_jsp</servlet-name>
+        <url-pattern>/group-summary.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dservice_002dedit_002dform_jsp</servlet-name>
+        <url-pattern>/muc-service-edit-form.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dsession_002dsummary_jsp</servlet-name>
+        <url-pattern>/server-session-summary.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.group_002dcreate_jsp</servlet-name>
+        <url-pattern>/group-create.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.offline_002dmessages_jsp</servlet-name>
+        <url-pattern>/offline-messages.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.group_002ddelete_jsp</servlet-name>
+        <url-pattern>/group-delete.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dhistory_002dsettings_jsp</servlet-name>
+        <url-pattern>/muc-history-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.server_002dsession_002ddetails_jsp</servlet-name>
+        <url-pattern>/server-session-details.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dlockout_jsp</servlet-name>
+        <url-pattern>/user-lockout.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002dsummary_jsp</servlet-name>
+        <url-pattern>/muc-room-summary.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dcreate_jsp</servlet-name>
+        <url-pattern>/user-create.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.error_jsp</servlet-name>
+        <url-pattern>/error.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.ssl_002dsettings_jsp</servlet-name>
+        <url-pattern>/ssl-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.import_002dcertificate_jsp</servlet-name>
+        <url-pattern>/import-certificate.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002dedit_002dform_jsp</servlet-name>
+        <url-pattern>/muc-room-edit-form.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dsysadmins_jsp</servlet-name>
+        <url-pattern>/muc-sysadmins.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.log_jsp</servlet-name>
+        <url-pattern>/log.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.session_002ddetails_jsp</servlet-name>
+        <url-pattern>/session-details.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002droom_002daffiliations_jsp</servlet-name>
+        <url-pattern>/muc-room-affiliations.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002droster_002ddelete_jsp</servlet-name>
+        <url-pattern>/user-roster-delete.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.server2server_002dsettings_jsp</servlet-name>
+        <url-pattern>/server2server-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.login_jsp</servlet-name>
+        <url-pattern>/login.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dedit_002dform_jsp</servlet-name>
+        <url-pattern>/user-edit-form.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.clearspace_002dstatus_jsp</servlet-name>
+        <url-pattern>/clearspace-status.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.muc_002dservice_002ddelete_jsp</servlet-name>
+        <url-pattern>/muc-service-delete.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.system_002dclustering_jsp</servlet-name>
+        <url-pattern>/system-clustering.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.stun_002dsettings_jsp</servlet-name>
+        <url-pattern>/stun-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.user_002dpassword_jsp</servlet-name>
+        <url-pattern>/user-password.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.audit_002dpolicy_jsp</servlet-name>
+        <url-pattern>/audit-policy.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dgroup_005ftest_jsp</servlet-name>
+        <url-pattern>/setup/setup-ldap-group_test.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dgroup_jsp</servlet-name>
+        <url-pattern>/setup/setup-ldap-group.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002ddatasource_002dstandard_jsp</servlet-name>
+        <url-pattern>/setup/setup-datasource-standard.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dclearspace_002dintegration_005ftest_jsp</servlet-name>
+        <url-pattern>/setup/setup-clearspace-integration_test.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.clearspace_002dintegration_002dprelogin_jsp</servlet-name>
+        <url-pattern>/setup/clearspace-integration-prelogin.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002duser_jsp</servlet-name>
+        <url-pattern>/setup/setup-ldap-user.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dserver_005ftest_jsp</servlet-name>
+        <url-pattern>/setup/setup-ldap-server_test.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.index_jsp</servlet-name>
+        <url-pattern>/setup/index.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002dserver_jsp</servlet-name>
+        <url-pattern>/setup/setup-ldap-server.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dadmin_002dsettings_005ftest_jsp</servlet-name>
+        <url-pattern>/setup/setup-admin-settings_test.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dcompleted_jsp</servlet-name>
+        <url-pattern>/setup/setup-completed.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dadmin_002dsettings_jsp</servlet-name>
+        <url-pattern>/setup/setup-admin-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dhost_002dsettings_jsp</servlet-name>
+        <url-pattern>/setup/setup-host-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dfinished_jsp</servlet-name>
+        <url-pattern>/setup/setup-finished.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dclearspace_002dintegration_jsp</servlet-name>
+        <url-pattern>/setup/setup-clearspace-integration.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dprofile_002dsettings_jsp</servlet-name>
+        <url-pattern>/setup/setup-profile-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002ddatasource_002dsettings_jsp</servlet-name>
+        <url-pattern>/setup/setup-datasource-settings.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002dldap_002duser_005ftest_jsp</servlet-name>
+        <url-pattern>/setup/setup-ldap-user_test.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.setup.setup_002ddatasource_002djndi_jsp</servlet-name>
+        <url-pattern>/setup/setup-datasource-jndi.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.js.jscalendar.i18n_jsp</servlet-name>
+        <url-pattern>/js/jscalendar/i18n.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.decorators.main_jsp</servlet-name>
+        <url-pattern>/decorators/main.jsp</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>org.jivesoftware.openfire.admin.decorators.setup_jsp</servlet-name>
+        <url-pattern>/decorators/setup.jsp</url-pattern>
+    </servlet-mapping>
+
+<!--
+All session-config, mime-mapping, welcome-file-list, error-page, taglib,
+resource-ref, security-constraint, login-config, security-role,
+env-entry, and ejb-ref elements should follow this fragment.
+-->
+
+
+    <servlet-mapping>
+        <servlet-name>PluginServlet</servlet-name>
+        <url-pattern>/plugins/*</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>FaviconServlet</servlet-name>
+        <url-pattern>/getFavicon</url-pattern>
+    </servlet-mapping>
+
+    <servlet-mapping>
+        <servlet-name>PluginIconServlet</servlet-name>
+        <url-pattern>/geticon</url-pattern>
+    </servlet-mapping>
+
+    <!--<servlet-mapping>
+        <servlet-name>WebDAVLiteServlet</servlet-name>
+        <url-pattern>/webdav/*</url-pattern>
+    </servlet-mapping>-->
+
+    <servlet-mapping>
+        <servlet-name>dwr-invoker</servlet-name>
+        <url-pattern>/dwr/*</url-pattern>
+    </servlet-mapping>
+
+    <jsp-config>
+        <taglib>
+            <taglib-uri>admin</taglib-uri>
+            <taglib-location>/WEB-INF/admin.tld</taglib-location>
+        </taglib>
+    </jsp-config>
+
+</web-app>
+
+

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java/org/sipfoundry"/>
+	<classpathentry kind="src" path="src/test/java/org/sipfoundry"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/jain-sip-sdp.jar" sourcepath="/LIB_SRC/jain-sip/src.zip"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/log4j.jar"/>
+	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
+</classpath>

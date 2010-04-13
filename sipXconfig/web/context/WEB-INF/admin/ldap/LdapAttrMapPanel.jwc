@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification allow-body="no" allow-informal-parameters="no">
+
+  <!--
+    - P A R A M E T E R S
+  -->
+  <parameter name="attrMap" />
+  <parameter name="objectClassesSelectionModel" />
+  <parameter name="attributesSelectionModel" />
+  <parameter name="attributesOptionalSelectionModel" />
+
+  <!--
+    - C O M P O N E N T S
+  -->
+  <component id="searchBasePanel" type="common/FieldPanel">
+    <binding name="field" value="components.searchBase" />
+    <binding name="label" value="message:label.searchBase" />
+    <binding name="description" value="message:description.searchBase" />
+  </component>
+  <component id="searchBase" type="TextField">
+    <binding name="value" value="attrMap.searchBase" />
+    <binding name="validators" value="validators:required,maxLength=255" />
+    <binding name="displayName" value="message:label.searchBase" />
+  </component>
+
+  <component id="objectClassPanel" type="common/FieldPanel">
+    <binding name="field" value="components.objectClass" />
+    <binding name="label" value="message:label.objectClass" />
+    <binding name="description" value="message:description.objectClass" />
+  </component>
+  <component id="objectClass" type="PropertySelection">
+    <binding name="value" value="attrMap.objectClass" />
+    <binding name="model" value="objectClassesSelectionModel" />
+    <binding name="displayName" value="message:label.objectClass" />
+  </component>
+
+  <component id="filterPanel" type="common/FieldPanel">
+    <binding name="field" value="components.filter" />
+    <binding name="label" value="message:label.filter" />
+    <binding name="description" value="message:description.filter" />
+  </component>
+  <component id="filter" type="TextField">
+    <binding name="value" value="attrMap.filter" />
+    <binding name="validators" value="validators:maxLength=255" />
+    <binding name="displayName" value="message:label.filter" />
+  </component>
+
+  <component id="userNamePanel" type="common/FieldPanel">
+    <binding name="field" value="components.userName" />
+    <binding name="label" value="message:label.userName" />
+    <binding name="description" value="message:description.userName" />
+  </component>
+  <component id="userName" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['userName']" />
+    <binding name="model" value="attributesSelectionModel" />
+    <binding name="displayName" value="message:label.userName" />
+  </component>
+
+  <component id="firstNamePanel" type="common/FieldPanel">
+    <binding name="field" value="components.firstName" />
+    <binding name="label" value="message:label.firstName" />
+  </component>
+  <component id="firstName" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['firstName']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.firstName" />
+  </component>
+
+  <component id="lastNamePanel" type="common/FieldPanel">
+    <binding name="field" value="components.lastName" />
+    <binding name="label" value="message:label.lastName" />
+  </component>
+  <component id="lastName" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['lastName']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.lastName" />
+  </component>
+
+  <component id="aliasPanel" type="common/FieldPanel">
+    <binding name="field" value="components.alias" />
+    <binding name="label" value="message:label.alias" />
+    <binding name="description" value="message:description.alias" />
+  </component>
+  <component id="alias" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['aliasesString']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.alias" />
+  </component>
+
+  <component id="emailPanel" type="common/FieldPanel">
+    <binding name="field" value="components.email" />
+    <binding name="label" value="message:label.email" />
+    <binding name="description" value="message:description.alias" />
+  </component>
+  <component id="email" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['emailAddress']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.email" />
+  </component>
+
+  <component id="userGroupPanel" type="common/FieldPanel">
+    <binding name="field" value="components.userGroup" />
+    <binding name="label" value="message:label.userGroup" />
+    <binding name="description" value="message:description.userGroup" />
+  </component>
+  <component id="userGroup" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['userGroupName']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.userGroup" />
+  </component>
+
+  <component id="pinPanel" type="common/FieldPanel">
+    <binding name="field" value="components.pin" />
+    <binding name="label" value="message:label.pin" />
+  </component>
+  <component id="pin" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['pin']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.pin" />
+  </component>
+
+  <component id="defaultPin" type="user/ConfirmPassword">
+    <binding name="password" value="attrMap.defaultPin" />
+    <binding name="passwordDisplayName" value="message:label.defaultPin" />
+    <binding name="passwordDescription" value="message:description.defaultPin" />
+    <binding name="confirmPasswordDisplayName" value="message:label.defaultPin2" />
+    <binding name="passwordValidator" value="validators:maxLength=255" />
+  </component>
+
+  <component id="sipPasswordPanel" type="common/FieldPanel">
+    <binding name="field" value="components.sipPassword" />
+    <binding name="label" value="message:label.sipPassword" />
+    <binding name="description" value="message:description.sipPassword" />
+  </component>
+  <component id="sipPassword" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['sipPassword']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.sipPassword" />
+  </component>
+
+  <component id="imIdPanel" type="common/FieldPanel">
+    <binding name="field" value="components.imId"/>
+    <binding name="label" value="message:label.imId"/>
+    <binding name="description" value="message:description.imId"/>
+  </component>
+  <component id="imId" type="PropertySelection">
+    <binding name="value" value="attrMap.attribute['imId']" />
+    <binding name="model" value="attributesOptionalSelectionModel" />
+    <binding name="displayName" value="message:label.imId" />
+  </component>
+</component-specification>

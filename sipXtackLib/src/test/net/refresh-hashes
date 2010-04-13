@@ -1,0 +1,27 @@
+#! /usr/bin/perl
+
+# Regenerate the X-Sipx-Authidentity values in SipXauthIdnetityTest.
+
+# This script search for lines of the form '"xxxx" // MD5: yyyy',
+# extracts the string yyyy, removes the field separator '+',
+# calculates the md5sum, then inserts it in place of xxxx.
+
+# Search the whole file.
+while (<>) {
+    # Look for '"xxxx" // MD5: yyyy' lines.
+    if (($specification) = m%^\s*"[0-9a-f]*"\s*//\s*MD5:(.*)$%i) {
+	# Extract and clean the string that will be hashed.
+        chomp($specification);
+	$specification =~ s/^\s+//;
+	$specification =~ s/\s+$//;
+	$specification =~ s/\+//g;
+	# Calculate the hash.
+	$hash = `echo -n '$specification' | md5sum`;
+	$hash = substr($hash, 0, 32);
+	# Substitute in place of the string constant.
+	if (!s/"[0-9a-f]*"/"$hash"/) {
+	    die "$0: Failed to find string constant to substitute at line $. of stdin\n";
+	}
+    }
+    print;
+}

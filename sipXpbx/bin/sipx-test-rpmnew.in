@@ -1,0 +1,60 @@
+#!/bin/sh
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+    Status=0 # pass
+
+    RpmNews=""
+    for Rpm in `find @SIPX_CONFDIR@ -name \*.rpmnew -print 2>/dev/null`
+    do
+        Name=`expr match "$Rpm" "@SIPX_CONFDIR@/\([a-z]*\)\."`
+        case $Name in
+            mappingrules|fallbackrules|authrules|forwardingrules|nattraversalrules)
+                # these are routinely modified by the configurator,
+                # so it is responsible for any upgrades
+                rm -f ${Rpm}
+                ;;
+            *)
+                RpmNews="$RpmNews $Rpm"
+        esac
+    done
+    if  [ -n "$RpmNews" ]; then
+        cat <<EOF
+    The rpm installation has provided new versions of some of the
+    configuration files.  Because you had modified your files, they
+    were not overwritten.
+
+    You should compare each of the following files with your version
+    (the same name, with the '.rpmnew' removed).  To reconcile the
+    differences, check for new settings in the .rpmnew file and copy them
+    to your file.  When you have finished, remove the .rpmnew file to
+    suppress this warning.
+
+EOF
+        for Rpm in $RpmNews; do
+            echo "    $Rpm"
+        done
+        Status=1 # fail
+    fi
+
+    # Check for .NEW files, which are only created by the build system, not
+    # RPM installs.
+    RpmNews="$( find @SIPX_CONFDIR@ -name \*.NEW -print 2>/dev/null )"
+    if [ -n "$RpmNews" ]; then
+        cat <<EOF
+    The build has provided new versions of some of the configuration files.
+
+    You should compare each of the following files with your version
+    (the same name, with the '.NEW' removed).  When you have finished,
+    remove the .NEW file to suppress this warning.
+
+EOF
+        for Rpm in $RpmNews; do
+            echo "    $Rpm"
+        done
+        Status=2 # fail
+    fi
+
+    exit $Status

@@ -1,0 +1,117 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+
+    <!-- Script that allows mailbox owner to change their PIN -->
+
+    <form id="changepin">
+        <property name="interdigittimeout" value="3s"/>
+        <property name="timeout" value="10s"/>
+
+        <!-- Parameters passed in from the calling subroutine -->
+        <var name="mailbox" />
+        <var name="extension" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+
+        <!-- Parameter required for invoking the CGIs -->
+        <var name="action" expr="'changepin'"/>
+        <var name="change_attempts" expr="0"/>
+
+        <field name="pin" type="digits?minlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'enter_pin.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="pin == '*'">
+                    <return />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+
+        <field name="newpin" type="digits?minlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'enter_new_pin.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="newpin == '*'">
+                    <return />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+
+        <field name="newpin2" type="digits?minlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'enter_new_pin_again.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="newpin2 == '*'">
+                    <return />
+                <elseif cond="newpin == newpin2" />
+                    <goto nextitem="pinsetting"/>
+                <else/>
+                    <goto nextitem="mismatch"/>
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+        </field>
+    
+        <!-- Call the CGI to do the pin setting -->
+        <subdialog name="pinsetting" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action extension pin newpin">
+            <filled>
+                <if cond="pinsetting.result == 'success'">
+		    		<prompt>
+		        		<audio expr="mediaserverurl + promptsalias + 'pin_changed.wav'"/>
+		    		</prompt>
+                    <return/>
+                <elseif cond="pinsetting.result == 'failed'"/>
+                    <!-- The operation is failed and the password is not changed -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'system_error_short.wav'" />
+                        <audio expr="mediaserverurl + promptsalias + 'pin_not_changed.wav'" />
+                    </prompt>
+                    <return/>
+                <else/>
+                    <prompt>
+		        		<audio expr="mediaserverurl + promptsalias + 'invalid_old_pin.wav'" />
+                    </prompt>
+		    		<clear namelist="pin newpin newpin2"/>
+		    		<goto nextitem="pin"/>
+                </if>
+            </filled>
+        </subdialog>
+
+        <block name="mismatch">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'mismatch_pin.wav'"/>
+            </prompt>
+            <if cond="change_attempts == '2'">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            <else/>
+            	<assign name="change_attempts" expr="change_attempts + 1"/>           
+	            <clear namelist="newpin newpin2"/>
+	            <goto nextitem="newpin"/>
+	        </if>
+		</block>
+    </form>
+</vxml>
+

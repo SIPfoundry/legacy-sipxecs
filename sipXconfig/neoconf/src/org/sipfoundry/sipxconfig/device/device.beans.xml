@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd" >
+<beans>
+  <!-- most phone defaults properties is set in sipxconfig.properties.in -->
+  <bean id="phoneDefaults" class="org.sipfoundry.sipxconfig.device.DeviceDefaults">
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="serviceManager" ref="serviceManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="logDirectory" value="${sysdir.log}"></property>
+    <property name="timeZoneManager" ref="timeZoneManager" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="pagingContext" ref="pagingContext" />
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
+    <property name="routeEmergencyCallsDirectly" value="false" />
+  </bean>
+
+
+  <bean id="tftpProfileLocation" class="org.sipfoundry.sipxconfig.device.FileSystemProfileLocation">
+    <property name="parentDir">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+  </bean>
+
+  <bean id="httpProfileLocation" class="org.sipfoundry.sipxconfig.device.FileSystemProfileLocation">
+    <property name="parentDir">
+      <!--
+        - this is directory for a preferred place for serving
+        - phone configuration profiles for http access
+        -    http://host:8090/phone/profile/docroot/,
+      -->
+      <value>${sysdir.phone}/profile/docroot</value>
+    </property>
+  </bean>
+
+  <bean id="velocityProfileGenerator" class="org.sipfoundry.sipxconfig.device.VelocityProfileGenerator">
+    <property name="templateRoot" value="${sysdir.etc}" />
+    <property name="velocityEngine" ref="velocityEngine" />
+  </bean>
+
+  <bean id="restartExecutorService" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
+  </bean>
+
+  <bean id="timeZoneManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.device.TimeZoneManager</value>
+    </property>
+    <property name="target">
+      <ref local="timeZoneManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="timeZoneManagerImpl" class="org.sipfoundry.sipxconfig.device.TimeZoneManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean id="timeZoneInit" class="org.sipfoundry.sipxconfig.device.TimeZoneInit">
+    <property name="timeZoneManager" ref="timeZoneManager" />
+    <property name="taskNames">
+      <value>default-time-zone</value>
+    </property>
+  </bean>
+</beans>

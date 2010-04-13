@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<routes xmlns="http://www.sipfoundry.org/sipX/schema/xml/forwardingrules-00-00">
+
+  <route mappingType="local">
+    
+    <description>
+      Matches the SIP_DOMAIN_NAME (and all aliases for it).
+      Routes SUBSCRIBE for message waiting indication to the status server.
+      Routes SUBSCRIBE for "reg" events to the reg event server.
+      All other requests go to the SIP registry/redirect service.
+    </description>
+
+    
+    <routeFrom>@SIP_DOMAIN_NAME@:5060</routeFrom>
+    
+    <routeFrom>@INTEROP_ADDR@:5060</routeFrom>
+    
+    <routeFrom>@SIP_DOMAIN_NAME@:5060</routeFrom>
+    
+    <routeFrom>udp.@SIP_DOMAIN_NAME@:5060</routeFrom>
+    <routeFrom>tcp.@SIP_DOMAIN_NAME@:5060</routeFrom>
+
+    <methodMatch>
+      <description>
+        Message waiting indication subscriptions go to the status server.
+	"reg" event subscriptions go to the reg event server.
+        All other SUBSCRIBE requests go to the SIP registry service.
+      </description>
+
+      <methodPattern>SUBSCRIBE</methodPattern>
+
+      <fieldMatch fieldName="Event">
+        <fieldPattern>message-summary.*</fieldPattern>
+        <routeTo>&lt;@INTEROP_ADDR@:5110;transport=tcp&gt;</routeTo>
+      </fieldMatch>
+
+      <fieldMatch fieldName="Event">
+        <fieldPattern>reg</fieldPattern>
+        <routeTo>&lt;@INTEROP_ADDR@:5075;transport=tcp&gt;</routeTo>
+      </fieldMatch>
+
+      <routeTo>&lt;@INTEROP_ADDR@:5070;transport=tcp&gt;</routeTo>
+
+    </methodMatch>
+    <routeTo>&lt;@INTEROP_ADDR@:5070;transport=tcp&gt;</routeTo>
+
+  </route>
+
+</routes>
+

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="sipXbridgeSbcModel" parent="abstractSbcModel">
+    <property name="beanId" value="sbcSipXbridge" />
+    <property name="label" value="Internal SBC" />
+    <property name="modelDir" value="sipXbridge" />
+    <property name="serialNumberPattern" value="" />
+    <property name="restartSupported" value="false" />
+    <property name="projectionSupported" value="false" />
+    <property name="defaultPort" value="5090" />
+    <property name="internalSbc" value="true" />
+  </bean>
+
+  <bean id="sbcSipXbridge" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc" scope="prototype"
+    parent="sbcGeneric">
+    <property name="profileName" value="sipxbridge.xml" />
+    <property name="profileDirectory" value="${sysdir.etc}" />
+    <property name="gatewayContext" ref="gatewayContext" />
+    <property name="processContext" ref="sipxProcessContext" />
+    <!-- eager replication here: profile generation is already in the background -->
+    <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="loggingManager" ref="loggingManager"/>
+  </bean>
+
+  <bean id="sbcSipXbridgeConfiguration" parent="defaultConfigurationFile"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbcConfigurationFile">
+    <property name="name" value="sipxbridge.xml" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+  </bean>
+
+  <bean id="bridgeSbcApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="SipxBridge." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbcXmlRpcApi" />
+    <property name="timeout" value="10000" />
+  </bean>
+
+  <bean id="bridgeSbcStatistics" class="org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbcStatistics">
+    <property name="bridgeSbcApiProvider" ref="bridgeSbcApiProvider" />
+  </bean>
+</beans>

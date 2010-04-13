@@ -1,0 +1,41 @@
+<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"/>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+
+  <span jwcid="@If" condition="ognl:sbcDeviceManager.internalSbcEnabled">
+    <form jwcid="@Form">
+      <fieldset>
+        <label><span key="label.selectServer">Internal Sbc</span></label>
+          <span jwcid="locationSelector@PropertySelection"
+            model="ognl:locationSelectionModel"
+            value="ognl:currentLocationId"
+            onchange="literal:javascript:this.form.submit();"/>
+      </fieldset>
+    </form>
+
+    <form jwcid="theOne@common/AutoRefreshForm">
+      <ul>
+        <li>
+          <span jwcid="@Insert" value="message:callCount"/> :
+          <span jwcid="@Insert" value="ognl:callCount"/>
+        </li>
+      </ul>
+      <table jwcid="@common/StatsTable" id="sbc:stats:list" class="component"
+              source="ognl:source"
+              columns="address, status"
+              row="ognl:row">
+        <span jwcid="addressColumnValue@Block">
+          <span jwcid="@Insert"
+            value="ognl:row.registeredAddress" />
+        </span>
+        <span jwcid="statusColumnValue@Block">
+          <span jwcid="@Insert"
+            value="ognl:row.registrationStatus" />
+        </span>
+      </table>
+    </form>
+  </span>
+  <span jwcid="@Else">
+    <span key="bridgeSbcDisabled" class="user-error" raw="true"/>
+  </span>
+</div>

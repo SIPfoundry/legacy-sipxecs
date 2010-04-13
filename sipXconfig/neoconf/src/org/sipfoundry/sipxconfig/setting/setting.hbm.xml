@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.setting" default-lazy="false">
+  <!--
+    - V A L U E  S T O R A G E
+    -->
+  <class name="ValueStorage" table="value_storage">
+    <id name="id" column="value_storage_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">storage_seq</param>
+      </generator>
+    </id>
+    <!-- S E T T I N G   V A L U E -->
+    <map name="databaseValues" cascade="all" table="setting_value">
+      <key column="value_storage_id"/>
+      <index column="path" type="string"/>
+      <element type="string" column="value"/>
+    </map>
+    <!--
+      - G R O U P
+      -->
+    <joined-subclass name="Group" table="group_storage">
+      <key column="group_id"/>
+      <property name="name"/>
+      <property name="description"/>
+      <property name="resource"/>
+      <property name="weight"/>
+      <many-to-one name="branch" column="branch_id" not-found="ignore" />
+    </joined-subclass>
+  </class>
+
+  <class name="SettingDaoImpl$GroupWeight" table="group_weight">
+    <id name="weight" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">group_weight_seq</param>
+      </generator>
+    </id>
+  </class>
+
+  <query name="groupsByResourceAndName">
+    <![CDATA[from Group g where g.resource = :resource and g.name = :name]]>
+  </query>
+
+  <query name="groupsByResource">
+    <![CDATA[from Group g where g.resource = :resource order by g.weight]]>
+  </query>
+
+  <query name="groupIdsWithNameAndResource">
+    <![CDATA[select g.id from Group g where g.resource = :resource and g.name = :name]]>
+  </query>
+
+  <query name="selectedBranchValid">
+    <![CDATA[select u from User u join u.groups as ugroups where ugroups.id = :groupId
+             and u.branch != null  and u.branch != :branch]]>
+  </query>
+
+  <query name="groupsForBranch">
+    <![CDATA[from Group g where g.branch = :branch]]>
+  </query>
+
+</hibernate-mapping>

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<appearanceGroups xmlns="http://www.sipfoundry.org/sipX/schema/xml/appearance-groups-00-00">
+    <resource uri="sip:sharedline@example.org"/>
+    <resource uri="sip:321@example.org"/>
+</appearanceGroups>

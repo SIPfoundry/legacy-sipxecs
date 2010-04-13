@@ -1,0 +1,27 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickHelp" value="message:quick.help" />
+  <form jwcid="form@Form">
+    <fieldset>
+      <ul class="component-links">
+        <li>
+          <a jwcid="addBranchLink@DirectLink" id="branch:add"
+            listener="listener:addBranch">
+            <span key="add">Add Branch</span>
+          </a>
+        </li>
+      </ul>
+      <ul class="component-submit">
+        <li>
+          <span jwcid="@setting/GroupFilter"
+            selectedGroupId="ognl:selectedGroupId"
+            queryText="ognl:queryText"
+            searchMode="ognl:searchMode"/>
+        </li>
+      </ul>
+    </fieldset>
+      <div jwcid="@branch/BranchTable"
+        viewBranchListener="listener:editBranch"
+        searchString="ognl:queryText"
+        searchMode="ognl:searchMode" />
+  </form>
+</div>

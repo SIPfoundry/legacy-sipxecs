@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<page-specification class="org.sipfoundry.sipxconfig.site.user.UserGroups">
+  <property name="groups" />
+  <inject property="coreContext" object="spring:coreContext"/>
+  <inject property="settingContext" object="spring:settingDao"/>
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
+  <component id="groupTable" type="setting/GroupTable">
+    <binding name="groups" value="groups"/>
+    <binding name="memberCounts" value="memberCounts"/>
+    <binding name="viewGroupListener" value="listener:editUserGroup"/>
+    <binding name="groupMembersListener" value="listener:showGroupMembers"/>
+  </component>
+  <component id="addGroup" type="DirectLink">
+    <binding name="listener" value="listener:addGroup"/>
+  </component>
+</page-specification>

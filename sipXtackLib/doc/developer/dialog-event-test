@@ -1,0 +1,188 @@
+#! /bin/bash
+
+# The address of the UA that we are testing.
+UA_ADDRESS=$1
+UA_ADDRESS2=$4
+# The two line numbers of the UA
+LINE1=$2
+LINE2=$3
+
+if [ -z "$UA_ADDRESS" -a -z "$LINE1" ]
+then
+    cat <<EOF
+Usage:
+	$0 user-agent-address line-1-user-name line-2-user-name
+EOF
+    exit 2
+fi
+
+# Address for INVITE From: header.
+INVITE_FROM=from@example.com
+# Address for INVITE To: header.
+INVITE_TO=to@example.com
+
+# Program configuration.
+SIPTEST=siptest
+
+# Siptest's listening port.
+LISTENING_PORT=3000
+
+# Time to allow for each INVITE.
+INVITE_WAIT=5
+# Expire time for SUBSCRIBES.
+EXPIRE_TIME=$(( $INVITE_WAIT * 2 + 30 ))
+
+# Test driver system configuration
+# The IP address (not DNS name!) of the host that will run this script.
+MY_ADDRESS=212.247.207.174
+
+# Extract the log number.
+MAX=$( ls -1 |
+    sed -e '/^Test-[0-9][0-9]*\.log$/!d' -e 's/^Test-\(.*\)\.log$/\1/' |
+    sort -nr |
+    head -1 )
+TEST="Test-$((MAX+1))"
+
+# Functions to generate Call-Ids and tags.
+Call_Id_sequence_no=0
+Call_Id_base=$$-$( date --iso-8601=seconds )@${MY_ADDRESS}
+function generate_Call_Id ()
+{
+    (( Call_Id_sequence_no++ ))
+    C=${Call_Id_sequence_no}-${Call_Id_base}
+}
+
+tag_sequence_no=0
+function generate_tag ()
+{
+    (( tag_sequence_no++ ))
+    T=siptest-${tag_sequence_no}
+}
+
+CSeq_sequence_no=0
+function generate_CSeq ()
+{
+    (( CSeq_sequence_no += 100 ))
+    CS=${CSeq_sequence_no}
+}
+
+# Generate an INVITE for a URI
+function generate_INVITE ()
+{
+local USER=$1
+local HOST=$2
+generate_Call_Id
+generate_tag
+generate_CSeq
+
+cat <<EOF >temp.B
+v=0
+o=root 230779532 230779532 IN IP4 ${MY_ADDRESS}
+s=call
+c=IN IP4 212.247.206.131
+t=0 0
+m=audio 10052 RTP/AVP 0 8 101
+a=rtpmap:0 pcmu/8000
+a=rtpmap:8 pcma/8000
+a=rtpmap:101 telephone-event/8000
+a=fmtp:101 0-15
+a=ptime:20
+a=sendrecv
+EOF
+
+cat <<EOF
+INVITE sip:${USER:+$USER@}$HOST SIP/2.0
+From: From Name $USER<sip:${INVITE_FROM}>;tag=${T}
+To: To Name $USER<sip:${INVITE_TO}>
+Contact: sip:siptest@$MY_ADDRESS:${LISTENING_PORT}
+Allow: INVITE, ACK, CANCEL, BYE, REFER, OPTIONS, NOTIFY
+Accept: application/sdp
+Content-Type: application/sdp
+Max-Forwards: 70
+User-Agent: dialog-event-test
+Call-Id: ${C}
+CSeq: ${CS} INVITE
+Content-Length: $( wc -c <temp.B )
+
+EOF
+
+cat temp.B
+}
+
+# Generate a SUBSCRIBE for dialog events for a URI
+function generate_SUBSCRIBE ()
+{
+local USER=$1
+local HOST=$2
+generate_Call_Id
+generate_tag
+generate_CSeq
+cat <<-EOF
+SUBSCRIBE sip:${USER:+$USER@}$HOST SIP/2.0
+From: sip:siptest@$MY_ADDRESS;tag=${T}
+To: sip:${USER:+$USER@}$HOST
+Contact: sip:siptest@$MY_ADDRESS:${LISTENING_PORT}
+Event: dialog
+Expires: ${EXPIRE_TIME}
+Accept: application/dialog-info+xml
+Max-Forwards: 70
+User-Agent: dialog-event-test
+Call-Id: ${C}
+CSeq: ${CS} SUBSCRIBE
+Content-Length: 0
+
+EOF
+}
+
+(
+    echo respond 200 OK
+
+    generate_SUBSCRIBE $LINE1 $UA_ADDRESS >temp.S1
+    echo send temp.S1
+    echo sleep 1
+
+    if [ -n "$LINE2" ]
+    then
+	generate_SUBSCRIBE $LINE2 ${UA_ADDRESS2:-$UA_ADDRESS} >temp.S2
+	echo send temp.S2
+	echo sleep 1
+    fi
+
+    generate_SUBSCRIBE merde $UA_ADDRESS >temp.S3
+    echo send temp.S3
+    echo sleep 1
+
+    generate_SUBSCRIBE '' $UA_ADDRESS >temp.S4
+    echo send temp.S4
+    echo sleep 1
+
+    generate_INVITE $LINE1 $UA_ADDRESS >temp.I1
+    echo send temp.I1
+    echo sleep $INVITE_WAIT
+
+    if [ -n "$LINE2" ]
+    then
+	generate_INVITE $LINE2 ${UA_ADDRESS2:-$UA_ADDRESS} >temp.I2
+	echo send temp.I2
+	echo sleep $INVITE_WAIT
+    fi
+
+    generate_INVITE merde $UA_ADDRESS >temp.I3
+    echo send temp.I3
+    echo sleep $INVITE_WAIT
+
+    generate_INVITE '' $UA_ADDRESS >temp.I4
+    echo send temp.I4
+    echo sleep $INVITE_WAIT
+
+    echo log dump
+) >temp.D
+
+# Set up several subscriptions, then send INVITEs to the two lines.
+${SIPTEST} <temp.D | tr -d '\r' >$TEST.log
+
+echo "Test log in $TEST.log"
+
+dialog-event-test-parse <$TEST.log >$TEST.out
+
+echo "Parsed results in $TEST.out"

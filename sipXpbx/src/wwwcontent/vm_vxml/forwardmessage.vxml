@@ -1,0 +1,458 @@
+<?xml version="1.0"?>
+<vxml version="2.0" application="root.vxml">
+    <!--
+      Allows mailbox owner to forward a message.
+    -->
+    <form id="fwdmessage">
+        <property name="timeout" value="7s" />
+        <property name="interdigittimeout" value="3s" />
+
+        <!-- Parameters passed in. -->
+        <var name="mailbox" />
+        <var name="frommailbox" expr="mailbox" />
+        <var name="mediaserverurl" />
+        <var name="securemediaserverurl" />
+        <var name="fromfolder" />
+        <var name="messageids" />
+        <var name="messageidlist" />
+        <var name="category" />
+
+        <!-- Variables for the CGI -->
+        <var name="action" expr="'forward'" />
+        <var name="duration"/>
+        <var name="timestamp"/>
+        <var name="size" expr="'0'"/>
+        <var name="withcomments" />
+
+        <var name="alreadyrecorded" />
+        <block>
+            <assign name="alreadyrecorded" expr="'0'" />
+        </block>
+
+        <var name="forwardwithcomments" expr="'-1'" />
+
+
+        <!-- Prompts user for their choice of recording comments. -->
+        <field name="start" type="digits?maxlength=1;minlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'forward_prompt.wav'"/>
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'"/>
+            </prompt>
+            <filled>
+                <if cond="start == '1'">
+                    <assign name="withcomments" expr="'yes'" />
+                    <goto nextitem="commentprompt"/>
+                <elseif cond="start == '2'" />
+                    <assign name="withcomments" expr="'no'" />
+                    <assign name="alreadyrecorded" expr="'1'" />
+                    <goto nextitem="toextension" />
+                <elseif cond="start == '*'" />
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return />
+                <else />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="start" />
+                    <goto nextitem="start" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+        <!-- Prompts user to record their comments -->
+        <field name="commentprompt" type="digits?maxlength=1;minlength=1" cond="alreadyrecorded=='0'">
+            <prompt timeout="1s">
+                <audio expr="mediaserverurl + promptsalias + 'record_comments.wav'" />
+            </prompt>
+            <filled>
+                <if cond="commentprompt == '*'">
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return/>
+                <else />
+                    <assign name="alreadyrecorded" expr="'0'" />
+                    <goto nextitem="comments" />
+                </if>
+            </filled>
+            <noinput>
+                <assign name="alreadyrecorded" expr="'0'" />
+                <goto nextitem="comments" />
+            </noinput>
+        </field>
+
+        <!-- Records the comments -->
+        <record name="comments" cond="alreadyrecorded=='0'" beep="true" finalsilence="8000ms" dtmfterm="true">
+            <filled>
+                <if cond="comments$.termchar == '*'">
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return/>
+                <else />
+                    <assign name="alreadyrecorded" expr="'1'" />
+                    <assign name="size" expr="comments$.size"/>
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+        </record>
+
+        <!-- Prompts user to confirm that their comments can be sent -->
+        <field name="confirm" cond="size != '0'" type="digits?maxlength=1;minlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'comment_options.wav'" />
+                <audio expr="mediaserverurl + promptsalias + 'to_cancel_press_star.wav'" />
+            </prompt>
+            <filled>
+                <if cond="confirm == '1'">
+                    <!-- Play the comments recorded -->
+                    <prompt>
+                        <value expr="comments" />
+                    </prompt>
+                    <clear namelist="confirm" />
+                    <goto nextitem="confirm" />
+                <elseif cond="confirm == '2'"/>
+                    <!-- User confirmed that the comments were fine. Proceed. -->
+                    <assign name="duration" expr="comments$.duration"/>
+                    <assign name="size" expr="comments$.size"/>
+                    <assign name="timestamp" expr="comments$.timestamp"/>
+                    <goto nextitem="toextension"/>
+                <elseif cond="confirm == '3'"/>
+                    <!-- Delete the comments and re-record -->
+                    <clear namelist="commentprompt comments confirm alreadyrecorded"/>
+                    <goto nextitem="commentprompt" />
+                <elseif cond="confirm == '*'" />
+                    <!-- Cancel forwarding and return to playing the messages. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return/>
+                <else />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="confirm" />
+                    <goto nextitem="confirm" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt/>
+            </nomatch>
+        </field>
+
+
+        <!-- Prompts user for the destination extension -->
+        <field name="toextension" cond="confirm == '2' || withcomments == 'no'" type="digits?minlength=1;maxlength=100">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'dial_extn.wav'" />
+            </prompt>
+            <filled>
+                <if cond="toextension == '9'">
+                    <goto nextitem="dialbyname"/>
+                <elseif cond="toextension == '8'" />
+                    <goto nextitem="selectdistlist"/>
+                <elseif cond="toextension == '*'" />
+                    <!-- Cancel forwarding and return to playing the messages. -->
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return/>
+                <elseif cond="withcomments == 'yes'" />
+                    <assign name="forwardwithcomments" expr="'yes'" />
+                    <goto nextitem="forward"/>
+                <else/>
+                    <assign name="forwardwithcomments" expr="'no'" />
+                    <goto nextitem="forwardnocomments" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+        <!-- Prompts user for the distribution list -->
+        <field name="selectdistlist" type="digits?minlength=1;maxlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'select_dist_list.wav'" />
+            </prompt>
+            <filled>
+	        <assign name="action" expr="'forwardbydistlist'"/>
+                <if cond="selectdistlist == '0'">
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'please_hold.wav'" />
+                    </prompt>
+                    <goto next="root.vxml#operator"/>
+                <elseif cond="selectdistlist == '*'" />
+                    <!-- Cancel forwarding and return to playing the messages. -->
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'cancelled.wav'" />
+                    </prompt>
+                    <return/>
+                <elseif cond="withcomments == 'yes'" />
+                    <assign name="forwardwithcomments" expr="'yes'" />
+                    <goto nextitem="forwardbydistlist"/>
+                <else/>
+                    <assign name="forwardwithcomments" expr="'no'" />
+                    <goto nextitem="forwardnocommentsbydistlist" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+        <!-- Invokes the CGI to validate the destination extension and forward the message -->
+        <subdialog name="forward" cond="forwardwithcomments =='yes'" srcexpr="securemediaserverurl + cgiurl" method="post" enctype="audio/x-wav" namelist="action comments duration size frommailbox fromfolder messageids toextension timestamp" >
+            <filled>
+                <if cond="forward.result == 'success'" >
+                    <!-- Msg forwarded successfully. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'msg_forwarded.wav'"/>
+                    </prompt>
+                    <goto nextitem="moreoptions" />
+                <elseif cond="forward.result == 'invalidextn'" />
+                    <!-- Destination extension is invalid. Prompt the user to enter the extension again. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'extn_invalid.wav'"/>
+                    </prompt>
+                    <clear namelist="toextension forward forwardwithcomments"/>
+                    <goto nextitem="toextension" />
+                <elseif cond="forward.result == 'failed'" />
+                    <!-- Forwarding failed for some reason. -->
+                    <goto nextitem="failure" />
+                </if>
+            </filled>
+        </subdialog>
+
+        <!-- Invokes the CGI to validate the distribution list and forward the message -->
+        <subdialog name="forwardbydistlist" cond="forwardwithcomments =='yes'" srcexpr="securemediaserverurl + cgiurl" method="post" enctype="audio/x-wav" namelist="action comments duration size frommailbox fromfolder messageids selectdistlist timestamp" >
+            <filled>
+	        <assign name="action" expr="'forward'"/>
+                <if cond="forwardbydistlist.result == 'success'" >
+                    <!-- Msg forwarded successfully. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'msg_forwarded.wav'"/>
+                    </prompt>
+                    <goto nextitem="moreoptions" />
+                <elseif cond="forwardbydistlist.result == 'invalidlist'" />
+                    <!-- Destination extension is invalid. Prompt the user to enter the extension again. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'dist_list_invalid.wav'"/>
+                    </prompt>
+                    <clear namelist="selectdistlist forwardbydistlist forwardwithcomments"/>
+                    <goto nextitem="selectdistlist" />
+                <elseif cond="forward.result == 'failed'" />
+                    <!-- Forwarding failed for some reason. -->
+                    <goto nextitem="failure" />
+                </if>
+            </filled>
+        </subdialog>
+
+        <!-- Prompts user for additional extensions to which this message should be forwarded -->
+        <field name="moreoptions" cond="forwardwithcomments =='yes'" type="digits?maxlength=1;minlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'copy_to_extn.wav'" />
+            </prompt>
+            <filled>
+                <if cond="moreoptions == '1'">
+                    <clear namelist="moreoptions toextension forward forwardwithcomments"/>
+                    <goto nextitem="toextension" />
+                <elseif cond="moreoptions == '*'"/>
+                    <return />
+                <else />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="moreoptions" />
+                    <goto nextitem="moreoptions" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+        <!-- Invokes the CGI to validate the destination extension and forward the message -->
+        <subdialog name="forwardnocomments" cond="forwardwithcomments =='no'" srcexpr="securemediaserverurl + cgiurl" namelist="action frommailbox fromfolder messageids toextension" >
+            <filled>
+                <if cond="forwardnocomments.result == 'success'" >
+                    <!-- Msg forwarded successfully. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'msg_forwarded.wav'"/>
+                    </prompt>
+                    <goto nextitem="moreoptions2" />
+                <elseif cond="forwardnocomments.result == 'invalidextn'" />
+                    <!-- Destination extension is invalid. Prompt the user to enter the extension again. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'extn_invalid.wav'"/>
+                    </prompt>
+                    <clear namelist="toextension forwardnocomments forwardwithcomments"/>
+                    <goto nextitem="toextension" />
+                <elseif cond="forwardnocomments.result == 'failed'" />
+                    <!-- Forwarding failed for some reason. -->
+                    <goto nextitem="failure" />
+                </if>
+            </filled>
+        </subdialog>
+
+
+        <!-- Invokes the CGI to validate the distribution list and forward the message -->
+        <subdialog name="forwardnocommentsbydistlist" cond="forwardwithcomments =='no'" srcexpr="securemediaserverurl + cgiurl" namelist="action frommailbox fromfolder messageids selectdistlist" >
+            <filled>
+	        <assign name="action" expr="'forward'"/>
+                <if cond="forwardnocommentsbydistlist.result == 'success'" >
+                    <!-- Msg forwarded successfully. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'msg_forwarded.wav'"/>
+                    </prompt>
+                    <goto nextitem="moreoptions2" />
+                <elseif cond="forwardnocommentsbydistlist.result == 'invalidlist'" />
+                    <!-- Distribution list is invalid. Prompt the user to enter the extension again. -->
+                    <prompt>
+                        <audio expr="mediaserverurl + promptsalias + 'dist_list_invalid.wav'"/>
+                    </prompt>
+                    <clear namelist="selectdistlist forwardnocommentsbydistlist forwardwithcomments"/>
+                    <goto nextitem="toextension" />
+                <elseif cond="forwardnocommentsbydistlist.result == 'failed'" />
+                    <!-- Forwarding failed for some reason. -->
+                    <goto nextitem="failure" />
+                </if>
+            </filled>
+        </subdialog>
+
+
+        <!-- Prompts user for additional extensions to which this message should be forwarded -->
+        <field name="moreoptions2" cond="forwardwithcomments =='no'" type="digits?maxlength=1;minlength=1">
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'copy_to_extn.wav'" />
+            </prompt>
+            <filled>
+                <if cond="moreoptions2 == '1'">
+                    <clear namelist="moreoptions2 toextension forwardnocomments forwardwithcomments"/>
+                    <goto nextitem="toextension" />
+                <elseif cond="moreoptions2 == '*'"/>
+                    <return />
+                <else />
+                    <prompt bargein="false">
+                        <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                    </prompt>
+                    <clear namelist="moreoptions" />
+                    <goto nextitem="moreoptions" />
+                </if>
+            </filled>
+            <noinput count="3">
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'thankyou_goodbye.wav'" />
+                </prompt>
+                <disconnect/>
+            </noinput>
+            <nomatch>
+                <prompt bargein="false">
+                    <audio expr="mediaserverurl + promptsalias + 'invalid_entry_try_again.wav'" />
+                </prompt>
+                <reprompt />
+            </nomatch>
+        </field>
+
+        <field name="failure" cond="forward.result == 'failed' || forwardnocomments.result=='failed'">
+            <grammar>1|*</grammar>
+            <prompt>
+                <audio expr="mediaserverurl + promptsalias + 'system_error.wav'" />
+            </prompt>
+            <filled>
+                <if cond="failure=='*'">
+                    <return />
+                <else/>
+                    <clear namelist="forward"/>
+                    <goto nextitem="forward" />
+                </if>
+            </filled>
+        </field>
+
+        <!-- Invokes the DialByName script if the user wants to use dial by name to select the destination extension -->
+        <subdialog name="dialbyname" cond="toextension == '9'" srcexpr="securemediaserverurl + dialbynameurl">
+            <param name="from" expr="frommailbox" />
+            <param name="mediaserverurl" expr="mediaserverurl" />
+            <param name="securemediaserverurl" expr="securemediaserverurl" />
+            <param name="fromdeposit" expr="'yes'" />
+            <filled>
+                <if cond="dialbyname.extension != '-1'" >
+                    <assign name="toextension" expr="dialbyname.extension"/>
+                    <clear namelist="moreoptions forward forwardnocomments"/>
+                    <if cond="withcomments == 'yes'">
+                        <assign name="forwardwithcomments" expr="'yes'" />
+                        <goto nextitem="forward"/>
+                    <else/>
+                        <assign name="forwardwithcomments" expr="'no'" />
+                        <goto nextitem="forwardnocomments" />
+                    </if>
+                <else />
+                    <clear namelist="moreoptions forward forwardnocomments toextension"/>
+                    <goto nextitem="toextension" />
+                </if>
+            </filled>
+        </subdialog>
+
+        <catch event="telephone.disconnect.hangup">
+            <assign name="action" expr="'updatestatus'"/>
+            <goto nextitem="updatestatus" />
+        </catch>
+
+        <subdialog name="updatestatus" method="get" srcexpr="securemediaserverurl + cgiurl" namelist="action mailbox category messageidlist">
+            <filled>
+                <exit />
+            </filled>
+        </subdialog>
+
+    </form>
+</vxml>

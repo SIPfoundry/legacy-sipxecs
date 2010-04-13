@@ -1,0 +1,83 @@
+SIP_REGISTRAR_BIND_IP : $!{location.address}
+SIP_REGISTRAR_AUTHENTICATE_ALGORITHM : 
+SIP_REGISTRAR_AUTHENTICATE_REALM : $!{registrarService.realm}
+SIP_REGISTRAR_DOMAIN_NAME : $!{registrarService.domainName}
+SIP_REGISTRAR_PROXY_PORT : $!{proxyService.sipPort}
+SIP_REGISTRAR_LOG_CONSOLE : 
+SIP_REGISTRAR_LOG_DIR : 
+SIP_REGISTRAR_LOG_LEVEL : $!settings.getSetting('logging').getSetting('SIP_REGISTRAR_LOG_LEVEL').Value
+SIP_REGISTRAR_MAX_EXPIRES_NORMAL : 
+SIP_REGISTRAR_MIN_EXPIRES_NORMAL : 
+SIP_REGISTRAR_MAX_EXPIRES_NATED : 
+SIP_REGISTRAR_MIN_EXPIRES_NATED : 
+SIP_REGISTRAR_HOOK_LIBRARY.MWI : @sipxpbx.lib.dir@/libRegistrarImpliedMWI.so
+SIP_REGISTRAR.MWI.UA.CISCO : ^(CSCO|Cisco)
+SIP_REGISTRAR_TCP_PORT : $!{registrarService.sipPort}
+SIP_REGISTRAR_UDP_PORT : $!{registrarService.sipPort}
+SIP_REGISTRAR_REG_EVENT_PORT : $!{registrarService.registrarEventSipPort}
+
+# Configure the redirectors.
+SIP_REDIRECT_HOOK_LIBRARY.090-USERPARAM : @sipxpbx.lib.dir@/libRedirectorUserParam.so
+SIP_REDIRECT_AUTHORITY_LEVEL.090-USERPARAM : 60
+SIP_REDIRECT.090-USERPARAM.STRIP_ALL : $!settings.getSetting('userparam').getSetting('SIP_REDIRECT.090-USERPARAM.STRIP_ALL').Value
+SIP_REDIRECT_HOOK_LIBRARY.100-PICKUP : @sipxpbx.lib.dir@/libRedirectorPickUp.so
+SIP_REDIRECT_AUTHORITY_LEVEL.100-PICKUP : 50
+SIP_REDIRECT.100-PICKUP.PICKUP_1_SEC_SUBSCRIBE : Y
+SIP_REDIRECT.100-PICKUP.PICKUP_REVERSED_REPLACES : N
+SIP_REDIRECT.100-PICKUP.PICKUP_NO_EARLY_ONLY : Y
+#set ($callPickupSettings = $settings.getSetting('call-pick-up'))
+SIP_REDIRECT.100-PICKUP.GLOBAL_CALL_PICKUP_CODE :
+SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE : $!callPickupSettings.getSetting('SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE').Value
+SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE : $!callPickupSettings.getSetting('SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE').Value
+SIP_REDIRECT.100-PICKUP.CALL_PICKUP_WAIT : $!callPickupSettings.getSetting('SIP_REDIRECT.100-PICKUP.CALL_PICKUP_WAIT').Value
+SIP_REDIRECT.100-PICKUP.PARK_SERVER : ${registrarService.domainName};transport=tcp?Route=sip:${parkService.address}:${parkService.parkServerSipPort}
+SIP_REDIRECT.100-PICKUP.ORBIT_FILENAME : @sipxpbx.conf.dir@/orbits.xml
+SIP_REDIRECT_HOOK_LIBRARY.110-REG : @sipxpbx.lib.dir@/libRedirectorRegDB.so
+SIP_REDIRECT_AUTHORITY_LEVEL.110-REG : 40
+SIP_REDIRECT_HOOK_LIBRARY.120-ALIAS : @sipxpbx.lib.dir@/libRedirectorAliasDB.so
+SIP_REDIRECT_AUTHORITY_LEVEL.120-ALIAS : 40
+SIP_REDIRECT_HOOK_LIBRARY.130-MAPPING : @sipxpbx.lib.dir@/libRedirectorMapping.so
+SIP_REDIRECT_AUTHORITY_LEVEL.130-MAPPING : 40
+SIP_REDIRECT.130-MAPPING.MEDIA_SERVER : UNUSED_MEDIASERVER
+SIP_REDIRECT.130-MAPPING.VOICEMAIL_SERVER : UNUSED_MEDIASERVER
+SIP_REDIRECT.130-MAPPING.MAPPING_RULES_FILENAME : @sipxpbx.conf.dir@/mappingrules.xml
+SIP_REDIRECT_HOOK_LIBRARY.140-FALLBACK : @sipxpbx.lib.dir@/libRedirectorFallback.so
+SIP_REDIRECT_AUTHORITY_LEVEL.140-FALLBACK : 30
+SIP_REDIRECT.140-FALLBACK.MAPPING_RULES_FILENAME : @sipxpbx.conf.dir@/fallbackrules.xml
+SIP_REDIRECT_HOOK_LIBRARY.150-ISN : @sipxpbx.lib.dir@/libRedirectorISN.so
+SIP_REDIRECT_AUTHORITY_LEVEL.150-ISN : 40
+#set ($isnSettings = $settings.getSetting('isn'))
+SIP_REDIRECT.150-ISN.BASE_DOMAIN : $!isnSettings.getSetting('SIP_REDIRECT.150-ISN.BASE_DOMAIN').Value
+SIP_REDIRECT.150-ISN.PREFIX : $!isnSettings.getSetting('SIP_REDIRECT.150-ISN.PREFIX').Value
+SIP_REDIRECT_HOOK_LIBRARY.160-ENUM : @sipxpbx.lib.dir@/libRedirectorENUM.so
+SIP_REDIRECT_AUTHORITY_LEVEL.160-ENUM : 40
+#set ($enumSettings = $settings.getSetting('enum'))
+SIP_REDIRECT.160-ENUM.DIAL_PREFIX : $!enumSettings.getSetting('SIP_REDIRECT.160-ENUM.DIAL_PREFIX').Value
+SIP_REDIRECT.160-ENUM.ADD_PREFIX : $!enumSettings.getSetting('SIP_REDIRECT.160-ENUM.ADD_PREFIX').Value
+SIP_REDIRECT.160-ENUM.PREFIX_PLUS : $!enumSettings.getSetting('SIP_REDIRECT.160-ENUM.PREFIX_PLUS').Value
+SIP_REDIRECT.160-ENUM.BASE_DOMAIN : $!enumSettings.getSetting('SIP_REDIRECT.160-ENUM.BASE_DOMAIN').Value
+#if (${sipxServiceManager.isServiceInstalled('sipxOpenfireService')})
+#if(${openfire-host} && ${openfire-xml-rpc-port})
+SIP_REDIRECT_HOOK_LIBRARY.900-PRESENCE : @sipxpbx.lib.dir@/libRedirectorPresenceRouting.so
+SIP_REDIRECT_AUTHORITY_LEVEL.900-PRESENCE : 100
+SIP_REDIRECT.900-PRESENCE.USER_PREFS_FILE : @sipxpbx.conf.dir@/presencerouting-prefs.xml
+SIP_REDIRECT.900-PRESENCE.OPENFIRE_PRESENCE_SERVER_URL : http://$!{openfire-host}:$!{openfire-xml-rpc-port}/plugins/sipx-openfire-presence/status
+SIP_REDIRECT.900-PRESENCE.LOCAL_PRESENCE_MONITOR_SERVER_URL : http://$!{location.address}:9096/RPC2
+SIP_REDIRECT.900-PRESENCE.REALM : $!{registrarService.realm}
+SIP_REDIRECT.900-PRESENCE.SIP_DOMAIN : $!{registrarService.domainName}
+#end
+#end
+SIP_REDIRECT_HOOK_LIBRARY.997-SUBSCRIBE : @sipxpbx.lib.dir@/libRedirectorSubscribe.so
+SIP_REDIRECT_AUTHORITY_LEVEL.997-SUBSCRIBE : 100
+SIP_REDIRECT_HOOK_LIBRARY.998-TIMEOFDAY : @sipxpbx.lib.dir@/libRedirectorTimeOfDay.so
+SIP_REDIRECT_AUTHORITY_LEVEL.998-TIMEOFDAY : 100
+
+# AuthRouter is always last.
+SIP_REDIRECT_HOOK_LIBRARY.999-AUTHROUTER : @sipxpbx.lib.dir@/libRedirectorAuthRouter.so
+SIP_REDIRECT_AUTHORITY_LEVEL.999-AUTHROUTER : 100
+SIP_REDIRECT.999-AUTHROUTER.SIPX_PROXY : $!{registrarService.domainName};transport=tcp
+
+# See HaSetup.pdf for how to use the following
+SIP_REGISTRAR_XMLRPC_PORT : 5077
+SIP_REGISTRAR_NAME : $!{location.fqdn}
+SIP_REGISTRAR_SYNC_WITH : $!{registrarSyncHosts}

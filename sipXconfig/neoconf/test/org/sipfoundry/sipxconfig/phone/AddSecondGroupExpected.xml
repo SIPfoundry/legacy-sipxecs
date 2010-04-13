@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+  <phone_group group_id="1000" phone_id="1000" />
+  <phone_group group_id="1001" phone_id="1000" />
+</dataset>

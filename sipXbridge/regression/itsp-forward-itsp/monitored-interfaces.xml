@@ -1,0 +1,40 @@
+<?xml version="1.0" ?>
+<sut-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/tester-topology-00-00">
+<!-- A file that tells us what endpoints we are intersted in and whether or not these will be emulated
+     in the tester -->
+ <endpoint>
+     <!-- the behavior tells us where to look for configuration information -->
+     <behavior>PROXY</behavior>
+     <is-emulated>true</is-emulated>
+     <ip-address>192.168.5.75</ip-address>
+     <emulated-port>0</emulated-port>
+  </endpoint>
+  <endpoint>
+     <behavior>ITSP</behavior>
+     <is-emulated>true</is-emulated>
+     <ip-address>216.82.224.202</ip-address>
+     <emulated-port>1</emulated-port>
+  </endpoint>
+  <endpoint>
+     <behavior>ITSP</behavior>
+     <is-emulated>true</is-emulated>
+     <ip-address>192.168.5.236</ip-address>
+     <emulated-port>2</emulated-port>
+  </endpoint>
+
+  <endpoint>
+     <is-emulated>false</is-emulated>
+     <ip-address>192.168.5.75:5090</ip-address>
+  </endpoint>
+
+  <endpoint>
+     <is-emulated>false</is-emulated>
+     <ip-address>192.168.5.75:5080</ip-address>
+  </endpoint>
+
+  <endpoint>
+     <is-emulated>false</is-emulated>
+     <ip-address>69.140.53.66:5080</ip-address>
+  </endpoint>
+
+</sut-config>

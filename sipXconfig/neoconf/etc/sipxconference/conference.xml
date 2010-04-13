@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+  PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="fs-conf-conference">
+    <setting name="organizer-code" hidden="yes">
+      <type>
+        <phonepadpin />
+      </type>
+      <value />
+    </setting>
+    <setting name="participant-code">
+      <type>
+        <phonepadpin />
+      </type>
+      <value />
+    </setting>
+    <setting name="organizer_admit" hidden="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="autorecord" hidden="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="AOR" hidden="yes">
+      <value />
+    </setting>
+    <setting name="ACCESS" hidden="yes">
+      <type>
+        <enum>
+          <option>
+            <value>OPEN</value>
+          </option>
+          <option>
+            <value>REMOTE_ADMIT</value>
+          </option>
+        </enum>
+      </type>
+      <value>OPEN</value>
+    </setting>
+    <setting name="MAX_LEGS">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="MOH">
+       <type>
+        <enum>
+          <option>
+            <value>FILES_SRC</value>
+          </option>
+          <option>
+            <value>SOUNDCARD_SRC</value>
+          </option>
+        </enum>
+      </type>
+      <value>FILES_SRC</value>
+    </setting>
+    <setting name="FS_BRIDGE_CONFERENCE.REMOTE_ADMIT.SECRET" hidden="yes" />
+  </group>
+  <group name="web-meeting">
+    <setting name="dimdim-host">
+      <type>
+        <hostname/>
+      </type>
+      <value>webmeeting.dimdim.com</value>
+    </setting>
+    <setting name="user">
+    </setting>
+    <setting name="password">
+      <type>
+        <string password="yes" />
+      </type>
+    </setting>
+    <setting name="did">
+    </setting>
+  </group>
+  <group name="chat-meeting">
+    <setting name="moderated">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="public">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="members-only" hidden="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+</model>

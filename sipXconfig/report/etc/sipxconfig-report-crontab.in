@@ -1,0 +1,5 @@
+# script uses few resources so even every minute would be reasonable
+# time should be less than one-half the time window sipxconfig-agent keeps
+# around with is currently 90 minutes (although for the first 1000 events, it doesn't
+# matter and sipxconfig-agent will keep at least that many)
+*/30 * * * * @SIPXPBXUSER@ @SIPX_BINDIR@/sipxconfig-report > /dev/null

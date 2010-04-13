@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.login" default-lazy="false">
+
+  <class name="PrivateUserKey" table="private_user_key">
+    <id name="id" column="private_user_key_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">private_user_key_seq</param>
+      </generator>
+    </id>
+    <property name="key" />
+    <many-to-one name="user" column="user_id" not-found="ignore" />
+  </class>
+
+  <query name="userForPrivateKey">
+    <![CDATA[select puk.user from PrivateUserKey puk where puk.key = :key]]>
+  </query>
+
+  <query name="privateKeyForUser">
+    <![CDATA[select puk.key from PrivateUserKey puk where puk.user = :user]]>
+  </query>
+</hibernate-mapping>

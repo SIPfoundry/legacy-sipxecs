@@ -1,0 +1,63 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+        http://track.sipfoundry.org/browse?XPL
+
+Release Notes - sipXportLib - Version 2.6.2
+
+** Bug
+   * Change locking strategy for UtlContainer and UtlIterator classes
+     Remove the UtlIterator::remove method
+     See comments in UtlContainer.h for locking rules
+
+   * [XPB-143] Added _FILE_OFFSET_BITS=64 flag
+
+** New Feature
+   * [XPB-162] Add --version option for sipx-config
+
+** Other Changes
+   * [XMR-18] Temporarily reduce the logging level of
+              "Message queue increased to 1600 msgs" to INFO.
+
+   * Add libtool version-info
+
+Release Notes - sipXportLib - Version 2.6.1
+
+** Bug
+    * [XPL-36] - check for correctly built openssl libs
+    * [XPL-54] - Incorrect directory name in general.m4
+    * [XPL-60] - Windows project file cannot be converted by VS .NET 2003/7.1
+    * [XPL-69] - SIPX_HOME not compatible with multiple-rooted install
+
+** New Feature
+    * [XPL-72] - need a way to locate installed components
+
+** Task
+    * [XPL-71] - spec files use URLs for source and shouldn't
+
+** Improvement
+    * [XPL-55] - ./configure options to allow PCRE include and lib dirs to be in different places
+
+Release Notes - sipXpbx - Version 2.5.2
+
+** Bug
+    * [XPB-2] - Clean up generation/installation of SSL Certificates
+    * [XPB-7] - Failed unittest
+    * [XPB-11] - Watchdog trying to start apache from the wrong location
+    * [XPB-12] - Error while starting apache2
+    * [XPB-13] - watchdog stop doesn't work
+    * [XPB-15] - Clean up startup/shutdown
+    * [XPB-16] - Major memory leak in watchdog (e.g. 642MB after 1hr)
+
+** Improvement
+    * [XPB-8] - Clean up code to remove all warnings.
+
+Release Notes - sipXportLib - Version 2.5.1
+
+** Bug
+    * [XPL-1] - Dependency with rwToolsppLib
+    * [XPL-10] - checking for rwToolsppLib includes... configure: error: not found
+    * [XPL-11] - Need to update the tarballs now that this project builds
+    * [XPL-13] - UtlContainer should inherit from UtlContainable
+    * [XPL-14] - needs verify that we are using automake version 1.8 or better
+    * [XPL-17] - Need to implement a UtlSortedListIterator

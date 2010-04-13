@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="monitoringContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext" />
+    <property name="target">
+      <ref local="monitoringContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="monitoringContextImpl" class="org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContextImpl">
+    <property name="locationsManager">
+      <ref bean="locationsManager" />
+    </property>
+    <property name="mrtgTemplateConfig">
+      <ref bean="mrtgTemplateConfig" />
+    </property>
+    <property name="mrtgConfig">
+      <ref bean="mrtgConfig" />
+    </property>
+    <property name="processContext" ref="sipxProcessContext" />
+    <property name="communitySnmp" value="sipxecs" />
+    <property name="mrtgService" ref="sipxMrtgService" />
+  </bean>
+
+  <bean id="mrtgTemplateConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
+    <property name="filename" value="${sysdir.etc}/mrtg/mrtg-t.cfg"/>
+  </bean>
+
+  <bean id="mrtgConfig" class="org.sipfoundry.sipxconfig.admin.monitoring.MRTGConfig">
+    <property name="filename" value="${sysdir.etc}/mrtg/mrtg.cfg"/>
+  </bean>
+</beans>

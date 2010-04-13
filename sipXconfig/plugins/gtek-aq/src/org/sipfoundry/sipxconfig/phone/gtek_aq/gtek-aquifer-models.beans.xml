@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- models -->
+  <bean id="gtekAquiferModelParent" parent="abstractPhoneModel" abstract="true">
+    <property name="beanId" value="gtek-aq" />
+    <property name="profileTemplate" value="gtek-aq/config.vm" />
+    <property name="vendor" value="G-Tek" />
+  </bean>
+
+  <bean id="gtekAq10x" parent="gtekAquiferModelParent">
+    <property name="label" value="G-Tek AQ10X" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+
+  <!-- implementation -->
+  <bean id="gtek-aq" class="org.sipfoundry.sipxconfig.phone.gtek_aq.GtekAquiferPhone" singleton="false" parent="abstractPhone">
+  </bean>
+</beans>

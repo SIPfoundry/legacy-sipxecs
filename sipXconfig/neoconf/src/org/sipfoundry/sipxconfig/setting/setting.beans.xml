@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="settingDaoImpl" class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
+  </bean>
+
+  <bean id="settingDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setting.SettingDao" />
+    <property name="target">
+      <ref local="settingDaoImpl" />
+    </property>
+  </bean>
+
+  <bean id="loadModelCacheAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor">
+    <property name="advice">
+      <bean class="org.sipfoundry.sipxconfig.setting.ModelBuilderCacheInterceptor">
+        <property name="cache" ref="methodCache" />
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="modelBuilderImpl" class="org.sipfoundry.sipxconfig.setting.XmlModelBuilder">
+    <constructor-arg index="0" value="${sysdir.etc}" />
+  </bean>
+
+  <bean id="modelBuilder" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.setting.ModelBuilder" />
+    <property name="target" ref="modelBuilderImpl" />
+    <property name="interceptorNames">
+      <list>
+        <value>loadModelCacheAdvisor</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="modelFilesContext" class="org.sipfoundry.sipxconfig.setting.ModelFilesContextImpl"
+    dependency-check="all">
+    <property name="configDirectory" value="${sysdir.etc}" />
+    <property name="modelBuilder" ref="modelBuilder" />
+  </bean>
+</beans>

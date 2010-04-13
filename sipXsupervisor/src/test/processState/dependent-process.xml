@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Dependent</name>
+  <version>1.0.0</version>
+  <commands>
+    <configtest>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--configtest</parameter>
+      <parameter>dependent</parameter>
+    </configtest>
+    <start>
+      <execute>./notherprocess.sh</execute>
+      <parameter>dependent</parameter>
+    </start>
+    <stop>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--stop</parameter>
+      <parameter>dependent</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>/tmp/dependent.pid</pid>
+  </status>
+  <resources>
+    <file>work/processState/dependent-process.xml</file>
+    <process>Parent</process>
+  </resources>
+</sipXecs-process>

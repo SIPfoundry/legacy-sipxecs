@@ -1,0 +1,271 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX subscription persistent DB file
+  -->
+<schema
+    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/subscription-00-01'
+    xmlns:sip_types='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/subscription-00-01'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <import namespace='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
+      />
+
+  <annotation>
+    <documentation>
+      Description of registration persistent DB file
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='items'>
+    <annotation>
+      <documentation>
+        Contains the entire database; a collection of database rows.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:item' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+      <attribute name='type' type='string' fixed='subscription'>
+	<annotation>
+	  <documentation>
+	    Specifies that this is a subscription DB file.
+	  </documentation>
+	</annotation>
+      </attribute>
+      <attribute name='timestamp' type='integer'>
+	<annotation>
+	  <documentation>
+	    Gives the Unix epoch when the subscription DB was dumped.
+	  </documentation>
+	</annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name='item'>
+    <annotation>
+      <documentation>
+        Contains the elements of one row of the subscription DB table.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:component'/>
+        <element ref='dmp:toUri'/>
+        <element ref='dmp:fromUri'/>
+        <element ref='dmp:callid'/>
+        <element ref='dmp:eventtypekey'/>
+        <element ref='dmp:eventtype'/>
+        <element ref='dmp:id'/>
+        <element ref='dmp:key'/>
+        <element ref='dmp:subscribecseq'/>
+        <element ref='dmp:uri'/>
+        <element ref='dmp:contact'/>
+        <element ref='dmp:expires'/>
+        <element ref='dmp:recordroute'/>
+        <element ref='dmp:notifycseq'/>
+        <element ref='dmp:accept'/>
+        <element ref='dmp:version'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='component' type='normalizedString'>
+    <annotation>
+      <documentation>
+        A string that describes the sipX component which owns this row.
+	Current values are:
+	        park    sipXpark
+                presence sipXpresence
+		reg	sipXregistrar 'reg' event server
+		rls	sipXrls
+		status	sipXpublisher (the Status Server)
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='toUri' type='sip_types:name_addr'>
+    <annotation>
+      <documentation>
+        The name-addr in the To header of the last SUBSCRIBE request.
+	(Note that the column name, 'uri' is thus a misnomer, since a name-addr
+	is not a URI.)
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='fromUri' type='sip_types:name_addr'>
+    <annotation>
+      <documentation>
+        The name-addr in the From header of the last SUBSCRIBE request.
+	(Note that the column name, 'uri' is thus a misnomer, since a name-addr
+	is not a URI.)
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='callid'>
+    <annotation>
+      <documentation>
+         The Call-Id of the subscription dialog.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='normalizedString'>
+        <pattern value='[A-Za-z0-9\-.!%*_+`&apos;~()&lt;&gt;:\\&quot;/\[\]?{}]+(@[A-Za-z0-9\-.!%*_+`&apos;~()&lt;&gt;:\\&quot;/\[\]?{}]+)?'>
+	  <annotation>
+	    <documentation source='http://www.userfriendly.org/cartoons/archives/07jun/xuf010428.gif'/>
+	  </annotation>
+        </pattern>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='eventtypekey' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The "event type key", derived from the Event header.
+	This will not include event-type parameters unless they specify
+	something about the event info to be generated.  In particular,
+	the 'id' parameter will not be included.
+	See sipXtackLib/include/net/SipPublishContentMgr.h for more information
+	on the event type key and event type values for subscriptions.
+	For upward compatibility with the -00-00 version of this schema,
+	if this element is absent or the content of this element is null,
+	the event type key is the same as the event type given by the eventtype
+	element.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='eventtype' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The "event type", derived from the Event header.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='id' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The 'id' parameter value (un-quoted) from the Event header.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='key' type='normalizedString'>
+    <annotation>
+      <documentation>
+	Supposedly the 'subscription data key', which is the concatenation
+	of 'uri' and 'eventtype', but actually only 'uri'.  But this value
+	is not actually read by the persistent subscription mechanism.
+	Also, the subscription data key should separate the uri and eventtype
+	with ';' to ensure non-collision, but that would require changes
+	in quite a number of places in the code.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='subscribecseq'>
+    <annotation>
+      <documentation>
+         The largest CSeq received for a SUBSCRIBE in this subscription.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='0'/>
+	<maxInclusive value='2147483647'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='uri' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The request-URI of the SUBSCRIBE that created the subscription,
+	which is also the 'resource ID' of the resource which the
+	subscription provides information about.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='contact' type='sip_types:name_addr'>
+    <annotation>
+      <documentation>
+        The name-addr in the Contact header of the SUBSCRIBE request.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='expires'>
+    <annotation>
+      <documentation>
+        Expiration time of this subscription, expressed as the Unix
+	epoch number of the last second during which the subscription
+	is valid.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='recordroute' type='normalizedString'>
+    <annotation>
+      <documentation>
+        Comma-separated list of name-addrs from the Record-Route headers
+	of the original SUBSCRIBE request, in the order they appear in the
+	Record-Route headers, which is the same as the order in the Route
+	headers we will supply in the NOTIFY requests.
+	(This type should have a proper grammar, but given that
+	sip_types:name_addr doesn't have a grammar yet, we can't do that.)
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='notifycseq'>
+    <annotation>
+      <documentation>
+         The largest CSeq sent on a NOTIFY in this subscription.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='0'/>
+	<maxInclusive value='2147483647'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='accept' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The value of the Accept header in the SUBSCRIBE.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='version'>
+    <annotation>
+      <documentation>
+         The largest XML version attribute sent on a NOTIFY in this subscription.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='0'/>
+	<maxInclusive value='2147483647'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+</schema>

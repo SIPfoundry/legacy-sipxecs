@@ -1,0 +1,54 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: IVR using FreeSwitch for sipX
+License: LGPL
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org
+
+Source: %name-%version.tar.gz
+
+Obsoletes: sipxvxml
+
+Requires: sipxcommserverlib >= %version
+Requires: sipxcommons >= %version
+Requires: sipxopenfire >= %version
+
+%if %{use_ibm_jvm}
+Requires: java-ibm >= 1.6
+Requires: java-ibm-unrestricted
+%endif
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+IVR subystem that uses FreeSWITCH as a media server.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXivr
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxivr-process.xml
+%attr(644,root,root) %{_datadir}/sipxecs/schema/autoattendants.xsd
+%attr(644,root,root) %{_datadir}/sipxecs/schema/validusers.xsd
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxivr.sh
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxivr-config

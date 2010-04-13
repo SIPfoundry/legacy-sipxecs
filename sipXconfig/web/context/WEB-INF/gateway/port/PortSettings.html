@@ -1,0 +1,16 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@gateway/GatewayNavigation" gateway="ognl:port.gateway" dialingRuleId="ognl:ruleId"/>
+  <br/><strong> <span key="label.portNav"/> :</strong> <span jwcid="@Insert" value="ognl:port.label"/>
+  <div jwcid="@common/LeftNavigation">
+    <span jwcid="@setting/SettingsNavigation" bean="ognl:port"
+      activeSetting="ognl:parentSetting"
+      editSettingsListener="listener:editSettings">
+    </span>
+  </div>
+  <span jwcid="@setting/SettingsForm"
+    settings="ognl:parentSetting"
+    cancelListener="listener:cancel"
+    okListener="listener:ok"
+    applyListener="listener:apply"
+    validator="bean:validator"/>
+</div>

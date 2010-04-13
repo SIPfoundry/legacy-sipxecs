@@ -1,0 +1,335 @@
+\documentstyle{article}
+
+\def\Pr#1{\textrm{Pr}(\textrm{#1})}
+
+\begin{document}
+
+RFC 2782 provides that DNS may supply a number of SRV records
+specifying servers that will handle (among other things) SIP traffic
+on addressed to a particular domain name.
+Each record has a priority and a weight.
+Servers with lower priorities are to be consulted first, and only if
+lower priority servers cannot be contacted should higher priority
+servers be contacted.
+
+Within a priority level, traffic should be routed servers randomly in
+proportion to the weight values in the SRV records.  More specifically, RFC
+2782 states:
+
+\begin{quotation}
+
+The following
+algorithm SHOULD be used to order the SRV RRs of the same
+priority:
+
+To select a target to be contacted next, arrange all SRV RRs
+(that have not been ordered yet) in any order, except that all
+those with weight 0 are placed at the beginning of the list.
+
+Compute the sum of the weights of those RRs, and with each RR
+associate the running sum in the selected order. Then choose a
+uniform random number between 0 and the sum computed
+(inclusive), and select the RR whose running sum value is the
+first in the selected order which is greater than or equal to
+the random number selected. The target host specified in the
+selected SRV RR is the next one to be contacted by the client.
+Remove this SRV RR from the set of the unordered SRV RRs and
+apply the described algorithm to the unordered SRV RRs to select
+the next target host.  Continue the ordering process until there
+are no unordered SRV RRs.
+
+\end{quotation}
+
+This algorithm is fairly complicated to execute.  It turns out that
+the same results can be obtained with a simpler algorithm -- that is,
+the simpler algorithm has the same probability of  producing any
+particular ordering of the server list  as the official algorithm:
+
+\begin{quotation}
+
+For each server, calculate a ``score'' as follows:  If its weight is 0,
+its score is ``infinity'' (in practice, 100 suffices).  If its
+weight is non-zero, its score is calculated by
+choosing a random number between 0 and 1, taking the negative of the
+logarithm of that
+number, and dividing the result by the weight.
+
+Then, sort the servers into order of increasing scores, so that the
+servers with the {\it smallest} scores are used first.
+
+\end{quotation}
+
+Other than for the sort, this algorithm requires only  one pass over
+the server list, and does not explicitly compare the weights of SRV
+records.
+
+Let us prove that the new algorithm produces the correct results.
+
+First, we will consider separately the case of servers with weight 0.
+By the official algorithm, the servers with weight 0 will always be at
+the end of the list, as the uniform random numbers chosen will (almost
+always) be greater than 0.  In the new algorithm, these servers will
+sort to the end of the list because their scores are ``infinity'',
+whereas servers
+with non-zero weights will always have smaller scores.
+
+Having shown that the servers with weight 0 are handled correctly, for
+the rest of the paper we will assume that all the servers have
+non-zero weight.
+
+What remains to be shown about the new algorithm is that if a subset
+of the servers has already been chosen, that the next server on the
+list will be chosen from among the as-yet unchosen in proportion to their
+weights.
+Since neither algorithm is affected by the order in which the servers
+appear on the input list, we can assume without loss of generality
+that the servers that have already been chosen are the first $k$,
+that they were chosen in order, and that we only need to determine
+that the new algorithm selects server $k+1$ with the correct probability.
+That is, if we call the servers 
+$S_1, S_2, \ldots, S_n$ and their weights are $w_1, w_2, \ldots, w_n$,
+and assume that $S_1, S_2, \ldots, S_k$ have already been chosen, the
+official algorithm next chooses $S_{k+1}$ with probability 
+\begin{equation}
+\frac{w_{k+1}}{w_{k+1} + w_{k+2} + \ldots + w_n}. \label{rfc}
+\end{equation}
+We need to show that the new algorithm next chooses $S_{k+1}$ with the
+same probability.
+
+First, we  need to calculate the chances of seeing
+servers $S_1, S_2, \ldots, S_k$
+selected as the first $k$ members of the list.
+Let us call the scores $s_i$:
+\begin{equation}
+s_i = \textrm{$- w_i^{-1} \log u_i$ for $i = 1, \ldots, n$} \label{def-s_i}
+\end{equation}
+where $u_i$ is the random number from 0 to 1 chosen for $S_i$.
+(Note that $s_i$ is always positive: 
+Since $u_i$ is less than 1, $\log u_i$ will be negative.
+Since $w_i$ is positive, $ -w_i^{-1} \log u_i$ is positive.)
+Since we are sorting the servers in increasing order of $s_i$,
+\begin{eqnarray}
+\lefteqn{\Pr{first $k$ servers chosen are $S_1, S_2, \ldots, S_{k}$}} \nonumber \\
+&=& \Pr{$s_1 < s_2 < \ldots < s_k$ and $s_k < s_j$ for all $j = k+1
+  \ldots n$} \\
+\noalign{If we call the probability distribution function of the score $s_i$,
+$f_i(s_i)$, and note that all scores are greater than 0,}
+&=& \int_0^\infty ds_1 \  f_1(s_1) 
+  \int_{s_1}^\infty ds_2 \  f_2(s_2) \ldots
+  \int_{s_k-1}^\infty ds_k \  f_k(s_k) \nonumber \\
+&& \times \int_{s_k}^\infty ds_{k+1} \  f_{k+1}(s_{k+1})
+  \int_{s_k}^\infty ds_{k+2} \  f_{k+2}(s_{k+2}) \ldots
+  \int_{s_k}^\infty ds_n \  f_n(s_n) \\
+\noalign{Putting all the integrand factors together:}
+&=& \int_0^\infty ds_1
+  \int_{s_1}^\infty ds_2 \ldots
+  \int_{s_k-1}^\infty ds_k 
+  \int_{s_k}^\infty ds_{k+1} \int_{s_k}^\infty ds_{k+2} \ldots
+  \int_{s_k}^\infty ds_n \nonumber \\
+&& f_1(s_1) f_2(s_2) \ldots f_k(s_k) f_{k+1}(s_{k+1}) \ldots f_n(s_n) \label{integrand}
+\end{eqnarray}
+
+At this point, we need to calculate the probability density functions
+$f_i$ of the $s_i$'s.
+First calculate the cumulative probability distribution functions:
+\begin{eqnarray}
+F_i(x) &=& \Pr{$s_i < x$}  \ \ \ \ \textrm{for $x > 0$} \\
+\noalign{By the way we calculate $s_i$ (\ref{def-s_i}),}
+&=& \Pr{$- w_i^{-1} \log u_i < x$} \nonumber \\
+&=& \Pr{$w_i^{-1} \log u_i > -x$} \nonumber \\
+&=& \Pr{$\log u_i > - w_i x $} \nonumber \\
+&=& \Pr{$u_i > e^{- w_i x} $} \nonumber \\
+\noalign{But $\Pr{$u_i > y$} = 1-y$ if $y$ is between 0 and 1, and
+$e^{- w_i x}$ is always between 0 and 1, so}
+&=& 1 - e^{- w_i x} \label{cum-pdf}
+\end{eqnarray}
+
+From (\ref{cum-pdf}), we can compute the probability density functions:
+\begin{eqnarray}
+f_i(x) &=& \frac{d}{dx} F_i(x) \\ 
+&=& \frac{d}{dx} ( 1 - e^{- w_i x} ) \nonumber \\
+&=& - \frac{d}{dx} e^{- w_i x} \nonumber \\
+&=& - e^{- w_i x} \frac{d}{dx} ( - w_i x ) \nonumber \\
+&=& w_i e^{- w_i x} \label{pdf}
+\end{eqnarray}
+
+Getting back to our original problem (\ref{integrand}):
+\begin{eqnarray}
+\lefteqn{\Pr{first $k$ servers chosen are $S_1, S_2, \ldots, S_{k}$}} \nonumber \\
+&=& \int_0^\infty ds_1
+  \int_{s_1}^\infty ds_2 \ldots
+  \int_{s_k-1}^\infty ds_k 
+  \int_{s_k}^\infty ds_{k+1} \int_{s_k}^\infty ds_{k+2} \ldots
+  \int_{s_k}^\infty ds_n \nonumber \\
+&& f_1(s_1) f_2(s_2) \ldots f_k(s_k) f_{k+1}(s_{k+1}) \ldots f_n(s_n) \\
+\noalign{Using the formula (\ref{pdf}) for $f_i(x)$ from above, this is}
+&=& \int_0^\infty ds_1
+  \int_{s_1}^\infty ds_2 \ldots
+  \int_{s_k-1}^\infty ds_k 
+  \int_{s_k}^\infty ds_{k+1} \int_{s_k}^\infty ds_{k+2} \ldots
+  \int_{s_k}^\infty ds_n \nonumber \\
+&& w_1 e^{- w_1 s_1} w_2 e^{- w_2 s_2} \ldots w_k e^{- w_k s_k} \nonumber \\
+&& \ \ \ \   w_{k+1} e^{- w_{k+1} s_{k+1}} w_{k+2} e^{- w_{k+2} s_{k+2}} \ldots
+  w_n e^{- w_n s_n}
+\end{eqnarray}
+
+At this point, we need to arrange the integrals so that their ranges
+of integration are independent.  To this end, we introduce new
+variables:
+\begin{eqnarray}
+P_1 &=& s_1 \\
+P_2 &=& s_2 - s_1 \nonumber \\
+P_3 &=& s_3 - s_2 \nonumber \\
+&\ldots& \nonumber \\
+P_k &=& s_k - s_{k-1} \nonumber \\
+\noalign{and}
+Q_{k+1} &=& s_{k+1} - s_k \\
+Q_{k+2} &=& s_{k+2} - s_k \nonumber \\
+&\ldots& \nonumber \\
+Q_n &=& s_n - s_k \nonumber
+\end{eqnarray}
+So:
+\begin{eqnarray}
+s_1 &=& P_1 \\
+s_2 &=& P_1 + P_2 \nonumber \\
+s_3 &=& P_1 + P_2 + P_3 \nonumber \\
+\ldots \nonumber \\
+s_k &=& P_1 + P_2 + \ldots + P_k \nonumber \\
+\noalign{and}
+s_{k+1} &=& P_1 + P_2 + \ldots + P_k + Q_{k+1} \\
+s_{k+2} &=& P_1 + P_2 + \ldots + P_k + Q_{k+2} \nonumber \\
+\ldots \nonumber \\
+s_n &=& P_1 + P_2 + \ldots + P_k + Q_n \nonumber
+\end{eqnarray}
+Substituting $P_1, P_2, \ldots, P_k$ and $Q_{k+1}, Q_{k+2}, \ldots,
+Q_n$ for $s_1, s_2, \ldots, s_n$ as variables of integration produces
+this range of integration:
+\begin{eqnarray}
+\int_0^\infty dP_1
+\int_0^\infty dP_2
+\int_0^\infty dP_3
+\ldots
+\int_0^\infty dP_k \nonumber \\
+\ \ \ \  \int_0^\infty dQ_{k+1}
+\int_0^\infty dQ_{k+2} \ldots
+\int_0^\infty dQ_n \nonumber
+\end{eqnarray}
+Substituting the new variables into  the $f_i$ shows:
+\begin{eqnarray}
+f_1(s_1) & = & w_1 e^{-w_1 s_1} = w_1 e^{-w_1 P_1} \nonumber \\
+f_2(s_2) & = & w_2 e^{-w_2 s_2} = w_2 e^{-w_2 P_1}
+e^{-w_2 P_2} \nonumber \\
+&\ldots& \nonumber \\
+f_k(s_k) & = & w_k e^{-w_k s_k} = w_k e^{-w_k P_1}
+e^{-w_k P_2}  \ldots e^{-w_k P_k} \nonumber \\
+f_{k+1}(s_{k+1}) & = & w_{k+1} e^{-w_{k+1} s_{k+1}} \nonumber \\
+& = & w_{k+1} e^{-w_{k+1} P_1} e^{-w_{k+1} P_2}  \ldots e^{-w_k P_k} e^{-w_{k+1} Q_{k+1}} \nonumber \\
+f_{k+2}(s_{k+2}) & = & w_{k+2} e^{-w_{k+2} s_{k+2}} \nonumber \\
+& = & w_{k+2} e^{-w_{k+2} P_1}
+e^{-w_{k+2} P_2}  \ldots e^{-w_k P_k} e^{-w_{k+2} Q_{k+2}} \nonumber \\
+&\ldots& \nonumber \\
+f_n(s_n) & = & w_n e^{-w_n s_n} = w_n e^{-w_n P_1}
+e^{-w_n P_2}  \ldots e^{-w_k P_k} e^{-w_n Q_n} \nonumber
+\end{eqnarray}
+Multiplying all these together expresses the integrand in terms of the
+new variables, which we can
+simplify by grouping the factors based on the variable $P_i$ or $Q_i$
+they contain:
+\begin{eqnarray}
+\lefteqn{f_1(s_1) f_2(s_2) \ldots f_k(s_k) f_{k+1}(s_{k+1}) \ldots
+  f_n(s_n)} \nonumber \\
+&=& w_1 e^{- w_1 s_1} w_2 e^{- w_2 s_2} \ldots w_k e^{- w_k s_k} \nonumber \\
+&& \ \ \ \   w_{k+1} e^{- w_{k+1} s_{k+1}} w_{k+2} e^{- w_{k+2} s_{k+2}} \ldots
+  w_n e^{- w_n s_n} \\
+&=& w_1 w_2 \ldots w_n \nonumber \\
+&& \ \ \ \  e^{-(w_1 + \ldots + w_n) P_1} e^{-(w_2 + \ldots + w_n) P_2} \ldots
+e^{-(w_k + \ldots + w_n) P_k} \nonumber \\
+&& \ \ \ \  e^{-w_{k+1} Q_{k+1}} e^{-w_{k+2} Q_{k+2}} \ldots e^{-w_n Q_n}
+\end{eqnarray}
+
+Assembling all this gives the formula:
+\begin{eqnarray}
+\lefteqn{\Pr{first $k$ servers chosen are $S_1, S_2, \ldots, S_{k}$}} \nonumber \\
+&=& \int_0^\infty ds_1
+  \int_{s_1}^\infty ds_2 \ldots
+  \int_{s_k-1}^\infty ds_k 
+  \int_{s_k}^\infty ds_{k+1} \int_{s_k}^\infty ds_{k+2} \ldots
+  \int_{s_k}^\infty ds_n \nonumber \\
+&& w_1 e^{- w_1 s_1} w_2 e^{- w_2 s_2} \ldots w_k e^{- w_k s_k} \nonumber \\
+&& \ \ \ \   w_{k+1} e^{- w_{k+1} s_{k+1}} w_{k+2} e^{- w_{k+2} s_{k+2}} \ldots
+  w_n e^{- w_n s_n} \nonumber \\
+&=& \int_0^\infty dP_1
+\int_0^\infty dP_2
+\int_0^\infty dP_3
+\ldots
+\int_0^\infty dP_k \nonumber \\
+&& \ \ \ \ 
+\int_0^\infty dQ_{k+1}
+\int_0^\infty dQ_{k+2} \ldots
+\int_0^\infty dQ_n \nonumber \\
+&& \ \ \ \ \ \ \ \  w_1 w_2 \ldots w_n \nonumber \\
+&& \ \ \ \ \ \ \ \  
+e^{-(w_1 + \ldots + w_n) P_1}
+e^{-(w_2 + \ldots + w_n) P_2}
+\ldots
+e^{-(w_k + \ldots + w_n) P_k} \nonumber \\
+&& \ \ \ \ \ \ \ \  e^{-w_{k+1} Q_{k+1}}
+e^{-w_{k+2} Q_{k+2}}
+\ldots
+e^{-w_n Q_n} \\
+\noalign{But each factor in the integrand now contains only a single variable of
+integration, and
+the ranges of integration of the variables are independent, so we can
+integrate each factor using the formula $\int_0^\infty dx \  e^{-ax} =
+a^{-1}$:}
+&=& w_1 w_2 \ldots w_n \nonumber \\
+&& (w_1 + \ldots + w_n)^{-1}
+(w_2 + \ldots + w_n)^{-1}
+\ldots
+(w_k + \ldots + w_n)^{-1} \nonumber \\
+&& w_{k+1}^{-1}
+w_{k+2}^{-1}
+\ldots
+w_n^{-1} \nonumber \\
+&=& w_1 w_2 \ldots w_k \nonumber \\
+&& (w_1 + \ldots + w_n)^{-1}
+(w_2 + \ldots + w_n)^{-1}
+\ldots
+(w_k + \ldots + w_n)^{-1}
+\end{eqnarray}
+
+Thus we get the reasonably simple formula:
+\begin{eqnarray}
+\lefteqn{\Pr{first $k$ servers chosen are $S_1, S_2, \ldots, S_{k}$}} \nonumber \\
+&=& w_1 w_2 \ldots w_k \nonumber \\
+&& (w_1 + \ldots + w_n)^{-1}
+(w_2 + \ldots + w_n)^{-1}
+\ldots
+(w_k + \ldots + w_n)^{-1} \label{pr}
+\end{eqnarray}
+
+Using Bayes' formula we can compute the number we are looking for:
+\begin{eqnarray}
+\lefteqn{\Pr{next server chosen after $S_1, S_2, \ldots, S_k$ is
+    $S_{k+1}$}} \nonumber \\
+&=& \frac{\Pr{first $k+1$ servers chosen are $S_1, S_2, \ldots, S_{k+1}$}}
+{\Pr{first $k$ servers chosen are $S_1, S_2, \ldots, S_{k}$}} \\
+\noalign{Using (\ref{pr}) twice,}
+&=& w_1 w_2 \ldots w_{k+1} \nonumber \\
+&& (w_1 + \ldots + w_n)^{-1}
+(w_2 + \ldots + w_n)^{-1}
+\ldots \nonumber \\
+&& \ \  (w_k + \ldots + w_n)^{-1}
+(w_{k+1} + \ldots + w_n)^{-1} \nonumber \\
+&& \div \  w_1 w_2 \ldots w_k \nonumber \\
+&& \ \ \ \  (w_1 + \ldots + w_n)^{-1} (w_2 + \ldots + w_n)^{-1}
+\ldots
+(w_k + \ldots + w_n)^{-1} \nonumber \\
+\noalign{Canceling the common factors leaves:}
+&=& \frac{w_{k+1}}
+{w_{k+1} + \ldots + w_n}
+\end{eqnarray}
+And this matches the probability (\ref{rfc}) mandated by the algorithm
+of RFC 2782.
+
+\end{document}

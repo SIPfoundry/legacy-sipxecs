@@ -1,0 +1,39 @@
+#!/bin/sh
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Status=0
+
+# Source configuration
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+if ! [ -e @SIPX_CONFDIR@/ssl/ssl.key -a -e @SIPX_CONFDIR@/ssl/ssl.crt ]; then
+        cat <<EOF
+    SSL key and/or certificate not found (@SIPX_CONFDIR@/ssl/ssl.{key,crt})
+
+    Run setup wizard or see the instructions in
+        @SIPX_DOCDIR@/INSTALL.ssl.txt
+          - OR -
+        @SIPX_DOCDIR@INSTALL.ssl.html
+EOF
+        Status=1
+else
+    ## rehash certificate authorities certificates - if this fails, it will be caught below
+    @bindir@/ssl-cert/ca_rehash > /dev/null 2>&1
+
+    domain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+    if [ -n "${domain}" ]
+    then
+        ## check certificate
+        @bindir@/ssl-cert/check-cert.sh \
+            --name ${domain} --name `hostname -f` \
+            --fail 5 @SIPX_CONFDIR@/ssl/ssl.crt
+        Status=$?
+    else
+        echo "    No SIP_DOMAIN_NAME set in @SIPX_CONFDIR@/domain-config"
+        Status=1
+    fi
+fi
+exit $Status

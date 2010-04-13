@@ -1,0 +1,20 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <h2 id="server:form">
+    <span jwcid="@Insert" value="ognl:serviceDescriptor.label"/>
+  </h2>
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="@Form" delegate="bean:validator">
+    <span jwcid="@common/ItemCommon" item="ognl:service" nameValidator="spring-validators:required" useEnabled="literal:true"
+       useExtension="literal:false"/>
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="service:address" field="ognl:components.address" label="message:label.address" description="message:description.address">
+            <input jwcid="address@TextField" value="ognl:service.address" validators="validators:required" id="service:address" maxlength="40"/>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="@common/FormActions" listener="listener:apply" callback="ognl:callback"/>
+  </form>
+</div>

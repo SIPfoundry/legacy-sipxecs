@@ -1,0 +1,52 @@
+<span jwcid="@Script" scriptAsset="asset:script" rowId="ognl:rowId"
+      showDetailsLabel="message:link.showDetails" hideDetailsLabel="message:link.hideDetails" />
+
+<div>
+	<img jwcid="@Image" image="ognl:getStatusIcon(status)" align="absmiddle" />
+
+	<span jwcid="viewStatusLabel@Insert" class="ognl:getLabelClass(status)"
+	      value="ognl:messages.getMessage('status.' + status.status)" />
+    <span jwcid="@If" condition="ognl:status.needsRestart">
+      [<span jwcid="restart@Insert" class="service-error"
+        value="ognl:messages.getMessage('status.restart')" />]
+    </span>
+
+	<span jwcid="@If" condition="ognl:status.showDetails" renderTag="false">
+	   <span jwcid="@Any" id="ognl:'detailsSection-' + rowId">
+	       <span jwcid="@RenderBlock" block="ognl:linkBLock" />
+	   </span>
+	</span>
+</div>
+
+<span jwcid="loadLink@Block">
+    [<a jwcid="loadDetailsLink@DirectLink" async="true" listener="listener:fetchDetails" id="ognl:'loadDetailsLink-' + rowId"
+                parameters="ognl:{serviceLocation.id, status.serviceBeanId}" onclick="ognl:'loadDetails(this, ' + rowId + ');'"
+                updateComponents="ognl:{'messageDetail-' + rowId, 'loadingIcon-' + rowId, 'detailsSection-' + rowId}"
+                ><span key="link.showDetails">show details</span></a>]
+                <img align="absmiddle" style="display: none;" id="ognl:'loadingIcon-' + rowId" jwcid="@Image"
+                     image="asset:loadingIcon" />
+</span>
+
+<span jwcid="toggleLink@Block">
+    [<a jwcid="toggleDetailsLink@GenericLink" href="#" onclick="ognl:'toggleDetails(this, ' + rowId + ');return false'"
+        ><span key="link.hideDetails">hide details</span></a>]
+</span>
+
+<div jwcid="messageDetail@Any" id="ognl:'messageDetail-' + rowId" style="ognl:detailStyle">
+    <ul style="margin: 0; list-style-type: disc;">
+	    <li>
+	       <span jwcid="@If" renderTag="false" condition="ognl:statusMessage != null">
+				<span jwcid="@If" renderTag = "true" title="ognl:statusMessage" condition="ognl:shouldTruncate()">
+                    <span jwcid="@Insert" value="ognl:truncatedStatusMessage" />...
+				</span>
+				<span jwcid="@Else" renderTag="false">
+				    <span jwcid="@Insert" value="ognl:statusMessage" renderTag="false" />
+				</span>
+				<span jwcid="@If" renderTag="false" condition="ognl:showAllLink">
+				    [<a jwcid="@DirectLink" listener="listener:seeAllMessages"
+				        parameters="ognl:{serviceLocation.id, status.serviceBeanId}"><span key="link.seeAll" /></a>]
+				</span>
+	       </span>
+	    </li>
+    </ul>
+</div>

@@ -1,0 +1,38 @@
+#navigation li ul {
+	/*top: 2em;*/
+	left: 0em;
+}
+
+#navigation li  {
+	width:115px;
+}
+
+#navigation  ul li {
+	z-index: 500;
+}
+
+#navigation  ul li ul li  {
+	z-index: 600;
+}
+
+table.component .descriptionColumnValue,
+table.component .errorColumnValue
+{
+   /* IE7 does not support pre-wrap */
+   white-space: normal;
+}
+
+#contentContainer #leftNav {
+   float: left; width:15%;
+}
+div.adminPortal,
+div.userPortal,
+{
+	padding-left:235px;
+	text-align:center;
+}
+div.right-column,
+div.help
+{
+	padding-left:5%;
+}

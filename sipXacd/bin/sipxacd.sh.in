@@ -1,0 +1,50 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/sipxacd.pid
+     SUPERVISOR_PORT=`sipx_config_value @SIPX_CONFDIR@/domain-config SUPERVISOR_PORT`
+     PROVISIONING_PORT=`sipx_config_value @SIPX_CONFDIR@/sipxacd-config SIP_ACD_PROVISIONING_PORT`
+     exec @bindir@/sipxacd -P $PROVISIONING_PORT -W $SUPERVISOR_PORT $Args
+     ;;
+
+   STOP)
+     sipx_stop sipxacd @SIPX_RUNDIR@/sipxacd.pid
+     ;;
+
+   CONFIGTEST)
+     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/sipxacd.xml
+     #Status=$(($Status+$?))
+     ;;
+esac
+
+exit $Status

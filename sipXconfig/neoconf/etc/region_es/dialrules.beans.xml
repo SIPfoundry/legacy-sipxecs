@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--  The default dial plan for Spain  -->
+
+  <!-- properties: voiceMail, voiceMailPrefix -->
+  <bean id="es.voicemailRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Correo de voz" />
+    <property name="description" value="Plan de numeración predeterminado de correo de voz" />
+    <property name="voiceMail" value="101" />
+    <property name="voiceMailPrefix" value="8" />
+  </bean>
+
+  <!-- properties: extension, attendantAliases -->
+  <bean id="es.attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="Asistente automático" />
+    <property name="description" value="Plan de numeración predeterminado de asistente automático" />
+    <property name="extension" value="100" />
+    <property name="attendantAliases" value="operator 0" />
+  </bean>
+
+  <!-- properties: optionalPrefix, emergencyNumber -->
+  <bean id="es.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Emergencia" />
+    <property name="description" value="Emergencia - número de teléfono central" />
+    <property name="emergencyNumber" value="112" />
+  </bean>
+
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
+    longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
+  <bean id="es.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="name" value="Larga distancia" />
+    <property name="description" value="Plan de numeración de larga distancia" />
+    <property name="areaCodes" value="82,84,85,86,87,88,91,92,93,94,95,96,97,98" />
+    <property name="externalLen" value="9" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="es.personalNumbersRule" parent="es.longDistanceRule" singleton="false">
+    <property name="name" value="Números personales" />
+    <property name="description" value="Sistema de numeración personal" />
+    <property name="areaCodes" value="70" />
+  </bean>
+  <bean id="es.premiumRate" parent="es.longDistanceRule" singleton="false">
+    <property name="name" value="Tarifa premium" />
+    <property name="description" value="Marcación restringida - tarifa premium" />
+    <property name="areaCodes" value="901,902,905,907" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="es.adultLines" parent="es.premiumRate" singleton="false">
+    <property name="name" value="Líneas para adultos" />
+    <property name="description" value="Marcación restringida - números de teléfonos eróticos" />
+    <property name="areaCodes" value="803" />
+  </bean>
+  <bean id="es.entertainment" parent="es.premiumRate" singleton="false">
+    <property name="name" value="Entretenimiento" />
+    <property name="description" value="Marcación restringida - números de teléfono de entretenimiento" />
+    <property name="areaCodes" value="806" />
+  </bean>
+  <bean id="es.professional" parent="es.premiumRate" singleton="false">
+    <property name="name" value="Profesional" />
+    <property name="description" value="Marcación restringida - servicios profesionales" />
+    <property name="areaCodes" value="807" />
+  </bean>
+  <bean id="es.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+    <property name="name" value="Número gratuito" />
+    <property name="description" value="Marcación de números gratuitos" />
+    <property name="areaCodes" value="800,900" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+  <bean id="es.infolineRule" parent="es.longDistanceRule" singleton="false">
+    <property name="name" value="Información" />
+    <property name="description" value="Números de teléfonos para servicios de información" />
+    <property name="longDistancePrefix" value="" />
+    <property name="externalLen" value="5" />
+    <property name="areaCodes" value="118" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="es.mobileRule" parent="es.longDistanceRule" singleton="false">
+    <property name="name" value="Teléfonos móviles" />
+    <property name="description" value="Marcación de teléfonos móviles" />
+    <property name="areaCodes" value="6" />
+    <property name="permissionName" value="Mobile" />
+  </bean>
+  <bean id="es.internationalRule" parent="defaultInternationalRule" singleton="false">
+    <property name="name" value="Internacional" />
+    <property name="description" value="Marcación internacional" />
+    <property name="longDistancePrefix" value="00" />
+    <property name="areaCodes" value="" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+  <bean id="es.shortNumbersRule" parent="es.longDistanceRule" singleton="false">
+    <property name="name" value="Números cortos" />
+    <property name="description" value="Números cortos" />
+    <property name="areaCodes" value="0,1" />
+    <property name="externalLen" value="-1" />
+  </bean>
+
+  <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
+  <!-- this is the list of rules that admin will see after installation and after reverting to default -->
+  <bean id="es.dialPlan" parent="defaultDialPlan" singleton="false">
+    <property name="rules">
+      <list>
+        <ref bean="es.voicemailRule" />
+        <ref bean="es.attendantRule" />
+        <ref bean="es.emergencyRule" />
+        <ref bean="es.longDistanceRule" />
+        <ref bean="es.personalNumbersRule" />
+        <ref bean="es.premiumRate" />
+        <ref bean="es.adultLines" />
+        <ref bean="es.entertainment" />
+        <ref bean="es.professional" />
+        <ref bean="es.tollFreeRule" />
+        <ref bean="es.infolineRule" />
+        <ref bean="es.mobileRule" />
+        <ref bean="es.internationalRule" />
+        <ref bean="es.shortNumbersRule" />
+      </list>
+    </property>
+  </bean>
+</beans>

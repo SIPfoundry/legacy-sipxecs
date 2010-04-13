@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+   targetNamespace="http://www.sipfoundry.org/sipX/schema/xml/conferencebridge-00-00"
+   xmlns="http://www.w3.org/2001/XMLSchema"
+   xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/conferencebridge-00-00">
+
+   <element name="bridgename" type="normalizedString">
+      <annotation>
+         <documentation>Name of the conference bridge</documentation>
+      </annotation>
+   </element>
+
+   <element name="bridgecontact" type="normalizedString">
+      <annotation>
+         <documentation>Contact information for the conference bridge</documentation>
+      </annotation>
+   </element>
+
+   <element name="extensionname" type="normalizedString">
+      <annotation>
+         <documentation>Conference extension number</documentation>
+      </annotation>
+   </element>
+
+   <element name="ownername" type="normalizedString">
+      <annotation>
+         <documentation>Conference owner extension number</documentation>
+      </annotation>
+   </element>
+
+   <element name="ownerid" type="normalizedString">
+      <annotation>
+         <documentation>SIP identity of the conference owner</documentation>
+      </annotation>
+   </element>
+
+   <element name="mboxserver" type="normalizedString">
+      <annotation>
+         <documentation>Server holding the conference owners mailbox</documentation>
+      </annotation>
+   </element>
+
+   <element name="item">
+      <complexType mixed="false">
+         <all  minOccurs="1" maxOccurs="1">
+            <element ref="tns:bridgename" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:bridgecontact" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:extensionname" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:ownername" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:ownerid" maxOccurs="1" minOccurs="1"/>
+            <element ref="tns:mboxserver" maxOccurs="1" minOccurs="1"/>
+         </all>
+      </complexType>
+   </element>
+
+   <element name="conferencebridge">
+      <complexType>
+         <sequence>
+            <element ref="tns:item" maxOccurs="unbounded" minOccurs="0"/>
+         </sequence>
+      </complexType>
+   </element>
+</schema>

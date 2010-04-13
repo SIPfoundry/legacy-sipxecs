@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+	"-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+	"http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+  <input-symbol key="refreshButton" required="yes"/>
+  <input-symbol key="interval" required="yes"/>
+  <input-symbol key="checkbox" required="yes" />
+  <input-symbol key="stopOnError" required="yes" />
+  
+  <let key="initRefresh" unique="yes">initRefresh</let>
+  <let key="timeoutId" unique="yes">timeoutId</let>
+  
+  <body>
+    <unique>
+<![CDATA[    
+var refreshEnabled = true;
+var stopOnError = ${stopOnError};
+    
+function updateRefresh(value) {
+    dojo.debug("Updating auto refresh interval: " + value.message);
+    ${initRefresh}("refresh", value.message);
+}    
+    
+function ${initRefresh}(buttonName, interval) {
+  dojo.debug("Registering auto refresh: " + interval);
+  var click = function() {
+    if (dojo.byId("${checkbox}").checked && refreshEnabled) {  
+        if (stopOnError && dojo.byId("user:error") != null) {
+            dojo.debug("Error on page - no refresh");
+            dojo.byId("${checkbox}").checked = false;
+        } else {
+            dojo.debug("Clicking: " + buttonName);
+            dojo.byId(buttonName).click();
+        }
+    }
+  }
+  
+  if (window.${timeoutId}) {
+     dojo.debug('clearing timeout ' + window.${timeoutId});
+     window.clearInterval(window.${timeoutId});
+     window.${timeoutId} = 0;
+  } else {
+      dojo.debug('previous timeout 0 or undefined');
+  }
+  
+  window.${timeoutId} = window.setInterval(click, interval * 1000);
+  dojo.debug('setting timeout ' + window.${timeoutId});
+}
+]]>
+    </unique>
+  </body>
+  <initialization>
+${initRefresh}("refresh", ${interval});
+
+// This is notified when the value of the current interval changes.
+dojo.event.topic.subscribe("refreshInterval", updateRefresh);
+  </initialization>
+</script>

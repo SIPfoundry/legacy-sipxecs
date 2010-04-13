@@ -1,0 +1,68 @@
+<span jwcid="@common/QuickHelp" value="message:quick.help"/>
+<ul class="component-links">
+  <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+</ul>
+<fieldset>
+  <table>
+    <tbody>
+      <label jwcid="defaultCallerAliasPanel" for="gcai:default">
+        <input jwcid="defaultCallerAlias" id="gateway:default" maxlength="40"
+          disabled="ognl:gcai.enableCallerId"/>
+      </label>
+      <label jwcid="anonymousPanel" for="gcai:anonymous">
+        <input jwcid="anonymous" id="gcai:anonymous" />
+      </label>
+      <label jwcid="ignoreUserInfoPanel" for="gcai:ignore">
+        <input jwcid="ignoreUserInfo" id="gcai:ignore"/>
+      </label>
+      <label jwcid="transformUserExtensionPanel" for="gcai:transform">
+        <input jwcid="transformUserExtension" id="gcai:transform"/>
+      </label>
+      <label jwcid="addPrefixPanel" for="gcai:addPrefix">
+        <input jwcid="addPrefix" id="gateway:addPrefix" maxlength="40"/>
+      </label>
+      <label jwcid="keepDigitsPanel" for="gcai:keepDigits">
+        <input jwcid="keepDigits" id="gateway:keepDigits"/>
+      </label>
+	  <span jwcid="@If" condition="ognl:advanced">
+		<label jwcid="@common/FieldPanel" for="gcai:enableCallerId"
+		  field="component:enableCallerId"
+		  label="message:label.enableCallerId"
+		  description="message:description.enableCallerId">
+		  <span jwcid="enableCallerId@Checkbox" id="gcai:enableCallerId"
+		    value="ognl:gcai.enableCallerId"
+		    displayName="message:label.enableCallerId"
+			onchange="javascript:this.form.submit(); "/>
+        </label>
+        <label jwcid="@common/FieldPanel" for="gcai:callerId"
+          field="component:callerId"
+          label="message:label.callerId"
+          description="message:description.callerId">
+          <input jwcid="callerId@TextField" id="gcai:callerId" size="50" maxlength="255"
+            value="ognl:gcai.callerId"
+            validators="spring-validators:validPhoneOrAor"
+            displayName="message:label.callerId"
+            disabled="ognl:!gcai.enableCallerId" />
+        </label>
+        <label jwcid="@common/FieldPanel" for="gcai:displayName"
+          field="component:displayName"
+          label="message:label.displayName"
+          description="message:description.displayName">
+          <input jwcid="displayName@TextField" id="gcai:displayName" maxlength="255"
+            value="ognl:gcai.displayName"
+            displayName="message:label.displayName"
+            disabled="ognl:!gcai.enableCallerId" />
+        </label>
+        <label jwcid="@common/FieldPanel" for="gcai:urlParameters"
+          field="component:urlParameters"
+          label="message:label.urlParameters"
+          description="message:description.urlParameters">
+          <input jwcid="urlParameters@TextField" id="gcai:urlParameters" maxlength="255"
+            value="ognl:gcai.urlParameters"
+            displayName="message:label.urlParameters"
+            disabled="ognl:!gcai.enableCallerId" />
+        </label>
+      </span>
+    </tbody>
+  </table>
+</fieldset>

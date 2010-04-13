@@ -1,0 +1,93 @@
+#!/usr/bin/env ruby
+
+# Translates:
+# "2008-01-03T18:22:23.354437Z":150:HTTP:WARNING:bcmdesk-148.ca.nortel.com:HttpConnection-4:B79FFB90:WatchDog:"HttpConnection::run read 0 bytes, indicating peer shut down"
+# "2008-01-03T18:22:28.074473Z":151:WATCHDOG:WARNING:bcmdesk-148.ca.nortel.com::B7D07B90:WatchDog:"Process ACDServer found in non-running state (it was in STARTING state for more than 5 seconds)."
+#
+# into:
+# 18:22:23.354 [HttpConnection-4] HttpConnection::run read 0 bytes, indicating peer shut down
+# 18:22:28.074 Process ACDServer found in non-running state (it was in STARTING state for more than 5 seconds).
+
+require 'time'
+
+def usage
+   puts "usage: " << File.basename($0) << " [inputfile [outputfile] ]"
+   exit
+end
+
+def convert(line, output)
+   if 1 == line.index("20") # Expected date format "2008-....
+   then
+      line = line.chop.chop
+      alt_line = " "
+      hostname = line.split(":")[6]
+      split_string = line.split(hostname)
+      log_msg = split_string.last(split_string.length-1).join(hostname)
+      if nil == log_msg
+      then
+         # One of those sipXconfig log lines that starts with the expected date format, but
+         # doesn't contain the hostname.
+         alt_line = line[27..-1]
+      else
+         thread_name = log_msg.split(":")[1]
+         if thread_name.length != 0
+            then
+            alt_line += "[" << thread_name << "] "
+         end
+
+         index_quote = log_msg.index("\"",thread_name.length)
+         if nil == index_quote
+         then
+            # Don't know how to parse further...
+            alt_line += "PWM-ERR-1 - " << log_msg
+         else
+            alt_line += log_msg[index_quote+1..-1]
+
+            if 27 == line.index("Z\"")
+            then
+               tmp = Time.parse(line[1..26])
+               utc_time = Time.utc(tmp.year,tmp.month,tmp.day,tmp.hour,tmp.min,tmp.sec,tmp.usec)
+               local_time = utc_time.localtime
+               format_str = "%I:%M:%S."
+               if false
+               then
+                  format_str = "%b %d " + format_str # Include Month & Day
+               end
+               alt_line = local_time.strftime(format_str) << local_time.usec.to_s[0..2] << alt_line
+            end
+         end
+      end
+
+      output.puts alt_line
+   else
+      output.puts line
+   end
+end
+
+input = $stdin
+output = $stdout
+
+case ARGV.size
+   when 0
+      # OK, just use stdin for input...
+   when 1
+      input =  File.open( ARGV[0], "r" )
+   when 2
+      input =  File.open( ARGV[0], "r" )
+      output = File.open( ARGV[1], "w" )
+   else
+      usage
+end
+
+begin
+   while line = input.readline do
+      convert(line, output)
+   end
+rescue EOFError, Interrupt
+   # OK
+end
+
+input.close
+output.close
+
+

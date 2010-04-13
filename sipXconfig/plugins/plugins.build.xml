@@ -1,0 +1,118 @@
+<project name="plugins">
+
+  <property name="checkstyle.severity" value="error" />
+
+  <import file="../ant-targets.xml" />
+  
+  <property name="plugin.jar" location="${dist.dir}/${plugin.name}.jar"/>
+  
+
+  <!-- 
+   - common path unittests will need that interfaces w/sipxconfig lib 
+   - all spring jars at this point
+   -->
+  <path id="compile.dependencies">
+    <pathelement path="${classpath.build}" />
+    <pathelement path="${commons-lang.jar}" />
+    <pathelement path="${sipxcommons.jar}" />
+    <pathelement location="${sipxconfig.jar}" />
+    <pathelement location="${spring.jar}" />
+    <pathelement location="${hibernate.jar}" />
+    <pathelement location="${velocity.jar}" />
+    <pathelement location="${velocity-tools-generic.jar}" />
+    <pathelement location="${commons-digester.jar}" />
+    <pathelement location="${commons-collections.jar}" />
+    <pathelement location="${commons-codec.jar}" />
+    <pathelement location="${commons-io.jar}" />
+    <pathelement location="${restlet.jar}"/>
+    <pathelement location="${restlet-impl.jar}"/>
+    <pathelement location="${restlet-spring.jar}"/>
+  </path>
+
+  <!-- 
+    - common path unittests will need that interfaces w/sipxconfig lib 
+    - all spring jars at this point
+    -->
+  <path id="runtime.dependencies">
+    <pathelement path="${classpath.run}" />
+
+    <!-- TEST -->
+    <pathelement location="${neoconf.tests.classes}" />
+    <pathelement location="${dbunit.jar}" />
+    <pathelement location="${xmlunit.jar}" />
+    <pathelement location="${xerces.jar}" />
+    <pathelement location="${xmlunit.jar}" />
+    <pathelement location="${jaxen.jar}" />
+    
+    <!-- required by neoconf -->    
+    <pathelement location="${aopalliance.jar}" />
+    <pathelement location="${antlr.jar}" />
+    <pathelement location="${asm.jar}" />
+    <pathelement location="${commons-beanutils.jar}" />
+    <pathelement location="${commons-logging.jar}" />
+    <pathelement location="${commons-io.jar}" />
+    <pathelement location="${commons-pool.jar}" />
+    <pathelement location="${c3p0.jar}" />
+    <pathelement location="${cglib.jar}" />
+    <pathelement location="${dom4j.jar}" />
+    <pathelement location="${ehcache.jar}" />
+    <pathelement location="${jdbc-driver.jar}" />
+    <pathelement location="${jta.jar}" />
+    <pathelement location="${lucene.jar}" />
+    <pathelement location="${logkit.jar}" />
+    <pathelement location="${odmg.jar}" />
+    <pathelement location="${restlet.jar}"/>
+    <pathelement location="${restlet-impl.jar}"/>
+    <pathelement location="${restlet-spring.jar}"/>
+  </path>
+
+  <path id="base.path">
+    <path refid="compile.dependencies" />
+    <path refid="runtime.dependencies" />
+
+    <!-- TEST -->
+    <pathelement location="${easymock.jar}" />
+    <pathelement location="${easymockclassextension.jar}" />
+  </path>
+
+  <!-- INSTALL -->
+  <target name="install" depends="jar">
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}" />
+    <copy todir="${dest.dir}${sipxpbx.conf.dir}">
+      <fileset dir="etc">
+        <include name="**/*" />
+      </fileset>
+    </copy>
+
+    <!-- copy jars and war -->
+    <mkdir dir="${dest.dir}${sipxecs.java.dir}/sipXconfig" />
+    <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
+      <fileset file="${plugin.jar}" />
+    </copy>
+  </target>
+
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="jar" />
+
+  <!-- J A R -->
+  <target name="jar" depends="compile,manifest" description="assemble sipxconfig jar library">
+    <sipx-jar file="${plugin.jar}">
+      <fileset dir="${classes.dir}" />
+      <fileset dir="${src.dir}">
+        <include name="**/*.xml" />
+        <include name="**/*.properties" />
+      </fileset>
+    </sipx-jar>
+  </target>
+
+  <target name="test-all" depends="ant-targets.test-all,test-models" />
+
+  <target name="test-models">
+    <xmlvalidate description="validate setting description files">
+      <fileset dir="${plugin.models.dir}" includes="**/*.xml" excludes="**/types.xml">
+      </fileset>
+      <dtd publicid="-//SIPFoundry//sipXconfig//Model specification 2.0//EN" location="etc/setting.dtd" />
+    </xmlvalidate>
+  </target>
+</project>

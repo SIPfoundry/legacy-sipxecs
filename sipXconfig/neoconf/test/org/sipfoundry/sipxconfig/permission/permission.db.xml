@@ -1,0 +1,6 @@
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+
+<dataset>
+  <permission permission_id="1001" label="bongoLabel" description="bongoDescription" default_value="FALSE"/>
+  <permission permission_id="1002" label="kukuLabel" description="kukuDescription" default_value="TRUE"/>
+</dataset>

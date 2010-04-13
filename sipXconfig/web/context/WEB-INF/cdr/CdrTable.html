@@ -1,0 +1,57 @@
+<table jwcid="@common/StatsTable" id="cdr:stats:list" class="component"
+  source="ognl:source"
+  columns="caller, callee, recipient, =startTimeColumn, duration, termination"
+  row="ognl:row"
+  usePager="true">
+  <span jwcid="terminationColumnValue@Block">
+    <span jwcid="@Insert"
+      value="ognl:row.termination"
+      format="bean:terminationFormat" />
+  </span>
+  <span jwcid="durationColumnValue@Block">
+    <span jwcid="@Insert"
+      value="ognl:row.duration"
+      format="bean:durationFormat" />
+  </span>
+
+  <span jwcid="recipientColumnValue@Block">
+         <span jwcid="@Insert" value="ognl:row.recipient"/>
+    	 <span jwcid="ifCdrRecipient@If" condition="ognl:row.recipient != null" renderTag="false">
+           <span jwcid="@If" condition="ognl:recipientTypeIcon != null" renderTag="false">
+             <img jwcid="@Image" image="ognl:recipientTypeIcon" align="absmiddle" title="ognl:recipientIconTitle" />
+           </span>
+         </span>
+  </span>
+
+  <span jwcid="calleeColumnValue@Block">
+	<span jwcid="ifCdrTableId@If" condition="ognl:!selfCallCalleeCondition" renderTag="false">
+	    <a jwcid="@DirectLink"
+	      title="message:tooltip.call"
+	      listener="listener:call"
+	      parameters="ognl:row.callee"
+	      asyn="ognl:true">
+	      <span jwcid="@Insert" value="ognl:row.callee"/>
+	    </a>
+	</span>
+
+	<span jwcid="elseCdrTableId@Else" renderTag="false">
+		<span jwcid="@Insert" value="ognl:row.callee"/>
+	</span>
+  </span>
+
+  <span jwcid="callerColumnValue@Block">
+	  <span jwcid="@If" condition="ognl:!selfCallCallerCondition" renderTag="false">
+	    <a jwcid="@DirectLink"
+	      title="message:tooltip.call"
+	      listener="listener:call"
+	      parameters="ognl:row.caller"
+	      asyn="ognl:true">
+	      <span jwcid="@Insert" value="ognl:row.caller"/>
+	    </a>
+	  </span>
+
+	  <span jwcid="@Else" renderTag="false">
+	    <span jwcid="@Insert" value="ognl:row.caller"/>
+	  </span>
+  </span>
+</table>

@@ -1,0 +1,13 @@
+#!/bin/sh
+
+cat <<EOF
+build script is deprecated, run
+
+ autoreconf -if
+ ./configure
+ make build
+
+For more information see
+ http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+Setup#ExpressDevelopmentEnvironmentSetup-Step4.Runtheedebuilddevuser.shscript%28asdevelopmentuser%29
+EOF
+

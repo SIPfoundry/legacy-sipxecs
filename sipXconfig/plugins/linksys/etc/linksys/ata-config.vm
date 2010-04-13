@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+#if ($phone.Model.ModelId == "linksys2102")
+<flat-profile xmlns="http://www.sipura.net/xsd/SPA2102" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sipura.net/xsd/SPA2102 http://www.sipura.net/xsd/SPA2102/SPA2102-5-1-9.xsd">
+#elseif ($phone.Model.ModelId == "linksys3102")
+<flat-profile xmlns="http://www.sipura.net/xsd/SPA3102" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sipura.net/xsd/SPA3102 http://www.sipura.net/xsd/SPA3102/SPA3102-5-1-7-GW.xsd">
+#else
+<flat-profile xmlns="http://www.sipura.net/xsd/SPA8000" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sipura.net/xsd/SPA8000 http://www.sipura.net/xsd/SPA8000/SPA8000-5-1-9.xsd">
+#end
+#foreach ($group in $phone.Settings.Values)
+<!-- ${group.ProfileName} -->
+#foreach ($setting in $group.Values)
+#if (${setting.Advanced} == "true")
+<${setting.Name} ua="rw">$!{setting.Value}</${setting.Name}>
+#else
+<${setting.Name} ua="na">$!{setting.Value}</${setting.Name}>
+#end
+#end
+
+#end
+#foreach ($line in $phone.lines)
+#set ($i = $velocityCount)
+#foreach ($group in $line.Settings.Values)
+<!-- ${group.ProfileName} -->
+#foreach ($setting in $group.Values)
+#if (${setting.Advanced} == "true")
+<${setting.Name}_${i}_ ua="rw">$!{setting.Value}</${setting.Name}_${i}_>
+#else
+<${setting.Name}_${i}_ ua="na">$!{setting.Value}</${setting.Name}_${i}_>
+#end
+#end
+#end
+#end</flat-profile>

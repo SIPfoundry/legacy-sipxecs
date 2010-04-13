@@ -1,0 +1,36 @@
+<?xml version="1.0" standalone="yes" ?>
+<!-- example permission.xml file.  Each permission is contained
+in an item element.  A user is assigned multiple permissions by creating
+multiple item elements with the same user's identity.  The item element
+contains the elements:
+    identity - this is used as a key to join with a credential.xml
+               item.  The identity which matches the uri element of
+               the credential.xml file links the permission with the
+               credential.
+    permission - this is a token to which access rights or privaldges
+               are assocated.  The permission token is used in the
+               authrules.xml file to define access control rules and
+               rights.
+-->
+<items type="permission">
+    <item>
+        <identity>user1@dan.pingtel.sipit.net</identity>
+        <permission>InternationalDialing</permission>
+    </item>
+    <item>
+        <identity>user1@dan.pingtel.sipit.net</identity>
+        <permission>Voicemail</permission>
+    </item>
+    <item>
+        <identity>user1@dan.pingtel.sipit.net</identity>
+        <permission>AutoAttendant</permission>
+    </item>
+    <item>
+        <identity>user1@dan.pingtel.sipit.net</identity>
+        <permission>LocalDialing</permission>
+    </item>
+    <item>
+        <identity>user1@dan.pingtel.sipit.net</identity>
+        <permission>LongDistanceDialing</permission>
+    </item>
+</items>

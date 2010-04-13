@@ -1,0 +1,490 @@
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE article PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.docbook.org/xml/4.2/docbookx.dtd" [
+<!ENTITY sipxecs "sipXecs">
+<!ENTITY sipxrelease "4.0">
+<!ENTITY sipxconfig "sipXconfig">
+<!ENTITY sipx "sipX">
+]>
+<article lang="en" status="draft">
+  
+  <!-- 
+    - Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+    - Contributors retain copyright to elements licensed under a Contributor Agreement.
+    - Licensed to the User under the LGPL license.
+  -->
+
+  <title>
+    &sipxecs; Hotelling Feature Specification
+  </title>
+  
+  <articleinfo>
+    <abstract>
+      <para>
+        Describes the Hotelling Feature proposed for inclusion in &sipxecs; version &sipxrelease;. 
+      </para>
+    </abstract>
+    <revhistory>
+      <revision>
+        <revnumber>0.2</revnumber>
+        <date><?dbtimestamp format="Y-m-d X"?></date>
+        <revremark>For Customer Review</revremark>
+      </revision>
+      <revision>
+        <revnumber>0.1</revnumber>
+        <date>2008-05-21</date>
+        <revremark>For Engineering Review</revremark>
+      </revision>
+    </revhistory>
+  </articleinfo>
+
+
+  <section id='overview'>
+    <title>Overview</title>
+
+    <para>
+      The <firstterm>Hotelling</firstterm> feature provides for defining a
+      set of 'hotel' phones whose features and lines are temporarily
+      reconfigured for a user when that user <firstterm>checks in</firstterm> to the phone.  The
+      reconfiguration is reversed either when the user explicitly <firstterm>signs
+      out</firstterm> or after some system-configured elapsed time.
+    </para>
+
+    <para>
+      The motivation for this feature is to support environments in which
+      some users are mobile, so a larger population of users can be
+      supported using a smaller number of phones, while preserving the
+      personalization of phone settings and capabilities specific for each
+      user.
+    </para>
+
+    <section id='scenario'>
+      <title>Typical User Scenario</title>
+
+      <para>
+        The following scenario illustrates how the hotelling feature is
+        used.  This section is intended only as an example; it is not
+        intended to show all aspects of the Hotelling feature set.
+        Subsequent sections more fully define the requirements.
+      </para>
+
+      <para>
+        Our example scenario takes place in an office of JumboExample Corp
+        (a member of the Example family of companies).  JumboExample has
+        many field operatives that spend most of thier time away from the
+        office, but each has an occasional need to come in to file reports,
+        attend staff meetings, and be briefed on changes in JumboExample
+        policies.  Joe Schmoe is one of these field operatives.
+      </para>
+
+      <blockquote>
+        <para>
+          Joe arrives at the office on Monday morning, and goes to the Field
+          Operative section, where there are 15 cubicles available for
+          operatives when they are in the facility.  Each cubicle is supplied
+          with furniture, basic office supplies, a laptop docking station
+          with large screen monitor, and a SIP phone.
+        </para>
+
+        <para>
+          Joe goes down the line of cubicles, past a few that are occupied by
+          other field operatives, until he finds one that appears to be
+          available.  Before sitting down, he checks the display on the SIP
+          phone and sees that the phone display indeed indicates that no one
+          is presently checked in to this phone (see <xref
+          linkend='unassigned'/>).
+        </para>
+
+        <para>
+          Joe sits down, puts his laptop in the docking station and the
+          picture of his dog on the desk, and then checks in to the phone.
+          The phone in this cubicle is equipped with several speed dial
+          buttons, one of which is labeled "Checkin".  He presses this
+          button and after one ring the call is answered by the checkin
+          autoattendant.  The autoattendant prompts him for his personal
+          extension number, which he enters, and it then prompts him for
+          his PIN, he enters the same PIN he uses for voicemail.  After a
+          brief pause, the autoattendant confirms that his checkin is
+          successful and instructs him to hang up the phone and wait for it
+          to be reconfigured.  Joe hangs up and goes to get coffee (and to
+          see if anyone has left unwanted sweets at the coffee station).
+        </para>
+
+        <para>
+          A moment after Joe leaves the cubicle, the phone reboots (see <xref
+          linkend='reconfigure'/>).  When he returns, the first line on the
+          phone is displaying that it is now his extension number, and the
+          message waiting dispay indicates that he has 2 new voicemail
+          messages.
+        </para>
+
+        <para>
+          Joe presses the 'Messages' key on the phone to connect to his
+          mailbox, enters his PIN, and deals with the messages.  Then he uses
+          the first speed dial key, which is now programmed to the number for
+          the administrative assistant for his team.  The assistant answers
+          and preempts his question about where the staff meeting is to be
+          held today: she knew from her caller-id display that it was Joe,
+          and he always calls to ask.  Other speed dial keys on the phone are
+          programmed for his home number and that of his supervisor.
+        </para>
+
+        <para>
+          While he is reading his email, his supervisor calls: to call him,
+          she had just dialled his extension number, not needing to know
+          which cubicle he had selected.  She wants him to meet with her at
+          the end of the day to go over sales projections in his area for the
+          coming month.
+        </para>
+
+        <para>
+          Before leaving at the end of the day, Joe repacks his laptop and
+          photo, and presses the speed dial key that is programmed to check him
+          out.  The system answers the call and plays an acknowlegement
+          message, but Joe is already on his way home.  After a moment, the
+          call disconnects and the phone reboots.  When it comes back up, it
+          is again displaying that it is an unassigned phone.
+        </para>
+      </blockquote>
+
+    </section>
+  </section>
+
+  <section id='requirements'>
+    <title>Requirements</title>
+
+    <para>
+      The fundamental goal of the Hotelling feature is to make using a
+      <firstterm>Hotel</firstterm> phone as much like using a normally
+      assigned phone as possible.  A user that has a normally assigned
+      phone should find a Hotel phone as familiar as possible.
+    </para>
+
+    <section id='hotel-identity'>
+      <title>Hotel Phone Identity</title>
+      <para>
+        The one difference between a normal user phone and a Hotel phone is
+        that a Hotel phone has an identity of its own that is not
+        associated with the user.  In some (possibly most) phones, this
+        additional identity is visible as an additional 'line' on the
+        phone.  When no user is checked in to the phone, this hotel phone
+        identity is the only identity associated with the phone (see <xref
+        linkend='unassigned'/>).  The hotel phone identity is not an
+        extension: it is an internal &sipxecs; identifier, so there is no
+        normal way to dial a Hotel phone when there is no user checked in
+        to it.
+      </para>
+
+    </section>
+
+    <section id='unassigned'>
+      <title>Unassigned Hotel Phones</title>
+      <para>
+        A phone that does not have a user checked in has only its hotel
+        phone identity.  The display name for the hotel phone identity is a
+        fixed string that is identical for any hotel phone; it is
+        localizable value meant to convey that the phone does not have a
+        user checked in (for example, in English it might be "Open",
+        "Unused", or "Available").
+      </para>
+
+      <para>
+        If the phone has speed dial capability, an unassigned hotel phone
+        has a speed dial configured for the 'checkin' service (see <xref
+        linkend='checkin'/>).  If the phone supports multiple speed dials,
+        then additional speed dial destinations may be configured for a
+        hotel phone using the same interface available for configuring
+        speed dials for other users; these additional destinations are
+        configured <emphasis>after</emphasis> the automatically configured
+        checkin speed dial destination.
+      </para>
+
+      <para>
+        The privileges associated with a hotel phone identity are
+        configurable using the same mechanisms that are available to
+        configure user privileges.  The default privileges for a Hotel
+        phone are very restricted:
+      </para>
+
+      <itemizedlist>
+
+        <listitem>
+          <para>
+            No PSTN calls (other than an emergency number) are allowed.
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            No voicemail is allowed (this cannot be changed).
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            The autoattendant dial-by-name directory does not include any
+            unassigned Hotel phones.
+          </para>
+        </listitem>
+        
+      </itemizedlist>
+    </section>
+
+    <section id='checkin'>
+      <title>Checkin</title>
+      <para>
+        A system-defined dial sequence is used to "check in" to a hotel
+        phone.  This destination is configured as a speed dial on an
+        unassigned phone if the phone supports speed dial (see <xref
+        linkend='unassigned'/>.  This dial sequence connects to the
+        <firstterm>Hoteldesk</firstterm> service:
+      </para>
+      <procedure>
+
+        <step>
+          <para>
+            The hoteldesk service checks to see if the calling identity is
+            that of an unassigned Hotel phone.  If not, an audio message is
+            played that informs the user that checkin is not available from
+            the phone they are using; after the message is complete, the
+            hoteldesk service hangs up the call.
+          </para>
+
+          <para>
+            If the calling phones identity is that of an assigned Hotel
+            phone (one that some user is currently checked in to), then an
+            audio prompt is played that indicates that the phone is
+            currently in use and offers to reconfigure the phone for a new
+            user.  If the user responds that reconfiguration is desired, the
+            sequence continues as if the phone were unassigned; if not, the
+            hoteldesk service hangs up the call.
+          </para>
+
+        </step>
+
+        <step>
+          <para>
+            An audio prompt is played instructing the user to enter their
+            extension, followed by the pound sign (#).
+          </para>
+
+          <para>
+            The entered extension is checked to see if it is that of a user
+            in the system; if not, a message indicating this is played, and
+            this step is repeated.
+          </para>
+        </step>
+
+        <step>
+          <para>
+            An audio prompt is played instructing the user to enter their
+            PIN, followed by the pound sign (#).
+          </para>
+
+          <para>
+            The entered PIN is checked to see if it is that of the selected
+            user; if not, a message indicating this is played, and the
+            previous step (prompting for the extension) is repeated.
+          </para>
+        </step>
+
+        <step>
+          <para>
+            If the PIN was correct, an audio message is played indicating
+            that the checkin has been accepted, the length of time for
+            which it will be in effect (see <xref linkend='expiration'/>),
+            and instructing the user to hang up and await reconfiguration
+            of the phone.  
+          </para>
+
+          <para>
+            After the user disconnects the call, the phone is reconfigured
+            (see <xref linkend='reconfigure'/>).
+          </para>
+        </step>
+        
+      </procedure>
+    </section>
+        
+    <section id='reconfigure'>
+      <title>Reconfiguration Process</title>
+
+      <para>
+        When a user has successfully checked in (see <xref
+        linkend='checkin'/>), the hoteldesk service causes a new
+        configuration to be generated for the phone that adds the
+        configuration specific to the user.  The phone is then
+        told to use this new configuration.
+      </para>
+
+      <para>
+        See <xref linkend='config-merge'/> for discussion of how the
+        user-specific configuration and the phone-specific configuration
+        are combined to create the configuration of the checked-in hotel
+        phone.
+      </para>
+
+      <para>
+        Similarly, when the user checks out (see <xref
+        linkend='checkout'/>), or the checkin period expires (see <xref
+        linkend='expiration'/>), the hoteldesk service causes a new
+        configuration to be generated for the phone as an unassigned phone
+        (see <xref linkend='unassigned'/>), and the phone is instructed to
+        use this new configuration.
+      </para>
+
+      <para>
+        For all currently supported phones, reconfiguration requires
+        that the phone reboot.
+      </para>
+
+    </section>
+
+    <section id='checkout'>
+      <title>Checkout</title>
+
+      <para>
+        A system-defined dial sequence is used to "check out" of a hotel
+        phone.  This destination is configured as a speed dial if the phone
+        supports speed dial and is unassigned (see <xref linkend='unassigned'/>).
+        This dial sequence connects to the checkout service:
+      </para>
+      <procedure>
+ 
+        <step>
+          <para>
+            The service checks to see if the calling identity is that of an
+            assigned Hotel phone.  If not, an audio message is played
+            that informs the user that checkout is not available from the
+            phone they are using; after the message is complete, the
+            hoteldesk service hangs up the call.
+          </para>
+
+          <para>
+            If the calling phones identity is that of an assigned Hotel
+            phone (one that some user is currently checked in to), then an
+            audio message is played that indicates that the user is now
+            logged out and instructing the user to hang up the phone to
+            reconfigure.   
+          </para>
+
+        </step>
+
+        <step>
+          <para>
+            After the user disconnects the call, the phone is reconfigured
+            (see <xref linkend='reconfigure'/>).
+          </para>
+        </step>
+        
+      </procedure>
+
+    </section>
+
+    <section id='expiration'>
+      <title>Expiration</title>
+
+      <para>
+        The assignment of a hotel phone to a user is temporary: a system
+        configuration parameter determines the maximum duration of a hotel
+        phone assignment.  If a user has not checked out from a hotel phone
+        when that time has past, a new configuration as an unassigned hotel
+        phone is generated for the phone, and the phone is reconfigured to
+        that unassigned status. 
+      </para>
+
+    </section>
+
+    <section id='principles'>
+      <title>Feature Tradeoffs and Restrictions</title>
+      <para>
+        Some aspects of the user experience in a &sipxecs; system are
+        implemented entirely in one or more &sipxecs; service processes,
+        others (such as speed dial buttons) are implemented entirely within
+        the phone, and many are some hybrid - dependant on both the phone
+        and the service configuration.  
+      </para>
+
+      <itemizedlist>
+        <listitem>
+          <para>
+            Features that cannot be supported without making changes to
+            &sipxecs; service configurations are <emphasis>not</emphasis> supported.
+          </para>
+        </listitem>
+      </itemizedlist>
+
+    </section>
+
+    <section id='config-merge'>
+      <title>Merging User and Phone Configuration</title>
+      <para>
+        Phones differ in capability: they may differ, for example, in the
+        number of lines they support, the number of speed dials they
+        support, whether or not they display busy status for lines, and so
+        on.  Since some features configured for a user require that specific
+        capabilities be available on the phone, it may be that the
+        configuration for a particular user may not be fully realized on a
+        particular hotel phone.   For example, if a user has a large model
+        phone at her 'normal' desk phone, and has configured many speed
+        dial keys, a hotel phone with fewer keys will not be able to
+        display all of those entries.
+      </para>
+
+      <section id='key-assign'>
+        <title>Line and Speed Dial Key Assignments</title>
+        <para>
+          Line keys on an assigned hotel phone are allocated in this 
+          order:
+
+          <orderedlist>
+            <listitem>
+              <para>
+                The identity that the user used to log in to the hotel phone
+                (if the user has a non-hotel phone, this is the line that
+                would normally be the first line on that phone).
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                If the particular phone requires that a line key be used to
+                configure an additional identity on the phone (most do),
+                then the last key available as a line key is assigned to
+                the hotel phone identity.
+              </para>
+            </listitem>
+            <listitem>
+              <para>
+                Any remaining keys that are available as speed dial entries
+                are used in the order configured for the user.
+              </para>
+            </listitem>
+            
+          </orderedlist>
+          <note>
+            <para>
+              Additional line keys that are configured on other non-hotel
+              phones assigned to the user are <emphasis>not</emphasis>
+              configured on a hotel phone when the user checks in to it;
+              such lines are configured only for a specific phone, not for
+              the user.
+            </para>
+          </note>
+        </para>
+      </section>
+
+    </section>
+
+  </section>
+
+  <section id='design'>
+    <title>Design Overview</title>
+
+    <para><emphasis>This section will be added when the functionality has been reviewed and agreed to.</emphasis></para>
+
+  </section>
+
+  <!--
+      -*- mode: nXML; auto-fill -*-
+  -->
+</article>

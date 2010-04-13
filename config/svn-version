@@ -1,0 +1,52 @@
+#!/bin/sh
+
+topdir=$1
+
+if test -z "${SIPX_BUILD_LABEL}"
+then
+    SIPX_BUILD_LABEL=${USER}
+fi
+
+if [ -n "$topdir" -a -d "$topdir" ]
+then
+    pushd $topdir > /dev/null 2>&1
+fi
+
+if test -d ${topdir}/.svn
+then
+    svnversion ${topdir} \
+        | perl -p \
+        -e 'while ( m/\b(\d{1,5})M?\b/g ) { $padded=sprintf( "%06d", $1 ); s/$1/$padded/; };' \
+        -e 's/:/./g;' \
+        -e "s/M/.${SIPX_BUILD_LABEL}/g;"
+elif git branch > /dev/null 2>&1
+then
+    if git diff --quiet && git diff --cached --quiet 
+    then
+        # there are no changes
+        git log \
+        | perl -n -e 'm/^\s+git-svn-id: [^@]+@(\d+)/ && do {printf("%06d",$1); exit; };'
+    else
+        git log \
+        | perl -n -e 'm/^\s+git-svn-id: [^@]+@(\d+)/ && do {printf("%06d",$1); exit; };' \
+        | perl -p -e "s/\$/.${SIPX_BUILD_LABEL}/g;"
+    fi
+else
+    dir=$topdir
+    until test -e $dir/SVN-VERSION -o "$dir" = "/" -o ! -d $dir
+    do
+        dir=`dirname $dir`
+    done
+    if test -e $dir/SVN-VERSION
+    then
+        cat ${dir}/SVN-VERSION
+    else
+        echo 0.unknown
+    fi
+fi
+
+if [ -n "$topdir" -a -d "$topdir" ]
+then
+    popd > /dev/null 2>&1
+fi
+

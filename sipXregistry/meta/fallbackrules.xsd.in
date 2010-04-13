@@ -1,0 +1,348 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX fallbackrules rule set
+  -->
+<schema
+    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/fallback-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+  <annotation>
+    <documentation>
+      Rules for mapping SIP addresses in fallbackrules.xml
+    </documentation>
+    <documentation source='http://scm.sipfoundry.org/rep/sipXregistry/main/doc/Redirection.txt'/>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='mappings'>
+    <annotation>
+      <documentation>
+        A container for a set of rules
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:hostMatch' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='hostMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of match specifiers for the host part of a SIP address
+        and then other rules to be applied to any address that matches at least
+        one of the specified hostPattern elements.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:hostPattern' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:userMatch'   minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <simpleType name='validFormats'>
+    <annotation>
+      <documentation>
+        The header format names valid in a format attribute.
+      </documentation>
+    </annotation>
+    <restriction base='normalizedString'>
+       <enumeration value='url'/>
+       <enumeration value='IPv4subnet'/>
+       <enumeration value='DnsWildcard'/>
+    </restriction>
+  </simpleType>
+
+  <element name='hostPattern'>
+    <annotation>
+      <documentation>
+         One of three types of patterns:
+
+         format='url' (default)
+            A 'hostport' (RFC 3261, sec. 25.1: 'hostport =  host [ ":" port ]')
+            where the host and port must match exactly (except in case)
+            and the port 5060 matches an unspecified value.
+
+         format='DnsWildcard'
+            A "wildcard" DNS Domain whose leftmost label is '*'.
+            The asterisk ('*') in the pattern matches any sequence of DNS
+            name tokens and dots.  The pattern must match the full domain
+            value from the request URI.  No port may be specified, and port
+            is not considered in the match.
+
+               Examples:
+                  *.example.com (matches any subdomain in example.com INCLUDING
+                     example.com itself)
+                  * (matches all domains)
+
+         format='IPv4subnet'
+            An IPv4 subnet, specified as a series of IPv4 address decimal
+            octet values separated by dots (.), followed by a forward slash
+            (/) and a decimal number of bits to be used as a subnet mask value.
+            In order to match, the request URI "host" must be a valid IPv4
+            dotted quad address whose value is within the subnet specified.
+            No port may be specified, and port is not considered in the match.
+
+               Examples:
+                  10.0.0.0/8  Matches any IP address with first 8 bits = '10'
+                  192.168/16
+      </documentation>
+    </annotation>
+    <complexType>
+      <simpleContent>
+        <extension base='normalizedString'>
+          <attribute name='format' use='optional' default='url'
+                     type='dmp:validFormats'/>
+        </extension>
+      </simpleContent>
+    </complexType>
+  </element>
+
+  <element name='userMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of match specifiers for the user part of a SIP address
+        and then other rules to be applied to any address that matches at least
+        one of the specified userPattern specifiers.
+        If there are any callerLocationMatch specifiers, and the callerLocation
+        for any of those specifiers matches, then only any transform elements
+        within the first matching callerLocationMatch are returned.
+        If there are no callerLocationMatch specifiers, or none that are present
+        contain matching callerLocation elements, then any transform elements that
+        are the immediate children of the userMatch element are returned.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:callTag' minOccurs='0' />
+        <element ref='dmp:userPattern' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:callerLocationMatch'   minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:transform'   minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='userPattern' type='normalizedString'>
+    <annotation>
+      <documentation>
+        A pattern expression used to match the user part of a SIP URL.
+        The pattern is implicitly anchored at both ends.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='callerLocationMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of match specifiers for the callerLocation of the
+        caller, which is passed indepent of the message to the fallbackrules
+        redirector.  If any callerLocation matches, then only the transforms within
+        this callerLocationMatch element are applied.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:callerLocation' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:transform'  minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='callerLocation' type='normalizedString'>
+    <annotation>
+      <documentation>
+        A token string compared against that passed to the fallbackrules redirector for the call.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='transform'>
+    <annotation>
+      <documentation>
+        Contains the rules for the output address.
+      </documentation>
+    </annotation>
+    <complexType>
+      <choice>
+        <element ref='dmp:url' minOccurs='0' maxOccurs='1'>
+          <annotation>
+            <documentation>
+              This specifies the complete Contact address.
+            </documentation>
+          </annotation>
+        </element>
+        <sequence>
+          <annotation>
+            <documentation>
+              These elements allow substitution of or addition to the existing address.
+              Any parts not explicitly specified are copied from the input address.
+            </documentation>
+          </annotation>
+          <element ref='dmp:user'         minOccurs='0' maxOccurs='1'/>
+          <element ref='dmp:host'         minOccurs='0' maxOccurs='1'/>
+          <element ref='dmp:urlparams'    minOccurs='0' maxOccurs='unbounded'/>
+          <element ref='dmp:headerparams' minOccurs='0' maxOccurs='unbounded'/>
+          <element ref='dmp:fieldparams'  minOccurs='0' maxOccurs='unbounded'/>
+        </sequence>
+      </choice>
+    </complexType>
+  </element>
+
+  <element name='url' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The complete output SIP URL.
+        The value is subject to symbol token substitution; certain tokens in
+        the value are replaced with either configuration values or values from
+        the request URI being transformed.
+
+        Configuration tokens - the values for these are taken from system
+        configuration variables (see sipXregistry/registrar-config):
+          {localhost}
+
+        Request Uri tokens - values are taken from the request URI being transformed:
+          {user} or {digits} - the userinfo
+          {user-escaped}     - the userinfo, with HTTP escaping
+          {digits-escaped}   - the userinfo, with HTTP escaping
+          {host}             - the host (and port, if any)
+          {headerparams}     - all headerparams
+          {urlparams}        - all urlparams
+          {uri}              - the entire uri value
+
+          {vdigits}          - the part of the userinfo that matched a variable
+                               portion of a pattern rule.
+          {vdigits-escaped}  - vdigits, with HTTP escaping
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='user' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The user portion of the output SIP URL.
+        The value is subject to symbol token substitution (see the 'url' element).
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='host' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The host portion of the output SIP URL.
+        The value is subject to symbol token substitution (see the 'url' element).
+      </documentation>
+    </annotation>
+  </element>
+
+  <complexType name='attributeModifier'>
+    <annotation>
+      <documentation>
+        Provides a name and value for a URL attribute modifier (a urlparams,
+        fieldparams, or headerparams element).  (In RFC 3261 section 25.1
+        terminology, 'uri-parameter', 'header', or 'contact-params'[='generic-param'].)
+
+        There are two syntaxes supported; they are distinguished by whether
+        or not there is a 'name' attribute on the modifier element (see below).
+
+        In either form, the name and value are given in XML content as
+        their underlying character strings, not using SIP escaping as they would
+        appear in the URI -- escaping is the responsibility of the URL mapping
+        processor. (Of course, XML's escaping applies, as it is un-done before
+        the URL mapping processor sees the content.)
+
+        The value may contain URL mapping substitutions of the format '{keyword}'
+        for specific keywords. These are substituted before the value is escaped
+        for insertion into the URI.  (There is no escape mechanism for inserting
+        what appears to be a URL mapping substitution literally into the value.)
+
+        In the preferred syntax, a 'name' attribute specifies the modifier name
+        and the element content is the value.  For example:
+        <![CDATA[
+                  <urlparams name='bar'>value</urlparams>
+        ]]>
+        specifies the parameter "bar=value".
+
+        For backward compatibility, an older form is also allowed in which the
+        modifier name and value are both provided in the element content, separated
+        by an equals sign:
+        <![CDATA[
+                  <urlparams>bar=value</urlparams>
+        ]]>
+        The parameter name is separated from the parameter value by the
+        first '=' in the string.  Note that the parameter name may not
+        contain '=', although the parameter value may.  RFC 3261 allows URI
+        parameter names and header parameter names to contain '=' (which would
+        have to be escaped).  There is no reason to believe that that will ever
+        be used in practice (since it would probably break many parsers), but
+        the preferred syntax handles it more smoothly anyway.
+
+        In either form, the parameter value part may be empty.
+
+        The value is subject to symbol token substitution (see the 'url' element).
+      </documentation>
+    </annotation>
+    <simpleContent>
+      <extension base='normalizedString'>
+        <attribute name='name' type='normalizedString' use='optional'/>
+      </extension>
+    </simpleContent>
+  </complexType>
+
+  <element name='fieldparams' type='dmp:attributeModifier'>
+    <annotation>
+      <documentation>
+        A field parameter to be set on the output SIP URL.
+        See documentation of attributeModifier.
+
+        The value is subject to symbol token substitution (see the 'url' element).
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='headerparams' type='dmp:attributeModifier'>
+    <annotation>
+      <documentation>
+        A header parameter to be set on the output SIP URL.
+        See  documentation of attributeModifier.
+
+        The value is subject to symbol token substitution (see the 'url' element).
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='urlparams' type='dmp:attributeModifier'>
+    <annotation>
+      <documentation>
+        A URL parameter to be set on the output SIP URL.
+        See documentation of attributeModifier.
+
+        The value is subject to symbol token substitution (see the 'url' element).
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='description' type='string'>
+    <annotation>
+      <documentation>
+        Used to describe the rule in the user interface.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='callTag' type='string'>
+    <annotation>
+      <documentation>
+        Used as a short call type tag.
+      </documentation>
+    </annotation>
+  </element>
+
+</schema>

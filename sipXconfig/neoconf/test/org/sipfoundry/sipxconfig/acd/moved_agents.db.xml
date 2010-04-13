@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+	
+<dataset>
+	<!-- this is ordering.db.xml after agent 3001 has been moved 2 positions down in queue 2002 -->
+	<acd_queue_agent acd_agent_id="3001" acd_queue_id="2001" agent_position="0"/>
+	<acd_queue_agent acd_agent_id="3002" acd_queue_id="2002" agent_position="0"/>
+	<acd_queue_agent acd_agent_id="3003" acd_queue_id="2002" agent_position="1"/>
+	<acd_queue_agent acd_agent_id="3001" acd_queue_id="2002" agent_position="2"/>	
+</dataset>

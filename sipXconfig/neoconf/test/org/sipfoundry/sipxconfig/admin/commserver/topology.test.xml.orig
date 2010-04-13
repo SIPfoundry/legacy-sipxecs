@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<topology>
+   <location id="Config Server, Media Server and Comm Server">
+      <component id="MediaServer1" type="media-server" />
+      <component id="CommServer1"  type="comm-server" />
+      <replication_url>
+         https://localhost:8091/cgi-bin/replication/replication.cgi
+      </replication_url>
+      <agent_url>
+         https://localhost:8092/RPC2
+      </agent_url>
+      <sip_domain>upgrade1.example.org</sip_domain>
+   </location>
+   <location id="Primary CommServer">
+      <component id="CommServer1"  type="comm-server" />
+      <replication_url>
+         https://192.168.0.27:8091/cgi-bin/replication/replication.cgi
+      </replication_url>
+      <agent_url>
+         https://192.168.0.27:8092/RPC2
+      </agent_url>
+      <sip_domain>upgrade2.example.org</sip_domain>
+   </location>
+</topology>

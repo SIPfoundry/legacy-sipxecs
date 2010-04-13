@@ -1,0 +1,21 @@
+#! /bin/perl
+
+# Script to analyze the logging output from CallScriptDriver to see
+# what the average load on the System Under Test was.
+
+# Called with two arguments, the 'number of jobs' and the 'number of
+# seconds to run' from the execution of CallScriptDriver.  Standard
+# input is the log.
+
+$jobs = $ARGV[0];
+$seconds = $ARGV[1];
+
+$pauses = 0;
+while (<STDIN>) {
+    if (/^pause random \d+ \(pause (\d+)\)/) {
+        $pauses += $1;
+    }
+}
+$pauses = int($pauses / 1000);
+print "jobs = $jobs, seconds = $seconds, pauses = $pauses, load average = ",
+    $jobs - $pauses / $seconds, "\n";

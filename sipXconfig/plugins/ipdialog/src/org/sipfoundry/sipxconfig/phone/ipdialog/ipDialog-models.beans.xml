@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="ipDialogPhoneStandard" parent="abstractPhoneModel">
+    <property name="beanId" value="ipDialog" />
+    <property name="label" value="ipDialog SipTone V" />
+    <property name="maxLineCount" value="2" />
+    <property name="profileTemplate" value="ipDialog/ipDialog.vm" />
+    <property name="vendor" value="ipDialog" />
+    <property name="restartSupported" value="true" />
+    <property name="supportedFeatures">
+      <set>
+       <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="ipDialog" class="org.sipfoundry.sipxconfig.phone.ipdialog.IpDialogPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+</beans>

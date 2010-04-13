@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="upload-music">
+    <file variable="yes" />
+  </type>
+  <group name="acd-queue">
+    <setting name="uri" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="name" hidden="yes">
+      <type />
+      <value />
+    </setting>
+    <setting name="overflow-type">
+      <type>
+        <enum>
+          <option>
+            <value>Queue</value>
+          </option>
+          <option>
+            <value>HuntGroup</value>
+          </option>
+        </enum>
+      </type>
+      <value />
+    </setting>
+    <setting name="overflow-typeValue">
+      <type>
+		<enum>
+			<option>
+				<value>No selection</value>
+			</option>
+		</enum>
+      </type>
+      <value />
+    </setting>
+    <setting name="overflow-entry">
+      <type>
+        <string required="no" />
+      </type>
+      <value />
+    </setting>
+    <setting name="acd-scheme">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="max-ring-delay" advanced="yes">
+      <type>
+        <integer min="5" required="yes" />
+      </type>
+      <value>15</value>
+    </setting>
+    <setting name="max-queue-depth" advanced="yes">
+      <type>
+        <integer min="-1" required="yes" />
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="max-wait-time" advanced="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="fifo-overflow" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="overflow-destination" hidden="yes">
+      <type>
+        <string required="no" />
+      </type>
+      <value />
+    </setting>
+    <setting name="overflow-queue" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="answer-mode">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="barge-in">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="call-connect-scheme" hidden="yes">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name="welcome-audio">
+      <type refid="upload-music" />
+      <value />
+    </setting>
+    <setting name="queue-audio">
+      <type refid="upload-music" />
+      <value />
+    </setting>
+    <setting name="background-audio" hidden="yes">
+      <type refid="upload-music" />
+      <value />
+    </setting>
+    <setting name="queue-audio-interval">
+      <type>
+        <integer min="1" required="yes" />
+      </type>
+      <value>15</value>
+    </setting>
+    <setting name="call-termination-audio">
+      <type refid="upload-music" />
+      <value />
+    </setting>
+    <setting name="termination-tone-duration">
+      <type>
+        <integer min="0" max="30" required="yes" />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="acd-agent-list" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="agents-wrap-up-time">
+      <type>
+        <integer min="0" required="yes" />
+      </type>
+      <value>15</value>
+    </setting>
+    <setting name="agents-non-responsive-time">
+      <type>
+        <integer min="0" required="yes" />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name="max-bounce-count">
+      <type>
+        <integer min="0" required="yes" />
+      </type>
+      <value>3</value>
+    </setting>
+  </group>
+</model>

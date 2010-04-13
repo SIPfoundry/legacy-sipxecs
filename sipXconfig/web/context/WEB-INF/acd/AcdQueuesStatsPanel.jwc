@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+
+<component-specification allow-body="no" allow-informal-parameters="no"
+  class="org.sipfoundry.sipxconfig.site.acd.AcdStatsPanel">
+
+  <description>Table that displays ACD stats for an agent</description>
+
+  <!-- P A R A M E T E R S -->
+  <parameter name="acdServerId" required="true" />
+  <parameter name="acdStatistics" required="true" />
+
+  <!-- P R O P E R T I E S -->
+  <property name="row" />
+
+  <!--  B E A N S -->
+
+  <bean name="durationFormat" class="org.sipfoundry.sipxconfig.components.MillisDurationFormat"
+    lifecycle="page">
+    <!-- 0 - day, 1 - hour, 2 - minute etc. -->
+    <set name="maxField" value="2" />
+    <set name="locale" value="page.locale"/>
+  </bean>
+
+  <!-- C O M P O N E N T S -->
+  <component id="tableView" type="common/StatsTable">
+    <binding name="source" value="acdStatistics.getQueuesStats(acdServerId)" />
+    <binding name="columns"
+      value="literal:queueUri:queueName, signInAgents, idleAgents, busyAgents,
+        waitingCalls, averageWaitMillis" />
+    <binding name="row" value="row" />
+  </component>
+
+  <component id="averageWaitMillis" type="Insert">
+    <binding name="value" value="row.averageWaitMillis" />
+    <binding name="format" value="bean:durationFormat" />
+  </component>
+  <component id="maxWaitMillis" type="Insert">
+    <binding name="value" value="row.maxWaitMillis" />
+    <binding name="format" value="bean:durationFormat" />
+  </component>
+
+  <component id="averageAbandonedMillis" type="Insert">
+    <binding name="value" value="row.averageAbandonedMillis" />
+    <binding name="format" value="bean:durationFormat" />
+  </component>
+  <component id="maxAbandonedMillis" type="Insert">
+    <binding name="value" value="row.maxAbandonedMillis" />
+    <binding name="format" value="bean:durationFormat" />
+  </component>
+
+  <component id="averageProcessingMillis" type="Insert">
+    <binding name="value" value="row.averageProcessingMillis" />
+    <binding name="format" value="bean:durationFormat" />
+  </component>
+  <component id="maxProcessingMillis" type="Insert">
+    <binding name="value" value="row.maxProcessingMillis" />
+    <binding name="format" value="bean:durationFormat" />
+  </component>
+</component-specification>

@@ -1,0 +1,11 @@
+# Parties test data
+
+first:
+  id: 1
+  aor: sip:alice@example.com
+  contact: sip:alice@1.1.1.1
+
+second:
+  id: 2
+  aor: sip:bob@example.com
+  contact: sip:bob@2.2.2.2

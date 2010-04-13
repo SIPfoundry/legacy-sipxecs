@@ -1,0 +1,37 @@
+<table jwcid="branchTable@common/Table" id="branch:list"
+  columns="literal:* name, !users, !gateways, !sbcs, !servers, description"
+  source="ognl:branchTableModel"
+  usePager="true"
+  row="ognl:currentRow"
+  selections="ognl:selections">
+  <span jwcid="nameColumnValue@Block">
+    <a jwcid="viewBranchLink@DirectLink"
+      listener="ognl:viewBranchListener"
+      parameters="ognl:currentRow.id">
+      <span jwcid="viewBranchLabel@Insert" value="ognl:currentRow.name"/>
+    </a>
+  </span>
+  <span jwcid="usersColumnValue@Block">
+    <span jwcid=@Insert value="ognl:userCounts[currentRow.id]"/>
+  </span>
+  <span jwcid="gatewaysColumnValue@Block">
+    <span jwcid=@Insert value="ognl:gatewayCounts[currentRow.id]"/>
+  </span>
+  <span jwcid="sbcsColumnValue@Block">
+    <span jwcid=@Insert value="ognl:sbcDeviceCounts[currentRow.id]"/>
+  </span>
+  <span jwcid="serversColumnValue@Block">
+    <span jwcid=@Insert value="ognl:serverCounts[currentRow.id]"/>
+  </span>
+</table>
+<ul class="component-submit">
+  <li>
+    <input id="branch:delete"
+      jwcid="delete@Submit"
+      value="message:button.delete"
+      listener="listener:deleteBranch" />
+    <span jwcid="@common/Confirm"
+      component="component:delete"
+      prompt="message:confirm.delete" />
+  </li>
+</ul>

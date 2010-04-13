@@ -1,0 +1,73 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+    <span jwcid="@common/TabNavigation" tabNames="ognl:{'internetCalling', 'natTraversal'}" selectedTab="ognl:tab"/>
+    <div id="settings-content">
+      <span jwcid="@common/ErrorMsg"/>
+      <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+    </div>
+  <span jwcid="internetCallingTab@Block">
+    <div jwcid="@common/QuickHelp" value="message:help.sbc"/><br/>
+    <div jwcid="@common/QuickHelp" value="message:help.domains"/><br/>
+    <div jwcid="@common/QuickHelp" value="message:help.subnets"/>
+    <form jwcid="internetCalling@Form" delegate="bean:validator">
+    <ul class="component-links">
+      <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+    </ul>
+    <fieldset>
+      <p>
+        <input jwcid="@Checkbox" value="ognl:sbc.enabled" id="sbc:enabled"/>
+        <label for="sbc:enabled"><span key="label.enableInternetCalling"/></label>
+      </p>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="sbcDevice"
+            field="ognl:null"
+            label="message:label.address"
+            description="message:description.address">
+            <span jwcid="sbcDevice@common/SbcDeviceSelect"
+              externalSBCOnly="ognl:true"
+              selectedSbcDevice="ognl:selectedSbcDevice"
+			  enforceInternetCallingSupport="ognl:true" />
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <fieldset jwcid="@common/ListPanel"
+      label="message:label.domains"
+      addLinkLabel="message:link.addDomain"
+      itemDisplayName="message:label.domain"
+      validators="spring-validators:required,validDnsWildcard"
+      source="ognl:sbc.routes.domains"/>
+    <br/>
+    <fieldset jwcid="@common/ListPanel"
+      label="message:label.subnets"
+      addLinkLabel="message:link.addSubnet"
+      itemDisplayName="message:label.subnet"
+      validators="spring-validators:required,validIPv4subnet"
+      source="ognl:sbc.routes.subnets"/>
+    <fieldset jwcid="@If" condition="ognl:advanced">
+      <div jwcid="@dialplan/sbc/ListSbcs" validator="bean:validator" enforceInternetCallingSupport="ognl:true" />
+    </fieldset>
+    <ul class="component-submit">
+      <li>
+	    <input jwcid="activate@Submit" id="internetCalling:apply"
+		       value="message:button.activate"
+               listener="listener:activateInternetCalling" />
+      </li>
+    </ul>
+  </form>
+  </span>
+
+  <span jwcid="natTraversalTab@Block">
+    <div jwcid="@common/QuickLinks">
+      <ul>
+        <li>
+          <a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="label.jobStatus">Job Status</span></a>
+        </li>
+      </ul>
+    </div>
+    <span jwcid="@common/QuickHelp" value="message:help.natTraversal"/>
+    <form jwcid="natTraversal@Form" delegate="bean:validator">
+      <span jwcid="natTraversalComponent@dialplan/sbc/NatTraversalPanel"/>
+    </form>
+  </span>
+</div>

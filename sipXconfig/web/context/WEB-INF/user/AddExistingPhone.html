@@ -1,0 +1,26 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li><a jwcid="@PageLink" page="phone/DiscoverDevices" href="#"><span key="discover">Discover devices</span></a></li>
+    </ul>
+  </div>
+  <div jwcid="@common/QuickHelp" value="message:help.addPhones">add phones text...</div>
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="addPhones@Form" delegate="bean:validator">
+    <ul class="component-submit">
+      <li>
+        <span jwcid="@setting/GroupFilter"
+          selectedGroupId="ognl:groupId"
+          groups="ognl:phoneContext.groups"
+          queryText="ognl:queryText"
+          searchMode="ognl:searchMode"
+          unassignedOptionAvailable="ognl:true"
+          unassignedMode="ognl:unassignedMode" />
+      </li>
+    </ul>
+    <table jwcid="@phone/PhoneTable" selections="bean:selections" source="ognl:tableModel"/>
+    <span jwcid="select@Submit" value="message:button.select"
+      listener="listener:select"/>
+    <span jwcid="cancel@Submit" value="message:button.cancel" listener="listener:cancel"/>
+  </form>
+</div>

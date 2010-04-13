@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="nortel12x0Model" parent="abstractPhoneModel" class="org.sipfoundry.sipxconfig.phone.nortel12x0.Nortel12x0Model" abstract="true">
+    <property name="profileTemplate" value="nortel12x0/nortel12x0.vm" />
+    <property name="vendor" value="Avaya" />
+    <property name="restartSupported" value="true" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="avaya-1210" parent="nortel12x0Model">
+    <property name="label" value="Avaya 1210 IP Deskphone" />
+    <property name="maxLineCount" value="1" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="avaya-1220" parent="nortel12x0Model">
+    <property name="label" value="Avaya 1220 IP Deskphone" />
+    <property name="maxLineCount" value="4" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="avaya-1230" parent="nortel12x0Model">
+    <property name="label" value="Avaya 1230 IP Deskphone" />
+    <property name="maxLineCount" value="10" />
+    <property name="supportedFeatures">
+    <set>
+      <value>intercom</value>
+    </set>
+    </property>
+  </bean>
+
+
+  <bean id="nortel12x0" class="org.sipfoundry.sipxconfig.phone.nortel12x0.Nortel12x0Phone" singleton="false"
+    parent="abstractPhone">
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="nortel12x0Firmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="upload" />
+    <property name="modelFilePath" value="nortel12x0/upload.xml" />
+    <property name="label" value="Avaya 1210/1220/1230 IP Deskphone" />
+  </bean>
+</beans>

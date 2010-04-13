@@ -1,0 +1,23 @@
+.PHONY: build
+build:
+	$(MAKE) recurse TARGETS="all check install"
+
+include top.mak
+
+.PHONY: all
+all:
+	@echo "Target '$@' is not valid. Type 'make build' to build and install."
+
+.PHONY: rpm
+rpm:
+	$(MAKE) recurse TARGETS="rpm install-rpm"
+
+uninstall-rpm:
+	$(MAKE) recurse TARGETS="uninstall-rpm" PROJECTS="$(PROJECTS_REVERSE)"
+
+%:
+	$(MAKE) recurse TARGETS="$@"
+
+.PHONY: repo
+repo:
+	cd @DEST_RPM@ && createrepo -g @TOP_ABS_SRCDIR@/meta/comps.xml .

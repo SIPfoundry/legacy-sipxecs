@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="android"/>
+  <group name="alien" copy-of="android" if="borg"/>
+
+  <!-- copy-of an element that might not be false -->
+  <group name="et" copy-of="alien"/>
+    
+	<group name="human">
+		<label>Human</label>		
+		<group name="eat">
+			<setting name="hamburger" unless="vegitarian"/>
+
+      <!-- tests that unless is cleared from hamburger -->
+			<setting name="vegiburger" copy-of="hamburger"/>
+		</group>
+	</group>
+	<group name="man" copy-of="human">
+		<setting name="shave" unless="neandrathal" if="hairy">
+			<value>face</value>
+		</setting>
+	</group>
+	<group name="woman" copy-of="human">
+		<setting name="shave">
+			<value>legs</value>
+		</setting>
+	</group>  
+</model>

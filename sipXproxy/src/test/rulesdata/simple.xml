@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<routes>
+  <route mappingType="config">
+    <!-- Route to the config service -->
+    <routeFrom>sipuaconfig.SIPXCHANGE_DOMAIN_NAME</routeFrom>
+    <routeFrom>sipuaconfig</routeFrom>
+
+    <routeTo>CONFIG_SERVER</routeTo>
+  </route>
+  <route mappingType="local">
+    <routeFrom>SIPXCHANGE_DOMAIN_NAME</routeFrom>
+    <routeFrom>MY_IP_ADDR</routeFrom>
+    <routeFrom>MY_FULL_HOSTNAME</routeFrom>
+    <routeFrom>MY_HOSTNAME</routeFrom>
+    <methodMatch>
+      <methodPattern>SUBSCRIBE</methodPattern>
+      <fieldMatch fieldName="Event">
+        <!-- Config service events -->
+        <fieldPattern>sip-config.*</fieldPattern>
+        <!-- SUBSCRIBEs with the event field containg above pattern-->
+        <!-- will go to the Config server SDS-->
+        <routeTo>CONFIG_SERVER_SUBSCRIBE</routeTo>
+      </fieldMatch>
+      <fieldMatch fieldName="Event">
+        <!-- Message waiting indication events -->
+        <fieldPattern>message-summary.*</fieldPattern>
+        <!--this goes to the status server-->
+        <routeTo>STATUS_SERVER_EVENT</routeTo>
+      </fieldMatch>
+      <!-- All other SUBSCRIBE requests go to the SIP registry service -->
+      <routeTo>REGISTRAR_SERVER_SUBSCRIBE</routeTo>
+    </methodMatch>
+    <methodMatch>
+    <methodPattern>UNKNOWN</methodPattern>
+    <fieldMatch fieldName="Not-Here">
+    <fieldPattern>somevalue</fieldPattern>
+    <routeTo>UNKNOWN_BUT_NOT_HERE</routeTo>
+    </fieldMatch>
+    </methodMatch>
+    <!-- All other requests go to the SIP registry service -->
+    <routeTo>REGISTRAR_SERVER_DEFAULT</routeTo>
+  </route>
+  <route mappingType="foreignSubnet">
+     <routeIPv4subnet>10/8</routeIPv4subnet>
+     <routeTo authRequired="true">FOREIGN_SUBNET</routeTo>
+  </route>
+  <route mappingType="foreignDns">
+     <routeDnsWildcard>*.WOOF.net</routeDnsWildcard>
+     <routeTo authRequired="true">FOREIGN_DNS</routeTo>
+  </route>
+  <route mappingType="authProxy good">
+     <routeFrom>AUTHPROXY.GOOD</routeFrom>
+     <routeTo authRequired="true">
+
+     </routeTo>
+  </route>
+  <route mappingType="authProxyBad">
+     <routeFrom>AUTHPROXY.BAD</routeFrom>
+     <routeTo authRequired="false"/>
+  </route>
+</routes>

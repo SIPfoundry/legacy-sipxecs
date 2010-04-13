@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+<!DOCTYPE comps PUBLIC "-//The cAos Project//DTD Comps info//EN" "comps.dtd">
+<!--
+  - I cannot get groups to be recursive. groupreq doesn't appear to have
+  - much effect. See
+  -   https://lists.dulug.duke.edu/pipermail/yum-devel/2006-May/002140.html
+  - categories do not help either. From what I can tell, you need to duplicate
+  - package dependencies
+  -->
+<comps>
+  <group>
+   <id>sipxecs-base</id>
+   <uservisible>true</uservisible>
+   <name>sipXecs PBX</name>
+   <description>Standard sipXpbx PBX</description>
+   <packagelist>
+     <packagereq type="mandatory">sipxrelay</packagereq>
+     <packagereq type="mandatory">sipxacd</packagereq>
+     <packagereq type="mandatory">sipxpark</packagereq>
+     <packagereq type="mandatory">sipxpresence</packagereq>
+     <packagereq type="mandatory">sipxproxy</packagereq>
+     <packagereq type="mandatory">sipxproxy-cdr</packagereq>
+     <packagereq type="mandatory">sipxpublisher</packagereq>
+     <packagereq type="mandatory">sipxregistry</packagereq>
+     <packagereq type="mandatory">sipxrls</packagereq>
+     <packagereq type="mandatory">sipxtools</packagereq>
+     <packagereq type="mandatory">sipxconfig</packagereq>
+     <packagereq type="mandatory">sipxconfig-ftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-mrtg</packagereq>
+     <packagereq type="mandatory">sipxconfig-report</packagereq>
+     <packagereq type="mandatory">sipxconfig-agent</packagereq>
+   </packagelist>
+  </group>
+  <group>
+   <id>sipxecs-debug</id>
+   <uservisible>true</uservisible>
+   <name>sipXecs PBX plus debug</name>
+   <description>sipXpbx plus debug info</description>
+   <packagelist>
+     <!-- START: copy of sipxecs packages -->
+     <packagereq type="mandatory">sipxrelay</packagereq>
+     <packagereq type="mandatory">sipxacd</packagereq>
+     <packagereq type="mandatory">sipxpark</packagereq>
+     <packagereq type="mandatory">sipxpresence</packagereq>
+     <packagereq type="mandatory">sipxproxy</packagereq>
+     <packagereq type="mandatory">sipxproxy-cdr</packagereq>
+     <packagereq type="mandatory">sipxpublisher</packagereq>
+     <packagereq type="mandatory">sipxregistry</packagereq>
+     <packagereq type="mandatory">sipxrls</packagereq>
+     <packagereq type="mandatory">sipxtools</packagereq>
+     <packagereq type="mandatory">sipxconfig</packagereq>
+     <packagereq type="mandatory">sipxconfig-ftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-tftp</packagereq>
+     <packagereq type="mandatory">sipxconfig-mrtg</packagereq>
+     <packagereq type="mandatory">sipxconfig-report</packagereq>
+     <packagereq type="mandatory">sipxconfig-agent</packagereq>
+     <!-- END: copy of sipxecs packages -->
+     <packagereq type="mandatory">gdb</packagereq>
+     <packagereq type="mandatory">sipxacd-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxcalllib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxcommserverlib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxmediaadapterlib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxmedialib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxpark-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxportlib-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxpresence-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxproxy-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxpublisher-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxregistry-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxrls-debuginfo</packagereq>
+     <packagereq type="mandatory">sipxtacklib-debuginfo</packagereq>
+   </packagelist>
+  </group>
+</comps>

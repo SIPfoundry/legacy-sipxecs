@@ -1,0 +1,142 @@
+#!/usr/bin/env ruby
+
+# see http://docs.rubygems.org/shelf
+#  RubyGemsUserGuide/Installing Ruby/Installing RubyGems in a User Directory
+# Debian Etch looks in /var/lib/gems/1.8
+ENV['GEM_PATH'] = '@GEM_LIB_DIR@:/usr/lib/ruby/gems/1.8:/var/lib/gems/1.8'
+
+require 'tempfile'
+require 'optparse'
+require 'ostruct'
+
+load '@SIPX_CONFDIR@/sipxconfig-report-config'
+
+$psql = '/usr/bin/psql'
+if FileTest.exists?($psql)
+  $psql_path = $psql.chomp('psql')
+else
+  $psql = `which psql`.chomp
+  $psql_path=$psql.chomp('psql')
+end
+CREATEDB = "#{$psql_path}createdb"
+DROPDB = "#{$psql_path}dropdb"
+
+def parse(args)
+  options = OpenStruct.new
+
+  opts = OptionParser.new do |opts|
+    opts.banner = "Usage: sipxconfig-report [--conftest]"
+
+    opts.separator ""
+    opts.separator "Specific options:"
+
+    opts.on_tail("-c", "--configtest", "Run tests on configuration") do
+      if ! defined? CONFIG_SERVER_AGENT_URL
+        raise "Missing item 'CONFIG_SERVER_AGENT_URL'"
+      end
+      if CONFIG_SERVER_REPORT == "DISABLED"
+        puts "sipxconfig-report DISABLED"
+      end
+      exit
+    end
+
+    opts.on_tail("--createdb", "Create postgres database") do
+      createdb
+      exit
+    end
+
+    opts.on_tail("--setup", "Configure postgres to allow connection and create database") do
+      setuppg
+      createdb
+      exit
+    end
+
+    opts.on_tail("--disable", "Disable production of the sipxconfig-report") do
+      disablereport
+      exit
+    end
+
+    opts.on_tail("--dropdb", "Drop postgres database") do
+      dropdb
+      exit
+    end
+
+    opts.on_tail("--resetdb", "Drop and create postgres database") do
+      dropdb
+      createdb
+      exit
+    end
+
+    def dropdb
+      `#{DROPDB} -U #{DB_USER} #{DB_NAME}`
+    end
+
+    def createdb
+      db_exists = `#{$psql} -U #{DB_USER} -A -l | grep "^SIPXACD_HISTORY|" | wc -l`.chomp
+      if db_exists == "0"
+        `#{CREATEDB} -U #{DB_USER} #{DB_NAME}`
+        `#{$psql} -U #{DB_USER} #{DB_NAME} < @SIPX_CONFDIR@/report/schema.sql`
+      end
+    end
+
+    def disablereport
+      `#perl -pi -e 's/^(CONFIG_SERVER_REPORT\s*=\s*")ENABLED"/\1DISABLED"/' @SIPX_CONFDIR@/sipxconfig-report-config`
+    end
+
+    def setuppg
+      if ! system('@bindir@/pgpatch.sh')
+        raise "could not patch postgres setup"
+      end
+    end
+
+  end
+  opts.parse!(args)
+  options
+end
+
+# ruby-postgress RPM installs postgres.so in /usr/lib/site_ruby/1.8/i386-linux
+# however on CentOS ruby 'sitearchdir' is /usr/lib/site_ruby/1.8/i386-linux-gnu
+# this function tries to load postgres from both places
+def load_postgres_driver()
+  require 'postgres'
+rescue LoadError
+  require 'rubygems'
+  require 'rbconfig'
+  sad = Config::CONFIG['sitearchdir']
+  postgres_dir = sad.chomp('-gnu')
+  $:.unshift(postgres_dir)
+  require 'postgres'
+rescue LoadError
+# On SUSE, FreeBSD the driver is called ruby-postgres and is a gem
+  require 'ruby-postgres'
+end
+
+load_postgres_driver
+
+require 'rubygems'
+require 'report'
+require 'dbi'
+
+parse(ARGV)
+
+if CONFIG_SERVER_REPORT == "DISABLED"
+  exit 0
+end
+
+pid=File.open('@SIPX_RUNDIR@/sipxconfig-report.pid', 'w')
+pid.puts Process.pid
+pid.close
+
+configUrls = Array.new(CONFIG_SERVER_AGENT_URL.split(";"))
+locationFqdns = Array.new(LOCATION_FQDN.split(";"))
+
+configUrls.length.times do |i|
+  importer = Reports::Importer.new
+  begin
+    LOCATION_FQDN.replace(locationFqdns[i])
+    importer.dbi=DBI.connect(DB_URI, DB_USER)
+    importer.run(configUrls[i])
+  ensure
+    importer.dbi.disconnect if importer.dbi != nil
+  end
+end

@@ -1,0 +1,35 @@
+{"call-sequence": {
+  "rings": [
+    {
+      "expiration": 25,
+      "type": "If no response",
+      "enabled": true,
+      "number": "200"
+    },
+    {
+      "expiration": 26,
+      "type": "At the same time",
+      "enabled": true,
+      "number": "201"
+    },
+    {
+      "expiration": 27,
+      "type": "If no response",
+      "enabled": true,
+      "number": "202"
+    },
+    {
+      "expiration": 28,
+      "type": "At the same time",
+      "enabled": true,
+      "number": "203"
+    },
+    {
+      "expiration": 29,
+      "type": "If no response",
+      "enabled": true,
+      "number": "204"
+    }
+  ],
+  "withVoicemail": false
+}}

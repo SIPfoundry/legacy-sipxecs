@@ -1,0 +1,42 @@
+<?xml version="1.0" standalone="yes" ?>
+<!--
+  - Template for registration.xml, for unit testing.
+  -
+  - Expiration time values in this template file are offsets rather than absolute times.
+  - The unit test time-shifts the time values by adding the current time, to yield a
+  - valid registration.xml file.
+  -->
+<items type="registration">
+  <item>
+    <callid>01@origin</callid>         <!-- call id of the registration dialog -->
+    <cseq>201</cseq>                   <!-- cseq number of the registration -->
+    <uri>sip:user1@example.com</uri>   <!-- Target URI (address) -->
+    <contact>&lt;sip:line-01@192.168.1.101&gt;</contact>    <!-- contact -->
+    <qvalue></qvalue>                  <!-- q value used as priority -->
+    <expires>3600</expires>            <!-- expiration time (unix epoch time) -->
+    <primary>R1</primary>              <!-- primary registrar for this registration -->
+    <update_number>1</update_number>   <!-- database update number -->
+  </item>
+
+  <item>
+    <callid>02@origin</callid>         <!-- call id of the registration dialog -->
+    <cseq>202</cseq>                   <!-- cseq number of the registration -->
+    <uri>sip:user1@example.com</uri>   <!-- Target URI (address) -->
+    <contact>&lt;sip:line-02@192.168.1.102&gt;</contact>    <!-- contact -->
+    <qvalue></qvalue>                  <!-- q value used as priority -->
+    <expires>3600</expires>            <!-- expiration time (unix epoch time) -->
+    <primary>R1</primary>              <!-- primary registrar for this registration -->
+    <update_number>2</update_number>   <!-- database update number -->
+  </item>
+
+  <item>
+    <callid>03@origin</callid>         <!-- call id of the registration dialog -->
+    <cseq>203</cseq>                   <!-- cseq number of the registration -->
+    <uri>sip:user2@example.com</uri>   <!-- Target URI (address) -->
+    <contact>&lt;sip:line-03@192.168.1.103&gt;</contact>    <!-- contact -->
+    <qvalue></qvalue>                  <!-- q value used as priority -->
+    <expires>3600</expires>            <!-- expiration time (unix epoch time) -->
+    <primary>R2</primary>              <!-- primary registrar for this registration -->
+    <update_number>3</update_number>   <!-- database update number -->
+  </item>
+</items>

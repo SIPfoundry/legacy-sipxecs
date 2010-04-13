@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" version="2.4">
+
+  <display-name>sipXconfig-web</display-name>
+  <!--
+    - Location of the XML file that defines the root application context
+    - Applied by ContextLoaderListener.
+  -->
+  <context-param>
+    <param-name>contextConfigLocation</param-name>
+    <param-value>
+      classpath:/org/sipfoundry/sipxconfig/system.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/acd/acd.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/admin.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/alarm/alarm.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/dialplan/dialplan.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/dialplan/sbc/sbc.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/localization/localization.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/callgroup/callgroup.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/certificates.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/configdiag/configdiag.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/parkorbit/parkorbit.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/intercom/intercom.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/mail/mail.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/monitoring/monitoring.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/alias/alias.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/time/timemanager.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/admin/tls/tls.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/bulk/bulk.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/bulk/csv/csv.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/bulk/ldap/ldap.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/cdr/cdr.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/conference/conference.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/common/common.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/device/device.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/domain/domain.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/jasperreports/reporting.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/job/job.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/gateway/itspTemplates.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/login/login.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/paging/paging.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/permission/permission.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/phone/phone.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/phonebook/phonebook.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/presence/presence.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/rest/rest.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/security/security.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/setting/setting.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/sip/sip.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/site/tapestry.xml
+      classpath:/org/sipfoundry/sipxconfig/speeddial/speeddial.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/search/search.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/service/bundle.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/service/service.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/upload/upload.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/vm/vm.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/branch/branch.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/moh/moh.beans.xml
+      classpath*:/sipxplugin.beans.xml
+      classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml
+      classpath*:/dialplan/*.dialrules.beans.xml
+      classpath*:/region_*/dialrules.beans.xml
+    </param-value>
+  </context-param>
+
+  <!--
+    - When users go to the root URL, redirect them to the web app.
+    - See http://jakarta.apache.org/tapestry/UsersGuide/configuration.html .
+  -->
+  <filter>
+    <filter-name>redirect</filter-name>
+    <filter-class>org.apache.tapestry.RedirectFilter</filter-class>
+  </filter>
+  <filter-mapping>
+    <filter-name>redirect</filter-name>
+    <url-pattern>/</url-pattern>
+  </filter-mapping>
+
+  <!--
+    - Configure Acegi Security filters.  Use FilterChainProxy to avoid cluttering up
+    - web.xml with lots of filters.
+    - See http://acegisecurity.org/docbook/acegi.html#filters .
+  -->
+  <filter>
+    <filter-name>Acegi Filter Chain Proxy</filter-name>
+    <filter-class>org.acegisecurity.util.FilterToBeanProxy</filter-class>
+    <init-param>
+      <param-name>targetClass</param-name>
+      <param-value>org.acegisecurity.util.FilterChainProxy</param-value>
+    </init-param>
+  </filter>
+
+  <!--
+    - For now, secure only the web services URLs via Acegi.
+    - Web app URLs are secured via the Tapestry Border component.
+  -->
+  <filter-mapping>
+    <filter-name>Acegi Filter Chain Proxy</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+
+  <!--
+    - Loads the root application context of this web app at startup.
+    - The application context is then available via
+    - WebApplicationContextUtils.getWebApplicationContext(servletContext).
+  -->
+  <listener>
+    <listener-class>org.sipfoundry.sipxconfig.site.ContextLoaderListener</listener-class>
+  </listener>
+
+  <!-- START AXIS -->
+  <listener>
+    <listener-class>org.apache.axis.transport.http.AxisHTTPSessionListener</listener-class>
+  </listener>
+  <!-- END AXIS -->
+
+  <servlet>
+    <servlet-name>skin</servlet-name>
+    <servlet-class>org.sipfoundry.sipxconfig.site.skin.SkinServlet</servlet-class>
+  </servlet>
+
+  <!-- START AXIS -->
+  <servlet>
+    <servlet-name>services</servlet-name>
+    <servlet-class>com.workingmouse.webservice.axis.SpringAxisServlet</servlet-class>
+  </servlet>
+  <servlet>
+    <servlet-name>AdminServlet</servlet-name>
+    <servlet-class>org.apache.axis.transport.http.AdminServlet</servlet-class>
+    <load-on-startup>100</load-on-startup>
+  </servlet>
+  <!-- END AXIS -->
+
+  <servlet>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <servlet-class>org.apache.tapestry.ApplicationServlet</servlet-class>
+    <load-on-startup>1</load-on-startup>
+  </servlet>
+
+  <servlet>
+    <servlet-name>rest</servlet-name>
+    <servlet-class>org.sipfoundry.sipxconfig.rest.RestSpringAdapterServlet</servlet-class>
+  </servlet>
+
+  <!-- image servlet provided under jasper libraries -->
+  <servlet>
+	<servlet-name>ImageServlet</servlet-name>
+    <servlet-class>net.sf.jasperreports.j2ee.servlets.ImageServlet</servlet-class>
+  </servlet>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>/app</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>/initial-config/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>/mailbox/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.html</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.external</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.direct</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.sdirect</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>/assets/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>sipXconfig-web</servlet-name>
+    <url-pattern>*.svc</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>skin</servlet-name>
+    <url-pattern>/skin/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+    <servlet-name>rest</servlet-name>
+    <url-pattern>/rest/*</url-pattern>
+  </servlet-mapping>
+
+  <servlet-mapping>
+	<servlet-name>ImageServlet</servlet-name>
+    <url-pattern>/image</url-pattern>
+  </servlet-mapping>
+
+  <!-- START AXIS -->
+  <servlet-mapping>
+    <servlet-name>AdminServlet</servlet-name>
+    <url-pattern>/servlet/AdminServlet</url-pattern>
+  </servlet-mapping>
+  <servlet-mapping>
+    <servlet-name>services</servlet-name>
+    <url-pattern>/services/*</url-pattern>
+  </servlet-mapping>
+  <!-- END AXIS -->
+
+  <!-- Explicitly set session timeout to 15 minutes -->
+  <!-- This value gets adjusted in LoginPage when user/admin logs in -->
+  <session-config>
+    <session-timeout>15</session-timeout>
+  </session-config>
+
+  <!-- START AXIS -->
+  <mime-mapping>
+    <extension>wsdl</extension>
+    <mime-type>text/xml</mime-type>
+  </mime-mapping>
+  <mime-mapping>
+    <extension>xsd</extension>
+    <mime-type>text/xml</mime-type>
+  </mime-mapping>
+  <!-- END AXIS -->
+
+</web-app>

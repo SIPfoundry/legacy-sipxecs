@@ -1,0 +1,247 @@
+<?xml version="1.0"?>
+
+<project name="sipxbridge" default="jar" basedir=".">
+<description>
+      Build file
+</description>
+
+
+	<!--
+
+
+	  Command                   Description
+	  ================================================================
+        ant            compile   compile
+	ant            cleanlogs clean the logs
+	ant 	       clean     clean the classes,javadocs and logs
+	ant            sibxbridge  run the sipxbridge with default args.
+	-->
+
+
+
+
+  	<import file="ant-targets.xml"/>
+  	<property name="dist.dir" value="${top.build.dir}/dist" />
+  	<property name="test.results.dir" value="${build.dir}/test-results" />
+  	<property name="test.classes.dir" value="${build.dir}/tests"/>
+	<property name="src" location="${src.dir}/src/main/java;${src.dir}/src/test/java" />
+	<property name="classes" location="${classes.dir}" />
+	<property name="doc" location="${src.dir}/doc" />
+	<property name="lib" location="${src.dir}/lib" />
+	<property name="tools" location="${src.dir}/tools" />
+	<property name="junit.reports" value="${src.dir}/junit" />
+	<property name='j2se_api' value='http://java.sun.com/j2se/1.5/docs/api' />
+
+<!-- The libraries -->
+	<path id="test.path">
+		<pathelement location="${classes}" />
+		<pathelement location="${sipxcommons}" />
+		<pathelement location="${log4j}" />
+		<pathelement location="${jainsip}" />
+		<pathelement location="${junit}" />
+		<pathelement location="${sipunit}" />
+		<pathelement location="${servlet-jar}" />
+		<pathelement location="${jetty-jar}" />
+		<pathelement location="${dnsjava}" />
+		<pathelement location="${stun4j}" />
+		<pathelement location="${commons-logging-api}" />
+		<pathelement location="${commons-logging}" />
+		<pathelement location="${commons-digester}" />
+		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-codec}" />
+		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${sipxrelay-jar}" />
+		<pathelement location="${xml-rpc-common}" />
+		<pathelement location="${xml-rpc-server}" />
+		<pathelement location="${xml-rpc-client}" />
+		<pathelement location="${ws-commons-util}" />
+	</path>
+
+	<path id="base.path">
+		<pathelement location="${classes}" />
+		<pathelement location="${sipxcommons}" />
+		<pathelement location="${log4j}" />
+		<pathelement location="${jainsip}" />
+		<pathelement location="${servlet-jar}" />
+		<pathelement location="${jetty-jar}" />
+		<pathelement location="${dnsjava}" />
+		<pathelement location="${stun4j}" />
+		<pathelement location="${commons-logging-api}" />
+		<pathelement location="${commons-logging}" />
+		<pathelement location="${commons-digester}" />
+		<pathelement location="${commons-collections}" />
+		<pathelement location="${commons-codec}" />
+		<pathelement location="${commons-beanutils}" />
+		<pathelement location="${sipxrelay-jar}" />
+		<pathelement location="${xml-rpc-common}" />
+		<pathelement location="${xml-rpc-server}" />
+		<pathelement location="${xml-rpc-client}" />
+		<pathelement location="${ws-commons-util}" />
+	</path>
+
+  	<!--
+    	- I N I T
+    	- Create output directories.
+    	-->
+  	<target name="init" unless="subdirs"
+    		description="[internal] create standard output directories">
+
+    		<echo>entering ${ant.project.name}</echo>
+    		<mkdir dir="${classes.dir}" />
+    		<mkdir dir="${dist.dir}" />
+    		<mkdir dir="${test.results.dir}"/>
+    		<mkdir dir="${test.classes.dir}"/>
+  	</target>
+
+	 <target name="version.properties"
+    			description="[internal] Generats a properies file w/versioning info">
+
+    		<propertyfile file="${version.file}" comment="xpressa build" >
+        		<entry  key="version"       value="${xpressa.version}" />
+        		<entry  key="buildNumber"   value="${xpressa.build.number}" />
+        		<entry  key="built"         value="now"
+                		type="date"         pattern="MMM dd yyyy HH:mm:ss" />
+       			<entry  key="optionalComment"  value="${xpressa.build.comment}" />
+    		</propertyfile>
+  	</target>
+
+
+<!-- Compile the soruce code -->
+
+	<target name="compile.test"  description="compile the source and tests ">
+		<!-- Compile the java code from ${src} into ${classes} -->
+		<echo>test path ${test.path}</echo>
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src}"
+			destdir="${classes}"
+			debug="${javac.debug}"
+			optimize= "${javac.optimize}"
+			debuglevel = "${javac.debuglevel}"
+		 	classpathref="test.path" deprecation="off" />
+			<assertions>
+				<enable />
+			</assertions>
+	</target>
+
+	<target name="compile-exclude-tests"  description="compile the source no tests">
+		<!-- Compile the java code from ${src} into ${classes} -->
+		<mkdir dir="${classes}" />
+		<javac srcdir="${src.dir}/src/main/java"
+			destdir="${classes}"
+			debug="${javac.debug}"
+			optimize= "${javac.optimize}"
+			debuglevel = "${javac.debuglevel}"
+		 	classpathref="base.path" deprecation="off" />
+			<assertions>
+				<enable />
+			</assertions>
+	</target>
+
+<!-- BUILD a Jar file -->
+	<target name="jar" depends="compile-exclude-tests" description="create a jar file" >
+		<mkdir dir="${build.dir}/dist" />
+		<copy file="${build.dir}/config.properties" todir="${classes}" />
+		<jar jarfile="${build.dir}/dist/sipXbridge.jar">
+			<fileset dir="${classes}" >
+				<include name="**/*.class" />
+				<include name="config.properties" />
+			</fileset>
+		</jar>
+	</target>
+
+     <target name="install">
+    	<mkdir dir="${dest.dir}${sipxbridge.dir}"/>
+    	<copy file="${build.dir}/dist/sipXbridge.jar" todir="${dest.dir}${sipxbridge.dir}"/>
+    </target>
+
+    <target name = "javadoc" >
+		<javadoc packagenames="org.sipfoundry.sipxbridge.symmitron,org.sipfoundry.sipxbridge.xmlrpc" sourcepath="./src/main/java" destdir="design/javadoc" use="true" splitindex="true" windowtitle="SipXbridge External Interface" doctitle="SipXbridge: The Sipx ITSP Bridge" public="true" author="true" version="true" defaultexcludes="yes" additionalparam="-breakiterator">
+			<link href="${j2se_api}" />
+			<header>
+				<![CDATA[
+					<b> SipXbridge and SipXrelay API </b>
+				]]>
+			</header>
+		        <bottom>
+			<![CDATA[ <font size="-1">
+			<a href="www.sipfoundry.org">  </a>
+			<br>
+				<br>
+				Copyright(c) Nortel Networks. Released under the GNU LGPL license.
+				<br>
+				</font>
+			]]>
+		        </bottom>
+		</javadoc>
+	</target>
+<!-- unit tests  -->
+
+<target name="mkreportdir">
+<!-- mkdir dir="${junit.reports}" / -->
+</target>
+
+<target name='invalidAccountTest' depends="compile,mkreportdir" description="unit tests">
+	<copy file="config.properties.test" toFile="${classes}/config.properties" />
+	<copy file="config.properties.test" toFile="config.properties" />
+
+	<!-- Test for behavior when you try to access an invalid account -->
+	<junit fork="yes" showoutput="yes">
+		<classpath refid="test.path" />
+		<!-- jvmarg value="-Dlog4j.configuration=log4j.properties" / -->
+		<jvmarg value="-Dbuild.dir=./" />
+		<formatter type="xml" />
+		<test name="org.sipfoundry.sipxbridge.InvalidAccountTest" todir="${junit.reports}" />
+	</junit>
+</target>
+
+
+<!-- clean the log files -->
+
+<target name="cleanlogs" >
+	<delete failonerror="false">
+	  <fileset dir="/var/log/sipxpbx" includes="**/*" />
+	</delete>
+</target>
+
+<!-- Delete existing directories to ensure removal of old classes -->
+<target name="clean" description="clean up previous build" >
+	<delete dir="${classes}" />
+	<delete dir="${doc}/javadoc" />
+</target>
+
+<!-- Start sipxBridge  for experimental purposes only. WARNING cleans logs  -->
+<target name="sipxbridge" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
+     <java fork="yes" classname="org.sipfoundry.sipxbridge.Gateway">
+     	   <arg value="-initOnStartup"/>
+           <classpath>
+		  <pathelement location="${classes}" />
+                  <fileset dir="./lib">
+                         <include name="**/*.jar" />
+                  </fileset>
+           </classpath>
+           <jvmarg value="-Djavax.net.ssl.trustStore=testdata/keystore/testkeys"/>
+           <jvmarg value="-Djavax.net.ssl.keyStore=testdata/keystore/testkeys"/>
+           <jvmarg value="-Djavax.net.ssl.keyStorePassword=passphrase"/>
+
+     </java>
+</target>
+
+
+
+<!-- These targets are for testing only -->
+
+<target name="test2" description="Start sipXbridge" depends="clean,cleanlogs,compile" >
+     <java fork="yes" classname="org.sipfoundry.sipxbridge.Gateway">
+     	   <arg value="-initOnStartup"/>
+	   <arg value="-config" />
+	   <arg value="file:///etc/sipxpbx/sipxbridge-test2.xml" />
+           <classpath>
+		  <pathelement location="${classes}" />
+                  <fileset dir="lib">
+                         <include name="**/*.jar" />
+                  </fileset>
+           </classpath>
+     </java>
+</target>
+
+</project>

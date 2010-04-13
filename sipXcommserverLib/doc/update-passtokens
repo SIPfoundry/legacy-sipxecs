@@ -1,0 +1,71 @@
+#!/usr/bin/perl
+
+# Read through a credential.xml file, updating the passtokens.
+
+# Usage:	update-passtokens old-credential.xml new-credential.xml
+#
+# Prompts for the passwords for the items in the order they are seen.
+# Requires that old-credential.xml is in standard form, viz.,
+# each data item is on a separate line, realm and userid items precede
+# the passtoken item, </item>s are on a separate line.
+#
+# Requires that "md5sum" be installed.
+use Digest::MD5 qw(md5_hex);
+
+$input = $ARGV[0];
+$output = $ARGV[1];
+
+die "\nUsage:\n\n    update-passtokens <input-credentials-file> <output-credentials-file>\n"
+    unless ( $input && $output );
+
+open(IN, $input) || die "Error opening '$input' for input: $!\n";
+open(OUT, ">$output") || die "Error opening '$input' for output: $!\n";
+
+$realm = '';
+$userid = '';
+$password = '';
+
+while (<IN>) 
+{
+    if (m%</item>%) 
+    {
+        # Clear the recorded realm and userid.
+        $realm = '';
+        $userid = '';
+    }
+    elsif (m%<realm>(.*)</realm>%) 
+    {
+        # Remember the realm for this entry.
+        $realm = $1;
+    }
+    elsif (m%<userid>(.*)</userid>%) 
+    {
+        # Remember the userid for this entry.
+        $userid = $1;
+    }
+    elsif (m%<(p(ass|in)token)>[^<]*</\1>%) 
+    {
+        $element = $1;
+        # Recalculate the token for this entry.
+        # Check that we have a realm and userid.
+        die "Null realm ('$realm') or userid ('$userid') at line $.\n"
+            if ($realm eq '' || $userid eq '');
+
+        # Get the password.
+        $Label = $element eq 'passtoken' ? 'SIP' : 'Web/TUI';
+        printf "$Label Password for $userid in $realm (default '$password'): ";
+        chomp($x = <STDIN>);
+        $password = $x || $password;
+        die "Empty password is not allowed.\n"
+            if ($password eq ''); 
+
+        # Calculate the new passtoken.
+        $x = &md5_hex("$userid:$realm:$password");
+        # Substitute it in the file.
+        s%<$element>[^<]*</$element>%<$element>$x</$element>%;
+    }
+
+    # Write the (possibly modified) line.
+    print OUT $_;
+}
+

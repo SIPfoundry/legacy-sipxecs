@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="credential">
+    <label>Credentials</label>
+    <setting name="userId">
+      <label>User ID</label>
+      <value/>
+    </setting>
+    <setting name="displayName" advanced="yes">
+      <label>Display Name</label>
+      <value/>
+    </setting>
+    <setting name="password" advanced="yes">
+      <label>Password</label>
+      <type>
+        <string password="yes"/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="authorizationRealm">
+      <label>Authorization Realm</label>
+      <value/>
+    </setting>
+    <setting name="domainName">
+      <label>Domain Name</label>
+      <value/>
+    </setting>
+  </group>
+  <group name="server">
+    <label>Server</label>
+    <setting name="registrationServer">
+			<label>Registration Server</label>
+      <value/>
+    </setting>    
+    <setting name="registrationServerPort">
+			<label>Registration Server Port</label>
+      <type>
+        <integer/>
+      </type>
+      <value/>
+    </setting>    
+    <setting name="voiceMail">
+			<label>Voice Mail</label>
+      <value/>
+    </setting>    
+  </group>
+</model>

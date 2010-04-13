@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:annotation>
+	<xs:documentation xml:lang="en">
+	   The schema for sipxrest - the sipx restlet container for UserAent + 
+	   HTTP patterned services that are triggered by HTTP. This configures
+	   the container. There is a per-service configuration file.
+	</xs:documentation>
+    </xs:annotation>
+    <xs:element name="sipxrest-config" type="RestServerConfig" />
+    <xs:complexType name="RestServerConfig">
+      <xs:sequence>
+        	<xs:element name="https-port" type="xs:int" maxoccurs="1" minoccurs="1" default="6666">
+    		<xs:annotation>
+    			<xs:documentation>
+    				The HTTPS port for access to this container.
+    			</xs:documentation>
+    		</xs:annotation></xs:element>
+
+        	<xs:element name="external-http-port" type="xs:int" maxoccurs="1" minoccurs="1" default="6667" >
+    		<xs:annotation>
+    			<xs:documentation>
+    				The HTTP port for external access to this container.
+    			</xs:documentation>
+    		</xs:annotation></xs:element>
+
+       		 <xs:element name="sip-port" type="xs:int" maxoccurs="1" minoccurs="1" default="6050" >
+    		<xs:annotation>
+    			<xs:documentation>
+    				The port where SIP services run.
+    			</xs:documentation>
+    		</xs:annotation></xs:element>
+
+        	<xs:element name="sipx-proxy-domain" type="xs:string">
+    		<xs:annotation>
+    				<xs:documentation>The sipx proxy domain.</xs:documentation>
+    		</xs:annotation></xs:element>
+
+        	<xs:element name="log-level" type="xs:string">
+    		<xs:annotation>
+    			<xs:documentation>The logging level.</xs:documentation>
+    		</xs:annotation></xs:element>
+
+        	<xs:element name="log-directory" type="xs:string">
+    		<xs:annotation>
+    			<xs:documentation> Where to write the logs.  </xs:documentation>
+    		</xs:annotation></xs:element>
+      </xs:sequence>
+    </xs:complexType>
+</xs:schema>

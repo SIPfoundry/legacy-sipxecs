@@ -1,0 +1,62 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="@PageLink" page="dialplan/EditFlexibleDialPlan" id="link:dialPlans">
+          <span key="link.dialPlans">Dial Plans</span>
+        </a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="admin/JobStatusPage" id="link:jobStatus">
+          <span key="link.jobStatus">Job Status</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div jwcid="@common/QuickHelp" value="message:help.gatewayConfig">gateway config help text here...</div>
+  <span jwcid="@common/ErrorMsg"/>
+  <div jwcid="@If" condition="ognl:generateProfileIds != null" renderTag="ognl:false">
+    <span jwcid="@device/ConfirmProfileGeneration"
+        validator="bean:validator"
+        profileManager="ognl:profileManager"
+        deviceIds="ognl:generateProfileIds"/>
+  </div>
+  <div jwcid="@Else" renderTag="ognl:false">
+    <form jwcid="gatewaysListForm@Form" id="list:gateway:form"
+      delegate="bean:validator"
+      listener="listener:formSubmit">
+      <ul class="component-links">
+        <li>
+          <span jwcid="selectGatewayModel@PropertySelection"
+            model="ognl:gatewaySelectionModel"
+            value="ognl:gatewayModel"
+            onchange="javascript:this.form.submit();"/>
+        </li>
+      </ul>
+      <fieldset jwcid="gatewayTable" gatewayCollection="ognl:gatewayContext.gateways" />
+      <ul class="component-submit">
+        <li>
+          <input jwcid="propagateButton@Submit" id="list:gateway:propagate"
+            action="listener:propagate"
+            value="message:button.propagate"/>
+        </li>
+        <li>
+          <input jwcid="propagateAllButton@Submit" id="list:gateway:propagateAll"
+            action="listener:propagateAll"
+            value="message:button.propagateAll"/>
+        </li>
+        <li>
+          <input jwcid="restart@Submit" id="list:gateway:restart"
+            action="listener:restart"
+            value="message:button.restart"/>
+        </li>
+        <li>
+          <input jwcid="deleteButton@Submit" id="list:gateway:delete"
+            action="listener:delete"
+            value="message:button.delete"/>
+          <span jwcid="@common/Confirm" component="component:deleteButton" prompt="message:confirm.delete"/>
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name='VOIP'>
+    <setting name='proxy_address'>
+      <value>10.1.1.250</value>
+    </setting>
+    <setting name='proxy_port' advanced="yes">
+      <value>5060</value>
+    </setting>
+    <setting name='displayname' />
+    <setting name='name' />
+    <setting name='authname' hidden="yes" />
+    <setting name='password' advanced="yes" />
+    <setting name='type'>
+      <type>
+        <enum>
+          <option>
+            <value>private</value>
+          </option>
+          <option>
+            <value>shared</value>
+          </option>
+          <option>
+            <value>dss</value>
+          </option>
+        </enum>
+      </type>
+      <value>private</value>
+    </setting>
+    <setting name='extension' />
+    <setting name='bla_prim' advanced="yes">
+      <type>
+        <string maxLen="50" />
+      </type>
+      <value></value>
+    </setting>
+    <setting name='acd_activity' advanced="yes">
+      <value></value>
+    </setting>
+    <setting name='acdgroupid' advanced="yes">
+      <value></value>
+    </setting>
+  </group>
+</model>

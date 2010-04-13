@@ -1,0 +1,46 @@
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="@DirectLink" id="link.ca" listener="listener:certificateAuthorities">
+          <span key="label.ca">Certificate Authorities</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="form@Form">
+    <fieldset>
+      <ul class="component-links">
+        <li>
+          <a jwcid="addTlsPeerLink@DirectLink" id="peer:add"
+            listener="listener:addTlsPeer">
+            <span key="add">Add Trusted Peer</span>
+          </a>
+        </li>
+      </ul>
+    </fieldset>
+    <table jwcid="@common/Table" id="tlspeer:list"
+      columns="* name"
+      source="ognl:tlsPeersModel"
+      row="ognl:currentRow"
+      selections="bean:selections">
+      <span jwcid="nameColumnValue@Block">
+        <span jwcid="editPeerLink@DirectLink"
+            listener="listener:editTlsPeer" parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="ognl:currentRow.name"/>
+        </span>
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="delete@Submit"
+          id="tlsPeers:delete"
+          action="listener:deleteTlsPeers"
+          value="message:button.delete" />
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+  </form>
+</div>

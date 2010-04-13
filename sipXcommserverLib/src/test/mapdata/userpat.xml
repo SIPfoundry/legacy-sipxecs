@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+  <hostMatch>
+    <hostPattern>thisdomain</hostPattern>
+    <userMatch>
+      <userPattern>xxxxUSER</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:NEW{vdigits}@LEFTDOMAIN</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>USERxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:OLD{vdigits}@RIGHTDOMAIN</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>UPPERxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:NEW{vdigits}@UPPERDOMAIN</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

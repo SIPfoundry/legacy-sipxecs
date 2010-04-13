@@ -1,0 +1,34 @@
+<?xml version="1.0"  encoding="utf-8" ?>
+<!-- Disclaimer: pardon my French, this is just a test of the mechanism! -->
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+   <settings>
+      <actions>
+         <email>
+            <email-subject>Alarme {0}</email-subject>
+            <email-intro>Message de {0}</email-intro>
+            <email-alarm>Alarme: {0}</email-alarm>
+            <email-time>Reportée à: {0}</email-time>
+            <email-host>Reportée à: {0}</email-host>
+            <email-severity>Severité: {0}</email-severity>
+            <email-description>Texte d'alarme: {0}</email-description>
+            <email-resolution>Résolution suggestée: {0}</email-resolution>
+            <email-from>Service de notification des alarmes de {0}</email-from>
+         </email>
+      </actions>
+   </settings>
+   <definitions>
+      <alarm id="TEST_LOG">
+         <description>C'est une épreuve de la système alarme.  La seule parameter devrait être ici: {0},
+            et c'est tout.</description>
+         <resolution>C'est aussi une épreuve de l'insertion des parametres, des accents, et des virgules.</resolution>
+      </alarm>
+      <alarm id="PARAMETER_SUBSTITUTION">
+         <description>La deuxième parametre est {1}, puis parametre {0}</description>
+         <resolution>Check for bugs in assembleMsg!</resolution>
+      </alarm>
+      <alarm id="SPECIAL_CHARACTERS">
+         <description>Print special characters such as &lt;, &gt;, and &amp; properly.</description>
+         <resolution>Text must be escaped in the strings file, and unescaped before sending notifications.</resolution>
+      </alarm>
+   </definitions>
+</alarm_server>

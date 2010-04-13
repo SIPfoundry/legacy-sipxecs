@@ -1,0 +1,119 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!DOCTYPE schema [
+<!ENTITY % sip_word "([&lt;&gt;&quot;a-zA-Z0-9.!&#x25;*_+`'~():\/[&#x5d;?{}-]+)">
+<!ENTITY % sip_token "([a-zA-Z0-9.!&#x25;*_+`'~-]+)">
+]>
+<!--
+    XML Schema for sipX Call Detail Records
+  -->
+<schema
+    xmlns:cdr='http://www.sipfoundry.org/sipX/schema/xml/cdr-01-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/cdr-01-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+  <annotation>
+    <documentation>
+      sipX Call Detail Records
+    </documentation>
+    <documentation source='http://scm.sipfoundry.org/rep/sipXproxy/main/doc/call-detail-records.html'/>
+  </annotation>
+
+<!-- Types -->
+
+  <simpleType name="sip_tofrom_value">
+    <annotation>
+      <documentation>
+      The values allowed in the SIP To or From header fields.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString"/>
+  </simpleType>
+
+  <complexType name='party'>
+    <sequence>
+      <element ref='cdr:uri'     type='cdr:sip_tofrom_value'/>
+      <element ref='cdr:endpoint' type='normalizedString'/>
+      <element ref='cdr:contact' type='cdr:sip_tofrom_value' minOccurs='0'/>
+    </sequence>
+  </complexType>
+
+  <simpleType name="call_result">
+    <annotation>
+      <documentation>
+        Final result of an attempted call.
+        These values are adapted from those specified by:
+           Network Data Management Usage (NDM-U)
+           For IP-Based Services Service Specification
+           Voice over IP (VoIP)
+           Version 3.1-A.0.2
+           August 21, 2002
+           © 1999-2002 IPDR, Inc.
+      </documentation>
+    </annotation>
+    <restriction base="normalizedString">
+      <enumeration value="CC">
+        <annotation>
+          <documentation>
+            Call completed normally.
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="CAD">
+        <annotation>
+          <documentation>
+            Abnormal disconnect
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="UC">
+        <annotation>
+          <documentation>
+            Unconnected.
+            The IPDR.org specification makes the distinction between
+              UCN - network failure
+              UCI - invalid address
+            This specification folds both of these into this status.
+          </documentation>
+        </annotation>
+      </enumeration>
+      <enumeration value="CIP">
+        <annotation>
+          <documentation>
+            Call In Progress.
+          </documentation>
+        </annotation>
+      </enumeration>
+    </restriction>
+  </simpleType>
+
+
+<!-- Elements -->
+
+  <element name='calls'>
+    <complexType>
+      <sequence>
+        <element ref='cdr:call_detail' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='call'>
+    <annotation>
+      <documentation>
+      A single call element is generated for each attempted call.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element name='caller' type='cdr:party'/>
+        <element name='called' type='cdr:party'/>
+        <element name='completionCode' type='cdr:call_result'/>
+        <element name='start' type='dateTime'/>
+        <element name='setup' type='dateTime' minOccurs='0'/>
+        <element name='end'   type='dateTime' minOccurs='0'/>
+      </sequence>
+    </complexType>
+  </element>
+
+</schema>

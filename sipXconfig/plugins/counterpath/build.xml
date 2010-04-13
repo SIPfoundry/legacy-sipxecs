@@ -1,0 +1,8 @@
+<project name="counterpath" default="default">
+
+	<property name="project.dir" value="plugins/counterpath" />
+	<property name="plugin.models.dir" value="etc/counterpath" />
+	<property name="plugin.name" value="counterpath-phones" />
+
+	<import file="../plugins.build.xml" />
+</project>

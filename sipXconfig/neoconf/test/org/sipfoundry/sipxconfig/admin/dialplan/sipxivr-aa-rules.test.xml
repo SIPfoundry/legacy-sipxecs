@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mappings xmlns="http://www.sipfoundry.org/sipX/schema/xml/urlmap-00-00">
+  <hostMatch>
+    <hostPattern>example.org</hostPattern>
+    <hostPattern>${MY_FULL_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_HOSTNAME}</hostPattern>
+    <hostPattern>${MY_IP_ADDR}</hostPattern>
+    <userMatch>
+      <!--abc-->
+      <callTag>AA</callTag>
+      <userPattern>100</userPattern>
+      <userPattern>0</userPattern>
+      <userPattern>operator</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:IVR@192.168.1.1:15060;action=autoattendant;schedule_id=aa_-1;locale=en_US&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

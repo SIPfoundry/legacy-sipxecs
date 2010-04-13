@@ -1,0 +1,200 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="switch">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="itsp-account">
+    <label>ITSP Account</label>
+      <description>
+	    To connect to a Nortel CS1000 the following template should be used. For the latest
+		interoperability information &lt;a href="http://www.sipsw.com/cs1000/" target="_blank"&gt;Click Here&lt;/a&gt;.
+	  </description>
+    <setting name="itsp-proxy-domain" hidden="yes">
+      <label>ITSP server domain name</label>
+      <description>
+        The CS1000 service domain.
+      </description>
+    </setting>
+    <setting name="sipxecs-lineids" hidden="yes">
+      <label>Line ID</label>
+      <type>
+       <string />
+     </type>
+     <description>The reference unique gateway ID</description>
+     </setting>
+    <setting name="user-name" advanced="yes">
+      <label>User name</label>
+      <type>
+        <string />
+      </type>
+      <description>The authentication user name attached to the account.</description>
+    </setting>
+    <setting name="password" advanced="yes">
+      <label>Password</label>
+      <type>
+        <string password="yes"></string>
+      </type>
+      <description>The password for the account.</description>
+    </setting>
+    <setting name="register-on-initialization" advanced="yes">
+      <label>Register on initialization</label>
+      <type refid="switch"></type>
+      <value>false</value>
+      <description>Defines whether or not to register with the given ITSP on initialization.</description>
+    </setting>
+    <setting name="itsp-proxy-address">
+      <label>ITSP server address</label>
+      <description>
+        This is only needed if DNS is not resolving properly in the network. If required this would be the IP address
+		of the CS1000 SPS.
+      </description>
+    </setting>
+    <setting name="itsp-proxy-listening-port" hidden="yes">
+      <!--  set automatically from SipTrunk.getAddressPort -->
+      <type>
+        <integer />
+      </type>
+    </setting>
+    <setting name="itsp-transport" hidden="yes">
+      <!--  set automatically from SipTrunk.getAddressTransport -->
+    </setting>
+    <setting name="use-global-addressing" advanced="yes">
+      <label>Use public address for call setup</label>
+      <type refid="switch" />
+      <value>false</value>
+      <description>
+	If checked (default), use the sipXbridge public address for
+	SIP signaling and SipXRelay public address for SDP (media
+	description).  Otherwise, the local (LAN) address will be used.
+	Using the local address assumes that the ITSP provides NAT
+	traversal compensation.
+      </description>
+    </setting>
+    <setting name="strip-private-headers" advanced="yes">
+      <label>Strip private headers</label>
+      <type refid="switch"></type>
+      <value>false</value>
+      <description>
+	When this flag is set sipxbridge will strip information can
+	potentially identify the calling party. Subject, Call-Info,
+	Organization, User-Agent, Reply-To, In-Reply-To and From header
+	Display Name will be stripped.
+      </description>
+    </setting>
+    <setting name="default-asserted-identity" advanced="yes">
+      <label>Use default asserted identity</label>
+      <type refid="switch"></type>
+      <value>true</value>
+      <description>
+	The asserted identity header may be used by the ITSP to determine the originating
+	party for call setup requests.
+        If checked (default), use the default asserted identity.
+        Otherwise, you must enter a username@domain to override the default.
+      </description>
+    </setting>
+    <setting name="asserted-identity" advanced="yes">
+      <label>Asserted identity</label>
+      <description>
+        Override the default asserted identity.
+      </description>
+    </setting>
+    <setting name="is-user-phone" advanced="yes">
+      <label>User part of INVITE SIP URI is a phone number</label>
+      <type refid="switch"></type>
+      <value>true</value>
+      <description>If true (the default), sipxbridge will attach a user=phone parameter to the call setup INVITE request URI.</description>
+    </setting>
+    <setting name="loose-route-invite" hidden="yes">
+      <label>ITSP supports "Loose Routing"</label>
+      <type refid="switch"></type>
+      <value>true</value>
+      <description>Defines whether or not to attach a "loose routing (lr)" Route header to the call setup INVITE request.</description>
+    </setting>
+    <setting name="itsp-registrar-address" advanced="yes">
+      <label>ITSP Registrar Address</label>
+      <description>
+        If the ITSP specifies a registrar different from the ITSP server address
+        above, enter it here. Otherwise this setting is assumed to be identical to
+        the ITSP server address.
+      </description>
+    </setting>
+    <setting name="itsp-registrar-listening-port" advanced="yes">
+      <label>ITSP Registrar Port</label>
+      <type>
+        <integer />
+      </type>
+      <description>
+        The port where REGISTER requests are sent. Defaults to ITSP Server Port if nothing specified.
+      </description>
+    </setting>
+    <setting name="registration-interval" advanced="yes">
+      <label>Registration interval</label>
+      <type>
+        <integer />
+      </type>
+      <value>600</value>
+      <description>Registration interval (seconds)</description>
+    </setting>
+    <setting name="sip-session-timer-interval-seconds" advanced="yes">
+      <label>Session Timer Interval</label>
+      <type>
+        <integer />
+      </type>
+      <value>1800</value>
+      <description>Session Timer Interval (seconds). Time interval between in-dialog INVITE requests to keep the session alive.</description>
+    </setting>
+    <setting name="sip-keepalive-method" advanced="yes">
+      <label>Method to use for SIP keepalive.</label>
+      <type>
+        <enum>
+          <option>
+            <label>None</label>
+            <value>NONE</value>
+          </option>
+          <option>
+            <label>Empty SIP message</label>
+            <value>CR-LF</value>
+          </option>
+        </enum>
+      </type>
+      <value>CR-LF</value>
+      <description>
+        Defines the message to use for SIP keepalive. If nothing is specified, CR-LF (empty SIP message) is used.
+      </description>
+    </setting>
+    <setting name="rtp-keepalive-method" advanced="yes">
+      <label>Method to use for RTP keepalive.</label>
+      <type>
+        <enum>
+          <option>
+            <label>None</label>
+            <value>NONE</value>
+          </option>
+          <option>
+            <label>Use empty packet</label>
+            <value>USE-EMPTY-PACKET</value>
+          </option>
+          <option>
+            <label>Replay last sent packet</label>
+            <value>REPLAY-LAST-SENT-PACKET</value>
+          </option>
+          <option>
+            <label>Use dummy RTP payload</label>
+            <value>USE-DUMMY-RTP-PAYLOAD</value>
+          </option>
+        </enum>
+      </type>
+      <value>NONE</value>
+      <description>Defines the payload to use for media (RTP) keepalive. </description>
+    </setting>
+  </group>
+</model>

@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--  The default dial plan for the Netherlands  -->
+
+  <!-- properties: voiceMail, voiceMailPrefix -->
+  <bean id="nl.voicemailRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Voicemail" />
+    <property name="description" value="Standaard belplan voicemail" />
+    <property name="voiceMail" value="101" />
+    <property name="voiceMailPrefix" value="8" />
+  </bean>
+
+  <!-- properties: extension, attendantAliases -->
+  <bean id="nl.attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="Automatische telefonist" />
+    <property name="description" value="Standaard belplan automatische telefonist" />
+    <property name="extension" value="100" />
+    <property name="attendantAliases" value="operator 0" />
+  </bean>
+
+  <!-- properties: optionalPrefix, emergencyNumber -->
+  <bean id="nl.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Nood" />
+    <property name="description" value="Nood - centraal telefoonnummer" />
+    <property name="emergencyNumber" value="112" />
+  </bean>
+
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
+    longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
+  <bean id="nl.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="name" value="Lange afstand" />
+    <property name="description" value="Belplan interlokale nummers" />
+    <property name="areaCodes" value="1,2,3,4,5,7" />
+    <property name="longDistancePrefix" value="0" />
+    <property name="externalLen" value="9" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="nl.locationIndependentRule" parent="nl.longDistanceRule" singleton="false">
+    <property name="name" value="Locatie-onafhankelijk" />
+    <property name="description" value="Locatie-onafhankelijke telefoonnummers" />
+    <property name="areaCodes" value="84,87,88" />
+  </bean>
+  <bean id="nl.premiumRate" parent="nl.longDistanceRule" singleton="false">
+    <property name="name" value="Prima kwaliteit" />
+    <property name="description" value="Prima kwaliteit service" />
+    <property name="areaCodes" value="900" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="nl.adultLines" parent="nl.premiumRate" singleton="false">
+    <property name="name" value="Volwassen lijnen" />
+    <property name="description" value="Beperkt bellen - erotische telefoonnummers" />
+    <property name="areaCodes" value="906" />
+  </bean>
+  <bean id="nl.entertainment" parent="nl.premiumRate" singleton="false">
+    <property name="name" value="Entertainment" />
+    <property name="description" value="Beperkt bellen - entertainment-telefoonnummers" />
+    <property name="areaCodes" value="909" />
+  </bean>
+  <bean id="nl.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+    <property name="name" value="Gratis telefoonnummers" />
+    <property name="description" value="Gratis bellen" />
+    <property name="areaCodes" value="800" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+  <bean id="nl.infolineRule" parent="nl.longDistanceRule" singleton="false">
+    <property name="name" value="Informatie" />
+    <property name="description" value="Telefoonnummers voor informatieservice" />
+    <property name="longDistancePrefix" value="" />
+    <property name="externalLen" value="-1" />
+    <property name="areaCodes" value="18" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="nl.mobileRule" parent="nl.longDistanceRule" singleton="false">
+    <property name="name" value="Mobiele telefoons" />
+    <property name="description" value="Bellen naar mobiele nummers" />
+    <property name="areaCodes" value="6" />
+    <property name="permissionName" value="Mobile" />
+  </bean>
+  <bean id="nl.internationalRule" parent="defaultInternationalRule" singleton="false">
+    <property name="name" value="Internationaal" />
+    <property name="description" value="Bellen naar internationale nummers" />
+    <property name="longDistancePrefix" value="00" />
+    <property name="externalLen" value="-1" />
+    <property name="areaCodes" value="" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+
+  <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
+  <!-- this is the list of rules that admin will see after installation and after reverting to default -->
+  <bean id="nl.dialPlan" parent="defaultDialPlan" singleton="false">
+    <property name="rules">
+      <list>
+        <ref bean="nl.voicemailRule" />
+        <ref bean="nl.attendantRule" />
+        <ref bean="nl.emergencyRule" />
+        <ref bean="nl.longDistanceRule" />
+        <ref bean="nl.locationIndependentRule" />
+        <ref bean="nl.premiumRate" />
+        <ref bean="nl.adultLines" />
+        <ref bean="nl.entertainment" />
+        <ref bean="nl.tollFreeRule" />
+        <ref bean="nl.infolineRule" />
+        <ref bean="nl.mobileRule" />
+        <ref bean="nl.internationalRule" />
+      </list>
+    </property>
+  </bean>
+
+</beans>

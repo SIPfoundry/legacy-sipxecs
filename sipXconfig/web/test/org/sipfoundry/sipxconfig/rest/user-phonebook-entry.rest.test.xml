@@ -1,0 +1,16 @@
+<entry>
+  <first-name>name</first-name>
+  <last-name>lastName</last-name>
+  <number>200</number>
+  <contact-information>
+    <jobTitle>title</jobTitle>
+    <companyName>company</companyName>
+    <homeAddress>
+      <street>street</street>
+    </homeAddress>
+    <officeAddress>
+      <zip>1234</zip>
+    </officeAddress>
+    <avatar>https://secure.gravatar.com/avatar</avatar>
+  </contact-information>
+</entry>

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<contact-info xmlns="http://www.sipfoundry.org/sipX/schema/xml/contactinfo-00-00">
+  <user>
+    <userName>200</userName>
+    <imId>ik</imId>
+    <imDisplayName>Kovalchuk17</imDisplayName>
+    <alternateImId>ilya</alternateImId>
+    <jobTitle>Captain</jobTitle>
+    <jobDept>Forwards</jobDept>
+    <companyName>Atlanta Thrashers</companyName>
+    <assistantName>Vyacheslav Kozlov</assistantName>
+    <assistantPhoneNumber>0040721234567</assistantPhoneNumber>
+    <faxNumber>004021321654987</faxNumber>
+    <location>Field</location>
+    <homePhoneNumber>0040216534582</homePhoneNumber>
+    <cellPhoneNumber>00407219874563</cellPhoneNumber>
+    <homeAddress>
+      <street>Merrivale Road</street>
+      <city>Atlanta</city>
+      <country>USA</country>
+      <state>GA</state>
+      <zip>90210</zip>
+    </homeAddress>
+    <officeAddress>
+      <street>Kent Street</street>
+      <city>Atlanta</city>
+      <country>USA</country>
+      <state>GA</state>
+      <zip>90211</zip>
+      <officeDesignation>17</officeDesignation>
+    </officeAddress>
+    <conferences>
+      <conference>
+        <name>conf1</name>
+        <extension>111</extension>
+        <pin>1234</pin>
+      </conference>
+    </conferences>
+    <conferenceEntryIM>true</conferenceEntryIM>
+    <conferenceExitIM>false</conferenceExitIM>
+    <leaveMsgBeginIM>false</leaveMsgBeginIM>
+    <leaveMsgEndIM>false</leaveMsgEndIM>
+  </user>
+  <user>
+    <userName>201</userName>
+    <imId>201</imId>
+    <imDisplayName>201</imDisplayName>
+    <homeAddress/>
+    <officeAddress/>
+    <conferences/>
+    <conferenceEntryIM>true</conferenceEntryIM>
+    <conferenceExitIM>false</conferenceExitIM>
+    <leaveMsgBeginIM>false</leaveMsgBeginIM>
+    <leaveMsgEndIM>false</leaveMsgEndIM>
+  </user>
+  <user>
+    <userName>Jagr</userName>
+    <imId>Jagr</imId>
+    <imDisplayName>Jagr</imDisplayName>
+    <homeAddress/>
+    <officeAddress/>
+    <conferences/>
+    <conferenceEntryIM>true</conferenceEntryIM>
+    <conferenceExitIM>false</conferenceExitIM>
+    <leaveMsgBeginIM>false</leaveMsgBeginIM>
+    <leaveMsgEndIM>false</leaveMsgEndIM>
+  </user>
+</contact-info>

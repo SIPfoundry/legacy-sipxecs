@@ -1,0 +1,19 @@
+The 'extras' directory is for sipX-related resources that are useful
+enough to be kept under source control, but not tightly enough
+integrated into the deliverable packages that there is a proper place
+for them in the sipX* directories.  A "junk drawer" for sipX, if you
+will.
+
+Please add a brief description of items you enter in this directory:
+
+interop-server-config
+	Files for configuring sipX to be an interoperability testing
+	server.
+
+express_devel (dir)
+	Scripts for setting up a sipXecs development environment on
+	an i386 32-bit Fedora 8 installation. See: 
+        http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+Setup
+
+doggerel
+	poems, balladry, rhymes, verse.  Makes the Vogons sound good!

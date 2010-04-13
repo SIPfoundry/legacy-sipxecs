@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+  <channel>
+    <title>Voicemail: joeuser</title>
+    <link>https://example.com:8034/sipxconfig/rest/my/feed/voicemail/inbox</link>
+    <description>Voicemail Inbox for joeuser</description>
+    <item>
+      <title>Voice Message 00000000 from George</title>
+      <link>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000000</link>
+      <description>10 seconds received at 10:00 on 01/14/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000000" type="audio/x-wav" />
+      <pubDate>Wed, 14 Jan 1970 10:00:00 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000000</guid>
+      <dc:date>1970-01-14T10:00:00Z</dc:date>
+    </item>
+    <item>
+      <title>Voice Message 00000001 from George</title>
+      <link>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000001</link>
+      <description>11 seconds received at 10:00 on 01/15/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000001" type="audio/x-wav" />
+      <pubDate>Thu, 15 Jan 1970 10:00:01 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000001</guid>
+      <dc:date>1970-01-15T10:00:01Z</dc:date>
+    </item>
+    <item>
+      <title>Voice Message 00000002 from George</title>
+      <link>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000002</link>
+      <description>12 seconds received at 10:00 on 01/16/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000002" type="audio/x-wav" />
+      <pubDate>Fri, 16 Jan 1970 10:00:02 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000002</guid>
+      <dc:date>1970-01-16T10:00:02Z</dc:date>
+    </item>
+    <item>
+      <title>Voice Message 00000003 from George</title>
+      <link>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000003</link>
+      <description>13 seconds received at 10:00 on 01/17/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000003" type="audio/x-wav" />
+      <pubDate>Sat, 17 Jan 1970 10:00:03 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000003</guid>
+      <dc:date>1970-01-17T10:00:03Z</dc:date>
+    </item>
+    <item>
+      <title>Voice Message 00000004 from George</title>
+      <link>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000004</link>
+      <description>14 seconds received at 10:00 on 01/18/70</description>
+      <enclosure url="https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000004" type="audio/x-wav" />
+      <pubDate>Sun, 18 Jan 1970 10:00:04 GMT</pubDate>
+      <guid>https://example.com:8034/sipxconfig/rest/private/123456/voicemail/inbox/00000004</guid>
+      <dc:date>1970-01-18T10:00:04Z</dc:date>
+    </item>
+  </channel>
+</rss>

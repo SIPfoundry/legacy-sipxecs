@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.components.FlexiblePropertySelection" allow-body="no"
+  allow-informal-parameters="yes">
+  <description>Special version of property selection that allows for specifying renderer.</description>
+
+  <parameter name="value" required="yes"/>
+
+  <parameter name="model" required="yes"/>
+
+  <parameter name="disabled"/>
+
+  <!-- use standard PropertySelection if Renderer is not needed -->
+  <parameter name="renderer" required="yes"/>
+
+  <parameter name="displayName"/>
+  <parameter name="validators"/>
+
+  <parameter name="id" property="idParameter" default-value="id"/>
+
+  <reserved-parameter name="name"/>
+
+  <inject property="validatableFieldSupport" object="service:tapestry.form.ValidatableFieldSupport"/>
+
+</component-specification>

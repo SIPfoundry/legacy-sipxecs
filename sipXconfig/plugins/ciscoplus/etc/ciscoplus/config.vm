@@ -1,0 +1,199 @@
+<device>
+  <fullConfig>true</fullConfig>
+  <deviceProtocol>SIP</deviceProtocol>
+  <sshUserId>user</sshUserId>
+  <sshPassword>pass</sshPassword>
+  <devicePool>
+    <name></name>
+    <dateTimeSetting>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="dateTimeSetting")
+#foreach ($setting in $group.Values)
+      <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+      <ntps>
+        <ntp>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="ntp")
+#foreach ($setting in $group.Values)
+          <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+        </ntp>
+      </ntps>
+    </dateTimeSetting>
+    <callManagerGroup>
+      <name>5.0 Beta</name>
+      <tftpDefault>true</tftpDefault>
+      <members>
+        <member priority="0">
+          <callManager>
+            <name>ccm-beta-5-1</name>
+            <description>CallManager 5.0 Beta Pub - 5.0.1.032</description>
+            <ports>
+              <ethernetPhonePort>2000</ethernetPhonePort>
+              <sipPort>5060</sipPort>
+              <securedSipPort>5061</securedSipPort>
+              <mgcpPorts>
+                <listen>2427</listen>
+                <keepAlive>2428</keepAlive>
+              </mgcpPorts>
+            </ports>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="nodeName")
+#foreach ($setting in $group.Values)
+            <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+          </callManager>
+        </member>
+      </members>
+    </callManagerGroup>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="srstInfo")
+    <${group.Name}>
+#foreach ($setting in $group.Values)
+      <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+    </${group.Name}>
+#end
+#end
+    <mlppDomainId>-1</mlppDomainId>
+    <mlppIndicationStatus>Default</mlppIndicationStatus>
+    <preemption>Default</preemption>
+    <connectionMonitorDuration>120</connectionMonitorDuration>
+  </devicePool>
+  <sipProfile>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="sipProxies")
+    <${group.Name}>
+#foreach ($setting in $group.Values)
+      <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+    </${group.Name}>
+#end
+#end
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="sipCallFeatures")
+    <${group.Name}>
+#foreach ($setting in $group.Values)
+      <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+    </${group.Name}>
+#end
+#end
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="sipStack")
+    <${group.Name}>
+#foreach ($setting in $group.Values)
+      <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+    </${group.Name}>
+#end
+#end
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="audio")
+#foreach ($setting in $group.Values)
+    <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+    <sipLines>
+#foreach ($line in $phone.lines)
+#set ($i = $velocityCount)
+#foreach ($group in $line.Settings.Values)
+##  <${group.Name}>
+      <line button="${i}">
+#foreach ($setting in $group.Values)
+#if (${setting.ProfileName}=="autoAnswerEnabled")
+        <autoAnswer>
+          <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+        </autoAnswer>
+#else
+#if (${setting.ProfileName}=="callerName")
+        <forwardCallInfoDisplay>
+          <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+          <callerNumber>false</callerNumber>
+          <redirectedNumber>false</redirectedNumber>
+          <dialedNumber>true</dialedNumber>
+        </forwardCallInfoDisplay>
+#else
+        <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+      </line>
+#end
+#end
+    </sipLines>
+    <voipControlPort>5060</voipControlPort>
+    <dscpForAudio>184</dscpForAudio>
+    <ringSettingBusyStationPolicy>0</ringSettingBusyStationPolicy>
+    <dialTemplate>dialplan.xml</dialTemplate>
+    <softKeyFile></softKeyFile>
+  </sipProfile>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="commonProfile")
+  <${group.Name}>
+#foreach ($setting in $group.Values)
+    <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+  </${group.Name}>
+#end
+#end
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="sipLoadInfo")
+#foreach ($setting in $group.Values)
+  <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="vendorConfig")
+  <${group.Name}>
+#foreach ($setting in $group.Values)
+    <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+  </${group.Name}>
+#end
+#end
+  <versionStamp></versionStamp>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="userLocale")
+  <${group.Name}>
+#foreach ($setting in $group.Values)
+    <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+  </${group.Name}>
+#end
+#end
+  <networkLocale></networkLocale>
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="networkLocaleInfo")
+  <${group.Name}>
+#foreach ($setting in $group.Values)
+    <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+  </${group.Name}>
+#end
+#end
+#foreach ($group in $phone.Settings.Values)
+#if (${group.ProfileName}=="url")
+#foreach ($setting in $group.Values)
+  <${setting.ProfileName}>$!{setting.Value}</${setting.ProfileName}>
+#end
+#end
+#end
+  <capfList>
+    <capf>
+      <phonePort>3804</phonePort>
+      <processNodeName>ccm-beta-5-1</processNodeName>
+    </capf>
+  </capfList>
+  <certHash></certHash>
+  <encrConfig>false</encrConfig>
+</device>

@@ -1,0 +1,135 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html> <head>
+<title>sipXpbx Message Waiting Indication Interface</title>
+</head>
+
+<body>
+<h1>sipXpbx Message Waiting Indication Interface</h1>
+
+<p>Last Modified:
+<!-- hhmts start -->2004-11-30 15:46:45-0500<!-- hhmts end -->
+</p>
+<hr>
+
+<p>
+The sipXpublisher MwiPlugin provides support for the message waiting
+indication package <a href='#rfc3842'>[1]</a>; in order to do so, it
+must be integrated with the actual voice mail application.  This
+document describes how this integration is accomplished.
+</p>
+
+<p>
+There is signalling in both directions between the MwiPlugin and the
+voice mail system.  This signalling takes the form of HTTP GET
+requests and responses.
+</p>
+
+<h2>Initial Mailbox State</h2>
+
+<p>
+When a SIP UA (phone) requests a subscription to the MWI package, the
+sipstatus server authenticates the SIP SUBSCRIBE request for the MwiPlugin and checks to see
+that the identity has the required permission (by default
+"Voicemail").  If these checks pass, then the MwiPlugin requests the mailbox
+state from the voicemail application by sending an HTTP GET request to
+the voicemail system.  The URL for this request is configured in the
+<code>status-plugin.xml.in</code> file in the
+<code>voicemail-cgi-url</code> element.  Note that any variables (of the form
+&quot;<code>${</code><i>variable-name</i><code>}</code>) in this file
+will be substituted by sipXconfig.
+</p>
+
+<h3>Status Request Parameters</h3>
+
+<p>
+The GET request for mailbox state has two parameters, passed as
+conventional <i>name=value</i> pairs in the request query string:
+</p>
+<dl>
+  <dt>identity</dt>
+  <dd>The user identity whose mailbox status is requested.  This is
+      whatever the <code>identity</code> element for that user is in
+      the credentials (<i>user</i>@<i>domain</i>).
+  </dd>
+  <dt>eventtype</dt>
+  <dd>The fixed value <code>message-summary</code></dd>
+</dl>
+
+<h3>Status Response</h3>
+
+<p>
+The status response should have the HTTP Content-Type
+<code>application/simple-message-summary</code>.  The formal
+definition of that content type can be found in <a
+href='#rfc3842'>[RFC3842]</a>.
+</p>
+
+<h4><a name="lt2.6">For SIPxchange version 2.4 and earlier</a></h4>
+
+<p>
+Pingtel SIPxchange 2.4 and earlier used an earlier version of the event
+package definition, and the format of the body is slightly different.
+For those versions, the response body should be:
+</p>
+
+<pre>
+Messages-Waiting: <i>{ "</i>yes<i>" | "</i>no<i>" }</i>
+Voice-Message: <i>new</i>/<i>old</i> (<i>new-urgent</i>/<i>old-urgent</i>)
+</pre>
+
+<p>
+where <i>new</i>,<i>old</i>,<i>new-urgent</i>, and <i>old-urgent</i>
+are integer values for the number of available messages of each type.
+</p>
+
+<h2>Status Update Notices</h2>
+
+<p>
+When the status of the mailbox for a user changes, the voicemail
+system must signal that change to the MwiPlugin by making an HTTP
+GET request.  The URL is
+</p>
+<pre>
+<code>http://<i>status-server-host</i>:<i>port</i>/cgi/StatusEvent.cgi</code>
+</pre>
+<dl>
+  <dt>status-server-host</dt>
+  <dd>the dns name or ip address of the status server</dd>
+  <dt>port</dt>
+  <dd>the port number that the status server is listening on (see below)</dd>
+</dl>
+<p>
+(the path part is hardcoded and should not
+be).  The only required query string
+parameter is <code>identity</code> (as above), and the request must
+have a body constructed in the same way as the status response above.
+(Yes, a body on a GET is unusual, but is not forbidden - this should
+have been a POST, but it isn't)
+</p>
+
+<p>
+The port on which sipXpublisher will listen for the status update
+notice "request" is configured on the
+MwiPlugin side in <code>sipxstatus/status-config.vm</code>; the
+<code>SIP_STATUS_HTTPS_PORT</code> or
+<code>SIP_STATUS_HTTP_PORT</code>.  <strong>If an HTTPS port is
+configured, then the HTTP port is not used - in order to use HTTP, you
+must set the HTTPS port to 0 (zero).</strong>
+</p>
+
+<hr>
+
+<h2>References</h2>
+
+<ol>
+  <li>
+    <a name='rfc3842' href='http://www.ietf.org/rfc/rfc3842.txt'>RFC
+    3842</a> <em>A Message Summary and Message Waiting Indication
+    Event Package for the Session Initiation Protocol (SIP)</em>
+  </li>
+
+</ol>
+
+
+</body>
+</html>

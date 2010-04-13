@@ -1,0 +1,17 @@
+<span jwcid="@common/QuickHelp" value="message:quick.help"/>
+<span jwcid="@conference/DimDimConferenceLink" dimDimConference="ognl:dimDimConference" />
+<p jwcid="@Else">
+  <span key="prompt.signupDimDim">Configure Dimdim ID and password. To sign up for a service click:</span>&nbsp;
+  <a jwcid="@GenericLink" id="dimdim:link"
+    href="ognl:dimDimConference.signupUrl"
+    target="_blank"><span key="prompt.here">here</span></a>
+</p>
+<form jwcid="form@Form" id="dimdim:form"
+      delegate="ognl:validator">
+  <fieldset jwcid="@setting/SettingsFieldset"
+    settings="ognl:dimDimConference.settings"
+    renderGroupTitle="false" />
+  <span jwcid="formActions@common/FormActions"
+    listener="listener:apply"
+    callback="ognl:callback" />
+</form>

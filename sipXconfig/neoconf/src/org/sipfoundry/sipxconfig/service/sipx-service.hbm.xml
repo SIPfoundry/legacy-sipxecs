@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.service" default-lazy="false">
+
+  <class name="SipxService" table="sipx_service" discriminator-value="sipxService">
+    <id name="id" column="sipx_service_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">sipx_service_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id"/>
+    <property name="beanId" column="bean_id" insert="false" update="false"/>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+  </class>
+</hibernate-mapping>

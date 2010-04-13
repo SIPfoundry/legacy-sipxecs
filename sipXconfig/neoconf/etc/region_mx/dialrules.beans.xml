@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--  The default dial plan for Mexico  -->
+
+  <!-- properties: voiceMail, voiceMailPrefix -->
+  <bean id="mx.voicemailRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Correo de voz" />
+    <property name="description" value="Plan de numeración predeterminado de correo de voz" />
+    <property name="voiceMail" value="101" />
+    <property name="voiceMailPrefix" value="8" />
+  </bean>
+
+  <!-- properties: extension, attendantAliases -->
+  <bean id="mx.attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="Asistente automático" />
+    <property name="description" value="Plan de numeración predeterminado de asistente automático" />
+    <property name="extension" value="100" />
+    <property name="attendantAliases" value="operator 0" />
+  </bean>
+
+  <!-- properties: optionalPrefix, emergencyNumber -->
+  <bean id="mx.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Emergencia" />
+    <property name="description" value="Emergencia - número de teléfono central" />
+    <property name="emergencyNumber" value="066" />
+  </bean>
+  <bean id="mx.ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Ambulancia" />
+    <property name="description" value="Emergencia - Cruz Roja" />
+    <property name="emergencyNumber" value="065" />
+  </bean>
+  <bean id="mx.policeEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Policía" />
+    <property name="description" value="Emergencia - policía" />
+    <property name="emergencyNumber" value="060" />
+  </bean>
+
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
+    longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
+  <bean id="mx.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="name" value="Larga distancia" />
+    <property name="description" value="Plan de numeración de larga distancia" />
+    <property name="longDistancePrefix" value="01" />
+    <property name="areaCodes" value="22,23,24,27,28,29,31,32,33,34,35,37,38,39,41,42,43,44,45,46,47,48,49,55,58,59,61,62,63,64,65,66,67,68,69,71,72,73,74,75,76,77,78,79,81,82,83,84,86,87,89,91,92,93,95,96,97,98,99" />
+    <property name="externalLen" value="10" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="mx.premiumRateRule" parent="mx.longDistanceRule" singleton="false">
+    <property name="name" value="Tarifa premium" />
+    <property name="description" value="Marcación restringida - tarifa premium" />
+    <property name="areaCodes" value="900" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="mx.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+    <property name="name" value="Número gratuito" />
+    <property name="description" value="Marcación de números gratuitos" />
+    <property name="areaCodes" value="800,888" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+  <bean id="mx.infolineRule" parent="mx.longDistanceRule" singleton="false">
+    <property name="name" value="Información" />
+    <property name="description" value="Números de teléfonos para servicios de información" />
+    <property name="longDistancePrefix" value="" />
+    <property name="externalLen" value="-1" />
+    <property name="areaCodes" value="040" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="mx.mobileLocalRule" parent="mx.longDistanceRule" singleton="false">
+    <property name="name" value="Teléfonos móviles local" />
+    <property name="description" value="Marcación de teléfonos móviles local" />
+    <property name="longDistancePrefix" value="044" />
+    <property name="permissionName" value="Mobile" />
+  </bean>
+  <bean id="mx.mobileLongDistanceRule" parent="mx.mobileLocalRule" singleton="false">
+    <property name="name" value="Teléfonos móviles de larga distancia" />
+    <property name="description" value="Marcación de teléfonos móviles de larga distancia" />
+    <property name="longDistancePrefix" value="045" />
+  </bean>
+  <bean id="mx.internationalRule" parent="defaultInternationalRule" singleton="false">
+    <property name="name" value="Internacional" />
+    <property name="description" value="Marcación internacional" />
+    <property name="longDistancePrefix" value="00" />
+    <property name="areaCodes" value="" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+
+  <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
+  <!-- this is the list of rules that admin will see after installation and after reverting to default -->
+  <bean id="mx.dialPlan" parent="defaultDialPlan" singleton="false">
+    <property name="rules">
+      <list>
+        <ref bean="mx.voicemailRule" />
+        <ref bean="mx.attendantRule" />
+        <ref bean="mx.emergencyRule" />
+        <ref bean="mx.ambulanceEmergencyRule" />
+        <ref bean="mx.policeEmergencyRule" />
+        <ref bean="mx.longDistanceRule" />
+        <ref bean="mx.premiumRateRule" />
+        <ref bean="mx.tollFreeRule" />
+        <ref bean="mx.infolineRule" />
+        <ref bean="mx.mobileLocalRule" />
+        <ref bean="mx.mobileLongDistanceRule" />
+        <ref bean="mx.internationalRule" />
+      </list>
+    </property>
+  </bean>
+
+</beans>

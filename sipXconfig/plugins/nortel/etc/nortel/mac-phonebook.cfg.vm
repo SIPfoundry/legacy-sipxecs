@@ -1,0 +1,12 @@
+#foreach($entry in $cfg.Phonebook)
+[contact]
+address $!entry.SipUri
+buddy 0
+group
+edited 0
+nickname $!entry.NickName
+#end
+[group]
+name
+[version]
+id 1

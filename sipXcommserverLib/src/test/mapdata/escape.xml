@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+  <hostMatch>
+    <hostPattern>thisdomain</hostPattern>
+    <userMatch>
+      <userPattern>Fi\xedxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:{digits}@digits</url>
+        </transform>
+        <transform>
+          <url>sip:{vdigits}@vdigits</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>aa\..</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:{digits}@digits</url>
+        </transform>
+        <transform>
+          <url>sip:{vdigits}@vdigits</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

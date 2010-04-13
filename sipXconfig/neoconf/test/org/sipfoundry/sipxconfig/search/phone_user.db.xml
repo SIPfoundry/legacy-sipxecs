@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <users user_id="1000" user_name="kuku" user_type="C"/>
+	<phone 
+		serial_number="999123456789"
+		phone_id="1000" 
+		description="unittest-sample phone1" 
+		bean_id="testPhone"
+      model_id=""/>
+	<line 
+		line_id="1000" 
+		phone_id="1000" 
+		position="0" 
+		user_id="1000"/>
+</dataset>

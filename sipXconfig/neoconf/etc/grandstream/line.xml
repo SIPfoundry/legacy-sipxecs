@@ -1,0 +1,1176 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+	<!ENTITY types SYSTEM "types.xml">
+]>
+<model>
+    &types;
+    <group name="port">
+		<label>Registration</label>
+		<setting name="P271-P401-P501-P601-P1701-P1801" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Account Active</label>
+			<type>
+				<boolean/>
+			</type>
+                        <value>0</value>
+		</setting>
+		<setting name="P270-P417-P517-P617-P1717-P1817" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Account Name</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P4150-P4151-P4152-P4153-P4154-P4155-P4156-P4157" if="gsFxsGxw.*" hidden="yes">
+			<label>Profile ID</label>
+			<type>
+				<string/>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P31-P410-P510-P610-P1710-P1810" if="gsPhone.*">
+			<label>Enable SIP Registration</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P31-P731" if="gsHt.*">
+			<label>Enable SIP Registration</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P3-P407-P507-P607-P1707-P1807" if="gsPhone.*">
+			<label>User Caller Name</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P4180-P4181-P4182-P4183-P4184-P4185-P4186-P4187" if="gsFxsGxw.*">
+			<label>User Caller Name</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P3-P703" if="gsHt.*">
+			<label>User Caller Name</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P35-P404-P504-P604-P1704-P1804" if="gsPhone.*">
+			<label>SIP User ID</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P4060-P4061-P4062-P4063-P4064-P4065-P4066-P4067" if="gsFxsGxw.*">
+			<label>SIP User ID</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P35-P735" if="gsHt.*">
+			<label>SIP User ID</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P36-P405-P505-P605-P1705-P1805" if="gsPhone.*">
+			<label>Authentication ID</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P4090-P4091-P4092-P4093-P4094-P4095-P4096-P4097" if="gsFxsGxw.*">
+			<label>Authentication ID</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P36-P736" if="gsHt.*">
+			<label>Authentication ID</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P34-P406-P506-P606-P1706-P1806" if="gsPhone.*">
+			<label>Authentication password</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P4120-P4121-P4122-P4123-P4124-P4125-P4126-P4127" if="gsFxsGxw.*">
+			<label>Authentication password</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P34-P734" if="gsHt.*">
+			<label>Authentication password</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P4300-P4301-P4302-P4303-P4304-P4305-P4306-P4307" if="gsFxsGxw.*">
+			<label>Hunting Group</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>None</label>
+                                                <value>0</value>
+                                        </option>
+                                        <option>
+                                                <value>1</value>
+                                        </option>
+                                        <option>
+                                                <value>2</value>
+                                        </option>
+                                        <option>
+                                                <value>3</value>
+                                        </option>
+                                        <option>
+                                                <value>4</value>
+                                        </option>
+                                        <option>
+                                                <value>5</value>
+                                        </option>
+                                        <option>
+                                                <value>6</value>
+                                        </option>
+                                        <option>
+                                                <value>7</value>
+                                        </option>
+                                        <option>
+                                                <value>8</value>
+                                        </option>
+                                </enum>
+                        </type>
+                        <value>0</value>
+                        <description>Normally each line should be in a unique hunting group</description>
+		</setting>
+		<setting name="P33-P426-P526-P626-P1726-P1826" if="gsPhone.*">
+			<label>Voice Mail UserID</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>User ID/extension for voice mail system.</description>
+		</setting>
+
+		<setting name="P47-P402-P502-P602-P1702-P1802" if="gsPhone.*">
+			<label>SIP Server</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P47-P747" if="gsHt.*">
+			<label>SIP Server</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P103-P408-P508-P608-P1708-P1808" if="gsPhone.*">
+			<label>Use DNS SRV</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P103-P702" if="gsHt.*">
+			<label>Use DNS SRV</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P48-P403-P503-P603-P1703-P1803" if="gsPhone.*">
+			<label>Outbound Proxy</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P48-P748" if="gsHt.*">
+			<label>Outbound Proxy</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P63-P409-P509-P609-P1709-P1809" if="gsPhone.*">
+			<label>SIP User ID is phone number</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P63-P763" if="gsHt.*">
+			<label>SIP User ID is phone number</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P32-P412-P512-P612-P1712-P1812" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Register Expiration</label>
+			<type>
+				<integer min="0" max="65535"/>
+			</type>
+			<value>60</value>
+			<description>Register Expiration in minutes. Default 1 hour, max 45 days</description>
+		</setting>
+                <setting name="P138-P471-P571-P671-P1771-P1871" if="gsPhoneGx.*|gsPhoneBt200">
+                        <label>Registration Retry Wait Time</label>
+                        <type>
+                                <integer min="0" max="3600"/>
+                        </type>
+                        <value>20</value>
+                        <description>SIP Registration Failure Retry Wait Time in seconds between 1 and 3600.</description>
+                </setting>
+                <setting name="P209-P440-P540-P640-P1740-P1840" if="gsPhoneGx.*|gsPhoneBt200">
+                        <label>SIP T1 Timeout</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>0.5 sec</label>
+                                                <value>50</value>
+                                        </option>
+                                        <option>
+                                                <label>1 sec</label>
+                                                <value>100</value>
+                                        </option>
+                                        <option>
+                                                <label>2 sec</label>
+                                                <value>200</value>
+                                        </option>
+                                </enum>
+                        </type>
+                        <value>100</value>
+                        <description>RFC 3261 T1 value (RTT estimate).</description>
+                </setting>
+                <setting name="P250-P441-P541-P641-P1741-P1841" if="gsPhoneGx.*|gsPhoneBt200">
+                        <label>SIP T2 Interval</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>2 sec</label>
+                                                <value>200</value>
+                                        </option>
+                                        <option>
+                                                <label>4 sec</label>
+                                                <value>400</value>
+                                        </option>
+                                        <option>
+                                                <label>8 sec</label>
+                                                <value>800</value>
+                                        </option>
+                                </enum>
+                        </type>
+                        <value>400</value>
+                        <description>RFC 3261 T2 value. The maxium retransmit interval for non-INVITE requests and INVITE responses.</description>
+                </setting>
+	</group>
+	<group name="opt" if="gsPhone.*|gsHt.*">
+		<label>User options</label>
+		<setting name="P104-P423-P523-P623-P1723-P1823" if="gsPhone.*">
+			<label>Default Ring Tone</label>
+			<type>
+				<enum>
+					<option>
+						<label>system</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>custom 1</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>custom 2</label>
+						<value>2</value>
+					</option>
+					<option>
+						<label>custom 3</label>
+						<value>3</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P90-P425-P525-P625-P1725-P1825" if="gsPhone.*">
+			<label>Auto Answer</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+		</setting>
+                <setting name="P298-P438-P538-P638-P1738-P1838" if="gsPhone.*">
+                        <label>Allow Auto-Answer by Call-Info</label>
+                        <type>
+                                <boolean/>
+                        </type>
+                        <value>0</value>
+                        <description>Allow the phone to auto-aswer based on Call-Info header.</description>
+                </setting>
+                <setting name="P299-P439-P539-P639-P1739-P1839" if="gsPhone.*">
+                        <label>Turn off speaker on remote disconnect</label>
+                        <type>
+                                <boolean/>
+                        </type>
+                        <value>0</value>
+                        <description></description>
+                </setting>
+                <setting name="P258-P449-P549-P649-P1749-P1849" if="gsPhone.*">
+                        <label>Check SIP ID</label>
+                        <type>
+                                <boolean/>
+                        </type>
+                        <value>0</value>
+                        <description>Check SIP User ID on incoming INVITE.</description>
+                </setting>
+                <setting name="P135-P469-P569-P669-P1769-P1869" if="gsPhone.*">
+                        <label>Refer-To use Target Contact</label>
+                        <type>
+                                <boolean/>
+                        </type>
+                        <value>0</value>
+                        <description>Refer-to use target contact.</description>
+                </setting>
+                <setting name="P137-P487-P587-P687-P1787-P1887" if="gsPhone.*">
+                        <label>Disable Multiple Media Attributes</label>
+                        <type>
+                                <boolean/>
+                        </type>
+                        <value>0</value>
+                        <description>Disable multiple media attributes in SDP.</description>
+                </setting>
+		<setting name="P65-P421-P521-P621-P1721-P1821" if="gsPhone.*">
+			<label>Send Anonymous</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Caller ID will be blocked if checked.</description>
+		</setting>
+                <setting name="P268-P468-P568-P668-P1768-P1868" if="gsPhone.*">
+                        <label>Anonymous Method</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>Use FROM Header</label>
+                                                <value>0</value>
+                                        </option>
+                                        <option>
+                                                <label>Use Privacy Header</label>
+                                                <value>1</value>
+                                        </option>
+                                </enum>
+                        </type>
+                        <value>0</value>
+                </setting>
+                <setting name="P129-P446-P546-P646-P1746-P1846" if="gsPhone.*">
+                        <label>Anonymous Call Rejection</label>
+                        <type>
+                                <boolean/>
+                        </type>
+                        <value>0</value>
+                        <description>Reject calls that arrive with anonymous Caller ID.</description>
+                </setting>
+		<setting name="P71" if="gsPhoneBt100">
+			<label>Offhook Auto-Dial</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>User ID/extension to dial automatically when offhook.</description>
+		</setting>
+		<setting name="P50-P750" if="gsHt.*">
+			<label>Silence Suppression</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P72-P772" if="gsHt.*">
+			<label>Use # as Dial Key</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+			<description>If checked, "#" will function as the "(Re-)Dial" key.</description>
+		</setting>
+		<setting name="P91-P791" if="gsHt.*">
+			<label>Disable Call-Waiting</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+	</group>
+	<group name="advanced" if="gsPhone.*|gsHt.*">
+		<label>Advanced</label>
+		<setting name="P29-P422-P522-P622-P1722-P1822" if="gsPhone.*">
+			<label>Early Dial</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Check only if proxy supports 484 response.</description>
+		</setting>
+		<setting name="P29-P729" if="gsHt.*">
+			<label>Early Dial</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Check only if proxy supports 484 response.</description>
+		</setting>
+		<setting name="P52-P414-P514-P614-P1714-P1814" if="gsPhone.*">
+			<label>NAT Traversal</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>Enable</label>
+                                                <value>0</value>
+                                        </option>
+                                        <option>
+                                                <label>Disable</label>
+                                                <value>1</value>
+                                        </option>
+                                        <option>
+                                                <label>Disable, send keep-alive</label>
+                                                <value>2</value>
+                                        </option>
+                                </enum>
+                        </type>
+			<value>1</value>
+		</setting>
+		<setting name="P52-P752" if="gsHt.*">
+			<label>Disable NAT Traversal</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P65-P765" if="gsHt.*">
+			<label>Send Anonymous</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Caller ID will be blocked if checked.</description>
+		</setting>
+		<setting name="P66-P419-P519-P619-P1719-P1819" if="gsPhone.*">
+			<label>Dial Plan Prefix</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>Prefix string added to called numbers.</description>
+		</setting>
+		<setting name="P66-P766" if="gsHt.*">
+			<label>Dial Plan Prefix</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>Prefix string added to called numbers.</description>
+		</setting>
+		<setting name="P71-P771" if="gsHt.*">
+			<label>Offhook Auto-Dial</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>User ID/extension to dial automatically when offhook.</description>
+		</setting>
+		<setting name="P73-P416-P516-P616-P1716-P1816" if="gsPhone.*">
+			<label>Send DTMF</label>
+			<type>
+				<enum>
+					<option>
+						<label>In Audio</label>
+						<value>8</value>
+					</option>
+					<option>
+						<label>Via RTP</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>Via SIP INFO</label>
+						<value>2</value>
+					</option>
+                                        <option>
+                                                <label>In Audio and RTP and SIP INFO</label>
+                                                <value>11</value>
+                                        </option>
+                                        <option>
+                                                <label>In Audio and RTP</label>
+                                                <value>9</value>
+                                        </option>
+                                        <option>
+                                                <label>In Audio and SIP INFO</label>
+                                                <value>10</value>
+                                        </option>
+                                        <option>
+                                                <label>RTP and SIP INFO</label>
+                                                <value>3</value>
+                                        </option>
+				</enum>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P73-P773" if="gsHt.*">
+			<label>Send DTMF</label>
+			<type>
+				<enum>
+					<option>
+						<label>in audio</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>via RTP</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>via SIP INFO</label>
+						<value>2</value>
+					</option>
+				</enum>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P79-P779" if="gsHt.*">
+			<label>DTMF Payload Type</label>
+			<type refid="byte"/>
+			<value>101</value>
+		</setting>
+		<setting name="P81-P411-P511-P611-P1711-P1811" if="gsPhone.*">
+			<label>Unregister On Reboot</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P81-P752" if="gsHt.*">
+			<label>Unregister On Reboot</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P99-P415-P515-P615-P1715-P1815" if="gsPhone.*">
+			<label>SUBSCRIBE for MWI</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+			<description>Whether or not send SUBSCRIBE for Message Waiting Indication.</description>
+		</setting>
+                <setting name="P188-P488-P588-P688-P1788-P1888" if="gsPhoneGxp.*">
+                        <label>Publish Presence</label>
+                        <type>
+                                <boolean/>
+                        </type>
+                        <value>1</value>
+                        <description>Whether or not publish the line's presence information for others to monitor.</description>
+                </setting>
+                <setting name="P134-P444-P544-P644-P1744-P1844" if="gsPhoneGxp.*">
+                        <label>Eventlist BLF URI</label>
+                        <type>
+                                <string/>
+                        </type>
+                        <value/>
+                        <description>This is the URL (e.g. blf1006@server.com) to the RLS Server to subsribe to the eventlist for BLF. Fill in the eventlist URI without the domain, e.g. blf1006.</description>
+                </setting>
+		<setting name="P99-P709" if="gsHt.*">
+			<label>SUBSCRIBE for MWI</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+			<description>SUBSCRIBE for MWI. Whether or not send SUBSCRIBE for Message Waiting Indication.</description>
+		</setting>
+		<setting name="P191-P420-P520-P620-P1720-P1820" if="gsPhone.*">
+			<label>Enable Call Features</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+                        <description>If enabled, call feature using star codes will be handled locally by the phone.</description>
+		</setting>
+                <setting name="P187" if="gsPhoneBt200">
+                        <label>Disable Call Log</label>
+                        <type>
+                                <boolean/>
+                        </type>
+                        <value>0</value>
+                        <description>Disable / enable logging of incoming, outgoing and missed calls.</description>
+                </setting>
+
+                <setting name="P182-P442-P542-P642-P1742-P1842" if="gsPhoneGx.*">
+                        <label>Call Logging</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>Log All</label>
+                                                <value>0</value>
+                                        </option>
+                                        <option>
+                                                <label>Incoming/outgoing only (no missed)</label>
+                                                <value>1</value>
+                                        </option>
+                                        <option>
+                                                <label>Disable</label>
+                                                <value>2</value>
+                                        </option>
+                                </enum>
+                        </type>
+                        <value>0</value>
+                </setting>
+		<setting name="P191-P751" if="gsHt.*">
+			<label>Enable/Disable Call Features</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+			<description>Enable Call Features</description>
+		</setting>
+		<setting name="P197-P418-P518-P618-P1718-P1818" if="gsPhone.*">
+			<label>Proxy-Require</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>A SIP extension to enable firewall penetration.</description>
+		</setting>
+		<setting name="P197-P792" if="gsHt.*">
+			<label>Proxy-Require</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+			<description>Proxy-Require (A SIP extension to enable firewall penetration)</description>
+		</setting>
+		<setting name="P74" if="gsPhoneBt100">
+			<label>Send Flash Event</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Flash will be sent as a DTMF event if checked.</description>
+		</setting>
+		<setting name="P74-P774" if="gsHt.*">
+			<label>Send Flash Event</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Flash will be sent as a DTMF event if checked.</description>
+		</setting>
+		<setting name="P40-P413-P513-P613-P1713-P1813" if="gsPhone.*">
+			<label>Local SIP port</label>
+			<type>
+				<integer min="1024" max="65535"/>
+			</type>
+			<value>5060</value>
+			<description>Local SIP port</description>
+		</setting>
+                <setting name="P130-P448-P548-P648-P1748-P1848" if="gsPhoneGx.*|gsPhoneBt200">
+                        <label>SIP Transport</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>UDP</label>
+                                                <value>1</value>
+                                        </option>
+                                        <option>
+                                                <label>TCP</label>
+                                                <value>2</value>
+                                        </option>
+                                </enum>
+                        </type>
+                        <value>1</value>
+                </setting>
+                <setting name="P131-P447-P547-P647-P1747-P1847" if="gsPhoneGx.*|gsPhoneBt200">
+                        <label>Use Symmetric Routing</label>
+                        <type>
+                                <boolean/>
+                        </type>
+                        <value>0</value>
+                </setting>
+		<setting name="P40-P740" if="gsHt.*">
+			<label>Local SIP port</label>
+			<type>
+				<integer min="1024" max="65535"/>
+			</type>
+			<value/>
+			<description>Local SIP port</description>
+		</setting>
+		<setting name="P39-P739" if="gsHt.*">
+			<label>Local RTP port</label>
+			<type>
+				<integer min="1024" max="65535"/>
+			</type>
+			<value>5004</value>
+			<description>Local RTP port (1024-65535, default 5004)</description>
+		</setting>
+		<setting name="P78-P778" if="gsHt.*">
+			<label>Use Random Port</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P57-P451-P551-P651-P1751-P1851" if="gsPhone.*">
+			<label>First codec</label>
+			<type refid="gscodec"/>
+			<value>0</value>
+		</setting>
+		<setting name="P57-P757" if="gsHt.*">
+			<label>First codec</label>
+			<type refid="gscodec"/>
+			<value>0</value>
+		</setting>
+		<setting name="P58-P452-P552-P652-P1752-P1852" if="gsPhone.*">
+			<label>Second codec</label>
+			<type refid="gscodec"/>
+			<value>9</value>
+		</setting>
+		<setting name="P58-P758" if="gsHt.*">
+			<label>Second codec</label>
+			<type refid="gscodec"/>
+			<value>9</value>
+		</setting>
+		<setting name="P59-P453-P553-P653-P1753-P1853" if="gsPhone.*">
+			<label>Third codec</label>
+			<type refid="gscodec"/>
+			<value>8</value>
+		</setting>
+		<setting name="P59-P759" if="gsHt.*">
+			<label>Third codec</label>
+			<type refid="gscodec"/>
+			<value>8</value>
+		</setting>
+		<setting name="P60-P454-P554-P654-P1754-P1854" if="gsPhone.*">
+			<label>Fourth codec</label>
+			<type refid="gscodec"/>
+			<value>4</value>
+		</setting>
+		<setting name="P60-P760" if="gsHt.*">
+			<label>Fourth codec</label>
+			<type refid="gscodec"/>
+			<value>4</value>
+		</setting>
+		<setting name="P61-P455-P555-P655-P1755-P1855" if="gsPhone.*">
+			<label>Fifth codec</label>
+			<type refid="gscodec"/>
+			<value>18</value>
+		</setting>
+		<setting name="P61-P761" if="gsHt.*">
+			<label>Fifth codec</label>
+			<type refid="gscodec"/>
+			<value>18</value>
+		</setting>
+		<setting name="P62-P456-P556-P656-P1756-P1856" if="gsPhone.*">
+			<label>Sixth codec</label>
+			<type refid="gscodec"/>
+			<value>2</value>
+		</setting>
+		<setting name="P62-P762" if="gsHt.*">
+			<label>Sixth codec</label>
+			<type refid="gscodec"/>
+			<value>2</value>
+		</setting>
+		<setting name="P46-P457-P557-P657-P1757-P1857" if="gsPhone.*">
+			<label>Seventh codec</label>
+			<type refid="gscodec"/>
+			<value>98</value>
+		</setting>
+		<setting name="P46" if="gsHt286|gsHt486">
+			<label>Seventh codec</label>
+			<type refid="gscodec"/>
+			<value>98</value>
+		</setting>
+		<setting name="P98-P458-P558-P658-P1758-P1858" if="gsPhone.*">
+			<label>Eighth codec</label>
+			<type refid="gscodec"/>
+			<value>3</value>
+		</setting>
+		<setting name="P37-P737" if="gsHt.*">
+			<label>Voice Frames per TX</label>
+			<type>
+				<integer min="0" max="64"/>
+			</type>
+			<value>2</value>
+			<description>Voice Frames per TX (up to 10/20/32/64 frames for G711/G726/G723/other codecs
+                respectively)
+            </description>
+		</setting>
+		<setting name="P49" if="gsPhoneBt100">
+			<label>G723 encoding rate</label>
+			<type>
+				<enum>
+					<option>
+						<label>6.3kbps</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>5.3kbps</label>
+						<value>1</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P49-P749" if="gsHt.*">
+			<label>G723 encoding rate</label>
+			<type>
+				<enum>
+					<option>
+						<label>6.3kbps</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>5.3kbps</label>
+						<value>1</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P96" if="gsPhoneBt100">
+			<label>iLBC payload type</label>
+			<type>
+				<integer min="96" max="127"/>
+			</type>
+			<value>97</value>
+			<description>iLBC payload type. Between 96 and 127</description>
+		</setting>
+		<setting name="P96-P704" if="gsHt.*">
+			<label>iLBC payload type</label>
+			<type>
+				<integer min="96" max="127"/>
+			</type>
+			<value>97</value>
+			<description>iLBC payload type between 96 and 127</description>
+		</setting>
+		<setting name="P97" if="gsPhoneBt100">
+			<label>iLBC Frame Size</label>
+			<type>
+				<enum>
+					<option>
+						<label>20 ms</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>30 ms</label>
+						<value>1</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P97-P705" if="gsHt.*">
+			<label>iLBC Frame Size</label>
+			<type>
+				<enum>
+					<option>
+						<label>20 ms</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>30 ms</label>
+						<value>1</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P228-P710" if="gsHt.*">
+			<label>Pass Through FAX Mode</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Enable Pass Through FAX Mode, otherwise use T.38 (Auto Detect)</description>
+		</setting>
+		<setting name="P32-P732" if="gsHt386|gsHt488|gsHt496">
+			<label>Register Expiration</label>
+			<type>
+				<integer min="0" max="65535"/>
+			</type>
+			<value>60</value>
+			<description>Register Expiration (in minutes. default 1 hour, max 45 days)</description>
+		</setting>
+                <setting name="P183-P443-P543-P643-P1743-P1843" if="gsPhoneGx.*|gsPhoneBt200">
+                        <label>SRTP Mode</label>
+                        <type>
+                                <enum>
+                                        <option>
+                                                <label>Disabled</label>
+                                                <value>0</value>
+                                        </option>
+                                        <option>
+                                                <label>Enabled, not forced</label>
+                                                <value>1</value>
+                                        </option>
+                                        <option>
+                                                <label>Enabled, forced</label>
+                                                <value>2</value>
+                                        </option>
+                                </enum>
+                        </type>
+                        <value>0</value>
+                </setting>
+		<setting name="P198-P424-P524-P624-P1724-P1824" if="gsPhoneGxp.*|gsPhoneBt200">
+			<label>Special Feature</label>
+			<type>
+				<enum>
+					<option>
+						<label>SIP Standard</label>
+						<value>100</value>
+					</option>
+					<option>
+						<label>Nortel MCS</label>
+						<value>101</value>
+					</option>
+					<option>
+						<label>Broadsoft</label>
+						<value>102</value>
+					</option>
+					<option>
+						<label>CBCOM</label>
+						<value>108</value>
+					</option>
+					<option>
+						<label>RNK</label>
+						<value>109</value>
+					</option>
+					<option>
+						<label>Sylantro</label>
+						<value>110</value>
+					</option>
+				</enum>
+			</type>
+			<value>100</value>
+		</setting>
+		<setting name="P198-P424-P524" if="gsPhoneGxv3000">
+			<label>Special Feature</label>
+			<type>
+				<enum>
+					<option>
+						<label>Standard</label>
+						<value>100</value>
+					</option>
+					<option>
+						<label>Nortel MCS</label>
+						<value>101</value>
+					</option>
+					<option>
+						<label>Broadsoft</label>
+						<value>102</value>
+					</option>
+					<option>
+						<label>Sonus</label>
+						<value>104</value>
+					</option>
+					<option>
+						<label>CBCOM</label>
+						<value>108</value>
+					</option>
+					<option>
+						<label>RNK</label>
+						<value>109</value>
+					</option>
+				</enum>
+			</type>
+			<value>100</value>
+		</setting>
+		<setting name="P198-P767" if="gsHt386|gsHt488|gsHt496">
+			<label>Special Feature</label>
+			<type>
+				<enum>
+					<option>
+						<label>Standard</label>
+						<value>100</value>
+					</option>
+					<option>
+						<label>Lucent FS5000 Simple Endpoint</label>
+						<value>105</value>
+					</option>
+				</enum>
+			</type>
+			<value>100</value>
+		</setting>
+		<setting name="P259" if="gsHt486">
+			<label>Home NPA</label>
+			<type>
+				<string/>
+			</type>
+			<value/>
+		</setting>
+		<setting name="P260-P434-P534-P634-P1734-P1834" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Session Expiration</label>
+			<type>
+				<integer/>
+			</type>
+			<value>180</value>
+			<description>sec</description>
+		</setting>
+		<setting name="P261-P427-P527-P627-P1727-P1827" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Min-SE</label>
+			<type>
+				<integer min="90"/>
+			</type>
+			<value>90</value>
+			<description>sec, minimum = 90 sec</description>
+		</setting>
+		<setting name="P262-P428-P528-P628-P1728-P1828" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Caller Request Timer</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Request for timer when making outbound calls.</description>
+		</setting>
+		<setting name="P263-P429-P529-P629-P1729-P1829" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Callee Request Timer</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>When caller supports timer but did not request one.</description>
+		</setting>
+		<setting name="P264-P430-P530-P630-P1730-P1830" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Force Timer</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>User timer even when remote party does not support.</description>
+		</setting>
+		<setting name="P266-P432-P532-P632-P1732-P1832" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>UAC Specify Refresher</label>
+			<type>
+				<enum>
+					<option>
+						<label>UAC</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>UAS</label>
+						<value>2</value>
+					</option>
+					<option>
+						<label>Omit</label>
+						<value>0</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P267-P433-P533-P633-P1733-P1833" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>UAS Specify Refresher</label>
+			<type>
+				<enum>
+					<option>
+						<label>UAC</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>UAS</label>
+						<value>2</value>
+					</option>
+				</enum>
+			</type>
+			<value>1</value>
+			<description>When UAC did not specify refresher tag.</description>
+		</setting>
+		<setting name="P265-P431-P531-P631-P1731-P1831" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Force INVITE</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+			<description>Always refresh with INVITE instead of UPDATE.</description>
+		</setting>
+		<setting name="P272-P435-P535-P635-P1735-P1835" if="gsPhoneGx.*|gsPhoneBt200">
+			<label>Enable 100rel</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>0</value>
+		</setting>
+	</group>
+	<group name="video" if="gsPhoneGxv3000">
+		<label>Video options</label>
+		<setting name="P292-P461-P561">
+			<label>Enable Video</label>
+			<type>
+				<boolean/>
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="P295-P464-P564">
+			<label>Preferred Video Codec #1</label>
+			<type>
+				<string/>
+			</type>
+			<value>99</value>
+			<description>Preferred Video Codec - 99 = H.264</description>
+		</setting>
+		<setting name="P296-P465-P565">
+			<label>Preferred Video Codec #2</label>
+			<type>
+				<string/>
+			</type>
+			<value>99</value>
+			<description>Preferred Video Codec - 99 = H.264</description>
+		</setting>
+		<setting name="P300-P467-P567">
+			<label>Jitter Delay</label>
+			<type>
+				<enum>
+					<option>
+						<label>Medium</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Low</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>High</label>
+						<value>2</value>
+					</option>
+				</enum>			
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="P293-P462-P562">
+			<label>H.264 Payload Type</label>
+			<type>
+				<string/>
+			</type>
+			<value>99</value>
+			<description>Between 96 - 127, Default 99</description>
+		</setting>
+	</group>
+</model>

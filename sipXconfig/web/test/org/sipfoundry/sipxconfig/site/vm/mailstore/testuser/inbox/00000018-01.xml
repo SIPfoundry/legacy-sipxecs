@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<messagedescriptor>
+  <id>200@penguin.pingtel.com</id>
+  <from>&quot;Yellowthroat+Warbler&quot;&lt;sip:200@penguin.pingtel.com&gt;;tag%3D469B3EFE-65A9A867</from>
+  <durationsecs>6</durationsecs>
+  <timestamp>Fri, 9-Feb-2007 03:40:43 PM EST</timestamp>
+  <subject>Voice Message 00000014</subject>
+  <priority>normal</priority>
+</messagedescriptor>

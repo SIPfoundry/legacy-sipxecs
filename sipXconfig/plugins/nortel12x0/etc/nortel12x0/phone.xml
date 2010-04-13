@@ -1,0 +1,958 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+ "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+ <!ENTITY types SYSTEM "types.xml">
+]>
+<model>
+  <type id="on-off">
+    <boolean>
+      <true>
+        <value>TRUE</value>
+      </true>
+      <false>
+        <value>FALSE</value>
+      </false>
+    </boolean>
+  </type>
+  <type id="preferred-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>g711ulaw</value>
+      </option>
+      <option>
+        <value>g711alaw</value>
+      </option>
+      <option>
+        <value>g729</value>
+      </option>
+    </multi-enum>
+  </type>
+  <!--  NETWORK SETTINGS  -->
+  <group name="qos">
+    <setting name="qosDscp">
+      <type>
+        <enum>
+          <option>
+            <value>0x00</value>
+          </option>
+          <option>
+            <value>0x01</value>
+          </option>
+          <option>
+            <value>0x02</value>
+          </option>
+          <option>
+            <value>0x03</value>
+          </option>
+          <option>
+            <value>0x04</value>
+          </option>
+          <option>
+            <value>0x05</value>
+          </option>
+          <option>
+            <value>0x06</value>
+          </option>
+          <option>
+            <value>0x07</value>
+          </option>
+          <option>
+            <value>0x08</value>
+          </option>
+          <option>
+            <value>0x09</value>
+          </option>
+          <option>
+            <value>0x0a</value>
+          </option>
+          <option>
+            <value>0x0b</value>
+          </option>
+          <option>
+            <value>0x0c</value>
+          </option>
+          <option>
+            <value>0x0d</value>
+          </option>
+          <option>
+            <value>0x0e</value>
+          </option>
+          <option>
+            <value>0x0f</value>
+          </option>
+          <option>
+            <value>0x10</value>
+          </option>
+          <option>
+            <value>0x11</value>
+          </option>
+          <option>
+            <value>0x12</value>
+          </option>
+          <option>
+            <value>0x13</value>
+          </option>
+          <option>
+            <value>0x14</value>
+          </option>
+          <option>
+            <value>0x15</value>
+          </option>
+          <option>
+            <value>0x16</value>
+          </option>
+          <option>
+            <value>0x17</value>
+          </option>
+          <option>
+            <value>0x18</value>
+          </option>
+          <option>
+            <value>0x19</value>
+          </option>
+          <option>
+            <value>0x1a</value>
+          </option>
+          <option>
+            <value>0x1b</value>
+          </option>
+          <option>
+            <value>0x1c</value>
+          </option>
+          <option>
+            <value>0x1d</value>
+          </option>
+          <option>
+            <value>0x1e</value>
+          </option>
+          <option>
+            <value>0x1f</value>
+          </option>
+          <option>
+            <value>0x20</value>
+          </option>
+          <option>
+            <value>0x21</value>
+          </option>
+          <option>
+            <value>0x22</value>
+          </option>
+          <option>
+            <value>0x23</value>
+          </option>
+          <option>
+            <value>0x24</value>
+          </option>
+          <option>
+            <value>0x25</value>
+          </option>
+          <option>
+            <value>0x26</value>
+          </option>
+          <option>
+            <value>0x27</value>
+          </option>
+          <option>
+            <value>0x28</value>
+          </option>
+          <option>
+            <value>0x29</value>
+          </option>
+          <option>
+            <value>0x2a</value>
+          </option>
+          <option>
+            <value>0x2b</value>
+          </option>
+          <option>
+            <value>0x2c</value>
+          </option>
+          <option>
+            <value>0x2d</value>
+          </option>
+          <option>
+            <value>0x2e</value>
+          </option>
+          <option>
+            <value>0x2f</value>
+          </option>
+          <option>
+            <value>0x30</value>
+          </option>
+          <option>
+            <value>0x31</value>
+          </option>
+          <option>
+            <value>0x32</value>
+          </option>
+          <option>
+            <value>0x33</value>
+          </option>
+          <option>
+            <value>0x34</value>
+          </option>
+          <option>
+            <value>0x35</value>
+          </option>
+          <option>
+            <value>0x36</value>
+          </option>
+          <option>
+            <value>0x37</value>
+          </option>
+          <option>
+            <value>0x38</value>
+          </option>
+          <option>
+            <value>0x39</value>
+          </option>
+          <option>
+            <value>0x3a</value>
+          </option>
+          <option>
+            <value>0x3b</value>
+          </option>
+          <option>
+            <value>0x3c</value>
+          </option>
+          <option>
+            <value>0x3d</value>
+          </option>
+          <option>
+            <value>0x3e</value>
+          </option>
+          <option>
+            <value>0x3f</value>
+          </option>
+        </enum>
+      </type>
+      <value>0x00</value>
+    </setting>
+    <setting name="qosVlanId">
+      <type>
+        <integer min="0" max="4094" />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <!--  PHONE SETTINGS  -->
+  <group name="phoneSettings">
+    <setting name="languageSelected">
+      <type>
+        <enum>
+          <option>
+            <value>English</value>
+          </option>
+          <option>
+            <value>Canadien français</value>
+          </option>
+        </enum>
+      </type>
+      <value>English</value>
+    </setting>
+    <setting name="dndControl">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="blinkLightOnIncomingCall">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+    <setting name="flashLightOnMwi">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+    <setting name="imBeepAlert">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+    <setting name="enableAutoAnswer">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="enableSyslog">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="syslogServer">
+      <type>
+        <hostname />
+      </type>
+      <value />
+    </setting>
+    <setting name="enableSessionTimer">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="sessionTimerInSec">
+      <type>
+        <integer min="30" max="3600" />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name="sessionRefresherFlag">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="subscriptionExpires">
+      <type>
+        <integer min="3600" max="604800" />
+      </type>
+      <value>86400</value>
+    </setting>
+    <setting name="groupPagingPrefix">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="groupPagingSecret" hidden="yes">
+      <type>
+        <string />
+      </type>
+      <value>sipXpage</value>
+    </setting>
+    <setting name="hotDeskingAutoLogin">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+    <setting name="conferenceServerAddress">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="autoCallbackTimeout">
+      <type>
+        <integer min="0" max="65535"/>
+      </type>
+      <value>15</value>
+    </setting>
+    <setting name="useRFC2543HoldScheme">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="infoDTMFContentType">
+      <type>
+        <enum>
+          <option>
+            <value>application/dtmf-relay</value>
+          </option>
+          <option>
+            <value>application/vnd.nortelnetworks.digits</value>
+          </option>
+        </enum>
+      </type>
+      <value>application/dtmf-relay</value>
+    </setting>
+    <setting name="onhookDefaultMode">
+      <type>
+        <enum>
+          <option>
+            <value>handsfree</value>
+          </option>
+          <option>
+            <value>headset</value>
+          </option>
+        </enum>
+      </type>
+      <value>handsfree</value>
+    </setting>
+    <setting name="acceptMWIBlindNOTIFY">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="disableHistoryInfo">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+  </group>
+  <!--  NAT TRAVERSAL SETTINGS  -->
+  <group name="natSettings">
+    <setting name="natTraversal">
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>sip ping</value>
+          </option>
+          <option>
+            <value>static</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="natAddress">
+      <type>
+        <hostname />
+      </type>
+      <value />
+    </setting>
+    <setting name="sipPingTimer">
+      <type>
+        <integer min="30" max="65535"/>
+      </type>
+      <value />
+    </setting>
+  </group>
+  <!--  TIME SETTINGS  -->
+  <group name="timesettings">
+    <setting name="timeSettings">
+      <type>
+        <enum>
+          <option>
+            <value>manual</value>
+          </option>
+          <option>
+            <value>default</value>
+          </option>
+        </enum>
+      </type>
+      <value>manual</value>
+    </setting>
+    <setting name="ntpIp">
+      <type>
+        <hostname />
+      </type>
+    </setting>
+    <setting name="ntpIp2">
+      <type>
+        <hostname />
+      </type>
+    </setting>
+    <setting name="timezone">
+      <type>
+        <enum>
+          <option>
+            <value>-12:00 Date Line</value>
+          </option>
+          <option>
+            <value>-11:00 Nome</value>
+          </option>
+          <option>
+            <value>-10:00 Hawaii</value>
+          </option>
+          <option>
+            <value>-09:00 Alaska</value>
+          </option>
+          <option>
+            <value>-08:00 Pacific</value>
+          </option>
+          <option>
+            <value>-08:00 Tijuana</value>
+          </option>
+          <option>
+            <value>-07:00 Arizona</value>
+          </option>
+          <option>
+            <value>-07:00 Mountain</value>
+          </option>
+          <option>
+            <value>-06:00 Central</value>
+          </option>
+          <option>
+            <value>-06:00 Mexico city</value>
+          </option>
+          <option>
+            <value>-06:00 Saskatchewan</value>
+          </option>
+          <option>
+            <value>-05:00 Bogota, Lima</value>
+          </option>
+          <option>
+            <value>-05:00 Eastern</value>
+          </option>
+          <option>
+            <value>-05:00 Indiana</value>
+          </option>
+          <option>
+            <value>-04:00 Atlantic</value>
+          </option>
+          <option>
+            <value>-04:00 Caracas</value>
+          </option>
+          <option>
+            <value>-04:00 Santiago</value>
+          </option>
+          <option>
+            <value>-03:30 NewFoundland</value>
+          </option>
+          <option>
+            <value>-03:00 Brasilia</value>
+          </option>
+          <option>
+            <value>-03:00 Georgetown</value>
+          </option>
+          <option>
+            <value>-02:00 Mid-Atlantic</value>
+          </option>
+          <option>
+            <value>-01:00 Azores</value>
+          </option>
+          <option>
+            <value>+00:00 Casablanca</value>
+          </option>
+          <option>
+            <value>+00:00 GMT London</value>
+          </option>
+          <option>
+            <value>+01:00 Amsterdam</value>
+          </option>
+          <option>
+            <value>+01:00 Belgrade</value>
+          </option>
+          <option>
+            <value>+01:00 Brussels</value>
+          </option>
+          <option>
+            <value>+01:00 Sarajevo</value>
+          </option>
+          <option>
+            <value>+02:00 Athens</value>
+          </option>
+          <option>
+            <value>+02:00 Minsk</value>
+          </option>
+          <option>
+            <value>+02:00 Bucharest</value>
+          </option>
+          <option>
+            <value>+02:00 Cairo</value>
+          </option>
+          <option>
+            <value>+02:00 Harare</value>
+          </option>
+          <option>
+            <value>+02:00 Helsinki</value>
+          </option>
+          <option>
+            <value>+02:00 Jerusalem</value>
+          </option>
+          <option>
+            <value>+03:00 Baghdad</value>
+          </option>
+          <option>
+            <value>+03:00 Moscow</value>
+          </option>
+          <option>
+            <value>+03:00 Nairobi</value>
+          </option>
+          <option>
+            <value>+03:30 Tehran, Iran</value>
+          </option>
+          <option>
+            <value>+04:00 Abu Dhabi</value>
+          </option>
+          <option>
+            <value>+04:00 Baku</value>
+          </option>
+          <option>
+            <value>+04:00 Tbilisi</value>
+          </option>
+          <option>
+            <value>+04:30 Afghanistan</value>
+          </option>
+          <option>
+            <value>+05:00 Yekaterinburg</value>
+          </option>
+          <option>
+            <value>+05:00 Pakistan</value>
+          </option>
+          <option>
+            <value>+05:30 India</value>
+          </option>
+          <option>
+            <value>+06:00 Astana</value>
+          </option>
+          <option>
+            <value>+06:00 Srilanka</value>
+          </option>
+          <option>
+            <value>+07:00 Bangkok</value>
+          </option>
+          <option>
+            <value>+08:00 Beijing</value>
+          </option>
+          <option>
+            <value>+08:00 Perth</value>
+          </option>
+          <option>
+            <value>+08:00 Singapore</value>
+          </option>
+          <option>
+            <value>+08:00 Taipei</value>
+          </option>
+          <option>
+            <value>+09:00 Japan</value>
+          </option>
+          <option>
+            <value>+09:00 Seoul</value>
+          </option>
+          <option>
+            <value>+09:00 Yakutsk</value>
+          </option>
+          <option>
+            <value>+09:30 Adelaide</value>
+          </option>
+          <option>
+            <value>+09:30 Darwin</value>
+          </option>
+          <option>
+            <value>+10:00 Brisbane</value>
+          </option>
+          <option>
+            <value>+10:00 Canberra</value>
+          </option>
+          <option>
+            <value>+10:00 Guam</value>
+          </option>
+          <option>
+            <value>+10:00 Hobart</value>
+          </option>
+          <option>
+            <value>+10:00 Vladivostok</value>
+          </option>
+          <option>
+            <value>+11:00 Solomon Is</value>
+          </option>
+          <option>
+            <value>+12:00 New Zealand</value>
+          </option>
+          <option>
+            <value>+12:00 Fiji</value>
+          </option>
+        </enum>
+      </type>
+      <value>+00:00 GMT London</value>
+    </setting>
+    <setting name="dstAutoAdjust">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+  </group>
+  <!--  PRESENCE SETTINGS  -->
+  <group name="presence">
+    <setting name="sipRlsUri">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <!--  CALL PARK SETTINGS  -->
+  <group name="callPark">
+    <setting name="callParkMethod">
+      <type>
+        <enum>
+          <option>
+            <value>none</value>
+          </option>
+          <option>
+            <value>prefix</value>
+          </option>
+          <option>
+            <value>incall DTMF</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="callParkExtension">
+      <type>
+        <string maxLen="22" />
+      </type>
+      <value />
+    </setting>
+    <setting name="callRtrvPrefix">
+      <type>
+        <string maxLen="22" />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <!--  CALL PICKUP SETTINGS  -->
+  <group name="callPickup">
+    <setting name="serverAssistCallPickup">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+    <setting name="callPickupPrefix">
+      <type>
+        <string maxLen="22" />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <!--  INTERCOM SETTINGS  -->
+  <group name="intercom">
+    <setting name="serverAssistedIntercom">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+    <setting name="intercomPrefixValue">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="alertInfoSecret">
+      <type>
+        <string maxLen="22" />
+      </type>
+      <value />
+    </setting>
+    <setting name="intercomTimeout">
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>15</value>
+    </setting>
+  </group>
+  <!--  SIP SETTINGS  -->
+  <group name="sipSettings">
+    <setting name="sipPort">
+      <type>
+        <integer min="0" max="65536" />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="offhookOnRefer">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="usePreloadedRoute">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="callerIdBlocking">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="incomingInvite">
+      <type>
+        <enum>
+          <option>
+            <value>PAId-From-Contact</value>
+          </option>
+          <option>
+            <value>PAId-Contact-From</value>
+          </option>
+        </enum>
+      </type>
+      <value>PAId-From-Contact</value>
+    </setting>
+    <setting name="okOfInvite">
+      <type>
+        <enum>
+          <option>
+            <value>PAId-Contact-To</value>
+          </option>
+          <option>
+            <value>PAId-To-Contact</value>
+          </option>
+        </enum>
+      </type>
+      <value>PAId-To-Contact</value>
+    </setting>
+    <!--  SIP PROXY SETTINGS  -->
+    <group name="sipProxy">
+      <setting name="proxyAddress" advanced="yes">
+        <type>
+          <hostname />
+        </type>
+        <value />
+      </setting>
+      <setting name="proxyPort" advanced="yes">
+        <type>
+          <integer min="0" max="65535" />
+        </type>
+      </setting>
+      <setting name="proxyTransport" advanced="yes">
+        <type>
+           <enum>
+            <option>
+              <value>Auto</value>
+            </option>
+            <option>
+              <value>UDP</value>
+            </option>
+            <option>
+              <value>TCP</value>
+            </option>
+          </enum>
+        </type>
+        <value>Auto</value>
+      </setting>
+      <setting name="proxyAddress1" advanced="yes">
+        <type>
+          <hostname />
+        </type>
+        <value />
+      </setting>
+      <setting name="proxy1Port" advanced="yes">
+        <type>
+          <integer min="0" max="65535" />
+        </type>
+      </setting>
+      <setting name="proxy1Transport" advanced="yes">
+        <type>
+           <enum>
+            <option>
+              <value>Auto</value>
+            </option>
+            <option>
+              <value>UDP</value>
+            </option>
+            <option>
+              <value>TCP</value>
+            </option>
+          </enum>
+        </type>
+        <value>Auto</value>
+      </setting>
+      <setting name="sipPingForServerRedundancy" advanced="yes">
+        <type refid="on-off" />
+        <value>FALSE</value>
+      </setting>
+    </group>
+  </group>
+  <!--  CODEC PREFERENCE SETTINGS  -->
+  <group name="voiceCodecs">
+    <setting name="preferredCodec">
+      <type refid="preferred-codecs-type"/>
+      <value>g711ulaw|g711alaw|g729</value>
+    </setting>
+  </group>
+  <!--  RTP SETTINGS  -->
+  <group name="rtpSettings">
+    <setting name="rtpPort">
+      <type>
+        <integer min="5000" max="65535" />
+      </type>
+      <value>5012</value>
+    </setting>
+    <setting name="rfc2833DynamicPayloadType">
+      <type>
+        <integer min="96" max="127" />
+      </type>
+      <value>101</value>
+    </setting>
+    <setting name="enableRtpAddressFiltering">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="enableRtpPortFiltering">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+  </group>
+  <!--  TONE SETTINGS  -->
+  <group name="toneSettings">
+    <setting name="enableRoutingTone">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="toneSet">
+      <type>
+        <enum>
+          <option>
+            <value>US/Canada</value>
+          </option>
+          <option>
+            <value>United Kingdom</value>
+          </option>
+          <option>
+            <value>Australia</value>
+          </option>
+        </enum>
+      </type>
+      <value>US/Canada</value>
+    </setting>
+    <setting name="ringtoneSelected">
+      <type>
+        <enum>
+          <option>
+            <value>Ringer1</value>
+          </option>
+          <option>
+            <value>Ringer2</value>
+          </option>
+          <option>
+            <value>Ringer3</value>
+          </option>
+          <option>
+            <value>Ringer4</value>
+          </option>
+          <option>
+            <value>Ringer5</value>
+          </option>
+          <option>
+            <value>Ringer6</value>
+          </option>
+          <option>
+            <value>Ringer7</value>
+          </option>
+          <option>
+            <value>Ringer8</value>
+          </option>
+          <option>
+            <value>Ringer9</value>
+          </option>
+          <option>
+            <value>Ringback</value>
+          </option>
+        </enum>
+      </type>
+      <value>Ringer1</value>
+    </setting>
+  </group>
+  <!--  MISC SETTINGS  -->
+  <group name="miscSettings">
+    <setting name="sipDialplan">
+      <type>
+        <string maxLen="128" />
+      </type>
+      <value />
+    </setting>
+    <setting name="disableCall1_2key">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="sipAutoDial">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="sipAutoDialUserid">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="disableCallWaiting">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="disableStarCodes">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+  </group>
+  <!--  FEATURE SETTINGS  -->
+  <group name="featureSettings">
+    <setting name="disableWebUi">
+      <type refid="on-off" />
+      <value>FALSE</value>
+    </setting>
+    <setting name="enableCallPark">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+    <setting name="enableConferencing">
+      <type refid="on-off" />
+      <value>TRUE</value>
+    </setting>
+  </group>
+</model>

@@ -1,0 +1,159 @@
+#!@BASH@
+
+## Threshold settings
+##
+## MailThreshold - disk usage threshold at which an email notification will be sent
+##                 to @SIPXPBXUSER@@localhost
+##
+## DeletionThreshold -  disk usage threshhold at which the script will attempt to
+##                      delete old log files (leaving th last 7 day of files) and
+##                      old voicemails.
+##
+## An an empty variable will  suppress any action if a threshold is exceeded.
+##
+## Example: DeletionThreshold=""  will disable the deletion mechanism
+##
+## It is important that these thresholds be
+##
+##    DeletionThreshold > MailThreshold
+
+MailThreshold="50%"
+DeletionThreshold="75%"
+
+## Mail settings
+
+Contact=@SIPXPBXUSER@@localhost
+Subject="Disk usage notification"
+From=@SIPXPBXUSER@@localhost
+
+## Paths
+
+Partition=@localstatedir@
+LogDir=@localstatedir@/log/sipxpbx
+
+## voicemail_clean script is now in same directory -get path
+Clean=`pwd`
+
+## Action functions - these are called when one of the thresholds is exceeded
+
+function MailThresholdAction() {
+  LogDetails=""
+  VoiceDetails=""
+  BuildNotificationBody $MailThreshold "email notification"
+  SendNotification
+}
+
+function DeletionThresholdAction() {
+  BuildNotificationBody $DeletionThreshold "deleting old logs and voicemails"
+
+  DaysOld=14
+  while [ $DaysOld -gt 7 ]; do
+    rm -f $LogDir/*.${DaysOld}.gz
+    DfCall "$Partition"
+    ExtractThresholdPartitions $DeletionThreshold
+    let "DaysOld-=1"
+    if [ -z "$Report" ]; then
+      DaysOld=0
+    fi
+    LogDetails="Disk usage after deletion of logs: $Report"
+  done
+
+  DaysOld=7
+  while [ $DaysOld -gt 1 ]; do
+    ${Clean}/voicemail_clean --days ${DaysOld}
+    DfCall "$Partition"
+    ExtractThresholdPartitions $DeletionThreshold
+    let "DaysOld-=1"
+    if [ -z "$Report" ]; then
+      DaysOld=0
+    fi
+    VoiceDetails="Disk usage after deletion of voicemails: $Report"
+  done
+  SendNotification
+}
+
+function DfCall() {
+  disk=`df $1 |grep dev`
+}
+
+function ExtractPartitions() {
+  Percent=""
+  Report=""
+  for Field in $disk; do
+    if [[ "$Field" == [0-9][0-9]% ]]; then
+      Percent=$Field
+    fi
+    if [[ "$Field" == [1-9]% ]]; then
+      Percent=$Field
+    fi
+    if [[ "$Field" == /* ]]; then
+      if [ -n "$Percent" ]; then
+        Report="$Report $Field $Percent"
+      fi
+      Percent=""
+    fi
+  done
+}
+
+function ExtractThresholdPartitions() {
+  Percent=""
+  Report=""
+  for Field in $disk; do
+    if [[ "$Field" == [0-9][0-9]% ]]; then
+      Percent=$Field
+    fi
+    if [[ "$Field" == [1-9]% ]]; then
+      Percent=$Field
+    fi
+    if [ -n "$Percent" ]; then
+      # The following comparison must be numeric (as the arguments have
+      # a variable number of digits), but the trailing '%'s have to be stripped
+      # first.
+      if [[ ${Percent%'%'} -gt ${1%'%'} ]]; then
+        Report="$Report $Percent ($PrevField available)"
+      fi
+    fi
+    Percent=""
+    PrevField=$Field
+  done
+}
+
+function BuildNotificationBody() {
+  Body="Disk usage on partition $Partition has exceeded the threshhold of $1 for $2."
+  Body="$Body The actual usage is $Report."
+}
+
+function SendNotification() {
+  (
+    echo "Date: `date -R`"
+    echo "To: $Contact"
+    echo "Subject: $Subject"
+    echo
+    echo $Body
+    if [ -n "$LogDetails" ]; then
+      echo
+      echo "$LogDetails"
+    fi
+    if [ -n "$VoiceDetails" ]; then
+      echo "$VoiceDetails"
+    fi
+  ) | /usr/sbin/sendmail "-f$From" "$Contact"
+}
+
+DfCall "$Partition"
+
+if [ -n "$DeletionThreshold" ]; then
+  ExtractThresholdPartitions $DeletionThreshold
+  if [ -n "$Report" ]; then
+      DeletionThresholdAction
+    exit 1
+  fi
+fi
+
+if [ -n "$MailThreshold" ]; then
+  ExtractThresholdPartitions $MailThreshold
+  if [ -n "$Report" ]; then
+      MailThresholdAction
+    exit 2
+  fi
+fi

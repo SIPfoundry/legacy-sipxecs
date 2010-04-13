@@ -1,0 +1,68 @@
+SIPX-LOG-CUT(1)
+================
+
+NAME
+----
+sipx-log-cut - extract log messages for a time interval from a sipXecs log file
+
+SYNOPSIS
+--------
+
+sipx-log-cut -i <input log file> -s <start timestamp> [-e <end timestamp>] [-t]
+
+DESCRIPTION
+-----------
+
+   Locates the latest log entry prior to the start time, and extracts all
+   entries up to and including the earliest one after the end time.
+
+   The timestamp must be specified in UCT (as it is in the log files); you
+   may omit the date, and may use a space for the 'T' separator, but
+   specify the date along with time if you have a multiday input log file
+   (otherwise you may get much bigger file than you expect).
+
+   By default, the output file is <input file>.cut
+
+OPTIONS
+-------
+
+   -i <input log file name>
+
+   -s <start timestamp>
+
+   -e <end timestamp>
+
+      If end timestamp is omitted, the physical end of log file will be used.
+
+   -t forces output to the stdout
+
+
+ENVIRONMENT
+-----------
+NONE
+  
+EXAMPLE
+-------  
+   
+        sipx-log-cut -i sipXproxy.log -s '2004-12-08 17:45:30' -e '2004-12-08T18:12:52'
+
+        sipx-log-cut -s '17:45:30' -i sipXproxy.log -t > extract_after_dinner
+
+SEE ALSO
+--------
+syslogviewer, syslog2siptrace
+
+BUGS
+----
+see http://tracker.sipfoundry.org/browse/XECS
+  
+AUTHOR
+------
+Andrew Golovanov
+
+
+
+
+
+
+

@@ -1,0 +1,25 @@
+#@BASH@
+
+## Source function library.
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# Ensure that sipx-sudo-time-manager is owned by root and grouped by @SIPXPBXGROUP@ and
+# that the UID permission bit is set.
+if test -e @SIPX_LIBEXECDIR@/sipx-sudo-time-manager
+then
+    is_file_owned_by_username @SIPX_LIBEXECDIR@/sipx-sudo-time-manager "root"
+    if [ $? -ne 0 ]
+    then
+        chown root:@SIPXPBXGROUP@ @SIPX_LIBEXECDIR@/sipx-sudo-time-manager
+    fi
+
+    is_file_grouped_by_username @SIPX_LIBEXECDIR@/sipx-sudo-time-manager @SIPXPBXGROUP@
+    if [ $? -ne 0 ]
+    then
+        chown root:@SIPXPBXGROUP@ @SIPX_LIBEXECDIR@/sipx-sudo-time-manager
+    fi
+    if test ! -x @SIPX_LIBEXECDIR@/sipx-sudo-time-manager -o ! -u @SIPX_LIBEXECDIR@/sipx-sudo-time-manager
+    then
+        chmod 4750 @SIPX_LIBEXECDIR@/sipx-sudo-time-manager
+    fi
+fi

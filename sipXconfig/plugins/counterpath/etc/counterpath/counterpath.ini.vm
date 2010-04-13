@@ -1,0 +1,71 @@
+## Velocity macros
+## only emit not null setting
+#macro(generate_setting $setting)
+#if($setting.profileName == $setting.name)
+#if($setting.value)
+${setting.name}="${setting.value}"
+#else
+#if($setting.name != "system:auto_update:code_server_url")
+${setting.name}=""
+#end
+#end
+#end
+#end
+#macro (computeCodecSettings $setting)
+#set ($priorities = $priorityCalculator.getCodecPriorities($setting))
+#set ($priorityKeys = $priorities.keySet())
+#foreach ($priority in $priorityKeys)
+#if ($priorities.get($priority) != "")
+codecs:${priority}:enabled="true"
+codecs:${priority}:priority="${priorities.get($priority)}"
+#else
+codecs:${priority}:enabled="false"
+#end
+#end
+#end
+[DATA]
+Success=1
+
+[SETTINGS]
+
+#foreach ($sip_account in $line_sip_settings)
+#set ($line_index = $velocityCount - 1)
+#foreach ($setting in $sip_account)
+proxies:proxy${line_index}:#generate_setting($setting)
+#end
+
+#end
+#set ($last_sip_line_index = $line_index)
+#foreach ($xmpp_account in $line_xmpp_settings)
+#set ($line_index = $last_sip_line_index + $velocityCount)
+#foreach ($setting in $xmpp_account)
+#if ($setting.name == "domain")
+proxies:proxy${line_index}:domain="$!{im_role_box_fqdn}"
+#else
+proxies:proxy${line_index}:#generate_setting($setting)
+#end
+#end
+
+#end
+#set ($starting_filling_line = $line_index + 1)
+#set ($ending_filling_line = $max_lines * 2 - 1)
+#if ($starting_filling_line <= $ending_filling_line)
+#foreach ($line_index in [$starting_filling_line..$ending_filling_line])
+proxies:proxy${line_index}:enabled="false"
+proxies:proxy${line_index}:username=""
+proxies:proxy${line_index}:domain=""
+proxies:proxy${line_index}:password=""
+
+#end
+#end
+#foreach ($setting in $phone_leaf_settings)
+#if($setting.name != "voiceCodecs" && $setting.name != "videoCodecs")
+#generate_setting($setting)
+#end
+#end
+
+#foreach ($setting in $phone_leaf_settings)
+#if($setting.name == "voiceCodecs" || $setting.name == "videoCodecs")
+#computeCodecSettings($setting)
+#end
+#end

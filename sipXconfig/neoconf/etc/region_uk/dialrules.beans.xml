@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--  The default dial plan for the United Kingdom  -->
+
+  <!-- properties: voiceMail, voiceMailPrefix -->
+  <bean id="uk.voicemailRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Voice mail" />
+    <property name="description" value="Default voice mail dialing plan" />
+    <property name="voiceMail" value="101" />
+    <property name="voiceMailPrefix" value="8" />
+  </bean>
+
+  <!-- properties: extension, attendantAliases -->
+  <bean id="uk.attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="Auto attendant" />
+    <property name="description" value="Default auto attendant dialing plan" />
+    <property name="extension" value="100" />
+    <property name="attendantAliases" value="operator 0" />
+  </bean>
+
+  <!-- properties: optionalPrefix, emergencyNumber -->
+  <bean id="uk.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Emergency" />
+    <property name="description" value="Emergency - central telephone number" />
+    <property name="optionalPrefix" value="9" />
+    <property name="emergencyNumber" value="112" />
+  </bean>
+  <bean id="uk.oldEmergencyRule" parent="uk.emergencyRule" singleton="false">
+    <property name="name" value="Old Emergency" />
+    <property name="description" value="Emergency - old central telephone number" />
+    <property name="emergencyNumber" value="999" />
+  </bean>
+  <bean id="uk.nonUrgentEmergencyRule" parent="uk.emergencyRule" singleton="false">
+    <property name="name" value="Non-urgent Emergency" />
+    <property name="description" value="Emergency - non-urgent emergencies" />
+    <property name="emergencyNumber" value="101" />
+  </bean>
+
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
+    longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
+  <bean id="uk.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="pstnPrefixOptional" value="true" />
+    <property name="pstnPrefix" value="9" />
+    <property name="longDistancePrefixOptional" value="false" />
+    <property name="longDistancePrefix" value="0" />
+    <property name="name" value="Long Distance" />
+    <property name="description" value="Long distance dialing plan" />
+    <property name="areaCodes" value="1,2" />
+    <property name="externalLen" value="10" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="uk.locationIndependentRule" parent="uk.longDistanceRule" singleton="false">
+    <property name="name" value="Location Independent" />
+    <property name="description" value="Location independent telephone numbers" />
+    <property name="areaCodes" value="3,55,56" />
+  </bean>
+  <bean id="uk.premiumRate" parent="uk.longDistanceRule" singleton="false">
+    <property name="name" value="Premium Rate" />
+    <property name="description" value="Premium rate services" />
+    <property name="areaCodes" value="90,91,98" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="uk.basicRate" parent="uk.longDistanceRule" singleton="false">
+    <property name="name" value="Basic Rate" />
+    <property name="description" value="Special services - basic rate" />
+    <property name="areaCodes" value="84" />
+  </bean>
+  <bean id="uk.nationalRate" parent="uk.longDistanceRule" singleton="false">
+    <property name="name" value="National Rate" />
+    <property name="description" value="Special services - national rate" />
+    <property name="areaCodes" value="87" />
+  </bean>
+  <bean id="uk.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+    <property name="name" value="Toll Free" />
+    <property name="description" value="Toll free dialing" />
+    <property name="areaCodes" value="80" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+  <bean id="uk.infolineRule" parent="uk.longDistanceRule" singleton="false">
+    <property name="name" value="Information" />
+    <property name="description" value="Information services" />
+    <property name="longDistancePrefixOptional" value="true" />
+    <property name="longDistancePrefix" value="" />
+    <property name="areaCodes" value="118" />
+    <property name="externalLen" value="6" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="uk.mobileRule" parent="uk.longDistanceRule" singleton="false">
+    <property name="name" value="Mobile Phones" />
+    <property name="description" value="Mobile phone dialing" />
+    <property name="areaCodes" value="75,77,78,79" />
+    <property name="permissionName" value="Mobile" />
+  </bean>
+  <bean id="uk.internationalRule" parent="defaultInternationalRule" singleton="false">
+    <property name="name" value="International" />
+    <property name="description" value="International dialing" />
+    <property name="longDistancePrefix" value="00" />
+    <property name="externalLen" value="-1" />
+    <property name="areaCodes" value="" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+
+  <!-- List of default rules provided by the UK dial plan template -->
+  <bean id="uk.dialPlan" parent="defaultDialPlan" singleton="false">
+    <property name="rules">
+      <list>
+        <ref bean="uk.voicemailRule" />
+        <ref bean="uk.attendantRule" />
+        <ref bean="uk.emergencyRule" />
+        <ref bean="uk.oldEmergencyRule" />
+        <ref bean="uk.nonUrgentEmergencyRule" />
+        <ref bean="uk.longDistanceRule" />
+        <ref bean="uk.locationIndependentRule" />
+        <ref bean="uk.premiumRate" />
+        <ref bean="uk.basicRate" />
+        <ref bean="uk.nationalRate" />
+        <ref bean="uk.tollFreeRule" />
+        <ref bean="uk.infolineRule" />
+        <ref bean="uk.mobileRule" />
+        <ref bean="uk.internationalRule" />
+      </list>
+    </property>
+  </bean>
+
+</beans>

@@ -1,0 +1,1056 @@
+<?xml version="1.0"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="ena-dis">
+    <boolean>
+      <true>
+        <value>enable</value>
+      </true>
+      <false>
+        <value>disable</value>
+      </false>
+    </boolean>
+  </type>
+  <type id="on-off">
+    <boolean>
+      <true>
+        <value>on</value>
+      </true>
+      <false>
+        <value>off</value>
+      </false>
+    </boolean>
+  </type>
+  <type id="port-number">
+    <integer required="yes" min="1" max="65534" />
+  </type>
+  <type id="restricted-port-number">
+    <integer required="yes" min="1024" max="32000" />
+  </type>
+  <type id="day-of-week">
+    <enum>
+      <option>
+        <label>Sunday</label>
+        <value>1</value>
+      </option>
+      <option>
+        <label>Monday</label>
+        <value>2</value>
+      </option>
+      <option>
+        <label>Tuesday</label>
+        <value>3</value>
+      </option>
+      <option>
+        <label>Wednesday</label>
+        <value>4</value>
+      </option>
+      <option>
+        <label>Thursday</label>
+        <value>5</value>
+      </option>
+      <option>
+        <label>Friday</label>
+        <value>6</value>
+      </option>
+      <option>
+        <label>Saturday</label>
+        <value>7</value>
+      </option>
+    </enum>
+  </type>
+  <type id="month-of-year">
+    <enum>
+      <option>
+        <label>January</label>
+        <value>1</value>
+      </option>
+      <option>
+        <label>February</label>
+        <value>2</value>
+      </option>
+      <option>
+        <label>March</label>
+        <value>3</value>
+      </option>
+      <option>
+        <label>April</label>
+        <value>4</value>
+      </option>
+      <option>
+        <label>May</label>
+        <value>5</value>
+      </option>
+      <option>
+        <label>June</label>
+        <value>6</value>
+      </option>
+      <option>
+        <label>July</label>
+        <value>7</value>
+      </option>
+      <option>
+        <label>August</label>
+        <value>8</value>
+      </option>
+      <option>
+        <label>September</label>
+        <value>9</value>
+      </option>
+      <option>
+        <label>October</label>
+        <value>10</value>
+      </option>
+      <option>
+        <label>November</label>
+        <value>11</value>
+      </option>
+      <option>
+        <label>December</label>
+        <value>12</value>
+      </option>
+    </enum>
+  </type>
+  <type id="priority-802">
+    <enum>
+      <option>
+        <label>disable</label>
+        <value>-1</value>
+      </option>
+      <option>
+        <value>0</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+      <option>
+        <value>2</value>
+      </option>
+      <option>
+        <value>3</value>
+      </option>
+      <option>
+        <value>4</value>
+      </option>
+      <option>
+        <value>5</value>
+      </option>
+      <option>
+        <value>6</value>
+      </option>
+      <option>
+        <value>7</value>
+      </option>
+    </enum>
+  </type>
+  <type id="vlan_id">
+    <integer required="yes" min="0" max="4094" />
+  </type>
+  <type id="preffered-codecs-type">
+    <multi-enum labelKeyPrefix="codec" separator=" ">
+      <option>
+        <value>pcma</value>
+      </option>
+      <option>
+        <value>pcmu</value>
+      </option>
+      <option>
+        <value>g729</value>
+      </option>
+      <option>
+        <value>g723</value>
+      </option>
+    </multi-enum>
+  </type>
+  <group name='LAN'>
+    <setting name='tos'>
+      <value>b8</value>
+    </setting>
+    <setting name='pc_802_priority'>
+      <type refid="priority-802" />
+      <value>3</value>
+    </setting>
+    <setting name='pc_vlan_id'>
+      <type refid="vlan_id" />
+      <value>0</value>
+    </setting>
+    <setting name='phone_802_priority'>
+      <type refid="priority-802" />
+      <value>5</value>
+    </setting>
+    <setting name='phone_vlan_id'>
+      <type refid="vlan_id" />
+      <value>0</value>
+    </setting>
+  </group>
+  <group name='VOIP'>
+    <setting name='outbound_proxy_server' advanced="yes"/>
+    <setting name='outbound_proxy_port' advanced="yes">
+      <type refid="restricted-port-number" />
+      <value>5060</value>
+    </setting>
+    <setting name='backup_proxy_server' advanced="yes" />
+    <setting name='backup_proxy_port' advanced="yes">
+      <type refid="restricted-port-number" />
+      <value>5060</value>
+    </setting>
+    <setting name='SIP_service_domain' advanced="yes" />
+    <setting name="moh_url" advanced="yes" />
+    <setting name='rtp_port' advanced="yes">
+      <type>
+        <integer required="yes" min="16300" max="32700" />
+      </type>
+      <value>23000</value>
+    </setting>
+    <setting name='prack_mode' advanced="yes">
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='user_param' advanced="yes">
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='replaces_mode' advanced="yes">
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='local_udp_port' advanced="yes">
+      <type refid="restricted-port-number" />
+      <value>5060</value>
+    </setting>
+    <setting name='message_url' advanced="yes">
+      <value />
+    </setting>
+    <setting name='preferred_codec'>
+      <!--TODO: preferred codec list, g729/g723/pcmu/pcma (default: priority 1, g.729) -->
+      <type refid="preffered-codecs-type"/>
+      <value>pcmu pcma g729 g723</value>
+    </setting>
+    <setting name='timer_register_expires' advanced="yes">
+      <type>
+        <integer required="yes" min="0" max="6400" />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name='timer_session' advanced="yes">
+      <type>
+        <integer required="yes" min="0" max="640" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='timer_t1'>
+      <type>
+        <integer required="yes" min="100" max="640" />
+      </type>
+      <value>500</value>
+    </setting>
+    <setting name='timer_t2'>
+      <type>
+        <integer required="yes" min="641" max="6400" />
+      </type>
+      <value>4000</value>
+    </setting>
+    <setting name='stun_server'>
+      <value />
+    </setting>
+    <setting name='max_line_num' hidden="yes">
+      <type>
+        <integer />
+      </type>
+    </setting>
+  </group>
+  <group name='DSP'>
+    <setting name='ringer_off'>
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name='VAD'>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name='dtmf_payload'>
+      <type>
+        <integer min="96" max="255" />
+      </type>
+      <value>101</value>
+    </setting>
+    <setting name='frame_duration'>
+      <type>
+        <integer min="10" max="100" />
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name='headset_mode'>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='dtmf'>
+      <type>
+        <enum>
+          <option>
+            <value>inband</value>
+          </option>
+          <option>
+            <value>nego</value>
+          </option>
+          <option>
+            <value>rfc2833</value>
+          </option>
+          <option>
+            <value>info</value>
+          </option>
+        </enum>
+      </type>
+      <value>nego</value>
+    </setting>
+    <setting name='ringtype0'>
+      <!--two value space separated array, 0~40000 Hz -->
+      <value>425 440</value>
+    </setting>
+    <setting name='ringtype1'>
+      <!--two value space separated array, 0~40000 Hz -->
+      <value>530 555</value>
+    </setting>
+    <setting name='cadence0'>
+      <!--6 value space separated array, 0~30000 msec -->
+      <value>2000 4000 0 0 0 0</value>
+    </setting>
+    <setting name='cadence1'>
+      <!--6 value space separated array, 0~30000 msec -->
+      <value>800 400 800 4000 0 0</value>
+    </setting>
+    <setting name='cadence2'>
+      <!--6 value space separated array, 0~30000 msec -->
+      <value>400 200 400 200 800</value>
+    </setting>
+    <setting name='cadence3'>
+      <!--6 value space separated array, 0~30000 msec -->
+      <value>300 200 1000 200 300</value>
+    </setting>
+    <setting name='cadence4'>
+      <!--6 value space separated array, 0~30000 msec -->
+      <value>500 0 0 0 0 0</value>
+    </setting>
+    <setting name='jitterbuffer_min_delay'>
+      <type>
+        <integer required="yes" min="0" max="150" />
+      </type>
+      <value>30</value>
+    </setting>
+    <setting name='jitterbuffer_nom_delay'>
+      <type>
+        <integer required="yes" min="0" max="150" />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name='jitterbuffer_max_delay'>
+      <type>
+        <integer required="yes" min="0" max="150" />
+      </type>
+      <value>120</value>
+    </setting>
+  </group>
+  <group name='FWRD'>
+    <setting name='condition'>
+      <!---1=disable Fwd/0=none/1=no-answer/2=busy/3=no-answer & busy/4=un-conditional
+      -->
+      <type>
+        <enum>
+          <option>
+            <value>-1</value>
+          </option>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+      <value>-1</value>
+    </setting>
+    <setting name='forwarding_address'>
+      <type>
+        <string maxLen="60" />
+      </type>
+    </setting>
+    <setting name='noanswer_time'>
+      <type>
+        <integer min="1" max="30" />
+      </type>
+      <value>10</value>
+    </setting>
+  </group>
+  <group name='DIAL'>
+    <setting name='dial_mode' advanced="yes">
+      <!--Dial Mode, number/ip/url (default: number)
+      -->
+      <type>
+        <enum>
+          <option>
+            <value>number</value>
+          </option>
+          <option>
+            <value>ip</value>
+          </option>
+          <option>
+            <value>url</value>
+          </option>
+        </enum>
+      </type>
+      <value>number</value>
+    </setting>
+    <setting name='pause_timer'>
+      <type>
+        <integer min="1" max="30" />
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name='inter_digit_timer'>
+      <type>
+        <integer min="1" max="30" />
+      </type>
+      <value>6</value>
+    </setting>
+    <setting name='emergency_number'>
+      <profileName>$ignore$</profileName>
+    </setting>
+    <setting name='emergency_address'>
+      <profileName>$ignore$</profileName>
+     <type>
+       <ipaddr />
+     </type>
+    </setting>
+  </group>
+  <!-- 
+    <group name='PROG' hidden="yes">
+    Generated by speeddial functionality
+    
+    ;add prog func [num]     
+    ;Entries for programmable buttons. Type the word “add” followed by space, the
+    button number, space, function number and for speed dials the number to dial. For message function
+    enter the url, ip address or telephone number for voice mail.
+    
+    prog = programmable button number, 6804N:3~4, 6812D:3~11, 6830D:3~24
+    func = 0 for no function
+    1 for Speed Dial
+    2 for Phone Book
+    3 for Call Log
+    4 for Mute
+    5 for Headset
+    6 for Redial
+    7 for Return
+    8 for FWRD
+    9 for CONF
+    10 for TRNS
+    11 for Hold
+    12 for DND
+    13 Ringer Off
+    14 Message
+    15 ACD Agent
+    16 Intercom
+    [num] =             ;Speed Dial phone number or Vmail contact, max.50 character string.
+    
+    </group>
+  -->
+  <group name='CALL'>
+    <setting name='caller_id_blk'>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='anonymous_call_blk'>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='call_waiting'>
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='call_waiting_tone'>
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='call_hold_ringback'>
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='msg_waiting_tone'>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='auto_answer'>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='intercom_noti'>
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='acd_active'>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='acd_primary_line' advanced="yes" />
+    <setting name='acd_unavail_completed' advanced="yes">
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='acd_unavail_missed' advanced="yes">
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='acd_unavail_time_completed'>
+      <type>
+        <integer min="0" max="999" />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name='call_direct'>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='call_direct_number' />
+    <setting name='call_direct_timer'>
+      <type>
+        <integer min="0" max="10" />
+      </type>
+      <value>5</value>
+    </setting>
+  </group>
+  <group name='SNMP'>
+    <setting name='snmp_function'>
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name='snmp_manager_address'>
+      <value />
+    </setting>
+    <setting name='snmp_read_community'>
+      <type>
+        <string maxLen="31" password="yes" />
+      </type>
+    </setting>
+    <setting name='snmp_write_community'>
+      <type>
+        <string maxLen="31" password="yes" />
+      </type>
+    </setting>
+  </group>
+  <group name='SYSTEM'>
+    <setting name='lang'>
+      <type>
+        <enum>
+          <option>
+            <label>English</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>French</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>Korean</label>
+            <value>2</value>
+          </option>
+          <option>
+            <label>Danish</label>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='phone_password' unless="lip6804">
+      <type>
+        <string minLen='4' maxLen='4' password="yes" />
+      </type>
+    </setting>
+    <setting name='lock_outgoing_call'>
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='use_speed_number'>
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name='web_server'>
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name='telnet_server'>
+      <type>
+        <boolean>
+          <true>
+            <value>1</value>
+          </true>
+          <false>
+            <value>0</value>
+          </false>
+        </boolean>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name='call_park' hidden="yes">
+      <profileName>function call_park</profileName>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='call_pickup' hidden="yes">
+      <profileName>function call_pickup</profileName>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='group_call_pickup' hidden="yes">
+      <profileName>function group_call_pickup</profileName>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+    <setting name='direct_call_pickup' hidden="yes">
+      <profileName>function direct_call_pickup</profileName>
+      <type refid="ena-dis" />
+      <value>disable</value>
+    </setting>
+  </group>
+  <group name='PROVISION'>
+    <setting name="overwrite">
+      <profileName>$ignore$</profileName>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='type' advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <label>tftp</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>https</label>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="cfg_download" hidden="yes">
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name="sw_download" advanced="yes">
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='dhcp_get_tftp'>
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='https_url' advanced="yes">
+      <value />
+    </setting>
+    <setting name='dhcp_get_http' advanced="yes">
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='https_port' advanced="yes">
+      <type refid="port-number" />
+      <value>443</value>
+    </setting>
+    <setting name='https_id' advanced="yes">
+      <type>
+        <string maxLen="50" />
+      </type>
+    </setting>
+    <setting name='https_password' advanced="yes">
+      <type>
+        <string maxLen="50" />
+      </type>
+    </setting>
+    <setting name='https_macform' hidden="yes">
+      <type>
+        <string maxLen="50" />
+      </type>
+      <value>$MAC</value>
+    </setting>
+    <setting name='verifying_cert' advanced="yes">
+      <type>
+        <integer min="0" max="7" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='smartup_use'>
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='smartup_type'>
+      <type>
+        <enum>
+          <option>
+            <label>interval</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>daily</label>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name='smartup_interval'>
+      <type>
+        <integer min="3600" max="86400" />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name='smartup_time'>
+      <type>
+        <integer min="0" max="23" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='smartup_confirm'>
+      <type refid="ena-dis" />
+      <value>enable</value>
+    </setting>
+    <setting name='decrypt_key'>
+      <type>
+        <string maxLen="64" />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <group name='NETTIME'>
+    <setting name='sntp_server_address'>
+      <value />
+    </setting>
+    <setting name='interval'>
+      <type>
+        <integer min="0" max="120" />
+      </type>
+      <value>24</value>
+    </setting>
+    <setting name='timezone'>
+      <type>
+        <enum>
+          <option>
+            <value>60</value><!--GMT-12:00 Int.Date Line, West-->
+          </option>
+          <option>
+            <value>61</value><!--GMT-11:00 Midway/Samoa-->
+          </option>
+          <option>
+            <value>1</value><!--GMT-10:00 Hawaii-->
+          </option>
+          <option>
+            <value>62</value><!--GMT-09:00 Alaska-->
+          </option>
+          <option>
+            <value>2</value><!--GMT-08:00 Los Angeles, Califonnia-->
+          </option>
+          <option>
+            <value>3</value><!--GMT-08:00 Pacific Standard-->
+          </option>
+          <option>
+            <value>4</value><!--GMT-07:00 Mountain Standard-->
+          </option>
+          <option>
+            <value>5</value><!--GMT-06:00 Central Standard-->
+          </option>
+          <option>
+            <value>6</value><!--GMT-06:00 Mexico City, Mexico-->
+          </option>
+          <option>
+            <value>7</value><!--GMT-06:00 Saskatc., Canada-->
+          </option>
+          <option>
+            <value>8</value><!--GMT-05:00 Bogota, Colombia-->
+          </option>
+          <option>
+            <value>9</value><!--GMT-05:00 Eastern Standard-->
+          </option>
+          <option>
+            <value>10</value><!--GMT-05:00 Lima, Peru-->
+          </option>
+          <option>
+            <value>11</value><!--GMT-05:00 New York, NY-->
+          </option>
+          <option>
+            <value>12</value><!--GMT-04:00 Atlantic Standard-->
+          </option>
+          <option>
+            <value>13</value><!--GMT-04:00 Caracas, Venezuela-->
+          </option>
+          <option>
+            <value>14</value><!--GMT-04:00 La Paz, Bolivia-->
+          </option>
+          <option>
+            <value>15</value><!--GMT-03:30 Newfoundland-->
+          </option>
+          <option>
+            <value>16</value><!--GMT-03:00 Brasilia, Brazil-->
+          </option>
+          <option>
+            <value>17</value><!--GMT-03:00 Buenos Aires, Argentina-->
+          </option>
+          <option>
+            <value>18</value><!--GMT-03:00 Georgetown, Guyana-->
+          </option>
+          <option>
+            <value>63</value><!--GMT-02:00 Nuuk, Greenland-->
+          </option>
+          <option>
+            <value>19</value><!--GMT-01:00 Azores, Portugal-->
+          </option>
+          <option>
+            <value>20</value><!--GMT-01:00 Cape Verde-->
+          </option>
+          <option>
+            <value>21</value><!--GMT 00:00 Casablanca, Morocco-->
+          </option>
+          <option>
+            <value>22</value><!--GMT 00:00 Lisbon, Portugal-->
+          </option>
+          <option>
+            <value>23</value><!--GMT 00:00 London, England-->
+          </option>
+          <option>
+            <value>24</value><!--GMT+01:00 Amsterdam, Nertherlands-->
+          </option>
+          <option>
+            <value>25</value><!--GMT+01:00 Berlin, Germany-->
+          </option>
+          <option>
+            <value>26</value><!--GMT+01:00 Bern, Switzerland-->
+          </option>
+          <option>
+            <value>27</value><!--GMT+01:00 Brussels, Belgium-->
+          </option>
+          <option>
+            <value>28</value><!--GMT+01:00 Central Europeon-->
+          </option>
+          <option>
+            <value>59</value><!--GMT+01:00 Copenhagen, Denmark-->
+          </option>
+          <option>
+            <value>29</value><!--GMT+01:00 Madrid, Spain-->
+          </option>
+          <option>
+            <value>30</value><!--GMT+01:00 Oslo, Norway-->
+          </option>
+          <option>
+            <value>31</value><!--GMT+01:00 Paris, France-->
+          </option>
+          <option>
+            <value>32</value><!--GMT+01:00 Rome, Italy-->
+          </option>
+          <option>
+            <value>33</value><!--GMT+01:00 Stocholm, Sweden-->
+          </option>
+          <option>
+            <value>34</value><!--GMT+01:00 Vienna, Austria-->
+          </option>
+          <option>
+            <value>35</value><!--GMT+02:00 Athens, Greece-->
+          </option>
+          <option>
+            <value>36</value><!--GMT+02:00 Harare, Zimbabwe-->
+          </option>
+          <option>
+            <value>37</value><!--GMT+02:00 Helsinki, Finland-->
+          </option>
+          <option>
+            <value>38</value><!--GMT+02:00 Istanbul, Turkey-->
+          </option>
+          <option>
+            <value>39</value><!--GMT+02:00 Jerusalem, Israel-->
+          </option>
+          <option>
+            <value>40</value><!--GMT+03:00 Kuwait-->
+          </option>
+          <option>
+            <value>41</value><!--GMT+03:00 Moscow, Russia-->
+          </option>
+          <option>
+            <value>42</value><!--GMT+03:00 Nairobi, Kenya-->
+          </option>
+          <option>
+            <value>43</value><!--GMT+03:00 Riyard, Saudi Arabia-->
+          </option>
+          <option>
+            <value>44</value><!--GMT+03:30 Tehran, Iran-->
+          </option>
+          <option>
+            <value>45</value><!--GMT+04:00 Abu Dhabi, UAE-->
+          </option>
+          <option>
+            <value>46</value><!--GMT+04:00 Tblisi, Georgia-->
+          </option>
+          <option>
+            <value>47</value><!--GMT+04:30 Kabul, Afghanistan-->
+          </option>
+          <option>
+            <value>64</value><!--GMT+05:00 Islamabad, Pakistan-->
+          </option>
+          <option>
+            <value>48</value><!--GMT+05:30 New Delhi, India-->
+          </option>
+          <option>
+            <value>65</value><!--GMT+06:00 Dhaka, Bangladesh-->
+          </option>
+          <option>
+            <value>66</value><!--GMT+06:30 Yangon, Myanmar-->
+          </option>
+          <option>
+            <value>49</value><!--GMT+07:00 Bankok, Thailand-->
+          </option>
+          <option>
+            <value>50</value><!--GMT+07:00 Jakarta, Indonesia-->
+          </option>
+          <option>
+            <value>51</value><!--GMT+08:00 Bejing, China-->
+          </option>
+          <option>
+            <value>52</value><!--GMT+09:00 Seoul, Korea-->
+          </option>
+          <option>
+            <value>53</value><!--GMT+09:00 Tokyo, Japan-->
+          </option>
+          <option>
+            <value>54</value><!--GMT+09:30 Darwin, Australia-->
+          </option>
+          <option>
+            <value>55</value><!--GMT+10:00 Guam Standard-->
+          </option>
+          <option>
+            <value>67</value><!--GMT+11:00 Solomon Islands-->
+          </option>
+          <option>
+            <value>56</value><!--GMT+12:00 Marshall Islands-->
+          </option>
+          <option>
+            <value>57</value><!--GMT+12:00 Auckland, Wellington-->
+          </option>
+          <option>
+            <value>58</value><!--GMT+13:00 Nuku'Alofa-->
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+    <setting name='dst_auto_adjust'>
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name='dst_start_month'>
+      <type refid="month-of-year" />
+      <value>4</value>
+    </setting>
+    <setting name='dst_start_day'>
+      <type>
+        <integer min="0" max="31" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='dst_start_day_of_week'>
+      <type refid="day-of-week" />
+      <value>1</value>
+    </setting>
+    <setting name='dst_start_week_of_month'>
+      <type>
+        <integer min="1" max="7" />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name='dst_start_time'>
+      <type>
+        <integer min="0" max="23" />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name='dst_stop_month'>
+      <type refid="month-of-year" />
+      <value>10</value>
+    </setting>
+    <setting name='dst_stop_day'>
+      <type>
+        <integer min="0" max="31" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='dst_stop_day_of_week'>
+      <type refid="day-of-week" />
+      <value>1</value>
+    </setting>
+    <setting name='dst_stop_week_of_month'>
+      <type>
+        <integer min="1" max="7" />
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name='dst_stop_time'>
+      <type>
+        <integer min="0" max="23" />
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name='time_format'>
+      <type>
+        <enum>
+          <option>
+            <label>off</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>12h</label>
+            <value>1</value>
+          </option>
+          <option>
+            <label>24h</label>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+  </group>
+</model>

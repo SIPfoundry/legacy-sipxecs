@@ -1,0 +1,5 @@
+SIP_DOMAIN_NAME : domain.example.org
+SIP_REALM : realm.example.org
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : sipx.example.org
+

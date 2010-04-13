@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+	"-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+	"http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+<body>
+<![CDATA[
+dojo.require("dojo.io.*");
+dojo.require("dojo.io.ScriptSrcIO");
+
+var waitForServerDown = true;
+var timeToExpire = 0;
+var targetUrl = location.href;
+
+function makeRequest() {
+    dojo.io.bind({
+    	preventCache:true,
+        url: targetUrl,
+        load: onLoad,
+        error:onError,
+        mimetype: "text/plain",
+        timeout: onTimeout,
+        timeoutSeconds: 5
+    });
+}
+function onLoad(type, data, event){
+	if(waitForServerDown){
+		if(timeToExpire>1800000){
+		    alert("Timeout expired. Server is not down.");
+		    window.location=targetUrl;
+	    }
+	    else{
+			setTimeout('makeRequest()', 5000);
+		    timeToExpire+=5000;
+	    }
+	}else{
+		window.location=targetUrl;
+	}
+}
+function onError(type,error){
+	waitForServerDown = false;
+	setTimeout('makeRequest()', 5000);
+}
+function onTimeout(){
+	waitForServerDown = false;
+	setTimeout('makeRequest()', 5000);
+}
+function onWaitingListenerResponse() {
+}
+]]>
+</body>
+<initialization>
+   makeRequest();
+   triggerWaitingListener();
+</initialization>
+</script>

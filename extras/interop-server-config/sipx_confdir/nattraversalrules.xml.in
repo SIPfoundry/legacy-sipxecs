@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<nattraversal xmlns="http://www.sipfoundry.org/sipX/schema/xml/nattraversalrules-00-00">
+  <info>
+    <state>enabled</state>
+    <behindnat>false</behindnat>
+    <useSTUN>false</useSTUN>
+    <rediscovery-time>60</rediscovery-time>
+    <publicaddress>${MY_IP_ADDR}</publicaddress>
+    <proxyhostport>${MY_IP_ADDR}:${PROXY_SERVER_SIP_PORT}</proxyhostport>
+    <relayaggressiveness>Aggressive</relayaggressiveness>
+    <concurrentrelays>50</concurrentrelays>
+    <mediarelayexternaladdress>${MY_IP_ADDR}</mediarelayexternaladdress>
+    <mediarelaynativeaddress>${MY_IP_ADDR}</mediarelaynativeaddress>
+    <mediarelayxml-rpc-port>9090</mediarelayxml-rpc-port>
+    <port-range>30000:30500</port-range>
+    <log-level>DEBUG</log-level>
+    <log-directory>/var/log/sipxpbx</log-directory>
+  </info>
+  <localtopology>
+  </localtopology>
+</nattraversal>

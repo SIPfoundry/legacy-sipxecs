@@ -1,0 +1,30 @@
+<!DOCTYPE script PUBLIC
+  "-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+  "http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+  <script>
+  <body>
+    <![CDATA[
+        function checkAll(event){
+            var changeTo = true;
+            if (!event.target.checked){
+              changeTo = false;
+            }
+            for (i=0;i<document.forms.refreshForm.elements.length;i++){
+              if (document.forms.refreshForm.elements[i].type == "checkbox" && document.forms.refreshForm.elements[i].id != "controlCheckbox"){
+                document.forms.refreshForm.elements[i].checked = changeTo;
+              }
+            }
+        }
+    ]]>
+  </body>
+  <!--
+    HACK: setCheckboxGroup function is constructed statically using the checkboxes
+    present when the page is rendered. Thus, if the rows are added dynamically to
+    the table, the function will not take into account the new checkboxes.
+    This hack binds a new control to the master checkbox.
+   -->
+  <initialization>
+    var checkBoxAll = dojo.byId("controlCheckbox");
+    dojo.event.connect(checkBoxAll, "onclick", checkAll);
+  </initialization>
+</script>

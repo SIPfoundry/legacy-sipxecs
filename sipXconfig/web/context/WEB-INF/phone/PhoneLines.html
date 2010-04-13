@@ -1,0 +1,73 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@phone/PhoneNavigation" bean="ognl:phone">
+    <span jwcid="@common/QuickHelp" value="message:intro"/>
+  </span>
+  <span jwcid="@common/QuickHelp" value="message:help"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <form jwcid="editLinesForm@Form">
+      <ul class="component-links">
+        <li>
+          <span key="maxLines">Maximum Supported Lines</span>: <span jwcid="@Insert" value="ognl:maxLineCount"/>
+        </li>
+        <li>
+          <a id="AddUser" jwcid="addLineLink@DirectLink"
+            listener="listener:addLine"
+            parameters="ognl:phone.id">
+            <span key="link.AddLine">Add Line</span>
+          </a>
+        </li>
+        <li jwcid="@If" condition="ognl:externalLinesSupported">
+          <a id="AddExternalLine" jwcid="addExternalLineLink@DirectLink"
+            listener="listener:addExternalLine"
+            parameters="ognl:phone.id">
+            <span key="link.AddExternal">Add External Line</span>
+          </a>
+        </li>
+      </ul>
+      <table jwcid="lineTableView@common/Table" id="line:list"
+        source="ognl:lines"
+        columns="* !line:displayLabel"
+        row="ognl:currentRow"
+        index="ognl:currentIndex"
+        selections="ognl:selections">
+        <span jwcid="lineColumnValue@Block">
+          <a jwcid="editLineLink@DirectLink"
+            listener="listener:editLine"
+            parameters="ognl:currentRow.id"
+            id="ognl:'link:line' + currentIndex">
+            <span jwcid="@Insert" value="ognl:currentRow.uri"/>
+          </a>
+        </span>
+      </table>
+      <ul class="component-submit">
+        <li>
+          <submit id="line:delete" jwcid="@Submit"
+            listener="listener:deleteLine"
+            value="message:button.delete"/>
+        </li>
+        <li>
+          <submit id="line:moveUp" jwcid="@Submit"
+            listener="listener:moveLineUp"
+            value="message:button.moveUp"/>
+        </li>
+        <li>
+          <submit id="line:moveDown" jwcid="@Submit"
+            listener="listener:moveLineDown"
+            value="message:button.moveDown"/>
+        </li>
+      </ul>
+      <ul class="form-actions">
+        <li>
+          <input type="submit" jwcid="@Submit" listener="listener:ok" value="message:button.ok"/>
+        </li>
+        <li>
+          <input type="submit" jwcid="@Submit" listener="listener:apply" value="message:button.apply"/>
+        </li>
+        <li>
+          <input type="submit" jwcid="@Submit" listener="listener:cancel" value="message:button.cancel"/>
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>

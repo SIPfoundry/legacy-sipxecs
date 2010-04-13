@@ -1,0 +1,226 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX forwardingrules
+  -->
+<schema
+    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/forwardingrules-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/forwardingrules-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+  <annotation>
+    <documentation>
+      Rules for routing a SIP request based on request uri, method, and/or event package
+    </documentation>
+    <documentation source='http://scm.sipfoundry.org/rep/sipX/main/sipXproxy/doc/forwardingrules.xml'/>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='routes'>
+    <annotation>
+      <documentation>
+        Contains one or more route elements.
+        Each route element is evaluated until a route is found.
+        If no route is found and a final routeTo element is present, then
+        that route is used.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:route' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:routeTo' minOccurs='0' maxOccurs='1'/>
+      </sequence>
+    </complexType>
+
+    <key name="routeTypeName"> <!-- each route element must have an unique mappingType value -->
+      <selector xpath=".//route"/>
+      <field xpath="@mappingType"/>
+    </key>
+  </element>
+
+  <element name='route'>
+    <annotation>
+      <documentation>
+      A route may contain:
+        multiple routeFrom elements, followed by a single methodMatch element.
+        optionally followed by a single routeTo element.
+
+      The host part of the target URI is compared with each routeFrom element until one matches.
+        if none match, the routeTo element is used.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description' minOccurs='0' maxOccurs='1'/>
+        <group   ref='dmp:domainMatches' minOccurs='1' maxOccurs='unbounded'/>
+        <element ref='dmp:methodMatch' minOccurs='0' maxOccurs='1'/>
+        <element ref='dmp:routeTo'     minOccurs='0' maxOccurs='1'/>
+      </sequence>
+      <attribute name='mappingType' use='required' type='string'/> <!-- see key routeTypeName -->
+    </complexType>
+  </element>
+
+  <group name="domainMatches">
+    <choice>
+      <element ref='dmp:routeFrom'/>
+      <element ref='dmp:routeIPv4subnet'/>
+      <element ref='dmp:routeDnsWildcard'/>
+    </choice>
+  </group>
+
+  <element name='routeFrom'>
+    <annotation>
+      <documentation>
+        The host part of the target URI is compared with each routeFrom
+        until one matches.
+        The host part must match exactly.
+        The port must match exactly, except that the value 5060 matches
+        an unspecified value.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+        <pattern value="[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)*(:[0-9]+)?" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='routeIPv4subnet'>
+    <annotation>
+      <documentation>
+        A series of IPv4 address decimal octet values separated by dots (.),
+        followed by a forward slash (/) and a decimal number of bits to
+        be used as a subnet mask value.
+        In order to match an IPv4subnet value, the request uri domain must
+        be a valid IPv4 dotted quad address whose value is within the subnet
+        specified.
+        No port number may be specified, and port is not considered in the match.
+
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+        <pattern value="[0-9]{1,3}(\.[0-9]{1,3}){0,3}/[0-9]{1,2}" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='routeDnsWildcard'>
+    <annotation>
+      <documentation>
+        A DNS name whose leftmost label is '*'.
+        The asterisk ('*') in the pattern matches any sequence of dns name tokens
+        and dots.
+        The pattern must match the full domain value from the request URI.
+        No port number may be specified, and port is not considered in the match.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+         <pattern value="\*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*[a-zA-Z0-9]*)*" />
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='methodMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of match specifiers for the SIP method
+        and then other rules to be applied to any address that matches at least
+        one of the specified userPattern specifiers.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description'   minOccurs='0' maxOccurs='1'/>
+        <element ref='dmp:methodPattern' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:fieldMatch'    minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:routeTo'       minOccurs='0' maxOccurs='1'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <simpleType name='sip_token'>
+    <annotation>
+      <documentation>
+        Matches all syntactically valid SIP Methods (token)
+      </documentation>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="([-a-zA-Z0-9.!%*_+`'~]+)"/> <!-- RFC 3261 section 25.1 -->
+    </restriction>
+  </simpleType>
+
+  <element name='methodPattern' type='dmp:sip_token'>
+    <annotation>
+      <documentation>
+        A string value used to match the method of a SIP request;
+        note that despite the name, it must match the entire pattern - it
+        is not a regular expression or other pattern match.
+        Matching is (as defined by SIP for all tokens) case independent.
+      </documentation>
+    </annotation>
+  </element>
+
+  <simpleType name='validFields'>
+    <annotation>
+      <documentation>
+        The header field names valid in a fieldName attribute.
+      </documentation>
+    </annotation>
+    <restriction base='string'>
+      <enumeration value='Event'/>
+    </restriction>
+  </simpleType>
+
+  <element name='fieldMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of match specifiers for the user part of a SIP address
+        and then other rules to be applied to any address that matches at least
+        one of the specified user patterns.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description'  minOccurs='0' maxOccurs='1'/>
+        <element ref='dmp:fieldPattern' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:routeTo'      minOccurs='0' maxOccurs='1'/>
+      </sequence>
+      <attribute name="fieldName" use="required" type="dmp:validFields"/>
+    </complexType>
+  </element>
+
+  <element name='fieldPattern' type='normalizedString'>
+    <annotation>
+      <documentation>
+        A perl regular expression used to match the Event header value of a SIP request.
+        Matching is (as defined by SIP for all tokens) case independent.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='routeTo'>
+    <annotation>
+      <documentation>
+        The SIP URL to be inserted as a loose route.
+      </documentation>
+    </annotation>
+    <complexType>
+       <simpleContent>
+          <extension base='normalizedString'>
+             <attribute name='authRequired' use='optional' type='boolean' default='false'/>
+          </extension>
+       </simpleContent>
+    </complexType>
+  </element>
+
+  <element name='description' type='string'>
+    <annotation>
+      <documentation>
+        Used to describe the rule in the user interface.
+      </documentation>
+    </annotation>
+  </element>
+
+</schema>

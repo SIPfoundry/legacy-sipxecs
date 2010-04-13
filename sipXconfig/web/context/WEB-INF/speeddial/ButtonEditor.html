@@ -1,0 +1,38 @@
+<tr>
+  <td>
+    <span jwcid="label@TextField"
+      value="ognl:button.label"
+      displayName="ognl:container.messages.getMessage('label.label')" />
+  </td>
+  <td>
+    <span jwcid="number@TextField"
+      value="ognl:button.number"
+      validators="spring-validators:required,validPhoneOrAor"
+      displayName="ognl:container.messages.getMessage('label.number')" />
+  </td>
+  <td>
+    <span jwcid="blf@Checkbox"
+      value="ognl:button.blf" />
+  </td>
+  <td>
+    <a jwcid="linkDelete@LinkSubmit"
+      selected="ognl:removeIndex"
+      tag="ognl:index">
+      <span key="button.delete">Delete</span>
+    </a>
+  </td>
+  <td>
+    <span jwcid="@If" condition="ognl:renderUp">
+      <a jwcid="@LinkSubmit" listener="listener:up">
+        <span key="link.up">Up</span>
+      </a>
+    </span>
+  </td>
+  <td>
+    <span jwcid="@If" condition="ognl:renderDown">
+      <a jwcid="@LinkSubmit" listener="listener:down">
+        <span key="link.down">Down</span>
+      </a>
+    </span>
+  </td>
+</tr>

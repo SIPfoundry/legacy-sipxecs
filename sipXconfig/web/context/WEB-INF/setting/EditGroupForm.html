@@ -1,0 +1,15 @@
+<form jwcid="groupForm@Form" delegate="ognl:validator">
+  <div jwcid="itemCommon@common/ItemCommon"
+    item="ognl:group"
+    nameValidator="spring-validators:required,noWhitespace"
+    useEnabled="false"
+    useExtension="false">
+    <span jwcid="@If" condition="ognl:showBranch">
+      <span jwcid="@branch/BranchSelection" branch="ognl:group.branch"/>
+    </span>
+  </div>
+  <span jwcid="formActions@common/FormActions"
+    listener="listener:apply"
+    callback="ognl:callback"
+    validator="ognl:validator"/>
+</form>

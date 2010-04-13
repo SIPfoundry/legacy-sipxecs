@@ -1,0 +1,18 @@
+Description:
+RRD is the Acronym for Round Robin Database. RRD is a system to store and
+display time-series data (i.e. network bandwidth, machine-room temperature,
+server load average). It stores the data in a very compact way that will not
+expand over time, and it presents useful graphs by processing the data to
+enforce a certain data density. It can be used either via simple wrapper
+scripts (from shell or Perl) or via frontends that poll network devices and
+put a friendly user interface on it.
+
+Local copy of rrdtool.spec modified from original source to produce only
+rrdtool package and rrdtool-perl Perl bindings package.
+
+URL: http://oss.oetiker.ch/rrdtool
+
+External build dependencies:
+freetype-devel is needed by rrdtool-1.2.26-5.i386
+libpng-devel is needed by rrdtool-1.2.26-5.i386
+libart_lgpl-devel >= 2.0 is needed by rrdtool-1.2.26-5.i386

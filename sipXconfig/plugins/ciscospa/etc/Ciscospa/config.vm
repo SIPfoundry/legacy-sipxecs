@@ -1,0 +1,25 @@
+<flat-profile>
+#foreach ($group in $phone.Settings.Values)
+[${group.ProfileName}]
+#foreach ($setting in $group.Values)
+#if ($!setting.Value)
+<${setting.Name} ua="na">$!{setting.Value}</${setting.Name}>
+#else
+<${setting.Name} ua="na"/></${setting.Name}>
+#end
+#end
+
+#end
+#foreach ($line in $phone.lines)
+#set ($i = $velocityCount)
+#foreach ($group in $line.Settings.Values)
+[${group.ProfileName}]
+#foreach ($setting in $group.Values)
+#if ($!setting.Value)
+<${setting.Name}_${i}_ ua="na">$!{setting.Value}</${setting.Name}_${i}_>
+#else
+<${setting.Name}_${i}_ ua="na"/></${setting.Name}_${i}_>
+#end
+#end
+#end
+#end</flat-profile>

@@ -1,0 +1,78 @@
+#!/bin/sh
+#
+# Copyright (C) 2009 Nortel Corp.
+# Licensed to SIPfoundry under a Contributor Agreement.
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# This script must be run as root.
+SIPX_COMMONS=@SIPX_JAVADIR@/sipXcommons
+OPENFIRE_LIB=@OPENFIRE_HOME@/lib
+SIPX_OPENFIRE_DIR=@SIPX_JAVADIR@/sipXopenfire
+SIP_DOMAIN_NAME=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+FQDN=`hostname -f`
+# Stop openfire if it is running.
+@SIPX_BINDIR@/sipxopenfire.sh --stop > /dev/null
+if [ -e @OPENFIRE_HOME@  ]
+then
+   chown -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
+   chgrp -R @SIPXPBXUSER@ @OPENFIRE_HOME@ 2> /dev/null
+   chmod -R u+rwX,ga+rX   @OPENFIRE_HOME@ 2> /dev/null
+
+   # Remove all softlinks under @OPENFIRE_HOME@/lib
+   find @OPENFIRE_HOME@/lib -maxdepth 1 -type l -print0 2> /dev/null | xargs -0 rm -f 2> /dev/null
+
+   rm  -f @OPENFIRE_HOME@/resources/security/truststore 2> /dev/null
+   rm  -f @OPENFIRE_HOME@/resources/security/keystore 2> /dev/null
+   ln -s @SIPX_CONFDIR@/ssl/authorities.jks  @OPENFIRE_HOME@/resources/security/truststore 2> /dev/null
+   ln -s @SIPX_CONFDIR@/ssl/ssl.keystore  @OPENFIRE_HOME@/resources/security/keystore 2> /dev/null
+   rm -f @OPENFIRE_HOME@/plugins/sipx-openfire.jar 2> /dev/null
+   rm -f @OPENFIRE_HOME@/plugins/sipx-openfire-presence.jar 2> /dev/null
+   ln -s ${SIPX_OPENFIRE_DIR}/plugins/sipx-openfire-presence.jar @OPENFIRE_HOME@/plugins 2> /dev/null
+   rm -f ${OPENFIRE_LIB}/sipx-openfire-vcard-provider.jar 2> /dev/null
+   ln -s ${SIPX_OPENFIRE_DIR}/lib/sipx-openfire-vcard-provider.jar ${OPENFIRE_LIB} 2> /dev/null
+   rm -f @OPENFIRE_HOME@/extras/sipXecs/lib 2> /dev/null
+   mkdir -p @OPENFIRE_HOME@/extras/sipXecs 2> /dev/null
+   ln -s ${SIPX_OPENFIRE_DIR}/extras @OPENFIRE_HOME@/extras/sipXecs/lib 2> /dev/null
+   
+
+   # If the openfire configuration directory is either a soft link or does not exist, then
+   # create a regular directory and copy the duplicate configuration file managed by sipXecs.
+   # Removing the soft link solves an inter-package file dependency with file openfire.xml.  
+   if [ -h @OPENFIRE_HOME@/conf ] || [ ! -e @OPENFIRE_HOME@/conf ]
+   then
+      rm -rf @OPENFIRE_HOME@/conf 2> /dev/null
+      mkdir @OPENFIRE_HOME@/conf 2> /dev/null
+      chown -R @SIPXPBXUSER@:@SIPXPBXUSER@ @OPENFIRE_HOME@/conf 2> /dev/null
+      cp -pf "${SIPX_OPENFIRE_DIR}/conf/openfire.xml" @OPENFIRE_HOME@/conf 2> /dev/null
+   fi
+
+   mkdir -p @SIPX_LOGDIR@/openfire 2> /dev/null
+   chown -R @SIPXPBXUSER@ @SIPX_LOGDIR@/openfire 2> /dev/null
+   rm -rf @OPENFIRE_HOME@/logs/ 2> /dev/null
+   ln -s @SIPX_LOGDIR@/openfire/ @OPENFIRE_HOME@/logs 2> /dev/null
+   mkdir @OPENFIRE_HOME@/audit/ 2> /dev/null
+   chown @SIPXPBXUSER@ @OPENFIRE_HOME@/audit/ 2> /dev/null
+
+   # Disable the admin console by default and remove the favorite web icon.
+   cp -pf ${SIPX_OPENFIRE_DIR}/conf/web.xml.disable_openfire_admin_console \
+          @OPENFIRE_HOME@/plugins/admin/webapp/WEB-INF/web.xml
+   rm -f @OPENFIRE_HOME@/plugins/admin/webapp/favicon.ico 2> /dev/null
+fi 
+
+# Check if we have created the database. If not create it.
+chmod u+x @SIPX_BINDIR@/sipxopenfire.sh 2> /dev/null
+rm  @SIPX_TMPDIR@/sipxopenfire.version 2> /dev/null
+@SIPX_BINDIR@/sipxopenfire.sh --database check 2> /dev/null
+if [ ! -f @SIPX_TMPDIR@/sipxopenfire.version ]  
+then
+    @SIPX_BINDIR@/sipxopenfire.sh --database create 2> /dev/null
+    @SIPX_BINDIR@/sipxopenfire.sh --database create-tables 2> /dev/null
+    @SIPX_BINDIR@/sipxopenfire.sh --database setup -Ddomain=${SIP_DOMAIN_NAME} -Dfqdn=${FQDN} 2> /dev/null
+else
+    @SIPX_BINDIR@/sipxopenfire.sh --database setdomain -Ddomain=${SIP_DOMAIN_NAME} 2> /dev/null
+    @SIPX_BINDIR@/sipxopenfire.sh --database setfqdn -Dfqdn=${FQDN} 2> /dev/null
+fi
+
+#if openfire service is running stop it.
+sudo /sbin/service openfire stop 2> /dev/null

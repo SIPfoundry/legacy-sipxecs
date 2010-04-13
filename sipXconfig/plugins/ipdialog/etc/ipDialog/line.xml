@@ -1,0 +1,792 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+  <group name="registrationAndProxy">
+    <label>Registration</label>
+
+    <setting name="authname">
+      <label>User ID</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>User ID to use for authentication &lt;br/&gt; ( &lt; authname &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="authPassword">
+      <label>Password</label>
+      <type>
+        <string password="yes" />
+      </type>
+      <value></value>
+      <description>Password to use for authentication &lt;br/&gt; ( &lt; authPassword &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="displayname">
+      <label>Display Name</label>
+      <type>
+        <string maxLen="22" />
+      </type>
+      <value />
+      <description>
+        Name to be used as Caller ID in SIP signaling &lt;br/&gt; ( &lt; displayname &gt; ) &lt;br/&gt; &lt;br/&gt;
+        &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="registrarOption">
+      <label>Registrar</label>
+      <type>
+        <enum>
+          <option>
+            <value>manual</value>
+          </option>
+          <option>
+            <value>auto</value>
+          </option>
+          <option>
+            <value>none</value>
+          </option>
+        </enum>
+      </type>
+      <value>manual</value>
+      <description>
+        Select manual to manually configure the registrar. Select auto to discover the SIP registrar in the network.
+        Select none to remove the SIP registrar configuration &lt;br/&gt; ( &lt; registrar &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="registrarAddress">
+      <label>Registrar Address</label>
+      <type>
+        <hostname />
+      </type>
+      <value></value>
+      <description>
+        Domain name or IP address of SIP registrar &lt;br/&gt; ( &lt; registrarAddress &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="registrarToAddress" advanced="yes">
+      <label>Register to-address</label>
+      <type>
+        <hostname />
+      </type>
+      <value></value>
+      <description>
+        The field contains the address of record whose registration is to be created or updated &lt;br/&gt; &lt;
+        registrarToAddress &gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="registrarFromAddress" advanced="yes">
+      <label>Register from-address</label>
+      <type>
+        <hostname />
+      </type>
+      <value></value>
+      <description>
+        The field is same as the Register to-address field except the third party registration on your behalf
+        &lt;br/&gt; &lt; registrarFromAddress &gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="registrarUsedomainName" advanced="yes">
+      <label>Use Domain Name</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If selected then the local domain name, obtained from DHCP or manual configuration, is used as the domain for
+        to-address and from-address &lt;br/&gt; ( &lt; registrarUsedomainName &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="registertimer">
+      <label>Expires (sec)</label>
+      <type>
+        <integer min="0" />
+      </type>
+      <value>3600</value>
+      <description>
+        The field specifies the registration duration as reported to the registrar in units of seconds &lt;br/&gt;( &lt;
+        registertimer &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="proxyAddress" advanced="yes">
+      <label>Proxy Address</label>
+      <type>
+        <hostname />
+      </type>
+      <value></value>
+      <description>
+        Domain name or IP address of outbound proxy &lt;br/&gt; ( &lt; proxyAddress &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="proxyOption" advanced="yes">
+      <label>Proxy Usage Mode</label>
+      <type>
+        <enum>
+          <option>
+            <value>noneThroughProxy</value>
+          </option>
+          <option>
+            <value>forwardAllThroughProxy</value>
+          </option>
+          <option>
+            <value>sendFirstInviteToProxy</value>
+          </option>
+        </enum>
+      </type>
+      <value>forwardAllThroughProxy</value>
+      <description>
+        If Proxy Address is specified and forwardAllThroughProxy option is selected, all SIP messages except REGISTER
+        are sent through proxy. If Proxy Address is specified and sendFirstInviteToProxy option is selected, then the
+        first INVITE is sent through proxy. If noneThroughProxy is selected only the dialed numbers and unresolved URIs
+        go through the proxy &lt;br/&gt; ( &lt; sipProxy &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="registerThroughProxy" advanced="yes">
+      <label>Register Through Proxy</label>
+      <type refid="on-off" />
+      <value>TRUE</value>
+      <description>
+        If checked and Proxy Address is specified, SIP REGISTER messages are sent through the proxy &lt;br/&gt; ( &lt;
+        registerThroughProxy &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="mwiSubscribe">
+      <label>MWI Subscribe?</label>
+      <type refid="on-off" />
+      <value>TRUE</value>
+      <description>
+        If checked, the phone will send MWI (Message Waiting Indicator) subscription for MWI Req URI specified below
+        &lt;br/&gt; ( &lt; mwiSubscribe &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="mwiReqUri">
+      <label>MWI Req URI</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        MWI subscription Request URI &lt;br/&gt; ( &lt; mwiReqUri &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="voiceMailServerAddress">
+      <label>Voicemail Access Number</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        Number/URI to access the mailbox account &lt;br/&gt; ( &lt; voiceMailServerAddress &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="presenceServer">
+      <label>PUBLISH/SIMPLE Server</label>
+      <type>
+        <hostname />
+      </type>
+      <value></value>
+      <description>
+        Address used for sending SUBSCRIBE requests for presence event &lt;br/&gt; ( &lt; presenceServer &gt; )
+        &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="sipUsePublish">
+      <label>PUBLISH?</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+	If checked, the phone publishes the present status for this user &lt;br/&gt; ( &lt; sipUsePublish &gt; )
+        &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="conferenceServerAddress">
+      <label>Conference Server URI</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        Domain name or IP address of the conference server &lt;br/&gt; ( &lt; conferenceServerAddress &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="mohServer">
+      <label>MoH Server URI</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        URI of Music On Hold server. If specified the music is played at the remote end when the call is placed on hold
+        &lt;br/&gt; ( &lt; mohServer &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+  </group>
+
+  <group name="callForward" hidden="yes">
+
+    <label>Call Forward</label>
+
+    <setting name="forwardModeOption">
+      <label>Call Forward</label>
+      <type>
+        <enum>
+          <option>
+            <value>forwardonBusy</value>
+          </option>
+          <option>
+            <value>forwardonNoAnswer</value>
+          </option>
+          <option>
+            <value>forwardonBusyOrNoAnswer</value>
+          </option>
+          <option>
+            <value>forwardAll</value>
+          </option>
+          <option>
+            <value>none</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+      <description>
+        If forwardonBusy is selected, all the calls will be forwarded to Call Forward Address when the phone is busy. If
+        forwardonNoAnswer is selected, all the calls will be forwarded to Call Forward Address if they are not answered
+        within the time specified in CFNA timer. If forwardonBusyOrNoAnswer is selected, all the calls will be forwarded
+        to Call Forward Address when the phone is busy or does not answer the calls within the time specified in CFNA
+        timer. Select none to disable the call forwarding &lt;br/&gt; ( &lt; callForwardMode &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="callForwardAddress">
+      <label>Call Forward Address</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        Destination number or URI to forward the calls &lt;br/&gt; ( &lt; callForwardAddress &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="callForwardTimer">
+      <label>CFNA Timer</label>
+      <type>
+        <enum>
+          <option>
+            <value>20</value>
+          </option>
+          <option>
+            <value>40</value>
+          </option>
+          <option>
+            <value>60</value>
+          </option>
+        </enum>
+      </type>
+      <value>20</value>
+      <description>
+        Call forward on no answer timer in seconds &lt;br/&gt; ( &lt; callForwardTimer &gt; ) &lt;br/&gt; &lt;br/&gt;
+        &lt;br/&gt;
+      </description>
+    </setting>
+  </group>
+
+  <group name="callPark">
+    <label>Call Park</label>
+
+    <setting name="callParkMethod">
+      <label>Call Park Method</label>
+      <type>
+        <enum>
+          <option>
+            <label>Ask for Orbit</label>
+            <value>none</value>
+          </option>
+          <option>
+            <label>One Touch Park Orbit</label>
+            <value>prefix</value>
+          </option>
+          <option>
+            <label>Incall DTMF</label>
+            <value>incall DTMF</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+      <description>
+        If Ask for Orbit is selected the phone will prompt to dial a park orbit when the PARK softkey is pressed. If One
+        Touch Park Orbit or Incall DTMF is selected, the phone will park the call automatically to the orbit specified
+        in One Touch Park Orbit field specified below. To use the Incall DTMF call park method the server must support
+        the Incall DTMF call parking &lt;br/&gt; ( &lt; callParkMethod &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="callParkExtension">
+      <label>One Touch Park Orbit</label>
+      <type>
+        <string maxLen="22" />
+      </type>
+      <value></value>
+      <description>
+        One touch park orbit or incall DTMF string &lt;br/&gt; ( &lt; callParkExtention &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="callRtrvPrefix">
+      <label>Call Retrieve Prefix</label>
+      <type>
+        <string maxLen="22" />
+      </type>
+      <value></value>
+      <description>
+        Prefix to the extension dialed to retrieve the parked calls &lt;br/&gt; ( &lt; callRtrvPrefix &gt; ) &lt;br/&gt;
+        &lt;br/&gt; &lt;br/&gt;
+      </description>
+    </setting>
+  </group>
+
+
+  <group name="callPickup">
+
+    <label>Call Pickup</label>
+    <setting name="serverAssistCallPickup">
+      <label>Server Assisted Call PickUp</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked then the phone uses the Call PickUp Prefix to pick up a ringing extension &lt;br/&gt; ( &lt;
+        serverAssistCallPickup &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="callPickupPrefix">
+      <label>Call PickUp Prefix</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        Prefix used for Call Pickup &lt;br/&gt; ( &lt; callPickupPrefix &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+  </group>
+
+
+  <group name="intercom">
+    <label>Intercom</label>
+    <setting name="intercomOption">
+      <label>Intercom Invocation</label>
+      <type>
+        <enum>
+          <option>
+            <value>callInfoHeader</value>
+          </option>
+          <option>
+            <value>alertInfoHeader</value>
+          </option>
+          <option>
+            <value>intercomPrefix</value>
+          </option>
+        </enum>
+      </type>
+      <value>callInfoHeader</value>
+      <description>
+        If callInfoHeader is selected, the phone sends Call-Info header in INVITE for intercom. If alertInfoHeader is
+        selected, the phone sends Alert-Info header in INVITE for intercom. If intercomPrefix is selected, phone uses
+        the Intercom Prefix Value for Intercom invocation &lt;br/&gt; ( &lt; intercom &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="intercomPrefixValue">
+      <label>Intercom Prefix Value</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        Prefix used for Intercom invocation &lt;br/&gt; ( &lt; intercomPrefixValue &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="alertInfoSecret">
+      <label>Alert-Info Secret</label>
+      <type>
+        <string maxLen="22" />
+      </type>
+      <value></value>
+      <description>
+        This value is compared with the secret that comes in Alert-Info header of incoming INVITE. Intercom call starts
+        if the secret matches with this value &lt;br/&gt; ( &lt; alertInfoSecret &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="sendrecvInOutgoingIntercom">
+      <label>sendrecv attribute in outgoing intercom</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, sendrecv direction attribute will be sent in SDP of outgoing INVITE for intercom &lt;br/&gt; If
+        unchecked send only direction attribute is sent &lt;br/&gt; ( &lt; sendrecvInOutgoingIntercom &gt; ) &lt;br/&gt;
+        &lt;br/&gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="groupPagingPrefix">
+      <label>Group Paging Prefix</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        Prefix used to page a group of extensions &lt;br/&gt; ( &lt; groupPagingPrefix &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+  </group>
+
+  <group name="sipSettings">
+    <label>SIP Settings</label>
+
+    <setting name="sipPort">
+      <label>SIP Port</label>
+      <type>
+        <integer min="0" max="65536" />
+      </type>
+      <value></value>
+      <description>
+        The port at which you wish the other party to contact you &lt;br/&gt; ( &lt; sipPort &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="offhookOnRefer">
+      <label>Offhook on Third-Party Refer</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, the phone automatically goes offhook when it receives a third-party REFER request. This is for
+        situations where the user initiates a call from third-party device, such as PC-based soft phones or
+        click-to-talk feature, but then wants the phone to go offhook and actually place the call &lt;br/&gt; ( &lt;
+        offhookOnRefer &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="usePreloadedRoute">
+      <label>Use Preloaded Route</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, a SIP Route: header is added in outgoing messages to request the outbound proxy to be included in
+        all return paths &lt;br/&gt; ( &lt; usePreloadedRoute &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="callerIdBlocking">
+      <label>Block Caller ID</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, this prevents your Caller ID from being shown to other party &lt;br/&gt; ( &lt; callerIdBlocking
+        &gt; ) &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="incomingInvite">
+      <label>Incoming Invite</label>
+      <type>
+        <enum>
+          <option>
+            <value>PAId-From-Contact</value>
+          </option>
+          <option>
+            <value>PAId-Contact-From</value>
+          </option>
+        </enum>
+      </type>
+      <value>PAId-From-Contact</value>
+      <description>
+        Caller Name Search Precedence in Incoming Invite &lt;br/&gt; ( &lt; incomingInvite &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="okOfInvite">
+      <label>200 OK of Invite</label>
+      <type>
+        <enum>
+          <option>
+            <value>PAId-Contact-To</value>
+          </option>
+          <option>
+            <value>PAId-To-Contact</value>
+          </option>
+        </enum>
+      </type>
+      <value>PAId-Contact-To</value>
+      <description>
+        Caller Name Search Precedence in 200 OK of Invite &lt;br/&gt; ( &lt; okOfInvite &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+  </group>
+
+  <group name="sipSecurity">
+    <label>SIP Security</label>
+
+    <setting name="tlsPort">
+      <label>SIP TLS Port</label>
+      <type>
+        <integer min="0" max="65536" />
+      </type>
+      <value></value>
+      <description>
+        The SIP TLS port at which you wish the other party to contact you &lt;br/&gt; ( &lt; tlsPort &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="enableTlsSecurity">
+      <label>Enable SIP TLS Security</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, this will enable SIP TLS security for this line &lt;br/&gt; ( &lt; enableTlsSecurity &gt; )
+        &lt;br/&gt; &lt;br/&gt; &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="tlsClientCertificateUrl">
+      <label>TLS Client Certificate Url</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        TLS Client Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; tlsClientCertificateUrl &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="tlsClientKeyUrl">
+      <label>TLS Client Key Url</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>TLS Client Key HTTPS/HTTP Url &lt;br/&gt; ( &lt; tlsClientKeyUrl &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="tlsCaCertificateUrl">
+      <label>TLS CA Certificate Url</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        TLS CA Certificate HTTPS/HTTP Url &lt;br/&gt; ( &lt; tlsCaCertificateUrl &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+  </group>
+
+  <group name="rtpSettings">
+    <label>RTP Settings</label>
+
+    <setting name="rtpPort">
+      <label>RTP Port</label>
+      <type>
+        <integer min="5000" max="65536" />
+      </type>
+      <value></value>
+      <description>Starting RTP port for this line &lt;br/&gt; ( &lt; rtpPort &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+    <setting name="transmitDtmf">
+      <label>Transmit DTMF</label>
+      <type>
+        <enum>
+          <option>
+            <value>info</value>
+          </option>
+          <option>
+            <value>inband</value>
+          </option>
+          <option>
+            <value>rfc2833</value>
+          </option>
+        </enum>
+      </type>
+      <value>rfc2833</value>
+      <description>
+        If info is selected, SIP INFO DTMF as defined in IETF RFC 2976 will be used. If inband is selected, in-band DTMF
+        as audio is used. If rfc2833 is selected, DTMF is injected into the RTP stream as defined in IETF RFC 2833
+        &lt;br/&gt; ( &lt; transmitDtmf &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="preferredCodec">
+      <label>Preferred Codec</label>
+      <type>
+        <enum>
+          <option>
+            <value>g711ulaw</value>
+          </option>
+          <option>
+            <value>g711alaw</value>
+          </option>
+          <option>
+            <value>g729</value>
+          </option>
+        </enum>
+      </type>
+      <value>g711ulaw</value>
+      <description>
+        Preference for audio codec that the phone uses in SDP offer &lt;br/&gt; ( &lt; preferredCodec &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+  </group>
+
+  <group name="toneSettings">
+    <label>Tone Settings</label>
+
+    <setting name="enableRoutingTone">
+      <label>Enable Routing Tone</label>
+      <type refid="on-off" />
+      <value>TRUE</value>
+      <description>
+        If checked, a routing tone is played for the brief interval between placing a call and remote end starts ringing
+        &lt;br/&gt; ( &lt; enableRoutingTone &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="toneSet">
+      <label>Tone Set</label>
+      <type>
+        <enum>
+          <option>
+            <value>US/Canada</value>
+          </option>
+          <option>
+            <value>United Kingdom</value>
+          </option>
+          <option>
+            <value>Australia</value>
+          </option>
+        </enum>
+      </type>
+      <value>US/Canada</value>
+      <description>Country specific tones &lt;br/&gt; ( &lt; toneSet &gt; ) &lt;br/&gt;</description>
+    </setting>
+
+  </group>
+
+  <group name="miscSettings">
+    <label>Miscellaneous Settings</label>
+
+    <setting name="natAddress">
+      <label>NAT Address</label>
+      <type>
+        <hostname />
+      </type>
+      <value />
+      <description>
+        If you have a NAT/Firewall that you want to traverse, specify its WAN, or outside, IP address &lt;br/&gt; ( &lt;
+        natAddress &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="sipDialplan">
+      <label>Dial Plan</label>
+      <type>
+        <string maxLen="128" />
+      </type>
+      <value></value>
+      <description>
+        When dial plan is present, number-only dialing during the making of the new calls will be compared against the
+        dial plan patterns and if a match is found, then the call will be initiated automatically without pressing the
+        DIAL &lt;br/&gt; ( &lt; sipDialplan &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="disableCall1_2key">
+      <label>Disable FLASH Key During Calls</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        Disabling FLASH key during calls allows other methods of getting a second dial tone. Selecting RFC 2833 as
+        transmit-DTMF method causes the telephone to simply transmit the RFC 2833 FLASH event instead of pressing this
+        key internally &lt;br/&gt; ( &lt; disableCall1_2key &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="sipAutoDial">
+      <label>Auto Dial</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, the Auto Dial User ID gets dialed without any need to enter a number as soon as the handset is
+        picked up or SPEAKER or HEADSET button is pressed &lt;br/&gt; ( &lt; sipAutoDial &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="sipAutoDialUserid">
+      <label>Auto Dial User ID</label>
+      <type>
+        <string />
+      </type>
+      <value></value>
+      <description>
+        User ID to be dialed automatically &lt;br/&gt; ( &lt; sipAutoDialUserid &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="disableCallWaiting">
+      <label>Disable Call Waiting</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, Call Waiting will be disabled so that the phone immediatley rejects an incoming call if there is
+        already an active call on this line &lt;br/&gt; ( &lt; disableCallWaiting &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="disableStarCodes">
+      <label>Disable Star Codes</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        Disabling call feature codes causes the phone to not process and to instead pass through all key presses for
+        star feature codes, e.g., *67, *69, *70 and *99, for downstream processing &lt;br/&gt; ( &lt; disableStarCodes
+        &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+    <setting name="useOnlyUdpSrv">
+      <label>Use only UDP SRV</label>
+      <type refid="on-off" />
+      <value>FALSE</value>
+      <description>
+        If checked, phone only use UDP SRV search in order to limit the extent of DNS name resolution searches
+        &lt;br/&gt; ( &lt; useOnlyUdpSrv &gt; ) &lt;br/&gt;
+      </description>
+    </setting>
+
+  </group>
+
+</model>

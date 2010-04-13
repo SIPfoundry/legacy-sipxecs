@@ -1,0 +1,66 @@
+
+Third party call controller
+===========================
+
+This is the RESTLET based third party call controller.
+
+Currently we only support REFER based third party call control. 
+
+This service runs as a plugin in the SipXrest container.
+
+
+There are three parties involved :
+
+The agent that initiates the call. This is the last part of the URL. The callController masquerades as the agent.
+The calling party to which the call is initially placed. This is the callingParty parameter
+The called party to which the call is REFERRed. This is the calledParty parameter.
+
+An alias may be used anywhere a SIP user name is used.
+
+The call controller consults etc/sipxpbx/validusers.xml to authenticate users and map user aliases to user names.
+
+The general form of the URL is
+
+https://host:6666/callcontroller/callingParty/calledParty?agent=agentName&calledParty=calledPartyName&isForwardingAllowed=boolean&subject=subject-text&timeout=integer
+
+You dont need a pin to invoke it from within the sipx domain. You
+can specify user name or user alias for agentName, callingParty or
+calledParty. You can specify a phone number in place of callingParty or
+calledParty. You will need to use an appropriate prefix to match a dial
+plan in this case.  callingParty and calledParty  can be aliases.
+
+
+For example within the sipx domain, the URL can look like this:
+https://sipxpbx.sipxtest.net:6666/callcontroller/201/202
+
+Here 201 can be either the user name or the alias of a user.
+It is is both the agent placing the call as well as the calling party.
+
+To invoke this from outside the sipx domain with digest authentication:
+http://sipxpbx.sipxtest.net:6667/callcontroller/201/202
+
+It will use HTTP digest authentication for call setup if you invoke this
+from outside the domain and direct your POST request to port 6667.
+
+If you invoke this from outside the Domain using HTTPS, you must provide
+credentials using HTTPS basic authenitcation and direct your POST request
+to port 6666.
+
+
+To test the status of the ongoing call setup after the calling party has
+picked up, you can invoke HTTP GET on the same URL that you did a POST to.
+
+
+Optional URL parameters:
+=======================
+
+agent - the name of the agent that is placing the third party call.
+subject  - this URL parameter determines what goes into the SIP subject header of the initial call setup INVITE.
+isForwardingAllowed - whether or not forwarding is allowed for the initial invite
+timeout - the timeout after which the INVITE to the calling party is terminated.
+resultCacheTime - The amount of time for which to keep the call progress cache record in memory.
+
+
+Several curl examples are provided in the test directory. Please consult these.
+
+

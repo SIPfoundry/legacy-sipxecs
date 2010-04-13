@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+<dataset>
+  <phone serial_number="999123456789" phone_id="1000" description="unittest-sample phone1" bean_id="testPhone"
+    model_id="testPhoneModel" />
+  <line line_id="1000" phone_id="1000" position="0" user_id="1000" />
+</dataset>

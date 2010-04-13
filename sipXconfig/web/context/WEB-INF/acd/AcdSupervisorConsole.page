@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.acd.AcdSupervisorConsole">
+  <description>Supervisor's access to ACD features</description>
+  <property name="acdServerId" persist="session"/>
+  <property name="acdServer" persist="session"/>
+  <property name="tab" persist="session"/>
+  <property name="supervisedUsers" persist="session"/>
+  <inject property="acdContext" object="spring:acdContext" />
+  <inject property="coreContext" object="spring:coreContext" />
+  <inject property="userSession" type="state" object="userSession"/>
+
+  <component id="border" type="common/Border">
+    <binding name="useDojo"
+      value="tab == 'selectServer' || tab == 'agentsStats' || tab == 'callsStats' || tab == 'queuesStats'" />
+    <binding name="restricted" value="false"/>
+  </component>
+
+  <component id="tabs" type="common/TabNavigation">
+    <binding name="tabNames"
+      value="{'selectServer', 'agentPresence', 'agentsStats', 'callsStats', 'queuesStats'}" />
+    <binding name="selectedTab" value="tab" />
+  </component>
+
+  <component id="acdAgentPresencePanel" type="acd/AcdAgentPresencePanel">
+    <binding name="allowedUsers" value="supervisedUsers"/>
+  </component>
+
+  <component id="acdAgentsStatsPanel" type="acd/AcdAgentsStatsPanel">
+    <binding name="acdServerId" value="acdServerId" />
+    <binding name="acdStatistics" value="acdStatistics"/>
+  </component>
+
+  <component id="acdCallsStatsPanel" type="acd/AcdCallsStatsPanel">
+    <binding name="acdServerId" value="acdServerId" />
+    <binding name="acdStatistics" value="acdStatistics"/>
+  </component>
+
+  <component id="acdQueuesStatsPanel" type="acd/AcdQueuesStatsPanel">
+    <binding name="acdServerId" value="acdServerId" />
+    <binding name="acdStatistics" value="acdStatistics"/>
+  </component>
+
+  <component id="selectServerPanel" type="acd/AcdSelectServerPanel">
+    <binding name="acdServerId" value="acdServerId" />
+  </component>
+
+  <component id="tabContent" type="RenderBlock">
+    <binding name="block" value="components.get(effectiveTab + 'Block')" />
+  </component>
+</page-specification>

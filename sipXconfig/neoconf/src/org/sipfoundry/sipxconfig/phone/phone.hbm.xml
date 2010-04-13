@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.phone" default-lazy="false">
+  <!-- P H O N E -->
+  <class name="Phone" table="phone" discriminator-value="abstractPhone">
+    <id name="id" column="phone_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">phone_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id"/>
+    <property name="beanId" column="bean_id" insert="false" update="false"/>
+    <property name="modelId"/>
+    <property name="description"/>
+    <property name="serialNumber"/>
+    <property name="deviceVersion" column="device_version_id" type="org.sipfoundry.sipxconfig.device.DeviceVersion$Type"/>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+    <set name="groups" table="phone_group" sort="natural" cascade="save-update">
+      <key column="phone_id"/>
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group"/>
+    </set>
+    <list name="lines" cascade="all-delete-orphan">
+      <key column="phone_id" not-null="true"/>
+      <list-index column="position"/>
+      <one-to-many class="Line"/>
+    </list>
+  </class>
+  <!-- L I N E -->
+  <class name="Line" table="line">
+    <id name="id" column="line_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">line_seq</param>
+      </generator>
+    </id>
+    <many-to-one name="phone" column="phone_id" class="Phone" not-null="true" insert="false" update="false" />
+    <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"/>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+  </class>
+
+  <query name="phoneIds">
+    <![CDATA[select p.id from Phone p]]>
+  </query>
+
+  <query name="phoneIdsWithSerialNumber">
+    <![CDATA[select p.id from Phone p where p.serialNumber = :value]]>
+  </query>
+
+  <query name="phonesByGroupId">
+    <![CDATA[select p from Phone as p join p.groups as pgroups where pgroups.id = :groupId]]>
+  </query>
+
+  <query name="phonesByUserId">
+    <![CDATA[select distinct line.phone from Line as line join line.user as line_user where line_user.id = :userId]]>
+  </query>
+
+  <query name="phonesByUserIdAndPhoneModel">
+    <![CDATA[select distinct line.phone from Line as line join line.user as line_user where line_user.id = :userId and line.phone.modelId = :modelId]]>
+  </query>
+
+</hibernate-mapping>

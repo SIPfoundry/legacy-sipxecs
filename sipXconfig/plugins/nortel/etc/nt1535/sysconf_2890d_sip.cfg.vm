@@ -1,0 +1,32 @@
+## Velocity macros
+## emit 'setting value' pair
+#macro(emit_setting $s)
+#if($s.Value)
+${s.ProfileName} $!{s.Value}
+#end
+#end
+## emit setting line for every setting in the group
+#macro(emit_group $g)
+[${g.ProfileName}]
+#foreach ($s in $g.Values)
+#emit_setting($s)
+#end
+
+#end
+#macro(emit_groups_by_name $group_names)
+#foreach ($gn in $group_names)
+#emit_group($phone.Settings.getSetting("$gn"))
+#end
+#end
+
+#emit_groups_by_name(['LAN'])
+
+#emit_groups_by_name(['VOIP'])
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount)
+#set ($voip = $line.Settings.getSetting("VOIP"))
+line${line_id}_proxy_address $voip.getSetting("proxy_address").Value
+line${line_id}_proxy_port $voip.getSetting("proxy_port").Value
+#end
+
+#emit_groups_by_name(['NETTIME'])

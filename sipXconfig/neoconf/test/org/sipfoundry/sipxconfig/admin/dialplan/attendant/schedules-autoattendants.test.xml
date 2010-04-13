@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<autoattendants xmlns="http://www.sipfoundry.org/sipX/schema/xml/autoattendants-00-00">
+  <autoattendant id="operator">
+    <name>operator</name>
+    <prompt>prompts/operator.wav</prompt>
+    <menuItems />
+    <dtmf>
+      <initialTimeout>7000</initialTimeout>
+      <interDigitTimeout>3000</interDigitTimeout>
+      <extraDigitTimeout>3000</extraDigitTimeout>
+      <maximumDigits>10</maximumDigits>
+    </dtmf>
+    <invalidResponse>
+      <noInputCount>2</noInputCount>
+      <invalidResponseCount>2</invalidResponseCount>
+      <transferOnFailures>false</transferOnFailures>
+    </invalidResponse>
+  </autoattendant>
+  <schedules>
+    <schedule id="aa_-1">
+      <holiday>
+        <id>operator</id>
+        <date>03-May-2010</date>
+        <date>04-Jul-2010</date>
+      </holiday>
+      <regularhours>
+        <id>operator</id>
+        <monday>
+          <from>09:00</from>
+          <to>18:00</to>
+        </monday>
+        <tuesday>
+          <from>09:00</from>
+          <to>18:00</to>
+        </tuesday>
+        <wednesday>
+          <from>09:00</from>
+          <to>18:00</to>
+        </wednesday>
+        <thursday>
+          <from>09:00</from>
+          <to>18:00</to>
+        </thursday>
+        <friday>
+          <from>09:00</from>
+          <to>18:00</to>
+        </friday>
+      </regularhours>
+      <afterhours>
+        <id>operator</id>
+      </afterhours>
+    </schedule>
+  </schedules>
+</autoattendants>

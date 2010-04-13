@@ -1,0 +1,9 @@
+SIP_SAA_LOG_DIR :
+SIP_SAA_LOG_LEVEL : ${saaService.logLevel}
+SIP_SAA_LOG_CONSOLE :
+SIP_SAA_UDP_PORT : ${saaService.udpPort}
+SIP_SAA_TCP_PORT : ${saaService.tcpPort}
+SIP_SAA_BIND_IP : ${location.address}
+SIP_SAA_FILE_NAME : @sipxpbx.conf.dir@/appearance-groups.xml
+SIP_SAA_DOMAIN_NAME : ${saaService.domainName}
+SIP_SAA_AUTHENTICATE_REALM : ${saaService.realm}

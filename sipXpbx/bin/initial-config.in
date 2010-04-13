@@ -1,0 +1,161 @@
+#!/bin/bash
+#################################################################
+# Generate the initial configuration for a distributed system 
+# as a compressed tar file.
+#################################################################
+
+INITIAL_CONFIG_BASE="@SIPX_TMPDIR@/initial-config"
+
+Action=GENERATE
+ExitStatus=1
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -h|--help|--usage|-?|-*)
+            Action=USAGE
+            ExitStatus=0
+            break
+            ;;
+
+        -*)
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            if [ -z "${newHostname}" ]
+            then
+                newHostname=${1}
+            else
+                echo "Too many arguments supplied: $@" 1>&2
+                Action=USAGE
+                break
+            fi
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+if [ "${Action}" = "USAGE" ]
+then
+    cat <<USAGE
+
+Usage:
+    
+    initial-config <new-host-fqdn>
+
+    Generates a configuration file for the new host
+
+USAGE
+    exit $ExitStatus
+fi
+
+myHostname=`hostname -f`
+myHostaddr=`hostname -i`
+INITIAL_CONFIG="${INITIAL_CONFIG_BASE}/${newHostname}"
+
+if test -d "${INITIAL_CONFIG}"; then
+	rm -rf "${INITIAL_CONFIG}"
+fi
+
+mkdir -p "${INITIAL_CONFIG}@SIPX_CONFDIR@" || exit 1
+
+# copy the domain configuration
+cp -v "@SIPX_CONFDIR@/domain-config" "${INITIAL_CONFIG}@SIPX_CONFDIR@" || exit 1
+
+# copy the supervisor configuration (location specific)
+cp -v "@SIPX_CONFDIR@/sipxsupervisor-config" "${INITIAL_CONFIG}@SIPX_CONFDIR@" || exit 1
+
+# create a modified ntp.conf file 
+# modify local clock configuration so it will be lower stratum than the master systems clock
+test -d "${INITIAL_CONFIG}/etc" || mkdir -p "${INITIAL_CONFIG}/etc" || exit 1
+perl -p \
+    -e 's/fudge\s+127.127.1.0\s+stratum\s+10/fudge  127.127.1.0 stratum 12/;' \
+    -e "END { print \"\\nserver ${myHostname}\\n\"; };" \
+    /etc/ntp.conf > "${INITIAL_CONFIG}/etc/ntp.conf" || exit 1
+
+# create a modified /etc/ntp/step-tickers file
+test -d "${INITIAL_CONFIG}/etc/ntp" || mkdir -p "${INITIAL_CONFIG}/etc/ntp" || exit 1
+perl -p \
+    -e "END { print \"\\n${myHostname}\\n\"; };" \
+    /etc/ntp/step-tickers > "${INITIAL_CONFIG}/etc/ntp/step-tickers" || exit 1
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+# If this host is the DNS server for the zone then create a modified 
+# named.conf file pointing to this host's DNS server.
+myDomname=`dnsdomainname`
+myZonedns=`dns_ns ${myDomname}`
+if test -f /etc/SuSE-release; then
+  ZONE_PATH="/var/lib/named"
+else
+  ZONE_PATH="/var/named"
+fi
+
+# Check each of the zone DNS servers.
+genZone=0
+for zoneHost in ${myZonedns}; do
+    if [ "${myHostname}" = "${zoneHost}" ]
+    then
+       genZone=1
+    fi
+done
+
+if [ ${genZone} -ne 0 ]
+then
+    echo "Generating DNS record for secondary server"
+    cat > "${INITIAL_CONFIG}/etc/named.conf" <<EOF
+// WARNING: Name server configuration is a sipX automatically generated file.
+//          Contents may be overwritten unless you change the mode to "Manual".
+//          Available modes:
+//          "Master"    - Master name server (on primary server).
+//          "Slave"     - Slave named server (on distributed server).
+//          "Caching"   - Caching only name server.
+//          "Manual"    - Blocks future automatic updates.
+// DNS_MODE="Slave"
+
+options {
+    directory "${ZONE_PATH}";
+    dump-file "${ZONE_PATH}/data/cache_dump.db";
+    statistics-file "${ZONE_PATH}/data/named_stats.txt";
+};
+
+zone "${myDomname}" IN {
+    type slave;
+    file "data/${myDomname}.zone";
+    masters {${myHostaddr};};
+};
+EOF
+    echo "Generating resolver configuration for secondary server that points to master"
+    cat > "${INITIAL_CONFIG}/etc/resolv.conf" <<EOF
+search ${myDomname}
+nameserver 127.0.0.1
+nameserver ${myHostaddr}
+EOF
+else
+    echo "NOT generating DNS record for secondary server"
+    echo "Generating resolver configuration for secondary server by copying from master"
+    cp "/etc/resolv.conf" "${INITIAL_CONFIG}/etc/resolv.conf"
+fi
+
+# generate TLS credentials 
+@SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh \
+    --newhost  --workdir "@SIPX_VARDIR@/certdb" -d -s "${newHostname}" \
+    || exit 1
+@SIPX_BINDIR@/ssl-cert/install-cert.sh \
+    --workdir "@SIPX_VARDIR@/certdb" --install-prefix "${INITIAL_CONFIG}" "${newHostname}" \
+    || exit 1
+
+# package the configuration for the sipxecs-setup-system script to unpack
+tar -czf "${INITIAL_CONFIG_BASE}/${newHostname}.tar.gz" -C "${INITIAL_CONFIG}" .

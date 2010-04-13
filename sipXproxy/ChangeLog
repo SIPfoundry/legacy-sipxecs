@@ -1,0 +1,35 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+	http://track.sipfoundry.org/browse?XPR
+
+Release Notes - sipXproxy - Version 2.6.2
+
+** Bug
+    * [XPR-18] - stack segfault under load
+    * [XPR-21] - Authproxy coredumped because of log file exceeded 2^31 bytes
+    * [XPR-22] - Authproxy failed to come up when existing log exceeded 2^31 bytes
+    * [XPR-23] - Sipproxy core: signal 4 (illegal instruction)
+    * [XPR-24] - If realm and domain are different, Authproxy fails to authenticate even for valid users.
+    * [XPR-25] - Proxy not forwarding INVITES after repeated calls
+    * [XPR-28] - sipproxy segfault after rebooting the host
+    * [XPR-30] - sipauthproxy coredumped during long commserver soak testing
+    * [XPR-32] - Sipproxy core on FC2: segmentation fault
+    * [XPR-33] - sipauthproxy crashed
+
+Release Notes - sipXproxy - Version 2.5.2
+
+** Bug
+    * [XPR-4] - Failed unittest ForwardingRulesTest
+    * [XPR-7] - sipproxy.log in etc/sipxpbx dir, should be in var/log
+
+** Improvement
+    * [XPR-5] - Clean up code to remove all warnings.
+    * [XPR-6] - Clean up code to remove all warnings.
+
+Release Notes - sipXproxy - Version 2.5.1
+
+** Bug
+    * [XPR-3] - wont build with sipXportLib
+
+

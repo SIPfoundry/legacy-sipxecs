@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.tls" default-lazy="false">
+  <!--
+    - TLS
+  -->
+
+  <class name="TlsPeer" table="tls_peer">
+    <id name="id" column="tls_peer_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">tls_peer_seq</param>
+      </generator>
+    </id>
+    <property name="name" />
+    <many-to-one name="internalUser" column="internal_user_id" class="org.sipfoundry.sipxconfig.common.InternalUser" cascade="all"/>
+  </class>
+
+  <query name="tlsPeerByName">
+    <![CDATA[select peer from TlsPeer peer where peer.name = :name]]>
+  </query>
+
+</hibernate-mapping>

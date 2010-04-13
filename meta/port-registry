@@ -1,0 +1,109 @@
+
+This list is the authoritative record of what ports are reserved by sipXecs components.
+All ports are assumed to be both UDP and TCP (even where the component only uses one of them).
+
+Please maintain this list sorted by port number.
+
+Port    Component         Use
+
+3478    sipXopenfire     Stun server port.
+
+3479    sipXrelay        Local discovery port for STUN.
+
+3480    sipXbridge       Local discovery port for STUN.
+
+5060    sipXproxy         SIP
+5061    sipXproxy         SIP/TLS
+
+5064    sipXopenfire      SIP Dialog watcher plugin SIP signaling port.
+
+5070    sipXregistrar     SIP
+5071    sipXregistrar     SIP/TLS
+5075    sipXregistrar     SIP registration event subscriptions
+
+5080    sipXbridge	  SIP WAN-Facing port
+5081    sipXbridge        SIP/TLS WAN-Facing port
+5090    sipXbridge	  SIP LAN-Facing port
+5091    sipXbridge        SIP/TLS LAN-Facing port
+
+5110    sipXpublisher     SIP
+5111    sipXpublisher     SIP/TLS
+
+5120    sipXpark          SIP
+5121    sipXpark          SIP/TLS
+
+5130    sipXpresence      SIP
+
+5140    sipXrls           SIP
+5141    sipXrls           SIP/TLS
+
+
+5150    sipXacd           SIP
+5151    sipXacd           SIP/TLS
+5152    sipXacd           Presence Monitor XML-RPC(?)
+
+5160    sipXpage          SIP
+5161    sipXpage          SIP/TLS
+
+5170    sipXsaa           Shared Appearance Agent
+
+5222    sipXopenfire      The standard port for clients to connect to the server. Connections may or may not be encrypted.
+5223    sipXopenfire      The port used for clients to connect to the server using the old SSL method. 
+5229    sipXopenfire      Flash Cross Domain.
+
+5656    *reserved for test user agents on developer systems*
+
+6050    sipXcallController SIP TCP/UDP port for SIP Signaling.
+6051    sipXcallController SIP TLS     port for SIP Signaling (reserved).
+
+6565    *reserved for test user agents on developer systems*
+
+6666    sipXcallController HTTPS port for REST API (local domain)
+6661    sipXcallController HTTPS port for REST API (foreign domain)
+
+7070    sipXopenfire      HTTP  Binding (unsecured).
+7443    sipXopenfire      HTTPS Binding.
+
+7777    sipXopenfire      File Transfer Proxy.
+
+8021    FreeSWITCH        event_socket inteface
+
+8080    FreeSWITCH        FreeSWITCH XML-RPC
+
+8084    sipXivr           event_socket interface
+8085    sipXivr           Jetty interface
+
+8088    sipXbridge	  HTTP sipXbridge XML RPC port
+
+8089    sipXrelay	  HTTP sipXrelay XML RPC port
+
+8090    sipXconfig        HTTP 
+8091    sipXconfig        HTTPS
+
+8100    sipXpublisher     HTTP (voicemail store interface)
+8101    sipXpublisher     HTTPS (voicemail store interface)
+
+8110    sipXacd           XML-RPC/HTTPS provisioning
+
+8111    sipXpresence      HTTP
+
+8130    sipXconfig        call resolver remote data
+
+8185    sipXprovision     HTTP Auto-Provisioning Servlet
+
+8443    sipXconfig        SSL web UI
+
+8500... sipXpage          RTP/RTCP ports
+
+9000... sipXvxml          RTP/RTCP ports
+
+9094    sipXopenfire      Admin Console 
+9095    sipXopenfire      Admin Console 
+
+10000...sipXacd           RTP/RTCP ports
+
+11000:12999 FreeeSWITCH   RTP/RTCP ports
+
+15060   FreeSWITCH        SIP
+
+30000:31000 sipXRelay     RTCP ports for sipx relay (no ports in this range should be used).

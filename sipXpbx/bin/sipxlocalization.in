@@ -1,0 +1,68 @@
+#!@BASH@
+#
+
+# Check that the right number of arguments have been supplied.
+# Otherwise give the usage message.
+if [ $# -ne 4 ]; then
+    echo "Usage: $0 (localization package file) (voice prompt directory) (region directory) (third party directory)" >&2
+    echo "E.g. : $0 LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx /usr/share/sipxpbx" >&2
+    exit 1
+fi
+
+FILE=$1
+VOICE_PROMPT_DIR=$2
+REGION_DIR=$3
+SHARE_DIR=$4
+
+# Check the localization package file and specified directories for validity.
+if ! [ -d $VOICE_PROMPT_DIR -a -w $VOICE_PROMPT_DIR ]; then
+    echo "'$VOICE_PROMPT_DIRECTORY' is not a writable directory." >&2
+    exit 1
+fi
+if ! [ -d $REGION_DIR -a -w $REGION_DIR ]; then
+    echo "'$REGION_DIR' is not a writable directory." >&2
+    exit 1
+fi
+if ! [ -d $SHARE_DIR -a -w $SHARE_DIR ]; then
+    echo "'$SHARE_DIR' is not a writable directory." >&2
+    exit 1
+fi
+if ! [ -f $FILE -a -r $FILE ]; then
+    echo "'$FILE' does not exist or is not a readable file." >&2
+    exit 1
+fi
+# Check that 'tar' can read the file.
+if ! tar --wildcards -tf $FILE >/dev/null 2>&1 ; then
+    echo "'$FILE' is not a (possibly gzipped) tar file." >&2
+    exit 1
+fi
+# Check that 'tar' contains at least one member with an expected name.
+if ! tar --wildcards -tf $FILE |
+     grep -E '^(stdprompts_|region_|sipxpbx/|third_party/)' >/dev/null ; then
+    echo "'$FILE' contains no localization members.  Is it a localization file?" >&2
+    exit 1
+fi
+
+# Extract files from the localization package
+if tar --wildcards -tf $FILE 'region_*' >/dev/null 2>&1 ; then
+    # The file contains region specific files - extract them
+    tar --wildcards -xf $FILE --directory=$REGION_DIR 'region_*'
+fi
+if tar --wildcards -tf $FILE 'stdprompts_*' >/dev/null 2>&1 ; then
+    # The file contains voice prompts - extract them
+    tar --wildcards -xf $FILE --directory=$VOICE_PROMPT_DIR 'stdprompts_*'
+fi
+if tar --wildcards -tf $FILE sipxpbx >/dev/null 2>&1 ; then
+    # The file contains UI property files - extract them
+    tar --wildcards -xf $FILE --directory=$REGION_DIR/.. 'sipxpbx/*'
+fi
+if tar --wildcards -tf $FILE third_party >/dev/null 2>&1 ; then
+    # The file contains third party files - extract them
+    tar --wildcards -xf $FILE --directory=$SHARE_DIR 'third_party/*'
+fi
+
+# Delete the localization package file
+rm $FILE
+
+# Return success
+exit 0

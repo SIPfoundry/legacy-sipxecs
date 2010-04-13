@@ -1,0 +1,13 @@
+SIP_CALLRESOLVER_LOG_DIR : sam:/ann   # test colon in param value and comment on line
+SIP_CALLRESOLVER_LOG_LEVEL : DEBUG
+
+# This parameter is no longer used, but include it in the test just so we can be sure
+# that a second colon doesn't cause problems.
+SIP_CALLRESOLVER_DAILY_START_TIME : 3:00
+
+# comment line followed by empty line
+
+EMPTY_PARAM :
+
+ABC: ENABLE
+DEF: disable

@@ -1,0 +1,44 @@
+SIPX_PROXY_BIND_IP : $!{location.address}
+SIPX_PROXY_DEFAULT_EXPIRES : $settings.getSetting('SIPX_PROXY_DEFAULT_EXPIRES').Value
+SIPX_PROXY_DEFAULT_SERIAL_EXPIRES : $settings.getSetting('SIPX_PROXY_DEFAULT_SERIAL_EXPIRES').Value
+SIPX_PROXY_HOST_NAME : $!{location.fqdn}
+SIPX_PROXY_HOST_ALIASES : $!{location.address}:${proxyService.sipPort} $!{location.fqdn}:${proxyService.sipPort}
+SIPX_PROXY_LOG_CONSOLE :
+SIPX_PROXY_LOG_DIR :
+SIPX_PROXY_LOG_LEVEL : $settings.getSetting('SIPX_PROXY_LOG_LEVEL').Value
+SIPX_PROXY_MAX_FORWARDS :
+SIPX_PROXY_STALE_TCP_TIMEOUT :
+SIPX_PROXY_TLS_PORT : $!{proxyService.secureSipPort}
+SIPX_PROXY_TCP_PORT : $!{proxyService.sipTCPPort}
+SIPX_PROXY_UDP_PORT : $!{proxyService.sipUDPPort}
+SIPX_PROXY_CALL_STATE :
+SIPX_PROXY_CALL_STATE_LOG :
+SIPX_PROXY_CALL_STATE_DB : $callResolverSettings.getSetting('CALLRESOLVER_CALL_STATE_DB').Value
+
+SIPX_PROXY_AUTHENTICATE_ALGORITHM :
+SIPX_PROXY_AUTHENTICATE_REALM : ${proxyService.realm}
+SIPX_PROXY_HOSTPORT : ${location.address}:${proxyService.sipPort}
+
+SIPX_PROXY_HOOK_LIBRARY.200_xfer : @sipxpbx.lib.dir@/authplugins/libTransferControl.so
+
+SIPX_PROXY_HOOK_LIBRARY.205_subscriptionauth : @sipxpbx.lib.dir@/authplugins/libSubscriptionAuth.so
+SIPX_PROXY.205_subscriptionauth.PACKAGES_REQUIRING_AUTHENTICATION : $!{settings.getSetting('SIPX_PROXY_DIALOG_SUBSCRIBE_AUTHENTICATION').Value}
+SIPX_PROXY.205_subscriptionauth.TARGETS_EXEMPTED_FROM_AUTHENTICATION : ^~~rl~
+
+SIPX_PROXY_HOOK_LIBRARY.210_msftxchghack : @sipxpbx.lib.dir@/authplugins/libMSFT_ExchangeTransferHack.so
+SIPX_PROXY.210_msftxchghack.USERAGENT : ^RTCC/
+
+SIPX_PROXY_HOOK_LIBRARY.300_calldestination: @sipxpbx.lib.dir@/authplugins/libCallDestination.so
+
+SIPX_PROXY_HOOK_LIBRARY.400_authrules : @sipxpbx.lib.dir@/authplugins/libEnforceAuthRules.so
+SIPX_PROXY.400_authrules.RULES        : @sipxpbx.conf.dir@/authrules.xml
+SIPX_PROXY.400_authrules.IDENTITY_VALIDITY_SECONDS : 300
+
+SIPX_PROXY_HOOK_LIBRARY.700_fromalias : @sipxpbx.lib.dir@/authplugins/libCallerAlias.so
+
+SIPX_PROXY_HOOK_LIBRARY.900_ntap : @sipxpbx.lib.dir@/authplugins/libNatTraversalAgent.so
+
+SIPX_PROXY_HOOK_LIBRARY.990_emergnotif: @sipxpbx.lib.dir@/authplugins/libEmergencyNotify.so
+SIPX_PROXY.990_emergnotif.EMERGRULES  : @sipxpbx.conf.dir@/authrules.xml
+
+SIPX_PROXY_HOOK_LIBRARY.995_requestlinter: @sipxpbx.lib.dir@/authplugins/libRequestLinter.so

@@ -1,0 +1,20 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"/>
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="@PageLink" page="admin/commserver/LocationsPage" href="#"><span key="label.locationsPage">Servers</span></a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="user/UserGroups" href="#"><span key="label.userGroups">User Groups</span></a>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <form jwcid="@common/AutoRefreshForm" id="bridge:form" delegate="bean:validator">
+    <span jwcid="@conference/BridgesPanel"
+      selectListener="listener:edit"
+      selectActiveListener="listener:active"
+      bridges="ognl:conferenceBridgeContext.bridges" />
+  </form>
+</div>

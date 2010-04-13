@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="ServiceDomainSettings">
+    <label>Service Domain Settings</label>
+    <profileName>Service Domain Settings</profileName>
+    <setting name="ph1Realm1Active" hidden="yes">
+      <label>Activity</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="ph1Realm1DisplayName">
+      <label>Display Name</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1Realm1UserName" advanced="yes">
+      <label>User Name</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1Realm1RegisterName" advanced="yes">
+      <label>Registration Name</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1Realm1RegisterPass" advanced="yes">
+      <label>Registration Password</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1Realm1DomainServ" advanced="yes">
+      <label>Registration Server</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1Realm1ProxyServ" advanced="yes">
+      <label>Proxy Server</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="ph1Realm1Outbound" advanced="yes">
+      <label>Out Bound Proxy</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+</model>

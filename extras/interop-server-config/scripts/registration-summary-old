@@ -1,0 +1,103 @@
+#!/usr/bin/perl
+
+use English;
+
+# Set default log file.
+$Log= $ARGV[0] || '/var/log/sipxpbx/sipregistrar.log.1';
+
+# Recipients for the report.
+$Recipients='interop-config@pingtel.com';
+
+chomp($MyHostname=`hostname -f`);
+
+format STDOUT_TOP =
+
+    Successful registration report for @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+                                       $MyHostname
+       From: @>>>>>>>>> @>>>>Z
+             $startdate, $starttime
+         To: @>>>>>>>>> @>>>>Z
+             $date,      $time
+.
+
+format STDOUT =
+
+.
+
+format REGISTRATIONS_TOP =
+    Hostname or IP                                                           First     Last
+    -----------------------------------------------------------------------  --------  --------
+.
+format REGISTRATIONS =
+    @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<...  @<<<<<<<  @<<<<<<<
+    &hostname($host), $HostFirstSeen{$host}, $HostLastSeen{$host}
+.
+
+open STDOUT, "| mail -s 'Registration report for $MyHostname' '$Recipients'";
+
+if (open(LOG, "<$Log"))
+{
+    while(<LOG>)
+    {
+        # Get the date and time stamp
+        ($date, $time) = /^"(\d{4}-\d{2}-\d{2})T(\d{2}:\d{2})/; # "
+        if ( ! $startdate )
+        {
+            $startdate = $date;
+            $starttime = $time;
+        }
+	$displaytime = substr($date, 8, 2) . 'T' . $time;
+
+        # Extract the OUTGOING lines that are 200's for REGISTER requests.
+	if ( m!:OUTGOING:.*----Remote Host:.+---- Port: \d+----\\nsip/2\.0 +200 .*\\r\\ncseq *:[ \d]+register!i )
+        {
+	    # Find all the Contact headers.
+	    split(/\\r\\n/);
+	    foreach $line (@_)
+	    {
+		next unless $line =~ /contact *:.*?@(.*?)([>;]|$)/i;
+
+                # Extract the address of the contact and record the time.
+		$host = $1;
+                $host =~ s/:.*$//; # Remove any port number.
+		$HostSeen{$host}++;
+	        $HostFirstSeen{$host} = $displaytime unless exists $HostFirstSeen{$host};
+	        $HostLastSeen{$host} = $displaytime;
+	    }
+        }
+    }
+    close LOG;
+
+    write; # dummy line to force printing the report header
+
+    $FORMAT_FORMFEED = "\n"; # don't insert formfeeds between pages
+
+    $FORMAT_LINES_LEFT = 0; # force new headings at next write
+    $FORMAT_TOP_NAME = 'REGISTRATIONS_TOP';
+    $FORMAT_NAME = 'REGISTRATIONS';
+    foreach $host ( sort {$HostFirstSeen{$a} cmp $HostFirstSeen{$b}} keys %HostFirstSeen )
+    { 
+	write;
+    }
+}
+else
+{
+    # failed to open log file
+    print "Failed to open '$Log':\n\t$!\n";
+}
+
+close STDOUT;
+
+sub hostname
+{
+    my ($addr) = $_[0];
+    if ( ! $NameCache{$addr} )
+    {
+        my (@bytes,$packedaddr,$host_name);
+        @bytes = split(/\./, $_[0]);
+        $packedaddr = pack("C4",@bytes);
+        $host_name = (gethostbyaddr($packedaddr, 2))[0];
+        $NameCache{$addr} = $host_name || $addr;
+    }
+    return $NameCache{$addr};
+}

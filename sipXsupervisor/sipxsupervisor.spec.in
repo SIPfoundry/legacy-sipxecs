@@ -1,0 +1,110 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  %{buildno}
+
+Summary:  sipXecs process supervisor
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
+
+Source:   %name-%version.tar.gz
+
+%if %{_vendor} == redhat
+Requires: chkconfig
+%endif
+
+BuildRequires: net-snmp-devel >= 5.3.1
+Requires: net-snmp-libs >= 5.3.1
+Requires: sipxcommserverlib >= %version
+
+# by requiring sipxpbx, that will be upgraded first so it won't object to this overriding files
+Requires: sipxpbx >= @VERSION@
+
+# sending email - an smtp listener must be running on localhost
+%if %{_vendor} == redhat
+Requires: smtpdaemon
+%endif
+%if %{_vendor} == suse
+Requires: sendmail
+%endif
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+The sipXecs project is a comprehensive small/medium scale Enterprise SIP PBX.
+
+This component manages sipXecs processes and acts as the configuration agent
+for a remote management application.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+%package devel
+Requires: %name
+Requires: net-snmp-devel >= 5.3.1
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name
+Requires: sipxcommserverlib-devel >= %version
+
+%description devel
+Internal class documentation for the sipXsupervisor classes
+
+%prep
+%setup -q
+
+%build
+%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
+
+%attr(755,root,root) %{_bindir}/sipxsupervisor
+%attr(755,root,root) %{_bindir}/sipxsupervisor.sh
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxsupervisor-process.xml
+
+%attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/alarms/sipXalarms-config.xml
+%attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.mib
+%attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/alarm-strings.xml
+%attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml
+
+%attr(755,root,root) %{_datadir}/sipxecs/schema/sipXecs-process.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/alarm.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/alarm-group.xsd
+
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/process-state
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/process-cfgver
+
+%files devel
+%defattr(644,root,root,755)
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
+
+%pre
+
+%post
+rm -f %{_localstatedir}/sipxdata/tmp/processAlias.dat
+rm -f %{_localstatedir}/sipxdata/tmp/locked.lck
+

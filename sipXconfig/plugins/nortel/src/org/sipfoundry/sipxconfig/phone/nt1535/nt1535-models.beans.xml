@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="nt1535Model" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="nt1535" />
+    <property name="label" value="Nortel IP Phone 1535" />
+    <property name="maxLineCount" value="1" />
+    <property name="vendor" value="LG-Nortel" />
+    <property name="restartSupported" value="true" />
+  </bean>
+
+   <!-- models -->
+  <bean id="nortel1535" parent="nt1535Model">
+    <property name="label" value="Nortel IP Phone 1535" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+
+
+  <!-- implementation -->
+  <bean id="nt1535" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Phone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+
+  <bean id="nt1535Upload" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Upload"
+    singleton="false" parent="upload">
+    <property name="profileDir">
+      <value>${sysdir.phone}/profile/tftproot</value>
+    </property>
+  </bean>
+
+  <bean id="nt1535Firmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="nt1535Upload" />
+    <property name="modelFilePath" value="nt1535/upload.xml" />
+    <property name="label" value="Nortel IP Phone 1535" />
+  </bean>
+</beans>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+  <hostMatch>
+    <hostPattern>thisdomain</hostPattern>
+    <userMatch>
+      <userPattern>ADDFIELD</userPattern>
+      <permissionMatch>
+        <transform>
+          <fieldparams name='NEWFIELDPARAM'>FIELDVALUE</fieldparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDURLPARAM</userPattern>
+      <permissionMatch>
+        <transform>
+          <urlparams name='NEWURLPARAM'>URLVALUE</urlparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDHEADERPARAM</userPattern>
+      <permissionMatch>
+        <transform>
+          <headerparams name='NEWHEADERPARAM'>HEADERVALUE</headerparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDTWOFIELDS</userPattern>
+      <permissionMatch>
+        <transform>
+          <fieldparams>NEWFIELDPARAM=FIELDVALUE</fieldparams>
+          <fieldparams name='NOTHERFIELD'>NOTHERVALUE</fieldparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDTWOURLPARAM</userPattern>
+      <permissionMatch>
+        <transform>
+          <urlparams>NEWURLPARAM=URLVALUE</urlparams>
+          <urlparams name='NOTHERURL'>NOTHERVALUE</urlparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <userPattern>ADDTWOHEADERPARAM</userPattern>
+      <permissionMatch>
+        <transform>
+          <headerparams>NEWHEADERPARAM=HEADERVALUE</headerparams>
+          <headerparams name='NOTHERHEADERPARAM'>NOTHERVALUE</headerparams>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

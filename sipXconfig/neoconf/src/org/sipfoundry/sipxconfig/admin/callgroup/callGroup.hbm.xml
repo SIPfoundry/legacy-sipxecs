@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.callgroup" default-lazy="false">
+  <!--
+    - User Ring
+  -->
+  <class name="UserRing" table="user_ring">
+    <id name="id" column="user_ring_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">ring_seq</param>
+      </generator>
+    </id>
+    <property name="expiration" />
+    <property name="type" column="ring_type" type="org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing$UserType" />
+    <many-to-one name="callGroup" column="call_group_id" not-null="true" insert="false" update="false" />
+    <many-to-one name="user" column="user_id" not-null="true" cascade="none" />
+  </class>
+
+  <!--
+    - Call Group
+  -->
+  <class name="CallGroup" table="call_group">
+    <id name="id" column="call_group_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">call_group_seq</param>
+      </generator>
+    </id>
+    <property name="enabled" />
+    <property name="name" />
+    <property name="extension" />
+    <property name="description" />
+    <property name="fallbackDestination" />
+    <property name="voicemailFallback" />
+    <property name="userForward" />
+    <property name="sipPassword" />
+    <list name="rings" cascade="all-delete-orphan">
+      <key column="call_group_id" not-null="true" />
+      <list-index column="position" />
+      <one-to-many class="UserRing" />
+    </list>
+  </class>
+
+  <query name="userRingsForUserId">
+    <![CDATA[from UserRing ring where ring.user.id = :userId]]>
+  </query>
+
+  <query name="callGroupIdsWithName">
+    <![CDATA[select cg.id from CallGroup cg where cg.name = :value]]>
+  </query>
+
+  <query name="callGroupIdsWithAlias">
+    <![CDATA[select cg.id from CallGroup cg where cg.name = :value or cg.extension = :value]]>
+  </query>
+
+</hibernate-mapping>

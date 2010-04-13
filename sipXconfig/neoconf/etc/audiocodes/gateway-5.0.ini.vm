@@ -1,0 +1,124 @@
+## Velocity macros
+## emit comma separated list of values
+## works with arrays
+#macro(emit_csv_index $array $index $setting_names)
+#foreach ($sn in $setting_names)
+#if($velocityCount > 1),#end
+#set($s=$array.getSetting("$sn[$index]"))
+#if($s && $s.Value)$s.Value#else$ignore#end
+#end
+
+#end
+#macro(emit_parameter_table $s)
+#if($s.ProfileName && $s.ProfileName != "CoderName")
+#foreach ($row in [1..$s.size])
+#set ($settingIndex = $velocityCount - 1)
+#if($s.ProfileName && $s.ProfileName != '$ignore$')
+$s.profileName=#foreach ($name in $s.settingNames)#if($velocityCount > 1),#end$s.getSetting($settingIndex, $name).Value#end
+#end
+#end
+#elseif($s.ProfileName == "CoderName")
+#set($codecs = $s.getTypedValue())
+#foreach ($codec in $codecs)
+${s.ProfileName}=${codec}
+#end
+#end
+#end
+;**************
+;** Ini File **
+;**************
+
+;generated from template by sipXconfig
+;------------------------------
+
+#foreach ($s in $flatSettings)
+#if($s.ProfileName != '$ignore$')
+#if($parameterTables.contains(${s.ProfileName}))
+#emit_parameter_table($s)
+#elseif($s.Leaf)
+#if(${s.Value})
+${s.ProfileName}=$!{s.Value}
+#end
+#else
+
+[${s.ProfileName}]
+#end
+#end
+#end
+
+#if(${gateway.ModelDefinitions.contains("fxo")})
+[Trunks]
+TRUNKGROUP_1=1-${gateway.ports.size()},$!{firstDefaultCLID},0
+PSTNPREFIX=*,1,*,*,0
+TRUNKGROUPSETTINGS=1,1,255,$ignore
+#foreach ($port in $gateway.ports)
+#set($port_id = $velocityCount - 1)
+#set($extension = $port.getSettingValue('Port/Extension'))
+#set($enable = $port.getSettingValue('Port/AutomaticDialing'))
+TARGETOFCHANNEL${port_id}=${extension},${enable}
+#end
+
+#end
+#if(${gateway.ModelDefinitions.contains("digital")})
+[Trunks]
+#foreach ($port in $gateway.ports)
+#set($port_id = $velocityCount - 1)
+#set($trunk_id = $velocityCount)
+#set($firstDefaultCLID = $port.getSettingValue('Trunk/TrunkGroup_X_FirstPhoneNumber'))
+#set($prefix = $port.getSettingValue('Trunk/Prefix'))
+#set($minChannel = $port.getSettingValue('Trunk/MinChannel'))
+#set($maxChannel = $port.getSettingValue('Trunk/MaxChannel'))
+#set($csm = $port.getSettingValue('Trunk/ChannelSelectMode'))
+TRUNKGROUP_$trunk_id=${port_id}-${port_id}/${minChannel}-${maxChannel},$!{firstDefaultCLID},0
+TRUNKGROUPSETTINGS=${trunk_id},${csm},255,$ignore
+PSTNPREFIX=${prefix},${trunk_id},*,*,0
+#end
+
+#end
+## fxs paramaters only
+#if(${gateway.ModelDefinitions.contains("fxs")})
+
+[Lines]
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount - 1)
+#set($trunk_id = $velocityCount)
+#set($settings = $line.Settings)
+#set($username = $line.getSettingValue('SIP/Authentication/Username'))
+#set($password = $line.getSettingValue('SIP/Authentication/Password'))
+Authentication_${line_id}=$username,$password
+TRUNKGROUP=${trunk_id}-${trunk_id},${username}
+#end
+#end
+
+#if(${gateway.ModelDefinitions.contains("digital")})
+#foreach ($portSettings in $portFlatSettings)
+#set($port_id = $velocityCount - 1)
+; Parameters for trunk: $port_id
+#foreach ($s in $portSettings)
+#if($s.ProfileName != '$ignore$')
+#if($s.Leaf)
+#if(${s.Value})
+${s.ProfileName}_$port_id=$!{s.Value}
+#end
+#else
+
+[${s.ProfileName}_$port_id]
+#end
+#end
+#end
+
+#end
+#end
+#if($allowedIPs)
+; only accept calls from these IP addreses
+#foreach($ip in $allowedIPs)
+PREFIX=*,${ip},*,1,255
+#end
+
+#end
+## parameters that are not configurable per gateway go here
+[IniFileOnlyParams]
+EnableLANWatchDog=1
+IdlePCMPattern=85
+LogoWidth=339
+## end of generated file

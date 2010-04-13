@@ -1,0 +1,54 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/QuickHelp" value="message:logging.description" />
+  <span jwcid="errors@common/ErrorMsg"/>
+  <form jwcid="form@Form" delegate="bean:validator">
+	<ul class="component-links">
+      <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+    </ul>
+	<table>
+      <tbody>
+        <tr jwcid="@common/FieldPanel"
+          for="loggingLevel:generalLevel"
+          field="ognl:components.generalLevel"
+          label="message:label.generalLevel"
+          description="message:description.generalLevel">
+		  <select jwcid="generalLevel@PropertySelection"
+	        model="ognl:loggingLevelsModel"
+	        value="ognl:generalLevel"
+	        id="loggingLevel:generalLevel"/>
+        </tr>
+      </tbody>
+    </table>
+	<fieldset jwcid="@If" condition="ognl:advanced">
+	  <legend><span key="label.individualLevels"/></legend>
+	  <table>
+	    <span jwcid="@For" source="ognl:loggingEntities" value="ognl:currentLoggingEntity">
+          <span jwcid="@If" condition="ognl:currentLoggingEntity instanceof org.sipfoundry.sipxconfig.service.SipxFreeswitchService">
+            <tr>
+              <td><span jwcid="@Insert" value="ognl:messages.getMessage(currentLoggingEntity.labelKey)"/></td>
+              <td><span jwcid="individualFreeswitchLevel@PropertySelection"
+	            model="ognl:freeswitchLoggingLevelsModel"
+	            value="ognl:currentLoggingEntity.logLevel"
+	            id="loggingLevel:individualLevel"/>
+		      </td>
+            </tr>
+		    <tr>
+          </span>
+          <span jwcid="@Else">
+            <tr>
+	          <td><span jwcid="@Insert" value="ognl:messages.getMessage(currentLoggingEntity.labelKey)"/></td>
+		      <td><span jwcid="individualLevel@PropertySelection"
+	            model="ognl:loggingLevelsModel"
+	            value="ognl:currentLoggingEntity.logLevel"
+	            id="loggingLevel:individualLevel"/>
+		      </td>
+		    </tr>
+          </span>
+	    </span>
+	  </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions"
+      listener="listener:commit"
+      successMessage="message:msg.actionSuccess"/>
+  </form>
+</div>

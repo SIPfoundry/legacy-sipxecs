@@ -1,0 +1,38 @@
+<div jwcid="@common/Border" restricted="false" useDojo="true" borderTitle="ognl:borderTitle">
+  <p><span key="text">Sign-in or sign-out to presence server. Useful for peer-to-peer clients status
+    notification or call distribution systems.</span></p>
+  <span jwcid="@common/ErrorMsg"/>
+  <div id="settings-content">
+    <span jwcid="@If" condition="ognl:!acdServerPresentForThisUser">
+      <p class="user-error" id="presence-disabled"><span key="noUserAgentFound.error">Presence server support is not enabled on your system.</span></p>
+    </span>
+    <span jwcid="@Else" id="status">
+      <form jwcid="@Form">
+       <fieldset>
+          <label><span key="label.selectServer">Hosts</span></label>
+          <span jwcid="locationSelector" />
+        </fieldset>
+      </form>
+      <form jwcid="form@common/AutoRefreshForm" id="presence:form" actionBlock="ognl:actionBlock">
+        <span jwcid="@If" condition="ognl:! signedIn">
+          <p class="message"><span key="signed.out">You are currently signed out.</span></p>
+        </span>
+        <span jwcid="@Else">
+          <p><strong><span key="signed.in">You are currently signed in.</span></strong></p>
+        </span>
+        <ul jwcid="actions@Block">
+          <li>
+            <input jwcid="signInButton@Submit" id="signInButton" value="message:button.SignIn"
+              listener="listener:signIn"
+              updateComponents="ognl:{'refreshedContent'}"
+            />
+            <input jwcid="signOutButton@Submit" id="signOutButton" value="message:button.SignOut"
+              listener="listener:signOut"
+              updateComponents="ognl:{'refreshedContent'}"
+            />
+          </li>
+        </ul>
+      </form>
+    </span>
+  </div>
+</div>

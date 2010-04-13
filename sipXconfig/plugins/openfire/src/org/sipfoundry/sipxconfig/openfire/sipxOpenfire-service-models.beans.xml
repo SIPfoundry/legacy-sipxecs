@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+  <bean id="sipxOpenfireService" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="SipXopenfire" />
+    <property name="modelName" value="openfire.xml" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="modelDir" value="openfire" />
+    <property name="editable" value="true" />
+    <property name="groupTitleEnabled" value="true" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxOpenfireConfiguration" />
+        <ref bean="xmppAccountInfo" />
+        <ref bean="sipxRegistrarConfiguration" />
+      </list>
+    </property>
+    <property name="affectedServices">
+      <list>
+        <ref bean="sipxRegistrarService" />
+        <ref bean="sipxImbotService" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="imBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxOpenfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
+    <property name="template" value="openfire/sipxopenfire.vm" />
+    <property name="name" value="sipxopenfire.xml" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="openfireApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="userAccountServer." />
+    <property name="secure" value="false" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.openfire.OpenfireApi" />
+  </bean>
+
+  <bean id="xmppAccountInfo" class="org.sipfoundry.sipxconfig.openfire.XmppAccountInfo"
+    parent="defaultConfigurationFile">
+    <property name="name" value="xmpp-account-info.xml"/>
+    <property name="coreContext" ref="coreContext" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="restartRequired" value="false" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="sipxOpenfireDaoListener" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireDaoListener">
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <property name="configurationFiles">
+      <list>
+        <ref bean="xmppAccountInfo" />
+        <ref bean="presenceRoutingConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+</beans>

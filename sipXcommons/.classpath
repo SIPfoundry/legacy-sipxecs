@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="src" output="bin.eclipse/test-classes" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="lib/dnsjava.jar"/>
+	<classpathentry kind="lib" path="lib/junit.jar"/>
+	<classpathentry kind="lib" path="lib/log4j.jar"/>
+	<classpathentry kind="lib" path="lib/jibx-bind.jar"/>
+	<classpathentry kind="lib" path="lib/jibx-run.jar"/>
+	<classpathentry kind="lib" path="lib/dom4j.jar"/>
+	<classpathentry kind="lib" path="lib/commons-digester.jar"/>
+	<classpathentry kind="lib" path="lib/jdom-1.0.jar"/>
+	<classpathentry kind="lib" path="lib/ws-commons-util.jar"/>
+	<classpathentry kind="lib" path="lib/commons-codec-1.3.jar"/>
+	<classpathentry kind="lib" path="lib/commons-lang.jar"/>
+	<classpathentry kind="lib" path="lib/jce.jar"/>
+	<classpathentry kind="lib" path="lib/not-yet-commons-ssl.jar"/>
+	<classpathentry kind="lib" path="lib/jain-sip-sdp.jar"/>
+	<classpathentry kind="lib" path="lib/xmlrpc-client.jar"/>
+	<classpathentry kind="lib" path="lib/xmlrpc-common.jar"/>
+	<classpathentry kind="lib" path="lib/postgresql-jdbc.jar"/>
+	<classpathentry kind="output" path="bin.eclipse/classes"/>
+</classpath>

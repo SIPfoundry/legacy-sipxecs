@@ -1,0 +1,353 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="Author" content="Rich Schaaf">
+   <meta name="GENERATOR" content="Mozilla/4.6 [en] (WinNT; U) [Netscape]">
+   <title>Pingtel Telephony API Overview</title>
+<link rel=File-List href="./PToverview_files/filelist.xml">
+</head>
+<body link="#0000FF" vlink="#0000FF" lang="EN-US" style="tab-interval:.5in">
+
+<div class=Section1>
+<h1>
+<a NAME="top"></a>PTAPI Overview</h1>
+The Pingtel Telephony API (PTAPI) is an object-oriented application programming
+interface written in C++. Like the Java Telephony API (JTAPI) on which
+it is based, PTAPI supports computer telephony systems, but is not limited
+to Java-based systems.
+<p>PTAPI defines the interface between computer telephony applications
+and Pingtel phone products. It is intended to make programming applications
+for Pingtel's IP telephone simple, while supporting features for advanced
+telephony applications.
+<p>PTAPI is a collection of C++ function definitions, message definitions,
+and type and data-structure definitions.
+<h2>
+Core Classes</h2>
+The core classes are:
+<dl>
+<dt>
+<a href="PtAddress.html">PtAddress</a></dt>
+
+<dd>
+A PtAddress object represents what we commonly think of as a phone number.
+However, for calls to IP telephony endpoints, the "telephone number" is
+a URL or IP address that identifies the endpoint.</dd>
+
+<dt>
+<a href="PtCall.html">PtCall</a></dt>
+
+<dd>
+A PtCall object models a telephone call. A call can have zero or more connections:
+a two-party call has two connections, and a conference call has three or
+more connections. Each connection models the relationship between a call
+and an address, where an address identifies a particular party or set of
+parties on a call.</dd>
+
+<dt>
+<a href="PtConnection.html">PtConnection</a></dt>
+
+<dd>
+A PtConnection represents a link, or association, between a PtCall object
+and a PtAddress object. The purpose of a PtConnection object is to describe
+the relationship between a PtCall object and a PtAddress object. A PtConnection
+object exists if the PtAddress is a part of the telephone call. The state
+of each PtConnection describes the particular stage of the relationship
+between the call and address.</dd>
+
+<dt>
+<a href="PtProvider.html">PtProvider</a></dt>
+
+<dd>
+A PtProvider represents the software entity that interfaces with an instance
+of the "Pingtel Server" to monitor and control a group of Pingtel telephones.
+The PtProvider maintains knowledge of the calls currently associated with
+it. The provider maintains references to all calls until they move into
+the PtCall::INVALID state.</dd>
+
+<dt>
+<a href="PtTerminal.html">PtTerminal</a></dt>
+
+<dd>
+A PtTerminal represents a physical hardware endpoint connected to the telephony
+domain, such as a computer workstation or a Pingtel phone acting as a physical
+endpoint in a telephony network). Each PtTerminal object has a unique string
+name. This name is first assigned when the PtTerminal is created and does
+not change throughout the lifetime of the object.</dd>
+
+<dt>
+<a href="PtTerminalConnection.html">PtTerminalConnection</a></dt>
+
+<dd>
+A PtTerminalConnection object represents the relationship between an PtConnection
+and a PtTerminal; a PtTerminalConnection object must always be associated
+with a PtConnection object and a PtTerminal object. The association of
+the PtConnection and PtTerminal objects to the PtTerminalConnection does
+not change throughout the lifetime of the PtTerminalConnection. Because
+a PtTerminalConnection is associated with a PtConnection, it is therefore
+also associated with some PtCall. The PtTerminalConnection describes the
+specific relationship between a physical PtTerminal endpoint with respect
+to an address on a call.</dd>
+</dl>
+Return to <a href="#top">top</a>.
+<p>Building on these core classes, the PTAPI also offers groups of classes
+that model components of telephone hardware, encapsulate data associated
+with an event, listen for and obtain notification of events, and provide
+utilities. Descriptions of these classes follow.
+<h2>
+Component Classes</h2>
+The classes relating to the components that model telephone hardware are:
+<dl>
+<dt>
+<a href="PtComponent.html">PtComponent</a></dt>
+
+<dd>
+This is the base class for all individual components used to model telephone
+hardware. Each distinct component type is derived from this class.</dd>
+
+<dt>
+<a href="PtPhoneButton.html">PtPhoneButton</a></dt>
+
+<dd>
+Models keypad and feature buttons.</dd>
+
+<dt>
+<a href="PtPhoneDisplay.html">PtPhoneDisplay</a></dt>
+
+<dd>
+Models the display device for a phone. It is the parent class for the PtPhoneTextDisplay
+and PtPhoneGraphicDisplay classes.</dd>
+
+<dt>
+<a href="PtPhoneTextDisplay.html">PtPhoneTextDisplay</a></dt>
+
+<dd>
+Models a character display.</dd>
+
+<dt>
+<a href="PtPhoneGraphicDisplay.html">PtPhoneGraphicDisplay</a></dt>
+
+<dd>
+Represents a display device that is pixel-addressable.</dd>
+
+<dt>
+<a href="PtPhoneHookswitch.html">PtPhoneHookswitch</a></dt>
+
+<dd>
+Models the phone hook switch.</dd>
+
+<dt>
+<a href="PtPhoneLamp.html">PtPhoneLamp</a></dt>
+
+<dd>
+Models phone lamps and other simple indicators.</dd>
+
+<dt>
+<a href="PtPhoneMicrophone.html">PtPhoneMicrophone</a></dt>
+
+<dd>
+Models a phone microphone.</dd>
+
+<dt>
+<a href="PtPhoneRinger.html">PtPhoneRinger</a></dt>
+
+<dd>
+Models a phone ringer.</dd>
+
+<dt>
+<a href="PtPhoneSpeaker.html">PtPhoneSpeaker</a></dt>
+
+<dd>
+Models a phone speaker.</dd>
+</dl>
+Return to <a href="#top">top</a>.
+<h2>
+Event Classes</h2>
+The base class and subclasses that contain data relating to a particular
+type of event are:
+<dl>
+<dt>
+<a href="PtEvent.html">PtEvent</a></dt>
+
+<dd>
+The PtEvent encapsulates data associated with an event notification. PtEvent
+is subclassed to contain the PTAPI object(s) and data involved with the
+event. An application that is interested in events from a specific object
+must implement a PtEventListener that handles the specific type of event(s)
+of interest.The PtEvent is sent to an application implementing a PtEventListener
+by the Pingtel object in which the event occurs.</dd>
+
+<dt>
+<a href="PtEventMask.html">PtEventMask</a></dt>
+
+<dd>
+The PtEventMask is used to filter events which get passed to a PtEventListener.
+To provide finer granularity on the control of events that get passed to
+a listener, the PtEventMask may be used to define the specific events that
+are to be passed.</dd>
+
+<dt>
+<a href="PtAddressEvent.html">PtAddressEvent</a></dt>
+
+<dd>
+A PtAddressEvent contains event data associated with a PtAddress.</dd>
+
+<dt>
+<a href="PtCallEvent.html">PtCallEvent</a></dt>
+
+<dd>
+A PtCallEvent contains event data associated with a PtCall.</dd>
+
+<dt>
+<a href="PtComponentIntChangeEvent.html">PtComponentIntChangeEvent</a></dt>
+
+<dd>
+A PtComponentIntChangeEvent contains PtComponent-associated event data,
+where a component property represented as an integer has changed.</dd>
+
+<dt>
+<a href="PtComponentStringChangeEvent.html">PtComponentStringChangeEvent</a></dt>
+
+<dd>
+A PtComponentIntChangeEvent contains PtComponent-associated event data,
+where a component property represented as a string has changed.</dd>
+
+<dt>
+<a href="PtConnectionEvent.html">PtConnectionEvent</a></dt>
+
+<dd>
+A PtConnectionEvent contains event data that is associated with a PtConnection.</dd>
+
+<dt>
+<a href="PtMultiCallEvent.html">PtMultiCallEvent</a></dt>
+
+<dd>
+A PtMultiCallEvent contains PtCall-associated event data, where multiple
+calls are involved. Multicall events are typically merges of multiple calls
+into a single call.</dd>
+
+<dt>
+<a href="PtProviderEvent.html">PtProviderEvent</a></dt>
+
+<dd>
+A PtProviderEvent contains event data that is associated with a PtProvider.</dd>
+
+<dt>
+<a href="PtTerminalComponentEvent.html">PtTerminalComponentEvent</a></dt>
+
+<dd>
+A PtTerminalComponentEvent contains event data associated with a PtTerminalComponent.</dd>
+
+<dt>
+<a href="PtTerminalConnectionEvent.html">PtTerminalConnectionEvent</a></dt>
+
+<dd>
+A PtTerminalConnectionEvent contains event data associated with a PtTerminalConnection.</dd>
+
+<dt>
+<a href="PtTerminalEvent.html">PtTerminalEvent</a></dt>
+
+<dd>
+A PtTerminalEvent contains event data associated with a PtTerminal.</dd>
+</dl>
+Return to <a href="#top">top</a>.
+<h2>
+Listener Classes</h2>
+The listener class is used to register interest and obtain notification
+of events of interest on PTAPI objects. The base class and the specialized,
+derived classes are:
+<dl>
+<dt>
+<a href="PtEventListener.html">PtEventListener</a></dt>
+
+<dd>
+Base class for listener objects. The PtEventListener is specialized, in
+the provided derived classes, with methods for each event type that a Pingtel
+object may generate. An application that is interested in being notified
+of specific events, must implement the derived class for the listener capable
+of receiving those events.</dd>
+
+<dt>
+<a href="PtAddressListener.html">PtAddressListener</a></dt>
+
+<dd>
+The PtAddressListener is used to register with and receive events from
+PtAddress objects.</dd>
+
+<dt>
+<a href="PtCallListener.html">PtCallListener</a></dt>
+
+<dd>
+The PtCallListener is used to register with PtAddress, PtTerminal, and
+PtCall objects to receive events from associated PtCall objects.</dd>
+
+<dt>
+<a href="PtConnectionListener.html">PtConnectionListener</a></dt>
+
+<dd>
+The PtConnectionListener is used to register with PtAddress, PtTerminal
+and PtCall objects to receive events from associated PtCall and PtConnection
+objects.</dd>
+
+<dt>
+<a href="PtProviderListener.html">PtProviderListener</a></dt>
+
+<dd>
+The PtProviderListener is used to register with and receive events from
+PtProvider <font color="#000000">objects</font>.</dd>
+
+<dt>
+<a href="PtTerminalComponentListener.html">PtTerminalComponentListener</a></dt>
+
+<dd>
+The PtTerminalComponentListener is used to register with and receive events
+from PtTerminal objects.</dd>
+
+<dt>
+<a href="PtTerminalConnectionListener.html">PtTerminalConnectionListener</a></dt>
+
+<dd>
+The PtTerminalConnectionListener is used to register with PtAddress, PtTerminal
+and PtCall objects to receive events from associated PtCall, PtConnection,
+and PtTerminalConnection objects.</dd>
+
+<dt>
+<a href="PtTerminalListener.html">PtTerminalListener</a></dt>
+
+<dd>
+The PtTerminalListener is used to register with and receive events from
+PtTerminal objects.</dd>
+</dl>
+Return to <a href="#top">top</a>.
+<h2>
+Utility classes</h2>
+Utility classes in PTAPI are:
+<dl>
+<dt>
+<a href="PtAddressForwarding.html">PtAddressForwarding</a></dt>
+
+<dd>
+The PtAddressForwarding class represents a forwarding instruction. This
+instruction indicates how the phone system should forward incoming telephone
+calls to a specific address.</dd>
+
+<dt>
+<a href="PtConfigDb.html">PtConfigDb</a></dt>
+
+<dd>
+This class maintains a configuration database containing key/value pairs.</dd>
+
+<dt>
+<a href="PtSessionDesc.html">PtSessionDesc</a></dt>
+
+<dd>
+This class defines session attributes that are used when setting up a new
+connection.</dd>
+
+<br>&nbsp;
+<p>&nbsp;
+<p>Return to <a href="#top">top</a>.</dl>
+</div>
+
+</body>
+</html>

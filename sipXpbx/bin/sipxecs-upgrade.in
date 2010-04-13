@@ -1,0 +1,184 @@
+#! /usr/bin/env python
+
+#----------------------------------------------------------------------
+#
+# Copyright (C) 2009 Nortel Networks
+#
+# This script performs SIPX upgrade on a distributed system
+# It is needed ONLY on an upgrade from 3.x to 4.x
+#
+#   This sets up:
+#      The master system name
+#      Contacts master to get domain configuration
+#----------------------------------------------------------------------
+
+import os, commands, sys, re, time, traceback, glob, signal, snack
+
+sys.path.insert(0,'@SIPX_LIBEXECDIR@')
+
+from sipxecs_setup_common import *
+
+global HostName
+HostName = getfqdn(gethostname())
+
+global MasterHostName
+MasterHostName = ''
+
+def screen_intro_and_warnings ():
+   global explain
+
+   initialMessage ='\
+This tool reloads the bootstrap configuration\n\
+for a distributed @SIPXECS_NAME@ server.\n\
+\n\
+If this server is your master server, this tool should NOT be run.\n\
+'
+   grid = snack.Grid(2, 1)
+   continueButton = snack.Button("Continue")
+   grid.setField(continueButton, 0, 0, (1,0,1,1))
+
+   exitButton = snack.Button("Exit")
+   grid.setField(exitButton, 1, 0, (1,0,1,1))
+
+   f = screen_setup("@SIPXECS_NAME@ System Upgrade Wizard", initialMessage, grid)
+   choice = f.run()
+
+   screen_end()
+
+   if choice == exitButton :
+       log_printout("initial screen exit")
+       cleanExit()
+
+   progress(20,"Start @SIPXECS_NAME@ Services Upgrade")
+
+   orderMessage ='\
+Before using this tool on the distributed system,\n\
+you MUST have already upgraded your master system.\n\
+\n\
+If you have not upgraded your master system, do so\n\
+before you continue...\n\
+'
+   grid = snack.Grid(2, 1)
+   continueButton = snack.Button("Continue")
+   grid.setField(continueButton, 0, 0, (1,0,1,1))
+
+   exitButton = snack.Button("Exit")
+   grid.setField(exitButton, 1, 0, (1,0,1,1))
+
+   f = screen_setup("@SIPXECS_NAME@ System Upgrade Wizard", orderMessage, grid)
+   choice = f.run()
+
+   screen_end()
+
+   if choice == exitButton :
+       log_printout("order screen exit")
+       cleanExit()
+
+   passwordMessage="\
+You will need the Setup Password value assigned\n\
+to this system; it is displayed on the Servers\n\
+configuration page of your master system.\
+"
+
+   grid = snack.Grid(2, 1)
+   continueButton = snack.Button("Continue")
+   grid.setField(continueButton, 0, 0, (1,0,1,1))
+
+   exitButton = snack.Button("Exit")
+   grid.setField(exitButton, 1, 0, (1,0,1,1))
+
+   f = screen_setup("@SIPXECS_NAME@ System Upgrade Wizard", passwordMessage, grid)
+   choice = f.run()
+
+   screen_end()
+
+   if choice == exitButton :
+       log_printout("password screen exit")
+       cleanExit()
+
+def upgrade_completed () :
+
+    completedMessage ="\
+Your upgrade is complete.\
+"
+
+    outer = snack.Grid(1, 2)
+
+    startButton = snack.Button("Start @SIPXECS_NAME@")
+    outer.setField(startButton, 0, 0, (1,0,1,1))
+
+    inner = snack.Grid(2, 1)
+
+    shellButton = snack.Button("Exit to Prompt")
+    inner.setField(shellButton, 0, 0, (1,0,1,1))
+
+    rebootButton = snack.Button("Reboot")
+    inner.setField(rebootButton, 1, 0, (1,0,1,1))
+
+    outer.setField(inner, 0, 1)
+
+    form = screen_setup("Upgrade Completed", completedMessage, outer)
+    choice = form.run()
+
+    screen_end()
+
+    if choice == startButton :
+        log_printout('--- Starting @SIPXECS_NAME@ ---' )
+        if runningAsRoot() :
+           execNext('/sbin/service', ['sipxecs', 'start'])
+           # execNext does not return
+        else :
+           execNext('sudo', ['@SERVICEDIR@/sipxecs', 'start'])
+           # execNext does not return
+
+    else :
+        if choice == rebootButton :
+            #--- Rebooting the host
+            log_printout('--- Rebooting the host ---' )
+            execNext('shutdown', ['-r', 'now'])
+            # execNext does not return
+
+        else :
+            log_printout('--- Exit to shell ---' )
+
+    cleanExit()
+
+
+#======================================================================
+# MAIN SCRIPT BODY STARTS HERE
+#======================================================================
+
+#--- Get command line arguments
+
+log_init()
+
+log_printout("Start @SIPX_VERSION@")
+
+screen_init()
+
+try:
+    progress(1,"Start @SIPXECS_NAME@ Services Upgrade")
+    screen_intro_and_warnings()
+
+    progress(30, "Retrieve @SIPXECS_NAME@ Configuration")
+    HostName=get_hostname()
+    screen_fetch_config()
+
+    progress(100, 'Ready')
+    upgrade_completed()
+    # upgrade_completed does not return
+
+
+except:
+    excType, excData, excTrace = sys.exc_info()
+    if   excType == KeyboardInterrupt:
+        log_printout('*** User Interrupt Detected ***' )
+    elif excType == SystemExit:
+        log_printout('%s' % str (excData) )
+    else:
+        errStack = traceback.extract_tb(excTrace)[-1]
+        errMsg   = 'UNEXPECTED EXCEPTION CAPTURED:\n\n'
+        errMsg  += '%s: %s ' % (str(excType), str(excData))
+        errMsg  += '(exception occured in file: %s, line: %s)' % (errStack[0], errStack[1])
+        log_printout ( errMsg )
+    cleanExit()

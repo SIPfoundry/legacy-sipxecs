@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.dialplan" default-lazy="false">
+  <class name="DialPlan" table="dial_plan">
+    <id name="id" column="dial_plan_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">dial_plan_seq</param>
+      </generator>
+    </id>
+    <list name="rules" cascade="all-delete-orphan">
+      <key column="dial_plan_id" not-null="true" />
+      <list-index column="position" />
+      <one-to-many class="DialingRule" />
+    </list>
+  </class>
+
+  <class name="DialingRule" table="dialing_rule">
+    <id name="id" column="dialing_rule_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">dialing_rule_seq</param>
+      </generator>
+    </id>
+    <property name="name" not-null="true" />
+    <property name="description" />
+    <property name="enabled" />
+    <list name="gateways" table="dialing_rule_gateway" cascade="save-update">
+      <key column="dialing_rule_id" />
+      <list-index column="index" />
+      <many-to-many class="org.sipfoundry.sipxconfig.gateway.Gateway" column="gateway_id" />
+    </list>
+
+	<many-to-one name="schedule" column="schedule_id" class="org.sipfoundry.sipxconfig.admin.forwarding.Schedule" />
+
+    <joined-subclass name="CustomDialingRule" table="custom_dialing_rule">
+      <key column="custom_dialing_rule_id" />
+      <component name="callPattern" class="CallPattern">
+        <property name="digits" column="call_pattern_digits"
+          type="org.sipfoundry.sipxconfig.admin.dialplan.CallDigits$UserType" />
+        <property name="prefix" column="call_pattern_prefix" />
+      </component>
+      <list name="dialPatterns" table="dial_pattern">
+        <key column="custom_dialing_rule_id" />
+        <index column="index" />
+        <composite-element class="DialPattern">
+          <property name="prefix" column="element_prefix" />
+          <property name="digits" column="element_digits" />
+        </composite-element>
+      </list>
+      <bag name="permissionNames" table="custom_dialing_rule_permission">
+        <key column="custom_dialing_rule_id" />
+        <element type="string" column="permission" />
+      </bag>
+    </joined-subclass>
+
+    <joined-subclass name="EmergencyRule" table="emergency_dialing_rule">
+      <key column="emergency_dialing_rule_id" />
+      <property name="optionalPrefix" />
+      <property name="emergencyNumber" />
+    </joined-subclass>
+
+    <joined-subclass name="InternalRule" table="internal_dialing_rule">
+      <key column="internal_dialing_rule_id" />
+      <property name="localExtensionLen" />
+      <property name="voiceMail" /><!-- voicemail extension -->
+      <property name="voiceMailPrefix" />
+      <property name="mediaServerType" />
+      <property name="mediaServerHostname" />
+    </joined-subclass>
+
+    <joined-subclass name="InternationalRule" table="international_dialing_rule">
+      <key column="international_dialing_rule_id" />
+      <property name="internationalPrefix" />
+    </joined-subclass>
+
+    <joined-subclass name="LocalRule" table="local_dialing_rule">
+      <key column="local_dialing_rule_id" />
+      <property name="externalLen" />
+      <property name="pstnPrefix" />
+    </joined-subclass>
+
+    <joined-subclass name="LongDistanceRule" table="long_distance_dialing_rule">
+      <key column="international_dialing_rule_id" />
+      <property name="areaCodes" />
+      <property name="externalLen" />
+      <property name="longDistancePrefix" />
+      <property name="longDistancePrefixOptional" />
+      <property name="permissionName" column="permission" />
+      <property name="pstnPrefix" />
+      <property name="pstnPrefixOptional" />
+    </joined-subclass>
+
+    <joined-subclass name="AttendantRule" table="attendant_dialing_rule">
+      <key column="attendant_dialing_rule_id"
+        foreign-key="fk_attendant_dialing_rule_dialing_rule" />
+      <property name="attendantAliases" />
+      <property name="extension" />
+      <component name="afterHoursAttendant"
+        class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant">
+        <many-to-one name="attendant" column="after_hours_attendant_id" class="AutoAttendant"
+          cascade="none" foreign-key="fk_after_hours_attendant_auto_attendant" />
+        <property name="enabled" column="after_hours_attendant_enabled" />
+      </component>
+      <component name="holidayAttendant"
+        class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.Holiday">
+        <many-to-one name="attendant" column="holiday_attendant_id" class="AutoAttendant"
+          cascade="none" foreign-key="fk_holiday_dates_attendant_dialing_rule" />
+        <property name="enabled" column="holiday_attendant_enabled" />
+        <list name="dates" table="holiday_dates">
+          <key column="attendant_dialing_rule_id"
+            foreign-key="fk_holiday_dates_attendant_dialing_rule" />
+          <index column="position" />
+          <element type="date" column="date" not-null="true" />
+        </list>
+      </component>
+      <component name="workingTimeAttendant"
+        class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime">
+        <many-to-one name="attendant" column="working_time_attendant_id" class="AutoAttendant"
+          cascade="none" foreign-key="fk_attendant_working_hours_attendant_dialing_rule" />
+        <property name="enabled" column="working_time_attendant_enabled" />
+        <array name="workingHours" table="attendant_working_hours" batch-size="7">
+          <key column="attendant_dialing_rule_id"
+            foreign-key="fk_attendant_working_hours_attendant_dialing_rule" />
+          <index column="index" />
+          <composite-element
+            class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.WorkingTime$WorkingHours">
+            <property name="start" type="org.sipfoundry.sipxconfig.common.UtcTimestampType" />
+            <property name="stop" type="org.sipfoundry.sipxconfig.common.UtcTimestampType" />
+            <property name="enabled" />
+            <property name="day" type="org.sipfoundry.sipxconfig.admin.ScheduledDay$UserType" />
+          </composite-element>
+        </array>
+      </component>
+    </joined-subclass>
+
+    <joined-subclass name="SiteToSiteDialingRule" table="site_to_site_dialing_rule">
+      <key column="site_to_site_dialing_rule_id" />
+      <component name="callPattern" class="CallPattern">
+        <property name="digits" column="call_pattern_digits"
+          type="org.sipfoundry.sipxconfig.admin.dialplan.CallDigits$UserType" />
+        <property name="prefix" column="call_pattern_prefix" />
+      </component>
+      <list name="dialPatterns" table="site_to_site_dial_pattern">
+        <key column="site_to_site_dialing_rule_id" />
+        <index column="index" />
+        <composite-element class="DialPattern">
+          <property name="prefix" column="element_prefix" />
+          <property name="digits" column="element_digits" />
+        </composite-element>
+      </list>
+    </joined-subclass>
+
+  </class>
+
+  <query name="dialingRuleIdsWithName">
+    <![CDATA[select dr.id from DialingRule dr where dr.name = :value]]>
+  </query>
+
+  <query name="dialingRulesByGatewayId">
+    <![CDATA[select rule from DialingRule rule, Gateway gateway
+        where gateway in elements(rule.gateways) and gateway.id = :gatewayId]]>
+  </query>
+
+  <query name="internalRuleIdsWithVoiceMailExtension">
+    <![CDATA[select ir.id from InternalRule ir where ir.voiceMail = :value]]>
+  </query>
+
+  <query name="attendantRuleIdsWithExtension">
+    <![CDATA[select r.id from AttendantRule r where r.extension = :value]]>
+  </query>
+
+  <query name="aaAliases">
+    <![CDATA[select r.attendantAliases from AttendantRule r]]>
+  </query>
+
+  <query name="attendantRuleIdsAndAttendantAliases">
+    <![CDATA[select r.id, r.attendantAliases from AttendantRule r]]>
+  </query>
+
+  <!-- need to use SQL query since we no longer map some of the columns used here -->
+  <sql-query name="attendantsReferencesByInternalRules">
+    <return-scalar type="int" column="id" />
+    <return-scalar type="string" column="aliases" />
+    <return-scalar type="string" column="extension" />
+    <![CDATA[select rule.auto_attendant_id as id, rule.aa_aliases as aliases, a.extension as extension
+        from internal_dialing_rule as rule, auto_attendant as a
+        where rule.auto_attendant_id=a.auto_attendant_id]]>
+  </sql-query>
+
+  <query name="dialingRulesForScheduleId">
+    <![CDATA[from DialingRule dialingRule where dialingRule.schedule.id = :scheduleId]]>
+  </query>
+</hibernate-mapping>

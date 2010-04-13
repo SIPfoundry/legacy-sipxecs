@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<project name="sipxopenfire-config" default="all" basedir=".">
+<description>
+      Ant task file for database operations.
+</description>
+        <property name="sipxcommons.dir" value="@sipxcommons.dir@" />
+        <property name="sipxpbx.conf.dir" value="@sipxpbx.conf.dir@" />
+        <property name="sipxpbx.tmp.dir" value="@sipxpbx.tmp.dir@" />
+        <property name="jdbc-driver-jar" value="${sipxcommons.dir}/postgresql-jdbc.jar" />
+        <property name="sipxopenfire.db.name" value="openfire" />
+        <property name="sipxopenfire.db.user" value="postgres" />
+        <property name="sipxopenfire.db.password" value="postgres" />
+        <property name="sipxopenfire.db.url" value="jdbc:postgresql://localhost:5432/openfire" />
+        <presetdef name="sipx-sql">
+             <sql driver="org.postgresql.Driver" url="${sipxopenfire.db.url}"
+                     userid="${sipxopenfire.db.user}" password="${sipxopenfire.db.password}" classpath="${jdbc-driver-jar}" />
+        </presetdef>
+        <target name="drop"  description="drops database!">
+            <exec executable="dropdb" outputproperty="eatme">
+                 <arg line="-U ${sipxopenfire.db.user} ${sipxopenfire.db.name}" />
+            </exec>
+        </target>
+
+        <!-- creates database void of schema -->
+        <target name="create" description="creates the schema for the database">
+            <sleep seconds="3" />
+            <!-- sporadic template1 in use, allow dropdb to disconnect... -->
+            <exec executable="createdb" failonerror="true">
+                 <arg line="-q -U ${sipxopenfire.db.user} --encoding=UNICODE ${sipxopenfire.db.name}" />
+            </exec>
+        </target>
+
+
+        <target name="create-tables">
+          <sipx-sql src="${sipxpbx.conf.dir}/database/sipxopenfire-initdb.sql" />
+        </target>
+
+        <target name="check">
+           <delete failonerror="false" quiet="true" file="${sipxpbx.tmp.dir}/sipxopenfire.version" />
+           <sipx-sql  print="yes" output="${sipxpbx.tmp.dir}/sipxopenfire.version" showheaders="no" >
+              select version from ofVersion where name='openfire';
+           </sipx-sql>
+        </target>
+
+        <target name="setdomain">
+          <echo  file="/tmp/of-setdomain.sql" >
+             DELETE FROM ofProperty where name='xmpp.domain';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.domain','${domain}');
+          </echo>
+          <sipx-sql src="/tmp/of-setdomain.sql" />
+          <delete file="/tmp/of-setdomain.sql" />
+        </target>
+
+        <target name="setfqdn">
+          <echo  file="/tmp/of-setfqdn.sql" >
+             DELETE FROM ofProperty where name='xmpp.fqdn';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.fqdn','${fqdn}');
+          </echo>
+          <sipx-sql src="/tmp/of-setfqdn.sql" />
+          <delete file="/tmp/of-setfqdn.sql" />
+        </target>
+
+        <target name="setup" depends="setdomain,setfqdn" >
+          <echo  file="/tmp/of-init.sql" >
+             DELETE FROM ofUser WHERE name='admin';
+             INSERT INTO ofUser (username,plainPassword,name,email,creationDate,modificationDate)
+             VALUES ('admin','admin','Administrator','admin@${domain}', '0', '0');
+             DELETE FROM ofProperty where name='xmpp.privateStorageEnabled';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.privateStorageEnabled','true');
+             DELETE FROM ofProperty where name='xmpp.socket.ssl.keypass';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.socket.ssl.keypass','changeit');
+             DELETE FROM ofProperty where name='xmpp.server.certificate.accept-selfsigned';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.server.certificate.accept-selfsigned','true');
+             DELETE FROM ofProperty where name='xmpp.server.tls.enabled';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.server.tls.enabled','true');
+             DELETE FROM ofProperty where name='xmpp.audit.active';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.active','false');
+             DELETE FROM ofProperty where name='xmpp.audit.messages';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.messages','true');
+             DELETE FROM ofProperty where name='xmpp.audit.presence';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.presence','true');
+             DELETE FROM ofProperty where name='xmpp.audit.logdir';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.audit.logdir','@OPENFIRE_HOME@/audit/');
+             DELETE FROM ofProperty where name='rss.enabled';
+             INSERT INTO ofProperty (name, propValue) VALUES ('rss.enabled','false');
+             DELETE FROM ofProperty where name='xmpp.offline.type';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.offline.type','store');
+             DELETE FROM ofProperty where name='xmpp.proxy.enabled';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.proxy.enabled','false');
+             DELETE FROM ofProperty where name='xmpp.socket.plain.active';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.socket.plain.active','true');
+             DELETE FROM ofProperty where name='xmpp.socket.ssl.active';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.socket.ssl.active','true');
+             DELETE FROM ofProperty where name='xmpp.server.certificate.selfsigned';
+             INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.server.certificate.selfsigned','true');
+             DELETE FROM ofProperty where name='provider.vcard.className';
+             INSERT INTO ofProperty (name, propValue) VALUES ('provider.vcard.className','org.sipfoundry.openfire.vcard.provider.SipXVCardProvider');
+          </echo>
+          <sipx-sql src="/tmp/of-init.sql" />
+          <delete file="/tmp/of-init.sql" />
+        </target>
+
+</project>

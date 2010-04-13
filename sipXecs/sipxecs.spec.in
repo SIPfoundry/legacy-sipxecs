@@ -1,0 +1,94 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+# do not build a debuginfo package
+%define debug_package %{nil}
+
+Summary: sipXecs Enterprise Communications Server 
+License: L-GPL
+Group: Telecommunications
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org
+
+%define sipxconfiglib %{_datadir}/java/sipXecs/sipXconfig
+
+Requires: sipxacd >= %version
+Requires: sipxrelay >= %version
+Requires: sipxbridge >= %version
+Requires: sipxconfig >= %version
+Requires: sipxconfig-agent >= %version
+Requires: sipxconfig-ftp >= %version
+Requires: sipxconfig-mrtg >= %version
+Requires: sipxconfig-report >= %version
+Requires: sipxconfig-tftp >= %version
+Requires: sipxecs-doc >= %version
+Requires: sipxfreeswitch >= %version
+Requires: sipx-freeswitch >= 1.0 
+Requires: sipx-freeswitch-codec-passthru-amr 
+Requires: sipx-freeswitch-codec-passthru-g723_1 
+Requires: sipx-freeswitch-codec-passthru-g729 
+Requires: sipxivr >= %version
+Requires: sipxopenfire >= %version
+Requires: sipxpage >= %version
+Requires: sipxpark >= %version
+Requires: sipxpresence >= %version
+Requires: sipxproxy >= %version
+Requires: sipxproxy-cdr >= %version
+Requires: sipxpublisher >= %version
+Requires: sipxrecording >= %version
+Requires: sipxregistry >= %version
+Requires: sipxrls >= %version
+Requires: sipxsaa >= %version
+Requires: sipxsupervisor >= %version
+Requires: sipxtools >= %version
+Requires: sipxrest >= %version
+Requires: sipxcallcontroller >= %version
+Requires: sipxcdrlog >= %version
+Requires: sipxprovision >= %version
+
+Source: %name-%version.tar.gz
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+sipXecs is an IP PBX with integrated voice mail, ACD, multiple auto attendents, and web-based system configuration and management tool.
+
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name 
+Requires: sipxproxy-devel >= %version
+Requires: sipxregistry-devel >= %version
+Requires: sipxpublisher-devel >= %version
+Requires: sipxacd-devel >= %version
+
+%description devel
+Internal class documentation for the pbx classes
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+make
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%files devel
+%defattr(644,root,root,755)
+
+%post
+
+%preun

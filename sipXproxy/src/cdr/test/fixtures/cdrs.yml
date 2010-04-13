@@ -1,0 +1,13 @@
+# CDR test data
+
+first:
+  id:           1
+  call_id:      call1
+  from_tag:     f1
+  to_tag:       t1
+  caller_aor:   sip:alice@example.com
+  callee_aor:   sip:bob@example.com
+  start_time:   1990-05-17T19:30:00.000Z
+  connect_time: 1990-05-17T19:31:00.000Z
+  end_time:     1990-05-17T19:40:00.000Z
+  termination:  F

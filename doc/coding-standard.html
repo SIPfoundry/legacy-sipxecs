@@ -1,0 +1,2883 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>
+      sipX Project Coding Standards
+    </title>
+<style type="text/css">
+body
+{
+color:            #000000;
+background-color: #ffffff;
+margin: 5%;
+}
+.subhead
+{
+text-align: center;
+}
+h1
+{
+text-align: center;
+}
+
+a
+{
+color: #3d5561;
+}
+
+a.ref
+{
+  padding: 2px;
+  border-width: 1px;
+  border-style: solid;
+}
+
+pre em
+{
+background-color: yellow;
+border-width: 1px;
+border-style: solid;
+}
+
+.wrong
+{
+color: red;
+}
+.correct
+{
+color: green;
+}
+
+blockquote
+{
+margin-left: +5%;
+margin-right: +5%;
+}
+
+pre
+{
+  margin-left: +5%;
+  margin-right: +5%;
+}
+
+th
+{
+text-align: center;
+padding:    3px 6px 3px 6px;
+}
+td
+{
+text-align: center;
+padding:    3px 6px 3px 6px;
+}
+dt
+{
+font-weight: bold;
+}
+</style>
+  </head>
+  <body>
+    <h1>
+      sipX Project Coding Standards for C, C++, and Java
+    </h1>
+    <blockquote align="center">
+    <em>Actually, a language is characterized not so much by what it lets us
+    program as by what it keeps us from expressing.  As E.W. Dijkstra
+    observed, the programmer's most difficult, daily task is to not mess
+    things up.  The first and most noble duty of a language is thus to
+    help in this eternal struggle.  -- Niklaus Wirth</em>
+    </blockquote>
+    <p>
+      Last Modified <!-- hhmts start -->2005-07-25 15:05:12-0400<!-- hhmts end -->
+    </p>
+    <p>
+    NOTE: These coding standards are derived
+    from the coding standards developed for the Vision 2000 CCS
+    project, <a
+    href="http://www.possibility.com/Cpp/CppCodingStandard.html">Todd
+    Hoff's C++ coding standards</a>, and <a
+    href="http://www.ambysoft.com/javaCodingStandards.html">AmbySoft's
+    Java coding standards</a>.
+    </p>
+    <blockquote>
+      A good developer knows that there is more to development than programming.<br />
+      A great developer knows that there is more to development than development.
+    </blockquote>
+
+    <blockquote>
+    Remember that you write code for three audiences:  The computer, for
+    whom it must be correct, your muse, for which it it must be elegant,
+    and the poor schmuck who has to modify it, for whom it must be
+    comprehensible.<br />-- Daniel R. Killoran
+    </blockquote>
+
+    <h2>
+      Introduction
+    </h2>
+    <p>
+      The purpose of these coding standards is to facilitate the
+      maintenance, portability, and reuse of custom C, C++, and
+      Java source code developed by the sipX open source project. These standards were
+      developed from a variety of sources, including other
+      standards documents, software examples from defacto standard
+      language references, and personal experience. As with any
+      guidelines, there will be circumstances where full compliance
+      is not desirable for efficiency, maintainability, or other
+      reasons. In these cases, conformance should not be pursued
+      simply for the sake of meeting the standards.
+    </p>
+    <p>
+      <a href='#ref0.1' name='ref0.1' class='ref'>0.1</a>
+      When the standards are not followed, it is advisable to add a
+      comment with the reason for non-conformance.
+    </p>
+
+    <dl>
+      <dt><a href='#ref1'>1</a> File Organization</dt>
+      <dd>
+        Source file contents and layout.
+        <ul>
+          <li><a href='#ref1.0'>1.0</a> File Contents</li>
+          <li><a href='#ref1.1'>1.1</a> Source File Layout</li>
+          <li><a href='#ref1.2'>1.2</a> Header File Layout</li>
+          <li><a href='#ref1.3'>1.3</a> Header File Guard</li>
+          <li><a href='#ref1.4'>1.4</a> Doxygen Documentation
+          <ul>
+            <li><a href='#ref1.4.1'>1.4.1</a> Comment Style</li>
+            <li><a href='#ref1.4.2'>1.4.2</a> Comment Placement</li>
+            <li><a href='#ref1.4.3'>1.4.3</a> Class Documentation</li>
+            <li><a href='#ref1.4.4'>1.4.4</a> Member Grouping</li>
+            <li><a href='#ref1.4.5'>1.4.5</a> Member Function Documentation</li>
+            <li><a href='#ref1.4.6'>1.4.6</a> Examples</li>
+            <li><a href='#ref1.4.7'>1.4.7</a> Lists</li>
+          </ul>
+          </li>
+        </ul>
+      </dd>
+      <dt><a href='#ref2'>2</a> Naming Conventions</dt>
+      <dd>
+        How to name files and identifiers.
+        <ul>
+          <li><a href='#ref2.1'>2.1</a> Descriptive Names</li>
+          <li><a href='#ref2.2'>2.2</a> Valid Characters</li>
+          <li><a href='#ref2.3'>2.3</a> Prefixes and Suffixes</li>
+          <li><a href='#ref2.4'>2.4</a> Class Attribute Names</li>
+          <li><a href='#ref2.5'>2.5</a> File Names</li>
+          <li><a href='#ref2.6'>2.6</a> Function Names</li>
+          <li><a href='#ref2.7'>2.7</a> Namespaces</li>
+          <li><a href='#ref2.8'>2.8</a> Subversion Properties
+            <ul>
+              <li><a href='#ref2.8.1'>2.8.1</a> <code>svn:ignore</code></li>
+              <li><a href='#ref2.8.2'>2.8.2</a> <code>svn:mime-type</code> and <code>svn:eol-style</code></li>
+              <li><a href='#ref2.8.3'>2.8.3</a> <code>sf:tab</code></li>
+            </ul>
+          </li>
+	  <li><a href='#ref2.9'>2.9</a> <code>strcasecmp</code> and <code>strncasecmp</code>
+        </ul>
+      </dd>
+      <dt><a href='#ref3'>3</a> Style Guidelines</dt>
+      <dd>
+        Guidelines for how source code should look.
+        <ul>
+          <li><a href='#ref3.1'>3.1</a> Lines
+            <ul>
+              <li><a href='#ref3.1.1'>3.1.1</a> Line Length</li>
+              <li><a href='#ref3.1.2'>3.1.2</a> Statements Per Line</li>
+              <li><a href='#ref3.1.3'>3.1.3</a> Final EOL</li>
+            </ul>
+          </li>
+          <li><a href='#ref3.2'>3.2</a> Comments
+            <ul>
+              <li><a href='#ref3.2.1'>3.2.1</a> Automated Documentation Comments</li>
+              <li><a href='#ref3.2.2'>3.2.2</a> Code Block Comments</li>
+              <li><a href='#ref3.2.3'>3.2.3</a> Blank Lines</li>
+            </ul>
+          </li>
+          <li><a href='#ref3.3'>3.3</a> Formatting
+            <ul>
+              <li><a href='#ref3.3.1'>3.3.1</a> Spacing Around Operators</li>
+              <li><a href='#ref3.3.2'>3.3.2</a> Indentation and Braces</li>
+              <li><a href='#ref3.3.3'>3.3.3</a> Pointer and Reference Position</li>
+            </ul>
+          </li>
+          <li><a href='#ref3.4'>3.4</a> Statements
+            <ul>
+              <li><a href='#ref3.4.1'>3.4.1</a> Control Statements</li>
+              <li><a href='#ref3.4.2'>3.4.2</a> Conditional Statements</li>
+              <li><a href='#ref3.4.3'>3.4.3</a> Include Statements</li>
+            </ul>
+          </li>
+          <li><a href='#ref3.5'>3.5</a> Declarations
+            <ul>
+              <li><a href='#ref3.5.1'>3.5.1</a> Variable Declaration</li>
+              <li><a href='#ref3.5.2'>3.5.2</a> External Variable Declaration</li>
+              <li><a href='#ref3.5.3'>3.5.3</a> Numeric Constant Declaration</li>
+              <li><a href='#ref3.5.4'>3.5.4</a> Enumerated Type Declaration</li>
+              <li><a href='#ref3.5.5'>3.5.5</a> Struct and Union Declaration</li>
+              <li><a href='#ref3.5.6'>3.5.6</a> Class Declaration</li>
+            </ul>
+          </li>
+        </ul>
+      </dd>
+      <dt><a href='#ref4'>4</a> Recommended</dt>
+      <dd>
+        <ul>
+          <li><a href='#ref4.1'>4.1</a> Placement of Declarations</li>
+          <li><a href='#ref4.2'>4.2</a> Switch Statements</li>
+          <li><a href='#ref4.3'>4.3</a> Return Statements</li>
+          <li><a href='#ref4.4'>4.4</a> Casts</li>
+          <li><a href='#ref4.5'>4.5</a> Literals</li>
+          <li><a href='#ref4.6'>4.6</a> Explicit Initialization</li>
+          <li><a href='#ref4.7'>4.7</a> Checking Error Returns</li>
+          <li><a href='#ref4.8'>4.8</a> Short Methods</li>
+          <li><a href='#ref4.9'>4.9</a> Document Null Statements</li>
+          <li><a href='#ref4.10'>4.10</a> Comments on Comments
+            <ul>
+              <li><a href='#ref4.10.1'>4.10.1</a> Comments Should Tell a Story</li>
+              <li><a href='#ref4.10.2'>4.10.2</a> Document Decisions</li>
+              <li><a href='#ref4.10.3'>4.10.3</a> Make Gotchas Explicit</li>
+            </ul>
+          </li>
+          <li><a href='#ref4.11'>4.11</a> Constructs to Avoid</li>
+          <li><a href='#ref4.12'>4.12</a> Macros</li>
+          <li><a href='#ref4.13'>4.13</a> Debug Compile-time Switch</li>
+          <li><a href='#ref4.14'>4.14</a> Memory Management</li>
+          <li><a href='#ref4.15'>4.15</a> Constructors</li>
+          <li><a href='#ref4.16'>4.16</a> Destructors</li>
+          <li><a href='#ref4.17'>4.17</a> Argument Passing</li>
+          <li><a href='#ref4.18'>4.18</a> Default Arguments</li>
+          <li><a href='#ref4.19'>4.19</a> Overriding Virtual Functions</li>
+          <li><a href='#ref4.20'>4.20</a> Const Member Functions</li>
+          <li><a href='#ref4.21'>4.21</a> Referencing Non-C++ Functions</li>
+          <li><a href='#ref4.22'>4.22</a> NULL Pointer</li>
+          <li><a href='#ref4.23'>4.23</a> Enumerated Types</li>
+          <li><a href='#ref4.24'>4.24</a> Terminating Stream Output</li>
+          <li><a href='#ref4.25'>4.25</a> Object Instantiation</li>
+          <li><a href='#ref4.26'>4.26</a> Encapsulation</li>
+          <li><a href='#ref4.27'>4.27</a> Default Constructor</li>
+          <li><a href='#ref4.28'>4.28</a> Importing Packages</li>
+          <li><a href='#ref4.29'>4.29</a> Exception Handling</li>
+        </ul>
+      </dd>
+      <dt><a href='#ref5'>5</a> Source Code Templates</dt>
+    </dl>
+    <hr />
+    <h2>
+    <a id="file" name="file"></a>1. File Organization
+    </h2>
+    <h3>
+    <a href='#ref1.0' name='ref1.0' class='ref'>1.0</a> File Contents
+    </h3>
+    <p>
+      Files should be used to organize related code modules, either
+      at the class (for C++ and Java) or function (for C) level.
+      The following table identifies the contents of individual
+      files for each language:
+    </p>
+      <table border="1">
+        <tr>
+          <th>
+            File contents
+          </th>
+          <th>
+            C
+          </th>
+          <th>
+            C++
+          </th>
+          <th>
+            Java
+          </th>
+        </tr>
+        <tr>
+          <td>
+            class declaration (header)
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            class definition (source)
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            main function
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+            (with primary class)
+          </td>
+        </tr>
+        <tr>
+          <td>
+            function(s)
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            globals
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+      </table>
+
+    <h3>
+      <a href='#ref1.1' name='ref1.1' class='ref'>1.1</a> Source File Layout
+    </h3>
+    <p>
+      Source files should contain the following components in the
+      order shown. When creating new source files, developers
+      should use the appropriate template file as a starting point.
+    </p>
+      <table border="1">
+        <tr>
+          <th>
+            File contents
+          </th>
+          <th>
+            C
+          </th>
+          <th>
+            C++
+          </th>
+          <th>
+            Java
+          </th>
+        </tr>
+        <tr>
+          <td>
+            prolog (incuding copyright)
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            package imports
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            system #includes
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            application #includes
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            external functions
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            external variables
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+            n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            constants
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            static variable initializations
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            class declaration
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            public methods
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; creators
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; manipulators
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; accessors
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+            X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; inquiry
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protected methods
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            private methods
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; non-testing
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; testing
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            functions
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+      </table>
+
+    <dl>
+      <dd>
+         <i>(C, C++)</i> When it is possible to put a
+        needed&nbsp; #include line in the source file instead of in
+        the header file, do so.&nbsp; This will reduce unnecessary
+        file dependencies and save a little compile time.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref1.2' name='ref1.2' class='ref'>1.2</a> Header File Layout
+    </h3>
+    <p>
+      Header files should contain the following components in the
+      order shown (note that Java does not use header files). When
+      creating new header files, developers should use the
+      appropriate template file as a starting point.
+    </p>
+
+      <table border="1">
+        <tr>
+          <th>
+            File contents
+          </th>
+          <th>
+            C
+          </th>
+          <th>
+            C++
+          </th>
+          <th>
+            Java
+          </th>
+        </tr>
+        <tr>
+          <td>
+            prolog (including copyright)
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            file guard
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            system #includes
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+            n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            application #includes
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            #defines
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            macros
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            external functions
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            external variables
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            constants
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            structs
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            forward declarations
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            class declaration
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            public methods
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; creators
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; manipulators
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; accessors
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; inquiry
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            protected methods
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            private methods
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; non-testing
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            &nbsp; testing
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+        </tr>
+        <tr>
+          <td>
+            inline method definitions
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            functions
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              X
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+      </table>
+
+    <dl>
+      <dd>
+         <i>(C++)</i> Small inline methods may be
+        implemented in the class definition.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref1.3' name='ref1.3' class='ref'>1.3</a> Header File Guard
+    </h3>
+    <dl>
+      <dd>
+         <i>(C,C++)</i> All header files should
+        contain a file guard mechanism to prevent multiple
+        inclusion. This mechanism is implemented as shown by the
+        following lines:
+      </dd>
+    </dl>
+<pre class='correct'>
+   #ifndef _MeaningfulName_h_      // first line of the header file following the prolog
+   #define _MeaningfulName_h_      // second line of the header file following the prolog
+           .
+           .                       // body of the header file
+           .
+   #endif  // _MeaningfulName_h_   // last line of the header file; note comment
+</pre>
+
+    <h3>
+    <a href='#ref1.4' name='ref1.4' class='ref'>1.4</a> Doxygen Documentation
+    </h3>
+
+    <p>
+    C++ (and C) code uses the <a
+    href='http://www.Doxygen.com/'>Doxygen</a> system for
+    generating documentation from header and source files.  Doxygen
+    supports a wide range of styles; this section provides
+    recommendations for how it should be used in sipX projects.
+    </p>
+
+
+    <h4>
+    <a href='#ref1.4.1' name='ref1.4.1' class='ref'>1.4.1</a> Comment Style
+    </h4>
+    <p>
+    Doxygen comments are distinguished from normal comments by
+    an extra comment character at the beginning, and are associated
+    with the adjacent code by
+    their placement.  Both C style comments and C++ single-line style
+    comments are supported.
+    </p>
+
+    <dl>
+      <dt>C multiple-line style comments</dt>
+      <dd>Doxygen interprets any comment that has an extra '*'
+        character at the beginning of the comment:<pre class='correct'>
+        /*<em>*</em> Doxygen single line comment */
+
+        /*<em>*</em>
+        * Doxygen comment
+        * that extends over more than one line
+        * this form should be used whenever there is more than one line
+        */
+        </pre>
+      </dd>
+
+      <dt>C++ single-line style comments</dt>
+      <dd>Doxygen interprets any C++ comment that has an extra '/'
+        character at the beginning of the comment:<pre class='correct'>
+        //<em>/</em> Doxygen single line comment
+        </pre>
+        Multiline comments composed of multiple C++ style comments are
+        not preferred:<pre class='wrong'>
+        /// Doxygen comment
+        /// that extends over more than one line
+        </pre>
+      </dd>
+    </dl>
+
+    <h4>
+    <a href='#ref1.4.2' name='ref1.4.2' class='ref'>1.4.2</a> Comment Placement
+    </h4>
+    <p>
+    Doxygen comments are, by default, associated with the code that
+    immediately follows the comment:
+    </p>
+    <pre class='correct'>
+    /// indicates whether or not the object currently allows any Foo actions.
+    void isFooAllowed();
+    </pre>
+    <p>
+    For some constructs it is more readable to place the comment after
+    the code element it documents, which is accomplished by adding a
+    '&lt;' character after the Doxygen comment indicator.  This may be
+    used with either single or multi-line comments:
+    </p>
+    <pre class='correct'>
+    void doFooAt( int offset, //<em>/&lt;</em> the offset into the Foo
+                  char* name  /*<em>*&lt;</em>
+                               * the name to look up for this Foo action
+                               * in the FooMgr database.
+                               */
+                );
+    </pre>
+    <p>
+      Placing the Doxygen comment after the element it documents in this
+      way is preferred whenever the element is a member of a list, as in
+      parameter declarations or enum values.
+    </p>
+
+    <h4>
+    <a href='#ref1.4.3' name='ref1.4.3' class='ref'>1.4.3</a> Class Documentation
+    </h4>
+
+    <p>
+    A class declaration must include a detailed description comment
+    preceeding the class:
+    </p>
+    <pre class='correct'>
+    /**
+     * FooFactory is a factory class that constructs instances of the
+     * subclasses of Foo based on information obtained from the
+     * foo-config file.
+     */
+    class FooFactory
+    {
+    </pre>
+    <p>
+    The class comment is a good place to put general guidelines about
+    how the methods in the class relate to one another.
+    </p>
+
+    <h4>
+    <a href='#ref1.4.4' name='ref1.4.4' class='ref'>1.4.4</a> Member Grouping
+    </h4>
+
+    <p>
+    By default, Doxygen groups the members within a class based on
+    heuristics that use the public/protected/private scope and the
+    method signatures.  For simple classes this usually works well,
+    and may be used.  When a class has many methods, it is usually
+    better to explicitly control how they are grouped in the
+    documentation, and to provide additional documentation at the
+    group level.  To explicitly control grouping, add the
+    'nosubgrouping' Doxygen command to the class comment:
+    </p>
+    <pre class='correct'>
+      /**
+       * FooFactory is a factory class that constructs instances of the
+       * subclasses of Foo based on information obtained from the
+       * foo-config file.
+       *
+       * <em>@nosubgrouping</em>
+       */
+      class FooFactory
+      {
+    </pre>
+    <p>
+      Each group is then formed of the following elements:
+      <ol type="i">
+      <li>an introducing Doxygen comment that supplies the
+      group name using the 'name' Doxygen command,</li>
+      <li>the detailed comment for the group,</li>
+      <li>the Doxygen group start command '{',</li>
+      <li>the declarations of the members in the group and
+      accompanying documentation, and finally</li>
+      <li>the Doxygen group end command '}'.</li>
+      </ol>
+
+      For example (preceeded
+      here by a non-Doxygen comment with a line of '=' characters so that
+      it reads better in the source file):
+    </p>
+    <pre class='correct'>
+     // ================================================================
+     /** <em>@name Searching</em>
+      *
+      * The searching methods apply a compiled regular expression to a subject
+      * string.  All searching methods return a boolean result indicating whether
+      * or not some match was found in the subject.  To get information about
+      * the match, use the Results methods.
+      */
+     ///<em>@{</em>
+
+     ... the methods in the group ...
+
+     ///<em>@}</em>
+    </pre>
+
+    <h4>
+    <a href='#ref1.4.5' name='ref1.4.5' class='ref'>1.4.5</a> Member Function Documentation
+    </h4>
+
+    <p>
+      Each member function should have:
+    </p>
+    <ul>
+      <li>a brief single line description preceeding the member declaration,</li>
+      <li>parameter descriptions following each parameter, and</li>
+      <li>a more detailed description following the declaration, which
+      should include a Doxygen 'returns' command if the method returns a value.</li>
+    </ul>
+    <pre class='correct'>
+      <em>/// Search a string for matches to this regular expression.</em>
+      bool Search( const char * subject,  <em>///&lt; the string to be searched for a match</em>
+                   int len = -1,          <em>///&lt; the length of the subject string</em>
+                   int options = 0        <em>///&lt; sum of any PCRE options flags</em>
+                   );
+      <em>/**&lt;</em>
+       *    Apply the regular expression to the subject string.
+       *    Optional parameter len can be used to pass the subject's length to
+       *    Search(). If not specified (or less than 0), strlen() is used
+       *    internally to determine the length. Parameter options can contain
+       *    any combination of options; for options documentation, see 'man pcre'
+       *    <em>@returns</em> true if a match is found.
+       */
+    </pre>
+
+    <h4>
+    <a href='#ref1.4.6' name='ref1.4.6' class='ref'>1.4.6</a> Examples
+    </h4>
+
+    <p>
+      Including examples in the documentation is strongly encouraged.  To
+      embed an example, use the Doxygen "@code ... @endcode" construct:
+    </p>
+    <pre class='correct'>
+      /**&lt;
+       * May only be called after a successful search
+       * and applies to the results of that call.
+       * @returns true if there was an ith match, false if not
+       *
+       * Example:<em>@code</em>
+       * RegEx matchBs("((B)B+)");
+       * UtlString getB;
+       * UtlString getBs;
+       * if (matchB.Search("xxaBBBBcyy"))
+       * {
+       *   matchB.MatchString(&getBs,0);
+       *   matchB.MatchString(&getB,2);
+       * }
+       * <em>@endcode</em>
+       * would set the UtlStrings
+       *  - getBs to "BBBB"
+       *  - getB  to "B"
+       */
+    </pre>
+
+    <h4>
+    <a href='#ref1.4.7' name='ref1.4.7' class='ref'>1.4.7</a> Lists
+    </h4>
+
+    <p>
+      Numbered and bulleted lists are supported in Doxygen comments using
+      simple indentation conventions:
+    </p>
+    <pre class='correct'>
+      /**&lt;
+       * A numbered list is created using '#' characters:
+       *  <em>#</em> first numbered item
+       *  <em>#</em> second numbered item
+       *    <em>#</em> first item in nested numbered list (2.1)
+       *
+       * A bullet list uses '-' characters:
+       *  <em>-</em> first bullet
+       *  <em>-</em> second bullet
+       *    <em>-</em> nested bullet
+       */
+    </pre>
+
+    <hr />
+    <h2>
+      <a href='#ref2' name='ref2' class='ref'>2</a> Naming Conventions
+    </h2>
+    <p>
+      The following table summarizes the naming conventions:
+    </p>
+
+      <table border="1">
+        <tr>
+          <th>
+            Identifier
+          </th>
+          <th>
+            C
+          </th>
+          <th>
+            C++
+          </th>
+          <th>
+            Java
+          </th>
+        </tr>
+        <tr>
+          <td>
+            package
+          </td>
+          <td colspan="2">
+              n/a
+          </td>
+          <td>
+              shortname
+          </td>
+        </tr>
+        <tr>
+          <td>
+            class, union, struct
+          </td>
+          <td colspan="3">
+              MeaningfulName
+          </td>
+        </tr>
+        <tr>
+          <td>
+            exception class
+          </td>
+          <td>
+              n/a
+          </td>
+          <td colspan="2">
+              MeaningfulException
+          </td>
+        </tr>
+        <tr>
+          <td>
+            interface
+          </td>
+          <td colspan="2">
+              n/a
+          </td>
+          <td>
+              MeaningfulActionable
+          </td>
+        </tr>
+        <tr>
+          <td>
+            typedef
+          </td>
+          <td colspan="2">
+              MeaningfulName, *MeaningfulNamePtr
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            enum
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              MeaningfulName
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            function, method
+          </td>
+          <td>
+              PseudoClass_MeaningfulName
+          </td>
+          <td colspan="2">
+              meaningfulName
+          </td>
+        </tr>
+        <tr>
+          <td>
+            accessor method
+          </td>
+          <td>
+              n/a
+          </td>
+          <td colspan="2">
+              getX, setX
+          </td>
+        </tr>
+        <tr>
+          <td>
+            inquiry method
+          </td>
+          <td>
+          </td>
+          <td colspan="2">
+              isX, hasX
+          </td>
+        </tr>
+        <tr>
+          <td>
+            object, variable, argument
+          </td>
+          <td colspan="3">
+              meaningfulName
+          </td>
+        </tr>
+        <tr>
+          <td>
+            class attribute
+          </td>
+          <td>
+              n/a
+          </td>
+          <td colspan="2">
+              mMeaningfulName
+          </td>
+        </tr>
+        <tr>
+          <td>
+            pointer variables
+          </td>
+          <td colspan="2">
+              pMeaningfulName
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            reference variable
+          </td>
+          <td>
+              n/a
+          </td>
+          <td>
+              rMeaningfulName
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            global variable
+          </td>
+          <td colspan="2">
+              gMeaningfulName
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            static variable&nbsp;
+          </td>
+          <td colspan="3">
+              sMeaningfulName
+          </td>
+        </tr>
+        <tr>
+          <td>
+            #define, macro
+          </td>
+          <td colspan="2">
+              MEANINGFUL_NAME
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+        <tr>
+          <td>
+            const, static final variable
+          </td>
+          <td colspan="3">
+              MEANINGFUL_NAME
+          </td>
+        </tr>
+        <tr>
+          <td>
+            source file
+          </td>
+          <td>
+              .c
+          </td>
+          <td>
+              .cpp
+          </td>
+          <td>
+              .java
+          </td>
+        </tr>
+        <tr>
+          <td>
+            header file
+          </td>
+          <td colspan="2">
+            .h
+          </td>
+          <td>
+              n/a
+          </td>
+        </tr>
+      </table>
+
+    <h3>
+      <a href='#ref2.1' name='ref2.1' class='ref'>2.1</a> Descriptive Names
+    </h3>
+    <p>
+      Names should be readable and self-documenting. Abbreviations
+      and contractions are discouraged. When confronted with a
+      situation where you could use an all uppercase abbreviation
+      instead use an initial upper case letter followed by all
+      lower case letters. Shorter synonyms are allowed when they
+      follow common usage within the domain.
+    </p>
+    <h3>
+      <a href='#ref2.2' name='ref2.2' class='ref'>2.2</a> Valid Characters
+    </h3>
+    <p>
+      All names should begin with a letter. Individual words in
+      compound names are differentiated by capitalizing the first
+      letter of each word as opposed to separating with an
+      underscore. The use of special characters (anything other
+      than letters and digits), including underscores is strongly
+      discouraged. The first 31 characters of a name (including the
+      prefix) must be unique, due to restrictions of various
+      platforms. The uniqueness must not be due solely to a
+      difference in case.
+    </p>
+    <h3>
+      <a href='#ref2.3' name='ref2.3' class='ref'>2.3</a> Prefixes and Suffixes
+    </h3>
+    <p>
+      Prefixes are sometimes useful:
+    </p>
+    <dl>
+      <dt><i>Is, Has</i> - to ask a question about something.</dt>
+      <dd>
+        Whenever someone sees <i>Is</i> or <i>Has</i> they will
+        know it's a question
+      </dd>
+      <dt><i>Get</i> - get a value</dt>
+      <dt><i>Set</i> - set a value</dt>
+    </dl>
+    <p>
+      Suffixes are sometimes useful:
+    </p>
+    <dl>
+      <dt><i>Max</i> - to mean the maximum value something can have      </dt>
+      <dt><i>Cnt</i> - the current count of a running count variable      </dt>
+      <dt><i>Key</i> - key value      </dt>
+    </dl>
+    <h3>
+      <a href='#ref2.4' name='ref2.4' class='ref'>2.4</a> Class Attribute Names
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++, Java)</i> All attribute names should
+        be prepended with the character 'm' in order to avoid any
+        conflict with method names.<br />
+        <br />
+          <i>(C++)</i> The 'm' prefix always precedes
+        other name modifiers like 'p' for pointer or 'r' for
+        reference.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref2.5' name='ref2.5' class='ref'>2.5</a> File Names
+    </h3>
+    <p>
+      Filenames should only contain one period, to separate the
+      file extension.
+    </p>
+    <h3>
+      <a href='#ref2.6' name='ref2.6' class='ref'>2.6</a> Function Names
+    </h3>
+    <p>
+      Function and method names should preferably begin with an
+      action verb. Boolean-valued functions (those that have two
+      possible return values) should use the "is" prefix as in
+      "isEmpty()".
+    </p>
+    <dl>
+      <dd>
+         <i>(C, C++)</i> All functions must be
+        prototyped, with the prototypes residing in header files.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref2.7' name='ref2.7' class='ref'>2.7</a> Namespaces
+    </h3>
+    <dl>
+      <dd>
+         <i>(C, C++)</i> Libraries in danger of
+        conflicting with functions, classes or methods defined in
+        other libraries should choose some sort of unique prefix to
+        avoid name conflicts.
+        <p>
+        </p>
+      </dd>
+      <dd>
+         <i>(C++)</i> The C++ namespace construct
+        should not be used. This construct is not yet widely
+        supported.
+        <p>
+        </p>
+      </dd>
+      <dd>
+         <i>(Java)</i> Namespace collision should be
+        minimized without introducing cryptic naming conventions by
+        using the Java <tt>package</tt> construct. Create a new
+        Java package to group classes of related functionality.
+        Package source and class files then reside in a convenient
+        hierarchical directory structure that maps directly to the
+        package name.
+      </dd>
+    </dl>
+    <h3>
+    <a href='#ref2.8' name='ref2.8' class='ref'>2.8</a> Subversion Properties
+    </h3>
+    <h4>
+    <a href='#ref2.8.1' name='ref2.8.1' class='ref'>2.8.1</a> <code>svn:ignore</code>
+    </h4>
+    <p>
+      A file that is generated in the course of building the software should
+      be listed in its containing directory's <code>svn:ignore</code> property.
+      This prevents it from being displayed by 'svn status'.
+      All files that 'svn status' reports as unknown (flags with '?') should
+      be files that the user/developer created manually.
+    </p>
+    <p>
+      More information on <code>svn:ignore</code> is in the Subversion book at <a
+      href="http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.3"><code>http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.3</code></a>.
+    </p>
+    <h4>
+      <a href='#ref2.8.2' name='ref2.8.2' class='ref'>2.8.2</a>
+    <code>svn:mime-type</code> and <code>svn:eol-style</code>
+    </h4>
+    <p>
+      In order to ensure that files checked out from the repository
+      have the correct end-of-line characters for the platform onto
+      which they
+      are checked out, every file in the respository must
+      have the appropriate values for the Subversion properties <code>svn:mime-type</code>
+      and/or <code>svn:eol-style</code>.
+    </p>
+    <p>
+      All "binary" files in the repository should have a valid,
+      non-text MIME media type specified for
+      their <code>svn:mime-type</code> property.  (If no other type is suitable,
+      "application/octet-stream" can be used.)
+    </p>
+    <p>
+      All text files must have a "text/*" <code>svn:mime-type</code> property, and
+      an <code>svn:eol-style</code> property.
+      Most text files are relevant to all platforms, and should have
+      the value "native" for the <code>svn:eol-style</code> property.
+      This ensures that a Subversion checkout will use the right end-of-line
+      characters for the host operating system.
+    </p>
+    <p>
+      Text files that are specifically for use only on MS-Windows and similar
+      OS's should have an <code>svn:eol-style</code> property of "CRLF", so that they
+      can be checked out on other
+      OS's and made visible to MS-Windows systems (through shared
+      disks) without worrying about end-of-line translation.
+    </p>
+    <p>
+      Setting "automatic properties" in your Subversion configuration
+      can automate setting these properties in most cases.  A sample
+      Subversion configuration file
+      (<code>$HOME/.subversion/config</code> or
+      <code>Application&nbsp;Data\Subversion\config</code>) that works
+      for most of the file extensions used in sipX can be retrieved
+      <a href="sample-config.txt">here</a>.
+      The list of officially-defined MIME media types is at <a
+      href="http://www.iana.org/assignments/media-types"><code>http://www.iana.org/assignments/media-types</code></a>.
+      SipX also uses WAV audio
+      files, which have no officially-defined MIME media type, but do
+      have a commonly understood extension type, audio/x-wav.
+      More information on <code>svn:mime-type</code> is at <a
+      href="http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.2"><code>http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.2</code></a>.
+      More information on <code>svn:eol-style</code> is at <a href="http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.5"><code>http://svnbook.red-bean.com/en/1.1/ch07s02.html#svn-ch-7-sect-2.3.5</code></a>.
+      More information on configuring Subversion is at <a
+      href="http://scm.sipfoundry.org/svndoc/ch07.html#svn-ch-7-sect-1"><code>http://scm.sipfoundry.org/svndoc/ch07.html#svn-ch-7-sect-1</code></a>.
+    </p>
+    <p>
+      There is a script in the developers' tool directory that will
+      check that a working copy is following these rules.  Commonly it
+      is run from the top directory of a working copy via:
+      <code>sipXpbx/doc/developer/eol-check.sh sipX*</code>
+    </p>
+    <h4>
+      <a href='#ref2.8.3' name='ref2.8.3' class='ref'>2.8.3</a> <code>sf:tab</code>
+    </h4>
+    <p>
+      Most text files in sipX projects should not contain tab
+      characters; they are allowed only when the file type
+      specifically requires them and no alternative is available; the
+      primary example of this is Makefiles.
+    </p>
+    <p>
+      Files which are exceptions to this rule can be marked by setting
+      the <code>sf:tab</code> Subversion property.
+      The value 'initial' can be set for files for which tabs are
+      allowed at the beginnings of lines.
+      The principal use for this value is "makefiles".  For this
+      reason, <code>sf:tab</code> = initial allows not only tabs at the beginnings
+      of lines, but also tabs preceded by '#' (for commenting out
+      lines).
+    </p>
+    <p>
+    The tab-check.sh script checks that all files with a text
+    MIME-type do not contain tab characters.
+    </p>
+    <p>
+      The value <code>sf:tab</code> = yes allows tabs in any location in a file.
+      This value should only be used on files imported from external
+      sources and files which require the use of tabs (e.g., some
+      Windows build control files).
+    </p>
+    <h3>
+      <a href='#ref2.9' name='ref2.9' class='ref'>2.9</a> <code>strcasecmp</code> and <code>strncasecmp</code>
+    </h3>
+    <p>
+      The case-insensitive string comparison functions
+      <code>strcasecmp</code> and <code>strncasecmp</code> were
+      added to Posix relatively recently.  Many older Windows
+      development environments did not provide these functions, but
+      rather provided functions named
+      <code>stricmp</code> and <code>strnicmp</code> which provided
+      the same functionality with the same interface.
+      To avoid making each source file that needs these functions test
+      its environment, the include file <code>os/OsDefs.h</code> provides
+      #define's to convert <code>strcasecmp</code> and
+      <code>strncasecmp</code> into
+      <code>stricmp</code> and <code>strnicmp</code> when necessary.
+    </p>
+    <p>
+      Any file which needs to use this functionality must use the
+      names  <code>strcasecmp</code> and <code>strncasecmp</code> and must
+      #include <code>os/OsDefs.h</code> to ensure they are mapped if
+      the environment requires it.  (Certain files obtained from
+      third-party sources are exceptions to this rule.)
+    </p>
+    <hr />
+    <h2>
+    <a href='#ref3' name='ref3' class='ref'>3</a> Style Guidelines
+    </h2>
+    <p>
+      The primary purpose of style guidelines is to facilitate
+      long-term maintenance. During maintenance, programmers who
+      are usually not the original authors are responsible for
+      understanding source code from a variety of applications.
+      Having a common presentation format reduces confusion and
+      speeds comprehension. Therefore, the following guidelines are
+      specified based on the principles of good programming
+      practice and readability. In the cases where two or more
+      equally valid alternatives are available, one was selected to
+      simplify specification. In the future, automated tools may be
+      used to apply style guidelines to source code files.
+    </p>
+    <h3>
+      <a href='#ref3.1' name='ref3.1' class='ref'>3.1</a> Lines
+    </h3>
+    <h4>
+      <a href='#ref3.1.1' name='ref3.1.1' class='ref'>3.1.1</a> Line Length
+    </h4>
+    <p>
+      Lines should not exceed 98 characters in order to display
+      without wrapping on an 100-character display. If wrapping is
+      required, try to break at an operator, and start the next
+      line with the operator vertically aligned. For example:
+    </p>
+<pre class='correct'>
+    cout &lt;&lt; "This is an example of a line which must be wrapped, value = "
+         &lt;&lt; value &lt;&lt; endl;
+</pre>
+    <h4>
+      <a href='#ref3.1.2' name='ref3.1.2' class='ref'>3.1.2</a> Statements Per Line
+    </h4>
+    <p>
+      Each statement should begin on a new line.
+    </p>
+    <h4>
+      <a href='#ref3.1.3' name='ref3.1.3' class='ref'>3.1.3</a> Final EOL
+    </h4>
+    <p>
+      In all text files, the final line should end with the appropriate
+      end-of-line characters (for the host operating system).
+      (Zero-length text files are acceptable, as they contain no lines.)
+    </p>
+    <h3>
+      <a href='#ref3.2' name='ref3.2' class='ref'>3.2</a> Comments
+    </h3>
+    <h4>
+      <a href='#ref3.2.1' name='ref3.2.1' class='ref'>3.2.1</a> Automated Documentation Comments
+    </h4>
+    <p>
+      For comments meant to be extracted by an automated
+      documentation tool, follow the Java convention of using the
+      standard C comment delimiters with an extra asterisk on the
+      first one, as shown:
+    </p>
+<pre class='correct'>
+    /**
+     * This is a module, class, function, or instance variable comment
+     * that will be extracted by an automated documentation tool.
+     */
+</pre>
+    <p>
+      This will provide a consistent look across all source code
+      files, and should facilitate creation of automated
+      documentation tools.
+    </p>
+    <p>
+      Such comments should be used to describe classes, methods,
+      and global or instance variables.
+    </p>
+    <h4>
+      <a href='#ref3.2.2' name='ref3.2.2' class='ref'>3.2.2</a> Code Block Comments
+    </h4>
+    <p>
+      Code block comments should precede the block, be at the same
+      indentation level, and be separated by a blank line above and
+      below the comment. Brief comments regarding individual
+      statements may appear at the end of the same line, and should
+      be vertically aligned with other comments in the vicinity for
+      readability.
+    </p>
+    <dl>
+      <dd>
+         <i>(C)</i> Code block comments should use the
+        standard C comment delimiters <tt>/*</tt> and
+        <tt>*/</tt>.<br />
+        <br />
+          <i>(C++, Java)</i> Code block comments should
+        use the single line comment delimiter <tt>//</tt>.
+      </dd>
+    </dl>
+    <h4>
+      <a href='#ref3.2.3' name='ref3.2.3' class='ref'>3.2.3</a> Blank Lines
+    </h4>
+    <p>
+      Use a single blank line to separate logical groups of code to
+      improve readability. In source files, use two blank lines to
+      separate each function.
+    </p>
+    <h3>
+      <a href='#ref3.3' name='ref3.3' class='ref'>3.3</a> Formatting
+    </h3>
+    <h4>
+      <a href='#ref3.3.1' name='ref3.3.1' class='ref'>3.3.1</a> Spacing Around Operators
+    </h4>
+    <p>
+      Spacing around operators and delimiters should be consistent.
+      In general, insert one space before or after each operator to
+      improve readability.
+    </p>
+    <ul>
+      <li>
+        Do not use spaces inside of the parentheses around the
+        argument list.
+      </li>
+      <li>
+        Do not use a space within empty argument lists <tt>()</tt>
+        or non-dimensioned arrays <tt>[]</tt>.
+      </li>
+      <li>
+        Do not use spaces around the member access operators
+        <tt>.</tt> and <tt>-&gt;</tt>.
+      </li>
+      <li>
+         <i>(C++)</i> Do not use spaces around the
+        scope operator <tt>::</tt>.
+      </li>
+    </ul>
+    <pre class='correct'>
+        if (value == 0){                // right    </pre>
+    <pre class='wrong'>
+        if ( value == 0 ) {             // not recommended    </pre>
+    <pre class='correct'>
+        void doIt(int v);               // right</pre>
+    <pre class='wrong'>
+        void doIt( int v );             // not recommended</pre>
+    <pre class='correct'>
+        value = object-&gt;GetValue();     // right</pre>
+    <pre class='wrong'>
+        value=object -&gt; GetValue();     // wrong</pre>
+    <h4>
+      <a href='#ref3.3.2' name='ref3.3.2' class='ref'>3.3.2</a> Indentation and Braces
+    </h4>
+    <p>
+      The contents of all code blocks should be indented to improve
+      readability. Indent using 3 (recommended), 4, or 8 spaces for
+      each level. <strong>Do not use tabs</strong>, use spaces. Most
+      editors can substitute spaces for tabs.  See also the
+      <a href='#ref2.10'><code>sf:tab</code> Subversion property</a>.
+    </p>
+    <p>
+      Of the three major brace styles, two are acceptable - with the
+      first one listed being preferable.  For existing files, be
+      consistent with the brace style already in use in the file -
+      <strong>Do no mix styles within a file.</strong>
+    </p>
+    <ul>
+      <li>
+        Place brace under and inline with keywords:
+      </li>
+    </ul>
+<pre class='correct'>
+        if (condition)    if (condition)          while (condition)   int main()
+        {                 {                       {                   {
+           . . .             . . .                   . . .               . . .
+        }                 }                       }                   }
+                          else if (condition)
+                          {
+                             . . .
+                          }
+                          else
+                          {
+                             . . .
+                          }
+
+        struct MyStruct
+        {
+           int x;
+           int y;
+        }
+</pre>
+    <ul>
+      <li>
+        Traditional Unix policy of placing the initial brace on the
+        same line as the keyword and the trailing brace on its own
+        line and inline with the keyword. An exception is made for
+        method and function definitions where the initial brace is
+        handled as in the first style.
+      </li>
+    </ul>
+<pre class='correct'>
+        if (condition) {    if (condition) {         while (condition) {    int main()
+           . . .               . . .                    . . .               {
+        }                   }                        }                         . . .
+                            else if (condition) {                           }
+                               . . .
+                            }
+                            else {
+                               . . .
+                            }
+
+        struct MyStruct {
+           int x;
+           int y;
+        }
+</pre>
+    <h4>
+      <a href='#ref3.3.3' name='ref3.3.3' class='ref'>3.3.3</a> Pointer and Reference Position
+    </h4>
+    <dl>
+      <dd>
+         <i>(C, C++)</i> All declarations of pointer
+        or reference variables and function arguments should have
+        the dereference operator <tt>*</tt> and the address-of
+        operator <tt>&amp;</tt> placed adjacent to the type, not
+        the variable. For example:
+      </dd>
+    </dl>
+
+    <pre class='correct'>
+   char*   text;                   // right</pre>
+    <pre class='wrong'>
+   char    *text;                  // not recommended</pre>
+    <pre class='correct'>
+   char*   doSomething(int* x);    // right</pre>
+    <pre class='wrong'>
+   char    *doSomething(int *x);   // not recommended
+    </pre>
+
+    <h3>
+      <a href='#ref3.4' name='ref3.4' class='ref'>3.4</a> Statements
+    </h3>
+    <h4>
+      <a href='#ref3.4.1' name='ref3.4.1' class='ref'>3.4.1</a> Control Statements
+    </h4>
+    <p>
+      All control statements should be followed by an indented code
+      block enclosed with braces, even if it only contains one
+      statement. This makes the code consistent and allows the
+      block to be easily expanded in the future. For example:
+    </p>
+    <pre class='correct'>
+   if (value == 0)                     // right
+   {
+      doSomething();
+   }</pre>
+    <pre class='wrong'>
+   if (value == 0) doSomething();      // wrong - no block, not indented
+
+   if (value == 0)
+      doSomething();                   // wrong - no block
+    </pre>
+    <h4>
+      <a href='#ref3.4.2' name='ref3.4.2' class='ref'>3.4.2</a> Conditional Statements
+    </h4>
+    <p>
+      Conditional statements found in <tt>if</tt>, <tt>while</tt>,
+      and <tt>do</tt> statements should be explicit based on the
+      data type of the variable being tested. For example:
+    </p>
+
+    <p>(C,C++)</p>
+
+    <pre class='correct'>
+   int value = getValue();
+   if (value == 0)                    // right
+   {
+      doSomething();
+   }</pre>
+    <pre class='wrong'>
+   if (!value)                        // wrong - not explicit test
+   {
+      doSomethingElse();
+   }</pre>
+    <pre class='correct'>
+   bool value = getValue();           // could be RWBoolean too.
+
+   if (!value)                        // right
+   {
+      doSomethingElse();
+   }
+</pre>
+
+    <p>(Java)</p>
+
+<pre class='correct'>
+   boolean value = getValue();
+   if (!value)
+   {                                  // right - this is explicit
+      doSomethingElse();              // test for boolean type
+   }
+</pre>
+
+    <h4>
+      <a href='#ref3.4.3' name='ref3.4.3' class='ref'>3.4.3</a> Include Statements
+    </h4>
+    <dl>
+      <dd>
+         <i>(C,C++)</i> For both source and header
+        files, <tt>#include</tt> statements should be grouped
+        together at the top of the file after the prolog. Includes
+        should be logically grouped together, with the groups
+        separated by a blank line. System includes should use the
+        &lt;<tt>file.h&gt;</tt> notation, and all other includes
+        should use the <tt>"file.h"</tt> notation. Path names
+        should never be explicitly used in <tt>#include</tt>
+        statements (with the exception of vendor library files such
+        as Motif), since this is inherently non-portable. For
+        example:
+      </dd>
+    </dl>
+    <pre class='correct'>
+   #include &lt;stdlib.h&gt;                     // right
+   #include &lt;stdio.h&gt;                      //
+   #include &lt;Xm/Xm.h&gt;                      //
+   #include "meaningfulname.h"                   //
+</pre>
+    <pre class='wrong'>
+   #include "/proj/util/MeaningfulName.h"  // wrong - explicit path,
+   #include &lt;stdlib.h&gt;                     //  out of order,
+   #include &lt;/usr/include/stdio.h&gt;         //  path for system file,
+   #include "Xm/Xm.h"                      //  local include of library file
+</pre>
+
+    <h3>
+      <a href='#ref3.5' name='ref3.5' class='ref'>3.5</a> Declarations
+    </h3>
+    <h4>
+      <a href='#ref3.5.1' name='ref3.5.1' class='ref'>3.5.1</a> Variable Declaration
+    </h4>
+    <p>
+      Each variable should be individually declared on a separate
+      line. Variables may be grouped by type, with groups separated
+      by a blank line. Variable names should be aligned vertically
+      for readability. There is no required ordering of types,
+      however some platforms will give optimal performance if
+      declarations are ordered from largest to smallest (e.g.,
+      double, int, short, char).
+    </p>
+    <pre class='correct'>
+   int*    a;              // right
+   int     b;              //
+   int     c;              //
+   double  d;              //
+   double  e;              //
+
+   double  a;              // right
+   int     b;              //
+
+   double  d;              // acceptable - not grouped by type
+   int     b;              //
+   int*    a;              //
+   double  e;              //
+   int     c;              //
+</pre>    <pre class='wrong'>
+   int*    a, b, c;        // wrong - not individually declared, not
+                           // on separate lines
+
+   int*    a,              // wrong - not individually declared
+           b,              //
+           c;              //
+</pre>
+    <p>
+      The two preceding examples are prone to error; notice that
+      <tt>a</tt> is declared as a pointer to integer and <tt>b</tt>
+      and <tt>c</tt> are declared as integers, not as pointers to
+      integers.
+    </p>
+    <h4>
+      <a href='#ref3.5.2' name='ref3.5.2' class='ref'>3.5.2</a> External Variable Declaration
+    </h4>
+    <dl>
+      <dd>
+         <i>(C,C++)</i> All external variables should
+        be placed in header files. In general the use of global
+        variables is discouraged. Use the following method to allow
+        external variables to be created only once while using a
+        single declaration. In the header file which declares the
+        global variable, use a flag to cause the <i>default</i>
+        action on inclusion to be referencing of an externally
+        created variable. Only in the source file that wants to
+        actually create the variable will this flag be
+        defined.<br />
+        <br />
+         In the header file <tt>meaningfulname.h</tt>,
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   #ifdef MeaningfulNameInit     // the flag is called MeaningfulNameInit
+   #define EXTERN                // create the variable (only in main.cpp)
+   #else
+   #define EXTERN extern         // just a reference (default)
+   #endif
+   EXTERN ErrorLogger errorLog;
+   #undef EXTERN
+</pre>
+
+    <dl>
+      <dd>
+        All of the source files should include this header file
+        normally:
+      </dd>
+    </dl>
+<pre class='correct'>
+     #include "meaningfulname.h"
+</pre>
+
+    <dl>
+      <dd>
+        while the following should appear <i>only</i> in the source
+        file where you actually want to declare the variable and
+        allocate memory for it (typically in <tt>main.cpp</tt>):
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   #define MeaningfulNameInit
+   #include "meaningfulmame.h"
+   #undef MeaningfulNameInit
+</pre>
+
+    <h4>
+      <a href='#ref3.5.3' name='ref3.5.3' class='ref'>3.5.3</a> Numeric Constant Declaration
+    </h4>
+    <p>
+      Use only the uppercase suffixes (e.g., L, X, U, E, F) when
+      defining numeric constants. For example:
+    </p>
+<pre class='correct'>
+   const int    value  = A73B2X;   // right, hexadecimal constant
+   const double evalue = 1.2E9;    // right, scientific notation constant</pre>
+    <pre class='wrong'>
+   const float  fvalue = 1.2e9;    // wrong, lowercase e
+</pre>
+    <h4>
+      <a href='#ref3.5.4' name='ref3.5.4' class='ref'>3.5.4</a> Enumerated Type Declaration
+    </h4>
+    <dl>
+      <dd>
+         <i>(C++)</i> The <tt>enum</tt> type name and
+        enumerated constants should each reside on a separate line.
+        Constants and comments should be aligned vertically. The
+        following is an example of a valid <tt>enum</tt>
+        declaration:
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   enum CompassPoints
+   {                  // Enums used to specify direction.
+      North = 0,      //
+      South = 1,      //
+      East  = 2,      //
+      West  = 3       //
+   };
+</pre>
+
+    <dl>
+      <dd>
+         (C++) It's often useful to be able to say an
+        enum is not in any of its valid states. Make a label for an
+        unitialized or error state. Make it the first label if
+        possible.
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   enum States
+   {
+      STATE_ERR,
+      STATE_OPEN,
+      STATE_RUNNING,
+      STATE_DYING
+   };
+</pre>
+
+    <h4>
+      <a href='#ref3.5.5' name='ref3.5.5' class='ref'>3.5.5</a> Struct and Union Declaration
+    </h4>
+    <dl>
+      <dd>
+         <i>(C,C++)</i> The <tt>struct</tt> type name
+        and structure members should each reside on a separate
+        line. This format separates the members for easy reading,
+        is easy to comment, and eliminates line wrapping for large
+        numbers of members. Each <tt>struct</tt> should have a
+        one-line description on the same line as the type name.
+        Each member should have a comment describing what it is,
+        and units if applicable. Members and comments should be
+        aligned vertically. Following is an example of a valid
+        <tt>struct</tt> declaration:
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   struct MeaningfulName      // This is a struct of some data.
+   {
+      int     firstInteger;   // This is the first int.
+      int     secondInteger;  // This is the second int.
+      double  firstDouble;    // This is the first double.
+      double  secondDouble;   // This is the second double.
+   };
+</pre>
+
+    <h4>
+      <a href='#ref3.5.6' name='ref3.5.6' class='ref'>3.5.6</a> Class Declaration
+    </h4>
+    <dl>
+      <dd>
+         <i>(C++,Java)</i> All class definitions
+        should include a default constructor, (virtual) destructor,
+        copy constructor and operator=.&nbsp;&nbsp; If the class
+        has a pointer, provide a deep copy constructor (i.e.,
+        allocates memory and copies the object being pointed to,
+        not just maintains a pointer to the original object).&nbsp;
+        If any of these four are not currently needed, create stub
+        versions and place in the private section so they will not
+        be automatically generated, then accidentally used.&nbsp;
+        (This protects from core dumps.)&nbsp; All classes should
+        have public, protected, and private access sections
+        declared, in this order. Friend declarations should appear
+        before the public section. All member variables should be
+        either protected or private. It is recommended that
+        definitions of inline functions follow the class
+        declaration, although trivial inline functions (e.g.,
+        <tt>{}</tt> or <tt>{ return x; }</tt>) may be defined
+        within the declaration itself. Each member function and
+        variable should be commented using the automated
+        documentation comment delimiter <tt>//:</tt>. Member
+        functions should be commented in the same fashion as a
+        regular function. Member variables should each have a one
+        line description. Members and comments should be aligned
+        vertically. For example:
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   class Value : public BaseValue
+   {
+   public:
+      Value();                        //: Default constructor.
+      Value(const Value&amp; oldValue);   //: Copy constructor.
+      ~Value();                       //: Destructor.
+      void setValue(int newValue);    //: Set value.
+      int getValue();                 //: Get value.
+
+   protected:
+      void incrementValue();          //: Increment value.
+
+   private:
+      int value;                      //: The value.
+   };
+</pre>
+
+    <hr />
+    <h2>
+    <a href='#ref4' name='ref4' class='ref'>4</a> Recommended
+      Programming Practices
+    </h2>
+    <h3>
+      <a href='#ref4.1' name='ref4.1' class='ref'>4.1</a> Placement of Declarations
+    </h3>
+    <p>
+      Local variables can be declared at the start of the function,
+      at the start of a conditional block, or at the point of first
+      use. However, declaring within a conditional block or at the
+      point of first use may yield a performance advantage, since
+      memory allocation, constructors, or class loading will not be
+      performed at all if those statements are not reached.
+    </p>
+    <h3>
+      <a href='#ref4.2' name='ref4.2' class='ref'>4.2</a> Switch Statements
+    </h3>
+    <p>
+      Specify a break statement after every <tt>case</tt> block,
+      including the last one unless multiple labels are used for
+      one selection of code.&nbsp; It is recommended that a
+      <tt>default</tt> case always be defined.
+    </p>
+    <h3>
+      <a href='#ref4.3' name='ref4.3' class='ref'>4.3</a> Return Statements
+    </h3>
+    <p>
+      Where practical, have only one <tt>return</tt> from a
+      function or method as the last statement. Otherwise, minimize
+      the number of returns. Possibly highlight returns with
+      comments and/or blank lines to keep them from being lost in
+      other code.&nbsp; Multiple returns are generally not needed
+      except for reducing complexity for error conditions or other
+      exceptional conditions.
+    </p>
+    <h3>
+      <a href='#ref4.4' name='ref4.4' class='ref'>4.4</a> Casts
+    </h3>
+    <p>
+      Avoid the use of casts except where unavoidable, since this
+      can introduce run-time bugs by defeating compiler
+      type-checking. Working with third-party libraries (e.g., X or
+      Motif) often requires the use of casts.&nbsp; When you need
+      to cast, document the reasons.
+    </p>
+    <h3>
+      <a href='#ref4.5' name='ref4.5' class='ref'>4.5</a> Literals
+    </h3>
+    <p>
+      Use constants instead of literal values wherever possible.
+      For example:
+    </p>
+<pre class='correct'>
+   const double PI = 3.141259;                     // right
+   const char APP_NAME = "ACME Spreadsheet 1.0";   // right</pre>
+    <pre class='wrong'>
+   area = 3.141259 * radius * radius;              // not recommended
+   cout &lt;&lt; "ACME Spreadsheet 1.0" &lt;&lt; endl;         // not recommended
+</pre>
+    <h3>
+      <a href='#ref4.6' name='ref4.6' class='ref'>4.6</a> Explicit Initialization
+    </h3>
+    <p>
+      In general, explicitly initialize all variables before use.
+    </p>
+    <p>
+      It is very strongly recommended that you initialize all
+      pointers either to 0 or to an object.&nbsp; Do not allow a
+      pointer to have garbage in it or an address in it, that will
+      no longer be used.
+    </p>
+    <h3>
+      <a href='#ref4.7' name='ref4.7' class='ref'>4.7</a> Checking Error Returns
+    </h3>
+    <p>
+      Include the system error text for every system error message.
+    </p>
+    <dl>
+      <dd>
+         <i>(C, C++)</i> Check every system call for
+        an error return, unless you know you wish to ignore errors.
+        For example, <i>printf</i> returns an error code but rarely
+        would you check for its return code. In which case you can
+        cast the return to (void) if you really care.
+        <p>
+           <i>(C, C++)</i> Check every
+          call to malloc or realloc unless you know your versions
+          of these calls do the right thing.
+        </p>
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.8' name='ref4.8' class='ref'>4.8</a> Short Methods
+    </h3>
+    <p>
+      Methods should not be longer than a single page of code.
+    </p>
+    <h3>
+      <a href='#ref4.9' name='ref4.9' class='ref'>4.9</a> Document Null Statements
+    </h3>
+    <p>
+      Always document a null body for a while statement so that it
+      is clear that the null body is intentional and not missing
+      code.
+    </p>
+    <h3>
+      <a href='#ref4.10' name='ref4.10' class='ref'>4.10</a> Comments on Comments
+    </h3>
+    <h4>
+      <a href='#ref4.10.1' name='ref4.10.1' class='ref'>4.10.1</a> Comments Should Tell a Story
+    </h4>
+    <p>
+      Consider your comments a story describing the system. Expect
+      your comments to be extracted by a robot and formed into a
+      man page. Class comments are one part of the story, method
+      signature comments are another part of the story, method
+      arguments another part, and method implementation yet another
+      part. All these parts should weave together and inform
+      someone else at another point of time just exactly what you
+      did and why.
+    </p>
+    <h4>
+      <a href='#ref4.10.2' name='ref4.10.2' class='ref'>4.10.2</a> Document Decisions
+    </h4>
+    <p>
+      Comments should document decisions. At every point where you
+      had a choice of what to do place a comment describing which
+      choice you made and why. Archaeologists will find this the
+      most useful information.
+    </p>
+    <h4>
+      <a href='#ref4.10.3' name='ref4.10.3' class='ref'>4.10.3</a> Make Gotchas Explicit
+    </h4>
+    <p>
+      Explicitly comment variables changed out of the normal
+      control flow or other code likely to break during
+      maintenance. Embedded keywords are used to point out issues
+      and potential problems. Consider a robot will parse your
+      comments looking for keywords, stripping them out, and making
+      a report so people can make a special effort where needed.
+    </p>
+    <p>
+      <strong>Gotcha Keywords</strong>
+    </p>
+    <dl>
+      <dt>:TODO: topic</dt>
+      <dd>
+      Means there's more to do here, don't forget.
+      </dd>
+      <dt>:BUG: [bugid] topic</dt>
+      <dd>
+        Means there's a known bug here, explain it and optionally
+        give a bug ID.
+      </dd>
+      <dt>:KLUDGE:</dt>
+      <dd>
+          When you've done something ugly say so and explain how you
+          would do it differently next time if you had more time.
+      </dd>
+      <dt>:TRICKY:</dt>
+      <dd>
+          Tells somebody that the following code is very tricky so
+          don't go changing it without thinking.
+      </dd>
+      <dt>:WARNING:</dt>
+      <dd>
+          Beware of something.
+      </dd>
+      <dt>:COMPILER:</dt>
+      <dd>
+          Sometimes you need to work around a compiler problem.
+          Document it. The problem may go away eventually.
+      </dd>
+      <dt>:ATTRIBUTE: value</dt>
+      <dd>
+                  The general form of an attribute embedded in a comment.
+                  You can make up your own attributes and they'll be
+                  extracted.
+      </dd>
+    </dl>
+    <h5>
+      Gotcha Formatting
+    </h5>
+    <ul>
+      <li>
+        Make the gotcha keyword the first symbol in the comment.
+      </li>
+      <li>
+        Comments may consist of multiple lines, but the first line
+        should be a self-contained, meaningful summary.
+      </li>
+      <li>
+        The writer's name and the date of the remark should be part
+        of the comment. This information is in the source
+        repository, but it can take quite a while to figure out
+        when and by whom it was added. Often gotchas stick around
+        longer than they should. Embedding date information allows
+        other programmers to make this decision. Embedding the
+        author information let's us know whom to ask.
+      </li>
+    </ul>
+    <h5>
+      Example
+    </h5>
+<pre class='correct'>
+   // :TODO: tmh 960810: possible performance problem
+   // We should really use a hash table here but for now we'll
+   // use a linear search.
+
+   // :KLUDGE: tmh 960810: possible unsafe type cast
+   // We need a cast here to recover the derived type. It should
+   // probably user a virtual method or template.
+</pre>
+    <h3>
+      <a href='#ref4.11' name='ref4.11' class='ref'>4.11</a> Constructs to Avoid
+    </h3>
+    <dl>
+      <dd>
+         <i>(C, C++)</i> The use of <tt>#define</tt>
+        constants is strongly discouraged, using <tt>const</tt> is
+        recommended instead.<br />
+        <br />
+          <i>(C, C++)</i> The use of <tt>#define</tt>
+        macros is strongly discouraged, using <tt>inline</tt>
+        functions is recommended instead.<br />
+        <br />
+          <i>(C, C++)</i> The use of <tt>typedef</tt>
+        is discouraged when actual types such as <tt>class</tt>,
+        <tt>struct</tt>, or <tt>enum</tt> would be a better
+        choice.<br />
+        <br />
+          <i>(C, C++)</i> The use of <tt>extern</tt>
+        (e.g., global) variables is strongly discouraged. The
+        exception is for programs which benefit from having a small
+        number of object pointers accessible globally via
+        <tt>extern</tt>. The use of <tt>goto</tt> statements is not
+        allowed.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.12' name='ref4.12' class='ref'>4.12</a> Macros
+    </h3>
+    <dl>
+      <dd>
+         <i>(C, C++)</i> In a
+         macro definition, to eliminate ambiguity on expansion, all
+         uses of arguments should be enclosed in
+         parentheses and the entire macro expansion should be enclosed
+         in parentheses.
+         For example:
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   #define MAX(x, y)   (((x) &gt; (y)) ? (x) : (y))
+</pre>
+
+    <h3>
+      <a href='#ref4.13' name='ref4.13' class='ref'>4.13</a> Debug Compile-time Switch
+    </h3>
+    <dl>
+      <dd>
+         <i>(C,C++)</i> Code used only during
+        development for debugging, testing or performance
+        monitoring should be conditionally compiled using
+        <tt>#ifdef</tt> compile-time switches. The symbols to use
+        are <tt>DEBUG, TEST</tt> and <tt>STATS</tt>, respectively.
+        Debug statements announcing entry into a function or member
+        function should provide the entire function name including
+        the class. For example:
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   #ifdef DEBUG
+       cout &lt;&lt; "MeaningfulName::doSomething: about to do something" &lt;&lt; endl;
+   #endif
+</pre>
+
+    <h3>
+      <a href='#ref4.14' name='ref4.14' class='ref'>4.14</a> Memory Management
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> Use <tt>new</tt> and
+        <tt>delete</tt> instead of <tt>malloc/calloc/realloc</tt>
+        and <tt>free</tt>. Allocate memory with <tt>new</tt> only
+        when necessary for variable to remain after leaving the
+        current scope. Use the <tt>delete []</tt> operator to
+        deallocate arrays (the use of <tt>delete</tt> without the
+        array operator to delete arrays is undefined). After
+        deletion, set the pointer to zero, to safeguard possible
+        future calls to <tt>delete</tt>. C++ guarantees that
+        <tt>delete 0</tt> will be harmless.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.15' name='ref4.15' class='ref'>4.15</a> Constructors
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> All constructors should
+        initialize all member variables to a known state. This
+        implies that all classes should have a default constructor
+        (i.e., <tt>MyClass();</tt>) defined. Providing a deep copy
+        constructor is strongly recommended.&nbsp; If the
+        programmer wishes to not fully implement a copy
+        constructor, then a stub copy constructor should be written
+        and placed in the private section so no one will
+        accidentally call it.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.16' name='ref4.16' class='ref'>4.16</a> Destructors
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> All classes which allocate
+        resources which are not automatically freed (e.g., have
+        pointer variables) should have a destructor which
+        explicitly frees the resources. Since any class may someday
+        be used as a base class, destructors should be declared
+        virtual, even if empty.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.17' name='ref4.17' class='ref'>4.17</a> Argument Passing
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> If the argument is small and
+        will not be modified, use the default pass by value. If the
+        argument is large and will not be modified, pass by
+        <tt>const</tt> reference. If the argument will be modified,
+        pass by reference. For example:
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   void A::function(int notChanged);               // default: pass by value
+
+   void B::function(const C&amp; bigReadOnlyObject)    // pass by const reference
+
+   void C::function(int notChanged, int&amp; result);  // pass by reference
+</pre>
+
+    <h3>
+      <a href='#ref4.18' name='ref4.18' class='ref'>4.18</a> Default Arguments
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> Where possible, use default
+        arguments instead of function overloading to reduce code
+        duplication and complexity.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.19' name='ref4.19' class='ref'>4.19</a> Overriding Virtual Functions
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> When overriding virtual
+        functions in a new subclass, explicitly declare the
+        functions virtual. Although not required by the compiler,
+        this aids maintainability by making clear that the function
+        is virtual without having to refer to the base class header
+        file.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.20' name='ref4.20' class='ref'>4.20</a> Const Member Functions
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> It is recommended that all
+        member functions (example:&nbsp; func(...) const {...})
+        which do not modify the member variables of an object be
+        declared <tt>const</tt>. This allows these functions to be
+        called for objects which were either declared as
+        <tt>const</tt> or passed as <tt>const</tt> arguments.<br />
+        <br />
+          <i>(</i>C++) It is recommended that all
+        member function parameters be declared const
+        (example:&nbsp; func(const int i){...}) when possible.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.21' name='ref4.21' class='ref'>4.21</a> Referencing Non-C++ Functions
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> Use the <tt>extern "C"</tt>
+        mechanism to allow access to non-C++ (not just C)
+        functions. This mechanism disables C++ name mangling, which
+        allows the linker to resolve the function references. For
+        example:
+      </dd>
+    </dl>
+
+<pre class='correct'>
+   extern "C"
+   {
+      void aFunction();           // single non-C++ function prototype
+   }
+
+   extern "C"
+   {
+   #include "functions.h"          // library of non-C++ functions
+   }
+</pre>
+
+    <h3>
+      <a href='#ref4.22' name='ref4.22' class='ref'>4.22</a> NULL Pointer
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> Use the number zero (0) instead
+        of the <tt>NULL</tt> macro for initialization, assignment,
+        and comparison of pointers. The use of <tt>NULL</tt> is not
+        portable, since different environments may define it to be
+        something other than zero (e.g., <tt>(char*)0</tt>).
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.23' name='ref4.23' class='ref'>4.23</a> Enumerated Types
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> Use enumerated types instead of
+        numeric codes. Enumerations improve robustness by allowing
+        the compiler to perform type-checking, and are more
+        readable and maintainable.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.24' name='ref4.24' class='ref'>4.24</a> Terminating Stream Output
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> Use the iostream manipulator
+        <tt>endl</tt> to terminate an output line, instead of the
+        newline character <tt>\n</tt>. In addition to being more
+        readable, the <tt>endl</tt> manipulator not only inserts a
+        newline character but also flushes the output buffer.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.25' name='ref4.25' class='ref'>4.25</a> Object Instantiation
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++, Java)</i> Where possible, move
+        object declarations and instantiations out of loops, using
+        assignment to change the state of the object at each
+        iteration. This minimizes overhead due to memory allocation
+        from the heap.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.26' name='ref4.26' class='ref'>4.26</a> Encapsulation
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++, Java)</i> Instance variables of a
+        class should not be declared <tt>public</tt>. Open access
+        to internal variables exposes structure and does not allow
+        methods to assume values are valid.<br />
+        <br />
+          <i>(C++)&nbsp;</i> Putting variables in the
+        private section is preferable over the protected section,
+        for more complete encapsulation.&nbsp; Use get and set
+        methods in either protected or public if needed.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.27' name='ref4.27' class='ref'>4.27</a> Default Constructor
+    </h3>
+    <dl>
+      <dd>
+         <i>(Java)</i> Where possible, define a
+        default constructor (with no arguments) so that objects can
+        be created dynamically using <tt>Class.newInstance()</tt>.
+        This exploits the power of Java to dynamically link in
+        functionality that was not present at compile time.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.28' name='ref4.28' class='ref'>4.28</a> Importing Packages
+    </h3>
+    <dl>
+      <dd>
+         <i>(Java)</i> Use full package names instead
+        of wildcards when importing to improve comprehensibility
+        and provide context.
+      </dd>
+    </dl>
+    <h3>
+      <a href='#ref4.29' name='ref4.29' class='ref'>4.29</a> Exception Handling
+    </h3>
+    <dl>
+      <dd>
+         <i>(C++)</i> In general, avoid
+        exception handling.&nbsp; It is sometimes needed for third
+        party code, but in general, use return values
+        instead.&nbsp; If you need it, document the reason for
+        using it.<br />
+        <br />
+
+        <hr />
+      </dd>
+    </dl>
+    <h2>
+    <a href='#ref5' name='ref5' class='ref'>5</a>
+    Source Code Templates
+    </h2>
+    <ul>
+      <li>
+        <a href="header.h">C++ Header File</a>
+      </li>
+      <li>
+        <a href="source.cpp">C++ Source File</a>
+      </li>
+    </ul>
+    <hr />
+    <h3>
+      Additional Coding Standards and Style Guides
+    </h3>
+    <p>
+      For additional background and suggestions, there are a number
+      of coding standard documents available on the Web; these are
+      included for reference only and are not a part of this standard:
+    </p>
+    <ul>
+      <li>
+        <a href="http://www.possibility.com/Cpp/">Todd Hoff's C++
+        Coding Standards</a>
+      </li>
+      <li>
+        <a
+        href="http://www.doc.ic.ac.uk/lab/secondyear/cstyle/cstyle.html">
+        Recommended C Style and Coding Standards (Revised Indian
+        Hill)</a>
+      </li>
+      <li>
+        <a
+        href="http://www.doc.ic.ac.uk/lab/cplus/c++.rules/">Programming
+        in C++, Rules and Recommendations (Ellemtel)</a>
+      </li>
+      <li>
+        <a
+        href="http://g.oswego.edu/dl/html/javaCodingStd.html">Doug
+        Lea's Draft Java Coding Standard</a>
+      </li>
+      <li>
+        <a
+        href="http://www.ambysoft.com/javaCodingStandards.html">AmbySoft
+        Inc.'s Java Coding Standard</a>
+      </li>
+      <li>
+        <a
+        href="http://java.sun.com/docs/codeconv/html/CodeConventionsTOC.doc.html">
+        JavaSoft Coding Standards</a>
+      </li>
+      <li>
+        <a
+        href="http://developer.netscape.com/docs/technote/java/codestyle.html">
+        Netscape Coding Standards</a>
+      </li>
+    </ul>
+  </body>
+</html>

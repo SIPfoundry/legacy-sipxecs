@@ -1,0 +1,153 @@
+#!/usr/bin/env ruby
+
+require 'rexml/document'
+
+## Fix for entity expansion problem in REXML
+module REXML
+  class Entity < Child
+    def unnormalized
+      v = value()
+      return nil if v.nil?
+      @unnormalized = Text::unnormalize(v, parent)
+      @unnormalized
+    end
+  end
+end
+
+include REXML
+
+class XmlToProperies
+  def initialize(xml, props)
+    @xml = xml
+    @props = props    
+  end
+  
+  def run
+    params = { :compress_whitespace => %w{ description }, :ignore_whitespace_nodes => :all }
+    model = Document.new(@xml, params).root
+    @props.puts '## types'
+    parse_types(model)
+    @props.puts '## settings'
+    parse_group('', model)
+  end
+
+  def parse_types(node)
+    node.each_element('type/enum') do | enum |
+      id = enum.parent.attributes['id']      
+      prefix = "type.#{id}"
+      parse_enum(prefix, enum)
+	  @props.puts "\n"      
+    end  
+  end
+  
+  def parse_enum(prefix, enum)
+    enum.each_element('option') do | option |
+      value_text = text(option, 'value')
+      label_text = text(option, 'label')
+      put_property("#{prefix}.#{value_text}", label_text)
+    end
+  end
+  
+  def parse_group(prefix, node)
+    node.each_element('group|setting') do | x |
+      name = name(x)
+      key = if prefix.empty?
+        name
+      else
+        "#{prefix}.#{name}"
+      end
+      parse_setting(key, x)
+      @props.puts "\n"
+      parse_group(key, x) if x.name == 'group'
+    end
+  end
+  
+  def parse_setting(key, node)
+    label_text = text(node, 'label')
+    description_text = text(node, 'description')
+    put_property("#{key}.label", label_text)
+    put_property("#{key}.description", description_text)
+    node.each_element('type/enum') do | enum |
+    	parse_enum("#{key}.label", enum)
+    end
+  end
+  
+  def text(parent, element_name)
+    element = parent.elements[element_name]
+    return '' unless element
+    text = element.text
+    return '' unless text
+    return text.strip.gsub("\n", " \\\n")
+  end
+  
+  def name(node)
+    return node.attributes['name']
+  end
+  
+  def put_property(key,label)
+  	comment = label.empty? ? '#' : ''  	
+  	@props.puts "#{comment}#{key}=#{label}"  	
+  end
+end
+
+
+def props_name(file_name)
+  return unless file_name
+  File.join(File.dirname(file_name), File.basename(file_name, ".xml") + ".properties")
+end
+
+def usage_exit
+  usage = <<__EOU__
+  Usage:
+    #{ $0 } [-file phone.xml]
+  Create properties file from label and description information contained in xml file.
+  If file name is provided properties file is created wuth the same base name and in the 
+  same directory as xml file.
+  
+  Options:
+   -f,--file                  name of the xml file
+__EOU__
+  
+  STDERR << usage
+  exit 1    
+end
+
+if __FILE__ == $0
+  
+  require 'getoptlong'
+  
+  OptSet = [
+    ['--file','-f', GetoptLong::REQUIRED_ARGUMENT],
+    ['--help','-h', GetoptLong::NO_ARGUMENT],
+  ]
+  
+  opts = GetoptLong.new(*OptSet)
+  
+  file_name = nil
+  
+  begin
+    opts.each do |name, arg|
+      case name
+      when "--file"
+        file_name = arg
+      else
+        usage_exit
+      end
+    end
+  rescue
+    usage_exit
+  end  
+  
+  usage_exit if opts.error? 
+  
+  begin
+    xml = file_name ? File.open(file_name, 'r') : STDIN
+    props_file_name = props_name(file_name)
+    props = props_file_name ? File.open(props_file_name, 'w'): STDOUT
+    $stderr.puts "Processing #{file_name} to #{props_file_name}..." if file_name
+    XmlToProperies.new(xml, props).run    
+  ensure
+    xml.close if xml && file_name
+    props.close if props && file_name
+  end
+end

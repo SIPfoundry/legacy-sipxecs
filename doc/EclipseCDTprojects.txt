@@ -1,0 +1,109 @@
+This document describes how to use Eclipse project files for the sipx
+C++ projects, similar to the ones that exist for the Java projects
+(sipXconfig).
+
+The key to getting builds and output in the proper place (which
+might be unique for each designer) is some environment settings which
+should be set in each Eclipse workspace once (see instructions below).
+You should use a different Eclipse workspace for each branch (same as
+for the Java projects).
+
+Each sipx component is set up as a project, so that there are project
+files which allow each to be built and executed/debugged individually.
+The default configuration runs "make all install" for each project, since
+the intended usage for this build is during tight development cycles.
+You can switch to the "check" configuration to do the tests.
+
+You will need to get Eclipse (version 3.3.0 at least)
+(http://www.eclipse.org/downloads/) and the Eclipse CDT
+(download.eclipse.org/tools/cdt/releases/europa).  I also recommend the
+Subversion plug-in (subclipse.tigris.org/update_1.2.x).
+
+Here are the instructions to use these project files:
+
+  1. get the source as usual
+  2. configure the source as usual
+  3. run "make build" once (optional, but it helps because it creates 
+     the output dir)
+  4. launch Eclipse.  As for the Java projects, you should use a different
+     workspace for each version. The workspace should not be in the source
+     tree: choose ~/workspaces/<version> or something similar.
+
+Before using the projects it is important to setup the SIPX_OUT variable
+as follows:
+  1. Select "Preferences" from the "Window" menu. The Preferences window
+     will appear.  
+  2. Expand the "General" node in the tree view, then the "Workspace" node, 
+     and select "Linked Resources" 
+  3. Add a New variable to map SIPX_OUT to the folder that contains the 
+     output for this branch on your system (e.g. ~/out/main).
+
+You must also setup a variable in the C/C++ Settings to point to the
+build folder on your system:
+  1. Select "Preferences" from the "Window" menu. 
+  2. Select "C/C++" then "Environment" 
+  3. Add a New variable to map SIPX_MYBUILD to the folder that contains
+     the build folder for this branch on your system
+     (e.g. /home/sipx/src/main/MYBUILD) (must be an absolute path,
+     i.e. no ~).
+
+Java variables are set under Java->Build Path->Classpath.  Set SIPX_SRC_TOP
+to point to the top-level source directory, and SIPX_BUILD_TOP to point to
+your top-level build dir.
+
+You might want to adjust the settings for building, as I found that I
+prefer to tell Eclipse when to build, rather than it deciding it should
+on its own:
+  * clear "Build before launching"
+    (Window->Preferences->Run/Debug->Launching "Build (if required)
+    before launching")
+  * clear "Build automatically" (Window->Preferences->General->Workspace
+    "Build automatically")
+  * set "Save before build" (Window->Preferences->General->Workspace
+    "Save automatically before build")
+
+Import the project files (you will get both C++ and Java projects):
+   1. Select "Import..." from the "File" menu. 
+   2. Expand the "General" node in the tree view, then select "Existing
+   Projects into Workspace"
+   3. Set the Root Directory to the folder that contains the source
+   on your system (e.g. ~/src/main).  Import all projects (do not copy
+   into workspace).
+
+Exit Eclipse and restart it to allow the environment variables to
+take effect.
+
+Hints on usage:
+==============
+
+If it doesn't come up by itself, switch to the "C/C++ Perspective" view
+(Window->Open Perspective->Other)
+
+To get really good indexing and code completion (ctrl-space), turn on
+"Index all files" (Window->Preferences->C/C++->Indexer "Index all files").
+It only takes about two or three minutes to build.
+
+To build a project: click on it, then on the hammer in the tool bar
+(or choose Project->Build project)  It does "make all install".  
+TODO: add a target or a configuration to run the tests as well.
+
+To run a project: (first you must have turned off the watchdog by 
+setting "process enable=false" in 
+~/out/main/etc/sipxpbx/process.d/xxx.process.xml; or run sipxproc -k
+<processName>) click on it, then on the green play button on the tool bar
+(or choose Run->Run)
+
+To debug a project: (turn off watchdog as above): click on it, then on
+the bug on the tool bar (or choose Run->Debug)
+
+To set sipx coding standards (a start, anyway), go to
+Window->Preferences->C/C++->Code Style, and press "Import".  Navigate to
+<sipx root>/sipXpbx/meta and select the file eclipse.code-style.xml.
+This sets the proper brace logic, and the 3space indent standard.
+Perhaps more could come here also.
+
+To change the font size in the code window: select Windows->Preferences,
+then General->Appearance->Colors and Fonts.  Expand Basic and change
+the font size for "Text Font" (bottom of the list).  Of course you can
+configure it any way you want!
+

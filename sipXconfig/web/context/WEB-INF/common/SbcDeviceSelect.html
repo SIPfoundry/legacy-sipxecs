@@ -1,0 +1,6 @@
+<select jwcid="sbcDeviceSelect@common/FlexiblePropertySelection"
+  model="ognl:decorateModel(model)"
+  value="ognl:selectedAction"
+  renderer="bean:render"
+  isExternalSBCOnly="ognl:isExternalSBCOnly"
+  onchange="literal:javascript:this.form.submit();"/>

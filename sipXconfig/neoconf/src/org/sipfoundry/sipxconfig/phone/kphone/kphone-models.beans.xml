@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="kphoneStandard" parent="abstractPhoneModel">
+    <property name="label" value="KPhone" />
+    <property name="beanId" value="kphone" />
+    <property name="defaultProfileLocation" ref="httpProfileLocation" />
+    <property name="profileTemplate" value="kphone/kphonerc.vm" />
+	<property name="vendor" value="KPhone"/>
+  </bean>
+
+  <bean id="kphone" class="org.sipfoundry.sipxconfig.phone.kphone.KPhone" singleton="false" parent="abstractPhone">
+  </bean>
+</beans>

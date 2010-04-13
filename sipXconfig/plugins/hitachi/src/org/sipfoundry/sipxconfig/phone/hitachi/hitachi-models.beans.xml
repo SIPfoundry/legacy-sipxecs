@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- models -->
+  <bean id="hitachiModel" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="hitachi" />
+    <property name="label" value="Hitachi Wireless IP 3000" />
+    <property name="maxLineCount" value="1" />
+    <property name="profileTemplate" value="hitachi/user.ini.vm" />
+    <property name="staticProfileFilenames">
+      <list>
+        <value>loadrun.ini</value>
+      </list>
+    </property>
+	<property name="vendor" value="Hitachi"/>
+  </bean>
+
+  <bean id="hitachi3000" parent="hitachiModel">
+    <property name="label" value="Hitachi Wireless IP 3000" />
+  </bean>
+  <bean id="hitachi5000" parent="hitachiModel">
+    <property name="label" value="Hitachi Wireless IP 5000" />
+  </bean>
+  <bean id="hitachi5000A" parent="hitachiModel">
+    <property name="label" value="Hitachi Wireless IP 5000A" />
+  </bean>
+
+  <!-- implementation -->
+  <bean id="hitachi" class="org.sipfoundry.sipxconfig.phone.hitachi.HitachiPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+</beans>

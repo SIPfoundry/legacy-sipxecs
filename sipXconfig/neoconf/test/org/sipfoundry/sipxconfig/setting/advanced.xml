@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+    <group name="advanced" advanced="yes">
+        <label>Group Label</label>
+        <profileName>Group Profile Name</profileName>
+        <description>Group Description</description>
+        <setting name="setting">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type/>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+    </group>
+    <group name="not-advanced">
+        <label>Group Label</label>
+        <profileName>Group Profile Name</profileName>
+        <description>Group Description</description>
+        <setting name="setting">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type/>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+    </group>
+    <group name="advanced-setting">
+        <label>Group Label</label>
+        <profileName>Group Profile Name</profileName>
+        <description>Group Description</description>
+        <setting name="setting" advanced="yes">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type/>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+    </group>
+    <group name="advance-and-advanded-setting" advanced="yes">
+        <label>Group Label</label>
+        <profileName>Group Profile Name</profileName>
+        <description>Group Description</description>
+        <setting name="setting" advanced="yes">
+            <label>Setting Label</label>
+            <profileName>Setting Profile Name</profileName>
+            <type/>
+            <value></value>
+            <description>Setting Description</description>
+        </setting>
+    </group>
+</model>

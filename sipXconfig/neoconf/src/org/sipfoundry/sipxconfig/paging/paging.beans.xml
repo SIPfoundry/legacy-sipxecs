@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="pagingConfiguration" class="org.sipfoundry.sipxconfig.paging.PagingConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="sipxpage/sipxpage.properties.vm" />
+    <property name="name" value="sipxpage.properties" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="pagingContext" ref="pagingContext" />
+  </bean>
+
+  <bean id="pagingServer" class="org.sipfoundry.sipxconfig.paging.PagingServer" scope="prototype">
+    <property name="prefix" value="*77" />
+    <property name="sipTraceLevel" value="NONE" />
+  </bean>
+
+  <bean id="pagingContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingContextImpl">
+    <lookup-method name="createPagingServer" bean="pagingServer" />
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
+    <property name="pagingProvisioningContext" ref="pagingProvisioningContext" />
+  </bean>
+
+  <bean id="pagingProvisioningContextImpl" class="org.sipfoundry.sipxconfig.paging.PagingProvisioningContextImpl">
+    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+  </bean>
+
+  <alias alias="pagingProvisioningContext" name="pagingProvisioningContextImpl" />
+
+  <bean id="pagingContextUserDelete" factory-bean="pagingContextImpl" factory-method="createUserDeleteListener" />
+
+  <bean id="pagingContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
+    depends-on="pagingContextUserDelete">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.paging.PagingContext" />
+    <property name="target">
+      <ref local="pagingContextImpl" />
+    </property>
+  </bean>
+</beans>

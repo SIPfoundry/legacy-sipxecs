@@ -1,0 +1,5 @@
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <acd_server acd_server_id="1001" location_id="1000" port="8100"/>
+  <acd_line acd_line_id="2001" name="l1" acd_server_id="1001" extension="7777"/>
+</dataset>

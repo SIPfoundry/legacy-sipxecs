@@ -1,0 +1,4 @@
+Upload.spec=test2Firmware
+File.setting=firmware2
+Upload.file=firmware2.cfg
+ActivateByDefault=True

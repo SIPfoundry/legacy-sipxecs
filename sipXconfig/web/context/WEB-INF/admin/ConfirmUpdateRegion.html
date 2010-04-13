@@ -1,0 +1,19 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <form jwcid="form@Form" delegate="bean:validator">
+    <fieldset>
+      <p><span key="msg.reset">reset warning...</span></p>
+    </fieldset>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="reset@Submit" id="form:ok" type="submit"
+          listener="listener:reset"
+          value="message:button.ok"/>
+      </li>
+      <li>
+        <input jwcid="cancel@Submit" id="form:cancel" type="submit"
+          listener="listener:cancel"
+          value="message:button.cancel"/>
+      </li>
+    </ul>
+  </form>
+</div>

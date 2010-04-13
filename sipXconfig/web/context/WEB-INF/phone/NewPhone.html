@@ -1,0 +1,18 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@setting/GroupCloud" groups="ognl:phoneContext.groups"/>
+  <div jwcid="@common/QuickHelp" value="message:help.newPhone">phone config help text here...</div>
+  <span jwcid="@phone/PhoneLabel" phone="ognl:phone" renderSerialNumber="ognl:false"/>
+  <form jwcid="@Form" name="phone:new" delegate="bean:validator">
+    <span jwcid="@phone/EditPhoneForm"
+      phone="ognl:phone"
+      validator="bean:validator"/>
+    <checkbox id="phone:stay"
+      jwcid="stay@Checkbox"
+      value="ognl:stay"/>
+    <label for="phone:stay"><span key="prompt.another">Another one?</span></label>
+    <span jwcid="@common/FormActions"
+      listener="listener:addPhone"
+      callback="ognl:callback"
+      includeApplyButton="ognl:false"/>
+  </form>
+</div>

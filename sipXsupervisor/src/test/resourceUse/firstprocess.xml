@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>First</name>
+  <version>1.0.0</version>
+  <commands>
+    <configtest>
+      <defaultDir>/var/log/firstprocess</defaultDir>
+      <execute>/bin/firstprocess1.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <user>firstuser</user>
+      <execute>/bin/firstprocess2.sh</execute>
+    </start>
+    <stop>
+      <execute>/bin/firstprocess3.sh</execute>
+      <parameter>--stop</parameter>
+      <parameter>--really</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>/var/run/firstprocess.pid</pid>
+    <log>/var/log/firstprocess.log</log>
+  </status>
+  <resources>
+    <file>/etc/sipxpbx/firstprocess.xml</file>
+    <file>/etc/sipxpbx/common.xml</file>
+    <directory>
+      <path>/etc/sipxpbx/commondir</path>
+      <filePattern configAccess='write-only'>*-first.xml</filePattern>
+      <filePattern configAccess='write-only'>*-common.xml</filePattern>
+    </directory>
+    <osconfig required='false'>/etc/sipxpbx/firstprocess-config</osconfig>
+    <imdb configAccess='read-only'>firsttable</imdb>
+    <sqldb>
+       <dbname>FIRST</dbname>
+    </sqldb>
+  </resources>
+</sipXecs-process>

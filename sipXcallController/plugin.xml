@@ -1,0 +1,13 @@
+<?xml version="1.0" ?>
+<rest-service xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxrest-service-00-00">
+	<plugin-class>org.sipfoundry.callcontroller.CallControllerPlugin</plugin-class>
+	<security-level>LOCAL-AND-REMOTE</security-level>
+	<remote-authentication-method>BASIC-AND-DIGEST</remote-authentication-method>
+	<uri-prefix>/callcontroller</uri-prefix>
+	<sip-listener-class>org.sipfoundry.callcontroller.SipListenerImpl</sip-listener-class>
+	<sip-convergence-name>callcontroller</sip-convergence-name>
+	<service-description>
+	<![CDATA[ The call controller plugin. 
+	Invoke this using the URI /callcontroller/{callingParty}/{calledParty}?agentId ]]>
+	</service-description>
+</rest-service>

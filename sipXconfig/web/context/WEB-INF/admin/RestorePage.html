@@ -1,0 +1,98 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'restore', 'upload', 'log'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="restoreTab@Block">
+  <span jwcid="@common/QuickHelp" value="message:restore.quick.help"/>
+
+  <form jwcid="renderForm@Form" delegate="bean:validator" listener="listener:formSubmit">
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel"
+             for="backupPlan:type"
+             field="component:type"
+             label="message:backupPlan.label"
+             description="message:backupPlan.description">
+             <select jwcid="type@PropertySelection"
+               model="ognl:backupPlanTypeModel"
+               value="ognl:backupPlanType"
+               id="backupPlan:type"
+               onchange="javascript:this.form.submit();"/>
+          </tr>
+        </tbody>
+      </table>
+  </form>
+  <span jwcid="F_Panel@Block">
+     <span jwcid="conf@admin/BackupRestoreConfigurationPanel" containerPage="ognl:page" />
+  </span>
+  <span jwcid="L_Panel@Block"/>
+  <span jwcid="@RenderBlock" block="ognl:components.get(backupPlanType + '_Panel')" />
+
+  <span jwcid="@If" condition="ognl:backups.empty">
+    <p><span key="message.noBackups">There is no backup files saved in the backup folder.</span></p>
+  </span>
+  <span jwcid="@Else">
+      <form jwcid="@Form" id="backups:form" delegate="bean:validator">
+        <fieldset>
+          <table>
+            <span jwcid="@For" source="ognl:backups" value="ognl:currentFolder" renderTag="false">
+              <tr>
+                <td colspan="2"><span jwcid="@Insert" value="ognl:currentFolderName"/>
+              </tr>
+              <tr>
+                <td jwcid="@For" source="ognl:backupTypes" value="ognl:currentType">
+                  <span jwcid="@If" condition="ognl:currentFolder[currentType]" renderTag="false">
+                    <span jwcid="defaultValue@Checkbox" value="ognl:selections.selected[currentFolder[currentType].file]"/>
+                    <span jwcid="@common/DownloadLink" fileName="" dirName="ognl:currentFolder[currentType].file.path" contentType="literal:tar/x-gzip">
+                      <span jwcid="@Insert" value="ognl:currentBackupName"/>
+                    </span>
+                  </span>
+                </td>
+              </tr>
+            </span>
+          </table>
+        </fieldset>
+        <ul class="component-submit">
+          <li>
+            <input jwcid="restore@Submit" id="backups:restore" listener="listener:restore" tag="selections.allSelected" value="message:button.restore"/>
+            <span jwcid="@common/Confirm" component="component:restore" prompt="message:confirm.restore"/>
+          </li>
+        </ul>
+      </form>
+    </span>
+  </span>
+  <span jwcid="uploadTab@Block">
+    <span jwcid="@common/QuickHelp" value="message:upload.quick.help"/>
+      <form jwcid="upload@Form">
+        <fieldset>
+          <table>
+            <tr jwcid="@common/FieldPanel"
+              field="component:configuration"
+                  label="message:backup.CONFIGURATION">
+                  <td jwcid="configuration@Upload"
+                file="ognl:uploadConfigurationFile" />
+            </tr>
+            <tr jwcid="@common/FieldPanel"
+              field="component:voicemail"
+                  label="message:backup.VOICEMAIL">
+                  <td jwcid="voicemail@Upload"
+                file="ognl:uploadVoicemailFile" />
+            </tr>
+          </table>
+        </fieldset>
+        <ul class="component-submit">
+          <li>
+            <input jwcid="uploadbutton@Submit" id="backups:uploadbutton" value="message:button.restore" listener="listener:uploadAndRestoreFiles"/>
+          </li>
+        </ul>
+    </form>
+  </span>
+  <span jwcid="logTab@Block">
+    <span jwcid="@common/QuickHelp" value="message:log.quick.help"/>
+    <form jwcid="log@Form">
+      <textarea jwcid="@TextArea" rows="30" cols="75" readonly="readonly" value="ognl:log">file</textarea>
+    </form>
+  </span>
+</div>

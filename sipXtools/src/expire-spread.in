@@ -1,0 +1,278 @@
+#!/usr/bin/perl
+use Getopt::Long;
+
+$sampleSize = 60;
+
+$Usage = <<HELP;
+
+expire-spread  [ --db <database.xml> ]
+                 [ { --real | -r } ]
+                 [ { --summary | -s } ]
+                 [ --sample <seconds> ]
+
+   Show how subscriptions and/or registrations are distributed over time.
+   By default, a histogram is printed showing the number of expirations
+   and the rate per second in each sample interval.
+
+   If a specific database is given, only that database is displayed.
+
+   --real      use the actual current time to determine whether or not
+               a registration or subscription has expired.  If this is
+               not specified, the timestamp in the database is used.
+
+   --summary   limit the report to the number active and the peak rate
+               (in expirations/second), without showing data for each
+               interval.
+
+   --sample    specify the interval size in seconds (default is $sampleSize).
+
+HELP
+
+GetOptions( 'help|h' => \$Help,
+            'db=s' => \$Db,
+            'real|r' => \$UseRealTime,
+            'summary|s' => \$Summary,
+            'sample=i' => \$sampleSize,
+            )
+    || exit -1;
+
+if ( $Help )
+{
+    print STDERR $Usage;
+    exit $Help ? 0 : 1;
+}
+
+if ($Db)
+{
+    push @Db, $Db;
+}
+else
+{
+    push @Db, '@SIPX_DBDIR@/registration.xml';
+    push @Db, '@SIPX_DBDIR@/subscription.xml';
+}
+
+format SUMMARY_TOP =
+===============================================================
+.
+
+format SUMMARY =
+
+Database:  @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+$DbName
+Timestamp: @<<<<<<<<<<<<<<<<<<
+&asDate($BaseTime)
+Earliest:  @<<<<<<<<<<<<<<<<<<
+&asTime($Earliest)
+Latest:    @<<<<<<<<<<<<<<<<<<
+&asTime($Latest)
+Expired:   @#####
+$Expired
+Live:      @#####
+$Live
+Total:     @#####
+$Total
+FirstPeak: @<<<<<<<<<<<<<<<<<<
+&asTime($PeakTime)
+PeakCount: @#####
+$InSample{$PeakTime}
+PeakRate:  @###.#
+$PerSecond{$PeakTime}
+
+.
+    ;
+format SERVER =
+Dist: @##### @##% @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+$AtServer{$_}, ($AtServer{$_}*100) / $Live,  $_
+.
+    ;
+
+format HISTO_TOP =
+
+  from   ->    to      count   rate  expirations
+--------------------   -----  ------ ------------------------------------------------------------
+.
+    ;
+format HISTO =
+@<<<<<<< -> @<<<<<<<   @####  @###.# @<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+&asTime($tick), &asTime($toTick), $InSample{$tick}, $PerSecond{$tick}, $graph
+.
+    ;
+
+$= = 100000;
+
+foreach $Db (@Db)
+{
+
+    ( $DbName = $Db ) =~ s|(.*/)?([^/]+)\.xml|$2|;
+    if ( open( DB, "<$Db" ) )
+    {
+        $- = 0;
+
+        %ExpirationsAt = ();
+        %AtServer = ();
+        $BaseTime = time();
+        $Live = 0;
+        $Expired = 0;
+        $Latest = 0;
+        $Earliest = 0xffffffff;
+
+        $~ = STDOUT;
+
+        while(<DB>)
+        {
+            if ( m|timestamp="(\d+)"| )
+            {
+                $BaseTime = $1 unless $UseRealTime;
+            }
+
+            if ( m|<item>| )
+            {
+                $reg_exp=0;
+                $reg_at='';
+            }
+            elsif ( m|<expires>(\d+)</expires>| )
+            {
+                $reg_exp=$1;
+            }
+            elsif ( m|<primary>(.+)</primary>| )
+            {
+                $reg_at=$1;
+            }
+            if ( m|</item>| )
+            {
+                if ( $reg_exp != 0 )
+                {
+                    $delta = $reg_exp-$BaseTime;
+                    if ( $delta >= 0 )
+                    {
+                        $ExpirationsAt{$reg_exp}++;
+                        $Latest = $reg_exp
+                            if $reg_exp > $Latest;
+                        $Earliest = $reg_exp
+                            if $reg_exp < $Earliest;
+
+                        $Live++;
+                        $AtServer{$reg_at}++;
+                    }
+                    else
+                    {
+                        $Expired++;
+                    }
+                }
+                else
+                {
+                    warn "no expiration found for item\n";
+                }
+            }
+        }
+
+        $Total = $Live + $Expired;
+
+        for ( $tick = $BaseTime; $tick <= $Latest; $tick+=$sampleSize )
+        {
+            $InSample{$tick} = 0;
+            $toTick = $tick+$sampleSize;
+            for ( $sampleTick = $tick; $sampleTick < $toTick; $sampleTick++ )
+            {
+                $InSample{$tick} += $ExpirationsAt{$sampleTick};
+            }
+            $PerSecond{$tick} = $InSample{$tick}/$sampleSize;
+            if ($PerSecond{$tick} > $peakRate)
+            {
+                $peakRate = $PerSecond{$tick};
+                $PeakTime = $tick;
+            }
+        }
+
+        $^ = SUMMARY_TOP;
+        $~ = SUMMARY;
+        $- = 0;
+        write;
+
+        if ( $Total && scalar keys %AtServer )
+        {
+            $~ = SERVER;
+            foreach ( sort keys %AtServer )
+            {
+                write;
+            }
+        }
+
+
+        $^ = HISTO_TOP;
+        $~ = HISTO;
+        $- = 0;
+        if ( ! $Summary )
+        {
+            for ( $tick = $BaseTime; $tick <= $Latest; $tick+=$sampleSize )
+            {
+                $toTick = $tick+$sampleSize;
+                if ( $InSample{$tick} > 60 )
+                {
+                    $graph = ('#' x 55) . '>>>>>';
+                }
+                else
+                {
+                    $graph = '#' x $InSample{$tick};
+                }
+                write;
+            }
+        }
+    }
+    else
+    {
+        warn "open of '$Db' failed: $!\n";
+    }
+}
+
+sub asDate
+{
+    my $Epoch = shift;
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+        localtime($Epoch);
+
+    $mon += 1;
+    $year += 1900;
+
+    return sprintf( "%04d-%02d-%02dT%02d:%02d:%02d", $year, $mon, $mday, $hour, $min, $sec);
+}
+
+sub asTime
+{
+    my $Epoch = shift;
+    my $Time;
+    ( $Time = asDate $Epoch ) =~ s/\d{4}-\d{2}-\d{2}T//;
+
+    return $Time;
+}
+
+sub relativeTime
+{
+    my $Epoch = shift;
+    my $difference = $Epoch-$BaseTime;
+
+    if ( $difference < 0 )
+    {
+        $sign="-";
+        $difference = abs($difference);
+    }
+    else
+    {
+        $sign="+";
+    }
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) =
+        gmtime($difference);
+
+    $year -= 70;
+    $mday -= 1;
+
+    if ( $difference <= 24*60*60 )
+    {
+        return sprintf( "%s%02d:%02d:%02d", $sign, $hour, $min, $sec);
+    }
+    else
+    {
+        return sprintf( "%s%04d-%02d-%02d %02d:%02d:%02d", $sign, $year, $mon, $mday, $hour, $min, $sec);
+    }
+}

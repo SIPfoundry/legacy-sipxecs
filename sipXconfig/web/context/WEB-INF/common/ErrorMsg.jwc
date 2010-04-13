@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.apache.tapestry.BaseComponent" allow-body="no" allow-informal-parameters="no">
+  <!-- P A R A M E T E R S -->
+  <!-- by default it'll work with validator bean defined on the page -->
+  <!-- one can pass another validator as a parameter -->
+  <parameter name="validator"  required="no" default-value="page.beans.validator" >
+  </parameter>
+  <!-- C O M P O N E N T S -->
+  <component id="hasErrors" type="If">
+    <binding name="condition" value="validator.hasErrors"/>
+  </component>
+  <component id="firstError" type="Delegator">
+    <binding name="delegate" value="validator.firstError"/>
+  </component>
+  <component id="hasSuccess" type="If">
+    <binding name="condition" value="validator.hasSuccess"/>
+  </component>
+  <component id="firstSuccess" type="Insert">
+    <binding name="value" value="validator.success"/>
+  </component>
+</component-specification>

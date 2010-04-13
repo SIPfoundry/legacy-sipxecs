@@ -1,0 +1,38 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+	http://track.sipfoundry.org/browse?XPB
+
+
+Release Notes - sipXpublisher - Version 2.6.2
+
+** Bug
+   * [XRR-30] Correct handling of from tags when checking nonce;
+   * [XPB-106] Raise default logging level to NOTICE.
+
+Release Notes - sipXpublisher - Version 2.6.1
+
+** Bug
+    * [XPS-5] - NOTIFY messages are not RFC 3842 compliant
+    * [XPS-6] - Junk certificate files need to be removed from sipXpublisher
+    * [XPS-8] - rpm build error
+    * [XPS-9] - make rpm in sipXpublisher yields error trying to install status-config.in
+    * [XPS-12] - sipXpublisher dumping core .
+    * [XPS-13] - NOTIFY messages are not properly sent in the dialog
+    * [XPS-14] - SIP_STATUS_MAX_EXPIRES is ignored
+
+** New Feature
+    * [XPS-7] - RPM installer for publisher
+
+Release Notes - sipXpublisher - Version 2.5.2
+
+** Bug
+    * [XPS-4] - sipstatus.log in etc/sipxpbx dir, should be in var/log
+
+** Improvement
+    * [XPS-3] - Clean up code to remove all warnings.
+
+Release Notes - sipXpublisher - Version 2.5.1
+
+** Bug
+    * [XPS-2] - won't build with sipXportLib

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="snomModel" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="snom" />
+    <property name="defaultProfileLocation" ref="httpProfileLocation" />
+    <property name="profileTemplate" value="snom/snom.vm" />
+    <property name="vendor" value="SNOM" />
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="snom300" parent="snomModel">
+    <property name="label" value="Snom 300" />
+    <property name="maxLineCount" value="4" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="snom320" parent="snomModel">
+    <property name="label" value="Snom 320" />
+    <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="snom360" parent="snomModel">
+    <property name="label" value="Snom 360" />
+    <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+        <value>blf</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="snom370" parent="snomModel">
+    <property name="label" value="Snom 370" />
+    <property name="maxLineCount" value="12" />
+    <property name="supportedFeatures">
+      <set>
+        <value>intercom</value>
+        <value>blf</value>
+      </set>
+    </property>
+  </bean>
+  <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" singleton="false" parent="abstractPhone">
+    <property name="speedDialManager" ref="speedDialManager" />
+  </bean>
+</beans>

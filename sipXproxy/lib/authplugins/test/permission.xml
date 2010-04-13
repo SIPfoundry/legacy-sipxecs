@@ -1,0 +1,11 @@
+<?xml version="1.0" standalone="yes" ?>
+<items type="permission">
+    <item>
+        <identity>mightyhunter@enforce.example.com</identity>
+        <permission>hunting</permission>
+    </item>
+    <item>
+        <identity>supercaster@enforce.example.com</identity>
+        <permission>fishing</permission>
+    </item>
+</items>

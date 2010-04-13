@@ -1,0 +1,29 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+        <h2><span key="PinTitle">Change PIN</span></h2>
+	    <span jwcid="@common/ErrorMsg"/>
+        <div id="settings-content">
+			<form jwcid="form" id="changePin:form">
+		        <table>
+		            <tr>
+						<td>
+			                <label for="changePin:currentPin">
+			                    <span jwcid="currentPinLabel">Current PIN</span>:
+			                </label>
+			            </td>
+						<td>
+							<input jwcid="currentPin" id="changePin:currentPin"/>
+						</td>
+		            </tr>
+					<span jwcid="newPin"/>
+		        </table>
+		    	<ul jwcid="formActions"/>
+			</form>
+        </div>
+    </div>
+</body>
+</html>

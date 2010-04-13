@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="location" class="org.sipfoundry.sipxconfig.admin.commserver.Location" scope="prototype">
+	<property name="fqdn" value="localhost"/>
+	<property name="daoEventPublisher" ref="daoEventPublisher" />
+  </bean>
+
+  <bean id="locationsManagerImpl"
+    class="org.sipfoundry.sipxconfig.admin.commserver.LocationsManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="daoEventPublisher" ref="daoEventPublisher" />
+  </bean>
+
+  <bean id="locationsManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.commserver.LocationsManager</value>
+    </property>
+    <property name="target">
+      <ref local="locationsManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="locationsMigrationTrigger"
+    class="org.sipfoundry.sipxconfig.admin.commserver.LocationsMigrationTrigger">
+    <property name="locationsManager">
+      <ref local="locationsManager" />
+    </property>
+    <property name="configDirectory" value="${sysdir.etc}"/>
+    <property name="topologyFilename" value="topology.xml"/>
+    <property name="networkPropertiesFilename" value="sipxconfig-netif" />
+    <property name="taskNames">
+      <list>
+        <value>migrate_locations</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="zoneAdminApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="ZoneAdminRpc." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.admin.commserver.ZoneAdminApi" />
+  </bean>
+
+  <bean id="dnsGenerator" class="org.sipfoundry.sipxconfig.admin.commserver.DnsGeneratorImpl">
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="zoneAdminApiProvider" ref="zoneAdminApiProvider" />
+  </bean>
+
+  <bean id="fileApiProvider"
+    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="File." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.admin.commserver.imdb.FileApi" />
+  </bean>
+
+  <bean id="imdbProvider"
+    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="ImdbTable." />
+    <property name="secure" value="true" />
+    <property name="timeout" value="25000" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbApi" />
+  </bean>
+
+  <bean id="replicationManagerImpl"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl">
+    <property name="fileApiProvider" ref="fileApiProvider"/>
+    <property name="imdbApiProvider" ref="imdbProvider"/>
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
+  </bean>
+
+  <bean id="sipxReplicationContextImpl"
+    class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
+    <property name="replicationManager" ref="replicationManagerImpl" />
+    <property name="jobContext" ref="jobContext" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="validUsersConfig" ref="validUsersConfig" />
+    <lookup-method name="getServiceConfigurator" bean="serviceConfigurator"/>
+  </bean>
+
+  <bean id="sipxReplicationContextDao"
+    class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="interceptorNames">
+      <list>
+        <value>readOnlyHibernateInterceptor</value>
+      </list>
+    </property>
+    <property name="proxyInterfaces">
+      <value>
+        org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext
+      </value>
+    </property>
+    <property name="target">
+      <ref local="sipxReplicationContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="sipxReplicationContext"
+    class="org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl"
+    init-method="init">
+    <property name="target">
+      <ref local="sipxReplicationContextDao"></ref>
+    </property>
+  </bean>
+
+  <bean id="processManagerApiProvider"
+    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="ProcMgmtRpc." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.admin.commserver.ProcessManagerApi" />
+    <property name="timeout" value="10000" />
+  </bean>
+
+  <bean id="sipxProcessContext"
+    class="org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl">
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="processManagerApiProvider" ref="processManagerApiProvider" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
+    <property name="auditLogContext" ref="auditLogContext" />
+  </bean>
+
+  <bean id="alarmApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="Alarm." />
+    <property name="secure" value="true" />
+    <property name="serviceInterface" value="org.sipfoundry.sipxconfig.admin.commserver.AlarmApi" />
+  </bean>
+
+  <bean id="alarmContextImpl" class="org.sipfoundry.sipxconfig.common.AlarmContextImpl">
+    <property name="alarmApiProvider" ref="alarmApiProvider" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="alarmContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao"
+    depends-on="alarmContextUserDelete">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.common.AlarmContext"/>
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+      </list>
+    </property>
+    <property name="target">
+      <ref local="alarmContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="dataSetGenerator" abstract="true"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
+  <bean id="externalAliases"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases" />
+
+  <bean id="aliasCollector"
+    class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
+    <property name="includeProxies" value="true" />
+    <property name="aliasProviderBeanIds">
+      <list>
+        <value>externalAliases</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="aliasDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"
+    dependency-check="objects">
+    <property name="aliasProvider">
+      <ref local="aliasCollector" />
+    </property>
+  </bean>
+  <bean id="credentialDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials">
+    <property name="callGroupContext" ref="callGroupContext" />
+  </bean>
+  <bean id="permissionDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions">
+    <property name="callGroupContext" ref="callGroupContext" />
+  </bean>
+  <bean id="caller-aliasDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
+    <property name="gatewayContext" ref="gatewayContext" />
+    <property name="anonymousAlias"
+      value="sip:anonymous@anonymous.invalid" />
+  </bean>
+  <bean id="userlocationDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserLocation">
+  </bean>
+  <bean id="userforwardDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserForward">
+    <property name="forwardingContext" ref="forwardingContext" />
+  </bean>
+  <bean id="userstaticDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserStatic">
+  </bean>
+
+  <bean id="aliasCollectorForAA"
+    class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
+    <property name="includeProxies" value="false" />
+    <property name="aliasProviderBeanIds">
+      <list>
+        <value>callGroupContext</value>
+        <value>acdContext</value>
+        <value>conferenceBridgeContext</value>
+        <value>externalAliases</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="validUsersConfig" parent="defaultConfigurationFile"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig">
+    <property name="name" value="validusers.xml" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="aliasProvider">
+      <ref local="aliasCollectorForAA" />
+    </property>
+  </bean>
+
+  <bean id="replicationTrigger"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
+    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="settingDao" ref="settingDao" />
+  </bean>
+
+  <bean id="registrationContext"
+    class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl">
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="imdbApiProvider" ref="imdbProvider" />
+  </bean>
+
+  <bean id="initialConfig"
+    class="org.sipfoundry.sipxconfig.admin.commserver.InitialConfig">
+    <property name="tmpDirectory" value="${sysdir.tmp}"/>
+    <property name="binDirectory" value="${sysdir.libexec}"/>
+  </bean>
+
+  <bean id="phonebookFileEntryTrigger"
+    class="org.sipfoundry.sipxconfig.phonebook.PhonebookFileEntryTrigger">
+    <property name="phonebookManager" ref="phonebookManager" />
+    <property name="taskNames">
+      <list>
+        <value>phonebook_file_entry_task</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="contactInformationConfig" parent="defaultConfigurationFile"
+    class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationConfig">
+    <property name="name" value="contact-information.xml" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="restartRequired" value="false" />
+  </bean>
+
+  <bean id="contactInformationDaoListener" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener">
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <property name="configurationFile" ref="contactInformationConfig" />
+    <property name="settingDao" ref="settingDao" />
+  </bean>
+
+</beans>

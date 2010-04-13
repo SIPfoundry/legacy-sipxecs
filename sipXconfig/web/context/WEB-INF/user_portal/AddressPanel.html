@@ -1,0 +1,54 @@
+<tr>
+  <td>
+    <b><span jwcid="@Insert" value="ognl:panelLabel"/>
+  </td>
+</tr>
+<tr jwcid="@common/FieldPanel" for="street"
+  field="component:street"
+  label="message:label.street">
+  <span jwcid="street@TextField" id="street" maxlength="255"
+    value="ognl:addr.street"
+    type="text"
+    autocomplete="off"/>
+</tr>
+<tr jwcid="@common/FieldPanel" for="city"
+  field="component:city"
+  label="message:label.city">
+  <span jwcid="city@TextField" id="city" maxlength="255"
+    value="ognl:addr.city"
+    type="text"
+    autocomplete="off"/>
+</tr>
+<tr jwcid="@common/FieldPanel" for="state"
+  field="component:state"
+  label="message:label.state">
+  <span jwcid="state@TextField" id="state" maxlength="255"
+    value="ognl:addr.state"
+    type="text"
+    autocomplete="off"/>
+</tr>
+<tr jwcid="@common/FieldPanel" for="country"
+  field="component:country"
+  label="message:label.country">
+  <span jwcid="country@TextField" id="country" maxlength="255"
+    value="ognl:addr.country"
+    type="text"
+    autocomplete="off"/>
+</tr>
+<tr jwcid="@common/FieldPanel" for="zip"
+  field="component:zip"
+  label="message:label.zip">
+  <span jwcid="zip@TextField" id="zip" maxlength="255"
+    value="ognl:addr.zip"
+    type="text" autocomplete="off"/>
+</tr>
+<div jwcid="@If" condition="ognl:office" renderTag="false">
+  <tr jwcid="@common/FieldPanel" for="designation"
+    field="component:designation"
+    label="message:label.designation">
+    <span jwcid="designation@TextField" id="designation" maxlength="255"
+      value="ognl:addr.officeDesignation"
+      type="text"
+      autocomplete="off"/>
+  </tr>
+</div>

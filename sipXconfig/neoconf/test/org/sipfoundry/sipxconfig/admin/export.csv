@@ -1,0 +1,5 @@
+User name,Voice-mail PIN,SIP password,First name,Last name,User alias,EMail address,User group,Phone serial number,Phone model,Phone group,Phone description,Im Id
+"testuser","realm#1234","1234","Test","User","123","","","999123456789","testPhoneModel","","unittest-sample phone1",""
+"","","","","","","","","999123457789","testPhoneModel","","unittest-sample phone2",""
+"testuser","realm#1234","1234","Test","User","123","","","999123458789","testPhoneModel","","unittest-sample phone3",""
+"testuser","realm#1234","1234","Test","User","123","","","999123458789","testPhoneModel","","unittest-sample phone3",""

@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8' standalone='yes'?>
+<mappings xmlns='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'>
+
+  <hostMatch>
+    <name>Emergency</name>
+    <ruleType>Emergency</ruleType>
+    <hostPattern>emergency-gw</hostPattern>
+    <userMatch>
+      <userPattern>911</userPattern>
+      <permissionMatch>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+
+  <hostMatch>
+    <hostPattern>lodge</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <permission>hunting</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+
+  <hostMatch>
+    <hostPattern>boat</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <permission>fishing</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+
+  <hostMatch>
+    <hostPattern>forbidden</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <permission>NoAccess</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+
+</mappings>

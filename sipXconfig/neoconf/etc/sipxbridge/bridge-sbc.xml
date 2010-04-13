@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="switch">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="bridge-configuration">
+    <setting name="global-address" hidden="yes">
+      <label>Public address</label>
+      <description>
+        This is your public (Internet) address. Set this if your ITSP requires a public address and if you do not wish
+        to use STUN to determine that address. If you enter a public address here, any STUN settings will be ignored.
+      </description>
+    </setting>
+    <setting name="global-port">
+      <label>Public port</label>
+      <type>
+        <integer />
+      </type>
+      <description>Set this if your ITSP requires a specific port.</description>
+    </setting>
+    <setting name="external-address" hidden="yes">
+      <label>External address</label>
+      <description>
+        This is the address of the external arm of sipXbridge facing the ITSP. Normally this is an IP address on the
+        internal LAN. If sipxbridge runs in your DMZ or is connected to the Internet then this is the same as your
+        public address.
+      </description>
+    </setting>
+    <setting name="external-port">
+      <label>External port</label>
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>5080</value>
+      <description>
+        The ITSP facing port of sipXbridge that corresponds to the external address on your machine. This is the NATed
+        global port.
+      </description>
+    </setting>
+    <setting name="local-address" hidden="yes">
+      <type>
+        <string required="yes"></string>
+      </type>
+      <description>The sipXecs proxy facing address. The sipXecs proxy will send signaling here.</description>
+    </setting>
+    <setting name="local-port" hidden="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>5090</value>
+      <description>The sipXecs proxy facing port. The sipXecs proxy will send signaling here.</description>
+    </setting>
+    <setting name="sipx-proxy-domain" hidden="yes">
+      <description>The sipXecs proxy domain.</description>
+    </setting>
+    <setting name="sipx-supervisor-host" hidden="yes">
+      <!-- set from Location data -->
+    </setting>
+    <setting name="sipx-supervisor-xml-rpc-port" hidden="yes">
+      <!-- set from Location data -->
+	  <type>
+        <integer required="yes" />
+      </type>
+      <value>8092</value>
+    </setting>
+    <setting name="stun-server-address" hidden="yes">
+      <!-- set from NAT location data -->
+    </setting>
+    <setting name="sip-keepalive-seconds" advanced="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name="media-keepalive-seconds" advanced="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>1</value>
+      <description>
+        Keep-alive timer for media (RTP) in seconds. If no media flows and after the time interval expired, sipXbridge
+        will insert dummy media to keep the NAT pinhole open for the media ports.
+      </description>
+    </setting>
+    <setting name="xml-rpc-port" advanced="yes" hidden="yes">
+      <label>API port</label>
+      <type>
+        <integer />
+      </type>
+      <value>8088</value>
+      <description>
+        Port for external XML/RPC requests. If not specified, the XML RPC server is not started. The XML RPC interface
+        is used by sipXconfig to report status to the user.
+      </description>
+    </setting>
+    <setting name="call-limit" advanced="yes">
+      <label>Active call limit</label>
+      <type>
+        <integer min="-1"/>
+      </type>
+      <value>-1</value>
+      <description>
+        Number of calls that can be concurrently in progress. Specify -1 to remove call limit restriction.
+      </description>
+    </setting>
+    <setting name="music-on-hold-support-enabled">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>true</value>
+    </setting>
+
+    <setting name="music-on-hold-address" hidden="yes">
+      <label>MOH address</label>
+      <value>~~mh~</value>
+      <description>
+        The MOH server address. This can be a host@domain. If the domain part is missing, it defaults to the sipx domain.
+      </description>
+    </setting>
+
+    <setting name="music-on-hold-delay-miliseconds" hidden="yes">
+      <label>MOH delay</label>
+      <type>
+        <integer />
+      </type>
+      <value>500</value>
+      <description>
+        Delay in milliseconds before MOH plays.
+      </description>
+    </setting>
+
+    <setting name="music-on-hold-supported-codecs" advanced="yes">
+      <label>Permitted Codecs</label>
+      <value>PCMU,PCMA,G722,L16</value>
+      <description>
+        Codecs permitted for call setup. Leave blank if you do not want to restict to a specified set.
+      </description>
+    </setting>
+
+    <setting name="route-inbound-calls-to-extension" advanced="yes">
+    </setting>
+    <setting name="log-level" hidden="yes">
+      <label>Logging level</label>
+      <type>
+        <enum>
+          <option>
+            <value>OFF</value>
+          </option>
+          <option>
+            <value>INFO</value>
+          </option>
+          <option>
+            <value>WARN</value>
+          </option>
+          <option>
+            <value>ERROR</value>
+          </option>
+          <option>
+            <value>DEBUG</value>
+          </option>
+          <option>
+            <value>TRACE</value>
+          </option>
+        </enum>
+      </type>
+      <value>INFO</value>
+    </setting>
+
+    <setting name="log-directory" hidden="yes">
+      <description>Log directory. The log file name is hard coded to "sipxbridge.log".</description>
+    </setting>
+    <setting name="location-id" hidden="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+    </setting>
+  </group>
+</model>

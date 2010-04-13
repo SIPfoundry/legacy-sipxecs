@@ -1,0 +1,218 @@
+<?xml version="1.0"?>
+<!DOCTYPE jasperReport
+		  PUBLIC "-//JasperReports//DTD Report Design//EN"
+		  "http://jasperreports.sourceforge.net/dtds/jasperreport.dtd">
+
+<jasperReport name="cdr-extension-report" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="50" bottomMargin="50" whenNoDataType="AllSectionsNoDetail">
+	<reportFont name="Arial_Normal" isDefault="true" fontName="Arial" size="12" isBold="false" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+	<reportFont name="Arial_Bold" isDefault="false" fontName="Arial" size="12" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Bold" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+	<reportFont name="Arial_Italic" isDefault="false" fontName="Arial" size="12" isBold="false" isItalic="true" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Oblique" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+	<style name="Arial_Bold" isDefault="false" fontName="Arial" fontSize="8" isBold="true" isItalic="false" isUnderline="false" isStrikeThrough="false" pdfFontName="Helvetica-Bold" pdfEncoding="Cp1252" isPdfEmbedded="false"/>
+
+	<parameter name="title" class="java.lang.String"/>
+	<parameter name="start" class="java.lang.String"/>
+	<parameter name="end" class="java.lang.String"/>
+	<parameter name="logopath" class="java.lang.String"/>
+	<parameter name="bannerpath" class="java.lang.String"/>
+
+	<field name="caller" class="java.lang.String"/>
+	<field name="callee" class="java.lang.String"/>
+	<field name="recipient" class="java.lang.String"/>
+	<field name="startTime" class="java.util.Date"/>
+	<field name="duration" class="java.lang.String"/>
+	<field name="termination" class="java.lang.String"/>
+
+	<group name="CallerGroup">
+		<groupExpression><![CDATA[$F{caller}]]></groupExpression>
+		<groupHeader>
+			<band height="20">
+				<textField isBlankWhenNull="true" isStretchWithOverflow="true">
+					<reportElement mode="Opaque" x="0" y="2" width="100" height="17" forecolor="#ff0000" backcolor="#ffdddd" style="Arial_Bold"/>
+					<textElement textAlignment="Center">
+						<font isBold="true" size="10"/>
+					</textElement>
+					<textFieldExpression class="java.lang.String"><![CDATA[$F{caller}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band height="20">
+				<staticText>
+					<reportElement mode="Opaque" x="0" y="2" width="50" height="17" forecolor="#ff0000" backcolor="#ffdddd" style="Arial_Bold"/>
+					<textElement>
+						<font isBold="true" size="10"/>
+					</textElement>
+					<text><![CDATA[Count :]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Opaque" x="50" y="2" width="50" height="17" forecolor="#ff0000" backcolor="#ffdddd" style="Arial_Bold"/>
+					<textElement>
+						<font isBold="true" size="10"/>
+					</textElement>
+					<textFieldExpression class="java.lang.Integer"><![CDATA[$V{CallerGroup_COUNT}]]></textFieldExpression>
+				</textField>
+			</band>
+		</groupFooter>
+	</group>
+
+	<title>
+		<band height="70">
+                        <frame>
+                                <reportElement mode="Opaque" x="0" y="-20" width="555" height="70" backcolor="#3FD8E3"/>
+			<line>
+				<reportElement x="0" y="0" width="555" height="1"/>
+				<graphicElement/>
+			</line>
+			<image isLazy="false" isUsingCache="false" scaleImage="FillFrame">
+                               <reportElement x="0" y="0" width="555" height="70"/>
+                               <imageExpression class="java.lang.String"><![CDATA[$P{bannerpath}]]>
+                               </imageExpression>
+			</image>
+			<image isLazy="false" isUsingCache="false" scaleImage="RetainShape">
+                               <reportElement x="0" y="10" width="100" height="30"/>
+                               <imageExpression class="java.lang.String"><![CDATA[$P{logopath}]]>
+                               </imageExpression>
+			</image>
+			<textField isBlankWhenNull="true">
+				<reportElement x="120" y="10" width="305" height="30"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Normal" size="22"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
+			</textField>
+			<textField pattern="MMMMM dd, yyyy">
+			        <reportElement x="425" y="10" width="120" height="30"/>
+			        <textElement verticalAlignment="Middle" />
+			        <textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+			<textField isBlankWhenNull="true">
+				<reportElement x="0" y="40" width="555" height="30"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Normal" size="18"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$P{start} + " - " + $P{end}]]></textFieldExpression>
+			</textField>
+			</frame>
+		</band>
+	</title>
+
+	<columnHeader>
+		<band height="15">
+			<rectangle>
+				<reportElement x="0" y="0" width="555" height="15" forecolor="#333333" backcolor="#333333"/>
+				<graphicElement/>
+			</rectangle>
+			<staticText>
+				<reportElement mode="Opaque" x="0" y="2" width="95" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Bold" size="10"/>
+				</textElement>
+				<text><![CDATA[From]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="95" y="2" width="95" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Bold" size="10"/>
+				</textElement>
+				<text><![CDATA[To]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="190" y="2" width="95" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Bold" size="10"/>
+				</textElement>
+				<text><![CDATA[Recipient]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="285" y="2" width="95" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Bold" size="10"/>
+				</textElement>
+				<text><![CDATA[Start]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="380" y="2" width="100" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Bold" size="10"/>
+				</textElement>
+				<text><![CDATA[Duration]]></text>
+			</staticText>
+			<staticText>
+				<reportElement mode="Opaque" x="480" y="2" width="75" height="12" forecolor="#ffffff" backcolor="#333333"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Bold" size="10"/>
+				</textElement>
+				<text><![CDATA[Status]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+
+	<detail>
+		<band height="9">
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="95" y="1" width="95" height="8"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Normal" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{callee}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="190" y="1" width="95" height="8"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Normal" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{recipient}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="285" y="1" width="95" height="8"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Normal" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.util.Date"><![CDATA[$F{startTime}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="380" y="1" width="100" height="8"/>
+				<textElement textAlignment="Center">
+				    <font reportFont="Arial_Normal" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{duration}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement positionType="Float" x="480" y="1" width="75" height="8"/>
+				<textElement textAlignment="Center">
+					<font reportFont="Arial_Normal" size="8"/>
+				</textElement>
+				<textFieldExpression class="java.lang.String"><![CDATA[$F{termination}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+
+	<pageFooter>
+		<band height="30">
+			<line>
+				<reportElement x="0" y="0" width="555" height="1"/>
+				<graphicElement/>
+			</line>
+			<textField isBlankWhenNull="true">
+			        <reportElement x="0" y="10" width="195" height="15"/>
+			        <textElement />
+			        <textFieldExpression class="java.lang.String"><![CDATA[$P{title}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="200" y="10" width="80" height="15"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression class="java.lang.String"><![CDATA["Page " + String.valueOf($V{PAGE_NUMBER}) + " of"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement x="280" y="10" width="75" height="15"/>
+				<textElement/>
+				<textFieldExpression class="java.lang.String"><![CDATA[" " + String.valueOf($V{PAGE_NUMBER})]]></textFieldExpression>
+			</textField>
+			<textField pattern="MMMMM dd, yyyy">
+			        <reportElement x="400" y="10" width="145" height="15"/>
+			        <textElement textAlignment="Right" verticalAlignment="Middle" />
+			        <textFieldExpression class="java.util.Date"><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+</jasperReport>

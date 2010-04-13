@@ -1,0 +1,43 @@
+<div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
+  <form jwcid="@common/AutoRefreshForm" actionBlock="component:actions">
+  <div class="tableDiv">
+    <table jwcid="@contrib:TableView" id="jobs:list" class="component"
+      source="ognl:jobs" pageSize="-1"
+      columns="* name,=startColumn,=stopColumn,status,error">
+      <thead>
+        <tr>
+          <span jwcid="@contrib:TableColumns"/>
+        </tr>
+      </thead>
+      <tbody>
+        <span jwcid="@contrib:TableRows"
+          class="ognl:beans.rowClass.next"
+          row="ognl:job"
+          volatile="ognl:true">
+          <span jwcid="@contrib:TableValues"/>
+        </span>
+      </tbody>
+      <span jwcid="statusColumnValue@Block">
+        <span jwcid="@Insert" value="ognl:job.status" format="bean:statusFormat"/>
+      </span>
+      <!-- keep the following line into one single line, see XX-7317 -->
+      <span jwcid="errorColumnValue@Block"><span jwcid="@Insert" value="ognl:jobErrorMsg" /></span>
+    </table>
+  </div>
+    <ul jwcid="actions@Block">
+      <li>
+        <input id="jobs:remove" jwcid="remove@Submit"
+          updateComponents="ognl:{'refreshedContent'}"
+          listener="listener:remove"
+          value="message:button.remove"/>
+      </li>
+      <li>
+        <input id="jobs:clear" jwcid="clear@Submit"
+        updateComponents="ognl:{'refreshedContent'}"
+        listener="listener:clear"
+        value="message:button.clear"/>
+      </li>
+    </ul>
+  </form>
+</div>

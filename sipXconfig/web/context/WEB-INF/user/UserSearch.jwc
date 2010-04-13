@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.user.UserSearch" allow-body="yes" allow-informal-parameters="no">
+  <description>user search criteria form + action button</description>
+  <!--
+      - P A R A M E T E R S
+      -->
+  <parameter name="cancelListener"  required="yes" >
+  </parameter>
+  <parameter name="simpleSearch"   required="yes"/>
+  <!--
+      - P R O P E R T I E S
+      -->
+  <inject property="searchManager" object="spring:searchManager"/>
+  <inject property="userSearchManager" object="spring:userSearchManager"/>
+  <inject property="coreContext" object="spring:coreContext"/>
+  <property name="user" />
+  <property name="query" />
+  <property name="users" />
+  <!--
+      - C O M P O N E N T S
+      -->
+  <!-- simple search -->
+  <component id="queryLabel" type="common/FieldPanel">
+    <binding name="field" value="components.query"/>
+    <binding name="label" value="message:label.query"/>
+    <binding name="description" value="message:description.query"/>
+  </component>
+  <component id="query" type="TextField">
+    <binding name="value" value="query"/>
+    <binding name="displayName" value="message:label.query"/>
+  </component>
+  <!-- advanced search -->
+  <component id="firstNameLabel" type="common/FieldPanel">
+    <binding name="field" value="components.firstName"/>
+    <binding name="label" value="message:label.firstName"/>
+  </component>
+  <component id="firstName" type="TextField">
+    <binding name="value" value="user.firstName"/>
+    <binding name="displayNames" value="message:label.firstName"/>
+  </component>
+  <component id="lastNameLabel" type="common/FieldPanel">
+    <binding name="field" value="components.lastName"/>
+    <binding name="label" value="message:label.lastName"/>
+  </component>
+  <component id="lastName" type="TextField">
+    <binding name="value" value="user.lastName"/>
+    <binding name="displayName" value="message:label.lastName"/>
+  </component>
+  <component id="userNameOrAliasLabel" type="common/FieldPanel">
+    <binding name="field" value="components.userNameOrAlias"/>
+    <binding name="label" value="message:label.userNameOrAlias"/>
+  </component>
+  <!-- The UI captures a string that can be either the username or an alias.
+    	 Feed this string to the page bean in user.userName. -->
+  <component id="userNameOrAlias" type="TextField">
+    <binding name="value" value="user.userName"/>
+    <binding name="displayName" value="message:label.userNameOrAlias"/>
+  </component>
+  <component id="search" type="Submit">
+    <binding name="listener" value="listener:search"/>
+  </component>
+  <component id="cancel" type="Submit">
+    <binding name="listener" value="cancelListener"/>
+  </component>
+</component-specification>

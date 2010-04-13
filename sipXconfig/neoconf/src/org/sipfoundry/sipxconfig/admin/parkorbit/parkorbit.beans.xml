@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="orbitsGenerator" class="org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits"
+    parent="defaultConfigurationFile">
+    <property name="name" value="orbits.xml"/>
+    <property name="parkOrbitContext" ref="parkOrbitContext" />
+  </bean>
+
+  <bean id="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit"
+    class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbit" scope="prototype" parent="beanWithSettings">
+  </bean>
+
+  <bean id="parkOrbitContextImpl" class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
+    <property name="aliasManager" ref="aliasManager" />
+    <property name="settingDao" ref="settingDao" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+  </bean>
+
+  <bean id="parkOrbitContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitContext" />
+    <property name="target">
+      <ref local="parkOrbitContextImpl" />
+    </property>
+  </bean>
+
+  <bean id="parkOrbitSaveDefaultGroup" factory-bean="parkOrbitContextImpl" factory-method="createGroupSaveListener">
+  </bean>
+
+  <bean id="parkOrbitMigrationTask" class="org.sipfoundry.sipxconfig.admin.parkorbit.ParkOrbitMigrationTask">
+    <property name="orbitsGenerator" ref="orbitsGenerator" />
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
+    <property name="taskNames">
+      <list>
+        <value>legacy_park_server_migration</value>
+      </list>
+    </property>
+  </bean>
+</beans>

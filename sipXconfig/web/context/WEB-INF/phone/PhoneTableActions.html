@@ -1,0 +1,32 @@
+<ul class="component-submit">
+  <li>
+    <input id="phone:sendProfiles"
+      jwcid="sendProfiles@Submit"
+      value="message:button.sendProfiles"
+      listener="listener:generateProfiles"/>
+  </li>
+  <li jwcid="@If" condition="ognl:!userOnly">
+    <input id="phone:sendAllProfiles"
+      jwcid="sendAllProfiles@Submit"
+      value="message:button.sendAllProfiles"
+      listener="listener:generateAllProfiles"/>
+  </li>
+  <li>
+    <input id="phone:restart"
+      jwcid="restart@Submit"
+      value="message:button.restart"
+      listener="listener:restart"/>
+  </li>
+  <li>
+    <input id="phone:delete"
+      jwcid="delete@Submit"
+      value="message:button.delete"
+      listener="listener:deletePhone"/>
+    <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+  </li>
+  <li jwcid="@If" condition="ognl:!userOnly">
+    <span jwcid="@phone/GroupActions"
+      selectedIds="ognl:selections.allSelected"
+      actionModel="ognl:actionModel"/>
+  </li>
+</ul>

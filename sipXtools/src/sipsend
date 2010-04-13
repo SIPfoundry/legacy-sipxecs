@@ -1,0 +1,614 @@
+#!/usr/bin/perl
+
+###
+###   Tool to probe SIP servers.
+###
+### Written by: Scott Lawrence <slawrence@pingtel.com>
+### Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+### Contributors retain copyright to elements licensed under a Contributor Agreement.
+### Licensed to the User under the LGPL license.
+###
+
+use Getopt::Long;
+use Socket;
+use Digest::MD5 qw(md5_hex);
+
+$VERSION = '0.04';
+
+#') fix the perl indenting funnies caused by the above
+
+## Constants
+$CRLF = "\r\n";
+$SipVersion = '2.0';
+
+## Defaults
+$SipPort = 5060;
+$Method = '';
+$UserAgent = '';
+$DefaultMaxForwards = 20;
+$UseViaName = 0;
+$SymmetricPort = 0;
+$UseColor = 1;
+$Expires = -1;
+
+$DefaultUserAgent = "sipsend/$VERSION";
+
+$HELP = <<HELP;
+    Sends a request to SIP server <server> with the specified <method> and
+    <request-uri>, and displays the response(s).
+
+        --verbose
+           Prints the message it is sending before sending it.
+           Also prints authentication responses and requests.
+        --[no]color
+          Controls colorization of output (default is on).
+        --timeout <seconds> (not implemented yet)
+        --show1xx|-1
+           Also output provisional responses.
+        --symmetric <port>
+           Use symmetric signalling (send and listen on the same port)
+        --credentials <username> <password>
+           Specify credentials for Digest authentication.
+           Will be applied to the realm in any challenge.
+        -t|--to <to>
+           'To' header value
+        -f|--from <from>
+           'From' header value
+        -i|--call-id <call-id>
+           'Call-ID' header value
+        -m|--contact <contact>
+           'Contact' header value
+        --max-forwards <hop-count>
+           'Max-Forwards' header value.
+           Limits the number of proxies which may forward the request.
+           Defaults to $DefaultMaxForwards.
+        --user-agent <user-agent>
+           'User-Agent' header value
+        --cseq <cseq>
+           'Cseq' number (method is automatic)
+        --route <route>
+           'Route' header value
+        --expires <expires>
+           'Expires' header value
+        --event <event>
+           'Event' header value
+        --header '<header-name>: <header-value>'
+           Arbitrary header string (do not use for those specified above)
+           (May be used multiple times.)
+        --use-via-name
+           Use the name of this host in the via, not its IP address
+        --transport
+           Use specified transport, (valid: tcp, udp; default: tcp)
+
+        --tracehops 
+          Send the request with Max-Forwards of 0, then resend increasing
+          by 1 each time, repeating until some response other than 483 is received.
+
+    <server>
+      The server (host name) to which the request is sent.  This may include
+      the port number after ':' (port defaults to $SipPort).
+      Does not perform RFC 3263 (SRV, NAPTR, etc.) lookup.
+      Valid examples:
+         sipxchange.pingtel.com
+         myserver.example.com:5000
+         127.0.0.1:12000
+
+    <method>
+      The SIP request method (this is upcased before sending).
+
+    <request-uri>
+      The request URI sent to the server.
+HELP
+
+$mini_HELP =<<HELP;
+    Use --help to get usage information.
+HELP
+
+## Process arguments.
+
+&GetOptions(# First argument must be all word chars.
+		     'help'              => \$help,
+           'verbose+'          => \$Verbosity,
+           'color!'            => \$UseColor,
+		     'timeout=i'         => \$Timeout,
+		     '1|show1xx'         => \$Show1xx,
+		     'symmetric=i'       => \$SymmetricPort,
+		     'credentials=s{2}'  => \@Credentials,
+		     't|to=s'            => \$To,
+		     'f|from=s'          => \$From,
+		     'i|call-id=s'       => \$CallId,
+		     'm|contact=s'       => \$Contact,
+		     'max-forwards=i'    => \$MaxForwards,
+		     'user-agent=s'      => \$UserAgent,
+		     'cseq=i'            => \$Cseq,
+           'require=s'         => \$Require,
+           'route=s'           => \$Route,
+		     'expires=i'         => \$Expires,
+		     'event=s'           => \$Event,
+		     'header=s'          => \@Header,
+		     'use-via-name'      => \$UseViaName,
+           'transport=s'       => \$TransportIn,
+           'tracehops'         => \$TraceHops,
+    )
+    || do { print STDERR $mini_HELP; exit 1; };
+
+if ($help)
+{
+    print STDERR $HELP;
+    exit 0;
+}
+
+if ($#ARGV != 2)
+{
+    print STDERR "$0: requires three arguments: server, method, target\n";
+    print STDERR $mini_HELP;
+    exit 1;
+}
+($Server, $Method, $Target) = @ARGV;
+die "server argument is mandatory\n" unless $Server;
+die "method argument is mandatory\n" unless $Method;
+die "target argument is mandatory\n" unless $Target;
+
+die "--timeout is not implemented\n" if $Timeout;
+
+if ( $Server =~ m/([^:]+):(\d+)/ )
+{
+    $Server = $1;
+    $Port = $2;
+}
+else
+{
+    $Port = $SipPort;
+}
+
+### Connect to server
+
+if ( ! $TransportIn )
+{
+    # If no Transport is specified, use tcp.
+    $Transport = "tcp";
+}
+else
+{
+    $Transport = lc($TransportIn);
+}
+
+# Set socket type based on protocol
+if ( $Transport eq "tcp" )
+{
+    $SockType = SOCK_STREAM;
+}
+else
+{
+    $SockType = SOCK_DGRAM;
+}
+
+$proto = getprotobyname($Transport);
+socket( SIP, PF_INET, $SockType, $proto );
+
+if ( $SymmetricPort )
+{
+    bind( SIP, sockaddr_in( $SymmetricPort, INADDR_ANY ))
+        || die "Bind to INADDR_ANY:$SymmetricPort failed: $!\n";
+}
+
+$x = inet_aton( $Server )
+    || die "Error looking up or translating '$Server': $?\n";
+$serverAddr = sockaddr_in( $Port, $x );
+
+connect( SIP, $serverAddr )
+    || die "Connect to $Server:$Port failed: $!\n";
+($myPort, $myAddr) = sockaddr_in(getsockname(SIP));
+
+select(SIP); $| = 1; select(STDOUT);
+
+select(STDERR); $| = 1; select(STDOUT);
+
+## Request Line
+$Method = uc($Method);
+
+if ( ! $To )
+{
+    # If no To is specified, use the request-URI.
+    # But To is in name-addr form.
+    $To = "<".$Target.">";
+}
+
+die "Invalid hop count '$MaxForwards';\n   must be numeric\n"
+    if defined( $MaxForwards ) && $MaxForwards !~ m/^\d+/;
+
+warn "Specifying max-forwards with tracehops is invalid: max-forwards ignored"
+    if $MaxForwards and $TraceHops;
+
+$MaxForwards = $DefaultMaxForwards 
+    unless $MaxForwards;
+
+$MyAddr = inet_ntoa($myAddr);
+
+if ( $UseViaName )
+{
+  $MyName = scalar gethostbyaddr($myAddr, AF_INET);
+  $MySystem = $MyName || $MyAddr;
+}
+else
+{
+  $MySystem = $MyAddr;
+}
+
+if ( ! $From )
+{
+    $From = "Sip Send <sip:sipsend\@$MySystem;transport=$Transport>;tag=".substr(&RandHash,0,8);
+}
+
+if ( ! $Contact )
+{
+    $Contact = "<sip:sipsend\@$MySystem:$myPort;transport=$Transport>";
+}
+
+$Cseq = 1 unless $Cseq;
+
+$UserAgent = $DefaultUserAgent unless $UserAgent;
+
+$| = 1;
+
+if ( $TraceHops )
+{
+    $StatusCode = '';
+    $MaxForwards = 0;
+    $StatusCode = 483;
+
+    while ( ( $StatusCode == 483 
+              or ( $StatusCode >= 300 and $StatusCode < 400 )
+            ) 
+            and $MaxForwards < 71 )
+    {
+        $CallId = &RandHash;
+        
+        print STDERR &Blue()."Sending Max-Forwards: $MaxForwards".&Black()."\n";
+
+        ($StatusCode, $Rsp) = &RequestAndResponse;
+
+        if ( $Verbosity < 1 )
+        {
+            my ( $shortRsp, $line, @rspLines, $inHeader, $seenTopVia );
+            @rspLines = split( /\r\n/, $Rsp );
+            $shortRsp = $rspLines[0]."\r\n";
+            $inHeader = 1;
+            $seenTopVia = 0;
+            $bodyLine = 0;
+            foreach $line ( @rspLines[1 .. $#rspLines] )
+            {
+                if ( $inHeader )
+                {
+                    $shortRsp .= "$line\r\n" if ( $line =~ m/\A(Server|User-Agent|Reason|Warning):/i );
+                    if ( $line eq '' )
+                    {
+                        $shortRsp .= "\r\n";
+                        $inHeader = 0;
+                        $bodyLine = 1;
+                    }
+                }
+                elsif ( $bodyLine == 1 )
+                {
+                    $shortRsp .= "$line\r\n";
+                    $bodyLine++;
+                }
+                elsif ( ! $seenTopVia and $line =~ m/\AVia:/i )
+                {
+                    $shortRsp .= "$line\r\n";
+                    $seenTopVia = 1;
+                }
+                elsif ( $line =~ m/\A(Record-)?Route:/i )
+                {
+                    $shortRsp .= "$line\r\n";
+                }
+            }
+            if ( $StatusCode == 483 and $MaxForwards < 71 )
+            {
+                printIntermediate( $shortRsp );
+            }
+            else
+            {
+                printReceived( $Rsp );
+            }
+        }
+        else
+        {
+            printReceived( $Rsp )
+                unless $Show1xx;
+        }
+
+        $MaxForwards++;
+    }
+}
+else
+{
+    $CallId = &RandHash if ( ! $CallId );
+    ($StatusCode, $Rsp) = &RequestAndResponse;
+    # Show the final response unless it was already shown 
+    &printReceived( $Rsp ) 
+        unless $Show1xx;
+}
+
+#
+# ANSI color sequences for nice color output
+sub Black
+{
+    return $UseColor ? "\033[0m" : '';;
+}
+
+sub Magenta
+{
+    return $UseColor ? "\033[35m" : '';
+}
+
+sub Blue
+{
+    return $UseColor ? "\033[34m" : '';
+}
+
+sub printSending
+{
+    my ( $server, $port, $msg, $note ) = @_;
+    print STDERR "+++++++++++++++++++++++++++\n";
+    print STDERR "$note\n" if $note;
+    print STDERR "Sending:".&Blue()."\n$msg".&Black()."\n";
+    print STDERR "+++++++++++++++++++++++++++\n";
+}
+
+sub printIntermediate
+{
+    my ( $msg, $note ) = @_;
+    print STDERR "+++++++++++++++++++++++++++\n";
+    print STDERR "$note\n" if $note;
+    print STDERR "Received:".&Magenta()."\n$msg".&Black()."\n";
+    print STDERR "+++++++++++++++++++++++++++\n";
+}
+
+sub printReceived
+{
+    my ( $msg, $note ) = @_;
+    print STDERR "$note\n" if $note;
+    print STDERR &Magenta()."Received:".&Black()."\n";
+    print "$msg\n";
+}
+
+sub RequestAndResponse
+{
+    $Request = &SipRequest;
+
+    printSending( $Server, $Port, $Request )
+        if $Verbosity;
+
+    print SIP $Request;
+
+    $StatusClass=0;
+    $AuthState = 'None';
+
+    while ( $StatusClass < 2 )
+    {
+        $Rsp = '';
+        $RspState = 'None';
+        $RspContentLength = 0;
+
+        while( <SIP> ) # see also conditional 'last' at bottom
+        {
+            if ( $RspState eq 'None' )
+            {
+                next if /^\s*$/;
+                if ( m|^SIP/(\d+\.\d+)\s+(([1-6])[0-9][0-9])\s+(.+)$| )
+                {
+                    $StatusClass = $3;
+                    $StatusCode = $2;
+                }
+                else
+                {
+                    die "Invalid response line: $_\n";
+                }
+
+                $RspState = 'Headers';
+            }
+            elsif ( $RspState eq 'Headers' )
+            {
+                if ( m|^Content-Length\s*:\s*(\d+)|i )
+                {
+                    $RspContentLength = $1;
+                }
+                if ( m|^WWW-Authenticate\s*:\s*Digest\s+(.+)|i )
+                {
+                    $Challenge = $1;
+                }
+                if ( m|^Proxy-Authenticate\s*:\s*Digest\s+(.+)|i )
+                {
+                    $ProxyChallenge = $1;
+                }
+                elsif ( $_ eq $CRLF )
+                {
+                    $RspState = $RspContentLength ? 'Body' : 'Done';
+                }
+            }
+            elsif ( $RspState eq 'Body' )
+            {
+                $RspContentLength -= length;
+                if ( $RspContentLength == 0 )
+                {
+                    $RspState = 'Done';
+                }
+                elsif ( $RspContentLength < 0 )
+                {
+                    $Rsp .= $_;
+                    &printReceived( $Rsp );
+                    die "Lost stream syncronization\n";
+                }
+            }
+
+            $Rsp .= $_ unless ( $StatusClass == 1 && ! $Show1xx );
+
+            last if $RspState eq 'Done';
+        }
+        # A response has been accumulated, or the connection was closed.
+
+        if ( $RspState ne 'Done' )
+        {
+            die "[premature connection close; state=$RspState]\n";
+        }
+
+        if ( $AuthState eq 'None'
+             && ( $StatusCode == 401 || $StatusCode == 407 )
+            )
+        {
+            if ( @Credentials )
+            {
+                &printIntermediate( $Rsp, "Challenge" )
+                    if $Verbosity || $Show1xx;
+
+                &AuthenticateRequest;
+                $Cseq++;
+                $Request = &SipRequest;
+
+                printSending( $Server, $Port, $Request, "Authenticated request" )
+                    if $Verbosity || $Show1xx;
+                print SIP $Request;
+
+                $AuthState = 'Attempted';
+
+                # Go to the top of the loop to get the response.
+                # (Skip the print below.)
+                redo;
+            }
+        }
+
+        # Show responses.
+        &printReceived( $Rsp )
+            if $Show1xx;
+    }
+
+    return ( $StatusCode, $Rsp );
+}
+
+close SIP;
+
+exit 0;
+
+sub SipRequest
+{
+    my $request;
+    my @wdname = ( "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" );
+    my @mname = ( "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+                  );
+
+    my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday) = gmtime;
+    my $Date = sprintf( "%s, %d %s %d %02d:%02d:%02d GMT",
+                        $wdname[$wday], $mday, $mname[$mon],
+                        $year+1900, $hour, $min, $sec
+                        );
+
+    $Branch = "z9hG4bK-".&RandHash;
+    $UCTransport = uc($Transport);
+    $Via = "SIP/$SipVersion/$UCTransport $MySystem:$myPort;branch=$Branch";
+
+    $request  = "$Method $Target SIP/$SipVersion" . $CRLF;
+    $request .= "Route: $Route" . $CRLF if $Route;
+    $request .= "Via: $Via" . $CRLF;
+    $request .= "Authorization: $Authorization" . $CRLF if $Authorization;
+    $request .= "Proxy-Authorization: $ProxyAuthorization" . $CRLF if $ProxyAuthorization;
+    $request .= "To: $To" . $CRLF if $To;
+    $request .= "From: $From" . $CRLF;
+    $request .= "Contact: $Contact" . $CRLF;
+    $request .= "Call-ID: $CallId" . $CRLF;
+    $request .= "Cseq: $Cseq $Method" . $CRLF;
+    $request .= "Max-Forwards: $MaxForwards" . $CRLF;
+    $request .= "User-Agent: $UserAgent" . $CRLF;
+    $request .= "Require: $Require" . $CRLF if $Require;
+    $request .= "Expires: $Expires" . $CRLF if ($Expires >= 0);
+    $request .= "Event: $Event" . $CRLF if $Event;
+    $request .= "Date: $Date" . $CRLF;
+    $request .= "Content-Length: 0" . $CRLF; # TBD - body from stdin?
+
+    $request .= join($CRLF, @Header) . $CRLF if ( @Header );
+    $request .= $CRLF;
+
+    return $request;
+}
+
+
+sub AuthenticateRequest
+{
+    ( $User, $Password ) = @Credentials;
+
+    if ( $Challenge )
+    {
+        $Authorization = &DigestResponse( $Challenge );
+    }
+
+    if ( $ProxyChallenge )
+    {
+        $ProxyAuthorization = &DigestResponse( $ProxyChallenge );
+    }
+}
+
+sub DigestResponse
+{
+    my ( $challenge ) = @_;
+
+    if ( $challenge =~ m/nonce="([0-9a-f]+)"/i )
+    {
+        $nonce = $1;
+    }
+    if ( $challenge =~ m/realm="([^"]+)"/i ) #"
+    {
+        $realm = $1;
+    }
+    if ( $challenge =~ m/opaque="([^"]+)"/i ) #"
+    {
+        $opaque = $1;
+    }
+    if ( $challenge =~ m/algorithm=(MD5|MD5-sess)/i )
+    {
+        $algorithm = $1;
+    }
+    else
+    {
+        $algorithm = "MD5";
+    }
+    if ( $challenge =~ m/qop=/i )
+    {
+        $do_2616 = 1;
+    }
+
+        if ( $do_2616 )
+        {
+            die "RFC2616 TBD:\n\tnonce='$nonce'\n\trealm='$realm'\n\topaque='$opaque'\n\talgorithm='$algorithm'\n\t\n";
+        }
+        else
+        {
+            $A1 = &md5_hex("$User:$realm:$Password");
+            $A2 = &md5_hex("$Method:$Target");
+        }
+
+        $hash  = &md5_hex("$A1:$nonce:$A2");
+        $auth  = "Digest ";
+        $auth .= "algorithm=$algorithm";
+        $auth .= ",username=\"$User\"";
+        $auth .= ",realm=\"$realm\"";
+        $auth .= ",nonce=\"$nonce\"";
+        $auth .= ",uri=\"$Target\"";
+        $auth .= ",opaque=\"$opaque\"" if $opaque;
+        $auth .= ",response=\"$hash\"";
+
+    return $auth;
+}
+
+sub RandHash
+{
+    my $in = rand;
+    return &md5_hex("$in");
+}
+
+
+__END__
+### Local Variables: ***
+### mode: perl ***
+### comment-start: "## "  ***
+### End: ***

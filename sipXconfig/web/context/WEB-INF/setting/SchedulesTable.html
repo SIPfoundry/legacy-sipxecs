@@ -1,0 +1,14 @@
+<table jwcid="tableView" id="schedule:list">
+	<span jwcid="nameColumnValue">
+		<a jwcid="viewScheduleLink"><span jwcid="viewScheduleLabel"/></a>
+	</span>
+	<span jwcid="descriptionColumnValue">
+		<span jwcid="viewScheduleDescriptionLabel"/>
+	</span>
+</table>
+<ul class="component-submit">
+    <li>
+        <input id="schedule:delete" jwcid="delete@Submit" value="message:button.delete" listener="listener:deleteSchedules"/>
+	    <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+    </li>
+</ul>

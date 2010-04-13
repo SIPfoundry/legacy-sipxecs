@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "sipxconfig-db.dtd" -->
+
+<dataset>
+	<users user_id="1000" user_name="testuser" user_type="C"/>
+	<location location_id="101" name="localhost" fqdn="localhost" ip_address="127.0.0.1" primary_location="true"/>
+	<acd_server acd_server_id="1001" location_id="101" port="8100"/>
+	
+	<acd_queue acd_queue_id="2001" name="q1" acd_server_id="1001"/>
+	<acd_queue acd_queue_id="2002" name="q2" acd_server_id="1001"/>
+	
+	<acd_agent acd_agent_id="3001" user_id="1000" acd_server_id="1001"/>
+	<acd_agent acd_agent_id="3002" user_id="1000" acd_server_id="1001"/>
+	<acd_agent acd_agent_id="3003" user_id="1000" acd_server_id="1001"/>
+	<acd_agent acd_agent_id="3004" user_id="1000" acd_server_id="1001"/>
+	
+	<acd_queue_agent acd_agent_id="3001" acd_queue_id="2002" agent_position="0"/>
+	<acd_queue_agent acd_agent_id="3002" acd_queue_id="2002" agent_position="1"/>
+	<acd_queue_agent acd_agent_id="3003" acd_queue_id="2002" agent_position="2"/>
+	<acd_queue_agent acd_agent_id="3001" acd_queue_id="2001" agent_position="0"/>
+	
+	<acd_agent_queue acd_agent_id="3001" acd_queue_id="2002" queue_position="1"/>
+	<acd_agent_queue acd_agent_id="3002" acd_queue_id="2002" queue_position="0"/>
+	<acd_agent_queue acd_agent_id="3003" acd_queue_id="2002" queue_position="0"/>
+	<acd_agent_queue acd_agent_id="3001" acd_queue_id="2001" queue_position="0"/>	
+</dataset>

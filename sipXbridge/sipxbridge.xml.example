@@ -1,0 +1,57 @@
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+  <bridge-configuration>
+    <!-- Faces ITSP -->
+    <external-address>sipxpbx.example.com</external-address>
+    <external-port>5080</external-port>
+    <!-- Faces SIPX -->
+    <local-address>sipxpbx.example.com</local-address>
+    <local-port>5090</local-port>
+    <sipx-proxy-domain>example.com</sipx-proxy-domain>
+    <stun-server-address>stun01.sipphone.com</stun-server-address>
+    <sip-keepalive-seconds>20</sip-keepalive-seconds>
+    <media-keepalive-seconds>1</media-keepalive-seconds>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
+    <rtp-port-range>25000:25500</rtp-port-range>
+    <log-level>DEBUG</log-level>
+    <is-reinvite-supported>true</is-reinvite-supported>
+    <log-directory>/var/log/sipxpbx/</log-directory>
+   <!-- Optional parameter. You can ignore for now -->
+    <xml-rpc-port>8088</xml-rpc-port>
+  </bridge-configuration>
+
+   <!-- You can specify multiple of these ( one per itsp ) -->
+  <itsp-account>
+    <!-- consult ITSP -->
+    <outbound-proxy>your.itsp.proxy</outbound-proxy>
+    <!-- consult ITSP -->
+    <outbound-transport>UDP</outbound-transport>
+    <!-- consult ITSP -->
+    <proxy-domain>your.itsp.proxy.domain</proxy-domain>
+    <!-- This defaults to the proxy domain. Leave this out unless the ITSP wants you to use 
+    a specific domain. -->
+    <authentication-realm>your.itsp.authentication.realm</authentication-realm>
+   <!-- Supplied by itsp -->
+    <user-name>itsp-supplied-user-name</user-name>
+   <!-- Your password -->
+    <password>password</password>
+   <!-- True/false ( consult ITSP )  -->
+    <use-global-addressing>false</use-global-addressing>
+   <!-- Consult ITSP  -->
+    <use-global-addressing>false</use-global-addressing>
+   <!-- Route inbound calls to this extension  -->
+    <route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
+   <!-- Whether or not to use Rport SIP extension for signaling (consult ITSP)  -->
+    <use-rport>false</use-rport>
+   <!-- Whether or not to register on initialization -->
+    <register-on-initialization>true</register-on-initialization>
+   <!-- Method to use for sip keepalive -->
+    <sip-keepalive-method>REGISTER</sip-keepalive-method>
+   <!-- Method to use for RTP keepalive -->
+    <rtp-keepalive-method>REPLAY-LAST-SENT-PACKET</rtp-keepalive-method>
+  </itsp-account>
+
+
+
+</sipxbridge-config>

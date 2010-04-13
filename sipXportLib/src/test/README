@@ -1,0 +1,207 @@
+The following document describes the organization of CppUnit tests for the
+Utl Library.
+
+________________________________________________________________________
+1. Test Methods :-
+________________________________________________________________________
+As in any CppUnit test, the tests are broken into different methods. Each test
+method tests one or two test cases of the implementation under test. The name of
+the test method is self-explanatory as to what is being tested.
+
+_______________________________________________________________________
+2. Formal Methods of testing in arriving at the Test Data:-
+________________________________________________________________________
+To the extent possible, the formal methods of testing, namely, boundary value
+analysis / equivalence partitioning have been applied while arriving at the
+test data for the unit tests.
+For example,
+   If the add method is being tested, for the class FOO the test data may be :-
+   a) Test adding zero with zero.
+   b) Test adding zero with a positive integer
+   c) Test adding a positive integer with zero
+   d) Test adding zero with a MAX_INT value
+   ... and so on.
+Whenever possible these multiple test data are tested within the same method.
+(In the above case of add, it doesn't make sense to have one test method for
+add_zero_with_zero(), one for add_zero_with_positive(). Instead these methods
+are all tested within the testAdd() method itself. These multiple test data
+are organized as Arrays of Test Structures. For example, for the above case,
+the test arrays are :-
+struct TestDataStructure
+{
+    int Lhs_Data ;
+    int Rhs_Data ;
+    int Expected_Result ;
+}
+
+TestDataStructure testData[] =
+{ \
+    {0, 0, 0 } , \
+    {0, 9, 9 }, \
+    {8, 0, 8 }, \
+    {0, INT_MAX, INT_MAX} \
+} ;
+
+By organizing the test data in such a fashion, the actual test procedure
+can be easily put into a loop. In the above case,
+
+for (i = 0 to end)
+{
+    // Invoke the method being tested - "add"
+    int result = foo_instance.add(testData[i].Lhs_Data, \
+                                  testData[i].Rhs_Data) ;
+    // Now verify that the result of add was as expected.
+    CPPUNIT_ASSERT_EQUAL(result == testData[i].Expected_Result ;
+}
+
+________________________________________________________________________
+3. Mutliple Asserts for a test procedure
+________________________________________________________________________
+Some of the tests may have multiple CppUnit assert statements in them.
+This is usually the case when the call to a method may have more than
+a single impact. For example, a method call may require to return a
+particular value and modify the state of the instance. Or it may also
+be required that the call has not altered the state inadvertently.
+For example, say that the append method of string takes in a second
+string as the argument, appends itself with the argument and returns
+the appended string. Then all of the following need to be verified
+  a) The passed parameter is appended to 'this' string
+  b) The return value represents the appended string AND
+  c) The passed parameter is not changed.
+
+So instead of having three methods to test these, the single append
+method is made to have three CppUnit assert methods as shown below
+
+   for ...
+   {
+      char* Old_Rhs_CharStar = testData[i].Rhs_Data.toString() ;
+      string result = testString.append(testData[i].Rhs_Data) ;
+      CPPUNIT_ASSERT_EQUAL(result ISEQUALTO testData[i].Expected_Result) ;
+      CPPUNIT_ASSERT_EQUAL(testString.toString() ISEQUALTO \
+                           testData[i].Expected_Result) ;
+      CPPUNIT_ASSERT_EQUAL(testData[i].Rhs_Data.toString() ISEQUALTO \
+                           Old_Rhs_CharStar) ;
+   }
+
+________________________________________________________________________
+4. Messages used while asserting
+________________________________________________________________________
+CppUnit offers a nice mechanism of providing messages to 'test assertion'
+This helps debugging should some of the tests fail. Instead of only
+looking at which line failed, you now have the ability to provide a
+message which states what exactly was being tested.
+Compare the test report which says,
+    Failed at line 25!  Expected = 9, Actual = 0
+with
+    Test the add method when zero is added to a posive integer,
+    Line 25! Expected = 9, Actual = 0
+
+Obviously the second line is more clear about what exactly went wrong.
+
+In the previous paragraphs, we have seen as to how the each test case
+has an array of multiple test data and multiple asserts. This obviously
+means that a message is constructed of at least 3 parts :-
+
+a) A common prefix :-
+            For example, "Test the append() method "
+b) A message that is specific to the data being tested :-
+            For example, "when the test instance is alphanumeric and
+                          RHS is numeric "
+AND
+c) A message that is specific to what is being verified :-
+            For example, ":- Verify that the return value represents the
+                          concated string"
+            OR
+                          ":- Verify that the original string is intact"
+
+Clearly (b) and (c) can assume one of many values depending on the
+test data / state being tested. To address this, message is constructed
+by having three variables,
+
+a) a prefix
+b) an array of messages. This array has the same number of elements as
+   the test data array
+c) one or more suffix variables. The number depends on the number of asserts to
+   be made.
+
+For example in case of the string, the values may be:-
+
+char* prefix = "Test the append() method " ;
+char* TestDataMessages[] = { \
+           "when the test instance is alpha and rhs is numeric ", \
+           "when the test instance is empty and rhs is alpha ", \
+           "when the test instance is empty and rhs is empty " \
+       } ;
+char* suffix1 = ":- Verify the return value" ;
+char* suffix2 = ":- Verify that the rhs *has* been appended to the test instances" ;
+char* suffix3 = ":- Verify that the original value has not been mutated" ;
+
+The message is then created by calling the utility method,
+    TestUtility::createMessage(...)
+This method takes in the pointer to a string (besides other parameters)
+into which the composite message is written into .
+
+The full test snippet for the append tester would thus be
+
+-----------Code ----------------------
+
+    struct TestDataStructure
+    {
+        char* testDescription ;
+        char* Lhs_Data ;
+        char* Rhs_Data ;
+        bool Expected_Result ;
+    }
+
+    TestDataStructure testData[] =
+    { \
+        {"when the test instance is alpha and rhs is numeric ", \
+              "abc", "23", false } , \
+        {"when the test instance is empty and rhs is alpha ", \
+              "", "abc", false }, \
+        {"when the test instance is empty and rhs is empty ", \
+              "", "", false }, \
+        {"when the test instance is equal to rhs", \
+              "abc", "abc", true} \
+    } ;
+
+    char* prefix = "Test the append() method " ;
+    char* suffix1 = ":- Verify the return value" ;
+    char* suffix2 = ":- Verify that the rhs *has* been appended to the test instances" ;
+    char* suffix3 = ":- Verify that the original value has not been mutated" ;
+
+   for 0 to test_count
+   {
+      char* Old_Rhs_CharStar = testData[i].Rhs_Data.toString() ;
+      string result = testString.append(testData[i].Rhs_Data) ;
+      string createdMessage; // define a string into which the message will be written to
+
+      TestUtilities::createMessage(3, &createdMessage, prefix, \
+                                   testData[i].testDescription, suffix1) ;
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(createdMessage.data(), result ISEQUALTO \
+                                   testData[i].Expected_Result) ;
+
+      TestUtilities::createMessage(3, &createdMessage, prefix, \
+                                   testData[i].testDescription, suffix2) ;
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(createdMessage.data(), testString.toString() \
+                                   ISEQUALTO testData[i].Expected_Result) ;
+
+      TestUtilities::createMessage(3, &createdMessage, prefix, \
+                                   testData[i].testDescription, suffix3) ;
+      CPPUNIT_ASSERT_EQUAL_MESSAGE(createdMessage.data(), \
+                                   testData[i].Rhs_Data.toString() \
+                                   ISEQUALTO Old_Rhs_CharStar) ;
+   }
+
+-----------End Code ----------------------
+
+________________________________________________________________________
+5. Split testcases for the same method into multiple methods
+________________________________________________________________________
+Sometimes, the test case for the same method may be tested using
+more than one tester method. This is usually done if
+
+a) The test case requires a different setup for different test data
+b) If a test case is known to fail or has a high likelihood of failing,
+then this may be put into a different method so that this failure
+doesn't cause the other tests to fail.

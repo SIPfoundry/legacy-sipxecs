@@ -1,0 +1,18 @@
+BEGIN:VCARD
+VERSION:2.1
+N:Spielberg;Steven;;Sr
+FN:Steven Spielberg
+ORG:Qantom;SCS
+TITLE:Test Engineer
+TEL;WORK;VOICE:999
+TEL;HOME;VOICE:080332
+TEL;CELL;VOICE:9986
+TEL;WORK;FAX:080-45
+ADR;WORK:PostOffice;;Andheri East;Mumbai;Maharastra;400010;India
+LABEL;WORK;ENCODING=QUOTED-PRINTABLE:Andheri East=0D=0AMumbai, Maharastra 400010=0D=0AIndia
+ADR;HOME:;;3rd Phase JP Nagar;Bangalore;Ktaka;560078;India
+LABEL;HOME;ENCODING=QUOTED-PRINTABLE:3rd Phase JP Nagar=0D=0ABangalore, Ktaka 560078=0D=0AIndia
+EMAIL;PREF;INTERNET:stevens@sipx.com
+EMAIL;INTERNET:stevens123@sipx.com
+REV:20100318T054611Z
+END:VCARD

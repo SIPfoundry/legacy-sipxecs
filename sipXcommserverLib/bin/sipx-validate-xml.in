@@ -1,0 +1,155 @@
+#!@BASH@
+### -*- mode: shell-script;-*-
+
+SchemaDir="@SIPX_DATADIR@"/schema
+Action=CHECK
+SchemaFile=
+XmlFiles=
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        ##
+        ## Save the schema catalog when finished
+        ##
+        -f|--find-schemas)
+            Action=GENCAT
+            ;;
+
+        ##
+        ## Use a specific schema catalog
+        ##
+        -c|--catalog)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <catalog-file-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                SchemaFile="${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        ##
+        ## Use a specific schema directory
+        ##
+        -s|--schema-dir)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <schema-directory-name> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                SchemaDir="${2}"
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        ##
+        ## allow 'end of options' marker to mean all remaining arguments are files
+        ##
+        --)
+            while [ $# -ne 1 ]
+            do
+                XmlFiles="${XmlFiles} ${2}"
+                shift
+            done
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            echo "Unknown option '${1}'" 1>&2
+            Action=USAGE
+            break
+            ;;
+
+        *)
+            XmlFiles="${XmlFiles} ${1}"
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+if [ "${Action}" = "USAGE" ]
+then
+    cat <<USAGE
+
+Usage:
+
+ To validate one or more xml files against a directory of schema definitions:
+
+    sipx-validate-xml
+            [ { -c|--catalog } <catalog-file> ]
+            [ { -s|--schema-dir } <schema-directory> ]
+            <xml-file> ...
+
+    schema-directory defaults to '${SchemaDir}'.
+
+ To create a catalog of the schemas in a directory:
+
+    sipx-validate-xml
+            [ { -s|--schema-dir } <schema-directory> ]
+            { -f|--find-schemas }
+
+USAGE
+    exit
+fi
+
+## Build the list of known namespaces by scanning the SchemaDir
+if [ "${SchemaFile}" = "" ]
+then
+  SchemaFile=`mktemp -t sipx-validate-xml.cat.XXXXXX`
+  echo "# Created from ${SchemaDir}/*.xsd on `date`." >${SchemaFile}
+  for xsd in ${SchemaDir}/*.xsd
+  do
+      ns=`perl -n -e "/targetNamespace=([\"'])(.*?)\\1/ && print \\$2" ${xsd}`
+      if [ -n "${ns}" ]
+      then
+          echo  ${ns} file://${xsd} >>${SchemaFile}
+      fi
+  done
+fi
+
+ExitStatus=0
+ResultFile=`mktemp -t sipx-validate-xml.out.XXXXXX`
+trap "rm -f ${ResultFile} > /dev/null 2>&1" 0
+cat /dev/null > ${ResultFile}
+
+case $Action in
+    GENCAT)
+        echo "Schema list file is ${SchemaFile}"
+        ;;
+
+    CHECK)
+        for xml in ${XmlFiles}
+        do
+            if sipx_config_exists "${xml}" >> ${ResultFile}
+            then
+                @SIPX_BINDIR@/xsdvalid -S ${SchemaFile} ${xml} >> ${ResultFile} 2>&1
+                ExitStatus=$((${ExitStatus} + $?))
+            else
+                ExitStatus=$((${ExitStatus} + 1))
+            fi
+        done
+        ;;
+esac
+
+if [ "${Action}" != "GENCAT" ]
+then
+    rm -f "$SchemaFile"
+fi
+
+if [ ${ExitStatus} -ne 0 ]
+then
+    cat ${ResultFile}
+fi
+
+rm -f ${ResultFile}
+
+exit ${ExitStatus}

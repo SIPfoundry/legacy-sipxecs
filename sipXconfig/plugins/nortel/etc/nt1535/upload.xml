@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="zip">
+    <file>
+      <contentType>application/zip</contentType>
+    </file>
+  </type>
+  <group name="firmware">
+    <label>Nortel-1535 Firmware</label>
+    <description>Please specify from and to hw and sw version for this upgrade. </description>
+    <setting name="from_hw_version">
+      <label>From Hardware Version</label>
+      <type>
+        <string required="yes" />
+      </type>
+      <value>1.0</value>
+    </setting>
+    <setting name="from_sw_version">
+      <label>From Firmware Version</label>
+      <type>
+        <string required="yes" />
+      </type>
+       <description>i.e. 0.1.91</description> 
+    </setting>
+    <setting name="to_hw_version">
+      <label>To Hardware Version</label>
+      <type>
+        <string required="yes" />
+      </type>
+      <value>1.0</value>
+    </setting>
+    <setting name="to_sw_version">
+      <label>To Firmware Version</label>
+      <type>
+        <string required="yes" />
+      </type>
+       <description>i.e. 0.1.92</description> 
+    </setting>
+    <setting name="versionFirmware">
+      <label>Version Upgrade Firmware(zip)</label>
+      <type refid="zip"/>
+      <description>LVP2890_fw_00_X_XX_FTP_image_from_00_X_XX.zip: Contains the device firmware load for version upgrade.</description>
+    </setting>
+    <setting name="modelFirmware">
+      <label>Model Change Firmware(zip)</label>
+      <type refid="zip"/>
+      <description>LVP2890_fw_00_X_XX_FTP_image_from_LVPXXXX_00_X_XX.zip: Contains the device firmware load for model change.</description>
+    </setting>
+  </group>
+</model>

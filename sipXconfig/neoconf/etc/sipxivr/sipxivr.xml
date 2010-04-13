@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <group name="ivr">
+    <setting name="log.file" hidden="yes">
+      <value>sipxivr.log</value>
+    </setting>
+    <setting name="log.level" hidden="yes">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="freeswitch.eventSocketPort" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>8084</value>
+    </setting>
+    <setting name="nameDialPrefix">
+      <value>11</value>
+    </setting>
+    <setting name="defaultTui">
+      <type>
+        <enum>
+          <option>
+            <value>stdui</value>
+          </option>
+          <option>
+            <value>cpui</value>
+          </option>
+        </enum>
+      </type>
+      <value>stdui</value>
+    </setting>
+    <setting name="httpsPort" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>8085</value>
+    </setting>
+    <setting name="voiceMailExpiry" advanced="yes">
+      <type>
+        <integer min="0" />
+      </type>
+      <value>7</value>
+    </setting>
+  </group>
+</model>

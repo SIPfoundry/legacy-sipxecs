@@ -1,0 +1,123 @@
+# included directly (or indirectory) in every Makefile.am
+
+# unclear why this is nec, putting in common place incase this is
+# relevant to some odd platform
+INSTALL=@INSTALL@
+
+SIPX_VERSION:=@VERSION@-$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@)
+## SIPX_BUILDSTAMP records the subversion revision, date/time, which builder built
+## this, and the repository branch (if it is not main).
+defaultBuilder := $(shell (uname -n; id -un))
+BUILDER := $(defaultBuilder)
+BRANCH := $(shell svn info 2>/dev/null | \
+                  sed -e '/branches/!d' \
+                      -e 's%^.*/branches/%branches/%' \
+                      -e 's%/%:%g' )
+sipxBuildTime := $(shell date -u +%Y-%m-%dT%H:%M:%S)
+SIPX_BUILDSTAMP := $(sipxBuildTime) $(BUILDER) $(BRANCH)
+
+LocalizeSipXconfig = sed \
+		  -e 's,@PACKAGE\@,@PACKAGE@,g' \
+		  -e 's,@VERSION\@,@VERSION@,g' \
+		  -e 's,@SIPX_VERSION\@,$(SIPX_VERSION),g' \
+		  -e 's,@abs_builddir\@,@abs_builddir@,g' \
+		  -e 's,@abs_srcdir\@,@abs_srcdir@,g' \
+		  -e 's,@abs_top_srcdir\@,@abs_top_srcdir@,g' \
+		  -e 's,@CONFIGURE_OPTIONS\@,@CONFIGURE_OPTIONS@,g' \
+		  -e 's,@POSTGRESQL_INLCLUDE\@,@POSTGRESQL_INLCLUDE@,g' \
+		  -e 's,@PREFIX\@,$(prefix),g' \
+		  -e 's,@DAILYDIR\@,@DAILYDIR@,g' \
+		  -e 's,@SERVICEDIR\@,@SERVICEDIR@,g' \
+		  -e 's,@sbindir\@,$(sbindir),g' \
+		  -e 's,@bindir\@,$(bindir),g' \
+		  -e 's,@datadir\@,$(datadir),g' \
+		  -e 's,@sysconfdir\@,$(sysconfdir),g' \
+		  -e 's,@INSTALL\@,@INSTALL@,g' \
+		  -e 's,@install_sh\@,@install_sh@,g' \
+		  -e 's,@libdir\@,$(libdir),g' \
+		  -e 's,@localstatedir\@,$(localstatedir),g' \
+		  -e 's,@pkgdatadir\@,@pkgdatadir@,g' \
+		  -e 's,@prefix\@,$(prefix),g' \
+		  -e 's,@profiledir\@,@profiledir@,g' \
+		  -e 's,@wwwdir\@,@wwwdir@,g' \
+		  -e 's,@host\@,@host@,g' \
+		  -e 's,@BASH\@,@BASH@,g' \
+		  -e 's,@PERL\@,@PERL@,g' \
+		  -e 's,@RUBY\@,@RUBY@,g' \
+		  -e 's,@RAKE\@,@RAKE@,g' \
+		  -e 's,@GEM\@,@GEM@,g' \
+		  -e 's,@ODBC_LIBDIR\@,@ODBC_LIBDIR@,g' \
+		  -e 's,@APACHE2_HTTPD\@,@APACHE2_HTTPD@,g' \
+		  -e 's,@APACHE2_MOD\@,@APACHE2_MOD@,g' \
+		  -e 's,@CLOVER_HOME\@,@CLOVER_HOME@,g' \
+		  -e 's,@JAVAC_DEBUG\@,@JAVAC_DEBUG@,g' \
+		  -e 's,@JAVAC_OPTIMIZED\@,@JAVAC_OPTIMIZED@,g' \
+		  -e 's,@JAVA\@,@JAVA@,g' \
+		  -e 's,@JAVA_HOME\@,@JAVA_HOME@,g' \
+		  -e 's,@SIPFOUNDRY_ORG\@,@SIPFOUNDRY_ORG@,g' \
+		  -e 's,@SIPXPBXUSER\@,@SIPXPBXUSER@,g' \
+		  -e 's,@SIPXPBXGROUP\@,@SIPXPBXGROUP@,g' \
+		  -e 's,@SIPX_BINDIR\@,@SIPX_BINDIR@,g' \
+		  -e 's,@SIPX_CONFDIR\@,@SIPX_CONFDIR@,g' \
+		  -e 's,@SIPX_DATADIR\@,@SIPX_DATADIR@,g' \
+		  -e 's,@SIPX_JAVADIR\@,@SIPX_JAVADIR@,g' \
+		  -e 's,@SIPX_DBDIR\@,@SIPX_DBDIR@,g' \
+		  -e 's,@SIPX_DOCDIR\@,@SIPX_DOCDIR@,g' \
+		  -e 's,@SIPX_LOGDIR\@,@SIPX_LOGDIR@,g' \
+		  -e 's,@SIPX_RUNDIR\@,@SIPX_RUNDIR@,g' \
+		  -e 's,@SIPX_TMPDIR\@,@SIPX_TMPDIR@,g' \
+		  -e 's,@SIPX_INCDIR\@,@SIPX_INCDIR@,g' \
+		  -e 's,@SIPX_LIBDIR\@,@SIPX_LIBDIR@,g' \
+		  -e 's,@SIPX_LIBEXECDIR\@,@SIPX_LIBEXECDIR@,g' \
+		  -e 's,@SIPX_VARDIR\@,@SIPX_VARDIR@,g' \
+		  -e 's,@SIPX_VXMLDATADIR\@,@SIPX_VXMLDATADIR@,g' \
+		  -e 's,@XPRESSA_BUILD_NUMBER\@,@XPRESSA_BUILD_NUMBER@,g' \
+		  -e 's,@XPRESSA_BUILD_COMMENT\@,@XPRESSA_BUILD_COMMENT@,g' \
+		  -e 's,@SIPXPHONELIB\@,@SIPXPHONELIB@,g' \
+		  -e 's,@SIPXPHONEDATA\@,@SIPXPHONEDATA@,g' \
+		  -e 's,@SIPXPHONECONF\@,@SIPXPHONECONF@,g' \
+		  -e 's,@SIPXECS_NAME\@,@SIPXECS_NAME@,g' \
+		  -e 's,@NAMED_PROGRAM\@,@NAMED_PROGRAM@,g' \
+		  -e 's,@SELINUX_GETENFORCE\@,@SELINUX_GETENFORCE@,g' \
+		  -e 's,@LIBWWW_RPM\@,@LIBWWW_RPM@,g' \
+		  -e 's,@POSTGRESQL_USER\@,@POSTGRESQL_USER@,g' \
+		  -e 's,@LIBSRC\@,@LIBSRC@,g' \
+		  -e 's,@RPMBUILD_DEBUG_PACKAGE_SPEC\@,@RPMBUILD_DEBUG_PACKAGE_SPEC@,g' \
+		  -e 's,@FREESWITCH_PREFIX\@,@FREESWITCH_PREFIX@,g' \
+		  -e 's,@OPENFIRE_HOME\@,@OPENFIRE_HOME@,g' \
+		  -e 's,@DATE_PARSE_ARGS\@,@DATE_PARSE_ARGS@,g' \
+		  -e 's,@XARGS_REPLACE\@,@XARGS_REPLACE@,g'
+
+################################################################
+# localize and install process definition based on:
+# SIPX_PROCESS_DEFS : the process definition file name without '-process.xml'
+
+install-data-hook: \
+	$(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_DATADIR)/process.d/$(proc)-process.xml)
+
+$(foreach proc,$(SIPX_PROCESS_DEFS),$(DESTDIR)$(SIPX_DATADIR)/process.d/$(proc)-process.xml) \
+	: $(DESTDIR)$(SIPX_DATADIR)/process.d/% : %
+	$(INSTALL) -D -m 644 $< $@
+
+$(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml) : % : %.in
+	@echo "Localize process definition: $*"
+	@$(LocalizeSipXconfig) $< > $@
+
+.PHONY: $(foreach proc,$(SIPX_PROCESS_DEFS),$(proc)-process.xml)
+
+################################################################
+# Common pattern rules
+
+# localize and syntax check a python file
+%.py : %.py.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
+	chmod +x $@
+	python -m py_compile $@
+
+# localize and syntax check a perl file
+%.pl : %.pl.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $< > $@
+	chmod +x $@
+	perl -wc $@

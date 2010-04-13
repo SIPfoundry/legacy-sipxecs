@@ -1,0 +1,6 @@
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <location location_id="111" fqdn="primary.exampl.com" ip_address="10.1.1.1" name="Primary"
+    primary_location="true" stun_address="stun01.sipphone.com" stun_interval="60" public_port="5060" start_rtp_port="30000"
+    stop_rtp_port="31000" use_stun="false" registered="true" />
+</dataset>

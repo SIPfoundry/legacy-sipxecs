@@ -1,0 +1,233 @@
+#!@BASH@
+
+OPERATION="Backup"
+source @SIPX_BINDIR@/sipx-archive-common
+
+# Look for the INTERACTIVE flag first, before processing any other command-line arguments.
+INTERACTIVE="yes"
+for arg in "$@"
+do
+  case $arg in
+    -n|--non-interactive)
+      INTERACTIVE="no"
+      # Re-direct stderr and stdout to a log file.
+      rm -rf @SIPX_LOGDIR@/sipx-backup.log
+      exec 3<>@SIPX_LOGDIR@/sipx-backup.log
+      exec 2>&3
+      exec 1>&3
+      ;;
+    esac
+done
+
+operation_stamp
+
+usage() {
+  echo
+  echo Usage: $0 parameters
+  echo
+  echo "   Backup Configuration and/or Voicemail into archive(s.)  If neither -c nor -v are"
+  echo "   specified, then both Configuration and Voicemail are backed up."
+  echo
+  echo Parameters:
+  echo "   -h|--help             Display this help text."
+  echo "   -n|--non-interactive  Do not run in interactive mode.  All output is logged "
+  echo "                         to sipx-restore.log."
+  echo "   -c|--configuration    Backup only Configuation.  (Incompatible with -v.)"
+  echo "   -v|--voicemail        Backup only Voicemail.  (Incompatible with -c.)"
+  echo "   -d|--directory        Create the archive(s) in the specified directory, rather"
+  echo "                         than the current working directory."
+  echo
+}
+
+bad_candv_usage() {
+  echo "Cannot specify both -c and -v.  Specify neither option to backup both Configuration and Voicemail."
+  bad_usage
+}
+
+CONFIGURATION="yes"
+VOICEMAIL="yes"
+ARCHIVE_DIR=`pwd`
+
+bad_directory() {
+  echo "Invalid archive directory path: '$1'."
+  exit 3
+}
+
+# Process the rest of the command-line arguments.
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -n|--non-interactive)
+      # Ignore at this point.
+      ;;
+
+    -h|--help)
+      usage
+      exit
+      ;;
+
+    -c|--configuration)
+      if [ "$CONFIGURATION" = "no" ]; then
+         bad_candv_usage
+      fi
+      VOICEMAIL="no"
+      ;;
+
+    -v|--voicemail)
+      if [ "$VOICEMAIL" = "no" ]; then
+         bad_candv_usage
+      fi
+      CONFIGURATION="no"
+      ;;
+
+    -d|--directory)
+      # Parse and check the Configuration archive file path.
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -d "${2}" ]
+      then
+        # The extra argument specifies a directory.
+        # Store it, then consume it.
+        ARCHIVE_DIR="${2}"
+        shift
+      else
+        bad_directory ${2}
+      fi
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      bad_usage
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+CONFIG_BACKUP_TAR_FILE=$ARCHIVE_DIR/configuration.tar
+CONFIG_BACKUP_FILE=$CONFIG_BACKUP_TAR_FILE.gz
+VM_BACKUP_FILE=$ARCHIVE_DIR/voicemail.tar.gz
+VERSION_FILE_NAME=version
+
+# Initialize the version file
+SIPX_VERSION=$(@SIPX_BINDIR@/sipxpbx-config --version)
+if [ $? -eq 0 ]
+then
+  echo $SIPX_VERSION > $ARCHIVE_DIR/$VERSION_FILE_NAME
+else
+  # We couldn't get a the version, so we create an empty version file
+  touch $ARCHIVE_DIR/$VERSION_FILE_NAME
+fi
+
+# *** BEGIN Configuration ***
+if [ "$CONFIGURATION" = "yes" ]
+then
+  
+  ConfigBackupFiles="\
+    @SIPX_CONFDIR@/domain-config \
+    @SIPX_CONFDIR@/ssl/ssl.crt \
+    @SIPX_CONFDIR@/ssl/ssl.key \
+    @SIPX_CONFDIR@/mrtg/mrtg-t.cfg \
+    @SIPX_CONFDIR@/mrtg/mrtg.cfg \
+    "
+  ConfigSets=" \
+    @SIPX_CONFDIR@/ssl/authorities/* \
+    @SIPX_VARDIR@/configserver/phone/acd/audio/* \
+    @SIPX_VARDIR@/parkserver/music/* \
+    @SIPX_VXMLDATADIR@/moh/* \
+    @SIPX_VXMLDATADIR@/prompts/* \
+    @SIPX_PAGEMUSICDIR@/* \
+    $SIPX_CERTDB_DIR/* \
+    "
+
+  postgresql_running
+
+  for File in $ConfigBackupFiles; do
+    if [ -f $File ]; then
+      ExistingBackupFiles="$ExistingBackupFiles $File"
+    fi
+  done
+
+  for Set in $ConfigSets; do
+    ExtraFiles=`ls -d $Set 2> /dev/null`
+    for File in $ExtraFiles; do
+     if [ -d $File ]; then
+       UserFiles=`ls $File/* 2> /dev/null`;
+       for UserFile in $UserFiles; do
+            ExistingBackupFiles="$ExistingBackupFiles $UserFile"
+       done
+     else
+     ExistingBackupFiles="$ExistingBackupFiles $File"
+     fi
+    done
+  done
+
+  # List what will be backed up.
+  echo "Will backup the '$CONFIG_DATABASE_NAME' database and the following configuration files:"
+  for File in $ExistingBackupFiles
+  do
+    echo "  $File"
+  done
+  confirm_action
+
+  # Create a copy of /etc/ntp.conf file
+  echo -n "Creating a copy of /etc/ntp.conf file..."
+  NTPConfigFile="ntp.conf.backup"
+  @SIPX_BINDIR@/sipx-time-manager --display-configuration > $ARCHIVE_DIR/$NTPConfigFile
+  echo "done."
+
+  # Delete the old backup file if it exists.
+  delete_old_file $CONFIG_BACKUP_FILE
+
+  # Configuration files.
+  echo -n "Copying configuration files... "
+  tar cC / $ExistingBackupFiles -C $ARCHIVE_DIR $VERSION_FILE_NAME $NTPConfigFile > $CONFIG_BACKUP_TAR_FILE
+  rm -f $ARCHIVE_DIR/$NTPConfigFile
+  echo "done."
+
+  # Configuration database.
+  echo -n "Copying the '$CONFIG_DATABASE_NAME' database contents..."
+  pg_dump -U @POSTGRESQL_USER@ -F t $CONFIG_DATABASE_NAME > $DB_TAR
+  tar --remove-files -rf $CONFIG_BACKUP_TAR_FILE $DB_TAR
+  echo "done."
+
+  gzip --best $CONFIG_BACKUP_TAR_FILE
+
+fi # *** END Configuration ***
+
+# *** BEGIN Voicemail ***
+if [ "$VOICEMAIL" = "yes" ]
+then
+  MAILSTORE=@SIPX_VXMLDATADIR@
+  Files="$MAILSTORE/messageid.txt"
+  Dirs="$MAILSTORE/mailstore"
+ 
+  # Decide/List what will be backed up.
+  echo "Will backup the following:"
+  for Dir in $Dirs; do
+    echo "  $Dir"
+  done
+  for File in $Files; do
+    if [ -f $File ]; then
+      echo "  $File"
+      ExistingFiles="$ExistingFiles $File"
+    else
+      echo "  Missing $File"
+    fi
+  done
+
+  confirm_action
+
+  # Delete the old backup file if it exists.
+  delete_old_file $VM_BACKUP_FILE
+
+  # Copy the files.
+  echo -n "Copying voicemail files... "
+  tar cC / $ExistingFiles $Dirs -C $ARCHIVE_DIR $VERSION_FILE_NAME | gzip --best > $VM_BACKUP_FILE
+  echo "done."
+
+fi # *** END Voicemail ***
+
+#remove version file
+rm -f $ARCHIVE_DIR/$VERSION_FILE_NAME

@@ -1,0 +1,83 @@
+#!/bin/sh
+
+#
+# Copyright (C) 2009 Nortel, certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        --main)
+            Action=MAIN
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+pidfile=@SIPX_RUNDIR@/sipxprovision.pid
+
+JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXprovision/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar @SIPX_JAVADIR@/sipXconfig/*.jar`
+ClassPath=$LibPath:@SIPX_CONFDIR@/sipxprovision
+
+case ${Action} in
+   RUN)
+     echo $$ > ${pidfile}
+
+     setTruststoreOpts
+
+     exec $JavaCmd \
+         -Djavax.net.ssl.trustStore=@SIPX_CONFDIR@/ssl/authorities.jks \
+         -Djavax.net.ssl.trustStoreType=JKS \
+         -Djavax.net.ssl.trustStorePassword="changeit" \
+         -Dconf.dir=@SIPX_CONFDIR@ \
+         -Dvar.dir=@SIPX_VARDIR@ \
+         -cp $ClassPath org.sipfoundry.sipxprovision.SipXprovision \
+         $Args
+     ;;
+
+   STOP)
+     sipx_stop sipxprovision ${pidfile}
+     ;;
+
+   MAIN)
+        Class=`echo $Args | tr -s " " | sed 's/^[ ]//g'`
+     $JavaCmd -cp $ClassPath org.sipfoundry.sipxprovision.$Class
+     ;;
+
+   CONFIGTEST)
+     sipx_config_exists @SIPX_CONFDIR@/sipxprovision-config
+     Status=$(($Status+$?))
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipxprovision.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+         echo "Log file '$logfile' exists but is not writable." >&2
+         Status=1
+     fi
+
+     ;;
+esac
+
+exit $Status

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="ciscoModel" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoModel" parent="abstractPhoneModel"
+    abstract="true">
+	<property name="vendor" value="Cisco"/>
+	<property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="ciscoIpModel" abstract="true" parent="ciscoModel">
+    <property name="beanId" value="ciscoIp" />
+    <property name="profileTemplate" value="ciscoIp/cisco-ip.vm" />
+    <property name="emergencyConfigurable" value="true"/>
+  </bean>
+
+  <bean id="cisco7960" parent="ciscoIpModel">
+    <property name="label" value="Cisco IP 7960" />
+    <property name="maxLineCount" value="6" />
+  </bean>
+  <bean id="cisco7940" parent="ciscoIpModel">
+    <property name="label" value="Cisco IP 7940" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+
+  <bean id="ciscoAtaModel" abstract="true" parent="ciscoModel">
+    <property name="beanId" value="ciscoAta" />
+  </bean>
+
+  <bean id="cisco7912" parent="ciscoAtaModel">
+    <property name="label" value="Cisco IP 7912" />
+    <property name="maxLineCount" value="1" />
+    <property name="cfgPrefix" value="gk" />
+    <property name="upgCode" value="0x601,0x400,0x200" />
+  </bean>
+  <bean id="cisco7905" parent="ciscoAtaModel">
+    <property name="label" value="Cisco IP 7905" />
+    <property name="maxLineCount" value="1" />
+    <property name="cfgPrefix" value="ld" />
+    <property name="upgCode" value="0x501,0x400,0x200" />
+  </bean>
+  <bean id="cisco18x" parent="ciscoAtaModel">
+    <property name="label" value="Cisco ATA 186/188" />
+    <property name="maxLineCount" value="2" />
+    <property name="cfgPrefix" value="ata" />
+    <property name="upgCode" value="0x301,0x400,0x200" />
+  </bean>
+
+  <!-- Cisco 7940, 7960 -->
+  <bean id="ciscoIp" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoIpPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+  <bean id="ciscoIpFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification">
+    <property name="beanId" value="upload" />
+    <property name="modelFilePath" value="ciscoIp/upload.xml" />
+    <property name="label" value="Cisco 7940/60" />
+  </bean>
+
+  <!-- CISCO ATA and low-end cisco phones -->
+  <bean id="ciscoAta" class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaPhone" singleton="false"
+    parent="abstractPhone">
+    <property name="profileGenerator">
+      <bean class="org.sipfoundry.sipxconfig.phone.cisco.CiscoAtaProfileWriter" />
+    </property>
+  </bean>
+</beans>

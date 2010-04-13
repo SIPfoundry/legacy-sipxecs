@@ -1,0 +1,756 @@
+<p align="center">by Bob Andreasen</p>
+<p>The sipXtapi SDK is a C application programming interface for voice
+	communications over IP. Specifically, sipXtapi provides a generalized telephony
+	interface on top of the Session Initiation Protocol (SIP), RFC 3261, and the
+	real-time Transport Protocol (RTP), RFC 1889. While the SIP and RTP protocols
+	provide signaling and media transport infrastructure, sipXtapi also includes
+	many other protocol and standards implementations needed for voice
+	communications.</p>
+<p>
+	sipXtapi is developed under open source and hosted as part of the sipX line of
+	projects available from SIPfoundry.&nbsp; For more information on open source
+	licensing or SIPfoundry, please see www.opensource.org or www.sipfoundry.org.</p>
+<p>The technology used underneath sipXtapi was donated by Pingtel Corp
+	(www.pingtel.com) in March of 2004 when they took their IP PBX and soft phone
+	solutions open source. The technology base was and still is used for their
+	proxy servers, media server, soft phone, and hard phone appliance. The
+	technology is considered well tested and very interoperable with other SIP
+	devices.</p>
+<h2>Objectives</h2>
+<p>
+	The primary objective for sipXtapi is to provide a simple programming interface
+	for application developers. As standards-based protocols; such as SIP, become
+	more popular, enterprises and independent software vendors will provide
+	value-added solutions on top a of a now-commodity voice infrastructure.
+	sipXtapi is designed to enable this class of developers by providing a simple
+	solution that abstracts many of the intricate details of SIP. Developers using
+	sipXtapi do not need to understand the syntax and semantics of the underlying
+	protocols and can focus on a more familiar call model.
+</p>
+<p>Another objective included building an API that was familiar to application
+	developers in telephony. A number of call models exist today, however,
+	Microsoft TAPI 2.2 was chosen as a conceptual base because of its popularity
+	and good separation of line or end point specific features and call center
+	features. Porting a TAPI 2.2 application to sipXtapi requires changes, however,
+	is consider straight forward.</p>
+<p>While building full TAPI service provider model under Windows is an eventual
+	goal, cross platform usage is also a key objective. The sipXtapi SDK builds and
+	runs under Windows, Linux; and MacOS support is planned. The underlying
+	technologies have also been executed on Solaris, embedded Linux, and vxWorks.</p>
+<h2>Feature Set</h2>
+<div align="center">
+	<table width="90%" border="0">
+		<tr>
+			<td><ul>
+					<li>
+					TAPI-like API
+					<li>
+					Multiple simultaneous calls
+					<li>
+					Hold/Unhold, Mute/Unmute
+					<li>
+					Volume and Gain control
+					<li>
+					Selectable audio input device, speaker device, and ringer device
+					<li>
+					Logical separation between ringer and speaker
+					<li>
+					Silent Call Forwarding and Rejection
+					<li>
+					Tone Generation (DTMF, busy, ring back, etc.)
+					<li>
+					Play audio from file
+					<li>
+					Bind to specific network interfaces
+					<LI>
+						Integrated STUN support<br>
+					</LI>
+				</ul>
+			</td>
+			<td><ul>
+					<li>
+					RFC3261 compliant SIP stack
+					<li>
+					RFC2833 Out of band DTMF tones
+					<li>
+					RTP suppression on mute
+					<li>
+					Configurable Ports (UDP, TCP, and RTP)
+					<li>
+					Multiple SIP identities (line appearances)
+					<li>
+					Line authentication
+					<li>
+					DNS SRV timeout control
+					<li>
+					SIP Proxy control
+					<li>
+					Rport
+					<li>
+					G711 Codec
+					<li>
+						Fixed non-adaptive jitter buffer</li>
+				</ul>
+			</td>
+		</tr>
+	</table>
+</div>
+<h2>Possible Uses</h2>
+<p>Using sipXtapi as the base for soft phone client is the most obvious and
+	straight forward use. This API was developed to facilitate SIPfoundry’s next
+	generation soft phone and is heavily tested for that purpose. Basic telephony
+	features are supported along with more advanced features such as client-side
+	conference and transfer.</p>
+<p>Developers are also using sipXtapi to add soft phone-like features to their
+	existing products. This is a slightly different application than a traditional
+	soft phone; however, the basics are identical.</p>
+<p>sipXtapi is also targeted to server-based user agents. The API can be configured
+	to avoid the use of local audio inputs and outputs. For example, the sipXtapi
+	SDK is positioned to become to call processing engine being SIPfoundry’s
+	sipXvxml project. The sipXvxml project is a VoiceXML driven engine that
+	provides SIP IVR functionality.</p>
+<p>sipXtapi provides a quick method to add SIP to a legacy telephony product. The
+	API provides hooks for sourcing and consuming audio data. When combined in a
+	back-to-back user agent (B2BUA) configuration, developers have successful
+	bridged legacy to SIP communication.<br>
+</p>
+<h2>
+	sipXtapi Basics</h2>
+<h3>
+	SIPX_ handles</h3>
+<p>
+	Virtually all of the sipXtapi API methods require one or more handles as
+	function arguments. SIPX_ handles represent all of the data associated with a
+	logic call, conference, line identity, or user agent instance. A brief
+	description of each handle type is provided in Table 1 (below).</p>
+<p align="center">Table 1: sipXtapi Handles
+</p>
+<div align="center">
+	<table width="80%" border="1">
+		<tr>
+			<th>
+				Handle</th>
+			<th>
+				Description</th>
+		</tr>
+		<tr>
+			<td>SIPX_INST</td>
+			<td>The SIPX_INST handle represents an instance of a user agent. A user agent
+				includes a SIP stack and media processing framework. sipXtapi does support
+				multiple instances of user agents in the same process space, however, certain
+				media processing features become limited or ambiguous. For example, only one
+				user agent should control the local system's input and output audio devices.</td>
+		</tr>
+		<tr>
+			<td>SIPX_LINE</td>
+			<td>The SIPX_LINE handle represents an inbound or outbound identity. When placing
+				outbound calls, the application programmer must define the outbound line. When
+				receiving inbound calls, the application can query the line.</td>
+		</tr>
+		<tr>
+			<td>SIPX_CALL</td>
+			<td>The SIPX_CALL handle represents a call or connection between the user agent and
+				another party. All call operations require the call handle as a parameter.</td>
+		</tr>
+		<tr>
+			<td>SIPX_CONF</td>
+			<td>The SIPX_CONF handle represents a collection of SIPX_CALLs that have bridge
+				(mixed) audio. Application developers can manipulate each leg of the conference
+				through various conference functions.</td>
+		</tr>
+		<tr>
+			<td>SIPX_INFO</td>
+			<td>The SIPX_INFO handle represents a handle to an INFO message sent by a sipXtapi
+				instance. INFO messages are useful for communicating information between user
+				agents within a logical call. The SIPX_INFO handle is returned when sending an
+				INFO message via sipxCallSendInfo(...). The handle is references as part of the
+				EVENT_CATEGORY_INFO_STATUS event callback/observer. sipXtapi will automatically
+				deallocate this handle immediately after the status call back.
+			</td>
+		</tr>
+	</table>
+</div>
+<p align="left">Handle life cycles are managed both by the framework and the
+	application developer. Handles such as SIPX_INST, SIPX_LINE, and SIPX_INFO are
+	explicitly created and destroyed by application developers. SIPX_CONF,
+	SIPX_CALL, SIP_INFO handles are explicitly created by the application
+	developer, however, are destroyed automatically at the end of the session. When
+	receiving a new inbound call, a SIPX_CALL handle is implicitly created by the
+	framework.</p>
+<h3 align="left">Functional Method Groups</h3>
+<p>All of the API functions in sipXtapi can be categorized in functional groups.
+	The grouping is derivable from the method names. For example
+	“sipXcallAccept(…)”, “sipXcallReject(…)”, and “sipXcallRedirect(…)” are all
+	call related functions, while “sipxConferenceGetCalls(…)” is a conference
+	function. A brief summary of each functional area is provided in Table 2
+	(below).<br>
+</p>
+<p align="center">
+	Table 2: Functional Method Groups</p>
+<div align="center">
+	<table width="80%" border="1">
+		<tr>
+			<th>
+				Functional Area</th>
+			<th>
+				Description</th>
+		</tr>
+		<tr>
+			<td>Config</td>
+			<td><p>sipXtapi includes a number of configuration settings that allow application
+					developers to set the SIP proxy server, timeout settings, enabling/disable
+					specific SIP such as symmetric signaling.</p>
+				<p>Settings can be change at any point; however, all settings may not affect calls
+					already in progress.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Call</td>
+			<td><p>Call features include accepting, rejecting, and redirecting new inbound calls;
+					answering, holding, mute, playing tones, playing audio files, and transferring
+					active calls; and accessing called and caller ID.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Line</td>
+			<td><p>sipXtapi provides methods to define lines (SIP identities). Lines are modeled
+					after the LEDs found on key-system telephone handsets. Generally, lines
+					represent both outside PSTN lines and inbound queues such as the sale and
+					support queue. In sipXtapi, lines are defined in terms of SIP identities. Each
+					identity is optionally configured to register with a SIP registrar.
+					Authentication credentials are configured on a per line basis.</p>
+				<p>This mechanism allows for both peer-to-peer environments where users setup calls
+					using IP addresses or host names and central directory-oriented environments
+					with authenticated clients registered with a well known registrar.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Audio</td>
+			<td><p>sipXtapi provides methods to enumerate audio devices, select the in-call speaker
+					device, select the ringer device, and set the input device. Additionally, APIs
+					are available for setting speaker volume and microphone gain levels. For
+					servers, application developers may disable microphone and speakers.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Conference</td>
+			<td><p>Adhoc client-mixed conferences are setup and manipulate through a series of
+					conferencing APIs. Application developers may add and remove conference
+					participants and place individual conference participants on hold.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Events</td>
+			<td><p>A callback mechanism (observer pattern) is used to communicate call state
+					transitions to the application layer. Events are categorized by type and
+					include event types. A small number of major events allow for simple
+					application state machines and streamlined processing. Minor events provide
+					additional information and causes for major event transitions.</p>
+			</td>
+		</tr>
+		<tr>
+			<td>Hooks</td>
+			<td><p>Application developers can "hook" audio sources and targets to consume or
+					manipulate audio. This mechanism enables audio logging, audio injection, and
+					audio capture. Additionally, this mechanism has been used to bridge non-SIP
+					voice clients to SIP voice clients using a back to back user agent (B2BUA)
+					approach.</p>
+			</td>
+		</tr>
+	</table>
+</div>
+<h3>Events</h3>
+<p>The sipxTapi API uses events to communicate state transitions to the application
+	layer. Since many of the API calls are asynchronous, events notifications must
+	be reviewed for both operations such as placing a call and externally generated
+	events such as the remote party disconnecting. Descriptions of the major events
+	are listed in Table 3.</p>
+<p></p>
+<p align="center">Table 3: Event Categories</p>
+<div align="center">
+	<table width="80%" border="1" ID="Table1">
+		<tr>
+			<th>
+				<p>Category</p>
+			</th>
+			<th>
+				<p>Description</p>
+			</th>
+		</tr>
+		<tr>
+			<td><p>EVENT_CATEGORY_CALLSTATE</p>
+			</td>
+			<td><p>
+					CALLSTATE events signify a change in state of a call. States range from the
+					notification of a new call to ringing to connection established to changes in
+					audio state (starting sending, stop sending) to termination of a call.</p>
+			</td>
+		</tr>
+		<tr>
+			<td><p>EVENT_CATEGORY_LINESTATE</p>
+			</td>
+			<td><p>
+					LINESTATE events indicate changes in the status of a line appearance. Lines
+					identify inbound and outbound identities and can be either provisioned
+					(hardcoded) or configured to automatically register with a registrar. Lines
+					also encapsulate the authentication criteria needed for dynamic registrations.
+				</p>
+			</td>
+		</tr>
+		<tr>
+			<td><p>EVENT_CATEGORY_INFO_STATUS</p>
+			</td>
+			<td><p>INFO_STATUS events are sent when the application requests sipXtapi to send an
+					INFO message to another user agent. The status event includes the response for
+					the INFO method. Application developers should look at this event to determine
+					the outcome of the INFO message.</p>
+			</td>
+		</tr>
+		<tr>
+			<td><p>EVENT_CATEGORY_INFO</p>
+			</td>
+			<td><p>INFO events are sent to the application whenever an INFO message is received by
+					the sipXtapi user agent. INFO messages are sent to a specific call. sipXtapi
+					will automatically acknowledges the INFO message at the protocol layer.</p>
+			</td>
+		</tr>
+	</table>
+	<p align="center">Table 4: Major CALL_STATE events</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<th>
+					<p>Major Event</p>
+				</th>
+				<th>
+					<p>Description</p>
+				</th>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_NEWCALL</p>
+				</td>
+				<td><p>The NEWCALL event indicates that a new call has been created automatically by
+						the sipXtapi. This event is most frequently generated in response to an inbound
+						call request.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_DIALTONE</p>
+				</td>
+				<td><p>The DIALTONE event indicates that a new call has been created for the purpose of
+						placing an outbound call. The application layer should determine if it needs to
+						simulate dial tone for the end user.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_REMOTE_OFFERING</p>
+				</td>
+				<td><p>The REMOTE_OFFERING event indicates that a call setup invitation has been sent
+						to the remote party. The invitation may or may not every receive a response. If
+						a response is not received in a timely manor, sipXtapi will move the call into
+						a disconnected state. If calling another sipXtapi user agent, the reciprocate
+						state is OFFER.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_REMOTE_ALERTING</p>
+				</td>
+				<td><p>The REMOTE_ALERTING event indicates that a call setup invitation has been
+						accepted and the remote user is in the alerting state (ringing). Depending on
+						the SIP configuration, end points, and proxy servers involved, this event
+						should only last for up to 3 minutes. Afterwards, the state will automatically
+						move to DISCONNECTED. If calling another sipXtapi user agent, the reciprocate
+						state is ALERTING</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_CONNECTED</p>
+				</td>
+				<td><p>The CONNECTED state indicates that call has been setup between the local and
+						remote party. Audio should be flowing provided and the microphone and speakers
+						should be engaged.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_DISCONNECTED</p>
+				</td>
+				<td><p>The DISCONNECTED state indicates that a call was disconnected or failed to
+						connect. A call may move into the DISCONNECTED states from almost every other
+						state. For more information on the causes for a DISCONNECTED event, please
+						review the DISCONNECTED minor states codes.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_OFFERING</p>
+				</td>
+				<td><p>An OFFERING state indicates that a new call invitation has been extended this
+						user agent. Application developers should invoke sipxCallAccept(),
+						sipxCallReject() or sipxCallRedirect() in response. Not responding will result
+						in an implicit call sipxCallReject().</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_ALERTING</p>
+				</td>
+				<td><p>An ALERTING state indicates that an inbound call has been accepted and the
+						application layer should alert the end user. The alerting state is limited to 3
+						minutes in most configurations; afterwards the call will be canceled.
+						Applications will generally play some sort of ringing tone in response to this
+						event.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_DESTROYED</p>
+				</td>
+				<td><p>The DESTORYED event indicates the underlying resources have been removed for a
+						call. This is the last event that the application will receive for any call.
+						The call handle is invalid after this event is received.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>CALLSTATE_UNKNOWN</p>
+				</td>
+				<td><p>An UNKNOWN event is generated when the state for a call is no longer known. This
+						is generally an error condition; see the minor event for specific causes.</p>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>In Figure 1, the state diagram depicts the typical life cycle for an outbound
+		call. An event is sent to the application developers on state transitions.
+		Details on each event can be found in Table 4 and the sipXtapi documentation.</p>
+	<p align="center">Figure 1: Events for an outbound call</p>
+	<p align="center"><img src="callevents_outbound.gif" width="550" height="471"></p>
+	<p align="center">&nbsp;</p>
+	<p>In Figure 2, the state diagram describes the typical life cycle for an inbound
+		call. The “OFFERING” event signals a request for a connection and the
+		application developer can choose to accept the call, reject the call, or
+		redirect the call. Note: Accepting the call is precursor to altering (or
+		ringing) the user.</p>
+	<p align="center">Figure 2: Events for an inbound call</p>
+	<p align="center"><img src="callevents_inbound.gif" width="555" height="429"></p>
+	<p>&nbsp;</p>
+	<h2>Example 1: Placing a simple call</h2>
+	<p>This example demonstrates how to setup a basic call, monitor states, and then
+		clean up the call. The example assumes that the remote party will initiate the
+		hang up.</p>
+	<h3>sipXtapi Setup</h3>
+	<p align="center">Figure 3: sipXtapi Setup</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>
+1: SIPX_INST g_hInst;<br>2: SIPX_LINE g_hLine;<br>3: SIPX_CALL g_hCall;<br>4: <br>5: sipxInitialize(&amp;g_hInst, SIP_PORT, TCP_PORT, RTP_START_PORT);<br>6: sipxListenerAdd(g_hInst, EventCallbackProc, NULL);<br>7: <br>8: sipxLineAdd(g_hInst, “sip:myidentity@example.com”, true, &amp;g_hLine);<br>9: sipxLineAddCredential(g_hLine, “myidentity”, “mypassword”, “example.com”);</pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p align="left">In Figure 3, lines 1 to 3 define global variables that are used
+		throughout the example: user agent instance, default line identity, and call
+		handle.<br>
+		Line 5 initializes the user agent and specifies the default port settings.
+		SIP_PORT and TCP_PORT are traditionally 5060 and define the SIP signaling
+		ports. RTP_START_PORT defines the starting port for RTP audio traffic. sipXtapi
+		will allocate two adjacent audio ports (RTP &amp; RTCP) for each call.</p>
+	<p align="left">Line 6, adds a callback procedure for event notifications.</p>
+	<p>Lines 7 and 9 define a line identity and add authentication credentials for that
+		line.</p>
+	<h3>
+		Placing Call</h3>
+	<p align="center">Figure 4: Placing outbound call</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: sipxCallCreate(g_hInst, g_hLine, &amp;g_hCall);   <br>2: sipxCallConnect(g_hCall, “My Friend &lt;sip:myfriend@example.com&gt;”);<br></pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>In Figure 4, a basic call is created and initiated to
+		“sip:myfriend@example.com”. The line created in Figure 3 was specified and is
+		used for the outbound call identity. Results from the connection attempt are
+		delivered asynchronously though event call backs. However, sipxCallConnect(…)
+		may yield a non-successful return code if the address is malformed or if the
+		domain name is invalid.</p>
+	<h3><br>
+		Event callback signature</h3>
+	<p align="center">Figure 5: Call back signature</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: void EventCallbackProc( SIPX_CALL hCall,<br>2:                         SIPX_LINE hLine,<br>3:                         SIPX_CALLSTATE_MAJOR eMajor,<br>4:                         SIPX_CALLSTATE_MINOR eMinor,  <br>5:                         void* pUserData)<br>6: {<br>7:     switch (eMajor)<br>8:     {<br>9:         case NEWCALL:<br>10:            break ;<br>11:        case DIALTONE:<br>12:            break ;<br>13:        case REMOTE_OFFERING:<br>14:            break ;<br>15:        case REMOTE_ALERTING:<br>16:            break ;<br>17:        case CONNECTED:<br>18:            break ;<br>19:        case DISCONNECTED:<br>20:            break ;<br>21:        case OFFERING:<br>22:            break ;<br>23:        case ALERTING:<br>24:            break ;<br>25:        case DESTROYED:<br>26:            break ;<br>27:        case UNKNOWN:<br>28:            break ;<br>29:    }<br>30:}</pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>Figure 5 provides a skeleton for an event call back. See Table 3 for description
+		of the major event states. Call backs are invoked on a sipXtapi thread context
+		and should not be blocked by the application layer. For a description of the
+		callback parameters, see Table 5.</p>
+	<p align="center">Table 5: Call back parameters</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<th>
+					<p>Parameter</p>
+				</th>
+				<th>
+					<p>Description</p>
+				</th>
+			</tr>
+			<tr>
+				<td><p>SIPX_CALL</p>
+				</td>
+				<td><p>Handle to the call associated with the state change</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>SIPX_LINE</p>
+				</td>
+				<td><p>Line associated with the call. This is most useful when receiving new calls.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>SIPX_CALLSTATE_MAJOR</p>
+				</td>
+				<td><p>The new major event state. See Figures 1 and 2 and the Table 4 for descriptions.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>SIPX_CALLSTATE_MINOR</p>
+				</td>
+				<td><p>The minor event state (or cause code). The cause code gives more meaning behind
+						the major code. For example, was the call disconnected because the remote party
+						was busy or because the remote party hung up? See the sipXtapi documentation
+						for descriptions.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>void*</p>
+				</td>
+				<td><p>Application data specified when the listener was first added.</p>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<h3>Handling remote offered event</h3>
+	<p align="center">Figure 6: Handling remote offered</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: handleRemoteOffered(SIPX_CALL hCall, SIPX_CALLSTATE_MINOR eMinor)<br>2: {<br>3:     char cCallId[512] ;<br>4:     sipxCallGetID(hCall, cCallId, sizeof(cCallId)) ; <br>5:     printf(“%s: Trying…”, cCallId) ;<br>6: }<br></pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>The REMOVE_OFFERING event does not require any action. Generally application
+		developers will display status indicating the progress of the call.<br>
+	</p>
+	<h3>Handling remote alerting event</h3>
+	<p align="center">Figure 7: Handling remote alerting</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: handleRemoteAlerting(SIPX_CALL hCall, SIPX_CALLSTATE_MINOR eMinor)<br>2: {<br>3:     char cCallId[512] ;<br>4:     sipxCallGetID(hCall, cCallId, sizeof(cCallId)) ; 	<br>5:     printf(“%s: Alerting…”, cCallId) ;<br>6: <br>7:     if (REMOTE_ALERTING_MEDIA != eMinor)<br>8:     {<br>9:         sipxCallStartTone(hCall, ID_TONE_RINGBACK, true, false) ;<br>10:    }<br>11:}</pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p align="left">Like REMOTE_OFFERING, the REMOTE_ALERTING event is used to provide
+		feedback to the end user. The code snipped in Figure 7 will play a ring back
+		tone to the end user if “early media”, audio sent along with the alerting
+		indication, is not present. Early media is detectable by looking minor call
+		state event. Early media is often provided by PSTN gateways to provide audible
+		call status.<br>
+	</p>
+	<h3>Handling connected event</h3>
+	<p align="center">Figure 8: Handling connected</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: handleConnected(SIPX_CALL hCall, SIPX_CALLSTATE_MINOR eMinor)<br>2: {<br>3:     char cCallId[512] ;<br>4:     sipxCallGetID(hCall, cCallId, sizeof(cCallId)) ; 	<br>5:     printf(“%s: Connected.”, cCallId) ;<br>6: <br>7:     sipxCallStopTone(hCall) ;<br>8: }<br></pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>The CONNECTED state is significant for user feedback, however, does not require
+		any actions from the application developer. The application layer should pay
+		attention to the minor state events for changes in the connected event. For
+		example, the call may be placed on or off hold.</p>
+	<h3>Handling remote disconnected event
+	</h3>
+	<p align="center">Figure 9: Handling disconnected</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: handleDisconnected(SIPX_CALL hCall, SIPX_CALLSTATE_MINOR eMinor)<br>2: {<br>3:     char cCallId[512] ;<br>4:     sipxCallGetID(hCall, cCallId, sizeof(cCallId)) ; 	<br>5:     printf(“%s: Disconnected.”, cCallId) ;<br>6: <br>7:     sipxCallDestroy(hCall) ;<br>8: }<br></pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>The DISCONNECTED event is generated in many different scenarios. Examples range
+		from locally hang up, the remote party hanging up, a busy end point, a network
+		outage, etc. It is important to look at the minor call state code to determine
+		the reason for the disconnection and take an appropriate action. In Figure 9,
+		the code snippet blindly destroys the call; however, if the minor code was
+		DISCONNECTED_BUSY, one might want to play a busy tone as audible feedback. Once
+		the end user acknowledged the failure, the application developer would then
+		destroy the call.<br>
+	</p>
+	<h2>Example 2: Receiving a call; audio loopback
+	</h2>
+	<p>This example demonstrates how to receive a call and use media hooks to build a
+		simple audio loopback device. The basic sipXtapi setup and event skeleton is
+		identical to Example 1. However, additional setup is required along with
+		different event processing.</p>
+	<p>NOTE: This example assumes that only one call is active at any point in time.</p>
+	<h3>Handling offering event</h3>
+	<p align="center">Figure 10: Handling offering event</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: handleOffering(SIPX_CALL hCall, SIPX_CALLSTATE_MINOR eMinor)<br>2: {<br>3:     char cCallId[512] ;<br>4:     sipxCallGetID(hCall, cCallId, sizeof(cCallId)) ; 	<br>5:     printf(“%s: Offered.”, cCallId) ;<br>6: <br>7:     sipxCallAccept(hCall) ;<br>8: }<br></pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>Upon receiving an OFFERING event, the application developer must accept, reject,
+		or redirect the call. In this example, the call is accepted; however, one
+		should consider rejecting the call if resources are limited or the end users
+		has decided to hold all calls, etc. Depending on the SIP environment, the user
+		agent may redirect calls to another user agent (e.g. voicemail) when the phone
+		is busy. In many architects that decision is pushed into the network and the
+		end point is expected to only reject calls.</p>
+	<h3>Handling alerting event</h3>
+	<p align="center">Figure 11: Handling alerting event</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: handleAlerting(SIPX_CALL hCall, SIPX_CALLSTATE_MINOR eMinor)<br>2: {<br>3:     char cCallId[512] ;<br>4:     sipxCallGetID(hCall, cCallId, sizeof(cCallId)) ; 	<br>5:     printf(“%s: Alerting.”, cCallId) ;<br>6: <br>7:     clearLoopback() ;<br>8:     sipxCallAnswer(hCall) ;<br>9: }<br></pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>The ALERTING event signifies that a call has been accepted and the end user
+		should be alerted. In a soft phone, one would alert the user by playing a ring
+		tone or a custom ring file. This example automatically answers the calls. The
+		clearLookback() call is described later.</p>
+	<h3>Loopback routines</h3>
+	<p align="center">Figure 12: Loopback routines</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: #define SAMPLES_PER_FRAME   80<br>2: #define LOOPBACK_LENGTH     200<br>3: <br>4: static short* g_loopback_samples[LOOPBACK_LENGTH] ;<br>5: static short g_loopback_head = 0 ;<br>6: <br>7: void clearLoopback()<br>8: {<br>9:     for (int i=0; i&lt;LOOPBACK_LENGTH; i++)<br>10:    {<br>11:        if (g_loopback_samples[i])<br>12:        {<br>13:            memset(g_loopback_samples[i], 0, <br>14:                    sizeof(short) * SAMPLES_PER_FRAME) ;<br>15:        }<br>16:    }<br>17:    g_loopback_head = 0 ;<br>18:}<br>19:<br>20:void initLoopback()<br>21:{<br>22:    for (int i=0; i&lt;LOOPBACK_LENGTH; i++)<br>23:    {<br>24:        g_loopback_samples[i] = new short[SAMPLES_PER_FRAME] ;        <br>25:    }<br>26:    clearLoopback() ;<br>37:}</pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>A very simple loopback ring buffer is defined and initialized in Figure 12. For
+		this example, the samples per frame and loopback delay are fixed at 80
+		samples/frame (8000Hz) and 200 frames (2 seconds).</p>
+	<p>initLoopback() and clearLoopback() are helper functions. The initLoopback()
+		method allocates enough memory to hold samples during the delay period. The
+		clearLoopback routine is called between calls to clears all of the samples.
+		Samples are formatted as mono, 16-bit signed, little endian PCM.<br>
+	</p>
+	<h3>Hook implementation</h3>
+	<p align="center">Figure 13: Hook implementation</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: void SpkrAudioHook(const int nSamples, const short* pSamples) <br>2: {  <br>3:     memcpy(g_loopback_samples[g_loopback_head], pSamples, <br>4:             sizeof(short) * SAMPLES_PER_FRAME) ;<br>5:     g_loopback_head = ((g_loopback_head + 1) % LOOPBACK_LENGTH) ;<br>6: }<br>7: <br>8: void MicAudioHook(const int nSamples, short* pSamples) <br>9: {   <br>10:    short index = ((g_loopback_head + 1) % LOOPBACK_LENGTH) ;<br>11:    memcpy(pSamples, g_loopback_samples[index], sizeof(short) *<br>12:            SAMPLES_PER_FRAME) ;            <br>13:}</pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>The sipXtapi SDK allows application developers to hook audio sources and targets
+		to inject or consume audio. For this example, data heading for the speaker is
+		stored in a ringer buffer and later injected as microphone source data. With
+		the 200 frame delay, the remote calling party will hear their voice 2 seconds
+		later.</p>
+	<h3>Additional call setup</h3>
+	<p align="center">Figure 14: Additional call setup</p>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<td><pre>1: initLoopback() ;<br>2: sipxConfigSetSpkrAudioHook(SpkrAudioHook) ;<br>3: sipxConfigSetMicAudioHook(MicAudioHook) ;    <br></pre>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>Plugging in the loopback code is fairly easy. One needs to initialize the
+		loopback data structure and set the speaker and microphone audio hooks as
+		demonstrated in Figure 14.</p>
+	<h2>More Information</h2>
+	<div align="center">
+		<table width="80%" border="1">
+			<tr>
+				<th>
+					<p>Method</p>
+				</th>
+				<th>
+					<p>Description / Instructions</p>
+				</th>
+			</tr>
+			<tr>
+				<td><p>Review API Definition</p>
+				</td>
+				<td><p>API documentation is automatically generated from the source code by doxygen.
+						Please click the <a href="files.html">"Files" link</a> on the top of this page
+						to access detailed documentation.</p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>Latest Docs</p>
+				</td>
+				<td><p>The latest overview and API documentation is found in SIPfoundry source code
+						repository. This information is reviewed easily online:<br>
+						<a href="http://scm.sipfoundry.org/rep/sipXcallLib/main/doc/sipXtapi/html/index.html">
+							http://scm.sipfoundry.org/rep/sipXcallLib/main/doc/sipXtapi/html/index.html</a></p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>SIPfoundry Web Site</p>
+				</td>
+				<td><p>The sipXtapi project is a included as part of the sipXcallLib project. Please
+						review the sipXcallLib project page for additional information:<br>
+						<a href="http://www.sipfoundry.org/sipXcallLib/index.html">http://www.sipfoundry.org/sipXcallLib/index.html</a></p>
+				</td>
+			</tr>
+			<tr>
+				<td><p>Example source code</p>
+				</td>
+				<td><p>Example source code is provide with the sipXcallLib project. You will need to
+						fetch the sipXcallLib, sipXtackLib, sipXmediaLib, and sipXportLib projects to
+						build sipXtapi, however, source examples are easily reviewed online:</p>
+					<dl>
+						<dt><a href="http://scm.sipfoundry.org/rep/sipXcallLib/main/examples/PlaceCall/">PlaceCall
+								Example</a>
+							<dd>
+								Command line utility for placing calls <dt><a href="http://scm.sipfoundry.org/rep/sipXcallLib/main/examples/ReceiveCall/">
+										Receive Call Example</a>
+									<dd>
+										Command line utility for receiving calls <dt><a href="http://scm.sipfoundry.org/rep/sipXcallLib/main/examples/CallScript/">
+												CallScript Example</a>
+											<dd>
+												Command line utility used place many calls <dt><a href="http://scm.sipfoundry.org/rep/sipXcallLib/main/examples/sipXezPhone/">
+														sipXezPhone Example</a>
+													<dd>
+														wxWindows based softphone example by Michael Cohen</dd>
+					</dl>
+				</td>
+			</tr>
+			<tr>
+				<td><p>sipX developer mailing list</p>
+				</td>
+				<td><p>The <a href="https://list.sipfoundry.org/mailman/listinfo/sipx-dev">sipX-dev mailing
+							list</a> is useful for find answers to questions not covered by any of the
+						other sources. Please search the archive for answers before posting your
+						question.</p>
+				</td>
+			</tr>
+		</table>
+	</div>
+	<p>&nbsp;</p>
+	<p>Problems with these docs? Please email bob AT sipfoundry.org.</p>
+</div>

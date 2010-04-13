@@ -1,0 +1,119 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--  The default dial plan for Brazil  -->
+
+  <!-- properties: voiceMail, voiceMailPrefix -->
+  <bean id="br.voicemailRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Correio de voz" />
+    <property name="description" value="Plano de discagem padrão para correio de voz" />
+    <property name="voiceMail" value="101" />
+    <property name="voiceMailPrefix" value="8" />
+  </bean>
+
+  <!-- properties: extension, attendantAliases -->
+  <bean id="br.attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="Atendente automático" />
+    <property name="description" value="Plano de discagem padrão para atendente automático" />
+    <property name="extension" value="100" />
+    <property name="attendantAliases" value="operator 0" />
+  </bean>
+
+  <bean id="br.fireEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Incêndio" />
+    <property name="description" value="Emergência - incêndio" />
+    <property name="emergencyNumber" value="193" />
+  </bean>
+  <bean id="br.ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Ambulância" />
+    <property name="description" value="Emergência - médica" />
+    <property name="emergencyNumber" value="192" />
+  </bean>
+  <bean id="br.policeEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Polícia" />
+    <property name="description" value="Emergência - Polícia" />
+    <property name="emergencyNumber" value="190" />
+  </bean>
+
+  <bean id="br.localRule" parent="defaultLocalRule" singleton="false">
+    <property name="name" value="Local" />
+    <property name="description" value="Plano de discagem local" />
+    <property name="pstnPrefix" value="" />
+    <property name="externalLen" value="8" />
+    <property name="areaCodes" value="2,3,4,5,6,7,8,9" />
+  </bean>
+  <bean id="br.localCollectRule" parent="br.localRule" singleton="false">
+    <property name="name" value="Local a cobrar" />
+    <property name="description" value="Plano de discagem de chamada local a cobrar" />
+    <property name="externalLen" value="12" />
+    <property name="areaCodes" value="9090" />
+  </bean>
+
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
+    longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
+  <bean id="br.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="name" value="Longa Distância" />
+    <property name="description" value="Plano de discagem de longa distância" />
+    <property name="areaCodes" value="11,12,13,14,15,16,17,18,19,21,22,24,27,28,31,32,33,34,35,37,38,41,42,43,44,45,46,47,48,49,51,53,54,55,61,62,63,64,65,66,67,68,69,71,73,74,75,77,79,81,82,83,84,85,86,87,88,89,91,92,93,94,95,96,97,98,99" />
+    <property name="longDistancePrefix" value="0xx" />
+    <property name="externalLen" value="10" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="br.longDistanceCollectRule" parent="br.longDistanceRule" singleton="false">
+    <property name="name" value="Longa Distância a cobrar" />
+    <property name="description" value="Plano de discagem de chamada a cobrar de longa distância" />
+    <property name="longDistancePrefix" value="90xx" />
+  </bean>
+  <bean id="br.locationIndependentRule" parent="br.longDistanceRule" singleton="false">
+    <property name="name" value="Independente do local" />
+    <property name="description" value="Números de telefone de longa distância independente do local" />
+    <property name="longDistancePrefix" value="0" />
+    <property name="areaCodes" value="300" />
+  </bean>
+  <bean id="br.premiumRateRule" parent="br.longDistanceRule" singleton="false">
+    <property name="name" value="Tarifa Especial" />
+    <property name="description" value="Serviços com tarifa especial" />
+    <property name="longDistancePrefix" value="0" />
+    <property name="areaCodes" value="500,900" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="br.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+    <property name="name" value="Ligue grátis" />
+    <property name="description" value="Discagem gratuita" />
+    <property name="longDistancePrefix" value="0" />
+    <property name="areaCodes" value="800" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+  <bean id="br.internationalRule" parent="defaultInternationalRule" singleton="false">
+    <property name="name" value="Internacional" />
+    <property name="description" value="Discagem internacional" />
+    <property name="longDistancePrefix" value="00xx" />
+    <property name="externalLen" value="-1" />
+    <property name="areaCodes" value="" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+
+  <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
+  <!-- this is the list of rules that admin will see after installation and after reverting to default -->
+  <bean id="br.dialPlan" parent="defaultDialPlan" singleton="false">
+    <property name="rules">
+      <list>
+        <ref bean="br.voicemailRule" />
+        <ref bean="br.attendantRule" />
+        <ref bean="br.fireEmergencyRule" />
+        <ref bean="br.ambulanceEmergencyRule" />
+        <ref bean="br.policeEmergencyRule" />
+        <ref bean="br.localRule" />
+        <ref bean="br.localCollectRule" />
+        <ref bean="br.longDistanceRule" />
+        <ref bean="br.longDistanceCollectRule" />
+        <ref bean="br.locationIndependentRule" />
+        <ref bean="br.premiumRateRule" />
+        <ref bean="br.tollFreeRule" />
+        <ref bean="br.internationalRule" />
+      </list>
+    </property>
+  </bean>
+
+</beans>

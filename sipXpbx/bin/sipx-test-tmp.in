@@ -1,0 +1,14 @@
+#!/bin/sh
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Status=0
+
+if ! [[ "`ls -ld /tmp 2>/dev/null`" =~ drwxrwxrw[xt] ]]; then
+    echo 'Incorrect permissions on /tmp:'
+    ls -ld /tmp
+    Status=1
+fi
+exit $Status

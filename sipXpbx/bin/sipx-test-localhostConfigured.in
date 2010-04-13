@@ -1,0 +1,51 @@
+#!/bin/sh
+#
+# Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+    Status=0
+    badAddrs=`mktemp -t sipxpbx.badaddrs.XXXXXX`
+    trap "rm $badAddrs 2>/dev/null" EXIT
+    goodAddrs=`mktemp -t sipxpbx.goodaddrs.XXXXXX`
+    trap "rm $goodAddrs 2>/dev/null" EXIT
+    sed 's/#.*//' /etc/hosts \
+    | awk '/localhost/ { print $1}' \
+    | while read localhost_localaddr
+    do
+        if test "${localhost_localaddr}" = "127.0.0.1"
+        then
+            # expect the ipv4 address
+            echo "${localhost_localaddr}"  >> ${goodAddrs}
+        elif test "${localhost_localaddr}" = "::1"
+        then
+            # ignore the ipv6 address
+            :
+        else
+            echo "      ${localhost_localaddr}"  >> ${badAddrs}
+        fi
+    done
+    if [ -s ${badAddrs} ]; then
+        cat <<EOF
+        The name 'localhost' must map to only the IPv4 address 127.0.0.1
+        Any other IPv4 address for that name may cause routing or authentication errors.
+
+        Remove the following addresses from /etc/hosts:
+
+EOF
+        cat ${badAddrs}
+        Status=1
+    fi
+    goodAddr=`cat $goodAddrs`
+    if test "${goodAddr}" != "127.0.0.1"; then
+        cat <<EOF
+        The name 'localhost' must map to the IPv4 address 127.0.0.1
+        Add the following line to /etc/hosts:
+
+        127.0.0.1		localhost.localdomain localhost
+
+EOF
+        Status=2
+    fi
+    rm -f ${badAddrs} ${goodAddrs}
+    exit $Status

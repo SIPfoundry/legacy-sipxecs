@@ -1,0 +1,47 @@
+License Agreement
+
+The P6Spy Software License, Version 1.2
+
+This license is derived and fully compatible with the Apache Software license, see http://www.apache.org/LICENSE.txt.
+
+Copyright (c) 2001-2003 Andy Martin, Ph.D. and Jeff Goke
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in
+the documentation and/or other materials provided with the distribution.
+
+3. The end-user documentation included with the redistribution, if any, must include the following acknowledgment:
+
+The original concept and code base for P6Spy was conceived and developed by Andy Martin, Ph.D. who generously contributed the first complete release to the public under this license.
+This product was due to the pioneering work of Andy that began in December of 1995 developing applications that could seamlessly be deployed with minimal effort but with dramatic results. This code is maintained and extended by Jeff Goke and with the ideas and contributions of other P6Spy contributors. (http://www.p6spy.com)
+Alternately, this acknowledgment may appear in the software itself, if and wherever such third-party acknowledgments normally appear.
+
+4. The names "P6Spy", "Jeff Goke", and "Andy Martin" must not be used to endorse or promote products derived from this software without prior written permission. For written permission, please contact license@p6spy.com.
+
+5. Products derived from this software may not be called "P6Spy" nor may "P6Spy" appear in their names without prior written permission of Jeff Goke and Andy Martin.
+
+THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+Trademark Notices
+
+Sun, the Sun logo, Sun Microsystems, JavaSoft, JavaBeans, JDK, Java, HotJava, HotJava Views, Visual Java, Solaris, NEO, Joe, Netra, NFS, ONC, ONC+, OpenWindows, PC-NFS, SNM, SunNet Manager, Solaris sunburst design, Solstice, SunCore, SolarNet, SunWeb, Sun Workstation, The Network Is The Computer, ToolTalk, Ultra, Ultracomputing, Ultraserver, Where The Network Is Going, Sun WorkShop, XView, Java WorkShop, the Java Coffee Cup logo, and Visual Java are trademarks or registered trademarks of Sun Microsystems, Inc. in the United States and other countries.
+Windows, WindowsNT, and Win32 are registered trademarks of Microsoft Corp.
+
+JBoss and JBoss Group are trademarks of Marc Fleury under operation by JBoss Group, LLC.
+
+Sybase, SQL Anywhere, and Adaptive Server Anywhere are trademarks of Sybase, Inc.
+
+Microsoft SQL Server is a trademark of the Microsoft Corporation.
+
+BEA, WebLogic, Tuxedo, and Jolt are registered trademarks, and How Business Becomes E-Business, BEA WebLogic E-Business Platform, BEA Builder, BEA eLink, BEA WebLogic Enterprise, BEA WebLogic Express, BEA WebLogic Integration, BEA WebLogic Personalization Server, BEA WebLogic Portal, and BEA WebLogic Server are trademarks of BEA Systems, Inc.
+Oracle is a registered trademark, and ConText, Oracle Alliance and Oracle8 are trademarks or registered trademarks of Oracle Corporation.
+
+DB2, DB2 OLAP Server, WebSphere, and IBM are trademarks or registered trademarks of International Business Machines Corporation in the United States, other countries or both.
+
+MySQL is a trademark of MySQL AB in the United States and other countries.
+
+Other product names mentioned herein and throughout the this web site are the trademarks of their respective owners.

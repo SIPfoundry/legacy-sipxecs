@@ -1,0 +1,6 @@
+CONFIG_SERVER_REPORT = "ENABLED"
+CONFIG_SERVER_AGENT_URL = "${configServerAgentUrl}"
+DB_NAME = "SIPXACD_HISTORY"
+DB_URI = "${dbUri}"
+DB_USER = "${dbUser}"
+LOCATION_FQDN="${locationFqdn}"

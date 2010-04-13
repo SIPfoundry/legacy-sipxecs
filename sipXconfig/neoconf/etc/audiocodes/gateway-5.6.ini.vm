@@ -1,0 +1,151 @@
+## Velocity macros
+## emit comma separated list of values
+## works with arrays
+#macro(emit_csv_index $array $index $setting_names)
+#foreach ($sn in $setting_names)
+#if($velocityCount > 1),#end
+#set($s=$array.getSetting("$sn[$index]"))
+#if($s && $s.Value)$s.Value#else$ignore#end
+#end
+
+#end
+## Emits a parameter table.
+#macro(emit_parameter_table $s)
+#set($backslash = '\')
+#if($s.ProfileName && $s.ProfileName != '$ignore$' && $s.ProfileName != "CoderName")
+[$s.profileName]
+FORMAT ${s.profileName}_Index =#foreach ($name in $s.settingNames)#if ($velocityCount > 1),#end ${s.profileName}_$name#end;
+#foreach ($row in [1..$s.size])
+#set ($settingIndex = $velocityCount - 1)
+$s.profileName $settingIndex=#foreach ($name in $s.settingNames)#if ($velocityCount > 1), #end$s.getSetting($settingIndex, $name).value#end;
+#end
+[${backslash}${s.profileName}]
+#elseif($s.ProfileName == "CoderName")
+#set($codecs = $s.getTypedValue())
+[$s.profileName]
+FORMAT CoderName_Index = CoderName_Type;
+#foreach ($codec in $codecs)
+#set ($settingIndex = $velocityCount - 1)
+$s.profileName $settingIndex=${codec};
+#end
+[${backslash}${s.profileName}]
+#end
+#end
+;**************
+;** Ini File **
+;**************
+
+;generated from template by sipXconfig
+;------------------------------
+
+#foreach ($s in $flatSettings)
+#if($s.ProfileName != '$ignore$')
+#if($parameterTables.contains(${s.ProfileName}))
+#emit_parameter_table($s)
+#elseif($s.Leaf)
+#if(${s.Value})
+${s.ProfileName}=$!{s.Value}
+#if($s.ProfileName == "DHCPEnable")
+## Special handling for this parameter - inverse of the DHCPEnable setting
+#if ($s.Value == 0)
+BootPSelectiveEnable=1
+#else
+BootPSelectiveEnable=0
+#end
+#end
+#end
+#else
+
+[${s.ProfileName}]
+#end
+#end
+#end
+
+#if(${gateway.ModelDefinitions.contains("fxo")})
+[Trunks]
+TRUNKGROUP_1=1-${gateway.ports.size()},$!{firstDefaultCLID},0
+PSTNPREFIX=*,1,*,*,0
+TRUNKGROUPSETTINGS=1,1,255,$ignore
+
+## TargetOfChannel parameter table
+[TargetOfChannel]
+FORMAT TargetOfChannel_Index = TargetOfChannel_Destination, TargetOfChannel_Type;
+#foreach ($port in $gateway.ports)
+#set($port_id = $velocityCount - 1)
+#set($extension = $port.getSettingValue('Port/Extension'))
+#set($enable = $port.getSettingValue('Port/AutomaticDialing'))
+TargetOfChannel ${port_id} = ${extension}, ${enable};
+#end
+[\TargetOfChannel]
+#end
+#if(${gateway.ModelDefinitions.contains("digital")})
+[Trunks]
+#foreach ($port in $gateway.ports)
+#set($port_id = $velocityCount - 1)
+#set($trunk_id = $velocityCount)
+#set($firstDefaultCLID = $port.getSettingValue('Trunk/TrunkGroup_X_FirstPhoneNumber'))
+#set($prefix = $port.getSettingValue('Trunk/Prefix'))
+#set($minChannel = $port.getSettingValue('Trunk/MinChannel'))
+#set($maxChannel = $port.getSettingValue('Trunk/MaxChannel'))
+#set($csm = $port.getSettingValue('Trunk/ChannelSelectMode'))
+TRUNKGROUP_$trunk_id=${port_id}-${port_id}/${minChannel}-${maxChannel},$!{firstDefaultCLID},0
+TRUNKGROUPSETTINGS=${trunk_id},${csm},255,$ignore
+PSTNPREFIX=${prefix},${trunk_id},*,*,0
+#end
+
+#end
+## fxs paramaters only
+#if(${gateway.ModelDefinitions.contains("fxs")})
+[Lines]
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount - 1)
+#set($trunk_id = $velocityCount)
+#set($settings = $line.Settings)
+#set($username = $line.getSettingValue('SIP/Authentication/Username'))
+#set($password = $line.getSettingValue('SIP/Authentication/Password'))
+TRUNKGROUP=${trunk_id}-${trunk_id},${username}
+#end
+
+[Authentication]
+FORMAT Authentication_Index = Authentication_UserId, Authentication_UserPassword;
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount - 1)
+#set($username = $line.getSettingValue('SIP/Authentication/Username'))
+#set($password = $line.getSettingValue('SIP/Authentication/Password'))
+Authentication $line_id = $username, ${password};
+#end
+[\Authentication]
+#end
+
+#if(${gateway.ModelDefinitions.contains("digital")})
+#foreach ($portSettings in $portFlatSettings)
+#set($port_id = $velocityCount - 1)
+; Parameters for trunk: $port_id
+#foreach ($s in $portSettings)
+#if($s.ProfileName != '$ignore$')
+#if($s.Leaf)
+#if(${s.Value})
+${s.ProfileName}_$port_id=$!{s.Value}
+#end
+#else
+
+[${s.ProfileName}_$port_id]
+#end
+#end
+#end
+
+#end
+#end
+#if($allowedIPs)
+; only accept calls from these IP addreses
+#foreach($ip in $allowedIPs)
+PREFIX=*,${ip},*,1,255
+#end
+
+#end
+## parameters that are not configurable per gateway go here
+[IniFileOnlyParams]
+EnableLANWatchDog=1
+IdlePCMPattern=85
+LogoWidth=339
+## end of generated file

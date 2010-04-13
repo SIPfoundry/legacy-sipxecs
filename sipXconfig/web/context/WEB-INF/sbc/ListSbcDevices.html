@@ -1,0 +1,59 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="@PageLink" page="dialplan/sbc/InternetCalling">
+          <span key="link.internetCalling">Internet Calling</span>
+        </a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="gateway/ListGateways">
+          <span key="link.gateways">Gateways</span>
+        </a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="admin/JobStatusPage">
+          <span key="link.jobStatus">Job Status</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <div jwcid="@common/QuickHelp" value="message:help.sbcConfig">this is what SBCs are for...</div>
+  <span jwcid="@common/ErrorMsg"/>
+  <div>
+    <form jwcid="@Form" delegate="bean:validator" listener="listener:formSubmit" id="list:sbc:form">
+      <ul class="component-links">
+        <li>
+          <span jwcid="@PropertySelection"
+            value="ognl:sbcDescriptor"
+            model="ognl:sbcDescriptorSelectionModel"
+            onchange="literal:javascript:this.form.submit();"/>
+        </li>
+      </ul>
+      <table jwcid="@common/Table" id="list:sbc"
+        source="ognl:sbcDeviceManager.sbcDevices"
+        columns="* name,address,model,description"
+        selections="bean:selections"
+        row="ognl:sbc">
+        <span jwcid="nameColumnValue@Block">
+          <a jwcid="@DirectLink"
+            listener="listener:editSbc"
+            parameters="ognl:sbc.id">
+              <span jwcid="@Insert" value="ognl:sbc.name"/>
+          </a>
+        </span>
+        <span jwcid="modelColumnValue@Block">
+          <span jwcid="@Insert" value="ognl:sbc.model.label"/>
+        </span>
+      </table>
+      <ul class="component-submit">
+        <li>
+          <input jwcid="delete@Submit" id="list:sbc:delete"
+            action="listener:delete"
+            value="message:button.delete"/>
+          <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>

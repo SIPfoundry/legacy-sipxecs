@@ -1,0 +1,2114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<sipTrace>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08c6GKQp5aLYEsuTiEOUrm56Tg</branchId>
+			<branchId>z9hG4bK-XX-08c3PyRF_Zwo9V4ogaoPkqT0OQ~CvUiXdk1fBfOQtoyVg`msQ</branchId>
+			<branchId>z9hG4bK6e7a624dED6F1C1C</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:14.662000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:47533</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,</transactionId>
+		<method>INVITE</method>
+		<frameId>1 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:62 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:83</frameId>
+		<remoteHostPort>192.168.5.75:47533</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[INVITE sip:+13013402561@ot.bandwidth.com;user=phone SIP/2.0
+Route: <sip:192.168.5.75:5090;lr>
+Record-Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=LD;sipXecs-rs=%2Aauth%7E.%2Afrom%7EQjBCODExMEYtNTk2RjcyOUU%60%215eafdbfffff6e753833c9e96f1372aa1>
+Via: SIP/2.0/TCP 192.168.5.75;branch=z9hG4bK-XX-08c6GKQp5aLYEsuTiEOUrm56Tg;rport=47533
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08c3PyRF_Zwo9V4ogaoPkqT0OQ~CvUiXdk1fBfOQtoyVg`msQ
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK6e7a624dED6F1C1C
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>
+CSeq: 2 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Contact: <sip:user2@192.168.5.243;x-sipX-nonat>
+Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,INFO,MESSAGE,SUBSCRIBE,NOTIFY,PRACK,UPDATE,REFER
+User-Agent: PolycomSoundPointIP-SPIP_330-UA/3.1.2.0392
+Accept-Language: en
+Supported: 100rel,replaces
+Allow-Events: talk,hold,conference
+Proxy-Authorization: Digest username="user2/0004f2174cc2",realm="sipxtest.sipxtest.net",nonce="6cdf4fb109d4d39a280534c8b19e9fb94b8d86ea",uri="sip:933013402561@sipxtest.sipxtest.net;user=phone",response="6066a69edc9ec5200985075a3fa1537e",algorithm=MD5
+Max-Forwards: 18
+Content-Type: application/sdp
+Date: Tue, 02 Mar 2010 21:45:14 GMT
+Expires: 60
+Content-Length: 272
+
+v=0
+o=- 1167642124 1167642124 IN IP4 192.168.5.243
+s=Polycom IP Phone
+c=IN IP4 192.168.5.243
+t=0 0
+a=sendrecv
+m=audio 2222 RTP/AVP 0 8 18 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:18 G729/8000
+a=fmtp:18 annexb=no
+a=rtpmap:127 telephone-event/8000
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08c6GKQp5aLYEsuTiEOUrm56Tg</branchId>
+			<branchId>z9hG4bK-XX-08c3PyRF_Zwo9V4ogaoPkqT0OQ~CvUiXdk1fBfOQtoyVg`msQ</branchId>
+			<branchId>z9hG4bK6e7a624dED6F1C1C</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:14.872000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:47533</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:47533</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Trying</responseText>
+		<frameId>2 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:74 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:86</frameId>
+		<remoteHostPort>192.168.5.75:47533</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Trying
+Via: SIP/2.0/TCP 192.168.5.75;branch=z9hG4bK-XX-08c6GKQp5aLYEsuTiEOUrm56Tg;rport=47533
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08c3PyRF_Zwo9V4ogaoPkqT0OQ~CvUiXdk1fBfOQtoyVg`msQ
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK6e7a624dED6F1C1C
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>
+CSeq: 2 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK8a3b18897b3cc6f3495ecc951a29b9c6333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:15.053000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,</transactionId>
+		<method>INVITE</method>
+		<frameId>3 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:80</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[INVITE sip:+13013402561@ot.bandwidth.com;user=phone SIP/2.0
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 1 INVITE
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK8a3b18897b3cc6f3495ecc951a29b9c6333037
+Max-Forwards: 70
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:~~id~bridge@69.140.53.66:5080;transport=udp>
+Route: <sip:216.82.225.202:5060;transport=udp;lr>
+Session-Expires: 1800;refresher=uac
+References: fc486922-c3658851-4c0681a0@192.168.5.243;rel=chain;sipxecs-tag=request-invite-z9hg4bk-xx-08c6gkqp5alyesutieourm56tg
+Allow: INVITE,BYE,ACK,CANCEL,OPTIONS
+Supported: timer
+Content-Type: application/sdp
+Content-Length: 280
+
+v=0
+o=sipxbridge 5088517615499539723 1 IN IP4 69.140.53.66
+s=Polycom IP Phone
+c=IN IP4 69.140.53.66
+t=0 0
+a=sendrecv
+m=audio 30000 RTP/AVP 0 8 18 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:8 PCMA/8000
+a=rtpmap:18 G729/8000
+a=fmtp:18 annexb=no
+a=rtpmap:127 telephone-event/8000
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK8a3b18897b3cc6f3495ecc951a29b9c6333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:15.147000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Giving a try</responseText>
+		<frameId>4 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:89</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Giving a try
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 1 INVITE
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK8a3b18897b3cc6f3495ecc951a29b9c6333037
+Server: Bandwidth.com TRM (gold.13)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK8a3b18897b3cc6f3495ecc951a29b9c6333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:16.485000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<responseCode>183</responseCode>
+		<responseText>Session Progress</responseText>
+		<frameId>5 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:95</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 183 Session Progress
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK8a3b18897b3cc6f3495ecc951a29b9c6333037
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 1 INVITE
+Record-Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+Contact: <sip:+13013402561@67.231.8.200:5060>
+Allow: INVITE,ACK,CANCEL,BYE,INFO,NOTIFY,PRACK,UPDATE,OPTIONS,MESSAGE
+Content-Disposition: session;handling=required
+Content-Type: application/sdp
+Content-Length: 235
+
+v=0
+o=Sonus_UAC 16512 7934 IN IP4 67.231.8.200
+s=SIP Media Capabilities
+c=IN IP4 67.231.8.110
+t=0 0
+m=audio 25134 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08c6GKQp5aLYEsuTiEOUrm56Tg</branchId>
+			<branchId>z9hG4bK-XX-08c3PyRF_Zwo9V4ogaoPkqT0OQ~CvUiXdk1fBfOQtoyVg`msQ</branchId>
+			<branchId>z9hG4bK6e7a624dED6F1C1C</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:16.507000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:47533</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:47533</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<responseCode>183</responseCode>
+		<responseText>Session progress</responseText>
+		<frameId>6 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:109</frameId>
+		<remoteHostPort>192.168.5.75:47533</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 183 Session progress
+Record-Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=LD;sipXecs-rs=%2Aauth%7E.%2Afrom%7EQjBCODExMEYtNTk2RjcyOUU%60%215eafdbfffff6e753833c9e96f1372aa1>
+Via: SIP/2.0/TCP 192.168.5.75;branch=z9hG4bK-XX-08c6GKQp5aLYEsuTiEOUrm56Tg;rport=47533
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08c3PyRF_Zwo9V4ogaoPkqT0OQ~CvUiXdk1fBfOQtoyVg`msQ
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK6e7a624dED6F1C1C
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 2 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:933013402561@192.168.5.75:5090>
+Content-Type: application/sdp
+Content-Length: 247
+
+v=0
+o=sipxbridge 3034531246680223561 1 IN IP4 192.168.5.75
+s=SIP Media Capabilities
+c=IN IP4 192.168.5.75
+t=0 0
+m=audio 30002 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK8a3b18897b3cc6f3495ecc951a29b9c6333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:18.700000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>7 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:113</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK8a3b18897b3cc6f3495ecc951a29b9c6333037
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 1 INVITE
+Record-Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+Accept: application/sdp
+Contact: <sip:+13013402561@67.231.8.200:5060>
+Allow: INVITE,ACK,CANCEL,BYE,INFO,NOTIFY,PRACK,UPDATE,OPTIONS,MESSAGE
+Content-Disposition: session;handling=required
+Content-Type: application/sdp
+Content-Length: 235
+
+v=0
+o=Sonus_UAC 16512 7934 IN IP4 67.231.8.200
+s=SIP Media Capabilities
+c=IN IP4 67.231.8.110
+t=0 0
+m=audio 25134 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08c6GKQp5aLYEsuTiEOUrm56Tg</branchId>
+			<branchId>z9hG4bK-XX-08c3PyRF_Zwo9V4ogaoPkqT0OQ~CvUiXdk1fBfOQtoyVg`msQ</branchId>
+			<branchId>z9hG4bK6e7a624dED6F1C1C</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:18.713000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:47533</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:47533</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>8 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:124</frameId>
+		<remoteHostPort>192.168.5.75:47533</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Record-Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=LD;sipXecs-rs=%2Aauth%7E.%2Afrom%7EQjBCODExMEYtNTk2RjcyOUU%60%215eafdbfffff6e753833c9e96f1372aa1>
+Via: SIP/2.0/TCP 192.168.5.75;branch=z9hG4bK-XX-08c6GKQp5aLYEsuTiEOUrm56Tg;rport=47533
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08c3PyRF_Zwo9V4ogaoPkqT0OQ~CvUiXdk1fBfOQtoyVg`msQ
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK6e7a624dED6F1C1C
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 2 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:933013402561@192.168.5.75:5090>
+Content-Type: application/sdp
+Content-Length: 247
+
+v=0
+o=sipxbridge 3034531246680223561 1 IN IP4 192.168.5.75
+s=SIP Media Capabilities
+c=IN IP4 192.168.5.75
+t=0 0
+m=audio 30002 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08c98Rzwcu5q`gl8kkXuCRdbig</branchId>
+			<branchId>z9hG4bKbc95de49C18A1898</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:18.742000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>A2,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<method>ACK</method>
+		<frameId>9 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:127</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[ACK sip:933013402561@192.168.5.75:5090 SIP/2.0
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08c98Rzwcu5q`gl8kkXuCRdbig
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bKbc95de49C18A1898
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 2 ACK
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Contact: <sip:user2@192.168.5.243;x-sipX-nonat>
+Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,INFO,MESSAGE,SUBSCRIBE,NOTIFY,PRACK,UPDATE,REFER
+User-Agent: PolycomSoundPointIP-SPIP_330-UA/3.1.2.0392
+Accept-Language: en
+Max-Forwards: 20
+Date: Tue, 02 Mar 2010 21:45:18 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK230a6585fd5d46fab679fc57e6671b8f333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:18.749000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>A1,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<method>ACK</method>
+		<frameId>10 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:137</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[ACK sip:+13013402561@67.231.8.200:5060 SIP/2.0
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 1 ACK
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK230a6585fd5d46fab679fc57e6671b8f333037
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Max-Forwards: 70
+Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08cco79veLv3lc1l0HQewDhjRg</branchId>
+			<branchId>z9hG4bK4c66c9072252B96</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:22.522000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>3,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<method>re-INVITE</method>
+		<frameId>11 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:142 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:155</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[INVITE sip:933013402561@192.168.5.75:5090 SIP/2.0
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08cco79veLv3lc1l0HQewDhjRg
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK4c66c9072252B96
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 3 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Contact: <sip:user2@192.168.5.243;x-sipX-nonat>;+sip.rendering=no
+Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,INFO,MESSAGE,SUBSCRIBE,NOTIFY,PRACK,UPDATE,REFER
+User-Agent: PolycomSoundPointIP-SPIP_330-UA/3.1.2.0392
+Accept-Language: en
+Supported: 100rel,replaces
+Allow-Events: talk,hold,conference
+Proxy-Authorization: Digest username="user2/0004f2174cc2",realm="sipxtest.sipxtest.net",nonce="6cdf4fb109d4d39a280534c8b19e9fb94b8d86ea",uri="sip:933013402561@sipxtest.sipxtest.net;user=phone",response="6066a69edc9ec5200985075a3fa1537e",algorithm=MD5
+Max-Forwards: 20
+Date: Tue, 02 Mar 2010 21:45:22 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK57780da225cd0e1057e27aad4a82203b333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:22.539000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<method>re-INVITE</method>
+		<frameId>12 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:154</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[INVITE sip:+13013402561@67.231.8.200:5060 SIP/2.0
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK57780da225cd0e1057e27aad4a82203b333037
+CSeq: 2 INVITE
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+Accept: application/sdp
+Content-Disposition: session;handling=required
+Max-Forwards: 70
+Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+References: fc486922-c3658851-4c0681a0@192.168.5.243;rel=chain;sipxecs-tag=request-invite-z9hg4bk-xx-08cco79velv3lc1l0hqewdhjrg
+Contact: <sip:69.140.53.66:5080>
+Allow: INVITE,BYE,ACK,CANCEL,OPTIONS
+Supported: timer
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK57780da225cd0e1057e27aad4a82203b333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:22.633000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Giving a try</responseText>
+		<frameId>13 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:159</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Giving a try
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK57780da225cd0e1057e27aad4a82203b333037
+CSeq: 2 INVITE
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+Server: Bandwidth.com TRM (gold.13)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK57780da225cd0e1057e27aad4a82203b333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:22.721000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>14 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:166</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK57780da225cd0e1057e27aad4a82203b333037
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 2 INVITE
+Record-Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+Accept: application/sdp
+Contact: <sip:+13013402561@67.231.8.200:5060>
+Allow: INVITE,ACK,CANCEL,BYE,INFO,NOTIFY,PRACK,UPDATE,OPTIONS,MESSAGE
+Content-Disposition: session;handling=required
+Content-Type: application/sdp
+Content-Length: 235
+
+v=0
+o=Sonus_UAC 16512 7935 IN IP4 67.231.8.200
+s=SIP Media Capabilities
+c=IN IP4 67.231.8.110
+t=0 0
+m=audio 25134 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08cco79veLv3lc1l0HQewDhjRg</branchId>
+			<branchId>z9hG4bK4c66c9072252B96</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:22.726000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>3,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Trying</responseText>
+		<frameId>15 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:173</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08cco79veLv3lc1l0HQewDhjRg
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK4c66c9072252B96
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>
+CSeq: 3 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08cco79veLv3lc1l0HQewDhjRg</branchId>
+			<branchId>z9hG4bK4c66c9072252B96</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:22.732000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>3,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>16 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:175</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08cco79veLv3lc1l0HQewDhjRg
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK4c66c9072252B96
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 3 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Supported: replaces,100rel
+Content-Type: application/sdp
+Contact: <sip:~~id~bridge@192.168.5.75:5090>
+Content-Length: 247
+
+v=0
+o=sipxbridge 3034531246680223561 1 IN IP4 192.168.5.75
+s=SIP Media Capabilities
+c=IN IP4 192.168.5.75
+t=0 0
+m=audio 30002 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08d9L2OFccpDFm0jKwT`1d3XEA</branchId>
+			<branchId>z9hG4bKa47f5a0c2660DBFB</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:22.874000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>A3,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<method>ACK</method>
+		<frameId>17 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:178</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[ACK sip:933013402561@192.168.5.75:5090 SIP/2.0
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08d9L2OFccpDFm0jKwT`1d3XEA
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bKa47f5a0c2660DBFB
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 3 ACK
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Contact: <sip:user2@192.168.5.243;x-sipX-nonat>;+sip.rendering=no
+Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,INFO,MESSAGE,SUBSCRIBE,NOTIFY,PRACK,UPDATE,REFER
+User-Agent: PolycomSoundPointIP-SPIP_330-UA/3.1.2.0392
+Accept-Language: en
+Max-Forwards: 20
+Content-Type: application/sdp
+Date: Tue, 02 Mar 2010 21:45:22 GMT
+Content-Length: 257
+
+v=0
+o=- 1167642124 1167642125 IN IP4 192.168.5.243
+s=Polycom IP Phone
+c=IN IP4 192.168.5.75
+t=0 0
+a=sendonly
+m=audio 12542 RTP/AVP 0 127
+a=silenceSupp:off - - - -
+a=ptime:20
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-16
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK34905f92f640600f3a3f0c1d19ef2273333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:22.888000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>A2,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<method>ACK</method>
+		<frameId>18 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:185</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[ACK sip:+13013402561@67.231.8.200:5060 SIP/2.0
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 2 ACK
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK34905f92f640600f3a3f0c1d19ef2273333037
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Max-Forwards: 70
+Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Content-Type: application/sdp
+Content-Length: 277
+
+v=0
+o=sipxbridge 5088517615499539723 1 IN IP4 69.140.53.66
+s=Polycom IP Phone
+c=IN IP4 69.140.53.66
+t=0 0
+a=sendrecv
+m=audio 30000 RTP/AVP 0 127
+a=silenceSupp:off - - - -
+a=ptime:20
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-16
+a=sendrecv
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08dcffalGMvMVj5bJAChFdepbg</branchId>
+			<branchId>z9hG4bKfb196d028C8E1031</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.089000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>5,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<method>REFER</method>
+		<frameId>19 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:200</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[REFER sip:933013402561@192.168.5.75:5090 SIP/2.0
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08dcffalGMvMVj5bJAChFdepbg
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bKfb196d028C8E1031
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 5 REFER
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Contact: <sip:user2@192.168.5.243;x-sipX-nonat>
+User-Agent: PolycomSoundPointIP-SPIP_330-UA/3.1.2.0392
+Accept-Language: en
+Refer-To: <sip:201@sipxtest.sipxtest.net?X-sipX-Authidentity=%3Csip%3Auser2%40sipxtest.sipxtest.net%3Bsignature%3D4B8D86FA%253A%253A68564d485bdee4ad51abb707b4351350%3E&REFERENCES=fc486922-c3658851-4c0681a0%40192.168.5.243%3Brel%3Drefer>
+Referred-By: <sip:user2@sipxtest.sipxtest.net>
+Proxy-Authorization: Digest username="user2/0004f2174cc2",realm="sipxtest.sipxtest.net",nonce="385018eb887ee3142131f0d01010ea334b8d86fa",uri="sip:933013402561@192.168.5.75:5090",response="d1b13f490494137eb040ef069534a028",algorithm=MD5
+Max-Forwards: 20
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08dcffalGMvMVj5bJAChFdepbg</branchId>
+			<branchId>z9hG4bKfb196d028C8E1031</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.096000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>5,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Trying</responseText>
+		<frameId>20 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:208</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08dcffalGMvMVj5bJAChFdepbg
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bKfb196d028C8E1031
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>
+CSeq: 5 REFER
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:~~id~bridge@192.168.5.75:5090>
+Supported: replaces,100rel
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKa4d6e1d7e4f42fdbc77dd160adf264bb333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.201000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>3,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<method>re-INVITE</method>
+		<frameId>21 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:214</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[INVITE sip:+13013402561@67.231.8.200:5060 SIP/2.0
+CSeq: 3 INVITE
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+Content-Disposition: session;handling=required
+Max-Forwards: 70
+Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+References: fc486922-c3658851-4c0681a0@192.168.5.243;rel=chain;sipxecs-tag=request-refer-z9hg4bk-xx-08dcffalgmvmvj5bjachfdepbg
+Allow: INVITE,BYE,ACK,CANCEL,OPTIONS
+Supported: timer
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bKa4d6e1d7e4f42fdbc77dd160adf264bb333037
+Contact: <sip:69.140.53.66:5080>
+Accept: application/sdp
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKa4d6e1d7e4f42fdbc77dd160adf264bb333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.304000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>3,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Giving a try</responseText>
+		<frameId>22 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:216</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Giving a try
+CSeq: 3 INVITE
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bKa4d6e1d7e4f42fdbc77dd160adf264bb333037
+Server: Bandwidth.com TRM (gold.13)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKa4d6e1d7e4f42fdbc77dd160adf264bb333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.376000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>3,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>23 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:223</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bKa4d6e1d7e4f42fdbc77dd160adf264bb333037
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 3 INVITE
+Record-Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+Accept: application/sdp
+Contact: <sip:+13013402561@67.231.8.200:5060>
+Allow: INVITE,ACK,CANCEL,BYE,INFO,NOTIFY,PRACK,UPDATE,OPTIONS,MESSAGE
+Content-Disposition: session;handling=required
+Content-Type: application/sdp
+Content-Length: 262
+
+v=0
+o=Sonus_UAC 16512 7936 IN IP4 67.231.8.200
+s=SIP Media Capabilities
+c=IN IP4 67.231.8.110
+t=0 0
+m=audio 25134 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=silenceSupp:off - - - -
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKf3f800e99147c5f31f917b92a772f907333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.383000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>A3,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<method>ACK</method>
+		<frameId>24 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:228</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[ACK sip:+13013402561@67.231.8.200:5060 SIP/2.0
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 3 ACK
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bKf3f800e99147c5f31f917b92a772f907333037
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Max-Forwards: 70
+Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Content-Type: application/sdp
+Content-Length: 238
+
+v=0
+o=sipxbridge 5088517615499539723 1 IN IP4 69.140.53.66
+s=Polycom IP Phone
+c=IN IP4 69.140.53.66
+t=0 0
+a=sendrecv
+m=audio 30000 RTP/AVP 0
+a=silenceSupp:off - - - -
+a=ptime:20
+a=rtpmap:0 PCMU/8000
+a=fmtp:127 0-16
+a=sendrecv
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKada3a692fcf1b6a3dd5476a9b4434f9b333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.399000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Trying</responseText>
+		<frameId>25 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:238</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Trying
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+CSeq: 1 INVITE
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bKada3a692fcf1b6a3dd5476a9b4434f9b333037;sipxecs-id=5003c76a
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKada3a692fcf1b6a3dd5476a9b4434f9b333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.402000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,</transactionId>
+		<method>INVITE</method>
+		<frameId>26 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:241</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[INVITE sip:201@sipxtest.sipxtest.net SIP/2.0
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+CSeq: 1 INVITE
+To: <sip:201@sipxtest.sipxtest.net>
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bKada3a692fcf1b6a3dd5476a9b4434f9b333037;sipxecs-id=5003c76a
+Max-Forwards: 20
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+x-sipx-authidentity: <sip:user2@sipxtest.sipxtest.net;signature=4B8D86FA%3A%3A68564d485bdee4ad51abb707b4351350>
+References: fc486922-c3658851-4c0681a0@192.168.5.243;rel=refer;sipxecs-tag=request-refer-z9hg4bk-xx-08dcffalgmvmvj5bjachfdepbg
+Referred-By: <sip:user2@sipxtest.sipxtest.net>
+Allow: INVITE,BYE,ACK,CANCEL,REFER,OPTIONS,PRACK
+Supported: replaces,100rel
+Contact: <sip:user2@192.168.5.75:5090>
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+Route: <sip:192.168.5.75;transport=tcp;lr>
+Content-Type: application/sdp
+Content-Length: 274
+
+v=0
+o=sipxbridge 3034531246680223561 1 IN IP4 192.168.5.75
+s=SIP Media Capabilities
+c=IN IP4 192.168.5.75
+t=0 0
+m=audio 30002 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=silenceSupp:off - - - -
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08dcffalGMvMVj5bJAChFdepbg</branchId>
+			<branchId>z9hG4bKfb196d028C8E1031</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.429000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>5,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<responseCode>202</responseCode>
+		<responseText>Accepted</responseText>
+		<frameId>27 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:246</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 202 Accepted
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08dcffalGMvMVj5bJAChFdepbg
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bKfb196d028C8E1031
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 5 REFER
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:192.168.5.75:5090>
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKff09ac0b34d2c3629b076bf994d2a604333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.432000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243,1998690388,B0B8110F-596F729E</transactionId>
+		<method>NOTIFY</method>
+		<frameId>28 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:250</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[NOTIFY sip:user2@192.168.5.243;x-sipX-nonat SIP/2.0
+Via: SIP/2.0/UDP 192.168.5.75:5090;branch=z9hG4bKff09ac0b34d2c3629b076bf994d2a604333037
+CSeq: 1 NOTIFY
+From: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+To: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Max-Forwards: 70
+Contact: <sip:192.168.5.75:5090;transport=udp>
+Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=LD;sipXecs-rs=%2Aauth%7E.%2Afrom%7EQjBCODExMEYtNTk2RjcyOUU%60%215eafdbfffff6e753833c9e96f1372aa1>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Event: refer;id=5
+Subscription-State: active
+References: fc486922-c3658851-4c0681a0@192.168.5.243.1.0;rel=sipxecs-notify-response;sipxecs-tag=response-invite-z9hg4bkada3a692fcf1b6a3dd5476a9b4434f9b333037-100
+Content-Type: message/sipfrag
+Allow: INVITE,BYE,ACK,CANCEL,REFER,OPTIONS,PRACK
+Supported: replaces,100rel
+Content-Length: 20
+
+SIP/2.0 100 Trying
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKff09ac0b34d2c3629b076bf994d2a604333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.460000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243,1998690388,B0B8110F-596F729E</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>29 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:254</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.5.75:5090;branch=z9hG4bKff09ac0b34d2c3629b076bf994d2a604333037
+From: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+To: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+CSeq: 1 NOTIFY
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Contact: <sip:user2@192.168.5.243>
+Event: refer;id=5
+User-Agent: PolycomSoundPointIP-SPIP_330-UA/3.1.2.0392
+Accept-Language: en
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKada3a692fcf1b6a3dd5476a9b4434f9b333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.617000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,32AB9E26-58915E2B</transactionId>
+		<responseCode>180</responseCode>
+		<responseText>Ringing</responseText>
+		<frameId>30 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:263</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 180 Ringing
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bKada3a692fcf1b6a3dd5476a9b4434f9b333037;sipxecs-id=5003c76a
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+CSeq: 1 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+Contact: <sip:user1@192.168.5.242;transport=tcp>
+Record-Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=AL%2CINT;sipXecs-rs=%2Aauth%7E.%2Afrom%7EMTYyNjU3MTc3NQ%60%60%2174b252b821cb573d4c8214b8dbe5b240>
+User-Agent: PolycomSoundPointIP-SPIP_320-UA/3.1.2.0392
+Allow-Events: talk,hold,conference
+Accept-Language: en
+Require: 100rel
+RSeq: 8193
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK4edf27d4d36d7ab3eca3a1cbfc0930d3333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.625000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,32AB9E26-58915E2B</transactionId>
+		<method>PRACK</method>
+		<frameId>31 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:276</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[PRACK sip:user1@192.168.5.242;transport=tcp SIP/2.0
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK4edf27d4d36d7ab3eca3a1cbfc0930d3333037
+CSeq: 2 PRACK
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+Allow-Events: talk,hold,conference
+Accept-Language: en
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Max-Forwards: 70
+Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=AL%2CINT;sipXecs-rs=%2Aauth%7E.%2Afrom%7EMTYyNjU3MTc3NQ%60%60%2174b252b821cb573d4c8214b8dbe5b240>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+RAck: 8193 1 INVITE
+Allow: INVITE,BYE,ACK,CANCEL,OPTIONS
+Supported: timer
+References: fc486922-c3658851-4c0681a0@192.168.5.243.1.0;rel=chain;sipxecs-tag=response-invite-z9hg4bkada3a692fcf1b6a3dd5476a9b4434f9b333037-180
+Contact: <sip:~~id~bridge@192.168.5.75:5090>
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK876ec652d48eb1b28ac89ea3f89447c3333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.630000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243,1998690388,B0B8110F-596F729E</transactionId>
+		<method>NOTIFY</method>
+		<frameId>32 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:280</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[NOTIFY sip:user2@192.168.5.243;x-sipX-nonat SIP/2.0
+Via: SIP/2.0/UDP 192.168.5.75:5090;branch=z9hG4bK876ec652d48eb1b28ac89ea3f89447c3333037
+CSeq: 2 NOTIFY
+From: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+To: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Event: refer;id=5
+Accept-Language: en
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Max-Forwards: 70
+Contact: <sip:192.168.5.75:5090;transport=udp>
+Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=LD;sipXecs-rs=%2Aauth%7E.%2Afrom%7EQjBCODExMEYtNTk2RjcyOUU%60%215eafdbfffff6e753833c9e96f1372aa1>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Subscription-State: active
+References: fc486922-c3658851-4c0681a0@192.168.5.243.1.0;rel=sipxecs-notify-response;sipxecs-tag=response-invite-z9hg4bkada3a692fcf1b6a3dd5476a9b4434f9b333037-180
+Content-Type: message/sipfrag
+Allow: INVITE,BYE,ACK,CANCEL,REFER,OPTIONS,PRACK
+Supported: replaces,100rel
+Content-Length: 21
+
+SIP/2.0 180 Ringing
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK876ec652d48eb1b28ac89ea3f89447c3333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.651000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243,1998690388,B0B8110F-596F729E</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>33 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:284</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.5.75:5090;branch=z9hG4bK876ec652d48eb1b28ac89ea3f89447c3333037
+From: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+To: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+CSeq: 2 NOTIFY
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Contact: <sip:user2@192.168.5.243>
+Event: refer;id=5
+User-Agent: PolycomSoundPointIP-SPIP_330-UA/3.1.2.0392
+Accept-Language: en
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08f7AyDqoN5WMB25II5zhWYAlg</branchId>
+			<branchId>z9hG4bK5960d809ECE20EF</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.675000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>6,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<method>BYE</method>
+		<frameId>34 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:292</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[BYE sip:933013402561@192.168.5.75:5090 SIP/2.0
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08f7AyDqoN5WMB25II5zhWYAlg
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK5960d809ECE20EF
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 6 BYE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Contact: <sip:user2@192.168.5.243;x-sipX-nonat>
+User-Agent: PolycomSoundPointIP-SPIP_330-UA/3.1.2.0392
+Accept-Language: en
+Proxy-Authorization: Digest username="user2/0004f2174cc2",realm="sipxtest.sipxtest.net",nonce="385018eb887ee3142131f0d01010ea334b8d86fa",uri="sip:933013402561@192.168.5.75:5090",response="1d3d341a2e883416dccb59ffa220ab70",algorithm=MD5
+Max-Forwards: 20
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK4edf27d4d36d7ab3eca3a1cbfc0930d3333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.679000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,32AB9E26-58915E2B</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>35 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:300</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK4edf27d4d36d7ab3eca3a1cbfc0930d3333037
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+CSeq: 2 PRACK
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+Contact: <sip:user1@192.168.5.242;transport=tcp>
+User-Agent: PolycomSoundPointIP-SPIP_320-UA/3.1.2.0392
+Accept-Language: en
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08f7AyDqoN5WMB25II5zhWYAlg</branchId>
+			<branchId>z9hG4bK5960d809ECE20EF</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.682000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>6,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Trying</responseText>
+		<frameId>36 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:308</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08f7AyDqoN5WMB25II5zhWYAlg
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK5960d809ECE20EF
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>
+CSeq: 6 BYE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:~~id~bridge@192.168.5.75:5090>
+Supported: replaces,100rel
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-08f7AyDqoN5WMB25II5zhWYAlg</branchId>
+			<branchId>z9hG4bK5960d809ECE20EF</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.685000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>6,fc486922-c3658851-4c0681a0@192.168.5.243,B0B8110F-596F729E,1998690388</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>37 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:312</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-08f7AyDqoN5WMB25II5zhWYAlg
+Via: SIP/2.0/UDP 192.168.5.243;branch=z9hG4bK5960d809ECE20EF
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=B0B8110F-596F729E
+To: <sip:933013402561@sipxtest.sipxtest.net;user=phone>;tag=1998690388
+CSeq: 6 BYE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:~~id~bridge@192.168.5.75:5090>
+Supported: replaces,100rel
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK2ce6.76d108e4.0</branchId>
+			<branchId>z9hG4bK0bBf55f1e14e3c90271</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.805000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>9554,fc486922-c3658851-4c0681a0@192.168.5.243.0,gK0b8e3552,3923931581073110486</transactionId>
+		<method>re-INVITE</method>
+		<frameId>38 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:316</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[INVITE sip:69.140.53.66:5080 SIP/2.0
+Record-Route: <sip:216.82.225.202;lr;ftag=gK0b8e3552>
+Via: SIP/2.0/UDP 216.82.225.202;branch=z9hG4bK2ce6.76d108e4.0
+Via: SIP/2.0/UDP 67.231.8.200:5060;branch=z9hG4bK0bBf55f1e14e3c90271
+From: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+To: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 9554 INVITE
+Max-Forwards: 69
+Allow: INVITE,ACK,CANCEL,BYE,INFO,NOTIFY,PRACK,UPDATE,OPTIONS,MESSAGE
+Accept: application/sdp
+Contact: <sip:+13013402561@67.231.8.200:5060>
+Content-Disposition: session;handling=required
+Content-Type: application/sdp
+Content-Length: 179
+
+v=0
+o=Sonus_UAC 16512 7937 IN IP4 67.231.8.200
+s=SIP Media Capabilities
+c=IN IP4 67.231.8.110
+t=0 0
+m=audio 25134 RTP/AVP 0
+a=rtpmap:0 PCMU/8000
+a=sendrecv
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK2ce6.76d108e4.0</branchId>
+			<branchId>z9hG4bK0bBf55f1e14e3c90271</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.812000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>9554,fc486922-c3658851-4c0681a0@192.168.5.243.0,gK0b8e3552,</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Trying</responseText>
+		<frameId>39 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:324</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 216.82.225.202;branch=z9hG4bK2ce6.76d108e4.0
+Via: SIP/2.0/UDP 67.231.8.200:5060;branch=z9hG4bK0bBf55f1e14e3c90271
+From: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+To: "user2" <sip:user2@69.140.53.66>
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 9554 INVITE
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:~~id~bridge@192.168.5.75:5080>
+Supported: replaces
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK91af2eb418a0003f21a715f577ad3529333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.889000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.1,7055141032512749472,</transactionId>
+		<method>INVITE</method>
+		<frameId>40 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:328</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[INVITE sip:~~mh~@sipxtest.sipxtest.net SIP/2.0
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.1
+CSeq: 1 INVITE
+From: <sip:~~id~bridge@sipxtest.sipxtest.net>;tag=7055141032512749472
+To: <sip:~~mh~@sipxtest.sipxtest.net>
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK91af2eb418a0003f21a715f577ad3529333037
+Max-Forwards: 19
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+References: fc486922-c3658851-4c0681a0@192.168.5.243.0;rel=service;sipxecs-tag=response-invite-z9hg4bkf3f800e99147c5f31f917b92a772f907333037-200
+Contact: <sip:~~id~bridge@192.168.5.75:5090>
+Route: <sip:192.168.5.75;transport=tcp;lr>
+Content-Type: application/sdp
+Content-Length: 274
+
+v=0
+o=sipxbridge 3034531246680223561 1 IN IP4 192.168.5.75
+s=SIP Media Capabilities
+c=IN IP4 192.168.5.75
+t=0 0
+m=audio 30002 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=recvonly
+a=silenceSupp:off - - - -
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK91af2eb418a0003f21a715f577ad3529333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.890000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.1,7055141032512749472,</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Trying</responseText>
+		<frameId>41 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:330</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Trying
+From: <sip:~~id~bridge@sipxtest.sipxtest.net>;tag=7055141032512749472
+To: <sip:~~mh~@sipxtest.sipxtest.net>
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.1
+CSeq: 1 INVITE
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK91af2eb418a0003f21a715f577ad3529333037
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK91af2eb418a0003f21a715f577ad3529333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.938000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.1,7055141032512749472,mU76mUUHpje3D</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>42 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:336</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK91af2eb418a0003f21a715f577ad3529333037
+Record-Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=AL;sipXecs-rs=*auth~.*from~NzA1NTE0MTAzMjUxMjc0OTQ3Mg%60%60!8b15470e071e0677a5fdaa0610925741>
+From: <sip:~~id~bridge@sipxtest.sipxtest.net>;tag=7055141032512749472
+To: <sip:~~mh~@sipxtest.sipxtest.net>;tag=mU76mUUHpje3D
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.1
+CSeq: 1 INVITE
+Contact: <sip:~~mh~@192.168.5.75:15060;transport=udp>
+User-Agent: FreeSWITCH-mod_sofia/1.0.trunk-16565
+Accept: application/sdp
+Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,MESSAGE,UPDATE,INFO,REGISTER,REFER,NOTIFY
+Supported: timer,precondition,path,replaces
+Allow-Events: talk,refer
+Content-Type: application/sdp
+Content-Disposition: session
+Remote-Party-Id: "IVR" <sip:IVR@192.168.5.75>
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Content-Length: 247
+
+v=0
+o=FreeSWITCH 1267554260 1267554261 IN IP4 192.168.5.75
+s=FreeSWITCH
+c=IN IP4 192.168.5.75
+t=0 0
+m=audio 12070 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-16
+a=silenceSupp:off - - - -
+a=ptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK6be7df7c5c5ad5a2c21e6848c9541bb4333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:30.947000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>A1,fc486922-c3658851-4c0681a0@192.168.5.243.1.1,7055141032512749472,mU76mUUHpje3D</transactionId>
+		<method>ACK</method>
+		<frameId>43 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:345</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[ACK sip:~~mh~@192.168.5.75:15060;transport=udp SIP/2.0
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.1
+CSeq: 1 ACK
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK6be7df7c5c5ad5a2c21e6848c9541bb4333037
+From: <sip:~~id~bridge@sipxtest.sipxtest.net>;tag=7055141032512749472
+To: <sip:~~mh~@sipxtest.sipxtest.net>;tag=mU76mUUHpje3D
+Max-Forwards: 70
+Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=AL;sipXecs-rs=*auth~.*from~NzA1NTE0MTAzMjUxMjc0OTQ3Mg%60%60!8b15470e071e0677a5fdaa0610925741>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bKada3a692fcf1b6a3dd5476a9b4434f9b333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.656000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,32AB9E26-58915E2B</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>44 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:353</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bKada3a692fcf1b6a3dd5476a9b4434f9b333037;sipxecs-id=5003c76a
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+CSeq: 1 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+Contact: <sip:user1@192.168.5.242;transport=tcp>
+Record-Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=AL%2CINT;sipXecs-rs=%2Aauth%7E.%2Afrom%7EMTYyNjU3MTc3NQ%60%60%2174b252b821cb573d4c8214b8dbe5b240>
+Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,INFO,MESSAGE,SUBSCRIBE,NOTIFY,PRACK,UPDATE,REFER
+User-Agent: PolycomSoundPointIP-SPIP_320-UA/3.1.2.0392
+Accept-Language: en
+Content-Type: application/sdp
+Date: Tue, 02 Mar 2010 21:45:33 GMT
+Content-Length: 201
+
+v=0
+o=- 1167642144 1167642144 IN IP4 192.168.5.242
+s=Polycom IP Phone
+c=IN IP4 192.168.5.242
+t=0 0
+m=audio 2228 RTP/AVP 0 127
+a=sendrecv
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK7dfc0bb2521dcc23fc0d43272d53cdfa333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.673000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243.1.1,7055141032512749472,mU76mUUHpje3D</transactionId>
+		<method>BYE</method>
+		<frameId>45 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:364</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[BYE sip:~~mh~@192.168.5.75:15060;transport=udp SIP/2.0
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK7dfc0bb2521dcc23fc0d43272d53cdfa333037
+CSeq: 2 BYE
+From: <sip:~~id~bridge@sipxtest.sipxtest.net>;tag=7055141032512749472
+To: <sip:~~mh~@sipxtest.sipxtest.net>;tag=mU76mUUHpje3D
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.1
+Accept: application/sdp
+Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,MESSAGE,UPDATE,INFO,REGISTER,REFER,NOTIFY
+Supported: timer,precondition,path,replaces
+Allow-Events: talk,refer
+Content-Disposition: session
+Remote-Party-Id: "IVR" <sip:IVR@192.168.5.75>
+Date: Tue, 02 Mar 2010 21:45:30 GMT
+Max-Forwards: 70
+Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=AL;sipXecs-rs=*auth~.*from~NzA1NTE0MTAzMjUxMjc0OTQ3Mg%60%60!8b15470e071e0677a5fdaa0610925741>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK2ce6.76d108e4.0</branchId>
+			<branchId>z9hG4bK0bBf55f1e14e3c90271</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.678000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>9554,fc486922-c3658851-4c0681a0@192.168.5.243.0,gK0b8e3552,3923931581073110486</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>46 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:368</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 216.82.225.202;branch=z9hG4bK2ce6.76d108e4.0
+Via: SIP/2.0/UDP 67.231.8.200:5060;branch=z9hG4bK0bBf55f1e14e3c90271
+From: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+To: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 9554 INVITE
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:69.140.53.66:5080>
+Supported: replaces
+Content-Type: application/sdp
+Content-Length: 209
+
+v=0
+o=sipxbridge 5088517615499539723 2 IN IP4 69.140.53.66
+s=Polycom IP Phone
+c=IN IP4 69.140.53.66
+t=0 0
+m=audio 30000 RTP/AVP 0 127
+a=sendrecv
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK15dded8fb408a751e3cfe21cbfc970c1333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.680000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>A1,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,32AB9E26-58915E2B</transactionId>
+		<method>ACK</method>
+		<frameId>47 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:369</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[ACK sip:user1@192.168.5.242;transport=tcp SIP/2.0
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+CSeq: 1 ACK
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK15dded8fb408a751e3cfe21cbfc970c1333037;sipxecs-id=5003c76a
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+Max-Forwards: 70
+Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=AL%2CINT;sipXecs-rs=%2Aauth%7E.%2Afrom%7EMTYyNjU3MTc3NQ%60%60%2174b252b821cb573d4c8214b8dbe5b240>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK7dfc0bb2521dcc23fc0d43272d53cdfa333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.683000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>2,fc486922-c3658851-4c0681a0@192.168.5.243.1.1,7055141032512749472,mU76mUUHpje3D</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>48 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:373</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK7dfc0bb2521dcc23fc0d43272d53cdfa333037
+From: <sip:~~id~bridge@sipxtest.sipxtest.net>;tag=7055141032512749472
+To: <sip:~~mh~@sipxtest.sipxtest.net>;tag=mU76mUUHpje3D
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.1
+CSeq: 2 BYE
+User-Agent: FreeSWITCH-mod_sofia/1.0.trunk-16565
+Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,MESSAGE,UPDATE,INFO,REGISTER,REFER,NOTIFY
+Supported: timer,precondition,path,replaces
+Date: Tue, 02 Mar 2010 21:45:33 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK2ce6.76d108e4.2</branchId>
+			<branchId>z9hG4bK0bBf56d527ae3c90271</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.851000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>A9554,fc486922-c3658851-4c0681a0@192.168.5.243.0,gK0b8e3552,3923931581073110486</transactionId>
+		<method>ACK</method>
+		<frameId>49 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:378</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[ACK sip:69.140.53.66:5080 SIP/2.0
+Record-Route: <sip:216.82.225.202;lr;ftag=gK0b8e3552>
+Via: SIP/2.0/UDP 216.82.225.202;branch=z9hG4bK2ce6.76d108e4.2
+Via: SIP/2.0/UDP 67.231.8.200:5060;branch=z9hG4bK0bBf56d527ae3c90271
+From: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+To: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 9554 ACK
+Max-Forwards: 69
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK3ce6.70517a73.0</branchId>
+			<branchId>z9hG4bK0bBf571358be3c90271</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.946000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>9555,fc486922-c3658851-4c0681a0@192.168.5.243.0,gK0b8e3552,3923931581073110486</transactionId>
+		<method>re-INVITE</method>
+		<frameId>50 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:389</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[INVITE sip:69.140.53.66:5080 SIP/2.0
+Record-Route: <sip:216.82.225.202;lr;ftag=gK0b8e3552>
+Via: SIP/2.0/UDP 216.82.225.202;branch=z9hG4bK3ce6.70517a73.0
+Via: SIP/2.0/UDP 67.231.8.200:5060;branch=z9hG4bK0bBf571358be3c90271
+From: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+To: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 9555 INVITE
+Max-Forwards: 69
+Allow: INVITE,ACK,CANCEL,BYE,INFO,NOTIFY,PRACK,UPDATE,OPTIONS,MESSAGE
+Accept: application/sdp
+Contact: <sip:+13013402561@67.231.8.200:5060>
+Content-Disposition: session;handling=required
+Content-Type: application/sdp
+Content-Length: 235
+
+v=0
+o=Sonus_UAC 16512 7938 IN IP4 67.231.8.200
+s=SIP Media Capabilities
+c=IN IP4 67.231.8.110
+t=0 0
+m=audio 25134 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK44b563125ce1b7d7060ec096e20a86be333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.956000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>3,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,32AB9E26-58915E2B</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Trying</responseText>
+		<frameId>51 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:400</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Trying
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+CSeq: 3 INVITE
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK44b563125ce1b7d7060ec096e20a86be333037
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK44b563125ce1b7d7060ec096e20a86be333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.957000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>3,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,32AB9E26-58915E2B</transactionId>
+		<method>re-INVITE</method>
+		<frameId>52 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:404</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[INVITE sip:user1@192.168.5.242;transport=tcp SIP/2.0
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK44b563125ce1b7d7060ec096e20a86be333037
+CSeq: 3 INVITE
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+Accept-Language: en
+Date: Tue, 02 Mar 2010 21:45:33 GMT
+Max-Forwards: 70
+Contact: <sip:192.168.5.75:5090;transport=tcp>
+Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=AL%2CINT;sipXecs-rs=%2Aauth%7E.%2Afrom%7EMTYyNjU3MTc3NQ%60%60%2174b252b821cb573d4c8214b8dbe5b240>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+References: fc486922-c3658851-4c0681a0@192.168.5.243.0;rel=chain;sipxecs-tag=request-invite-z9hg4bk3ce6.70517a73.0
+Accept: application/sdp
+Allow: INVITE,BYE,ACK,CANCEL,OPTIONS
+Supported: timer
+Content-Type: application/sdp
+Content-Length: 247
+
+v=0
+o=sipxbridge 3034531246680223561 2 IN IP4 192.168.5.75
+s=SIP Media Capabilities
+c=IN IP4 192.168.5.75
+t=0 0
+m=audio 30002 RTP/AVP 0 127
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+a=fmtp:127 0-15
+a=sendrecv
+a=maxptime:20
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK44b563125ce1b7d7060ec096e20a86be333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.977000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>3,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,32AB9E26-58915E2B</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>53 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:410</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK44b563125ce1b7d7060ec096e20a86be333037
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+CSeq: 3 INVITE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+Contact: <sip:user1@192.168.5.242;transport=tcp>
+Allow: INVITE,ACK,BYE,CANCEL,OPTIONS,INFO,MESSAGE,SUBSCRIBE,NOTIFY,PRACK,UPDATE,REFER
+User-Agent: PolycomSoundPointIP-SPIP_320-UA/3.1.2.0392
+Accept-Language: en
+Content-Type: application/sdp
+Date: Tue, 02 Mar 2010 21:45:33 GMT
+Content-Length: 201
+
+v=0
+o=- 1167642144 1167642145 IN IP4 192.168.5.242
+s=Polycom IP Phone
+c=IN IP4 192.168.5.242
+t=0 0
+m=audio 2228 RTP/AVP 0 127
+a=sendrecv
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK3ce6.70517a73.0</branchId>
+			<branchId>z9hG4bK0bBf571358be3c90271</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:33.982000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>9555,fc486922-c3658851-4c0681a0@192.168.5.243.0,gK0b8e3552,3923931581073110486</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>54 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:417</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 216.82.225.202;branch=z9hG4bK3ce6.70517a73.0
+Via: SIP/2.0/UDP 67.231.8.200:5060;branch=z9hG4bK0bBf571358be3c90271
+From: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+To: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 9555 INVITE
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Supported: replaces
+Contact: <sip:69.140.53.66:5080>
+Content-Type: application/sdp
+Content-Length: 209
+
+v=0
+o=sipxbridge 5088517615499539723 2 IN IP4 69.140.53.66
+s=Polycom IP Phone
+c=IN IP4 69.140.53.66
+t=0 0
+m=audio 30000 RTP/AVP 0 127
+a=sendrecv
+a=rtpmap:0 PCMU/8000
+a=rtpmap:127 telephone-event/8000
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK3ce6.70517a73.2</branchId>
+			<branchId>z9hG4bK0bBf57309dfe3c90271</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:34.151000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>A9555,fc486922-c3658851-4c0681a0@192.168.5.243.0,gK0b8e3552,3923931581073110486</transactionId>
+		<method>ACK</method>
+		<frameId>55 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:420</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[ACK sip:69.140.53.66:5080 SIP/2.0
+Record-Route: <sip:216.82.225.202;lr;ftag=gK0b8e3552>
+Via: SIP/2.0/UDP 216.82.225.202;branch=z9hG4bK3ce6.70517a73.2
+Via: SIP/2.0/UDP 67.231.8.200:5060;branch=z9hG4bK0bBf57309dfe3c90271
+From: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+To: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 9555 ACK
+Max-Forwards: 69
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK588cd888482de75ac847e7ff114725de333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:34.178000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>A3,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,1626571775,32AB9E26-58915E2B</transactionId>
+		<method>ACK</method>
+		<frameId>56 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:428</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[ACK sip:user1@192.168.5.242;transport=tcp SIP/2.0
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+CSeq: 3 ACK
+Via: SIP/2.0/TCP 192.168.5.75:5090;branch=z9hG4bK588cd888482de75ac847e7ff114725de333037;sipxecs-id=5003c76a
+From: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+To: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+Max-Forwards: 70
+Route: <sip:192.168.5.75:5060;lr;sipXecs-CallDest=AL%2CINT;sipXecs-rs=%2Aauth%7E.%2Afrom%7EMTYyNjU3MTc3NQ%60%60%2174b252b821cb573d4c8214b8dbe5b240>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-090cxpuagOToxJasMX0`F`Qzww</branchId>
+			<branchId>z9hG4bK9396684cD9646059</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:51.251000Z</time>
+		<source>192.168.5.75:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>192.168.5.75:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,32AB9E26-58915E2B,1626571775</transactionId>
+		<method>BYE</method>
+		<frameId>57 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:451</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[BYE sip:user2@192.168.5.75:5090;x-sipX-nonat SIP/2.0
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-090cxpuagOToxJasMX0`F`Qzww
+Via: SIP/2.0/UDP 192.168.5.242;branch=z9hG4bK9396684cD9646059
+From: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+To: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+CSeq: 1 BYE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+Contact: <sip:user1@192.168.5.242;transport=udp;x-sipX-nonat>
+User-Agent: PolycomSoundPointIP-SPIP_320-UA/3.1.2.0392
+Accept-Language: en
+Max-Forwards: 20
+Date: Tue, 02 Mar 2010 21:45:51 GMT
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-090cxpuagOToxJasMX0`F`Qzww</branchId>
+			<branchId>z9hG4bK9396684cD9646059</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:51.255000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,32AB9E26-58915E2B,</transactionId>
+		<responseCode>100</responseCode>
+		<responseText>Trying</responseText>
+		<frameId>58 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:461</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-090cxpuagOToxJasMX0`F`Qzww
+Via: SIP/2.0/UDP 192.168.5.242;branch=z9hG4bK9396684cD9646059
+From: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+To: "user2" <sip:user2@sipxtest.sipxtest.net>
+CSeq: 1 BYE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:~~id~bridge@192.168.5.75:5090>
+Supported: replaces,100rel
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK3d802def7e970af8c8a3341bf086de0a333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:51.261000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>216.82.225.202:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>216.82.225.202:5060</destinationAddress>
+		<transactionId>4,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<method>BYE</method>
+		<frameId>59 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:465</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[BYE sip:+13013402561@67.231.8.200:5060 SIP/2.0
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK3d802def7e970af8c8a3341bf086de0a333037
+CSeq: 4 BYE
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+Supported: replaces
+Max-Forwards: 70
+Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+User-Agent: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+References: fc486922-c3658851-4c0681a0@192.168.5.243.1.0;rel=chain;sipxecs-tag=request-bye-z9hg4bk-xx-090cxpuagotoxjasmx0`f`qzww
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK3d802def7e970af8c8a3341bf086de0a333037</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:51.437000Z</time>
+		<source>216.82.225.202:5060</source>
+		<destination>sipxtest.sipxtest.net-sipXbridge</destination>
+		<sourceAddress>216.82.225.202:5060</sourceAddress>
+		<destinationAddress>sipxtest.sipxtest.net-sipXbridge</destinationAddress>
+		<transactionId>4,fc486922-c3658851-4c0681a0@192.168.5.243.0,3923931581073110486,gK0b8e3552</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>60 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:470</frameId>
+		<remoteHostPort>216.82.225.202:5060</remoteHostPort>
+		<isOutgoing>false</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 69.140.53.66:5080;branch=z9hG4bK3d802def7e970af8c8a3341bf086de0a333037
+From: "user2" <sip:user2@69.140.53.66>;tag=3923931581073110486
+To: <sip:+13013402561@ot.bandwidth.com;user=phone>;tag=gK0b8e3552
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.0
+CSeq: 4 BYE
+Record-Route: <sip:216.82.225.202:5060;lr;ftag=3923931581073110486>
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+	<branchNode>
+		<branchIdSet>
+			<branchId>z9hG4bK-XX-090cxpuagOToxJasMX0`F`Qzww</branchId>
+			<branchId>z9hG4bK9396684cD9646059</branchId>
+		</branchIdSet>
+		<time>2010-03-02T21:45:51.440000Z</time>
+		<source>sipxtest.sipxtest.net-sipXbridge</source>
+		<destination>192.168.5.75:5060</destination>
+		<sourceAddress>sipxtest.sipxtest.net-sipXbridge</sourceAddress>
+		<destinationAddress>192.168.5.75:5060</destinationAddress>
+		<transactionId>1,fc486922-c3658851-4c0681a0@192.168.5.243.1.0,32AB9E26-58915E2B,1626571775</transactionId>
+		<responseCode>200</responseCode>
+		<responseText>OK</responseText>
+		<frameId>61 /tmp/trace.DvoXB30y/_._.._.._.sipxbridge.trace.xml:475</frameId>
+		<remoteHostPort>192.168.5.75:5060</remoteHostPort>
+		<isOutgoing>true</isOutgoing>
+		<message><![CDATA[SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.5.75;branch=z9hG4bK-XX-090cxpuagOToxJasMX0`F`Qzww
+Via: SIP/2.0/UDP 192.168.5.242;branch=z9hG4bK9396684cD9646059
+From: <sip:201@sipxtest.sipxtest.net>;tag=32AB9E26-58915E2B
+To: "user2" <sip:user2@sipxtest.sipxtest.net>;tag=1626571775
+CSeq: 1 BYE
+Call-ID: fc486922-c3658851-4c0681a0@192.168.5.243.1.0
+Server: sipXecs/4.1.6 sipXecs/sipxbridge (Linux)
+Contact: <sip:~~id~bridge@192.168.5.75:5090>
+Supported: replaces,100rel
+Content-Length: 0
+
+]]></message>
+	</branchNode>
+</sipTrace>

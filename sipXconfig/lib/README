@@ -1,0 +1,22 @@
+NOTES:
+
+ - jars w/o version numbers are generaly APIs and only contain
+   interfaces. Otherwise all jars should contain jar version
+   numbers.
+
+Hibernate 3.0.5 required dependencies
+  antlr 2.7.5H3   --    !!!!!! PATCHED BY HIBERNATE  !!!!!!
+  commons-logging 1.0.4
+  commons-collections-2.1.1
+  dom4j 1.6                   UPGRADE from 1.5.2
+  cglib-2.1                   UPGRADE from 2.0.2
+  xerces-2.6.2
+  xml-apis
+  jta.jar
+  asm.jar
+  asm-attr.jar
+  jdbc2_0-stdext
+
+
+Spring 1.2.2 required dependencies not already required by hibernate
+  all ok

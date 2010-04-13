@@ -1,0 +1,24 @@
+<html title="Acd Line">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+    <span jwcid="@common/ErrorMsg"/>
+    <form jwcid="form" id="line:form">
+        <fieldset jwcid="commonFieldset"/>
+        <fieldset>
+			<table>
+                <tbody>
+                    <tr for="acdLine:queue" jwcid="queueSelectionPanel">
+                        <span id="acdLine:queue" jwcid="queueSelection"/>
+                    </tr>
+                </tbody>
+			</table>
+        </fieldset>
+	    <fieldset jwcid="settingsFieldset" id="fieldset:settings:acdLine"/>
+        <span jwcid="formActions"/>
+    </form>
+    </div>
+</body>
+</html>

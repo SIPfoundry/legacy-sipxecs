@@ -1,0 +1,22 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <ul class="component-links">
+    <li><a jwcid="defaultsLink" id="orbits:defaults"><span key="link.defaults">Defaults</span></a></li>
+    <li><a jwcid="addLink" id="orbits:add"><span key="link.add">Add Extension</span></a></li>
+  </ul>
+  <form jwcid="form" id="orbits:form">
+    <table jwcid="tableView" id="orbits:list">
+      <span jwcid="nameColumnValue">
+        <span jwcid="editRowLink"><span jwcid="nameText"/></span>
+      </span>
+      <span jwcid="enabledColumnValue@Block">
+        <span jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input type="submit" jwcid="delete" id="orbits:delete" />
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+  </form>
+</div>

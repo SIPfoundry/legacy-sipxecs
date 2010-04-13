@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+- XML Schema for sipX alarm group configuration
+-->
+<schema
+    xmlns:h='http://www.sipfoundry.org/sipX/schema/xml/alarmgroups-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/alarmgroups-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <annotation>
+    <documentation>
+      Definition of alarm groups
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='alarm_groups'>
+    <complexType>
+      <sequence>
+        <element ref='h:definitions' minOccurs='0' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='definitions'>
+    <annotation>
+      <documentation>
+        List of individual alarm group definitions.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:group' minOccurs='1' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='group'>
+    <annotation>
+      <documentation>
+        Individual alarm group definition.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:email' minOccurs='0' />
+        <element ref='h:sms' minOccurs='0' />
+        <element ref='h:trap' minOccurs='0' />
+      </sequence>
+      <attribute name="id" type="string" use="required"/>
+    </complexType>
+  </element>
+
+  <element name='email'>
+    <annotation>
+      <documentation>
+        Individual alarm group email definition.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:contact' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='sms'>
+    <annotation>
+      <documentation>
+        Individual alarm group sms definition.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:contact' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+   <element name='trap'>
+    <annotation>
+      <documentation>
+        Individual alarm group trap definition.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:trap-receiver-contact' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="trap-receiver-contact">
+    <annotation>
+      <documentation>
+        The contact address for the Trap.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='h:trap-receiver-address' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='h:community-string' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='h:port-number' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="contact">
+    <annotation>
+      <documentation>
+        The contact address for the alarm group.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+<element name="trap-receiver-address">
+    <annotation>
+      <documentation>
+        The contact address for the alarm group.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="community-string">
+    <annotation>
+      <documentation>
+        The contact address for the alarm group.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="string">
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name="port-number">
+    <annotation>
+      <documentation>
+        The contact address for the alarm group.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="integer">
+      </restriction>
+    </simpleType>
+  </element>
+
+</schema>

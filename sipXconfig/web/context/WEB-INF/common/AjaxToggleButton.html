@@ -1,0 +1,17 @@
+<ul class="form-actions">
+   <li>
+		<input jwcid="link@Any" type="button" value="ognl:linkText" name="link"/>
+   </li>
+</ul>
+<span jwcid="none@Block">
+</span>
+<div jwcid="render@Any">
+ <span jwcid="@If" condition="ognl:none">
+	<span jwcid="@RenderBlock" block="ognl:components.get('none')"/>
+ </span>
+ <span jwcid="@Else">
+    <span jwcid="@For" source="ognl:renderBlocks" value="ognl:currentBlock">
+	   <span jwcid="@RenderBlock" block="ognl:currentBlock"/>
+    </span>
+ </span>
+</div>

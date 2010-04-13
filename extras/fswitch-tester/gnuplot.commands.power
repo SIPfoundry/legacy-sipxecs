@@ -1,0 +1,6 @@
+set xlabel "Number of conferences (each of size 10)"
+set ylabel "Avg. power standard deviation (percent) of mixed signal."
+set pointsize 5
+set terminal gif 
+set out "power.gif"
+plot "power.txt" title "Power Deviation" with linespoints, "worst-case-power-deviation.txt" title "Worst Case Power Deviation" with linespoints

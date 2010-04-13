@@ -1,0 +1,526 @@
+<project name="web" default="default">
+  <property name="checkstyle.severity" value="error"/>
+  <property name="project.dir" value="web"/>
+  <import file="../ant-targets.xml"/>
+  <property name="test.war" value="${test.classes.dir}/war"/>
+  <property name="server.bindings.src" value="${dist.dir}/server-bindings-src"/>
+  <property name="ruby.bindings.dir" value="${dist.dir}/ruby-bindings"/>
+  <property name="server.bindings.dir" value="${dist.dir}/server-bindings"/>
+  <property name="ruby.debug" value=""/>
+  <property name="ruby.flags" value="-w ${ruby.debug}"/>
+  <property name="ruby-test.src.dir" value="${test.src.dir}/org/sipfoundry/sipxconfig/api"/>
+  <property name="server-bindings.jar" value="${dist.dir}/server-bindings.jar"/>
+    
+  <!-- common path unit tests need that interfaces w/sipXconfig lib 
+       all spring jars at this point -->
+  <path id="compile.dependencies">
+    <pathelement path="${classpath.build}" />
+    <pathelement path="${sipxconfig.jar}"/>
+    <pathelement path="${spring.jar}"/>
+    <pathelement path="${hibernate.jar}"/>
+    <pathelement path="${servlet.jar}"/>
+    <pathelement path="${tapestry.jar}"/>
+    <pathelement path="${hivemind.jar}"/>
+    <pathelement path="${hivemind-lib.jar}"/>
+    <pathelement path="${tapestry-contrib.jar}"/>
+    <pathelement path="${tapestry-annotations.jar}"/>
+    <pathelement path="${ognl.jar}"/>
+    <pathelement path="${restlet.jar}"/>
+    <pathelement path="${restlet-impl.jar}"/>
+    <pathelement path="${restlet-servlet.jar}"/>
+    <pathelement path="${restlet-spring.jar}"/>
+    <pathelement path="${jdom.jar}"/>
+    <pathelement path="${rome.jar}"/>
+	<pathelement location="${server-bindings.jar}"/>
+
+  </path>
+
+  <!-- common path unit tests need that interfaces w/sipXconfig lib 
+       all spring jars at this point -->
+  <path id="runtime.dependencies">
+    <pathelement path="${classpath.run}" />
+    <pathelement path="${acegi-security.jar}"/>
+    <pathelement path="${aopalliance.jar}"/>
+    <pathelement path="${asm.jar}"/>
+    <pathelement path="${backport-util-concurrent.jar}"/>
+    <pathelement path="${bsf.jar}"/>
+    <pathelement path="${cglib.jar}"/>
+    <pathelement path="${commons-beanutils.jar}"/>
+    <pathelement path="${commons-codec.jar}"/>
+    <pathelement path="${commons-collections.jar}"/>
+    <pathelement path="${c3p0.jar}"/>
+    <pathelement path="${commons-digester.jar}"/>
+    <pathelement path="${commons-fileupload.jar}"/>
+    <pathelement path="${commons-io.jar}"/>
+    <pathelement path="${commons-lang.jar}"/>
+    <pathelement path="${commons-logging.jar}"/>
+    <pathelement path="${commons-pool.jar}"/>
+    <pathelement path="${dom4j.jar}"/>
+    <pathelement path="${ehcache.jar}"/>
+    <pathelement path="${jakarta-oro.jar}"/>
+    <pathelement path="${jasper-compiler.jar}"/>
+    <pathelement path="${jasper-runtime.jar}"/>
+    <pathelement path="${javassist.jar}"/>
+    <pathelement path="${jaxen.jar}"/>
+    <pathelement path="${jdbc-driver.jar}"/>
+    <pathelement path="${jta.jar}"/>
+    <pathelement path="${logkit.jar}"/>
+    <pathelement path="${odmg.jar}"/>
+    <pathelement path="${saxpath.jar}"/>
+    <pathelement path="${servlet.jsp.jar}"/>
+    <pathelement path="${velocity.jar}"/>
+    <pathelement path="${velocity-tools-generic.jar}"/>
+    <pathelement path="${xerces.jar}"/>
+    <pathelement path="${xml-apis.jar}"/>
+    <pathelement path="${xmlrpc.jar}"/>
+    <pathelement path="${antlr.jar}"/>
+    <pathelement path="${lucene.jar}"/>
+    <pathelement path="${xstream.jar}" />
+    <pathelement path="${jettison.jar}" />
+    <pathelement path="${spring-ldap.jar}" />
+    <pathelement path="${ldap.jar}" />
+    <pathelement path="${log4j.jar}" />
+    <pathelement path="${jain-sip-sdp.jar}" />
+    <pathelement path="${commons-net.jar}" />
+    <pathelement path="${mime-dir-j-api.jar}" />
+    <pathelement path="${mime-dir-j-vcard4j.jar}" />
+    <!-- SOAP -->
+    <pathelement path="${jaxrpc.jar}"/>
+    <pathelement path="${javamail.jar}"/>
+    <pathelement path="${axis.jar}"/>
+    <pathelement path="${saaj.jar}"/>
+    <pathelement path="${wsdl4j.jar}"/>
+    <pathelement path="${commons-discovery.jar}"/>
+    <pathelement path="${activation.jar}"/>
+    <pathelement path="${axis-schema.jar}"/>
+    <pathelement path="${agent-bindings.jar}"/>
+    <pathelement path="${cdr-bindings.jar}"/>
+  </path>
+
+  <path id="base.path">
+    <path refid="compile.dependencies"/>
+    <!-- TODO: Separate these from compile dependencies -->
+    <path refid="runtime.dependencies"/>
+    <!-- TEST -->
+    <pathelement path="${commons-digester.jar}"/>
+    <pathelement path="${easymock.jar}"/>
+    <pathelement path="${easymockclassextension.jar}"/>
+    <pathelement path="${commons-httpclient.jar}"/>
+    <pathelement path="${htmlunit.jar}"/>
+    <pathelement path="${htmlunit-core-js.jar}"/>
+    <pathelement path="${jwebunit-core.jar}"/>
+    <pathelement path="${jwebunit-htmlunit-plugin.jar}"/>
+    <pathelement path="${regexp.jar}"/>
+    <pathelement path="${js.jar}"/>
+    <pathelement path="${jetty.jar}"/>
+    <pathelement path="${servlet.jsp.jar}"/>
+    <pathelement path="${jasper-runtime.jar}"/>
+    <pathelement path="${jasper-compiler.jar}"/>
+    <pathelement path="${nekohtml.jar}"/>
+    <pathelement path="${cssparser.jar}"/>
+    <pathelement path="${commons-codec.jar}"/>
+    <pathelement path="${sac.jar}"/>
+    <pathelement path="${serializer.jar}"/>
+    <pathelement path="${xalan.jar}"/>
+    <pathelement path="${sl4j-api.jar}"/>
+    <pathelement path="${slf4j-log4j12.jar}"/>
+    <pathelement path="${gdata-client.jar}" />
+    <pathelement path="${gdata-contacts.jar}" />
+    <pathelement path="${gdata-core.jar}" />
+    <pathelement path="${google-collect.jar}" />
+  </path>
+
+  <target name="init" depends="ant-targets.init">
+    <mkdir dir="${dist.dir}/war-root"/>
+  </target>
+
+  <!-- D E F A U L T -->
+  <target name="default" depends="war"/>
+	
+  <!-- W A R -->	
+  <!-- FIXME: Remove dependency on compile.test -->	
+  <target name="war" depends="init,wsdl,compile,compile.test" 
+    description="assemble sipxconfig for tapestry war">
+  	<condition property="include.testpage">
+  		<equals arg1="${debug}" arg2="on"/>
+  	</condition>
+    <war warfile="${sipxconfig.war}" webxml="context/WEB-INF/web.xml" 
+      basedir="${dist.dir}/war-root">
+      <!-- include assets:css/images -->
+      <fileset dir="context">
+        <include name="css/**/*"/>
+        <include name="images/**/*"/>
+        <include name="js/**/*"/>
+      </fileset>
+      <!-- include GWT files -->
+      <fileset dir="${top.build.dir}/gwt/classes">
+        <include name="gwt/**/*"/>
+      </fileset>
+      <webinf dir="context/WEB-INF">
+        <!-- avoid warning about already there -->
+        <exclude name="web.xml"/>
+        <!-- exclude Test.page unless we debug -->
+      	<present present="srconly" targetdir="${ant.1.4.1}/src/main"/>      	
+        <exclude name="**/TestPage.*" unless="include.testpage"/>
+      </webinf>
+	  <webinf dir="${server.bindings.src}">
+		<include name="server-config.wsdd"/>
+	  </webinf>
+      <classes dir="${classes.dir}"/>
+      <classes dir="${src.dir}">
+        <include name="**/*.png"/>
+        <include name="**/*.gif"/>
+        <include name="**/*.jpg"/>
+        <include name="**/*.css"/>
+        <include name="**/*.xml"/>
+        <include name="**/*.wsdl"/>
+        <include name="**/*.properties"/>
+        <include name="**/*.js"/>
+        <include name="**/*.ico"/>
+      </classes>
+      <lib dir="${dist.dir}">
+		  <include name="server-bindings.jar"/>
+	  </lib>
+    </war>
+  </target>
+		
+  <target name="install" depends="war" 
+    description="Copy war file into lib dir and web related configuration files">
+
+    <mkdir dir="${dest.dir}${sipxpbx.run.dir}"/>
+
+    <!-- startup script -->
+    <copy file="bin/sipxconfig.sh.in" 
+      tofile="${dest.dir}${bin.dir}/sipxconfig.sh"/>
+    <replace file="${dest.dir}${bin.dir}/sipxconfig.sh" 
+      propertyfile="${top.build.dir}/build.properties">
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@sipxconfig.lib.dir@" property="sipxconfig.lib.dir"/>
+      <replacefilter token="@sipxcommons.lib.dir@" property="sipxcommons.lib.dir"/>
+      <replacefilter token="@sipxecs.java.dir@" property="sipxecs.java.dir"/>
+      <replacefilter token="@sipxecs.thirdparty.dir@" property="sipxecs.thirdparty.dir"/>
+      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>    	
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@service.dir@" property="service.dir"/>
+      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
+      <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir"/>
+      <replacefilter token="@sipxpbx.libexec.dir@" property="sipxpbx.libexec.dir"/>
+      <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
+      <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
+      <replacefilter token="@bash@" property="bash"/>
+      <replacefilter token="@prefix@" property="prefix"/>
+      <replacefilter token="@classpath.run@" property="classpath.run"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/sipxconfig.sh" perm="ugo+x"/>
+
+
+    <!-- config -->
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}"/>
+    <copy todir="${dest.dir}${sipxpbx.conf.dir}">
+      <fileset dir="etc">
+        <include name="*.xml"/>
+        <include name="*.properties"/>
+      </fileset>
+    </copy>
+
+    <property name="process.dir" value="${dest.dir}${sipxpbx.process.dir}"/>
+    <mkdir dir="${process.dir}"/>
+    <copy file="etc/sipxconfig-process.xml.in" 
+      tofile="${process.dir}/sipxconfig-process.xml"
+      overwrite="true"/>
+    <replace file="${process.dir}/sipxconfig-process.xml" 
+      propertyfile="${top.build.dir}/build.properties">
+
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+      <replacefilter token="@version@" property="version" 
+       />
+      <replacefilter token="@sipxpbx.log.dir@" property="sipxpbx.log.dir"/>    	
+      <replacefilter token="@sipxecs.thirdparty.dir@" property="sipxecs.thirdparty.dir"/>
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@sipxpbx.run.dir@" property="sipxpbx.run.dir"/>
+      <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir"/>
+    </replace>
+
+    <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
+      <fileset file="${wsdl4j.jar}"/>
+      <fileset file="${sipxconfig.war}"/>
+      <fileset file="${tapestry.jar}"/>
+      <fileset file="${hivemind.jar}"/>
+      <fileset file="${hivemind-lib.jar}"/>
+      <fileset file="${tapestry-contrib.jar}"/>
+      <fileset file="${tapestry-annotations.jar}"/>
+      <fileset file="${backport-util-concurrent.jar}"/>
+      <fileset file="${ognl.jar}"/>
+      <!-- SOAP -->
+      <fileset file="${axis.jar}"/>
+      <fileset file="${saaj.jar}"/>
+      <fileset file="${jaxrpc.jar}"/>
+      <fileset file="${javamail.jar}"/>
+      <fileset file="${commons-discovery.jar}"/>
+      <fileset file="${activation.jar}"/>
+      <fileset file="${axis-schema.jar}"/>
+      <fileset file="${acegi-security.jar}"/>
+      <fileset file="${restlet.jar}"/>
+      <fileset file="${restlet-impl.jar}"/>
+      <fileset file="${restlet-servlet.jar}"/>
+      <fileset file="${restlet-spring.jar}"/>
+      <fileset file="${jdom.jar}"/>
+      <fileset file="${rome.jar}"/>
+    </copy>
+  </target>	
+
+  <property name="test.systemRoot" 
+    location="${test.results.dir}/artificial-system-root"/>
+  
+  <target name="run" depends="test-war" 
+    description="Runs Jetty on current code, development purpose only">
+  	<echo/>
+    <echo>Web UI will be available at URL:</echo>
+    <echo>http://localhost:9999/sipxconfig/TestPage.html</echo>
+  	<echo/>
+    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
+      <classpath path="${classpath.build}"/>
+      <classpath path="${classpath.run}"/>
+      <classpath refid="test.path"/>
+      <classpath refid="base.path"/>
+      <classpath location="${server-bindings.jar}"/>
+      <!-- simulates appending sipxpbx.conf.dir in real start-up script -->      
+      <classpath location="${test.systemRoot}/etc"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+    </java>
+  </target>
+  <target name="test-all" depends="ant-targets.test-all,test-ui,test-api"/>
+  <target name="test-war" depends="default.deps,compile.test,war" 
+    description="Creates a war file for unittests">
+    <delete dir="${test.war}"/>
+    <unwar src="${sipxconfig.war}" dest="${test.war}"/>
+    <!-- generates sipxconfig.properties that has test oriented values -->
+    <java classname="org.sipfoundry.sipxconfig.site.SiteTestHelper" 
+      failonerror="true">
+      <sysproperty key="basedir" value="${basedir}"/>
+      <classpath path="${classpath}"/>
+      <classpath location="${junit.jar}"/>
+      <classpath refid="test.path"/>
+      <classpath location="${test.classes.dir}"/>
+      <arg value="${test.war}/WEB-INF/classes"/>
+      <arg value="${test.systemRoot}"/>
+      <arg value="${test.results.dir}"/>
+    </java>
+    <copy todir="${test.systemRoot}/etc">
+      <fileset dir="${top.dir}/neoconf/etc"/>
+    </copy>
+    <copy todir="${test.systemRoot}/etc">
+      <fileset dir="test/artificial-root"/>
+    </copy>
+    <copy todir="${test.war}/WEB-INF/classes">
+    	  <fileset dir="${test.src.dir}">
+    	  	<include name="**/*.png"/>
+    	  </fileset>
+    </copy>
+  </target>
+
+  <!-- 
+    - U N I T T E S T   W E B   U I
+    -->
+  <target name="test-ui" depends="test-war" 
+    description="run junit tests for web interface">
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" maxmemory="1024m"
+      failureproperty="junit.failed">
+      <!-- Uncomment this line to enable debugging of ui unit tests -->
+      <!-- <jvmarg line="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=4241"/> -->
+      <classpath refid="test.path"/>
+      <formatter type="plain"/>
+      <formatter type="xml"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <batchtest todir="${junit.results.dir}">
+        <fileset dir="${test.src.dir}">
+          <patternset refid="test-ui.src" />
+        </fileset>
+      </batchtest>
+    </junit>
+    <antcall target="failure-report"/>
+    <fail if="junit.failed"/>
+  </target>
+  
+  <!-- W E B   S E R V I C E -->
+  <target name="wsdl.init">
+	<mkdir dir="${server.bindings.dir}"/>
+	  <uptodate property="server-config.wsdd.uptodate" targetfile="${server-bindings.jar}">
+		  <srcfiles dir="${src.dir}">
+			  <include name="**/*.wsdl"/>
+		  </srcfiles>	  
+		  <srcfiles dir="meta">
+			  <include name="server-config.xsl"/>
+		  </srcfiles>	  
+	  </uptodate>	  
+  </target>		
+	
+  <target name="wsdl" depends="wsdl.init,server-config.wsdd"
+	  description="Compile WSDL into java classes">	  
+  </target>
+
+  <!--
+	- Compile WSDL into java server-side bindings.
+	-->
+  <target name="generate.server.bindings" unless="server-config.wsdd.uptodate">
+    <delete dir="${server.bindings.src}"/>
+    <mkdir dir="${server.bindings.src}"/>
+    <wsdl2java url="${src.dir}/org/sipfoundry/sipxconfig/api/sipxconfig.wsdl" output="${server.bindings.src}"
+      serverside="true" noWrapped="true">
+      <mapping namespace="http://www.sipfoundry.org/2007/08/21/ConfigService" package="org.sipfoundry.sipxconfig.api"/>
+    </wsdl2java>
+    <!-- generted impl classes are just stubbed -->
+    <delete>
+      <fileset dir="${server.bindings.src}">
+        <include name="**/*BindingImpl.java"/>
+      </fileset>
+    </delete>
+  </target>  	
+  
+  <target name="server.bindings" depends="generate.server.bindings" unless="server-config.wsdd.uptodate">
+    <sipx-javac srcdir="${server.bindings.src}" destdir="${server.bindings.dir}" classpathref="base.path">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+      </classpath>
+    </sipx-javac>
+    <jar destfile="${server-bindings.jar}" basedir="${server.bindings.dir}"/>    
+  </target>
+  
+  <!-- 
+	- aggregate axis generated WSDD files into 1 server-config.wsdd 
+	-->
+  <target name="server-config-nospring.wsdd" depends="server.bindings" 
+	  unless="server-config.wsdd.uptodate">
+     <java
+      classname="org.apache.axis.utils.Admin"
+      fork="true"
+      failonerror="true"
+      dir="${server.bindings.src}">
+        <classpath refid="axis.path"/>
+        <classpath path="${classpath.run}"/>
+        <classpath location="${classes.dir}"/>
+        <classpath location="${server-bindings.jar}"/>
+        <arg value="server"/>
+        <arg file="${server.bindings.src}/org/sipfoundry/sipxconfig/api/deploy.wsdd"/>
+    </java>
+	<move 
+		file="${server.bindings.src}/server-config.wsdd" 
+		tofile="${server.bindings.src}/server-config-nospring.wsdd" 
+		overwrite="true"/>
+  </target>
+	
+  <!-- 
+	- Transform WSDD file to include spring adapter
+	-->
+  <target name="server-config.wsdd" depends="server-config-nospring.wsdd">
+  	  <!-- 
+		- HACK: WSDD doesn't validate, schema does not resolve among 
+		- other things, so removing erroneous referance to namespaces.
+		- I have posted email to ant project to get feedback on this
+		-	http://thread.gmane.org/gmane.comp.jakarta.ant.user/34470
+		-->
+	<replace file="${server.bindings.src}/server-config-nospring.wsdd">
+		<replacetoken><![CDATA[xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java"]]></replacetoken>
+	</replace>
+	<style
+		style="meta/server-config.xsl" 
+		in="${server.bindings.src}/server-config-nospring.wsdd" 
+		out="${server.bindings.src}/server-config.wsdd">	  
+	</style>
+        <!-- causing axis errors on startup -->
+	<replace file="${server.bindings.src}/server-config.wsdd">
+		<replacetoken><![CDATA[xmlns=""]]></replacetoken>
+	</replace>
+  </target>
+  
+  <!--
+	- Compile WSDL into Ruby client-side binding.
+	-->
+  <target name="ruby-bindings" depends="server-config.wsdd" if="ruby-bindings-enabled"
+	description="Build ruby client stubs from WSDL file">
+    <!-- Ruby client stubs -->
+    <delete dir="${ruby.bindings.dir}"/>
+    <mkdir dir="${ruby.bindings.dir}"/>
+    <!-- HACK, wsdl2ruby only generates output to current dir, and
+      - absolute path to wsdl confuses mswindows because of drive letter.
+      - This may resolve itself when I copy wsdl's to war root for inclusion
+      - in WAR
+      -->
+    <copy todir="${ruby.bindings.dir}" flatten="true">
+      <fileset dir="${src.dir}" includes="**/*.wsdl"/>
+    </copy>
+	<property name="wsdl2ruby-command" value="-C${ruby.bindings.dir} ${wsdl2ruby} --force --type client --wsdl"/>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${wsdl2ruby-command} sipxconfig.wsdl"/>
+    </exec>
+  </target>
+  
+  <!--
+	- Run web services unit tests
+	-->
+  <target name="start-web-server">
+    <echo message="Starting server..."/>
+    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup" fork="true">
+      <classpath refid="base.path"/>
+      <classpath refid="test.path"/>
+      <classpath path="${classpath.run}"/>
+      <classpath path="${classpath.build}"/>
+      <classpath location="${server-bindings.jar}"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+    </java>
+  </target>
+
+  <target name="stop-web-server">
+    <!-- shut down in case other tests relying on web server need to run -->
+    <java classname="org.sipfoundry.sipxconfig.site.JettyTestSetup">
+      <classpath refid="base.path"/>
+      <classpath refid="test.path"/>
+      <classpath path="${classpath.run}"/>
+      <classpath path="${classpath.build}"/>
+      <classpath location="${server-bindings.jar}"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <arg value="shutdown"/>
+    </java>    
+  </target>	
+  
+  <target name="test-api" if="ruby-bindings-enabled" depends="test-war,ruby-bindings" 
+        description="Test web services">
+
+    <property name="test-api.sleep" value="15"/>
+    <parallel>
+      <antcall target="start-web-server"/>
+      <sequential>
+        <echo message="Waiting ${test-api.sleep} seconds for the server to start..."/>
+        <sleep seconds="${test-api.sleep}"/>
+        <antcall target="test-api-run"/>
+        <antcall target="stop-web-server"/>        
+      </sequential>      
+    </parallel>
+  </target>
+
+  <target name="test-api-run" description="Test web services with starting webserver">
+    <property name="ruby.webservice-unit-test.src.dir" value="${ruby-test.src.dir}"/>
+    <property name="ruby.include.path" value="${ruby.bindings.dir}${path.separator}${ruby.webservice-unit-test.src.dir}"/>
+    <property name="webservice-unit-test-command"
+      value="-I${ruby.include.path} ${ruby.flags} ${ruby.webservice-unit-test.src.dir}"/>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/PermissionServiceTestApi.rb"/>
+    </exec>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/UserServiceTestApi.rb"/>
+    </exec>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/CallGroupServiceTestApi.rb"/>
+    </exec>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/ParkOrbitServiceTestApi.rb"/>
+    </exec>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/PhoneServiceTestApi.rb"/>
+    </exec>
+    <exec executable="${ruby}" failonerror="true">
+      <arg line="${webservice-unit-test-command}/SystemServiceTestApi.rb"/>
+    </exec>
+  </target>
+  
+</project>

@@ -1,0 +1,18 @@
+  <table jwcid="@common/Table" id="alarm:list"
+      columns="code,!description:shortTitle,!severity,!groupName,!threshold"
+      source="ognl:alarms"
+      row="ognl:currentRow"
+      selections="ognl:selections"
+      converter="bean:alarmConverter">
+    <span jwcid="groupNameColumnValue@Block">
+      <input jwcid="@PropertySelection" model="ognl:alarmGroupModel" value="ognl:currentRow.groupName" validators="validators:required" />
+    </span>
+   <tr jwcid="thresholdColumnValue@Block">
+      <span jwcid="@If" condition="ognl:currentRow.minThreshold!=0">
+        <td jwcid="minThreshold@TextField" value="ognl:currentRow.minThreshold" translator="translator:integer" validators="validators:required,min=1" displayName="message:threshold" />
+      </span>
+      <span jwcid="@Else">
+        <td jwcid="@Insert" value="literal:n/a" />
+      </span>
+    </tr>
+  </table>

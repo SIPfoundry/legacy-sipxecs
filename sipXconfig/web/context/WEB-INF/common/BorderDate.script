@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+	"-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+	"http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+
+<input-symbol key="date" class="java.lang.String" required="yes"/>
+
+<body>
+<![CDATA[
+dojo.require("dojo.date.format");
+
+var currentDate = new Date("${date}");
+var interval=10000;
+
+function updateDate(){
+	targetNode = dojo.byId("dateComponent");
+	targetNode.innerHTML = dojo.date.format(currentDate, {datePattern: "EEE, dd MMM yyyy ", timePattern: "h:mm aa"});
+	currentDate.setMilliseconds(currentDate.getMilliseconds()+interval);
+	setTimeout('updateDate()', interval);
+}
+
+]]>
+</body>
+<initialization>
+	updateDate();
+</initialization>
+</script>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.site.setting.SettingsForm" allow-body="no" allow-informal-parameters="no">
+  <description>Form to configure set of settings</description>
+  <parameter name="settings" required="yes"/>
+  <parameter name="cancelListener" required="yes"/>
+  <parameter name="okListener"  required="no"  default-value="null"/>
+  <parameter name="applyListener" required="yes"/>
+  <parameter name="validator" required="yes"/>
+  <parameter name="requiredEnabled" required="no" default-value="true"/>
+  <property name="action"/>
+  <inject property="tapestry" object="spring:tapestry"/>
+  <component id="settingsForm" type="Form">
+    <binding name="delegate" value="validator"/>
+    <binding name="listener" value="listener:formSubmit"/>
+  </component>
+  <component id="ifRenderOk" type="If">
+    <binding name="condition" value="okListener != null"/>
+  </component>
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
+    <binding name="settings" value="settings"/>
+    <binding name="requiredEnabled" value="requiredEnabled"/>
+  </component>
+  <component id="cancel" type="Submit">
+    <binding name="selected" value="action"/>
+    <binding name="tag" value="cancelListener"/>
+  </component>
+  <component id="apply" type="Submit">
+    <binding name="selected" value="action"/>
+    <binding name="tag" value="applyListener"/>
+  </component>
+  <component id="ok" type="Submit">
+    <binding name="selected" value="action"/>
+    <binding name="tag" value="okListener"/>
+  </component>
+</component-specification>

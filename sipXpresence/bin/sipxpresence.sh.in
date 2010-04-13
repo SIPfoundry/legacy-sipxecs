@@ -1,0 +1,69 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+pidfile=@SIPX_RUNDIR@/sipxpresence.pid
+
+case ${Action} in
+   RUN)
+     echo $$ > ${pidfile}
+     exec @bindir@/sipxpresence $Args
+     ;;
+
+   STOP)
+     sipx_stop sipxpresence ${pidfile}
+     ;;
+
+   CONFIGTEST)
+     Status=0
+
+     # Validate the saved state file, if it exists.
+     F=@SIPX_VARDIR@/sipxpresence/state.xml
+     if [[ -s $F ]]
+     then
+	 @bindir@/sipx-validate-xml $F
+	 Status=$(($Status+$?))
+     fi
+
+     #@bindir@/sipx-validate-xml @SIPX_CONFDIR@/sipxpresence-config.xml
+     #Status=$(($Status+$?))
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipxpresence.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+	 Status=1
+     fi
+
+     ;;
+esac
+
+exit $Status

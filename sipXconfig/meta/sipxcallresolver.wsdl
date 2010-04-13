@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<definitions xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:tns="urn:CdrService"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:si="http://soapinterop.org/xsd"
+  xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
+  xmlns="http://schemas.xmlsoap.org/wsdl/" targetNamespace="urn:CdrService">
+
+  <types>
+    <xsd:schema targetNamespace="urn:CdrService">
+      <xsd:complexType name="ArrayOfActiveCalls">
+        <xsd:complexContent>
+          <xsd:restriction base="SOAP-ENC:Array">
+            <xsd:attribute ref="SOAP-ENC:arrayType" wsdl:arrayType="tns:ActiveCall[]" />
+          </xsd:restriction>
+        </xsd:complexContent>
+      </xsd:complexType>
+
+      <xsd:complexType name="ActiveCall">
+        <xsd:sequence>
+          <xsd:element name="from" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="to" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="recipient" type="xsd:string" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="duration" type="xsd:long" minOccurs="1" maxOccurs="1" />
+          <xsd:element name="start_time" type="xsd:dateTime" minOccurs="1" maxOccurs="1" />
+        </xsd:sequence>
+      </xsd:complexType>
+    </xsd:schema>
+  </types>
+
+  <message name="getActiveCallsResponse">
+    <part name="getActiveCallsResponse" type="tns:ArrayOfActiveCalls"></part>
+  </message>
+  <message name="getActiveCallsRequest"></message>
+
+  <portType name="CdrService">
+    <operation name="getActiveCalls">
+      <input message="tns:getActiveCallsRequest"></input>
+      <output message="tns:getActiveCallsResponse"></output>
+    </operation>
+  </portType>
+
+  <binding name="CdrBinding" type="tns:CdrService">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http" />
+
+    <operation name="getActiveCalls">
+      <soap:operation soapAction="urn:CdrService#getActiveCalls" style="rpc" />
+      <input>
+        <soap:body use="encoded" namespace="urn:CdrService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </input>
+      <output>
+        <soap:body use="encoded" namespace="urn:CdrService"
+          encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" />
+      </output>
+    </operation>
+  </binding>
+
+  <service name="CdrImplService">
+    <documentation>Realtime statistics of on-going calls as monitored by CDR resolver.</documentation>
+    <port name="CdrService" binding="tns:CdrBinding">
+      <soap:address location="http://localhost:2010/" />
+    </port>
+  </service>
+</definitions>

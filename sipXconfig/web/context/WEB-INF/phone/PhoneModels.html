@@ -1,0 +1,24 @@
+<html>
+	<head>
+		<link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+	</head>
+	<body jwcid="$content$">
+		<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+               <p><span jwcid="groupLabel"/></p>
+               <p><span key="selectPhoneModels"/></p>
+                <ul class="component-links">
+                    <li><a id="group:edit" jwcid="editGroup"><span key="editGroup">Edit Group</span></a></li>
+                </ul>
+                <ul>
+                    <span jwcid="phoneModels">
+						<span jwcid="isManagedPhone">
+                          <li><a jwcid="phoneModelLink"><span jwcid="phoneModel"/></a></li>
+						</span>
+						<span jwcid="isUnmanagedPhone">
+                          <li><span jwcid="unmanagedPhoneModel"/></li>
+						</span>
+                    </span>
+                </ul>
+		</div>
+	</body>
+</html>

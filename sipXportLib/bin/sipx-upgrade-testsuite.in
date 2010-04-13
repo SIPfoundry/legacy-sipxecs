@@ -1,0 +1,71 @@
+#!@BASH@
+
+# Unit tests for sipx-upgrade
+MyDir=`dirname $0`
+source ${MyDir}/shell-unit
+source ${MyDir}/sipx-upgrade -p UnitTest --nooperation
+
+##------------------------------------
+# test functions
+##------------------------------------
+testConfigKeys() {
+  TestFile=/tmp/ConfigKeysTest
+  cat > ${TestFile} <<TESTFILE
+key1=value1
+key2=value2
+TESTFILE
+
+  Actual=`ConfigKeys ${TestFile} = | tr '\n' '-'`
+  assertEquals "key1-key2-" ${Actual}
+}
+
+testConfigDiff() {
+  Orig=/tmp/ConfigDiffTest.orig
+  New=/tmp/ConfigDiffTest.new
+  cat > $Orig <<TESTFILE
+key1=value1
+#comment for key2 here
+key2=value2
+TESTFILE
+
+  cat > $New <<TESTFILE
+#comment for key here
+key1=value1
+key2=value2 has key3 in value
+key3=value3
+TESTFILE
+
+  Actual=`ConfigDiff $New $Orig`
+  assertEquals "key3=value3" ${Actual}
+}
+
+testMergeRpmConfigFile() {
+  Orig=/tmp/MergeRpmConfigFile
+  New=/tmp/MergeRpmConfigFile.rpmnew
+  Expected=/tmp/MergeRpmConfigFile.expected
+
+  cat > $Orig <<TESTFILE
+key1=user edited value1
+TESTFILE
+
+  cat > $New <<TESTFILE
+key1=value1
+key2=value2
+TESTFILE
+
+  cat > $Expected <<TESTFILE
+key1=user edited value1
+key2=value2
+TESTFILE
+
+  MergeRpmConfigFile "${Orig}"
+  assertFileEquals "${Expected}" "${Orig}"
+  assertTrue ! test -f "${New}"
+}
+
+##------------------------------------
+# test suite
+##------------------------------------
+runTest testConfigKeys
+runTest testConfigDiff
+runTest testMergeRpmConfigFile

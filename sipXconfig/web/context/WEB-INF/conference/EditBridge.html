@@ -1,0 +1,56 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="tabNavigation@common/TabNavigation" tabNames="ognl:tabNames" selectedTab="ognl:tab" />
+  <div id="settings-content">
+    <div id="breadcrumbs">
+        <a jwcid="@PageLink" page="conference/ListBridges"><span key="crumb.conferencing" /></a>
+        <img jwcid="@Image" image="asset:breadcrumbSeparator" align="absmiddle" />
+        <span jwcid="@If" condition="ognl:bridge.isNew"><span key="crumb.newConferenceServer" /></span>
+        <span jwcid="@Else"><span jwcid="@Insert" value="ognl:bridge.name" /></span>
+    </div>
+    <span jwcid="@common/ErrorMsg"/>
+
+      <form jwcid="@common/AutoRefreshForm" delegate="bean:validator" listener="listener:formSubmit"
+            showRefresh="ognl:tab == 'conferences'" actionBlock="ognl:actionBlockForTab">
+        <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+      </form>
+  </div>
+
+    <div jwcid="configTab@Block">
+      <table>
+        <tbody>
+          <tr>
+            <td><label><span key="label.host">Server name</span></label></td>
+            <td><b><span jwcid="@Insert" value="ognl:bridge.name">mydomain.com</span></b></td>
+          </tr>
+          <tr>
+            <td><label><span key="label.ip">IP address</span></label></td>
+            <td>
+              <b><span jwcid="@Insert" value="ognl:bridge.service.location.address">10.1.2.3</span></b></td>
+          </tr>
+          <tr>
+            <td>
+              <label><span key="label.description">Server description</span></label>
+            </td>
+            <td>
+              <b><span jwcid="@Insert" value="ognl:bridge.description">Server</span></b>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <fieldset jwcid="settingsFieldset@setting/SettingsFieldset" settings="ognl:bridge.settings" />
+
+      <div jwcid="formActionsBlock@Block">
+        <span jwcid="formActions@common/FormActions" listener="listener:apply" callback="ognl:callback" />
+      </div>
+    </div>
+
+  <div jwcid="conferencesTab@Block">
+    <span jwcid="conferencesPanel@conference/ConferencesPanel"
+      bridge="ognl:bridge"
+      addListener="listener:addConference"
+      selectListener="listener:editConference"
+      selectActiveListener="listener:activeConferences"
+      renderFilter="true"
+      changed="ognl:changed"/>
+  </div>
+</div>

@@ -1,0 +1,22 @@
+<span jwcid="$content$">
+    <fieldset>
+        <legend>Dialing Rules</legend>
+    </fieldset>
+
+        <ul class="component-links">
+            <li>
+                <select jwcid="@phone/GroupActions" actionModel="ognl:actionModel" />
+            </li>
+        </ul>
+
+        <table jwcid="dialRulesTable@dialplan/DialRulesTable" class="component"
+               dialingRules="ognl:dialingRules" />
+
+        <ul class="component-submit">
+            <li><input jwcid="@Submit" value="message:button.remove"
+                       tag="ognl:components.dialRulesTable.selections.allSelected"
+                       selected="ognl:rowsToDelete" action="listener:removeRules" /></li>
+        </ul>
+
+
+</span>

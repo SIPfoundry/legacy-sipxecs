@@ -1,0 +1,17 @@
+<test name="apache">
+  <label>Apache HTTP server</label>
+  <description>Verify Apache HTTP server</description>
+  <command>
+    <exec>sipx-test-apache</exec>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="1">
+      <status>Error</status>
+      <msg>Apache HTTP server verification error</msg>
+    </result>
+  </results>
+</test>

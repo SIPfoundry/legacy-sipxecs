@@ -1,0 +1,7 @@
+log.level=CRIT
+log.file=/var/log/sipxpbx/sipxprovision.log
+provision.servlet.port=6050
+provision.sipxchangeDomainName=example.org
+provision.username=~~id~sipXprovision
+provision.password=1234Password
+provision.configUrl=https://localhost:8443

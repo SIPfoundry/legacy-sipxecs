@@ -1,0 +1,26 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"/>
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <ul class="component-links">
+    <li> <a href="#" id="AddUser" jwcid="addUser">
+      <span key="add">Add User</span></a>
+    </li>
+  </ul>
+  <form jwcid="userManagement">
+    <ul class="component-submit">
+      <li>
+        <span jwcid="groupFilter"/>
+      </li>
+    </ul>
+    <span jwcid="userTable" class="component"/>
+    <ul class="component-submit">
+      <li>
+        <input id="user:delete" jwcid="delete"/>
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+      <li>
+        <span jwcid="groupActions"></span>
+      </li>
+    </ul>
+  </form>
+</div>

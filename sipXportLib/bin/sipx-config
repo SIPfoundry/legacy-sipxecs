@@ -1,0 +1,137 @@
+#!/bin/sh
+
+# Purpose of this script is to return locations of programs and
+# settings used by the sipx family of modules.  This is installed for
+# runtime scripts' usage.
+# Configuration information about the sipX modules themselves is
+# printed by the sipx*-config scripts.
+
+# DEVELOPER NOTE: This is not meant to replace autoconf
+# macros. Instead this is to find programs (like java) that can differ
+# from what is used to compile then what is used to run.  This
+# difference is extremely important when building binary distributions
+# like RPMs
+
+MyDir=`dirname $0`
+PATH=$PATH:$MyDir
+
+# What operation this script is instructed by user to perform
+Action=""
+
+# Standard place to find java command
+
+# Set when java is found
+JavaToolCommand=""
+
+# Set when JVM is found
+JavaHome=""
+
+# Executable we're looking for
+JavaTool="java"
+
+# common java arguments:
+#    -Dcom.ibm.tools.attach.enable=no used to get around XX-7634
+CommonJavaArgs="-Dcom.ibm.tools.attach.enable=no"
+
+# All sipx programs require 1.4 or above, if this does not become
+# true, I suggest parameter-izing this
+JavaVersions="1\.[456]"
+
+## Test the java executable command
+testJavaTool()
+{
+    CommandCandidate=$1
+
+    # test java command
+    if [ ! -x $CommandCandidate ]
+    then
+      return 1
+    fi
+
+    if [ $JavaTool == 'java' ] 
+    then
+      Ver=`$CommandCandidate -version 2>&1`
+      if ! echo $Ver | grep "$JavaVersions" >/dev/null 
+      then
+        echo "Version $Ver not compatible" 1>&2
+        return 1
+      fi
+    fi
+
+    JavaToolCommand=$CommandCandidate
+    return 0
+}
+
+findJavaTool()
+{
+    # Gentoo
+    if [ -n "${SIPX_JAVA_HOME}" ]
+    then
+        if testJavaTool "${SIPX_JAVA_HOME}/bin/$JavaTool"
+        then
+            testJavaTool "${SIPX_JAVA_HOME}/jre/bin/$JavaTool"
+        fi
+    else
+        testJavaTool `which $JavaTool`
+    fi    
+}
+
+## Main program loop
+Action=HELP
+while [ "$#" -ne 0 ]
+do
+    case ${1} in
+
+        --java)
+        Action=JAVA
+        if [ ! -z ${2} ]
+        then
+          JavaTool=${2}
+          shift
+        fi
+        ;;
+
+        *)
+        Action=HELP
+        ;;
+    esac
+
+    shift #always consume 1
+done
+
+if test "$Action" = "JAVA"
+then
+
+    findJavaTool
+
+    if [ -z $JavaToolCommand ]
+    then
+        cat >&2 <<NOJAVA
+Cannot locate the Java VM on your machine or wrong version of Java installed. Please either install Java
+ or set the SIPX_JAVA_HOME environment variable to where you've installed it.
+
+NOJAVA
+
+        exit 1
+    fi
+
+    echo "$JavaToolCommand $CommonJavaArgs"
+    exit 0
+
+fi
+
+cat <<USAGE
+
+Return settings or paths to programs for sipX family of modules
+
+Usage:
+
+    ./sipx-config [--java]
+
+Options are:
+
+     --java     Locate java vm command
+
+USAGE
+
+exit

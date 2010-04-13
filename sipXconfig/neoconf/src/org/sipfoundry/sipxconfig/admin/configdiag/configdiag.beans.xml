@@ -1,0 +1,20 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="configurationDiagnosticContext"
+    class="org.sipfoundry.sipxconfig.admin.configdiag.ConfigurationDiagnosticContextImpl">
+    <property name="descriptorPath">
+      <value>${sysdir.etc}/test.d</value>
+    </property>
+    <property name="externalCommandContext" ref="commandContext" />
+    <property name="preflightInstallerLocation" value="${sysdir.share}/preflight/preflight_installer.exe" />
+  </bean>
+
+  <bean id="commandContext" class="org.sipfoundry.sipxconfig.admin.configdiag.DefaultExternalCommandContext">
+    <property name="binDirectory">
+      <value>${sysdir.bin}</value>
+    </property>
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+</beans>

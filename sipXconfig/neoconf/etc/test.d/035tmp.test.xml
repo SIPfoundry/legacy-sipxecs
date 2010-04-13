@@ -1,0 +1,18 @@
+<test name="tmpPermission">
+  <label>Temporary directory</label>
+  <description>Verify if the /tmp directory is accessible and has correct permissions</description>
+  <command>
+    <exec>sipx-test-tmp</exec>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="1">
+      <status>Error</status>
+      <msg>Incorrect permissions for the /tmp directory</msg>
+      <description>The /tmp directory should have permissions 'drwxrwxrw[xt]'.</description>
+    </result>
+  </results>
+</test>

@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX appearance group (shared line) definitions
+  -->
+<schema
+    xmlns:r='http://www.sipfoundry.org/sipX/schema/xml/appearance-groups-00-00'
+    xmlns:sip='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/appearance-groups-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <import
+      namespace="http://www.sipfoundry.org/sipX/schema/xml/sip-00-01"
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
+      />
+
+  <import
+      namespace="http://www.w3.org/XML/1998/namespace"
+      schemaLocation="@SIPX_DATADIR@/schema/xml.xsd"
+      />
+
+  <annotation>
+    <documentation>
+      Definitions of appearance groups (shared lines) for the sipX Appearance Agent
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='appearanceGroups'>
+    <complexType>
+      <sequence>
+        <element ref='r:resource' minOccurs='0' maxOccurs='unbounded' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name="resource">
+    <complexType>
+      <attribute name="uri" type="anyURI" use="required" />
+      <anyAttribute processContents="lax" />
+    </complexType>
+  </element>
+</schema>

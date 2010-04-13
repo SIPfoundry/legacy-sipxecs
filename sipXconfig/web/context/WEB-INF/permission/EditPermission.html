@@ -1,0 +1,40 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg" />
+  <form jwcid="form@Form" id="permission:form" delegate="bean:validator">
+    <fieldset>
+    <table>
+      <tbody>
+        <tr jwcid="@common/FieldPanel"
+          field="component:label"
+          label="message:label.label"
+          description="message:description.label">
+          <td jwcid="label@TextField"
+            value="ognl:label"
+            displayName="message:label.label"
+            validators="validators:required,maxLength=255"
+            disabled="ognl:permission.builtIn" />
+        </tr>
+        <tr jwcid="@common/FieldPanel"
+          field="component:description"
+          label="message:label.description">
+          <td jwcid="description@TextArea"
+            cols="45" rows="5"
+            value="ognl:description"
+            displayName="message:label.description"
+            validators="validators:maxLength=255"
+            disabled="ognl:permission.builtIn" />
+        </tr>
+        <tr jwcid="@common/FieldPanel"
+          field="component:defaultValue"
+          label="message:label.defaultValue"
+          description="message:description.defaultValue">
+          <td jwcid="defaultValue@Checkbox"
+            value="ognl:permission.defaultValue"
+            disabled="ognl:permission.builtIn" />
+        </tr>
+      </tbody>
+    </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" callback="ognl:callback" listener="listener:commit" />
+  </form>
+</div>

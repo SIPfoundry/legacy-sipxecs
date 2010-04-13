@@ -1,0 +1,4 @@
+SUBDIRS = \
+	etc \
+	src \
+	bin

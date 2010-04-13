@@ -1,0 +1,11 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/LeftNavigation">
+    <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="ognl:bean"
+      source="ognl:settings.values" activeSetting="ognl:parentSetting"
+      editSettingsListener="listener:editGroupSettings"/>
+  </div>
+  <span jwcid="settingsForm@setting/SettingsForm" settings="ognl:parentSetting"
+    cancelListener="listener:cancel" okListener="listener:ok"
+    applyListener="listener:apply" validator="bean:validator"
+    requiredEnabled="literal:false"/>
+</div>

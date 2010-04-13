@@ -1,0 +1,70 @@
+sign-out-agent : 2006-04-17T20:53:03.596057Z : sip:q1@doto.pingtel.com : sip:203@doto.pingtel.com
+sign-in-agent : 2006-04-17T20:53:07.765028Z : sip:q1@doto.pingtel.com : sip:202@doto.pingtel.com
+stop-acd : 2006-04-17T21:43:49.571299Z
+start-acd : 2006-04-18T22:07:32.524747Z
+stop-acd : 2006-04-18T22:09:12.981707Z
+start-acd : 2006-04-18T22:09:33.555148Z
+sign-in-agent : 2006-04-18T22:16:07.641160Z : sip:q1@doto.pingtel.com : sip:202@doto.pingtel.com
+sign-in-agent : 2006-ivalid-time-18T22:16:07.657033Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com
+sign-in-agent : 2006-04-18T22:16:07.736257Z : sip:q1@doto.pingtel.com : sip:203@doto.pingtel.com
+sign-out-agent : 2006-04-18T22:16:15.777088Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com
+sign-out-agent : 2006-04-18T22:16:15.821964Z : sip:q1@doto.pingtel.com : sip:203@doto.pingtel.com
+sign-out-agent : 2006-04-18T22:16:29.149811Z : sip:q1@doto.pingtel.com : sip:202@doto.pingtel.com
+sign-in-agent : 2006-04-18T22:16:32.236672Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com
+sign-in-agent : 2006-04-18T22:16:32.275563Z : sip:q1@doto.pingtel.com : sip:203@doto.pingtel.com
+stop-acd : 2006-04-18T22:19:55.875888Z
+start-acd : 2006-04-19T13:57:07.325131Z
+stop-acd : 2006-04-19T13:59:22.691062Z
+start-acd : 2006-04-19T13:59:44.672941Z
+sign-in-agent : 2006-04-19T14:03:30.406621Z : sip:q1@doto.pingtel.com : sip:202@doto.pingtel.com
+sign-in-agent : 2006-04-19T14:03:30.420655Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com
+sign-in-agent : 2006-04-19T14:03:30.460750Z : sip:q1@doto.pingtel.com : sip:203@doto.pingtel.com
+enter-queue : 2006-04-19T14:04:11.928696Z : sip:q1@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+pick-up : 2006-04-19T14:04:35.215318Z : sip:q1@doto.pingtel.com : sip:203@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+terminate : 2006-04-19T14:04:43.351341Z : sip:q1@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+enter-queue : 2006-04-19T14:05:20.499750Z : sip:q2@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+pick-up : 2006-04-19T14:06:07.830081Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+terminate : 2006-04-19T14:06:12.282535Z : sip:q2@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+start-acd : 2006-04-19T14:08:19.393927Z
+sign-in-agent : 2006-04-19T14:08:25.513445Z : sip:q1@doto.pingtel.com : sip:202@doto.pingtel.com
+sign-in-agent : 2006-04-19T14:08:25.513569Z : sip:q1@doto.pingtel.com : sip:203@doto.pingtel.com
+sign-in-agent : 2006-04-19T14:08:25.518909Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com
+stop-acd : 2006-04-19T14:24:32.543485Z
+start-acd : 2006-04-19T14:35:33.365346Z
+sign-in-agent : 2006-04-19T14:47:25.692853Z : sip:q1@doto.pingtel.com : sip:202@doto.pingtel.com
+sign-in-agent : 2006-04-19T14:47:25.728865Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com
+sign-out-agent : 2006-04-19T14:47:29.560514Z : sip:q1@doto.pingtel.com : sip:202@doto.pingtel.com
+sign-out-agent : 2006-04-19T14:47:29.591743Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com
+stop-acd : 2006-04-19T15:00:26.667223Z
+start-acd : 2006-04-19T15:01:01.276992Z
+stop-acd : 2006-04-19T15:05:26.785302Z
+start-acd : 2006-04-19T15:05:56.422584Z
+stop-acd : 2006-04-19T17:07:05.427983Z
+start-acd : 2006-04-19T17:09:31.829986Z
+stop-acd : 2006-04-19T17:16:34.894862Z
+start-acd : 2006-04-19T17:36:03.596490Z
+stop-acd : 2006-04-19T17:48:24.694648Z
+start-acd : 2006-04-19T17:48:43.282381Z
+stop-acd : 2006-04-19T21:04:51.394916Z
+start-acd : 2006-04-20T20:22:32.452580Z
+stop-acd : 2006-04-20T20:44:17.978739Z
+start-acd : 2006-04-24T15:29:22.045159Z
+stop-acd : 2006-04-24T17:02:28.584939Z
+start-acd : 2006-04-24T17:03:07.835378Z
+stop-acd : 2006-04-24T17:11:55.375707Z
+start-acd : 2006-04-24T20:15:00.967666Z
+sign-in-agent : 2006-04-24T20:20:26.790779Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com
+enter-queue : 2006-04-24T20:22:46.392054Z : sip:q1@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+terminate : 2006-04-24T20:22:46.466206Z : sip:q1@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+enter-queue : 2006-04-24T20:22:56.097089Z : sip:q2@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+terminate : 2006-04-24T20:23:13.990419Z : sip:q2@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+stop-acd : 2006-04-24T20:24:55.932491Z
+start-acd : 2006-04-24T21:18:21.672220Z
+sign-in-agent : 2006-04-24T21:22:08.845485Z : sip:q1@doto.pingtel.com : sip:202@doto.pingtel.com
+sign-in-agent : 2006-04-24T21:22:08.857286Z : sip:q2@doto.pingtel.com : sip:201@doto.pingtel.com
+sign-in-agent : 2006-04-24T21:22:08.882798Z : sip:q1@doto.pingtel.com : sip:203@doto.pingtel.com
+enter-queue : 2006-04-24T21:23:12.441819Z : sip:q1@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+pick-up : 2006-04-24T21:23:35.736106Z : sip:q1@doto.pingtel.com : sip:203@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+terminate : 2006-04-24T21:23:42.101646Z : sip:q1@doto.pingtel.com : "Ringo Star"<sip:154@pingtel.com>
+stop-acd : 2006-04-24T21:24:10.116687Z
+start-acd : 2006-04-24T22:15:00.967666Z

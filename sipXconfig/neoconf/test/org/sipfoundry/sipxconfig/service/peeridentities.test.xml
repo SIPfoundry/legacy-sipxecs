@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<peeridentities xmlns="http://www.sipfoundry.org/sipX/schema/xml/peeridentities-00-00">
+  <peer>
+    <trusteddomain>trusteddomain.com</trusteddomain>
+    <internaluser>~~tp~trusteddomain.com</internaluser>
+  </peer>
+  <peer>
+    <trusteddomain>10.10.1.2</trusteddomain>
+    <internaluser>~~tp~10.10.1.2</internaluser>
+  </peer>
+</peeridentities>

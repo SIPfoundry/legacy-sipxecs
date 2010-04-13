@@ -1,0 +1,401 @@
+#!/bin/sh
+###
+### Utility script functions common to server startup scripts
+###
+
+# Set up correctly depending on the distribution
+if [ -f /etc/redhat-release ]
+then
+  # Redhat
+  . /etc/init.d/functions
+
+  HTTP_DAEMON_START="@APACHE2_HTTPD@"
+
+elif [ -f /etc/SuSE-release ]
+then
+  # SuSE
+  . /etc/rc.status
+
+  echo_success()
+  {
+      rc_reset
+      rc_status -v
+  }
+  echo_failure()
+  {
+      rc_failed
+      rc_status -v
+  }
+
+  HTTP_DAEMON_START="@APACHE2_HTTPD@"
+
+elif [ -f /etc/debian_version ]
+then
+  # Debian
+  echo_success()
+  {
+      echo success
+  }
+  echo_failure()
+  {
+      echo failure
+  }
+
+  HTTP_DAEMON_START="start-stop-daemon --start --chuid root --exec @APACHE2_HTTPD@ --"
+
+else
+  # Other distros
+  echo_success()
+  {
+      echo success
+  }
+  echo_failure()
+  {
+      echo failure
+  }
+
+  if [ -f /etc/init.d/functions.sh ]
+  then
+       . /etc/init.d/functions.sh
+       HTTP_DAEMON_START="start-stop-daemon --start --chuid root --exec @APACHE2_HTTPD@ --"
+  else
+       HTTP_DAEMON_START="@APACHE2_HTTPD@"
+  fi
+fi
+
+sipx_config_exists() { # ( CONFIG-FILE )
+    local exists=0
+    if ! test -f "$1"
+    then
+        echo "Configuration file not found: '$1'" >&2
+        exists=1
+    fi
+    return ${exists}
+}
+
+sipx_config_value() { # ( CONFIG-FILE, DIRECTIVE )
+#   prints the value of DIRECTIVE from CONFIG-FILE
+#   list values have any commas removed
+    sipx_config_exists "$1" \
+    && perl -n \
+        -e 'use English;' \
+        -e 's/#.*$//;' \
+        -e "/^\\s*$2\\s*:\\s*/ && print join( ' ', split( /[\\s,]+/, \$POSTMATCH ));" \
+        $1
+}
+
+dns_sipsrv () { # ( TRANSPORT, DOMAIN )
+  # returns the SRV host name for DOMAIN over TRANSPORT
+  target=`echo _sip._$1.$2 | tr A-Z a-z`
+  dig  -t srv +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
+
+dns_cname () { # ( DOMAIN )
+  # returns the CNAME resolution for DOMAIN
+  target=`echo $1 | tr A-Z a-z`
+  dig  -t cname +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
+
+dns_ns () { # ( DOMAIN )
+  # returns the NS resolution for DOMAIN
+  target=`echo $1 | tr A-Z a-z`
+  dig  -t ns +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
+
+dns_a () { # ( DOMAIN )
+  # returns the A record resolution for DOMAIN
+  target=`echo $1 | tr A-Z a-z`
+  dig  -t a +noidentify +nocmd +nocomments +noquestion +nostats +noauthority ${target} \
+  | tr A-Z a-z \
+  | awk "\$1 == \"${target}.\" { print \$NF }" \
+  | sed 's/\.$//'
+  }
+
+
+sip_resolves_to () { # ( unresolved, target )
+    # returns true (0) if "unresolved" resolves to "target" (an IP address) by SIP rules
+     unresolvedName=`echo $1 | tr A-Z a-z`
+     targetAddr=`echo $2 | tr A-Z a-z`
+
+     # If unresolvedName is the target IP address.
+     if [ "${unresolvedName}" = "${targetAddr}" ]
+     then
+         return 0
+     fi
+
+     # Look up A records.
+     for ip in `dns_a ${unresolvedName}`
+     do
+       if [ "${ip}" = "${targetAddr}" ]
+       then
+           return 0
+       fi
+     done
+
+     # Look up CNAME followed by A records.
+     for cName in `dns_cname ${unresolvedName}`
+     do
+       for ip in `dns_a ${cName}`
+       do
+         if [ "${ip}" = "${targetAddr}" ]
+         then
+             return 0
+         fi
+       done
+     done
+
+     # Look up SRV followed by A records.
+     for tcpSrv in `dns_sipsrv tcp ${unresolvedName}`
+     do
+       if [ "${tcpSrv}" = "${targetAddr}" ]
+       then
+           return 0
+       else
+           for ip in `dns_a ${tcpSrv}`
+           do
+             if [ "${ip}" = "${targetAddr}" ]
+             then
+                 return 0
+             fi
+           done
+       fi
+     done
+
+     for udpSrv in `dns_sipsrv udp ${unresolvedName}`
+     do
+       if [ "${udpSrv}" = "${targetAddr}" ]
+       then
+           return 0
+       else
+           for ip in `dns_a ${udpSrv}`
+           do
+             if [ "${ip}" = "${targetAddr}" ]
+             then
+                 return 0
+             fi
+           done
+       fi
+     done
+
+     return 1
+}
+
+get_user_groups() { # USERNAME
+    id $1 -Gn
+}
+
+get_file_owneruser() { # FILE
+    ls -l $1 |  tr -s ' ' | cut -f3 -d' '
+}
+
+get_file_ownergroup() { # FILE
+    ls -l $1 |  tr -s ' ' | cut -f4 -d' '
+}
+
+is_file_owned_by_username() { # FILE, USERNAME
+# Returns true (0) if the specified FILE is user owned by the
+# specified USERNAME.  Otherwise, returns false (1).
+
+    if [ `get_file_owneruser $1` = $2 ]
+    then
+        return 0
+    else
+        return 1
+    fi
+}
+
+is_file_grouped_by_username() { # FILE, USERNAME
+# Returns true (0) if the specified FILE is group owned by one
+# (or more) of the groups that the specified USERNAME belongs
+# to.  Otherwise, returns false (1).
+
+    file_group=`get_file_ownergroup $1`
+    for in_group in `get_user_groups $2`;
+    do
+        if [ $file_group = $in_group ]
+        then
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+is_file_executable_by_username() { # FILE, USERNAME
+# Returns true (0) if the specified FILE is executable by
+# the specified USERNAME, false (1) otherwise.
+
+    # User?
+    is_file_owned_by_username $1 $2
+    if [ $? = 0 ]
+    then
+        if [ "$(ls -l $1 | cut -c4)" = "x" ]
+        then
+            # USERNAME user owns FILE, and has execute permissions.
+            return 0
+        fi
+    else
+        # Group?
+        is_file_grouped_by_username $1 $2
+        if [ $? = 0 ]
+        then
+            if [ "$(ls -l $1 | cut -c7)" = "x" ]
+            then
+                # USERNAME is in a group that group owns FILE, and has
+                # execute permissions.
+                return 0
+            fi
+        else
+            # Other?
+            if [ "$(ls -l $1 | cut -c10)" = "x" ]
+            then
+                # USERNAME is one of the others to the FILE, and has
+                # execute permissions.
+                return 0
+            fi
+        fi
+    fi
+
+    return 1
+}
+
+make_root_writable_only() { # ( FILE )
+# This function ensures the specified FILE writable by root only.  It first
+# ensures that the file's owner and group are both root.  It then ensures
+# that neither group nor other have write permissions on the file.  If a
+# chown/chmod fails, then the function returns with the exit status of
+# the failed command.  (Note that chown and chmod will fail if the caller
+# is not root.)
+    if [ -f $1 ]
+    then
+        # The file exists.  Ensure its owner and group are both root.
+        is_file_owned_by_username $1 "root"
+        if [ $? = 1 ]
+        then
+            # The owner is not root, so fix it.
+            chown root $1
+            if [ 0 != $? ]
+            then
+                return $?
+            fi
+        fi
+        if [ `uname -s` = FreeBSD ] ; then
+           RootGroup="wheel"
+        else
+           RootGroup="root"
+        fi
+        if [ `get_file_ownergroup $1` != $RootGroup ]
+        then
+            # The group is not root, so fix it.
+            chown :$RootGroup $1
+            if [ 0 != $? ]
+            then
+                return $?
+            fi
+        fi
+
+        # At this point the file's owner and group are both root.
+        # Ensure it is not writeable by either group or other.
+        if [ "$(ls -l $1 | cut -c6)" != "-" ]
+        then
+            chmod g-w $1
+            if [ 0 != $? ]
+            then
+                return $?
+            fi
+        fi
+        if [ "$(ls -l $1 | cut -c9)" != "-" ]
+        then
+            chmod o-w $1
+            if [ 0 != $? ]
+            then
+                return $?
+            fi
+        fi
+    fi
+}
+
+# Check if the process is alive
+proc_alive() # pid
+{
+   2>/dev/null kill -0 $1
+   return $?
+}
+
+sipx_stop() {
+   proc_name=$1; shift
+   pidFile=$1; shift
+
+   STATUS=0
+
+   echo -n "  Confirm Stop: $proc_name "
+
+   if [ -r ${pidFile} ]
+   then
+       PID=`cat ${pidFile} 2> /dev/null`
+       if proc_alive "$PID"
+       then
+          kill $PID 2> /dev/null
+          for ticks in `seq 19 -1 0`
+          do
+             sleep 1
+             proc_alive "$PID" && echo -n "." || break
+          done
+          if proc_alive "$PID"
+          then
+              # It didn't die!  Try to get a core dump
+              echo ""
+              echo    "    $proc_name did not Stop."
+              echo -n "    Trying to abort $proc_name "
+              kill -ABRT $PID 2> /dev/null
+              for ticks in `seq 55 -5 0`
+              do
+                 sleep 5
+                 proc_alive "$PID" && echo -n " $ticks" || break
+              done
+              if proc_alive "$PID"
+              then
+                  echo ""
+                  echo    "    $proc_name did not abort."
+                  echo -n "    Trying to kill $proc_name "
+                  kill -KILL $PID 2> /dev/null
+                  for ticks in `seq 55 -5 0`
+                  do
+                     sleep 5
+                     proc_alive "$PID" && echo -n " $ticks" || break
+                  done
+              fi
+          fi
+       fi
+
+       if proc_alive "$PID"
+       then
+           # Holy fluff!  It didn't die!  The end is nigh!
+           echo ""
+           echo_failure
+           echo ""
+           [ "$BOOTUP" = "color" ] && $SETCOLOR_FAILURE
+           echo "    $proc_name will not die."
+           echo "    Machine must be restarted!"
+           [ "$BOOTUP" = "color" ] && $SETCOLOR_NORMAL
+       else
+           echo_success
+           echo ""
+           rm -f ${pidFile}
+       fi
+
+   else
+       echo -n "(Not started) "
+       echo_success
+       echo ""
+   fi
+}

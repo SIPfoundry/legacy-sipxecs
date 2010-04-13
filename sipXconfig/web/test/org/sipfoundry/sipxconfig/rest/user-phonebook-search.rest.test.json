@@ -1,0 +1,18 @@
+{"phonebook": [
+  {
+    "first-name": "FirstName1",
+    "last-name": "LastName1",
+    "number": "200",
+    "contact-information": {
+      "avatar": "https://secure.gravatar.com/avatar"
+    }
+  },
+  {
+    "first-name": "FirstName2",
+    "last-name": "LastName2",
+    "number": "201",
+    "contact-information": {
+      "avatar": "https://secure.gravatar.com/avatar"
+    }
+  }
+]}

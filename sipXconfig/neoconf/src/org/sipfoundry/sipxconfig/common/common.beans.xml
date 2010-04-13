@@ -1,0 +1,99 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!--
+  - C O R E  C O N T E X T   I M P L
+  -->
+  <bean id="coreContextImpl" class="org.sipfoundry.sipxconfig.common.CoreContextImpl">
+    <lookup-method name="newUser" bean="org.sipfoundry.sipxconfig.common.User"/>
+    <lookup-method name="newInternalUser" bean="org.sipfoundry.sipxconfig.common.InternalUser"/>
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
+    <property name="settingDao">
+      <ref bean="settingDao"/>
+    </property>
+    <property name="aliasManager">
+      <ref bean="aliasManager"/>
+    </property>
+    <property name="debug" value="false" />
+    <property name="domainManager" ref="domainManager"/>
+    <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
+  </bean>
+  <!--
+  - C O R E  C O N T E X T
+  -->
+  <bean id="coreContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.common.CoreContext</value>
+    </property>
+    <property name="target">
+      <ref local="coreContextImpl"/>
+    </property>
+  </bean>
+
+  <bean id="resetAdministrator" class="org.sipfoundry.sipxconfig.common.ResetAdministratorInitTaskListener">
+    <property name="coreContext" ref="coreContext"/>
+  </bean>
+
+  <!--
+  - E X T E N S I O N  P O O L  C O N T E X T   I M P L
+  -->
+  <bean id="extensionPoolContextImpl" class="org.sipfoundry.sipxconfig.common.ExtensionPoolContextImpl">
+    <property name="sessionFactory">
+      <ref bean="sessionFactory"/>
+    </property>
+    <property name="coreContext">
+      <ref bean="coreContext"/>
+    </property>
+  </bean>
+  <!--
+  - E X T E N S I O N  P O O L  C O N T E X T
+  -->
+  <bean id="extensionPoolContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.common.ExtensionPoolContext</value>
+    </property>
+    <property name="target">
+      <ref local="extensionPoolContextImpl"/>
+    </property>
+  </bean>
+
+  <bean id="org.sipfoundry.sipxconfig.common.User" class="org.sipfoundry.sipxconfig.common.User"
+    singleton="false" parent="beanWithSettings">
+    <property name="modelFilesContext" ref="modelFilesContext"/>
+    <property name="permissionManager" ref="permissionManager"/>
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
+    <property name="sipxImbotService" ref="sipxImbotService" />
+  </bean>
+
+  <bean id="org.sipfoundry.sipxconfig.common.InternalUser" class="org.sipfoundry.sipxconfig.common.InternalUser"
+    singleton="false" parent="org.sipfoundry.sipxconfig.common.User" />
+
+  <!-- DST change monitoring -->
+  <bean id="checkDST" class="org.sipfoundry.sipxconfig.common.CheckDST"/>
+
+
+  <bean id="scheduledTask" class="org.springframework.scheduling.timer.ScheduledTimerTask">
+    <!-- wait 10 seconds before starting repeated execution -->
+    <property name="delay" value="10000" />
+    <!-- run every 1 day -->
+    <property name="period" value="86400000" />
+    <property name="timerTask" ref="checkDST" />
+  </bean>
+
+  <bean id="timerFactory" class="org.springframework.scheduling.timer.TimerFactoryBean">
+    <property name="scheduledTimerTasks">
+      <list>
+        <ref bean="scheduledTask" />
+        <ref bean="checkForUpdatesTrigger" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="userGroupSettingsListener" class="org.sipfoundry.sipxconfig.common.event.PersonalAttendantSettingListener">
+    <property name="coreContext" ref="coreContext"/>
+    <property name="mailboxManager" ref="mailboxManager"/>
+  </bean>
+</beans>

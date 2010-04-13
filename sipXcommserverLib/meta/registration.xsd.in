@@ -1,0 +1,236 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX registration persistent DB file
+  -->
+<schema
+    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/registration-00-00'
+    xmlns:sip_types='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/registration-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <import namespace='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
+      />
+
+  <annotation>
+    <documentation>
+      Description of registration persistent DB file
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='items'>
+    <annotation>
+      <documentation>
+        Contains the entire database; a collection of database rows.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:item' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+      <attribute name='type' type='string' fixed='registration'>
+	<annotation>
+	  <documentation>
+	    Specifies that this is a registration DB file.
+	  </documentation>
+	</annotation>
+      </attribute>
+      <attribute name='timestamp' type='integer'>
+	<annotation>
+	  <documentation>
+	    Gives the Unix epoch when the registration DB was dumped.
+	  </documentation>
+	</annotation>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name='item'>
+    <annotation>
+      <documentation>
+        Contains the elements of one row of the registration DB table.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:callid'/>
+        <element ref='dmp:cseq'/>
+        <element ref='dmp:primary'/>
+        <element ref='dmp:uri'/>
+        <element ref='dmp:contact'/>
+        <element ref='dmp:qvalue'/>
+        <element ref='dmp:expires'/>
+        <element ref='dmp:instance_id'/>
+        <element ref='dmp:gruu'/>
+        <element ref='dmp:path'/>
+        <element ref='dmp:update_number'/>
+	<element ref='dmp:instrument'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='callid'>
+    <annotation>
+      <documentation>
+         The Call-Id of the registration sequence (pseudo-dialog) that
+	 maintains this registration.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='normalizedString'>
+        <pattern value='[A-Za-z0-9\-.!%*_+`&apos;~()&lt;&gt;:\\&quot;/\[\]?{}]+(@[A-Za-z0-9\-.!%*_+`&apos;~()&lt;&gt;:\\&quot;/\[\]?{}]+)?'>
+	  <annotation>
+	    <documentation source='http://www.userfriendly.org/cartoons/archives/07jun/xuf010428.gif'/>
+	  </annotation>
+        </pattern>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='cseq'>
+    <annotation>
+      <documentation>
+         The largest CSeq received for a registration of this contact.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='0'/>
+	<maxInclusive value='2147483647'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='primary'>
+    <annotation>
+      <documentation>
+        The name of the registrar that processed the latest registration for
+	this contact; the 'primary registrar' for this entry.
+	A host name, optionally followed by ":port-number".
+        May be null in non-HA environments.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='normalizedString'>
+        <pattern value='([A-Za-z0-9\-.]+(:[0-9]+)?)?'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='uri' type='sip_types:name_addr'>
+    <annotation>
+      <documentation>
+        The name-addr in the To header of the REGISTER request.
+	The identity part ("sip:user@hostpart") is the AOR for this registration.
+	(Note that the column name, 'uri' is thus a misnomer, since a name-addr
+	is not a URI.)
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='contact' type='sip_types:sip_URI'>
+    <annotation>
+      <documentation>
+        The contact URI of this registration.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='qvalue'>
+    <annotation>
+      <documentation>
+        The q-value for this contact, or null (meaning 1.0).
+      </documentation>
+    </annotation>
+    <simpleType>
+      <union>
+	<simpleType>
+	  <restriction base='decimal'>
+	    <fractionDigits value='3'/>
+	    <minInclusive value='0.000'/>
+	    <maxInclusive value='1.000'/>
+	  </restriction>
+	</simpleType>
+        <simpleType>
+          <restriction base='string'>
+            <enumeration value=''/>
+          </restriction>
+        </simpleType>
+      </union>
+    </simpleType>
+  </element>
+
+  <element name='expires'>
+    <annotation>
+      <documentation>
+        Expiration time of this registration, expressed as the Unix
+	epoch number of the last second during which the registration
+	is valid.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='instance_id' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The instance ID value provided in the REGISTER.
+	The string value of the +sip.instance field parameter on
+	the contact.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='gruu' type='normalizedString'>
+    <annotation>
+      <documentation>
+        The GRUU URI assigned by the registrar for this contact.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='path' type='normalizedString'>
+    <annotation>
+      <documentation>
+        Concatenated Path header fields for this contact.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='update_number'>
+    <annotation>
+      <documentation>
+        The update number assigned to the latest update of this registration
+	by its primary registrar.
+	Together with the primary registrar value (if non-null),
+	uniquely identifies this update.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='string'>
+	<pattern value='[0-9]+|0[xX][0-9A-Fa-f]+'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='instrument'>
+    <annotation>
+      <documentation>
+        The token identifying the instrument which is registering this contact,
+	or the null string if no instrument is identified.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='string'>
+	<pattern value="[-ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789.!%*_+`'~]*"/>
+      </restriction>
+    </simpleType>
+  </element>
+
+</schema>

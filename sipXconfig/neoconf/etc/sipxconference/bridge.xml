@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+  PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <!--
+    TODO: port type needs to handle - may be number, PORT_DEFAULT, or PORT_NONE (which disables use of that
+    transport).
+  -->
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534" />
+  </type>
+  <type id="optional-port-number">
+    <integer min="1024" max="65534" />
+  </type>
+  <type id="feature-code">
+    <string required="yes" maxLen="1">
+      <pattern>[0-9*#]</pattern>
+    </string>
+  </type>
+  <type id="upload-music">
+    <file variable="yes" />
+  </type>
+  <group name="fs-conf-bridge">
+    <setting name="log-level" hidden="yes">
+      <type refid="loglevel" />
+      <value>DEBUG</value>
+    </setting>
+    <setting name="sip-log-level" hidden="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>ENABLED</value>
+          </true>
+          <false>
+            <value>DISABLED</value>
+          </false>
+        </boolean>
+      </type>
+      <value>DISABLED</value>
+    </setting>
+    <setting name="max-legs" hidden="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="sip-aliases" hidden="yes">
+      <value />
+    </setting>
+    <group name="dtmf-commands">
+      <setting name="mute">
+        <type refid="feature-code" />
+        <value>0</value>
+      </setting>
+      <setting name="deaf-mute">
+        <type refid="feature-code" />
+        <value>*</value>
+      </setting>
+      <group name="energy">
+        <setting name="up">
+          <type refid="feature-code" />
+          <value>9</value>
+        </setting>
+        <setting name="reset">
+          <type refid="feature-code" />
+          <value>#</value>
+        </setting>
+        <setting name="down">
+          <type refid="feature-code" />
+          <value>7</value>
+        </setting>
+      </group>
+      <group name="audio-volume">
+        <setting name="up">
+          <type refid="feature-code" />
+          <value>6</value>
+        </setting>
+        <setting name="reset">
+          <type refid="feature-code" />
+          <value>5</value>
+        </setting>
+        <setting name="down">
+          <type refid="feature-code" />
+          <value>4</value>
+        </setting>
+        <setting name="mic-up">
+          <type refid="feature-code" />
+          <value>3</value>
+        </setting>
+        <setting name="mic-reset">
+          <type refid="feature-code" />
+          <value>2</value>
+        </setting>
+        <setting name="mic-down">
+          <type refid="feature-code" />
+          <value>1</value>
+        </setting>
+      </group>
+      <group name="hung-up">
+        <setting name="hungup">
+          <type refid="feature-code" />
+          <value>8</value>
+        </setting>
+      </group>
+    </group>
+  </group>
+</model>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="domainManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.domain.DomainManager</value>
+    </property>
+    <property name="target">
+      <ref local="domainManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="domainManagerImpl" class="org.sipfoundry.sipxconfig.domain.DomainManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="domainConfigFilename">
+      <value>${sysdir.etc}/domain-config</value>
+    </property>
+    <!--
+      - CIRCULAR REFERENCE WARNING:
+      -  sipxServer->coreContext->domainMgr->sipXserver->...
+      - this can cause this error
+      -   "Cannot create AopProxy with no advisors and no target source"
+      - problem and solution is here
+      -  http://opensource.atlassian.com/projects/spring/browse/SPR-689
+      - notice there's no intention to fix this, so I'm implemented the
+      - recommend workaround.
+      -
+      - I do not think domain manager should reference sipxServer because
+      - if other systems are integrated other than sipx, domain manager would
+      - need to maintain list to all.
+    -->
+
+    <lookup-method name="createDomainConfiguration" bean="domainConfiguration" />
+    <lookup-method name="getServiceConfigurator" bean="serviceConfigurator" />
+  </bean>
+
+  <bean id="domainConfiguration" class="org.sipfoundry.sipxconfig.domain.DomainConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="commserver/domain-config.vm" />
+    <property name="name" value="domain-config" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+</beans>

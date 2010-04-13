@@ -1,0 +1,193 @@
+#########################################################################################
+## This macro adds a group in the XML file which is passed as an argument to it
+#########################################################################################
+#macro ( addGroup $grp )
+#foreach ($setting in $cfg.getSettings($grp))
+#if($setting.Value.trim())
+#if($setting.ProfileName == "incomingInvite")
+<callerNameSearchPrecedence>
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
+#elseif($setting.ProfileName == "okOfInvite")
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
+</callerNameSearchPrecedence>
+#elseif($setting.ProfileName == "sipRlsUri")
+<presence>
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
+</presence>
+#else
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
+#end
+#end
+#end
+#end	
+#########################################################################################
+## This macro adds a customized group in the XML configuration file
+#########################################################################################
+#macro ( addCustomGroup $grp $set )
+#foreach ($setting in $cfg.getSettings($grp))
+#if($setting.Value.trim())
+#if($setting.ProfileName == $set)
+<$!{setting.Value}>TRUE</$!{setting.Value}>
+#else
+<${setting.ProfileName}><![CDATA[$!{setting.Value}]]></${setting.ProfileName}>
+#end
+#end
+#end
+#end
+#########################################################################################
+## This macro adds the lines information if configured in the XML configuration file
+#########################################################################################
+#macro ( addLines $set )
+#if($set.ProfileName == "numberofLinekeys")
+#if($set.Value.trim())
+#else
+<${set.ProfileName}>1</${set.ProfileName}>
+#end
+#end
+#if($set.ProfileName == "registrarAuto")
+<registrar>
+#set ($tempAutoMode = $!{set.Value})
+#elseif($set.ProfileName == "registrarAddress")
+#if($tempAutoMode == "TRUE")
+<${set.ProfileName}>AUTO</${set.ProfileName}>
+#else
+#if($set.Value.trim())
+<${set.ProfileName}><![CDATA[$!{set.Value}]]></${set.ProfileName}>
+#end
+#end
+#elseif($set.ProfileName == "registertimer")
+#if($set.Value.trim())
+<${set.ProfileName}><![CDATA[$!{set.Value}]]></${set.ProfileName}>
+#end
+</registrar>
+#elseif($set.ProfileName == "forwardModeOption")
+<callForwardMode>
+#if($!{set.Value} == "forwardonBusyOrNoAnswer")
+<forwardonBusy>TRUE</forwardonBusy>
+<forwardonNoAnswer>TRUE</forwardonNoAnswer>
+#else
+<$!{set.Value}>TRUE</$!{set.Value}>
+#end
+#elseif($set.ProfileName == "callForwardTimer")
+<${set.ProfileName}><![CDATA[$!{set.Value}]]></${set.ProfileName}>
+</callForwardMode>
+#else
+#if($set.Value.trim())
+<${set.ProfileName}><![CDATA[$!{set.Value}]]></${set.ProfileName}>
+#end
+#end
+#end
+#########################################################################################
+## This macro adds the speed dial information if configured in the XML configuration file
+#########################################################################################
+#macro ( addSpeedDials )
+#set ($bName = 1)
+#set ($k = 0)
+#foreach ($number in $speedDialInfo)
+#set ($i = $velocityCount - 1)
+#if($i == 0)
+<speedDials>
+#end
+#if($bName == 1)
+#set ($k = $k + 1)
+<sp${k}>
+<name><![CDATA[$number]]></name>
+#set ($bName = 0)
+#set ($bNum = 1)
+#elseif($bNum == 1)
+<number><![CDATA[$number]]></number>
+#set ($bNum = 0)
+#else
+<presence><![CDATA[$number]]></presence>
+</sp${k}>
+#set ($bName = 1)
+#end
+#end
+#if($k != 0)
+</speedDials>
+#end
+#end
+#########################################################################################
+## This macro adds the phonebook information if configured in the XML configuration file
+#########################################################################################
+#macro ( addPhoneBook )
+#set ($bBookPresent = 0)
+#foreach ($entry in $phoneBook)
+#set ($i = $velocityCount)
+#if($i == 1)
+<phoneBook>
+#set ($bBookPresent = 1)
+#end
+<bookEntry${i}>
+#if($entry.FirstName.trim() && $entry.LastName.trim())
+<name><![CDATA[${entry.FirstName} ${entry.LastName}]]></name>
+#elseif($entry.FirstName.trim())
+<name><![CDATA[${entry.FirstName}]]></name>
+#elseif($entry.LastName.trim())
+<name><![CDATA[${entry.LastName}]]></name>
+#else
+<name><![CDATA[${entry.Number}]]></name>
+#end
+<number><![CDATA[${entry.Number}]]></number>
+</bookEntry${i}>
+#end
+#if($bBookPresent == 1)
+</phoneBook>
+#set ($bBookPresent = 0)
+#end
+#end
+#########################################################################################
+####################    Below code makes the XML file    ################################
+#########################################################################################
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+<networkSettings>
+#addGroup($cfg.EndpointSettings.getSetting('qos'))
+</networkSettings>
+<phoneSettings>
+#addGroup($cfg.EndpointSettings.getSetting('phoneSettings'))
+#addGroup($cfg.EndpointSettings.getSetting('natSettings'))
+#addGroup($cfg.EndpointSettings.getSetting('callPark'))
+#addGroup($cfg.EndpointSettings.getSetting('callPickup'))
+#addGroup($cfg.EndpointSettings.getSetting('sipSettings'))
+#addGroup($cfg.EndpointSettings.getSetting('voiceCodecs'))
+#addGroup($cfg.EndpointSettings.getSetting('rtpSettings'))
+#addGroup($cfg.EndpointSettings.getSetting('toneSettings'))
+#addGroup($cfg.EndpointSettings.getSetting('miscSettings'))
+#addGroup($cfg.EndpointSettings.getSetting('featureSettings'))
+<timesettings>
+#addCustomGroup($cfg.EndpointSettings.getSetting('timesettings') 'timeSettings')
+</timesettings>
+#addGroup($cfg.EndpointSettings.getSetting('presence'))
+<intercom>
+#addGroup($cfg.EndpointSettings.getSetting('intercom'))
+</intercom>
+<sipProxy>
+#addCustomGroup($cfg.EndpointSettings.getSetting('sipSettings').getSetting('sipProxy') 'proxyOption')
+</sipProxy>
+#addSpeedDials()
+#addPhoneBook()
+</phoneSettings>
+#set ($bAccountPresent = 0)
+#foreach ($line in $lines)
+#set ($i = $velocityCount)
+#if($i == 1)
+<sipAccounts>
+#set ($bAccountPresent = 1)
+#end
+<account_L${i}>
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+#addLines($setting)
+#end
+#end
+</account_L${i}>
+#end
+#if($bAccountPresent == 1)
+</sipAccounts>
+#set ($bAccountPresent = 0)
+#end
+</configuration>
+#########################################################################################
+#########################################################################################
+#########################################################################################

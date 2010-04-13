@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd" >
+<beans>
+  <bean id="timeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.time.TimeManager</value>
+    </property>
+    <property name="target">
+      <ref local="timeManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="timeManagerImpl" class="org.sipfoundry.sipxconfig.admin.time.TimeManagerImpl" autowire="byType">
+    <property name="libExecDirectory" value="${sysdir.libexec}" />
+    <property name="binDirectory" value="${sysdir.bin}" />
+    <property name="ntpConfigFile" value="${sysdir.tmp}/ntpConfig.cfg" />
+  </bean>
+</beans>

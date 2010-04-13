@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <type id="enablestate">
+    <boolean>
+      <true>
+        <value>ENABLE</value>
+      </true>
+      <false>
+        <value>DISABLE</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="callresolver">
+    <setting name="CALLRESOLVER_CALL_STATE_DB">
+      <type refid="enablestate" />
+      <value>ENABLE</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE">
+      <type refid="enablestate" />
+      <value>ENABLE</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE_CDR">
+      <type>
+        <integer min="1" max="365" />
+      </type>
+      <value>185</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_PURGE_AGE_CSE" advanced="yes">
+      <type>
+        <integer min="1" max="365" />
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_CALL_DIRECTION" hidden="yes">
+      <type refid="enablestate" />
+      <value>DISABLE</value>
+    </setting>
+    <setting name="SIP_CALLRESOLVER_LOG_LEVEL" hidden="yes">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="DATABASE_PORT" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5433</value>
+    </setting>
+  </group>
+</model>

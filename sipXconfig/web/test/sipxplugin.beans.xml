@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="skinProperties" class="org.sipfoundry.sipxconfig.site.skin.SkinProperties">
+    <property name="locationPath" value="skin.properties" />
+  </bean>
+
+  <bean id="initializeTestSystem" class="org.sipfoundry.sipxconfig.site.InitializeTestSystem">
+    <property name="domainManager" ref="domainManager" />
+    <property name="replicationManagerImpl" ref="replicationManagerImpl" />
+    <property name="locationsMigrationTrigger" ref="locationsMigrationTrigger" />
+  </bean>
+</beans>

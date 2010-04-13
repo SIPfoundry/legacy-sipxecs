@@ -1,0 +1,73 @@
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+  <link jwcid="@Relation"
+    rel="alternate"
+    type="application/rss+xml"
+    title="RSS"
+    href="ognl:feedLink" />
+  <span jwcid="@If" condition="ognl:!hasVoicemailPermission">
+    <span class="user-warning" id="noVoicemailPermission" key="warning.noVoicemailPermissionNotice"/>
+  </span>
+
+  <span jwcid="@common/TabNavigation" elementId="voicemailFolders" tabNames="ognl:folderIds" selectedTab="ognl:folderId"/>
+
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <form jwcid="@Form" id="voicemail:form" delegate="bean:validator">
+       <table jwcid="@common/Table" id="voicemail:list" class="component" source="ognl:voicemails" selections="ognl:selections"
+        columns="* !subject,!from,!timestamp,!duration,!play" converter="ognl:converter" row="ognl:voicemail"
+        usePager="ognl:true" rowInfo="ognl:rowInfo" rowClass="ognl:rowClass">
+        <span jwcid="subjectColumnValue@Block">
+          <img jwcid="@Image" image="ognl:voicemailIcon" align="absmiddle" />
+          <a jwcid="@DirectLink" listener="listener:edit" parameters="ognl:voicemailSource.getVoicemailId(voicemail)">
+            <span jwcid="@Insert" value="ognl:voicemail.subject"/>
+          </a>
+          <span jwcid="@If" condition="ognl:voicemail.forwarded">
+            <br/>
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.subject" class="fwd-voicemail"/>
+          </span>
+        </span>
+        <span jwcid="fromColumnValue@Block">
+          <a jwcid="@DirectLink"
+            title="message:tooltip.call"
+            listener="listener:call"
+            parameters="ognl:voicemail.descriptor.from"
+            asyn="ognl:true">
+            <span jwcid="@Insert" value="ognl:voicemail.descriptor.fromBrief"/>
+          </a>
+          <span jwcid="@If" condition="ognl:voicemail.forwarded" renderTag="false">
+            <br/>
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.fromBrief" class="fwd-voicemail"/>
+          </span>
+        </span>
+        <span jwcid="timestampColumnValue@Block">
+          <span jwcid="@Insert" value="ognl:voicemail.descriptor.timestamp" format="ognl:tapestry.date(locale)"></span>
+          <span jwcid="@If" condition="ognl:voicemail.forwarded">
+            <br/>
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.timestamp" format="ognl:tapestry.date(locale)" class="fwd-voicemail"/>
+          </span>
+        </span>
+        <span jwcid="durationColumnValue@Block">
+          <span jwcid="@Insert" value="ognl:voicemail.descriptor.durationMillis" format="bean:durationFormat"/>
+          <span jwcid="@If" condition="ognl:voicemail.forwarded">
+            <br/>
+            <span jwcid="@Insert" value="ognl:voicemail.forwardedDescriptor.durationMillis" format="bean:durationFormat" class="fwd-voicemail"/>
+          </span>
+        </span>
+        <span jwcid="playColumnValue@Block">
+			<span jwcid="@common/AudioPlayer" playerId="ognl:voicemail.messageId" autoplay="ognl:true"
+			      url="ognl:voicemailLink"/>
+        </span>
+       </table>
+      <ul class="component-submit">
+        <li>
+          <span jwcid="@phone/GroupActions" actionModel="ognl:actionModel" selectedIds="ognl:selections.allSelected"/>
+        </li>
+        <li jwcid="@If" condition="ognl:folderId.equals('deleted')">
+          <input id="delete:voicemail" jwcid="deleteVoicemail@Submit" listener="listener:delete"
+            value="message:button.delete"/>
+          <span jwcid="@common/Confirm" component="component:deleteVoicemail" prompt="message:confirm.delete"/>
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>

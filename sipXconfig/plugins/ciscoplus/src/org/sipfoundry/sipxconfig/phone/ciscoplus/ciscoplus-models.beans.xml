@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="CiscoplusModel" class="org.sipfoundry.sipxconfig.phone.ciscoplus.CiscoplusModel" parent="abstractPhoneModel"
+    abstract="true">
+	<property name="vendor" value="Ciscoplus"/>
+	<property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="ciscoplusPhoneStandard" abstract="true" parent="CiscoplusModel">
+    <property name="beanId" value="ciscoplusPhone" />
+    <property name="modelDir" value="ciscoplus" />
+    <property name="profileTemplate" value="ciscoplus/config.vm" />
+  </bean>
+
+  <bean id="ciscoplus7911G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7911G" />
+    <property name="maxLineCount" value="1" />
+  </bean>
+  <bean id="ciscoplus7941G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7941G" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+  <bean id="ciscoplus7945G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7945G" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+  <bean id="ciscoplus7961G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7961G" />
+    <property name="maxLineCount" value="6" />
+  </bean>
+  <bean id="ciscoplus7965G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7965G" />
+    <property name="maxLineCount" value="6" />
+  </bean>
+  <bean id="ciscoplus7970G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7970G" />
+    <property name="maxLineCount" value="8" />
+  </bean>
+  <bean id="ciscoplus7975G" parent="ciscoplusPhoneStandard">
+    <property name="label" value="Ciscoplus 7975G" />
+    <property name="maxLineCount" value="8" />
+  </bean>
+
+  <bean id="ciscoplusPhone" class="org.sipfoundry.sipxconfig.phone.ciscoplus.CiscoplusPhone" singleton="false"
+    parent="abstractPhone">
+  </bean>
+</beans>

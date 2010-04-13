@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="sipxcommons/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" path="src/main/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" output="bin.eclipse/test-classes" path="src/test/java"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
+	<classpathentry kind="lib" path="lib/swt-win32-3.3.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/dnsjava-2.0.6.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/log4j-1.2.15.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/commons-cli-1.1.jar"/>
+	<classpathentry kind="lib" path="/sipxcommons/lib/commons-net-1.4.1.jar"/>
+	<classpathentry kind="output" path="bin.eclipse"/>
+</classpath>

@@ -1,0 +1,27 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>Parent</name>
+  <version>1.0.0</version>
+  <commands>
+    <configtest>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--configtest</parameter>
+      <parameter>parent</parameter>
+    </configtest>
+    <start>
+      <execute>./notherprocess.sh</execute>
+      <parameter>parent</parameter>
+    </start>
+    <stop>
+      <execute>./notherprocess.sh</execute>
+      <parameter>--stop</parameter>
+      <parameter>parent</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>/tmp/parent.pid</pid>
+  </status>
+  <resources>
+    <file>work/processState/parent-process.xml</file>
+  </resources>
+</sipXecs-process>

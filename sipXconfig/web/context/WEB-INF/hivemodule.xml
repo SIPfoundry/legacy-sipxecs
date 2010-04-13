@@ -1,0 +1,262 @@
+<module id="sipxconfig" version="1.0.0" package="org.sipfoundry.sipxconfig">
+
+  <!-- sipXconfig user session object -->
+  <contribution configuration-id="tapestry.state.ApplicationObjects">
+    <state-object name="userSession" scope="session">
+      <create-instance class="site.UserSession" />
+    </state-object>
+  </contribution>
+
+  <!-- globally defined squeeze adaptors -->
+  <contribution configuration-id="tapestry.data.SqueezeAdaptors">
+    <adaptor object="service:CoreContextAdapter" />
+  </contribution>
+  <service-point id="CoreContextAdapter" interface="components.IDaoSqueezeAdapter">
+    <invoke-factory>
+      <construct class="components.DaoSqueezeAdapter">
+        <set-object property="dataObjectSource" value="spring:coreContext" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <!-- Upload Size=1GB for uploading backups -->
+  <implementation service-id="tapestry.multipart.ServletMultipartDecoder">
+    <create-instance class="org.apache.tapestry.multipart.MultipartDecoderImpl,maxSize=1073741824" model="threaded" />
+  </implementation>
+
+  <!-- Spring/Tapestry integration -->
+  <service-point id="HivemindContext" interface="components.HivemindContext">
+    <invoke-factory>
+      <construct class="components.HivemindContextImpl">
+        <set-object property="classpathAssetFactory" value="service:tapestry.asset.ClasspathAssetFactory" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <implementation service-id="hivemind.lib.DefaultSpringBeanFactoryHolder">
+    <invoke-factory>
+      <construct autowire-services="false" class="site.SpringBeanFactoryHolderImpl">
+        <event-listener service-id="hivemind.ShutdownCoordinator" />
+        <set-object property="context" value="service:tapestry.globals.WebContext" />
+        <set-object property="hivemindContext" value="service:HivemindContext" />
+      </construct>
+    </invoke-factory>
+  </implementation>
+
+  <!-- validator hook to spring -->
+  <service-point id="SpringValidatorFactory" interface="org.apache.tapestry.form.validator.ValidatorFactory">
+    <invoke-factory>
+      <construct class="components.SpringValidatorFactory">
+        <set-service property="beanFactorySource" service-id="hivemind.lib.DefaultSpringBeanFactoryHolder" />
+        <set-service property="hivemindValidatorFactory" service-id="tapestry.form.validator.ValidatorFactory" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <service-point id="SpringValidatorsBindingFactory" interface="org.apache.tapestry.binding.BindingFactory">
+    <invoke-factory>
+      <construct class="org.apache.tapestry.form.validator.ValidatorsBindingFactory">
+        <set-service property="validatorFactory" service-id="SpringValidatorFactory" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <contribution configuration-id="tapestry.bindings.BindingFactories">
+    <binding prefix="spring-validators" service-id="SpringValidatorsBindingFactory" />
+  </contribution>
+
+  <!-- download service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="download" object="service:Download" />
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="Download">
+    <invoke-factory model="threaded">
+      <construct class="components.DownloadService">
+        <set-object property="response" value="service:tapestry.globals.WebResponse" />
+        <set-object property="linkFactory" value="infrastructure:linkFactory" />
+        <set-object property="stateManager" value="infrastructure:applicationStateManager" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <!-- initial config service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="initial-config" object="service:InitialConfig" />
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="InitialConfig">
+    <invoke-factory model="threaded">
+      <construct class="components.InitialConfigService">
+        <set-object property="response" value="service:tapestry.globals.WebResponse" />
+        <set-object property="initialConfig" value="spring:initialConfig" />
+        <set-object property="locationsManager" value="spring:locationsManager" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <!-- play voicemail service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="playvoicemail" object="service:PlayVoicemail" />
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="PlayVoicemail">
+    <invoke-factory model="threaded">
+      <construct class="site.vm.PlayVoicemailService">
+        <set-object property="response" value="service:tapestry.globals.WebResponse" />
+        <set-object property="linkFactory" value="infrastructure:linkFactory" />
+        <set-object property="stateManager" value="infrastructure:applicationStateManager" />
+        <set-object property="coreContext" value="spring:coreContext" />
+        <set-object property="mailboxManager" value="spring:mailboxManager" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <!-- internal image service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="internalImageService" object="service:InternalImage" />
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="InternalImage">
+    <invoke-factory model="threaded">
+      <construct class="components.service.InternalImageService">
+        <set-object property="response" value="service:tapestry.globals.WebResponse" />
+        <set-object property="linkFactory" value="infrastructure:linkFactory" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <!-- export service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="export" object="service:Export" />
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="Export">
+    Export service - it's a version of direct service. Listeners are responsible for writing directly to WebResponse.
+    <invoke-factory model="threaded">
+      <construct class="components.service.ExportService">
+        <set-object property="responseRenderer" value="service:EmptyResponseRenderer" />
+        <set-object property="request" value="infrastructure:request" />
+        <set-object property="linkFactory" value="infrastructure:linkFactory" />
+        <set-object property="requestCycle" value="infrastructure:requestCycle" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <!-- reports service -->
+  <contribution configuration-id="tapestry.services.FactoryServices">
+    <service name="reportsService" object="service:Reports" />
+  </contribution>
+  <service-point interface="org.apache.tapestry.engine.IEngineService" id="Reports">
+    <invoke-factory model="threaded">
+      <construct class="components.service.ReportService">
+        <set-object property="response"
+          value="service:tapestry.globals.WebResponse" />
+        <set-object property="linkFactory"
+          value="infrastructure:linkFactory" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <service-point interface="org.apache.tapestry.services.ResponseRenderer" id="EmptyResponseRenderer">
+    Empty response renderer - used for Services that do not need to render pages.
+    <invoke-factory>
+      <construct class="components.service.EmptyResponseRenderer" />
+    </invoke-factory>
+  </service-point>
+
+  <!-- Inject filter that handles user exception for all listeners -->
+  <service-point id="ListenerFilter" interface="org.apache.tapestry.listener.ListenerInvokerFilter">
+    <invoke-factory>
+      <construct class="components.UserExceptionFilter" />
+    </invoke-factory>
+  </service-point>
+
+  <contribution configuration-id="tapestry.listener.ListenerInvoker">
+    <filter name="ListenerFilter" object="service:ListenerFilter" />
+  </contribution>
+
+  <!-- 
+    - Logout copied from Vlib example, also see
+    - http://thread.gmane.org/gmane.comp.java.tapestry.user/31641
+  -->
+  <service-point id="ApplicationLifecycle" interface="site.ApplicationLifecycle">
+    <invoke-factory model="threaded">
+      <construct class="site.ApplicationLifecycleImpl">
+        <set-object property="stateManager" value="infrastructure:applicationStateManager" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <service-point id="DiscardSessionFilter" interface="org.apache.tapestry.services.WebRequestServicerFilter">
+    <invoke-factory>
+      <construct class="site.DiscardSessionFilter">
+        <set-object property="applicationLifecycle" value="service:ApplicationLifecycle" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <contribution configuration-id="tapestry.request.WebRequestServicerPipeline">
+    <filter name="discard-session" object="service:DiscardSessionFilter" />
+  </contribution>
+  
+  <!--  Filter to set up diagnostic context -->
+  <service-point id="DiagnosticContextFilter" interface="org.apache.tapestry.services.WebRequestServicerFilter">
+    <invoke-factory>
+      <construct class="site.DiagnosticContextFilter">
+        <set-object property="coreContext" value="spring:coreContext" />
+        <set-service property="applicationStateManager" service-id="tapestry.state.ApplicationStateManager"/>
+      </construct>
+    </invoke-factory>
+  </service-point>
+  <contribution configuration-id="tapestry.request.WebRequestServicerPipeline">
+    <filter name="diagnostic-context" object="service:DiagnosticContextFilter" />
+  </contribution>
+
+  <!-- override default exception page -->
+  <service-point id="ExceptionPresenter" interface="org.apache.tapestry.error.ExceptionPresenter">
+    <invoke-factory>
+      <construct class="site.ExceptionPresenterWithHttpCodes">
+        <set property="exceptionPageName" value="InternalErrorPage" />
+        <set property="verbose" value="true" />
+        <set-object property="requestExceptionReporter" value="infrastructure:requestExceptionReporter" />
+        <set-object property="responseRenderer" value="infrastructure:responseRenderer" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <!-- Skin resource string control -->
+  <service-point id="SkinMessagesSource" interface="org.apache.tapestry.services.ComponentMessagesSource">
+    <invoke-factory>
+      <construct class="site.skin.SkinMessagesSource">
+        <set-object property="systemMessagesSource" value="service:JarMessagesSourceAdapter" />
+        <set-object property="skin" value="spring:skin" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <!-- JAR message bundle source -->
+  <service-point id="JarMessagesSourceAdapter" interface="org.apache.tapestry.services.ComponentMessagesSource">
+    <invoke-factory>
+      <construct class="site.common.JarMessagesSourceServiceAdapter">
+        <set-object property="systemMessagesSource" value="service:tapestry.ComponentMessagesSource" />
+        <set-object property="jarMessagesSource" value="spring:jarMessagesSource" />
+      </construct>
+    </invoke-factory>
+  </service-point>
+
+  <!-- Friendly URLs support -->
+  <contribution configuration-id="tapestry.url.ServiceEncoders">
+    <encoder id="mailbox" before="external" object="instance:site.vm.MailboxPageEncoder,url=/mailbox" />
+    <encoder id="initial-config" before="external" object="instance:site.ServiceUrlEncoder,serviceName=initial-config,url=/initial-config"/>
+    <page-service-encoder id="external" extension="external" service="external" />
+    <page-service-encoder id="page" extension="html" service="page" />
+    <direct-service-encoder id="direct" stateless-extension="direct" stateful-extension="sdirect" />
+    <asset-encoder id="asset" path="/assets" />
+    <extension-encoder id="extension" extension="svc" after="*" />
+  </contribution>
+
+  <contribution configuration-id="tapestry.InfrastructureOverrides">
+    <property name="exceptionPresenter" object="service:ExceptionPresenter" />
+    <property name="componentMessagesSource" object="service:SkinMessagesSource" />
+  </contribution>
+
+  <contribution configuration-id="tapestry.form.translator.Translators">
+    <bean name="integer" class="site.common.IntTranslator" />
+  </contribution>
+  
+  <contribution configuration-id="tapestry.form.translator.Translators">
+    <bean name="sipxnumber" class="site.common.SipxconfigNumberTranslator" />
+  </contribution>
+
+</module>

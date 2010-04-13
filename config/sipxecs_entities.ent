@@ -1,0 +1,6 @@
+<!ENTITY sipxecs "sipXecs">
+<!ENTITY sipxrelease "4.0">
+<!ENTITY sipxsetup "sipXsetup">
+<!ENTITY sipxecspgk "sipxecs rpm">
+<!ENTITY sipxconfig "sipXconfig">
+<!ENTITY sipxsuper "sipXsupervisor">

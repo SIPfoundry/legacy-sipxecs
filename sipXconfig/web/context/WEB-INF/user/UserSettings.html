@@ -1,0 +1,20 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@user/UserNavigation" bean="ognl:user" activeSetting="ognl:parentSetting">
+    <span jwcid="@Insert" value="ognl:parentSettingDescription"/>
+  </span>
+  <span jwcid="@common/ErrorMsg"></span>
+  <form jwcid="userSettings@Form" delegate="bean:validator">
+	<fieldset>
+	<span jwcid="@If" condition="ognl:parentSettingName.equals('im')" renderTag="false" >
+		<span jwcid="@user/ImAccountPanel" user="ognl:user" />
+	</span>
+	<span jwcid="@Else" renderTag="false">
+	<span jwcid="@setting/SettingsFieldset" settings="ognl:parentSetting"
+		requiredEnabled="requiredEnabled" />
+	</span>
+    </fieldset>
+      <ul jwcid="@common/FormActions"
+        listener="listener:apply"
+        callback="ognl:callback"/>
+  </form>
+</div>

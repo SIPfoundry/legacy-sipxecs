@@ -1,0 +1,112 @@
+<ul class="component-links">
+  <li jwcid="@common/ToggleLink" toggle="ognl:advanced" />
+</ul>
+<fieldset>
+  <table>
+    <tbody>
+      <tr jwcid="@common/FieldPanel" for="gateway:enabled" field="component:enabled"
+        label="message:enabled">
+         <input jwcid="enabled@Checkbox" id="gateway:enabled" value="ognl:gateway.enabled" />
+      </tr>
+      <label jwcid="@common/FieldPanel" for="gateway:name"
+        field="component:gatewayName"
+        label="message:label.name">
+        <input jwcid="gatewayName@TextField" id="gateway:name" maxlength="255"
+          value="ognl:gateway.name"
+          validators="validators:required"
+          displayName="message:label.name"/>
+      </label>
+      <span jwcid="@If" condition="ognl:newSipTrunk || itspSipTrunk">
+        <label jwcid="@common/FieldPanel" for="gateway:route" field="ognl:null"
+               label="message:label.route" description="message:description.route">
+          <input jwcid="@common/SbcDeviceSelect"
+                 selectedSbcDevice="ognl:selectedSbcDevice"/>
+        </label>
+      </span>
+      <span jwcid="@If" condition="ognl:itspSipTrunk && gateway.isNew()">
+        <label jwcid="@common/FieldPanel" for="gateway:template" field="component:template"
+               label="message:label.template" description="message:description.template">
+          <select jwcid="template@PropertySelection" id="gateway:template" value="ognl:template"
+                  model="ognl:templateModel">
+            <option value="-1">None</option>
+          </select>
+        </label>
+      </span>
+
+      <label jwcid="@common/FieldPanel" for="gateway:address"
+        field="component:gatewayAddress"
+        label="message:label.address"
+        description="message:description.address">
+        <input jwcid="gatewayAddress@TextField" id="gateway:address" maxlength="255"
+          value="ognl:gateway.address"
+          validators="spring-validators:required,validHostOrIp"
+          displayName="message:label.address"/>
+      </label>
+
+      <div jwcid="@If" condition="ognl:advanced" renderTag="false">
+        <label jwcid="@common/FieldPanel" for="gateway:addressPort"
+          field="component:gatewayAddressPort"
+          label="message:label.addressPort"
+          description="message:description.addressPort">
+          <input jwcid="gatewayAddressPort@TextField" id="gateway:addressPort" maxlength="255"
+            value="ognl:gateway.addressPort"
+            validators="validators:required,min=0[%label.invalidformat],max=65534[%label.invalidformat]"
+            translator="translator:sipxnumber,omitZero=true"
+            displayName="message:label.addressPort"/>
+        </label>
+        <label jwcid="@common/FieldPanel" for="gateway:addressTransport"
+          field="component:gatewayAddressTransport"
+          label="message:label.addressTransport"
+          description="message:description.addressTransport">
+          <select jwcid="gatewayAddressTransport@PropertySelection"
+            id="gateway:addressTransport"
+            value="ognl:gateway.addressTransport"
+            model="ognl:addressTransportModel" />
+        </label>
+      </div>
+      <div jwcid="@If" condition="ognl:gateway.model.hasSerialNumber" renderTag="false">
+        <label jwcid="@common/FieldPanel" for="gateway:serial"
+          field="component:gatewaySerial"
+          label="message:label.serial"
+          description="message:description.serial">
+          <input jwcid="gatewaySerial@TextField" id="gateway:serial" maxlength="255"
+            value="ognl:gateway.serialNumber"
+            validators="ognl:serialNumberValidators"
+            translator="ognl:serialNumberTranslator"
+            displayName="message:label.serial"/>
+        </label>
+      </div>
+      <div jwcid="@If" condition="ognl:gateway.model.versions.length > 0" renderTag="false">
+      <tr jwcid="@common/FieldPanel"
+        for="gateway:version"
+        label="message:label.firmwareVersion"
+        field="component:selectVersion">
+        <td jwcid="selectVersion@PropertySelection"
+          model="ognl:versions"
+          value="ognl:gateway.deviceVersion"
+          displayName="message:label.firmwareVersion"/>
+      </tr>
+      </div>
+      <tr  jwcid="@common/FieldPanel" for="gateway:site" field="component:site"
+        label="message:label.site"
+        description="message:description.site">
+        <select jwcid="site@PropertySelection" id="gateways:site"
+          model="ognl:siteModel"
+          value="ognl:gateway.branch"/>
+      </tr>
+	  <tr jwcid="@common/FieldPanel" for="gateway:shared" field="component:shared"
+	      label="message:label.shared"
+	      description="message:description.shared">
+         <span jwcid="shared@Checkbox" id="gateway:shared" value="ognl:gateway.shared"/>
+      </tr>
+      <label jwcid="@common/FieldPanel" for="gateway:description"
+        field="component:gatewayDescription"
+        label="message:label.description">
+        <textarea jwcid="gatewayDescription@TextArea" id="gateway:description" cols="45" rows="5"
+          value="ognl:gateway.description"
+          validators="spring-validators:validFieldSize"
+          displayName="message:label.description"/>
+      </label>
+    </tbody>
+  </table>
+</fieldset>

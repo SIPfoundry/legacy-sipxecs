@@ -1,0 +1,60 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+   <span jwcid="@common/QuickHelp" value="message:prompt.description"/>
+  <span jwcid="@common/ErrorMsg"/>
+
+  <form jwcid="uploadManagement@Form" delegate="bean:validator" listener="listener:addUpload">
+    <ul class="component-links">
+      <li>
+        <select jwcid="selectSpecification@PropertySelection"
+          value="ognl:selectedSpecification"
+          model="bean:specificationSelection"
+          onchange="javascript:this.form.submit();"/>
+      </li>
+    </ul>
+    <table jwcid="uploadTable@common/Table" id="upload:list"
+      columns="* name,deployed,upload:specification.label,description"
+      source="ognl:upload"
+      row="ognl:currentRow"
+      selections="bean:selections">
+      <span jwcid="nameColumnValue@Block">
+        <a jwcid="editUploadLink@DirectLink"
+          listener="listener:editUpload"
+          parameters="ognl:currentRow.primaryKey">
+          <span jwcid="@Insert" value="ognl:currentRow.name">upload</span>
+        </a>
+      </span>
+      <span jwcid="deployedColumnValue@Block">
+        <td jwcid="@common/EnabledColumn" value="ognl:currentRow.deployed" keyPrefix="label.deployed"/>
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input id="upload:delete" jwcid="delete@Submit" value="message:button.delete" listener="listener:deleteUpload"/>
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+      <li>
+        <input id="upload:activate"
+          jwcid="activate@Submit"
+          value="message:button.activate"
+          listener="listener:activate"/>
+        <span jwcid="@common/Confirm" component="component:activate" prompt="message:confirm.activate"/>
+      </li>
+      <li>
+        <input id="upload:inactivate"
+          jwcid="inactivate@Submit"
+          value="message:button.inactivate"
+          listener="listener:inactivate"/>
+        <span jwcid="@common/Confirm" component="component:inactivate" prompt="message:confirm.inactivate"/>
+      </li>
+      <span jwcid="@If" condition="ognl:defaultSystemFirmwareInstall.newFirmwareAvailable">
+        <li>
+          <input id="upload:installFirmware"
+            jwcid="installFirmware@Submit"
+            value="message:button.installFirmware"
+            listener="listener:installFirmware"/>
+          <span jwcid="@common/Confirm" component="component:installFirmware" prompt="message:confirm.installFirmware"/>
+        </li>
+      </span>
+    </ul>
+  </form>
+</div>

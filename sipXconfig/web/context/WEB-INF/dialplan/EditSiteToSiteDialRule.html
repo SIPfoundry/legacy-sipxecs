@@ -1,0 +1,22 @@
+<div jwcid="@dialplan/DialRuleCommon" availableSchedules="ognl:availableSchedules"
+  ruleId="ognl:ruleId" rule="ognl:rule" callback="ognl:callback">
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <fieldset>
+    <legend><span key="label.dialedNumber"/></legend>
+    <table>
+      <tbody>
+        <span jwcid="@dialplan/PatternsEditor"
+          patterns="ognl:rule.dialPatterns"/>
+      </tbody>
+    </table>
+  </fieldset>
+  <fieldset>
+    <legend><span key="label.resultingCall"/></legend>
+    <table>
+      <tbody>
+        <span jwcid="@dialplan/CallPatternEditor"
+          pattern="ognl:rule.callPattern"/>
+      </tbody>
+    </table>
+  </fieldset>
+</div>

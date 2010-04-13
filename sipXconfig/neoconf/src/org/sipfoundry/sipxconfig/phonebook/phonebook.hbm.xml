@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.phonebook" default-lazy="false">
+
+  <class name="Phonebook" table="phonebook">
+    <id name="id" column="phonebook_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">phonebook_seq</param>
+      </generator>
+    </id>
+    <property name="name" />
+    <property name="description" />
+    <property name="showOnPhone" column="show_on_phone" />
+    <set name="consumers" table="phonebook_consumer">
+      <key column="phonebook_id" />
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>
+    <set name="members" table="phonebook_member">
+      <key column="phonebook_id" />
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>
+    <bag name="entries" table="phonebook_file_entry" cascade="all,delete-orphan" inverse="true">
+      <key column="phonebook_id" />
+      <one-to-many class="PhonebookEntry" />
+    </bag>
+    <many-to-one name="user" column="user_id" class="org.sipfoundry.sipxconfig.common.User"
+      unique="true" cascade="none" />
+  </class>
+  <class name="GeneralPhonebookSettings" table="general_phonebook_settings">
+    <id name="id" column="general_phonebook_settings_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">general_phonebook_settings_seq</param>
+      </generator>
+    </id>
+	<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+  </class>
+  <query name="phoneBooksByUser">
+    <![CDATA[
+      select pb from Phonebook as pb, User as u
+          join pb.consumers as pbconsumers
+          join u.groups as ugroups
+      where pbconsumers.id = ugroups.id and u.id = :userId]]>
+  </query>
+  <query name="phoneBookByName">
+    <![CDATA[
+      select pb from Phonebook as pb
+      where pb.name = :name]]>
+  </query>
+  <query name="privatePhoneBookByUser">
+    <![CDATA[
+      select pb from Phonebook as pb
+      where pb.user.id = :userId]]>
+  </query>
+</hibernate-mapping>

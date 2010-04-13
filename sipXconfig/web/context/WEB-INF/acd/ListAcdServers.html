@@ -1,0 +1,20 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="presenceServerLink" id="link:presence" href="#"><span key="label.presenceServer">Presence Server</span></a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="admin/commserver/LocationsPage" href="#"><span key="label.locationsPage">Servers</span></a>
+      </li>
+      <li>
+        <a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="label.jobStatus">Job Status</span></a>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="form" id="server:form">
+    <span jwcid="acdServersPanel"/>
+  </form>
+</div>

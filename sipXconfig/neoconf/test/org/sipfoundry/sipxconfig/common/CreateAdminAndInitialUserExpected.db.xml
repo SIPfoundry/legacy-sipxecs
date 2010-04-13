@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <address_book_entry address_book_entry_id="1" />
+  <users user_id="[user_id]" first_name="[null]" last_name="[null]" pintoken="4829803786107e0597c12e232d7f06c4" sip_password="[sip_password]"
+    is_shared="false" user_name="superadmin" value_storage_id="[null]" address_book_entry_id="[address_id]" branch_id="[null]" user_type="C"/>
+  <group_storage resource="user" name="administrators" weight="[weight]" description="Users with superadmin privileges"
+    group_id="[group_id]" branch_id="[null]" />
+  <setting_value value_storage_id="[group_id]" value="ENABLE" path="permission/application/superadmin" />
+  <setting_value value_storage_id="[group_id]" value="DISABLE" path="permission/application/tui-change-pin" />
+</dataset>

@@ -1,0 +1,16 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/BreadCrumbNavigation" breadCrumbs="ognl:breadCrumbs"/>
+  <h2>
+    <span jwcid="@Insert" value="ognl:title" />
+  </h2>
+  <span jwcid="@If" condition="ognl:multipleAcdsPresent">
+    <span jwcid="@common/QuickHelp" value="ognl:helpText" raw="ognl:true" />
+  </span>
+  <form jwcid="form@Form" delegate="bean:validator">
+    <fieldset jwcid="@setting/SettingsFieldset"
+        settings="ognl:sipxService.settings"
+		renderGroupTitle="false" />
+    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+        listener="listener:apply"/>
+  </form>
+</div>

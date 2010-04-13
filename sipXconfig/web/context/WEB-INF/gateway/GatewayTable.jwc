@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.components.GatewayTable" allow-body="no"
+  allow-informal-parameters="no">
+  <!-- P A R A M E T E R S -->
+  <parameter name="gatewayCollection" required="yes" />
+  <parameter name="ruleId" required="no" default-value="null" />
+
+  <!-- P R O P E R T I E S -->
+  <property name="currentRow" />
+  <property name="selections" />
+  <!-- C O M P O N E N T S -->
+  <component id="table" type="common/Table">
+    <binding name="columns" value="literal:* name,address,site,model,description" />
+    <binding name="source" value="gatewayCollection" />
+    <binding name="row" value="currentRow" />
+    <binding name="selections" value="selections" />
+  </component>
+  <component id="nameText" type="Insert">
+    <binding name="value" value="currentRow.name" />
+  </component>
+  <component id="editRowLink" type="DirectLink">
+    <binding name="listener" value="listener:edit" />
+    <binding name="parameters" value="{currentRow.id, ruleId}" />
+  </component>
+</component-specification>

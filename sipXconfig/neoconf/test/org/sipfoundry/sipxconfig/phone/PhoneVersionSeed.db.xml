@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <phone serial_number="000010000000"
+    phone_id="1000"
+    bean_id="grandstream"
+    device_version_id="acmePhone1"
+    model_id="gsPhoneBt100" />
+</dataset>

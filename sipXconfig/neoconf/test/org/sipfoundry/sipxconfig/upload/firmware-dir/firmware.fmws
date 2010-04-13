@@ -1,0 +1,3 @@
+Upload.spec=testFirmware
+File.setting=firmware
+Upload.file=firmware.cfg

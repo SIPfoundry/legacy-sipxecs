@@ -1,0 +1,163 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+    XML Schema for SIP data types
+  -->
+<schema
+    xmlns:sip='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+  <annotation>
+    <documentation>
+      Datatypes for definition of SIP-related XML languages
+    </documentation>
+  </annotation>
+
+<!-- Types -->
+
+  <simpleType name="dns_name">
+    <annotation>
+      <documentation>
+        A DNS name.
+      </documentation>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)*">
+        <annotation>
+          <documentation>dns_token(\.dns_token)+</documentation>
+        </annotation>
+      </pattern>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="dns_name_port">
+    <annotation>
+      <documentation>
+        A DNS name with an optional port specification.
+      </documentation>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)*(:[0-9]+)?">
+        <annotation>
+          <documentation>dns_token(\.dns_token)+(:port)?</documentation>
+        </annotation>
+      </pattern>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="token">
+    <annotation>
+      <documentation>
+        This type corresponds to the production 'token' in RFC 3261 section
+        25.1.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="([a-zA-Z0-9.!&#x25;*_+`'~-]+)">
+        <annotation>
+          <documentation>sip_token</documentation>
+        </annotation>
+      </pattern>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="tag">
+    <annotation>
+      <documentation>
+        This type corresponds to the value part of the production 'tag-param'
+	in RFC 3261 section 25.1.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="token"/>
+  </simpleType>
+
+  <simpleType name="call_id">
+    <annotation>
+      <documentation>
+        This type corresponds to the token 'callid' in RFC 3261 section
+        25.1.  Note that it does not, by itself, uniquely identify a
+        dialog; that is identified by the complete dialog_id type.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():\\/\[\]?{}\-]+)@([&#x3c;&#x3e;&#x22;a-zA-Z0-9.!&#x25;*_+`'~():/\[\]?{}-]+)">
+         <annotation>
+           <documentation>sip_word@sip_word</documentation>
+         </annotation>
+      </pattern>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="user">
+    <annotation>
+      <documentation>
+        The user part of a sip URL
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="([a-zA-Z0-9\-_.!~*'()&#x26;=+$,;?/]|%[0-9a-fA-F][0-9a-fA-F])+">
+         <annotation>
+           <documentation>user</documentation>
+         </annotation>
+      </pattern>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="user_at_domain">
+    <annotation>
+      <documentation>
+        The user@host part of a sip URL
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString">
+      <pattern value="([a-zA-Z0-9\-_.!~*'()&#x26;=+$,;?/]|%[0-9a-fA-F][0-9a-fA-F])+@[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*(\.[a-zA-Z0-9]+(-[a-zA-Z0-9]+)*)*(:[0-9]+)?">
+         <annotation>
+           <documentation>user@hostname</documentation>
+         </annotation>
+      </pattern>
+    </restriction>
+  </simpleType>
+
+  <simpleType name="sip_URI">
+    <annotation>
+      <documentation>
+        A 'SIP-URI' or 'SIPS-URI' per RFC 3261 section 25.1.
+        This should be further restricted, but for now it is just a string.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString"/>
+  </simpleType>
+
+  <simpleType name="name_addr">
+    <annotation>
+      <documentation>
+        The values allowed in the SIP To or From header fields.
+        A 'name-addr' or 'addr-spec' per RFC 3261 section 25.1, subject
+        to the disambiguation rule of the last paragraph of section 20.
+        This should be further restricted, but for now is just a string.
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="normalizedString"/>
+  </simpleType>
+
+  <simpleType name="status">
+    <annotation>
+      <documentation>
+        SIP Status codes
+      </documentation>
+      <documentation source='http://www.rfc-editor.org/rfc/rfc3261.txt'/>
+    </annotation>
+    <restriction base="positiveInteger">
+      <minInclusive value='100' />
+      <maxExclusive value='700' />
+    </restriction>
+  </simpleType>
+
+</schema>

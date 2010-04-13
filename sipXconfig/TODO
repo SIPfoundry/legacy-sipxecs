@@ -1,0 +1,47 @@
+
+
+This file was generated using the following command.  If you are
+already looking at this from a web browser, then please ignore this
+message.
+
+  cd doc;ant text-doc
+
+----------------------------------------------------------
+
+                                     TODOs
+
+   Well defined TODOs are either managed in the issue tracker under [1]Roadmap
+   or in the source code by leaving TODOs in comments. This page is meant the
+   help track some ideas, encourage collaboratation in development projects
+   with similiar agendas and spark some dialog on mailing list.
+
+   All the changes that we introduce in sipXconfig code are the results of
+   implementing user requirements. We do not change sipXconfig architecture
+   without a user story to be implemented. Every change has a corresponding
+   JIRA issue. The long term goal of the team is to make sipXconfig simpler,
+   more testable and easier to extend. On this page we maintain a registry of
+   ideas of how to get closer to this goal. We may choose to implement some of
+   those opportunistically or, if we deem it important enough, we may dedicate
+   a spring to implement some of them. Placing items on this list does not
+   however constitute any type of commitment on sipXconfig team.
+
+Remove or reduce JDOM dependency
+
+   We probably do not need to use JDOM: at least not as widely as we currently
+   do.  In most case we use it to generate snippets of XML.That should be
+   replaced with a template generator (Velocity or similar). In other cases,
+   where we parse XML using JDOM, we can probably replace it with XLT.
+
+Normalize database
+
+   We currently keep in our database information that can be easily recreated.
+   As a result when device or user data changes we have to regenerate (fix) the
+   database contents. It looks like it was done to improve the performance of
+   publishing process (which seems strange - performance of UI seems to be more
+   important). We may be better off generating this kind of data on demand
+   (instead of keeping in database). However we need to have performance test
+   before we try it to change it.
+
+References
+
+   1. http://track.sipfoundry.org/secure/BrowseProject.jspa?id=10002&report=roadmap

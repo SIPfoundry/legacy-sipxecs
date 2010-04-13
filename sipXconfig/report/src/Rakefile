@@ -1,0 +1,69 @@
+require 'rake'
+require 'rake/testtask'
+require 'wsdl/soap/wsdl2ruby'
+require 'test_settings'
+
+task :default => [:client_bindings, :reset_db, :test_units]
+
+TOP_DIR = '../..'
+PKG_DIR = "#{BUILD_DIR}/pkg" if ENV['builddir']
+AGENT_WSDL = "#{TOP_DIR}/agent/lib/sipxconfig-agent.wsdl"
+TEST_FILES = 'tests/**/*_test.rb'
+
+desc "Run basic tests"
+Rake::TestTask.new("test_units") { |t|
+  t.pattern = TEST_FILES
+  #t.verbose = true
+  t.warning = true
+}
+
+desc "Generate ruby client binding from agent WSDL"
+task :reset_db do |t|
+  `dropdb -U #{DB_USER} #{TEST_DB} 2>/dev/null`
+  sh "createdb -U #{DB_USER} #{TEST_DB}"
+  sh "psql -U #{DB_USER} #{TEST_DB} < ../etc/schema.sql"
+end
+
+desc "Generate ruby client binding from agent WSDL"
+task :client_bindings do |t|
+  worker = WSDL::SOAP::WSDL2Ruby.new
+  worker.location = AGENT_WSDL
+  worker.basedir = CLIENT_BINDINGS
+  options = Hash.new
+  options['classdef'] = nil
+  options['driver'] = nil
+  options['client_skelton'] = nil
+  options['force'] = true
+  worker.opt.update(options)
+  mkdir_p CLIENT_BINDINGS
+  worker.run
+end
+
+require 'rubygems'
+require 'rake/gempackagetask'
+
+spec = Gem::Specification.new do |s|
+  s.platform = Gem::Platform::RUBY
+  s.summary = "sipXconfig-report reporting for sipXpbx"
+  s.name = 'sipXconfig-report'
+  s.version = '1.0.0'
+  s.requirements << 'none'
+  s.require_path = 'lib'
+
+  # client_bindings task needs to have completed in a previous
+  # run inorder for this file list to be resolved correctly
+  s.files = FileList["lib/**/*"].to_a
+
+  s.test_files = FileList[TEST_FILES].to_a
+  s.description = <<EOF
+sipXconfig-report aggregates historical system data into a database for 
+report generators.  It can run on a system other than the 
+sipXconfig-agent to spread the system resource load.
+EOF
+end
+
+Rake::GemPackageTask.new(spec) do |pkg|
+  pkg.need_zip = true
+  pkg.need_tar = true 
+  pkg.package_dir = "#{PKG_DIR}" if defined? PKG_DIR
+end

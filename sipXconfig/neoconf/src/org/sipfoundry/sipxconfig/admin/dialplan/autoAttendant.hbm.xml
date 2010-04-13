@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-lazy="false" package="org.sipfoundry.sipxconfig.admin.dialplan">
+
+  <class name="AutoAttendant" table="auto_attendant">
+    <id name="id" column="auto_attendant_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">auto_attendant_seq</param>
+      </generator>
+    </id>
+    <property name="name" />
+    <property name="prompt" />
+    <property name="systemId" />
+    <property name="description" />
+    <component name="menu" class="AttendantMenu">
+      <map name="menuItems" cascade="all" table="attendant_menu_item" order-by="dialpad_key asc">
+        <key column="auto_attendant_id" />
+        <index column="dialpad_key" type="org.sipfoundry.sipxconfig.common.DialPad$UserType" />
+        <composite-element class="AttendantMenuItem">
+          <!-- explicit column names, default prepended 'element_' -->
+          <property name="action" column="action"
+            type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction$UserType" />
+          <property name="parameter" column="parameter" />
+        </composite-element>
+      </map>
+    </component>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id" class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+    <set name="groups" table="attendant_group" sort="natural">
+      <key column="auto_attendant_id" />
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>
+  </class>
+
+  <class name="AttendantSpecialMode" table="attendant_special_mode">
+    <id name="id" column="attendant_special_mode_id" type="int" unsaved-value="-1" />
+    <many-to-one name="attendant" column="auto_attendant_id" class="AutoAttendant" />
+    <property name="enabled" />
+  </class>
+
+  <query name="autoAttendantIdsWithName">
+    <![CDATA[select aa.id from AutoAttendant aa where aa.name = :value]]>
+  </query>
+</hibernate-mapping>

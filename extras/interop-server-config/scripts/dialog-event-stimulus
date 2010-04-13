@@ -1,0 +1,212 @@
+#!/usr/bin/perl
+
+use English;
+
+use CGI qw/:standard/;
+use XML::Parser;
+###use strict;
+
+# Get our domain name, which is used when searching the logs.
+$my_domain = $ARGV[0];
+die "Must provide domain name" if $my_domain eq '';
+
+# The un-escape table for backslash escapes.
+my(%unescape) = ("r", "\r",
+                 "n", "\n",
+                 "\"", "\"",
+                 "\\", "\\");
+
+$PlaceCall = '???';
+$sipsend = 'sipxend.pl';
+
+# Read and parse the registrations file to find the currently registered
+# UAs.
+
+###my($registration_file) = "@SIPX_DATADIR@/sipdb/registration.xml";
+my($registration_file) = "/var/sipxdata/sipdb/registration.xml";
+
+my @registrations;
+if (-e $registration_file) {
+
+    # Read and parse the registrations file.
+    my($parser) = new XML::Parser(Style => 'Tree');
+    my($tree) = $parser->parsefile($registration_file);
+
+    # Extract the information about the registrations.
+    if ($tree->[0] eq 'items') {
+	my $c = $tree->[1];
+	my $i;
+	my($timestamp) = time;
+	for ($i = 1; $i < $#$c; $i += 2) {
+	    if ($c->[$i] eq 'item') {
+		my($d) = $c->[$i+1];
+		my($i);
+		# Create the hash to contain the information about this
+		# registration.
+		my($registration) = {};
+		for ($i = 1; $i < $#$d; $i += 2) {
+		    my($e) = $d->[$i];
+		    my($f) = $d->[$i+1];
+		    if ($e eq 'callid') {
+			$registration->{'callid'} = &text($f);
+		    } elsif ($e eq 'cseq') {
+			$registration->{'cseq'} = &text($f);
+		    } elsif ($e eq 'uri') {
+			$registration->{'AOR'} = &text($f);
+		    } elsif ($e eq 'contact') {
+			my($contact) = &text($f);
+			# Turn the contact into a URI.
+			$contact = &name_addr_to_URI($contact);
+			$registration->{'contact'} = $contact;
+		    } elsif ($e eq 'qvalue') {
+			$registration->{'q'} = &text($f);
+		    } elsif ($e eq 'expires') {
+			$registration->{'expires'} = (&text($f) - $timestamp) . '';
+		    } elsif ($e eq 'instance_id') {
+			$registration->{'instance_id'} = &text($f);
+		    } elsif ($e eq 'gruu') {
+			$registration->{'gruu'} = &text($f);
+		    }
+		}
+		# Add to the array of registrations.
+print "Q $registration->{'AOR'}\n"; ###
+		push(@registrations, $registration);
+	    }
+	}
+    } else {
+	# Crash if the registrations file is unparsable.
+	exit 1;
+    }
+
+}
+
+# Read the proxy log to see if the UAs have been involved in calls.
+
+# Set default log file.
+$ProxyLog = '/var/log/sipxpbx/sipXproxy.log';
+
+if (open(PROXY_LOG, "<$ProxyLog"))
+{
+    while(<PROXY_LOG>)
+    {
+        # Get the date and time stamp
+        ($displaytime) = /^"(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/; # "
+
+        # Extract the INCOMING lines that are INVITE requests or 200 responses
+	# to INVITE requests.
+	if (m!:INCOMING:.*----Remote Host:.+---- Port: \d+----\\nINVITE !i)
+        {
+	    # Find all occurrences of "sip:1xxx@domain".
+	    my(@extensions) = m/sip:(1\d\d\d)@\Q$my_domain\E/;
+
+	    foreach $extension (@extensions) {
+		print "G $extension $displaytime\n"; ###
+		$ContactLastActivity{$extension} = $displaytime;
+	    }
+        }
+    }
+    close PROXY_LOG;
+}
+else
+{
+    # failed to open log file
+    print "Failed to open '$ProxyLog':\n\t$!\n";
+}
+
+# Print all the current registrations.
+
+# Generate the table body in order by extension.
+#foreach $registration (sort registration_cmp @registrations) {
+foreach $registration (@registrations) {
+    # Ignore registrations that have expired.
+    if ($registration->{'expires'} > 0) {
+	my ($ext);
+	($ext) = $registration->{'AOR'} =~ /sip:(\d\d\d\d)@/;
+
+print 
+$ext, ' ',
+$ContactLastActivity{$ext},
+    "\n";
+
+    }
+}
+
+# The current time, minus 4 hours.
+$idlecutoff = `date -u -d '4 hour ago' +%Y-%m-%dT%H:%M:%S`;
+
+$from_uri = "sip:dialog-event-stimulus@" . `hostname`;
+
+# Find all contacts that are still registered but idle.
+foreach $registration (@registrations) {
+    # Ignore registrations that have expired.
+    if ($registration->{'expires'} > 0) {
+	my($ext);
+	($ext) = $registration->{'AOR'} =~ /sip:(\d\d\d\d)@/;
+	print "A $ext\t", $ContactLastActivity{$ext}, "\n"; ###
+
+	if ($ContactLastActivity{$ext} lt $idlecutoff) {
+	    my($uri) = "sip:$ext@$my_domain";
+	    print "B $ext\n";
+
+	    # Send a dialog subscription request to the UA while a call
+	    # is ringing on it.
+	    # Place call to UA.
+	    $f = fork();
+	    if (!defined($f)) {
+		die "Error in fork: $!\n";
+	    } elsif ($f > 0) {
+		# This is the parent process.
+	    } else {
+		# This is the child process.
+		exec("$PlaceCall -d 30 -p 11234 -r 11235 $uri");
+		exit(1);
+	    }
+	    # Wait 10 seconds.
+	    sleep(10);
+	    # Request dialog event
+	    system("$sipsend --from $from_uri --to $contact --event dialog ---header \"Expires: 0\" localhost SUBSCRIBE $uri");
+	    # Wait for PlaceCall to end.
+	    waitpid($f, 0);
+	}
+    }
+}
+
+# Extract the (top-level) text content from an XML tree.
+sub text {
+    my($tree) = @_;
+    my($text) = '';
+    my $i;
+    for ($i = 1; $i < $#$tree; $i += 2) {
+        if (${$tree}[$i] eq '0') {
+            $text .= ${$tree}[$i+1];
+        }
+    }
+    return $text;
+}
+
+# Function to compare two registration hashes.
+sub registration_cmp {
+    # Extract the AOR fields and from them extract the extension number.
+    my($a_ext) = $a->{'AOR'} =~ /sip:(\d+)\@/;
+    my($b_ext) = $b->{'AOR'} =~ /sip:(\d+)\@/;
+    # Compare the extensions numerically.
+    return $a_ext <=> $b_ext;
+}
+
+# Turn a name-addr into a URI.
+sub name_addr_to_URI {
+    my($s) = @_;
+
+    # Check for <...>.
+    if ($s =~ /<(.*)>/) {
+	# If present, use the contents of <...>.
+	$s = $1;
+    }
+    else
+    {
+	# If not present, strip header params.
+	$s =~ s/;.*$//;
+    }
+
+    return $s;
+}

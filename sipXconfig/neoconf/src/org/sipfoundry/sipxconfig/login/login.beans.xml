@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="loginContext" class="org.sipfoundry.sipxconfig.login.LoginContextImpl">
+    <property name="coreContext">
+      <ref bean="coreContext" />
+    </property>
+    <property name="alarmContext">
+      <ref bean="alarmContext" />
+    </property>
+    <property name="logDirectory" value="${sysdir.log}" />
+  </bean>
+
+  <bean id="privateUserKeyManagerImpl" class="org.sipfoundry.sipxconfig.login.PrivateUserKeyManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean id="privateUserKeyManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.login.PrivateUserKeyManager" />
+    <property name="target" ref="privateUserKeyManagerImpl" />
+  </bean>
+</beans>

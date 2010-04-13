@@ -1,0 +1,47 @@
+#! /bin/bash
+
+# Check and report on any incompatibility of dynamically-linked libraries in
+# a set of executables and/or libraries.  For every library name that appears
+# to be linked from more than one source, print a listing of all binaries
+# that use it and where they link it from.
+
+# Usage:  check-libraries binary-file binary-file ...
+# Requires at least two binary-file's.
+
+if [ -z "$2" ]
+then
+    echo >&2 "Must have at least two input files."
+    exit 1
+fi
+
+# Where to put temporary files.
+T=${TMPDIR:-/tmp}
+
+# Find out what libraries will be linked by each binary.
+ldd "$@" |
+# Reformat the lines into the format:
+#    library-name => library-file in binary-file
+sed -e '/:$/h' \
+    -e '/:$/d' \
+    -e 'G' \
+    -e 's/\t//' \
+    -e 's/\.so\.[0-9.]* => /.so => /' \
+    -e 's/ *(.*)//' \
+    -e 's/\n/ in /' \
+    -e 's/:$//' |
+# Sort the results in order.
+sort >$T.1
+
+# Process the results to find any libraries that are linked to more than
+# one version or file.
+sed <$T.1 -e 's/ in .*$//' |
+uniq |
+cut -f 1 -d' ' |
+uniq -d >$T.2
+
+# For each library with incompatible versions, print its block of lines from
+# the linking listings.
+join -o '1.1,1.2,1.3,1.4,1.5,1.6' $T.1 $T.2
+
+# Delete the temporary files.
+rm -f $T.1 $T.2

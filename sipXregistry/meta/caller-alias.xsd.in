@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX caller-alias definitions
+  -->
+<schema
+    xmlns:a='http://www.sipfoundry.org/sipX/schema/xml/caller-alias-00-00'
+    xmlns:sip='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/caller-alias-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <import
+      namespace="http://www.sipfoundry.org/sipX/schema/xml/sip-00-01"
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
+      />
+
+  <annotation>
+    <documentation>
+      Definitions of caller-aliases for the sipX Redirect Server
+    </documentation>
+    <documentation source='http://scm.sipfoundry.org/rep/sipXregistry/main/doc/Redirection.txt'/>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='items'>
+    <complexType>
+      <sequence>
+        <element ref='a:item' minOccurs='0' maxOccurs='unbounded' />
+      </sequence>
+      <attribute name='type'>
+        <simpleType>
+          <restriction base='normalizedString'>
+            <enumeration value='caller-alias'/>
+          </restriction>
+        </simpleType>
+      </attribute>
+    </complexType>
+  </element>
+
+  <element name='item'>
+    <annotation>
+      <documentation>
+        Specifies a mapping from a single identity to a single contact
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='a:identity' minOccurs='0' maxOccurs='1' />
+        <element ref='a:domain' minOccurs='1' maxOccurs='1' />
+        <element ref='a:alias' minOccurs='1' maxOccurs='1' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='identity' type='sip:user_at_domain'>
+    <annotation>
+      <documentation>
+        The input caller identity (user@domain[:port]).
+        If this element is not specified, then any identity other than
+        an explicitly specified identity from another item matches.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='domain' type='sip:dns_name_port'>
+    <annotation>
+      <documentation>
+        The input target domain (domain[:port])
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='alias' type='sip:name_addr'>
+    <annotation>
+      <documentation>
+        The output From field value
+      </documentation>
+    </annotation>
+  </element>
+
+</schema>

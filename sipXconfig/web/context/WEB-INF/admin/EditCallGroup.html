@@ -1,0 +1,57 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div class="help">
+    <span key="help.add"/>
+    <br/>
+    <span key="help.change"/>
+  </div>
+<span jwcid="@common/ErrorMsg"/>
+<form jwcid="form@Form" delegate="bean:validator"
+  listener="listener:formSubmit">
+  <fieldset  jwcid="common@common/ItemCommon" item="ognl:callGroup"
+    useExtension="ognl:true" nameValidator="spring-validators:required,validSipUserId"/>
+  <fieldset jwcid="ringTable@admin/UserRingTable" rings="ognl:callGroup.rings"
+    idConverter="ognl:idConverter"/>
+  <fieldset>
+    <table>
+      <tr jwcid="@common/FieldPanel"
+        for="callgroup:voicemailFallback"
+        label="message:label.voicemailFallback"
+        description="message:description.voicemailFallback"
+        field="component:voicemailFallback">
+        <td jwcid="voicemailFallback@Checkbox"
+          id="callgroup:voicemailFallback"
+          value="ognl:callGroup.voicemailFallback"
+          displayName="message:label.voicemailFallback"
+          onchange="javascript:this.form.submit();"
+        />
+      </tr>
+      <span jwcid="@If" condition="ognl:!callGroup.voicemailFallback">
+        <tr jwcid="@common/FieldPanel"
+          for="callgroup:fallbackDestination"
+          label="message:label.fallbackDestination"
+          description="message:description.falbackDestination"
+          field="component:fallbackDestination">
+          <td jwcid="fallbackDestination@TextField"
+            id="callgroup:fallbackDestination"
+            value="ognl:callGroup.fallbackDestination"
+            validators="spring-validators:validPhoneOrAor"
+            displayName="message:label.fallbackDestination"/>
+        </tr>
+	    </span>
+      <tr jwcid="@common/FieldPanel"
+        for="callgroup:userForward"
+        label="message:label.userForward"
+        description="message:description.userForward"
+        field="component:userForward">
+        <td jwcid="userForward@Checkbox"
+          id="callgroup:userForward"
+          value="ognl:callGroup.userForward"
+          displayName="message:label.userForward"
+        />
+      </tr>
+    </table>
+  </fieldset>
+  <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+    listener="listener:commit"/>
+</form>
+</div>

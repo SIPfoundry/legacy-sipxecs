@@ -1,0 +1,13 @@
+<span jwcid="$content$">
+  <span jwcid="@If" condition="ognl:acdContext.servers.empty">
+    <p id="message.noServers">There are no ACD servers configured for this system.</p>
+  </span>
+  <span jwcid="@Else">
+    <form jwcid="@Form">
+      <p id="message.selectServer">Select ACD to view statistics.</p>
+      <label for="acdServer" key="label.selectAcdServer">ACD Server</label>:
+      <select id="acdServer" jwcid="availableServers"/>
+      <input id="button.selectServer" jwcid="selectButton"/>
+    </form>
+  </span>
+</span>

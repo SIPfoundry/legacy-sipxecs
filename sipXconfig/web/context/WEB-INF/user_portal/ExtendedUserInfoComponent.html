@@ -1,0 +1,121 @@
+<div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+<fieldset>
+  <table>
+    <tr jwcid="@common/FieldPanel" for="jobTitle"
+      field="component:jobTitle"
+      label="message:label.jobTitle">
+    <span jwcid="jobTitle@TextField" id="jobTitle" maxlength="255"
+      value="ognl:addressBookEntry.jobTitle"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="jobDept"
+      field="component:jobDept"
+      label="message:label.jobDept">
+    <span jwcid="jobDept@TextField" id="jobDept" maxlength="255"
+      value="ognl:addressBookEntry.jobDept"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="companyName"
+      field="component:companyName"
+      label="message:label.companyName">
+    <span jwcid="companyName@TextField" id="companyName" maxlength="255"
+      value="ognl:addressBookEntry.companyName"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="assistantName"
+      field="component:assistantName"
+      label="message:label.assistantName">
+    <span jwcid="assistantName@TextField" id="assistantName" maxlength="255"
+      value="ognl:addressBookEntry.assistantName"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="cellPhoneNumber"
+      field="component:cellPhoneNumber"
+      label="message:label.cellPhoneNumber">
+    <span jwcid="cellPhoneNumber@TextField" id="cellPhoneNumber" maxlength="255"
+      value="ognl:addressBookEntry.cellPhoneNumber"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="homePhoneNumber"
+      field="component:homePhoneNumber"
+      label="message:label.homePhoneNumber">
+    <span jwcid="homePhoneNumber@TextField" id="homePhoneNumber" maxlength="255"
+      value="ognl:addressBookEntry.homePhoneNumber"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="assistantPhoneNumber"
+      field="component:assistantPhoneNumber"
+      label="message:label.assistantPhoneNumber">
+    <span jwcid="assistantPhoneNumber@TextField" id="assistantPhoneNumber" maxlength="255"
+      value="ognl:addressBookEntry.assistantPhoneNumber"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="faxNumber"
+      field="component:faxNumber"
+      label="message:label.faxNumber">
+    <span jwcid="faxNumber@TextField" id="faxNumber" maxlength="255"
+      value="ognl:addressBookEntry.faxNumber"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="emailAddress"
+      field="component:emailAddress"
+      label="message:label.emailAddress">
+    <span jwcid="emailAddress@TextField" id="emailAddress" maxlength="255"
+      value="ognl:addressBookEntry.emailAddress"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="imId"
+      field="component:imId"
+      label="message:label.imId">
+      <input jwcid="imId@TextField" id="user:imId"
+        value="ognl:imAccount.imId"
+        validators="spring-validators:validImId,required"
+        maxlength="255"
+        autocomplete="off" />
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="alternateEmailAddress"
+      field="component:alternateEmailAddress"
+      label="message:label.alternateEmailAddress">
+    <span jwcid="alternateEmailAddress@TextField" id="alternateEmailAddress" maxlength="255"
+      value="ognl:addressBookEntry.alternateEmailAddress"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="alternateImId"
+      field="component:alternateImId"
+      label="message:label.alternateImId">
+    <span jwcid="alternateImId@TextField" id="alternateImId" maxlength="255"
+      value="ognl:addressBookEntry.alternateImId"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="location"
+      field="component:location"
+      label="message:label.location">
+    <span jwcid="location@TextField" id="location" maxlength="255"
+      value="ognl:addressBookEntry.location"
+      type="text" autocomplete="off"/>
+    </tr>
+    <tr jwcid="@user_portal/AddressPanel"
+      addr="ognl:addressBookEntry.homeAddress"
+      panelLabel="message:label.homeAddress"/>
+<div jwcid="@If" condition="ognl:user.branch != null" renderTag="false">
+    <tr jwcid="@common/FieldPanel"
+      for="useBranchAddress"
+      field="component:useBranchAddress"
+      label="message:label.useBranchAddress">
+    <span jwcid="useBranchAddress@Checkbox"
+      id="useBranchAddress"
+	  value="ognl:addressBookEntry.useBranchAddress"
+	  onchange="javascript:this.form.submit(); "/>
+	</tr>
+</div>
+<div jwcid="@If" condition="ognl:!addressBookEntry.useBranchAddress || user.branch == null" renderTag="false">
+    <tr jwcid="@user_portal/AddressPanel"
+      addr="ognl:addressBookEntry.officeAddress"
+      panelLabel="message:label.officeAddress"
+      office="true"/>
+</div>
+  </table>
+</fieldset>
+<ul jwcid="@common/FormActions"
+  callback="ognl:container.callback"
+  listener="listener:commit"/>
+</div>

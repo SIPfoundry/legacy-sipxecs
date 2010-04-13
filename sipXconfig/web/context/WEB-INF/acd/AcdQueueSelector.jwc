@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+
+<component-specification allow-body="no" allow-informal-parameters="no">
+  <description>Drop-down box that allows selecting ACD queue</description>
+
+  <!-- P A R A M E T E R S -->
+  <parameter name="acdServerId" required="true" />
+  <parameter name="acdQueueUri" required="true" />
+  <parameter name="queues" required="true"/>
+  <parameter name="show" default-value="true"/>
+
+  <!-- B E A N S -->
+  <bean name="bareQueueSelectionModel"
+    class="org.sipfoundry.sipxconfig.components.ObjectSelectionModel" lifecycle="request">
+    <set name="collection" value="queues" />
+    <set name="labelExpression" value="literal:queueName" />
+    <set name="valueExpression" value="literal:queueUri" />
+  </bean>
+  <bean name="queueSelectionModel"
+    class="org.sipfoundry.sipxconfig.components.ExtraOptionModelDecorator">
+    <set name="model" value="bean:bareQueueSelectionModel" />
+    <set name="extraLabel" value="message:label.allQueues" />
+    <set name="extraOption" value="null" />
+  </bean>
+
+  <!-- C O M P O N E N T S -->
+
+  <!-- FIXME: use Ajax submit/even listener -->
+  <component id="queueFilter" type="PropertySelection">
+    <inherited-binding name="value" parameter-name="acdQueueUri" />
+    <binding name="model" value="bean:queueSelectionModel" />
+    <binding name="onchange" value="literal:javascript:this.form.submit();"/>
+  </component>
+</component-specification>

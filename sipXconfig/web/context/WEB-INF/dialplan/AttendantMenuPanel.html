@@ -1,0 +1,74 @@
+<div class="tableDiv">
+  <table jwcid="@contrib:TableView" id="attendant:menuItems" class="component"
+    source="ognl:menuItems.dialPadKeys"
+    columns="ognl:columns"
+    pageSize="-1">
+    <thead>
+      <tr>
+        <th width="5" />
+        <th jwcid="@contrib:TableColumns" />
+      </tr>
+    </thead>
+    <tbody>
+      <tr jwcid="@contrib:TableRows" row="ognl:menuItems.currentDialPadKey"
+        class="ognl:beans.rowClass.next">
+        <td>
+          <span jwcid="selectedRow@Checkbox"
+            value="ognl:selections.selected[#this.menuItems.currentDialPadKey.name]"/>
+        </td>
+        <span jwcid="dialpadColumnValue@Block">
+          <span jwcid="menuItemKey@PropertySelection"
+            model="ognl:dialPadSelectionModel"
+            value="ognl:menuItems.currentMenuItemDialPadKeyAssignment"
+            validators="ognl:dialPadSelectionValidators"/>
+        </span>
+        <span jwcid="actionColumnValue@Block">
+          <select jwcid="menuItemAction@Insert"
+            value="ognl:getActionName(menuItems.currentMenuItem.action)"/>
+        </span>
+        <span jwcid="parameterColumnValue@Block">
+          <span jwcid="@If"
+            condition="ognl:menuItems.currentMenuItem.action.extensionParameter">
+            <input jwcid="extensionParameter@TextField"
+              value="ognl:menuItems.currentMenuItem.parameter"/>
+          </span>
+          <span jwcid="@If"
+            condition="ognl:menuItems.currentMenuItem.action.attendantParameter">
+            <select jwcid="attendantParameter@PropertySelection"
+              model="ognl:autoAttendants"
+              value="ognl:menuItems.currentMenuItem.parameter"/>
+          </span>
+        </span>
+        <span jwcid="extensionColumnValue@Block">
+          <input jwcid="@TextField" value="ognl:menuItems.currentMenuItem.parameter"/>
+        </span>
+        <td jwcid="menuItemValues@contrib:TableValues" />
+      </tr>
+      <tr jwcid="@Any" class="ognl:beans.rowClass.next">
+        <td />
+        <td>
+          <span jwcid="addMenuItemKey@PropertySelection"
+            model="ognl:dialPadSelectionModel"
+            value="ognl:addMenuItemDialPad"/>
+        </td>
+        <td jwcid="@If" condition="ognl:! extensionOnly">
+          <span jwcid="addMenuItemAction@PropertySelection"
+            model="ognl:localizedMenuItemActions"
+            value="ognl:addMenuItemAction" />
+        </td>
+        <td>
+          <input jwcid="addMenuItem@Submit" id="attendant:addMenuItem"
+            value="message:button.add"
+            listener="listener:addMenuItem"/>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+<ul class="component-submit">
+  <li jwcid="@RenderBody" />
+  <li>
+    <input jwcid="removeMenuItems@Submit" id="attendant:removeMenuItems"
+    value="message:button.remove" listener="listener:removeMenuItems"/>
+  </li>
+</ul>

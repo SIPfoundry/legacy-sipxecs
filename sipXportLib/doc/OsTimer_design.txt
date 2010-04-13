@@ -1,0 +1,466 @@
+		     Design of the OsTimer system
+
+-- Introduction
+
+The OsTimer class implements one-shot and periodic timers.  Timers can be
+stopped, and can be started again once they have fired or have been stopped.
+The design minimizes blocking of the application calls.  The usage rules for
+the class' methods are given in OsTimer.h.
+
+There is a single OsTimerTask that maintains a list of active timers.  When a
+timer fires, the timer task calls the timer's event routine.  The timer task
+also receives messages sent by the application methods to add timers to the
+active list and remove timers from the active list.
+
+-- Members of OsTimer
+
+The following are the members of an OsTimer object.  The code (A) means that
+the member is accessed by the application methods, (T) means that the member
+is accessed by the timer task, and (AT) means that it is accessed by both.
+
+- mBSem (AT)
+
+A binary semaphore to protect access to the members of the object that are
+accessed by application methods.  (The timer task is single-threaded, so
+members accessed only by the timer task need not be protected.)  Methods
+should not block when holding mBSem.  The design assumes that mBSem is held
+for only short periods of time and that the OsBSem implementation is efficient
+in the case of seizing a free OsBSem.
+
+- mApplicationState (AT)
+- mTaskState (T)
+
+These two members describe the state of the timer.  mApplicationState
+is the state as seen and updated by the application methods, and so is
+updated immediately by the application methods.  E.g.,
+mApplicationState determines whether a start or stop method will
+succeed or not.  (Note that OsTimerTask can advance mApplicationState
+to a stopped state when the timer fires and advances mTaskState.)
+
+mTaskState is the state as seen by the timer task, and may lag behind
+mApplicationState.  The timer is in the active timer queue when
+isStarted(mTaskState) is true.  The timer task updates mTaskState to
+match mApplicationState when it processes an update message queued by
+an application method.
+
+A state is an unsigned integer, usually 32 bits.  The low bit is the
+stopped/started state, with 0 meaning stopped and 1 meaning started.  Each
+successful start or stop operation increments the state (with wraparound), so
+the sequence of states is 0 (stopped), 1 (started), 2 (stopped), 3 (started),
+etc.  The higher-order bits allow globally distinguishing one start of the
+timer from another, which allows the timer task's state to lag arbitrarily far
+behind the application methods' state if that is necessary.
+
+Note that this does not incorporate the concept that the timer accumulates
+start operations, requiring an equal number of stop operations to stop the
+timer -- if the timer has been started but not yet stopped, a second start
+fails.  The state variables are to account for a sequence start/stop/start,
+where the application interface is aware that all three operations have been
+requested, but the timer task is lagging behind.
+
+isStarted(state) is (state & 1) == 1
+isStopped(state) is (state & 1) == 0
+
+mApplicationState is always >= mTaskState (taking wraparound into account),
+and they can only differ if there is an UPDATE message for this timer in the
+timer task's message queue.
+
+- mpNotifier (AT)
+- mbManagedNotifier (A)
+
+mpNotifier is a pointer to the OsNotification which will be signaled when the
+timer fires.  mbManagedNotifier is true if *mpNotifier was allocated by an
+application method (rather than being supplied by the application) and so
+should be freed when the timer is destroyed.
+
+- mExpiresAt (AT)
+- mPeriodic (AT)
+- mPeriod (AT)
+- mQueuedExpiresAt (T)
+- mQueuedPeriodic (T)
+- mQueuedPeriod (T)
+
+When the application starts the timer, it sets mExpiresAt, mPeriodic, and
+mPeriod to describe the time(s) the timer should fire.  mExpiresAt is the
+first or only time the timer should fire.  mPeriodic is true if the timer is
+periodic (to fire at mExpiresAt, mExpiresAt + mPeriod, mExpiresAt + 2*mPeriod,
+etc.).
+
+The timer task copies mExpiresAt, mPeriodic, and mPeriod into
+mQueuedExpiresAt, mQueuedPeriodic, and mQueuedPeriod when it inserts the timer
+into the active timer queue.  This allows the start methods to write new
+values into mExpiresAt, etc. without synchronizing with the timer task.  If
+the timer is periodic, the timer task will update mQueuedExpiresAt every time
+it restarts the timer.
+
+- mOutstandingMessages (AT)
+
+mOutstandingMessages is a count of the number of messages that have been sent
+by the application methods (or will soon be sent by them) and have not yet
+been processed by the timer task.  If mOutstandingMessages is zero, there are
+no messages in transit between the application methods and the timer task's
+message processing routine.  Therefore mApplicationState == mTaskState.
+
+- mDeleting (A)
+
+mDeleting is normally false, but is set to true at the start of the
+destructor.  Other application methods assert(!mDeleting) to enforce the rule
+that other methods may not be called concurrently with the destructor.
+mDeleting and the associated code is ifdef'ed out if NDEBUG.  (If NDEBUG is
+defined, assert() is turned into a no-op.)
+
+- mTimerQueueLink (T)
+
+mTimerQueueLink is used by the timer task to link together the timers in the
+active timer queue.  It could be replaced by a separate linked-list node, but
+allocating a member in OsTimer is more efficient.
+
+- mFiring (AT)
+
+mFiring is true when the timer is being fired.  Specifically, it is
+set by the timer task while it is holding mBSem and deciding how to
+handle the expiration of the timer, if it decides that the notifier
+needs to be signaled, and it is cleared by the timer task after the
+mpNotifier->signal() has returned.  mFiring is read by the destructor
+code; if it is set, the destructor must send an UPDATE_SYNC message to
+the timer task.  (Because the timer has started firing,
+mApplicationState may have been advanced to a stopped value, and the
+destructor has no other way of knowing that the timer is still being
+accessed by the timer task.)
+
+- Valgrind-related members
+
+There are additional members and code for testing and tracing various
+violations of the usage rules.  This code is designed to cause Valgrind to
+provide backtraces of the method calls in question.  These members and code
+are ifdef'ed in by defining VALGRIND_TIMER_ERROR.
+
+-- Messages from application methods to the timer task
+
+There are two messages which can be sent from the application methods to the
+timer task:
+
+- UPDATE(OsTimer*)
+
+This method signals the timer task that the mApplicationState has been
+advanced (by a start or stop method), and that the timer task should take the
+appropriate action.
+
+Note that this method carries no indication of what the state change is.
+Thus, if two application methods make successive but nearly simultaneous
+updates of mApplicationState but their messages arrive at the timer task out
+of order relative to their updates of mApplicationState, the timer task will
+not be confused, as the first message will update mTaskState, and the second
+will be a no-op.  (This can happen, as the sending of the messages is a
+potentially blocking operation and so cannot be done while holding mBSem.)
+
+As a further optimization, an application method that would otherwise send an
+UPDATE can omit doing so if mOutstandingMessages > 0, because in that case,
+there is an UPDATE or UPDATE_SYNC in the timer task's message queue that will
+be processed later.
+
+- UPDATE_SYNC(OsTimer*, OsEvent*)
+
+This method has the same effect as UPDATE, but after the state change is
+processed, the timer task will call the signal() method on the OsEvent.  This
+method is used by the destructor to ensure that all messages regarding the
+timer have been processed prior to freeing the timer.
+
+- UPDATE_DELETE(OsTimer*)
+
+This message has the same effect as UPDATE, but after the state change
+is processed (which is always a stop operation), the OsTimer will be
+deleted.  This is used by deleteAsync to provide a non-blocking delete
+operation.
+
+-- Application method pseudocode
+
+- Constructors
+
+A constructor initializes the members.  In particular:
+
+mBSem = FULL
+mApplicationState = 0 (stopped)
+mTaskState = 0 (stopped)
+
+mpNotifier
+mbManagedNotifier
+	as appropriate for the constructor
+
+mExpiresAt
+mPeriodic
+mPeriod
+	only initialized by the start methods
+
+mOutstandingMessages = 0
+
+mDeleting = FALSE
+
+mFiring = FALSE
+
+- Start methods
+
+The time value for the first or only firing is absolute, and is maintained in
+the system as an absolute time, to prevent drifiting (if the processing of one
+firing is later than scheduled).  If the firing time is before the current
+time, an event will be called quickly.  If the timer is periodic, events will
+be called quickly until the calculated next firing time is after the current
+time.
+
+OsStatus result
+UtlBoolean sendMessage = FALSE
+
+// Update members.
+{
+    OsLock lock(mBSem)
+
+    assert(!mDeleting)
+
+    // Determine whether the call is successful.
+    if (isStopped(mApplicationState)) {
+        // Update state to started.
+	mApplicationState++
+	result = OS_SUCCESS
+	if (mOutstandingMessages == 0) {
+	    // We will send a message.
+	    sendMessage = TRUE
+	    mOutstandingMessages++
+        }
+	// Set time values.
+	mExpiresAt = ...
+	mPeriodic = ...
+	mPeriod = ...
+    } else {
+        result = OS_FAILED
+    }
+}
+
+// If we need to, send an UPDATE message to the timer task.
+if (sendMessage) {
+    timerTask.postMessage(OsTimerMsg(UPDATE, this)
+}
+
+- Stop method
+
+If the stop is synchronous, it ensures that any event routine must
+have finished executing before the stop method returns, but it may
+block.  If the stop is asynchronous, it is nonblocking, but an event
+routine that has already been committed to may execute after stop()
+returns.
+
+OsStatus result
+UtlBoolean sendMessage = FALSE
+
+// Update members.
+{
+    OsLock lock(mBSem)
+
+    assert(!mDeleting)
+
+    // Determine whether the call is successful.
+    if (isStarted(mApplicationState)) {
+        // Update state to stopped.
+	mApplicationState++
+	result = OS_SUCCESS
+	if (mOutstandingMessages == 0) {
+	    // We will send a message.
+	    sendMessage = TRUE
+	    mOutstandingMessages++
+        }
+    } else {
+        result = OS_FAILED
+    }
+}
+
+// If we need to, send an UPDATE_SYNC message to the timer task.
+if (sendMessage) {
+   if (synchronous) {
+      OsEvent event
+      timerTask.postMessage(OsTimerMsg(UPDATE_SYNC, this, &event))
+      event.wait()
+   } else {
+      timerTask.postMessage(OsTimerMsg(UPDATE, this, &event))
+   }
+}
+
+- Destructor
+
+// Update members and determine whether we need to send an UPDATE_SYNC
+// to stop the timer or ensure that the timer task has no queued message
+// about this timer.
+UtlBoolean sendMessage = false
+{
+    OsLock lock(mBSem)
+
+    assert(!mDeleting)
+    // Lock out all further application methods.
+    mDeleting = TRUE
+
+    // Check if the timer needs to be stopped.
+    if (isStarted(mApplicationState)) {
+        sendMessage = true
+        mApplicationState++
+    }
+    // Check if there are outstanding messages that have to be waited
+    // for, or if the timer is currently firing.
+    if (mOutstandingMessages > 0 || mFiring) {
+        sendMessage = true
+    }
+    // If we have to send a message, make note of it.
+    if (sendMessage) {
+        mOutstandingMessages++
+    }
+}
+
+if (sendMessage) {
+    OsEvent event
+    timerTask.postMessage(OsTimerMsg(UPDATE_SYNC, this, &event))
+    event.wait()
+}
+
+// If mbManagedNotifier, free *mpNotifier.
+if (mbManagedNotifier) {
+    delete *mpNotifier
+}
+
+- deleteAsync
+
+// Update members.
+{
+    OsLock lock(mBSem)
+
+    assert(!mDeleting)
+    // Lock out all further application methods.
+    mDeleting = TRUE
+
+    // Check if the timer needs to be stopped.
+    if (isStarted(mApplicationState)) {
+        mApplicationState++
+    }
+
+    // Note we will be sending a message.
+    mOutstandingMessages++
+}
+
+// Send the message.
+timerTask.postMessage(OsTimerMsg(UPDATE_DELETE, this))
+
+-- Timer task pseudocode
+
+The timer task keeps a queue of "active" timers (timers that it knows have
+been started), sorted in order by mExpiresAt (which is the next time that the
+timer should fire).  Its main loop waits for a message to arrive, or for the
+time that the next timer fires.
+
+loop(determine difference between current time and firing time of next timer;
+     wait for a message to arrive, with that difference as the timeout) {
+    if (message arrived) {
+        // Process a message.
+	unsigned int appState;
+	int expiresAt, periodic, period
+        {
+	    OsLock lock(message.timer->mBSem)
+
+	    // mDeleting may be true, if the destructor has started running.
+
+	    // Decrement the outstanding message count.
+	    message.timer->mOutstandingMessages--
+
+	    // Get mApplicationState.
+	    applicationState = message.timer->mApplicationState
+
+	    // Get the timing information.
+	    expiresAt = message.timer->mExpiresAt
+	    periodic = message.timer->mPeriodic
+	    period = message.timer->mPeriod
+	}
+
+	// Determine whether the timer needs to be stopped.
+	// (The comparison between applicationState and mTaskState is really
+	// ">", taking into account wraparound.  But that is difficult to
+	// implement, so given that mApplicationState is always >= mTaskState
+	// by design, we can use "!=".)
+	if (applicationState != message.timer->mTaskState &&
+	    isStarted(message.timer->mTaskState)) {
+	    // Stop the timer.
+	    Search the active timer queue and remove the timer.
+	}
+	// Determine whether the timer needs to be started.
+	if (applicationState != message.timer->mTaskState &&
+	    isStarted(applicationState)) {
+	    // Start the timer.
+	    // Set the saved timing information.
+	    message.timer->mQueuedExpiresAt = expiresAt
+	    message.timer->mQueuedPeriodic = periodic
+	    message.timer->mQueuedPeriod = period
+	    Insert the timer into the active timer queue.
+	}
+
+        // Update the task state.
+	message.timer->mTaskState = applicationState
+
+	if (message.type == UPDATE_SYNC) {
+	    // If it is an UPDATE_SYNC message, signal the event.
+	    message.eventp->signal()
+	} else if (message.type == UPDATE_DELETE) {
+	    // If it is an UPDATE_DELETE, delete the timer.
+
+	    // Timer will not be accessed by any other thread, so we
+	    // can access it without locking.
+	    // Deletion in progress.
+	    assert(message.timer->mDeleting)
+	    // Timer should be stopped.
+	    assert(isStopped(message.timer->mApplicationState))
+	    // No outstanding messages.
+	    assert(message.timer->mOutstandingMessages == 0)
+	    // Set mDeleting to FALSE to the destructor won't fail.
+	    message.timer->mDeleting = FALSE
+
+	    // Use ordinary destructor to delete the timer.
+	    delete *message.timer
+	}
+    } else {
+        // Otherwise, the first timer in the queue fired.
+	Remove the first timer from the queue.
+
+	{
+	    OsLock lock(timer->mBSem)
+
+	    // mDeleting may be true, if the destructor has started running.
+
+	    // Determine if this firing should be reported, or whether the
+	    // timer has been stopped since we were informed that it started.
+	    mFiring = mTaskState == mApplicationState
+
+	    if (!mFiring) {
+		// If this firing is after the timer has been stopped by
+		// the application, advance mTaskState to a stopped state
+		// to recognize that the timer has been removed from
+		// the timer queue.
+		mTaskState++;
+            } else if (mFiring && !mQueuedPeriodic) {
+		// If this firing should be reported, and this is a one-shot
+		// timer, stop the timer:
+		// advance both mTaskState and mApplicationState
+	        mTaskState = mApplicationState = mTaskState + 1;
+            }
+	}
+
+	// If this firing should be reported, and this is a periodic
+	// timer, re-set its firing time.
+	if (mFiring && mQueuedPeriodic) {
+	    mQueuedExpiresAt += mQueuedPeriod
+	    Insert the timer into the active timer queue.
+	}
+
+	// Call the event routine if we are supposed to.
+	if (mFiring) {
+	    timer->mpNotifier->signal()
+	    // Reset mFiring.
+	    {
+	        OsLock lock(timer->mBSem)
+		mFiring = FALSE
+	    }
+	}
+    }
+}

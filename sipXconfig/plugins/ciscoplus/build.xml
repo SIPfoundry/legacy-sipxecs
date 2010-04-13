@@ -1,0 +1,9 @@
+<project name="ciscoplus" default="default">
+
+  <property name="project.dir" value="plugins/ciscoplus" />
+  <property name="plugin.models.dir" value="etc/ciscoplus" />
+  <property name="plugin.name" value="ciscoplus-phones" />
+
+  <import file="../plugins.build.xml" />
+
+</project>

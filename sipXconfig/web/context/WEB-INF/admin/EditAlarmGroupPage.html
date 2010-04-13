@@ -1,0 +1,37 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg" />
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <form jwcid="alarmGroupForm@Form" delegate="bean:validator">
+    <fieldset jwcid="itemCommon@common/ItemCommon"
+      item="ognl:group"
+      nameValidator="spring-validators:required,noWhitespace,validAlarmGroupName"
+      useExtension="false" />
+   <br/><br/><hr/>
+    <fieldset jwcid="@common/ListPanel"
+      label="message:label.smsNotificationContacts"
+      addLinkLabel="message:link.addSms"
+      itemDisplayName="message:label.smsNotificationContacts"
+      validators="validators:required,email"
+      source="ognl:group.smsAddresses" />
+   <br/><hr/>
+    <fieldset jwcid="@admin/AlarmTrapReceiverPanel"
+     label="message:label.snmpNotificationContacts"
+     snmpAddresses="ognl:group.snmpAddresses"/>
+   <br/><hr/>
+    <fieldset jwcid="@common/ListPanel"
+      label="message:label.emailNotificationContacts"
+      addLinkLabel="message:link.addEmail"
+      itemDisplayName="message:label.emailNotificationContacts"
+      validators="spring-validators:required>"
+      source="ognl:group.emailAddresses" />
+    <ul class="component-links">
+      <li>
+        <a jwcid="addExtensions@LinkSubmit" listener="listener:addUsers"><span key="link.addEmailUser" /></a>
+      </li>
+    </ul>
+    <span jwcid="extensionsTable@user/UserSearchResults" users="ognl:group.users" useEmailAddress="ognl:true" />
+    <span jwcid="@Submit" listener="listener:delete" value="message:label.delete" />
+
+    <ul jwcid="formActions@common/FormActions" listener="listener:commitGroup" callback="ognl:callback" />
+  </form>
+</div>

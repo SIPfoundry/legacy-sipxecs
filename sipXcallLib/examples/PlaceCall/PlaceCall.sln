@@ -1,0 +1,66 @@
+Microsoft Visual Studio Solution File, Format Version 8.00
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXcallLib", "..\..\sipXcallLib.vcproj", "{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{441AB1E8-F72F-4C73-9C5E-49A0876A4628} = {441AB1E8-F72F-4C73-9C5E-49A0876A4628}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtackLib", "..\..\..\sipXtackLib\sipXtackLib.vcproj", "{F6C4230F-DB15-424F-BC77-2E0725C7F19B}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B338DC78-0A57-46D4-AA81-8776983D4E27} = {B338DC78-0A57-46D4-AA81-8776983D4E27}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXportLib", "..\..\..\sipXportLib\sipXportLib.vcproj", "{B338DC78-0A57-46D4-AA81-8776983D4E27}"
+	ProjectSection(ProjectDependencies) = postProject
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXtapi", "..\..\sipXtapi.vcproj", "{85CAC56D-4E3A-4712-91A5-AE724B11AE25}"
+	ProjectSection(ProjectDependencies) = postProject
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA} = {0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "sipXmediaVoiceEngine", "..\..\..\gips\sipXmediaVoiceEngine\sipXmediaVoiceEngine.vcproj", "{441AB1E8-F72F-4C73-9C5E-49A0876A4628}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F6C4230F-DB15-424F-BC77-2E0725C7F19B} = {F6C4230F-DB15-424F-BC77-2E0725C7F19B}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PlaceCall", "PlaceCall.vcproj", "{14441867-4291-4174-812E-00C774370C61}"
+	ProjectSection(ProjectDependencies) = postProject
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25} = {85CAC56D-4E3A-4712-91A5-AE724B11AE25}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfiguration) = preSolution
+		Debug = Debug
+		Release = Release
+	EndGlobalSection
+	GlobalSection(ProjectConfiguration) = postSolution
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug.ActiveCfg = Debug|Win32
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Debug.Build.0 = Debug|Win32
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Release.ActiveCfg = Release|Win32
+		{0EADF7C3-7D48-45BF-A00D-ECB94DC912EA}.Release.Build.0 = Release|Win32
+		{F6C4230F-DB15-424F-BC77-2E0725C7F19B}.Debug.ActiveCfg = Debug|Win32
+		{F6C4230F-DB15-424F-BC77-2E0725C7F19B}.Debug.Build.0 = Debug|Win32
+		{F6C4230F-DB15-424F-BC77-2E0725C7F19B}.Release.ActiveCfg = Release|Win32
+		{F6C4230F-DB15-424F-BC77-2E0725C7F19B}.Release.Build.0 = Release|Win32
+		{B338DC78-0A57-46D4-AA81-8776983D4E27}.Debug.ActiveCfg = Debug|Win32
+		{B338DC78-0A57-46D4-AA81-8776983D4E27}.Debug.Build.0 = Debug|Win32
+		{B338DC78-0A57-46D4-AA81-8776983D4E27}.Release.ActiveCfg = Release|Win32
+		{B338DC78-0A57-46D4-AA81-8776983D4E27}.Release.Build.0 = Release|Win32
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Debug.ActiveCfg = Debug|Win32
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Debug.Build.0 = Debug|Win32
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Release.ActiveCfg = Release|Win32
+		{85CAC56D-4E3A-4712-91A5-AE724B11AE25}.Release.Build.0 = Release|Win32
+		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Debug.ActiveCfg = Debug|Win32
+		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Debug.Build.0 = Debug|Win32
+		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Release.ActiveCfg = Release|Win32
+		{441AB1E8-F72F-4C73-9C5E-49A0876A4628}.Release.Build.0 = Release|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Debug.ActiveCfg = Debug|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Debug.Build.0 = Debug|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Release.ActiveCfg = Release|Win32
+		{14441867-4291-4174-812E-00C774370C61}.Release.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+	EndGlobalSection
+	GlobalSection(ExtensibilityAddIns) = postSolution
+	EndGlobalSection
+EndGlobal

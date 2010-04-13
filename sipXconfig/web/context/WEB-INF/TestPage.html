@@ -1,0 +1,202 @@
+<div jwcid="@common/Border" restricted="false" loginRequired="false" borderTitle="ognl:borderTitle">
+  <h2>Web Unit Test Interface</h2>
+  <p>Links here are generally driven by unit tests, but you may interact with them manually as well.</p>
+  <div class="col">
+    <h3>Users</h3>
+    <ul>
+      <li><strong><a jwcid="login" id="login">Login</a></strong></li>
+      <li><a jwcid="@PageLink" id="LoginPage" page="LoginPage">Login Page</a></li>
+      <li><a jwcid="logout" id="Logout">Logout</a></li>
+      <li><a jwcid="toggleNavigation" id="toggleNavigation">Toggle navigation</a></li>
+      <li><a jwcid="hideNavigation" id="hideNavigation">Hide navigation</a></li>
+      <li><a jwcid="toggleAdmin" id="toggleAdmin">Toggle admin/user mode</a></li>
+      <li><a jwcid="seedTestUser" id="seedTestUser">Create test user</a></li>
+      <li><a jwcid="populateUsers" id="link:populateUsers">Add many unique users</a></li>
+      <li><a jwcid="@PageLink" id="NewUser" page="user/NewUser">New User</a></li>
+      <li><a jwcid="@PageLink" id="FirstUser" page="user/FirstUser">First time login</a></li>
+      <li><a jwcid="@PageLink" id="ManageUsers" page="user/ManageUsers">Manage Users</a></li>
+      <li><a jwcid="@PageLink" id="UserGroups" page="user/UserGroups">User Groups</a></li>
+      <li><a jwcid="newUserGroup" id="NewUserGroup">New User Group</a></li>
+      <li><a jwcid="@PageLink" id="ChangePin" page="user_portal/ChangePin">Change Pin</a></li>
+      <li><a jwcid="deleteAllUsers" id="deleteAllUsers">Delete all users</a></li>
+      <li><a jwcid="@PageLink" id="managePresence" page="user_portal/ManagePresence">Manage Presence</a></li>
+      <li><a jwcid="importLdap" id="importLdap">Import from LDAP</a></li>
+      <li><a jwcid="@PageLink" id="SpeedDialPage" page="speeddial/SpeedDialPage">Speed Dial</a></li>
+      <li><a jwcid="@PageLink" id="UserPhonesPage" page="user/UserPhones">User Phones</a></li>
+      <li><a jwcid="@PageLink" id="UserRegistrations" page="user/UserRegistrations">User Registrations</a></li>
+      <li><a jwcid="@PageLink" id="LdapServer" page="admin/ldap/LdapServer">LDAP Server</a></li>
+      <li><a jwcid="@PageLink" id="ExtendedUserInfoPage" page="user_portal/ExtendedUserInfo">User Extended Information</a></li>
+      <li><a jwcid="@PageLink" id="MusicOnHoldPage" page="moh/MusicOnHoldPage">Music On Hold</a></li>
+    </ul>
+
+    <h3>Voicemail</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="ManageVoicemail" page="vm/ManageVoicemail">Voicemail</a></li>
+      <li><a jwcid="@DirectLink" id="DisableVoicemailPermission" listener="listener:loginUserWithDisabledVoicemailPermission">Login w/no vm perm.</a></li>
+      <li><a jwcid="@PageLink" id="UnifiedMessaging" page="vm/MailboxPreferencesPage">Unified Messaging</a></li>
+    </ul>
+
+    <h3>Phones</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="ManagePhones" page="phone/ManagePhones">List Phones</a></li>
+      <li><a jwcid="@PageLink" id="PhoneGroups" page="phone/PhoneGroups">Phone Groups</a></li>
+      <li><a jwcid="newPhoneGroup" id="NewPhoneGroup">New Phone Group</a></li>
+      <li><a jwcid="@DirectLink" id="NewPhone" listener="listener:newPhone">New Phone</a></li>
+      <li><a jwcid="populatePhones" id="link:populatePhones">Populate Phones</a></li>
+      <li><a jwcid="@PageLink" id="link:managePhonebooks" page="phonebook/ManagePhonebooks" >Manage Phonebooks</a></li>
+      <li><a jwcid="@PageLink" id="link:phonebook" page="phonebook/EditPhonebook">Phonebook</a></li>
+      <li><a jwcid="@DirectLink" id="DefaultDeviceTimeZone" listener="listener:defaultDeviceTimeZone">Set Default DeviceTimeZone</a></li>
+    </ul>
+
+    <h3>Call Groups</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="NewCallGroup" page="admin/EditCallGroup">New call group</a></li>
+      <li><a jwcid="@PageLink" id="ListCallGroups" page="admin/ListCallGroups">Call groups</a></li>
+      <li><a jwcid="@PageLink" id="NewParkOrbit" page="admin/EditParkOrbit">New Call Park Extension</a></li>
+      <li><a jwcid="@PageLink" id="ListParkOrbits" page="admin/ListParkOrbits">Call Parking</a></li>
+      <li><a jwcid="@PageLink" id="MusicOnHold" page="admin/MusicOnHold">MusicOnHold</a></li>
+    </ul>
+
+  </div>
+  <div class="col">
+    <h3>Dial Plans</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="ListGateways" page="gateway/ListGateways">List Gateways</a></li>
+      <li><a jwcid="@DirectLink" id="NewFxo" listener="listener:seedFxoGateway">New FXO Gateway</a></li>
+      <li><a jwcid="@PageLink" id="NewAutoAttendant" page="dialplan/EditAutoAttendant">New Auto Attendant</a></li>
+      <li><a jwcid="@PageLink" id="ManageAttendants" page="dialplan/ManageAttendants">List Auto Attendants</a></li>
+      <li><a jwcid="@PageLink" id="FlexibleDialPlan" page="dialplan/EditFlexibleDialPlan">Dial Plan</a></li>
+      <li><a jwcid="@PageLink" id="InternetCalling" page="dialplan/sbc/InternetCalling">Internet Calling</a></li>
+      <li><a jwcid="@PageLink" id="EmergencyRouting" page="dialplan/EditEmergencyRouting">911 Routing</a></li>
+      <li><a jwcid="@PageLink" id="UserCallForwarding" page="user_portal/UserCallForwarding">Call Forwarding</a></li>
+      <li><a jwcid="@PageLink" id="BackupPage" page="admin/BackupPage">Backup</a></li>
+    </ul>
+
+    <h3>System</h3>
+    <ul>
+      <li><a jwcid="@PageLink" id="ExtensionPools" page="admin/ExtensionPools">User Extension Pool</a></li>
+      <li><a jwcid="@PageLink" id="LoginPage" page="LoginPage">Login Page</a></li>
+      <li><a jwcid="@PageLink" id="ConfigurationDiagnosticPage" page="admin/configdiag/ConfigurationDiagnosticPage">Configuration Diagnostics</a></li>
+      <li><a jwcid="@PageLink" id="JobStatusPage" page="admin/JobStatusPage">Job Status</a></li>
+      <li><a jwcid="populateJobs" id="jobs:populate">Populate Jobs</a></li>
+      <li><a jwcid="@PageLink" id="Services" page="admin/commserver/Services">Services</a></li>
+      <li><a jwcid="@PageLink" id="Registrations" page="admin/commserver/Registrations">Registrations</a></li>
+      <li><a jwcid="@PageLink" id="InternalSbcStats" page="sbc/BridgeSbcStatisticsPage">Internal SBC Statistics</a></li>
+      <li><a jwcid="@PageLink" id="SnapshotPage" page="admin/SnapshotPage">Snapshot</a></li>
+      <li><a jwcid="throwException" id="ShowExceptionPage">Show Exception Page</a></li>
+      <li><a jwcid="validateEditPageProvider" id="validateEditPageProvider">Validate Edit Pages</a></li>
+      <li><a jwcid="@PageLink" id="link:upload" page="upload/ManageUploads">Uploads</a></li>
+      <li><a jwcid="newUpload" id="link:newUpload">New Upload</a></li>
+      <li><a jwcid="@PageLink" id="link:import" page="admin/BulkImport">Import from CSV</a></li>
+      <li><a jwcid="@PageLink" id="link:intercom" page="admin/Intercom">Intercom</a></li>
+      <li><a jwcid="@PageLink" id="link:domain" page="admin/ManageDomain">Domain</a></li>
+      <li><a jwcid="@PageLink" id="link:configuredServices" page="service/ListConfiguredServices">Configured Services</a></li>
+      <li><a jwcid="@DirectLink" id="link:waitingPage" listener="listener:testWaitingPage">Waiting Page</a></li>
+      <li><a jwcid="@PageLink" id="menu.exhibit" page="cdr/CdrExhibit">Exhibit demo</a></li>
+      <li><a jwcid="seedLocationsManager@DirectLink" id="seedLocationsManager" listener="listener:seedLocationsManager">Seed Locations Manager</a></li>
+      <li><a jwcid="@PageLink" id="link:locations" page="admin/commserver/LocationsPage">Servers</a></li>
+      <li><a jwcid="@DirectLink" id="link:markForRestart" listener="listener:markForRestart">Mark for Restart</a></li>
+      <li><a jwcid="@DirectLink" id="link:clearRestartNeeded" listener="listener:clearRestartNeeded">Clear Restart</a></li>
+      <li><a jwcid="@DirectLink" id="link:seedBridgeSbc" listener="listener:seedBridgeSbc">Seed Bridge Sbc</a></li>
+      <li><a jwcid="@DirectLink" id="link:deleteBridgeSbc" listener="listener:deleteBridgeSbc">Delete Bridge Sbc</a></li>
+      <li><a jwcid="@PageLink" id="link:branches" page="branch/BranchesPage">Branches</a></li>
+      <li><a jwcid="createAdminUserAndAdminGroup" id="createAdminUserAndAdminGroup">Create admin user and admin group</a></li>
+    </ul>
+
+    <h3>User Portal</h3>
+    <ul>
+      <li><a jwcid="loginFirstTestUser" id="loginFirstTestUser">Log in the first test user</a></li>
+      <li>
+        <a jwcid="@DirectLink" id="loginTestUserWithAutoAttendantPermission"
+          listener="listener:loginTestUserAutoAttendantPermission"
+          parameters="ognl:true">
+            Log in user with personal auto attendant permission
+        </a>
+      </li>
+      <li>
+        <a jwcid="@DirectLink" id="loginTestUserWithoutAutoAttendantPermission"
+          listener="listener:loginTestUserAutoAttendantPermission"
+          parameters="ognl:false">
+            Log in user without personal auto attendant permission
+        </a>
+      </li>
+      <li>
+        <a jwcid="@DirectLink" id="loginTestUserWithMoHPermission"
+          listener="listener:loginTestUserMoHPermission"
+          parameters="ognl:true">
+          Log in user with music on hold permission
+        </a>
+      </li>
+      <li>
+        <a jwcid="@DirectLink" id="loginTestUserWithoutMoHPermission"
+          listener="listener:loginTestUserMoHPermission"
+          parameters="ognl:false">
+          Log in user without music on hold permission
+        </a>
+      </li>
+      <li><a jwcid="@PageLink" id="EditMyInformation" page="user_portal/EditMyInformation">Edit My Information</a></li>
+    </ul>
+
+    <h3>Conference Bridge</h3>
+    <ul>
+      <li><a jwcid="@DirectLink" id="createTestBridge" listener="listener:createTestBridge">Create test conference bridge</a></li>
+      <li><a jwcid="@PageLink" id="ListBridges" page="conference/ListBridges">Conference Bridges</a></li>
+    </ul>
+  </div>
+  <div class="col">
+    <h3>Reset</h3>
+    <p>This clears all related data in that context!</p>
+    <ul>
+      <li><a jwcid="resetCoreContext" id="resetCoreContext">Reset core context</a></li>
+      <li><a jwcid="resetDialPlans" id="resetDialPlans">Reset dial plans</a></li>
+      <li><a jwcid="resetInternetCalling@DirectLink" id="resetInternetCalling" listener="listener:resetInternetCalling">Reset internet calling</a></li>
+	  <li><a jwcid="resetSbcDevices@DirectLink" id="resetSbcDevices" listener="listener:resetSbcDevices">Reset SBC devices</a></li>
+	  <li><a jwcid="resetBranches@DirectLink" listener="listener:resetBranchManager">Reset Branches</a></li>
+      <li><a jwcid="resetCallForwarding" id="resetCallForwarding">Reset Call Forwaring</a></li>
+      <li><a jwcid="resetPhoneContext" id="resetPhoneContext">Reset phone management</a></li>
+      <li><a jwcid="resetCallGroupContext" id="resetCallGroupContext">Reset call group context</a></li>
+      <li><a jwcid="resetParkOrbitContext" id="resetParkOrbitContext">Reset park orbit context</a></li>
+      <li><a jwcid="resetConferenceBridgeContext" id="resetConferenceBridgeContext">Reset conference bridge context</a></li>
+      <li><a jwcid="resetUpload" id="link:resetUpload">Reset Upload</a></li>
+      <li><a jwcid="resetVoicemail" id="resetVoicemail">Reset Voicemail</a></li>
+      <li><a jwcid="resetPhonebook" id="link:phonebookReset">Reset Phonebooks</a></li>
+      <li><a jwcid="@DirectLink" id="resetConfiguredServices" listener="listener:resetServiceManager">Reset Configured Services</a></li>
+      <li><a jwcid="disableVoicemail" id="disableVoicemail">Disable Voicemail</a></li>
+      <li><a jwcid="initNatTraversal@DirectLink" id="initNatTraversal" listener="listener:initNatTraversal">Initialize Nat Traversal</a></li>
+    </ul>
+
+    <h3>Dataset Generation</h3>
+    <ul jwcid="generateLinks">
+      <li><a jwcid="generateLink"><span jwcid="generateLinkLabel" /></a></li>
+      <li><a jwcid="generateFileLink"><span jwcid="generateFileLinkLabel"/></a></li>
+    </ul>
+    <h3>ACD</h3>
+    <ul>
+      <li><a jwcid="seedAcdServer@DirectLink" id="seedAcdServer" listener="listener:seedAcdServer">Seed Acd Server</a></li>
+      <li><a jwcid="@PageLink" id="acdPresenceServer" page="acd/AcdPresenceServer">ACD Presence Server</a></li>
+      <li><a jwcid="@PageLink" id="acdSupervisorConsole" page="acd/AcdSupervisorConsole">ACD Supervisor Console</a></li>
+      <li><a jwcid="@PageLink" id="listAcdServers" page="acd/ListAcdServers">ACD Servers</a></li>
+      <li><a jwcid="@PageLink" id="acdReports" page="acd/AcdHistoryPage">ACD Reports</a></li>
+      <li><a jwcid="resetAcdContext" id="resetAcdContext">Reset ACD context</a></li>
+    </ul>
+    <h3>Search</h3>
+    <ul>
+      <li><a jwcid="indexAll" id="link:indexAll">Index All</a></li>
+      <li><a jwcid="@ExternalLink" page="search/SearchPage" parameters="bongo" id="link:search">Search for bongo</a></li>
+    </ul>
+    <h3>sipX Services</h3>
+    <ul>
+      <li><a jwcid="seedCallResolverService@DirectLink" id="seedCallResolverService" listener="listener:seedService" parameters="sipxCallResolverService">Seed Call Resolver Service</a></li>
+      <li><a jwcid="seedProxyService@DirectLink" id="seedProxyService" listener="listener:seedService" parameters="sipxProxyService">Seed Proxy Service</a></li>
+      <li><a jwcid="seedRegistrarService@DirectLink" id="seedRegistrarService" listener="listener:seedService" parameters="sipxRegistrarService">Seed Registrar Service</a></li>
+      <li><a jwcid="seedParkService@DirectLink" id="seedParkService" listener="listener:seedService" parameters="sipxParkService">Seed Park Service</a></li>
+      <li><a jwcid="seedPresenceService@DirectLink" id="seedPresenceService" listener="listener:seedService" parameters="sipxPresenceService">Seed Presence Service</a></li>
+      <li><a jwcid="seedStatusService@DirectLink" id="seedStatusService" listener="listener:seedService" parameters="sipxStatusService">Seed Status Service</a></li>
+      <li><a jwcid="seedPageService@DirectLink" id="seedPageService" listener="listener:seedService" parameters="sipxPageService">Seed Page Service</a></li>
+      <li><a jwcid="seedFreeswitchService@DirectLink" id="seedFreeswitchService" listener="listener:seedService" parameters="sipxFreeswitchService">Seed Freeswitch Service</a></li>
+      <li><a jwcid="seedRelayService@DirectLink" id="seedRelayService" listener="listener:seedService" parameters="sipxRelayService">Seed Relay Service</a></li>
+      <li><a jwcid="seedIvrService@DirectLink" id="seedIvrService" listener="listener:seedService" parameters="sipxIvrService">Seed IVR Service</a></li>
+    </ul>
+
+  </div>
+</div>

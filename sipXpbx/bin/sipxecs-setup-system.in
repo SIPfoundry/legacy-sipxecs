@@ -1,0 +1,1459 @@
+#! /usr/bin/env python
+
+#----------------------------------------------------------------------
+#
+# Copyright (C) 2008 Nortel
+#
+# This script performs the minimal setup required for a @SIPXECS_NAME@ system
+#
+#   Hostname
+#   DNS Servers
+#   eth0 IP address/mask
+#   timezone
+#   ntp servers
+#   time (this need not be "correct" but must _not_ be in the future)
+#
+#----------------------------------------------------------------------
+
+import os, commands, sys, re, time, traceback, glob, signal, snack
+
+sys.path.insert(0,'@SIPX_LIBEXECDIR@')
+
+from sipxecs_setup_common import *
+
+def testing () :
+    return False
+
+#--- Local constants and files
+
+RootInitFile   = '/root/.bashrc'
+
+RUNLEVEL=3
+
+# -----------------------------------------------------------------------------
+# Global variables
+
+global fout
+
+# Settings variables
+
+global TimeZone
+TimeZone=''
+
+global NtpServers
+NtpServers=['0.pool.ntp.org', '1.pool.ntp.org', '2.pool.ntp.org']
+
+global HostName
+HostName = ''
+
+global DomainName
+DomainName = ''
+
+global SipDomain
+SipDomain = ''
+
+global IpAddress
+IpAddress = ''
+
+global NetMask
+NetMask = ''
+
+global Gateway
+Gateway = ''
+
+global DnsServers
+DnsServers = []
+
+# timezone fuctions
+
+DEFAULT_CONTINENT='America'
+DEFAULT_CITY='New_York'
+ZONEDIR='/usr/share/zoneinfo'
+ZONEINFO='/etc/localtime'
+reZoneName=re.compile('^[A-Z][a-zA-Z_0-9+-]+$')
+reIsZoneData=re.compile(': timezone data$')
+
+def isZoneName (name) :
+    return reZoneName.match(name) 
+
+def isZoneDir (name) :
+    return os.path.isdir(ZONEDIR+'/'+name)
+
+def getZones (majorZone=None) :
+    if majorZone == None :
+        zoneDir=ZONEDIR
+    else :
+        zoneDir=ZONEDIR+'/'+majorZone
+    zones=[]
+    for obj in filter(isZoneName, os.listdir(zoneDir)) :
+        objPath=zoneDir+'/'+obj
+        if  isZoneDir(obj) or reIsZoneData.search(commands.getoutput ('file '+objPath)) :
+            zones.append(obj)
+    zones.sort()
+    return zones
+
+
+###############################################################
+## Convert decimal number to binary. Used to calculate NetMask number of '1' bits
+
+def dec2bin(n) :
+    binstr = ''
+    if n < 0:  raise ValueError, "must be a positive integer"
+    if n == 0: return '0'
+    while n > 0:
+        binstr = str(n % 2) + binstr
+        n = n >> 1
+    return binstr
+
+def NetmaskNrBits(NetmaskString) :
+    result = ''
+    quadsplit = NetmaskString.split(".")
+
+    for items in quadsplit :
+        result = result + dec2bin(int(items))
+    return result.count("1")
+
+
+################################################################
+# Settings collection scripts
+################################################################
+
+
+def screen_startup ():
+   global explain
+
+   initialMessage ='\
+This wizard configures the basic system settings \
+needed to start your system.\n\
+\n\
+Any existing configuration will be overwritten unless you Exit.\
+'
+   grid = snack.Grid(2, 1)
+   continueButton = snack.Button("Start")
+   grid.setField(continueButton, 0, 0, (1,0,1,1))
+
+   exitButton = snack.Button("Exit")
+   grid.setField(exitButton, 1, 0, (1,0,1,1))
+
+   if testing() :
+       if runningAsRoot():
+           title="Setup Wizard TESTING(root)"
+       else:
+           title="Setup Wizard TESTING(simulated)"
+   else:
+       title="Setup Wizard"
+       
+   f = screen_setup(title, initialMessage, grid)
+   choice = f.run()
+
+   screen_end()
+
+   if choice == exitButton :
+       log_printout("initial screen exit")
+       cleanExit()
+
+def screen_setup_admin ():
+
+   show_progress()
+   adminExplanation = "\
+Choose a new password for the 'root' user.\n\
+This is the password for the root shell, not for the\n\
+@SIPXECS_NAME@ administration web user interface."
+
+   okButton = snack.Button("   OK   ")
+
+   valuesOk=False
+   while not valuesOk :
+       sg = snack.Grid(2, 3)
+
+       l1a = snack.Label("Admin Password:")
+       e1a = snack.Entry(32, '', 0, 1)
+       sg.setField(l1a, 0, 0)
+       sg.setField(e1a, 1, 0)
+
+       l1b = snack.Label("Admin Password:")
+       e1b = snack.Entry(32, '', 0, 1)
+       sg.setField(l1b, 0, 1)
+       sg.setField(e1b, 1, 1)
+
+       sg.setField(okButton, 0, 2, (1,1,1,1), growx=1)
+
+       f = screen_setup("Administrator Password", adminExplanation, sg)
+
+       formaction = f.run()
+       screen_end()
+
+       if e1a.value() != e1b.value() :
+           screen_err("Admin Password values do not match")
+       else :
+           adminPassword = e1a.value()
+           valuesOk=True
+
+           progress(15, "Set Password")
+           show_progress()
+
+           passwdSetCmd='echo "%s" | passwd --stdin root' % adminPassword
+           if runningAsRoot() :
+               outRep = commands.getstatusoutput(passwdSetCmd)
+               if outRep[0] != 0:
+                   screen_err( 'Failed to set the root password\n%s' % outRep[1] )
+               log_printout(outRep[1])
+           else :
+               log_printout('(simulated) %s' % passwdSetCmd)
+
+def screen_ask_net ():
+   global HostName
+   global DomainName
+   global IpAddress
+   global NetMask
+   global Gateway
+
+   netExplanation='Configure network settings for this system:\n'
+
+   valuesOk=False
+   while not valuesOk :
+       sg = snack.Grid(3, 5)
+       l0 = snack.Label(" ")
+
+       l1 = snack.Label("Hostname:   ")
+       e1 = snack.Entry(32, HostName)
+       sg.setField(l1, 0, 0)
+       sg.setField(e1, 1, 0)
+
+       l2 = snack.Label("Ip:         ")
+       e2 = snack.Entry(32, IpAddress)
+       sg.setField(l2, 0, 1)
+       sg.setField(e2, 1, 1)
+
+       l3 = snack.Label("Netmask:    ")
+       e3 = snack.Entry(32, NetMask)
+       sg.setField(l3, 0, 2)
+       sg.setField(e3, 1, 2)
+
+       l4 = snack.Label("Gateway Address: ")
+       e4 = snack.Entry(32, Gateway)
+       sg.setField(l4, 0, 3)
+       sg.setField(e4, 1, 3)
+
+       okButton = snack.Button("   OK   ")
+       sg.setField(okButton, 0, 4, (1,1,1,1))
+
+       sg.place(1,1)
+
+       f = screen_setup("Enter the network settings", netExplanation, sg)
+       f.run()
+
+       HostName=e1.value().lower()
+       IpAddress=e2.value()
+       NetMask=e3.value()
+       Gateway=e4.value()
+
+       screen_end()
+
+       # Assume all entries OK, now check for errors
+       valuesOk=True
+
+       #--- validation
+       if HostName.count('.') < 2:
+           # We expect at least 2 dots in the new fully qualified host name
+           valuesOk=False
+           screen_err('"%s" is not a fully qualified host name' % HostName)
+       else :
+           # Domain name == whatever follows the first dot
+           DomainName = '.'.join (HostName.split('.')[1:])
+
+       if len(NetMask.split('.')) < 4:
+           valuesOk=False
+           screen_err('"%s" is not a valid Netmask' % NetMask)
+
+       elif not (NetMask.split('.')[0] == '255' and NetMask.split('.')[1] == '255') :
+           valuesOk=False
+           screen_err('"%s" is not a valid Netmask.' % NetMask)
+       else :
+           for i in range(4):
+               if not NetMask.split('.')[i] in ('255', '0', '128', '192', '224', '240', '248', '252', '254'):
+                   valuesOk=False
+                   screen_err('"%s" is not a valid Netmask' % NetMask)
+
+       if IpAddress.count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=False
+           screen_err('"%s" is not a valid IP addr' % IpAddress)
+       else:
+           addrLst = IpAddress.split('.')
+           maskLst = NetMask.split('.')
+           netwAddr  = '.'.join([str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)])
+           broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
+           if IpAddress == netwAddr or IpAddress == broadAddr :
+               valuesOk=False
+               screen_err('\
+"%s, %s" is not a valid IP address / Netmask combination' % (IpAddress, NetMask))
+
+       if Gateway.count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=False
+           screen_err('"%s" is not a valid Gateway addr' % Gateway)
+       else:
+           GWaddrLst = Gateway.split('.')
+           GWnetwAddr  = '.'.join([str(int(GWaddrLst[i]) & int(maskLst[i]))  for i in range(4)])
+           if GWnetwAddr != netwAddr or Gateway == netwAddr or Gateway == broadAddr :
+               valuesOk=False
+               screen_err('\
+"%s" is not a valid Gateway address.\n\
+It is not in the addr range defined by \n\
+the Netmask / IP addr combination.' % Gateway)
+
+
+   log_result("HostName", HostName)
+   log_result("DomainName", DomainName)
+   log_result("IpAddress", IpAddress)
+   log_result("NetMask", NetMask)
+   log_result("Gateway", Gateway)
+
+def screen_ask_DNS ():
+   global HostName
+   global ProvideDNS
+   global DnsServers
+
+   show_progress()
+
+   serverMessage ='\
+Do you have a DNS server on another system?\
+'
+
+   layout = snack.Grid(1, 2)
+   yesButton = snack.Button("Yes - %s SHOULD NOT be my DNS server." % HostName)
+   noButton  = snack.Button("No  - %s SHOULD be my DNS server." % HostName)
+   layout.setField(yesButton, 0, 0, (1,1,1,1))
+   layout.setField(noButton, 0, 1, (1,1,1,1))
+
+   f = screen_setup("DNS Service", serverMessage, layout)
+   choice = f.run()
+
+   if choice == noButton :
+       ProvideDNS = True
+
+   screen_end()
+
+   if ProvideDNS :
+       dnsExplanation='\
+Configure upstream DNS servers to be used, if any.\n\
+If you have an intranet DNS system,\n\
+or use DNS from your IP service provider,\n\
+enter those servers here.\n\
+Otherwise, leave these entries blank.\
+'
+   else:
+       dnsExplanation='\
+Enter the addresses of your DNS servers:\
+'      
+
+   valuesOk = False
+   while not valuesOk :
+
+       sg = snack.Grid(2, 3)
+
+       l1 = snack.Label("Nameserver 1 Address: ")
+       try:
+           e1 = snack.Entry(32, DnsServers[0])
+       except:
+           e1 = snack.Entry(32, '')
+       sg.setField(l1, 0, 0)
+       sg.setField(e1, 1, 0)
+
+       l2 = snack.Label("Nameserver 2 Address: ")
+       try:
+           e2 = snack.Entry(32, DnsServers[1])
+       except:
+           e2 = snack.Entry(32, '')
+       sg.setField(l2, 0, 1)
+       sg.setField(e2, 1, 1)
+
+       okButton = snack.Button("   OK   ")
+       sg.setField(okButton, 0, 2, (1,1,1,1))
+
+       f = screen_setup("DNS servers", dnsExplanation, sg)
+
+       f.run()
+
+       DnsServers = [ e1.value(), e2.value() ]
+
+       valuesOk=True
+
+       if DnsServers[0] != '' and DnsServers[0].count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=False
+           screen_err('"%s" is not a valid DNS addr' % DnsServers[0])
+           DnsServers[0]=''
+
+       if DnsServers[1] != '' and DnsServers[1].count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=False
+           screen_err('"%s" is not a valid DNS addr' % DnsServers[1])
+           DnsServers[1]=''
+
+       screen_end()
+       
+   log_result("DnsServers", DnsServers)
+   
+def set_netif () :
+     """
+     Updates the interface configuration file
+     /etc/sysconfig/network-scripts/ifcfg-eth0 with the following parameters:
+     BROADCAST, IPADDR, NETMASK, NETWORK
+     """
+     global IpAddress
+     global NetMask
+     global Gateway
+
+     show_progress()
+
+     # Read a configuration file for a first ethernet interface
+     # (presumably /etc/sysconfig/network-scripts/ifcfg-eth0)
+     try:
+         ifcfgContents   = file (sipxecsGlobals.IfCfgFile).read().strip()
+         log_printout("Read network info from %s" % sipxecsGlobals.IfCfgFile)
+     except:
+         abortMsgAndExit( "Could not find network file %s" % sipxecsGlobals.IfCfgFile )
+
+     # Get IP address and IP mask
+     addrLst = IpAddress.split('.')
+     maskLst = NetMask.split('.')
+
+     # Construct network address
+     netwAddr  = '.'.join([str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)])
+
+     # Construct broadcast address
+     broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
+
+     if linuxType == 'suse':
+         bootProto = "static"
+     else:
+         bootProto = "none"
+
+     reONBOOT    = re.compile ('^ONBOOT=(\S*)', re.M)   
+     reIPADDR    = re.compile ('^IPADDR=(\S*)', re.M)
+     reIPMASK    = re.compile ('^NETMASK=(\S*)', re.M)
+     reBROAD     = re.compile ('^BROADCAST=(\S*)', re.M)
+     reNETWORK   = re.compile ('^NETWORK=(\S*)', re.M)
+     reBOOTPROTO = re.compile ('^BOOTPROTO=(\S*)', re.M)
+
+     for reStr, key, val in [
+         (reONBOOT,  'ONBOOT',    'YES'),
+         (reIPADDR,  'IPADDR',    IpAddress),
+         (reIPMASK,  'NETMASK',   NetMask),
+         (reBROAD,   'BROADCAST', broadAddr),
+         (reNETWORK, 'NETWORK',   netwAddr),
+         (reBOOTPROTO, 'BOOTPROTO',   bootProto)
+         ]:
+         if reStr.search (ifcfgContents):
+             ifcfgContents = reStr.sub ('%s=%s' % (key, val), ifcfgContents)    # replace parameter ...
+         else:
+             ifcfgContents = ifcfgContents.strip () + '\n%s=%s' % (key, val)    # add parameter ...
+
+     # Write a new content of the /etc/sysconfig/network-scripts/ifcfg-eth<n> file
+     log_printout(ifcfgContents)
+
+     if runningAsRoot() :
+         file (sipxecsGlobals.IfCfgFile, 'w').write(ifcfgContents)
+
+def set_network ():
+    """
+    Sets a full host name in the /etc/sysconfig/network file.
+    In addition this procedure in the SET mode puts a host name
+    into /etc/hosts
+    """
+    global HostName
+    global IpAddress
+    global Gateway
+
+    show_progress()
+
+    if linuxType == 'suse':
+        # Create file: /etc/sysconfig/network/routes
+        file1 = '/etc/sysconfig/network/routes'
+        f1Cont = '\
+default %s - -\
+' % Gateway
+    else:
+        # Create file: /etc/sysconfig/network
+        file1 = '/etc/sysconfig/network'
+        f1Cont = '\
+NETWORKING=yes\n\
+HOSTNAME=%s\n\
+GATEWAY=%s\n\
+' % ( HostName, Gateway )
+
+    log_printout("======= %s:" % file1)
+    log_printout(f1Cont)
+    if runningAsRoot() :
+        file (file1, 'w').write(f1Cont)
+
+    # Rewrite file: /etc/hosts
+    file2 = '/etc/hosts'
+    f2Cont  = '\
+# Do not remove the following line, or various programs\n\
+# that require network functionality will fail.\n\
+127.0.0.1 localhost.localdomain localhost\n\
+%s %s %s\n' % (IpAddress, HostName, HostName.split('.')[0]) #'
+    log_printout("======= %s:" % file2)
+    log_printout(f2Cont)
+    if runningAsRoot() :
+        file (file2, 'w').write(f2Cont)
+
+    # Set hostname
+    SETHOSTNAMECMD = 'hostname %s' % HostName
+
+    if runningAsRoot() :
+        cmdoutput=commands.getoutput(SETHOSTNAMECMD)
+        log_printout(cmdoutput)
+    else :
+        log_printout('(simulated) %s' % SETHOSTNAMECMD)
+
+    if checkSystemType() == 'suse':
+        file3 = '/etc/HOSTNAME'
+        f3Cont  = '\
+%s\n\
+' % HostName
+        log_printout("======= %s:" % file3)
+        log_printout(f3Cont)
+        if runningAsRoot() :
+            file (file3, 'w').write(f3Cont)
+
+def set_DNS () :
+    global ProvideDNS
+    global DomainName
+    global HostName
+    global IpAddress
+    global DnsServers
+
+    # Create the resolv.conf file - this controls where software looks for DNS servers
+    resolvFile = '/etc/resolv.conf'
+    resolvContent = 'search %s\n' % DomainName
+
+    # look on the local server first
+    resolvContent+= 'nameserver 127.0.0.1\n'
+
+    # if we have other servers, configure them as fallbacks
+    if DnsServers[0] != '' :
+        resolvContent+= 'nameserver %s\n' % DnsServers[0]
+    if DnsServers[1] != '' :
+        resolvContent+= 'nameserver %s\n' % DnsServers[1]
+
+    log_printout("======= %s:" % resolvFile)
+    log_printout(resolvContent)
+
+    if runningAsRoot() :
+        file (resolvFile, 'w').write(resolvContent)
+
+    dhcpResolvFile = resolvFile + '.predhclient'
+    if os.path.exists(dhcpResolvFile):
+        log_printout("remove %s" % dhcpResolvFile)
+        if runningAsRoot():
+            os.remove(dhcpResolvFile)
+
+    if checkSystemType() == 'suse':
+        # update /etc/sysconfig/network/config which drives resolv.conf for suse
+        suseConfigFile = '/etc/sysconfig/network/config'
+        configText = file(suseConfigFile).read()
+        static_dns = "127.0.0.1"
+        if DnsServers[0] != '':
+            static_dns += " %s" % DnsServers[0]
+        if DnsServers[1] != '':
+            static_dns += " %s" % DnsServers[1]
+
+        configText = change_setting('NETCONFIG_DNS_STATIC_SEARCHLIST', DomainName, configText)
+        configText = change_setting('NETCONFIG_DNS_STATIC_SERVERS', static_dns, configText)
+        # (for older suse) set MODIFY_RESOLV_CONF_STATIC_DNS as above
+        configText = change_setting('MODIFY_RESOLV_CONF_STATIC_DNS', static_dns, configText)
+
+        log_printout("======= %s:" % suseConfigFile)
+        log_printout(configText)
+
+        if runningAsRoot() :
+            file(suseConfigFile, 'w').write("%s\n" % configText)
+
+    # Create the configuration of the local name server
+    #  a) non HA system:  A Master DNS server is configured on the sipX host
+    #  b) HA Master system: A Master DNS server is configured on the Master sipX host.
+    #     For redundancy to work it is required to have a Distributed DNS server on the
+    #     Distributed sipX host. If there is a DHCP server on the Master as well
+    #     then the DHCP server needs to serve both DNS server addresses to clients (e.g. phones)
+    #  c) HA Distributed system: A Distributed DNS server is configured. The script verifies
+    #     that if the DNS server address points to the Master sipX host, a Distributed DNS
+    #     server is required on the Distributed sipX host
+
+    show_progress()
+
+    dnsConfigFile='/etc/named.conf'
+
+    if ProvideDNS :
+        # Calculate subnet address based on the NetMask
+        addrLst = IpAddress.split('.')
+        maskLst = NetMask.split('.')
+
+        # Construct network address. NetMask has already been checked and is valid
+        SubnetLst  = [str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)]
+        Subnet  = '.'.join(SubnetLst)
+
+        # Construct reverse Subnet string for PTR zone file name
+        # Calculate length
+        if int(NetMask.split('.')[3]) != 0 :
+            ii = 4
+        elif int(NetMask.split('.')[2]) != 0 :
+            ii = 3
+        else :
+            ii = 2
+        # Invert string
+        arpaReverseLst = ['', '', '', '']
+        for i in range(ii) :
+            arpaReverseLst[i] = SubnetLst[ii - i -1]
+
+        if not NetmaskNrBits(NetMask) in (24, 16) :
+            # Add the netmask in the format /xx
+            arpaReverseLst[0] += '/'
+            arpaReverseLst[0] += str(NetmaskNrBits(NetMask))
+
+        reverseArpa = '.'.join (arpaReverseLst[:ii])
+
+        # Calculate PTR for host
+        if maskLst[2] == '255' :
+            myHostPTR = addrLst[3]
+        else :
+            myHostPTR = '.'.join([addrLst[3], addrLst[2] ])
+
+        # Configure the named service
+        namedConf = '\
+// WARNING: Name server configuration is a sipX automatically generated file.\n\
+//          Contents may be overwritten unless you change the mode to "Manual".\n\
+//          Available modes:\n\
+//          "Master"    - Master name server (on primary server).\n\
+//          "Slave"     - Slave named server (on distributed server).\n\
+//          "Caching"   - Caching only name server.\n\
+//          "Manual"    - Blocks future automatic updates.\n\
+// DNS_MODE="Master"\n\
+\n\
+options {\n\
+        directory  "%s";\n\
+        dump-file "%s/data/cache_dump.db";\n\
+        statistics-file "%s/data/named_stats.txt";\n\
+' % ( sipxecsGlobals.NamedDirectory, sipxecsGlobals.NamedDirectory, sipxecsGlobals.NamedDirectory )
+        if DnsServers[0] != '' or DnsServers[1] != '':
+            namedConf+= '\
+        forwarders {\n'
+            if DnsServers[0] != '':
+                namedConf+= '\
+                %s;\n' % DnsServers[0]
+            if DnsServers[1] != '':
+                namedConf+= '\
+                %s;\n' % DnsServers[1]
+            namedConf += '\
+        };\n'
+        namedConf += '\
+};\n\
+\n\
+'
+
+    else:
+        # Set up a caching-only name server.
+        # Create named.conf file entries
+        namedConf = '\
+// WARNING: Name server configuration is a sipX automatically generated file.\n\
+//          Contents may be overwritten unless you change the mode to "Manual".\n\
+//          Available modes:\n\
+//          "Master"    - Master name server (on primary server).\n\
+//          "Slave"     - Slave named server (on distributed server).\n\
+//          "Caching"   - Caching only name server.\n\
+//          "Manual"    - Blocks future automatic updates.\n\
+// DNS_MODE="Caching"\n\
+//\n\
+\n\
+options {\n\
+        directory "%s";\n\
+        dump-file "%s/data/cache_dump.db";\n\
+        statistics-file "%s/data/named_stats.txt";\n\
+' % ( sipxecsGlobals.NamedDirectory, sipxecsGlobals.NamedDirectory, sipxecsGlobals.NamedDirectory )
+        if DnsServers[0] != '' or DnsServers[1] != '':
+            namedConf+= '\
+        forwarders {\n'
+            if DnsServers[0] != '':
+                namedConf+= '\
+                %s;\n' % DnsServers[0]
+            if DnsServers[1] != '':
+                namedConf+= '\
+                %s;\n' % DnsServers[1]
+            namedConf += '\
+        };\n'
+
+        namedConf += '\
+        forward only;\n\
+};\n\
+'
+
+    if runningAsRoot() :
+        file ( dnsConfigFile, 'w').write( namedConf )
+
+    log_printout("======= %s:" % dnsConfigFile)
+    log_printout(namedConf)
+
+    if ProvideDNS:
+        # Zone files are only required for the Master DNS server.
+        # A Master DNS server is used for a non HA setup or on the HA Master host
+        setup_DNS_zone( DomainName, HostName, IpAddress )
+
+    # Make sure the data directory is present (not there by default on all distros)
+    if runningAsRoot() :
+        if not os.path.isdir(sipxecsGlobals.NamedDirectory + "/data") :
+            os.makedirs(sipxecsGlobals.NamedDirectory + "/data")
+
+        # Change ownership of zone files
+        setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'root', 'named')
+        # Makes data directory named-writable
+        setRights(sipxecsGlobals.NamedDirectory + "/data",'root','named','u=rwx,g=rwx,o=')
+        # On SUSE /var/run/named is a link to /var/lib/named/var/run/named
+        # On RedHat /var/run/named is a regular directory
+        setRights("/var/run/named",'named','named','u=rwx,g=rwx,o=')
+    else :
+        log_printout("Named directories not created because not running as root")
+            
+    if runningAsRoot():
+        startNamedCmd = '/sbin/service named restart'
+        log_printout("Attempting to start DNS with: '%s'" % startNamedCmd)
+        cmdoutput=commands.getoutput(startNamedCmd)
+        log_printout(cmdoutput)
+
+        startNamedCmd = '/sbin/chkconfig --level %d named on' % RUNLEVEL
+        log_printout("Configuring autostart of DNS with: '%s'" % startNamedCmd)
+        cmdoutput=commands.getoutput(startNamedCmd)
+        log_printout(cmdoutput)
+    else:
+        log_printout("Named not configured or started because not running as root")
+
+def screen_set_dhcpd () :
+    # Currently there is at most one DHCP server configured (only on the first system).
+    # The max lease time is 12 hours (43200 seconds).
+    global useDHCPServer
+    global NetMask
+    global IpAddress
+    global Gateway
+    global DomainName
+    global DnsServers
+    global NtpServers
+    global HostName
+
+    show_progress()
+    serverMessage ='\
+You will need a DHCP server for your phones.\n\
+\n\
+Do you have a DHCP server on your network?\
+'
+
+    layout = snack.Grid(1, 2)
+    yesButton = snack.Button("Yes - %s SHOULD NOT be my DHCP server." % HostName)
+    noButton  = snack.Button("No  - %s SHOULD be my DHCP server." % HostName)
+    layout.setField(yesButton, 0, 0, (1,1,1,1))
+    layout.setField(noButton, 0, 1, (1,1,1,1))
+
+    f = screen_setup("DHCP Service", serverMessage, layout)
+    choice = f.run()
+
+    if choice == noButton :
+        log_printout("Selected to configure DHCP")
+        ProvideDHCP = True
+    else :
+        log_printout("Selected NOT to configure DHCP")
+        ProvideDHCP = False
+
+    screen_end()
+
+    if ProvideDHCP :
+
+        dhcpConfigFile='/etc/dhcpd.conf'
+
+        # If DHCP not set still create configuration and write to log file
+        #
+        # Calculate subnet address based on the NetMask
+        # NetMask has already been checked and is valid
+
+        addrLst = IpAddress.split('.')
+        maskLst = NetMask.split('.')
+
+        # Construct subnet address
+        SubnetLst = [str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)]
+        Subnet  = '.'.join(SubnetLst)
+
+        # The DHCP range is set to the full range of the subnet excluding broadcast address and the first address
+        rangeStart =  '.'.join (SubnetLst[:3]) + '.' + str( int(SubnetLst[3]) +1 )
+        rangeEndLst   =  [str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)]
+        rangeEndLst[3]   = str( int(rangeEndLst[3]) - 1 )
+        rangeEnd   = '.'.join (rangeEndLst) 
+
+        # Create dhcpd.conf file entries
+        dhcpdConf = '\
+authoritative;\n\
+ddns-update-style  none;\n\
+option sip-servers-name code 120 = text;\n\
+\n\
+subnet %s netmask %s {\n\
+   range                        %s  %s;\n\
+   default-lease-time           43200;\n\
+   max-lease-time               43200;\n\
+   option routers               %s;\n\
+   option subnet-mask           %s;\n\
+   option domain-name           "%s";\n\
+   option tftp-server-name      "%s";\n\
+   option sip-servers-name      "%s:12000/cmcprov/login";\n\
+'  % (Subnet, NetMask, rangeStart, rangeEnd, Gateway, NetMask, DomainName, HostName, HostName)
+
+        if ProvideDNS:
+            dhcpdConf +='   option domain-name-servers   %s' % IpAddress
+            if DnsServers[0] != '' :
+                dhcpdConf +=', %s' % DnsServers[0]
+        else:
+            dhcpdConf +='  option domain-name-servers   %s' % DnsServers[0]
+        if DnsServers[1] != '' :
+            dhcpdConf +=', %s' % DnsServers[1]
+        dhcpdConf +=';\n'
+
+        # dhcpd does not like hosts to start with a digit, so just use pool.ntp.org here
+        dhcpdConf +='   option ntp-servers           pool.ntp.org'
+        dhcpdConf +=';\n'
+
+        dhcpdConf +='}\n'
+
+        log_printout(dhcpdConf)
+
+        if checkSystemType() == 'suse':
+            # update /etc/sysconfig/dhcpd
+            suseConfigFile = '/etc/sysconfig/dhcpd'
+            configText = file(suseConfigFile).read()
+            configText = change_setting('DHCPD_INTERFACE', "ANY", configText)
+            log_printout("======= %s:" % suseConfigFile)
+            log_printout(configText)
+
+        if runningAsRoot() :
+            file ( dhcpConfigFile, 'w').write( dhcpdConf )
+            if checkSystemType() == 'suse':
+                file(suseConfigFile, 'w').write("%s\n" % configText)
+
+            startDhcpdCmd = '/sbin/service dhcpd restart'
+            log_printout("Attempting to start DHCP with: '%s'" % startDhcpdCmd)
+            cmdoutput=commands.getoutput(startDhcpdCmd)
+            log_printout(cmdoutput)
+
+            startDhcpdCmd = '/sbin/chkconfig --level %d dhcpd on' % RUNLEVEL
+            log_printout("Configuring autostart of DHCP with: '%s'" % startDhcpdCmd)
+            cmdoutput=commands.getoutput(startDhcpdCmd)
+            log_printout(cmdoutput)
+        else:
+            log_printout("dhcpd not configured or started because not running as root")
+
+def start_network () :
+     show_progress()
+
+     # restart the network
+
+     show_starting()
+     netRestart='/sbin/service network restart'
+     if runningAsRoot() :
+         cmdoutput=commands.getoutput(netRestart)
+     else :
+         cmdoutput="(execute) %s" % netRestart
+     show_next()
+     log_printout(cmdoutput)
+
+def screen_set_time () :
+    global TimeZone
+    global NtpServers
+
+    show_progress()
+
+    tzExplanationMajor='Select your continent.'
+
+    majorZones=getZones()
+
+    list=snack.Listbox(10,1,1,32)
+    for zone in majorZones : list.append(zone,'%s'%zone)
+    if majorZones.count(DEFAULT_CONTINENT) != 0:
+        list.setCurrent(DEFAULT_CONTINENT)
+
+    f = screen_setup("Set System Time Zone", tzExplanationMajor, list)
+    major = f.run().current()
+    TimeZone=major
+    screen_end()
+
+    if isZoneDir(major) :
+        minorZones=getZones(major)
+
+        tzExplanationMinor='Select a city in your time zone.'
+
+        minorList=snack.Listbox(10,1,1,32)
+        for zone in minorZones : minorList.append(zone,major+'/'+zone)
+        if minorZones.count(DEFAULT_CITY) != 0:
+            minorList.setCurrent(DEFAULT_CONTINENT+'/'+DEFAULT_CITY)
+
+        f = screen_setup("Time Zone", tzExplanationMinor, minorList)
+        selection = f.run().current()
+        TimeZone=selection
+        screen_end()
+
+    log_result("TimeZone",TimeZone)
+
+    # configure the system clock file
+    sysconfig_clock='\
+ZONE="%s"\n\
+UTC=true\n' % TimeZone
+    log_printout(sysconfig_clock)
+
+    if runningAsRoot() :
+        file('/etc/sysconfig/clock','w').write(sysconfig_clock)
+
+    # create the link that controls the time zone
+    if os.path.exists(ZONEINFO) :
+        if runningAsRoot() :
+            os.remove(ZONEINFO)
+        else :
+            log_printout("remove %s" % ZONEINFO)
+
+    if runningAsRoot() :
+        os.symlink(ZONEDIR+'/'+TimeZone, ZONEINFO)
+
+    log_printout("link %s -> %s" % (ZONEINFO, ZONEDIR+'/'+TimeZone))
+
+    # override the timezone in the environment of this process
+    os.environ['TZ'] = TimeZone
+    # ensure that the shared C libs are using the new timezone
+    time.tzset()
+
+    #--- Create /etc/ntp.conf
+
+    # must be after the timezone
+    progress(70, "Set system clock")
+    show_progress()
+
+    timeBeforeSet=time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime())
+
+    timeSet=False
+
+    ntpServerReachable=False
+    ntpServerForceReady=False
+    while (not ntpServerReachable) and (not ntpServerForceReady) :
+        # Test for something listening to the ntp port on the configured servers
+        # so we don't get stuck in the ntpd command if it's unreachable
+        ntpProbe=72
+        checkMsg  = 'Checking reachability of NTP servers:\n   '
+        checkMsg += '\n   '.join(NtpServers)
+        progress(ntpProbe, checkMsg)
+        show_progress()
+        for ts in NtpServers :
+            ntpProbe+=1
+            probeMsg="Probe of NTP server '%s'" % ts
+            progress(ntpProbe, probeMsg)
+            show_starting()
+            peerCmd='ping -c 1 -i 0.5 "%s"' % ts
+            log_printout("Checking ntp server ip: '%s'" % peerCmd)
+            peerResult=commands.getstatusoutput(peerCmd)
+            log_printout(peerResult[1])
+            if peerResult[0] == 0 :
+                peerCmd='%s -u -p 1233 -z "%s" 123' % (sipxecsGlobals.NetcatCommand, ts)
+                log_printout("Checking ntp server port: '%s'" % peerCmd)
+                peerResult=commands.getstatusoutput(peerCmd)
+                log_printout(peerResult[1])
+                if peerResult[0] == 0 :
+                    ntpServerReachable=True
+                    probeMsg="NTP server found at '%s'" % ts
+                else:
+                    probeMsg="No NTP server detected at '%s'" % ts
+            else:
+                probeMsg="Probe of NTP server '%s' Failed" % ts
+            show_next()
+            progress(ntpProbe, probeMsg)
+            show_progress()
+            
+        if not ntpServerReachable :
+            errorMsg  = 'Unable to verify reachability of any NTP servers:\n   '
+            errorMsg += '\n   '.join(NtpServers)
+            errorMsg += '\n\
+It is important that the system time is controlled\n\
+using NTP if possible.'
+            grid = snack.Grid(2, 1)
+            reconfigButton = snack.Button("Reconfigure servers")
+            grid.setField(reconfigButton, 0, 0, (1,0,1,1))
+
+            continueButton = snack.Button("Continue with these servers")
+            grid.setField(continueButton, 1, 0, (1,0,1,1))
+
+            f = screen_setup("NTP Server Reachability", errorMsg, grid)
+            choice = f.run()
+
+            screen_end()
+
+            if choice == continueButton :
+                log_printout("User continued with unreachable servers")
+                ntpServerForceReady=True
+            else :
+                netExplanation='Configure NTP Servers:\n'
+
+                sg = snack.Grid(1, 4)
+                try:
+                    e1 = snack.Entry(32, NtpServers[0])
+                except:
+                    e1 = snack.Entry(32, '')                        
+                sg.setField(e1, 0, 0)
+                try:
+                    e2 = snack.Entry(32, NtpServers[1])
+                except:
+                    e2 = snack.Entry(32, '')
+                sg.setField(e2, 0, 1)
+                try:
+                    e3 = snack.Entry(32, NtpServers[2])
+                except:
+                    e3 = snack.Entry(32, '')
+                sg.setField(e3, 0, 2)
+
+                okButton = snack.Button("   OK   ")
+                sg.setField(okButton, 0, 3, (1,1,1,1))
+                f = screen_setup("NTP Servers", netExplanation, sg)
+                f.run()
+
+                NtpServers=[]
+                if e1.value() != "":
+                    NtpServers.append(e1.value())
+                if e2.value() != "":
+                    NtpServers.append(e2.value())
+                if e3.value() != "":
+                    NtpServers.append(e3.value())
+
+                screen_end()
+
+    # Define list of servers for time synchronization
+    ntpConf  =  '\
+# ntpd configuration\n\
+# ------------------\n\
+#\n\
+# Permit time synchronization with our time source, but do not\n\
+# permit the source to query or modify the service on this system.\n\
+restrict default kod nomodify notrap nopeer noquery\n\
+restrict -6 default kod nomodify notrap nopeer noquery\n\
+#\n\
+# Permit all access over the loopback interface\n\
+restrict 127.0.0.1\n\
+#\n\
+# Local fudge if network servers are not available\n\
+server 127.127.1.0\n\
+fudge  127.127.1.0 stratum 10\n\
+#\n\
+#ntp reports in syslog that authenticate is invalid keyword\n\
+#authenticate no\n\
+#\n\
+driftfile /var/lib/ntp/drift\n\
+# Synchronize with selected time servers\n\
+'
+    for nsvr in NtpServers :
+        ntpConf  += 'server %s iburst\n' % nsvr
+
+    log_printout(ntpConf)
+
+    if runningAsRoot() :
+        file ('/etc/ntp.conf', 'w').write ('%s\n' % ntpConf)
+        os.chmod("/etc/ntp.conf",0644)
+        
+    #--- Turn on the ntpd service on runlevel 3
+    log_printout('Enable NTP Service in runlevel %d:' % RUNLEVEL)
+    turnOnNtpd='/sbin/chkconfig --level %d %s on' % (RUNLEVEL, sipxecsGlobals.NtpServiceName)
+    if runningAsRoot() :
+        cmdoutput=commands.getoutput(turnOnNtpd)
+        log_printout(cmdoutput)
+    else :
+        log_printout("(simulated) %s" % turnOnNtpd)
+        
+    if ntpServerReachable :
+        # Set Time
+        # try setting the clock with ntp if possible
+        ntpSetMsg="Setting time with NTP"
+        progress(78, ntpSetMsg)
+        show_starting()
+        if runningAsRoot() :
+            log_printout("Stopping ntp service to set time")
+            cmdoutput=commands.getoutput ('/sbin/service %s stop' % sipxecsGlobals.NtpServiceName)
+            log_printout (cmdoutput)
+            ntpSetCmd='/usr/sbin/ntpdate ' + ' '.join(NtpServers)
+            log_printout("Attempting to set date/time with: '%s'" % ntpSetCmd)
+            cmdresult=commands.getstatusoutput(ntpSetCmd)
+            if cmdresult[0] == 0 :
+                timeSet=True
+            log_printout("ntpd result:\n%s" % cmdresult[1])
+        else :
+            log_printout("(simulated) set time")
+            timeSet=True
+        show_next()
+    else :
+        log_printout("ntp server peer tests failed")
+
+    if timeSet :
+        log_printout("Time before set: %s" % timeBeforeSet )
+        log_printout("Time after set: %s" % time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime()))
+    else:
+        # Set time manually
+        grid=snack.Grid(6,4)
+
+        timeExplanation="\
+Unable to set the time with NTP.\n\
+Set the local date and time manually.\n\
+Use the up and down arrow keys to increment and decrement each field; tab between fields.\n\
+Hours are 00-23.\
+    "
+        dateLabel=snack.Label("Date (year-month-day)")
+        grid.setField(dateLabel,0,0)
+
+        year=snack.Listbox(1,0,0,4,0)
+        year.append("2020","2020")
+        year.append("2019","2019")
+        year.append("2018","2018")
+        year.append("2017","2017")
+        year.append("2016","2016")
+        year.append("2015","2015")
+        year.append("2014","2014")
+        year.append("2013","2013")
+        year.append("2012","2012")
+        year.append("2011","2011")
+        year.append("2010","2010")
+        year.setCurrent("2010")
+        grid.setField(year,1,0)
+
+        y2mLabel=snack.Label("-")
+        grid.setField(y2mLabel,2,0)
+
+        month=snack.Listbox(1,0,0,2,0)
+        month.append("12","12")
+        month.append("11","11")
+        month.append("10","10")
+        month.append("09","09")
+        month.append("08","08")
+        month.append("07","07")
+        month.append("06","06")
+        month.append("05","05")
+        month.append("04","04")
+        month.append("03","03")
+        month.append("02","02")
+        month.append("01","01")
+        month.setCurrent("01")
+        grid.setField(month,3,0)
+
+        m2dLabel=snack.Label("-")
+        grid.setField(m2dLabel,4,0)
+
+        day=snack.Listbox(1,0,0,2,0)
+        day.append("31","31")
+        day.append("30","30")
+        day.append("29","29")
+        day.append("28","28")
+        day.append("27","27")
+        day.append("26","26")
+        day.append("25","25")
+        day.append("24","24")
+        day.append("23","23")
+        day.append("22","22")
+        day.append("21","21")
+        day.append("20","20")
+        day.append("19","19")
+        day.append("18","18")
+        day.append("17","17")
+        day.append("16","16")
+        day.append("15","15")
+        day.append("14","14")
+        day.append("13","13")
+        day.append("12","12")
+        day.append("11","11")
+        day.append("10","10")
+        day.append("09","09")
+        day.append("08","08")
+        day.append("07","07")
+        day.append("06","06")
+        day.append("05","05")
+        day.append("04","04")
+        day.append("03","03")
+        day.append("02","02")
+        day.append("01","01")
+        day.setCurrent("01")
+        grid.setField(day,5,0)
+
+        timeLabel=snack.Label("Time (hour:minute)")
+        grid.setField(timeLabel,0,1)
+
+        hour=snack.Listbox(1,0,0,2,0)
+        hour.append("23","23")
+        hour.append("22","22")
+        hour.append("21","21")
+        hour.append("20","20")
+        hour.append("19","19")
+        hour.append("18","18")
+        hour.append("17","17")
+        hour.append("16","16")
+        hour.append("15","15")
+        hour.append("14","14")
+        hour.append("13","13")
+        hour.append("12","12")
+        hour.append("11","11")
+        hour.append("10","10")
+        hour.append("09","09")
+        hour.append("08","08")
+        hour.append("07","07")
+        hour.append("06","06")
+        hour.append("05","05")
+        hour.append("04","04")
+        hour.append("03","03")
+        hour.append("02","02")
+        hour.append("01","01")
+        hour.append("00","00")
+        hour.setCurrent("12")
+        grid.setField(hour,1,1)
+
+        h2mLabel=snack.Label(":")
+        grid.setField(h2mLabel,2,1)
+
+        minute=snack.Listbox(1,0,0,2,0)
+        minute.append("59","59")
+        minute.append("58","58")
+        minute.append("57","57")
+        minute.append("56","56")
+        minute.append("55","55")
+        minute.append("54","54")
+        minute.append("53","53")
+        minute.append("52","52")
+        minute.append("51","51")
+        minute.append("50","50")
+        minute.append("49","49")
+        minute.append("48","48")
+        minute.append("47","47")
+        minute.append("46","46")
+        minute.append("45","45")
+        minute.append("44","44")
+        minute.append("43","43")
+        minute.append("42","42")
+        minute.append("41","41")
+        minute.append("40","40")
+        minute.append("39","39")
+        minute.append("38","38")
+        minute.append("37","37")
+        minute.append("36","36")
+        minute.append("35","35")
+        minute.append("34","34")
+        minute.append("33","33")
+        minute.append("32","32")
+        minute.append("31","31")
+        minute.append("30","30")
+        minute.append("29","29")
+        minute.append("28","28")
+        minute.append("27","27")
+        minute.append("26","26")
+        minute.append("25","25")
+        minute.append("24","24")
+        minute.append("23","23")
+        minute.append("22","22")
+        minute.append("21","21")
+        minute.append("20","20")
+        minute.append("19","19")
+        minute.append("18","18")
+        minute.append("17","17")
+        minute.append("16","16")
+        minute.append("15","15")
+        minute.append("14","14")
+        minute.append("13","13")
+        minute.append("12","12")
+        minute.append("11","11")
+        minute.append("10","10")
+        minute.append("09","09")
+        minute.append("08","08")
+        minute.append("07","07")
+        minute.append("06","06")
+        minute.append("05","05")
+        minute.append("04","04")
+        minute.append("03","03")
+        minute.append("02","02")
+        minute.append("01","01")
+        minute.append("00","00")
+        minute.setCurrent("00")
+        grid.setField(minute,3,1)
+
+        okButton = snack.Button("OK")
+        grid.setField(okButton,0,2,(1,1,1,1))
+
+        f = screen_setup("Set Date/Time", timeExplanation, grid)
+        f.run()
+
+        dateCmd="date --set='%s-%s-%s %s:%s'" % (year.current(),month.current(),day.current(),hour.current(),minute.current())
+        if runningAsRoot() :
+            log_printout("Setting manual date/time: "+dateCmd)
+            cmdoutput=commands.getoutput(dateCmd)
+            log_printout(cmdoutput)
+        else:
+            log_printout("(simulated) Setting manual date/time: "+dateCmd)
+            
+        screen_end()
+
+    # Set the hardware clock to use the same settings as the system clock
+    dateCmd="hwclock --systohc --utc"
+    if runningAsRoot() :
+        log_printout("Setting hardware clock: "+dateCmd)
+        cmdoutput=commands.getoutput(dateCmd)
+        log_printout(cmdoutput)
+    else:
+        log_printout("(simulated) Setting hardware clock: "+dateCmd)
+
+    ntpStartMsg='Start NTP Server'
+    progress(79, ntpStartMsg)
+    show_starting()
+    if runningAsRoot() :
+        cmdoutput=commands.getoutput ('/sbin/service %s start' % sipxecsGlobals.NtpServiceName)
+        log_printout (cmdoutput)
+    else :
+        log_printout('(simulated) /sbin/service %s start' % sipxecsGlobals.NtpServiceName)
+    show_next()
+
+def removeInitScript () :
+
+    if runningAsRoot() :
+        foundSetup = False
+        try:
+           initFileLines = file(RootInitFile).read().split('\n')
+
+           # this must be carefully coordinated with the insertion of this in ks.cfg
+           initScript=re.compile('sipxecs-setup-system')
+           newInitFile = open(RootInitFile,'w')
+           for line in initFileLines :
+               if initScript.search(line):
+                   foundSetup = True
+                   continue
+               else:
+                   newInitFile.write("%s\n" % line)
+           newInitFile.close
+        except:
+           log_printout("'%s' not found" % RootInitFile)
+
+        if foundSetup :
+            log_printout("sipxecs-setup-system removed from '%s'" % RootInitFile)
+        else :
+            log_printout("sipxecs-setup-system not found in '%s'" % RootInitFile)
+    else :
+        log_printout("Not root: sipxecs-setup-system not removed from '%s'" % RootInitFile)
+
+
+def update_preLogonMessage () :
+     # Update the message that displays on the console login screen
+
+     global HostName
+     global IpAddress
+     
+     logonMessage = '\
+\n\
+Welcome to your new VoIP system\n\
+===============================\n\
+\n\
+Admin interface:\n\
+Point a Browser at: http://%s\n\
+                or: http://%s\n\
+\n' % ( HostName, IpAddress )
+
+     log_printout("/etc/issue file:")
+     log_printout(logonMessage)
+
+     if runningAsRoot() :
+         file ( "/etc/issue", 'a').write( logonMessage )
+
+def screen_services () :
+    show_progress()
+
+    servicesMessage ="\
+The system level parameters have been configured. \n\
+The next step is to configure the @SIPXECS_NAME@\n\
+service bootstrap parameters.\n\
+\n\
+"
+    screen_msg(servicesMessage)
+
+
+#======================================================================
+# MAIN SCRIPT BODY STARTS HERE
+#======================================================================
+
+#--- Get command line arguments
+
+log_init()
+
+log_printout("Start @SIPX_VERSION@");
+
+screen_init()
+
+try:
+
+    # Root user should run this script
+    if runningAsRoot() :
+        log_result('Root user', 'Ok')
+    else :
+        if testing() :
+            log_printout('\n TESTING AS NON-ROOT USER')
+        else :
+            abortMsgAndExit( 'You must be the "root" user to run this script' )
+            
+    removeInitScript()
+    linuxType=checkSystemType()
+
+    progress(3,"Start Wizard")
+    screen_startup()
+
+    progress(10, "Administrative Password")
+    screen_setup_admin()
+
+    progress(20, "Collect Network Settings")
+    screen_ask_net()
+
+    progress(30, "Collect DNS Settings")
+    screen_ask_DNS()
+
+    progress(40, "Configure network interface")
+    set_netif()
+
+    progress(50, "Configure network services")
+    set_network()
+    set_DNS()
+
+    progress(55, "Start network")
+    start_network()
+    
+    progress(60, "Time Settings")
+    screen_set_time()
+
+    progress(80, "DHCP Service")
+    screen_set_dhcpd()
+
+    # Modify console logon message
+    progress(90, "Finish system setup")
+    update_preLogonMessage ()
+
+    progress(100, "Setup @SIPXECS_NAME@ Services")
+    screen_services()
+    
+    progress(0, "@SIPXECS_NAME@ Services Setup")
+    do_sipx_setup()
+
+    progress(100, 'Ready')
+    setup_completed()
+    # setup_completed does not return
+
+except:
+    excType, excData, excTrace = sys.exc_info()
+    if   excType == KeyboardInterrupt:
+        log_printout ( '*** User Interrupt Detected ***' )
+    elif excType == SystemExit:
+        log_printout ( '%s' % str (excData) )
+    else:
+        errStack = traceback.extract_tb(excTrace)[-1]
+        errMsg   = 'UNEXPECTED EXCEPTION CAPTURED:\n'
+        errMsg  += '%s: %s ' % (str(excType), str(excData))
+        errMsg  += '(exception occured in file: %s, line: %s)' % (errStack[0], errStack[1])
+        abortMsgAndExit( errMsg )
+    cleanExit()
+
+
+

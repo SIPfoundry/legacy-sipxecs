@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<project name="sipxopenfire" default="all" basedir=".">
+<description>
+      Build file 
+</description>
+  	<import file="ant-targets.xml"/>
+
+  	<property name="dist.dir" value="${top.build.dir}/dist" />
+	<property file="config.properties" />
+	<property name="root" value="${top.build.dir}" />
+	<property name="presence-classes" value="${root}/presence/classes" />
+	<property name="presence-src" location="${src.dir}/src/presence-plugin/java" />
+	<property name="prov-classes" value="${root}/provider/classes" />
+	<property name="prov-src" location="${src.dir}/src/provider/java" />
+	<property name="lib" location="${src.dir}/lib" />
+	<property name="openfire-lib-dir" location="${openfire.home}/lib" />
+        <property name="openfire-jar" value="${openfire-lib-dir}/openfire.jar" />
+
+
+	<presetdef name="openfire-presence-javac">
+		<javac debug="${javac.debug}"
+			debuglevel="${javac.debuglevel}"
+			deprecation="${javac.deprecation}"
+			optimize="${javac.optimize}"
+			source="${javac.source}"
+			target="${javac.target}"
+			srcdir="${presence-src}"
+			destdir="${presence-classes}" />
+	</presetdef>
+
+	<presetdef name="openfire-prov-javac">
+		<javac debug="${javac.debug}"
+			debuglevel="${javac.debuglevel}"
+			deprecation="${javac.deprecation}"
+			optimize="${javac.optimize}"
+			source="${javac.source}"
+			target="${javac.target}"
+			srcdir="${prov-src}"
+			destdir="${prov-classes}" />
+	</presetdef>
+
+
+	<target name="compile">
+		<mkdir  dir="${presence-classes}" />
+		<openfire-presence-javac>
+			<classpath>
+			    <pathelement location="${log4j}" />
+			    <pathelement location="${openfire-jar}/" />
+			    <pathelement location="${xml-rpc-common}" />
+			    <pathelement location="${xml-rpc-server}" />
+			    <pathelement location="${xml-rpc-client}" />
+			    <pathelement location="${servlet-jar}" />
+			    <pathelement location="${jainsip}" />
+			    <pathelement location="${dnsjava}" />
+			    <pathelement location="${log4j}" />
+			    <pathelement location="${dnsjava}" />
+			    <pathelement location="${sipxcommons}" />
+			    <pathelement location="${commons-digester}" />
+			    <pathelement location="${commons-beanutils}" />
+			    <pathelement location="${noelios-restlet}" />
+			    <pathelement location="${restlet}" />
+			</classpath>
+		</openfire-presence-javac>
+	</target>
+
+    <target name="prov-compile">
+       <mkdir  dir="${prov-classes}" />
+       <openfire-prov-javac>
+          <classpath>
+             <pathelement location="${log4j}" />
+             <pathelement location="${openfire-jar}/" />
+             <pathelement location="${sipxcommons}" />
+             <pathelement location="${commons-digester}" />
+             <pathelement location="${noelios-restlet}" />
+             <pathelement location="${restlet}" />
+          </classpath>
+       </openfire-prov-javac>
+    </target>
+
+
+    <target name = "clean" >
+       <delete dir="${presence-classes}" />
+	   <delete dir="${root}/lib"/>
+	   <delete file="${root}/sipx-openfire-presence-plugin.jar" />
+	   <delete file="${root}/dist/sipx-openfire-presence.jar" />
+	   <delete file="${root}/dist/sipx-openfire-presence-plugin.jar" />
+       <delete dir="${prov-classes}" />
+       <delete file="${root}/sipx-openfire-vcard-provider.jar" />
+	   <delete file="${root}/sipxopenfire-setup.sh" />
+	   <delete file="${root}/sipxopenfire.sh" />
+	</target>
+
+	<target name="all" depends="compile, prov-compile">
+		<mkdir dir="${build.dir}/dist"/>
+		<mkdir  dir="${root}/lib" />
+		<copy file="presence-plugin/plugin.xml" todir="${presence-classes}" />
+		<copy file="${root}/config.properties" todir="${presence-classes}" />
+		<copy file="${root}/config.properties" todir="${prov-classes}" />
+		<jar jarfile="${root}/sipx-openfire-presence-plugin.jar">
+			<fileset dir="${presence-classes}" >
+				<include name="**/*.class" />
+			    <include name="config.properties" />
+			</fileset>
+		</jar>
+		<jar jarfile="${root}/sipx-openfire-vcard-provider.jar">
+			<fileset dir="${prov-classes}" >
+				<include name="**/*.class" />
+			    <include name="config.properties" />
+			</fileset>
+		</jar>
+		<copy file="${root}/sipx-openfire-presence-plugin.jar" todir="${root}/lib" />
+      
+      <copy todir="${root}/lib">
+		    <fileset dir="${sipxcommons.dir}">
+			       <include name="${log4j.jarname}"/>
+			       <include name="${xml-rpc-common.jarname}"/>
+			       <include name="${xml-rpc-server.jarname}"/>
+			       <include name="${xml-rpc-client.jarname}"/>
+			       <include name="${ws-commons-util.jarname}"/>
+			       <include name="${commons-collections.jarname}"/>
+			       <include name="${commons-digester.jarname}"/>
+			       <include name="${commons-beanutils.jarname}"/>
+			       <include name="${dom4j.jarname}"/>
+			       <include name="${jainsip.jarname}"/>
+			       <include name="${dnsjava.jarname}"/>
+			       <include name="${sipxcommons.jarname}"/>
+			       <include name="${libhostname.soname}"/>
+			       <include name="${noelios-restlet.jarname}"/>
+			       <include name="${restlet.jarname}"/>
+		    </fileset>
+		</copy>
+
+		<jar jarfile="${root}/dist/sipx-openfire-presence.jar">
+                  <fileset dir="${src.dir}/presence-plugin" >
+			   <include name="plugin.xml" />
+			   <include name="web/**/*"   />
+                  </fileset>
+                  <fileset dir="${root}" >
+		           <include name="lib/**/*" />
+                  </fileset>
+		</jar>
+		<copy file="${root}/sipx-openfire-presence-plugin.jar" todir="${build.dir}/dist" />
+		<copy file="${root}/sipx-openfire-vcard-provider.jar" todir="${build.dir}/dist" />
+	</target>
+
+        <target name="makedirs" >
+                <mkdir dir="${dest.dir}${sipxopenfire.dir}" />
+                <mkdir dir="${dest.dir}${sipxopenfire.dir}/conf" />
+                <mkdir dir="${dest.dir}${sipxopenfire.dir}/plugins" />
+        </target>
+
+	<target name="install" depends="all,makedirs">
+		<copy file="${src.dir}/openfire.xml" todir="${dest.dir}${sipxopenfire.dir}/conf" />
+                <copy file="${src.dir}/web.xml.enable_openfire_admin_console" todir="${dest.dir}${sipxopenfire.dir}/conf" />
+                <copy file="${src.dir}/web.xml.disable_openfire_admin_console" todir="${dest.dir}${sipxopenfire.dir}/conf" />
+		<copy file="${root}/dist/sipx-openfire-presence.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
+                <copy file="${root}/dist/sipx-openfire-presence-plugin.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
+                <copy file="${root}/dist/sipx-openfire-vcard-provider.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
+		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${sipxpbx.conf.dir}/database" /> 
+		<copy file="${root}/sipxopenfire-setup.sh" todir="${dest.dir}${sipxpbx.libexec.dir}/setup.d" />
+		<copy file="${src.dir}/etc/sipxopenfire-prompts.properties" todir="${dest.dir}${sipxpbx.conf.dir}/openfire" />
+                <chmod file="${dest.dir}${sipxpbx.libexec.dir}/setup.d/sipxopenfire-setup.sh" perm="ugo+rx" />
+                <copy file="${src.dir}/sipxopenfire-database.xml" todir="${dest.dir}${sipxpbx.conf.dir}" />
+                <replace file="${dest.dir}${sipxpbx.conf.dir}/sipxopenfire-database.xml"
+                    propertyfile="${top.build.dir}/config.properties">
+                    <replacefilter token="@sipxcommons.dir@" property="sipxcommons.dir" />
+                    <replacefilter token="@sipxpbx.conf.dir@" property="sipxpbx.conf.dir" />
+                    <replacefilter token="@sipxpbx.tmp.dir@" property="sipxpbx.tmp.dir" />
+                </replace>
+	</target>
+
+
+	
+</project>

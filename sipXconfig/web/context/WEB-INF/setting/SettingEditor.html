@@ -1,0 +1,90 @@
+<span jwcid="integerBlock@Block">
+  <span jwcid="integerField@TextField"
+    id="ognl:widgetId"
+    value="ognl:setting.typedValue"
+    displayName="ognl:label"
+    translator="translator:integer,omitZero=true"
+    validators="ognl:validatorList"
+    disabled="ognl:disabled" />
+</span>
+<span jwcid="realBlock@Block">
+  <span jwcid="realField@TextField"
+    id="ognl:widgetId"
+    value="ognl:setting.typedValue"
+    displayName="ognl:label"
+    translator="translator:sipxnumber,omitZero=true,pattern=#.#"
+    validators="ognl:validatorList"
+    disabled="ognl:disabled" />
+</span>
+<span jwcid="stringBlock@Block">
+  <span jwcid="stringField@TextField"
+    id="ognl:widgetId"
+    value="ognl:setting.typedValue"
+    hidden="ognl:setting.type.password"
+    autocomplete="ognl:setting.type.password ? 'off' : 'on'"
+    displayName="ognl:label"
+    validators="ognl:validatorList"
+    disabled="ognl:disabled"
+    maxLength="ognl:setting.type.maxLen" />
+</span>
+<span jwcid="enumBlock@Block">
+  <span jwcid="enumField@PropertySelection"
+    id="ognl:widgetId"
+    value="ognl:setting.value"
+    model="ognl:enumModel"
+    disabled="ognl:disabled" />
+</span>
+<span jwcid="enumListenOnChangeBlock@Block">
+  <span jwcid="enumListenOnChangeField@PropertySelection"
+    id="ognl:widgetId"
+    value="ognl:setting.value"
+    model="ognl:enumModel"
+    disabled="ognl:disabled"
+    onchange="javascript:this.form.submit();"/>
+</span>
+<span jwcid="booleanBlock@Block">
+  <span jwcid="booleanField@Checkbox"
+    id="ognl:widgetId"
+    value="ognl:setting.typedValue"
+    disabled="ognl:disabled" />
+</span>
+<span jwcid="multiEnumBlock@Block">
+  <span jwcid="multiEnumField@contrib:Palette"
+    id="ognl:widgetId"
+    selected="ognl:setting.typedValue"
+    model="ognl:enumModel"
+    validators="ognl:validatorList"
+    sort="literal:USER"/>
+</span>
+<span jwcid="fileBlock@Block">
+  <span jwcid="@If" condition="ognl:setting.type.variable" renderTag="ognl:false">
+    <span jwcid="fileMultipleField@common/AssetSelectorMultiple"
+      id="ognl:widgetId"
+      asset="ognl:setting.value"
+      assetDir="ognl:setting.type.directory"
+      contentType="ognl:setting.type.contentType"
+      submitOnChange="ognl:false"
+      enabled="ognl:enabled" />
+  </span>
+  <span jwcid="@Else">
+    <span jwcid="fileSingleField@common/AssetSelectorSingle"
+      id="ognl:widgetId"
+      asset="ognl:setting.value"
+      assetDir="ognl:setting.type.directory"
+      contentType="ognl:setting.type.contentType"
+      enabled="ognl:enabled" />
+  </span>
+</span>
+<span jwcid="ifDecorated@If" condition="ognl:decorated" renderTag="ognl:false">
+  <span jwcid="@common/FieldPanel"
+    field="ognl:formComponent"
+    label="ognl:label"
+    defaultValue="ognl:defaultValue"
+    description="ognl:description"
+    highlight="ognl:modified">
+    <span jwcid="field@RenderBlock" block="ognl:widgetBlock"/>
+  </span>
+</span>
+<span jwcid="elseNotDecorated@Else" renderTag="ognl:false">
+  <span jwcid="@RenderBlock" block="ognl:widgetBlock"/>
+</span>

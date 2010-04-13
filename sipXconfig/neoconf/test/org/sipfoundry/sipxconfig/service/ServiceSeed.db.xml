@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+    <service 
+		name="my-ntp" 		
+    address="1.1.1.1"
+    enabled="true"
+		service_id="1000"
+    bean_id="unmanagedService"
+    descriptor_id="ntpService"/> 
+</dataset>

@@ -1,0 +1,31 @@
+<table>
+  <thead>
+    <tr>
+      <th jwcid="@For"
+        source="ognl:setting.settingNames"
+        value="ognl:currentColumn"
+        volatile="true">
+        <span jwcid="@Insert" value="ognl:currentColumnLabel"/>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr jwcid="@For"
+      source="ognl:indices"
+      value="ognl:currentIndex"
+      volatile="true">
+      <td jwcid="@For"
+        source="ognl:setting.settingNames"
+        value="ognl:currentColumn"
+        volatile="true">
+        <span jwcid="@setting/SettingEditor"
+          setting="ognl:currentSetting"
+          enabled="ognl:enabled"
+          requiredEnabled="ognl:requiredEnabled"
+          messageSource="ognl:messageSource"
+          decorated="false"/>
+      </td>
+    </tr>
+  </tbody>
+</table>
+<span class="settingDescription" jwcid="@Insert" value="ognl:description" raw="ognl:true"/><br/>

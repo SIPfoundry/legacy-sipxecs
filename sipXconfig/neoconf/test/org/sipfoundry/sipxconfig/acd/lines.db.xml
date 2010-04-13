@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+	
+<dataset>
+  <location location_id="101" name="localhost" fqdn="localhost" ip_address="127.0.0.1" primary_location="true"/>
+  <acd_server acd_server_id="1001" location_id="101" port="8100"/>
+  <acd_line acd_line_id="2001" name="l1" acd_server_id="1001" extension="101"/>
+  <acd_line acd_line_id="2002" name="l2" acd_server_id="1001" extension="102"/>
+</dataset>

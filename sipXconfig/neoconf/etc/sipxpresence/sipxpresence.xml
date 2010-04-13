@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <type id="feature-code">
+    <string>
+      <pattern>[0-9*#]+</pattern>
+    </string>
+  </type>
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534" />
+  </type>
+  <group name="presence-config">
+    <setting name="SIP_PRESENCE_SIGN_IN_CODE">
+      <type refid="feature-code" />
+      <value>*88</value>
+    </setting>
+    <setting name="SIP_PRESENCE_SIGN_OUT_CODE">
+      <type refid="feature-code" />
+      <value>*86</value>
+    </setting>
+    <setting name="PRESENCE_SERVER_SIP_PORT" advanced="yes">
+      <type refid="port-number" />
+      <value>5130</value>
+    </setting>
+    <setting name="PRESENCE_SERVER_HTTP_PORT" advanced="yes">
+      <type refid="port-number" />
+      <value>8111</value>
+    </setting>
+    <setting name="SIP_PRESENCE_HTTP_PORT" hidden="yes">
+      <type refid="port-number" />
+      <value>8111</value>
+    </setting>
+    <setting name="SIP_PRESENCE_LOG_LEVEL" hidden="yes">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+  </group>
+</model>

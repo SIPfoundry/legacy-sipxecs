@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534" />
+  </type>
+  <group name="sip">
+    <label>SIP</label>
+    <setting name='use_sipauth' advanced="yes">
+      <label>Use SIP Authentication</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="sip_displayname">
+      <profileName>$ignore$</profileName>
+    </setting>
+    <setting name='sip_username' advanced="yes">
+      <label>Username</label>
+      <description>SIP authentication username</description>
+    </setting>
+    <setting name='sip_password' advanced="yes">
+      <label>Password</label>
+      <type>
+        <string password="yes" />
+      </type>
+      <description>SIP authentication password</description>
+    </setting>
+    <setting name='sip_proxy_enable' advanced="yes">
+      <label>Use SIP proxy</label>
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name='sip_proxy_server' advanced="yes">
+      <label>SIP Proxy Server</label>
+      <description>SIP proxy server IP, hostname or FQDN</description>
+    </setting>
+    <setting name='sip_proxy_port' advanced="yes">
+      <label>SIP proxy server port</label>
+      <type refid="port-number" />
+      <value>5060</value>
+    </setting>
+    <setting name='outbound_sip_proxy_enable' advanced="yes">
+      <label>Use outbound proxy</label>
+      <type></type>
+      <value>0</value>
+    </setting>
+    <setting name='outbound_sip_proxy' advanced="yes">
+      <label>SIP outbound proxy</label>
+      <value>10.201.0.1</value>
+      <description>SIP outbound proxy IP, hostname or FQDN</description>
+    </setting>
+    <setting name='outbound_proxy_port' advanced="yes">
+      <label>SIP outbound proxy port</label>
+      <type refid="port-number" />
+      <value>5060</value>
+    </setting>
+    <setting name='sip_register_timeout'>
+      <label>Registration timeout</label>
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+      <description>SIP registration timeout in seconds</description>
+    </setting>
+    <setting name='sip_transport'>
+      <label>Transport</label>
+      <type>
+        <enum>
+          <option>
+            <label>UDP</label>
+            <value>0</value>
+          </option>
+          <option>
+            <label>TCP</label>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name='sip_udp_port' advanced="yes">
+      <label>UDP port</label>
+      <type refid="port-number" />
+      <value>5060</value>
+    </setting>
+    <setting name='sip_tcp_port' advanced="yes">
+      <label>TCP port</label>
+      <type refid="port-number" />
+      <value>5060</value>
+    </setting>
+  </group>
+</model>

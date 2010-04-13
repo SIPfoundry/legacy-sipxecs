@@ -1,0 +1,72 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="port">
+    <label>Port Configuration</label>
+    <setting name="UID">
+      <type>
+        <string required="yes" />
+      </type>
+      <value></value>
+      <description>User ID</description>
+    </setting>
+    <setting name="PWD">
+      <type>
+        <string password="yes" />
+      </type>
+      <value></value>
+      <description>Password</description>
+    </setting>
+    <setting name="DisplayName">
+      <value></value>
+      <description>Display name for Caller ID</description>
+    </setting>
+    <setting name="LoginID">
+      <value></value>
+      <description>Authentication ID if device setting UseLoginID = 1</description>
+    </setting>
+    <setting name="ShortName" if="cisco79.*">
+      <value>0</value>
+      <description>Display name for LCD screen</description>
+    </setting>
+    <setting name="_Proxy.18x" if="cisco18x">
+      <label>Proxy</label>
+      <type>
+        <string maxLen="31" />
+      </type>
+      <value>0</value>
+      <description>
+        Proxy or registrar address, value of first line used for both lines due to device
+        restriction.
+      </description>
+    </setting>
+    <setting name="_ProxyPort.18x" if="cisco18x">
+      <label>ProxyPort</label>
+      <type>
+        <integer min="1" max="65535" />
+      </type>
+      <value>5060</value>
+      <description>
+        Proxy or registrar port, value of first line used for both lines due to device
+        restriction.
+      </description>
+    </setting>
+    <setting name="_Proxy.79" if="cisco79.*">
+      <label>Proxy</label>
+      <type>
+        <string maxLen="31" />
+      </type>
+      <value>0</value>
+      <description>Proxy or registrar address.</description>
+    </setting>
+    <setting name="_ProxyPort.79" if="cisco79.*">
+      <label>ProxyPort</label>
+      <type>
+        <integer min="1" max="65535" />
+      </type>
+      <value>5060</value>
+      <description>Proxy or registrar port.</description>
+    </setting>
+  </group>
+</model>

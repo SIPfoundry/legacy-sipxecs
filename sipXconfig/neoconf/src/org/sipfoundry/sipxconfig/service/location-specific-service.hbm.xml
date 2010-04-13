@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.service" default-lazy="false">
+
+  <class name="LocationSpecificService" table="location_specific_service">
+    <id name="id" column="location_specific_service_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">location_specific_service_seq</param>
+      </generator>
+    </id>
+    <property name="enableOnNextUpgrade"/>
+    <many-to-one name="sipxService" cascade="save-update" column="sipx_service_id"
+      class="org.sipfoundry.sipxconfig.service.SipxService"/>
+    <many-to-one name="location" column="location_id"
+      class="org.sipfoundry.sipxconfig.admin.commserver.Location"/>
+  </class>
+</hibernate-mapping>

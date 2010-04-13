@@ -1,0 +1,32 @@
+<div class="tableDiv">
+  <span jwcid="@contrib:CheckboxGroup">
+    <span jwcid="tableView">
+      <table jwcid="tableElement" class="component">
+        <thead>
+          <tr>
+            <th jwcid="@If" condition="ognl:selections != null" align="center">
+              <span jwcid="@contrib:ControlCheckbox" id="controlCheckbox"/>
+            </th>
+            <th jwcid="tableColumns"/>
+          </tr>
+        </thead>
+        <tfoot jwcid="ifRenderPages">
+          <tr>
+            <td jwcid="tablePagesCell">
+              <span jwcid="tablePages"/>
+            </td>
+          </tr>
+        </tfoot>
+        <tbody>
+          <tr jwcid="tableRows">
+            <td  jwcid="@If" condition="ognl:selections != null" align="center">
+              <span jwcid="renderSelectedRow"><span jwcid="selectedRow"/></span>
+            </td>
+            <td jwcid="tableValues"/>
+          </tr>
+        </tbody>
+      </table>
+    </span>
+  </span>
+  <span jwcid="@Script" scriptAsset="asset:tableScript" compClientId="clientId:tableElement" />
+</div>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.acd.EditAcdQueue">
+
+  <inject property="acdContext" object="spring:acdContext" />
+
+  <property name="acdQueueId" persist="session" />
+  <property name="acdQueue" />
+  <property name="overflowQueueId" />
+  <property name="acdServerId" persist="session" />
+  <property name="queuesModel" />
+  <property name="changed" />
+  <property name="tab" persist="session" initial-value="literal:config" />
+
+  <!--
+    - B E A N S
+  -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+
+  <!--
+    - C O M P O N E N T S
+  -->
+  <component id="border" type="common/Border">
+    <binding name="useDojo"
+      value="tab == 'agentsStats' || tab == 'callsStats'" />
+  </component>
+
+  <component id="tabs" type="common/TabNavigation">
+    <binding name="tabNames" value="{'config', 'agents', 'agentsStats', 'callsStats'}" />
+    <binding name="selectedTab" value="tab" />
+    <binding name="renderCondition" value="acdQueueId != null" />
+  </component>
+
+  <component id="form" type="Form">
+    <binding name="delegate" value="bean:validator" />
+    <binding name="listener" value="listener:formSubmit" />
+  </component>
+
+  <component id="agentsForm" copy-of="form" />
+
+  <component id="commonFieldset" type="common/ItemCommon">
+    <binding name="item" value="acdQueue" />
+    <binding name="useEnabled" value="false" />
+    <binding name="nameValidator" value="spring-validators:validSipUserId,required" />
+    <binding name="useFieldset" value="false" />
+  </component>
+
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
+    <binding name="settings" value="acdQueue.settings" />
+    <binding name="renderGroupTitle" value="false" />
+    <binding name="allowEnabledSetting" value="true" />
+  </component>
+
+  <component id="acdAgentsPanel" type="acd/AcdAgentsPanel">
+    <binding name="addListener" value="listener:addAgent" />
+    <binding name="selectListener" value="listener:editAgent" />
+    <binding name="agents" value="acdQueue.agents" />
+    <binding name="acdQueueId" value="acdQueueId" />
+    <binding name="changed" value="changed" />
+  </component>
+
+  <component id="acdAgentsStatsPanel" type="acd/AcdAgentsStatsPanel">
+    <binding name="acdServerId" value="acdServerId" />
+    <binding name="acdStatistics" value="acdStatistics" />
+    <binding name="acdQueueUri" value="acdQueueUri"/>
+    <binding name="showQueueSelector" value="false"/>
+  </component>
+
+  <component id="acdCallsStatsPanel" type="acd/AcdCallsStatsPanel">
+    <binding name="acdServerId" value="acdServerId" />
+    <binding name="acdStatistics" value="acdStatistics" />
+    <binding name="acdQueueUri" value="acdQueueUri"/>
+    <binding name="showQueueSelector" value="false"/>
+  </component>
+
+  <component id="formActions" type="common/FormActions">
+    <binding name="listener" value="listener:apply" />
+    <binding name="callback" value="callback" />
+  </component>
+
+  <component id="tabContent" type="RenderBlock">
+    <binding name="block" value="components.get(tab + 'Block')" />
+  </component>
+</page-specification>

@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<!--
+  - project file all build.xml's should import
+  -
+  - NOTES:
+  -
+  -  Attempts to define targets w/standard target names, but no authoritative
+  -    standard was used.
+  -->
+<project xmlns:ivy="antlib:fr.jayasoft.ivy.ant" name="ant-targets" default="default">
+
+  <!-- 
+    -  P R O P E R T I E S
+    -
+    - EXTERNAL PROPERTIES DEPENDECIES:
+    -  project.dir          = path relative to ant-targets.xml to project
+    -->
+  <dirname property="ant-targets.basedir" file="${ant.file.ant-targets}"/>
+  <property file="${ant-targets.basedir}/top.build.dir"/>
+  <property file="${top.build.dir}/build.properties"/>
+  <property file="${top.dir}/lib.properties"/>
+  <property name="build.dir" value="${top.build.dir}/${project.dir}"/>  
+  <property name="src.dir" value="src" />
+  <property name="test.src.dir" value="test"/>
+  <property name="classes.dir" value="${build.dir}/classes" />
+  <property name="dist.dir" value="${build.dir}/dist" />
+  <property name="style.dir" value="${build.dir}/style" />
+  <property name="api.dir" value="${top.build.dir}/doc/api/${ant.project.name}" />
+  <property name="test.results.dir" value="${build.dir}/test-results" />
+  <property name="junit.results.dir" value="${build.dir}/junit" />
+  <property name="test.classes.dir" value="${build.dir}/tests"/>
+  <property name="clover.dir" value="${build.dir}/clover"/>
+  <property name="test.name" value="*"/>
+
+  <path id="axis.path">
+    <pathelement location="${jaxrpc.jar}"/>
+    <pathelement location="${commons-discovery.jar}"/>
+    <pathelement location="${saaj.jar}"/>
+    <pathelement location="${wsdl4j.jar}"/>
+    <pathelement location="${axis-ant.jar}"/>
+    <pathelement location="${axis-schema.jar}"/>		
+    <pathelement location="${activation.jar}"/>
+    <pathelement location="${javamail.jar}"/>
+    <pathelement location="${axis.jar}"/>	
+    <!-- add this for Windows -->
+    <pathelement path="${commons-logging.jar}"/>
+  </path>
+
+  <import file="dependencies.xml"/>
+
+  <target name="classpath">
+    <echo>${classpath}</echo>
+  </target>
+
+  <!-- Default patterns for unittest naming schema -->
+  <patternset id="test.src" includes="**/${test.name}Test.java" />
+  <patternset id="test-db.src" includes="**/${test.name}TestDb.java" />
+  <patternset id="test-integration.src" includes="**/${test.name}TestIntegration.java" />
+  <patternset id="test-ui.src" includes="**/${test.name}TestUi.java" />
+  <patternset id="test-performance.src" includes="**/${test.name}TestPerformance.java" />
+
+  <!--
+    - T A S K   D E F I N I T I O N S
+    - Common task definitions.
+    -->
+  <!-- SOAP bindings task -->
+  <taskdef name="wsdl2java" 
+	    classname="org.apache.axis.tools.ant.wsdl.Wsdl2javaAntTask">
+		<classpath refid="axis.path"/>
+		<classpath path="${classpath.build}"/>
+		<classpath>
+		    <pathelement location="${axis-ant.jar}"/>
+		</classpath>	
+  </taskdef>
+
+  <!-- Common target before doing a checkin -->
+  <target name="precommit" depends="clean,style,default,test-all,install"/>
+
+  <!--
+    - C L O V E R
+    - Unit test coverage tasks and definitions 
+  -->
+  <!-- Added for Clover testing -->
+  <property name="clover.excludes" value=""/>
+
+  <target name="with.clover" if="with.clover"
+         description="enable code coverage instrumentation">
+    <taskdef resource="clovertasks"/>
+    <mkdir dir="${clover.dir}/db"/>
+    <mkdir dir="${clover.dir}/html"/>
+    <clover-setup initString="${clover.dir}/db/csdb">
+      <files>
+        <exclude name="**/*Test.java"/> 
+        <exclude name="**/*TestDb.java"/> 
+        <exclude name="**/*TestUi.java"/> 
+      </files>
+    </clover-setup> 
+    <property name="clover.html.dir" location="${clover.dir}/html"/>
+  </target>
+
+  <target name="with.clover.enabled">
+		<description>enabled targets that imply user wants clover on clover</description>
+    <property name="with.clover" value="on"/>
+  </target>
+
+  <target name="clover.report" depends="with.clover.enabled,with.clover">
+    <clover-report>
+      <current outfile="${clover.html.dir}">
+        <format type="html"/>
+      </current>
+    </clover-report>
+  </target>
+
+  <target name="clover.viewer" depends="with.clover.enabled,with.clover">
+    <clover-view/>
+  </target> 
+ 
+  <!--
+    - I N I T 
+    - Create output directories. 
+    -->
+  <target name="init">
+		<description>create standard output directories</description>
+    
+    <echo level="verbose">entering ${ant.project.name}</echo>
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${classes.dir}" />
+    <mkdir dir="${dist.dir}" />
+    <mkdir dir="${api.dir}" />
+    <mkdir dir="${test.results.dir}"/>
+    <mkdir dir="${junit.results.dir}"/>
+    <mkdir dir="${test.classes.dir}"/>
+    <mkdir dir="${style.dir}"/>
+  </target>
+
+  <!-- 
+   - C O M P I L E 
+   -->
+  <target name="compile" depends="init,with.clover">
+		<description>compile all files in src directory</description>
+
+    <sipx-javac srcdir="${src.dir}"
+        destdir="${classes.dir}"
+        excludes="test/**"/>
+  </target>
+
+
+  <!-- C L E A N -->
+  <target name="clean"
+      description="remove class, distribution and test directories">
+
+    <delete dir="${classes.dir}"/>
+    <delete dir="${test.classes.dir}"/>
+    <delete dir="${junit.results.dir}"/>
+    <delete dir="${test.results.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${clover.dir}"/>
+    <delete dir="${style.dir}"/>
+  </target>
+
+
+  <!-- D I S T C L E A N -->
+  <target name="distclean" depends="clean"
+      description="remove class, distribution and test directories (same as clean)">
+  </target>
+
+
+  <!-- I N S T A L L -->
+  <target name="install"
+       description="install java components" />
+
+  <!-- U N I N S T A L L -->
+  <target name="uninstall"
+       description="un-install java components">
+    <echo>NOTE: not necessarily a perfect inverse opperation to 'install'</echo>
+  </target>
+
+  
+  <!-- C O M P I L E  T E S T S -->
+  <target name="check.compile.test">
+    <available file="${test.src.dir}" type="dir" property="tests.present"/>
+  </target>
+
+  <target name="compile.test" depends="check.compile.test,compile,init,with.clover" if="tests.present">
+		<description>compile tests</description>
+
+    <sipx-javac srcdir="${test.src.dir}"
+       destdir="${test.classes.dir}">
+      <classpath>
+        <pathelement path="${junit.jar}"/>
+        <pathelement path="${classes.dir}"/>
+      </classpath>
+    </sipx-javac>
+    <copy todir="${test.classes.dir}">
+      <fileset dir="${test.src.dir}">
+        <exclude name="**/*.java"/>
+      </fileset>
+    </copy>
+  </target>
+
+  <!-- C H E C K S T Y L E -->
+  <!-- set checkstyle.severity property to error|warning|info --> 
+  <!-- we are only failing on errors --> 
+  <target name="check.src.present">
+    <available file="${src.dir}" type="dir" property="src.present"/>
+  </target>
+
+  <taskdef resource="checkstyletask.properties"
+         classpath="${checkstyle.jar}"/>
+
+  <target name="style.check" depends="check.src.present" if="src.present">
+    <checkstyle config="${top.dir}/meta/checkstyle.xml" failOnViolation="false"
+      failureproperty="checkstyle.failed" classpathref="base.path">
+      <fileset dir="${src.dir}/org/sipfoundry" includes="**/*.java">
+        <depend targetdir="${style.dir}">
+          <mapper type="merge" to="checkstyle.success"/>
+        </depend>
+      </fileset>
+      <formatter type="plain"/>
+      <formatter type="xml" toFile="${build.dir}/checkstyle_errors.xml"/>
+    </checkstyle>
+    <fail if="checkstyle.failed"/>
+  </target>  
+	
+  <target name="style" depends="init,style.check" unless="checkstyle.failed" 
+		description="check code violations">
+    <touch file="${style.dir}/checkstyle.success"/>
+  </target>
+
+  <!-- J A V A D O C -->
+  <target name="doc" depends="init"
+      description="generate javadocs for src and test code">
+
+    <javadoc sourcepath="${src.dir}" destdir="${api.dir}">
+      <fileset dir="${src.dir}">
+        <include name="**/*.java"/>
+      </fileset>
+      <classpath refid="base.path"/>
+    </javadoc>
+  </target>
+
+
+  <path id="test.path">
+    <pathelement location="${src.dir}"/>
+    <pathelement location="${test.src.dir}"/>
+    <pathelement location="etc"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${clover.jar}"/> 
+    <path refid="base.path"/>
+    <pathelement location="${classes.dir}"/>
+    <pathelement location="${test.classes.dir}"/>
+  </path>
+
+  <!--
+    - U N I T T E S T 
+    -->
+  <target name="test" depends="compile.test"
+       description="run junit tests">
+    <echo level="debug">${classpath}</echo>
+
+    <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+      <classpath refid="test.path"/>
+      <formatter type="plain"/>
+      <formatter type="xml"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <batchtest todir="${junit.results.dir}">
+        <fileset dir="${test.src.dir}">
+          <patternset refid="test.src" />
+        </fileset>
+      </batchtest>
+    </junit>        
+    <antcall target="failure-report"/>
+    <fail if="junit.failed"/>
+  </target>
+
+  <!-- do not put test-report in depends attribute or it runs everytime -->
+  <target name="failure-report" if="junit.failed">
+    <antcall target="test-report"/>
+    <style style="${top.dir}/meta/failure-report.xsl" in="${junit.results.dir}/TESTS-TestSuites.xml" out="${junit.results.dir}/failures.txt"/>
+    <concat>
+      <filelist dir="${junit.results.dir}" files="failures.txt"/>
+    </concat>
+  </target>
+
+  <!--
+    - A L L   U N I T T E S T S
+    - This is unittests that generallly take a while to run or
+    - require that your machine is setup, for example database, 
+    - webserver, etc
+    -->
+  <target name="test-all" depends="test"
+       description="run all junit tests">
+  </target>
+
+
+  <!--
+    - U N I T T E S T   R E P O R T
+    -->
+  <target name="test-report" depends="init"
+     description="generate test results to test-results/junit-noframe.html">
+
+    <property name="org.xml.sax.driver" value="org.apache.xerces.parsers.SAXParser"/>
+
+    <junitreport todir="${junit.results.dir}">
+
+      <fileset dir="${junit.results.dir}">
+        <include name="TEST-*.xml"/>
+      </fileset>
+
+      <!-- Uses ANT embedded XSL file -->
+      <report format="noframes" 
+           todir="${junit.results.dir}"/>
+
+    </junitreport>
+
+
+  </target>
+
+  <!--
+   - D E F A U L T   T A R G E T   W I T H   D E P E N D E N C I E S
+   -->
+  <target name="default.deps">
+    <antcall target="depend.${ant.project.name}"/>
+  </target>
+  
+  <target name="deps.retrieve" description="retrieve project dependencies">
+    <ivy:configure file="${top.dir}/meta/ivyconf.xml"/>
+    <ivy:retrieve pattern="${top.dir}/lib/[artifact]-[revision].[ext]"/>
+  </target>
+
+  <target name="deps.report">
+    <ivy:configure file="${top.dir}/meta/ivyconf.xml"/>
+    <ivy:report todir="${build.dir}"/>    
+  </target>
+  
+	<!--
+		- J A R  &  M A N I F E S T
+		-->
+	<target name="manifest">
+		<exec executable="${top.build.dir}/bin/sipxconfig-config" outputproperty="version.build" os="Linux">
+			<arg value="--build"/>
+		</exec>
+		<!-- It only works on Linux, on Windows we need a different way of retrieving version.build -->		
+		<sipx-manifest/>
+	</target>	
+		
+  <presetdef name="sipx-manifest">
+		<manifest file="${dist.dir}/MANIFEST.MF">
+			<attribute name="Specification-Title" value="sipXconfig"/>
+			<attribute name="Specification-Version" value="${version}"/>
+			<attribute name="Specification-Vendor" value="SIPfoundry"/>
+			<attribute name="Implementation-Title" value="${project.dir}"/>
+			<attribute name="Implementation-Version" value="${version.buildno} ${version.build}"/>
+			<attribute name="Implementation-Vendor" value="SIPfoundry"/>
+		</manifest>				
+  </presetdef>	
+	
+  <presetdef name="sipx-jar">
+		<jar manifest="${dist.dir}/MANIFEST.MF"/>
+	</presetdef>
+	
+  <presetdef name="sipx-javac">
+	<javac
+       destdir="${test.classes.dir}"
+       classpathref="base.path"
+       debug="${debug}"
+       deprecation="${deprecation}"
+       optimize="${optimize}"
+       source="1.6"
+       target="1.6"/>
+  </presetdef>
+	
+</project>
+

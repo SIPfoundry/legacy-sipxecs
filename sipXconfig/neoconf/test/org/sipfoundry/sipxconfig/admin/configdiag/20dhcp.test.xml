@@ -1,0 +1,33 @@
+<test name="dhcp">
+	<label>DHCP</label>
+	<description>
+		Verifies if DHCP server is configured properly.
+	</description>
+	<command>
+		<exec>/usr/bin/sipx-dhcp-test</exec>
+		<arg>--non-interactive</arg>
+	</command>
+	<results>
+		<result exit="0">
+			<status>Success</status>
+			<!-- message is optional here -->
+		</result>
+		<result exit="-1">
+			<status>Warning</status>
+			<msg>
+				This works, but that fails. Go here and touch this to
+				fix it.
+			</msg>
+		</result>
+		<result exit="-2">
+			<status>Error</status>
+			<msg>Total disaster - nothing works - call support.</msg>
+		</result>
+		<result exit="-3">
+			<status>Error</status>
+			<msg>
+				Start DHCP server - it does not appear to be running.
+			</msg>
+		</result>
+	</results>
+</test>

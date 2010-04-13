@@ -1,0 +1,84 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="@Form">
+    <fieldset>
+      <label><span key="label.hosts">Hosts</span></label>
+      <span jwcid="@PropertySelection"
+        model="ognl:hostModel"
+        value="ognl:host"
+        onchange="literal:javascript:this.form.submit();" />
+    </fieldset>
+  </form>
+  <br/>
+  <div jwcid="@common/LeftNavigation" renderCondition="ognl:hostHasTargetsForMonitoring">
+    <span jwcid="@common/TabControl">
+      <span jwcid="@For" source="ognl:reports" value="ognl:availableReportsIndexItem" index="ognl:reportIndex">
+        <span jwcid="@common/Tab" isActive="ognl:availableReportsIndexItem.equals(reportName)">
+          <a href="#" jwcid="@DirectLink" listener="listener:showReport"
+              parameters="ognl:{availableReportsIndexItem, host}" id="ognl:'report' + reportIndex">
+            <span jwcid="@Insert" value="ognl:messages.getMessage(availableReportsIndexItem)"/>
+          </a>
+        </span>
+      </span>
+    </span>
+  </div>
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="@DirectLink" id="link.configureTargets" listener="listener:configureTargets">
+          <span jwcid="@Insert" value="ognl:messages.format('link.configureTargets', host)">Configuration</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:statistics.help"/>
+  <span jwcid="@If" condition="ognl:hostHasTargetsForMonitoring">
+    <div id="settings-content">
+      <h3><span jwcid="@Insert" value="ognl:messages.getMessage(reportName)" /></h3>
+      <span jwcid="@If" condition="ognl:summaryReport">
+        <table>
+          <tr>
+          <td align="left" valign="top">
+            <fieldset>
+              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
+                <span jwcid="@If" condition="ognl:evenIndex">
+                  <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
+                  <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
+                    <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" />
+                  </a>
+                  <br/><br/>
+                </span>
+              </span>
+            </fieldset>
+          </td>
+          <td align="left" valign="top">
+            <fieldset>
+              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
+                <span jwcid="@If" condition="ognl:!evenIndex">
+                  <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
+                  <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
+                    <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" />
+                  </a>
+                  <br/><br/>
+                </span>
+              </span>
+            </fieldset>
+          <td>
+          </tr>
+        </table>
+      </span>
+      <span jwcid="@Else">
+        <fieldset>
+          <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
+            <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)" /></b><br/>
+            <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /><br/>
+            <span jwcid="@Insert" value="ognl:currentBean.htmlDetails" raw="true" /><br/>
+          </span>
+        </fieldset>
+      </span>
+    </div>
+  </span>
+  <span jwcid="@Else">
+    <span key="targetsDisabled" class="user-error" raw="true"/>
+  </span>
+</div>

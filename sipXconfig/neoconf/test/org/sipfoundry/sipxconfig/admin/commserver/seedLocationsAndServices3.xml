@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <table name="location">
+    <column>location_id</column>
+    <column>name</column>
+    <column>fqdn</column>
+    <column>primary_location</column>
+    <row>
+      <value>101</value>
+      <value>Primary</value>
+      <value>example.org</value>
+      <value>true</value>
+    </row>
+    <row>
+      <value>102</value>
+      <value>Secondary</value>
+      <value>secondary.org</value>
+      <value>false</value>
+    </row>
+  </table>
+  <table name="sipx_service">
+    <column>sipx_service_id</column>
+    <column>bean_id</column>
+    <row>
+      <value>14</value>
+      <value>sipxPresenceService</value>
+    </row>
+    <row>
+      <value>15</value>
+      <value>sipxAcdService</value>
+    </row>
+    <row>
+      <value>16</value>
+      <value>sipxConfigAgentService</value>
+    </row>
+  </table>
+  <table name="location_specific_service">
+    <column>location_specific_service_id</column>
+    <column>location_id</column>
+    <column>sipx_service_id</column>
+    <column>enable_on_next_upgrade</column>
+    <row>
+      <value>204</value>
+      <value>101</value>
+      <value>14</value>
+      <value>true</value>
+    </row>
+    <row>
+      <value>205</value>
+      <value>101</value>
+      <value>15</value>
+      <value>true</value>
+    </row>
+    <row>
+      <value>206</value>
+      <value>101</value>
+      <value>16</value>
+      <value>true</value>
+    </row>
+  </table>
+  <table name="location_bundle">
+    <column>location_id</column>
+    <column>bundle_bean</column>
+    <row>
+      <value>101</value>
+      <value>acdBundle</value>
+    </row>
+  </table>
+  <table name="acd_server">
+    <column>acd_server_id</column>
+    <column>port</column>
+    <column>location_id</column>
+    <row>
+      <value>2</value>
+      <value>8110</value>
+      <value>101</value>
+    </row>
+  </table>
+</dataset>

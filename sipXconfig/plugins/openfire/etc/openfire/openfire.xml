@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <type id="switch">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="settings" advanced="yes">
+    <setting name="sipx-proxy-domain" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+    </setting>
+    <setting name="sipx-proxy-port" hidden="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="watcher-address" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="watcher-port">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>5064</value>
+    </setting>
+    <setting name="log-level" hidden="yes">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+    <setting name="openfire-xml-rpc-port">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>9094</value>
+    </setting>
+    <setting name="openfire-host" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+    </setting>
+  </group>
+  <group name="openfire-server-to-server">
+    <setting name="enabled">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="port">
+      <type>
+        <integer min="1024" max="65535" required="yes" />
+      </type>
+      <value>5269</value>
+    </setting>
+    <setting name="disconnect-on-idle" advanced="yes">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="idle-timeout" advanced="yes">
+      <type>
+        <integer required="yes" />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="any-can-connect">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+    <setting name="allowed-servers">
+      <type>
+        <string>
+          <pattern>[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1}(,\s*[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1})*</pattern>
+        </string>
+      </type>
+    </setting>
+    <setting name="disallowed-servers">
+      <type>
+        <string>
+          <pattern>[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1}(,\s*[a-zA-Z0-9/._-]+(:[1-9]\d{3,4}){0,1})*</pattern>
+        </string>
+      </type>
+    </setting>
+    <setting name="default-remote-server-port" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value>5269</value>
+    </setting>
+  </group>
+  <group name="message-logging">
+    <setting name="enabled">
+      <type refid="switch" />
+      <value>false</value>
+    </setting>
+  </group>
+</model>

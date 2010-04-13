@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <!-- ======================== FILTER CHAIN ======================= -->
+
+
+  <!--
+    TestPage nad FirstUser page and explicitly excluded from any authentication checks. TestPage is the only present
+    in DEBUG builds. Since Tapestry pages enforce authorization through pageValidate of their Border component,
+    filterInvocationInterceptor is not added to the chain for the remaining URLs.
+  -->
+  <bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+    <property name="filterInvocationDefinitionSource">
+      <value>
+        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+        /initial-config/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,basicExceptionTranslationFilter,filterInvocationInterceptor
+        /rest/private/[^/]{32}/.*=lazyHttpSessionContextIntegrationFilter,privateUserKeyProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor
+        /(services|rest)/.*=lazyHttpSessionContextIntegrationFilter,basicProcessingFilter,digestProcessingFilter,digestExceptionTranslationFilter,filterInvocationInterceptor
+        /(TestPage|FirstUser).html=httpSessionContextIntegrationFilter
+        /.*=httpSessionContextIntegrationFilter,authenticationProcessingFilter,digestExceptionTranslationFilter
+      </value>
+    </property>
+  </bean>
+
+  <!-- ======================== AUTHENTICATION ======================= -->
+
+  <bean id="authenticationManager" class="org.acegisecurity.providers.ProviderManager">
+    <property name="providers">
+      <list>
+        <ref local="testAuthenticationProvider" />
+        <ref local="userAuthenticationProvider" />
+        <ref local="sharedSecretUserAuthenticationProvider" />
+        <ref local="locationAuthenticationProvider" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="userAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+    <property name="userDetailsService" ref="standardUserDetailsService" />
+    <property name="userCache" ref="userCache" />
+    <property name="passwordEncoder" ref="passwordEncoder" />
+    <property name="saltSource">
+      <bean class="org.sipfoundry.sipxconfig.security.SaltSourceImpl" />
+    </property>
+  </bean>
+
+  <bean id="sharedSecretUserAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+    <property name="userDetailsService" ref="sharedSecretUserDetailsService" />
+    <property name="userCache" ref="userCache" />
+    <property name="passwordEncoder" ref="passwordEncoder" />
+    <property name="saltSource">
+      <bean class="org.sipfoundry.sipxconfig.security.SaltSourceImpl" />
+    </property>
+  </bean>
+
+  <bean id="locationAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">
+    <property name="userDetailsService" ref="locationDetailsService" />
+    <property name="userCache" ref="userCache" />
+  </bean>
+
+  <bean id="testAuthenticationProvider" class="org.sipfoundry.sipxconfig.security.TestAuthenticationProvider">
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="standardUserDetailsService" class="org.sipfoundry.sipxconfig.security.StandardUserDetailsService">
+    <property name="coreContext" ref="coreContext" />
+    <property name="acdContext" ref="acdContext" />
+  </bean>
+
+  <bean id="sharedSecretUserDetailsService" class="org.sipfoundry.sipxconfig.security.SharedSecretUserDetailsService">
+    <property name="coreContext" ref="coreContext" />
+    <property name="acdContext" ref="acdContext" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="locationDetailsService" class="org.sipfoundry.sipxconfig.security.LocationUserService">
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="passwordEncoder" class="org.sipfoundry.sipxconfig.security.PasswordEncoderImpl">
+    <property name="loginContext" ref="loginContext" />
+  </bean>
+
+  <!-- User cache configuration -->
+  <bean id="userCache" class="org.acegisecurity.providers.dao.cache.NullUserCache">
+  </bean>
+
+  <!-- Automatically receives AuthenticationEvent messages from DaoAuthenticationProvider -->
+  <bean id="loggerListener" class="org.acegisecurity.event.authentication.LoggerListener">
+    <property name="logInteractiveAuthenticationSuccessEvents" value="false" />
+  </bean>
+
+  <!-- used for WEB services - it never creates sessions -->
+  <bean id="lazyHttpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter">
+    <property name="allowSessionCreation" value="false" />
+  </bean>
+
+  <bean id="httpSessionContextIntegrationFilter" class="org.acegisecurity.context.HttpSessionContextIntegrationFilter" />
+
+  <!-- ===================== HTTP REQUEST SECURITY ==================== -->
+
+  <bean id="digestExceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+    <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint" />
+  </bean>
+
+  <bean id="basicExceptionTranslationFilter" class="org.acegisecurity.ui.ExceptionTranslationFilter">
+    <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint" />
+  </bean>
+
+  <bean id="basicProcessingFilter" class="org.acegisecurity.ui.basicauth.BasicProcessingFilter">
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="authenticationEntryPoint" ref="basicProcessingFilterEntryPoint" />
+  </bean>
+
+  <bean id="basicProcessingFilterEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxBasicProcessingFilterEntryPoint">
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="digestProcessingFilter" class="org.acegisecurity.ui.digestauth.DigestProcessingFilter">
+    <property name="authenticationEntryPoint" ref="digestProcessingFilterEntryPoint" />
+    <property name="userCache" ref="userCache" />
+    <property name="userDetailsService" ref="standardUserDetailsService" />
+    <property name="passwordAlreadyEncoded" value="true" />
+  </bean>
+
+  <bean id="digestProcessingFilterEntryPoint" class="org.sipfoundry.sipxconfig.security.SipxDigestProcessingFilterEntryPoint">
+    <property name="domainManager" ref="domainManager" />
+    <property name="key" value="sipXconfig" />
+  </bean>
+
+  <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="authenticationFailureUrl" value="/LoginPage.html?error=badCredentials" />
+    <property name="defaultTargetUrl" value="/Home.html" />
+  </bean>
+
+  <bean id="privateUserKeyProcessingFilter" class="org.sipfoundry.sipxconfig.security.PrivateUserKeyProcessingFilter">
+    <property name="privateUserKeyManager" ref="privateUserKeyManager" />
+  </bean>
+
+  <bean id="httpRequestAccessDecisionManager" class="org.acegisecurity.vote.AffirmativeBased">
+    <property name="allowIfAllAbstainDecisions">
+      <value>false</value>
+    </property>
+    <property name="decisionVoters">
+      <list>
+        <ref bean="roleVoter" />
+      </list>
+    </property>
+  </bean>
+
+  <!--
+    - An access decision voter that reads ROLE_* configuration settings. - See
+    acegisecurity/samples/contacts/src/main/webapp/common/WEB-INF/applicationContext-common-authorization.xml .
+  -->
+  <bean id="roleVoter" class="org.acegisecurity.vote.RoleVoter" />
+
+  <!--
+    Note the order that entries are placed against the objectDefinitionSource is critical. The
+    FilterSecurityInterceptor will work from the top of the list down to the FIRST pattern that matches the request
+    URL. Accordingly, you should place MOST SPECIFIC (ie a/b/c/d.*) expressions first, with LEAST SPECIFIC (ie a/.*)
+    expressions last
+  -->
+  <bean id="filterInvocationInterceptor" class="org.acegisecurity.intercept.web.FilterSecurityInterceptor">
+    <property name="authenticationManager" ref="authenticationManager" />
+    <property name="accessDecisionManager" ref="httpRequestAccessDecisionManager" />
+    <property name="objectDefinitionSource">
+      <value>
+        CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+        /rest/auto-attendant/.*/special=ROLE_ADMIN,ROLE_ATTENDANT_ADMIN
+        /rest/auto-attendant/specialmode=ROLE_ADMIN,ROLE_ATTENDANT_ADMIN
+        /rest/auto-attendant=ROLE_ADMIN,ROLE_ATTENDANT_ADMIN
+        /rest/call/.*=ROLE_USER
+        /rest/my/.*=ROLE_USER
+        /rest/private/.*=ROLE_USER
+        /(services|rest)/.*=ROLE_ADMIN
+        /initial-config/.*=ROLE_LOCATION
+      </value>
+    </property>
+  </bean>
+
+</beans>

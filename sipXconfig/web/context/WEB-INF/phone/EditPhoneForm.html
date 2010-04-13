@@ -1,0 +1,51 @@
+<span jwcid="@common/ErrorMsg" validator="ognl:validator"/>
+<fieldset>
+  <table>
+    <tr jwcid="@common/FieldPanel"
+      for="phone:serialNumber"
+      label="message:label.serialNumber"
+      field="component:serialNumber"
+      description="message:description.serialNumber">
+        <td jwcid="serialNumber@TextField"
+          id="phone:serialNumber"
+          value="ognl:phone.serialNumber"
+          validators="ognl:serialNumberValidators"
+          translator="ognl:serialNumberTranslator"
+          displayName="message:label.serialNumber"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel"
+      for="phone:description"
+      label="message:description"
+      field="component:phoneDescription">
+        <td jwcid="phoneDescription@TextArea"
+          id="phone:description" cols="45" rows="5"
+          value="ognl:phone.description"
+          validators="spring-validators:validFieldSize"
+          displayName="message:description" />
+    </tr>
+    <span jwcid="@If" condition="ognl:phone.model.versions.length > 0">
+      <tr jwcid="@common/FieldPanel"
+        for="phone:version"
+        label="message:label.firmwareVersion"
+        field="component:selectVersion">
+
+        <td jwcid="selectVersion@PropertySelection"
+          model="bean:versions"
+          value="ognl:phone.deviceVersion"
+          displayName="message:label.firmwareVersion"/>
+      </tr>
+    </span>
+      <tr jwcid="@common/FieldPanel"
+        for="phone:groups"
+        label="message:label.groups"
+        description="message:description.groups"
+        field="ognl:null">  <!-- Bug, give the right value for field, and autocomplete renders double -->
+        <input jwcid="groups@Suggest"
+          value="ognl:groupsString"
+          listSource="ognl:groupCandidates"
+          size="50"
+          translator="translator:string,empty="
+          listener="listener:buildGroupCandidates"/>
+      </tr>
+ </table>
+</fieldset>

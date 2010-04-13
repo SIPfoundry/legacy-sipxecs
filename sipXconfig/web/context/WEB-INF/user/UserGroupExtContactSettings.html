@@ -1,0 +1,20 @@
+<form jwcid="extcontacts@Form" delegate="ognl:validator">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.extcontact"/>
+    <table>
+        <tr jwcid="@common/FieldPanel" field="component:enableExtContacts"
+            for="extcontacts:enable" label="message:label.enabled">
+            <input id="extcontacts:enable" jwcid="enableExtContacts@Checkbox" value="ognl:extcontactEnabled" />
+        </tr>
+        <tr jwcid="@common/FieldPanel" field="component:extcontactPrefix"
+            for="extcontacts:prefix" label="message:label.prefix"
+            description="message:description.prefix">
+            <input id="extcontacts:prefix" jwcid="extcontactPrefix@TextField" value="ognl:extcontactPrefix" />
+        </tr>
+
+    </table>
+    <ul class="form-actions">
+      <li><input id="submit:ok" jwcid="@Submit" value="OK" action="listener:ok" /></li>
+      <li><input id="submit:apply" jwcid="@Submit" value="Apply" action="listener:apply" /></li>
+      <li><input id="submit:cancel" jwcid="@Submit" value="Cancel" action="listener:cancel" /></li>
+    </ul>
+</form>

@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <type id="feature-code">
+    <string>
+      <pattern>[0-9*#]+</pattern>
+    </string>
+  </type>
+  <group name="isn">
+    <setting name="SIP_REDIRECT.150-ISN.BASE_DOMAIN">
+      <type>
+        <boolean>
+          <true>
+            <value>freenum.org</value>
+          </true>
+          <false>
+            <value />
+          </false>
+        </boolean>
+      </type>
+      <value />
+    </setting>
+    <setting name="SIP_REDIRECT.150-ISN.PREFIX" advanced="yes">
+      <type refid="feature-code" />
+    </setting>
+  </group>
+  <group name="enum">
+    <setting name="SIP_REDIRECT.160-ENUM.BASE_DOMAIN">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="SIP_REDIRECT.160-ENUM.DIAL_PREFIX">
+      <type refid="feature-code" />
+    </setting>
+    <setting name="SIP_REDIRECT.160-ENUM.ADD_PREFIX">
+      <type refid="feature-code" />
+    </setting>
+    <setting name="SIP_REDIRECT.160-ENUM.PREFIX_PLUS" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>Y</value>
+          </true>
+          <false>
+            <value>N</value>
+          </false>
+        </boolean>
+      </type>
+      <value>Y</value>
+    </setting>
+  </group>
+  <group name="call-pick-up">
+    <setting name="SIP_REDIRECT.100-PICKUP.DIRECTED_CALL_PICKUP_CODE">
+      <type refid="feature-code" />
+      <value>*78</value>
+    </setting>
+    <setting name="SIP_REDIRECT.100-PICKUP.CALL_RETRIEVE_CODE">
+      <type refid="feature-code" required="yes" />
+      <value>*4</value>
+    </setting>
+    <setting name="SIP_REDIRECT.100-PICKUP.CALL_PICKUP_WAIT" advanced="yes">
+      <type>
+        <real min="1" max="30" required="yes" />
+      </type>
+      <value>2</value>
+    </setting>
+  </group>
+  <group name="userparam" advanced="yes">
+    <setting name="SIP_REDIRECT.090-USERPARAM.STRIP_ALL" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>Y</value>
+          </true>
+          <false>
+            <value>N</value>
+          </false>
+        </boolean>
+      </type>
+      <value>N</value>
+    </setting>
+  </group>
+  <group name="logging" hidden="yes">
+    <setting name="SIP_REGISTRAR_LOG_LEVEL">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+  </group>
+</model>

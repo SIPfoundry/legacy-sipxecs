@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+    "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="sipTrunkItsp" abstract="true" parent="sipTrunkStandard">
+    <property name="templateLocation" value="itspTemplates" />
+  </bean>
+
+  <bean id="itspBandtel" parent="sipTrunkItsp">
+    <property name="itspName" value="Bandtel" />
+    <property name="itspTemplate" value="bandtel.xml" />
+  </bean>
+
+  <bean id="itspBandwidth" parent="sipTrunkItsp">
+    <property name="itspName" value="bandwidth.com" />
+    <property name="itspTemplate" value="bandwidth.xml" />
+  </bean>
+
+  <bean id="itspBT" parent="sipTrunkItsp">
+    <property name="itspName" value="BT" />
+    <property name="itspTemplate" value="bt.xml" />
+  </bean>
+
+  <bean id="itspCallWithUs" parent="sipTrunkItsp">
+    <property name="itspName" value="CallWithUs" />
+    <property name="itspTemplate" value="callwithus.xml" />
+  </bean>
+
+  <bean id="itspCbeyond" parent="sipTrunkItsp">
+    <property name="itspName" value="Cbeyond" />
+    <property name="itspTemplate" value="cbeyond.xml" />
+  </bean>
+
+  <bean id="itspEutelia" parent="sipTrunkItsp">
+    <property name="itspName" value="Eutelia" />
+    <property name="itspTemplate" value="eutelia.xml" />
+  </bean>
+
+  <bean id="itspLes" parent="sipTrunkItsp">
+    <property name="itspName" value="LES.NET" />
+    <property name="itspTemplate" value="les.xml" />
+  </bean>
+
+  <bean id="itspSipcall" parent="sipTrunkItsp">
+    <property name="itspName" value="sipcall.ch" />
+    <property name="itspTemplate" value="sipcall.xml" />
+  </bean>
+
+  <bean id="itspVitelity" parent="sipTrunkItsp">
+    <property name="itspName" value="Vitelity" />
+    <property name="itspTemplate" value="vitelity.xml" />
+  </bean>
+
+  <bean id="itspVoipUser" parent="sipTrunkItsp">
+    <property name="itspName" value="VoIP User" />
+    <property name="itspTemplate" value="voipuser.xml" />
+  </bean>
+
+  <bean id="itspAtt" parent="sipTrunkItsp">
+    <property name="itspName" value="ATT" />
+    <property name="itspTemplate" value="att.xml" />
+  </bean>
+
+  <bean id="itspVoxitas" parent="sipTrunkItsp">
+    <property name="itspName" value="Voxitas" />
+    <property name="itspTemplate" value="voxitas.xml" />
+  </bean>
+
+  <bean id="itspSkype" parent="sipTrunkItsp">
+    <property name="itspName" value="Skype for SIP" />
+    <property name="itspTemplate" value="skype.xml" />
+  </bean>
+
+  <bean id="itspVoipms" parent="sipTrunkItsp">
+    <property name="itspName" value="VOIP.MS" />
+    <property name="itspTemplate" value="voipms.xml" />
+  </bean>
+
+   <bean id="itspCS1000" parent="sipTrunkItsp">
+    <property name="itspName" value="Nortel CS1000" />
+    <property name="itspTemplate" value="cs1000.xml" />
+  </bean>
+</beans>

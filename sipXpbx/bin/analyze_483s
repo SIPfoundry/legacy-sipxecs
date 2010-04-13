@@ -1,0 +1,111 @@
+#! /usr/bin/perl
+
+if ($#ARGV != 0) {
+    print STDERR "Usage:\n";
+    print STDERR "\t$0\tproxy-log-file\n";
+    print STDERR "\n";
+    print STDERR "Analyze the log file looking for 483 responses and attempt\n";
+    print STDERR "to identify the URI that is looping.\n";
+    exit(1);
+}
+
+$input_file = $ARGV[0];
+
+# Find all the 482 and 483 responses.
+
+open(IN, $input_file) ||
+    die "Error opening file '$input_file' for reading: $!\n";
+
+while (<IN>) {
+    # Select 482 and 483 responses.
+    next unless m!:INCOMING:.*-\\nSIP/2\.0 +48[23] !i;
+
+    # Extract the headers.
+    s/\\r\\n\\r\\n.*$//;
+
+    # Get the Call-Id and CSeq values.
+    ($call_id) = m/\\r\\nCall-Id *: *([^ \\]+)/i;
+    ($cseq) = m/\\r\\nCSeq *: *(\d+) /i;
+
+    # Record that this transaction failed.
+    $transaction = "$call_id,$cseq";
+    $failed{$transaction} = 1;
+}
+
+close IN;
+
+# Find all the request-URIs associated with the transactions that had
+# 482/483 responses.
+
+open(IN, $input_file) ||
+    die "Error opening file '$input_file' for reading the second time " .
+        "(should never happen): $!\n";
+
+while (<IN>) {
+    # Select requests
+    next unless m!:INCOMING:.*-\\n\w+ (\S+)!i;
+
+    # Extract the request-URI.
+    $request_uri = $1;
+
+    # Get the Call-Id and CSeq values.
+    ($call_id) = m/\\r\\nCall-Id *: *([^ \\]+)/i;
+    ($cseq) = m/\\r\\nCSeq *: *(\d+) /i;
+
+    # If we've seen a 482/483 for this transaction
+    $transaction = "$call_id,$cseq";
+    if (exists($failed{$transaction})) {
+	# Create a hash for the request-URIs of this transaction if we
+	# don't have a hash already.
+	if (!exists($request_uri_count{$transaction})) {
+	    $request_uri_count{$transaction} = {};
+	}
+
+	# Add this request-URI to to the hash.
+	$request_uri_count{$transaction}->{$request_uri}++;
+    }
+}
+
+close IN;
+
+# Extract the most common request-URI for each failed transaction.
+
+foreach $transaction (keys %failed) {
+    my($r) = $request_uri_count{$transaction};
+    my($request_uri) = '[unknown]';
+    my($max_count) = -1;
+    foreach $u (keys %$r) {
+	if ($r->{$u} > $max_count) {
+	    $request_uri = $u;
+	    $max_count = $r->{$u};
+	}
+    }
+
+    # Increment its count in the list of problematic request-URIs.
+    $transactions_per_uri{$request_uri}++;
+
+    # Save the transction id for the URI.
+    $a_transaction{$request_uri} = $transaction
+	unless exists($a_transaction{$request_uri});
+}
+
+# Print the problematic request-URIs in descending order of the number
+# of 482/483 responses attributed to them.
+
+print "The most common request-URIs in requests that failed with 482/483:\n";
+print "\n";
+print "Count\tRequest-URI\tSample transaction (Call-Id CSeq)\n";
+foreach $uri (sort
+	      { $transactions_per_uri{$b} <=> $transactions_per_uri{$a} }
+	      keys(%transactions_per_uri)) {
+    $trans = $a_transaction{$uri};
+    $trans =~ s/,/ /;
+    print "$transactions_per_uri{$uri}\t$uri\t$trans\n";
+}
+print "[end of list]\n";
+
+exit 0;
+
+sub reverse_numeric {
+    return 
+}

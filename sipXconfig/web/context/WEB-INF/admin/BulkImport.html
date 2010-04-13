@@ -1,0 +1,52 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'import', 'export'}" selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <div jwcid="importTab@Block">
+    <div jwcid="@common/QuickLinks">
+      <ul>
+        <li><a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="job.status">Job Status</span></a></li>
+      </ul>
+    </div>
+    <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
+    <form jwcid="form">
+      <fieldset id="import:form">
+        <table>
+          <tr for="import:upload" jwcid="csvPanel"><span id="import:upload" jwcid="csv"/></tr>
+        </table>
+      </fieldset>
+      <ul class="form-actions">
+        <li><input jwcid="import" id="import:ok" type="submit" value="Import"/></li>
+        <br/><br/>
+        <div jwcid="@Insert" raw="true" value="message:importDescription" />
+      </ul>
+    </form>
+  </div>
+  <div jwcid="exportTab@Block">
+    <span jwcid="@If" condition="ognl:(exportFile != null)">
+      <table>
+        <tr>
+          <td><span key="exportCompleted">Success...</span></td>
+        </tr>
+        <tr>
+          <td>
+            <span jwcid="@common/DownloadLink" fileName="" dirName="ognl:exportFile" contentType="text/comma-separated-values" id="exportFile">
+              <span jwcid="@Insert" value="ognl:exportFile" />
+            </span>
+          </td>
+        </tr>
+      </table>
+    </span>
+    <form jwcid="exportForm@Form">
+      <ul class="component-submit">
+        <li>
+          <input jwcid="export@Submit" id="export:now" listener="listener:export" value="message:button.exportNow" />
+          <br/><br/>
+          <div jwcid="@Insert" raw="true" value="message:exportDescription" />
+        </li>
+      </ul>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="binary">
+    <file>
+      <contentType>application/binary</contentType>
+    </file>
+  </type>
+  <type id="xml">
+    <file>
+      <contentType>text/xml</contentType>
+    </file>
+  </type>
+  <type id="text">
+    <file>
+      <contentType>text/plain</contentType>
+    </file>
+  </type>
+  <type id="pcm">
+    <file>
+      <contentType>audio/pcm</contentType>
+    </file>
+  </type>
+  <group name="firmware">
+    <label>Firmware</label>
+    <description>Optaining the SIP firmware required to transform the standard SCCP phone
+      into a SIP phone typically requires you to buy a maintenance contract for the
+      phone either from Cisco
+      directly or a certified reseller.</description>
+    <setting name="P0S3-xx-yy-zz.sb2">
+      <label>P0S3-xx-yy-zz.sb2</label>
+      <type refid="binary"/>
+      <description>SIP Firmware. NOTE: If your Cisco phones are already loaded with SIP
+        firmware or you are unsure if they are loaded with SIP firmware, specifiy the
+        "image_version" parameter in the "Upgrade Parameters" for each phone or phone group
+        you want to use this firmware. The value should match the version name without the
+        P0S3 prefix or .sb2 extension. Example: If you have a file named POS3-07-3-00.sb2 
+        then image_version should be "07-3-00".</description>
+    </setting>
+    <setting name="0S79XX.TXT">
+      <label>0S79XX.TXT</label>
+      <description>If your Cisco phones are not loaded w/SIP firmware, you need to specify
+        this file to get them to use the SIP protocol. The set of firmware files from Cisco
+        should contain this file, but you probably have to edit it. It should contain 1 line
+        containing the file name of the firmware you specifiied above w/o the extension.
+        Example: P0S3-07-3-00</description>
+    </setting>
+  </group>
+  <group name="dial">
+    <label>Dialing</label>
+    <description>Additional files used by Cisco 7940/60</description>
+    <setting name="dialplan.xml">
+      <label>dialplan.xml</label>
+      <type refid="xml"/>
+      <description>Series of wildcard patterns that trigger the phone to dial immediately
+        after matching. Otherwise user must press dial button after entering in numbers. See
+        Cisco manual for format.</description>
+    </setting>
+  </group>
+  <group name="ring">
+    <label>Ringtones</label>
+    <setting name="ringlist.dat">
+      <label>RINGLIST.DAT</label>
+      <type refid="text"/>
+      <description>List of available ringtones. See Cisco manual for
+        format.</description>
+    </setting>
+    <setting name="ringtone1">
+      <label>Ringtone 1</label>
+      <type refid="pcm"/>
+      <description>Ringtone for incoming calls. 8000-Hz sampling rate, 8 bits per sample,
+        mu-law compression</description>
+    </setting>
+    <setting name="ringtone2" copy-of="ringtone1">
+      <label>Ringtone 2</label>
+    </setting>
+    <setting name="ringtone3" copy-of="ringtone1">
+      <label>Ringtone 3</label>
+    </setting>
+    <setting name="ringtone4" copy-of="ringtone1">
+      <label>Ringtone 4</label>
+    </setting>
+    <setting name="ringtone5" copy-of="ringtone1">
+      <label>Ringtone 5</label>
+    </setting>
+  </group>
+</model>

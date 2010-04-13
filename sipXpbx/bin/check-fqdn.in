@@ -1,0 +1,61 @@
+#!@BASH@
+
+#
+# Check that the hostname for this host is a well formed name such as:
+#   foo.com, foo.bar.com, foofoo.org
+#
+
+
+#
+# If the hostname has a "." in it, we assume that it is well formed (i.e. qualified)
+#
+qualify_hostname() {
+   status=1
+        case $1 in
+        *.*)
+            if [ "$quiet" = "FALSE" ]; then
+                echo "Hostname $myhostname is fully qualified."
+            fi
+            status=0
+            ;;
+   *)
+       if [ "$quiet" = "FALSE" ]; then
+           echo "Hostname $myhostname is not qualified."
+       fi
+       ;;
+        esac
+        return $status
+}
+
+
+usage() {
+        cat <<EOF
+Usage: $0 [-q] [-h hostname]
+
+Test that the hostname, returned from "hostname -f" is a well formed
+host name (i.e. qualified) such as fubar.com or foo.zip.org
+
+Options are:
+  -q            : Do not echo any results, just return 0 if valid, 1 if not
+  -h <hostname> : Validate the specified <hostname>
+EOF
+}
+
+quiet="FALSE"
+if [ `uname -s` = FreeBSD ]
+then
+  myhostname=$(hostname)
+else
+  myhostname=$(hostname -f)
+fi
+
+while getopts ":qh:" opt; do
+        case $opt in
+         q  ) quiet="TRUE" ;;
+         h  ) myhostname=$OPTARG ;;
+         \? ) usage
+              exit 1 ;;
+        esac
+done
+
+qualify_hostname $myhostname

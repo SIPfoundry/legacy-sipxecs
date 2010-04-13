@@ -1,0 +1,12 @@
+#!/bin/sh
+echo "Content-Type: text/plain"
+echo ""
+echo "Configuration at `date -u '+%Y-%m-%dT%H:%M:%SZ'`:"
+echo ""
+sipx-config --version
+echo ""
+echo "Configuration version:"
+echo "  @WCROOT@"
+echo "  Revision(s): @SVNVERSION@"
+echo ""
+cat /etc/fedora-release

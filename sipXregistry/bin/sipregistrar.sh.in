@@ -1,0 +1,104 @@
+#!@BASH@
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+Action=RUN
+Status=0
+Args=""
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        *)
+            Args="$Args $1"
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+case ${Action} in
+   RUN)
+     echo $$ > @SIPX_RUNDIR@/sipregistrar.pid
+     exec @bindir@/sipregistrar $Args
+     ;;
+
+   STOP)
+     sipx_stop sipregistrar @SIPX_RUNDIR@/sipregistrar.pid
+     ;;
+
+
+   CONFIGTEST)
+     sipx_config_exists @SIPX_CONFDIR@/domain-config
+     Status=$(($Status+$?))
+     sipx_config_exists @SIPX_CONFDIR@/registrar-config
+     Status=$(($Status+$?))
+     if [ $Status -eq 0 ]
+     then
+         # check validity of xml routing rules
+         @bindir@/sipx-validate-xml @SIPX_CONFDIR@/mappingrules.xml
+         Status=$(($Status+$?))
+         @bindir@/sipx-validate-xml @SIPX_CONFDIR@/fallbackrules.xml
+         Status=$(($Status+$?))
+         ! test -e @SIPX_DBDIR@/alias.xml \
+         || @bindir@/sipx-validate-xml @SIPX_DBDIR@/alias.xml
+         Status=$(($Status+$?))
+         Status=$(($Status+$?))
+
+         # if this system is configured for HA, check that both have valid routes
+         SyncWith=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_SYNC_WITH \
+                   | tr A-Z a-z`
+         if [ -n "$SyncWith" ]
+         then
+             myRegDomain=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_DOMAIN_NAME \
+                          | tr A-Z a-z`
+             myHostName=`sipx_config_value @SIPX_CONFDIR@/registrar-config SIP_REGISTRAR_NAME \
+                         | tr A-Z a-z`
+             if [ "$myRegDomain" = "$myHostName" ]
+             then
+                 cat <<EOF
+    In redundant configuration, SIP_REGISTRAR_NAME ($myHostName)
+               should not equal SIP_REGISTRAR_DOMAIN_NAME ($(myRegDomain)
+EOF
+                 Status=$(($Status+1))
+             fi
+             for h in ${SyncWith}
+             do
+               if ! sip_resolves_to $myRegDomain $h
+               then
+                   cat <<EOF
+    Warning: SIP Domain '$myRegDomain' does not resolve to registrar host '$h'
+             This is ok only if the proxy on $h is configured to forward to the
+             correct set of registrars.  The recommended configuration is to always
+             run a registrar on each host that runs a proxy.
+EOF
+                   # that's a warning, so let it go
+               fi
+             done
+         fi
+     fi
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipregistrar.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+         echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+         Status=1
+     fi
+     ;;
+
+esac
+
+exit $Status

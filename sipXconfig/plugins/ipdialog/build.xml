@@ -1,0 +1,10 @@
+<project name="ipdialog" default="default">
+
+  <property name="project.dir" value="plugins/ipdialog" />
+  <property name="plugin.models.dir" value="etc/ipDialog" />
+  <property name="plugin.name" value="ipdialog-phones" />
+
+  <import file="../plugins.build.xml" />
+
+</project>
+

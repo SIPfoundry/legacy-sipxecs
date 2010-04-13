@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.common" default-lazy="false">
+
+  <!--
+    - U S E R
+    -
+    - Ideally the table would be named "user" (singular) rather than "users",
+    - like other tables, but "user" exists already as a PostgreSQL internal table.
+  -->
+  <class name="AbstractUser" table="users" discriminator-value="C">
+    <id name="id" column="user_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">user_seq</param>
+      </generator>
+    </id>
+    <discriminator column="user_type" type="character" />
+    <property name="firstName" />
+    <property name="pintoken" />
+    <property name="sipPassword" />
+    <property name="lastName" />
+    <property name="userName" />
+    <property name="isShared" />
+    <set name="aliases" table="user_alias">
+      <key column="user_id" />
+      <element type="string" column="alias" not-null="true" unique="true" />
+    </set>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id" class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+    <set name="groups" table="user_group" sort="natural" cascade="save-update">
+      <key column="user_id" />
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>
+    <set name="supervisorForGroups" table="supervisor" sort="natural">
+      <key column="user_id" />
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>
+    <many-to-one name="addressBookEntry" class="org.sipfoundry.sipxconfig.phonebook.AddressBookEntry"
+    unique="true"
+    cascade="all"
+    column="address_book_entry_id"/>
+    <many-to-one name="branch" column="branch_id" not-found="ignore" />
+
+    <subclass name="User" discriminator-value="C"></subclass>
+    <subclass name="InternalUser" discriminator-value="I"></subclass>
+  </class>
+
+  <class name="SpecialUser" table="special_user">
+    <id name="id" column="special_user_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">user_seq</param>
+      </generator>
+    </id>
+    <property name="type" column="user_type" />
+    <property name="sipPassword" />
+  </class>
+
+  <class name="ExtensionPool" table="extension_pool">
+    <id name="id" column="extension_pool_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">extension_pool_seq</param>
+      </generator>
+    </id>
+    <property name="enabled" />
+    <property name="name" />
+    <property name="firstExtension" />
+    <property name="lastExtension" />
+    <property name="nextExtension" />
+  </class>
+
+  <query name="userByAlias">
+    <![CDATA[select u from User u join u.aliases alias where alias = :value]]>
+  </query>
+
+  <query name="userByConfiguredImId">
+    <![CDATA[select u from User u where u.addressBookEntry.imId = :value]]>
+  </query>
+
+  <query name="userByNameOrAlias">
+    <![CDATA[select u from User u left outer join u.aliases alias where u.userName = :value or alias = :value]]>
+  </query>
+
+  <query name="userIdsByNameOrAliasOrImId">
+    <![CDATA[select distinct u.id from User u left outer join u.aliases alias left outer join u.addressBookEntry abe
+    where u.userName = :value or alias = :value or abe.imId = :value]]>
+  </query>
+
+  <query name="userGroupMembers">
+    <![CDATA[select u from User u join u.groups as ugroups where ugroups.id = :groupId]]>
+  </query>
+
+  <query name="userNamesGroupMembers">
+    <![CDATA[select u.userName from User u join u.groups as ugroups where ugroups.id = :groupId]]>
+  </query>
+
+  <query name="specialUserByType">
+    <![CDATA[select u from SpecialUser u where u.type = :specialUserType]]>
+  </query>
+
+  <query name="extensionPoolByName">
+    <![CDATA[select pool from ExtensionPool pool where pool.name = :name]]>
+  </query>
+
+  <query name="groupSupervisors">
+    <![CDATA[select u from User u join u.supervisorForGroups as sgroups where sgroups.id = :groupId]]>
+  </query>
+
+  <query name="usersForBranch">
+    <![CDATA[from User u where u.branch = :branch]]>
+  </query>
+
+  <query name="usersThatISupervise">
+    <![CDATA[select distinct u from User u, Group g, User s
+      join s.supervisorForGroups as sgroups
+      join u.groups as ugroups
+      where s.id = :supervisorId and sgroups.id = g.id
+      and g.id = ugroups.id order by u.userName]]>
+  </query>
+
+  <query name="sharedUsers">
+    <![CDATA[select u from User u where u.isShared = :isShared]]>
+  </query>
+
+  <query name="userImIds">
+    <![CDATA[select count (*) from User u where lower(u.addressBookEntry.imId) = lower(:imId) and u.id != :userId]]>
+  </query>
+
+  <query name="potentialImAccountsByUserNameOrAlias">
+    <![CDATA[select new org.sipfoundry.sipxconfig.im.ImAccount(u) from User u left outer join u.aliases alias
+      where (lower(u.userName) = lower(:imId) or lower(alias) = lower(:imId))
+      and u.id != :userId]]>
+  </query>
+
+</hibernate-mapping>

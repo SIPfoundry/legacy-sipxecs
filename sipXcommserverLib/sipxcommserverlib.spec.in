@@ -1,0 +1,193 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Common Code for sipX servers
+License: Pingtel Commercial License
+Group: Development/Libraries
+Vendor: Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url: http://www.pingtel.com
+
+Source: %name-%version.tar.gz
+
+Requires: rpm
+%if %{_vendor} == suse
+Requires: Xerces-c >= 2.6.0
+%endif
+%if %{_vendor} == redhat
+Requires: xerces-c >= 2.6.0
+Requires: rpm-libs
+%endif
+Requires: sipxportlib >= %version
+Requires: sipxtacklib >= %version
+Requires: unixODBC >= 2.2
+Requires: ruby
+Requires: patch
+# bind-utils required for dig
+Requires: bind-utils
+Requires: %{name}-doc
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+This project is used to hold code used in common by a number of the
+sipX family servers. It is not intended to be useful as a standalone
+project.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+# Install header files
+%package devel
+Requires: %name
+%if %{_vendor} == suse
+Requires: xerces-c-devel >= 2.6.0
+%endif
+%if %{_vendor} == redhat
+Requires: xerces-c-devel >= 2.6.0
+%endif
+Requires: sipxportlib-devel >= %version
+Requires: sipxtacklib-devel >= %version
+Requires: unixODBC-devel >= 2.2
+
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name
+
+%description devel
+This package contains the neccessary header files and static libraries
+helpful to build projects using the sipXcommserverLib library
+
+%package doc
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Common document files for sipXecs
+
+%description doc
+This package contains common files for sipXecs documentation
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%pre
+# If needed, change open source daemon user name to @SIPXPBXUSER@.
+# The open source names that have been used are 'sipx' and 'sipxpbx'.
+for openname in sipx sipxpbx; do
+  if [ "@SIPXPBXUSER@" != "${openname}" ] &&
+     ! id -u "@SIPXPBXUSER@" > /dev/null 2>&1 &&
+     id -u ${openname} > /dev/null 2>&1
+  then
+     /usr/sbin/usermod -l @SIPXPBXUSER@ ${openname}
+  fi
+done
+
+# If there is no daemon user, create it.
+# Red Hat's useradd command adds the group automatically,
+# but SUSE does not.
+# The -f option means to create the group only if it does not already exist.
+/usr/sbin/groupadd -f @SIPXPBXGROUP@
+if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
+   /usr/sbin/useradd \
+       -c "sipX service daemon" \
+       -d %{_sysconfdir}/sipxpbx \
+       -s /bin/bash \
+       -g @SIPXPBXGROUP@ \
+       @SIPXPBXUSER@ > /dev/null 2>&1
+fi
+
+%post
+
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(4755,root,root) %{_bindir}/sipx-sudo-restore
+%attr(755,root,root) %{_bindir}/pkg-upgrade
+%attr(755,root,root) %{_bindir}/configmerge
+%attr(755,root,root) %{_bindir}/configquery
+%attr(755,root,root) %{_bindir}/xsdvalid
+%attr(755,root,root) %{_bindir}/sipx-validate-xml
+%attr(755,root,root) %{_bindir}/sipx-dns
+%attr(755,root,root) %{_bindir}/pgpatch.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/gen-ssl-keys.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/install-cert.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/check-cert.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/upgrade-cert.sh
+%attr(755,root,root) %{_bindir}/ssl-cert/ca_rehash
+%attr(755,root,root) %{_libdir}/libsipXcommserver.la
+%attr(755,root,root) %{_libdir}/libsipXcommserver.so*
+%attr(755,root,root) %{_libexecdir}/sipXecs/sipx-utils.sh
+%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxpackage
+%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxswadmin
+%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxzoneadmin
+%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipx-sudo-timezone
+%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipx-sudo-time-manager
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-time-manager-init
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-change-timezone-init
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxpackage-init
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxswadmin-init
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxzoneadmin-init
+%{_datadir}/sipxecs/schema/xml.xsd
+%{_datadir}/sipxecs/schema/authrules.xsd
+%{_datadir}/sipxecs/schema/credential.xsd
+%{_datadir}/sipxecs/schema/registration.xsd
+%{_datadir}/sipxecs/schema/subscription.xsd
+%{_datadir}/sipxecs/schema/urlmap.xsd
+
+# These should match sipXlib.m4 or at least sent
+# to configure script
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ssl
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ssl/authorities
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/log/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/run/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/tmp
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipdb
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/setup.d
+
+%files devel
+%defattr(644,root,root,755)
+%{_libdir}/libsipXcommserver.a
+%{_libdir}/libsipXcommserverTest.la
+%{_libdir}/libsipXcommserverTest.a
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
+%{_includedir}/configrpc/*
+%{_includedir}/digitmaps/*
+%{_includedir}/fastdb/*
+%{_includedir}/filereader/*
+%{_includedir}/odbc/*
+%{_includedir}/persist/*
+%{_includedir}/sipdb/*
+%{_includedir}/alarm/*
+%{_includedir}/sipXecsService/*
+%{_includedir}/testlib/*
+
+%files doc
+%docdir %{_datadir}/doc/sipxecs
+%{_datadir}/doc/sipxecs

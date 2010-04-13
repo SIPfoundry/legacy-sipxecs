@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+
+   <definitions>
+      <alarm id="DIFF_CONFIG_XML">
+         <code>AAA00001</code>
+         <severity>error</severity>
+         <component>alarmTest</component>
+         <action log="true"
+                  email="default"
+                  />
+      </alarm>
+   </definitions>
+</alarm_server>

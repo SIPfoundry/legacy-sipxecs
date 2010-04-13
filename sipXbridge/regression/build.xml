@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<project name="siptester" default="test" basedir=".">
+<description>
+      Build file
+</description>
+        <property file="../config.properties" />
+        <available file="tester.properties" property="configured"/>
+        <fail unless="configured" message="please create a file tester.properties address=your-ip-address there. See tester.properties.example" />
+        <property file="tester.properties" />
+        <path id="base.path">
+	   <pathelement location="${sipxcommons}" />
+	   <pathelement location="${log4j}" />
+	   <pathelement location="${jainsip}" />
+	   <pathelement location="${commons-digester}" />
+	   <pathelement location="${commons-collections}" />
+	   <pathelement location="${commons-beanutils}" />
+ 	   <pathelement location="${commons-logging-api}" />
+	   <pathelement location="${commons-logging}" />
+	   <pathelement location="${dnsjava}" />
+	   <pathelement location="lib/regression-tester.jar" />
+	</path>
+
+		
+	<target name="rstart" description="start the relay" >
+		<chmod  file="copynattraversalrules.sh" perm="ugo+rwx" />
+		<exec executable="./copynattraversalrules.sh" />
+        	<exec  executable="${bin.dir}/sipxrelay.sh" spawn="yes">
+          		<arg value= "--start" />
+        	</exec>
+        </target>
+
+	<target name="rstop" description="stop the relay" >
+        	<exec  executable="${bin.dir}/sipxrelay.sh" spawn="yes">
+          		<arg value= "--stop" />
+        	</exec>
+        </target>
+        <target name="regression" description="run the regression tests" >
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-blind-local-itsp-reinvite-during-transfer" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-call-park-pickup"/>
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-call-pickup" /> 
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-itsp-hangup-after-transfer" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-itsp-hangup-during-transfer" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-local-hangup" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-forward-itsp" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-attended-itsp" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="itsp-local-blind-local" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-attended-itsp" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-attended-local" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-blind-itsp" />
+        	</ant>
+        	<ant target="test" inheritAll="true">
+			<property name="testname" value="local-itsp-blind-local" />
+        	</ant>
+	</target>
+
+        <target name="test" description="run a test" >
+		<chmod  file="copysipxbridge.sh" perm="ugo+rwx" />
+                <exec executable="./copysipxbridge.sh">
+                      <arg value="${address}" /> 
+                      <arg value="${testname}" />
+                </exec>
+        	<delete file="sipxtester.log" failonerror="false" />
+        	<exec  executable="${bin.dir}/sipxbridge.sh" spawn="yes" >
+          		<arg value= "--start" />
+        	</exec>
+    	 	<sleep seconds="10" />
+     		<java fork="yes" classname="org.sipfoundry.siptester.SipTester">
+           		<classpath>
+               			<pathelement location="${classes}" />
+           		</classpath>
+           		<classpath refid="base.path" />
+          		<jvmarg value="-Dtest.prefix=./${testname}"/>
+          		<jvmarg value="-Dconf.dir=${conf.dir}"/>
+    		</java>
+        	<exec  executable="${bin.dir}/sipxbridge.sh">
+          		<arg value= "--stop" />
+        	</exec>
+                <copy file="./sipxbridge.xml.save" toDir="${conf.dir}" failonerror="false" />
+	</target>
+</project>

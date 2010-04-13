@@ -1,0 +1,99 @@
+<test name="dhcp">
+  <label>DHCP Test</label>
+  <description>
+    Verify that the network's DHCP server is running and properly issuing
+    IP addresses.
+  </description>
+  <longDescription>
+      From the perspective of phones which will be used as part of a @sipxecs.name@
+      PBX, a DHCP server is expected to be present on their network.
+      At a minimum, the DHCP server should be provisioned to supply the network
+      domain name, network mask, default router address and a list of one or
+      more DNS servers. It can optionally supply the IP address of one or more
+      NTP servers and configuration server. This test verifies that there is
+      at most one DHCP server present on the network being tested and that it
+      is supplying the minimal set of network parameters.
+      Note that if the DHCP server has been configured for address reservations
+      based upon device MAC addresses, it will be necessary to add the special
+      MAC address ( 00D01EFFFFFE ) used by these tests to the reservation group.
+  </longDescription>
+  <detailedHelp><![CDATA[
+	For Windows DHCP the following needs to be configured in addition to the "standard" settings:<br/>
+	1. In Administrative Tools and DHCP<br/>
+	2. Under your server select the scope where your telephones and softphones are located and double click<br/>
+	3. Click on Scope Options to call up a list of configured DHCP options in the right-hand pane - if Option 66 is already configured you will not be able to configure another instance, in which case the TFTP address will have to be set on phones on an individual basis.<br/>
+	4. Right-click on Scope Options in the left-hand pane, and select Configure Options.<br/>
+	5. Scroll down the list of available options and select 066 Boot Server Host Name by placing a tick in its check-box.<br/>
+	6. In the String Value text box, enter the IP address of the server - if installing an HA system, enter the address of the primary server.<br/>
+	7. If you have softclients you wish to provision you will also need to provision Scope option 120. Repeat 4 - 6 however for the server in step 6 enter<br/>
+	a URL of http://IPOFSERVER:12000/cmcprov/login.
+	]]>
+  </detailedHelp>
+  <command>
+    <exec>preflight</exec>
+    <arg>-v</arg>
+    <arg>--dhcp-test</arg>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful.</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+      <description>
+        No DHCP server responded to the DHCP query. Verify that there
+        is a running DHCP server on the network being tested.
+      </description>
+    </result>
+    <result exit="133">
+      <status>Error</status>
+      <msg>Multiple DHCP servers detected.</msg>
+      <description>
+          More than one DHCP server was detected on the network being tested
+          and was attempting to issue IP addresses. This is a serious network
+          error condition which needs to be remedied immediately.
+      </description>
+    </result>
+    <result exit="134">
+      <status>Error</status>
+      <msg>Unrecognized response received.</msg>
+      <description>
+        An unrecognized response was received from the network. Please consult
+        technical support for further assistance.
+      </description>
+    </result>
+    <result exit="135">
+      <status>Error</status>
+      <msg>DHCP DISCOVER was rejected.</msg>
+      <description>
+        The DHCP server rejected a request for IP address assignment. Ensure
+        that the DHCP server is properly provisioned to issue IP addresses
+        for this network.
+      </description>
+    </result>
+    <result exit="136">
+      <status>Error</status>
+      <msg>DHCP REQUEST was rejected.</msg>
+      <description>
+        The DHCP server rejected a request for IP address assignment. Ensure
+        that the DHCP server is properly provisioned to issue IP addresses for
+        this network.
+      </description>
+    </result>
+    <result exit="137">
+      <status>Error</status>
+      <msg>Missing mandatory DHCP configuration parameters.</msg>
+      <description>
+        The DHCP server responded with an IP address assignment but did not
+        include one of the mandatory network configuration parameters. Please
+        see the test log for further details.
+      </description>
+    </result>
+  </results>
+</test>

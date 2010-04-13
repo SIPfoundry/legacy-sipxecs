@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <address address_id="1" city="London" />
+  <address address_id="2" city="Bucharest" />
+  <address_book_entry address_book_entry_id="1" office_address_id="1"/>
+  <address_book_entry address_book_entry_id="2"  office_address_id="2"/>
+  <users user_name="yellowthroat" user_id="1001" pintoken="1234" address_book_entry_id="1" user_type="C"/>
+  <users user_name="canadian" user_id="1002" pintoken="1234" address_book_entry_id="2" user_type="C"/>
+  <users user_name="chirping" user_id="1003" pintoken="1234" user_type="C"/>
+  <users user_name="song" user_id="1004" pintoken="1234" user_type="C"/>
+  <users user_name="mallard" user_id="1005" pintoken="1234" user_type="C"/>
+  <users user_name="pintail" user_id="1006" pintoken="1234" user_type="C"/>
+  
+  <value_storage value_storage_id="1001" />
+  <group_storage group_id="1001" resource="user" weight="1001" name="warblers" />
+  <user_group group_id="1001" user_id="1001" />
+  <user_group group_id="1001" user_id="1002" />
+  
+  <value_storage value_storage_id="1002" />
+  <group_storage group_id="1002" resource="user" weight="1002" name="sparrows" />
+  <user_group group_id="1002" user_id="1003" />
+  <user_group group_id="1002" user_id="1004" />
+  
+  <value_storage value_storage_id="1003" />
+  <group_storage group_id="1003" resource="user" weight="1003" name="ducks" />
+  <user_group group_id="1003" user_id="1005" />
+  <user_group group_id="1003" user_id="1006" />
+
+  <phonebook name="test1" phonebook_id="1001"/>
+  <phonebook_member phonebook_id="1001" group_id="1001"/>
+  <phonebook_consumer phonebook_id="1001" group_id="1001"/>
+
+  <phonebook name="test2" phonebook_id="1002"/>
+  <!-- intentionlally blank -->
+  
+  <phonebook name="test3" phonebook_id="1003" />
+  <phonebook_member phonebook_id="1003" group_id="1003"/>
+  <phonebook_consumer phonebook_id="1003" group_id="1001"/>
+
+  <phonebook name="private" phonebook_id="1004" user_id="1002" show_on_phone="false"/>
+  <phonebook_file_entry phonebook_file_entry_id="101" first_name="John" phone_number="10020" phonebook_id="1004" phonebook_entry_type="U"/>
+
+  <google_domain domain_name="mydomain.com" google_domain_id="1" />
+</dataset>

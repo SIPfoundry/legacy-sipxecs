@@ -1,0 +1,116 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!--  The default dial plan for France  -->
+
+  <!-- properties: voiceMail, voiceMailPrefix -->
+  <bean id="fr.voicemailRule" parent="defaultInternalRule" singleton="false">
+    <property name="name" value="Messagerie vocale" />
+    <property name="description" value="Plan de numérotation de messagerie vocale par défaut" />
+    <property name="voiceMail" value="101" />
+    <property name="voiceMailPrefix" value="8" />
+  </bean>
+
+  <!-- properties: extension, attendantAliases -->
+  <bean id="fr.attendantRule" parent="defaultAttendantRule" singleton="false">
+    <property name="name" value="Répondeur automatique" />
+    <property name="description" value="Plan de numérotation de répondeur automatique par défaut" />
+    <property name="extension" value="100" />
+    <property name="attendantAliases" value="operator 0" />
+  </bean>
+
+  <!-- properties: optionalPrefix, emergencyNumber -->
+  <bean id="fr.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Urgence" />
+    <property name="description" value="Urgence - numéro de téléphone central" />
+    <property name="emergencyNumber" value="112" />
+  </bean>
+  <bean id="fr.fireEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Pompiers" />
+    <property name="description" value="Urgence - Pompiers" />
+    <property name="emergencyNumber" value="18" />
+  </bean>
+  <bean id="fr.ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Ambulance" />
+    <property name="description" value="Urgence - médical" />
+    <property name="emergencyNumber" value="15" />
+  </bean>
+  <bean id="fr.policeEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+    <property name="name" value="Police" />
+    <property name="description" value="Urgence - police" />
+    <property name="emergencyNumber" value="17" />
+  </bean>
+
+  <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
+    longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
+  <bean id="fr.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+    <property name="name" value="Longue distance" />
+    <property name="description" value="Plan de numéroration longue distance" />
+    <property name="areaCodes" value="1,2,3,4,5" />
+    <property name="longDistancePrefix" value="0" />
+    <property name="externalLen" value="9" />
+    <property name="permissionName" value="LongDistanceDialing" />
+  </bean>
+  <bean id="fr.locationIndependentRule" parent="fr.longDistanceRule" singleton="false">
+    <property name="name" value="Indépendant de l'emplacement" />
+    <property name="description" value="Numéros de téléphones indépendants de l'emplacement" />
+    <property name="areaCodes" value="87,9" />
+  </bean>
+  <bean id="fr.premiumRate" parent="fr.longDistanceRule" singleton="false">
+    <property name="name" value="Numéros surtaxés" />
+    <property name="description" value="Numéros restreints - appel surtaxé" />
+    <property name="areaCodes" value="81,82,88,89" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="fr.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+    <property name="name" value="Numéro gratuit" />
+    <property name="description" value="Composition de numéros gratuits" />
+    <property name="areaCodes" value="80" />
+    <property name="permissionName" value="TollFree" />
+  </bean>
+  <bean id="fr.infolineRule" parent="fr.longDistanceRule" singleton="false">
+    <property name="name" value="Renseignements" />
+    <property name="description" value="Numéros de téléphones de services de renseignements" />
+    <property name="longDistancePrefix" value="" />
+    <property name="externalLen" value="6" />
+    <property name="areaCodes" value="118" />
+    <property name="permissionName" value="900Dialing" />
+  </bean>
+  <bean id="fr.mobileRule" parent="fr.longDistanceRule" singleton="false">
+    <property name="name" value="Portables" />
+    <property name="description" value="Appels de numéros de téléphones portables" />
+    <property name="areaCodes" value="6" />
+    <property name="permissionName" value="Mobile" />
+  </bean>
+  <bean id="fr.internationalRule" parent="defaultInternationalRule" singleton="false">
+    <property name="name" value="International" />
+    <property name="description" value="Composition de numéros à l'international" />
+    <property name="longDistancePrefix" value="00" />
+    <property name="externalLen" value="-1" />
+    <property name="permissionName" value="InternationalDialing" />
+  </bean>
+
+  <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
+  <!-- this is the list of rules that admin will see after installation and after reverting to default -->
+  <bean id="fr.dialPlan" parent="defaultDialPlan" singleton="false">
+    <property name="rules">
+      <list>
+        <ref bean="fr.voicemailRule" />
+        <ref bean="fr.attendantRule" />
+        <ref bean="fr.emergencyRule" />
+        <ref bean="fr.fireEmergencyRule" />
+        <ref bean="fr.ambulanceEmergencyRule" />
+        <ref bean="fr.policeEmergencyRule" />
+        <ref bean="fr.longDistanceRule" />
+        <ref bean="fr.locationIndependentRule" />
+        <ref bean="fr.premiumRate" />
+        <ref bean="fr.tollFreeRule" />
+        <ref bean="fr.infolineRule" />
+        <ref bean="fr.mobileRule" />
+        <ref bean="fr.internationalRule" />
+      </list>
+    </property>
+  </bean>
+
+</beans>

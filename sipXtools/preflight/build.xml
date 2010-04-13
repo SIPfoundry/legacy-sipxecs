@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- Preflight Build Script  -->
+
+<project name="preflight" default="launcher" basedir="." xmlns:cpptasks="antlib:org.sf.net.antcontrib.cpptasks">
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/preflight"/>
+  <property name="one-jar.dist.dir" value="${build.dir}/dist"/>
+  <property name="compiler" value="${cc}"/>
+
+  <import file="ant-targets.xml"/>
+
+  <property name="prebuilt.windows.launcher" value="${src.dir}/bin/Preflight.exe"/>
+
+  <path id="base.path" >
+    <pathelement location="${sipxcommons.jar}"/>
+    <pathelement location="${dnsjava.jar}"/>
+    <pathelement location="${CommonsCli.jar}"/>
+    <pathelement location="${CommonsNet.jar}"/>
+    <pathelement location="${jainsip.jar}"/>
+    <pathelement location="${swt.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file" >
+    <taskdef name="one-jar" classname="com.simontuffs.onejar.ant.OneJarTask" classpath="${one-jar.jar}" onerror="report"/>
+    <one-jar destfile="${build.dir}/dist/preflight.jar" manifest="${src.dir}/preflight.mf" >
+      <main>
+        <fileset dir="${classes.dir}" >
+          <include name="**/*.class" />
+        </fileset>
+      </main>
+      <lib>
+        <fileset file="${sipxcommons.jar}" />
+        <fileset file="${dnsjava.jar}" />
+        <fileset file="${CommonsCli.jar}" />
+        <fileset file="${CommonsNet.jar}" />
+        <fileset file="${jainsip.jar}" />
+        <fileset file="${swt.jar}" />
+        <fileset file="${log4j.jar}" />
+      </lib>
+      <binlib>
+        <fileset file="${arptable.dll}" />
+        <fileset file="${rocksaw.dll}" />
+        <fileset file="${rocksaw.lib}" />
+      </binlib>
+      <fileset dir="${src.dir}">
+        <include name="icons/**"/>
+      </fileset>
+    </one-jar>
+  </target>
+
+  <!-- L A U N C H E R S -->
+  <target name="launcher" depends="jar" description="create native launchers">
+    <antcall target="posix-launcher"/>
+    <antcall target="build-windows-launcher"/>
+    <antcall target="copy-prebuilt-windows-launcher"/>
+    <antcall target="windows-installer"/>
+  </target>
+
+  <target name="posix-launcher" depends="jar" description="create native posix command line launcher" >
+    <taskdef resource="cpptasks.tasks" classpath="${cpptasks.jar}"/>
+    <typedef resource="cpptasks.types" classpath="${cpptasks.jar}"/>
+    <cc outfile="${build.dir}/dist/preflight">
+      <fileset dir="${src.dir}/src/main/native/posix" includes="preflight.c"/>
+      <defineset>
+        <define name="SIPX_LIBDIR" value='"${preflight.dir}"'/>
+      </defineset>
+    </cc>
+  </target>
+
+  <!-- Build Windows Launcher -->
+  <target name="build-windows-launcher" unless="prebuilt.windows.launcher.found" depends="test-for-prebuilt-windows-launcher"
+          description="create native windows launcher" >
+    <taskdef name="launch4j" classname="net.sf.launch4j.ant.Launch4jTask" classpath="${launch4j.jar}:${xstream.jar}" />
+    <copy file="${src.dir}/Preflight.xml.in" tofile="${build.dir}/dist/Preflight.xml"/>
+    <replace file="${build.dir}/dist/Preflight.xml">
+      <replacefilter token="@src.dir@" value="${src.dir}"/>
+      <replacefilter token="@build.dir@" value="${build.dir}"/>
+    </replace>
+    <launch4j configFile="${build.dir}/dist/Preflight.xml" />
+  </target>
+
+  <!-- Copy Prebuilt Windows Launcher -->
+  <target name="copy-prebuilt-windows-launcher" if="prebuilt.windows.launcher.found" depends="test-for-prebuilt-windows-launcher"
+          description="copies prebuilt native windows launcher" >
+    <echo> Using prebuilt windows launcher (Preflight.exe) </echo>
+    <copy file="${prebuilt.windows.launcher}" todir="${build.dir}/dist"/>
+  </target>
+
+  <!-- Build Windows Installer -->
+  <target name="windows-installer" depends="jar"
+          description="create native windows installer" >
+
+    <taskdef name="nsis" classname="net.sf.nsisant.Task" classpath="${nsisant.jar}"/>
+    <copy file="${src.dir}/Preflight.nsi.in" tofile="${build.dir}/dist/Preflight.nsi"/>
+    <replace file="${build.dir}/dist/Preflight.nsi">
+      <replacefilter token="@src.dir@" value="${src.dir}"/>
+      <replacefilter token="@build.dir@" value="${build.dir}"/>
+    </replace>
+    <untar src="${windows.jre}" compression="bzip2" dest="${build.dir}/dist"/>
+    <nsis script="${build.dir}/dist/Preflight.nsi"/>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install">
+    <antcall target="posix-install"/>
+    <antcall target="windows-install"/>
+  </target>
+
+  <target name="posix-install">
+    <!-- Posix Launcher -->
+    <mkdir dir="${dest.dir}${preflight.dir}"/>
+    <copy file="${build.dir}/dist/preflight.jar" todir="${dest.dir}${preflight.dir}"/>
+    <copy file="${build.dir}/dist/preflight" todir="${dest.dir}${bin.dir}"/>
+    <chmod file="${dest.dir}${bin.dir}/preflight" perm="ugo+x" />
+  </target>
+    
+  <target name="windows-install">
+    <!-- Windows Installer -->
+    <mkdir dir="${dest.dir}${sipx.data.dir}/preflight"/>
+    <copy file="${build.dir}/dist/preflight_installer.exe" todir="${dest.dir}${preflight.dir}"/>
+    <chmod file="${dest.dir}${preflight.dir}/preflight_installer.exe" perm="ugo+x" />
+  </target>
+
+  <target name="uninstall">
+    <delete file="${dest.dir}${bin.dir}/preflight"/>
+    <delete file="${dest.dir}${preflight.dir}/preflight.jar"/>
+    <delete file="${dest.dir}${preflight.dir}/preflight_installer.exe"/>
+  </target>
+
+  <target name="test-for-prebuilt-windows-launcher">
+    <echo> Looking for: ${prebuilt.windows.launcher} </echo>
+    <condition property="prebuilt.windows.launcher.found">
+      <available file="${prebuilt.windows.launcher}"/>
+    </condition>
+  </target>
+
+</project>

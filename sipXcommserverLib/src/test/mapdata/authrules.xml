@@ -1,0 +1,44 @@
+    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+  <hostMatch>
+    <hostPattern>THISDOMAIN</hostPattern>
+    <hostPattern>THISHOST.THISDOMAIN</hostPattern>
+    <userMatch>
+      <userPattern>THISUSER</userPattern>
+      <userPattern>THATUSER</userPattern>
+      <permissionMatch>
+        <permission>steal</permission>
+        <permission>lie</permission>
+        <permission>cheat</permission>
+        <permission>eat like a pig</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <hostPattern>UserChgDOMAIN</hostPattern>
+    <userMatch>
+      <userPattern>THISUSER</userPattern>
+      <userPattern>THATUSER</userPattern>
+      <permissionMatch/>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <hostPattern>HostChgDOMAIN</hostPattern>
+    <userMatch>
+      <userPattern>THISUSER</userPattern>
+      <userPattern>THATUSER</userPattern>
+      <permissionMatch/>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <hostPattern format='UrL'>example.com:4242</hostPattern>
+    <hostPattern format='DnsWildcard'>*.example.com</hostPattern>
+    <hostPattern format='IPv4subnet'>192.168/16</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <permission>NoAccess</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

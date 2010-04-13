@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>FreeSWITCH</name>
+  <version>@VERSION@</version>
+  <commands>
+    <configtest>
+      <execute>@SIPX_BINDIR@/freeswitch.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>@SIPX_BINDIR@/freeswitch.sh</execute>
+    </start>
+    <stop>
+      <execute>@SIPX_BINDIR@/freeswitch.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>@SIPX_RUNDIR@/freeswitch.pid</pid>
+    <log>@SIPX_LOGDIR@/freeswitch.log</log>
+  </status>
+  <resources>
+    <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
+    <file required="false">@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/conference.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/freeswitch.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/xml_rpc.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/modules.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/switch.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/logfile.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/autoload_configs/local_stream.conf.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/dialplan/sipX_context.xml</file>
+    <file>@SIPX_CONFDIR@/freeswitch/conf/sip_profiles/sipX_profile.xml</file>
+  </resources>
+</sipXecs-process>

@@ -1,0 +1,363 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+  <group name="line">
+    <setting name="user_active">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="user_realname">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_name">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_pass">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_hash" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_host">
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_outbound">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_failover_identity">
+      <type refid="identity" />
+      <value>none</value>
+    </setting>
+    <setting name="user_pname">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_mailbox">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_ringer">
+      <type refid="ringer" />
+      <value>Ringer1</value>
+    </setting>
+    <setting name="user_custom" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_idle_text" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_xml_screen_url" if="360" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="ring_after_delay" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value />
+    </setting>
+    <setting name="record_missed_calls">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="record_dialed_calls">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="record_received_calls">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+  </group>
+  <group name="sip">
+    <setting name="user_moh" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_alert_info" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_pic" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_dp_str" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_dp_exp" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_proxy_require" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_additional_supported_header" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_q" advanced="yes">
+      <type>
+        <enum>
+          <option>
+            <value>1.0</value>
+          </option>
+          <option>
+            <value>0.9</value>
+          </option>
+          <option>
+            <value>0.8</value>
+          </option>
+          <option>
+            <value>0.7</value>
+          </option>
+          <option>
+            <value>0.6</value>
+          </option>
+          <option>
+            <value>0.5</value>
+          </option>
+          <option>
+            <value>0.4</value>
+          </option>
+          <option>
+            <value>0.3</value>
+          </option>
+          <option>
+            <value>0.2</value>
+          </option>
+          <option>
+            <value>0.1</value>
+          </option>
+          <option>
+            <value>0.0</value>
+          </option>
+        </enum>
+      </type>
+      <value>1.0</value>
+    </setting>
+    <setting name="user_expiry" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="user_auto_connect">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_descr_contact" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="user_sipusername_as_line" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_shared_line">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_publish_presence_bootup" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_dtmf_info" advanced="yes">
+      <type refid="dtmf_type" />
+      <value>off</value>
+    </setting>
+    <setting name="user_send_local_name" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_event_list_subscription">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_event_list_uri" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_presence_subscription" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_presence_buddy_list_uri" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="user_server_type" advanced="yes">
+      <type refid="server_type" />
+      <value>nortel</value>
+    </setting>
+    <setting name="user_remove_all_bindings" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_subscription_expiry" advanced="yes">
+      <type>
+        <integer />
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="user_enable_hookflash" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+  </group>
+  <group name="nat">
+    <setting name="user_ice" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="stun_server">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="stun_binding_interval" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="keepalive_interval" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <group name="rtp">
+    <setting name="codec1_name">
+      <type refid="codec" />
+      <value>0</value>
+    </setting>
+    <setting name="codec2_name">
+      <type refid="codec" />
+      <value>8</value>
+    </setting>
+    <setting name="codec3_name">
+      <type refid="codec" />
+      <value>9</value>
+    </setting>
+    <setting name="codec4_name">
+      <type refid="codec" />
+      <value>99</value>
+    </setting>
+    <setting name="codec5_name">
+      <type refid="codec" />
+      <value>3</value>
+    </setting>
+    <setting name="codec6_name">
+      <type refid="codec" />
+      <value>18</value>
+    </setting>
+    <setting name="codec7_name">
+      <type refid="codec" />
+      <value>4</value>
+    </setting>
+    <setting name="codec_size">
+      <type>
+        <enum>
+          <option>
+            <value>20</value>
+          </option>
+          <option>
+            <value>30</value>
+          </option>
+          <option>
+            <value>40</value>
+          </option>
+          <option>
+            <value>60</value>
+          </option>
+        </enum>
+      </type>
+      <value>20</value>
+    </setting>
+    <setting name="user_full_sdp_answer">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="user_symmetrical_rtp">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_srtp" advanced="yes">
+      <type refid="on-off" />
+      <value>off</value>
+    </setting>
+    <setting name="user_dynamic_payload" advanced="yes">
+      <type refid="on-off" />
+      <value>on</value>
+    </setting>
+    <setting name="user_g726_packing_order" advanced="yes">
+      <type refid="on-off_g726_byte_order" />
+      <value>on</value>
+    </setting>
+    <setting name="user_auth_tag" advanced="yes">
+      <type refid="on-off_srtp_auth-tag" />
+      <value>on</value>
+    </setting>
+    <setting name="user_savp" advanced="yes">
+      <type refid="rtp_savp" />
+      <value>on</value>
+    </setting>
+  </group>
+</model>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+   <settings>
+      <actions>
+         <email>
+         <!-- These are strings used to build notification emails.  If another language has been
+             selected, and an AlarmStrings_xx.xml file exists for that language, these strings
+             will be over-written by any strings defined in that file. -->
+            <email-subject>Alarm {0}: {1}</email-subject>
+            <email-intro>Message from {0}</email-intro>
+            <email-alarm>Alarm: {0}</email-alarm>
+            <email-time>Reported at: {0}</email-time>
+            <email-host>Reported on: {0}</email-host>
+            <email-severity>Severity: {0}</email-severity>
+            <email-description>Alarm Text: {0}</email-description>
+            <email-resolution>Suggested Resolution: {0}</email-resolution>
+            <email-from>{0} Alarm Notification Service</email-from>
+         </email>
+         <sms>
+         <!-- These are strings used to build notification emails.  If another language has been
+             selected, and an AlarmStrings_xx.xml file exists for that language, these strings
+             will be over-written by any strings defined in that file. -->
+            <email-subject>Alarm {0}: {1}</email-subject>
+            <email-intro>From {0}</email-intro>
+            <email-host>Reported on: {0}</email-host>
+            <email-from>{0} Alarm Notification Service</email-from>
+         </sms>
+      </actions>
+   </settings>
+</alarm_server>

@@ -1,0 +1,46 @@
+Examining a core file on a different machine than the one it was
+created on.
+
+Normally, it's impossible to examine a core file on a different
+machine than the one it was created on because GDB recreates the
+process' image using the dynamic libraries on the system GDB is
+running on, which are usually different than those on the machine the
+core file was created on.
+
+But if you are careful, you can circumvent this feature of GDB and use
+it to examine a core file from a different machine.
+
+You will need:
+
+- the core file
+
+- the executable file 
+
+- all of the dynamic libraries the process had loaded
+
+You can get the list of dynamic libraries in two ways:
+
+- run GDB on the original to look at the core file, and extract the
+list of dynamic libraries that GDB says it is loading
+
+- use "/lib/ld-linux.so.w --list <executable-file>"
+
+To prepare:
+
+- construct a file tree containing the dynamic libraries in their
+relative positions, using a scratch directory as the "virtual root"
+
+To run GDB:
+
+- start GDB without arguments
+
+- execute "set solib-absolute-prefix <absolute path of virtual root
+for dyanmic libraries>".  Be careful that there are no trailing spaces
+after the absolute path, as they will be incorporated into the path!
+(Emacs' file-name completion will leave trailing spaces.)
+
+- execute "file <executable-file>"  Note this file name is not
+affected by the prefix.
+
+- execute "core <core-file>" Note this file name is not affected by
+the prefix.

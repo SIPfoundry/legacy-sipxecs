@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
+<dataset>
+	<users user_name="1" user_id="1001" user_type="C"/>
+	<users user_name="7" user_id="1002" user_type="C"/>
+	<users user_name="8" user_id="1003" user_type="C"/>
+	<users user_name="9" user_id="1004" user_type="C"/>
+	<users user_name="11" user_id="1005" user_type="C"/>
+	<users user_name="15" user_id="1006" user_type="C"/>
+	<users user_name="16" user_id="1007" user_type="C"/>
+	<users user_name="21" user_id="1008" user_type="C"/>
+	<users user_name="22" user_id="1009" user_type="C"/>
+	<users user_name="33" user_id="1010" user_type="C"/>
+	
+	<user_alias user_id="1001" alias="2"/>
+	<user_alias user_id="1002" alias="3"/>
+	<user_alias user_id="1002" alias="4"/>
+	<user_alias user_id="1003" alias="9"/>
+	<user_alias user_id="1004" alias="12"/>
+	<user_alias user_id="1005" alias="13"/>
+	<user_alias user_id="1005" alias="14"/>
+	<user_alias user_id="1006" alias="19"/>
+	<user_alias user_id="1007" alias="20"/>
+	<user_alias user_id="1008" alias="30"/>
+	<user_alias user_id="1009" alias="31"/>
+	
+	<extension_pool enabled="true" name="user" first_extension="1"
+		last_extension="50" next_extension="1" extension_pool_id="1"/>
+</dataset>

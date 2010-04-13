@@ -1,0 +1,360 @@
+<type id="ringtone">
+	<enum>
+		<option>
+			<value>1</value>
+		</option>
+		<option>
+			<value>2</value>
+		</option>
+		<option>
+			<value>3</value>
+		</option>
+		<option>
+			<value>4</value>
+		</option>
+		<option>
+			<value>5</value>
+		</option>
+		<option>
+			<value>6</value>
+		</option>
+		<option>
+			<value>7</value>
+		</option>
+		<option>
+			<value>8</value>
+		</option>
+		<option>
+			<value>9</value>
+		</option>
+		<option>
+			<value>10</value>
+		</option>
+		<option>
+			<value>11</value>
+		</option>
+		<option>
+			<value>12</value>
+		</option>
+		<option>
+			<value>13</value>
+		</option>
+		<option>
+			<value>14</value>
+		</option>
+		<option>
+			<value>15</value>
+		</option>
+		<option>
+			<value>16</value>
+		</option>
+	</enum>
+</type>
+<type id="ledmode">
+	<enum>
+		<option>
+			<label>OFF</label>
+			<value>0</value>
+		</option>
+		<option>
+			<label>red</label>
+			<value>1</value>
+		</option>
+		<option>
+			<label>blue</label>
+			<value>2</value>
+		</option>
+	</enum>
+</type>
+<type id="alertmode">
+	<enum>
+		<option>
+			<label>bell</label>
+			<value>0</value>
+		</option>
+		<option>
+			<label>vibration</label>
+			<value>1</value>
+		</option>
+		<option>
+			<label>bell and vibration</label>
+			<value>2</value>
+		</option>
+		<option>
+			<label>lamp</label>
+			<value>3</value>
+		</option>
+	</enum>
+</type>
+<type id="leveldiff">
+	<enum>
+		<option>
+			<label>1 dBm</label>
+			<value>1</value>
+		</option>
+		<option>
+			<label>2 dBm</label>
+			<value>3</value>
+		</option>
+		<option>
+			<label>3 dBm</label>
+			<value>4</value>
+		</option>
+		<option>
+			<label>4 dBm</label>
+			<value>6</value>
+		</option>
+		<option>
+			<label>5 dBm</label>
+			<value>8</value>
+		</option>
+		<option>
+			<label>6 dBm</label>
+			<value>10</value>
+		</option>
+		<option>
+			<label>7 dBm</label>
+			<value>11</value>
+		</option>
+		<option>
+			<label>8 dBm</label>
+			<value>13</value>
+		</option>
+		<option>
+			<label>9 dBm</label>
+			<value>15</value>
+		</option>
+		<option>
+			<label>10 dBm</label>
+			<value>16</value>
+		</option>
+		<option>
+			<label>11 dBm</label>
+			<value>18</value>
+		</option>
+		<option>
+			<label>12 dBm</label>
+			<value>20</value>
+		</option>
+		<option>
+			<label>13 dBm</label>
+			<value>21</value>
+		</option>
+		<option>
+			<label>14 dBm</label>
+			<value>23</value>
+		</option>
+		<option>
+			<label>15 dBm</label>
+			<value>25</value>
+		</option>
+		<option>
+			<label>16 dBm</label>
+			<value>27</value>
+		</option>
+		<option>
+			<label>17 dBm</label>
+			<value>28</value>
+		</option>
+		<option>
+			<label>18 dBm</label>
+			<value>30</value>
+		</option>
+		<option>
+			<label>19 dBm</label>
+			<value>32</value>
+		</option>
+		<option>
+			<label>20 dBm</label>
+			<value>33</value>
+		</option>
+		<option>
+			<label>21 dBm</label>
+			<value>35</value>
+		</option>
+		<option>
+			<label>22 dBm</label>
+			<value>37</value>
+		</option>
+		<option>
+			<label>23 dBm</label>
+			<value>38</value>
+		</option>
+		<option>
+			<label>24 dBm</label>
+			<value>40</value>
+		</option>
+		<option>
+			<label>25 dBm</label>
+			<value>42</value>
+		</option>
+		<option>
+			<label>26 dBm</label>
+			<value>44</value>
+		</option>
+		<option>
+			<label>27 dBm</label>
+			<value>45</value>
+		</option>
+		<option>
+			<label>28 dBm</label>
+			<value>47</value>
+		</option>
+		<option>
+			<label>29 dBm</label>
+			<value>49</value>
+		</option>
+		<option>
+			<label>30 dBm</label>
+			<value>50</value>
+		</option>
+		<option>
+			<label>31 dBm</label>
+			<value>52</value>
+		</option>
+		<option>
+			<label>32 dBm</label>
+			<value>54</value>
+		</option>
+		<option>
+			<label>33 dBm</label>
+			<value>55</value>
+		</option>
+		<option>
+			<label>34 dBm</label>
+			<value>57</value>
+		</option>
+		<option>
+			<label>35 dBm</label>
+			<value>59</value>
+		</option>
+		<option>
+			<label>36 dBm</label>
+			<value>61</value>
+		</option>
+		<option>
+			<label>37 dBm</label>
+			<value>62</value>
+		</option>
+		<option>
+			<label>38 dBm</label>
+			<value>64</value>
+		</option>
+		<option>
+			<label>39 dBm</label>
+			<value>66</value>
+		</option>
+		<option>
+			<label>40 dBm</label>
+			<value>67</value>
+		</option>
+		<option>
+			<label>41 dBm</label>
+			<value>69</value>
+		</option>
+		<option>
+			<label>42 dBm</label>
+			<value>71</value>
+		</option>
+		<option>
+			<label>43 dBm</label>
+			<value>72</value>
+		</option>
+		<option>
+			<label>44 dBm</label>
+			<value>74</value>
+		</option>
+		<option>
+			<label>45 dBm</label>
+			<value>76</value>
+		</option>
+		<option>
+			<label>46 dBm</label>
+			<value>78</value>
+		</option>
+		<option>
+			<label>47 dBm</label>
+			<value>79</value>
+		</option>
+		<option>
+			<label>48 dBm</label>
+			<value>81</value>
+		</option>
+		<option>
+			<label>49 dBm</label>
+			<value>83</value>
+		</option>
+		<option>
+			<label>84 dBm</label>
+			<value>84</value>
+		</option>
+	</enum>
+</type>
+<type id="volume">
+	<enum>
+		<option>
+			<label>OFF</label>
+			<value>0</value>
+		</option>
+		<option>
+			<value>1</value>
+		</option>
+		<option>
+			<value>2</value>
+		</option>
+		<option>
+			<value>3</value>
+		</option>
+		<option>
+			<value>4</value>
+		</option>
+		<option>
+			<value>5</value>
+		</option>
+		<option>
+			<value>6</value>
+		</option>
+		<option>
+			<value>7</value>
+		</option>
+		<option>
+			<value>8</value>
+		</option>
+		<option>
+			<value>9</value>
+		</option>
+		<option>
+			<value>10</value>
+		</option>
+		<option>
+			<value>11</value>
+		</option>
+		<option>
+			<value>12</value>
+		</option>
+		<option>
+			<value>13</value>
+		</option>
+		<option>
+			<value>14</value>
+		</option>
+		<option>
+			<value>15</value>
+		</option>
+		<option>
+			<value>16</value>
+		</option>
+		<option>
+			<value>17</value>
+		</option>
+		<option>
+			<value>18</value>
+		</option>
+		<option>
+			<value>19</value>
+		</option>
+		<option>
+			<value>20</value>
+		</option>
+	</enum>
+</type>

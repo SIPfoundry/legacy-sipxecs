@@ -1,0 +1,7 @@
+#set($recording=${service.getSettings().getSetting('recording')})
+log.level=$recording.getSetting('log.level').Value
+log.file=${service.logDir}/sipxrecording.log
+
+recording.docDirectory=${service.docDir}
+recording.sipxchangeDomainName=${service.domainName}
+recording.realm=${service.realm}

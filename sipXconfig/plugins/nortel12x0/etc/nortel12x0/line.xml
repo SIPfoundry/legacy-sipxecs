@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+ "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+ <!ENTITY types SYSTEM "types.xml">
+]>
+<model>
+  <type id="on-off">
+    <boolean>
+      <true>
+        <value>TRUE</value>
+      </true>
+      <false>
+        <value>FALSE</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="registrationAndProxy">
+    <setting name="lineShared" hidden="yes">
+      <type refid="on-off"/>
+    </setting>
+    <setting name="authname">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="authPassword">
+      <type>
+        <string password="yes"/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="authId" hidden="yes">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="displayname">
+      <type>
+        <string maxLen="22"/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="registrarAuto">
+      <type refid="on-off"/>
+      <value>FALSE</value>
+    </setting>
+    <setting name="registrarAddress">
+      <type>
+        <hostname/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="registrarUsedomainName" advanced="yes">
+      <type refid="on-off"/>
+      <value>FALSE</value>
+    </setting>
+    <setting name="registertimer">
+      <type>
+        <integer min="0" max="65535"/>
+      </type>
+      <value>3600</value>
+    </setting>
+    <setting name="accTransport">
+      <type>
+        <enum>
+          <option>
+            <value>Auto</value>
+          </option>
+          <option>
+            <value>UDP</value>
+          </option>
+          <option>
+            <value>TCP</value>
+          </option>
+        </enum>
+      </type>
+      <value>Auto</value>
+    </setting>
+    <setting name="mwiSubscribe">
+      <type refid="on-off"/>
+      <value>TRUE</value>
+    </setting>
+    <setting name="mwiReqUri">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="numberofLinekeys">
+      <type>
+        <integer/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="accProxyAddress">
+      <type>
+        <hostname/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="accProxyPort">
+      <type>
+        <integer min="0" max="65535"/>
+      </type>
+    </setting>
+    <setting name="voiceMailServerAddress">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="AccMohServer">
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+  </group>
+  <group name="callForward" hidden="yes">
+    <setting name="forwardModeOption">
+      <type>
+        <enum>
+          <option>
+            <value>forwardonBusy</value>
+          </option>
+          <option>
+            <value>forwardonNoAnswer</value>
+          </option>
+          <option>
+            <value>forwardonBusyOrNoAnswer</value>
+          </option>
+          <option>
+            <value>forwardAll</value>
+          </option>
+          <option>
+            <value>none</value>
+          </option>
+        </enum>
+      </type>
+      <value>none</value>
+    </setting>
+    <setting name="callForwardAddress">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="callForwardTimer">
+      <type>
+        <enum>
+          <option>
+            <value>20</value>
+          </option>
+          <option>
+            <value>40</value>
+          </option>
+          <option>
+            <value>60</value>
+          </option>
+        </enum>
+      </type>
+      <value>20</value>
+    </setting>
+  </group>
+</model>

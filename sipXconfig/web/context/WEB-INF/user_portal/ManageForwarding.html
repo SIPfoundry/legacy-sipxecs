@@ -1,0 +1,17 @@
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation" tabNames="ognl:{'forwarding', 'schedules'}" selectedTab="ognl:selectedTab"/>
+  <span jwcid="@common/ErrorMsg"/>
+  <div id="settings-content">
+    <span jwcid="@RenderBlock" block="ognl:components.get(selectedTab + 'Tab')" />
+  </div>
+</div>
+<div jwcid="forwardingTab@Block">
+  <span jwcid="@user_portal/UserCallForwardingComponent"
+    user="ognl:user"
+    userSession="ognl:userSession"/>
+</div>
+<div jwcid="schedulesTab@Block">
+  <span jwcid="@user_portal/UserSchedulesComponent"
+    user="ognl:user"
+    userSession="ognl:userSession"/>
+</div>

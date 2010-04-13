@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project name="neoconf" default="default">
+	<property name="project.dir" value="meta" />
+	<import file="../ant-targets.xml" />
+
+  <target name="default"/>
+  <target name="compile"/>
+  <target name="test"/>
+  <target name="clover.report"/>
+
+  <target name="install">
+    <mkdir dir="${dest.dir}${sipxpbx.upgrade.dir}"/>
+    <copy file="sipxconfig-3.0.tgz"
+       tofile="${dest.dir}${sipxpbx.upgrade.dir}/sipxconfig-previous.tgz"/>
+  </target>
+
+</project>

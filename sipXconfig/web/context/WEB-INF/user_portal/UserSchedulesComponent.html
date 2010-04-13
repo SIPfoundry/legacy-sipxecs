@@ -1,0 +1,15 @@
+<div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <form jwcid="userSchedules@Form" delegate="ognl:container.validator">
+    <ul class="component-links">
+      <li>
+        <a jwcid="@DirectLink" id="link:addSchedule" listener="listener:addSchedule">
+          <span key="add">Add Schedule</span>
+        </a>
+      </li>
+    </ul>
+    <span jwcid="@setting/SchedulesTable" schedules="ognl:schedules"
+      viewSchedulesListener="listener:editSchedulesGroup"
+      changed="ognl:changed"/>
+  </form>
+</div>

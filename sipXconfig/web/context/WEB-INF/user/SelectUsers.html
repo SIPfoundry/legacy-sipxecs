@@ -1,0 +1,25 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <h2><span jwcid="title@Insert" value="ognl:title"/></h2>
+  <span jwcid="@common/ErrorMsg"/>
+  <span jwcid="prompt@common/QuickHelp" value="ognl:prompt"/>
+  <form jwcid="selectUserForm@Form" delegate="bean:validator">
+    <span jwcid="@Hidden" value="ognl:title" />
+    <span jwcid="@Hidden" value="ognl:prompt" />
+    <span jwcid="@Hidden" value="ognl:simpleSearch" />
+    <span jwcid="@Hidden" value="ognl:useEmailAddress" />
+
+    <ul class="component-links">
+      <a href="#" id="search:toggle" jwcid="toggleSearchType@common/ToggleLink" toggle="ognl:simpleSearch"
+        labelOff="message:search.simple" labelOn="message:search.advanced">Advanced Search</a>
+    </ul>
+    <span jwcid="searchForm@user/UserSearch" cancelListener="listener:cancel" simpleSearch="ognl:simpleSearch"/>
+    <span jwcid="searchResults@user/UserSearchResults" id="searchResults" users="ognl:components.searchForm.users"
+      useEmailAddress="ognl:useEmailAddress"/>
+    <ul class="component-submit">
+      <li>
+        <input id="user:select" jwcid="select@Submit" type="submit"
+          value="message:select" action="listener:select"/>
+      </li>
+    </ul>
+  </form>
+</div>

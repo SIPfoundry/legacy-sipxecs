@@ -1,0 +1,28 @@
+<tr>
+  <td>
+    <span jwcid="hostAddress@TextField"
+      value="ognl:alarmTrapReceiver.hostAddress"
+      validators="spring-validators:required,validHostOrIp"
+      displayName="ognl:container.messages.getMessage('label.hostAddress')" />
+  </td>
+  <td>
+    <span jwcid="port@TextField"
+      value="ognl:alarmTrapReceiver.port"
+      translator="translator:integer,omitZero=true"
+      validators="validators:required,min=1,max=65535"
+      displayName="ognl:container.messages.getMessage('label.port')" />
+  </td>
+  <td>
+    <span jwcid="communityString@TextField"
+      value="ognl:alarmTrapReceiver.communityString"
+      validators="validators:required,maxLength=255"
+      displayName="ognl:container.messages.getMessage('label.communityString')" />
+  </td>
+  <td>
+    <a jwcid="linkDeleteReceiver@LinkSubmit"
+      selected="ognl:removeIndex"
+      tag="ognl:index">
+      <span key="button.delete">Delete</span>
+    </a>
+  </td>
+</tr>

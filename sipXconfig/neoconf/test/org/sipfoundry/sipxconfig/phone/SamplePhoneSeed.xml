@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
+<dataset>
+	<value_storage value_storage_id="1001"/>
+	<value_storage value_storage_id="1002"/>
+	
+	<group_storage group_id="1001" name="phone group 1" resource="phone" description="phone group 1" weight="0"/>
+	<group_storage group_id="1002" name="phone group 2" resource="phone" description="phone group 2" weight="0"/>
+
+	<phone 
+		serial_number="00001" 
+		phone_id="1000" 
+		bean_id="testPhone"
+      model_id="testPhoneModel"/>
+	<phone 
+		serial_number="00002" 
+		phone_id="1001" 
+		bean_id="testPhone" 		
+        model_id="testPhoneModel"/>	
+	<phone 
+		serial_number="00003" 
+		phone_id="1002" 
+		bean_id="testPhone"
+        model_id="testPhoneModel"/>
+	<phone 
+		serial_number="aa00004" 
+		phone_id="1003" 
+		bean_id="testPhone"
+        model_id="testPhoneModel"/>
+
+	<phone_group phone_id="1002" group_id="1001"/>
+	<phone_group phone_id="1000" group_id="1002"/>
+	<phone_group phone_id="1002" group_id="1002"/>
+	
+</dataset>

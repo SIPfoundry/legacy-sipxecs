@@ -1,0 +1,125 @@
+<html jwcid="shell@Shell"
+    stylesheets="ognl:stylesheets"
+    disableCaching="ognl:true"
+    title="ognl:pageTitle"
+    renderBaseTag="ognl:tapestry.renderBaseTag"
+    delegate="ognl:shellDelegate">
+  <link jwcid="@Relation" type="image/x-icon" rel="shortcut icon" href="/sipxconfig/skin/favicon.ico" />
+  <body jwcid="@Body">
+
+ 		<!-- BEGIN:bodyContentContainer -->
+  	<div id="bodyContentContainer">
+			<div jwcid="@If" condition="ognl:userSession.navigationVisible" renderTag="false">
+				<span jwcid="@Script" scriptAsset="asset:borderDateScript" date="ognl:date"/>
+				<div id="banner">
+					<div id="logo">&nbsp;</div>
+					<div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
+					<div id="banner-links">
+
+							<span jwcid="@If" condition="ognl:!userSession.admin" renderTag="false">
+								<span class="linkUser">
+									<a jwcid="@PageLink" id="link.user" page="user_portal/EditMyInformation">
+										<span jwcid="name@Insert" value="ognl:userName">id</span>
+									</a>
+								</span>
+								<span class="bannerLinkDivider">&nbsp;</span>
+							</span>
+							<div jwcid="dateComponent@Any" renderTag="true" class="date" />
+							<span class="bannerLinkDivider">&nbsp;</span>
+							<span class="linkHome">
+								<a jwcid="@PageLink" class="linkHome" id="link.home" page="Home">
+										<span key="link.home">Home</span>
+								</a>
+							</span>
+							<span class="bannerLinkDivider">&nbsp;</span>
+							<span class="linkHelp">
+								<a jwcid="helpLink@GenericLink" class="linkHelp" id="link.help"
+										target="sipxconfig-help"
+										href="ognl:getHelpLink(versionInfo.versionIds)">
+										<span key="link.help">Online Help</span>
+								</a>
+							</span>
+							<span class="bannerLinkDivider">&nbsp;</span>
+        			<span class="linkLogout">
+								<a jwcid="logoutLink@DirectLink" class="linkLogout" id="link.logout" listener="listener:logout">
+									<span key="link.logout">Logout</span>
+								</a>
+							</span>
+							<span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
+									<span jwcid="@search/SearchPanel"/>
+							</span>
+					</div>
+				</div>
+				<div id="navigation">
+					<span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
+						<span jwcid="@common/AdminNavigation" />
+					</span>
+					<span jwcid="@Else" renderTag="false">
+						<span jwcid="@user_portal/UserPortalNavigation" />
+					</span>
+				</div>
+			</div>
+
+
+
+
+			<!-- BEGIN:contentContainer -->
+			<div id="contentContainer">
+				<div class="roundedMainSectionBoxTopLeft"></div><div class="roundedMainSectionBoxTopRight"></div>
+				<div class="roundedMainSectionBoxInside">
+					<span class="roundedMainSectionBoxInsideContent">
+						<div id="contentContainerSectionTop">
+							<div class="roundedIndicatorSectionBoxTopLeft"></div><div class="roundedIndicatorSectionBoxTopRight"></div>
+							<div class="roundedIndicatorSectionBoxInside">
+								<span jwcid="@Insert" raw="true" value="ognl:borderTitle"/>
+							</div>
+							<div class="roundedIndicatorSectionBoxBottomLeft"></div><div class="roundedIndicatorSectionBoxBottomRight"></div>
+						</div>
+
+						<!-- BEGIN:leftNav -->
+						<div id="leftNav">
+								<span jwcid="@If" condition="ognl:navigationBlock" renderTag="false">
+									<div class="roundedNavSectionBoxTopLeft"></div><div class="roundedNavSectionBoxTopRight"></div>
+									<div class="roundedNavSectionBoxInside">
+										<span class="roundedSectionBoxInsideContent">
+											<div jwcid="@RenderBlock" block="ognl:navigationBlock" />
+										</span>
+									</div>
+									<div class="roundedNavSectionBoxBottomLeft"></div><div class="roundedNavSectionBoxBottomRight"></div>
+								</span>
+								<span jwcid="@Else" renderTag="false">
+									<span class="roundedSectionBoxInsideContent">&nbsp;</span><!-- to ensure this block is never empty, so it has the min width -->
+								</span>
+						</div>
+						<!-- END:leftNav -->
+						<div id="content">
+							<div class="roundedSectionBoxTopLeft"></div><div class="roundedSectionBoxTopRight"></div>
+								<div class="roundedSectionBoxInside">
+									<span class="roundedSectionBoxInsideContent">
+										<span jwcid="@If" condition="ognl:userSession.admin" renderTag="false">
+												<span jwcid="@admin/StatusWarning"/>
+										</span>
+										<span jwcid="@RenderBody">Page content goes here.</span>
+									</span>
+								</div>
+							<div class="roundedSectionBoxBottomLeft"></div><div class="roundedSectionBoxBottomRight"></div>
+						</div>
+						<div class="contentContainerSectionBottom"></div>
+
+					</span>
+				</div>
+				<div class="roundedMainSectionBoxBottomLeft"></div><div class="roundedMainSectionBoxBottomRight"></div>
+			</div>
+			<!-- END:contentContainer -->
+
+
+
+
+
+
+			<div jwcid="@common/Footer"></div>
+
+    </div>
+    <!-- END:bodyContentContainer -->
+  </body>
+</html>

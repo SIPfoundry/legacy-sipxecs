@@ -1,0 +1,15 @@
+# Specify how to rename old configuration values.
+# Lines are:
+#   {key in new config file} : {original key from old config file}
+# Values in the old config file that are not known will be carried
+# into the new config file intact, unless there is a rule like this
+# to suppress copying:
+#   - : {original key from old config file}
+
+SIPX_PROXY_BIND_IP : SIP_PROXY_BIND_IP
+
+SIPX_PROXY_HOOK_LIBRARY.400_authrules : SIPX_PROXY_HOOK_LIBRARY.authrules
+SIPX_PROXY.400_authrules.RULES        : SIPX_PROXY.authrules.RULES
+SIPX_PROXY.400_authrules.IDENTITY_VALIDITY_SECONDS : SIPX_PROXY.authrules.IDENTITY_VALIDITY_SECONDS
+
+SIPX_PROXY_HOOK_LIBRARY.700_fromalias : SIPX_PROXY_HOOK_LIBRARY.fromalias

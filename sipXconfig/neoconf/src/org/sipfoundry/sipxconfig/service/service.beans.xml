@@ -1,0 +1,771 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:util="http://www.springframework.org/schema/util"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util
+    http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+  <bean id="nakedServiceDescriptorSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+    <constructor-arg value="org.sipfoundry.sipxconfig.service.ServiceDescriptor" />
+  </bean>
+
+  <bean id="serviceDescriptorSource" class="org.sipfoundry.sipxconfig.device.FilteredModelSource">
+    <property name="modelSource" ref="nakedServiceDescriptorSource" />
+  </bean>
+
+  <bean id="serviceManagerImpl" class="org.sipfoundry.sipxconfig.service.ServiceManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+  </bean>
+
+  <bean id="serviceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.service.ServiceManager</value>
+    </property>
+    <property name="target">
+      <ref local="serviceManagerImpl" />
+    </property>
+  </bean>
+
+  <bean id="abstractService" class="org.sipfoundry.sipxconfig.service.ConfiguredService" scope="prototype"
+    parent="beanWithSettings" abstract="true">
+    <property name="descriptorSource" ref="nakedServiceDescriptorSource" />
+  </bean>
+
+  <bean id="unmanagedService" class="org.sipfoundry.sipxconfig.service.UnmanagedService" scope="prototype"
+    parent="abstractService">
+  </bean>
+
+  <bean id="unmanagedServiceDescriptor" abstract="true" class="org.sipfoundry.sipxconfig.service.ServiceDescriptor">
+    <property name="beanId" value="unmanagedService" />
+  </bean>
+
+  <bean id="ntpService" factory-bean="unmanagedService" factory-method="ntp" />
+  <bean id="dnsService" factory-bean="unmanagedService" factory-method="dns" />
+  <bean id="syslogService" factory-bean="unmanagedService" factory-method="syslog" />
+
+  <bean id="addServiceTask" class="org.sipfoundry.sipxconfig.service.AddServiceTask">
+    <property name="serviceManager" ref="serviceManager" />
+    <property name="servicesSource" ref="serviceDescriptorSource" />
+  </bean>
+
+  <bean id="sipxServiceModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+    <constructor-arg value="org.sipfoundry.sipxconfig.service.SipxService" />
+  </bean>
+
+  <bean id="sipxBundleModelSource" class="org.sipfoundry.sipxconfig.device.BeanFactoryModelSource">
+    <constructor-arg value="org.sipfoundry.sipxconfig.service.SipxServiceBundle" />
+  </bean>
+
+  <bean id="configVersionManager" class="org.sipfoundry.sipxconfig.service.ConfigVersionManagerImpl">
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="processManagerApiProvider" ref="processManagerApiProvider" />
+  </bean>
+
+  <bean id="serviceConfiguratorImpl" class="org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl">
+    <!-- eager versions of sipx replication and dial plan activation manager injected here -->
+    <property name="sipxReplicationContext" ref="sipxReplicationContextDao" />
+    <property name="dialPlanActivationManager" ref="eagerDialPlanActivationManager" />
+    <property name="configVersionManager" ref="configVersionManager" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="serviceConfigurator" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.service.ServiceConfigurator" />
+    <property name="target" ref="serviceConfiguratorImpl" />
+    <property name="interceptorNames">
+      <list>
+        <value>backgroundTaskInterceptor</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="sipxServiceManagerImpl" class="org.sipfoundry.sipxconfig.service.SipxServiceManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="serviceModelSource" ref="sipxServiceModelSource" />
+    <property name="bundleModelSource" ref="sipxBundleModelSource" />
+  </bean>
+
+  <bean id="sipxServiceManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.service.SipxServiceManager" />
+    <property name="target" ref="sipxServiceManagerImpl" />
+  </bean>
+
+  <bean id="sipxService" class="org.sipfoundry.sipxconfig.service.SipxService" abstract="true">
+    <property name="modelFilesContext" ref="modelFilesContext" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="confDir" value="${sysdir.etc}" />
+    <property name="logDir" value="${sysdir.log}" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="loggingManager" ref="loggingManager" />
+  </bean>
+
+  <bean id="serviceConfigurationFile" parent="defaultConfigurationFile" abstract="true">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="sipxSupervisorService" class="org.sipfoundry.sipxconfig.service.SipxSupervisorService" parent="sipxService"
+    scope="prototype">
+    <property name="processName" value="sipxsupervisor" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxSupervisorConfiguration" />
+      </list>
+    </property>
+    <property name="loggingManager" ref="loggingManager" />
+  </bean>
+
+  <bean id="sipxSupervisorConfiguration" class="org.sipfoundry.sipxconfig.service.SipxSupervisorConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
+    <property name="template" value="commserver/sipxsupervisor-config.vm" />
+    <property name="name" value="sipxsupervisor-config" />
+  </bean>
+
+  <bean id="locationsDaoListener" class="org.sipfoundry.sipxconfig.service.LocationsDaoListener">
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="sipxProxyService" class="org.sipfoundry.sipxconfig.service.SipxProxyService" parent="sipxService"
+    scope="prototype">
+    <property name="processName" value="SIPXProxy" />
+    <property name="modelName" value="sipxproxy.xml" />
+    <property name="modelDir" value="sipxproxy" />
+    <property name="editable" value="true" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxProxyConfiguration" />
+        <ref bean="peerIdentitiesConfiguration" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+        <ref bean="redundantSipRouterBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxProxyConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProxyConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxproxy/sipXproxy-config.vm" />
+    <property name="name" value="sipXproxy-config" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
+  <bean id="peerIdentitiesConfiguration" class="org.sipfoundry.sipxconfig.service.PeerIdentitiesConfiguration" scope="prototype"
+    parent="defaultConfigurationFile">
+    <property name="name" value="peeridentities.xml"/>
+    <property name="tlsPeerManager" ref="tlsPeerManager" />
+    <property name="restartRequired" value="true" />
+  </bean>
+
+  <bean id="sipxRegistrarService" class="org.sipfoundry.sipxconfig.service.SipxRegistrarService" parent="sipxService"
+    scope="prototype">
+    <property name="processName" value="SIPRegistrar" />
+    <property name="modelName" value="sipxregistrar.xml" />
+    <property name="modelDir" value="sipxregistrar" />
+    <property name="editable" value="true" />
+    <property name="groupTitleEnabled" value="true" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxRegistrarConfiguration" />
+        <ref bean="presenceRoutingConfiguration" />
+      </list>
+    </property>
+    <property name="domainManager" ref="domainManager" />
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+        <ref bean="redundantSipRouterBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
+    <property name="template" value="sipxregistrar/registrar-config.vm" />
+    <property name="name" value="registrar-config" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="presenceRoutingConfiguration" class="org.sipfoundry.sipxconfig.service.PresenceRoutingConfiguration"
+    parent="defaultConfigurationFile">
+    <property name="name" value="presencerouting-prefs.xml"/>
+    <property name="coreContext" ref="coreContext" />
+    <property name="restartRequired" value="false" />
+  </bean>
+
+  <bean id="sipxParkService" class="org.sipfoundry.sipxconfig.service.SipxParkService" parent="sipxService"
+    scope="prototype">
+    <property name="processName" value="ParkServer" />
+    <property name="modelName" value="sipxpark.xml" />
+    <property name="modelDir" value="sipxpark" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxParkConfiguration" />
+        <ref bean="orbitsGenerator" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxParkConfiguration" class="org.sipfoundry.sipxconfig.service.SipxParkConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxpark/sipxpark-config.vm" />
+    <property name="name" value="sipxpark-config" />
+  </bean>
+
+  <bean id="sipxPresenceService" class="org.sipfoundry.sipxconfig.service.SipxPresenceService" parent="sipxService"
+    scope="prototype">
+    <property name="processName" value="PresenceServer" />
+    <property name="modelName" value="sipxpresence.xml" />
+    <property name="modelDir" value="sipxpresence" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxPresenceConfiguration" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="acdBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxPresenceConfiguration" class="org.sipfoundry.sipxconfig.service.SipxPresenceConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxpresence/sipxpresence-config.vm" />
+    <property name="name" value="sipxpresence-config" />
+    <property name="acdContext" ref="acdContext" />
+  </bean>
+
+  <bean id="sipxCallResolverService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverService" parent="sipxService"
+    scope="prototype">
+    <property name="processName" value="CallResolver" />
+    <property name="modelName" value="sipxcallresolver.xml" />
+    <property name="modelDir" value="sipxcallresolver" />
+    <property name="locationManager" ref="locationsManager" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxCallResolverConfiguration" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="managementBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxCallResolverConfiguration" class="org.sipfoundry.sipxconfig.service.SipxCallResolverConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
+    <property name="template" value="sipxcallresolver/callresolver-config.vm" />
+    <property name="name" value="callresolver-config" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="sipxCallResolverDaoListener" class="org.sipfoundry.sipxconfig.service.SipxCallResolverDaoListener">
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+  </bean>
+
+  <bean id="sipxCallResolverAgentService" class="org.sipfoundry.sipxconfig.service.SipxCallResolverAgentService"
+    parent="sipxService" scope="prototype">
+    <property name="processName" value="CallResolver-Agent" />
+    <property name="bundles">
+      <set>
+        <ref bean="redundantSipRouterBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxIvrService" class="org.sipfoundry.sipxconfig.service.SipxIvrService" parent="sipxService" scope="prototype">
+    <property name="processName" value="sipXivr" />
+    <property name="modelName" value="sipxivr.xml" />
+    <property name="modelDir" value="sipxivr" />
+    <property name="editable" value="true" />
+    <property name="groupTitleEnabled" value="true" />
+    <property name="callPilotSettings" value="nameDialPrefix, defaultTui"/>
+    <property name="cpuiDir" value="${sysdir.doc}/stdprompts/cpui"/>
+    <property name="configurations">
+      <list>
+        <ref bean="sipxIvrConfiguration" />
+        <ref bean="autoAttendantsConfig" />
+        <ref bean="statusPluginConfiguration" />
+      </list>
+    </property>
+    <property name="mailstoreDir" value="${sysdir.mailstore}" />
+    <property name="promptsDir" value="${sysdir.vxml.prompts}" />
+    <property name="scriptsDir" value="${sysdir.vxml.scripts}" />
+    <property name="docDir" value="${sysdir.doc}" />
+    <property name="vxmlDir" value="${sysdir.vxml}" />
+    <property name="bundles">
+      <set>
+        <ref bean="voicemailBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxIvrConfiguration" class="org.sipfoundry.sipxconfig.service.SipxIvrConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxivr/sipxivr.properties.vm" />
+    <property name="name" value="sipxivr.properties" />
+  </bean>
+
+  <bean id="sipxRecordingService" class="org.sipfoundry.sipxconfig.service.SipxRecordingService" parent="sipxService"
+    scope="prototype">
+    <property name="processName" value="sipXrecording" />
+    <property name="modelName" value="sipxrecording.xml" />
+    <property name="modelDir" value="sipxrecording" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxRecordingConfiguration" />
+        <ref bean="conferenceBridgeConfig" />
+      </list>
+    </property>
+    <property name="docDir" value="${sysdir.doc}" />
+    <property name="bundles">
+      <set>
+        <ref bean="conferenceBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxRecordingConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRecordingConfiguration"
+    scope="prototype" parent="serviceConfigurationFile">
+    <property name="template" value="sipxrecording/sipxrecording.properties.vm" />
+    <property name="name" value="sipxrecording.properties" />
+  </bean>
+
+  <bean id="sipxImbotService" class="org.sipfoundry.sipxconfig.service.SipxImbotService" parent="sipxService" scope="prototype">
+    <property name="processName" value="scsimbot" />
+    <property name="modelName" value="scsimbot.xml" />
+    <property name="modelDir" value="scsimbot" />
+    <property name="editable" value="true" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxImbotConfiguration" />
+        <ref bean="sipxIvrConfiguration" />
+        <ref bean="contactInformationConfig" />
+      </list>
+    </property>
+    <property name="docDir" value="${sysdir.doc}" />
+    <property name="bundles">
+      <set>
+        <ref bean="imBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxImbotConfiguration" class="org.sipfoundry.sipxconfig.service.SipxImbotConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="scsimbot/scsimbot.properties.vm" />
+    <property name="name" value="scsimbot.properties" />
+    <property name="locationsManager" ref="locationsManager" />
+  </bean>
+
+  <bean id="sipxStatusService" class="org.sipfoundry.sipxconfig.service.SipxStatusService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="SIPStatus" />
+    <property name="modelName" value="sipxstatus.xml" />
+    <property name="modelDir" value="sipxstatus" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxStatusConfiguration" />
+        <ref bean="statusPluginConfiguration" />
+        <ref bean="sipxIvrConfiguration" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="voicemailBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxStatusConfiguration" class="org.sipfoundry.sipxconfig.service.SipxStatusConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxstatus/status-config.vm" />
+    <property name="name" value="status-config" />
+  </bean>
+
+  <bean id="statusPluginConfiguration" class="org.sipfoundry.sipxconfig.service.StatusPluginConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxstatus/status-plugin.vm" />
+    <property name="name" value="status-plugin.xml" />
+  </bean>
+
+  <bean id="sipxRlsService" class="org.sipfoundry.sipxconfig.service.SipxRlsService" scope="prototype" parent="sipxService">
+    <property name="processName" value="ResourceListServer" />
+    <property name="modelName" value="sipxrls.xml" />
+    <property name="modelDir" value="sipxrls" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxRlsConfiguration" />
+        <ref bean="resourceListGenerator" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxRlsConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRlsConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxrls/sipxrls-config.vm" />
+    <property name="name" value="sipxrls-config" />
+  </bean>
+
+  <bean id="sipxPageService" class="org.sipfoundry.sipxconfig.service.SipxPageService" scope="prototype" parent="sipxService">
+    <property name="processName" value="PageServer" />
+    <property name="modelName" value="sipxpage.xml" />
+    <property name="modelDir" value="sipxpage" />
+    <property name="configurations">
+      <list>
+        <ref bean="pagingConfiguration" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxConfigService" class="org.sipfoundry.sipxconfig.service.SipxConfigService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="ConfigServer" />
+    <property name="modelName" value="sipxconfig.xml" />
+    <property name="modelDir" value="sipxconfig" />
+    <property name="restartable" value="false" />
+    <property name="editable" value="true" />
+    <property name="configurations">
+      <list>
+        <ref bean="phoneLogConfiguration" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="managementBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="phoneLogConfiguration" class="org.sipfoundry.sipxconfig.service.PhoneLogConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxconfig/phonelog-config.vm" />
+    <property name="name" value="phonelog-config" />
+  </bean>
+
+  <bean id="sipxAcdService" class="org.sipfoundry.sipxconfig.service.SipxAcdService" scope="prototype" parent="sipxService">
+    <property name="processName" value="ACDServer" />
+    <property name="modelName" value="sipxacd.xml" />
+    <property name="modelDir" value="acd" />
+    <property name="configurations">
+      <list>
+        <ref bean="sipxAcdConfiguration" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="acdBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxAcdConfiguration" class="org.sipfoundry.sipxconfig.acd.AcdConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="acd/sipxacd-config.vm" />
+    <property name="name" value="sipxacd-config" />
+    <property name="acdContext" ref="acdContext" />
+  </bean>
+
+  <bean id="sipxConfigAgentService" class="org.sipfoundry.sipxconfig.service.SipxConfigAgentService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="ConfigAgent" />
+    <property name="modelName" value="configagent.xml" />
+    <property name="modelDir" value="sipxconfigagent" />
+    <property name="configurations">
+      <list>
+        <ref bean="configAgentConfiguration" />
+      </list>
+    </property>
+    <property name="bundles">
+      <set>
+        <ref bean="acdBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="configAgentConfiguration" class="org.sipfoundry.sipxconfig.service.ConfigAgentConfiguration" scope="prototype"
+    parent="serviceConfigurationFile">
+    <property name="template" value="sipxconfigagent/config-agent.properties.vm" />
+    <property name="name" value="config-agent.properties" />
+  </bean>
+
+  <bean id="sipxBridgeService" class="org.sipfoundry.sipxconfig.service.SipxBridgeService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="SipXbridge" />
+    <property name="bundles">
+      <set>
+        <ref bean="borderControllerBundle" />
+      </set>
+    </property>
+    <property name="configurations">
+      <list>
+        <ref bean="sbcSipXbridgeConfiguration" />
+        <ref bean="peerIdentitiesConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="sipxFreeswitchService" class="org.sipfoundry.sipxconfig.service.SipxFreeswitchService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="FreeSWITCH" />
+    <property name="modelName" value="freeswitch.xml" />
+    <property name="modelDir" value="freeswitch" />
+    <property name="jobContext" ref="jobContext" />
+    <property name="freeswitchApiProvider" ref="freeswitchApiProvider" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
+    <property name="editable" value="true" />
+    <property name="configurations">
+      <list>
+        <ref bean="freeswitchConfiguration" />
+        <ref bean="defaultContextConfiguration" />
+        <ref bean="sofiaConfiguration" />
+        <ref bean="xmlRpcConfiguration" />
+        <ref bean="modulesConfiguration" />
+        <ref bean="switchConfiguration" />
+        <ref bean="logfileConfiguration" />
+        <ref bean="localStreamConfiguration" />
+        <ref bean="conferenceConfiguration" />
+      </list>
+    </property>
+    <property name="docDir" value="${sysdir.doc}" />
+    <property name="bundles">
+      <set>
+        <ref bean="voicemailBundle" />
+        <ref bean="conferenceBundle" />
+      </set>
+    </property>
+    <property name="replicationContext" ref="sipxReplicationContextDao" />
+  </bean>
+
+  <bean id="freeswitchConfiguration" parent="serviceConfigurationFile"
+    class="org.sipfoundry.sipxconfig.service.freeswitch.FreeswitchConfiguration" scope="prototype">
+    <property name="name" value="freeswitch.xml" />
+    <property name="template" value="freeswitch/freeswitch.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="defaultContextConfiguration" parent="serviceConfigurationFile"
+    class="org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfiguration" scope="prototype">
+    <property name="restartRequired" value="false" />
+    <property name="name" value="sipX_context.xml" />
+    <property name="template" value="freeswitch/default_context.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/dialplan" />
+    <property name="conferenceContext" ref="conferenceBridgeContext" />
+  </bean>
+
+  <bean id="sofiaConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.SofiaConfiguration"
+    scope="prototype">
+    <property name="name" value="sipX_profile.xml" />
+    <property name="template" value="freeswitch/sofia.conf.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/sip_profiles" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="xmlRpcConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.XmlRpcConfiguration"
+    scope="prototype">
+    <property name="name" value="xml_rpc.conf.xml" />
+    <property name="template" value="freeswitch/xml_rpc.conf.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+  </bean>
+
+  <bean id="modulesConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.ModulesConfiguration"
+    scope="prototype">
+    <property name="name" value="modules.conf.xml" />
+    <property name="template" value="freeswitch/modules.conf.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+  </bean>
+
+  <bean id="switchConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.SwitchConfiguration"
+    scope="prototype">
+    <property name="name" value="switch.conf.xml" />
+    <property name="template" value="freeswitch/switch.conf.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+  </bean>
+
+  <bean id="logfileConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.LogfileConfiguration"
+    scope="prototype">
+    <property name="name" value="logfile.conf.xml" />
+    <property name="template" value="freeswitch/logfile.conf.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+  </bean>
+
+  <bean id="localStreamConfiguration" parent="serviceConfigurationFile"
+    class="org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration" scope="prototype">
+    <property name="name" value="local_stream.conf.xml" />
+    <property name="template" value="freeswitch/local_stream.conf.xml.vm" />
+    <property name="directory" value="${sysdir.etc}/freeswitch/conf/autoload_configs" />
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
+  </bean>
+
+  <bean id="sipxRelayService" class="org.sipfoundry.sipxconfig.service.SipxRelayService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="SipXrelay" />
+    <property name="modelName" value="nattraversal.xml" />
+    <property name="modelDir" value="nattraversal" />
+    <property name="editable" value="true" />
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+        <ref bean="redundantSipRouterBundle" />
+      </set>
+    </property>
+    <property name="configurations">
+      <list>
+        <ref bean="natTraversalConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="natTraversalConfiguration" class="org.sipfoundry.sipxconfig.service.NatTraversalConfiguration"
+    parent="serviceConfigurationFile">
+    <property name="name" value="nattraversalrules.xml" />
+    <property name="template" value="nattraversal/nattraversalrules.vm" />
+    <property name="sbcManager" ref="sbcManager" />
+  </bean>
+
+  <bean id="sipxMrtgService" class="org.sipfoundry.sipxconfig.service.SipxMrtgService" scope="prototype" parent="sipxService">
+    <property name="processName" value="sipXmrtg" />
+    <property name="bundles">
+      <set>
+        <ref bean="managementBundle" />
+      </set>
+    </property>
+  </bean>
+
+  <bean id="sipxSaaService" class="org.sipfoundry.sipxconfig.service.SipxSaaService" scope="prototype" parent="sipxService">
+    <property name="processName" value="SharedAppearanceAgent" />
+    <property name="modelName" value="sipxsaa.xml" />
+    <property name="modelDir" value="sipxsaa" />
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+        <ref bean="redundantSipRouterBundle" />
+      </set>
+    </property>
+    <property name="configurations">
+      <list>
+        <ref bean="appearanceGroupsConfiguration" />
+        <ref bean="sipxSaaConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="appearanceGroupsConfiguration" class="org.sipfoundry.sipxconfig.service.AppearanceGroupsConfiguration"
+    parent="serviceConfigurationFile">
+    <property name="restartRequired" value="false" />
+    <property name="name" value="appearance-groups.xml" />
+    <property name="template" value="sipxsaa/appearance-groups.vm" />
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="sipxSaaConfiguration" class="org.sipfoundry.sipxconfig.service.SipxSaaConfiguration" parent="serviceConfigurationFile">
+    <property name="name" value="sipxsaa-config" />
+    <property name="template" value="sipxsaa/sipxsaa-config.vm" />
+  </bean>
+
+  <bean id="sipxSaaDaoListener" class="org.sipfoundry.sipxconfig.service.SipxSaaDaoListener">
+    <property name="configurationFile" ref="appearanceGroupsConfiguration" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+  </bean>
+
+  <bean id="sipxRestService" class="org.sipfoundry.sipxconfig.service.SipxRestService" scope="prototype" parent="sipxService">
+    <property name="processName" value="SipXrest" />
+    <property name="modelName" value="sipxrest.xml" />
+    <property name="modelDir" value="sipxrest" />
+    <property name="editable" value="true" />
+    <property name="bundles">
+      <set>
+        <ref bean="primarySipRouterBundle" />
+        <ref bean="managementBundle" />
+      </set>
+    </property>
+    <property name="configurations">
+      <list>
+        <ref bean="sipxRestConfiguration" />
+        <ref bean="sipxIvrConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="sipxRestConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRestConfiguration" parent="serviceConfigurationFile">
+    <property name="name" value="sipxrest-config.xml" />
+    <property name="template" value="sipxrest/sipxrest-config.vm" />
+  </bean>
+
+  <bean id="abstractConfigFilesActivator" abstract="true">
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <lookup-method name="getServiceConfigurator" bean="serviceConfiguratorImpl" />
+  </bean>
+
+  <bean id="rlsConfigFilesActivator" class="org.sipfoundry.sipxconfig.service.LazyConfigFileActivationManager"
+    parent="abstractConfigFilesActivator" init-method="init">
+    <property name="serviceBeanId" value="sipxRlsService" />
+  </bean>
+
+  <bean id="sipxProvisionService" class="org.sipfoundry.sipxconfig.service.SipxProvisionService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="sipXprovision" />
+    <property name="modelName" value="sipxprovision.xml" />
+    <property name="modelDir" value="sipxprovision" />
+    <property name="editable" value="true" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="tftproot" value="${upload.destinationDirectory}" />
+    <property name="bundles">
+      <set>
+        <ref bean="managementBundle" />
+      </set>
+    </property>
+    <property name="configurations">
+      <list>
+        <ref bean="sipxProvisionConfiguration" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="sipxProvisionConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProvisionConfiguration"
+    parent="serviceConfigurationFile">
+    <property name="name" value="sipxprovision-config" />
+    <property name="template" value="sipxprovision/sipxprovision-config.vm" />
+  </bean>
+
+  <bean id="sipxAlarmService" class="org.sipfoundry.sipxconfig.service.SipxAlarmService" scope="prototype"
+    parent="sipxService">
+    <property name="processName" value="sipxsupervisor" />
+    <property name="alarmContext" ref="alarmContext" />
+    <property name="configurations">
+      <list>
+        <ref bean="alarmServerConfiguration" />
+        <ref bean="alarmGroupsConfiguration" />
+      </list>
+    </property>
+  </bean>
+</beans>

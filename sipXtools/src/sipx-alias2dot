@@ -1,0 +1,134 @@
+#!/usr/bin/perl
+
+BEGIN
+{
+
+    $RequireMsg = <<REQUIREMENTS;
+
+    You must install the missing Perl package(s) to use this script.
+        As far as I know, these are not available as rpms.  You can install
+        them using 'cpan'.
+
+REQUIREMENTS
+
+    @modules = qw(Getopt::Long XML::Simple );
+    for $pm ( @modules )
+    {
+        eval "require $pm;" || die "Failed to load $pm\n$@\n$RequireMsg\n";
+        $pm->import();
+    }
+}
+
+$Usage = <<USAGE;
+
+sipx-alias2dot  [ { --help | -h } ]
+                [ { --domain | -d } <domain-name> ]
+                <alias.xml>
+
+    Given an alias.xml file (the persistent copy of the aliases in-memory 
+    database), prints a directed graph (on stdout) for processing with 'dot'
+    to produce a visual map of the aliases. 
+
+    This can be useful for finding loops or documenting how forwarding 
+    relationships work.
+
+    If specified, the --domain argument strips the domain part of each 
+    identity in which appears (which generally makes reading easier).
+
+Example:
+
+> sipx-alias2dot -d example.com /var/sipxdata/sipdb/alias.xml > alias.dot
+> dot -Tpng alias.dot > alias.png
+  
+See Also:
+
+  dot(1)
+
+Requirements:
+
+  Requires the Perl packages Getopt::Long and XML::Simple, both of which
+  are available from CPAN and in most RPM repositories.
+
+USAGE
+
+GetOptions( 'help|h' => \$Help,
+            'domain|d=s' => \$domain,
+            )
+    || exit -1;
+
+if ($Help)
+{
+    print $Usage;
+    exit 0;
+}
+
+$aliasFile = shift;
+
+my $aliases = XMLin($aliasFile, KeyAttr => [], ForceArray => [ 'item' ]); 
+
+my %targets;
+
+foreach $alias ( @{$aliases->{'item'}} )
+{
+    my $identity = $alias->{'identity'};
+    my $contact  = $alias->{'contact'};
+
+    my $target = $contact;
+    $target =~ s/".*"//;
+    $target =~ s/\s*<//;
+    $target =~ s/^sips?://i;
+    $target =~ s/>.*//;
+    $target =~ s/\?.*//;
+    $target =~ s/;.*//;
+
+    $idnode             = &token($identity);
+    $NodeName{$idnode}  = &label($identity);
+
+    $tgtnode            = &token($target);
+    $NodeName{$tgtnode} = &label($target);
+
+    if ( $contact =~ m/;q=(\d\.\d+)/ )
+    {
+        $Q{"$idnode->$tgtnode"} = $1;
+    }
+    push @{${$idnode}}, $tgtnode;
+}
+
+sub label
+{
+    my $t = shift;
+    $t =~ s/\@$domain//;
+    return $t;
+}
+
+sub token 
+{
+    my $t = shift;
+
+    $t =~ tr/a-zA-Z0-9/_/cs;
+
+    return "N$t";
+}
+
+
+print "digraph map {\n";
+
+foreach ( keys %NodeName )
+{
+    print "$_\[label=\"$NodeName{$_}\"];\n";
+}
+
+foreach $node ( keys %NodeName )
+{
+    foreach $fwd ( @${$node} )
+    {
+        print "$node->$fwd" ;
+        if ( defined $Q{"$node->$fwd"} )
+        {
+            print " [decorate label=\"" . $Q{"$node->$fwd"} . "\"]";
+        }
+        print ";\n";
+    }
+}
+
+print "}\n";

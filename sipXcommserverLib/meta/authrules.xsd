@@ -1,0 +1,191 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX authrules rule set
+  -->
+<schema
+    xmlns:dmp='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/urlauth-00-00'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+  <annotation>
+    <documentation>
+      Rules for authorization of SIP requests
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='mappings'>
+    <annotation>
+      <documentation>
+        A container for a set of rules
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:hostMatch' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='hostMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of match specifiers for the host part of a SIP address
+        and then other rules to be applied to any address that matches at least
+        one of the specified hostPattern elements.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:name' minOccurs='0' maxOccurs='1'/>
+        <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:ruleType'   minOccurs='0' maxOccurs='1'/>
+        <element ref='dmp:hostPattern' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:userMatch'   minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <simpleType name='validFormats'>
+    <annotation>
+      <documentation>
+        The header format names valid in a format attribute.
+      </documentation>
+    </annotation>
+    <restriction base='normalizedString'>
+       <enumeration value='url'/>
+       <enumeration value='IPv4subnet'/>
+       <enumeration value='DnsWildcard'/>
+    </restriction>
+  </simpleType>
+
+  <element name='hostPattern'>
+    <annotation>
+      <documentation>
+         One of three types of patterns:
+
+         format='url' (default)
+            A url where the host and port must match exactly (except in case)
+            and the port 5060 matches an unspecified value.
+
+         format='DnsWildcard'
+            A "wildcard" DNS Domain whose leftmost lable is '*'.
+            The asterisk ('*') in the pattern matches any sequence of DNS
+            name tokens and dots.  The pattern must match the full domain
+            value from the request URI.  No port may be specified, and port
+            is not considered in the match.
+
+               Examples:
+                  *.example.com (matches any subdomain in example.com INCLUDING
+                     example.com itself)
+                  * (matches all domains)
+
+         format='IPv4subnet'
+            An IPv4 subnet, specified as a series of IPv4 address decimal
+            octet values separated by dots (.), followed by a forward slash
+            (/) and a decimal number of bits to be used as a subnet mask value.
+            In order to match, the request URI "host" must be a valid IPv4
+            dottend quad address whose value is within the subnet specified.
+            No port may be specified, and port is not considered in the match.
+
+               Examples:
+                  10.0.0.0/8  Matchs any IP address with first 8 bits = '10'
+                  192.168/16
+      </documentation>
+    </annotation>
+    <complexType>
+      <simpleContent>
+        <extension base='normalizedString'>
+          <attribute name='format' use='optional' default='url'
+                     type='dmp:validFormats'/>
+        </extension>
+      </simpleContent>
+    </complexType>
+  </element>
+
+  <element name='userMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of userPattern specifiers for the user part of a SIP address
+        and then other rules (permissionMatch) to be applied to any address that
+        matches at least one of the specified user patterns.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:userPattern' minOccurs='0' maxOccurs='unbounded'/>
+        <element ref='dmp:permissionMatch'   minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='userPattern' type='normalizedString'>
+    <annotation>
+      <documentation>
+        A pattern expression used to match the user part of a SIP URL.
+        The pattern is implicitly anchored at both ends.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='permissionMatch'>
+    <annotation>
+      <documentation>
+        Contains a set of permission specifiers; the caller must have at least one of the
+        named permssions in order to use the SIP address in the request.
+      </documentation>
+    </annotation>
+    <complexType>
+      <sequence>
+        <element ref='dmp:description' minOccurs='0' />
+        <element ref='dmp:permission' minOccurs='0' maxOccurs='unbounded'/>
+      </sequence>
+    </complexType>
+  </element>
+
+  <element name='permission' type='normalizedString'>
+    <annotation>
+      <documentation>
+        A permission name required to use this SIP address.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='name' type='string'>
+    <annotation>
+      <documentation>
+        Used to specify the rule in the user interface.
+      </documentation>
+    </annotation>
+  </element>
+
+  <element name='description' type='string'>
+    <annotation>
+      <documentation>
+        Used to describe the rule in the user interface.
+      </documentation>
+    </annotation>
+  </element>
+
+  <simpleType name='validRuleTypes'>
+    <annotation>
+      <documentation>
+        The list of valid dialing rule types.  Optional, but if given must be one of the following.
+      </documentation>
+    </annotation>
+    <restriction base='normalizedString'>
+       <enumeration value='Emergency'/>
+    </restriction>
+  </simpleType>
+
+  <element name='ruleType' type='dmp:validRuleTypes'>
+    <annotation>
+      <documentation>
+        Type of rule.
+      </documentation>
+    </annotation>
+  </element>
+
+</schema>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE component-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+<component-specification class="org.sipfoundry.sipxconfig.components.service.ExportLink" allow-body="yes"
+  allow-informal-parameters="yes">
+  <description>
+    Special version of direct link. The listener of this link is fully responsible for rendering entire
+    response. See DirectLink for documentation of parameters.
+  </description>
+
+  <inject property="service" object="engine-service:export" />
+  <inject property="listenerInvoker" object="infrastructure:listenerInvoker" />
+
+  <parameter name="listener" required="yes" />
+  <parameter name="parameters" />
+  <parameter name="stateful" default-value="true" />
+  <parameter name="disabled" />
+  <parameter name="anchor" />
+  <parameter name="target" />
+  <parameter name="renderer" />
+
+  <parameter name="scheme" />
+  <parameter name="port" />
+
+  <reserved-parameter name="href" />
+</component-specification>

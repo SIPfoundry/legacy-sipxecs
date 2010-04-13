@@ -1,0 +1,34 @@
+The locking system used in SipSubscribeClient is very similar to the
+locking system used in SipRefreshManager.
+
+----------------------------------------------------------------------
+
+There are two timers in SubscriptionGroupState:  mStartingTimer and
+mRestartTimer.
+
+mRestartTimer fires on an interval that is from 1/2-day to 1-day.  It
+causes the subscription to be restarted to ensure that any changes in
+the routing of the entity URI are acted upon.  (This can be suppressed
+by setting the restart parameter of ::addSubscription to false.)
+
+When mRestartTimer fires, it queues a RestartEventMsg, which causes
+::handleRestartEvent() to run.  The RestartEventMsg carries the
+original dialog handle of the subscription.  The RestartEventMsg can
+be processed after the state of the subscription has been changed or
+deleted.  The handleRestartEvent() contains code to guard against
+deletion of the subscription state.  The only other significant state
+change is ending the subscription, which sets ::mRestart to false,
+which handleRestartEvent() tests for.  Duplicated restarts of the
+subscription are not hazardous.
+
+mStartingTimer fires at the point where we want to check whether the
+subscription has been established, and if it has not, to start it
+anew.  When mStartingTimer fires, it queues a StartingEventMsg, which
+causes ::handleStartingEvent() to run.  The StartingEventMsg carries
+the original dialog handle of the subscription.  The StartingEventMsg
+can be processed after the state of the subscription has been changed
+or deleted.  The handleStartingEvent() contains code to guard against
+deletion of the subscription state.  The only other significant state
+change is ending the subscription, which sets ::mReestablish to false,
+which handleStartingEvent() tests for.  Duplicated startings of the
+subscription are not hazardous.

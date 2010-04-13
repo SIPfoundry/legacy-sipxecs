@@ -1,0 +1,176 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN 2.0//EN"
+		  "http://www.springframework.org/dtd/spring-beans-2.0.dtd">
+<beans>
+  <!-- default AudioCodes gateway model -->
+  <bean id="audiocodesGatewayModel" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesModel"
+    parent="abstractGatewayModel">
+    <property name="profileTemplate" value="audiocodes/gateway-%s.ini.vm" />
+    <property name="modelDir" value="audiocodes" />
+	<property name="vendor" value="AudioCodes"/>
+  </bean>
+
+  <!-- Audiocodes digital gateways -->
+  <bean id="audiocodesTP" abstract="true" parent="audiocodesGatewayModel">
+    <property name="beanId" value="gwAudiocodesTp260" />
+    <property name="portLabelFormat" value="%s (%s-%s)" />
+    <property name="portLabelSettings">
+      <list>
+        <value>Trunk/ProtocolType</value>
+        <value>Trunk/MinChannel</value>
+        <value>Trunk/MaxChannel</value>
+      </list>
+    </property>
+    <property name="supportedFeatures">
+	  <set>
+	        <value>trunkGateway</value>
+		<value>digital</value>
+	  </set>
+    </property>
+  </bean>
+
+  <bean id="audiocodesTP260" parent="audiocodesTP">
+    <property name="label" value="AudioCodes TP260" />
+    <property name="maxPorts" value="4" />
+  </bean>
+
+  <bean id="audiocodesMediant" abstract="true" parent="audiocodesTP">
+    <property name="maxPorts" value="8" />
+  </bean>
+
+  <bean id="audiocodesMediant1000" parent="audiocodesMediant">
+    <property name="label" value="AudioCodes Mediant 1000 PRI" />
+  </bean>
+
+  <bean id="audiocodesMediant2000" parent="audiocodesMediant">
+    <property name="label" value="AudioCodes Mediant 2000 PRI" />
+  </bean>
+
+  <bean id="audiocodesMediant3000" parent="audiocodesMediant">
+    <property name="label" value="AudioCodes Mediant 3000 PRI" />
+  </bean>
+
+  <bean id="gwAudiocodesTp260" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesDigitalGateway"
+    scope="prototype" parent="gwGeneric">
+  </bean>
+
+  <!-- Audiocodes BRI gateways -->
+  <bean id="audiocodesBRI" abstract="true" parent="audiocodesGatewayModel">
+    <property name="beanId" value="gwAudiocodesBRI" />
+    <property name="portLabelFormat" value="%s (%s-%s)" />
+    <property name="portLabelSettings">
+      <list>
+        <value>Trunk/ProtocolType</value>
+        <value>Trunk/MinChannel</value>
+        <value>Trunk/MaxChannel</value>
+      </list>
+    </property>
+	<property name="supportedFeatures">
+	  <set>
+	        <value>trunkGateway</value>
+		<value>digital</value>
+		<value>bri</value>
+	  </set>
+    </property>
+  </bean>
+
+  <bean id="audiocodesMediantBRI" parent="audiocodesBRI">
+    <property name="label" value="AudioCodes Mediant 1000 BRI" />
+    <property name="maxPorts" value="24" />
+  </bean>
+
+  <bean id="gwAudiocodesBRI" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesBRIGateway"
+	scope="prototype" parent="gwGeneric">
+  </bean>
+
+  <!-- audiocodes Media Pack FXO gateways -->
+  <bean id="audiocodesFxo" abstract="true" parent="audiocodesGatewayModel">
+    <property name="beanId" value="gwAudiocodesMediant" />
+    <property name="portLabelFormat" value="%s" />
+    <property name="portLabelSettings">
+      <list>
+        <value>Port/Extension</value>
+      </list>
+    </property>
+	<property name="supportedFeatures">
+	  <set>
+	        <value>trunkGateway</value>
+		<value>fxo</value>
+	  </set>
+    </property>
+  </bean>
+
+  <bean id="audiocodesMP1X4_4_FXO" parent="audiocodesFxo">
+    <property name="label" value="AudioCodes MP114 FXO" />
+    <property name="maxPorts" value="4" />
+  </bean>
+
+  <bean id="audiocodesMP1X8_8_FXO" parent="audiocodesFxo">
+    <property name="label" value="AudioCodes MP118 FXO" />
+    <property name="maxPorts" value="8" />
+  </bean>
+
+  <bean id="gwAudiocodesMediant" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxoGateway"
+    scope="prototype" parent="gwGeneric">
+  </bean>
+
+  <!-- AudioCodes FXS gateways -->
+  <bean id="audiocodesFxs" abstract="true" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsModel"
+    parent="abstractGatewayModel">
+    <property name="beanId" value="gwFxsAudiocodes" />
+    <property name="profileTemplate" value="audiocodes/gateway-%s.ini.vm" />
+    <property name="modelDir" value="audiocodes" />
+    <property name="externalLinesSupported" value="false" />
+	<property name="vendor" value="AudioCodes"/>
+    <property name="configDirectory">
+      <value>${audiocodesFxs.configDirectory}</value>
+    </property>
+    <property name="supportedFeatures">
+	  <set>
+		<value>fxs</value>
+	  </set>
+    </property>
+  </bean>
+
+  <bean id="audiocodesMP112_FXS" parent="audiocodesFxs">
+    <property name="label" value="AudioCodes MP112 FXS" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+
+  <bean id="audiocodesMP114_FXS" parent="audiocodesFxs">
+    <property name="label" value="AudioCodes MP114 FXS" />
+    <property name="maxLineCount" value="4" />
+  </bean>
+
+  <bean id="audiocodesMP118_FXS" parent="audiocodesFxs">
+    <property name="label" value="AudioCodes MP118 FXS" />
+    <property name="maxLineCount" value="8" />
+  </bean>
+
+  <bean id="audiocodesMP124_FXS" parent="audiocodesFxs">
+    <property name="label" value="AudioCodes MP124 FXS" />
+    <property name="maxLineCount" value="24" />
+  </bean>
+
+  <bean id="gwFxsAudiocodes" class="org.sipfoundry.sipxconfig.gateway.audiocodes.AudioCodesFxsGateway" scope="prototype"
+    parent="abstractPhone">
+  </bean>
+
+  <!-- Firmware specification -->
+  <bean id="abstractAudiocodesFirmware" class="org.sipfoundry.sipxconfig.upload.UploadSpecification" abstract="true">
+    <property name="beanId" value="upload" />
+    <property name="modelFilePath" value="audiocodes/upload.xml" />
+  </bean>
+
+  <bean id="audiocodesFirmware" parent="abstractAudiocodesFirmware">
+    <property name="label" value="AudioCodes MP 11x" />
+  </bean>
+  <bean id="audiocodesFirmwareMediant100" parent="abstractAudiocodesFirmware">
+    <property name="label" value="AudioCodes Mediant" />
+  </bean>
+  <bean id="audiocodesFirmwareTp260" parent="abstractAudiocodesFirmware">
+    <property name="label" value="AudioCodes TP260" />
+  </bean>
+  <bean id="audiocodesFirmwareMP128" parent="abstractAudiocodesFirmware">
+    <property name="label" value="AudioCodes MP128" />
+  </bean>
+</beans>

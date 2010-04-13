@@ -1,0 +1,39 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"></span>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="enableGroup" field="component:enableGroup" label="message:label.enableGroup">
+            <span jwcid="enableGroup@Checkbox" id="enableGroup" value="ognl:group.enabled"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="number" field="component:number" label="message:label.number">
+            <span jwcid="number@TextField" id="number" value="ognl:group.pageGroupNumber" translator="translator:integer" validators="spring-validators:required,min=0,max=99" displayName="message:label.number"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="description" field="component:description" label="message:label.description">
+            <span jwcid="description@TextArea" id="description" value="ognl:group.description" cols="45" rows="5" validators="spring-validators:validFieldSize"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="timeout" field="component:timeout" label="message:label.timeout">
+            <span jwcid="timeout@TextField" id="timeout" value="ognl:group.timeout"
+              translator="translator:integer" validators="spring-validators:required,min=0,max=600" displayName="message:label.timeout"/>
+          </tr>
+          <tr>
+            <td><label for="beep"><span key="label.pageBeep"/></label></td>
+            <td><span jwcid="beep@common/AssetSelectorMultiple" asset="ognl:group.sound" assetDir="ognl:sipxPageService.audioDir"
+              errorMsg="message:error.select" contentType="literal:audio/x-wav" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <ul class="component-links">
+        <li>
+          <a jwcid="addExtensions@LinkSubmit" listener="listener:add"><span key="addExtension" /></a>
+        </li>
+      </ul>
+      <span jwcid="extensionsTable@user/UserSearchResults" users="ognl:group.users" />
+      <span jwcid="@Submit" listener="listener:delete" value="message:label.delete" />
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
+  </form>
+</div>

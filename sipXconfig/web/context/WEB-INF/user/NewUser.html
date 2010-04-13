@@ -1,0 +1,26 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="extensionPoolsLink@DirectLink" id="link:extensionPool"
+          listener="listener:extensionPools">
+          <span key="extensionPool">Extension Pool</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@setting/GroupCloud" groups="ognl:coreContext.groups"/>
+  <span jwcid="@common/ErrorMsg"/>
+  <div id="settings-content">
+    <form jwcid="form@Form" delegate="bean:validator">
+      <span jwcid="userForm@user/UserForm"
+        user="ognl:user"
+        alwaysShowSipPassword="true"/>
+      <checkbox jwcid="stay@Checkbox" value="ognl:stay"/> <span key="createAnother">Another user?</span>
+      <ul jwcid="formActions@common/FormActions"
+        callback="ognl:callback"
+        listener="listener:commit"
+        buttonPressed="ognl:buttonPressed" />
+    </form>
+  </div>
+</div>

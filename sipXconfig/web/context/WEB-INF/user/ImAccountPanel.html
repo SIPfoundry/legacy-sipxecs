@@ -1,0 +1,50 @@
+<ul class="component-links">
+  <li jwcid="@common/ToggleLink"
+    toggle="ognl:components['settingsFieldset'].showAdvanced" />
+</ul>
+<table>
+  <tbody>
+    <div jwcid="@If" condition="ognl:adminMode" renderTag="false">
+      <tr jwcid="@common/FieldPanel" for="user:imAccountSetting"
+        field="component:imAccountSetting"
+        label="message:enabled">
+        <checkbox jwcid="imAccountSetting@Checkbox"
+          id="user:imAccountSetting"
+          value="ognl:imAccount.enabled" />
+      </tr>
+    </div>
+    <tr jwcid="@common/FieldPanel" for="user:imId"
+      field="component:imId"
+      label="message:label.imId"
+      description="message:description.imId">
+      <input jwcid="imId@TextField" id="user:imId"
+        value="ognl:imAccount.imId"
+        disabled="ognl:!adminMode"
+        validators="spring-validators:validImId,required"
+        maxlength="255"
+        autocomplete="off" />
+    </tr>
+    <tr jwcid="@common/FieldPanel" for="user:imDisplayName"
+      field="component:imDisplayName"
+      label="message:label.imDisplayName"
+      description="message:description.imDisplayName">
+      <input jwcid="imDisplayName@TextField" id="user:imDisplayName"
+        value="ognl:imAccount.imDisplayName"
+        validators="validators:required"
+        maxlength="255"
+        autocomplete="off" />
+    </tr>
+    <tr jwcid="@user/ConfirmPassword"
+      password="ognl:user.imPassword"
+      passwordDisplayName="message:label.imPassword"
+      confirmPasswordDisplayName="message:label.confirm.imPassword"
+      passwordDescription="message:description.imPassword"
+      passwordValidator="ognl:{}" />
+    </tbody>
+</table>
+<span jwcid="settingsFieldset@setting/SettingsFieldset"
+  settings="ognl:imSettings"
+  requiredEnabled="requiredEnabled"
+  renderGroupTitle="ognl:false"
+  showAdvancedToggle="false"
+  settingsToHide="im-account, im-group, add-pa-to-group" />

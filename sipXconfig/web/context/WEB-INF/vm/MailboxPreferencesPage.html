@@ -1,0 +1,20 @@
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <span jwcid="@user/UserNavigation" bean="ognl:editedUser" renderCondition="ognl:userSession.admin" />
+  <span jwcid="@If" condition="ognl:!userSession.admin">
+    <h2><span key="title">Mailbox Preferences</span></h2>
+  </span>
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="mailboxPrefsForm@Form" delegate="bean:validator">
+    <table>
+      <span jwcid="@vm/MailboxPreferencesForm"
+        preferences="ognl:mailboxPreferences"
+        admin="ognl:userSession.admin"
+        advanced="ognl:advanced"
+        user="ognl:user"/>
+      <span jwcid="voicemailServer@vm/VoicemailServerComponent" id="voicemailServer"
+        settings="ognl:editedUser.settings"/>
+    </table>
+    <span jwcid="@common/FormActions" listener="listener:onApply" callback="ognl:callback"/>
+  </form>
+</div>

@@ -1,0 +1,28 @@
+<html title="sipXconfig">
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@common/Border"  borderTitle="ognl:borderTitle">
+        <br/><br/>
+        <span jwcid="foundMsgText"/>
+        <ul>
+	        <span jwcid="results">
+	            <li><span jwcid="itemType"/>:<a jwcid="editLink"><span jwcid="itemName"/></a><br/>
+                    <span class="settingDescription" jwcid="itemDescription"></span>
+                </li>
+			</span>
+        </ul>
+        <span jwcid="@If" condition="ognl:foundCount == 0">
+          <span jwcid="@common/ErrorMsg" validator="bean:validator"/>
+          <form jwcid="@Form" delegate="bean:validator">
+            <input jwcid="rebuildSearchIndex@Submit" id="search:rebuildSearchIndex"
+              listener="listener:rebuildSearchIndex"
+              value="message:button.rebuildSearchIndex" />
+            <br/><br/>
+            <div jwcid="@Insert" raw="true" value="message:description.rebuildSearchIndex" />
+          </form>
+        </span>
+    </div>
+</body>
+</html>

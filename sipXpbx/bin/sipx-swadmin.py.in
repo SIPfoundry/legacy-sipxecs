@@ -1,0 +1,165 @@
+#! /usr/bin/env python
+
+#----------------------------------------------------------------------
+#
+# Copyright (C) 2008 Nortel Networks
+#
+# This script drives the software admin package update process,
+# interacting with Yum and presenting output in a friendly
+# manner.
+#
+#----------------------------------------------------------------------
+
+import yum, sys, os, fcntl, signal, time
+from subprocess import Popen, PIPE
+
+# Checks for updated sipXecs packages.
+def check_update():
+    print "# Package Name|Installed Version|Updated Version"
+    yumBase = yum.YumBase()
+
+    # Check for an installed sipxecs package.
+    # This is used to determine whether or not to look
+    # at specific sipx repos or all repos for updates.
+    sipxPackage = yumBase.rpmdb.searchAll("sipxecs")
+    if len(sipxPackage) > 0:
+       yumBase.repos.disableRepo('*')
+       yumBase.repos.enableRepo("sipxecs*")
+
+    packages = yumBase.doPackageLists('updates')
+
+    for package in packages.updates:
+        installedPackage = yumBase.rpmdb.searchAll(package.name)[0]
+        print package.name + "|" + installedPackage.ver + "-" + installedPackage.release + "|" + package.ver + "-" + package.release
+        sys.stdout.flush()
+
+    sys.stderr.write('***END***\n')
+    sys.stdout.write('***END***\n')
+    sys.stdout.flush()
+    sys.stderr.flush()
+    time.sleep(1)
+
+# Checks the version of sipXecs installed on the system.
+# The version of the main sipxecs package is checked, and that version number is used.
+def check_version():
+    yumBase = yum.YumBase()
+    pkgName = "@SIPXECS_NAME@"
+    # check for one of two possible sipx packages to obtain the version number.
+    # The package found will be different based on whether or not its a Master
+    # or Distributed system.
+    sipxPackage = yumBase.rpmdb.searchAll("sipxcommons")
+    if len(sipxPackage) == 0:
+       sipxPackage = yumBase.rpmdb.searchAll("sipxcommserverlib")
+
+    if len(sipxPackage) > 0:
+       print "version:" + sipxPackage[0].name + " " + sipxPackage[0].ver + "-" + sipxPackage[0].release
+    else:
+       print "Could not determine version"
+
+    sys.stderr.write('***END***\n')
+    sys.stdout.write('***END***\n')
+    sys.stdout.flush()
+    sys.stderr.flush()
+    time.sleep(1)
+
+# Downloads and installs updated packages for the system
+def update():
+    print "Downloading and installing updated packages...\n\n"
+    sys.stdout.flush()
+
+#   Turn buffering of the output off so we can get intermittent results.
+    flag = fcntl.fcntl(sys.stdout.fileno(), fcntl.F_GETFL)
+    fcntl.fcntl(sys.stdout.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
+    flag = fcntl.fcntl(sys.stderr.fileno(), fcntl.F_GETFL)
+    fcntl.fcntl(sys.stderr.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
+
+#    Commented out open source check to allow operating system updates to happen via sipXconfig
+#    yumBase = yum.YumBase()
+#    sipxPackage = yumBase.rpmdb.searchAll("sipxecs-release")
+#    if len(sipxPackage) > 0:
+#        yumProcess = os.system("yum update -y --disablerepo=* --enablerepo=sipxecs*")
+#    else:
+    yumProcess = os.system("yum update -y")
+    sys.stdout.flush()
+    print "Package update complete.\n"
+    sys.stderr.write('***END***\n')
+    sys.stdout.write('***END***\n')
+    sys.stdout.flush()
+    sys.stderr.flush()
+    time.sleep(2)
+    restart()
+
+# Restarts the sipXecs
+def restart():
+    print "Restarting the sipXecs...\n\n"
+    sys.stdout.flush()
+
+#   Turn buffering of the output off so we can get intermittent results.
+    flag = fcntl.fcntl(sys.stdout.fileno(), fcntl.F_GETFL)
+    fcntl.fcntl(sys.stdout.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
+    flag = fcntl.fcntl(sys.stderr.fileno(), fcntl.F_GETFL)
+    fcntl.fcntl(sys.stderr.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
+
+    sys.stdout.flush()
+    os.system("@SERVICEDIR@/sipxecs restart")
+    sys.stderr.write('***END***\n')
+    sys.stdout.write('***END***\n')
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+# Reboot the system
+def reboot():
+    print "Rebooting the system...\n\n"
+    sys.stdout.flush()
+
+#   Turn buffering of the output off so we can get intermittent results.
+    flag = fcntl.fcntl(sys.stdout.fileno(), fcntl.F_GETFL)
+    fcntl.fcntl(sys.stdout.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
+    flag = fcntl.fcntl(sys.stderr.fileno(), fcntl.F_GETFL)
+    fcntl.fcntl(sys.stderr.fileno(), fcntl.F_SETFL, flag | os.O_NDELAY)
+
+    sys.stdout.flush()
+    os.system("/sbin/shutdown -r now")
+    sys.stderr.write('***END***\n')
+    sys.stdout.write('***END***\n')
+    sys.stdout.flush()
+    sys.stderr.flush()
+
+def usage():
+    print """
+        Usage: sipx-swadmin.py <command>
+
+
+        Valid commands:
+          check-update      Check for updated sipx packages
+          update            Update packages on the system
+          version           Show installed sipXecs version
+          restart           Restarts sipXecs.  Usually done after an update.
+          reboot            Reboot the system.
+    """
+    sys.exit(1);
+
+#======================================================================
+# MAIN SCRIPT BODY STARTS HERE
+#======================================================================
+
+if len(sys.argv) < 2:
+    usage()
+    quit()
+
+# Allow child process signals to be processed in the default manner.
+signal.signal(signal.SIGCHLD, signal.SIG_DFL)
+
+if sys.argv[1] == "check-update":
+    check_update()
+elif sys.argv[1] == "version":
+    check_version()
+elif sys.argv[1] == "update":
+    update()
+elif sys.argv[1] == "restart":
+    restart()
+elif sys.argv[1] == "reboot":
+    reboot()
+else:
+    usage()
+

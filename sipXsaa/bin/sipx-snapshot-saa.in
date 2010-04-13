@@ -1,0 +1,31 @@
+#!/bin/sh
+###
+### Order sipXsaa to write its state into its log file.
+###
+
+# Temporary file.
+Work=${TMPDIR:-/tmp}/sipx-snapshot-saa.$$
+
+# Get the SIP domain into SIPXCHANGE_DOMAIN_NAME.
+. @SIPX_LIBEXECDIR@/sipx-utils.sh
+Domain=`sipx_config_value @SIPX_CONFDIR@/domain-config SIP_DOMAIN_NAME`
+SaaPort=`sipx_config_value @SIPX_CONFDIR@/sipxsaa-config SIP_SAA_UDP_PORT`
+
+# Send a MESSAGE request to ~~sa~D~dumpstate, which causes the SAA to
+# write its state.
+if @SIPX_BINDIR@/sipsend \
+        `hostname -f` \
+        MESSAGE \
+        "sip:~~sa~D~dumpstate@${Domain}:${SaaPort}" >$Work &&
+   grep '^SIP/2\.0  *2' $Work >/dev/null ; then
+    # If we got a success response, exit with 0.
+    rm $Work
+    exit 0
+else
+    # If we did not get a success response, output the response and exit with 1.
+    echo "Request failed:"
+    echo
+    cat $Work
+    rm $Work
+    exit 1
+fi

@@ -1,0 +1,1018 @@
+#!@BASH@
+
+Action=RECORDS_ONLY
+SipDomain=""
+HostMax=0
+ExitStatus=0
+SerialNumber=00
+PortTCP=5060
+PortUDP=5060
+XMPPClientPort=5222
+XMPPServerPort=5269
+ProvideDNS=EXTERNAL
+Feedback=QUIET
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+digOpts="+noidentify +nocmd +nocomments +noquestion +nostats +noauthority +noadditional"
+
+showUsage() {
+    cat <<USAGE
+
+Usage:
+    
+  To generate DNS records:
+
+    sipx-dns <sip-domain> <callserver-name>[/<ipaddr>]...
+             [ { -o | --other } <system-name>[/<ipaddr>] ] ...
+             [ { -x | --xmpp } <system-name>[/<ipaddr] ] ...
+             [ { -z | --zone } [ { -s | --serial } <serial-suffix> ] ]
+             [ { -T | --port-TCP } ]
+             [ { -U | --port-UDP } ]
+             [ { -p | --provide-dns } ]
+
+      Output DNS records in BIND format for @SIPXECS_NAME@ services.  
+      The records are printed on the standard output.
+
+      The --zone option adds a header to the output that makes
+      it a complete zone file (see 'FULL ZONE' below).
+
+  To validate existing (live) DNS configuration:
+
+    sipx-dns { -t | --test }
+             <sip-domain> <callserver-name>[/<ipaddr>]...
+             [ { -o | --other } <system-name>[/<ipaddr>] ] ...
+             [ { -x | --xmpp } <system-name>[/<ipaddr>] ] ...
+             [ { -T | --port-TCP } ]
+             [ { -U | --port-UDP } ]
+             [ { -p | --provide-dns } ]
+             [ { -v | --verbose } ]
+
+      Checks that the DNS contains all the records required by the 
+      configuration described by the remaining arguments.
+
+      Error messages are printed for any missing records, including
+      the records as they should be configured.
+
+      The exit status is zero if all required records are found, 
+      non-zero if not.
+
+  Common argument descriptions:
+
+    sip-domain   
+
+        Is the domain that to be used as the domain part of your SIP
+        addresses.  Typically, this is your top level domain name
+        (example.com).  If any callserver or system names are not fully
+        qualified (do not contain any '.' characters), then this domain
+        is appended to those names to create fully qualified names.
+
+    callserver-name/ipaddr
+
+        This is the name of a @SIPXECS_NAME@ server in your domain that
+        is running the Call Router (sipXproxy) service.
+
+    --other | -o system-name/ipaddr
+
+        Specifies a name/address pair that is not a callserver.
+
+    --xmpp | -x system-name/ipaddr
+
+        Specifies a name/address pair that identifies the location(s) of the xmpp server(s).
+
+    --provide-dns | -p 
+
+        Indicates that the DNS service is to be hosted on the callserver
+        systems. 
+
+    --port-TCP | -T
+
+        Specifies a value for the TCP SIP listening port.
+
+    --port-UDP | -U
+
+        Specifies a value for the UDP SIP listening port.
+
+    --version | -V
+
+        Prints the version of this utility and immediately exits.
+
+    --help | -h | -?
+
+        Prints this usage information.
+
+  FULL ZONE
+
+    The --zone option causes a zone header to be output.  This output is 
+    suitable as a complete zone file for 'bind'.  
+
+    You MUST:
+
+    - Provide either 'callserver' or 'other' system arguments for ALL systems
+      in the domain.
+
+    - Provide the '/ipaddr' part of each system (callserver or other) argument.
+
+    - Every callserver is assumed to also be a DNS server for the domain 
+      (this is recommended practice anyway for performance and stability 
+      reasons).
+
+    The '--serial' option accepts a number that is the number of times the 
+    sipx-dns command output has been used in the same day to configure a running
+    dns server.  This can be omitted if you are running the command only once.
+    It is used to generate the zone serial number so that secondary servers 
+    will recognize when the master server has been updated and trigger replication.
+
+  REVERSE ZONES
+
+    PTR records for reverse (address to name) lookups are not
+    generated.  They are nice to have for system management, but 
+    @SIPXECS_NAME@ does not need them.
+
+USAGE
+}
+
+validateFullName() {
+    case ${1} in 
+        *.*)
+            echo ${1}
+            break
+            ;;
+        *.)
+            echo ${1} | sed 's/.$//'
+            break
+            ;;
+        *)
+            echo "'${1}' is not a fully qualified name." 1>&2
+            showUsage
+            exit 1
+            ;;
+    esac
+}
+
+validateName() {
+    case ${1} in 
+        *.*)
+            echo ${1}
+            break
+            ;;
+        *.)
+            echo ${1} | sed 's/.$//'
+            break
+            ;;
+        *)
+            echo ${1}.${SipDomain}
+            ;;
+    esac
+}
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        -h|-\?|--help)
+            showUsage
+            exit 0
+            ;;
+
+        -v|--verbose)
+            Feedback=VERBOSE
+            ;;
+
+        -V|--version)
+            echo "@SIPX_VERSION@"
+            exit 0
+            ;;
+
+        -t|--test)
+            Action=TEST
+            ;;
+
+        -z|--zone)
+            Action=FULL_ZONE
+            ;;
+
+        -p|--provide-dns)
+            ProvideDNS=INTERNAL
+            ;;
+
+        ##
+        ## handle the 'end of options' marker
+        ##
+        --)
+            ;;
+
+        -o|--other)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <name/ip-address> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                ClusterHosts[${HostMax}]=${2}
+                Type[${HostMax}]="OTHER"
+                HostMax=$((${HostMax} + 1))
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -x|--xmpp)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <name/ip-address> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                ClusterHosts[${HostMax}]=${2}
+                Type[${HostMax}]="XMPP"
+                HostMax=$((${HostMax} + 1))
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -s|--serial)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <serial-number> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                SerialNumber=`printf "%02d" $2`
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -T|--port-TCP)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <sipx-listening-TCP-port> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                PortTCP=$2
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        -U|--port-UDP)
+            if [ $# -lt 2 ]
+            then
+                echo "Must specify <Must specify <sipx-listening-UDP-port> with ${1}" 1>&2
+                Action=USAGE
+                break
+            else
+                PortUDP=$2
+                shift # consume the switch ( for n values, consume n-1 )
+            fi
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+            echo "Unrecognized option '${1}'" 1>&2
+            showUsage
+            exit 1
+            ;;
+
+        *)
+            if [ -z "${SipDomain}" ]
+            then
+                SipDomain=`validateFullName ${1}`
+            else
+                ClusterHosts[${HostMax}]=${1}
+                Type[${HostMax}]="CALLSERVER"
+                HostMax=$((${HostMax} + 1))
+            fi
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+###
+### Check argument list
+###
+HostMax=$((${HostMax} - 1))
+if [ ${HostMax} -eq -1 ]
+then
+    echo "Must specify servers" 1>&2
+    showUsage
+    exit 1
+fi
+
+for host in `seq 0 ${HostMax}`
+do
+    thishost=${ClusterHosts[${host}]}
+    case ${thishost} in
+
+    */*)
+        hostname=`echo ${thishost} | cut -d / -f 1`
+        Host[${host}]=`validateName ${hostname}`
+        Addr[${host}]=`echo ${thishost} | cut -d / -f 2`
+        ;;
+
+    *)
+        case ${Action} in
+
+        TEST)
+            cat <<EOF 1>&2
+  When validating DNS, all systems must specify an ip address
+    Address needed for '${thishost}'.
+EOF
+            ExitStatus=1
+            ;;
+
+        FULL_ZONE)
+            cat <<EOF 1>&2
+  When generating a full zone file, all systems must specify an ip address
+    Address needed for '${thishost}'.
+EOF
+            ExitStatus=1
+            ;;
+
+        RECORDS_ONLY)
+            Host[${host}]=`validateName ${thishost}`
+            Addr[${host}]=""
+            ;;
+        esac
+    esac
+done
+
+test ${ExitStatus} -eq 0 || exit ${ExitStatus}
+
+
+verbose () {
+    test "${Feedback}" = "VERBOSE"
+}
+
+generate_zone_header () {
+    ZoneSerialNumber=`date +%Y%m%d${SerialNumber}`
+    cat <<EOF
+\$TTL 1800
+@       IN     SOA    ns1.${SipDomain}. root.${SipDomain}. (
+                       ${ZoneSerialNumber} ; serial#
+                       1800            ; refresh, seconds
+                       1800            ; retry, seconds
+                       1800            ; expire, seconds
+                       1800 )          ; minimum TTL, seconds
+EOF
+}
+
+generate_ns_records () {
+    for host in `seq 0 ${HostMax}`
+    do
+        if [ "${Type[${host}]}" = "CALLSERVER" ]
+        then
+            cat <<EOF
+
+; NS record for ${SipDomain}
+;    server: ${Host[${host}]}
+;
+${SipDomain}.            IN     NS     ${Host[${host}]}.
+EOF
+        fi
+    done
+}
+
+generate_a_records() {
+
+    for host in `seq 0 ${HostMax}`; do test -n "${Addr[${host}]}" && echo ${ClusterHosts[${host}]}; done \
+    | sort -u \
+    | while read hostname # iterate over all hosts for which we have addresses
+    do
+       for host in `seq 0 ${HostMax}`
+       do
+          if [ "$hostname" == "${ClusterHosts[${host}]}" ]
+          then
+             cat <<EOF
+
+; A record for ${Host[${host}]}
+;
+${Host[${host}]}.       IN      A       ${Addr[${host}]}
+EOF
+             break;
+         fi
+      done
+   done
+
+}
+
+generate_naptr_records () {
+
+cat <<EOF
+
+; NAPTR record for SIP TCP ${SipDomain}
+;     priority: 2  weight: 0
+;     protocol: "SIP+D2T"  regex: ""  uri: _sip._tcp.${SipDomain}
+;
+${SipDomain}.           IN      NAPTR   2 0 "s" "SIP+D2T" "" _sip._tcp.${SipDomain}.
+
+; NAPTR record for SIP UDP ${SipDomain}
+;     priority: 2  weight: 0
+;     protocol: "SIP+D2U"  regex: ""  uri: _sip._udp.${SipDomain}
+;
+${SipDomain}.           IN      NAPTR   2 0 "s" "SIP+D2U" "" _sip._udp.${SipDomain}.
+EOF
+
+}
+
+generate_domain_srv_records () {
+
+    for host in `seq 0 ${HostMax}`
+    do
+        if [ "${Type[${host}]}" = "CALLSERVER" ]
+        then
+            server=${Host[${host}]}
+            cat <<EOF
+
+; SRV record for domain SIP TCP ${SipDomain} 
+;     priority: 1  weight: 0  port: ${PortTCP}  server: ${server}
+;
+_sip._tcp.${SipDomain}. IN      SRV     1 0 ${PortTCP} ${server}.
+
+; SRV record for domain SIP UDP ${SipDomain} 
+;     priority: 1  weight: 0  port: ${PortUDP}  server: ${server}
+;
+_sip._udp.${SipDomain}. IN      SRV     1 0 ${PortUDP} ${server}.
+EOF
+        fi
+    done
+}
+
+generate_service_srv_records () {
+
+    for host in `seq 0 ${HostMax}`
+    do
+        if [ "${Type[${host}]}" = "CALLSERVER" ]
+        then
+            server=${Host[${host}]}
+            cat <<EOF
+
+; SRV record for service SIP TCP rr.${server}
+;     priority: 1  weight: 0  port: 5070  server: ${server}
+;
+_sip._tcp.rr.${server}. IN      SRV     1   0 5070 ${server}.
+EOF
+            for backuphost in `seq 0 ${HostMax}`
+            do
+                if [ "${Type[${backuphost}]}" = "CALLSERVER" ]
+                then
+                    backup=${Host[${backuphost}]}
+                    if [ "${server}" != "${backup}" ] 
+                    then
+                        cat <<EOF
+
+; SRV record for service failover SIP TCP rr.${backup}
+;     priority: 2  weight: 100  port: 5070  server: ${backup}
+;
+_sip._tcp.rr.${server}. IN      SRV     2 100 5070 ${backup}.
+EOF
+                    fi
+                fi
+            done
+        fi
+    done
+}
+
+
+generate_xmpp_srv_records () {
+
+    for xmpphost in `seq 0 ${HostMax}`
+    do
+        if [ "${Type[${xmpphost}]}" = "XMPP" ]
+        then
+            server=${Host[${xmpphost}]}
+            cat <<EOF
+
+; SRV record for XMPP SERVER TCP ${SipDomain}
+;     priority: 1  weight: 0  port: 5269  server: ${server}
+;
+_xmpp-server._tcp.${SipDomain}. IN      SRV     1  0 ${XMPPServerPort} ${server}.
+
+; SRV record for XMPP CLIENT TCP ${SipDomain}
+;     priority: 1  weight: 0  port: 5222  server: ${server}
+;
+_xmpp-client._tcp.${SipDomain}. IN      SRV     1  0 ${XMPPClientPort} ${server}.
+
+; SRV record for XMPP SERVER CHAT ROOM TCP ${SipDomain}
+;     priority: 1  weight: 0  port: 5222  server: ${server}
+;     NOTE: the XMPP client port is used here as this is the port used 
+;           by openfire to service multi-user chat requests.
+;
+_xmpp-server._tcp.conference.${SipDomain}. IN      SRV     1  0 ${XMPPClientPort} ${server}.
+
+; SRV record for XMPP CLIENT CHAT ROOM TCP ${SipDomain}
+;     priority: 1  weight: 0  port: 5222  server: ${server}
+;
+_xmpp-client._tcp.conference.${SipDomain}. IN      SRV     1  0 ${XMPPClientPort} ${server}.
+EOF
+        fi
+    done
+}
+
+generate_bind_records () {
+
+    if [ "${ProvideDNS}" = "INTERNAL" ]
+    then
+        cat <<EOF
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; DNS Servers for '${SipDomain}'
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+EOF
+
+        generate_ns_records
+    fi
+
+    cat <<EOF
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Call Routing for SIP domain '${SipDomain}'
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+EOF
+    generate_naptr_records
+
+    generate_domain_srv_records
+
+    generate_service_srv_records
+
+    generate_xmpp_srv_records
+
+    cat <<EOF
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; IP Addresses
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+EOF
+
+    generate_a_records
+
+    cat <<EOF
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+EOF
+
+}
+
+normName () {
+    echo ${1} | sed 's/\.$//'
+}
+
+strip_space_and_comments () {
+    perl -ne 's/;.*//; m/^\s*$/ || print'
+}
+
+validate_ns_records () {
+    local fullname
+    local name
+    local intag
+    local rectype
+    local fulltarget
+    local target
+    local returned
+    local resolves=NO
+    local liveservers
+
+    verbose && echo -e "\nChecking 'NS' (domain->nameserver) Records:"
+    generate_ns_records \
+    | strip_space_and_comments \
+    | while read fullname intag rectype fulltarget extrajunk ; do
+        name=`normName ${fullname}`
+        target=`normName ${fulltarget}`
+        liveservers=`dns_ns ${name}`
+
+        resolves=NO
+        for returned in ${liveservers}
+        do
+            if [ "${target}" = "${returned}" ]
+            then
+                resolves=OK
+                break
+            fi
+        done
+        if [ ${resolves} = OK ]
+        then
+            verbose && echo "   Found:    ${name} -> ${target} "
+        else
+            verbose && echo "   Failed:   ${name} -> ${target} "
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; NS record for ${name}
+;    server: ${target}
+;
+${fullname}\t${intag}\t${rectype}\t${fulltarget}
+EOF
+        fi
+    done
+}
+
+validate_a_records () {
+    local fullname
+    local name
+    local cname
+    local intag
+    local rectype
+    local target
+    local extrajunk
+    local ip
+    local resolves=NO
+
+    verbose && echo -e "\nChecking 'A' (name->ip) Records:"
+    generate_a_records \
+    | strip_space_and_comments \
+    | while read fullname intag rectype target extrajunk ; do
+        name=`normName ${fullname}`
+        resolves=NO
+        # look for a direct A record that points to the target address
+        for ip in `dns_a ${name}`
+        do
+            if [ "${ip}" = "${target}" ]
+            then
+                resolves=OK
+                break
+            fi
+        done
+        if [ ${resolves} = OK ]
+        then
+            verbose && echo "   Found:    ${name} -> ${target} "
+        else
+            # look for a cname that points to some other name that points to the target address
+            for cname in `dns_cname ${name}`
+            do
+                for ip in `dns_a ${cname}`
+                do
+                    if [ "${ip}" = "${target}" ]
+                    then
+                        resolves=OK
+                        break
+                    fi
+                done
+            done
+
+            if [ ${resolves} = OK ]
+            then
+                verbose && echo "   Found:    ${name} -> ${cname} -> ${target} "
+            else
+                verbose && echo "   Failed:   ${name} -> ${target} "
+                perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; A record for ${name}
+; 
+${fullname}\t${intag}\t${rectype}\t${target}
+EOF
+            fi
+        fi
+    done
+}
+
+validate_domain_naptr_records () {
+    local fullname
+    local name
+    local intag
+    local rectype
+    local priority
+    local weight
+    local naptrtype
+    local protocode
+    local regex
+    local fulltarget
+    local proto
+    local target
+    local extrajunk
+    local resolves=NO
+
+    verbose && echo -e "\nChecking domain 'NAPTR' (domain->protocol) Records:"
+    generate_naptr_records \
+    | strip_space_and_comments \
+    | while read fullname intag rectype priority weight naptrtype protocode regex fulltarget extrajunk ; do
+        name=`normName ${fullname}`
+        target=` \
+            normName ${fulltarget} \
+            | sed -e 's/_sip\._tcp\./SIP TCP /' \
+            | sed -e 's/_sip\._udp\./SIP UDP /' \
+            `
+        resolves=NO
+        # look for a NAPTR record that points to the target
+        for proto in \
+            `dig  -t naptr ${digOpts} ${fullname} \
+            | tr A-Z a-z \
+            `; \
+        do
+            if [ "${proto}" = "${fulltarget}" ]
+            then
+                resolves=OK
+                break
+            fi
+        done
+
+        if [ ${resolves} = OK ]
+        then
+            verbose && echo "   Found:    ${name} -> ${target} "
+        else
+            verbose && echo "   Failed:   ${name} -> ${target} "
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; NAPTR record for ${name}
+;     priority: ${priority}  weight: ${weight}
+;     protocol: ${protocode}  regex:  ${regex}  uri: ${fulltarget}
+;
+${fullname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${naptrtype}\t${protocode}\t${regex}\t${fulltarget}
+EOF
+        fi
+
+    done
+}
+
+isCallServer () { # name - returns true/false
+    local name=$1
+    local host
+
+    for host in `seq 0 ${HostMax}`
+    do
+        if [ "${Host[${host}]}" = "${name}" ]
+        then
+            if [ "${Type[${host}]}" = "CALLSERVER" ]
+            then
+                return 0
+            else
+                return 1
+            fi
+        fi
+    done
+    return 1
+}
+
+validate_domain_srv_records () {
+    local protoname
+    local name
+    local cname
+    local intag
+    local rectype
+    local priority
+    local weight
+    local port
+    local fulltarget
+    local target
+    local extrajunk
+    local resolves=NO
+
+    verbose && echo -e "\nChecking domain 'SRV' (domain->server) Records:"
+    generate_domain_srv_records \
+    | strip_space_and_comments \
+    | while read protoname intag rectype priority weight port fulltarget extrajunk ; \
+    do
+        name=` \
+            normName ${protoname} \
+            | sed -e 's/_sip\._tcp\./SIP TCP /' \
+            | sed -e 's/_sip\._udp\./SIP UDP /' \
+            `
+        target=`normName ${fulltarget}`
+
+        # look for an SRV record that points to the target server
+        resolves=NO
+        for server in \
+            `dig  -t srv ${digOpts} ${protoname} \
+            | tr A-Z a-z \
+            `; \
+        do
+            if [ "${server}" = "${fulltarget}" ]
+            then
+                resolves=OK
+                break
+            fi
+        done
+
+        if [ ${resolves} = OK ]
+        then
+            verbose && echo "   Found:    ${name} -> ${target} "
+        else
+            verbose && echo "   Failed:   ${name} -> ${target} "
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; SRV record for domain ${name}
+;     priority: ${priority}  weight: ${weight}  port: ${port}  server: ${fulltarget}
+;
+${protoname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${port}\t${fulltarget}
+EOF
+
+        fi
+    done
+
+    # Check that all live domain SRV records point to a CALLSERVER
+    for proto in udp tcp ; \
+    do
+        dns_sipsrv ${proto} ${SipDomain} \
+        | while read name ; \
+        do
+            resolves=NO
+            if isCallServer ${name}
+            then
+                resolves=OK
+            else
+                # this live record does not point at a CALLSERVER,
+                # but check to see if the name it points to is a cname for a CALLSERVER
+                for cname in `dns_cname ${name}`
+                do
+                    if isCallServer ${cname}
+                    then
+                        resolves=OK
+                        break
+                    fi
+                done
+            fi
+            if [ ${resolves} = NO ]
+            then
+                perl -pe 's/\\t/\t/g' >> ${ErrorOut}.errors <<EOF
+
+; ! Incorrect SIP ${proto} record found:
+; ! _sip._${proto}.${SipDomain} -> ${name}
+EOF
+                ExitStatus=1
+            fi
+        done
+    done
+}
+
+validate_service_srv_records () {
+    local protoname
+    local name
+    local cname
+    local intag
+    local rectype
+    local priority
+    local weight
+    local port
+    local fulltarget
+    local target
+    local extrajunk
+    local resolves=NO
+
+    verbose && echo -e "\nChecking service 'SRV' (service->server) Records:"
+    generate_service_srv_records \
+    | strip_space_and_comments \
+    | while read protoname intag rectype priority weight port fulltarget extrajunk ; \
+    do
+        name=` \
+            normName ${protoname} \
+            | sed -e 's/_sip\._tcp\./SIP TCP /' \
+            | sed -e 's/_sip\._udp\./SIP UDP /' \
+            `
+        target=`normName ${fulltarget}`
+        resolves=NO
+        # look for an SRV record that points to the target server
+        for server in \
+            `dig  -t srv ${digOpts} ${protoname} \
+            | tr A-Z a-z \
+            `; \
+        do
+            if [ "${server}" = "${fulltarget}" ]
+            then
+                resolves=OK
+                break
+            fi
+        done
+
+        if [ ${resolves} = OK ]
+        then
+            verbose && echo "   Found:    ${name} -> ${target} "
+        else
+            verbose && echo "   Failed:   ${name} -> ${target} "
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; SRV record for service ${name}
+;     priority: ${priority}  weight: ${weight}  port: ${port}  server: ${fulltarget}
+;
+${protoname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${port}\t${fulltarget}
+EOF
+        fi
+    done
+}
+
+
+validate_xmpp_srv_records () {
+    local protoname
+    local name
+    local intag
+    local rectype
+    local priority
+    local weight
+    local port
+    local fulltarget
+    local target
+    local extrajunk
+    local resolves=NO
+
+    verbose && echo -e "\nChecking XMPP 'SRV' Records:"
+    generate_xmpp_srv_records \
+    | strip_space_and_comments \
+    | while read protoname intag rectype priority weight port fulltarget extrajunk ; \
+    do
+        name=` \
+            normName ${protoname} \
+            | sed -e 's/_xmpp-server\._tcp\./XMPP SERVER TCP /' \
+            | sed -e 's/_xmpp-client\._tcp\./XMPP CLIENT TCP /' \
+            `
+        target=`normName ${fulltarget}`
+        resolves=NO
+        # look for an SRV record that points to the target server
+        for server in \
+            `dig  -t srv ${digOpts} ${protoname} \
+            | tr A-Z a-z \
+            `; \
+        do
+            if [ "${server}" = "${fulltarget}" ]
+            then
+                resolves=OK
+                break
+            fi
+        done
+
+        if [ ${resolves} = OK ]
+        then
+            verbose && echo "   Found:    ${name} -> ${target} "
+        else
+            verbose && echo "   Failed:   ${name} -> ${target} "
+            perl -pe 's/\\t/\t/g' >> ${ErrorOut}.missing <<EOF
+
+; SRV record for ${name}
+;     priority: ${priority}  weight: ${weight}  port: ${port}  server: ${fulltarget}
+;
+${protoname}\t${intag}\t${rectype}\t${priority}\t${weight}\t${port}\t${fulltarget}
+EOF
+        fi
+    done
+}
+
+
+validate_bind_records () {
+
+    ErrorOut=`mktemp -t sipx-dns.XXXXXX`
+    trap "rm ${ErrorOut}* 2>/dev/null" 0
+    cat /dev/null > ${ErrorOut}.missing
+    cat /dev/null > ${ErrorOut}.errors
+
+    if [ "${ProvideDNS}" = "INTERNAL" ]
+    then
+        validate_ns_records
+    fi
+
+    validate_domain_naptr_records
+
+    validate_domain_srv_records
+
+    validate_service_srv_records
+
+    validate_xmpp_srv_records
+
+    validate_a_records
+
+    if [ -s ${ErrorOut}.errors ]
+    then
+        verbose && echo ""
+        cat <<EOF
+
+; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+; ! Errors - Incorrect SRV records:
+; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+EOF
+        cat ${ErrorOut}.errors
+        ExitStatus=1
+    fi
+
+    if [ -s ${ErrorOut}.missing ]
+    then
+        verbose && echo ""
+        cat <<EOF
+
+; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+; ! Missing DNS records:
+; !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+EOF
+        cat ${ErrorOut}.missing
+        ExitStatus=1
+    fi
+}
+
+case ${Action} in
+
+    FULL_ZONE)
+       generate_zone_header
+       generate_bind_records
+       ;;
+
+    RECORDS_ONLY)
+       generate_bind_records
+       ;;
+
+    TEST)
+       validate_bind_records
+       ;;
+
+esac
+
+exit ${ExitStatus}
+
+## Local Variables:
+## mode: shell-script
+## End:

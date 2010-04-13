@@ -1,0 +1,136 @@
+<!--
+    This is a configuration file for cruisecontrol sipXconfig build server.
+
+    It uses meta/sipXconfig/build.sipXconfig.xml Ant script to build sipXconfig
+    and run all the tests (including DB tests, integration test and code coverage.
+
+    Before you start cruisecontrol retrieve sipXconfig and sipXcommons code from
+    subversion:
+
+      svn co http://sipxecs.sipfoundry.org/rep/sipXecs/main/config project/ecs/main/config
+      svn co http://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcommons project/ecs/main/sipXcommons
+      svn co http://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXconfig project/ecs/main/sipXconfig
+
+    Please note that some values in htmlemail are hardcoded to nortel servers. Change them before trying to run
+    your own cruisecontrol build system.
+-->
+
+<cruisecontrol>
+
+  <property name="reportdir" value="report" />
+  <property name="build.dir" value="${project.dir}/build" />
+  <property name="log.dir" value="logs/${project.name}" />
+
+  <!-- to be used with default installation of cruisecontrol 2.3.1 or newer -->
+  <!-- svn co {sipXconfg-url} projects/sipXconfig to initialize -->
+
+  <plugin name="ant" antscript="/usr/bin/ant" uselogger="true" usedebug="false"
+    buildfile="${project.dir}/meta/build.sipXconfig.xml" target="build" timeout="5400" />
+
+  <plugin name="htmlemail" subjectprefix="${project.name} build:"
+    buildresultsurl="http://osprey.us.nortel.com:8080/cruisecontrol"
+    defaultsuffix="@nortel.com" mailhost="localhost"
+    xsldir="webapps/cruisecontrol/xsl"
+    css="webapps/cruisecontrol/css/cruisecontrol.css"
+    returnaddress="sipxconfig@nortel.com">
+    <always address="dkrzemin@nortel.com" />
+    <map alias="lazyboy" address="douglas@hubler.us" />
+  </plugin>
+
+  <plugin name="currentbuildstatuslistener" file="${log.dir}/status.txt" />
+
+  <plugin name="svnbootstrapper" file="${project.dir}/meta/build.sipXconfig.xml" />
+
+  <plugin name="svn" localworkingcopy="${project.dir}" />
+
+  <project name="sipXconfig" buildafterfailed="false">
+    <property name="project.dir" value="projects/ecs/main/sipXconfig" />
+
+    <listeners>
+      <currentbuildstatuslistener />
+    </listeners>
+
+    <bootstrappers>
+      <svnbootstrapper />
+    </bootstrappers>
+
+    <!-- Defines where cruise looks for changes, to decide whether to run the build -->
+    <modificationset quietperiod="10">
+      <svn />
+    </modificationset>
+
+    <!-- Configures the actual build loop, how often and which build file/target -->
+    <schedule interval="60">
+      <ant />
+    </schedule>
+
+    <!-- directory to write build logs to -->
+    <log logdir="${log.dir}">
+      <merge dir="${build.dir}/neoconf/junit/" pattern="TEST-*.xml" />
+      <merge dir="${build.dir}/web/junit/" pattern="TEST-*.xml" />
+      <merge file="${build.dir}/neoconf/checkstyle_errors.xml" />
+      <merge file="${build.dir}/web/checkstyle_errors.xml" />
+    </log>
+
+    <!-- Publishers are run *after* a build completes -->
+    <publishers>
+      <htmlemail />
+
+      <!-- publish clover stats on success -->
+      <onsuccess>
+        <artifactspublisher dir="${build.dir}/neoconf/clover/html" dest="${log.dir}" subdirectory="neoconf-clover" />
+        <artifactspublisher dir="${build.dir}/web/clover/html" dest="${log.dir}" subdirectory="web-clover" />
+        <artifactspublisher file="${build.dir}/neoconf/junit/junit-noframes.html" dest="${log.dir}"
+          subdirectory="neoconf-junit" />
+        <artifactspublisher file="${build.dir}/web/junit/junit-noframes.html" dest="${log.dir}"
+          subdirectory="web-junit" />
+      </onsuccess>
+    </publishers>
+  </project>
+
+  <project name="sipXconfig-4.0" buildafterfailed="false">
+    <property name="project.dir" value="projects/ecs/4.0/sipXconfig" />
+
+    <listeners>
+      <currentbuildstatuslistener />
+    </listeners>
+
+    <bootstrappers>
+      <svnbootstrapper />
+    </bootstrappers>
+
+    <!-- Defines where cruise looks for changes, to decide whether to run the build -->
+    <modificationset quietperiod="10">
+      <svn />
+    </modificationset>
+
+    <!-- Configures the actual build loop, how often and which build file/target -->
+    <schedule interval="60">
+      <ant />
+    </schedule>
+
+    <!-- directory to write build logs to -->
+    <log logdir="${log.dir}">
+      <merge dir="${build.dir}/neoconf/junit/" pattern="TEST-*.xml" />
+      <merge dir="${build.dir}/web/junit/" pattern="TEST-*.xml" />
+      <merge file="${build.dir}/neoconf/checkstyle_errors.xml" />
+      <merge file="${build.dir}/web/checkstyle_errors.xml" />
+    </log>
+
+    <!-- Publishers are run *after* a build completes -->
+    <publishers>
+      <htmlemail />
+
+      <!-- publish clover stats on success -->
+      <onsuccess>
+        <artifactspublisher dir="${build.dir}/neoconf/clover/html" dest="${log.dir}" subdirectory="neoconf-clover" />
+        <artifactspublisher dir="${build.dir}/web/clover/html" dest="${log.dir}" subdirectory="web-clover" />
+        <artifactspublisher file="${build.dir}/neoconf/junit/junit-noframes.html" dest="${log.dir}"
+          subdirectory="neoconf-junit" />
+        <artifactspublisher file="${build.dir}/web/junit/junit-noframes.html" dest="${log.dir}"
+          subdirectory="web-junit" />
+      </onsuccess>
+    </publishers>
+  </project>
+
+</cruisecontrol>

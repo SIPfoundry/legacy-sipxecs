@@ -1,0 +1,23 @@
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../css/sipxconfig.css"/>
+</head>
+<body jwcid="$content$">
+	<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+    <span jwcid="@common/ErrorMsg"/>
+  <div class="help">
+  <p><span key="orderMsg">The order of groups is only important when the groups have
+	different values for the same setting. The setting value in the last group has highest
+	precedence.</span></p>
+  </div>
+  <p><span key="groupMsg">Groups allow you organize users into logical groups and share settings between users
+	in same group.  Users can be in any number of groups.</span></p>
+		<ul class="component-links">
+			<li>
+				<a href="#" id="AddGroup" jwcid="addGroup"><span key="add">Add Group</span></a>
+			</li>
+		</ul>
+        <span jwcid="groupTable"/>
+	</div>
+</body>
+</html>

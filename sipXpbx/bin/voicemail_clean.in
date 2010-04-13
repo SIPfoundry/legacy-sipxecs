@@ -1,0 +1,77 @@
+#!@BASH@
+# voicemail_clean.sh: cleans up deleted voicemail messages older than n days.
+# where a day is defined as a 24 hour period.
+# If a message has been deleted, restored, saved or moved in some other
+# way before it was deleted last time, only the last delete date will
+# be used in determining the age of this message.
+
+check_prop_file_exists() {
+    local exists=0
+    if ! test -f "$1"
+    then
+        echo "Property file not found: '$1'" >&2
+        exists=1
+    fi
+    return ${exists}
+}
+get_prop_value() {
+# ensure property file exists and then pull out the
+# requested property value
+    check_prop_file_exists "$1" \
+    && perl -n \
+        -e 'use English;' \
+        -e 's/#.*$//;' \
+        -e "/^\\s*$2\\s*=\\s*/ && print join( ' ', split( /[\\s,]+/, \$POSTMATCH ));" \
+        $1
+}
+
+MAILSTORE_DIR=@SIPX_VXMLDATADIR@/mailstore
+DAYS=`get_prop_value @SIPX_CONFDIR@/sipxivr.properties ivr.voiceMailExpiry`
+
+# Override the DAYS variable with optional command line argument
+if [ "$1" == "--days" ]; then
+  if [[ "$2" == [1-9] ]]; then
+    if [[ "$2" < "$DAYS" ]]; then
+      DAYS=$2
+    fi
+  fi
+fi
+
+CleanList=`mktemp -t voicemail_clean.XXXXXX`
+trap "rm ${CleanList} 2>/dev/null" 0
+
+if [ -d ${MAILSTORE_DIR} ]
+then
+    for deleted_dir in `find ${MAILSTORE_DIR} -maxdepth 2 -type d -name deleted `
+    do
+        if cd "${deleted_dir}" > /dev/null 2>&1
+        then
+            # Find all voice messages that are more than $DAYS old.  Base the test
+            # on the last modified date for the voice message "envelope" file.
+            cat /dev/null > ${CleanList}
+            for name_prefix in `find . -mtime +${DAYS} -name "*-*.xml" | cut -d - -f 1`
+            do
+                # Remove all files with a .sta, .wav or .xml extension that have the
+                # same filename prefix as the old voice message envelope.
+                for expired in ${name_prefix}-*.{sta,wav,xml}
+                do
+                  test -f $expired && echo $expired >> ${CleanList}
+                done
+            done
+
+            if [ -s ${CleanList} ]
+            then
+                # Now that we've deleted messages, the summary.xml file is no longer
+                # accurate.  Delete it so that it gets recreated next time it is accessed.
+                test -f summary.xml && echo summary.xml >> ${CleanList}
+                rm -f `cat ${CleanList}`
+            fi
+        else
+            echo "failed to cd to '${deleted_dir}'" 1>&2
+        fi
+    done
+
+else
+    echo "Mailstore '${MAILSTORE_DIR}' not found" 1>&2
+    exit 1
+fi

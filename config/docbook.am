@@ -1,0 +1,142 @@
+##
+## This should be included to build project documentation using docbook
+##
+## The project configure.ac file must include:
+##
+##   ENABLE_DOC
+##   CHECK_DOCBOOKXML
+##   AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
+##   AM_CONDITIONAL(GENERATE_DOT, test x$have_dot = xYES)
+##   AM_CONDITIONAL(GENERATE_DOCBOOK_HTML, test x$enable_xml2xhtml = xyes)
+##   AM_CONDITIONAL(GENERATE_DOCBOOK_TXT, test x$enable_xml2xtxt = xyes)
+##   AM_CONDITIONAL(GENERATE_DOCBOOK_PDF, test x$enable_xml2pdf = xyes)
+##
+## Before the 'include' of this file, define the following variables:
+##
+##   EXTRA_DIST (must have some definition, even if empty, so this can use +=)
+##   CLEANFILES (must have some definition, even if empty, so this can use +=)
+##   DOCBOOK_XML_DOCS = file names of input documents _without_ the .xml suffix
+##
+## Following the 'include' of this file, the variable
+##
+##   DOCBOOK_OUTPUTS is the list of generated document files to be installed
+##
+
+OUTPUT_FORMS=
+
+DOCBOOK_INPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).xml)
+
+EXTRA_DIST+=$(DOCBOOK_INPUTS)
+
+if GENERATE_DOCBOOK_HTML
+
+XSL_JADETEX=$(top_srcdir)/config/style.xsl
+SIPXECS_CSS=$(top_srcdir)/config/sipXecs.css
+
+%.html: %.xml $(XSL_JADETEX)
+	$(XSLTPROC) -o $@ $(XSL_JADETEX) $<
+
+EXTRA_DIST+= \
+	$(XSL_JADETEX) \
+	$(SIPXECS_CSS)
+
+OUTPUT_FORMS+=html
+DOCBOOK_HTML_OUTPUTS= \
+	$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).html)
+
+sipXecs.css: $(SIPXECS_CSS)
+	cp $< $@
+
+CLEANFILES+=sipXecs.css
+
+endif # GENERATE_DOCBOOK_HTML
+
+if GENERATE_DOCBOOK_TXT
+
+%.txt: %.html
+	$(HTML2TXT) $< > $@
+
+OUTPUT_FORMS+=txt
+DOCBOOK_TXT_OUTPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).txt)
+
+endif # GENERATE_DOCBOOK_TXT
+
+if GENERATE_DOCBOOK_PDF
+
+PDF_CONTROL_FILE=$(top_srcdir)/config/docbook-jadetex.dsssl
+
+EXTRA_DIST+=$(PDF_CONTROL_FILE)
+
+DSSSL_JADETEX=/usr/share/sgml/docbook/dsssl-stylesheets/print/docbook.dsl
+
+PDF_INTERMEDIATE_FORMS=.tex .aux .log .out .prior.aux .pprior.aux .pdfjadetex.log
+PDF_INTERMEDIATES=$(foreach doc,$(DOCBOOK_XML_DOCS),$(foreach intform,$(PDF_INTERMEDIATE_FORMS),$(doc)$(intform)))
+
+%.tex: %.xml $(DSSSL_JADETEX) $(PDF_CONTROL_FILE)
+	$(OPENJADE) -t tex -d $(PDF_CONTROL_FILE) \
+		-c /usr/share/sgml/openjade/catalog \
+		-o $@ /usr/share/sgml/docbook/dsssl-stylesheets/dtds/decls/xml.dcl $<
+
+%.pdf: %.tex
+	@echo "$< -> $@" ; \
+	iterations=0 ; \
+	rm -f $*.aux $*.prior.aux $*.pprior.aux ; \
+	while test $${iterations} -lt 3 \
+			&& echo "$(PDFJADETEX) $< > $*.pdfjadetex.log " \
+			&& $(PDFJADETEX) $< > $*.pdfjadetex.log \
+			&& ! cmp $*.aux $*.prior.aux  > /dev/null 2>&1 \
+			&& ! cmp $*.aux $*.pprior.aux > /dev/null 2>&1 \
+	; do \
+		echo "  Found undefined references (iteration $${iterations}) "; \
+		if [ -e $*.prior.aux ]; \
+		then \
+	   	echo -n "    save prior aux data: "; \
+			cp -pvf $*.prior.aux $*.pprior.aux; \
+		fi; \
+		if [ -e $*.aux ]; \
+		then \
+			echo -n "    save current aux data: "; \
+			cp -pvf $*.aux $*.prior.aux; \
+		fi; \
+		iterations=$$(($$iterations + 1)) ; \
+	done ; \
+	if test $${iterations} -gt 3 ; \
+	then \
+		echo "error: recompilation limit ($${iterations}) exceeded"; \
+		rm -f $@ ; \
+		exit 1 ; \
+	fi
+
+OUTPUT_FORMS+=pdf
+DOCBOOK_PDF_OUTPUTS=$(foreach doc,$(DOCBOOK_XML_DOCS),$(doc).pdf)
+
+CLEANFILES+=$(PDF_INTERMEDIATES)
+
+endif # GENERATE_DOCBOOK_PDF
+
+if GENERATE_DOT
+
+%.png: %.dot
+	$(DOT) -Tpng $< -o $@
+
+%.svg: %.dot
+	$(DOT) -Tsvg $< -o $@
+
+else
+
+%.png: %.dot
+	@echo "'dot' not available - substituting missing image"
+	@cp -v $(top_srcdir)/config/missing.png $@
+
+%.svg: %.dot
+	@echo "'dot' not available - substituting missing image"
+	@cp -v $(top_srcdir)/config/missing.svg $@
+
+endif
+
+DOCBOOK_OUTPUTS= \
+	$(DOCBOOK_HTML_OUTPUTS) \
+	$(DOCBOOK_TXT_OUTPUTS) \
+	$(DOCBOOK_PDF_OUTPUTS)
+
+CLEANFILES+=$(DOCBOOK_OUTPUTS)

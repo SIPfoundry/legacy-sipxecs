@@ -1,0 +1,52 @@
+<span jwcid="@Script" scriptAsset="asset:script" rowId="ognl:rowId" />
+<tr jwcid="@Any" class="ognl:rowClass">
+  <td id="ognl:'test' + rowId + 'Name'" jwcid="@Any">
+    <span jwcid="@Insert" value="ognl:test.label"/>
+    <div jwcid="@If" condition="ognl:test.detailedHelp != null"  style="white-space:normal" class="settingDescription">
+     <ul>
+     <span jwcid="@common/ToggleLink" toggle="ognl:showDetailedHelp"
+        labelOn="message:test.hideDetailedHelp"
+        labelOff="message:test.showDetailedHelp"/>
+     </ul>
+     <span jwcid="detailedHelp@If" condition="ognl:showDetailedHelp">
+        <span jwcid="@Insert" value="ognl:test.detailedHelp" raw="true"/>
+     </span>
+    </div>
+  </td>
+  <td>
+    <span jwcid="@Insert" value="ognl:lastRunTime"/>
+  </td>
+  <td style="width: 10em;">
+    <span jwcid="@Any" class="ognl:'status-' + test.result.status">
+        <span jwcid="@Insert" value="ognl:messages.getMessage(test.result.status)"/>
+    </span>
+  </td>
+</tr>
+<tr jwcid="@If" condition="ognl:renderResult" class="ognl:rowClass">
+  <td colspan="3" class="settingDescription">
+     <img src="/sipxconfig/images/bullet_error.png" align="top" />
+     <b><span jwcid="@Insert" value="ognl:test.result.message"/></b><br/>
+     <span jwcid="@Insert" value="ognl:test.result.description"/>
+
+     <ul>
+     <span jwcid="@common/ToggleLink" toggle="ognl:showTestResults"
+        labelOn="message:test.hideDetails"
+        labelOff="message:test.showDetails"/>
+     </ul>
+     <span jwcid="@If" condition="ognl:showTestResults" renderTag="false">
+        <pre><span jwcid="@Insert" value="ognl:test.stdout"/></pre>
+     </span>
+
+  </td>
+</tr>
+
+<div jwcid="@If" condition="ognl:test.fullDescription != null" renderTag="false">
+	<div jwcid="@Any" id="ognl:'test' + rowId + 'Description'" class="testDescription hidden">
+	    <div class="tooltipTitle">
+	        <span jwcid="@Insert" value="ognl:test.label" />
+	    </div>
+	    <div class="tooltipBody">
+	        <span jwcid="@Insert" value="ognl:test.fullDescription" />
+	    </div>
+	</div>
+</div>

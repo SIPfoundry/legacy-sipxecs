@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans default-autowire="byName">
+
+  <bean id="CallGroupService" class="org.sipfoundry.sipxconfig.api.CallGroupServiceImpl">
+    <property name="callGroupContext" ref="callGroupContext" />
+    <property name="callGroupBuilder" ref="callGroupBuilder" />
+  </bean>
+
+  <bean id="ParkOrbitService" class="org.sipfoundry.sipxconfig.api.ParkOrbitServiceImpl">
+    <property name="parkOrbitContext" ref="parkOrbitContext" />
+    <property name="parkOrbitBuilder" ref="parkOrbitBuilder" />
+  </bean>
+
+  <bean id="PermissionService" class="org.sipfoundry.sipxconfig.api.PermissionServiceImpl">
+    <property name="permissionBuilder" ref="permissionBuilder" />
+    <property name="permissionManager" ref="permissionManager" />
+  </bean>
+
+  <bean id="PhoneService" class="org.sipfoundry.sipxconfig.api.PhoneServiceImpl">
+    <property name="phoneContext" ref="phoneContext" />
+    <property name="phoneBuilder" ref="phoneBuilder" />
+    <property name="settingDao" ref="settingDao" />
+    <property name="profileManager" ref="phoneProfileManager" />
+    <property name="restartManager" ref="phoneRestartManager" />
+  </bean>
+
+  <bean id="TestService" class="org.sipfoundry.sipxconfig.api.TestServiceImpl" />
+
+  <bean id="UserService" class="org.sipfoundry.sipxconfig.api.UserServiceImpl">
+    <property name="coreContext" ref="coreContext" />
+    <property name="mailboxManager" ref="mailboxManager" />
+    <property name="userBuilder" ref="userBuilder" />
+    <property name="settingDao" ref="settingDao" />
+  </bean>
+
+  <bean id="SystemService" class="org.sipfoundry.sipxconfig.api.SystemServiceImpl">
+    <property name="domainManager" ref="domainManager" />
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="callGroupBuilder" class="org.sipfoundry.sipxconfig.api.CallGroupBuilder">
+    <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="parkOrbitBuilder" class="org.sipfoundry.sipxconfig.api.SimpleBeanBuilder" />
+
+  <bean id="permissionBuilder" class="org.sipfoundry.sipxconfig.api.PermissionBuilder" />
+
+  <bean id="phoneBuilder" class="org.sipfoundry.sipxconfig.api.PhoneBuilder" />
+
+  <bean id="userBuilder" class="org.sipfoundry.sipxconfig.api.UserBuilder" />
+
+</beans>

@@ -1,0 +1,40 @@
+The most current information on the status of any release is in the
+SIPfoundry Issue Tracker at:
+
+	http://track.sipfoundry.org/browse?XRR
+
+
+Release Notes - sipXregistry - Version 2.6.2
+
+** Bug
+    * [XRR-25] - Registrar's default config should ship with
+	      SIP_REGISTRAR_AUTHENTICATE_REALM set to ${SIPXCHANGE_REALM}
+    * [XRR-26] - Many messages "URI MAP '...' to '...'"
+    * [XRR-29] - sipregistar coredumped during commserver soak testing
+    * [XRR-30] - Implied subscription for mwi is failing authentication
+
+
+Release Notes - sipXregistry - Version 2.6.1
+
+** Bug
+    * [XRR-8] - registrar crashes on unregister all with no matches
+    * [XRR-22] - Incorrect XML in fallbackrules.xml
+    *         - changed mappingrules2.xml to fallbackrules.xml
+
+** New Feature
+    * [XRR-2] - accept registrations for multiple domains
+    * [XRR-9] - RPM for registry
+
+Release Notes - sipXregistry - Version 2.5.2
+
+** Bug
+    * [XRR-4] - sipregisty.log in etc/sipxpbx dir, should be in var/log
+    * [XRR-5] - Call doesn't roll over to voicemail due to incorrect mapping rules processing
+
+** Improvement
+    * [XRR-3] - Clean up code to remove all warnings.
+
+Release Notes - sipXregistry - Version 2.5.1
+
+** Bug
+    * [XRR-1] - won't build without rwToolspp

@@ -1,0 +1,49 @@
+
+# G E N E R A L
+version=@VERSION@
+top.dir=@abs_top_srcdir@
+src.dir=@abs_srcdir@
+java=@JAVA@
+java.home=@JAVA_HOME@
+optimize=@JAVAC_OPTIMIZED@
+deprecation=false
+debug=@JAVAC_DEBUG@
+bin.dir=@bindir@
+lib.dir=@libdir@
+prefix.dir=@prefix@
+conf.dir=@SIPX_CONFDIR@
+# comma-separated combination of 'lines' 'source' and 'var' only valid
+# when debug is on. 
+
+# U T I L
+sipxrest.dir=@SIPX_JAVADIR@/sipXrest
+sipxcommons.dir=@SIPX_JAVADIR@/sipXcommons
+sipxcommons=${sipxcommons.dir}/sipxcommons.jar
+sipxrest=${sipxrest.dir}/sipxrest.jar
+jainsip=${sipxcommons.dir}/jain-sip-sdp.jar
+junit=${sipxcommons.dir}/junit.jar
+log4j=${sipxcommons.dir}/log4j.jar
+dnsjava=${sipxcommons.dir}/dnsjava.jar
+stun4j=${src.dir}/lib/Stun4J.jar
+jetty-jar=${sipxcommons.dir}/jetty.jar
+servlet-jar=${sipxcommons.dir}/javax.servlet.jar
+sipunit=${src.dir}/tools/sipunit.jar
+commons-collections=${sipxcommons.dir}/commons-collections.jar
+commons-digester=${sipxcommons.dir}/commons-digester.jar
+commons-beanutils=${sipxcommons.dir}/commons-beanutils.jar
+commons-logging=${sipxcommons.dir}/commons-logging.jar
+commons-logging-api=${sipxcommons.dir}/commons-logging-api.jar
+commons-codec=${sipxcommons.dir}/commons-codec.jar
+xml-rpc-common=${sipxcommons.dir}/xmlrpc-common.jar
+xml-rpc-server=${sipxcommons.dir}/xmlrpc-server.jar
+xml-rpc-client=${sipxcommons.dir}/xmlrpc-client.jar
+noelios-restlet-ext-servlet=${sipxcommons.dir}/com.noelios.restlet.ext.servlet.jar
+noelios-restlet=${sipxcommons.dir}/com.noelios.restlet.jar
+restlet=${sipxcommons.dir}/org.restlet.jar
+ws-commons-util=${sipxcommons.dir}/ws-commons-util.jar
+javac.debug=on
+javac.source=1.6
+javac.target=1.6
+javac.deprecation=true 
+javac.optimize=off
+javac.debuglevel=lines,var,source

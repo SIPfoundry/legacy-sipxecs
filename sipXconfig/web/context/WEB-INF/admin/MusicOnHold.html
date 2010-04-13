@@ -1,0 +1,17 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg" />
+  <span jwcid="@common/QuickHelp" value="message:help.text" />
+  <form jwcid="moh@Form" id="moh:form" delegate="bean:validator">
+    <fieldset jwcid="@setting/SettingsFieldset"
+        settings="ognl:mohSetting"
+        renderGroupTitle="ognl:true" />
+    <fieldset jwcid="@common/AssetSelectorMultiple"
+              asset="ognl:asset"
+              assetDir="ognl:musicOnHoldManager.audioDirectoryPath"
+              errorMsg="message:error.select"
+              contentType="literal:audio/x-wav"
+              includeUploadButton="ognl:true"
+              checkForEmptyAssets="ognl:false" />
+    <ul jwcid="@common/FormActions" listener="listener:saveValid" />
+  </form>
+</div>

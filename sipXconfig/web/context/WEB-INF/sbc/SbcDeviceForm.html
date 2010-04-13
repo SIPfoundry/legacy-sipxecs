@@ -1,0 +1,57 @@
+<fieldset>
+  <table>
+    <tbody>
+      <label jwcid="@common/FieldPanel" for="sbcDevice:name"
+        field="component:sbcDeviceName"
+        label="message:label.name">
+        <input jwcid="sbcDeviceName@TextField" id="sbcDevice:name" maxlength="40"
+          value="ognl:sbcDevice.name"
+          validators="validators:required"
+          displayName="message:label.name"/>
+      </label>
+      <div jwcid="@If" condition="ognl:!sbcDevice.model.internalSbc" renderTag="false">
+        <label jwcid="@common/FieldPanel" for="sbcDevice:address"
+          field="component:sbcDeviceAddress"
+          label="message:label.address"
+          description="message:description.address">
+          <input jwcid="sbcDeviceAddress@TextField" id="sbcDevice:address"
+            value="ognl:sbcDevice.address"
+            validators="spring-validators:required,validHostOrIp"
+            displayName="message:label.address"/>
+        </label>
+        <label jwcid="@common/FieldPanel" for="sbcDevice:port"
+          field="component:sbcDevicePort"
+          label="message:label.port"
+          description="message:description.port"
+          defaultValue="ognl:sbcDevice.model.defaultPort">
+          <input jwcid="sbcDevicePort@TextField" id="sbcDevice:port"
+            value="ognl:sbcDevice.port"
+            translator="translator:sipxnumber,omitZero=true,pattern=#####"
+            validators="spring-validators:required"
+            displayName="message:label.port"/>
+        </label>
+      </div>
+      <span jwcid="@If" condition="ognl:sbcDevice.model.hasSerialNumber">
+        <label jwcid="@common/FieldPanel" for="sbcDevice:serial"
+          field="component:sbcDeviceSerial"
+          label="message:label.serial"
+          description="message:description.serial">
+          <input jwcid="sbcDeviceSerial@TextField" id="sbcDevice:serial" maxlength="40"
+            value="ognl:sbcDevice.serialNumber"
+            validators="ognl:serialNumberValidators"
+            translator="ognl:serialNumberTranslator"
+            displayName="message:label.serial"/>
+        </label>
+      </span>
+      <label jwcid="@common/FieldPanel" for="sbcDevice:description"
+        field="component:sbcDeviceDescription"
+        label="message:label.description">
+        <textarea jwcid="sbcDeviceDescription@TextArea" id="sbcDevice:description" cols="60" rows="5"
+          value="ognl:sbcDevice.description"
+          validators="spring-validators:validFieldSize"
+          displayName="message:label.description"/>
+      </label>
+      <div jwcid="@branch/BranchSelection" branch="ognl:sbcDevice.branch" />
+    </tbody>
+  </table>
+</fieldset>

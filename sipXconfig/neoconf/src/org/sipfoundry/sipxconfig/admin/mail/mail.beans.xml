@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+    <property name="host" value="localhost" />
+    <property name="defaultFileTypeMap">
+      <bean class="org.springframework.mail.javamail.ConfigurableMimeFileTypeMap">
+        <property name="mappings">
+          <list>
+            <value>application/x-compressed gz tgz</value>
+          </list>
+        </property>
+      </bean>
+    </property>
+  </bean>
+
+  <bean id="mailSenderContextImpl" class="org.sipfoundry.sipxconfig.admin.mail.MailSenderContextImpl">
+    <property name="mailSender" ref="mailSender" />
+    <property name="domainManager" ref="domainManager" />
+  </bean>
+
+  <bean id="mailSenderContext" class="org.springframework.aop.framework.ProxyFactoryBean">
+    <property name="proxyInterfaces">
+      <value>org.sipfoundry.sipxconfig.admin.mail.MailSenderContext</value>
+    </property>
+    <property name="target">
+      <ref local="mailSenderContextImpl" />
+    </property>
+  </bean>
+
+</beans>

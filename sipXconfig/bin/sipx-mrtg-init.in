@@ -1,0 +1,92 @@
+#!@BASH@
+
+usage() {
+  echo
+  echo Usage: $0
+  echo
+  echo "   Configures the environment for monitoring"
+  echo
+  echo Parameters:
+  echo "   -e|--enable                   Enable Monitoring Context."
+  echo "   -d|--disable                  Disable Monitoring Context."
+  echo "   --mrtg-binary PATH            In case mrtg is not installed in the default location (Eg. --mrtg-binary /usr/local/bin/mrtg )."
+  echo "   -h|--help                     Display this help text."
+  echo
+}
+
+SIPX_USER=@SIPXPBXUSER@
+SIPXCONFIG_PROPERTIES_IN=@SIPX_CONFDIR@/sipxconfig.properties.in
+
+
+ENABLE_MONITORING="false"
+DISABLE_MONITORING="false"
+
+CHANGE_MRTG_BINARY="false"
+MRTG_BINARY_OLD=@MRTG_BINARY@
+
+
+# Process the command-line arguments.
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -h|--help)
+      usage
+      exit
+      ;;
+
+    -e|--enable)
+      if test $DISABLE_MONITORING = "true"; then
+        bad_usage
+      else
+        ENABLE_MONITORING="true"
+      fi
+      ;;
+
+    -d|--disable)
+      if test $ENABLE_MONITORING = "true"; then
+        bad_usage
+      else
+        DISABLE_MONITORING="true"
+      fi
+      ;;
+
+    --mrtg-binary)
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        bad_usage
+      elif [ -f "${2}" ]
+      then
+        MRTG_BINARY=${2}
+        CHANGE_MRTG_BINARY="true"
+        shift
+      else
+        echo "${2} does not exist. Using default: $MRTG_BINARY"
+        shift
+      fi
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      bad_usage
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+
+if test $ENABLE_MONITORING = "true"; then
+  sed 's/\(^monitoringContextImpl.enabled=\)false/\1true/' -i.orig $SIPXCONFIG_PROPERTIES_IN
+fi
+
+if test $DISABLE_MONITORING = "true"; then
+  if test -f $SIPXCONFIG_PROPERTIES_IN; then
+    sed 's/\(^monitoringContextImpl.enabled=\)true/\1false/' -i.orig $SIPXCONFIG_PROPERTIES_IN
+  fi
+  exit 0
+fi
+
+if test $CHANGE_MRTG_BINARY = "true"; then
+  sed -e "s,MRTG_BIN=$MRTG_BINARY_OLD,MRTG_BIN=$MRTG_BINARY,g" -i.orig @SIPX_BINDIR@/sipXmrtg.sh
+fi
+

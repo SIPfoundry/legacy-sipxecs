@@ -1,0 +1,564 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="true-false">
+    <boolean>
+      <true>
+        <value>true</value>
+      </true>
+      <false>
+        <value>false</value>
+      </false>
+    </boolean>
+  </type>
+  <type id="preffered-voice-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>broadvoice32</value>
+      </option>
+      <option>
+        <value>broadvoice32_fec</value>
+      </option>
+      <option>
+        <value>dvi4</value>
+      </option>
+      <option>
+        <value>dvi4_wb</value>
+      </option>
+      <option>
+        <value>evrc</value>
+      </option>
+      <option>
+        <value>g711a</value>
+      </option>
+      <option>
+        <value>g711u</value>
+      </option>
+      <option>
+        <value>g722</value>
+      </option>
+      <option>
+        <value>g722_2_wb</value>
+      </option>
+      <option>
+        <value>g723</value>
+      </option>
+      <option>
+        <value>g726-32</value>
+      </option>
+      <option>
+        <value>g729</value>
+      </option>
+      <option>
+        <value>gsm</value>
+      </option>
+      <option>
+        <value>ilbc</value>
+      </option>
+      <option>
+        <value>l16_wb</value>
+      </option>
+      <option>
+        <value>speex</value>
+      </option>
+      <option>
+        <value>speex_fec</value>
+      </option>
+      <option>
+        <value>speex_wb</value>
+      </option>
+      <option>
+        <value>speex_wb_fec</value>
+      </option>
+    </multi-enum>
+  </type>
+  <type id="preffered-video-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>h263</value>
+      </option>
+      <option>
+        <value>h263_1998</value>
+      </option>
+      <option>
+        <value>h264_unified</value>
+      </option>
+    </multi-enum>
+  </type>
+  <type id="log-level">
+    <enum>
+      <option>
+        <value>0</value>
+      </option>
+      <option>
+        <value>1</value>
+      </option>
+      <option>
+        <value>2</value>
+      </option>
+      <option>
+        <value>3</value>
+      </option>
+    </enum>
+  </type>
+  <group name="audio">
+    <group name="headset">
+      <setting name="audio:headset:aec_enabled">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+      <setting name="audio:headset:audio_in_agc_enabled">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+      <setting name="audio:headset:noise_reduction">
+        <type refid="true-false"/>
+        <value>false</value>
+      </setting>
+    </group>
+    <group name="ring_device">
+      <setting name="audio:ring_device:ring_pc_speaker">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+    </group>
+    <group name="speaker_phone">
+      <setting name="audio:speaker_phone:aec_enabled">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+      <setting name="audio:speaker_phone:audio_in_agc_enabled">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+      <setting name="audio:speaker_phone:noise_reduction">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+    </group>
+    <group name="tuning_wizard">
+      <setting name="audio:tuning_wizard:ringer_volume">
+        <type>
+          <integer min="0" max="100"/>
+        </type>
+        <value>50</value>
+      </setting>
+    </group>
+    <setting name="system:network:dtx_enabled">
+      <type refid="true-false"/>
+      <value>false</value>
+    </setting>
+  </group>
+  <group name="diagnostics">
+    <setting name="system:diagnostics:enable_logging">
+      <type refid="true-false"/>
+      <value>false</value>
+    </setting>
+    <setting name="system:diagnostics:file_size">
+      <type>
+        <integer min="0" max="32768"/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="system:diagnostics:folder">
+      <value/>
+    </setting>
+    <setting name="system:diagnostics:number_of_files">
+      <type>
+        <integer/>
+      </type>
+      <value>4</value>
+    </setting>
+    <!-- We need to know the values and the defaults values for the log levels. Comment this group until we then.
+        TODO The setting diagnostics:log_level:USBDevices, should be USB Devices but the DTD doesn't allow spaces in setting names.
+    <group name="logLevel">
+      <label>Log level</label>
+      <setting name="diagnostics:log_level:AbstractPhone">
+        <label>Abstract phone</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the AbstractPhone module. This module covers functionality relating to establishing telephone calls and IM, and established incoming and outgoing telephone calls and IM.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Addressbook">
+        <label>Addressbook</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Addressbook module. This module covers functionality relating to managing the contacts list and the recent calls lists. Set the logging level for this module and the Contacts module to the same value.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Audio">
+        <label>Audio</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Audio module, which relates to the rendering and recording of audio.</description>
+      </setting>
+      <setting name="diagnostics:log_level:CCM">
+        <label>CCM</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the CCM module. This module covers functionality relating to signaling and control of established telephone calls.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Conferencing">
+        <label>Conferencing</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for conferencing functionality.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Contacts">
+        <label>Contacts</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Contacts module. This module covers functionality relating to managing the contacts list and the recent calls lists. Set the logging level for this module and the Addressbook module to the same value.</description>
+      </setting>
+      <setting name="diagnostics:log_level:DNS">
+        <label>DNS</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the DNS module.</description>
+      </setting>
+      <setting name="diagnostics:log_level:GUI">
+        <label>GUI</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the GUI module.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Jitter">
+        <label>Jitter</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for jitter functionality.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Media">
+        <label>Media</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Media module, which covers functionality relating to the negotiation of media.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Privacy">
+        <label>Privacy</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Privacy module, which covers functionality relating to allowing and baning other parties for phone calls, IM and presence.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Resip">
+        <label>Resip</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Resip module, which covers functionality relating to SIP signaling.</description>
+      </setting>
+      <setting name="diagnostics:log_level:RTP">
+        <label>RTP</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Media module, which covers functionality for the layer above the transport layer.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Security">
+        <label>Security</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Security  module, which covers functionality relating to encryption of calls.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Storage">
+        <label>Storage</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Storage  module, which covers functionality relating to local and remote storage of the contacts list, presence information, and privacy lists.</description>
+      </setting>
+      <setting name="diagnostics:log_level:STUN">
+        <label>STUN</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the STUN module, which covers functionality relating to network topology discovery.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Transport">
+        <label>Transport</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Transport module, which covers functionality relating to socket communications.</description>
+      </setting>
+      <setting name="diagnostics:log_level:USBDevices">
+        <label>USB Devices</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the USB Devices module, which covers functionality relating to how USB devices (if any) are interacting with the application.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Utilities">
+        <label>Utilities</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Utilities module, which covers miscellaneous helper functionality.</description>
+      </setting>
+      <setting name="diagnostics:log_level:Video">
+        <label>Video</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Video module, which covers functionality relating to the rendering and recording of video.</description>
+      </setting>
+      <setting name="diagnostics:log_level:voice_quality">
+        <label>Voice quality</label>
+        <type refid="log-level" />
+        <value>1</value>
+        <description>The logging level for the Video module, which covers functionality relating to voice quality.</description>
+      </setting>
+    </group>
+    -->
+  </group>
+  <group name="dtmf">
+    <setting name="rtp:2833:enabled">
+      <type refid="true-false"/>
+      <value>true</value>
+    </setting>
+    <setting name="rtp:2833:hold_over_time_in_ms">
+      <type>
+        <integer/>
+      </type>
+      <value>100</value>
+    </setting>
+    <setting name="rtp:2833:packet_time_in_ms">
+      <type>
+        <integer/>
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="rtp:2833:payload_number">
+      <type>
+        <integer/>
+      </type>
+      <value>101</value>
+    </setting>
+    <setting name="system:dtmf:force_send_in_band">
+      <type refid="true-false"/>
+      <value>true</value>
+    </setting>
+    <setting name="system:dtmf:minimum_rfc2833_play_time">
+      <type>
+        <integer/>
+      </type>
+      <value>40</value>
+    </setting>
+  </group>
+  <group name="network">
+    <group name="rtp_inactivity">
+      <setting name="rtp:inactivity:rtcp_timer_in_ms">
+        <type>
+          <integer/>
+        </type>
+        <value>30000</value>
+      </setting>
+      <setting name="rtp:inactivity:rtp_timer_in_ms">
+        <type>
+          <integer/>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="rtp:inactivity:timer_enabled">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+      <setting name="rtp:inactivity:timer_in_ms">
+        <type>
+          <integer/>
+        </type>
+        <value>300000</value>
+      </setting>
+    </group>
+    <group name="sip_signaling">
+      <setting name="system:general:force_calls_on_our_domain">
+        <type refid="true-false"/>
+        <value>false</value>
+      </setting>
+      <setting name="system:sip:re-register_on_network_change">
+        <type refid="true-false"/>
+        <value>false</value>
+      </setting>
+      <setting name="proxies:proxy0:workgroup_subscription_aor" hidden="yes">
+        <value/>
+      </setting>
+    </group>
+    <group name="dns">
+      <setting name="system:network:maximum_time_before_refreshing_dns_results_in_seconds">
+        <type>
+          <integer/>
+        </type>
+        <value>43200</value>
+      </setting>
+    </group>
+    <group name="sdp">
+      <setting name="system:sdp:force_include_well_known_rtp_maps">
+        <type refid="true-false"/>
+        <value>false</value>
+      </setting>
+      <setting name="rtp:media:send_bandwidth_modifier">
+        <type refid="true-false"/>
+        <value>false</value>
+      </setting>
+    </group>
+    <group name="stun">
+      <setting name="system:stun:fw_type_expiry_in_seconds">
+        <type>
+          <integer/>
+        </type>
+        <value>4320</value>
+      </setting>
+      <setting name="system:stun:initial_retransmit_time_ms">
+        <type>
+          <integer/>
+        </type>
+        <value>250</value>
+      </setting>
+      <setting name="system:stun:max_retransmit_time_ms">
+        <type>
+          <integer/>
+        </type>
+        <value>2000</value>
+      </setting>
+      <setting name="system:stun:total_retransmit_packets">
+        <type>
+          <integer/>
+        </type>
+        <value>5</value>
+      </setting>
+    </group>
+  </group>
+  <group name="codecs">
+    <group name="audio_codecs">
+      <setting name="voiceCodecs">
+        <type refid="preffered-voice-codecs-type"/>
+        <value>g722|broadvoice32|g711u|ilbc|g711a|g729</value>
+      </setting>
+    </group>
+    <group name="video_codecs">
+      <setting name="videoCodecs">
+        <type refid="preffered-video-codecs-type"/>
+        <value>h263</value>
+      </setting>
+    </group>
+    <group name="general_settings">
+      <setting name="codecs:h263:enable_CIF">
+        <type refid="true-false"/>
+        <value>false</value>
+      </setting>
+      <setting name="system:network:honor_first_codec" advanced="yes">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+      <setting name="codecs:codec_selection_manager:enable" advanced="yes">
+        <type refid="true-false"/>
+        <value>false</value>
+      </setting>
+    </group>
+  </group>
+  <group name="provisioning">
+    <setting name="feature:call:enable_recording">
+      <type refid="true-false"/>
+      <value>true</value>
+    </setting>
+    <group name="auto_update">
+      <setting name="system:auto_update:code_server_url" advanced="yes">
+        <value/>
+      </setting>
+      <setting name="system:auto_update:update_check_initial_t1_s">
+        <type>
+          <integer/>
+        </type>
+        <value>20</value>
+      </setting>
+      <setting name="system:auto_update:update_check_t1_s">
+        <type>
+          <integer/>
+        </type>
+        <value>86400</value>
+      </setting>
+      <setting name="system:auto_update:block_timer_t3_s">
+        <type>
+          <integer/>
+        </type>
+        <value>10</value>
+      </setting>
+      <setting name="system:auto_update:deffer_timer_t2_s">
+        <type>
+          <integer/>
+        </type>
+        <value>60</value>
+      </setting>
+    </group>
+  </group>
+  <group name="qos">
+    <setting name="system:qos:audio">
+      <value>tos 46</value>
+    </setting>
+    <setting name="system:qos:signaling">
+      <value>40</value>
+    </setting>
+    <setting name="system:qos:video">
+      <value>tos 38</value>
+    </setting>
+    <setting name="system:vpn:connection_name">
+      <value/>
+    </setting>
+  </group>
+  <group name="system">
+    <group name="resources">
+      <setting name="proxies:proxyn:xcap_oma_auid">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+      <setting name="system:contacts:load_offline">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+    <setting name="system:contact_list_storage:resource_list_method">
+      <label>Resource list method</label>
+      <type id="resource_list_methods">
+        <enum>
+          <option>
+            <value>local</value>
+          </option>
+          <option>
+            <value>webdav</value>
+          </option>
+          <option>
+            <value>xcap</value>
+          </option>
+        </enum>
+      </type>
+      <value>webdav</value>
+      <description>The method for storing the resource list.</description>
+    </setting>
+
+    <setting name="system:contact_list_storage:resource_lists_path" hidden="yes">
+      <label>WebDAV root URL</label>
+      <value></value>
+      <description>The path to the root of the contact list storage location. </description>
+    </setting>
+    <setting name="system:contact_list_storage:contacts_server_filename" hidden="yes">
+      <label>The name of the contact list file at the location specified by storage:contact_list_storage:resource_lists_path.</label>
+      <value>Filename</value>
+      <description>This setting is used when:</description>
+    </setting>
+    <setting name="system:contact_list_storage:resource_lists_user_name" hidden="yes">
+      <label>Username</label>
+      <value></value>
+      <description>User name to log into the contact list storage location. Not used if resource_list_method is local</description>
+    </setting>
+    <setting name="system:contact_list_storage:resource_lists_password" hidden="yes">
+      <label>Password</label>
+      <value></value>
+      <description>Password to log into the contact list storage location. Not used if resource_list_method is local</description>
+    </setting>
+    <setting name="system:contact_list_storage:resource_lists_poll_time">
+      <label>Poll time</label>
+      <type>
+        <integer />
+      </type>
+      <value>600</value>
+      <description>Used only if Resource list method is “Web DAV” (in seconds), to check if the document has
+        changed on the remote storage.</description>
+    </setting>
+      <setting name="system:webdav:ignore_versioning">
+        <type refid="true-false"/>
+        <value>true</value>
+      </setting>
+    </group>
+  </group>
+</model>

@@ -1,0 +1,29 @@
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+<bridge-configuration>
+	<global-address>127.0.0.1</global-address>
+	<external-address>127.0.0.1</external-address>
+	<external-port>5080</external-port>
+    	<sipx-proxy-domain>127.0.0.1</sipx-proxy-domain>
+	<local-address>127.0.0.1</local-address>
+	<local-port>5090</local-port>
+        <route-inbound-calls-to-extension>501</route-inbound-calls-to-extension>
+	<music-on-hold-support-enabled>true</music-on-hold-support-enabled>
+	<log-level>DEBUG</log-level>
+	<xml-rpc-port>8088</xml-rpc-port>
+        <log-directory>/tmp</log-directory>
+    	<secure-xml-rpc>false</secure-xml-rpc>
+</bridge-configuration>
+	
+
+<itsp-account>
+        <register-on-initialization>true</register-on-initialization>
+	<use-global-addressing>false</use-global-addressing>
+	<itsp-proxy-domain>did.voip.les.net</itsp-proxy-domain>
+	<user-name>your-user-name-here</user-name>
+	<password>your-password-here</password>
+    	<sip-keepalive-method>CR-LF</sip-keepalive-method>
+    	<rtp-keepalive-method>NONE</rtp-keepalive-method>
+</itsp-account>
+
+</sipxbridge-config>

@@ -1,0 +1,15 @@
+<contact-information>
+  <jobTitle>Data Entry Assistant</jobTitle>
+  <jobDept>Data Management Services</jobDept>
+  <companyName>Museum of Science</companyName>
+  <homeAddress>
+    <city>NY</city>
+  </homeAddress>
+  <officeAddress>
+    <street>Branch Street</street>
+  </officeAddress>
+  <emailAddress>john.doe@example.com</emailAddress>
+  <avatar>https://secure.gravatar.com/avatar/8eb1b522f60d11fa897de1dc6351b7e8?s=80&amp;d=wavatar</avatar>
+  <firstName>John</firstName>
+  <lastName>Doe</lastName>
+</contact-information>

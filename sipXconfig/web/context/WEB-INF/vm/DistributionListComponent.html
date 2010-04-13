@@ -1,0 +1,23 @@
+<table jwcid="@contrib:TableView" columns="!dialpad,!extensions"
+	source="ognl:distributionLists">
+	<thead>
+		<tr>
+			<th jwcid="@contrib:TableColumns" />
+		</tr>
+	</thead>
+	<tbody>
+		<tr jwcid="rows@contrib:TableRows" row="ognl:distributionList"
+			class="beans:rowClass.next" volatile="literal:true">
+			<td jwcid="dialpadColumnValue@Block"><span jwcid="@Insert"
+				value="ognl:components.rows.tableIndex" /></td>
+			<td jwcid="extensionsColumnValue@Block"><span jwcid="@If"
+				condition="ognl:components.rows.tableIndex == 0"> <span
+				key="description.listIndexReserved" /> </span> <span jwcid="@Else">
+			<input jwcid="subject@TextField" size="70" type="text"
+				value="ognl:extensionsString"
+				validators="spring-validators:validExtensions" /> </span></td>
+			<td jwcid="@contrib:TableValues" />
+		</tr>
+	</tbody>
+</table>
+<span jwcid="@common/FormActions" listener="listener:save" callback="ognl:container.callback"/>

@@ -1,0 +1,527 @@
+
+Functional Description
+----------------------
+
+SipxBridge is a integrated ITSP bridging solution ( SBC ) for sipx. It is
+fully integrated with sipxconfig. It supports the following functions :
+
+The sipXecs SIP trunking GW (SipxBridge) anchors media and provides rewriting of the SIP
+headers so that packets can pass the firewall / NAT. It functions as a B2BUA,
+thus reducing the size of outbound packets and shielding the ITSP from the
+internal state that is carried in the sipx SIP messages. 
+
+SipXbridge provides:
+
+- SIP registration with a SIP trunking provider
+- Fully integrated and configurable with sipxconfig.
+- Support one or two Ethernet interfaces.
+- Media anchoring and processing
+- SIP signaling rewrite for NAT traversal
+- NAT keepalive signaling.
+- Full call transfer support ( attended and blind ) as well as hairpinned
+  calls to the ITSP.
+- Performance: Support for at least 2 x T1 channels
+- SipxBridge does not provide failover support. 
+
+
+A unit test plan for sipxbridge
+------------------------------
+
+
+1. ITSP Registration and configuration tests
+
+This tests that SIPXBridge can Register ITSPs with and keeping Registrations fresh.
+
+Registrations are of two types:
+
+Those that use global addresses in outbound signaling if the ITSP
+and those that use local ( private address ). In the latter case, the
+ITSP will look at the IP address and port of the registering party and
+determine where the registration is coming from. The third flavor is
+ITSPs that do not require registrations but require that you provide an
+IP address. It should be possible to configure sipxbridge to inter-operate
+with all three different types of ITSP configurations.
+
+
+To test for this, get accounts with ITSPs that require these different
+type of configurations make sure that you can register and test with
+each of these different configurations.
+
+The following ITSPs have been tested against:
+
+- eutelia.net ( requires STUN-determined global addresses for SIP/SDP  ).
+- les.net ( requires private address for SIP/SDP ).
+- callwithus.com ( requires STUN-determined global address for SIP/SDP ).
+
+Tests are planned for :
+
+- bandwidth.com (does not need registration).
+- cbeyond.com ( sipconnect compliant ).
+
+
+
+2.Deal with near end NAT traversal requirements. It should be possible to
+place the bridge behind a NAT and bridge with the ITSP.  
+
+The following tests need to be performed:
+
+ - Ensure that calls can be set up through a symmetric NAT.
+
+ - Keep NAT bindings alive using periodic outbound SIP Keep alive. Keep the
+   system running but not making any calls for a period of time ( say 30 min)
+   and test that you can still do inbound and outboudn calling.
+
+
+3.Configurable with SipXconfig : 
+
+ - Test that the system can be completely configured with SipXconfig
+  
+ - Test that the system is resillient when incorrect account information is
+   entered ( no crashes or unbounded memory growth).
+
+
+4.Acceptable media performance : 
+
+ - Generate a background load of 50 media streams using the provided
+   test program ( run the target "symclient" from a machine on the network 
+   that is not the same machine as where sipxbridge is running ).
+
+ - Make a phone call to the ITSP with this background load and make sure that
+   the call set up time and voice quality are good.
+  
+
+5.Concurrency : A single bridge should be able to support multiple accounts
+and concurrently process the call setup signaling and media needed by these
+accounts. 
+
+  - Configure the bridge with multiple ITSP accounts. 
+
+  - Make concurrent inbound calls via the ITSP accounts.
+
+  - Make sure calls can be concurrently placed.
+
+6.NAT / SIPXBridge Reboots:  
+
+  - Reboot the NAT and make sure that Sipxbridge continues to function after
+    NAT reboot by placing inbound and outbound calls.
+
+7.Interoperability : SIPXBridge should work with commonly used
+phones and NATs. 
+	
+  - Test that SipXbridge can work from behind a few popular "Routers" 
+    (Linksys, Motorola).
+
+  - Use the supported phones to make the call transfers outlined in the Call
+    Transfer Manual Test cases section below for each of these Routers.
+
+
+8. Support one and two armed operation: It may be needed to place the ITSP
+facing side of the B2BUA on a publicly rout-able address (especially for Phase
+2). For this mode of operation, it should be possible to put one side of the
+SIPXBridge on the public network (in the DMZ). 
+
+ - Ensure that SIPXBridge can be configured and made to work on a machine with
+   two network interfaces. The private and public address will run on
+   different Network Interfaces in this case.
+
+
+
+9. Interoperability with existing SipX services that transfer or park calls.
+ 
+ - Test that sipxbridge can send inbound calls to the SIPX Auto Attendant and
+   transfer calls from there.
+ - Test that inbound calls can be parked and retrieved.
+ - Test that inbound calls can be transferred to the conferencing bridge via
+   the auto attendant.
+
+
+
+10.Logging support: Support logging of messages and signaling in the syslog
+format expected by the SIPX trace viewing (sipXviewer) tool.
+
+ - Test that sipxbridge generates log records in a fashion that can be merged
+   and viewed by the sipviewer tool.
+
+
+
+11. Must support attended and blind transfers for supported phones. 
+
+This will require several different makes of supported phones. The transfers
+outlined below must work pairwise between the supported phones for this test.
+
+You need a valid ITSP account configured to perform these tests.
+"PSTN phone" is synonymous with your cell phone. Please use a second
+cell number for hair-pinned scenarios.
+
+Scenario : Simple Inbound and Outbound calling with different models of
+phones.  
+
+Objective: To test interoperability for simple in and outbound calls
+for different models of phones.
+
+Procedure: Register phones with SipX and call inbound and
+outbound. Inbound calls should be routed through auto attendant.
+
+
+Scenario: Blind call transfer between sip phones. Inbound calling.
+
+Objective: Test if blind transfer between different models of phones
+works when phone calls are received from ITSP.  
+
+Procedure: Connect two SIP phones to SipX.  Make an inbound call to SipX
+using a PSTN phone to call in via the ITSP.  Transfer blind between  the
+two SIP phones for the inbound call from ITSP.
+
+
+Scenario: Blind call transfer between sip phones. Outbound calling.
+
+Objective: Test if blind transfer between different models of phones
+works when phone calls are placed to ITSP.  
+
+Procedure: Connect two SIP phones to SipX.  Make an outbound call to
+a PSTN phone number via the ITSP using a SIP phone.  Transfer blind to
+the second phone for the outbound call via ITSP.
+
+
+Scenario: Hair-pinned Blind call transfer between PSTN phones. Inbound
+calling.  
+
+Objective: Test if blind transfer between ITSP works when phone calls
+are received from a PSTN number via ITSP.
+
+Procedure: Connect a SIP phone to SipX. Make an inbound call via the
+ITSP. Transfer blind between phone and second PSTN number via the ITSP.
+
+
+Scenario: Hair-pinned Blind call transfer between PSTN phones. Outbound
+calling.  
+
+Objective: Test if blind transfer between PSTN works when phone calls
+are initiated from SIP phone via ITSP.
+
+Procedure: Connect a SIP phone to SipX. Make an outbound call. Transfer
+blind between phone and second PSTN number via the ITSP.
+
+
+Scenario: Attended transfer between SIP phones. Inbound calling.
+
+Objective: Test if attended transfer between phones works when phone
+calls are received from ITSP.  
+
+Procedure: Connect two SIP phones to SipX. Transfer attended between the
+two phones for inbound calls from ITSP.  Make sure the MOH is disabled
+for the phone but enabled in sipxbridge. You should hear MOH during
+the transfer.
+
+Scenario: Attended transfer between SIP phones. Outbound calling.
+
+Objective: Test if attended transfer between phones works when phone
+calls are initiated from SIPX via ITSP.  
+
+Procedure: Connect two SIP phones to SipX. Initiate an outbound call
+to the PSTN via the ITSP from one of the phones.  Transfer attended
+between the two phones for outbound calls to ITSP.  Make sure the MOH
+is disabled for the phone but enabled in sipxbridge. You should hear
+MOH on the phone that is on hold during the transfer.
+
+Scenario: Attended hair-pinned transfer between PSTN phones. Inbound
+calling.  
+
+Objective: Test if attended transfer between PSTN phones works
+when phone calls are outbound from SIPX via ITSP.  
+
+Procedure: Connect one SIP phone to SipX. Make an inbound call from a
+PSTN number via the ITSP.  Transfer attended between phone and a second
+PSTN number via the ITSP.  You should hear MOH during the transfer on
+the first PSTN phone during the transfer.
+
+Scenario: Attended hair-pinned transfer between PSTN phones. Outbound calling.
+
+Objective: Test if attended transfer between PSTN works when phone calls
+are outbound from SIPX via ITSP.
+
+Procedure: Connect one SIP phone to SipX. Make an outbound call to a
+PSTN number via the ITSP.  Transfer attended between phone and a second
+PSTN number via the ITSP.  Make sure the MOH is disabled for the phone
+but enabled in sipxbridge. You should hear MOH during the transfer on
+the first PSTN phone.
+
+
+12. Stability under error conditions:
+
+  For each of the scenrios above
+
+ - Test for robustness by transfering calls to non-existant phones and ITSP
+   numbers.
+ 
+ - Test that sipxbridge is resilient to phone disconnections without explicit 
+   phone hangup (for example disconnect the ethernet cable on the LAN side and
+   test that sipxbridge will hang up the ongoing call).
+
+ 
+Configuration information for different ITSPs
+--------------------------------------------
+
+Eutelia.it
+----------
+ 
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+  <bridge-configuration>
+    <external-address>sipxpbx.example.com</external-address>
+    <external-port>5080</external-port>
+    <local-address>sipxpbx.example.com</local-address>
+    <local-port>5090</local-port>
+    <sipx-proxy-domain>example.com</sipx-proxy-domain>
+    <stun-server-address>stun01.sipphone.com</stun-server-address>
+    <sip-keepalive-seconds>20</sip-keepalive-seconds>
+    <media-keepalive-seconds>1</media-keepalive-seconds>
+    <xml-rpc-port>0.0</xml-rpc-port>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
+    <rtp-port-range>15000:15500</rtp-port-range>
+    <is-reinvite-supported>true</is-reinvite-supported>
+    <log-directory>/usr/local/sipx/var/log/sipxpbx/</log-directory>
+  </bridge-configuration>
+
+  <itsp-account>
+	<use-global-addressing>true</use-global-addressing>
+	<use-rport>false</use-rport>
+	<route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
+	<outbound-proxy>voip.eutelia.it</outbound-proxy>
+	<proxy-domain>eutelia.it</proxy-domain>
+    	<use-registration-for-caller-id>true</use-registration-for-caller-id>
+	<authentication-realm>voip.eutelia.it</authentication-realm>
+	<user-name>user-name</user-name>
+	<password>password</password>
+	<display-name>display-name</display-name>
+        <sip-keepalive-method>CR-LF</sip-keepalive-method>
+	<outbound-registrar>voip.eutelia.it</outbound-registrar>
+        <register-on-initialization>true</register-on-initialization>
+   </itsp-account>
+
+</sipxbridge-config>
+
+
+sipcall.ch
+----------
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+  <bridge-configuration>
+    <external-address>sipxpbx.example.com</external-address>
+    <external-port>5080</external-port>
+    <local-address>sipxpbx.example.com</local-address>
+    <local-port>5090</local-port>
+    <sipx-proxy-domain>example.com</sipx-proxy-domain>
+    <stun-server-address>stun01.sipphone.com</stun-server-address>
+    <sip-keepalive-seconds>20</sip-keepalive-seconds>
+    <media-keepalive-seconds>1</media-keepalive-seconds>
+    <xml-rpc-port>0.0</xml-rpc-port>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
+    <rtp-port-range>15000:15500</rtp-port-range>
+    <is-reinvite-supported>false</is-reinvite-supported>
+    <allowed-codec-name>PCMU</allowed-codec-name>
+    <log-level>DEBUG</log-level>
+    <log-directory>/usr/local/sipx/var/log/sipxpbx/</log-directory>
+  </bridge-configuration>
+
+
+  <itsp-account>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <outbound-proxy>voipgateway.org</outbound-proxy>
+    <outbound-transport>UDP</outbound-transport>
+    <proxy-domain>voipgateway.org</proxy-domain>
+    <user-name>user-name</user-name>
+    <password>password</password>
+    <display-name>display-name</display-name>
+    <use-global-addressing>true</use-global-addressing>
+    <route-inbound-calls-to-extension>operator</route-inbound-calls-to-extension>
+    <use-rport>false</use-rport>
+    <register-on-initialization>true</register-on-initialization>
+    <use-registration-for-caller-id>true</use-registration-for-caller-id>
+    <sip-keepalive-method>REGISTER</sip-keepalive-method>
+    <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>
+  </itsp-account>
+</sipxbridge-config>
+
+les.net
+-------
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+  <bridge-configuration>
+    <external-address>sipxpbx.example.com</external-address>
+    <external-port>5080</external-port>
+    <local-address>sipxpbx.example.com</local-address>
+    <local-port>5090</local-port>
+    <sipx-proxy-domain>example.com</sipx-proxy-domain>
+    <stun-server-address>stun01.sipphone.com</stun-server-address>
+    <sip-keepalive-seconds>20</sip-keepalive-seconds>
+    <media-keepalive-seconds>1</media-keepalive-seconds>
+    <xml-rpc-port>0.0</xml-rpc-port>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
+    <rtp-port-range>15000:15500</rtp-port-range>
+    <is-reinvite-supported>true</is-reinvite-supported>
+    <allowed-codec-name>PCMU</allowed-codec-name>
+    <log-level>DEBUG</log-level>
+    <log-directory>/usr/local/sipx/var/log/sipxpbx/</log-directory>
+  </bridge-configuration>
+
+
+  <itsp-account>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <outbound-proxy>did.voip.les.net</outbound-proxy>
+    <outbound-transport>UDP</outbound-transport>
+    <proxy-domain>did.voip.les.net</proxy-domain>
+    <user-name>user-name</user-name>
+    <password>password</password>
+    <use-global-addressing>false</use-global-addressing>
+    <route-inbound-calls-to-extension>203</route-inbound-calls-to-extension>
+    <use-rport>false</use-rport>
+    <register-on-initialization>true</register-on-initialization>
+    <use-registration-for-caller-id>true</use-registration-for-caller-id>
+    <sip-keepalive-method>REGISTER</sip-keepalive-method>
+    <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>
+  </itsp-account>
+</sipxbridge-config>
+
+bandtel.com
+-----------
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+  <bridge-configuration>
+    <external-address>sipxpbx.example.com</external-address>
+    <external-port>5080</external-port>
+    <local-address>sipxpbx.example.com</local-address>
+    <local-port>5090</local-port>
+    <sipx-proxy-domain>example.com</sipx-proxy-domain>
+    <stun-server-address>stun01.sipphone.com</stun-server-address>
+    <sip-keepalive-seconds>20</sip-keepalive-seconds>
+    <media-keepalive-seconds>1</media-keepalive-seconds>
+    <xml-rpc-port>0.0</xml-rpc-port>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
+    <rtp-port-range>15000:15500</rtp-port-range>
+    <is-reinvite-supported>false</is-reinvite-supported>
+    <allowed-codec-name>PCMU</allowed-codec-name>
+    <log-level>DEBUG</log-level>
+    <log-directory>/usr/local/sipx/var/log/sipxpbx/</log-directory>
+  </bridge-configuration>
+
+
+  <itsp-account>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <outbound-registrar>registrar.bandtel.com</outbound-registrar>
+    <outbound-proxy>proxy1.bandtel.com</outbound-proxy>
+    <outbound-transport>UDP</outbound-transport>
+    <proxy-domain>bandtel.com</proxy-domain>
+    <user-name>user-name</user-name>
+    <password>passwor</password>
+    <display-name>display-name</display-name>
+    <use-global-addressing>true</use-global-addressing>
+    <use-registration-for-caller-id>true</use-registration-for-caller-id>
+    <route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
+    <use-rport>false</use-rport>
+    <register-on-initialization>true</register-on-initialization>
+    <sip-keepalive-method>CR-LF</sip-keepalive-method>
+    <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>
+  </itsp-account>
+</sipxbridge-config>
+
+
+cbeyond.net
+----------
+
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+  <bridge-configuration>
+    <external-address>sipxpbx.example.com</external-address>
+    <external-port>5080</external-port>
+    <local-address>sipxpbx.example.com</local-address>
+    <local-port>5090</local-port>
+    <sipx-proxy-domain>example.com</sipx-proxy-domain>
+    <stun-server-address>stun01.sipphone.com</stun-server-address>
+    <sip-keepalive-seconds>20</sip-keepalive-seconds>
+    <media-keepalive-seconds>1</media-keepalive-seconds>
+    <xml-rpc-port>0.0</xml-rpc-port>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
+    <rtp-port-range>15000:15500</rtp-port-range>
+    <is-reinvite-supported>true</is-reinvite-supported>
+    <allowed-codec-name>PCMU</allowed-codec-name>
+    <log-level>DEBUG</log-level>
+    <log-directory>/usr/local/sipx/var/log/sipxpbx/</log-directory>
+  </bridge-configuration>
+
+
+
+  <itsp-account>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <outbound-registrar>sipconnect-fca.atl0.cbeyond.net</outbound-registrar>
+    <outbound-proxy>sip-proxy-fca.atl0.cbeyond.net</outbound-proxy>
+    <outbound-registrar-route>sip-proxy-fca.atl0.cbeyond.net</outbound-registrar-route>
+    <outbound-transport>UDP</outbound-transport>
+    <proxy-domain>atl0.cbeyond.net</proxy-domain>
+    <user-name>user-name</user-name>
+    <password>password</password>
+    <use-global-addressing>true</use-global-addressing>
+    <use-registration-for-caller-id>true</use-registration-for-caller-id>
+    <route-inbound-calls-to-extension>201</route-inbound-calls-to-extension>
+    <use-rport>false</use-rport>
+    <register-on-initialization>true</register-on-initialization>
+    <use-registration-for-caller-id>true</use-registration-for-caller-id>
+    <sip-keepalive-method>CR-LF</sip-keepalive-method>
+    <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>
+  </itsp-account>
+
+</sipxbridge-config>
+
+
+callwithus.com
+--------------
+
+<?xml version="1.0" ?>
+<sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
+
+  <bridge-configuration>
+    <external-address>sipxpbx.example.com</external-address>
+    <external-port>5080</external-port>
+    <local-address>sipxpbx.example.com</local-address>
+    <local-port>5090</local-port>
+    <sipx-proxy-domain>example.com</sipx-proxy-domain>
+    <stun-server-address>stun01.sipphone.com</stun-server-address>
+    <sip-keepalive-seconds>20</sip-keepalive-seconds>
+    <media-keepalive-seconds>1</media-keepalive-seconds>
+    <xml-rpc-port>0.0</xml-rpc-port>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <music-on-hold-support-enabled>true</music-on-hold-support-enabled>
+    <rtp-port-range>15000:15500</rtp-port-range>
+    <is-reinvite-supported>true</is-reinvite-supported>
+    <allowed-codec-name>PCMU</allowed-codec-name>
+    <log-level>DEBUG</log-level>
+    <log-directory>/usr/local/sipx/var/log/sipxpbx/</log-directory>
+  </bridge-configuration>
+
+
+  <itsp-account>
+    <max-number-of-concurrent-calls>0.0</max-number-of-concurrent-calls>
+    <outbound-transport>UDP</outbound-transport>
+    <proxy-domain>callwithus.com</proxy-domain>
+    <user-name>user-name</user-name>
+    <password>password</password>
+    <use-global-addressing>true</use-global-addressing>
+    <route-inbound-calls-to-extension>203</route-inbound-calls-to-extension>
+    <use-rport>false</use-rport>
+    <register-on-initialization>true</register-on-initialization>
+    <use-registration-for-caller-id>true</use-registration-for-caller-id>
+    <sip-keepalive-method>CR-LF</sip-keepalive-method>
+    <rtp-keepalive-method>USE-EMPTY-PACKET</rtp-keepalive-method>
+  </itsp-account>
+
+</sipxbridge-config>

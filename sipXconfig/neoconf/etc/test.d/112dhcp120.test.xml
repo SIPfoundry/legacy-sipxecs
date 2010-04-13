@@ -1,0 +1,95 @@
+<test name="dhcpOption120">
+  <label>DHCP (Option 120) Test</label>
+  <description>
+    Verify that the DHCP server is properly issuing Option 120 addresses.
+  </description>
+  <longDescription>
+      From the perspective of phones which will be used as part of a @sipxecs.name@
+      PBX, a DHCP server is expected to be present on their network.
+      At a minimum, the DHCP server should be provisioned to supply the network
+      domain name, network mask, default router address and a list of one or
+      more DNS servers. It can optionally supply the IP address of one or more
+      NTP servers and configuration server. This test verifies that there is
+      at most one DHCP server present on the network being tested and that it
+      is supplying the minimal set of network parameters.
+      Note that if the DHCP server has been configured for address reservations
+      based upon device MAC addresses, it will be necessary to add the special
+      MAC address ( 00D01EFFFFFE ) used by these tests to the reservation group.
+  </longDescription>
+  <command>
+    <exec>preflight</exec>
+    <arg>-v</arg>
+    <arg>--120-test</arg>
+    
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful.</msg>
+    </result>
+    <result exit="128">
+      <status>Error</status>
+      <msg>Network access failure.</msg>
+    </result>
+    <result exit="130">
+      <status>Error</status>
+      <msg>Timeout waiting for network response.</msg>
+      <description>
+        No DHCP server responded to the DHCP query. Verify that there
+        is a running DHCP server on the network being tested.
+      </description>
+    </result>
+    <result exit="133">
+      <status>Error</status>
+      <msg>Multiple DHCP servers detected.</msg>
+      <description>
+          More than one DHCP server was detected on the network being tested
+          and was attempting to issue IP addresses. This is a serious network
+          error condition which needs to be remedied immediately.
+      </description>
+    </result>
+    <result exit="134">
+      <status>Error</status>
+      <msg>Unrecognized response received.</msg>
+      <description>
+        An unrecognized response was received from the network. Please consult
+        technical support for further assistance.
+      </description>
+    </result>
+    <result exit="135">
+      <status>Error</status>
+      <msg>DHCP DISCOVER was rejected.</msg>
+      <description>
+        The DHCP server rejected a request for IP address assignment. Ensure
+        that the DHCP server is properly provisioned to issue IP addresses
+        for this network.
+      </description>
+    </result>
+    <result exit="136">
+      <status>Error</status>
+      <msg>DHCP REQUEST was rejected.</msg>
+      <description>
+        The DHCP server rejected a request for IP address assignment. Ensure
+        that the DHCP server is properly provisioned to issue IP addresses for
+        this network.
+      </description>
+    </result>
+    <result exit="137">
+      <status>Error</status>
+      <msg>Missing mandatory DHCP configuration parameters.</msg>
+      <description>
+        The DHCP server responded with an IP address assignment but did not
+        include one of the mandatory network configuration parameters. Please
+        see the test log for further details.
+      </description>
+    </result>
+    <result exit="167">
+      <status>Error</status>
+      <msg>No SIP servers supplied.</msg>
+    </result>
+    <result exit="168">
+      <status>Error</status>
+      <msg>No SIP server is reachable.</msg>
+    </result>
+  </results>
+</test>

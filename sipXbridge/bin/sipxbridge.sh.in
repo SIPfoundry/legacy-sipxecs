@@ -1,0 +1,159 @@
+#!/bin/sh
+
+#
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+# Create a truststore of the same Certificate Authorities the
+# other SIP servers use.
+# Declare script variables in a manner that unit test
+# (or end user I suppose) can override
+
+Action=RUN
+
+
+Status=0
+Args=""
+
+SslDir=@SIPX_CONFDIR@/ssl
+AuthoritiesDir=$SslDir/authorities
+KeyStorePassword=changeit
+TrustStorePassword=changeit
+KeyStoreOpts="\
+      -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
+      -Djavax.net.ssl.keyStorePassword=$KeyStorePassword"
+
+
+setTruststoreOpts() {    
+    # List of authorities accepted system-wide
+    if [ -d $AuthoritiesDir ]
+    then
+      TrustStore=$SslDir/authorities.jks
+      TrustStoreOpts="\
+      	-Djavax.net.ssl.trustStore=$TrustStore \
+     	-Djavax.net.ssl.trustStoreType=JKS \
+        -Djavax.net.ssl.trustStorePassword=$TrustStorePassword"
+    else
+      # make empty as extra measure to ensure doesn't come from env. var
+      # this is when Java's CA database has required certs
+      TrustStoreOpts=""
+    fi
+}
+
+
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --configtest)
+            Action=CONFIGTEST
+            ;;
+
+        --stop)
+            Action=STOP
+            ;;
+
+        --profile)
+            Action=PROFILE
+            ;;
+
+        *)
+            Args="$1"
+            ;;
+    esac           
+
+    shift # always consume 1
+done
+
+#Override the command line if we have specified profiling options.
+#You must have jprofiler installed for this to work.
+if  [ $Action = "RUN" -a -e @SIPX_CONFDIR@/sipxbridge-profile-opts.sh ] 
+then
+    source @SIPX_CONFDIR@/sipxbridge-profile-opts.sh
+fi
+
+CONFIG_FILES="\
+  @SIPX_CONFDIR@/sipxbridge.xml \
+  "
+
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
+LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXbridge/*.jar  @SIPX_JAVADIR@/sipXcommons/*.jar`
+ClassPath=$LibPath
+
+X509Algorithm=`$JavaCmd \
+       -classpath "$ClassPath" \
+       org.sipfoundry.commons.x509selector.X509Selector`
+
+setTruststoreOpts
+# need to run this again because we need to set 
+# command line options.
+
+case ${Action} in
+   RUN)
+      echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
+      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
+	 $TrustStoreOpts 				\
+	 $KeyStoreOpts					\
+	 -Djetty.x509.algorithm=$X509Algorithm		\
+	 -Djetty.ssl.password=$TrustStorePassword	\
+	 -Djetty.ssl.keypassword=$KeyStorePassword	\
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+         -Dsipxbridge.command=start 			  \
+         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+	 $Args
+     ;;
+
+   STOP)
+     #Failsafe kill.
+     sipx_stop sipbridge @SIPX_RUNDIR@/sipxbridge.pid
+     ;;
+  
+   PROFILE)
+    echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
+    exec $JavaCmd '-agentlib:jprofilerti' \
+         -Dconf.dir=@SIPX_CONFDIR@  \
+	 $TrustStoreOpts \
+	 $KeyStoreOpts	 \
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+	 -Djetty.x509.algorithm=$X509Algorithm 		\
+	 -Djetty.ssl.password=$TrustStorePassword	\
+	 -Djetty.ssl.keypassword=$KeyStorePassword	\
+         -Dsipxbridge.command=start 			\
+	 -Xbootclasspath/a:/opt/jprofiler5/bin/agent.jar \
+         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+	 $Args
+     ;;
+
+   CONFIGTEST)
+     Status=0
+     # check validity of xml files
+     ! test -e @SIPX_CONFDIR@/peeridentities.xml \
+     || @bindir@/sipx-validate-xml @SIPX_CONFDIR@/peeridentities.xml
+     Status=$(($Status+$?))
+
+     # Check that the log file is writable.
+     logfile="@SIPX_LOGDIR@/sipxbridge.log"
+     if [ -e $logfile -a ! -w $logfile ]
+     then
+	 echo "Log file '$logfile' exists but is not writable by user '@SIPXPBXUSER@'." >&2
+	 Status=1
+     fi
+
+
+     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  \
+	 $TrustStoreOpts \
+	 $KeyStoreOpts	 \
+	 -Dorg.apache.commons.logging.Log=org.apache.commons.logging.impl.Log4JLogger \
+	 -Djetty.x509.algorithm=$X509Algorithm 		\
+	 -Djetty.ssl.password=$TrustStorePassword	\
+	 -Djetty.ssl.keypassword=$KeyStorePassword	\
+         -Dsipxbridge.command=configtest 		\
+         -cp $ClassPath org.sipfoundry.sipxbridge.Gateway \
+	 $Args
+     ;;
+esac
+
+exit $Status

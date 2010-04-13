@@ -1,0 +1,92 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: OS Abstraction and OS Utilities library for sipX modules
+License: Pingtel Commercial License
+Group: Development/Libraries
+Vendor: Pingtel Corp
+Packager: Pingtel <support@pingtel.com>
+Url: http://www.pingtel.com
+
+Requires: openssl >= 0.9.7a
+Requires: pcre >= 4.5
+
+Requires: sipxmedialib >= %version
+Requires: sipxtacklib >= %version
+Requires: sipxportlib >= %version
+
+Source: %name-%version.tar.gz
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+ This library provides a set of adapters for using a media subsystem. Three
+adapters currently have been implemented. They are for Pintel media processing,
+GIPS VoiceEngine, and GIPS ConferenceEngine. The applications must select an
+appropriate library during the link time in order to use the right media
+subsystem.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+# Install header files
+%package devel
+Requires: openssl-devel >= 0.9.7a
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name
+
+Requires: sipxmedialib >= %version
+Requires: sipxtacklib >= %version
+Requires: sipxportlib >= %version
+
+%description devel
+ This library provides a set of adapters for using a media subsystem. Three
+adapters currently have been implemented. They are for Pintel media processing,
+GIPS VoiceEngine, and GIPS ConferenceEngine. The applications must select an
+appropriate library during the link time in order to use the right media
+subsystem.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+# Do Not Clean - when we are building a set of sipX RPMs, we need the
+#                dependencies to be here.
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_libdir}/libsipXmediaProcessing.la
+%attr(755,root,root) %{_libdir}/libsipXmediaProcessing.so*
+
+%files devel
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
+
+# %attr(755,root,root) %{_libdir}/debug/usr/lib/libsipXmediaProcessing.so*
+%{_libdir}/libsipXmediaProcessing.a
+%{_includedir}/mi/*.h

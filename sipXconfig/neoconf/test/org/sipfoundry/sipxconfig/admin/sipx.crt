@@ -1,0 +1,42 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 20950422 (0x13fad96)
+        Signature Algorithm: sha1WithRSAEncryption
+        Issuer: C=US, ST=AnyState, L=AnyTown, O=localdomain, OU=sipXecs, CN=ca.localhost.localdomain/emailAddress=root@localhost.localdomain
+        Validity
+            Not Before: Oct 31 21:42:35 2009 GMT
+            Not After : Oct 29 21:42:35 2019 GMT
+        Subject: C=US, ST=AnyState, L=AnyTown, O=localdomain, OU=sipXecs, CN=ca.localhost.localdomain/emailAddress=root@localhost.localdomain
+        X509v3 extensions:
+            X509v3 Basic Constraints: 
+                CA:TRUE, pathlen:0
+            Netscape Comment: 
+                gen-ssl-keys.sh generated custom CA certificate
+            Netscape Cert Type: 
+                SSL CA
+-----BEGIN CERTIFICATE-----
+MIIENjCCAx6gAwIBAgIEAT+tljANBgkqhkiG9w0BAQUFADCBqDELMAkGA1UEBhMC
+VVMxETAPBgNVBAgTCEFueVN0YXRlMRAwDgYDVQQHEwdBbnlUb3duMRQwEgYDVQQK
+Ewtsb2NhbGRvbWFpbjEQMA4GA1UECxMHc2lwWGVjczEhMB8GA1UEAxMYY2EubG9j
+YWxob3N0LmxvY2FsZG9tYWluMSkwJwYJKoZIhvcNAQkBFhpyb290QGxvY2FsaG9z
+dC5sb2NhbGRvbWFpbjAeFw0wOTEwMzEyMTQyMzVaFw0xOTEwMjkyMTQyMzVaMIGo
+MQswCQYDVQQGEwJVUzERMA8GA1UECBMIQW55U3RhdGUxEDAOBgNVBAcTB0FueVRv
+d24xFDASBgNVBAoTC2xvY2FsZG9tYWluMRAwDgYDVQQLEwdzaXBYZWNzMSEwHwYD
+VQQDExhjYS5sb2NhbGhvc3QubG9jYWxkb21haW4xKTAnBgkqhkiG9w0BCQEWGnJv
+b3RAbG9jYWxob3N0LmxvY2FsZG9tYWluMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A
+MIIBCgKCAQEA99qGLKIWr2xToXTixGqXUEGwDlr4zqSmk8n1WO7k2j9jcMxNNBU6
+QQ+6jgKsGGuY0s1HgYmAyZyraJMhqEmbI14XB760GbLXHrJTadS+1iDI5bR8L3wt
+K/qsq08qclUtsFPBy2z2AwUuNYNDbGsj3fEY87qLe0DBUto9FPIqQpuIZaSdJeK1
+2jfUQOC1h4xg8n/cfLGTHUEpyh5sksqDCdUY2ISGPIcVe+cuMg+o/MUA/fUuBRMG
+MS36H53djfry7MHe0RrLDdd+eALAJeWZ8LaPOe/ZY6ppOUogPtxoIJHP25BEPAnt
+LmvGPKOxAzwmX6lD2TIErpkprLJ6nE6sswIDAQABo2YwZDAPBgNVHRMECDAGAQH/
+AgEAMD4GCWCGSAGG+EIBDQQxFi9nZW4tc3NsLWtleXMuc2ggZ2VuZXJhdGVkIGN1
+c3RvbSBDQSBjZXJ0aWZpY2F0ZTARBglghkgBhvhCAQEEBAMCAgQwDQYJKoZIhvcN
+AQEFBQADggEBAErPU4NERHgNF61CE82VH8f/t6MamWZ0Gdz/8XU9g577Z0hf3QEE
+vkvappCez9JF4UbvpsxWHhxD3i6pc+0BVHc8CqngaBhC8qKuEDTryAYuHc7CaMYa
+Uno8LhC6FNXEFjbF+8ntgPaklJOLDW1sReKj+/xn+2fc8UXweroeY97Go0VAT+NY
+47mXl4vW5Cna9yi3CUmLJ2kJI1kddCNXwR6WoqytE3xqYXsn53CojwLTW8k3AG2L
+IaSIgFI/82h51djYGIIXE/9NRQOubLOZvZjWC7A2jr44XZH8RFl5Pez7Z+YK3YyX
++GhV2oVRB5JAIQJALr8xSjaInxaic4wsggQ=
+-----END CERTIFICATE-----

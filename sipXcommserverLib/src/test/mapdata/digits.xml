@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+  <hostMatch>
+    <hostPattern>thisdomain</hostPattern>
+    <userMatch>
+      <!-- Emergency dialing.  Allow both "911" and "9911". -->
+      <userPattern>sos</userPattern>
+      <userPattern>911</userPattern>
+      <userPattern>9911</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:911@GW-EMERGENCY-DIALING-ADDR</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <!-- operator or extension 100 goes to AutoAttendant -->
+      <userPattern>operator</userPattern>
+      <userPattern>100</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}autoattendant&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <!-- extension 101 is used to retrieve voicemail messages -->
+      <userPattern>101</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}mailbox%3D{digits-escaped}&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <!-- transferring a call to 2xxx transfers the call to the voicemail box for extension xxx -->
+      <userPattern>2xxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{vdigits}@{mediaserver};play={voicemail}mailbox%3D{vdigits-escaped}&gt;</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <!-- 800 number dialing.  Allow optional "1" or "91" prefixes. -->
+      <userPattern>91800xxxxxxx.</userPattern>
+      <userPattern>1800xxxxxxx.</userPattern>
+      <userPattern>800xxxxxxx.</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>800{vdigits}</user>
+          <host>GW-800-DIALING-ADDR</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <userMatch>
+      <!-- International number dialing. -->
+      <userPattern>011x.</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>011{vdigits}</user>
+          <host>GW-INTL-DIALING-ADDR</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+    <!-- Fall back to voicemail if call to a phone does not succeed
+      -  for any called number that has Voicemail permission; making
+      -  it conditional is accomplished by adding the ';q=0.1' at the end.
+      -->
+    <userMatch>
+      <userPattern>xxxxx</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>&lt;sip:{digits}@{mediaserver};play={voicemail}mailbox%3D{digits-escaped}&gt;;q=0.1</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

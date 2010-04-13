@@ -1,0 +1,160 @@
+Notes on managing a sipX "interop server".
+
+* DNS configuration
+
+The SIPXCHANGE_DOMAIN_NAME name should have an ordinary DNS A record.
+
+To support the "DNS SRV Record Processing" test, the INTEROP_ALIAS_UDP
+and INTEROP_ALIAS_TCP names should have DNS SRV records like these:
+
+_sip._tcp.{INTEROP_ALIAS_TCP}. IN SRV   1 1 5060 {SIPXCHANGE_DOMAIN_NAME}.
+_sip._udp.{INTEROP_ALIAS_UDP}. IN SRV   1 1 5060 {SIPXCHANGE_DOMAIN_NAME}.
+
+INTEROP_ALIAS_TCP and INTEROP_ALIAS_UDP are defined in config.defs.in.
+Their default value is the `hostname -f` prefixed with "udp." and "tcp.".
+
+* To load or update the sipX code from a set of RPMs:
+
+First, load the desired RPMs into a directory on the interop server.
+
+    To load from a development build at Bluesocket, you need a two-step
+    process to get the RPMs onto interop.pingtel.com, because interop is
+    outside the firewall.
+
+    From a machine inside Bluesocket, create a directory and download the
+    RPMs for the desired version.  E.g.:
+
+            wget --no-parent -r -nd \
+                    http://falcon.us.nortel.com/ecs/main/FC/8/i386/010020/RPM
+
+    Create a destination directory on interop (e.g., ~/010020) and upload
+    the RPMs to it:
+
+            scp *.rpm interop:010020
+
+On the interop server, stop sipX and install the new PRMs:
+
+        sudo /sbin/service sipxpbx stop
+
+        sudo rpm --upgrade -p ~/010020/*.rpm
+
+Note that rpm will attempt to install any RPMs that have the *same*
+version as the currently installed version, as well as any that are
+*newer*.  The former will fail (which causes the entire rpm command to
+fail), so you have to inspect the output of rpm for messages like
+this:
+
+        package xerces-c-2.7.0-3 is already installed
+        package rubygems-0.8.11-2 is already installed
+        package cgicc-3.2.3-2 is already installed
+
+Rename these RPMs to have a different extension (or delete them), and
+run the rpm command again.
+
+Regarding RPMs whose names do not start with "sip", once they have
+been installed, they rarely need to be updated.
+
+Do not install:
+
+    1) the sipXconfig RPMs (sipxconfig, sipxconfig-agent, sipxconfig-ftp,
+    sipxconfig-report, and sipxconfig-tftp), as the interop configuration
+    uses special config files,
+
+    2) the Call Resolver (sipxproxy-cdr), as that requires Postgres to be
+    set up,
+
+    3) the sipxecs RPMs, as they are just umbrella packages that "require"
+    all the other RPMs, and
+
+    4) the java-NNN-sun-NNN.rpm, java-NNN-sun-fonts-NNN.rpm, and
+    sipx*-devel-* RPMs can also be omitted.
+
+    5) the sipx-freeswitch-* RPMs rarely change, so they rarely need to be
+    updated.
+
+Install the setsipxpasswd program.  You may have to load it from the
+sipX source using
+
+        wget http://sipxecs.sipfoundry.org/rep/sipXecs/main/sipXcommserverLib/meta/setsipxpasswd
+
+Install the XML::Simple and File::ReadBackwards modules from CPAN:
+
+        yum install perl-CPAN
+        cpan XML::Simple File::ReadBackwards
+             [You can safely decline to manually configure CPAN.]
+
+Once the software is installed, reload the interop configuration
+(which may have been modified by the sipX install), and restart sipX:
+
+        touch interop-server-config/sipx_confdir/config.defs.in
+        sudo make -C interop-server-config install
+        sudo /sbin/service sipxpbx start
+
+To avoid having rpm complain about unknown digital signatures on the
+RPMs, install the sipX signing key:
+
+        wget --no-check-certificate https://secure2.pingtel.com/RPM-GPG-KEY-pingtel
+        sudo rpm --import RPM-GPG-KEY-pingtel
+
+Note that installing the sipX RPMs will set init to run sipX in
+runlevels 3 and 5 (normal operation states).
+
+* To load or update the Interop sipX configuration:
+
+Install the perl-XML-Parser RPM to provide XML/Parser.pm.
+
+Obtain a copy of the configuration files with either:
+
+        wget -np -nH -r http://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config
+        cd rep/sipXecs/main/extras/interop-server-config
+
+or to get a Subversion working copy:
+
+        svn co -q https://sipxecs.sipfoundry.org/rep/sipXecs/main/extras/interop-server-config
+        cd interop-server-config
+
+Edit the SETSIPXPASSWD line of ./Makefile to specify the location of
+the setsipxpasswd program.  (See above for installation instructions.)
+
+Edit the SIPX_USER line of ./Makefile to specify the correct user
+name, the one that is in /etc/passwd -- open-source versions usually
+use the name 'sipx' and commercial versions usually use the name
+'sipxchange'. Edit the SIPX_GROUP line of ../Makefile to specify the
+correct group name, usually the default group of the user SIPX_USER.
+In systems meant for production or semi-production use, SIPX_GROUP is
+usually the same as SIPX_USER.
+
+Generate the config.defs file:
+
+        cd .../interop-server-config
+        touch sipx_confdir/config.defs.in
+        sudo make /etc/sipxpbx/config.defs
+
+Edit /etc/sipxpbx/config.defs for any needed customization.
+
+Note that config.defs by default sets the SIP domain name of the
+server to `hostname -f`, and from that generates the UDP-only and
+TCP-only names.  The following steps edit those names into the
+user-visible files.
+
+Generate the remainder of the configuration files:
+
+        sudo make install
+
+Restart sipX:
+
+        sudo /sbin/service sipxpbx restart
+
+* monitoring scripts
+
+The directory "scripts" contains some scripts that are informative to
+run every day.
+
+Note that "registration-summary" executes "regtimes" (from sipXtools),
+which requires the Perl module DateTime::Format::ISO8601.  You can
+install that by executing:
+
+        sudo cpan install DateTime::Format::ISO8601
+
+On Fedora Core 6, it also requires the perl RPM to be version
+perl-5.8.8-10.el5_0.2 or later.

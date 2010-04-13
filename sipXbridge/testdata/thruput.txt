@@ -1,0 +1,122 @@
+
+Goal: To measure the media thruput performance of the symmitron.
+
+
+Description
+
+Experiments were performed with 100 bidrectional streams pushing data through 
+the symmitron.  I allocated 50 bridges in the symmitron.  This would 
+correspond to 50 concurrent phone calls.
+Each bridge had a pair of Syms Each sym received data from a sender 
+and forwarded it to the other side.
+Measurements were made over 1000 packets. I performed the experiments
+on my laptop ( dual core 2 ghz intel processor ) using localhost.
+The symmitron ran in the same process as the sender and receiver. 
+
+
+sender	---->| 		|---> receiver
+	     |   bridge |
+receiver<----|	        |<--- sender
+
+
+CASE 1
+
+sender and receiver colocated with sipxbridge all in a single process
+---------------------------------------------------------------------
+Time between packets   Root Mean Square Jitter (measured at receiver in ms)
+
+10 ms.                  PACKET LOSS occured.
+
+20 ms.			6.17 ms. ( 0 packet loss ) 
+
+40 ms.                  1.9 ms.  ( 0 packet loss )
+
+80 ms.			1.15 ms. ( 0 packet loss ) 
+
+160 ms.                 1.10 ms.  ( 0 packet loss )
+
+
+
+CASE 2
+
+sender and receiver on a different IP and different machine
+on  different subnet  address than sipxbridge.
+--------------------------------------------------------------------
+
+Time between packets		RMS jitter ( measured at receiver in ms.)
+--------------------            ---------------------------------------
+
+10 ms.				6.5 ( 0 packet loss )
+
+20 ms.				4.1 ( 0 packet loss )
+
+40 ms.				4.01 ( 0 packet loss )
+
+80 ms.				4.01 ( 0 packet loss )
+
+160 ms.				4.0  ( 0 packet loss )
+
+Analysis
+---------
+
+When everything runs in a single process, the the performance is affected
+by the fact that the receiver and sender as well as the symmitron are
+sharing the same processor. Hence it becomes CPU bound and the peak
+thruput is reduced ( packets are dropped when I try to send packets at
+10 ms interval when everything runs in a single process ). However,
+this case is not relevant because thats not how it will operate in a
+real deployment.
+
+When I put the load generator on a diferent machine than the symmitron,
+the RMS jitter is significantly higher. This is caused by the fact that
+when I push packets through the network I make the symmitron use the
+network adapter. The RMS jitter is hence higher. However, at 160 ms
+between packets, it is within the bounds of the receive buffer of the
+phone as evident from the (empirical) voice quality analysis below.
+
+Qualitative analysis 
+--------------------
+
+I started sipxbridge and continuously pumped packets over 50 bridges at
+the rate of 1  256 byte packet every 100 ms per bridge bidirectional.
+The average thruput per second at this rate is:
+
+50bridgesx20 packets/second/bridge = 1000 packets per second.
+
+With the load generator running packets through sipxbridge, I made a call
+via the ITSP. My empirical observations are that there was no noticable
+degredation in voice quality at this rate of thruput on the polycom
+phone. The nortel LG had a very slight ( almost imperceptible) hiss.
+
+There was no noticable effect on call setup time.
+
+CPU load analysis
+-----------------
+
+With the load generator running packets through sipxbridge and nothing
+else of significant load running on the machine where sipxbridge is running,
+I ran vmstat 30
+
+Here is what I get :
+
+
+
+procs -----------memory---------- ---swap-- -----io---- --system-- -----cpu------
+ r  b   swpd   free   buff  cache   si   so    bi      bo   in   cs us sy id wa st
+ 3  0      0 1233020 274060 1057164    0    0     4    20   48   39  4  3 93 0  0
+ 0  0      0 1232896 274060 1057172    0    0     0     7 2950  937 15 18 67 0  0
+ 0  0      0 1232896 274060 1057176    0    0     0     7 2936  770  8 17 75 0  0
+ 1  0      0 1232896 274060 1057176    0    0     0     7 2939  763  7 17 76 0  0
+ 1  0      0 1232896 274060 1057176    0    0     0     5 2941 1133  4 17 79 0  0
+ 0  0      0 1232896 274060 1057176    0    0     0     5 2946  822  6 16 78 0  0
+
+
+The conclusion that I can draw is that sipxbridge is mostly waiting for IO and
+hence CPU load is not an issue.
+
+
+Overall Conclusion
+------------------
+
+Sipxbridge can easily perform at the desired design point of 50 concurrent 
+calls. 

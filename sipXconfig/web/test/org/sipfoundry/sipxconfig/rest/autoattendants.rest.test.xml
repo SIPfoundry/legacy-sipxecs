@@ -1,0 +1,12 @@
+<autoAttendants>
+  <autoAttendant>
+    <name>operator</name>
+    <systemId>operator</systemId>
+    <specialSelected>false</specialSelected>
+  </autoAttendant>
+  <autoAttendant>
+    <name>After hours</name>
+    <systemId>afterhour</systemId>
+    <specialSelected>true</specialSelected>
+  </autoAttendant>
+</autoAttendants>

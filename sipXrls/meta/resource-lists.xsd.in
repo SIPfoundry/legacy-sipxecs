@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<!--
+  - XML Schema for sipX resource list definitions
+  -->
+<schema
+    xmlns:r='http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01'
+    xmlns:sip='http://www.sipfoundry.org/sipX/schema/xml/sip-00-01'
+    targetNamespace='http://www.sipfoundry.org/sipX/schema/xml/resource-lists-00-01'
+    xmlns='http://www.w3.org/2001/XMLSchema'
+    >
+
+  <import
+      namespace="http://www.sipfoundry.org/sipX/schema/xml/sip-00-01"
+      schemaLocation="@SIPX_DATADIR@/schema/sip_types.xsd"
+      />
+
+  <import
+      namespace="http://www.w3.org/XML/1998/namespace"
+      schemaLocation="@SIPX_DATADIR@/schema/xml.xsd"
+      />
+
+  <annotation>
+    <documentation>
+      Definitions of resource lists for the sipX Resource List Server
+    </documentation>
+  </annotation>
+
+  <!-- Elements -->
+
+  <element name='lists'>
+    <complexType>
+      <sequence>
+        <element ref='r:list' minOccurs='0' maxOccurs='unbounded' />
+      </sequence>
+    </complexType>
+  </element>
+
+  <!-- The schema for <list> and its subordinate elements is largely copied
+       from section 5.1 of RFC 4662.
+       The schema for the <name> element must be exactly the same,
+       as the RLS copies it directly into the RLMI XML in its event notices.
+    -->
+  <element name="list">
+    <complexType>
+      <sequence>
+	<element ref="r:name" minOccurs="0"
+		    maxOccurs="unbounded" />
+	<element ref="r:resource" minOccurs="0"
+		    maxOccurs="unbounded" />
+      </sequence>
+      <!-- 'uri' is replaced by 'user', which is the user-part of the
+	   list's URI.  Its value (after extraction from the XML)
+	   should not contain any (URI) escapes or characters
+	   requiring escaping (within URIs). -->
+      <attribute name="user" type="string" use="required" />
+      <!-- 'user-cons' is the user-part of the URI for "consolidated"
+	   (Broadworks-style) resource list events. -->
+      <attribute name="user-cons" type="string" use="required" />
+      <!-- 'version', 'fullState', and 'cid' are omitted. -->
+      <anyAttribute processContents="lax" />
+    </complexType>
+  </element>
+  <element name="resource">
+    <complexType>
+      <sequence>
+	<element ref="r:name" minOccurs="0"
+		    maxOccurs="unbounded" />
+	<!-- The 'instance' element is not used here. -->
+      </sequence>
+      <attribute name="uri" type="anyURI" use="required" />
+      <anyAttribute processContents="lax" />
+    </complexType>
+  </element>
+  <element name="name">
+    <complexType>
+      <simpleContent>
+	<extension base="string">
+	  <attribute ref="xml:lang" use="optional"/>
+	</extension>
+      </simpleContent>
+    </complexType>
+  </element>
+</schema>

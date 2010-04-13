@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="SIP_ACCOUNT">
+    <label>SIP Service</label>
+    <setting name="SWITCH">
+      <label>Activity</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="REGIST_ID">
+      <label>Registration ID</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="AUTH_ID">
+      <label>Authentication ID</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="REGIST_PASS">
+      <label>Password</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="DISP_NAME">
+      <label>Display Name</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="REGIST_SERVER">
+      <label>Registration Server</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="PROXY_SERVER">
+      <label>Proxy Server</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="REALM_ADDR">
+      <label>Realm Address</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="VOICE_MAIL_NUM">
+      <label>Voice Mail Number</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="WMI_SWITCH">
+      <label>Enable WMI</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="EXPIRE_TIME">
+      <label>Expire Time</label>
+      <type>
+        <integer min="60" max="3600" />
+      </type>
+      <value>360</value>
+    </setting>
+    <setting name="BLF_LIST">
+      <label>BLF List</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="MOH">
+      <label>Music On Hold</label>
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="DTMF_TYPE">
+      <label>DTMF Type</label>
+      <type>
+        <enum>
+          <option>
+            <label>RFC 2833</label>
+            <value>RFC2833</value>
+          </option>
+          <option>
+            <label>SIP Info</label>
+            <value>SIP_INFO</value>
+          </option>
+          <option>
+            <label>Nortel Info</label>
+            <value>NORTEL_INFO</value>
+          </option>
+          <option>
+            <label>In Band</label>
+            <value>IN_BAND</value>
+          </option>
+        </enum>
+      </type>
+      <value>RFC2833</value>
+    </setting>
+    <setting name="SEND_ALIVE">
+      <label>Keep Alive</label>
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+</model>

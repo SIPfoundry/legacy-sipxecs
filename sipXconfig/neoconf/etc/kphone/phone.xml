@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="yes-no">
+    <boolean>
+      <true>
+        <value>Yes</value>
+      </true>
+      <false>
+        <value>No</value>
+      </false>
+    </boolean>
+  </type>
+  <group name="General">
+    <label>General</label>
+    <setting name="TrayIcon">
+      <label>Tray Icon</label>
+      <type refid="yes-no"/>
+      <value>No</value>
+      <description>Yes or No, Show KPhone as a tray icon when minimized</description>
+    </setting>
+  </group>
+</model>

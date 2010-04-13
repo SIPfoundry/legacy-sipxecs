@@ -1,0 +1,78 @@
+<profile name="@SIP_DOMAIN_NAME@">
+  <aliases>
+    <!-- 
+    <alias name="outbound"/>
+    <alias name="nat"/>
+    -->
+  </aliases>
+
+  <domains>
+    <domain name="all" alias="false" parse="true"/>
+  </domains>
+
+  <settings>
+    <param name="debug" value="1"/>
+    <param name="sip-trace" value="no"/>
+    <param name="rfc2833-pt" value="101"/>
+    <param name="sip-port" value="15060"/>
+    <param name="dialplan" value="XML"/>
+    <param name="dtmf-duration" value="100"/>
+    <param name="codec-prefs" value="PCMU@20i,PCMA@20i,speex,G722,L16"/>
+    <param name="hold-music" value="$${hold_music}"/>
+    <param name="rtp-timer-name" value="soft"/>
+    <!--<param name="enable-100rel" value="true"/>-->
+    <!-- This could be set to "passive" -->
+    <param name="local-network-acl" value="localnet.auto"/>
+    <param name="manage-presence" value="false"/>
+
+    <!-- used to share presence info across sofia profiles 
+	 manage-presence needs to be set to passive on this profile
+	 if you want it to behave as if it were the internal profile 
+	 for presence.
+    -->
+    <!-- Name of the db to use for this profile -->
+    <!--<param name="dbname" value="share_presence"/>-->
+    <!--<param name="presence-hosts" value="$org.sipfoundry.sipxconfig.domain.Domain@d"/>-->
+    <!--<param name="force-register-domain" value="$org.sipfoundry.sipxconfig.domain.Domain@d"/>-->
+    <!--all inbound reg will stored in the db using this domain -->
+    <!--<param name="force-register-db-domain" value="$org.sipfoundry.sipxconfig.domain.Domain@d"/>-->
+    <!-- ************************************************* -->
+
+    <!--<param name="aggressive-nat-detection" value="true"/>-->
+    <param name="inbound-codec-negotiation" value="generous"/>
+    <param name="nonce-ttl" value="60"/>
+    <param name="auth-calls" value="false"/>
+    <param name="accept-blind-auth" value="true"/>
+    <!--
+	DO NOT USE HOSTNAMES, ONLY IP ADDRESSES IN THESE SETTINGS!
+    -->
+    <param name="rtp-ip" value="$${local_ip_v4}"/>
+    <param name="sip-ip" value="$${local_ip_v4}"/>
+    <param name="ext-rtp-ip" value="auto-nat"/>
+    <param name="ext-sip-ip" value="auto-nat"/>
+    <param name="rtp-timeout-sec" value="300"/>
+    <param name="rtp-hold-timeout-sec" value="1800"/>
+    <!--<param name="enable-3pcc" value="true"/>-->
+
+    <!-- TLS: disabled by default, set to "true" to enable -->
+    <param name="tls" value="$${external_ssl_enable}"/>
+    <!-- additional bind parameters for TLS -->
+    <param name="tls-bind-params" value="transport=tls"/>
+    <!-- Port to listen on for TLS requests. (5081 will be used if unspecified) -->
+    <param name="tls-sip-port" value="$${external_tls_port}"/>
+    <!-- Location of the agent.pem and cafile.pem ssl certificates (needed for TLS server) -->
+    <param name="tls-cert-dir" value="$${external_ssl_dir}"/>
+    <!-- TLS version ("sslv23" (default), "tlsv1"). NOTE: Phones may not work with TLSv1 -->
+    <param name="tls-version" value="$${sip_tls_version}"/>
+
+  </settings>
+      <gateways>
+        <gateway name="@SIP_DOMAIN_NAME@">
+          <param name="proxy" value="@SIP_DOMAIN_NAME@"/>
+          <param name="realm" value="@SIP_REALM@"/>
+          <param name="username" value="~~id~media"/>
+          <param name="password" value="5678"/>
+          <param name="register" value="false"/>
+        </gateway>
+      </gateways>
+</profile>

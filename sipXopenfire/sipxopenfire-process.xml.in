@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>SipXopenfire</name>
+  <version>@VERSION@</version>
+  <commands>
+    <configtest>
+      <execute>@SIPX_BINDIR@/sipxopenfire.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>@SIPX_BINDIR@/sipxopenfire.sh</execute>
+      <parameter>--start</parameter>
+    </start>
+    <stop>
+      <execute>@SIPX_BINDIR@/sipxopenfire.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>@SIPX_RUNDIR@/sipxopenfire.pid</pid>
+    <log>@SIPX_LOGDIR@/sipxopenfire.log</log>
+  </status>
+  <resources>
+    <file>@SIPX_CONFDIR@/sipxopenfire.xml</file>
+    <file>@SIPX_CONFDIR@/xmpp-account-info.xml</file>
+    <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
+  </resources>
+</sipXecs-process>

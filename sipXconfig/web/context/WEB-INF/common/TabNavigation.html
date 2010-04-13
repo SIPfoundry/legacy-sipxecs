@@ -1,0 +1,48 @@
+<span jwcid="$content$">
+  <span jwcid="@If" condition="ognl:useLeftNavigation">
+    <div jwcid="@common/LeftNavigation" renderCondition="ognl:renderCondition">
+      <span jwcid="@Any" id="ognl:elementId">
+        <span jwcid="@common/TabControl">
+          <span jwcid="@For" source="ognl:tabNames" value="ognl:currentTab">
+            <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(selectedTab)">
+              <span jwcid="@If" condition="ognl:submit" volatile="ognl:true">
+                <a href="#" jwcid="@DirectLink" listener="listener:submitAndActivateTab"
+                  parameters="ognl:currentTab" id="ognl:'link:' + currentTab">
+                    <span jwcid="@Insert" value="ognl:currentTabLabel"/>
+                </a>
+              </span>
+              <span jwcid="@Else" volatile="ognl:true">
+                <a href="#" jwcid="@DirectLink" listener="listener:activateTab"
+                  parameters="ognl:currentTab" id="ognl:'link:' + currentTab">
+                    <span jwcid="@Insert" value="ognl:currentTabLabel"/>
+                </a>
+              </span>
+            </span>
+          </span>
+        </span>
+      </span>
+    </div>
+  </span>
+  <span jwcid="@Else">
+    <span jwcid="@Any" id="ognl:elementId">
+      <span jwcid="@common/TabControl">
+        <span jwcid="@For" source="ognl:tabNames" value="ognl:currentTab">
+          <span jwcid="@common/Tab" isActive="ognl:currentTab.equals(selectedTab)">
+            <span jwcid="@If" condition="ognl:submit" volatile="ognl:true">
+              <a href="#" jwcid="@DirectLink" listener="listener:submitAndActivateTab"
+                parameters="ognl:currentTab" id="ognl:'link:' + currentTab">
+                  <span jwcid="@Insert" value="ognl:currentTabLabel"/>
+              </a>
+             </span>
+            <span jwcid="@Else" volatile="ognl:true">
+              <a href="#" jwcid="@DirectLink" listener="listener:activateTab"
+                parameters="ognl:currentTab" id="ognl:'link:' + currentTab">
+                  <span jwcid="@Insert" value="ognl:currentTabLabel"/>
+              </a>
+            </span>
+          </span>
+        </span>
+      </span>
+    </span>
+  </span>
+</span>

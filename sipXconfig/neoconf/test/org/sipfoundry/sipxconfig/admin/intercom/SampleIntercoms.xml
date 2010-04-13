@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd" -->
+<dataset>
+  <intercom intercom_id="1001" enabled="true" prefix="66" timeout="3000" code="abc"/>
+  <intercom intercom_id="1002" enabled="false" prefix="77" timeout="4000" code="def"/>
+</dataset>

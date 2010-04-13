@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping default-lazy="false" package="org.sipfoundry.sipxconfig.vm.attendant">
+
+  <class name="PersonalAttendant" table="personal_attendant">
+    <id name="id" column="personal_attendant_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">personal_attendant_seq</param>
+      </generator>
+    </id>
+    <property name="overrideLanguage" />
+    <property name="language" />
+    <property name="operator" />
+    <many-to-one name="user"  cascade="save-update" column="user_id" not-null="true" class="org.sipfoundry.sipxconfig.common.User" />
+    <component name="menu" class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenu">
+      <map name="menuItems" cascade="all" table="personal_attendant_menu_item" order-by="dialpad_key asc">
+        <key column="personal_attendant_id" />
+        <index column="dialpad_key" type="org.sipfoundry.sipxconfig.common.DialPad$UserType" />
+        <composite-element class="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuItem">
+          <!-- explicit column names, default prepended 'element_' -->
+          <property name="action" column="action"
+            type="org.sipfoundry.sipxconfig.admin.dialplan.AttendantMenuAction$UserType" />
+          <property name="parameter" column="parameter" />
+        </composite-element>
+      </map>
+    </component>
+  </class>
+
+  <query name="personalAttendantForUser">
+    <![CDATA[select pa from PersonalAttendant pa where pa.user = :user]]>
+  </query>
+
+</hibernate-mapping>

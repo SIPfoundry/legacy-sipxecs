@@ -1,0 +1,20 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <h2>
+    <span key="title">Group Settings</span>
+  </h2>
+  <ul class="component-links">
+    <li>
+      <a id="group:edit" jwcid="editGroup@DirectLink"
+        listener="listener:editGroupName"><span key="editGroup">Edit Group</span></a>
+    </li>
+  </ul>
+  <div jwcid="@common/LeftNavigation">
+    <span jwcid="settingsNavigation@setting/SettingsNavigation" bean="ognl:bean"
+      source="ognl:settings.values" activeSetting="ognl:parentSetting"
+      editSettingsListener="listener:editGroupSettings"/>
+  </div>
+  <span jwcid="settingsForm@setting/SettingsForm" settings="ognl:parentSetting"
+    cancelListener="listener:cancel" okListener="listener:ok"
+    applyListener="listener:apply" validator="bean:validator"
+    requiredEnabled="literal:false"/>
+</div>

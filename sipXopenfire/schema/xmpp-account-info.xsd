@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://www.sipfoundry.org/xmpp-account-info/" targetNamespace="http://www.sipfoundry.org/xmpp-account-info/">
+    <element name="xmpp-account-info" type="tns:XmppAccountInfo"></element>
+    
+    <complexType name="XmppUserAccount">
+    	<sequence>
+    		<element name="user-name" type="string" minOccurs="1"
+    			maxOccurs="1">
+    			<annotation>
+    				<documentation>
+    					The xmpp user name (does not include domain).
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="sip-user-name" type="string" minOccurs="1"
+    			maxOccurs="1">
+    			<annotation>
+    				<documentation>
+    					SIP user name (does not include domain). Domain
+    					is the same as the XMPP domain.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="display-name" type="string" minOccurs="1"
+    			maxOccurs="1">
+    			<annotation>
+    				<documentation>Xmpp display name.</documentation>
+    			</annotation>
+    		</element>
+    		<element name="password" type="string" minOccurs="1"
+    			maxOccurs="1">
+    			<annotation>
+    				<documentation>xmpp account password</documentation>
+    			</annotation>
+    		</element>
+    		<element name="on-the-phone-message" type="string"
+    			minOccurs="1" maxOccurs="1">
+    			<annotation>
+    				<documentation>
+    					on the phone message. This is shown to the
+    					buddies of this account when user is on the
+    					phone. This should be settable from the user
+    					portal of the user.
+
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="advertise-on-call-status" type="boolean"
+    			minOccurs="1" maxOccurs="1">
+    			<annotation>
+    				<documentation>
+    				   	Dictates whether or not the sipXopenfire plugin will make available the 
+    				   	SIP status information about the user
+       				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="show-on-call-details" type="boolean"
+    			minOccurs="1" maxOccurs="1">
+    			<annotation>
+    				<documentation>
+    				   	When user is on the phone and advertise-on-call-status is true, this dictates
+    				   	whether or not the sipXopenfire plugin will make available the 
+    				   	information about the other call party
+       				</documentation>
+    			</annotation>
+    		</element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="XmppGroup">
+    	<sequence>
+    		<element name="group-name" type="string" minOccurs="1" maxOccurs="1">
+    			<annotation>
+    				<documentation>The xmpp group name.</documentation>
+    			</annotation>
+		</element>
+		    <element name="administrator" type="string" minOccurs="0" maxOccurs="1">
+    			<annotation>
+    				<documentation>The xmpp group administrator.</documentation>
+    			</annotation>
+    	        </element>
+    		<element name="description" type="string" minOccurs="0" maxOccurs="1">
+    			<annotation>
+    				<documentation>
+    					Xmpp group description.
+    				</documentation>
+    			</annotation>
+		</element>
+    		<element name="user" type="tns:XmppGroupMember" minOccurs="0" maxOccurs="unbounded">
+    			<annotation>
+    				<documentation>Group member.</documentation>
+    			</annotation>
+		</element>
+    	</sequence>
+    </complexType>
+    
+    <complexType name="XmppChatRoom">
+    	<sequence>
+    		<element name="subdomain" type="string" maxOccurs="1" minOccurs="1" >
+    			<annotation>
+    				<documentation>
+    					Chat server subdomain.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="room-owner" type="string" maxOccurs="1" minOccurs="1" >
+    			<annotation>
+    				<documentation>
+    					This should be the xmpp user name of the user that is set in his
+    					user profile in sipx. Users with no xmpp id must not create rooms.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="room-name" type="string" maxOccurs="1" minOccurs="1" >
+    			<annotation>
+    				<documentation>
+    					Chat room name.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="description" type="string" maxOccurs="1" minOccurs="0" default="">
+    			<annotation>
+    				<documentation>
+    					Chat room description.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="password" type="string" maxOccurs="1" minOccurs="0" default="">
+    			<annotation>
+    				<documentation>
+    					Chat room password.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="moderated" type="boolean" maxOccurs="1" minOccurs="0" default="false">
+    			<annotation>
+    				<documentation>
+    					Is chat room moderated.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="is-public-room" type="boolean" maxOccurs="1" minOccurs="0" default="true">
+    			<annotation>
+    				<documentation>
+    					Is chat room public, i.e. it is listed in the directory.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="is-members-only" type="boolean" maxOccurs="1" minOccurs="0" default="false">
+    			<annotation>
+    				<documentation>
+    					Is chat room members only.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="is-persistent" type="boolean" maxOccurs="1" minOccurs="0" default="true">
+    			<annotation>
+    				<documentation>
+    					Is chat room persistent.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="log-room-conversations" type="boolean" maxOccurs="1" minOccurs="0" default="true">
+    			<annotation>
+    				<documentation>
+    					Is chat logged.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="conference-extension" type="string" maxOccurs="1" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					SipX conference extension. Should be assigned to the
+    					administrator.
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="conference-reach-info" type="string" maxOccurs="1" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					String describing how to reach the audio conference from a phone that is not on the system, e.g. a PSTN phone 
+    				</documentation>
+    			</annotation>
+    		</element>
+    		<element name="password" type="string" maxOccurs="1" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					PIN required to enter conference and IM Chatroom.
+       				</documentation>
+    			</annotation>
+    		</element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="ServerList">
+    	<sequence>
+    		<element name="host" type="string" maxOccurs="1" minOccurs="1" default="">
+    			<annotation>
+    				<documentation>
+    					IP address of FQDN of the server
+    				</documentation>
+    			</annotation>
+    		</element>
+            <element name="port" maxOccurs="1" minOccurs="1" default="5269">
+    			<annotation>
+    				<documentation>
+    					Port number of server
+    				</documentation>
+    			</annotation>
+			    <simpleType>
+			      <restriction base='integer'>
+			        <minInclusive value='1024'/>
+			        <maxInclusive value='65535'/>
+			      </restriction>
+			    </simpleType>
+      		</element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="XmppServerToServer">
+    	<sequence>
+    		<element name="enabled" type="boolean" maxOccurs="1" minOccurs="1" default="false">
+    			<annotation>
+    				<documentation>
+    					Is Server-to-server functionality turned on?
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="port" maxOccurs="1" minOccurs="1" default="5269">
+    			<annotation>
+    				<documentation>
+    					Port number used by openfire for server-to-server connections.
+    				</documentation>
+    			</annotation>
+			    <simpleType>
+			      <restriction base='integer'>
+			        <minInclusive value='1024'/>
+			        <maxInclusive value='65535'/>
+			      </restriction>
+			    </simpleType>
+    		</element>
+
+    		<element name="disconnect-on-idle" type="boolean" maxOccurs="1" minOccurs="1" default="false">
+    			<annotation>
+    				<documentation>
+    					Determines if openfire closes a server-to-server connection if there is not activity of a specified period of time.
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="idle-timeout" type="integer" maxOccurs="1" minOccurs="0" default="3600">
+    			<annotation>
+    				<documentation>
+    					Value in seconds that represents the amount of time that a server-to-server connection
+    					has to be idle for before closing the connection.  This parameter is only relevant when
+    					disconnect-on-idle is true.
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="any-can-connect" type="boolean" maxOccurs="1" minOccurs="1" default="false">
+    			<annotation>
+    				<documentation>
+    					Dictates whether or not openfire will restrict the servers that can connect to it. 
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="allowed-servers" type="tns:ServerList" maxOccurs="unbounded" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					List of servers that are allowed to connect.  Only relevant when any-can-connect
+    					is set to false 
+    				</documentation>
+    			</annotation>
+    		</element>
+
+    		<element name="disallowed-servers" type="tns:ServerList" maxOccurs="unbounded" minOccurs="0">
+    			<annotation>
+    				<documentation>
+    					List of servers that are not allowed to connect.  Only relevant when any-can-connect
+    					is set to true 
+    				</documentation>
+    			</annotation>
+    		</element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="XmppAccountInfo">
+    	<sequence>
+    		<element name="user" type="tns:XmppUserAccount"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    		<element name="group" type="tns:XmppGroup"
+    			maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    		<element name="chat-room" type="tns:XmppChatRoom" maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    		<element name="server-to-server" type="tns:XmppServerToServer" maxOccurs="unbounded" minOccurs="0">
+    		</element>
+    	</sequence>
+    </complexType>
+
+    <complexType name="XmppGroupMember">
+    	<sequence>
+    		<element name="user-name" type="string">
+    			<annotation>
+    				<documentation>
+    					IM Id for group member. If domain is left
+    					out it is assumed to be the XMPP domain for
+    					this server.
+    				</documentation>
+    			</annotation>
+		</element>
+    	</sequence>
+    </complexType>
+</schema>

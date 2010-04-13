@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- sipXcommons Build Script  -->
+
+<project name="sipxcommons" default="jar" basedir="." xmlns:cpptasks="antlib:org.sf.net.antcontrib.cpptasks">
+  <!-- P R O P E R T I E S -->
+  <property file="${top.build.dir}/config.properties"/>
+
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}"/>
+
+  <property name="src.dir" value="src" />
+  <property name="classes.dir" value="${build.dir}/classes" />
+  <property name="dist.dir" value="${build.dir}/dist" />
+  <property name="target.dir" value="${build.dir}/target" />
+  <property name="test.results.dir" value="${build.dir}/test-results" />
+  <property name="test.classes.dir" value="${build.dir}/tests"/>
+
+  <property name="one-jar.dist.dir" value="${build.dir}/dist"/>
+  <property name="compiler" value="${cc}"/>
+
+  <path id="base.path" >
+    <pathelement location="${src.dir}/lib/Stun4J.jar"/>
+    <pathelement location="${src.dir}/lib/jain-sip-sdp.jar"/>
+    <pathelement location="${src.dir}/lib/smack.jar"/>
+    <pathelement location="${src.dir}/lib/smackx.jar"/>
+    <pathelement location="${src.dir}/lib/jibx-run.jar"/>
+    <pathelement location="${src.dir}/lib/xpp3.jar"/>
+    <pathelement location="${src.dir}/lib/junit.jar"/>
+    <pathelement location="${src.dir}/lib/log4j.jar"/>
+    <pathelement location="${src.dir}/lib/xmlrpc-client.jar"/>
+    <pathelement location="${src.dir}/lib/xmlrpc-common.jar"/>
+    <pathelement location="${src.dir}/lib/dnsjava.jar"/>
+    <pathelement location="${src.dir}/lib/commons-codec.jar"/>
+    <pathelement location="${src.dir}/lib/commons-digester.jar"/>
+    <pathelement location="${src.dir}/lib/commons-lang.jar"/>
+    <pathelement location="${src.dir}/lib/jce.jar"/>
+    <pathelement location="${src.dir}/lib/not-yet-commons-ssl.jar"/>
+    <pathelement location="${src.dir}/lib/postgresql-jdbc.jar"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <!-- JiBX binding compiler task definition -->
+  <taskdef name="jibx-bind" classname="org.jibx.binding.ant.CompileTask">
+    <classpath>
+      <fileset file="${src.dir}/lib/jibx-bind.jar"/>
+      <fileset file="${src.dir}/lib/jibx-run.jar"/>
+      <fileset file="${src.dir}/lib/xpp3.jar"/>
+      <fileset file="${src.dir}/lib/bcel.jar"/>
+    </classpath>
+  </taskdef>
+
+  <!-- I N I T - Create output directories. -->
+  <target name="init" description="create standard output directories">
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${classes.dir}" />
+    <mkdir dir="${dist.dir}" />
+    <mkdir dir="${target.dir}" />
+    <mkdir dir="${test.results.dir}"/>
+    <mkdir dir="${test.classes.dir}"/>
+  </target>
+
+  <!-- C O M P I L E -->
+  <target name="compile" depends="init" description="Compile all files in src directory">
+    <javac srcdir="${src.dir}/src/main/java"
+           destdir="${classes.dir}"
+           classpathref="base.path"
+           debug="${debug}"
+           deprecation="${deprecation}"
+           optimize="${optimize}"
+           includes="**/*.java"
+           source="1.6"
+           target="1.6"
+           encoding="UTF8"/>
+  </target>
+
+  <!-- C O M P I L E  T E S T S -->
+  <target name="compile.test" depends="xml-bind,compile,jni,init" description="Compile unit tests">
+    <javac srcdir="${src.dir}/src/test/java"
+           destdir="${test.classes.dir}"
+           classpathref="base.path"
+           debug="${debug}"
+           deprecation="on"
+           optimize="${optimize}"
+           includes="**/*.java"
+           excludes="**/PingerTest.java"
+           source="1.6"
+           target="1.6">
+           <classpath>
+             <pathelement path="${classes.dir}"/>
+           </classpath>
+    </javac>
+  </target>
+
+  <!-- J N I -->
+  <target name="jni" description="Create native JNI libraries" >
+    <taskdef resource="cpptasks.tasks" classpath="${src.dir}/lib/cpptasks.jar"/>
+    <typedef resource="cpptasks.types" classpath="${src.dir}/lib/cpptasks.jar"/>
+    <cc outfile="${build.dir}/dist/librocksaw.so">
+      <fileset dir="${src.dir}/src/main/native/posix" includes="RawSocket.c"/>
+      <includepath path="${jdk.include}"/>
+      <includepath path="${jdk.include}/linux"/>
+      <defineset define="_REENTRANT"/>
+      <compilerarg value="-Wall"/>
+      <compilerarg value="-O2"/>
+      <compilerarg value="-pipe"/>
+      <compilerarg value="-ansi"/>
+      <compilerarg value="-pthread"/>
+      <compilerarg value="-fpic"/>
+      <linkerarg value="-shared"/>
+    </cc>
+
+    <cc outfile="${build.dir}/dist/libhostname.so">
+      <fileset dir="${src.dir}/src/main/native/posix" includes="Hostname.c"/>
+      <includepath path="${jdk.include}"/>
+      <includepath path="${jdk.include}/linux"/>
+      <defineset define="_REENTRANT"/>
+      <compilerarg value="-Wall"/>
+      <compilerarg value="-O2"/>
+      <compilerarg value="-pipe"/>
+      <compilerarg value="-ansi"/>
+      <compilerarg value="-pthread"/>
+      <compilerarg value="-fpic"/>
+      <linkerarg value="-shared"/>
+    </cc>
+
+    <cc outfile="${build.dir}/dist/libprocessid.so">
+      <fileset dir="${src.dir}/src/main/native/posix" includes="ProcessID.c"/>
+      <includepath path="${jdk.include}"/>
+      <includepath path="${jdk.include}/linux"/>
+      <defineset define="_REENTRANT"/>
+      <compilerarg value="-Wall"/>
+      <compilerarg value="-O2"/>
+      <compilerarg value="-pipe"/>
+      <compilerarg value="-ansi"/>
+      <compilerarg value="-pthread"/>
+      <compilerarg value="-fpic"/>
+      <linkerarg value="-shared"/>
+    </cc>
+  </target>
+
+  <!-- X M L  B I N D -->
+  <target name="xml-bind" depends="compile" description="create XML bindings" >
+    <jibx-bind verbose="false" load="true" binding="${src.dir}/src/main/xml/org/sipfoundry/commons/dialoginfo/binding.xml">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+        <pathelement location="${src.dir}/lib/jibx-run.jar"/>
+      </classpath>
+    </jibx-bind>
+    <jibx-bind verbose="false" load="true" binding="${src.dir}/src/main/xml/org/sipfoundry/commons/reginfo/binding.xml">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+        <pathelement location="${src.dir}/lib/jibx-run.jar"/>
+      </classpath>
+    </jibx-bind>
+  </target>
+
+  <!-- J A R -->
+  <target name="jar" depends="xml-bind, jni" description="create jar file" >
+    <jar jarfile="${build.dir}/dist/sipxcommons.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+      <fileset file="${build.dir}/dist/*.so"/>
+    </jar>
+  </target>
+
+  <!-- I N S T A L L -->
+  <target name="install">
+    <delete dir="${dest.dir}${sipxcommons.dir}"/>
+    <mkdir dir="${dest.dir}${sipxcommons.dir}"/>
+    <copy todir="${dest.dir}${sipxcommons.dir}">
+      <fileset file="${build.dir}/dist/*.jar"/>
+      <fileset file="${build.dir}/dist/*.so"/>
+      <fileset file="${src.dir}/lib/ant.jar"/>
+      <fileset file="${src.dir}/lib/ant-launcher.jar"/>
+      <fileset file="${src.dir}/lib/postgresql-jdbc.jar"/>
+      <fileset file="${src.dir}/lib/bcel.jar"/>
+      <fileset file="${src.dir}/lib/commons-beanutils.jar"/>
+      <fileset file="${src.dir}/lib/commons-cli.jar"/>
+      <fileset file="${src.dir}/lib/commons-codec.jar"/>
+      <fileset file="${src.dir}/lib/commons-collections.jar"/>
+      <fileset file="${src.dir}/lib/commons-digester.jar"/>
+      <fileset file="${src.dir}/lib/commons-io.jar"/>
+      <fileset file="${src.dir}/lib/commons-lang.jar"/>
+      <fileset file="${src.dir}/lib/commons-logging.jar"/>
+      <fileset file="${src.dir}/lib/commons-logging-api.jar"/>
+      <fileset file="${src.dir}/lib/commons-net.jar"/>
+      <fileset file="${src.dir}/lib/cpptasks.jar"/>
+      <fileset file="${src.dir}/lib/dom4j.jar"/>
+      <fileset file="${src.dir}/lib/dnsjava.jar"/>
+      <fileset file="${src.dir}/lib/Stun4J.jar"/>
+      <fileset file="${src.dir}/lib/jain-sip-sdp.jar"/>
+      <fileset file="${src.dir}/lib/javamail.jar"/>
+      <fileset file="${src.dir}/lib/jaxen.jar"/>
+      <fileset file="${src.dir}/lib/javax.servlet.jar"/>
+      <fileset file="${src.dir}/lib/jce.jar"/>
+      <fileset file="${src.dir}/lib/jdom-1.0.jar"/>
+      <fileset file="${src.dir}/lib/jetty.jar"/>
+      <fileset file="${src.dir}/lib/jibx-bind.jar"/>
+      <fileset file="${src.dir}/lib/jibx-run.jar"/>
+      <fileset file="${src.dir}/lib/junit.jar"/>
+      <fileset file="${src.dir}/lib/log4j.jar"/>
+      <fileset file="${src.dir}/lib/not-yet-commons-ssl.jar"/>
+      <fileset file="${src.dir}/lib/smack.jar"/>
+      <fileset file="${src.dir}/lib/smackx.jar"/>
+      <fileset file="${src.dir}/lib/ws-commons-util.jar"/>
+      <fileset file="${src.dir}/lib/xmlrpc-client.jar"/>
+      <fileset file="${src.dir}/lib/xmlrpc-common.jar"/>
+      <fileset file="${src.dir}/lib/xmlrpc-server.jar"/>
+      <fileset file="${src.dir}/lib/xpp3.jar"/>
+      <fileset file="${src.dir}/lib/ArpTable.dll"/>
+      <fileset file="${src.dir}/lib/com.noelios.restlet.ext.servlet.jar" />
+      <fileset file="${src.dir}/lib/com.noelios.restlet.jar" />
+      <fileset file="${src.dir}/lib/org.restlet.jar" />
+      <fileset file="${src.dir}/lib/rocksaw.dll"/>
+    </copy>
+  </target>
+
+  <!-- U N I N S T A L L -->
+  <target name="uninstall">
+    <delete dir="${dest.dir}${sipxcommons.dir}"/>
+  </target>
+
+  <!-- U N I T T E S T -->
+  <target name="test" depends="compile.test" description="Run junit tests">
+    <junit fork="yes" haltonfailure="no" printsummary="on">
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${classes.dir}"/>
+        <pathelement location="${test.classes.dir}"/>
+        <fileset file="${build.dir}/dist/*.so"/>
+      </classpath>
+      <formatter type="plain"/>
+      <formatter type="xml"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <batchtest todir="${test.results.dir}">
+        <fileset dir="${test.classes.dir}">
+          <patternset includes="**/*Test.class"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+  <!-- C L E A N -->
+  <target name="clean" description="Remove class, distribution and test directories">
+    <delete dir="${classes.dir}"/>
+    <delete dir="${test.classes.dir}"/>
+    <delete dir="${test.results.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <delete dir="${target.dir}" />
+  </target>
+
+</project>

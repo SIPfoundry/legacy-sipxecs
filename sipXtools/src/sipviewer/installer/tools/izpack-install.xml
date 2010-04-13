@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="iso-8859-1" standalone="yes" ?>
+<installation version="1.0">
+ <info>
+        <appname>SIPVIEWER</appname>
+        <appversion>@version@</appversion>
+        <url>http://sipxecs.sipfoundry.org/</url>
+	<javaversion>1.5</javaversion>
+    </info>
+    <guiprefs width="640" height="480" resizable="yes"/>
+   <locale>
+        <langpack iso3="eng"/>
+    </locale>
+    <variables>
+ 	<variable name="DesktopShortcutCheckboxEnabled" value="false"/> 
+    </variables>
+    <resources>
+        <res id="LicencePanel.licence" src="LICENSES/LICENSE.txt"/>
+	<res src="icons/sipxconfig-logo.png" id="Installer.image.0" />
+	<res src="icons/sipxconfig-logo.png" id="Installer.image.1" />
+	<res src="icons/sipxconfig-logo.png" id="Installer.image.2" />
+	<res src="icons/sipxconfig-logo.png" id="Installer.image.3" />
+        <res src="tools/windows-izpack-shortcut.xml" id="shortcutSpec.xml" />
+    </resources>
+
+   <panels>
+        <panel classname="HelloPanel"/>
+        <panel classname="LicencePanel"/>
+        <panel classname="TargetPanel"/> 
+        <panel classname="PacksPanel"/>
+        <panel classname="InstallPanel"/>
+	<panel classname="ShortcutPanel" />
+        <panel classname="FinishPanel"/>
+    </panels>
+
+    <packs>
+	<pack name="Base_LINUX" required="yes" os="unix" >
+		<description>sipviewer</description>
+		<file src="LICENSES" targetdir="$INSTALL_PATH" />
+		<file src="dist/sipviewer.jar" targetdir="$INSTALL_PATH" />
+		<file src="jdom.jar" targetdir="$INSTALL_PATH" />
+		<file src="startup/sipviewer" targetdir="$INSTALL_PATH" />
+	</pack>
+	<pack name="Base_WINDOWS" required="yes" os="windows" >
+		<description>sipviewer</description>
+		<file src="LICENSES" targetdir="$INSTALL_PATH" />
+		<file src="dist/sipviewer.jar" targetdir="$INSTALL_PATH" />
+		<file src="jdom.jar" targetdir="$INSTALL_PATH" />
+		<file src="startup" targetdir="$INSTALL_PATH" />
+	</pack>
+	<pack name="Doc_LINUX" required="yes" os="unix">
+		<description>Documentation</description>
+		<file src="README.html" targetdir="$INSTALL_PATH" />
+		<executable
+			targetfile="$INSTALL_PATH/sipviewer"
+			stage="never"
+			keep="true"
+		/>
+	</pack>
+	<pack name="Doc_WINDOWS" required="yes" os="windows">
+		<description>Documentation</description>
+		<file src="README.html" targetdir="$INSTALL_PATH" />
+	</pack>
+    </packs>
+   <native type="izpack" name="ShellLink.dll" />
+</installation>
+

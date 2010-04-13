@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- sipviewer Build Script  -->
+
+<project name="sipviewer" default="execs" basedir="." >
+
+  <patternset id="test.classes" excludes="**"/>
+  <property name="top.build.dir" value="${basedir}/.."/>
+  <property name="build.dir" value="${top.build.dir}/sipviewer"/>
+  <import file="ant-targets.xml"/>
+
+  <property name="sipviewer.lib.dir" value="${lib.dir}/sipviewer"/>
+  <property name="sipviewer.data.dir" value="${data.dir}/sipxecs"/>
+
+  <path id="base.path" >
+    <pathelement location="${jdom.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+  <target name="execs" depends="jar,installer" description="create jar and installer"/>
+
+  <!-- J A R -->
+  <target name="jar" depends="compile" description="create jar file">
+    <jar jarfile="${build.dir}/dist/sipviewer.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+        <manifest>
+               <attribute name="Class-Path" value="jdom.jar" />
+               <attribute name="Created-By" value="1.6.0_14 (Sun Microsystems Inc.)" />
+               <attribute name="Main-Class" value="com.pingtel.sipviewer.SIPViewer" />
+        </manifest>
+    </jar>
+  </target>
+
+  <!-- Run installer build. Not part of the default build target.  -->
+  <target name="installer" depends="jar" >
+     <!-- A bit ugly - the spec file for IZ-pack does not handle substititions -->
+     <copy file="${jdom.jar}" tofile="${build.dir}/jdom.jar" />
+     <copy toDir="${build.dir}" >
+	<fileset dir="${src.dir}/../installer" excludes="**/*.jar" />
+     </copy>
+     <replace file="${build.dir}/tools/izpack-install.xml"
+         propertyfile="${top.build.dir}/src/sipviewer/config.properties">
+       <replacefilter token="@version@" property="version"/>
+     </replace>
+     <echo message="Running IzPack to build the installer..."/>
+    <!-- Allows us to use the IzPack Ant task, standalone-compiler.jar
+    added to Ant lib -->
+    <taskdef name="izpack" classpath="${src.dir}/../installer/tools/standalone-compiler.jar"
+    classname="com.izforge.izpack.ant.IzPackTask"/>
+
+    <izpack input="${build.dir}/tools/izpack-install.xml"
+        output="${build.dir}/dist/sipviewer-install.jar"
+        installerType="standard"
+        inheritAll="true"
+        basedir="${build.dir}"
+     />
+  </target>
+
+  <!--
+    -  I N S T A L L
+    -->
+  <target name="install">
+
+    <!-- BINARIES/LIB/SCRIPTS -->
+    <mkdir dir="${dest.dir}${sipviewer.lib.dir}"/>
+    <copy file="${build.dir}/dist/sipviewer.jar" todir="${dest.dir}${sipviewer.lib.dir}"/>
+
+    <copy file="bin/sipviewer.in" tofile="${dest.dir}${bin.dir}/sipviewer"/>
+    <replace file="${dest.dir}${bin.dir}/sipviewer"
+         propertyfile="${top.build.dir}/src/sipviewer/config.properties">
+      <replacefilter token="@bin.dir@" property="bin.dir"/>
+      <replacefilter token="@sipviewer.lib.dir@" value="${sipviewer.lib.dir}"/>
+      <replacefilter token="@sipxcommons.dir@" value="${sipxcommons.dir}"/>
+    </replace>
+    <chmod file="${dest.dir}${bin.dir}/sipviewer" perm="ugo+x" />
+
+    <mkdir dir="${dest.dir}${sipviewer.data.dir}"/>
+    <copy file="${build.dir}/dist/sipviewer-install.jar" todir="${dest.dir}${sipviewer.data.dir}"/>
+  </target>
+
+  <target name="uninstall">
+    <delete file="${dest.dir}${bin.dir}/sipviewer"/>
+    <delete file="${dest.dir}${sipviewer.lib.dir}/sipviewer.jar"/>
+    <delete file="${dest.dir}${sipviewer.data.dir}/sipviewer-installer.jar"/>
+  </target>
+
+</project>

@@ -1,0 +1,129 @@
+Name:     @PACKAGE@
+Version:  @VERSION@
+Release:  %{buildno}
+
+Summary:  SIP Registry/Redirect Server
+License:  Pingtel Commercial License
+Group:    Productivity/Telephony/SIP/Servers
+Vendor:   Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url:      http://www.pingtel.com
+
+Source:   %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= %version
+Requires: sipxpbx >= %version
+
+Prefix:    %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+sipXregistry is the registry/redirect server component of the sipX family.
+It shares a number of common components with the rest of the family, but
+can be used as a standalone server.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Internal documentation for %name
+Requires: sipxcommserverlib-devel >= %version
+
+%description devel
+Internal class documentation for the registry classes, and the include
+files that define hook interfaces.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+
+%doc CONTRIBUTORS %name.configlog
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXregistry-process.xml
+%attr(755,root,root) %{_bindir}/sipregistrar.sh
+%attr(755,root,root) %{_bindir}/sipregistrar
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.la
+%attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.a
+%attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.so*
+%attr(755,root,root) %{_libdir}/libRedirectorAliasDB.la
+%attr(755,root,root) %{_libdir}/libRedirectorAliasDB.so*
+%attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.la
+%attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.so*
+%attr(755,root,root) %{_libdir}/libRedirectorENUM.la
+%attr(755,root,root) %{_libdir}/libRedirectorENUM.so*
+%attr(755,root,root) %{_libdir}/libRedirectorISN.la
+%attr(755,root,root) %{_libdir}/libRedirectorISN.so*
+%attr(755,root,root) %{_libdir}/libRedirectorJoin.la
+%attr(755,root,root) %{_libdir}/libRedirectorJoin.so*
+%attr(755,root,root) %{_libdir}/libRedirectorMapping.la
+%attr(755,root,root) %{_libdir}/libRedirectorMapping.so*
+%attr(755,root,root) %{_libdir}/libRedirectorFallback.la
+%attr(755,root,root) %{_libdir}/libRedirectorFallback.so*
+%attr(755,root,root) %{_libdir}/libRedirectorPresenceRouting.la
+%attr(755,root,root) %{_libdir}/libRedirectorPresenceRouting.so*
+%attr(755,root,root) %{_libdir}/libRedirectorPickUp.la
+%attr(755,root,root) %{_libdir}/libRedirectorPickUp.so*
+%attr(755,root,root) %{_libdir}/libRedirectorRegDB.la
+%attr(755,root,root) %{_libdir}/libRedirectorRegDB.so*
+%attr(755,root,root) %{_libdir}/libRedirectorSubscribe.la
+%attr(755,root,root) %{_libdir}/libRedirectorSubscribe.so*
+%attr(755,root,root) %{_libdir}/libRedirectorUserParam.la
+%attr(755,root,root) %{_libdir}/libRedirectorUserParam.so*
+%attr(755,root,root) %{_libdir}/libRedirectorTest.la
+%attr(755,root,root) %{_libdir}/libRedirectorTest.so*
+%attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.la
+%attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.so*
+%attr(755,root,root) %{_datadir}/sipxecs/schema/alias.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/caller-alias.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/fallbackrules.xsd
+%attr(755,root,root) %{_datadir}/sipxecs/schema/reg-instrument.xsd
+
+%files devel
+%defattr(644,root,root,755)
+%docdir %{_datadir}/doc/sipxecs
+%{_datadir}/doc/sipxecs
+
+%attr(755,root,root) %{_libdir}/libRedirectorAliasDB.a
+%attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.a
+%attr(755,root,root) %{_libdir}/libRedirectorENUM.a
+%attr(755,root,root) %{_libdir}/libRedirectorISN.a
+%attr(755,root,root) %{_libdir}/libRedirectorJoin.a
+%attr(755,root,root) %{_libdir}/libRedirectorMapping.a
+%attr(755,root,root) %{_libdir}/libRedirectorFallback.a
+%attr(755,root,root) %{_libdir}/libRedirectorPickUp.a
+%attr(755,root,root) %{_libdir}/libRedirectorPresenceRouting.a
+%attr(755,root,root) %{_libdir}/libRedirectorRegDB.a
+%attr(755,root,root) %{_libdir}/libRedirectorSubscribe.a
+%attr(755,root,root) %{_libdir}/libRedirectorUserParam.a
+%attr(755,root,root) %{_libdir}/libRedirectorTest.a
+%attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.a
+%{_includedir}/registry/*
+
+%pre
+
+%post

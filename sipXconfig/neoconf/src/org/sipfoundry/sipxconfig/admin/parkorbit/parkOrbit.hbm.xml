@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.parkorbit" default-lazy="false">
+  <!--
+    - Default background music
+  -->
+  <class name="BackgroundMusic" table="park_orbit" discriminator-value="H"
+    polymorphism="explicit">
+    <id name="id" column="park_orbit_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">park_orbit_seq</param>
+      </generator>
+    </id>
+    <discriminator column="orbit_type" type="character" force="true" />
+    <property name="music" />
+    <property name="enabled" />
+  </class>
+
+  <!--
+    - Park Orbit
+    - It is implemented as BackgroundMusic subclass but unfortunately <subclass> mapping does not work here
+    - hibernate returns ParkOrbit objects even if querying for BackgroundMusic only
+  -->
+  <class name="ParkOrbit" table="park_orbit" discriminator-value="P" polymorphism="explicit">
+    <id name="id" column="park_orbit_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">park_orbit_seq</param>
+      </generator>
+    </id>
+    <discriminator column="orbit_type" type="character" force="true" />
+    <property name="music" />
+    <property name="enabled" />
+    <property name="name" />
+    <property name="extension" />
+    <property name="description" />
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
+    <set name="groups" table="park_orbit_group" sort="natural">
+      <key column="park_orbit_id" />
+      <many-to-many column="group_id" class="org.sipfoundry.sipxconfig.setting.Group" />
+    </set>
+  </class>
+
+  <query name="parkOrbitIdsWithAlias">
+    <![CDATA[select orbit.id from ParkOrbit orbit where orbit.name = :value or orbit.extension = :value]]>
+  </query>
+
+</hibernate-mapping>

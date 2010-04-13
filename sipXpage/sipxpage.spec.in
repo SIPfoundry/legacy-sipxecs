@@ -1,0 +1,50 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Paging solution for sipX
+License: LGPL
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/sipXbridge
+
+Source: %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= %version
+Requires: sipxcommons >= %version
+
+%if %{use_ibm_jvm}
+Requires: java-ibm >= 1.6
+Requires: java-ibm-unrestricted
+%endif
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+Paging solution for SIPX PBX.
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all
+
+%install
+
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXpage
+%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpage
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpage-process.xml
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxpage.sh
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxpage-config

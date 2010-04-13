@@ -1,0 +1,49 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <table name="call_group">
+    <column>call_group_id</column>
+    <column>enabled</column>
+    <column>name</column>
+    <column>extension</column>
+    <column>description</column>
+    <column>fallback_destination</column>
+    <column>voicemail_fallback</column>
+    <column>user_forward</column>
+    <row>
+      <value>1001</value>
+      <value>true</value>
+      <value>sales</value>
+      <value>401</value>
+      <value>something, something, something</value>
+      <value>sip:default@pingtel.com</value>
+      <value>false</value>
+      <value>false</value>
+    </row>
+    <row>
+      <value>1002</value>
+      <value>false</value>
+      <value>eng</value>
+      <value>402</value>
+      <value>something else</value>
+      <value></value>
+      <value>true</value>
+      <value>true</value>
+    </row>
+  </table>
+  <table name="user_ring">
+    <column>user_ring_id</column>
+    <column>position</column>
+    <column>expiration</column>
+    <column>ring_type</column>
+    <column>call_group_id</column>
+    <column>user_id</column>
+    <row>
+      <value>2001</value>
+      <value>0</value>
+      <value>45</value>
+      <value>If no response</value>
+      <value>1002</value>
+      <value>1000</value>
+    </row>
+  </table>
+</dataset>

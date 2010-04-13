@@ -1,0 +1,40 @@
+<div class="reports">
+  <p class="reportLabel"><span jwcid="@Insert" value="ognl:reportLabel"/></p>
+  <ul class="component-submit">
+    <span jwcid="@If" condition="ognl:isReportsGenerated">
+      <li>
+		<input jwcid="refreshReportsButton@Submit" id="refreshReportsButton" value="message:button.refreshReports"
+		   listener="listener:generateReports" />
+      </li>
+      <li>
+		<span jwcid="htmlReport@common/ReportLink"
+			  reportPath="ognl:htmlReportPath"
+			  contentType="literal:text/html"/>
+	  </li>
+      <li>
+		<span jwcid="@If" condition="ognl:showPdfLink">
+	      <span jwcid="pdfReport@common/DownloadLink" id="pdfReport" fileName=""
+			dirName="ognl:pdfReportPath" contentType="literal:application/pdf">
+			<span jwcid="@Insert" value="PDF"/>
+		  </span>
+		</span>
+      </li>
+      <li>
+		<span jwcid="@If" condition="ognl:showCsvLink">
+		  <span jwcid="csvReport@common/DownloadLink" id="csvReport" fileName=""
+				dirName="ognl:csvReportPath" contentType="text/comma-separated-values">
+			<span jwcid="@Insert" value="CSV"/>
+		  </span>
+		</span>
+      </li>
+      <li>
+		<span jwcid="@If" condition="ognl:showXlsLink">
+		  <span jwcid="xlsReport@common/DownloadLink" id="xlsReport" fileName=""
+				dirName="ognl:xlsReportPath" contentType="application/ms-excel">
+			<span jwcid="@Insert" value="XLS"/>
+		  </span>
+		</span>
+      </li>
+    </span>
+  </ul>
+</div>

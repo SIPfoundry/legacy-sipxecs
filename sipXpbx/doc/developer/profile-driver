@@ -1,0 +1,61 @@
+#! /bin/bash
+
+# Get timing data from the Media Task under load.
+
+# Run as root from the top directory of the sandbox.
+
+set -x
+set -e
+
+# Configuration parameters.
+TIME=$(( 5 * 60 ))
+HOST=$( hostname )
+# Directory prefix for non-standard installation locations.
+PREFIX_DIR=
+
+# Clean up from previous runs.
+
+# Stop sipX if it is running.
+$PREFIX_DIR/etc/init.d/sipxecs stop
+# Remove the mediaserver.log
+rm -f $PREFIX_DIR/var/log/sipxpbx/mediaserver.log
+
+# Loop through the various loads to present.
+#for JOBS in 1 3 10 20 25 30
+for JOBS in 25 30
+do
+
+    # Start sipX.
+    $PREFIX_DIR/etc/init.d/sipxecs start
+
+    # Wait 2 minutes
+    sleep 120
+
+    # Run the test load.
+    # Run it in the background and use a deadman timer, as CallScriptDriver
+    # sometimes hangs.
+    # (There really ought to be a deadman timer in CallScriptDriver.)
+    ( cd sipXcallLib/examples/CallScript/src
+      CallScriptDriver.pl \
+	    J=$JOBS \
+	    T=$TIME \
+	    EXT=555 \
+	    HOST=$HOST \
+	    driver
+    ) &
+    # Wait 2 minutes more than the scheduled run time.
+    sleep $(( 120 + $TIME ))
+    kill %+
+
+    # Stop sipX.
+    $PREFIX_DIR/etc/init.d/sipxecs stop
+
+    # Save the mediaserver.log.
+    mv $PREFIX_DIR/var/log/sipxpbx/mediaserver.log{,.$JOBS}
+
+    # Process it.
+    sipXpbx/doc/developer/profile-format \
+	    <$PREFIX_DIR/var/log/sipxpbx/mediaserver.log.$JOBS \
+	    >$PREFIX_DIR/var/log/sipxpbx/mediaserver.timing.$JOBS
+
+done

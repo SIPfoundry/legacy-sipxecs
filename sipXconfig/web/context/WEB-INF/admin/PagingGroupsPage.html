@@ -1,0 +1,94 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="@PageLink" page="dialplan/EditFlexibleDialPlan" id="link:dialPlans">
+          <span key="link.dialPlans">Dial Plans</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+  <span jwcid="@common/ErrorMsg" />
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <form jwcid="pagingGroups@Form" id="pagingGroupsForm" delegate="bean:validator">
+    <ul class="component-links">
+      <li>
+        <a jwcid="@DirectLink"  listener="listener:addPagingGroup" id="link.addPagingGroup">
+          <span key="add">Add Group</span>
+        </a>
+      </li>
+    </ul>
+    <span jwcid="@If" condition="ognl:(groups.size() > 0)">
+      <ul class="component-links">
+        <li jwcid="@common/ToggleLink" toggle="ognl:advanced"></li>
+      </ul>
+      <fieldset>
+  	    <table>
+		  <tr jwcid="@common/FieldPanel" for="prefix"
+        	  field="component:prefix"
+        	  label="message:label.prefix">
+            <input jwcid="prefix@TextField" id="prefix"
+              value="ognl:prefix"
+              validators="spring-validators:required,noWhitespace,validFieldSize,validPagingPrefix"
+              displayName="message:label.prefix"/>
+		  </tr>
+		  <span jwcid="@If" condition="ognl:advanced" renderTag="false">
+			<tr jwcid="@common/FieldPanel" for="traceLevel"
+				field="component:traceLevel"
+				label="message:label.traceLevel">
+			  <span jwcid="traceLevel@PropertySelection" id="traceLevel"
+				  model="ognl:traceLevelModel"
+				  value="ognl:traceLevel" />
+			</tr>
+		  </span>
+  	    </table>
+	<ul class="component-submit">
+          <li>
+		<input jwcid="save@Submit" id="pagingGroups:save"
+		    value="message:button.save"
+                listener="listener:savePagingServer" />
+          </li>
+        </ul>
+      </fieldset>
+    </span>
+	<table jwcid="@common/Table" id="pagingGroups:list"
+        columns="* pageGroupNumber,enabled,!userCount,description"
+        source="ognl:groups"
+        row="ognl:currentRow"
+        selections="bean:selections">
+      <tr jwcid="pageGroupNumberColumnValue@Block">
+        <td jwcid="editRowLink@DirectLink"
+          listener="listener:editPagingGroup"
+          parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="ognl:currentRow.pageGroupNumber"/>
+      	</td>
+      </tr>
+      <tr jwcid="enabledColumnValue@Block">
+        <td jwcid="@common/EnabledColumn" value="ognl:currentRow.enabled"/>
+      </tr>
+      <tr jwcid="userCountColumnValue@Block">
+        <td jwcid="@Insert" value="ognl:currentRow.users.size()"/>
+      </tr>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="restart@Submit" id="pagingGroups:restart"
+          listener="listener:restart"
+          value="message:button.restart" />
+        <span jwcid="@common/Confirm"
+          component="component:restart"
+          prompt="message:confirm.restart"/>
+      </li>
+      <li>
+        <input jwcid="delete@Submit" id="pagingGroups:delete"
+          listener="listener:delete"
+          selected="ognl:selectedRows"
+          tag="ognl:allSelected"
+          value="message:button.delete" />
+        <span jwcid="@common/Confirm"
+          component="component:delete"
+          prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+  </form>
+</div>

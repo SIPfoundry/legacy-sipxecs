@@ -1,0 +1,98 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary:  This project provides an RFC 3261, 3263 complient SIP stack
+License: Pingtel Commercial License
+Group: Development/Libraries
+Vendor: Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url: http://www.pingtel.com
+
+Requires: sipxportlib >= %version
+
+Source: %name-%version.tar.gz
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+This project provides an RFC 3261, 3263 compliant SIP stack. This
+stack is built upon a modest foot print HTTP stack. Both the SIP and
+HTTP stack are intended to be usable in embedded systems. However they
+are fully functional (i.e. there were no compromises made in
+functionality to achieve the ability to embed the stacks). The
+primary interface to the SIP stack is through the SipUserAgent
+class. This project depends upon the sipXportLib OS abstraction layer.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+# Install header files
+%package devel
+Requires: %name
+Requires: sipxportlib-devel >= %version
+
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name
+
+%description devel
+ This project provides an RFC 3261, 3263 complient SIP stack. This
+stack is built upon a modest foot print HTTP stack. Both the SIP and
+HTTP stack are intended to be usable in embedded systems. However they
+are fully functional (i.e. there where no compromises made to in
+functionality to achieve the ability to embed the stacks.). The
+primary interface to the SIP stack it through the SipUserAgent
+class. This project depends upon the sipXportLib OS abstraction layer.
+
+This package contains the necessary header files and static libraries
+helpful to build projects from the sipX library
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make all doc
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
+%docdir doc/license
+%attr(755,root,root) %{_bindir}/dialogdisplay
+%attr(755,root,root) %{_bindir}/dialogwatch
+%attr(755,root,root) %{_bindir}/siptest
+%attr(755,root,root) %{_bindir}/subscribe-dialog-test
+%attr(755,root,root) %{_bindir}/%name-config
+%attr(755,root,root) %{_libdir}/libsipXtack.la
+%attr(755,root,root) %{_libdir}/libsipXtack.so*
+%attr(755,root,root) %{_datadir}/sipxecs/schema/sip_types.xsd
+
+%files devel
+%defattr(644,root,root,755)
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
+
+%attr(755,root,root) %{_libdir}/libsipXtack.a
+
+%{_includedir}/net/*
+%{_includedir}/tapi/*
+%{_includedir}/resparse/*
+%{_includedir}/siptest/*

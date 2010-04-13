@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<devices xmlns='http://www.sipfoundry.org/sipX/schema/xml/devices-00-00'>
+    <device>
+        <hardware-address>00:0B:82:0A:20:E5</hardware-address>
+        <network-address>192.168.1.253</network-address>
+        <vendor>Grandstream</vendor>
+        <user-agent>Grandstream, GXP2000, 1.1.0.14</user-agent>
+    </device>
+    <device>
+        <hardware-address>00:04:F2:00:87:42</hardware-address>
+        <network-address>192.168.1.252</network-address>
+        <vendor>Polycom</vendor>
+        <user-agent>PolycomSoundPointIP-SPIP_500-UA/2.1.1.0052</user-agent>
+    </device>
+    <device>
+        <hardware-address>00:04:13:23:26:67</hardware-address>
+        <network-address>192.168.1.254</network-address>
+        <vendor>SNOM</vendor>
+        <user-agent></user-agent>
+    </device>
+</devices>

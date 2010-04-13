@@ -1,0 +1,1038 @@
+#! /usr/bin/env python
+#----------------------------------------------------------------------
+# Copyright (C) 2008 Nortel Networks
+#
+# This is a common library for setup scripting
+#----------------------------------------------------------------------
+
+import os, commands, sys, re, time, traceback, glob, signal, snack, urllib, tarfile
+
+from socket import gethostname, getfqdn, inet_ntoa, inet_aton
+from struct import pack
+
+# Globals
+
+global fout
+global MyID
+MyID = ''
+
+#--- Local constants and files
+SIPX_SETUP_LOG = '@SIPX_LOGDIR@/setup.log'
+
+RUNLEVEL       = 3                              # Always use this runlevel
+SSL_GENDIR     = '@SIPX_VARDIR@/certdb'         # Directory where certificates are generated
+SSL_CRTDIR     = '@SIPX_CONFDIR@/ssl'           # Directory where certificates are installed
+
+DOMAIN_CONFIG  = '@SIPX_CONFDIR@/domain-config'
+MASTER_NETIF   = '@SIPX_CONFDIR@/sipxconfig-netif'
+
+IFCONFIGDIR    = '/etc/sysconfig/network-scripts'  # Directory of all interface configurations
+ETHNAME        = 'eth0'                            # Supported Ethernet interface
+
+class sipxecsGlobals:
+   ''' global variables, adjusted in checkSystemType for particular flavour of linux '''
+   systemType = 'unknown'
+   IfCfgFile = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
+   NetcatCommand = 'nc'
+   NtpServiceName = 'ntpd'
+   NamedDirectory = '/var/named'
+
+   def __init(self):
+      pass
+
+
+global isFirstSystem
+isFirstSystem=True
+
+global ProvideDNS
+ProvideDNS = False
+
+global IpAddress
+IpAddress=''
+
+global NetMask
+NetMask=''
+
+global reDomain
+reDomain=re.compile('^[a-z0-9][a-z0-9-]*\.(([a-z0-9][a-z0-9-]*)(\.([a-z0-9][a-z0-9-]*))*)')
+
+global HostName
+HostName = ''
+
+global DomainName
+DomainName = ''
+
+global SipDomain
+SipDomain = ''
+
+# user identification
+def runningAsRoot() :
+    global MyID
+
+    if MyID == '' :
+        MyID = commands.getoutput('id -n -u')
+
+    return MyID == 'root'
+
+def checkSystemType () :
+    ''' Update filenames and commands to reflect current system.
+        Returns 'linux' for generic linux, otherwise specific type. '''
+
+    global IFCONFIGDIR
+
+    if sipxecsGlobals.systemType == 'unknown':
+       if os.path.exists("/etc/SuSE-release"):
+           sipxecsGlobals.systemType = 'suse'
+           log_printout("Installing on a SuSE system")
+           IFCONFIGDIR   = '/etc/sysconfig/network'          # Directory of all interface configurations on SUSE
+           sipxecsGlobals.IfCfgFile     = '%s/ifcfg-%s' % (IFCONFIGDIR, ETHNAME)
+           sipxecsGlobals.NetcatCommand = 'netcat'
+           sipxecsGlobals.NtpServiceName = 'ntp'
+           sipxecsGlobals.NamedDirectory = '/var/lib/named'
+       else:
+           sipxecsGlobals.systemType = 'linux'
+
+    return sipxecsGlobals.systemType
+
+def change_setting(variable, value, text):
+    ''' Locate the variable in the text, and change its value.
+        The format is expected to be
+           VARIABLE   =        "oldvalue"
+        (whitespace is variable, but the quotes are required).
+        If the variable is not found, no change is made to the text.
+        '''
+    regex = re.compile('^%s\s*=\s*"(?P<value>.*)"' % variable, re.M)
+    match = regex.search(text)
+    if match:
+       log_printout( 'replacing %s = "%s" with "%s"' % (variable, match.group('value'), value) )
+       text = regex.sub('%s = "%s"' % (variable, value), text)
+
+    return text
+
+
+# logging utilities 
+
+def log_init ():
+    global fout
+    global setupScriptName
+
+    setupScriptName=sys.argv[0]
+    if setupScriptName.find("/") > -1 :
+        setupScriptName = os.path.basename(setupScriptName)
+    fout=open(SIPX_SETUP_LOG,"w")
+
+def log_printout (outString):
+    global fout
+    global HostName
+    global setupScriptName
+    
+    exactTime=time.time()
+    roundTime=time.strftime("%Y-%m-%dT%H:%M:%S", time.gmtime(exactTime)) # drops fractional seconds
+    fracSecs=int( ( exactTime - int(exactTime) ) * 100000 )
+    
+    escapedString=outString.rstrip("\n")
+    escapedString=escapedString.replace("\\","\\\\")
+    escapedString=escapedString.replace("\"","\\\"")
+    escapedString=escapedString.replace("\n","\\n")
+
+    fout.write("\"%s.%06dZ\":0:SETUP:INFO:%s:setup:0:%s:setup:\"%s\"\n"
+               % ( roundTime, fracSecs, HostName, setupScriptName, escapedString ))
+    fout.flush()
+
+def log_result (setting, value) :
+    log_printout('\t%-30s : %s' % ( setting, value ))
+
+def log_close ():
+    global fout
+    fout.close
+
+# screen handling utilities
+global screen
+global layout
+global explain
+global stepmsg
+global progressbar
+
+def screen_init ():
+    global screen
+    global stepmsg
+    global progressbar
+    global progressvalue
+
+    screen = snack.SnackScreen()
+
+    stepmsg = snack.Textbox(60, 1, "")
+
+    progressvalue = 0
+    progressbar = snack.Scale(60,100)
+
+def page_setup (explainMsg):
+    global screen
+    global stepmsg
+    global progressbar
+    global progressvalue
+
+    layout = snack.Grid(1, 4)
+
+    explain = snack.TextboxReflowed(60, explainMsg, 3, 10)
+    layout.setField(explain, 0, 0, (1,1,1,1))
+
+    # the 0,1 item is the variablePart inserted by screen_setup
+
+    layout.setField(progressbar, 0, 2, (1,1,1,1))
+
+    layout.setField(stepmsg, 0, 3)
+
+    return layout
+
+def screen_setup (title, explainMsg, variablePart) :
+    global screen
+    global progressbar
+
+    form = snack.Form()
+    layout = page_setup(explainMsg)
+
+    if variablePart != None :
+        layout.setField(variablePart, 0, 1)
+
+    form.add(layout)
+    screen.gridWrappedWindow(layout, title)
+    form.draw()
+
+    progressbar.set(progressvalue)
+    screen.refresh()
+    return form
+
+def screen_end () :
+    global screen
+    screen.popWindow()
+
+def screen_finish () :
+    global screen
+    screen.finish()
+
+def screen_err (errorMessage,buttonLabel="Redo"):
+    global explain
+
+    button=snack.Button(buttonLabel)
+    form = screen_setup("Error", errorMessage, button)
+
+    form.run()
+    screen_end()
+
+def screen_msg (message,buttonLabel="Ok"):
+    global explain
+
+    button=snack.Button(buttonLabel)
+    form = screen_setup("", message, button)
+
+    form.run()
+    screen_end()
+
+def execNext(command, arglist) :
+    screen.finish()
+    commandView="\nExecuting:\n  %s %s\n" % (command, ' '.join(arglist))
+    log_printout(commandView)
+    log_close()
+    time.sleep (1)
+    print commandView
+    execArgs=[command]
+    execArgs.extend(arglist)
+    os.execvp(command, execArgs)
+
+def cleanExit () :
+    log_close()
+    screen.finish()
+    raise SystemExit
+
+
+# error handling
+def abortMsgAndExit (outString):
+    log_printout (outString)
+    screen_err(outString, "Abort")
+    cleanExit()
+
+# progress screen
+
+def progress(percent,msg):
+    global progressbar
+    global progressvalue
+    global stepmsg
+    global screen
+
+    log_printout("--- %d %s" % (percent, msg))
+    progressvalue=percent
+    stepmsg.setText(msg)
+
+def show_progress() :
+    f = screen_setup("", "", None)
+    time.sleep(1)
+    screen_end()
+
+def show_starting() :
+    f = screen_setup("", "", None)
+    time.sleep(1)
+
+def show_next() :
+    screen_end()
+
+def setRights(path, owner='@SIPXPBXUSER@', group='@SIPXPBXGROUP@', access="u=rw,g=rw,o=") :
+
+    chownCmd="chown -v %s:%s %s" % (owner,group,path)
+    log_printout("Setting ownership of '%s' using:\n  %s" % (path, chownCmd))
+    cmdoutput=commands.getoutput(chownCmd)
+    log_printout(cmdoutput)
+
+    chmodCmd="chmod -v %s %s" % (access,path)
+    log_printout("Setting access to '%s' using:\n  %s" % (path, chmodCmd))
+    cmdoutput=commands.getoutput(chmodCmd)
+    log_printout(cmdoutput)
+    
+def setOwnerRecursive(path, owner='@SIPXPBXUSER@', group='@SIPXPBXGROUP@') :
+
+    chownCmd="chown -R -v %s:%s %s" % (owner,group,path)
+    log_printout("Recursively setting ownership of '%s' using:\n  %s" % (path, chownCmd))
+    cmdoutput=commands.getoutput(chownCmd)
+    log_printout(cmdoutput)
+
+def screen_ask_first ():
+
+    global isFirstSystem
+
+    SystemTypeMessage ="\
+Is this the first @SIPXECS_NAME@ server for this domain ? \n\
+"
+    grid = snack.Grid(2, 1)
+
+    firstButton = snack.Button("First Server")
+    grid.setField(firstButton, 0, 0, (1,0,1,1))
+
+    nthButton = snack.Button("Adding A Server")
+    grid.setField(nthButton, 1, 0, (1,0,1,1))
+
+    form = screen_setup("System Type", SystemTypeMessage, grid)
+    choice = form.run()
+
+    screen_end()
+
+    if choice == firstButton :
+        #--- Configure and enable HA System
+        log_printout('First System selected\n' )
+        isFirstSystem = True
+
+    else :
+        log_printout('Nth System selected\n' )
+        isFirstSystem = False
+
+def get_hostname () :
+   global reDomain
+   
+   hostname = getfqdn(gethostname())
+   hosterror = ''
+
+   if hostname == '' :
+      hosterror = 'hostname is not set'
+   elif not reDomain.search(hostname) :
+      hosterror = "\
+hostname '%s'\n\
+is not a valid fully qualified domain name." % hostname
+   elif hostname == 'localhost.localdomain' :
+      hosterror = "hostname lookup returned '%s'" % hostname
+
+   while hosterror != '' :
+
+      hostExplanation ="\
+%s\n\
+Please set the correct system hostname." % hosterror
+
+      inner = snack.Grid(2, 3)
+
+      l1 = snack.Label("Host Name: ")
+      e1 = snack.Entry(32, HostName)
+
+      inner.setField(l1, 0, 1)
+      inner.setField(e1, 1, 1)
+
+      okButton = snack.Button("   OK   ")
+      inner.setField(okButton, 0, 2, (1,1,1,1))
+
+      f = screen_setup("Host Name", hostExplanation, inner)
+
+      f.run()
+
+      hostname=e1.value()
+
+      screen_end()
+
+      # Test for valid SIP domain name
+      if hostname == "" :
+         hosterror = "hostname is not set"
+      elif not reDomain.search(hostname) :
+         hosterror = "\
+hostname '%s'\n\
+is not a valid fully qualified domain name." % hostname
+      elif hostname == 'localhost.localdomain' :
+         hosterror = "\
+the name '%s' cannot be\n\
+used by other systems" % hostname
+      else:
+         hosterror = ''
+           
+   log_result("HostName", hostname)
+   return hostname
+      
+class ConfigURLOpener(urllib.FancyURLopener):
+    # read an URL, with automatic HTTP authentication
+
+    def setpasswd(self, user, passwd):
+        self.__user = user
+        self.__passwd = passwd
+
+    def prompt_user_passwd(self, host, realm):
+        return self.__user, self.__passwd
+
+def screen_confirm_master_config ():
+    confirmationMessage="\
+To add an additional system, you must first Add this new server\n\
+in the Servers configuration page of your first (master) system.\n\
+\n\
+When you have added this system using that screen,\n\
+note the Setup Password value assigned to this system.\n\
+You will need that Setup Password before you can proceed on\n\
+the next screen\n\
+"
+    screen_msg(confirmationMessage, "System Added In Configuration")
+
+def screen_fetch_config ():
+    global HostName
+    global DomainName
+    
+    masterSystemName=''
+    gotConfig=False
+    while not gotConfig :
+        MasterSystemMessage ="\
+Enter the full hostname of your Master system,\n\
+and the Setup Password assigned to this new system\n\
+to fetch the configuration for this system.\
+"
+        sg = snack.Grid(2, 4)
+
+        l1 = snack.Label("Master Hostname:   ")
+        e1 = snack.Entry(32, masterSystemName)
+        sg.setField(l1, 0, 0)
+        sg.setField(e1, 1, 0)
+
+        l2 = snack.Label("Master IP Address:   ")
+        e2 = snack.Entry(15, "")
+        sg.setField(l2, 0, 1)
+        sg.setField(e2, 1, 1)
+
+        l3 = snack.Label("%s Setup Password:   " % HostName)
+        e3 = snack.Entry(8, "")
+        sg.setField(l3, 0, 2)
+        sg.setField(e3, 1, 2)
+
+        okButton = snack.Button("   OK   ")
+        sg.setField(okButton, 0, 3, (1,1,1,1))
+
+        abortButton = snack.Button("Abort")
+        sg.setField(abortButton, 1, 3, (1,1,1,1))
+
+        form = screen_setup("Configuration Master", MasterSystemMessage, sg)
+        choice = form.run()
+
+        screen_end()
+
+        if choice == okButton :
+            masterSystemName=e1.value().lower()
+            masterSystemAddr=e2.value().lower()
+            password=e3.value()
+
+            progress(40, "Contact %s" % masterSystemName)
+            show_progress()
+
+            # temporarily set the local resolver to use the master as the dns server
+            # (this is overwritten by the configuration returned from the master)
+            resolvFile = '/etc/resolv.conf'
+            resolvContent = '\
+search %s\n\
+nameserver %s\n\
+' % (DomainName, masterSystemAddr)
+            log_printout("======= temporary %s:" % resolvFile)
+            log_printout(resolvContent)
+            if runningAsRoot() :
+                file (resolvFile, 'w').write(resolvContent)
+
+            ConfigUrl='https://%s:8443/sipxconfig/initial-config/%s'\
+                       % ( masterSystemName, HostName )
+
+            log_printout("======= Configuration URL '%s'" % ConfigUrl)
+
+            urlopener = ConfigURLOpener()
+            urlopener.setpasswd(HostName, password)
+
+            urllib._urlopener = urlopener
+
+            curDir = os.getcwd()
+            try:
+                tarFile, headers = urllib.urlretrieve(ConfigUrl)
+                try:
+                    configTar=tarfile.open(tarFile)
+                    os.chdir('/')
+                    numFiles=len(configTar.getnames())
+                    progressIncr=50/numFiles
+                    progressVal=50
+                    log_printout("%d files, incr %d" % ( numFiles, progressIncr ))
+                    for configFile in configTar.getmembers() :
+                        log_printout("unpack '%s'" % configFile.name)
+                        progressVal=progressVal+progressIncr
+                        progress(progressVal, configFile.name)
+                        configTar.extract(configFile)
+                        show_progress()
+                    configTar.close()
+                    gotConfig=True
+                    
+                except:
+                    excType, excData, excTrace = sys.exc_info()
+                    errorMsg="\
+Invalid configuration returned from\n\
+  %s\n\
+exception %s\n\
+  %s\n\
+headers\n\
+%s\n\
+" % ( ConfigUrl, excType, excData, headers )
+                    log_printout(errorMsg)
+                    screen_msg(errorMsg)
+                    
+            except:
+                
+                excType, excData, excTrace = sys.exc_info()
+                errorMsg="\
+Failure fetching configuration from:\n\
+  %s\n\
+failed with error\n\
+  %s\n\
+" % ( ConfigUrl, excData )
+                log_printout(errorMsg)
+                screen_err(errorMsg)
+
+            os.chdir (curDir)
+
+        else:
+            NotDone='\
+Bootstrap configuration is not complete.\n\
+\n\
+To finish bootstrap configuration, execute:\n\
+   sipxecs-setup\n\
+\n'
+            abortMsgAndExit(NotDone)
+
+def screen_ask_sip () :
+    global SipDomain
+    global DomainName
+    global reDomain
+
+    sipExplanation ="\
+Your SIP Domain name is the name to the right\n\
+of the '@' in your SIP addresses, like this:\n\
+     sip:user@%s\n\
+" % DomainName
+
+    valuesOk=False
+    while not valuesOk :
+
+        inner = snack.Grid(2, 3)
+
+        l1 = snack.Label("SIP Domain Name: ")
+        e1 = snack.Entry(32, DomainName)
+
+        inner.setField(l1, 0, 1)
+        inner.setField(e1, 1, 1)
+
+        okButton = snack.Button("   OK   ")
+        inner.setField(okButton, 0, 2, (1,1,1,1))
+
+        f = screen_setup("SIP Settings", sipExplanation, inner)
+
+        f.run()
+
+        SipDomain=e1.value()
+
+        screen_end()
+
+        # Test for valid SIP domain name
+        if reDomain.search(SipDomain) :
+            valuesOk = True
+        else :
+            screen_err("Your SIP Domain must be at least two DNS labels separated by dots.")
+
+    log_result("SipDomain", SipDomain)
+   
+def set_fixed_cert_params () :
+
+    global HostName
+    global DomainName
+    global SipDomain
+    
+    log_printout("--- Setting Certificate Parameters")
+
+    curDir = os.getcwd ()
+    if not os.path.isdir (SSL_GENDIR) :
+        os.makedirs(SSL_GENDIR)
+        log_printout("created directory '%s'" % SSL_GENDIR)
+        setRights(SSL_GENDIR,'@SIPXPBXUSER@','@SIPXPBXGROUP@','u=rwx,g=rwx,o=')
+
+    os.chdir (SSL_GENDIR)
+
+    # Save parameters to generate the keys and certificates
+    defaults = '\
+countryName="US"\n\
+stateOrProvinceName="AnyState"\n\
+localityName="AnyTown"\n\
+organizationName="%s"\n\
+organizationalUnitName="@SIPXECS_NAME@"\n\
+caName="ca.%s"\n\
+caEmail="root@%s"\n\
+sipDomainName="%s"\n\
+server="%s"\n\
+serverEmail="root@%s"\n\
+' % ( DomainName, HostName, HostName, SipDomain, HostName, HostName )
+
+    log_printout(defaults)
+
+    file ( 'SSL_DEFAULTS', 'w').write( defaults )
+    setRights('SSL_DEFAULTS')
+
+    os.chdir (curDir)
+
+def sync_ntp_time () :
+    # Sync the NTP time on the distributed system with the primary system NTP
+    # time to ensure that the time on the certificate will be valid
+    # Note: Fedora/CentOS will use /etc/ntp/step-tickers to sync on start.
+    cmdoutput=commands.getoutput ('/sbin/service %s stop' % sipxecsGlobals.NtpServiceName)
+    log_printout(cmdoutput)
+    if os.path.exists("/etc/SuSE-release"):
+        cmdoutput=commands.getoutput ('/sbin/service %s ntptimeset' % sipxecsGlobals.NtpServiceName)
+        log_printout(cmdoutput)
+    cmdoutput=commands.getoutput ('/sbin/service %s start' % sipxecsGlobals.NtpServiceName)
+    log_printout(cmdoutput)
+
+def generate_ssl_cert () :
+    global HostName
+    
+    show_progress()
+
+    curDir = os.getcwd ()
+    os.chdir (SSL_GENDIR)
+
+    log_printout("generating ssl certs at %s" % time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime()))
+    genSsl      = "@SIPX_BINDIR@/ssl-cert/gen-ssl-keys.sh -d -s '%s'" % HostName
+
+    show_starting()
+    cmdoutput=commands.getoutput (genSsl)
+    setOwnerRecursive(SSL_GENDIR)
+    show_next()
+    log_printout (cmdoutput)
+    
+    os.chdir (curDir)
+
+def install_ssl_cert () :
+    global HostName
+    
+    show_progress()
+    curDir = os.getcwd ()
+
+    os.chdir (SSL_GENDIR)
+    instSsl     = "@SIPX_BINDIR@/ssl-cert/install-cert.sh '%s'" % HostName
+
+    # Install the new SSL certificate
+    show_starting()
+    cmdoutput=commands.getoutput (instSsl)
+    show_next()
+    log_printout (cmdoutput)
+    os.chdir (curDir)
+
+def setup_domain_config () :
+    # Configure the SIP Domain and Realm
+    # The SIP Domain setting is used to generate the proper certificate and 
+    # we need to configure SIP_DOMAIN_NAME setting in domain-config
+    global HostName
+    global SipDomain
+
+    show_progress()
+    log_printout('--- domain-config ---' )
+
+    minimalDomainConfig = "\
+SIP_DOMAIN_NAME : %s\n\
+SIP_REALM : %s\n\
+SUPERVISOR_PORT : 8092\n\
+CONFIG_HOSTS : %s\n\
+" % ( SipDomain, SipDomain, HostName )
+
+    file (DOMAIN_CONFIG, 'w').write(minimalDomainConfig)
+    setRights(DOMAIN_CONFIG)
+
+    log_printout (minimalDomainConfig)
+
+def DNS_Provider( configfile ):
+   if not os.path.isfile (configfile) :
+      # DNS Config file not found.  Assume that we will provide and be the master.
+      return True
+   else :
+      # Scan the config file for indication of being master or not.
+      fconfig=open(configfile,"r")
+      configstring = fconfig.read()
+      fconfig.close()
+      if configstring.find('DNS_MODE="Master"') == -1 :
+         return False
+      else :
+         return True
+
+def setup_DNS_zone( domain, hostname, ipaddress ):
+   ''' Create zone files for the specified domain '''
+
+   # Zone files are only required for the Master DNS server.
+   # A Master DNS server is used for a non HA setup or on the HA Master host
+
+   zoneConfigFile='%s/%s.zone' % (sipxecsGlobals.NamedDirectory, domain)
+   dnsConfigFile='/etc/named.conf'
+
+   if runningAsRoot():
+      if DNS_Provider( dnsConfigFile ) :
+         # We are a Master DNS server so generate a zone file.
+
+         # Create DNS entries using the sipx-dns script
+         sipxDNSCommand = '@SIPX_BINDIR@/sipx-dns --provide-dns --zone %s %s/%s' \
+                            % (domain, hostname, ipaddress)
+
+         log_printout("Creating DNS zone file %s with %s" % (zoneConfigFile, sipxDNSCommand))
+         zoneConfig = commands.getoutput(sipxDNSCommand)
+
+         log_printout("======= %s:" % zoneConfigFile)
+         log_printout(zoneConfig)
+
+         zoneRef = '\
+\n\
+zone "%s"  IN  {\n\
+     type master;\n\
+     file "%s.zone";\n\
+     allow-update { none; };\n\
+};\n\
+' % ( domain, domain )
+
+         log_printout("======= %s (appended):" % dnsConfigFile)
+         log_printout(zoneRef)
+
+         file ( zoneConfigFile, 'w').write( zoneConfig )
+         file ( dnsConfigFile, 'a').write( zoneRef )
+
+
+def enable_sipXconfig () :
+    ################################################################
+    ###                        IMPORTANT
+    ### The following must be kept consistent with the path used
+    ### by the sipXsupervisor to store the persistent state of a
+    ### service, and with the name declared for sipXconfig in its
+    ### process definition.
+    ###
+    ### Writing this file causes sipXsupervisor to start sipXconfig.
+    ### NO OTHER PROCESS SHOULD BE ENABLED IN THIS WAY.
+    ### Any other process is enabled by sipXconfig through sipXsupervisor.
+    ################################################################
+    SupervisorStateDir='@SIPX_VARDIR@/process-state'
+    ConfigServerServiceName='ConfigServer'
+    if not os.path.isdir (SupervisorStateDir) :
+        os.makedirs(SupervisorStateDir)
+        setRights(SupervisorStateDir,'@SIPXPBXUSER@','@SIPXPBXGROUP@','u=rwx,g=rwx,o=')
+        log_printout("created directory '%s'" % SupervisorStateDir)
+
+    SupervisorStateFile=SupervisorStateDir+'/'+ConfigServerServiceName
+    file(SupervisorStateFile, 'w').write('Enabled')
+    setRights(SupervisorStateFile)
+
+def configure_autostart_service() :
+    #Start sipX
+
+    if runningAsRoot() :
+        log_printout('configure postgresql service autostart:\n')
+        cmdoutput=commands.getoutput ('/sbin/chkconfig --level %d postgresql on' % RUNLEVEL)
+        log_printout(cmdoutput)
+
+        log_printout('configure sipxecs service autostart:\n')
+        cmdoutput=commands.getoutput ('/sbin/chkconfig --level %d sipxecs on' % RUNLEVEL)
+        log_printout(cmdoutput)
+    else :
+        screen_msg("\
+Because you are not running as root,\n\
+the sipxecs services have not been\n\
+configured to start by default.\
+")
+        log_printout('autostart not configured - not root')
+
+def get_netif () :
+     """
+     Reads an existing interface configuration file
+     /etc/sysconfig/network-scripts/ifcfg-eth0 
+     looking for IPADDR and NETMASK
+     """
+     global IpAddress
+     global NetMask
+
+     show_progress()
+     # Read the configuration file for the ethernet interface
+     try:
+         ifcfgContents   = file (sipxecsGlobals.IfCfgFile).read().strip()
+     except:
+         ifcfgContents   = ""
+
+     netInfoFound=False
+     reIPADDR = re.compile ('^IPADDR=(\S*)', re.M)
+     found    = reIPADDR.search (ifcfgContents)
+     if found:
+         rawIpAddress=found.group(1).lstrip("'").rstrip("'")
+         # address and netmask can be in form ipaddr/prefixlength, in which case NETMASK is ignored
+         partIpAddress=rawIpAddress.split('/')
+         IpAddress=partIpAddress[0]
+         if len(partIpAddress) == 2:
+             prefixlen = int(partIpAddress[1])
+             # adapted from recipes at http://code.activestate.com/recipes/66517/
+             netmasknum = ((2L<<prefixlen-1)-1) << (32-prefixlen)
+             NetMask = inet_ntoa(pack('!L', netmasknum))
+             log_printout("Read network mask from %s: %s" % (rawIpAddress, NetMask))
+             netInfoFound=True
+         else:
+             reIPMASK    = re.compile ('^NETMASK=(\S*)', re.M)
+             found    = reIPMASK.search (ifcfgContents)
+             if found:
+                 NetMask=found.group(1)
+                 netInfoFound=True
+             else:
+                 log_printout("Could not find NETMASK in %s" % sipxecsGlobals.IfCfgFile)
+         if netInfoFound:
+             log_printout("Read network info from %s" % sipxecsGlobals.IfCfgFile)
+     else:
+         log_printout("Could not find IPADDR in %s" % sipxecsGlobals.IfCfgFile)
+             
+     return netInfoFound
+
+def screen_ask_netif ():
+   global IpAddress
+   global NetMask
+
+   netExplanation="\
+Unable to obtain the network address and mask data\n\
+from the configuration file:\n\
+   %s\n\
+Enter the network interface settings for the interface\n\
+to be used by @SIPXECS_NAME@ services:\n\
+" % sipxecsGlobals.IfCfgFile
+
+   valuesOk=False
+   while not valuesOk :
+       sg = snack.Grid(3, 3)
+       l0 = snack.Label(" ")
+
+       l2 = snack.Label("Ip:         ")
+       e2 = snack.Entry(32, IpAddress)
+       sg.setField(l2, 0, 0)
+       sg.setField(e2, 1, 0)
+
+       l3 = snack.Label("Netmask:    ")
+       e3 = snack.Entry(32, NetMask)
+       sg.setField(l3, 0, 1)
+       sg.setField(e3, 1, 1)
+
+       okButton = snack.Button("   OK   ")
+       sg.setField(okButton, 0, 2, (1,1,1,1))
+
+       sg.place(1,1)
+
+       f = screen_setup("Enter network settings", netExplanation, sg)
+       f.run()
+
+       IpAddress=e2.value()
+       NetMask=e3.value()
+
+       screen_end()
+
+       # Assume all entries OK, now check for errors
+       valuesOk=True
+
+       #--- validation
+       if len(NetMask.split('.')) < 4:
+           valuesOk=False
+           screen_err('"%s" is not a valid Netmask' % NetMask)
+
+       elif not (NetMask.split('.')[0] == '255' and NetMask.split('.')[1] == '255') :
+           valuesOk=False
+           screen_err('"%s" is not a valid Netmask.' % NetMask)
+       else :
+           for i in range(4):
+               if not NetMask.split('.')[i] in ('255', '0', '128', '192', '224', '240', '248', '252', '254'):
+                   valuesOk=False
+                   screen_err('"%s" is not a valid Netmask' % NetMask)
+
+       if IpAddress.count('.') < 3:
+           # We expect at least 3 dots in an IP addr
+           valuesOk=False
+           screen_err('"%s" is not a valid IP addr' % IpAddress)
+       else:
+           addrLst = IpAddress.split('.')
+           maskLst = NetMask.split('.')
+           netwAddr  = '.'.join([str(int(addrLst[i]) & int(maskLst[i]))  for i in range(4)])
+           broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
+           if IpAddress == netwAddr or IpAddress == broadAddr :
+               valuesOk=False
+               screen_err('\
+"%s, %s" is not a valid IP address / Netmask combination' % (IpAddress, NetMask))
+
+def write_master_netif() :
+    global IpAddress
+    global NetMask
+
+    masterNetIf="\
+IpAddress=%s\n\
+NetMask=%s\n\
+" % ( IpAddress, NetMask )
+    
+    log_printout("Writing %s" % MASTER_NETIF)
+    log_printout(masterNetIf)
+
+    if runningAsRoot() :
+       file(MASTER_NETIF, 'w').write(masterNetIf)
+       setRights(MASTER_NETIF)
+
+def do_sipx_setup() :
+    global HostName
+    global DomainName
+    global IpAddress
+    global NetMask
+
+    show_progress()
+
+    progress(10,"Get System Type")
+    screen_ask_first ()
+
+    HostName = get_hostname()
+
+    nameMatch = reDomain.search(HostName) 
+    if nameMatch != None :
+       DomainName = nameMatch.group(1)
+    log_printout("Domain Name '%s'" % DomainName )
+
+    if isFirstSystem:
+        
+        progress(15,"Get Network Parameters")
+        if not get_netif():
+            screen_ask_netif()
+
+        write_master_netif()
+        
+        progress(20, "Get SIP Domain Name")
+        screen_ask_sip()
+
+        progress(30, "Set SIP Domain Name and Realm")
+        setup_domain_config()
+
+        if ( SipDomain != DomainName ):
+           progress(35, "Create DNS records");
+           setup_DNS_zone( SipDomain, HostName, IpAddress )
+           log_printout("NOTE: if the DNS running on this machine is not authoritative for zone %s,\
+ you may have to remove the zone file %s/%s.zone and the reference to it in /etc/named.conf" %
+              (DomainName, sipxecsGlobals.NamedDirectory, DomainName))
+           if runningAsRoot():
+              if not os.path.isdir(sipxecsGlobals.NamedDirectory + "/data") :
+                 os.makedirs(sipxecsGlobals.NamedDirectory + "/data")
+              # Change ownership of zone files
+              setOwnerRecursive(sipxecsGlobals.NamedDirectory, 'root', 'named')
+              setRights(sipxecsGlobals.NamedDirectory + "/data",'root','named') # makes data named-writable
+              reload="/sbin/service named restart"
+              log_printout("Loading new zone files with: '%s'" % reload)
+              cmdoutput=commands.getoutput(reload)
+              log_printout(cmdoutput)
+           else:
+              log_printout("The SIP Domain is different from the Domain Name, \
+but not running as root, so DNS zone file was not written." )
+
+        progress(40, "Generate TLS/SSL Certificate")
+        set_fixed_cert_params()
+        generate_ssl_cert()
+
+        progress(60, "Install TLS/SSL Certificate")
+        install_ssl_cert()
+
+        progress(70, "Enabling sipXconfig")
+        enable_sipXconfig()
+
+    else :
+        # this is an additional system
+        progress(20, "Preparation Check")
+        screen_confirm_master_config()
+
+        progress(30, "Retrieve @SIPXECS_NAME@ Configuration")
+        HostName=get_hostname()
+        screen_fetch_config()
+        cmdoutput=commands.getoutput('/sbin/service named restart')
+
+        progress(40, "Synchronize NTP Time")
+        sync_ntp_time()
+        
+    progress(90, 'Configuring @SIPXECS_NAME@ Autostart' )
+    configure_autostart_service()
+
+def setup_completed () :
+    global HostName
+    
+    completedMessage ="\
+All bootstrap parameters have been configured. \n\
+\n\
+When the @SIPXECS_NAME@ services have started, open\n\
+\n\
+   http://%s\n\
+\n\
+in your web browser to continue configuring\n\
+your @SIPXECS_NAME@ services.\
+" % HostName
+
+    outer = snack.Grid(1, 2)
+
+    startButton = snack.Button("Start @SIPXECS_NAME@")
+    outer.setField(startButton, 0, 0, (1,0,1,1))
+
+    inner = snack.Grid(2, 1)
+
+    shellButton = snack.Button("Exit to Prompt")
+    inner.setField(shellButton, 0, 0, (1,0,1,1))
+
+    rebootButton = snack.Button("Reboot")
+    inner.setField(rebootButton, 1, 0, (1,0,1,1))
+
+    outer.setField(inner, 0, 1)
+
+    form = screen_setup("Setup Completed", completedMessage, outer)
+    choice = form.run()
+
+    screen_end()
+
+    if choice == startButton :
+        log_printout('--- Starting @SIPXECS_NAME@ ---' )
+        if runningAsRoot() :
+           execNext('/sbin/service', ['sipxecs', 'start'])
+           # execNext does not return
+        else :
+           execNext('sudo', ['@SERVICEDIR@/sipxecs', 'start'])
+           # execNext does not return
+
+    else :
+        if choice == rebootButton :
+            #--- Rebooting the host
+            log_printout('--- Rebooting the host ---' )
+            execNext('shutdown', ['-r', 'now'])
+            # execNext does not return
+            
+        else :
+            log_printout('--- Exit to shell ---' )
+
+    cleanExit()
+

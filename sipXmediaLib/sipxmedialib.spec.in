@@ -1,0 +1,81 @@
+Name: @PACKAGE@
+Version: @VERSION@
+Release: %{buildno}
+
+Summary: Media processing library
+License: Pingtel Commercial License
+Group: Development/Libraries
+Vendor: Pingtel Corp.
+Packager: Pingtel <support@pingtel.com>
+Url: http://www.pingtel.com
+
+Source: %name-%version.tar.gz
+
+Requires: sipxtacklib >= %version
+
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
+
+%description
+ The sipXmediaLib includes all of the audio processing used in the
+sipXphone and sipXvxml projects. For example, the library contains
+audio bridges, audio splitters, echo supression, tone generation
+(e.g. DTMF), streaming support, RTCP, G711 codecs, etc.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
+
+# Install header files
+%package devel
+Requires: %name
+Group: Development/Libraries
+Vendor: SIPfoundry
+Summary: Header files for %name
+
+%description devel
+ The sipXmediaLib includes all of the audio processing used in the
+sipXphone and sipXvxml projects. For example, the library contains
+audio bridges, audio splitters, echo supression, tone generation
+(e.g. DTMF), streaming support, RTCP, G711 codecs, etc.
+
+This package contains the neccessary header files and static libraries
+helpful to build projects from the sipX library
+
+%prep
+%setup -q
+
+%build
+%configure @CONFIGURE_OPTIONS@
+cp config.log %name.configlog
+make
+
+%install
+
+# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
+# libdir, bindir, etc just for make install. This not copesetic w/how
+# our makefiles are built, they'd rather preserve libdir, and use
+# DESTDIR when copying/moving/creating files.  The approach we're taking
+# is quite standard, so it's surprising RPM's makeinstall macro is
+# the way it is.
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%defattr(644,root,root,755)
+%doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
+%attr(755,root,root) %{_libdir}/libsipXmedia.la
+%attr(755,root,root) %{_libdir}/libsipXmedia.so*
+%attr(755,root,root) %{_bindir}/%name-config
+
+%files devel
+%defattr(644,root,root,755)
+%docdir %{_datadir}/doc/sipxecs/%name
+%{_datadir}/doc/sipxecs/%name
+
+%{_libdir}/libsipXmedia.a
+%{_includedir}/mp/*
+%{_includedir}/rtcp/*

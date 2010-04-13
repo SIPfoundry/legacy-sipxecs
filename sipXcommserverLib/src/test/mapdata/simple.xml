@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<mappings>
+  <hostMatch>
+    <hostPattern>THISDOMAIN</hostPattern>
+    <hostPattern>THISHOST.THISDOMAIN</hostPattern>
+    <userMatch>
+      <userPattern>THISUSER</userPattern>
+      <userPattern>THATUSER</userPattern>
+      <permissionMatch>
+        <permission>steal</permission>
+        <permission>lie</permission>
+        <transform>
+          <url>sip:NEWUSER@NEWHOST.NEWDOMAIN</url>
+        </transform>
+        <permission>cheat</permission>
+        <permission>eat like a pig</permission>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <hostPattern>UserChgDOMAIN</hostPattern>
+    <userMatch>
+      <userPattern>THISUSER</userPattern>
+      <userPattern>THATUSER</userPattern>
+      <permissionMatch>
+        <transform>
+          <user>NEWUSER</user>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <hostPattern>HostChgDOMAIN</hostPattern>
+    <userMatch>
+      <userPattern>THISUSER</userPattern>
+      <userPattern>THATUSER</userPattern>
+      <permissionMatch>
+        <transform>
+          <host>NewHost</host>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+  <hostMatch>
+    <hostPattern format='UrL'>example.com:4242</hostPattern>
+    <hostPattern format='DnsWildcard'>*.example.com</hostPattern>
+    <hostPattern format='IPv4subnet'>192.168/16</hostPattern>
+    <userMatch>
+      <userPattern>.</userPattern>
+      <permissionMatch>
+        <transform>
+          <url>sip:PATTERNS@MATCHING</url>
+        </transform>
+      </permissionMatch>
+    </userMatch>
+  </hostMatch>
+</mappings>

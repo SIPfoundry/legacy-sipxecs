@@ -1,0 +1,21 @@
+#!/bin/sh
+# This script is only meant to be called by the MRTG framework when thresholds are exceeded.
+# Because the MRTG is very limited in how it can invoke scripts, we must map here.
+# When a threshold is EXCEEDED, mrtg will invoke sipx-mrtg-threshexceeded (this is configured
+# in mrtg/mrtg.cfg during sipx installation).
+# In this case there are four parameters: target, threshold, current value, and a description.
+# When a threshold recovers, mrtg will invoke sipx-mrtg-threshok.
+# In this case there are three parameters: target, threshold, current value, and no description (go figure!).
+# In both cases the THRESH_DESC environment variable will have been set.  This has been configured
+# in mrtg/mrtg.cfg to be the beginning part of the alarm id.
+# The sipx-mrtg-thresholdexceeded and sipx-mrtg-threshok scripts both append the value
+# EXCEEDED or OK as appropriate to the THRESH_DESC and use the
+# resulting string as the id of the alarm to generate.  The target, current value and threshold will
+# be passed to the alarm as parameters.
+
+target=$1
+host=`echo $1 | awk '{split($1,a,"_"); print a[2];}'`
+threshold=$2
+curr_value=$3
+alarm_id=$THRESH_DESC"_EXCEEDED"
+@SIPX_BINDIR@/sipx-alarm --alarmId $alarm_id $host $threshold $curr_value

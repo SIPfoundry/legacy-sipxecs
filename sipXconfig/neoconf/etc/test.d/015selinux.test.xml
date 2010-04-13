@@ -1,0 +1,23 @@
+<test name="selinux">
+  <label>SELinux</label>
+  <description>
+    SELinux status check
+  </description>
+  <command>
+    <exec>sipx-test-selinux</exec>
+  </command>
+  <results>
+    <result exit="0">
+      <status>Success</status>
+      <msg>The test was successful</msg>
+    </result>
+    <result exit="1">
+      <status>Error</status>
+      <msg>SELinux must run in 'Permissive' or 'Disabled' mode</msg>
+      <desciption>
+        The current SELinux mode may cause Apache server to malfunction. Edit /etc/selinux/config and
+        restart your system.
+      </desciption>
+    </result>
+  </results>
+</test>

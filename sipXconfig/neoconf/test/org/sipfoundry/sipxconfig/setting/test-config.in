@@ -1,0 +1,14 @@
+# file used in ConfigFileStorageTest
+# this is just a comment http://www.cia.gov/cia/publications/factbook/rankorder/2102rank.html
+
+Andorra : 83.51
+Macau : 82.03
+#Spain : 79.52
+
+
+European-Union : 78.20
+United_States : 77.71
+Libya :	76.50
+
+# comments
+extra_space : 4

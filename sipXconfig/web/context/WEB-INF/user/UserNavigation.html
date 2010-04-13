@@ -1,0 +1,90 @@
+<span jwcid="$content$">
+  <span jwcid="@If" condition="ognl:renderCondition">
+      <span class="pageLabel" key="label.user">User:</span>&nbsp;
+      <span jwcid="@Insert" value="ognl:bean.userName"/>
+      <span jwcid="@If" condition="ognl:activeSetting != null && activeSetting.name.equals('personal-attendant')">
+        <span jwcid="@common/QuickHelp" value="message:quick.help.personalAttendant"/>
+      </span>
+      <div jwcid="@common/LeftNavigation" renderCondition="ognl:renderCondition">
+        <span jwcid="@setting/SettingsNavigation" bean="ognl:bean"
+          activeSetting="ognl:activeSetting" groupsToHide="ognl:groupsToHide"
+          editSettingsListener="listener:editSettings">
+          <span jwcid="@common/Tab" isActive="ognl:identificationTabActive">
+            <a jwcid="editUserLink@DirectLink" listener="listener:editUser"
+              parameters="ognl:bean.id">
+              <span key="link.identification">Identification</span>
+            </a>
+          </span>
+          <span jwcid="@If" condition="ognl:mailboxManager.enabled" renderTag="false">
+            <span jwcid="@common/Tab" isActive="ognl:mailboxPreferencesTabActive">
+              <a id="mailboxPreferencesLink" jwcid="mailboxPreferencesLink@DirectLink"
+                listener="listener:viewMailboxPreferences" parameters="ognl:bean.id">
+                <span key="link.mailboxPreferences">Mailbox Preferences</span>
+              </a>
+            </span>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:extendedUserInfoTabActive">
+            <a jwcid="editExtendedUserInfoLink@DirectLink" listener="listener:editExtendedUserInfo"
+              parameters="ognl:bean.id">
+              <span key="link.extendedInfo">Contact Information</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:phonesTabActive">
+            <a jwcid="userPhonedLink@DirectLink" listener="listener:editUserPhones"
+              parameters="ognl:bean.id">
+              <span key="link.phones">Phones</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:callForwardingTabActive">
+            <a jwcid="callForwardingLink@DirectLink"
+              listener="listener:editCallForwarding" parameters="ognl:bean.id">
+              <span key="link.forwarding">Call Forwarding</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:userSchedulesTabActive">
+            <a jwcid="userSchedulesLink@DirectLink"
+              listener="listener:editSchedules" parameters="ognl:bean.id">
+              <span key="link.schedules">Schedules</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:speedDialTabActive">
+            <a jwcid="speedDialLink@DirectLink" listener="listener:editSpeedDial"
+              parameters="ognl:bean.id">
+              <span key="link.speedDial">Speed Dial</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:supervisorTabActive">
+            <a id="groupSupervisorLink" jwcid="supervisorPermissionLink@DirectLink"
+              listener="listener:editSupervisorPermission" parameters="ognl:bean.id">
+              <span key="link.supervisor">Group Supervisor</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:personalAttendantTabActive">
+            <a id="personalAttendantLink" jwcid="personalAttendantLink@DirectLink"
+              listener="listener:editPersonalAttendant" parameters="ognl:bean.id">
+              <span key="link.attendant">Personal Attendant</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:conferencesTabActive">
+            <a id="userConferencesLink" jwcid="conferencesLink@DirectLink"
+               listener="listener:viewUserConferences" parameters="ognl:bean.id">
+                <span key="link.conferences">Conferences</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:registrationsTabActive">
+            <a id="userRegistrationsLink" jwcid="userRegistrationsLink@DirectLink"
+              listener="listener:viewUserRegistrations" parameters="ognl:bean.id">
+              <span key="link.registrations">Registrations</span>
+            </a>
+          </span>
+          <span jwcid="@common/Tab" isActive="ognl:MusicOnHoldTabActive">
+            <a jwcid="MusicOnHoldLink@DirectLink" listener="listener:editMusicOnHold"
+              parameters="ognl:bean.id">
+              <span key="link.musicOnHold">Music On Hold</span>
+            </a>
+          </span>
+        </span>
+      </div>
+      <span jwcid="@RenderBody"/>
+  </span>
+</span>

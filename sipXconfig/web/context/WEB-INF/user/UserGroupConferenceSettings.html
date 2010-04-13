@@ -1,0 +1,21 @@
+<form jwcid="conferences@Form" delegate="ognl:validator">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.conference"/>
+    <table>
+        <tr jwcid="@common/FieldPanel" field="component:enableConferences"
+            for="conferences:enable" label="message:label.enabled">
+            <input id="conferences:enable" jwcid="enableConferences@Checkbox" value="ognl:conferenceEnabled" />
+        </tr>
+        <tr jwcid="@common/FieldPanel" field="component:conferencePrefix"
+            for="conferences:prefix" label="message:label.prefix"
+            description="message:description.prefix">
+            <input id="conferences:prefix" jwcid="conferencePrefix@TextField" value="ognl:conferencePrefix" />
+        </tr>
+        <tr jwcid="@conference/BridgeSelector" bridge="ognl:bridge" />
+
+    </table>
+    <ul class="form-actions">
+      <li><input id="submit:ok" jwcid="@Submit" value="OK" action="listener:ok" /></li>
+      <li><input id="submit:apply" jwcid="@Submit" value="Apply" action="listener:apply" /></li>
+      <li><input id="submit:cancel" jwcid="@Submit" value="Cancel" action="listener:cancel" /></li>
+    </ul>
+</form>

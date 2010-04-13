@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.commserver" default-lazy="false">
+
+  <class name="Location" table="location">
+    <id name="id" column="location_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">location_seq</param>
+      </generator>
+    </id>
+    <property name="name" />
+    <property name="address" column="ip_address" />
+    <property name="fqdn" />
+    <property name="password" />
+    <property name="primary" column="primary_location" />
+    <property name="registered" />
+    <bag name="services" cascade="all,delete-orphan" inverse="true">
+      <key column="location_id" not-null="true" />
+      <one-to-many class="org.sipfoundry.sipxconfig.service.LocationSpecificService" />
+    </bag>
+    <bag name="installedBundles" table="location_bundle">
+      <key column="location_id" not-null="true" foreign-key="location_bundle_fk" />
+      <element type="string" column="bundle_bean" not-null="true" />
+    </bag>
+    <component name="nat">
+      <property name="useStun" />
+      <property name="stunAddress" />
+      <property name="stunInterval" />
+      <property name="publicAddress" />
+      <property name="publicPort" />
+      <property name="startRtpPort" />
+      <property name="stopRtpPort" />
+    </component>
+    <many-to-one name="branch" column="branch_id" not-found="ignore" />
+  </class>
+  <query name="locationsByBundle">
+    <![CDATA[select location from Location location
+        where :locationBundle in elements(location.installedBundles)]]>
+  </query>
+
+  <query name="locationsForBranch">
+    <![CDATA[from Location l where l.branch = :branch]]>
+  </query>
+
+  <query name="anotherLocationWithSameFqdnOrIpExceptThis">
+    <![CDATA[select count (*) from Location location where location.id != :locationId and (location.fqdn = :fqdn or location.address = :ipAddress)]]>
+  </query>
+
+  <query name="sameLocationWithSameFqdnOrIp">
+    <![CDATA[select count (*) from Location location where location.id = :locationId and location.fqdn = :fqdn and location.address = :ipAddress]]>
+  </query>
+
+</hibernate-mapping>

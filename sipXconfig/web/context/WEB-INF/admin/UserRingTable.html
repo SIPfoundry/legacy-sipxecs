@@ -1,0 +1,35 @@
+<span jwcid="$content$">
+    <fieldset>
+    	<legend><span key="legend.ring_table">Call Sequence</span></legend>
+		<ul class="component-links">
+    	    <li>
+        	    <a jwcid="addRow" id="callgroup:addRing" href="../user/search.html"><span key="link.add">Add User</span></a>
+	        </li>
+		</ul>
+		<table jwcid="tableView" id="userring:list">
+            <span jwcid="sequenceColumnValue">
+                <span jwcid="ifRenderSequence">
+	                <span jwcid="sequence"></span>
+                </span>
+            	<span jwcid="ifRenderInitial">
+                    <span key="text.initiallyCall">Initially call</span>
+                </span>
+            </span>
+            <span jwcid="expirationColumnValue">
+                <input jwcid="expiration" maxlength="6" type="text" size="3"></input>
+            </span>
+		</table>
+	    <ul class="component-submit">
+			<li>
+				<input jwcid="moveUp" type="submit" id="userring:moveUp"/>
+			</li>
+			<li>
+				<input jwcid="moveDown" type="submit" id="userring:moveDown"/>
+			</li>
+			<li>
+				<input jwcid="delete" type="submit" id="userring:delete"/>
+                <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+			</li>
+		</ul>
+	</fieldset>
+</span>

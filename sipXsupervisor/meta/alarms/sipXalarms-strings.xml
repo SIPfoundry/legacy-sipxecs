@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<!-- INSTRUCTIONS FOR DESIGNERS WISHING TO ADD AN ALARM
+  Each alarm is defined in the etc/sipXalarms-config.xml file, and identified by its
+  unique id, which is an internal (not customer-visible) string.
+  Strings containing the alarm description, a short title for the alarm,
+  and suggested actions to resolve it, must be added in this file.
+  These strings can be localized for different languages (into sipXalarms-strings_xx.xml).
+
+  Parameters provided at runtime can be inserted into the description string using placeholders
+  of the form {n}.
+  -->
+
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+   <definitions>
+      <alarm id="PROCESS_STARTED">
+         <shorttitle>Process started</shorttitle>
+         <description>Process '{0}' recovered from a missing resource or failed configuration test.  Starting the process.</description>
+         <resolution>No action required.</resolution>
+      </alarm>
+      <alarm id="PROCESS_RESTARTED">
+         <shorttitle>Restarting process</shorttitle>
+         <description>Process '{0}' stopped unexpectedly.  Attempting to restart the process.</description>
+         <resolution>No action required.</resolution>
+      </alarm>
+      <alarm id="PROCESS_FAILED">
+         <shorttitle>Process failed</shorttitle>
+         <description>Process '{0}' stopped unexpectedly, and failed several restarts.</description>
+         <resolution>The system will keep trying to restart the process.  Check logs for more details.</resolution>
+      </alarm>
+      <alarm id="LOGIN_FAILED">
+         <shorttitle>Login failed</shorttitle>
+         <description>Login attempt as '{0}' failed several times in a short period.</description>
+         <resolution>If condition recurs, may indicate an attempt to break in. </resolution>
+      </alarm>
+      <alarm id="THRESH_CPUUTIL_EXCEEDED">
+         <shorttitle>CPU threshold exceeded</shorttitle>
+         <description>The threshold for CPU load on {0} has been exceeded.  The threshold is {1}%.  The current value is {2}%.</description>
+         <resolution>If condition persists, check for runaway processes.</resolution>
+      </alarm>
+      <alarm id="THRESH_CPUUTIL_OK">
+         <shorttitle>CPU threshold recovered</shorttitle>
+         <description>CPU load on {0} has recovered back to {2}%.  The threshold is {1}%.</description>
+         <resolution>No action is required.</resolution>
+      </alarm>
+      <alarm id="THRESH_DISK_EXCEEDED">
+         <shorttitle>Disk usage threshold exceeded</shorttitle>
+         <description>The threshold for disk usage on {0} has been exceeded.  The threshold is {1}%.  The current value is {2}%.</description>
+         <resolution>If condition persists, clean out log and temporary directories.  Remove old voice mails.
+                     Reduce log levels.</resolution>
+      </alarm>
+      <alarm id="THRESH_DISK_OK">
+         <shorttitle>Disk usage threshold recovered</shorttitle>
+         <description>Disk usage on {0} has recovered back to {2}%.  The threshold is {1}%.</description>
+         <resolution>No action is required.</resolution>
+      </alarm>
+      <alarm id="EMERG_NUMBER_DIALED">
+         <shorttitle>Emergency number dialed</shorttitle>
+         <description>Emergency dial rule '{0} ({1})' was invoked by '{2}&lt;{3}&gt;' contact {4}</description>
+         <resolution>A user has dialed a number which is configured as an Emergency number.
+                     The user name and contact address of the phone is given.</resolution>
+      </alarm>
+      <alarm id="STUN_ADDRESS_DISCOVERY_FAILED">
+         <shorttitle>Public address discovery failed</shorttitle>
+         <description>The STUN Server '{0}' is dysfunctional. </description>
+         <resolution>The STUN Server did not return any information that can be used to determine the public address of the internal SBC.
+                      Reconfigure your STUN server settings in the System > Servers > NAT page to point at a functioning STUN server. </resolution>
+      </alarm>
+      <alarm id="STUN_ADDRESS_DISCOVERY_RECOVERED">
+         <shorttitle>The STUN Server recovered</shorttitle>
+         <description>The STUN Server '{0}' is functioning OK. </description>
+         <resolution>This message is informational. No action is needed.</resolution>
+      </alarm>
+
+      <alarm id="SIPX_BRIDGE_AUTHENTICATION_FAILED">
+         <shorttitle>The ITSP disallowed an Authentication attempt</shorttitle>
+         <description>The ITSP Account '{0}' disallowed an operation because of Authentication failure.</description>
+         <resolution>Check your ITSP Account domain and password and restart the SIP Trunking service.</resolution>
+      </alarm>
+
+      <alarm id="SIPX_BRIDGE_OPERATION_TIMED_OUT">
+         <shorttitle>The ITSP Account could not be reached</shorttitle>
+         <description>An attempt to signal the ITSP '{0}' timed out.</description>
+         <resolution>Check your ITSP Account Domain, Proxy and Registrar settings and restart the SIP Trunking service.</resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ACCOUNT_OK">
+         <shorttitle>The ITSP Account has recovered</shorttitle>
+         <description>The ITSP Account '{0}' is OK.</description>
+         <resolution>The SIP Trunking Provider recovered and is now functional. No further action is needed.</resolution>
+      </alarm>
+      <alarm id="STUN_ADDRESS_ERROR">
+         <shorttitle>The STUN Address cannot be resolved.</shorttitle>
+         <description>The STUN Server address '{0}' is not resolvable. </description>
+         <resolution>The STUN Server address is not resolvable. Reconfigure your STUN server settings to point at a functioning STUN server. </resolution>
+      </alarm>
+      <alarm id="STUN_PUBLIC_ADDRESS_CHANGED">
+         <shorttitle>NAT Reboot or SIPX Public Address change detected.</shorttitle>
+         <description>The SIPX Server Public IP Address as determined by STUN has changed to {0}, or a  NAT rebooted was detected. </description>
+         <resolution>Depending on how they were provisioned, some ITSP accounts may fail to function after this happens.
+           If your public address changed, all ITSP accounts that were directly provisioned by your public
+           IP Address will cease to function. Contact the ITSP to report your new public
+           address in such cases and re-start the SIP Trunking service after the ITSP has reprovisioned such
+           accounts with your new Public IP Address.  If your ITSP implements "Hosted NAT compensation", and your
+           NAT reboots,  you may need to restart your SIP Trunking, depending upon the type of NAT you are using.
+         </resolution>
+      </alarm>
+      <alarm id="MEDIA_RELAY_STRAY_PACKETS_DETECTED">
+         <shorttitle>Stray packets were detected by the Media Relay service.</shorttitle>
+         <description>Stray packets originating from {0} were detected by the Media Relay Service. </description>
+         <resolution> Stray packets can adversely affect the performance of the Media Relay Service.
+          Shut down the source of the problem.
+         </resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ITSP_SERVER_FAILURE">
+         <shorttitle>The ITSP reported a server failure.</shorttitle>
+         <description>The ITSP '{0}' reported a server failure. </description>
+         <resolution>Contact your ITSP and report the failure.</resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_NOT_FOUND">
+         <shorttitle>An ITSP account could not be found. </shorttitle>
+         <description>An ITSP for the domain '{0}' could not be found. </description>
+         <resolution>Check your Trunking Gateway configuration and ITSP account.
+               Make sure the Address of the Trunking Gateway matches the ITSP account server domain name.</resolution>
+      </alarm>
+      <alarm id="SOFTWARE_UPDATE_AVAILABLE">
+         <shorttitle>Software Updates Available.</shorttitle>
+         <description>Software Updates Available: &#xA;</description>
+         <resolution>Software Updates Available. Install the available software updates. </resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ACCOUNT_CONFIGURATION_ERROR">
+         <shorttitle>Could not send REGISTER to the ITSP account. </shorttitle>
+         <description>An ITSP '{0}' was not configured correctly. The SIP Trunking service could not Register with it. </description>
+         <resolution>Check your Domain, Proxy and Registrar settings for the ITSP account. </resolution>
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_FAILED_TO_INITIALIZE_MEDIA_RELAY">
+         <shorttitle>Failed to initialize the Media Relay. </shorttitle>
+         <description>SipXproxy tried initialize the Media Relay without success.  As a result, the NAT Traversal feature will be disabled. </description>
+         <resolution>Verify that the 'Media Relay' service is running on the server.  If not restart it.  Restart the 'SIP Proxy' service. </resolution>
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_LOST_CONTACT_WITH_MEDIA_RELAY">
+         <shorttitle>SipXproxy lost contact with the Media Relay. </shorttitle>
+         <description>SipXproxy detected that the Media Relay it was connected to has gone away. SipXproxy is trying to re-establish the connection.</description>
+         <resolution>Verify that the 'Media Relay' service is running on the server. </resolution>
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTED">
+         <shorttitle>SipXproxy detected a Media Relay reset but recovered. </shorttitle>
+         <description>SipXproxy detected that the Media Relay instance it was connected has reset and has successfully connected with the new Media Relay instance.</description>
+         <resolution>No action required. </resolution>
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RESET_DETECTED_RECONNECTING">
+         <shorttitle>SipXproxy detected a Media Relay reset and is trying to recover. </shorttitle>
+         <description>SipXproxy detected that the Media Relay instance it was connected has reset. SipXproxy is trying to re-establish the connection with the new Media Relay instance.</description>
+         <resolution>No action required. </resolution>
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_MEDIA_RELAY_RECONNECTED">
+         <shorttitle>SipXproxy re-established connection with the Media Relay. </shorttitle>
+         <description>SipXproxy has successfully reconnected with the Media Relay.</description>
+         <resolution>No action required. </resolution>
+      </alarm>
+      <alarm id="PROCESS_CONFIGTEST_FAILED">
+         <shorttitle>Process failed configuration test</shorttitle>
+         <description>Process '{0}' failed its configuration test.</description>
+         <resolution>Check recent configuration changes.  Do not hand-edit configuration files.  Check logs for more details.</resolution>
+      </alarm>
+      <alarm id="PROCESS_RESOURCE_REQUIRED">
+         <shorttitle>Process resource required</shorttitle>
+         <description>Process '{0}' is missing one or more required resources: </description>
+         <resolution>Wait for a few minutes to see if this is just a normal startup sequence.  If problem persists, select the server and Send Profiles to refresh the configuration.</resolution>
+      </alarm>
+      <alarm id="PROCESS_CONFIG_MISMATCH">
+         <shorttitle>Process configuration file mismatch</shorttitle>
+         <description>The configuration data for process '{0}' ({1}) does not match the software version ({2}).</description>
+         <resolution>Wait for a few minutes to see if this is just a normal startup sequence.  If problem persists, select the server and Send Profiles to refresh the configuration.</resolution>
+      </alarm>
+      <alarm id="NAT_TRAVERSAL_RAN_OUT_OF_MEDIA_RELAY_SESSIONS">
+         <shorttitle>SipXproxy ran out of resources for NAT traversal. </shorttitle>
+         <description>SipXproxy could not allocate the Media Relay Session required for a call likely resulting in speech path issues.</description>
+         <resolution>Not enough RTP ports are allocated to the Media Relay.  Increase the RTP port range allocated to the Media Relay using sipXconfig (under System->Servers->(click on server)->NAT->Show Advanced Settings).</resolution>
+      </alarm>
+      <alarm id="SIPX_BRIDGE_ITSP_ACCOUNT_CONFIGURATION_ERROR">
+         <shorttitle>An ITSP is missing required configuration parameters</shorttitle>
+         <description>One or more ITSP accounts is missing required configuration parameters.</description>
+         <resolution>Check your ITSP accounts. Those that require Registration must have a user name specified.</resolution>
+      </alarm>
+      <alarm id="TLS_CERTIFICATE_MISMATCH">
+         <shorttitle>The certificate identity does not match the request domain</shorttitle>
+         <description>The configuration requires the identity '{0}', but the remote certificate contains only the following identities: {1}</description>
+         <resolution>This is a security violation because the remote identity encapsulated in the certificate
+                     does not match the address it came from.
+                     Ensure that the certificate identity matches the request domain.</resolution>
+      </alarm>
+
+      <!-- Add new alarms above this line.
+          Notes:
+            'id='         must match definition in etc/sipXalarms-config.xml
+            'shorttitle'  contains a short title to be used in email subject headers.
+            'description' contains text to be sent in alarm notifications.  Parameters may be
+                          inserted at runtime by using placeholders of the format {0}, {1}, etc.
+                          XML reserved characters (&lt;, &gt;, &amp; &quot; &apos;) should be escaped as in
+                          this example.
+                          Newlines may also be included, escaped as &#xA;
+                          Tabs are escaped as &#x9;
+            'resolution'  contains text to be sent in alarm notifications.  It should provide any
+                          steps the customer could follow to solve or debug the problem.
+      -->
+   </definitions>
+</alarm_server>

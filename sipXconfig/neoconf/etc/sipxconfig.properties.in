@@ -1,0 +1,90 @@
+# Editing procedure
+#   End Users - add new settings to end of this file, be sure to add extra line feed
+#   Developers - add new settings anywhere but end of this file so pkg-upgrade script
+#                can have a better chance to migrate this file properly
+sipxRegistrarService.sipPort=5070
+sipxRegistrarService.registrarEventSipPort=5075
+sipxMediaService.sipPort=5100
+sipxMediaService.voicemailHttpPort=8090
+sipxMediaService.voicemailHttpsPort=8091
+sipxParkService.parkServerSipPort=5120
+sipxCallResolverService.agentPort=8130
+sipxRlsService.rlsPort=5140
+sipxStatusService.httpsPort=8101
+sipxSaaService.tcpPort=5170
+sipxSaaService.udpPort=5170
+sipxPageService.audioDir=@sipxpage.audio.dir@
+
+sipImpl.port=5180
+
+# imdb/sipdb location for https access
+localBackupPlan.backupDirectory=@sipxpbx.backup.dir@
+ftpBackupPlan.backupDirectory=@sipxpbx.download.dir@
+ftpRestore.downloadDirectory=@sipxpbx.download.dir@
+orbitsGenerator.audioDirectory=@sipxpark.audio.dir@
+upload.uploadRootDirectory=@sipxconfig.upload.dir@
+upload.destinationDirectory=@sipxconfig.phone.dir@/profile/tftproot
+phonebookManagerImpl.externalUsersDirectory=@sipxconfig.phonebook.dir@
+audiocodesGatewayModel.configDirectory=@sipxpbx.var.dir@
+audiocodesFxs.configDirectory=@sipxpbx.var.dir@
+jasperReportContextImpl.reportsDirectory=@sipxpbx.var.dir@/reports
+
+# The following directives can be used to provide external sources
+#    of call routing information.  If you find yourself using them, it would
+#    be helpful to post a note on sipx-dev@list.sipfoundry.org as to why
+#    you could not accomplish what you needed using the normal mechanisms.
+# external aliases
+externalAliases.addinsDirectory=@sipxecs.java.dir@
+externalAliases.aliasAddins=
+# external additions to internal call mapping rules
+mappingRules.externalRulesFileName=
+# external additions to external call fallback rules
+fallbackRules.externalRulesFileName=
+
+# conditionally enable MRTG integration
+monitoringContextImpl.enabled=@mrtg-enabled@
+
+# Postgres DB user
+sipxconfig.db.user=@sipxconfig.db.user@
+
+# are we in a debug build?
+coreContextImpl.debug=@debug@
+
+# name changes to anything starting w/sysdir need to be reflected in
+# VersionInfo class as well
+sysdir.bin=@sipxpbx.bin.dir@
+sysdir.etc=@sipxpbx.conf.dir@
+sysdir.var=@sipxpbx.var.dir@
+sysdir.log=@sipxpbx.log.dir@
+sysdir.share=@sipxecs.java.dir@
+sysdir.thirdparty=@sipxecs.thirdparty.dir@
+sysdir.phone=@sipxconfig.phone.dir@
+sysdir.tmp=@sipxpbx.tmp.dir@
+sysdir.version=@version@
+sysdir.build_number=0000
+sysdir.comment=opendev
+sysdir.user=@sipxpbx.user@
+sysdir.doc=@www.dir@/doc
+sysdir.www=@www.dir@
+sysdir.mailstore=@sipxvxml.data.dir@/mailstore
+sysdir.vxml=@sipxvxml.data.dir@
+sysdir.vxml.prompts=@sipxvxml.data.dir@/prompts
+sysdir.vxml.scripts=@www.dir@/doc/aa_vxml
+sysdir.libexec=@sipxpbx.libexec.dir@
+sysdir.default.firmware=@sipxpbx.default.firmware@
+sysdir.alarmsStrings=@sipxpbx.alarms.strings.dir@
+sipxpbx.mibs.dir=@sipxpbx.mibs.dir@
+sysdir.vxml.moh=@sipxvxml.data.dir@/moh
+
+# ACD server defaults - can be changed in UI
+acdServer.port=8110
+acdServer.agentPort=8120
+acdQueue.audioDirectory=@sipxconfig.phone.dir@/acd/audio
+presenceServer.enabled=true
+mailboxManagerImpl.mailstoreDirectory=@sipxvxml.data.dir@/mailstore
+mailboxManagerImpl.stdpromptDirectory=@www.dir@/doc/stdprompts
+
+# yum command exists on system?
+packageUpdateManager.yumCapable=@YUM_EXISTS@
+
+# ======= BEGIN NEW INSTALLATION SETTINGS =================

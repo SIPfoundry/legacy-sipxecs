@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <sbc_device sbc_device_id="102" address="10.1.2.2" port="5060" bean_id="sbcGeneric" model_id="sbcGenericModel"
+    name="Sbc for SipTrunk" serial_number="201122334455" />
+
+  <gateway gateway_id="1002" bean_id="gwSipTrunk" model_id="sipTrunkStandard" name="sip trunk" anonymous="false"
+    keep_digits="0" transform_user_extension="false" ignore_user_info="false" address_port="0" address_transport="none"
+    sbc_device_id="102" enable_caller_id="false" shared="false" enabled="true"/>
+</dataset>

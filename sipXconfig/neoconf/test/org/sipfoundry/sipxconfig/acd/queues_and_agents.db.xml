@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<!--
+  - q1 => users: 1, 2
+  - q2 => users: 1, 3  
+  - q3 => empty
+  - q4 => users: 6
+  - user 4 not an agent
+  - user 5 agent but not assigned to any queue
+  -->
+<dataset>
+  <users user_id="1001" user_name="u1" pintoken="1" user_type="C"/>
+  <users user_id="1002" user_name="u2" pintoken="1" user_type="C"/>
+  <users user_id="1003" user_name="u3" pintoken="1" user_type="C"/>
+  <users user_id="1004" user_name="u4" pintoken="1" user_type="C"/>
+  <users user_id="1005" user_name="u5" pintoken="1" user_type="C"/>
+  <users user_id="1006" user_name="u6" pintoken="1" user_type="C"/>
+  
+  <location location_id="101" name="localhost" fqdn="localhost" ip_address="127.0.0.1" primary_location="true"/>
+  <acd_server acd_server_id="1001" location_id="101" port="8100"/>
+  
+  <acd_queue acd_queue_id="2001" name="q1" acd_server_id="1001"/>
+  <acd_queue acd_queue_id="2002" name="q2" acd_server_id="1001"/>
+  <acd_queue acd_queue_id="2003" name="q3" acd_server_id="1001"/>
+  <acd_queue acd_queue_id="2004" name="q4" acd_server_id="1001"/>
+  
+	<acd_agent acd_agent_id="3001" user_id="1001" acd_server_id="1001"/>
+	<acd_agent acd_agent_id="3002" user_id="1002" acd_server_id="1001"/>
+	<acd_agent acd_agent_id="3003" user_id="1003" acd_server_id="1001"/>
+  <!-- 4 intentionally missing -->
+	<acd_agent acd_agent_id="3005" user_id="1005" acd_server_id="1001"/>
+	<acd_agent acd_agent_id="3006" user_id="1006" acd_server_id="1001"/>
+
+  <!-- q1 -->
+	<acd_agent_queue acd_agent_id="3001" acd_queue_id="2001" queue_position="0"/>
+	<acd_agent_queue acd_agent_id="3002" acd_queue_id="2001" queue_position="0"/>
+
+  <!-- q2 -->
+	<acd_agent_queue acd_agent_id="3001" acd_queue_id="2002" queue_position="1"/>
+	<acd_agent_queue acd_agent_id="3003" acd_queue_id="2002" queue_position="0"/>
+
+  <!-- q3 -->
+
+  <!-- q4 -->
+	<acd_agent_queue acd_agent_id="3006" acd_queue_id="2004" queue_position="0"/>
+</dataset>

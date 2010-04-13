@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+	"http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="general">
+    <setting name="enableTimeout">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="parkTimeout" advanced="yes">
+      <type required="yes">
+        <integer min="30" max="300" required="yes" />
+      </type>
+      <value>120</value>
+    </setting>
+    <setting name="multipleCalls">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="allowTransfer">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="transferKey" advanced="yes">
+      <type>
+        <string maxLen="1">
+          <pattern>[*#0-9]</pattern>
+        </string>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+</model>

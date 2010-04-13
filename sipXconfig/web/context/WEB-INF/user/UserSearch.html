@@ -1,0 +1,27 @@
+<span jwcid="@RenderBody"/>
+<fieldset>
+      <table jwcid="@If" condition="ognl:simpleSearch">
+          <tr for="userSearch:query" jwcid="queryLabel">
+              <input jwcid="query" id="userSearch:query"/>
+          </tr>
+      </table>
+	<table jwcid="@Else">
+		<tr for="userSearch:userNameOrAlias" jwcid="userNameOrAliasLabel">
+			<input jwcid="userNameOrAlias" id="userSearch:userNameOrAlias"/>
+		</tr>
+		<tr for="userSearch:lastName" jwcid="lastNameLabel">
+			<input jwcid="lastName" id="userSearch:lastName"/>
+		</tr>
+		<tr for="userSearch:firstName" jwcid="firstNameLabel">
+			<input jwcid="firstName" id="userSearch:firstName"/>
+		</tr>
+	</table>
+</fieldset>
+<ul class="component-submit">
+	<li>
+		<input jwcid="search" id="user:search" value="message:button.search"/>
+	</li>
+	<li>
+		<input jwcid="cancel" id="user:cancel" value="message:button.cancel"/>
+	</li>
+</ul>

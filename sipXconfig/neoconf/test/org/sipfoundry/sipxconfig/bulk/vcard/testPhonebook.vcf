@@ -1,0 +1,109 @@
+BEGIN:vCard
+VERSION:3.0
+FN:Picard12 34 Jean 2Luc4
+N:Picard12;34 Jean 2Luc4;captain;Cpt.;of USS Enterprise
+TEL;TYPE=work:1234
+END:vCard
+
+BEGIN:vCard
+VERSION:2.1
+N:Skywalker;Luke;jedi knight;Mr.;
+TEL;mobile;work:1235
+END:vCard
+
+BEGIN:vCard
+VERSION:2.1
+N:;;;;
+TEL;TYPE=work,BBS:1234
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+FN:Vader Darth
+N:Vader;Darth;evil jedi;;
+TEL;mobile:1235
+END:vCard
+
+BEGIN:VCARD
+VERSION:2.1
+N;LANGUAGE=en-us:Williams;Venus
+FN:Venus Williams
+TEL;WORK;VOICE:(998) 678-5667
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+FN:Cindrella
+N:;Cindrella;;;
+TEL;TYPE=WORK:+1-213-555-1234
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+FN:Jackson Jackson
+N:Jackson;Micha3l;;;
+TEL;TYPE=WORK:+40 (21)313 17 -98
+END:vCard
+
+BEGIN:vCard
+VERSION:3.0
+FN:Mc'Donald John
+N:Mc'Donald;John;;;
+TEL;TYPE=WORK:ESN-8776
+END:vCard
+
+BEGIN:VCARD
+VERSION:3.0
+ADR;TYPE=work:workpostoffice;;6544 Battleford Drive;Raleigh;NC;27613-3502;U.S.A.
+ADR;TYPE=home:homepostofficebox;;501 E. Middlefield Rd.;Mountain View;CA;94043;U.S.A.
+CLASS:PUBLIC
+EMAIL;TYPE=PREF:Frank_Dawson@Lotus.com
+EMAIL:fdawson@earthlink.net
+FN:Frank Dawson
+N:Dawson;Frank;;;
+NICKNAME:franky
+ORG:Lotus Development Corporation;IT Dept
+ROLE:my_role
+TEL;TYPE=WORK:+1-919-676-9515
+TEL;TYPE=HOME:+34 (445) 43 22
+TEL;TYPE=CELL:+34(345)112-345
+TEL;TYPE=FAX:+1-919-676-9564
+TEL;TYPE=MSG:frank
+TITLE:Senior Programmer
+UID:p6Km5JEj1Y
+END:VCARD
+
+BEGIN:VCARD
+VERSION:2.1
+ADR;TYPE=work:Real Madrid postoffice;;Concha Espina;Madrid;Madrid;28036;Spain
+ADR;TYPE=home:;;Avenida de Concha Espina;Madrid;Madrid;29002;Spain
+EMAIL;TYPE=PREF:cristiano.ronaldo@realmadrid.com
+EMAIL:ronaldo@yahoo.com
+FN:Cristiano Ronaldo
+N:Ronaldo;Cristiano;;;
+ORG:Real Madrid;Player
+TEL;TYPE=WORK:123 (89) 123
+TEL;TYPE=HOME:123 34 55
+TEL;TYPE=CELL:(123) 23 44
+TEL;TYPE=FAX:123 32 321
+TITLE:Football Player
+UID:p6Km5JEj1Y
+END:VCARD
+
+BEGIN:VCARD
+VERSION:2.1
+N:Zidane;Zinedine;;Soccer Player
+FN:Zinedine Zidane
+ORG:Real Madrid;Trainning
+TITLE:Assistant Manager
+TEL;WORK;VOICE:123 (323) 32
+TEL;HOME;VOICE:123 43 2223
+TEL;CELL;VOICE:7643 25
+TEL;WORK;FAX:111 222 333
+TEL;HOME;FAX:123 (43) 234
+ADR;WORK:;;Real Madrid Street;Madrid;Madrid;24334;Spain
+ADR;HOME:;;Avenue Le-jour-se-leve;Paris;France;
+ 92100;France
+EMAIL;PREF;INTERNET:zinedine.zidane@realmadrid.com
+EMAIL;INTERNET:zidane@gmail.com
+END:VCARD

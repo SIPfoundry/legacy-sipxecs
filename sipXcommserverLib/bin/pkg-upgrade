@@ -1,0 +1,260 @@
+#!/usr/bin/env ruby
+
+# Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+require 'getoptlong'
+require 'tempfile'
+
+class Setup
+
+  attr_accessor :previous
+  attr_accessor :current
+
+  # Default implementation is a Redhat system
+  def initialize(system)
+    @system = system
+  end
+
+  def verbose=(enabled)
+    @system.verbose = enabled
+  end
+  
+
+  def upgrade
+    raise "previous and current parameters required" unless previous && current
+
+    @system.unresolved(current).each do |file|
+      if resolve(file)
+        @system.mark_resolved(file)
+      end
+    end
+  end
+
+  def show_unresolved
+    raise "current parameters required" unless current
+    @system.unresolved(current).each do |file|
+      @system.console file
+    end
+  end
+
+  def resolve(file)
+    case file
+      when /.*config.*/i       # has config in the name
+        return merge(file)     # Use merge instead of patch
+      else
+       patch = create_patch(file)
+       if patch != ''
+         if @system.test_patch(file, patch)
+           @system.apply_patch(file, patch)
+           return true
+         end
+       end
+       return false
+    end
+  end
+
+  def merge(file)
+    tar_file=file[1..-1]
+    previous_file = @system.extract_file(previous, tar_file)
+    current_file = @system.extract_file(current, tar_file)
+    result = @system.configmerge(previous_file, current_file, file)
+    @system.delete_file(current_file)
+    @system.delete_file(previous_file)
+    return result ;
+  end
+  
+  def create_patch(file)
+    tar_file=file[1..-1]
+    current_file = @system.extract_file(current, tar_file)
+    previous_file = @system.extract_file(previous, tar_file)
+    case file
+      when /.*\.xml.*/i        # has .xml in the name
+       patch = @system.create_patch_xml(previous_file, current_file)
+      when /.*\.properties.*/i # has .properties in the name
+       patch = @system.create_patch_properties(previous_file, current_file)
+      else
+       patch = @system.create_patch_other(previous_file, current_file)
+    end
+    @system.delete_file(current_file)
+    @system.delete_file(previous_file)
+    return patch
+  end
+
+end
+
+# commands AND so calls can be stubbed out for unitttests 
+class SystemService
+  @@patch = 'patch'
+  @@diff = 'diff'
+  @@tar = 'tar'
+  @@merge = 'configmerge'
+
+  attr_accessor :verbose
+
+  def initialize()
+    verbose = false
+  end
+
+  alias oldBackquote `
+  def `(cmd)
+    if verbose
+      puts cmd
+    end
+    return oldBackquote(cmd)
+  end
+
+  def unresolved(archive)
+    unresolved = []
+    raise "File missing #{archive}" unless File.exists?(archive)
+    `tar -tzf #{archive}`.each do |file|
+       filename = '/' + file.chomp
+       if File.exist?(filename + '.rpmnew')
+         unresolved.push filename
+       end
+    end
+    return unresolved
+  end
+
+  def console(msg)
+    puts msg if verbose
+    return msg
+  end
+
+  def mark_resolved(file)
+    File.delete(file + '.rpmnew')
+  end
+
+  def create_patch_properties(file1, file2)
+    # Set the "context lines" to 0, as each line really stands alone.
+    # this prevents "chunks" of lines from conflicting where there
+    # really is no problem.  Only if the same line conflicts should this fail.
+    patch = `#{@@diff} --unified=0 #{file1} #{file2} 2>/dev/null`
+    rc = "#{$?}"
+    return rc != '2' ? patch : ''
+  end
+
+  def create_patch_xml(file1, file2)
+    # diff/patch isn't really right for XML, but it's all we've got right now
+    patch = `#{@@diff} --unified #{file1} #{file2} 2>/dev/null`
+    rc = "#{$?}"
+    return rc != '2' ? patch : ''
+  end
+
+  def create_patch_other(file1, file2)
+    patch = `#{@@diff} --unified #{file1} #{file2} 2>/dev/null`
+    rc = "#{$?}"
+    return rc != '2' ? patch : ''
+  end
+
+  def delete_file(file) 
+    File.delete(file)
+  end
+
+  def test_patch(file, patch)
+    cmd = console("#{@@patch} --unified --forward --dry-run #{file} 1>& 2>/dev/null")
+    IO.popen(cmd, "w") {|pipe|
+      pipe.puts patch
+    }
+    rc = "#{$?}"
+
+    return rc == '0'
+  end
+
+  def apply_patch(file, patch)
+    stat = File.stat(file)
+    cmd = console("#{@@patch} --unified --forward \"#{file}\" 1>& 2>/dev/null")
+    IO.popen(cmd, "w") {|pipe|
+      pipe.puts patch
+    }
+    File.chown(stat.uid, stat.gid, file)
+  end
+
+  def extract_file(archive, file)
+    extract = Tempfile.new('pkg-upgrade').path
+    `tar --to-stdout -xzf "#{archive}" "#{file}" > #{extract} 2>/dev/null`
+    return extract
+  end
+
+  def configmerge(old, new, user)
+    mapfile = "#{user}.map"
+    userfile = "#{user}.preconfigmerge"
+    stat = File.stat(user) # copy perms so they can be put back on new file
+    File.rename(user, userfile)
+    `#{@@merge} #{old} #{new} #{userfile} #{mapfile} > #{user} 2>#{user}.configmergelog`
+    rc = "#{$?}"
+    if rc == '0'
+       File.chown(stat.uid, stat.gid, user) # put perms back
+    else
+       File.rename(userfile, user) # copy the orig file back
+    end
+    return rc == '0'
+  end
+
+end
+
+def usage_exit(error_code=1)
+      usage = <<__EOU__
+
+  Usage: #{ $0 } parameters
+
+    Utilities to upgrade a package's configuration files
+
+  Parameters:
+     --help             This help text
+     --verbose          Verbose output
+     --previous         Name of archive containing pristine copies of
+                          previous configuration
+     --current          Name of archive containing pristine copies of
+                          current configuration
+__EOU__
+
+      STDERR << usage
+      exit error_code
+end
+
+if __FILE__ == $0
+  # XPB-863 - used to ensure patch command forces config files to
+  # -rw-r--r-- permission bits
+  File.umask(022)
+
+  OptSet = [
+    ['--previous','-p', GetoptLong::REQUIRED_ARGUMENT],
+    ['--current','-c', GetoptLong::REQUIRED_ARGUMENT],
+    ['--show-unresolved','-u', GetoptLong::NO_ARGUMENT],
+    ['--verbose','-v', GetoptLong::NO_ARGUMENT],
+    ['--help','-h', GetoptLong::NO_ARGUMENT],
+  ]
+
+  setup = Setup.new(SystemService.new)
+  opts = GetoptLong.new(*OptSet)
+  begin
+    action = 'upgrade'
+    opts.each do |name, arg|
+      case name
+        when '--help'
+          usage_exit 0
+        when '--previous'
+          setup.previous = arg
+        when '--current'
+          setup.current = arg
+        when '--show-unresolved'
+          action = 'show_unresolved'
+        when '--verbose'
+          setup.verbose = true
+        else
+          usage_exit
+        end
+    end
+    
+  rescue
+    usage_exit
+  end
+
+  begin
+  setup.send(action)
+
+  end
+end
+

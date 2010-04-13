@@ -1,0 +1,7 @@
+<span jwcid="ifRenderActions@If" condition="ognl:actionModel.optionCount > 0" renderTag="false">
+  <span jwcid="actionSelection@common/FlexiblePropertySelection"
+    model="ognl:decoratedModel"
+    onchange="javascript:this.form.submit();"
+    value="ognl:selectedAction"
+    renderer="bean:propertyRenderer" />
+</span>

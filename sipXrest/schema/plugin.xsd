@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:annotation>
+	<xs:documentation xml:lang="en">
+           Each plugin has a XML file "service.xml" that conforms to this schema.
+	</xs:documentation>
+    </xs:annotation>
+    <xs:element name="rest-service" type="MetaInf"/>
+    <xs:complexType name="MetaInf">
+    <xs:sequence>
+    <xs:element name="plugin-class" type="xs:string" maxOccurs="1"
+    	minOccurs="1">
+    	<xs:annotation>
+    		<xs:documentation>
+    			The fully qualified class path of the main plugin class.
+    			This clast must implement the Plugin interface.
+    		</xs:documentation>
+    	</xs:annotation>
+    </xs:element>
+
+    <xs:element name="security-level" type="xs:string" maxOccurs="1" minOccurs="1" >
+    	<xs:annotation>
+    		<xs:documentation>
+    			The security level. Can be LOCAL-AND-REMOTE or
+    			LOCAL-ONLY
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+
+    <xs:element name="sip-listener-class" type="xs:string" maxOccurs="1" minOccurs="0" >
+    	<xs:annotation>
+    		<xs:documentation>
+    			Fully qualified class path of the SipListener (if any)
+    			for this service. If the service does not include a SIP 
+    			stack you can leave out this field.
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+
+    <xs:element name="sip-convergence-name" type="xs:string" maxOccurs="1" minOccurs="0" >
+    	<xs:annotation>
+    		<xs:documentation>
+			This is the "convergence name" of the service.
+			This field is relevant if the Dialog that
+			instantiates the service will be instantiated by
+			an out of Dialog inbound INVITE (i.e. runs as a
+			UAS). The userName part of the convergence name
+			is used to identify the appropriate service to
+			instantiate. If the SIP service is not triggered
+			by an incoming SIP request (i.e works as a UAC)
+			you can leave the field blank.	Thus you can
+			leave this field blank for the third party call
+			controller plugin.
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+
+
+    <xs:element name="uri-prefix" type="xs:string" maxOccurs="1" minOccurs="1">
+    	<xs:annotation>
+    		<xs:documentation>
+    			The URI prefix. This is the hierarchical URI part that
+    			uniquely identifies this REST service.
+    		</xs:documentation>
+    	</xs:annotation></xs:element>
+
+    <xs:element name="service-description" type="xs:string" maxOccurs="1" minOccurs="1">
+    	 <xs:annotation>
+    		<xs:documentation>
+			Human readable description of the service. Will be rendered as part
+			of an HTML page. You can put any valid HTML here but you must enclose
+			with CDATA tags to make sure there is no side effect.
+    		</xs:documentation>
+    	  </xs:annotation>
+   </xs:element>
+
+    <xs:element name="remote-authentication-method" type="xs:string">
+    	 <xs:annotation>
+    		<xs:documentation>
+    			This determines how remote callers ( i.e. those outside
+    			the sipx domain) are authenticated. The available
+    			choices are HTTP-DIGEST or HTTPS-BASIC. If the service has a security
+    			of LOCAL-ONLY then this field is ignored.
+    		</xs:documentation>
+    	  </xs:annotation>
+	</xs:element>
+     </xs:sequence>
+     </xs:complex-type>
+</xs:schema>

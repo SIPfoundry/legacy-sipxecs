@@ -1,0 +1,16 @@
+<div jwcid="@common/Border" restricted="false" useDojo="ognl:true" borderTitle="ognl:borderTitle">
+  <span jwcid="@user/UserNavigation" bean="ognl:user" renderCondition="ognl:userSession.admin" />
+  <p>
+	<span key="helpText">Registered phones are operational and ready to make and receive calls. Phones that are not
+        registered are turned off or do not have network connectivity.</span>
+  </p>
+  <p jwcid="@If" condition="ognl:counterpath">
+    <span jwcid="@Insert" value="ognl:counterpathHelp"/>
+  </p>
+  <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
+    <span jwcid="@common/ErrorMsg"/>
+    <form jwcid="@common/AutoRefreshForm">
+	  <span jwcid="registrationsTable@setting/RegistrationsTable"  registrations="ognl:registrations"/>
+    </form>
+  </div>
+</div>

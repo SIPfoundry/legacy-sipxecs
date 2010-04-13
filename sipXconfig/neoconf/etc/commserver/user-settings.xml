@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd"
+[
+  <!-- see: http://www.ietf.org/rfc/rfc3261.txt -->
+  <!-- this is actually concatenation of unreserver and user-unreserved sets -->
+  <!ENTITY SIP_USER_UNRESERVED "-_.!~*'\(\)&amp;=+$,;?/">
+  <!ENTITY SIP_USER_CHARS "a-zA-Z0-9&SIP_USER_UNRESERVED;">
+  <!-- 37 === percent -->
+  <!ENTITY SIP_USER_ESCAPED "&#37;[0-9a-fA-F]{2}">
+]>
+
+<model>
+  <type id="enable-disable">
+    <boolean>
+      <true>
+        <value>ENABLE</value>
+      </true>
+      <false>
+        <value>DISABLE</value>
+      </false>
+    </boolean>
+  </type>
+  <type id="email-notification-format">
+    <enum>
+      <option>
+        <value>FULL</value>
+      </option>
+      <option>
+        <value>MEDIUM</value>
+      </option>
+      <option>
+        <value>BRIEF</value>
+      </option>
+    </enum>
+  </type>
+  <group name="permission">
+    <group name="application">
+      <setting name="superadmin">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+      <setting name="tui-change-pin">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="personal-auto-attendant">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="music-on-hold">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+    </group>
+    <group name="call-handling">
+      <setting name="900Dialing">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+      <setting name="AutoAttendant">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+      <setting name="InternationalDialing">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="LocalDialing">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="LongDistanceDialing">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="Mobile">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="TollFree">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="Voicemail">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="RecordSystemPrompts">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+    </group>
+    <group name="voicemail-server" hidden="yes">
+      <setting name="FreeswitchVoicemailServer">
+        <type refid="enable-disable" />
+        <value>ENABLE</value>
+      </setting>
+      <setting name="ExchangeUMVoicemailServer">
+        <type refid="enable-disable" />
+        <value>DISABLE</value>
+      </setting>
+    </group>
+  </group>
+  <group name="caller-alias">
+    <setting name="external-number">
+      <type>
+        <sip-uri userPartOnly="yes" />
+      </type>
+    </setting>
+    <setting name="anonymous-caller-alias">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="conference" hidden="yes">
+    <setting name="enabled">
+      <type>
+        <enum>
+          <option>
+            <value>true</value>
+          </option>
+          <option>
+            <value>false</value>
+          </option>
+        </enum>
+      </type>
+      <value>false</value>
+    </setting>
+    <setting name="prefix">
+    </setting>
+    <setting name="bridgeId">
+      <type>
+        <integer />
+      </type>
+    </setting>
+  </group>
+  <group name="extcontact" hidden="yes">
+    <setting name="enabled">
+      <type>
+        <enum>
+          <option>
+            <value>true</value>
+          </option>
+          <option>
+            <value>false</value>
+          </option>
+        </enum>
+      </type>
+      <value>false</value>
+    </setting>
+    <setting name="prefix">
+    </setting>
+  </group>
+  <group name="personal-attendant">
+    <setting name="operator">
+      <type>
+        <sip-uri />
+      </type>
+    </setting>
+  </group>
+  <group name="voicemail">
+    <group name="mailbox" hidden="yes">
+      <setting name="active-greeting">
+        <type>
+          <enum>
+            <option>
+              <value>none</value>
+            </option>
+            <option>
+              <value>standard</value>
+            </option>
+            <option>
+              <value>outofoffice</value>
+            </option>
+            <option>
+              <value>extendedabsence</value>
+            </option>
+          </enum>
+        </type>
+        <value>standard</value>
+      </setting>
+      <setting name="user-busy-prompt">
+        <type>
+          <enum>
+            <option>
+              <value>true</value>
+            </option>
+            <option>
+              <value>false</value>
+            </option>
+          </enum>
+        </type>
+        <value>true</value>
+      </setting>
+      <setting name="voicemail-tui">
+        <type>
+          <enum>
+            <option>
+              <value>stdui</value>
+            </option>
+            <option>
+              <value>cpui</value>
+            </option>
+          </enum>
+        </type>
+        <value>stdui</value>
+      </setting>
+      <setting name="external-mwi">
+        <type>
+          <string />
+        </type>
+      </setting>
+      <setting name="primary-email-voicemail-notification">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+            <option>
+              <value>2</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="primary-email-format">
+        <type refid="email-notification-format" />
+        <value>FULL</value>
+      </setting>
+      <setting name="primary-email-attach-audio">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="alternate-email-voicemail-notification">
+        <type>
+          <enum>
+            <option>
+              <value>0</value>
+            </option>
+            <option>
+              <value>1</value>
+            </option>
+          </enum>
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="alternate-email-format">
+        <type refid="email-notification-format" />
+        <value>FULL</value>
+      </setting>
+      <setting name="alternate-email-attach-audio">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+    <group name="imap">
+      <setting name="host">
+        <type>
+          <hostname />
+        </type>
+      </setting>
+      <setting name="port">
+        <type>
+          <integer min="0" required="yes" />
+        </type>
+        <value>143</value>
+      </setting>
+      <setting name="tls">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+      <setting name="account" hidden="yes">
+        <type>
+          <string />
+        </type>
+      </setting>
+      <setting name="password" hidden="yes">
+        <type>
+          <string password="yes" />
+        </type>
+      </setting>
+    </group>
+  </group>
+  <group name="im">
+    <setting name="im-account">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="im-group">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="add-pa-to-group">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="advertise-sip-presence" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="include-call-info" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="on-the-phone-message" advanced="yes">
+      <type>
+        <string />
+      </type>
+      <value>On the phone</value>
+    </setting>
+    <setting name="fwd-vm-on-dnd" advanced="yes">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="im_notification">
+    <setting name="conferenceEntryIM">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="conferenceExitIM">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="leaveMsgBeginIM">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="leaveMsgEndIM">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+  <group name="callfwd">
+    <setting name="timer">
+      <type>
+        <integer min="1" max="999" required="yes" />
+      </type>
+      <value>20</value>
+    </setting>
+  </group>
+  <group name="moh">
+    <setting name="audio-source">
+      <type>
+        <enum>
+          <option>
+            <value>FILES_SRC</value>
+          </option>
+          <option>
+            <value>PERSONAL_FILES_SRC</value>
+          </option>
+          <option>
+            <value>SOUNDCARD_SRC</value>
+          </option>
+          <option>
+            <value>SYSTEM_DEFAULT</value>
+          </option>
+          <option>
+            <value>NONE</value>
+          </option>
+        </enum>
+      </type>
+      <value>SYSTEM_DEFAULT</value>
+    </setting>
+  </group>
+</model>

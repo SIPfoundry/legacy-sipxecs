@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE page-specification PUBLIC "-//Apache Software Foundation//Tapestry Specification 4.0//EN" "http://jakarta.apache.org/tapestry/dtd/Tapestry_4_0.dtd">
+
+<page-specification class="org.sipfoundry.sipxconfig.site.acd.AcdServerPage">
+
+  <inject property="acdContext" object="spring:acdContext" />
+
+  <property name="acdServerId" persist="session" />
+  <property name="acdServer" />
+  <property name="changed" />
+  <property name="tab" persist="session" initial-value="literal:config" />
+
+  <!-- B E A N S -->
+  <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate" />
+
+  <!-- C O M P O N E N T S -->
+
+  <component id="border" type="common/Border" />
+
+  <component id="tabs" type="common/TabNavigation">
+    <binding name="tabNames"
+      value="{'config', 'queues', 'lines', 'agentsStats', 'callsStats', 'queuesStats'}" />
+    <binding name="selectedTab" value="tab" />
+    <binding name="renderCondition" value="acdServerId != null" />
+  </component>
+
+  <component id="form" type="Form">
+    <binding name="delegate" value="beans.validator" />
+    <binding name="listener" value="listener:formSubmit" />
+  </component>
+
+  <component id="linesForm" copy-of="form" />
+  <component id="queuesForm" copy-of="form" />
+
+  <component id="hostPanel" type="common/FieldPanel">
+    <binding name="field" value="components.hostField" />
+    <binding name="label" value="message:label.host" />
+    <binding name="description" value="message:description.host" />
+  </component>
+
+  <component id="hostField" type="TextField">
+    <binding name="value" value="acdServer.location.fqdn" />
+    <binding name="displayName" value="message:label.host" />
+    <binding name="validators" value="spring-validators:validHostOrIp,required" />
+  </component>
+
+  <component id="portPanel" type="common/FieldPanel">
+    <binding name="field" value="components.portField" />
+    <binding name="label" value="message:label.port" />
+    <binding name="defaultValue" value="message:default.port" />
+  </component>
+  <component id="portField" type="TextField">
+    <binding name="value" value="acdServer.port" />
+    <binding name="translator" value="translator:sipxnumber,omitZero=true" />
+    <binding name="validators" value="validators:required,min=1024,max=65534" />
+    <binding name="displayName" value="message:label.port" />
+  </component>
+
+  <component id="settingsFieldset" type="setting/SettingsFieldset">
+    <binding name="settings" value="acdServer.settings" />
+    <binding name="renderGroupTitle" value="false" />
+  </component>
+
+  <component id="acdLinesPanel" type="acd/AcdLinesPanel">
+    <binding name="lines" value="acdServer.lines" />
+    <binding name="addListener" value="listener:addLine" />
+    <binding name="selectListener" value="listener:editLine" />
+    <binding name="changed" value="changed" />
+  </component>
+
+  <component id="acdQueuesPanel" type="acd/AcdQueuesPanel">
+    <binding name="queues" value="acdServer.queues" />
+    <binding name="addListener" value="listener:addQueue" />
+    <binding name="selectListener" value="listener:editQueue" />
+    <binding name="changed" value="changed" />
+  </component>
+
+  <component id="acdAgentsStatsPanel" type="acd/AcdAgentsStatsPanel">
+    <binding name="acdServerId" value="acdServerId" />
+    <binding name="acdStatistics" value="acdStatistics"/>
+  </component>
+
+  <component id="acdCallsStatsPanel" type="acd/AcdCallsStatsPanel">
+    <binding name="acdServerId" value="acdServerId" />
+    <binding name="acdStatistics" value="acdStatistics"/>
+  </component>
+
+  <component id="acdQueuesStatsPanel" type="acd/AcdQueuesStatsPanel">
+    <binding name="acdServerId" value="acdServerId" />
+    <binding name="acdStatistics" value="acdStatistics"/>
+  </component>
+
+  <component id="formActions" type="common/FormActions">
+    <binding name="listener" value="listener:apply" />
+    <binding name="callback" value="callback" />
+  </component>
+
+  <component id="tabContent" type="RenderBlock">
+    <binding name="block" value="components.get(tab + 'Block')" />
+  </component>
+</page-specification>

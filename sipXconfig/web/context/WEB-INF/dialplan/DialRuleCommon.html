@@ -1,0 +1,19 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="errorMsg" />
+  <form jwcid="form" id="rule:edit">
+    <fieldset jwcid="common"/>
+    <span jwcid="@RenderBody"/>
+	<span jwcid="@If" condition="ognl:!attendantRuleInstance">
+      <fieldset>
+        <label><span key="schedule"/></label>
+        <span jwcid="@user_portal/ScheduleSelector" scheduleContainer="ognl:rule" availableSchedules="ognl:availableSchedules"/>
+	  </fieldset>
+	</span>
+    <span jwcid="renderGateways">
+      <fieldset jwcid="gatewaysPanel" />
+    </span>
+    <fieldset>
+     <ul jwcid="formActions" />
+    </fieldset>
+  </form>
+</div>

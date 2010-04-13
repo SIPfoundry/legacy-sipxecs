@@ -1,0 +1,14 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@setting/GroupCloud" groups="ognl:coreContext.groups" />
+  <span jwcid="@user/UserNavigation" bean="ognl:user" />
+  <span jwcid="@common/ErrorMsg"/>
+  <span jwcid="@common/QuickHelp" value="message:quick.help" />
+  <div id="settings-content">
+    <form jwcid="form@Form" delegate="bean:validator">
+      <span jwcid="userForm@user/UserForm" user="ognl:user"/>
+      <ul jwcid="formActions@common/FormActions"
+        callback="ognl:callback"
+        listener="listener:commit" />
+    </form>
+  </div>
+</div>

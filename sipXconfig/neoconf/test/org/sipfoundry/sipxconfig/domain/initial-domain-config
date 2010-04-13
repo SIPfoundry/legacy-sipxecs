@@ -1,0 +1,6 @@
+SIP_DOMAIN_NAME : domain.example.org
+SIP_DOMAIN_ALIASES : alias.example.org 192.168.1.1 sipx.example.org domain.example.org
+SIP_REALM : realm.example.org
+SUPERVISOR_PORT : 8092
+CONFIG_HOSTS : sipx.example.org
+

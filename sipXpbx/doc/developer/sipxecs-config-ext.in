@@ -1,0 +1,76 @@
+# This is an example extension file for config/sipX-config.in.
+
+# Extension functions for sipxecs-config, which is constructed from
+# sipX-config.in.  The substitution is done by the top-level
+# configure.ac, as it is the only one that knows the names of all the
+# components, and so can substitute "subdirs".
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+
+function sipxecs_config_extension_usage ()
+{
+    cat <<EOF
+
+    --components  list all sipXecs components, one per line
+    --components-version-build
+                  execute "*-config --version --build" for all components
+EOF
+}
+
+function sipxecs_config_extension_options ()
+{
+    case ${1} in
+        --components)
+            Action=COMPONENTS
+	    AdditionalShift=0
+	    true
+            ;;
+
+        --components-version-build)
+            Action=COMPONENTS_VERSION_BUILD
+	    AdditionalShift=0
+	    true
+            ;;
+
+        ##
+        ## handle an unknown switch
+        ##
+        -*)
+	    AdditionalShift=0
+	    false
+            ;;
+    esac
+    # Exit status is set by the cases above to tell the caller whether
+    # to print an error message.
+}
+
+function sipxecs_config_extension_operations ()
+{
+    case ${Action} in
+
+	COMPONENTS)
+	    for Component in @subdirs@
+	    do
+		echo ${Component}
+	    done
+	    ;;
+
+	COMPONENTS_VERSION_BUILD)
+	    echo "sipX version information:"
+	    for Project in ` @SIPX_BINDIR@/sipxecs-config --components |
+	                     tr A-Z a-z |
+			     sort ` ; do
+		echo -n "  $Project "
+                # Test if the *-config script was installed.
+		if [ -x @SIPX_BINDIR@/${Project}-config ]
+		then
+		    @SIPX_BINDIR@/${Project}-config --version --build
+		else
+		    echo "not installed"
+		fi
+	    done
+	    ;;
+
+    esac
+}

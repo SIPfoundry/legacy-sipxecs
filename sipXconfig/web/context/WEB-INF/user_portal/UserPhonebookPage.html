@@ -1,0 +1,22 @@
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"/>
+  <form jwcid="@common/ClickToCallPanel" delegate="bean:validator" user="ognl:user"/>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+     <span jwcid="query@Hidden" value="ognl:query" encode="false"/>
+    </fieldset>
+    <fieldset jwcid="phonebook@Any">
+      <ul class="component-links">
+        <li>
+          <a jwcid="export@common/ExportLink" id="cdr:export" listener="listener:export">
+             <span key="link.export">Export</span>
+          </a>
+        </li>
+      </ul>
+    </fieldset>
+  </form>
+  <div class="component">
+    <iframe jwcid="@Any" id="user_phonebook_grid_frame" class="phonebookIframe" src="ognl:widgetSrc" scrolling="no"
+      marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0" allowtransparency="true"> </iframe>
+  </div>
+</div>

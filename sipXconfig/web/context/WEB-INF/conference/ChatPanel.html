@@ -1,0 +1,10 @@
+<span jwcid="@common/QuickHelp" value="message:quick.help"/>
+<form jwcid="form@Form" id="chat:form"
+      delegate="ognl:validator">
+  <fieldset jwcid="@setting/SettingsFieldset"
+    settings="ognl:chatConference.settings"
+    renderGroupTitle="false" />
+  <span jwcid="formActions@common/FormActions"
+    listener="listener:apply"
+    callback="ognl:callback" />
+</form>

@@ -1,0 +1,40 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span id="phone:edit"><!-- non-empty to avoid IE JS error -->
+  </span>
+
+  <span jwcid="@phone/PhoneNavigation" bean="ognl:phone"/>
+
+  <div id="settings-content">
+    <div jwcid="@common/QuickLinks">
+      <ul>
+        <li>
+          <a id="AddLine" jwcid="addLine@DirectLink" listener="listener:addLine"
+            parameters="ognl:phone.id">
+            <span key="add.line">Add Line</span>
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div jwcid="@If" condition="ognl:generateProfileIds != null">
+      <span jwcid="@device/ConfirmProfileGeneration"
+        validator="bean:validator"
+        profileManager="ognl:phoneProfileManager"
+        deviceIds="ognl:generateProfileIds"/>
+    </div>
+    <div jwcid="@Else">
+      <span jwcid="@setting/GroupCloud" groups="ognl:phoneContext.groups"/>
+      <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:phone.model" />
+      <form jwcid="@Form" delegate="bean:validator">
+        <span jwcid="@phone/EditPhoneForm" phone="ognl:phone" validator="bean:validator"/>
+        <span jwcid="@common/FormActions" callback="ognl:callback"
+          listener="listener:commit">
+          <li>
+            <input jwcid="generateProfile@Submit" id="generateProfile"
+              value="message:button.generateProfile"
+              listener="listener:generateProfile"/>
+          </li>
+        </span>
+      </form>
+    </div>
+  </div>
+</div>

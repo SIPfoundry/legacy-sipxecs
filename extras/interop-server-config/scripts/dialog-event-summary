@@ -1,0 +1,116 @@
+#! /usr/bin/perl
+
+# Extract and display the dialog event notices in the log.
+
+# Check for the debug flag.
+if ($ARGV[0] eq '-d') {
+    shift @ARGV;
+    $debug = 1;
+}
+
+# The log file to process, which can be overridden by the first argument.
+$log_file = $ARGV[0] || '/var/log/sipxpbx/sipregistrar.log.1';
+
+# Recipients for the report.
+$Recipients='interop-config@pingtel.com';
+
+# Redirect output to mail to $Recipients.
+chomp($MyHostname=`hostname -f`);
+open STDOUT, "| mail -s 'Dialog Event Report for $MyHostname' '$Recipients'";
+
+# Initialize the table of indentations.
+$indent{'dialog'} = '  ';
+$indent{'dialog-info'} = '';
+$indent{'duration'} = '      ';
+$indent{'identity'} = '        ';
+$indent{'local'} = '      ';
+$indent{'param'} = '          ';
+$indent{'remote'} = '      ';
+$indent{'state'} = '      ';
+$indent{'target'} = '        ';
+
+system('hostname -f');
+system('date');
+
+# Open the log file.
+$log_file = "gunzip <$log_file |" if $log_file =~ /\.gz$/;
+print "\$log_file = '$log_file'\n" if $debug;
+open(LOG, $log_file) || die "Error opening '$log_file' for input: $!\n";
+
+# Read the file.
+while (<LOG>) {
+    # Extract incoming NOTIFYs for the dialog event package.
+    next unless /:INCOMING:/;
+
+    # Remove the framing garbage.
+    s/^.* Port: \d+----\\n//i;
+    s/====================END====================\\n"$//; # ";
+    # Remove the quoting.
+    s/(\\r)?\\n/\n/g;
+    s/\\"/"/g;
+
+    # Accumulate information about the User-Agent headers that go with Contacts.
+    # This is needed because many UAs do not provide the User-Agent header
+    # on SUBSCRIBE and NOTIFY transactions.
+    if ((($contact) = /\nContact:\s+(.+)\n/i) &&
+	(($user_agent) = /\nUser-Agent:\s+(.+)\n/i)) {
+	# Remove parameters from the contact.
+	$contact =~ s/>;.*$/>/;
+	# Remember this correspondence.
+	$user_agent_map{$contact} = $user_agent;
+	print "Set \$user_agent_map{'$contact'} = '$user_agent'\n" if $debug;
+    }
+
+    # Extract the NOTIFYs.
+    next unless /^NOTIFY\s/i;
+    next unless /\nEvent:\s+dialog\b/i;
+    chomp;
+
+    # Extract the body.
+    $body = substr($_, index($_, "\n\n"));
+
+    # Eliminate newlines.
+    $body =~ s/\n//g;
+    $body =~ s/^\s+//;
+    $body =~ s/\s+$//;
+
+    # Print the raw XML.
+    print "----------\n";
+    print $body, "\n";
+
+    # Insert newlines in the expected places.
+    $body =~ s/>\s*</>\n</g;
+
+    # Extract the User-Agent header, or if that fails, get the
+    # Contact and map it.
+    if (($user_agent) = /\bUser-Agent:\s+(.+)\n/i) {
+	print "User-Agent: $user_agent\n" if $debug;
+    } elsif (($contact) = /\bContact:\s+(.+)\n/i) {
+	# Remove parameters from the contact.
+	$contact =~ s/>;.*$/>/;
+	$user_agent = $user_agent_map{$contact} || 'UNKNOWN';
+	print "\$user_agent_map{'$contact'} = '$user_agent'\n" if $debug;
+    } else {
+	print "No User-Agent for '$contact'.\n" if $debug;
+	$user_agent = 'UNKNOWN';
+    }
+
+    # Split lines so they can be addressed individually.
+    @body = split(/\n/, $body);
+    
+    # Indent each line the right amount.
+    foreach $line (@body) {
+	$line =~ s%^(</?)([-\w]+)% $indent{$2} . $1 . $2 %e;
+    }
+
+    # Print the notice.
+    print "\n";
+    print "User-Agent: $user_agent\n";
+    print "\n";
+    print join("\n", @body), "\n";
+}
+
+print "----------\n";
+print "End\n";
+
+close LOG;

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="SIP">
+    <group name="Authentication" advanced="yes">
+      <!-- generate Authentication_N=username,password entry in .ini file -->
+      <setting name="Username"/>
+      <setting name="Password"/>
+    </group>
+  </group>
+</model>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<project xmlns:ivy="antlib:fr.jayasoft.ivy.ant" name="sipxconfig" default="default">
+ 
+  <condition property="build.properties">
+    <available file="${basedir}/top.build.dir"/>
+  </condition>
+
+  <!-- only run as an alternative to autoconf, a.k.a. windows -->
+  <target name="topdir" unless="build.properties">
+  	<!-- 
+        - use pathconvert to get unix paths for windows. because values go into
+        - properties file, would have to escape backslash or just use single (unix)
+        - forward slash
+        -->
+  	<path id="java.home" path="${java.home}"/>
+  	<pathconvert targetos="unix" property="java.home.dir" refid="java.home" />
+  	
+  	<path id="top.dir" path="${basedir}"/>
+  	<pathconvert targetos="unix" property="top.dir" refid="top.dir" />  	
+  	<property name="top.build.dir" value="${top.dir}/build"/>  	
+  	<property name="${install.dir}" value="${top.dir}/install"/>
+  	
+  	<echo file="${basedir}/top.build.dir">top.build.dir=${top.build.dir}</echo>
+  	<mkdir dir="${top.build.dir}"/>
+  	<copy file="${basedir}/build.properties.in" tofile="${top.build.dir}/build.properties"/>
+      <!-- most directories used at runtime, ignored during development -->
+      <replace file="${top.build.dir}/build.properties">
+        <replacefilter token="@version@" value="0.0.0"/>
+        <replacefilter token="@abs_top_srcdir@" value="${top.dir}"/>
+        <replacefilter token="@JAVAC_OPTIMIZED@" value="false"/>
+        <replacefilter token="@JAVAC_DEBUG@" value="on"/>
+        <replacefilter token="@bindir@" value="${install.dir}/bin"/>
+        <replacefilter token="@libdir@" value="${install.dir}/lib"/>
+    	<replacefilter token="@localstatedir@" value="${install.dir}/lib"/>
+	<replacefilter token="@SIPX_DOWNLOADDIR@" value="${install.dir}/var/ftpBackup"/>
+    	<replacefilter token="@SIPX_BINDIR@" value="${install.dir}/bin"/>
+    	<replacefilter token="@SIPX_DATADIR@" value="${install.dir}/var/data"/>
+    	<replacefilter token="@SIPX_CONFDIR@" value="${install.dir}/etc"/>
+    	<replacefilter token="@SIPX_VXMLDATADIR@" value="${install.dir}/var/vxml"/>
+    	<replacefilter token="@wwwdir@" value="${install.dir}/var/www"/>
+    	<replacefilter token="@SIPXPBXUSER@" value="sipxchange"/>
+    	<replacefilter token="@SIPX_LOGDIR@" value="${install.dir}/var/log"/>
+    	<replacefilter token="@SIPX_RUNDIR@" value="${install.dir}/var/run"/>
+    	<replacefilter token="@SIPX_TMPDIR@" value="${install.dir}/var/tmp"/>
+        <replacefilter token="@RUBY@" value="/ruby/bin/ruby.exe"/>
+        <replacefilter token="@WSDL2RUBY@" value="${top.dir}/web/meta/wsdl2ruby.rb"/>
+    </replace>
+  </target> 
+
+  <target name="default" depends="topdir,subant-targets.default"/>
+
+  <filelist id="components" dir="${basedir}" files="
+      neoconf/build.xml
+      gwt/build.xml
+      web/build.xml
+      meta/build.xml"/>
+  <property name="subdirs" value="components"/>
+  
+  <fileset id="plugin.components" dir="${basedir}">
+    <include name="plugins/**/build.xml"/>
+  </fileset>
+  <property name="plugin.subdirs" value="plugin.components"/>
+
+  <property name="project.dir" value="."/>
+  <import file="subant-targets.xml"/>
+
+  <target name="install" depends="remove-jars,subant-targets.install"/>
+
+  <target name="remove-jars" description="Remove all jars from lib dir">
+    <delete failonerror="false">
+      <fileset dir="${dest.dir}${sipxecs.java.dir}/sipXconfig">
+        <include name="*.jar"/>
+        <include name="*.war"/>
+      </fileset>
+    </delete>
+  </target>
+
+  <target name="retrieve">
+    <ivy:retrieve />
+  </target>
+
+
+
+</project>

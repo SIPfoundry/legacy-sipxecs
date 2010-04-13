@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.service" default-lazy="false">
+
+  <class name="ConfiguredService" table="service" discriminator-value="service">
+    <id name="id" column="service_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">service_seq</param>
+      </generator>
+    </id>
+    <discriminator column="bean_id"/>
+    <property name="name"/>
+    <property name="enabled"/>
+    <property name="address"/>
+    <property name="beanId" column="bean_id" insert="false" update="false"/>
+    <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
+      class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
+    <property name="descriptorId"/>
+    <property name="description"/>
+  </class>
+
+  <query name="services">
+    <![CDATA[from ConfiguredService s order by s.name]]>
+  </query>
+
+  <query name="enabled-services-by-id">
+    <![CDATA[from ConfiguredService s where s.enabled = true and s.descriptorId = :descriptorId order by s.name ]]>
+  </query>
+
+  <query name="service-ids-by-name">
+    <![CDATA[select s.id from ConfiguredService s where s.name = :value]]>
+  </query>
+
+  <query name="service-by-name">
+    <![CDATA[from ConfiguredService s where s.name = :name]]>
+  </query>
+
+</hibernate-mapping>

@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+			Configuration for the conferencing tester.
+		</xs:documentation>
+	</xs:annotation>
+	<xs:element name="tester-config" type="TesterConfig" />
+	<xs:complexType name="TesterConfig">
+		<xs:sequence>
+			<xs:element name="sipx-proxy-domain" type="xs:string"
+				minOccurs="1" maxOccurs="1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Sipx proxy domain.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sipx-proxy-address" type="xs:string"
+				minOccurs="1" maxOccurs="1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Sipx proxy address.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="conference-extension" type="xs:string"
+				minOccurs="1" maxOccurs="1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The name of the conference.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			<xs:element name="sipx-proxy-port" type="xs:integer"
+				minOccurs="1" maxOccurs="0" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Sipx proxy port.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		  <xs:sequence>
+			<xs:element name="tester-config" type="TesterClientConfig"
+				minOccurs="1" maxOccurs="unbounded" />
+		  </xs:sequence>
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:complexType name="TesterClientConfig">
+		<xs:sequence>
+			<xs:element name="is-sender" type="xs:boolean"
+				minOccurs="1" maxOccurs="1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						tester address.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			
+			
+			<xs:element name="tester-host" type="xs:string"
+				minOccurs="1" maxOccurs="1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						tester address.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			
+			
+			<xs:element name="tester-sip-base-port" type="xs:integer"
+				minOccurs="1" maxOccurs="1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						tester base port ( for SIP ).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="tester-rtp-base-port" type="xs:integer"
+				minOccurs="1" maxOccurs="1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						tester base port ( for SIP ).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="user-agent-count" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+					    It allows you to specify more than one user agent in the tester
+						daemon. In this case, the user agents will all stream
+						media and the media file is automatically selected
+						from the testmedia/ directory.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+
+			<xs:element name="media-file" type="xs:string"
+				minOccurs="0" maxOccurs="1" default="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+					    It allows you to specify  a specific media file that all senders will 
+					    run for example, you can specify silence.au or whitenosie.au.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			
+			<xs:element name="sender-count" type="xs:integer"
+				minOccurs="0" maxOccurs="1" default="1">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Number of senders for this tester daemon.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			
+			
+			
+			
+			<xs:element name="xml-rpc-port" type="xs:integer"
+				minOccurs="0" maxOccurs="1" >
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						XML RPC port.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+		</xs:sequence>
+	</xs:complexType>
+
+</xs:schema>

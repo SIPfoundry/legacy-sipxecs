@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="line">
+    <label>Line Configuration</label>
+    <setting name="authname">
+      <type>
+        <string required="yes"/>
+      </type>
+      <value></value>
+      <description>Name used by the phone for authentication.</description>
+    </setting>
+    <setting name="displayname">
+      <value></value>
+      <description>Identification as it should appear for caller ID purposes.</description>
+    </setting>
+    <setting name="name">
+      <type>
+        <string required="yes"/>
+      </type>
+      <value></value>
+      <description>Number or name for use when registering.</description>
+    </setting>
+    <setting name="password">
+      <type>
+        <string password="yes"/>
+      </type>
+      <value></value>
+      <description>Password used by the phone for authentication.</description>
+    </setting>
+    <setting name="shortname">
+      <value></value>
+      <description>Name used for key label on the phone display.</description>
+    </setting>
+  </group>
+  <group name="proxy">
+    <label>Proxy Configuration</label>
+    <setting name="address">
+      <type>
+        <ipaddr/>
+      </type>
+      <value></value>
+      <description>IP address or FQDN of the SIP proxy server used by this line.</description>
+    </setting>
+    <setting name="port">
+      <type>
+        <integer/>
+      </type>
+      <value>5060</value>
+      <description>Port number of the SIP proxy server used by this line.</description>
+    </setting>
+  </group>
+</model>

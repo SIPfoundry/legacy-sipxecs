@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<binding>
+  <namespace uri="urn:ietf:params:xml:ns:reginfo" default="elements"/>
+  <mapping name="reginfo" class="org.sipfoundry.commons.reginfo.Reginfo">
+    <collection field="registrationList">
+      <structure map-as="org.sipfoundry.commons.reginfo.Registration"/>
+    </collection>
+    <value name="version" field="version" usage="required" style="attribute"/>
+    <value name="state" field="state" usage="required" style="attribute"/>
+  </mapping>
+  <mapping name="registration" class="org.sipfoundry.commons.reginfo.Registration">
+    <collection field="contactList">
+      <structure map-as="org.sipfoundry.commons.reginfo.Contact"/>
+    </collection>
+    <value name="aor" field="aor" usage="required" style="attribute"/>
+    <value name="id" field="id" usage="required" style="attribute"/>
+    <value name="state" field="state" usage="required" style="attribute"/>
+  </mapping>
+  <mapping name="contact" class="org.sipfoundry.commons.reginfo.Contact">
+    <value name="uri" field="uri" usage="required"/>
+    <structure field="displayName" usage="optional" map-as="org.sipfoundry.commons.reginfo.ContactDisplayName"/>
+    <collection field="unknownParamList">
+      <structure map-as="org.sipfoundry.commons.reginfo.ContactUnknownParam"/>
+    </collection>
+    <value name="state" field="state" usage="required" style="attribute"/>
+    <value name="event" field="event" usage="required" style="attribute"/>
+    <value name="duration-registered" field="durationRegistered" usage="optional" style="attribute"/>
+    <value name="expires" field="expires" usage="optional" style="attribute"/>
+    <value name="retry-after" field="retryAfter" usage="optional" style="attribute"/>
+    <value name="id" field="id" usage="required" style="attribute"/>
+    <value name="q" field="q" usage="optional" style="attribute"/>
+    <value name="callid" field="callid" usage="optional" style="attribute"/>
+    <value name="cseq" field="cseq" usage="optional" style="attribute"/>
+  </mapping>
+  <mapping name="display-name" class="org.sipfoundry.commons.reginfo.ContactDisplayName">
+    <value field="base" usage="required" style="text"/>
+    <value name="lang" field="lang" usage="optional" style="attribute"/>
+  </mapping>
+  <mapping name="unknown-param" class="org.sipfoundry.commons.reginfo.ContactUnknownParam">
+    <value field="base" usage="required" style="text"/>
+    <value name="name" field="name" usage="required" style="attribute"/>
+  </mapping>
+</binding>

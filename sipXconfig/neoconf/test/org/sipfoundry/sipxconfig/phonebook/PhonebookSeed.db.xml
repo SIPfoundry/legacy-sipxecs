@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
+<dataset>
+  <users user_name="user1000" user_id="1000" pintoken="1234" user_type="C"/>
+  <value_storage value_storage_id="1000" />
+  <group_storage group_id="1000" resource="user" weight="1000" name="1000" />
+  <user_group group_id="1000" user_id="1000" />
+  <phonebook name="test1000" phonebook_id="1000" />
+  <phonebook_member phonebook_id="1000" group_id="1000" />
+  <phonebook_consumer phonebook_id="1000" group_id="1000" />
+
+  <users user_name="yellowthroat" user_id="1001" pintoken="1234" user_type="C"/>
+  <value_storage value_storage_id="1001" />
+  <group_storage group_id="1001" resource="user" weight="1001" name="warblers" />
+  <user_group group_id="1001" user_id="1001" />
+  <phonebook name="test" phonebook_id="1001" />
+  <phonebook_member phonebook_id="1001" group_id="1001" />
+
+  <users user_name="portaluser" user_id="1002" pintoken="1234" user_type="C"/>
+  <value_storage value_storage_id="1002" />
+  <phonebook name="privatePhonebook_1002" phonebook_id="1002" user_id="1002"/>
+  <phonebook_file_entry phonebook_file_entry_id="2" phonebook_id="1002" phonebook_entry_type="F"/>
+
+  <users user_name="anotheruser" user_id="1003" pintoken="1234" user_type="C"/>
+  <value_storage value_storage_id="1003" />
+  <group_storage group_id="1003" resource="user" weight="1003" name="1003" />
+  <user_group group_id="1003" user_id="1003" />
+  <phonebook name="privatePhonebook_1003" phonebook_id="1003" user_id="1003"/>
+  <phonebook_file_entry phonebook_file_entry_id="3" phonebook_id="1003" phonebook_entry_type="F"/>
+  <phonebook_consumer phonebook_id="1001" group_id="1003" />
+</dataset>

@@ -1,0 +1,7 @@
+This package uses the following packages:
+
+The Stun4J package developed by Emil Ivov.
+http://stun4j.dev.java.net
+
+The DNS Java package developed by Brian Wellington
+http://www.dnsjava.org

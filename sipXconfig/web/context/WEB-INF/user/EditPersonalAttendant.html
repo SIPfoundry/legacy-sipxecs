@@ -1,0 +1,36 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@user/UserNavigation" bean="ognl:user"/>
+  <span jwcid="@common/ErrorMsg" />
+  <form jwcid="@Form" validator="bean:validator">
+    <fieldset jwcid="@setting/SettingsFieldset"
+      settings="ognl:parentSetting"/>
+    <fieldset>
+      <table>
+      <tr jwcid="@common/FieldPanel" field="component:overrideLanguage"
+          for="personalAttendant:overrideLanguage"
+          label="message:label.overrideLanguage"
+          description="message:description.overrideLanguage">
+          <td jwcid="overrideLanguage@Checkbox"
+            id="personalAttendant:overrideLanguage"
+            value="ognl:personalAttendant.overrideLanguage"
+            displayName="message:label.overrideLanguage"/>
+        </tr>
+        <tr>
+          <td jwcid="@common/InstalledLanguages"
+              language="ognl:personalAttendant.language"
+              languageDescription="message:language.description"
+              defaultLanguage="ognl:null"/>
+        </tr>
+      </table>
+    </fieldset>
+
+    <span jwcid="@dialplan/AttendantMenuPanel"
+      menu="ognl:personalAttendant.menu"
+      minKey="1"
+      maxKey="9"
+      extensionOnly="ognl:true" />
+
+    <ul jwcid="@common/FormActions" callback="ognl:callback" listener="listener:commit"/>
+  </form>
+</div>
+

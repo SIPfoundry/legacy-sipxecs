@@ -1,0 +1,64 @@
+# Use delay-compressed logfiles
+compress
+delaycompress
+
+# Keep 14 days of logs
+daily
+rotate 14
+
+# It's OK if the files aren't there
+missingok
+
+# Now we list the files, excluding sipxconfig.log, sipxconfig-logins.log and sipXalarms.log.  If you have
+# a log file that starts with 's' but not with 'sip', and you
+# want it rotated w/o copytruncate, list full path name here
+@SIPX_LOGDIR@/sip?[!ac]*.log @SIPX_LOGDIR@/sip?c[!o]*.log @SIPX_LOGDIR@/sip?a[!l]*.log @SIPX_LOGDIR@/[!sf]*.log {
+}
+
+# Java does not reopen log file periodically, make a copy
+# and truncate current log file.  May lose some data, but 
+# this will be addressed in future release
+@SIPX_LOGDIR@/sipxconfig.log  @SIPX_LOGDIR@/sipxconfig-[!l]*.log {
+   copytruncate
+}
+
+# sipxconfig-logins and sipXalarms should only be rotated monthly.  Data
+# in these log files provide a history of information needed by sipXconfig.
+@SIPX_LOGDIR@/sipxconfig-l*.log @SIPX_LOGDIR@/sip?al*.log {
+   monthly
+   copytruncate
+}
+
+@SIPX_LOGDIR@/phone/*.log {
+    sharedscripts             
+    postrotate
+       test -f @SIPX_LOGDIR@/phone/var/run/syslog.pid || kill -HUP $(cat @SIPX_LOGDIR@/phone/var/run/syslog.pid) 2> /dev/null || true
+    endscript
+}
+
+@SIPX_LOGDIR@/httpd_error_log @SIPX_LOGDIR@/httpd_access_log @SIPX_LOGDIR@/httpd_rewrite_log {
+    notifempty
+    sharedscripts
+    postrotate
+        /bin/kill -USR1 `cat @SIPX_RUNDIR@/httpd.pid 2>/dev/null` 2> /dev/null || true
+    endscript
+}
+
+@SIPX_LOGDIR@/httpd_stdout_log @SIPX_LOGDIR@/httpd_stderr_log {
+    notifempty
+    # Must use 'copytruncate', as httpd does not reopen these files.
+    # But they are opened in append mode, so the truncate operation works correctly.
+    copytruncate
+}
+
+@SIPX_LOGDIR@/freeswitch*.log {
+    notifempty
+    postrotate
+        # Tell freeswitch to reopen the log file
+        @FREESWITCH_PREFIX@/bin/fs_cli -x "fsctl send_sighup" >/dev/null 2>&1
+    endscript
+}
+
+@SIPX_LOGDIR@/openfire/*.log {
+    copytruncate
+}

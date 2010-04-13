@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<alarm_groups xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarmgroups-00-00">
+        <!-- Per-alarmgroup definitions. -->
+   <definitions>
+      <group id="default">
+         <email>
+            <contact>@SIPXPBXUSER@@localhost</contact>
+         </email>
+         <sms>
+         </sms>
+         <trap>
+         </trap>
+      </group>
+   </definitions>
+</alarm_groups>

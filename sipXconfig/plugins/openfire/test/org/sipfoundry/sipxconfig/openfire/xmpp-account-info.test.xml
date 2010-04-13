@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xmpp-account-info xmlns="http://www.sipfoundry.org/sipX/schema/xml/xmpp-account-info-00-00">
+  <user>
+    <user-name>One_IM</user-name>
+    <sip-user-name>One</sip-user-name>
+    <display-name>One_IM_DisplayName</display-name>
+    <password>One_IM</password>
+    <on-the-phone-message>testing phone message</on-the-phone-message>
+    <advertise-on-call-status>true</advertise-on-call-status>
+    <show-on-call-details>false</show-on-call-details>
+  </user>
+  <user>
+    <user-name>Three</user-name>
+    <sip-user-name>Three</sip-user-name>
+    <display-name>Three</display-name>
+    <password>bongoImPassword</password>
+    <on-the-phone-message></on-the-phone-message>
+    <advertise-on-call-status>true</advertise-on-call-status>
+    <show-on-call-details>true</show-on-call-details>
+  </user>
+  <user>
+    <user-name>Four</user-name>
+    <sip-user-name>Four</sip-user-name>
+    <display-name>Four_IM_DisplayName</display-name>
+    <password>Four</password>
+    <on-the-phone-message>On the phone</on-the-phone-message>
+    <advertise-on-call-status>true</advertise-on-call-status>
+    <show-on-call-details>false</show-on-call-details>
+  </user>
+  <user>
+    <user-name>Five</user-name>
+    <sip-user-name>Five</sip-user-name>
+    <display-name>Five_DisplayName</display-name>
+    <password>Five</password>
+    <on-the-phone-message>On the phone</on-the-phone-message>
+    <advertise-on-call-status>true</advertise-on-call-status>
+    <show-on-call-details>false</show-on-call-details>
+  </user>
+  <user>
+    <user-name>MyAssistant</user-name>
+    <sip-user-name>MyAssistant</sip-user-name>
+    <display-name>MyAssistant</display-name>
+    <password>password</password>
+    <on-the-phone-message>On the phone</on-the-phone-message>
+    <advertise-on-call-status>true</advertise-on-call-status>
+    <show-on-call-details>false</show-on-call-details>
+  </user>
+  <group>
+    <group-name>group1</group-name>
+    <description>my group</description>
+    <user>
+      <user-name>One_IM</user-name>
+    </user>
+    <user>
+      <user-name>Four</user-name>
+    </user>
+    <user>
+      <user-name>MyAssistant</user-name>
+    </user>
+  </group>
+  <group>
+    <group-name>group2</group-name>
+    <description>empty IM group</description>
+    <user>
+      <user-name>MyAssistant</user-name>
+    </user>
+  </group>
+  <chat-room>
+    <subdomain>conference</subdomain>
+    <room-owner>One_IM</room-owner>
+    <room-name>conf1</room-name>
+    <description>Description</description>
+    <password>123</password>
+    <moderated>true</moderated>
+    <is-public-room>true</is-public-room>
+    <is-members-only>false</is-members-only>
+    <is-persistent>true</is-persistent>
+    <conference-extension>300</conference-extension>
+  </chat-room>
+  <chat-room>
+    <subdomain>conference</subdomain>
+    <room-owner>Three</room-owner>
+    <room-name>conf3</room-name>
+    <description>Description 3</description>
+    <password></password>
+    <moderated>false</moderated>
+    <is-public-room>true</is-public-room>
+    <is-members-only>false</is-members-only>
+    <is-persistent>true</is-persistent>
+    <conference-extension>300</conference-extension>
+  </chat-room>
+</xmpp-account-info>

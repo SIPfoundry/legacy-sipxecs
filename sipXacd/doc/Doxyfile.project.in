@@ -1,0 +1,7 @@
+TAGFILES              = \
+          @SIPX_DOCDIR@/sipxportlib/sipxportlib.tag=@SIPX_DOCDIR@/sipxportlib/ \
+          @SIPX_DOCDIR@/sipxtacklib/sipxtacklib.tag=@SIPX_DOCDIR@/sipxtacklib/ \
+          @SIPX_DOCDIR@/sipxcalllib/sipxcalllib.tag=@SIPX_DOCDIR@/sipxccalllib/ \
+          @SIPX_DOCDIR@/sipxcommserverlib/sipxcommserverlib.tag=@SIPX_DOCDIR@/sipxcommserverlib/
+
+INPUT = @top_srcdir@/src 

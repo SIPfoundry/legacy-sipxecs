@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<prefs>
+    <activegreeting>outofoffice</activegreeting>
+    <notification>
+        <contact type="email" attachments="yes">dhubler@pingtel.com</contact>
+    </notification>
+</prefs>

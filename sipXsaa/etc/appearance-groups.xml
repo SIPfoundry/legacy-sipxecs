@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  - Example appearance-groups.xml file
+  -
+  - Two appearance groups are defined by specifying the shared user.
+  -->
+
+<appearanceGroups xmlns="http://www.sipfoundry.org/sipX/schema/xml/appearance-groups-00-00">
+    <resource uri="sip:sharedline@example.com"/>
+    <resource uri="sip:321@example.com"/>
+</appearanceGroups>

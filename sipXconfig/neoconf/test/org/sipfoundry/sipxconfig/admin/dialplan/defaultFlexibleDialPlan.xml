@@ -1,0 +1,133 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+  <table name="custom_dialing_rule">
+    <column>custom_dialing_rule_id</column>
+    <column>digits</column>
+    <column>prefix</column>
+  </table>    
+  <table name="dialing_rule">
+    <column>dialing_rule_id</column>
+    <column>name</column>
+    <column>description</column>
+    <column>enabled</column>
+    <row>
+      <value>28</value>
+      <value>Emergency</value>
+      <value><![CDATA[Emergency dialing plan]]></value>
+      <value>true</value>
+    </row>
+    <row>
+      <value>29</value>
+      <value>International</value>
+      <value><![CDATA[International dialing]]></value>
+      <value>false</value>
+    </row>
+    <row>
+      <value>30</value>
+      <value>Internal</value>
+      <value><![CDATA[Default internal dialing plan]]></value>
+      <value>true</value>
+    </row>
+    <row>
+      <value>31</value>
+      <value>Local</value>
+      <value><![CDATA[Local dialing]]></value>
+      <value>false</value>
+    </row>
+    <row>
+      <value>32</value>
+      <value><![CDATA[Long Distance]]></value>
+      <value><![CDATA[Long distance dialing plan]]></value>
+      <value>false</value>
+    </row>
+    <row>
+      <value>33</value>
+      <value>Restricted</value>
+      <value><![CDATA[Restricted dialing]]></value>
+      <value>false</value>
+    </row>
+    <row>
+      <value>34</value>
+      <value><![CDATA[Toll free]]></value>
+      <value><![CDATA[Toll free dialing]]></value>
+      <value>false</value>
+    </row>
+  </table>
+  <table name="dialing_rule_gateway">
+    <column>dialing_rule_id</column>
+    <column>gateway_id</column>
+    <column>index</column>
+  </table>
+  <table name="emergency_dialing_rule">
+    <column>emergency_dialing_rule_id</column>
+    <column>optional_prefix</column>
+    <column>emergency_number</column>
+    <row>
+      <value>28</value>
+      <null/>
+      <value>911</value>
+    </row>
+  </table>
+  <table name="internal_dialing_rule">
+    <column>internal_dialing_rule_id</column>
+    <column>local_extension_len</column>
+    <column>voicemail</column>
+    <column>voicemail_prefix</column>
+    <row>
+      <value>30</value>
+      <value>3</value>
+      <value>101</value>
+      <value>8</value>
+    </row>
+  </table>
+  <table name="international_dialing_rule">
+    <column>international_dialing_rule_id</column>
+    <column>international_prefix</column>
+    <row>
+      <value>29</value>
+      <value>011</value>
+    </row>
+  </table>
+  <table name="local_dialing_rule">
+    <column>local_dialing_rule_id</column>
+    <column>external_len</column>
+    <column>pstn_prefix</column>
+    <row>
+      <value>31</value>
+      <value>7</value>
+      <value>9</value>
+    </row>
+  </table>
+  <table name="long_distance_dialing_rule">
+    <column>international_dialing_rule_id</column>
+    <column>area_codes</column>
+    <column>external_len</column>
+    <column>long_distance_prefix</column>
+    <column>permission</column>
+    <column>pstn_prefix</column>
+    <row>
+      <value>32</value>
+      <value/>
+      <value>10</value>
+      <value>1</value>
+      <value>LongDistanceDialing</value>
+      <value>9</value>
+    </row>
+    <row>
+      <value>33</value>
+      <value>900</value>
+      <value>7</value>
+      <value>1</value>
+      <value>900Dialing</value>
+      <value>9</value>
+    </row>
+    <row>
+      <value>34</value>
+      <value><![CDATA[800, 877, 888]]></value>
+      <value>7</value>
+      <value>1</value>
+      <value>TollFree</value>
+      <value>9</value>
+    </row>
+  </table>
+</dataset>

@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<alarm_server xmlns="http://www.sipfoundry.org/sipX/schema/xml/alarm-00-00">
+
+   <definitions>
+      <alarm id="TEST_LOG">
+         <code>SCF00011</code>
+         <severity>alert</severity>
+         <component>alarmTest</component>
+         <action log="true"
+                  email="default"
+                  />
+         <filter max_reports="3"/>
+      </alarm>
+      <alarm id="NO_LOG">
+         <code>SCF33321</code>
+         <severity>crit</severity>
+         <component>backup</component>
+         <action log="false"
+                  email="default"
+                  />
+         <filter  max_reports="3"/>
+      </alarm>
+      <alarm id="MISSING_DESCRIPTION">
+         <code>SCF33321</code>
+         <severity>crit</severity>
+         <component>backup</component>
+      </alarm>
+      <alarm id="DUPLICATE_ID">
+         <code>SCF00021</code>
+         <severity>notice</severity>
+         <component>backup</component>
+      </alarm>
+      <alarm id="DUPLICATE_ID">
+         <code>SCF00022</code>
+         <severity>crit</severity>
+         <component>backup</component>
+      </alarm>
+      <alarm id="DUPLICATE_CODE_1">
+         <code>SCF00031</code>
+         <severity>notice</severity>
+         <component>backup</component>
+      </alarm>
+      <alarm id="DUPLICATE_CODE_2">
+         <code>SCF00031</code>
+         <severity>crit</severity>
+         <component>backup</component>
+      </alarm>
+      <alarm id="UNKNOWN_SEVERITY">
+         <code>SCF33321</code>
+         <severity>unrecognized</severity>
+         <component>backup</component>
+      </alarm>
+      <alarm>
+         <code>MISSING_ID</code>
+         <severity>crit</severity>
+         <component>backup</component>
+      </alarm>
+      <alarm id="PARAMETER_SUBSTITUTION">
+         <code>SCF23089</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+      </alarm>
+      <alarm id="SPECIAL_CHARACTERS">
+         <code>SCF39289</code>
+         <severity>debug</severity>
+         <component>sipXsupervisor</component>
+      </alarm>
+      <alarm id="MIN_THRESHOLD">
+         <code>SCF29389</code>
+         <severity>notice</severity>
+         <component>sipXsupervisor</component>
+         <filter min_threshold="2"/>
+      </alarm>
+      <alarm id="MESSAGE_WITH_NEWLINES">
+         <code>SCF09378</code>
+         <severity>error</severity>
+         <component>sipXsupervisor</component>
+      </alarm>
+      <alarm id="PARAMETER_WITH_RESERVED_CHARS">
+         <code>SCF00128</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+      </alarm>
+   </definitions>
+</alarm_server>

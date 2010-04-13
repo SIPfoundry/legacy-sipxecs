@@ -1,0 +1,23 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/QuickHelp" value="message:cdr.quick.help"/>
+
+  <span jwcid="@common/TabNavigation" tabNames="ognl:tabNames" selectedTab="ognl:tab"/>
+
+  <span jwcid="@If" condition="ognl:!callResolverInstalled">
+	<span key="warning.call-resolver-off" class="user-warning" />
+  </span>
+
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="activeTab@Block">
+    <span jwcid="@cdr/ActiveCallsPanel" />
+  </span>
+  <span jwcid="historicTab@Block">
+    <span jwcid="@cdr/CdrHistory"/>
+  </span>
+  <span jwcid="reportsTab@Block">
+    <span jwcid="cdrReports@cdr/CdrReports"/>
+  </span>
+</div>

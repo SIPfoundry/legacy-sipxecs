@@ -1,0 +1,25 @@
+                                    README
+
+These are brief initial instructions to set up sipXconfig after installation.
+For installation instructions, see the INSTALL file in this directory.
+For more information on sipXconfig, see this page:
+
+    http://wiki.sipfoundry.org
+
+PATH
+
+If you have installed from source, you should add /usr/local/sipx/bin to your
+PATH environment variable.
+
+ACCESSING WEB GUI
+
+With sipXconfig running, you can access the web interface by opening this URL
+in your web browser:
+
+    https://localhost:8443/sipxconfig
+
+SUPERADMIN
+
+When you run sipXconfig for the first time, you will be prompted to choose
+a PIN (password) for the "superadmin" user account.  Superadmin has the
+administrative privileges needed to add users, phones, etc. to the PBX.

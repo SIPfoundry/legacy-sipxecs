@@ -1,0 +1,36 @@
+SIPX Openfire integration plugin.
+
+1. Install openfire from RPM. Get version 3.6.4-1 from Igniterealtime.org.
+
+2. OPENFIRE_HOME is the directory of openfire under which you have lib, bin, logs etc.
+
+To configure for build, from the BUILD directory issue something like this:
+
+../configure --cache-file=`pwd`/ac-cache-file SIPXPBXUSER=`whoami` OPENFIRE_HOME=/opt/openfire/
+
+cd sipXopenfire
+
+make all install 
+
+Will build the plugin and install it in the right place under openfire's
+directory structure.
+
+3. Initialize the database:
+
+sh sipxopenfire.sh setup
+
+This will set up a default admin user with password admin.
+This will change when full sipxconfig support becomes available and you will not need this step at that point.
+
+
+Until sipxconfig support becomes available, hand edit the sixpopenfire.xml file in this directory.
+Copy it to /usr/local/sipx/etc
+
+Hand edit xmpp-account-info.xml.example to define the users and groups you want. 
+Copy it to /usr/local/sipx/etc/xmpp-account-info.xml
+
+
+Make sure the xml rpc ports in sipxopenfire matches the web server port
+in openfire.xml. You will find openfire.xml in OPENFIRE_HOME/config after
+you install openfire and configure it. 
+

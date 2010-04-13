@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<!--
+  - project file all build.xml's should import
+  -
+  - NOTES:
+  -
+  -  Attempts to define targets w/standard target names, but not authorative
+  -    standard was used.
+  -
+  -  Works for projects that is a composite of subprojects. Limitation, that
+  -    composite project can not have it's own src as well
+  -
+  -->
+<project name="ant-targets" default="default" basedir="." >
+
+  <!--
+    -  P R O P E R T I E S
+    -
+    - EXTERNAL PROPERTIES DEPENDECIES:
+    -  top.build.dir        = top output for all projects
+    -  build.dir            = output for project
+    -  test.classes         = Patterset of explicit junit tests for quick test
+    -  regression.classes   = Patterset of explicit junit tests for full regression test
+    -->
+  <property file="${top.build.dir}/config.properties"/>
+  <property name="classes.dir" value="${build.dir}/classes" />
+  <property name="dist.dir" value="${build.dir}/dist" />
+  <property name="api.dir" value="${dist.dir}/api" />
+  <property name="test.results.dir" value="${build.dir}/test-results" />
+  <property name="test.classes.dir" value="${build.dir}/tests"/>
+
+  <!-- Default patterns for unittest naming schema -->
+  <patternset id="test.classes" includes="**/*Test.class" />
+
+
+  <!--
+    - Use this variable when copying anything at install time.
+    -   Example: tofile="${dest.dir}${lib.dir}/myfile"
+    -
+    - at least 1 case where this is overridden is when 'make rpm'
+    - want to 'install' into a staging area first. I define it here
+    - empty just so it's clear this is the default value.
+    -->
+  <property name="dest.dir" value=""/>
+
+  <!--
+    - I N I T
+    - Create output directories.
+    -->
+  <target name="init" unless="subdirs"
+    description="[internal] create standard output directories">
+
+    <echo>entering ${ant.project.name}</echo>
+    <mkdir dir="${build.dir}" />
+    <mkdir dir="${classes.dir}" />
+    <mkdir dir="${dist.dir}" />
+    <mkdir dir="${api.dir}" />
+    <mkdir dir="${test.results.dir}"/>
+    <mkdir dir="${test.classes.dir}"/>
+  </target>
+
+
+  <!--
+   - P H O N E   C O M P I L E   D E F I N I T I O N S
+   - NOTE: Compile is against limited JDK classes, hence the bootclasspath
+   - and for ldap, jndi jars in classpath that are now apart of the
+   - standard JDK. This is too keep support for hardphone. This will
+   - still compile against JDK up to version 1.3 but not beyond.
+   -->
+  <target name="phone-javac"
+        description="[internal]Set javac flags for code for hardphone">
+
+    <!-- presetdef name="javac">
+      <javac bootclasspath="${classes.zip}"/>
+    </presetdef -->
+  </target>
+
+
+  <!--
+    - Creates a standard version file
+    - MUST DEFINE property ${version.file}
+    -->
+  <target name="version.properties"
+    description="[internal] Generats a properies file w/versioning info">
+
+    <propertyfile file="${version.file}" comment="xpressa build" >
+        <entry  key="version"       value="${xpressa.version}" />
+        <entry  key="buildNumber"   value="${xpressa.build.number}" />
+        <entry  key="built"         value="now"
+                type="date"         pattern="MMM dd yyyy HH:mm:ss" />
+       <entry  key="optionalComment"  value="${xpressa.build.comment}" />
+    </propertyfile>
+  </target>
+
+
+  <!--
+    -  D E F A U L T
+    -->
+  <target name="default" if="subdirs"
+      description="recurse w/default target">
+    <my.subant/>
+  </target>
+
+
+  <!--
+   - C O M P I L E
+   -->
+  <target name="compile" depends="init" unless="subdirs"
+      description="[internal] Compile all files in src directory">
+
+    <javac srcdir="${src.dir}"
+        destdir="${classes.dir}"
+        classpathref="base.path"
+        debug="${debug}"
+        deprecation="${deprecation}"
+        optimize="${optimize}"
+        includes="src/main/**/*.java"
+        source="1.5"
+        target="1.5"
+        excludes="src/test/**"/>
+  </target>
+
+
+  <!-- C L E A N -->
+  <target name="clean" depends="subclean,realclean"/>
+
+  <target name="subclean" if="subdirs"
+        description="[internal] recurse w/clean target">
+    <my.subant target="clean"/>
+  </target>
+
+  <target name="realclean" unless="subdirs"
+      description="[internal] remove class, distribution and test directories">
+
+    <delete dir="${classes.dir}"/>
+    <delete dir="${test.classes.dir}"/>
+    <delete dir="${test.results.dir}"/>
+    <delete dir="${dist.dir}"/>
+  </target>
+
+
+  <!-- I N S T A L L -->
+  <target name="install" depends="subinstall,realinstall"
+       description="Install java components" />
+
+  <target name="subinstall" if="subdirs">
+    <my.subant target="install"/>
+  </target>
+
+  <target name="realinstall" unless="subdirs"
+       description="Install java components" />
+
+
+  <!-- U N I N S T A L L -->
+  <target name="uninstall" depends="subuninstall,realuninstall"
+       description="Uninstall java components"/>
+
+  <target name="subuninstall" if="subdirs">
+    <my.subant target="install"/>
+  </target>
+
+  <target name="realuninstall" unless="subdirs"
+       description="Install java components">
+    <echo>NOTE: not necessarily a perfect inverse opperation to 'install'</echo>
+  </target>
+
+
+  <!-- C O M P I L E  T E S T S -->
+  <target name="compile.test" depends="compile,init" unless="subdirs"
+        description="[internal] compile tests">
+
+    <javac srcdir="${src.dir}/"
+       destdir="${test.classes.dir}"
+       classpathref="base.path"
+       debug="${debug}"
+       deprecation="on"
+       optimize="${optimize}"
+       includes="src/test/**/*.java">
+      <classpath>
+        <pathelement path="${classes.dir}"/>
+      </classpath>
+    </javac>
+  </target>
+
+
+  <!-- J A V A D O C -->
+  <target name="docs" depends="subdocs,realdocs"
+      description="generate javadocs for src and test code"/>
+
+  <target name="subdocs" if="subdirs"
+      description="[internal] recurse w/given target">
+    <my.subant target="docs"/>
+  </target>
+
+  <target name="realdocs" depends="init" unless="subdirs"
+      description="generate javadocs for src and test code">
+
+    <javadoc sourcepath="${src.dir}"
+       destdir="${api.dir}"
+       classpathref="base.path">
+      <fileset dir="${src.dir}">
+        <include name="**/*.java"/>
+      </fileset>
+    </javadoc>
+
+  </target>
+
+
+  <!--
+    - U N I T T E S T
+    -->
+  <target name="test" depends="subtest,realtest"
+       description="run junit tests"/>
+
+  <target name="subtest" if="subdirs"
+       description="run junit tests">
+    <my.subant target="test"/>
+  </target>
+
+  <target name="realtest" depends="compile.test" unless="subdirs"
+       description="run junit tests">
+
+    <junit fork="yes" haltonfailure="yes" printsummary="on">
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${classes.dir}"/>
+        <pathelement location="${test.classes.dir}"/>
+      </classpath>
+      <formatter type="plain"/>
+      <formatter type="xml"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <batchtest todir="${test.results.dir}">
+        <fileset dir="${test.classes.dir}">
+          <patternset refid="test.classes"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+
+  <!--
+    - R E G R E S S I O N  U N I T T E S T
+    - This is unittests that generallly take a while to run or
+    - require that your machine is setup, for example database,
+    - webserver, etc
+    -->
+  <target name="regression" depends="subregression,realregression"
+       description="run regression junit tests"/>
+
+  <target name="subregression" if="subdirs"
+       description="run regression junit tests">
+    <my.subant target="regression"/>
+  </target>
+
+  <target name="realregression" depends="compile.test" unless="subdirs"
+       description="run regression junit tests">
+
+    <junit fork="yes" haltonfailure="yes" printsummary="on">
+      <classpath>
+        <pathelement path="${classpath}"/>
+        <pathelement location="${classes.dir}"/>
+        <pathelement location="${test.classes.dir}"/>
+      </classpath>
+      <formatter type="plain"/>
+      <formatter type="xml"/>
+      <sysproperty key="basedir" value="${basedir}"/>
+      <batchtest todir="${test.results.dir}">
+        <fileset dir="${test.classes.dir}">
+          <patternset refid="regression.classes"/>
+        </fileset>
+      </batchtest>
+    </junit>
+  </target>
+
+
+  <!--
+    - U N I T T E S T   R E P O R T
+    -->
+  <target name="test-report" depends="subtest-report,realtest-report"
+   description="Generate test results to test-results/junit-noframe.html"/>
+
+  <target name="subtest-report" if="subdirs"
+      description="[internal] recurse">
+    <my.subant target="test-report"/>
+  </target>
+
+  <target name="realtest-report" depends="init" unless="subdirs"
+     description="Generate test results to test-results/junit-noframe.html">
+
+    <junitreport todir="${test.results.dir}">
+
+      <fileset dir="${test.results.dir}">
+        <include name="TEST-*.xml"/>
+      </fileset>
+
+      <!-- Uses ANT embedded XSL file -->
+      <report format="noframes"
+           todir="${test.results.dir}"/>
+
+    </junitreport>
+  </target>
+
+
+
+  <!--
+    - R E C U R S E  B U I L D S
+    - Analogous to autoconf's SUBDIRS this will recurse directories calling
+    - build files ANT passing target name
+    - This is our own subant definition - it passes only top.build.dir property to subant and
+    - it operated on a fileset defined by ${subdirs} is set.
+    -->
+  <presetdef name="my.subant">
+    <subant inheritall="false" inheritrefs="false">
+      <property name="top.build.dir" value="${top.build.dir}"/>
+       <!-- may be tempted to use patternset, but order is not
+           preserved -->
+      <filelist refid="${subdirs}"/>
+     </subant>
+  </presetdef>
+
+
+
+  <!--
+    - B R I D G E  A N T  /  C + +
+    -
+    -  Call C++ make file from ant.
+    -->
+  <macrodef name="submake">
+    <attribute name="target" default=""/>
+    <attribute name="dir" default=""/>
+    <sequential>
+      <exec executable="make">
+        <arg line="--directory @{dir}"/>
+        <arg line="@{target}"/>
+      </exec>
+    </sequential>
+  </macrodef>
+
+</project>

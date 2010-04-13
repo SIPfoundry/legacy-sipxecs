@@ -1,0 +1,16 @@
+<span jwcid="$content$">
+  <span jwcid="@line/LineLabel" line="ognl:bean"/>
+  <div jwcid="@common/LeftNavigation">
+    <span jwcid="@setting/SettingsNavigation" bean="ognl:bean"
+      activeSetting="ognl:activeSetting"
+      editSettingsListener="listener:editSettings">
+      <span jwcid="@common/Tab" isActive="ognl:identificationTabActive">
+        <a id="lineTab" jwcid="@DirectLink" listener="listener:editLine"
+          parameters="ognl:bean.id">
+          <span key="link.line">Line</span>
+        </a>
+      </span>
+    </span>
+  </div>
+  <span jwcid="@RenderBody"/>
+</span>

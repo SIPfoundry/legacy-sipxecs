@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model>
+	<group name="chess">
+		<label>The game of chess</label>
+		<group name="color">
+			<setting name="black"/>
+			<setting name="white"/>
+        </group>
+		<group name="piece">
+			<setting name="pawn">
+				<type>
+                    <enum>
+	                    <option><value>forward twice on first move</value></option>
+    	                <option><value>forward one on subsequent moves</value></option>
+        	            <option><value>diagonal one to take another piece</value></option>                        
+                    </enum>
+                </type>                
+			</setting>
+			<setting name="castle"/>
+			<setting name="horse"/>
+			<setting name="bishop"/>
+			<setting name="queen"/>
+			<setting name="king"/>
+		</group>
+	</group>
+	<group name="cards">
+		<label>Playing Cards</label>
+        <collection name="deck" size="4" advanced="true" hidden="true">
+            <label>Collection Label</label>
+            <setting name="suit">
+              <type>
+                <enum>
+                  <option><value>spade</value></option>
+                  <option><value>heart</value></option>
+                  <option><value>diamond</value></option>
+                  <option><value>club</value></option>
+                </enum>
+              </type>
+            </setting>
+    		<group name="card">
+    			<setting name="A"/>
+    			<setting name="2"/>
+    			<setting name="3"/>
+    			<setting name="4"/>
+    			<setting name="5"/>
+    			<setting name="6"/>
+    			<setting name="7"/>
+    			<setting name="8"/>
+    			<setting name="9"/>
+    			<setting name="10"/>
+    			<setting name="J"/>
+    			<setting name="Q"/>
+    			<setting name="K"/>
+    		</group>
+            <description>Collection Description</description>
+        </collection>
+	</group>
+</model>

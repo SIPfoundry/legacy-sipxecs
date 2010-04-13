@@ -1,0 +1,57 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div class="help"><b>Quick Links</b>
+    <ul>
+      <li><a jwcid="@PageLink" page="admin/ldap/LdapServer" href="#">LDAP Server</a></li>
+    </ul>
+  </div>
+  <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
+  <span jwcid="@common/ErrorMsg" />
+  <ul jwcid="renderDownload" class="component-links">
+	<li>
+		<a jwcid="download" id="preview:download" href="#">
+			<span key="link.download">Download</span>
+		</a>
+	</li>
+  </ul>
+  <form jwcid="previewForm">
+    <fieldset>
+      <table>
+        <tr jwcid="userIdPanel" for="user:userId">
+          <input jwcid="userId" id="user:userId" type="text" />
+        </tr>
+        <tr jwcid="lastNamePanel" for="user:lastName">
+          <input jwcid="lastName" id="user:lastName" type="text" />
+        </tr>
+        <tr jwcid="firstNamePanel" for="user:firstName">
+          <input jwcid="firstName" id="user:firstName" type="text" />
+        </tr>
+        <tr jwcid="emailPanel" for="user:email">
+          <input jwcid="email" id="user:emailAddress" type="text" />
+        </tr>
+        <tr jwcid="sipPasswordPanel" for="user:sipPassword">
+          <input jwcid="sipPassword" id="user:sipPassword" type="text" />
+        </tr>
+        <tr jwcid="groupsPanel" for="user:groups">
+          <span jwcid="groups" id="user:groups" type="text" />
+        </tr>
+        <tr jwcid="aliasesPanel" for="user:aliases">
+          <input jwcid="aliases" id="user:aliases" type="text" />
+        </tr>
+        <tr jwcid="imIdPanel" for="user:imId">
+          <input jwcid="imId" id="user:imId" type="text" />
+        </tr>
+      </table>
+    </fieldset>
+    <ul class="form-actions">
+      <li jwcid="ifRenderPrevious">
+        <input jwcid="previous" id="preview:previous" type="submit" value="Previous" />
+      </li>
+      <li jwcid="ifRenderNext">
+        <input jwcid="next" id="preview:next" type="submit" value="Next" />
+      </li>
+      <li>
+        <input jwcid="ok" id="preview:ok" type="submit" value="OK" />
+      </li>
+    </ul>
+  </form>
+</div>
