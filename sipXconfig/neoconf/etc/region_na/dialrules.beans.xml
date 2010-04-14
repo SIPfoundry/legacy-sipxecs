@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!--
     - North America Dial Plan Template
@@ -9,26 +9,26 @@
   <!--  common properties for all rules: name, description -->
 
   <!-- properties: voiceMail, voiceMailPrefix -->
-  <bean id="internalRule" parent="defaultInternalRule" singleton="false">
+  <bean id="internalRule" parent="defaultInternalRule" scope="prototype">
     <property name="voiceMail" value="101" />
     <property name="voiceMailPrefix" value="8" />
   </bean>
 
   <!-- properties: extension, attendantAliases -->
-  <bean id="attendantRule" parent="defaultAttendantRule" singleton="false">
+  <bean id="attendantRule" parent="defaultAttendantRule" scope="prototype">
     <property name="extension" value="100" />
     <property name="attendantAliases" value="operator 0" />
   </bean>
 
   <!-- properties: optionalPrefix, emergencyNumber -->
-  <bean id="emergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="emergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="optionalPrefix" value="9" />
     <property name="emergencyNumber" value="911" />
   </bean>
 
   <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
     longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
-  <bean id="longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="longDistanceRule" parent="defaultLongDistanceRule" scope="prototype">
     <property name="pstnPrefixOptional" value="true" />
     <property name="pstnPrefix" value="9" />
     <property name="longDistancePrefixOptional" value="false" />
@@ -37,21 +37,21 @@
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+  <bean id="tollFreeRule" parent="defaultTollFreeRule" scope="prototype">
     <property name="name" value="Toll free" />
     <property name="description" value="Toll free dialing" />
     <property name="areaCodes" value="800, 866, 877, 888" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="restrictedRule" parent="defaultRestrictedRule" singleton="false">
+  <bean id="restrictedRule" parent="defaultRestrictedRule" scope="prototype">
     <property name="name" value="Restricted" />
     <property name="description" value="Restricted dialing" />
     <property name="areaCodes" value="900" />
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="internationalRule" parent="defaultInternationalRule" singleton="false">
+  <bean id="internationalRule" parent="defaultInternationalRule" scope="prototype">
     <property name="name" value="International" />
     <property name="description" value="International dialing" />
     <property name="longDistancePrefix" value="011" />
@@ -59,7 +59,7 @@
     <property name="permissionName" value="InternationalDialing" />
   </bean>
 
-  <bean id="localRule" parent="defaultLocalRule" singleton="false">
+  <bean id="localRule" parent="defaultLocalRule" scope="prototype">
     <property name="name" value="Local" />
     <property name="description" value="Local dialing" />
     <property name="pstnPrefix" value="9" />
@@ -71,7 +71,7 @@
 
   <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
   <!-- this is the list of rules that admin will see after installation and after reverting to default -->
-  <bean id="na.dialPlan" parent="defaultDialPlan" singleton="false">
+  <bean id="na.dialPlan" parent="defaultDialPlan" scope="prototype">
     <property name="rules">
       <list>
         <ref bean="emergencyRule" />

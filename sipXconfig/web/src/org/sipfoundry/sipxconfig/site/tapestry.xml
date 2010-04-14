@@ -1,32 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd" 
-[
   <!-- Regexp fragments that are not atoms should be in (...), so that
        modifiers ('?', '{...}', etc.) can be applied to them directly. -->
   <!-- see: http://www.ietf.org/rfc/rfc3261.txt -->
   <!-- this is actually concatenation of unreserved and user-unreserved sets -->
   <!-- To be used only inside [...], and only at the beginning, as it starts
        with '-'. -->
-  <!ENTITY SIP_USER_UNRESERVED "-_.!~*'\(\)&amp;=+$,;?/">
+  <!-- ENTITY SIP_USER_UNRESERVED "-_.!~*'\(\)&amp;=+$,;?/"-->
   <!-- To be used only inside [...]. -->
-  <!ENTITY SIP_USER_CHARS "&SIP_USER_UNRESERVED;a-zA-Z0-9">
+  <!-- ENTITY SIP_USER_CHARS "&SIP_USER_UNRESERVED;a-zA-Z0-9"-->
   <!-- &#37; is percent -->
-  <!ENTITY SIP_USER_ESCAPED "(&#37;[0-9a-fA-F]{2})">
-  <!ENTITY SIP_USER_REGEX "(\[\])">
+  <!-- ENTITY SIP_USER_ESCAPED "(&#37;[0-9a-fA-F]{2})"-->
+  <!-- ENTITY SIP_USER_REGEX "(\[\])"-->
   <!-- One octet of an IP address.  (Allows leading zeros, up to 3 digits.) -->
-  <!ENTITY IP_ADDR_OCTET "(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})">
-  <!ENTITY IP_ADDR "(&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;)">
+  <!-- ENTITY IP_ADDR_OCTET "(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})"-->
+  <!-- ENTITY IP_ADDR "(&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;\.&IP_ADDR_OCTET;)"-->
   <!-- Components of DNS names, per RFC 1034 section 3.5. -->
-  <!ENTITY DNS_LET_DIG "[A-Za-z0-9]">
-  <!ENTITY DNS_LET_DIG_HYP "[-A-Za-z0-9]">
-  <!ENTITY DNS_LABEL "(&DNS_LET_DIG;(&DNS_LET_DIG_HYP;*&DNS_LET_DIG;)?)">
+  <!-- ENTITY DNS_LET_DIG "[A-Za-z0-9]"-->
+  <!-- ENTITY DNS_LET_DIG_HYP "[-A-Za-z0-9]"-->
+  <!-- ENTITY DNS_LABEL "(&DNS_LET_DIG;(&DNS_LET_DIG_HYP;*&DNS_LET_DIG;)?)"-->
   <!-- DNS domain names have at least 2 labels, of which the last contains
        only letters and has at least 2 chars.  'localhost' is also allowed.. -->
-  <!ENTITY DNS_DOMAIN_NAME "((&DNS_LABEL;\.){1,}[A-Za-z]{2,}|localhost)">
-]>
+  <!-- ENTITY DNS_DOMAIN_NAME "((&DNS_LABEL;\.){1,}[A-Za-z]{2,}|localhost)"-->
+  
 <!-- global beans used by tapestry pages -->
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!-- V A L I D A T O R S -->
   <bean name="validFieldSize" class="org.apache.tapestry.form.validator.MaxLength">
@@ -44,7 +42,8 @@
   </bean>
   <bean name="validPhoneOrAor" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>([+]?[\d*]+)|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6}</value>
+      <!-- value>([+]?[\d*]+)|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6}</value-->
+      <value>([+]?[\d*]+)|([-_.!~*'\(\)&amp;=+$,;?/a-zA-Z0-9]|(&#37;[0-9a-fA-F]{2}))+@\w[-._\w]*\w\.\w{2,6}</value>
     </property>
     <property name="message">
       <value>Please enter digits or sip address only, for example: 123 or john@example.com</value>
@@ -52,14 +51,18 @@
   </bean>
   <bean name="validHostOrIp" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>&DNS_DOMAIN_NAME;|&IP_ADDR;</value>
+      <!-- value>&DNS_DOMAIN_NAME;|&IP_ADDR;</value-->
+      <value>((([A-Za-z0-9]([-A-Za-z0-9]*[A-Za-z0-9])?)\.){1,}[A-Za-z]{2,}|localhost)|((25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2}))</value>
     </property>
     <property name="message">
       <value>Please enter valid DNS host name or IP address, for example server.domain.org, 10.1.1.25</value>
     </property>
   </bean>
   <bean name="validIPv4" class="org.apache.tapestry.form.validator.Pattern">
-    <property name="pattern" value="&IP_ADDR;" />
+    <property name="pattern">
+    <!-- value>&IP_ADDR;</value>-->
+    <value>((25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})\.(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2}))</value>
+    </property>
     <property name="message" value="Please enter a valid IPv4 address, for example: 10.1.1.0" />
   </bean>
   <!-- distribution lists validator - space-separated list of extensions, can be empty -->
@@ -83,7 +86,8 @@
   <!-- Username sequence validator - space-separated list of usernames, can be empty -->
   <bean name="validUsernamePatternSequence" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>((([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+)\s*)*</value>
+      <!-- value>((([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+)\s*)*</value-->
+      <value>((([-_.!~*'\(\)&amp;=+$,;?/a-zA-Z0-9]|(&#37;[0-9a-fA-F]{2}))+)\s*)*</value>
     </property>
     <property name="message">
       <value>Please enter a list of numbers or names, for example: joe 508</value>
@@ -107,7 +111,8 @@
 
   <bean name="validSipUserId" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+</value>
+      <!-- value>([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+</value-->
+      <value>([-_.!~*'\(\)&amp;=+$,;?/a-zA-Z0-9]|(&#37;[0-9a-fA-F]{2}))+</value>
     </property>
     <property name="message">
       <value>Only a limited set of characters is valid in SIP URLs. Spaces and some special characters are not allowed. For
@@ -124,7 +129,8 @@
 
    <bean name="validSipUserIdOrAor" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6}</value>
+      <!-- value>([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;)+@\w[-._\w]*\w\.\w{2,6}</value-->
+      <value>([-_.!~*'\(\)&amp;=+$,;?/a-zA-Z0-9]|(&#37;[0-9a-fA-F]{2}))+|([-_.!~*'\(\)&amp;=+$,;?/a-zA-Z0-9]|(&#37;[0-9a-fA-F]{2}))+@\w[-._\w]*\w\.\w{2,6}</value>
     </property>
     <property name="message">
       <value>Please enter a valid User ID or SIP URI. Spaces and some special characters are not allowed in User ID. 
@@ -134,10 +140,11 @@
 
   <bean name="validMappingRuleSipUserId" class="org.apache.tapestry.form.validator.Pattern">
     <property name="pattern">
-      <value>([&SIP_USER_CHARS;&SIP_USER_REGEX;]|&SIP_USER_ESCAPED;)+</value>
+      <!-- value>([&SIP_USER_CHARS;&SIP_USER_REGEX;]|&SIP_USER_ESCAPED;)+</value-->
+      <value>([-_.!~*'\(\)&amp;=+$,;?/a-zA-Z0-9(\[\])]|(&#37;[0-9a-fA-F]{2}))+</value>
     </property>
     <property name="message">
-      <value>Only a limited set of characters is allowed in dialing rules patterns: &SIP_USER_CHARS;&SIP_USER_REGEX;</value>
+      <value>Only a limited set of characters is allowed in dialing rules patterns: ([-_.!~*'\(\)&amp;=+$,;?/a-zA-Z0-9(\[\])]|(&#37;[0-9a-fA-F]{2}))+</value>
     </property>
   </bean>
 
@@ -205,7 +212,7 @@
   <bean name="versionInfo" class="org.sipfoundry.sipxconfig.common.VersionInfo"></bean>
 
   <!-- prototype for a visit object -->
-  <bean id="tableVariables" class="org.sipfoundry.sipxconfig.components.TableVariables" singleton="false">
+  <bean id="tableVariables" class="org.sipfoundry.sipxconfig.components.TableVariables" scope="prototype">
     <property name="tablePageSize" value="20" />
   </bean>
   <!-- tapestry utilities -->
@@ -233,7 +240,7 @@
     </property>
   </bean>
   <bean id="localizedLanguageMessages" class="org.sipfoundry.sipxconfig.site.admin.LocalizedLanguageMessages"
-    singleton="false">
+    scope="prototype">
     <property name="languageSupport">
       <ref bean="jarMessagesSource" />
     </property>

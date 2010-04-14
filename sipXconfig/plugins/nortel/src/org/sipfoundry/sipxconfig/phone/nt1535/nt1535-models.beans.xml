@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-  "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   <bean id="nt1535Model" abstract="true" parent="abstractPhoneModel">
     <property name="beanId" value="nt1535" />
     <property name="label" value="Nortel IP Phone 1535" />
@@ -18,12 +17,12 @@
 
 
   <!-- implementation -->
-  <bean id="nt1535" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Phone" singleton="false"
+  <bean id="nt1535" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Phone" scope="prototype"
     parent="abstractPhone">
   </bean>
 
   <bean id="nt1535Upload" class="org.sipfoundry.sipxconfig.phone.nt1535.NT1535Upload"
-    singleton="false" parent="upload">
+    scope="prototype" parent="upload">
     <property name="profileDir">
       <value>${sysdir.phone}/profile/tftproot</value>
     </property>

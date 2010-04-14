@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!--
     - North America Dial Plan Template - Canadian French text
@@ -9,7 +9,7 @@
   <!--  common properties for all rules: name, description -->
 
   <!-- properties: voiceMail, voiceMailPrefix -->
-  <bean id="can.internalRule" parent="defaultInternalRule" singleton="false">
+  <bean id="can.internalRule" parent="defaultInternalRule" scope="prototype">
     <property name="name" value="Messagerie vocale" />
     <property name="description" value="Plan de numérotation de messagerie vocale par défaut" />
     <property name="voiceMail" value="101" />
@@ -17,7 +17,7 @@
   </bean>
 
   <!-- properties: extension, attendantAliases -->
-  <bean id="can.attendantRule" parent="defaultAttendantRule" singleton="false">
+  <bean id="can.attendantRule" parent="defaultAttendantRule" scope="prototype">
     <property name="name" value="Répondeur automatique" />
     <property name="description" value="Plan de numérotation de répondeur automatique par défaut" />
     <property name="extension" value="100" />
@@ -25,7 +25,7 @@
   </bean>
 
   <!-- properties: optionalPrefix, emergencyNumber -->
-  <bean id="can.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="can.emergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Urgence" />
     <property name="description" value="Plan de numérotation d'urgence" />
     <property name="optionalPrefix" value="9" />
@@ -34,7 +34,7 @@
 
   <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
     longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
-  <bean id="can.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="can.longDistanceRule" parent="defaultLongDistanceRule" scope="prototype">
     <property name="name" value="Longue distance" />
     <property name="description" value="Plan de numérotation longue distance" />
     <property name="pstnPrefixOptional" value="true" />
@@ -45,21 +45,21 @@
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="can.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+  <bean id="can.tollFreeRule" parent="defaultTollFreeRule" scope="prototype">
     <property name="name" value="Numéros gratuits" />
     <property name="description" value="Composition de numéros gratuits" />
     <property name="areaCodes" value="800, 866, 877, 888" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="can.restrictedRule" parent="defaultRestrictedRule" singleton="false">
+  <bean id="can.restrictedRule" parent="defaultRestrictedRule" scope="prototype">
     <property name="name" value="Restreint" />
     <property name="description" value="Numéros restreints" />
     <property name="areaCodes" value="900" />
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="can.internationalRule" parent="defaultInternationalRule" singleton="false">
+  <bean id="can.internationalRule" parent="defaultInternationalRule" scope="prototype">
     <property name="name" value="International" />
     <property name="description" value="Composition de numéros à l'international" />
     <property name="longDistancePrefix" value="011" />
@@ -67,7 +67,7 @@
     <property name="permissionName" value="InternationalDialing" />
   </bean>
 
-  <bean id="can.localRule" parent="defaultLocalRule" singleton="false">
+  <bean id="can.localRule" parent="defaultLocalRule" scope="prototype">
     <property name="name" value="Local" />
     <property name="description" value="Composition de numéros locaux" />
     <property name="pstnPrefix" value="9" />
@@ -79,7 +79,7 @@
 
   <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
   <!-- this is the list of rules that admin will see after installation and after reverting to default -->
-  <bean id="can.dialPlan" parent="defaultDialPlan" singleton="false">
+  <bean id="can.dialPlan" parent="defaultDialPlan" scope="prototype">
     <property name="rules">
       <list>
         <ref bean="can.emergencyRule" />

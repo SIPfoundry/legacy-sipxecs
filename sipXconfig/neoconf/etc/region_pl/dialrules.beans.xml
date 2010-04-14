@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!--  proposal of the default dial plan for Poland  -->
   <!--  based on information in UKE (Urzad komunikacii elektronicznej) -->
@@ -11,51 +11,51 @@
   <!--  which could have been omitted by accident :) -->
 
   <!-- properties: voiceMail, voiceMailPrefix -->
-  <bean id="pl.internalRule" parent="defaultInternalRule" singleton="false">
+  <bean id="pl.internalRule" parent="defaultInternalRule" scope="prototype">
     <property name="voiceMail" value="101" />
     <property name="voiceMailPrefix" value="8" />
   </bean>
 
   <!-- properties: extension, attendantAliases -->
-  <bean id="pl.attendantRule" parent="defaultAttendantRule" singleton="false">
+  <bean id="pl.attendantRule" parent="defaultAttendantRule" scope="prototype">
     <property name="extension" value="100" />
     <property name="attendantAliases" value="operator 0" />
   </bean>
 
   <!-- properties: optionalPrefix, emergencyNumber -->
-  <bean id="pl.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="pl.emergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Police" />
     <property name="emergencyNumber" value="997" />
   </bean>
-  <bean id="pl.fireEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="pl.fireEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Fire department" />
     <property name="emergencyNumber" value="998" />
   </bean>
-  <bean id="pl.ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="pl.ambulanceEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Ambulance" />
     <property name="emergencyNumber" value="999" />
   </bean>
-  <bean id="pl.centralEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="pl.centralEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="CountrywideEmergency" />
     <property name="emergencyNumber" value="112" />
   </bean>
-  <bean id="pl.electricityEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="pl.electricityEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Electricity" />
     <property name="emergencyNumber" value="991" />
   </bean>
-  <bean id="pl.gasEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="pl.gasEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Gas" />
     <property name="emergencyNumber" value="992" />
   </bean>
-  <bean id="pl.heatingEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="pl.heatingEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Heating" />
     <property name="emergencyNumber" value="993" />
   </bean>
-  <bean id="pl.waterEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="pl.waterEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Water" />
     <property name="emergencyNumber" value="994" />
   </bean>
-  <bean id="pl.cityguardsEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="pl.cityguardsEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="CityGuards" />
     <property name="emergencyNumber" value="986" />
   </bean>
@@ -63,7 +63,7 @@
   <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
     longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
   <!-- if you are located outside warsaw, please add 22 to the list of area codes here and replace the 022 in local with your local area code -->
-  <bean id="pl.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="pl.longDistanceRule" parent="defaultLongDistanceRule" scope="prototype">
     <property name="pstnPrefixOptional" value="false" />
     <property name="pstnPrefix" value="9" />
     <property name="longDistancePrefixOptional" value="false" />
@@ -74,21 +74,21 @@
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="pl.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+  <bean id="pl.tollFreeRule" parent="defaultTollFreeRule" scope="prototype">
     <property name="name" value="Toll free" />
     <property name="description" value="Toll free dialing" />
     <property name="areaCodes" value="800,806,808" />
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="pl.restrictedRule" parent="defaultRestrictedRule" singleton="false">
+  <bean id="pl.restrictedRule" parent="defaultRestrictedRule" scope="prototype">
     <property name="name" value="Restricted" />
     <property name="description" value="Restricted dialing" />
     <property name="areaCodes" value="300, 400, 700, 900, 901, 906" />
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="pl.infolineRule" parent="pl.longDistanceRule" singleton="false">
+  <bean id="pl.infolineRule" parent="pl.longDistanceRule" scope="prototype">
     <!--  since there are a lot of places where infolines, like the number information etc.
       have to be permitted separately, here a class for them, for now restricted to 900Dialing permissions -->
     <property name="name" value="Infolines" />
@@ -99,14 +99,14 @@
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="pl.mobileRule" parent="pl.longDistanceRule" singleton="false">
+  <bean id="pl.mobileRule" parent="pl.longDistanceRule" scope="prototype">
     <property name="name" value="Mobile" />
     <property name="description" value="Mobile numbers" />
     <property name="areaCodes" value="50, 51, 60, 66, 69, 72, 78, 79, 88" />
     <property name="permissionName" value="Mobile" />
   </bean>
 
-  <bean id="pl.internationalRule" parent="defaultInternationalRule" singleton="false">
+  <bean id="pl.internationalRule" parent="defaultInternationalRule" scope="prototype">
     <property name="name" value="International" />
     <property name="description" value="International dialing" />
     <property name="longDistancePrefix" value="00" />
@@ -117,7 +117,7 @@
 
   <!-- Needs to be adjusted by user to his arecode since that is dialed as longdistance but prices differ vastly ..
     This example is for Warsaw, for a different City, replace the area code with the local one  -->
-  <bean id="pl.localRule" parent="defaultLocalRule" singleton="false">
+  <bean id="pl.localRule" parent="defaultLocalRule" scope="prototype">
     <property name="name" value="Local" />
     <property name="description" value="Local dialing" />
     <property name="areaCodes" value="22" />
@@ -126,7 +126,7 @@
 
   <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
   <!-- this is the list of rules that admin will see after installation and after reverting to default -->
-  <bean id="pl.dialPlan" parent="defaultDialPlan" singleton="false">
+  <bean id="pl.dialPlan" parent="defaultDialPlan" scope="prototype">
     <property name="rules">
       <list>
         <ref bean="pl.emergencyRule" />

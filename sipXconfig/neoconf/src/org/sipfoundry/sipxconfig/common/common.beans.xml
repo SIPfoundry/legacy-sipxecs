@@ -1,5 +1,5 @@
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   <!--
   - C O R E  C O N T E X T   I M P L
   -->
@@ -61,7 +61,7 @@
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.common.User" class="org.sipfoundry.sipxconfig.common.User"
-    singleton="false" parent="beanWithSettings">
+    scope="prototype" parent="beanWithSettings">
     <property name="modelFilesContext" ref="modelFilesContext"/>
     <property name="permissionManager" ref="permissionManager"/>
     <property name="musicOnHoldManager" ref="musicOnHoldManager" />
@@ -69,7 +69,7 @@
   </bean>
 
   <bean id="org.sipfoundry.sipxconfig.common.InternalUser" class="org.sipfoundry.sipxconfig.common.InternalUser"
-    singleton="false" parent="org.sipfoundry.sipxconfig.common.User" />
+    scope="prototype" parent="org.sipfoundry.sipxconfig.common.User" />
 
   <!-- DST change monitoring -->
   <bean id="checkDST" class="org.sipfoundry.sipxconfig.common.CheckDST"/>

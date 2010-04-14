@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!--  proposal of the default dial plan for Czech Republic  -->
 
   <!-- properties: voiceMail, voiceMailPrefix -->
-  <bean id="cs.internalRule" parent="defaultInternalRule" singleton="false">
+  <bean id="cs.internalRule" parent="defaultInternalRule" scope="prototype">
     <property name="name" value="Interní čísla" />
     <property name="description" value="Interní číslovaci plán" />
     <property name="voiceMail" value="101" />
@@ -13,7 +13,7 @@
   </bean>
 
   <!-- properties: extension, attendantAliases -->
-  <bean id="cs.attendantRule" parent="defaultAttendantRule" singleton="false">
+  <bean id="cs.attendantRule" parent="defaultAttendantRule" scope="prototype">
     <property name="name" value="Automatická spojovatelka" />
     <property name="description" value="Číslovací plán pro automatickou spojovatelku" />
     <property name="extension" value="100" />
@@ -21,27 +21,27 @@
   </bean>
 
   <!-- properties: optionalPrefix, emergencyNumber -->
-  <bean id="cs.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="cs.emergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Tísňové volání" />
     <property name="description" value="Tísňové volání - centrální číslo" />
     <property name="emergencyNumber" value="112" />
   </bean>
-  <bean id="cs.fireEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="cs.fireEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Hasiči" />
     <property name="description" value="Tísňové volání - hasiči" />
     <property name="emergencyNumber" value="150" />
   </bean>
-  <bean id="cs.ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="cs.ambulanceEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Záchranná služba" />
     <property name="description" value="Tísňové volání - záchranná služba" />
     <property name="emergencyNumber" value="155" />
   </bean>
-  <bean id="cs.cityPoliceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="cs.cityPoliceEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Městská policie" />
     <property name="description" value="Tísňové volání - městská policie" />
     <property name="emergencyNumber" value="156" />
   </bean>
-  <bean id="cs.policeEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="cs.policeEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Policie" />
     <property name="description" value="Tísňové volání - policie" />
     <property name="emergencyNumber" value="158" />
@@ -49,7 +49,7 @@
 
   <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
     longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
-  <bean id="cs.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="cs.longDistanceRule" parent="defaultLongDistanceRule" scope="prototype">
     <property name="name" value="Meziměsto" />
     <property name="description" value="Meziměstské volání" />
     <property name="areaCodes" value="2, 3, 4, 5" />
@@ -58,43 +58,43 @@
     <property name="externalLen" value="9" />
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
-  <bean id="cs.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+  <bean id="cs.tollFreeRule" parent="defaultTollFreeRule" scope="prototype">
     <property name="name" value="Zelené linky" />
     <property name="description" value="Volání na zelená čísla" />
     <property name="areaCodes" value="800" />
     <property name="permissionName" value="TollFree" />
   </bean>
-  <bean id="cs.bluePreferredTariffRule" parent="cs.longDistanceRule" singleton="false">
+  <bean id="cs.bluePreferredTariffRule" parent="cs.longDistanceRule" scope="prototype">
     <property name="name" value="Modré linky" />
     <property name="description" value="Volání na modrá čísla" />
     <property name="areaCodes" value="82" />
   </bean>
-  <bean id="cs.yellowPreferredTariffRule" parent="cs.longDistanceRule" singleton="false">
+  <bean id="cs.yellowPreferredTariffRule" parent="cs.longDistanceRule" scope="prototype">
     <property name="name" value="Žluté linky" />
     <property name="description" value="Volání na žlutá čísla" />
     <property name="areaCodes" value="83" />
   </bean>
-  <bean id="cs.restrictedRule" parent="defaultRestrictedRule" singleton="false">
+  <bean id="cs.restrictedRule" parent="defaultRestrictedRule" scope="prototype">
     <!--  not sure how to treat ITSP numbers with prefix 32 -->
     <property name="name" value="Placené linky" />
     <property name="description" value="Volání na placené linky" />
     <property name="areaCodes" value="9" />
     <property name="permissionName" value="900Dialing" />
   </bean>
-  <bean id="cs.infolineRule" parent="cs.longDistanceRule" singleton="false">
+  <bean id="cs.infolineRule" parent="cs.longDistanceRule" scope="prototype">
     <property name="name" value="Informační služby" />
     <property name="description" value="Informační telefonní čísla" />
     <property name="areaCodes" value="1180, 1181, 1188, 133001, 133002, 14100, 14112, 14116" />
     <property name="externalLen" value="-1" />
     <property name="permissionName" value="900Dialing" />
   </bean>
-  <bean id="cs.mobileRule" parent="cs.longDistanceRule" singleton="false">
+  <bean id="cs.mobileRule" parent="cs.longDistanceRule" scope="prototype">
     <property name="name" value="Mobilní telefony" />
     <property name="description" value="Volání na mobilní telefony" />
     <property name="areaCodes" value="6,7" />
     <property name="permissionName" value="Mobile" />
   </bean>
-  <bean id="cs.internationalRule" parent="defaultInternationalRule" singleton="false">
+  <bean id="cs.internationalRule" parent="defaultInternationalRule" scope="prototype">
     <property name="name" value="Mezinárodní" />
     <property name="description" value="Mezinárodní volání" />
     <property name="longDistancePrefix" value="00" />
@@ -104,7 +104,7 @@
 
   <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
   <!-- this is the list of rules that admin will see after installation and after reverting to default -->
-  <bean id="cs.dialPlan" parent="defaultDialPlan" singleton="false">
+  <bean id="cs.dialPlan" parent="defaultDialPlan" scope="prototype">
     <property name="rules">
       <list>
         <ref bean="cs.internalRule" />

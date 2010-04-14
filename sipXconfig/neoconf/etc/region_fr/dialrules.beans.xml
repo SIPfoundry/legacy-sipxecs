@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!--  The default dial plan for France  -->
 
   <!-- properties: voiceMail, voiceMailPrefix -->
-  <bean id="fr.voicemailRule" parent="defaultInternalRule" singleton="false">
+  <bean id="fr.voicemailRule" parent="defaultInternalRule" scope="prototype">
     <property name="name" value="Messagerie vocale" />
     <property name="description" value="Plan de numérotation de messagerie vocale par défaut" />
     <property name="voiceMail" value="101" />
@@ -13,7 +13,7 @@
   </bean>
 
   <!-- properties: extension, attendantAliases -->
-  <bean id="fr.attendantRule" parent="defaultAttendantRule" singleton="false">
+  <bean id="fr.attendantRule" parent="defaultAttendantRule" scope="prototype">
     <property name="name" value="Répondeur automatique" />
     <property name="description" value="Plan de numérotation de répondeur automatique par défaut" />
     <property name="extension" value="100" />
@@ -21,22 +21,22 @@
   </bean>
 
   <!-- properties: optionalPrefix, emergencyNumber -->
-  <bean id="fr.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="fr.emergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Urgence" />
     <property name="description" value="Urgence - numéro de téléphone central" />
     <property name="emergencyNumber" value="112" />
   </bean>
-  <bean id="fr.fireEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="fr.fireEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Pompiers" />
     <property name="description" value="Urgence - Pompiers" />
     <property name="emergencyNumber" value="18" />
   </bean>
-  <bean id="fr.ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="fr.ambulanceEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Ambulance" />
     <property name="description" value="Urgence - médical" />
     <property name="emergencyNumber" value="15" />
   </bean>
-  <bean id="fr.policeEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="fr.policeEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Police" />
     <property name="description" value="Urgence - police" />
     <property name="emergencyNumber" value="17" />
@@ -44,7 +44,7 @@
 
   <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
     longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
-  <bean id="fr.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="fr.longDistanceRule" parent="defaultLongDistanceRule" scope="prototype">
     <property name="name" value="Longue distance" />
     <property name="description" value="Plan de numéroration longue distance" />
     <property name="areaCodes" value="1,2,3,4,5" />
@@ -52,24 +52,24 @@
     <property name="externalLen" value="9" />
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
-  <bean id="fr.locationIndependentRule" parent="fr.longDistanceRule" singleton="false">
+  <bean id="fr.locationIndependentRule" parent="fr.longDistanceRule" scope="prototype">
     <property name="name" value="Indépendant de l'emplacement" />
     <property name="description" value="Numéros de téléphones indépendants de l'emplacement" />
     <property name="areaCodes" value="87,9" />
   </bean>
-  <bean id="fr.premiumRate" parent="fr.longDistanceRule" singleton="false">
+  <bean id="fr.premiumRate" parent="fr.longDistanceRule" scope="prototype">
     <property name="name" value="Numéros surtaxés" />
     <property name="description" value="Numéros restreints - appel surtaxé" />
     <property name="areaCodes" value="81,82,88,89" />
     <property name="permissionName" value="900Dialing" />
   </bean>
-  <bean id="fr.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+  <bean id="fr.tollFreeRule" parent="defaultTollFreeRule" scope="prototype">
     <property name="name" value="Numéro gratuit" />
     <property name="description" value="Composition de numéros gratuits" />
     <property name="areaCodes" value="80" />
     <property name="permissionName" value="TollFree" />
   </bean>
-  <bean id="fr.infolineRule" parent="fr.longDistanceRule" singleton="false">
+  <bean id="fr.infolineRule" parent="fr.longDistanceRule" scope="prototype">
     <property name="name" value="Renseignements" />
     <property name="description" value="Numéros de téléphones de services de renseignements" />
     <property name="longDistancePrefix" value="" />
@@ -77,13 +77,13 @@
     <property name="areaCodes" value="118" />
     <property name="permissionName" value="900Dialing" />
   </bean>
-  <bean id="fr.mobileRule" parent="fr.longDistanceRule" singleton="false">
+  <bean id="fr.mobileRule" parent="fr.longDistanceRule" scope="prototype">
     <property name="name" value="Portables" />
     <property name="description" value="Appels de numéros de téléphones portables" />
     <property name="areaCodes" value="6" />
     <property name="permissionName" value="Mobile" />
   </bean>
-  <bean id="fr.internationalRule" parent="defaultInternationalRule" singleton="false">
+  <bean id="fr.internationalRule" parent="defaultInternationalRule" scope="prototype">
     <property name="name" value="International" />
     <property name="description" value="Composition de numéros à l'international" />
     <property name="longDistancePrefix" value="00" />
@@ -93,7 +93,7 @@
 
   <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
   <!-- this is the list of rules that admin will see after installation and after reverting to default -->
-  <bean id="fr.dialPlan" parent="defaultDialPlan" singleton="false">
+  <bean id="fr.dialPlan" parent="defaultDialPlan" scope="prototype">
     <property name="rules">
       <list>
         <ref bean="fr.voicemailRule" />

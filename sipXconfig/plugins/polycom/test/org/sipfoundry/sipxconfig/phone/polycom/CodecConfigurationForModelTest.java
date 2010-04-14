@@ -10,23 +10,26 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import junit.framework.TestCase;
+
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
 import org.dom4j.Node;
+import org.dom4j.XPath;
 import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.phone.polycom.CodecGroupsTest.CodecGroupType;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
-
-import junit.framework.TestCase;
 
 /**
  * Checks that each Polycom model is using only the expected codec group.
@@ -35,15 +38,24 @@ public class CodecConfigurationForModelTest extends TestCase {
 
     private PolycomPhone m_phone;
 
+    private static XPath createXpathWithNamespace(String xpathString) {
+        HashMap<String, String> namespacesMap = new HashMap<String, String>();
+        namespacesMap.put("defns", "http://www.springframework.org/schema/beans");
+
+        XPath xpath = DocumentHelper.createXPath(xpathString);
+        xpath.setNamespaceURIs(namespacesMap);
+        return xpath;
+    }
+
     @SuppressWarnings("unchecked")
     private static List<Element> getModelBeanPropertyElements(Node model_bean, String name) {
-        String xpath = String.format("property[@name=\"%s\"]/set", name);
-        return ((Element) model_bean.selectSingleNode(xpath)).elements();
+        XPath xpath = createXpathWithNamespace(String.format("defns:property[@name=\"%s\"]/defns:set/defns:value", name));
+        return xpath.selectNodes(model_bean);
     }
 
     private static String getModelBeanPropertyValue(Node model_bean, String name) {
-        String xpath = String.format("property[@name=\"%s\"]/@value", name);
-        return model_bean.selectSingleNode(xpath).getStringValue();
+        XPath xpath = createXpathWithNamespace(String.format("defns:property[@name=\"%s\"]/@value", name));
+        return xpath.selectSingleNode(model_bean).getStringValue();
     }
 
     /**
@@ -133,7 +145,9 @@ public class CodecConfigurationForModelTest extends TestCase {
         Document beans_document = XmlUnitHelper.loadDocument(klass, "polycom-models.beans.xml");
 
         // Find the bean whose ID matches the specified phone model.
-        Node model_bean = beans_document.selectSingleNode(String.format("/beans/bean[@id=\"%s\"]", phoneModelId));
+        XPath xpath = createXpathWithNamespace(String.format("/defns:beans/defns:bean[@id=\"%s\"]", phoneModelId));
+        Node model_bean = xpath.selectSingleNode(beans_document);
+
         assertNotNull(String.format("Failed to find a bean with ID '%s'.", phoneModelId), model_bean);
 
         // Set the properties.

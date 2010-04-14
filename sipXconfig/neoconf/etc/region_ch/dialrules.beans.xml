@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <!--  proposal of the default dial plan for Switzerland  -->
   <!--  based on information in  -->
   <!-- it's using 9 as optional PSTN prefix but it can be changed -->
 
   <!-- properties: voiceMail, voiceMailPrefix -->
-  <bean id="ch.internalRule" parent="defaultInternalRule" singleton="false">
+  <bean id="ch.internalRule" parent="defaultInternalRule" scope="prototype">
     <property name="name" value="Anrufbeantworter" />
     <property name="description" value="Wählplan für den Anrufbeantworter" />
     <property name="voiceMail" value="101" />
@@ -15,7 +15,7 @@
   </bean>
 
   <!-- properties: extension, attendantAliases -->
-  <bean id="ch.attendantRule" parent="defaultAttendantRule" singleton="false">
+  <bean id="ch.attendantRule" parent="defaultAttendantRule" scope="prototype">
     <property name="name" value="Automatisches Antwortsystem" />
     <property name="description" value="Wählplan für das automatische Antwortsystem" />
     <property name="extension" value="100" />
@@ -23,22 +23,22 @@
   </bean>
 
   <!-- properties: optionalPrefix, emergencyNumber -->
-  <bean id="ch.emergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="ch.emergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Notfallnummer" />
     <property name="description" value="Notfallnummer für die Schweiz" />
     <property name="emergencyNumber" value="112" />
   </bean>
-  <bean id="ch.policeEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="ch.policeEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Polizei" />
     <property name="description" value="Notfallnummer für die Polizei" />
     <property name="emergencyNumber" value="117" />
   </bean>
-  <bean id="ch.fireEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="ch.fireEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Feuerwache" />
     <property name="description" value="Notfallnummer für die Feuerwache" />
     <property name="emergencyNumber" value="118" />
   </bean>
-  <bean id="ch.ambulanceEmergencyRule" parent="defaultEmergencyRule" singleton="false">
+  <bean id="ch.ambulanceEmergencyRule" parent="defaultEmergencyRule" scope="prototype">
     <property name="name" value="Ambulanz" />
     <property name="description" value="Notfallnummer für den Rettungswagen" />
     <property name="emergencyNumber" value="144" />
@@ -46,7 +46,7 @@
 
   <!-- properties for all long distance rules:  pstnPrefixOptional, pstnPrefix,
     longDistancePrefixOptional, longDistancePrefix, externalLen, permissionName -->
-  <bean id="ch.longDistanceRule" parent="defaultLongDistanceRule" singleton="false">
+  <bean id="ch.longDistanceRule" parent="defaultLongDistanceRule" scope="prototype">
     <property name="name" value="Ferngespräche" />
     <property name="description" value="Wählplan für Ferngespräche" />
     <property name="pstnPrefixOptional" value="false" />
@@ -57,7 +57,7 @@
     <property name="permissionName" value="LongDistanceDialing" />
   </bean>
 
-  <bean id="ch.tollFreeRule" parent="defaultTollFreeRule" singleton="false">
+  <bean id="ch.tollFreeRule" parent="defaultTollFreeRule" scope="prototype">
     <property name="name" value="Gratisnummern" />
     <property name="description" value="Wählen von Gratisnummern" />
     <property name="areaCodes" value="800" />
@@ -65,7 +65,7 @@
     <property name="permissionName" value="TollFree" />
   </bean>
 
-  <bean id="ch.restrictedRule" parent="defaultRestrictedRule" singleton="false">
+  <bean id="ch.restrictedRule" parent="defaultRestrictedRule" scope="prototype">
     <property name="name" value="Mehrwertdienste" />
     <property name="description" value="Zuschlagspflichtige Nummern" />
     <property name="areaCodes" value="900, 901, 906" />
@@ -73,7 +73,7 @@
     <property name="permissionName" value="900Dialing" />
   </bean>
 
-  <bean id="ch.mobileRule" parent="ch.longDistanceRule" singleton="false">
+  <bean id="ch.mobileRule" parent="ch.longDistanceRule" scope="prototype">
     <property name="name" value="Mobiltelefone" />
     <property name="description" value="Wählen von Mobilteilnehmern" />
     <property name="areaCodes" value="76, 77, 78, 79" />
@@ -81,7 +81,7 @@
     <property name="permissionName" value="Mobile" />
   </bean>
 
-  <bean id="ch.internationalRule" parent="defaultInternationalRule" singleton="false">
+  <bean id="ch.internationalRule" parent="defaultInternationalRule" scope="prototype">
     <property name="name" value="International" />
     <property name="description" value="Wählen von internationalen Nummern" />
     <property name="longDistancePrefix" value="00" />
@@ -89,7 +89,7 @@
     <property name="permissionName" value="InternationalDialing" />
   </bean>
 
-  <bean id="ch.infolineRule" parent="ch.longDistanceRule" singleton="false">
+  <bean id="ch.infolineRule" parent="ch.longDistanceRule" scope="prototype">
     <property name="name" value="Informationsdienste" />
     <property name="description" value="Telefoninformationsdienste, welche keine Vorwahl benötigen" />
     <property name="areaCodes" value="16, 18" />
@@ -100,7 +100,7 @@
 
   <!-- defaultDialPlan defines the "factory default" structure of your valid plan -->
   <!-- this is the list of rules that admin will see after installation and after reverting to default -->
-  <bean id="ch.dialPlan" parent="defaultDialPlan" singleton="false">
+  <bean id="ch.dialPlan" parent="defaultDialPlan" scope="prototype">
     <property name="rules">
       <list>
         <ref bean="ch.emergencyRule" />
