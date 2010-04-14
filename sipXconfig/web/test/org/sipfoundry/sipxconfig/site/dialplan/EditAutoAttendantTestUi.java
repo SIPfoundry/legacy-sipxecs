@@ -90,7 +90,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
     public void testRemoveMenuItems() throws Exception {
         seedPromptFile();
         clickLink("NewAutoAttendant");
-        assertElementPresent("attendant:form");
+        assertElementPresent("attendantMenuForm");
         SiteTestHelper.enableCheckbox(tester, "selectedRow", 0, true);
 
         clickButton("attendant:removeMenuItems");
@@ -108,7 +108,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
 
         clickLink("NewAutoAttendant");
-        assertElementPresent("attendant:form");
+        assertElementPresent("attendantMenuForm");
 
         setTextField("item:name", "New Attendant");
         String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
@@ -154,7 +154,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
     public void testEditMenuItem() throws Exception {
         seedPromptFile();
         clickLink("NewAutoAttendant");
-        assertElementPresent("attendant:form");
+        assertElementPresent("attendantMenuForm");
         setTextField("item:name", "New Attendant1");
         String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
         File actualFile = new File(actualFilename);
@@ -182,7 +182,7 @@ public class EditAutoAttendantTestUi extends WebTestCase {
         SiteTestHelper.home(tester);
 
         clickLink("NewAutoAttendant");
-        assertElementPresent("attendant:form");
+        assertElementPresent("attendantMenuForm");
 
         setTextField("item:name", "New Attendant");
         String actualFilename = TestUtil.getTestSourceDirectory(getClass()) + "/" + PROMPT_TEST_FILE;
