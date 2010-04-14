@@ -696,6 +696,9 @@ public class UserPhonebookSearch implements EntryPoint {
     }
 
     private static class ClickToCallModalWindow extends ModalWindow {
+        private static final String VALID_PHONE_OR_SIP_URI = "([-_.!~*'\\(\\)&amp;=+$,;?/a-zA-Z0-9]|"
+            + "(&#37;[0-9a-fA-F]{2}))+|([-_.!~*'\\(\\)&amp;=+$,;?/a-zA-Z0-9]|(&#37;[0-9a-fA-F]{2}))"
+            + "+@\\w[-._\\w]*\\w\\.\\w{2,6}";
 
         public ClickToCallModalWindow(LinkedHashMap<String, String> phoneMap) {
 
@@ -729,9 +732,12 @@ public class UserPhonebookSearch implements EntryPoint {
             callButton.addClickHandler(new ClickHandler() {
                 @Override
                 public void onClick(ClickEvent event) {
-                    if (!((String) numberToDail.getValue()).isEmpty()) {
-                        clickToCallRestCall((String) numberToDail.getValue());
+                    String dialNumber = (String) numberToDail.getValue();
+                    if (!dialNumber.isEmpty() && dialNumber.matches(VALID_PHONE_OR_SIP_URI)) {
+                        clickToCallRestCall(dialNumber);
                         destroy();
+                    } else {
+                        SC.warn(s_searchConstants.invalidPhoneNumber());
                     }
                 }
             });
@@ -747,13 +753,13 @@ public class UserPhonebookSearch implements EntryPoint {
     }
 
     /**
-     * This method strips the phone number of non-digit characters, except for + sign.
+     * This method strips the phone number of spaces.
      *
      * @param phoneNumber the number to format
      * @return the formatted number
      */
     private static String formatPhoneNumber(String phoneNumber) {
-        return phoneNumber.replaceAll("[^0-9+]", EMPTY_STRING);
+        return phoneNumber.replaceAll("\\s", EMPTY_STRING);
     }
 
     private static void updateShowOnPhoneStatus(Boolean show, String successMessage) {
@@ -849,7 +855,7 @@ public class UserPhonebookSearch implements EntryPoint {
             for (String fieldName : FIELDS_PHONENUMBERS) {
                 String numberToDial = listGridRecord.getAttributeAsString(fieldName);
                 if (numberToDial != null && !EMPTY_STRING.equals(numberToDial)) {
-                    m_phoneMap.put(fieldName + numberToDial, s_searchConstants.getString(fieldName));
+                    m_phoneMap.put(numberToDial, s_searchConstants.getString(fieldName));
                 }
             }
 
