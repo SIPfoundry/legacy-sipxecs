@@ -1557,7 +1557,8 @@ PtStatus CallManager::transfer(const char* sourceCallId,
     UtlString contactAddress;
     getRemoteContactField(targetCallId, targetAddress, contactAddress);
 
-    Url transferTargetUrl(contactAddress);
+    Url transferTargetUrl(targetAddress);
+    transferTargetUrl.setDisplayName("");
     transferTargetUrl.removeFieldParameters() ;
     transferTargetUrl.setHeaderParameter(SIP_REPLACES_FIELD,
                                          replacesField.data());
