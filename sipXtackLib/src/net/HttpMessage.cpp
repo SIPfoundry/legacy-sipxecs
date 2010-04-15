@@ -2495,48 +2495,48 @@ void HttpMessage::debugPrint() const
 
 void HttpMessage::getFirstHeaderLinePart(ssize_t partIndex, UtlString* part, char separator) const
 {
-        const char* partStart = mFirstHeaderLine.data();
-    // Tolerate separators in the begining
-    while(*partStart == separator) partStart++;
+   const char* partStart = mFirstHeaderLine.data();
+   // Tolerate separators in the begining
+   while(*partStart == separator) partStart++;
 
-        const char* partEnd;
-        ssize_t index = 0;
-        part->remove(0);
+   const char* partEnd;
+   ssize_t index = 0;
+   part->remove(0);
 
-        // Find the begining
-        while(partStart && index < partIndex)
-        {
-                partStart = strchr(partStart, separator);
-                if(partStart == NULL) break;
-                partStart++;
-        // Tolerate multiple consecutive separators
-        while(*partStart == separator) partStart++;
+   // Find the begining
+   while(partStart && index < partIndex)
+   {
+      partStart = strchr(partStart, separator);
+      if(partStart == NULL) break;
+      partStart++;
+      // Tolerate multiple consecutive separators
+      while(*partStart == separator) partStart++;
 
-                index++;
-        }
+      index++;
+   }
 
-        // If there is a begining find the end
-        if(partStart)
-        {
-                if(partIndex < 2)
-                {
-                        partEnd = strchr(partStart, separator);
-                        if(partEnd == NULL)
-                        {
-                                partEnd = partStart + strlen(partStart);
-                        }
+   // If there is a begining find the end
+   if(partStart)
+   {
+      if(partIndex < 2)
+      {
+         partEnd = strchr(partStart, separator);
+         if(partEnd == NULL)
+         {
+            partEnd = partStart + strlen(partStart);
+         }
 
-                        ssize_t len = partEnd - partStart;
-                        part->append(partStart, len);
-                        //part->append("",1);
-                }
+         ssize_t len = partEnd - partStart;
+         part->append(partStart, len);
+         //part->append("",1);
+      }
 
-                // This is the third part take the whole thing
-                else
-                {
-                        part->append(partStart);
-                }
-        }
+      // This is the third part take the whole thing
+      else
+      {
+         part->append(partStart);
+      }
+   }
 }
 
 // Response access methods

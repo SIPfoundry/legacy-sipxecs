@@ -273,9 +273,8 @@ private:
         SdpDirectionality* directionality) const;
 
     virtual void proceedToRinging(const SipMessage* inviteMessage,
-        SipUserAgent* sipUserAgent,
-        int tagNum,
-        int availableBehavior);
+                                  SipUserAgent* sipUserAgent,
+                                  int availableBehavior);
 
     UtlBoolean isMethodAllowed(const char* method);
 

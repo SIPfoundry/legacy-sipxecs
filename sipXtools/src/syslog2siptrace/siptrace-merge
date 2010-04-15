@@ -311,37 +311,37 @@ sub combine_elements {
 
     #print STDERR $message1, $message2;
 
-    # Get the minimum time.
+    # <time>: Get the minimum time.
     ($t1) = $message1 =~ m%<time>(.*)</time>%;
     ($t2) = $message2 =~ m%<time>(.*)</time>%;
     if ($t1 gt $t2) {
         $message1 =~ s%<time>.*</time>%<time>$t2</time>%;
     }
 
-    # Get a source that is not an IP address if we can.
+    # <source>: Get a source that is not an IP address if we can.
     ($t1) = $message1 =~ m%<source>(.*)</source>%;
     if ($t1 =~ m%^[-:.0-9]*$%) {
 	($t2) = $message2 =~ m%<source>(.*)</source>%;
         $message1 =~ s%<source>.*</source>%<source>$t2</source>%;
     }
 
-    # Get a destination that is not an IP address if we can.
+    # <destination>: Get a destination that is not an IP address if we can.
     ($t1) = $message1 =~ m%<destination>(.*)</destination>%;
     if ($t1 =~ m%^[-:.0-9]*$%) {
 	($t2) = $message2 =~ m%<destination>(.*)</destination>%;
         $message1 =~ s%<destination>.*</destination>%<destination>$t2</destination>%;
     }
 
-    # Get a sourceAddress that is not an IP address if we can.
+    # <sourceAddress>: Get a sourceAddress that is an IP address if we can.
     ($t1) = $message1 =~ m%<sourceAddress>(.*)</sourceAddress>%;
-    if ($t1 =~ m%^[-:.0-9]*$%) {
+    if ($t1 !~ m%^[-:.0-9]*$%) {
 	($t2) = $message2 =~ m%<sourceAddress>(.*)</sourceAddress>%; 
        $message1 =~ s%<sourceAddress>.*</sourceAddress>%<sourceAddress>$t2</sourceAddress>%;
     }
 
-    # Get a destinationAddress that is not an IP address if we can.
+    # <destinationAddress>: Get a destinationAddress that is an IP address if we can.
     ($t1) = $message1 =~ m%<destinationAddress>(.*)</destinationAddress>%;
-    if ($t1 =~ m%^[-:.0-9]*$%) {
+    if ($t1 !~ m%^[-:.0-9]*$%) {
 	($t2) = $message2 =~ m%<destinationAddress>(.*)</destinationAddress>%;
         $message1 =~ s%<destinationAddress>.*</destinationAddress>%<destinationAddress>$t2</destinationAddress>%;
     }

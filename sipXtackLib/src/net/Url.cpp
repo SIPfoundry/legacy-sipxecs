@@ -1881,7 +1881,7 @@ void Url::getIdentity(UtlString &identity) const
 }
 
 /// Translate a scheme string (not including the terminating colon) to a Scheme enum.
-Url::Scheme Url::scheme( const UtlString& schemeName )
+Url::Scheme Url::scheme(const UtlString& schemeName)
 {
    Scheme theScheme;
 
@@ -1905,7 +1905,7 @@ Url::Scheme Url::scheme( const UtlString& schemeName )
 
 
 /// Get the canonical (lowercase) name of a supported Scheme.
-const char* Url::schemeName( Url::Scheme scheme ) const
+const char* Url::schemeName(Url::Scheme scheme)
 {
    const char* theName;
    if (scheme > UnknownUrlScheme && scheme < NUM_SUPPORTED_URL_SCHEMES)

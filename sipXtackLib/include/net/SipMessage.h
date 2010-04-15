@@ -927,8 +927,6 @@ public:
                     const char* toLabel = NULL);
     void setToFieldTag(const char* tagValue);
 
-    void setToFieldTag(int tagValue);
-
     void setFromFieldTag(const char* tagValue);
 
     void setExpiresField(int expiresInSeconds);

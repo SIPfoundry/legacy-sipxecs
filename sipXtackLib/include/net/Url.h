@@ -594,10 +594,10 @@ public:
     */
 
    /// Translate a scheme string (not including the terminating colon) to a Scheme enum.
-   Scheme scheme( const UtlString& schemeName );
+   static Scheme scheme(const UtlString& schemeName);
 
-   /// Get the canonical (lowercase) name constant for a supported Scheme.
-   const char* schemeName( Scheme scheme ) const;
+   /// Get the canonical (lowercase) scheme string constant for a Scheme enum.
+   static const char* schemeName(Scheme scheme);
 
    /// Get the enumerator for the URL scheme type (more convenient than getUrlType).
    Scheme getScheme() const;

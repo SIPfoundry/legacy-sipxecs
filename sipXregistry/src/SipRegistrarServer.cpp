@@ -21,6 +21,7 @@
 #include "utl/PluginHooks.h"
 #include "utl/UtlSList.h"
 #include "utl/UtlSListIterator.h"
+#include "net/CallId.h"
 #include "net/SipUserAgent.h"
 #include "net/NetMd5Codec.h"
 #include "net/NameValueTokenizer.h"
@@ -55,7 +56,23 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-const RegEx RegQValue("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$"); // syntax for a valid q parameter value
+
+// syntax for a valid q parameter value
+const RegEx RegQValue("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$");
+// syntax of a +sip.instance value containing a URN based on a UUID
+// based on a MAC/EUI address
+// The format of the URN/UUID is detailed in RFC 4122.  Two positions
+// have limited possibilities in order to specify format variant 01
+// and version 0001.
+// $1 matches the MAC/EUI address.
+const RegEx InstanceUrnUuidMac(
+   "^(?i:<urn:uuid:"
+   "[0-9a-f]{8}-"
+   "[0-9a-f]{4}-"
+   "1[0-9a-f]{3}-"
+   "[89ab][0-9a-f]{3}-"
+   "([0-9a-f]{12})>)$"
+   );
 
 #define MAX_RETENTION_TIME 600
 #define HARD_MINIMUM_EXPIRATION 60
@@ -80,6 +97,7 @@ static UtlString gQvalueKey("qvalue");
 static UtlString gInstanceIdKey("instance_id");
 static UtlString gGruuKey("gruu");
 static UtlString gPathKey("path");
+static UtlString gContactInstrumentKey("contact_instrument");
 
 OsMutex         SipRegistrarServer::sLockMutex(OsMutex::Q_FIFO);
 
@@ -288,6 +306,9 @@ void SipRegistrarServer::setDbUpdateNumber(Int64 dbUpdateNumber)
 SipRegistrarServer::RegisterStatus
 SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                              ,const UtlString& instrument
+                                              //< the instrument identification
+                                              // value from the authentication
+                                              // user name, if any
                                              ,const int timeNow
                                              ,const SipMessage& registerMessage
                                              ,RegistrationExpiryIntervals*& pExpiryIntervals
@@ -371,183 +392,235 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                );
             if ( registerContactStr.compareTo("*") != 0 ) // is contact == "*" ?
             {
-               // contact != "*"; a normal contact
+                // contact != "*"; a normal contact
                 int expires;
                 UtlString qStr, expireStr;
                 Url registerContactURL( registerContactStr );
 
-                // Check for an (optional) Expires field parameter in the Contact
-                registerContactURL.getFieldParameter( SIP_EXPIRES_FIELD, expireStr );
-                if ( expireStr.isNull() )
+                // Check the schme of the parsed URI.
+                Url::Scheme scheme = registerContactURL.getScheme();
+                switch (scheme)
                 {
-                    // no expires parameter on the contact
-                    // use the default established above
-                    expires = commonExpires;
+                case Url::UnknownUrlScheme:
+                   // Unknown scheme or parse failed.
+                   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                 "Attempt to register Contact '%s' that is not a valid URI or has an unknown scheme",
+                                 registerContactStr.data());
+                   break;
+
+                default:
+                {
+                   // Not sip: or sips:.
+                   OsSysLog::add(FAC_SIP, PRI_WARNING,
+                                 "Attempt to register Contact '%s' with a scheme '%s' that is not 'sip' or 'sips'",
+                                 registerContactStr.data(),
+                                 Url::schemeName(scheme));
+                   break;
                 }
-                else
+                case Url::SipUrlScheme:
+                case Url::SipsUrlScheme:
                 {
-                    // contact has its own expires parameter, which takes precedence
-                    char  expireVal[12]; // more digits than we need...
-                    char* end;
-                    strncpy( expireVal, expireStr.data(), 10 );
-                    expireVal[11] = '\0';// ensure it is null terminated.
-                    expires = strtol(expireVal,&end,/*base*/10);
-                    if ( '\0' != *end )
-                    {
-                        // expires value not a valid base 10 number
-                        returnStatus = REGISTER_INVALID_REQUEST;
-                        OsSysLog::add( FAC_SIP, PRI_WARNING,
-                                      "SipRegistrarServer::applyRegisterToDirectory"
-                                      " invalid expires parameter value '%s'",
-                                      expireStr.data()
-                                      );
-                    }
-                }
+                   // sip: or sips:.
+                   // Check for an (optional) Expires field parameter in the Contact
+                   registerContactURL.getFieldParameter( SIP_EXPIRES_FIELD, expireStr );
+                   if ( expireStr.isNull() )
+                   {
+                      // no expires parameter on the contact
+                      // use the default established above
+                      expires = commonExpires;
+                   }
+                   else
+                   {
+                      // contact has its own expires parameter, which takes precedence
+                      char  expireVal[12]; // more digits than we need...
+                      char* end;
+                      strncpy( expireVal, expireStr.data(), 10 );
+                      expireVal[11] = '\0';// ensure it is null terminated.
+                      expires = strtol(expireVal,&end,/*base*/10);
+                      if ( '\0' != *end )
+                      {
+                         // expires value not a valid base 10 number
+                         returnStatus = REGISTER_INVALID_REQUEST;
+                         OsSysLog::add( FAC_SIP, PRI_WARNING,
+                                        "SipRegistrarServer::applyRegisterToDirectory"
+                                        " invalid expires parameter value '%s'",
+                                        expireStr.data()
+                            );
+                      }
+                   }
 
-                if ( REGISTER_SUCCESS == returnStatus )
-                {
-                    // Ensure that the expires value is within allowed limits
-                    if ( 0 == expires )
-                    {
-                        // unbind this mapping; ok
-                    }
-                    else if ( expires < pExpiryIntervals->mMinExpiresTime) // lower bound
-                    {
-                        returnStatus = REGISTER_LESS_THAN_MINEXPIRES;
-                    }
-                    else if ( expires > pExpiryIntervals->mMaxExpiresTime ) // upper bound
-                    {
-                        // our default is also the maximum we'll allow
-                        expires = pExpiryIntervals->mMaxExpiresTime;
-                    }
+                   if ( REGISTER_SUCCESS == returnStatus )
+                   {
+                      // Ensure that the expires value is within allowed limits
+                      if ( 0 == expires )
+                      {
+                         // unbind this mapping; ok
+                      }
+                      else if ( expires < pExpiryIntervals->mMinExpiresTime) // lower bound
+                      {
+                         returnStatus = REGISTER_LESS_THAN_MINEXPIRES;
+                      }
+                      else if ( expires > pExpiryIntervals->mMaxExpiresTime ) // upper bound
+                      {
+                         // our default is also the maximum we'll allow
+                         expires = pExpiryIntervals->mMaxExpiresTime;
+                      }
 
-                    if ( REGISTER_SUCCESS == returnStatus )
-                    {
-                        // Get the qValue from the register message.
-                        UtlString registerQvalueStr;
-                        registerContactURL.getFieldParameter( SIP_Q_FIELD, registerQvalueStr );
-                        // Get the Instance ID (if any) from the REGISTER message Contact field.
-                        UtlString instanceId;
-                        registerContactURL.getFieldParameter( "+sip.instance", instanceId );
+                      if ( REGISTER_SUCCESS == returnStatus )
+                      {
+                         // Get the qValue from the register message.
+                         UtlString registerQvalueStr;
+                         registerContactURL.getFieldParameter( SIP_Q_FIELD, registerQvalueStr );
 
-                        // track longest expiration requested in the set
-                        if ( expires > longestRequested )
-                        {
-                           longestRequested = expires;
-                        }
+                         // Get the Instance ID (if any) from the REGISTER message Contact field.
+                         UtlString instanceId;
+                         registerContactURL.getFieldParameter( "+sip.instance", instanceId );
 
-                        OsSysLog::add( FAC_SIP, PRI_DEBUG,
-                                       "SipRegistrarServer::applyRegisterToDirectory"
-                                       " instance ID = '%s'",
-                                       instanceId.data());
+                         // Get the instrument identification which applies to this contact:
+                         // If 'instrument' is not provided by the Authorization header,
+                         // and if +sip.instance is provided, use it.
+                         UtlString contactInstrument(instrument);
+                         if (contactInstrument.isNull() && !instanceId.isNull())
+                         {
+                            // Check that the instanceId value has the proper string format,
+                            // i.e., it starts with '<' and ends with '>'.
+                            if (instanceId(0) == '<' && instanceId(instanceId.length()-1) == '>')
+                            {
+                               // Check whether this instanceId value can be reduced to a MAC/EUI.
+                               RegEx instanceUrnUuidMac(InstanceUrnUuidMac);
+                               if (   instanceUrnUuidMac.Search(instanceId)
+                                   && instanceUrnUuidMac.MatchStart(0) == 0)
+                               {
+                                  // Copy the MAC/EUI into contactInstrument.
+                                  instanceUrnUuidMac.MatchString(&contactInstrument, 1);
+                               }
+                               else
+                               {
+                                  // There is a +sip.instance string value, but we can't find
+                                  // a MAC/EUI in it, so we use the whole URN.
+                                  contactInstrument.append(instanceId, 1, instanceId.length()-2);
+                               }
+                            }
+                         }
 
-                        // remove the parameter fields - they are not part of the contact itself
-                        registerContactURL.removeFieldParameters();
-                        UtlString contactWithoutExpires = registerContactURL.toString();
+                         OsSysLog::add( FAC_SIP, PRI_DEBUG,
+                                        "SipRegistrarServer::applyRegisterToDirectory"
+                                        " instance ID = '%s', instrument ID = '%s'",
+                                        instanceId.data(), contactInstrument.data());
 
-                        // Concatenate all path addresses in a single string.
-                        UtlString pathStr;
-                        UtlString tempPathUriStr;
-                        int tmpPathIndex;
-                        for( tmpPathIndex = 0;  registerMessage.getPathUri(tmpPathIndex, &tempPathUriStr); tmpPathIndex++ )
-                        {
-                           if( tmpPathIndex != 0 )
-                           {
-                              pathStr.append( SIP_MULTIFIELD_SEPARATOR );
-                           }
-                           pathStr.append( tempPathUriStr );
-                        }
+                         // track longest expiration requested in the set
+                         if ( expires > longestRequested )
+                         {
+                            longestRequested = expires;
+                         }
 
-                        // Build the row for the validated contacts hash
-                        UtlHashMap registrationRow;
+                         // remove the parameter fields - they are not part of the contact itself
+                         registerContactURL.removeFieldParameters();
+                         UtlString contactWithoutExpires = registerContactURL.toString();
 
-                        // value strings
-                        UtlString* contactValue =
+                         // Concatenate all path addresses in a single string.
+                         UtlString pathStr;
+                         UtlString tempPathUriStr;
+                         int tmpPathIndex;
+                         for( tmpPathIndex = 0;  registerMessage.getPathUri(tmpPathIndex, &tempPathUriStr); tmpPathIndex++ )
+                         {
+                            if( tmpPathIndex != 0 )
+                            {
+                               pathStr.append( SIP_MULTIFIELD_SEPARATOR );
+                            }
+                            pathStr.append( tempPathUriStr );
+                         }
+
+                         // Build the row for the validated contacts hash
+                         UtlHashMap registrationRow;
+
+                         // value strings
+                         UtlString* contactValue =
                             new UtlString ( contactWithoutExpires );
-                        UtlInt* expiresValue =
+                         UtlInt* expiresValue =
                             new UtlInt ( expires );
-                        UtlString* qvalueValue =
+                         UtlString* qvalueValue =
                             new UtlString ( registerQvalueStr );
-                        UtlString* instanceIdValue = new UtlString ( instanceId );
-                        UtlString* gruuValue;
-                        UtlString* pathValue = new UtlString( pathStr );
+                         UtlString* instanceIdValue = new UtlString ( instanceId );
+                         UtlString* gruuValue;
+                         UtlString* pathValue = new UtlString( pathStr );
+                         UtlString* contactInstrumentValue = new UtlString( contactInstrument );
 
-                        // key strings - make shallow copies of static keys
-                        UtlString* contactKey = new UtlString( gContactKey );
-                        UtlString* expiresKey = new UtlString( gExpiresKey );
-                        UtlString* qvalueKey = new UtlString( gQvalueKey );
-                        UtlString* instanceIdKey = new UtlString( gInstanceIdKey );
-                        UtlString* gruuKey = new UtlString( gGruuKey );
-                        UtlString* pathKey = new UtlString( gPathKey );
+                         // key strings - make shallow copies of static keys
+                         UtlString* contactKey = new UtlString( gContactKey );
+                         UtlString* expiresKey = new UtlString( gExpiresKey );
+                         UtlString* qvalueKey = new UtlString( gQvalueKey );
+                         UtlString* instanceIdKey = new UtlString( gInstanceIdKey );
+                         UtlString* gruuKey = new UtlString( gGruuKey );
+                         UtlString* pathKey = new UtlString( gPathKey );
+                         UtlString* contactInstrumentKey = new UtlString( gContactInstrumentKey );
 
-                        // Calculate GRUU if +sip.instance is provided.
-                        // Note a GRUU is constructed even if the UA does not
-                        // support GRUU itself -- other UAs can discover the
-                        // GRUU via the reg event package.
-                        if (!instanceId.isNull())
-                        {
-                           // Hash the GRUU base, the AOR, and IID to
-                           // get the variable part of the GRUU.
-                           NetMd5Codec encoder;
-                           UtlString temp;
-                           // Use the trick that the MD5 of a series
-                           // of delimiter separated strings is
-                           // effectively a unique function of all of
-                           // the strings.  Include "sipX" as the
-                           // signature of this software.
-                           // Note that NUL can't be used as the
-                           // delimiter, because NetMd5Codec::encode
-                           // stops reading its input string when it sees
-                           // a NUL.
-                           temp.append("sipX");
-                           temp.append("\001");
-                           /* The identifier of this domain,
-                            * to ensure GRUUs aren't duplicated between domains. */
-                           temp.append(mRegistrar.defaultDomain());
-                           temp.append("\001");
-                           temp.append(toUrl.toString());
-                           temp.append("\001");
-                           temp.append(instanceId);
-                           UtlString hash;
-                           encoder.encode(temp.data(), hash);
-                           /* Use 8 bytes, to avoid collisions
-                            * when there are less than 2^32 registrations. */
-                           hash.remove(16);
-                           // Now construct the GRUU URI,
-                           // "~~gr~XXXXXXXXXXXXXXXX@[principal SIP domain]".
-                           // That is what we store in IMDB, so it can be
-                           // searched for by the redirector, since it searches
-                           // for the "identity" part of the URI, which does
-                           // not contain the scheme.
-                           gruuValue = new UtlString(GRUU_PREFIX);
-                           gruuValue->append(hash);
-                           gruuValue->append('@');
-                           gruuValue->append(mRegistrar.defaultDomain());
-                           gruuValue->append(";" SIP_GRUU_URI_PARAM);
-                           OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                         "SipRegistrarServer::applyRegisterToDirectory "
-                                         "temp = '%s' gruu = '%s'",
-                                         temp.data(), gruuValue->data());
-                        }
-                        else
-                        {
-                           gruuValue = new UtlString( "" );
-                        }
+                         // Calculate GRUU if +sip.instance is provided.
+                         // Note a GRUU is constructed even if the UA does not
+                         // support GRUU itself -- other UAs can discover the
+                         // GRUU via the reg event package.
+                         if (!instanceId.isNull())
+                         {
+                            // Hash the GRUU base, the AOR, and IID to
+                            // get the variable part of the GRUU.
+                            NetMd5Codec encoder;
+                            // Use the trick that the MD5 of a series
+                            // of uniquely parsable strings is
+                            // effectively a unique function of all of
+                            // the strings.  Include "sipX" as the
+                            // signature of this software.
+                            encoder.hash("sipX", sizeof ("sipX")-1);
+                            /* The identifier of this domain,
+                             * to ensure GRUUs aren't duplicated between domains. */
+                            encoder.hash(mRegistrar.defaultDomain());
+                            encoder.hash(toUrl.toString());
+                            encoder.hash(instanceId);
+                            // The preceding three items may not be uniquely parsable in theory,
+                            // but they are in practice.
+                            UtlString hash;
+                            encoder.appendBase64Sig(hash);
+                            /* Use 8 bytes, to avoid collisions
+                             * when there are less than 2^32 registrations. */
+                            hash.remove(16);
+                            // Now construct the GRUU URI,
+                            // "~~gr~XXXXXXXXXXXXXXXX@[principal SIP domain]".
+                            // That is what we store in IMDB, so it can be
+                            // searched for by the redirector, since it searches
+                            // for the "identity" part of the URI, which does
+                            // not contain the scheme.
+                            gruuValue = new UtlString(GRUU_PREFIX);
+                            gruuValue->append(hash);
+                            gruuValue->append('@');
+                            gruuValue->append(mRegistrar.defaultDomain());
+                            gruuValue->append(";" SIP_GRUU_URI_PARAM);
+                            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                                          "SipRegistrarServer::applyRegisterToDirectory "
+                                          "gruu = '%s'",
+                                          gruuValue->data());
+                         }
+                         else
+                         {
+                            gruuValue = new UtlString( "" );
+                         }
 
-                        registrationRow.insertKeyAndValue( contactKey, contactValue );
-                        registrationRow.insertKeyAndValue( expiresKey, expiresValue );
-                        registrationRow.insertKeyAndValue( qvalueKey, qvalueValue );
-                        registrationRow.insertKeyAndValue( instanceIdKey, instanceIdValue );
-                        registrationRow.insertKeyAndValue( gruuKey, gruuValue );
-                        registrationRow.insertKeyAndValue( pathKey, pathValue );
+                         registrationRow.insertKeyAndValue( contactKey, contactValue );
+                         registrationRow.insertKeyAndValue( expiresKey, expiresValue );
+                         registrationRow.insertKeyAndValue( qvalueKey, qvalueValue );
+                         registrationRow.insertKeyAndValue( instanceIdKey, instanceIdValue );
+                         registrationRow.insertKeyAndValue( gruuKey, gruuValue );
+                         registrationRow.insertKeyAndValue( pathKey, pathValue );
+                         registrationRow.insertKeyAndValue( contactInstrumentKey, contactInstrumentValue );
 
-                        registrations.addValue( registrationRow );
-                    }
+                         registrations.addValue( registrationRow );
+                      }
+                   }
+                   break;
+                }
                 }
             }
             else
             {
-                // Asterisk '*' requests that we unregister all contacts for the AOR
+                // Asterisk ('*') requests that we unregister all contacts for the AOR
                 removeAll = TRUE;
             }
         } // iteration over Contact entries
@@ -684,6 +757,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             UtlString instance_id(*(UtlString*)record.findValue(&gInstanceIdKey));
                             UtlString gruu(*(UtlString*)record.findValue(&gGruuKey));
                             UtlString pathValue(*(UtlString*)record.findValue(&gPathKey));
+                            UtlString contact_instrument(*(UtlString*)record.findValue(&gContactInstrumentKey));
 
                             imdb->updateBinding( toUrl, contact, qvalue
                                                 ,registerCallidStr, registerCseqInt
@@ -693,7 +767,7 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                                                 ,pathValue
                                                 ,primaryName()
                                                 ,mDbUpdateNumber
-                                                ,instrument
+                                                ,contact_instrument
                                                 );
 
                         } // iterate over good contact entries
@@ -1066,17 +1140,11 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
            if ( isAuthorized( toUri, instrument, message, finalResponse ) )
             {
                 int port;
-                int tagNum = 0;
                 UtlString address, protocol, tag;
                 message.getToAddress( &address, &port, &protocol, NULL, NULL, &tag );
-                if ( tag.isNull() )
-                {
-                    tagNum = rand();     //generate to tag for response;
-                }
 
-                // process REQUIRE Header Field
-                // add new contact values - update or insert
-                int timeNow = (int)OsDateTime::getSecsSinceEpoch();
+                // Add new contact values - update or insert.
+                int timeNow = (int) OsDateTime::getSecsSinceEpoch();
                 RegistrationExpiryIntervals* pExpiryIntervalsUsed = 0;
                 RegisterStatus applyStatus
                    = applyRegisterToDirectory( toUri, instrument,
@@ -1335,9 +1403,13 @@ SipRegistrarServer::handleMessage( OsMsg& eventMessage )
                         break;
                 }
 
+                // Add tag to response if none is present in the request (which
+                // there shouldn't be).
                 if ( tag.isNull() )
                 {
-                    finalResponse.setToFieldTag(tagNum);
+                   UtlString newTag;
+                   CallId::getNewTag(newTag);
+                   finalResponse.setToFieldTag(newTag.data());
                 }
             }
            else

@@ -467,7 +467,10 @@ public:
     UtlBoolean getConfiguredPublicAddress(UtlString* pIpAddress, int* pPort) ;
 
     //! Get the local address and port
-    UtlBoolean getLocalAddress(UtlString* pIpAddress, int* pPort) ;
+    UtlBoolean getLocalAddress(UtlString* pIpAddress, int* pPort);
+
+    //! Record the local address and port for later retrieval by ::getLocalAddress().
+    void cacheLocalAddress();
 
     //! Get the NAT mapped address and port
     UtlBoolean getNatMappedAddress(UtlString* pIpAddress, int* pPort) ;
@@ -745,6 +748,10 @@ private:
     OsRWMutex mMessageLogRMutex;
     OsRWMutex mMessageLogWMutex;
     OsRWMutex mOutputProcessorMutex;
+    // The local address and port.
+    UtlString mLocalHostAddress;
+    int mLocalHostPort;
+    bool mLocalHostValid;       // true if fetching mLocalHostAddress succeeded
 
     // Timers (in seconds or milliseconds)
     // Time allowed before first resend of a message, in msec.
@@ -770,7 +777,6 @@ private:
     int mDnsSrvTimeout; // Time to give up & try the next DNS SRV record (secs)
 
     int mMaxSrvRecords; // Max num of DNS SRV records to use before giving up
-
 
     UtlString defaultUserAgentName;
     long mLastCleanUpTime;
