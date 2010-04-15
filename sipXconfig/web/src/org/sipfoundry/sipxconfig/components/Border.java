@@ -190,6 +190,7 @@ public abstract class Border extends BaseComponent implements PageValidateListen
                 if (user.isAdmin()) {
                     throw new PageRedirectException(Home.PAGE);
                 } else {
+                    setInitialSessionId(null);
                     throw new PageRedirectException(ManageVoicemail.PAGE);
                 }
             }
