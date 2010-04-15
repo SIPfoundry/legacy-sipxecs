@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.io.Serializable;
 
+import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
@@ -25,10 +26,13 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     public static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     public static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
     public static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
+    public static final String RELOAD_XML_JOB_TITLE = "FreeSWITCH reload configuration";
 
     public static final String BEAN_ID = "sipxFreeswitchService";
 
     public static final String LOG_SETTING = "freeswitch-config/FREESWITCH_SIP_DEBUG";
+
+    public static final Logger LOG = Logger.getLogger("SipxFreeswitchService.class");
 
     public static enum SystemMohSetting {
         FILES_SRC, SOUNDCARD_SRC, NONE;
@@ -69,11 +73,11 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     @Override
     public void afterReplication(Location location) {
         if (location != null) {
-            reloadXml(location);
+            reloadXmlWithRetries(location);
         } else {
             Location[] locations = getLocationsManager().getLocations();
             for (Location l : locations) {
-                reloadXml(l);
+                reloadXmlWithRetries(l);
             }
         }
     }
@@ -84,7 +88,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
             return;
         }
         boolean success = false;
-        Serializable jobId = m_jobContext.schedule("FreeSWITCH reload configuration");
+        Serializable jobId = m_jobContext.schedule(RELOAD_XML_JOB_TITLE);
         try {
             m_jobContext.start(jobId);
             String serviceUri = getServiceUri(location);
@@ -98,6 +102,51 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
                 m_jobContext.failure(jobId, null, null);
             }
         }
+    }
+
+    private void reloadXmlWithRetries(Location location) {
+        boolean success = false;
+        int maxRetries = 3;
+        int retry = 0;
+        if (!isRunning(location)) {
+            // no need to reloadXml if the service is not running at the moment
+            return;
+        }
+
+        Serializable jobId = m_jobContext.schedule(RELOAD_XML_JOB_TITLE);
+        m_jobContext.start(jobId);
+        String serviceUri = getServiceUri(location);
+        FreeswitchApi api = m_freeswitchApiProvider.getApi(serviceUri);
+
+        while ((retry <= maxRetries) && !success) {
+            LOG.debug("reloadXmlWithRetries() while loop retry:" + retry);
+            try {
+                api.reloadxml();
+                success = true;
+            } catch (Exception ex) {
+                LOG.debug("reloadXmlWithRetries() caught Exception:" + ex);
+            } finally {
+                if (success) {
+                    m_jobContext.success(jobId);
+                } else {
+                    LOG.debug("reloadXmlWithRetries() failed at retry " + retry);
+                    if (retry == maxRetries) { // failed after retry maxRetries so just give up
+                        LOG.error("reloadXmlWithRetries() gives up after retry " + retry);
+                        m_jobContext.failure(jobId, null, null);
+                    } else {
+                        retry++;
+                        // retry but sleep for a while
+                        try {
+                            Thread.sleep(2000);
+                        } catch (InterruptedException e) {
+                            continue;
+                        }
+                    }
+                }
+            }
+        }
+
+        LOG.debug("reloadXmlWithRetries() return success at retry " + retry);
     }
 
     boolean isRunning(Location location) {
