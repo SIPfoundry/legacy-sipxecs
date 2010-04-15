@@ -103,6 +103,7 @@ class UrlTest : public CppUnit::TestCase
     CPPUNIT_TEST(testBigUriNoSchemeUser);
     CPPUNIT_TEST(testBigUriHost);
     CPPUNIT_TEST(testGRUU);
+    CPPUNIT_TEST(testErrors);
     CPPUNIT_TEST_SUITE_END();
 
 private:
@@ -1837,34 +1838,57 @@ public:
 
    void testBigUriScheme()
       {
-         // <bigtoken>:user:password@example.com
+	 // Unknown scheme <bigtoken> is taken to be the user, with an implicit sip:.
+         // <bigtoken>:password@example.com
 
          UtlString bigscheme;
          bigscheme.append(bigtoken);
-         bigscheme.append(":user:password@example.com");
+         bigscheme.append(":password@example.com");
 
          PARSE(bigscheme);
 
          UtlString component;
 
-         KNOWN_BUG("fails on FC6", "XPB-843");
-         CPPUNIT_ASSERT(bigschemeUrl.getScheme() == Url::UnknownUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigschemeUrl.getScheme());
 
          bigschemeUrl.getUserId(component);
-         CPPUNIT_ASSERT(component.isNull());
+         ASSERT_STR_EQUAL(bigtoken, component.data());
+
+         bigschemeUrl.getPassword(component);
+         ASSERT_STR_EQUAL("password", component.data());
 
          bigschemeUrl.getHostAddress(component);
-         CPPUNIT_ASSERT(component.isNull());
+         ASSERT_STR_EQUAL("example.com", component.data());
 
-         Url bigSchemeAddrType(bigscheme, TRUE /* as addr-type */);
+         Url bigSchemeAddrSpec(bigscheme, TRUE /* as addr-spec */);
 
-         CPPUNIT_ASSERT(bigSchemeAddrType.getScheme() == Url::UnknownUrlScheme); // ?
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bigschemeUrl.getScheme());
 
-         bigSchemeAddrType.getUserId(component);
-         CPPUNIT_ASSERT(component.isNull()); // bigtoken
+         bigSchemeAddrSpec.getUserId(component);
+         ASSERT_STR_EQUAL(bigtoken, component.data());
 
-         bigSchemeAddrType.getHostAddress(component);
-         CPPUNIT_ASSERT(component.isNull());
+         bigSchemeAddrSpec.getPassword(component);
+         ASSERT_STR_EQUAL("password", component.data());
+
+         bigSchemeAddrSpec.getHostAddress(component);
+         ASSERT_STR_EQUAL("example.com", component.data());
+
+         // Attempt to parse "<bigtoken>:user:password@example.com", which
+         // cannot be done, because an implicit sip: would cause <bigtoken>
+         // to be the user and "user:password" to be the password.  But
+         // a password cannot contain ":".
+
+         UtlString bigscheme2;
+         bigscheme2.append(bigtoken);
+         bigscheme2.append(":user:password@example.com");
+
+         PARSE(bigscheme2);
+
+         CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, bigscheme2Url.getScheme());
+
+         Url bigSchemeAddrSpec2(bigscheme2, TRUE /* as addr-spec */);
+
+         CPPUNIT_ASSERT_EQUAL(Url::UnknownUrlScheme, bigscheme2Url.getScheme());
       }
 
    void testBigUriUser()
@@ -1945,8 +1969,7 @@ public:
 
          PARSE(bighost);
 
-         KNOWN_BUG("fails on FC6", "XPB-843");
-         CPPUNIT_ASSERT(bighostUrl.getScheme() == Url::UnknownUrlScheme);
+         CPPUNIT_ASSERT_EQUAL(Url::SipUrlScheme, bighostUrl.getScheme());
       }
 
    void testGRUU()
@@ -2036,6 +2059,118 @@ public:
          UtlString url12_nameaddr;
          url12.toString(url12_nameaddr);
          ASSERT_STR_EQUAL("<sip:user@example.edu;gr>", url12_nameaddr);
+      }
+
+   void testErrors()
+      {
+         // The structure that describes a single test.
+         struct test {          
+            const char* input_string; // input string
+            Url::UriForm uri_form;    // parsing mode
+            bool expected_return;     // expected return from fromString()
+            const char* output_string; // expected value of toString()
+                                       // if fromString() returns true
+            const char* next_uri;      // expected value of nextUri
+                                       // or NULL to indicate no nextUri should be provided
+         };
+
+         // The tests.
+         struct test tests[] =
+            {
+               // Field parameter containing comma, which is a troublesome case.
+               { "<sip:2048@10.1.1.126>;methods=\"INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\"",
+                 Url::NameAddr, true,
+                 "<sip:2048@10.1.1.126>;methods=\"INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\"",
+                 "" },
+               { "<sip:2048@10.1.1.126>;methods=\"INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\",foo-bar",
+                 Url::NameAddr, true,
+                 "<sip:2048@10.1.1.126>;methods=\"INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\"",
+                 "foo-bar" },
+               { "<sip:2048@10.1.1.126>;methods=\"INVITE, ACK, BYE, CANCEL, OPTIONS, INFO, MESSAGE, SUBSCRIBE, NOTIFY, PRACK, UPDATE, REFER\",foo-bar",
+                 Url::NameAddr, false,
+                 NULL,
+                 NULL },
+               // AddrSpec without nextUri
+               { "sip:foo@bar", Url::AddrSpec, true, "sip:foo@bar", NULL },
+               { " sip:foo@bar", Url::AddrSpec, false, NULL, NULL },
+               { "sip:foo@bar ", Url::AddrSpec, false, NULL, NULL },
+               { "sip:foo@bar,", Url::AddrSpec, false, NULL, NULL },
+               // AddrSpec with nextUri
+               { "sip:foo@bar", Url::AddrSpec, true, "sip:foo@bar", "" },
+               { " sip:foo@bar", Url::AddrSpec, false, NULL, "" },
+               { "sip:foo@bar ", Url::AddrSpec, false, NULL, "" },
+               { "sip:foo@bar,", Url::AddrSpec, true, "sip:foo@bar", "" },
+               { "sip:foo@bar, ", Url::AddrSpec, true, "sip:foo@bar", " " },
+               { "sip:foo@bar,x", Url::AddrSpec, true, "sip:foo@bar", "x" },
+               { "sip:foo@bar,xyz", Url::AddrSpec, true, "sip:foo@bar", "xyz" },
+               // AddrSpec addtional error cases
+               { "<sip:foo@bar>", Url::AddrSpec, false, NULL, "" },
+               { "FOO sip:foo@bar", Url::AddrSpec, false, NULL, "" },
+               { "\"FOO\"<sip:foo@bar>", Url::AddrSpec, false, NULL, "" },
+               { "a!", Url::AddrSpec, false, NULL, "" },
+               // NameAddr without nextUri
+               { "sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", NULL },
+               { " sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", NULL },
+               { "sip:foo@bar ", Url::NameAddr, true, "sip:foo@bar", NULL },
+               { "sip:foo@bar,", Url::NameAddr, false, NULL, NULL },
+               // NameAddr with nextUri
+               { "sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", "" },
+               { " sip:foo@bar", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "sip:foo@bar ", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "sip:foo@bar,", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "sip:foo@bar, ", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "sip:foo@bar,x", Url::NameAddr, true, "sip:foo@bar", "x" },
+               { "sip:foo@bar,xyz", Url::NameAddr, true, "sip:foo@bar", "xyz" },
+               { "<sip:foo@bar>", Url::NameAddr, true, "sip:foo@bar", "" },
+               { "\"FOO\"<sip:foo@bar>", Url::NameAddr, true, "\"FOO\"<sip:foo@bar>", "" },
+               // NameAddr addtional error cases
+               { "FOO sip:foo@bar", Url::NameAddr, false, NULL, "" },
+               { "a!", Url::NameAddr, false, NULL, "" },
+            };
+
+
+         // Execute the tests.
+         for (unsigned int i = 0; i < sizeof (tests) / sizeof (test); i++)
+         {
+            // The string to describe a test.
+            char label[1000];
+            sprintf(label,
+                    "item %d: Url::fromString('%s', %s, %s)",
+                    i,
+                    tests[i].input_string,
+                    tests[i].uri_form == Url::AddrSpec ? "AddrSpec" : "NameAddr",
+                    tests[i].next_uri ? "&nextUri" : "NULL");
+
+            // Verify that if the expected return is true, then a non-NULL
+            // fromString() value has been supplied.
+            CPPUNIT_ASSERT_MESSAGE(label,
+                                   !tests[i].expected_return ||
+                                   tests[i].output_string);
+
+            // Perform the parse.
+            Url url;
+            UtlString next_uri;
+            bool r = url.fromString(tests[i].input_string,
+                                    tests[i].uri_form,
+                                    tests[i].next_uri ? &next_uri : NULL);
+            CPPUNIT_ASSERT_EQUAL_MESSAGE(label,
+                                         tests[i].expected_return,
+                                         r);
+            if (r)
+            {
+               UtlString unparsed;
+               url.toString(unparsed);
+               ASSERT_STR_EQUAL_MESSAGE(label,
+                                        tests[i].output_string,
+                                        unparsed.data());
+               if (tests[i].next_uri) 
+               {
+                  ASSERT_STR_EQUAL_MESSAGE(label,
+                                           tests[i].next_uri,
+                                           next_uri.data());
+               }
+            }
+         }
       }
 
     /////////////////////////
