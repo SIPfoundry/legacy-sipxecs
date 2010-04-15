@@ -262,6 +262,42 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return entries.values();
     }
 
+    private Collection<PhonebookEntry> getEntriesConverted(Collection<Phonebook> phonebooks,
+                                                            User user,
+                                                            Collection<Phonebook> privatePhonebooks) {
+        Map<String, PhonebookEntry> entries = new TreeMap();
+
+        if (!phonebooks.isEmpty()) {
+            for (Phonebook phonebook : phonebooks) {
+                for (PhonebookEntry entry : getEntries(phonebook)) {
+                    PhonebookEntry fileEntry = new PhonebookEntry();
+                    fileEntry.setFirstName(entry.getFirstName());
+                    fileEntry.setLastName(entry.getLastName());
+                    fileEntry.setNumber(entry.getNumber());
+                    fileEntry.setAddressBookEntry(entry.getAddressBookEntry());
+                    fileEntry.setPhonebook(null);
+
+                    entries.put(getEntryKey(entry), fileEntry);
+                }
+            }
+        }
+
+        if (!privatePhonebooks.isEmpty()) {
+            for (Phonebook phonebook : privatePhonebooks) {
+                for (PhonebookEntry entry : getEntries(phonebook)) {
+                    entries.put(getEntryKey(entry), entry);
+                }
+            }
+        }
+
+        boolean everyone = getGeneralPhonebookSettings().isEveryoneEnabled();
+        if (everyone) {
+            addEveryoneEntries(user, entries);
+        }
+
+        return entries.values();
+    }
+
     private void addEveryoneEntries(final User user, final Map<String, PhonebookEntry> entries) {
         Closure<User> closure = new Closure<User>() {
             @Override
@@ -276,15 +312,19 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     public PagedPhonebook getPagedPhonebook(Collection<Phonebook> phonebook, User user, String startRow,
             String endRow, String queryString) {
-        Collection<PhonebookEntry> entries = convertPhonebookEntries(getEntries(phonebook, user));
+
+        Collection<PhonebookEntry> entries = null;
+        Collection<Phonebook>  privatePhonebooks = new ArrayList<Phonebook>();
 
         // add private phonebook
         Boolean showOnPhone = null;
         Phonebook privatePhonebook = getPrivatePhonebook(user);
         if (privatePhonebook != null) {
-            entries.addAll(privatePhonebook.getEntries());
+            privatePhonebooks.add(privatePhonebook);
             showOnPhone = privatePhonebook.getShowOnPhone();
         }
+
+        entries = getEntriesConverted(phonebook, user, privatePhonebooks);
 
         int totalSize = entries.size();
         if (!StringUtils.isEmpty(queryString) && !queryString.equals("null")) {
