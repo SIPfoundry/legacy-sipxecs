@@ -393,7 +393,7 @@ class ConfigURLOpener(urllib.FancyURLopener):
 
 def screen_confirm_master_config ():
     confirmationMessage="\
-To add an additional system, you must first Add this new server\n\
+To add an additional system, you must first add this new server\n\
 in the Servers configuration page of your first (master) system.\n\
 \n\
 When you have added this system using that screen,\n\
