@@ -398,11 +398,20 @@
 				minOccurs="1">
 				<xs:annotation>
 					<xs:documentation xml:lang="en">
-						The authentication user name attached to the account.
+						The user name attached to the account.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
-
+			
+			<xs:element name="authentication-user-name" type="xs:string" maxOccurs="1"
+				minOccurs="0">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						The authentication user name attached to the account (defaults to the user-name).
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
+			
 			<xs:element name="is-user-phone"
 				type="xs:boolean" default="true" maxOccurs="1" minOccurs="0">
 				<xs:annotation>
