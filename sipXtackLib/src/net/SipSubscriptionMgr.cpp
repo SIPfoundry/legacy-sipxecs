@@ -272,6 +272,11 @@ SipSubscriptionMgr::operator=(const SipSubscriptionMgr& rhs)
 // Set the address of the queue to which to send resend messages.
 void SipSubscriptionMgr::initialize(OsMsgQ* pMsgQ)
 {
+   // Verify that mpResendMsgQ has not been initialized yet.
+   // If it were, we might already have timers set to send messages to the
+   // previous *mpResendMsgQ.
+   assert(!mpResendMsgQ);
+
    mpResendMsgQ = pMsgQ;
 }
 
@@ -285,6 +290,11 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                                                 SipMessage& subscribeResponse,
                                                 SipSubscribeServerEventHandler& handler)
 {
+    // Check that the parent mpResendMsgQ has been set, so that when
+    // mResendTimer fires, it can deliver a message to that message
+    // queue.
+    assert(mpResendMsgQ);
+
     isNew = FALSE;
     UtlBoolean subscriptionSucceeded = FALSE;
     UtlString dialogHandle;
@@ -576,6 +586,11 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
                                                 UtlString& subscribeDialogHandle,
                                                 UtlBoolean& isNew)
 {
+    // Check that the parent mpResendMsgQ has been set, so that when
+    // mResendTimer fires, it can deliver a message to that message
+    // queue.
+    assert(mpResendMsgQ);
+
     if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
     {
        UtlString request;
@@ -1311,8 +1326,6 @@ void SipSubscriptionMgr::setNextResendInterval(const UtlString& dialogHandle,
 void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle,
                                           int interval)
 {
-   assert(mpResendMsgQ); // Check that mpResendMsgQ has been set.
-
    lock();
 
    SubscriptionServerState* state =

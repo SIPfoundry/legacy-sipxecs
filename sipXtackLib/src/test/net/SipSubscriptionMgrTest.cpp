@@ -129,10 +129,13 @@ Voice-Message: 0/0 (0/0)\r\n";
          SipMessage mwiSubWithAuthRequest(mwiSubscribeAuth);
          SipMessage mwiSub202Response(mwiSubscribe202);
          SipMessage mwiNotifyRequest(mwiNotify);
-         //CPPUNIT_ASSERT(TRUE);
-         //ASSERT_STR_EQUAL("a", "a");
 
+         // Dummy OsMsgQ to receive resend messages from subMgr.
+         // Allocate before subMgr, which will point to it.
+         OsMsgQ msgQ;
          SipSubscriptionMgr subMgr;
+         subMgr.initialize(&msgQ);
+         
          SipDialogMgr* dialogMgr = subMgr.getDialogMgr();
          SipSubscribeServerEventHandler eventHandler;
          UtlString resourceId;

@@ -71,7 +71,13 @@ public:
     //! Asks the SipSubscriptionMgr to initialize itself and sets the address 
     // of the queue to which to send resend messages.  The SipSubscriptionMgr
     // may not be used until initialize() returns.
-    virtual void initialize(OsMsgQ* pMsgQ);
+    virtual void initialize(OsMsgQ* pMsgQ
+                            /**< the address of the queue to which to
+                             *   send 'resend' messages indicating that a
+                             *   previously failed NOTIFY should be resent
+                             *   Usually sipSubscribeServer.getMessageQueue().
+                             */
+       );
    
     //! Add/Update subscription for the given SUBSCRIBE request
     /** The resourceId, eventTypeKey, and eventType are set based on
