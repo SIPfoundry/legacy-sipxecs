@@ -208,6 +208,11 @@ public class ConfigurationParser {
         /*
          * Authentication password.
          */
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "authentication-user-name"), "setAuthenticationUserName", 0);
+
+        /*
+         * Authentication password.
+         */
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "password"), "setPassword", 0);
 
         /*

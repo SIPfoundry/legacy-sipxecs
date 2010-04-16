@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.clientauthutils.UserCredentials;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -19,6 +21,7 @@ import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 
 import org.apache.log4j.Logger;
+
 import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.sipxrelay.KeepaliveMethod;
 import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
@@ -29,8 +32,7 @@ import org.sipfoundry.sipxbridge.xmlrpc.RegistrationRecord;
  * @author M. Ranganathan
  */
 
-public class ItspAccountInfo implements
-        gov.nist.javax.sip.clientauthutils.UserCredentials {
+public class ItspAccountInfo  {
     private static Logger logger = Logger.getLogger(ItspAccountInfo.class);
     
     /**
@@ -214,6 +216,10 @@ public class ItspAccountInfo implements
      * Whether or not to relay media for this ITSP.
      */
     private boolean alwaysRelayMedia = true;
+    
+    
+    private String authenticationUserName;
+    
 
     /*
      * This scans the failure counter table and removes records after a timeout period.
@@ -846,5 +852,21 @@ public class ItspAccountInfo implements
         logger.debug("Provider = " + Gateway.getWanProvider(this.outboundTransport.toLowerCase()) );
         return Gateway.getWanProvider(this.outboundTransport.toLowerCase());
     }
+
+	public void setAuthenticationUserName(String authenticationUserName) {
+		this.authenticationUserName = authenticationUserName;
+	}
+
+	public String getAuthenticationUserName() {
+		return authenticationUserName;
+	}
+	
+	public UserCredentials getUserCredentials() {
+		String userName = this.authenticationUserName == null ? this.userName : this.authenticationUserName;
+		
+		UserCredentialsImpl retval = new UserCredentialsImpl(userName, this.getSipDomain(), this.getPassword());
+		
+		return retval;
+	}
 
 }
