@@ -310,7 +310,11 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
         } else {
             TransactionContext tad = (TransactionContext) ctx.getApplicationData();
-            return tad.getItspAccountInfo();
+            if ( tad.getItspAccountInfo() != null ) {
+            	return tad.getItspAccountInfo().getUserCredentials();
+            } else {
+            	return null;
+            }
         }
 
     }
