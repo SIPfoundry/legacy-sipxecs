@@ -18,6 +18,9 @@ import java.util.Map;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
 
 public class LazyProfileManagerImpl implements ProfileManager {
+
+    private static enum TaskInfo { GENERATE, GENERATE_RESTART, RESTART };
+
     private Map<Integer, RestartInfo> m_ids = new HashMap<Integer, RestartInfo>();
 
     private ProfileManager m_target;
@@ -36,20 +39,36 @@ public class LazyProfileManagerImpl implements ProfileManager {
 
     public synchronized void generateProfiles(Collection<Integer> phoneIds, boolean restart, Date restartTime) {
         for (Integer id : phoneIds) {
-            updateRestart(id, restart, restartTime);
+            updateRestart(id, restart ? TaskInfo.GENERATE : TaskInfo.GENERATE_RESTART, restartTime);
         }
         m_worker.workScheduled();
         notify();
     }
 
     public synchronized void generateProfile(Integer phoneId, boolean restart, Date restartTime) {
-        updateRestart(phoneId, restart, restartTime);
+        updateRestart(phoneId, restart ? TaskInfo.GENERATE : TaskInfo.GENERATE_RESTART, restartTime);
         m_worker.workScheduled();
         notify();
     }
 
-    private void updateRestart(Integer id, boolean restart, Date restartTime) {
-        m_ids.put(id, new RestartInfo(restart, restartTime));
+    @Override
+    public synchronized void restartDevices(Collection<Integer> phoneIds, Date restartTime) {
+        for (Integer id : phoneIds) {
+            updateRestart(id, TaskInfo.RESTART, restartTime);
+        }
+        m_worker.workScheduled();
+        notify();
+    }
+
+    @Override
+    public synchronized void restartDevice(Integer phoneId, Date restartTime) {
+        updateRestart(phoneId, TaskInfo.RESTART, restartTime);
+        m_worker.workScheduled();
+        notify();
+    }
+
+    private void updateRestart(Integer id, TaskInfo taskInfo, Date restartTime) {
+        m_ids.put(id, new RestartInfo(taskInfo, restartTime));
     }
 
     private synchronized void waitForWork() throws InterruptedException {
@@ -87,18 +106,22 @@ public class LazyProfileManagerImpl implements ProfileManager {
             Map<Integer, RestartInfo> tasks = getTasks();
             for (Map.Entry<Integer, RestartInfo> entry : tasks.entrySet()) {
                 RestartInfo ri = entry.getValue();
-                m_target.generateProfile(entry.getKey(), ri.isRestart(), ri.getTime());
+                if (ri.isRestartOnly()) {
+                    m_target.restartDevice(entry.getKey(), ri.getTime());
+                } else {
+                    m_target.generateProfile(entry.getKey(), ri.isRestart(), ri.getTime());
+                }
             }
             return true;
         }
     }
 
     private static class RestartInfo {
-        private final boolean m_restart;
+        private final TaskInfo m_taskInfo;
         private final Date m_time;
 
-        public RestartInfo(boolean restart, Date time) {
-            m_restart = restart;
+        public RestartInfo(TaskInfo taskInfo, Date time) {
+            m_taskInfo = taskInfo;
             m_time = time;
         }
 
@@ -107,7 +130,11 @@ public class LazyProfileManagerImpl implements ProfileManager {
         }
 
         public boolean isRestart() {
-            return m_restart;
+            return m_taskInfo.equals(TaskInfo.GENERATE_RESTART);
+        }
+
+        public boolean isRestartOnly() {
+            return m_taskInfo.equals(TaskInfo.RESTART);
         }
     }
 }

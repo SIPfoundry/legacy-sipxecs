@@ -38,7 +38,7 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
         XmlFile orbits = new Orbits();
         orbits.setName("orbits.xml");
 
-        ApplicationEvent event = new DialPlanActivatedEvent(this);
+        ApplicationEvent event = new DialPlanActivatedEvent(this, false);
 
         LazySipxReplicationContextImpl lazy = new LazySipxReplicationContextImpl();
 

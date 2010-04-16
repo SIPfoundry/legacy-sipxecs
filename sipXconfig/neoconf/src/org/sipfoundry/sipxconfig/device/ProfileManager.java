@@ -26,4 +26,8 @@ public interface ProfileManager {
     public void generateProfiles(Collection<Integer> deviceIds, boolean restart, Date restartTime);
 
     public void generateProfile(Integer deviceId, boolean restart, Date restartTime);
+
+    public void restartDevices(Collection<Integer> devices, Date restartTime);
+
+    public void restartDevice(Integer device, Date restartTime);
 }

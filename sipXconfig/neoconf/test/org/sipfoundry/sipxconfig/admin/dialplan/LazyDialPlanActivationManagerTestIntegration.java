@@ -9,10 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import junit.framework.TestCase;
 import static java.lang.Thread.sleep;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 
@@ -27,7 +32,7 @@ public class LazyDialPlanActivationManagerTestIntegration extends TestCase {
     public void testLazy() throws Exception {
         SipxProcessContext processContext = createMock(SipxProcessContext.class);
         processContext.markDialPlanRelatedServicesForRestart(SipxProxyService.BEAN_ID, SipxRegistrarService.BEAN_ID);
-        expectLastCall().times(6);
+        expectLastCall().times(7);
 
         DialPlanActivationManager target = createMock(DialPlanActivationManager.class);
         target.replicateDialPlan(true);
@@ -35,11 +40,23 @@ public class LazyDialPlanActivationManagerTestIntegration extends TestCase {
         target.replicateDialPlan(false);
         expectLastCall().once();
 
-        replay(target, processContext);
+        List<Integer> ids = new ArrayList<Integer>();
+
+        SbcDeviceManager sbcDeviceManager = createMock(SbcDeviceManager.class);
+        sbcDeviceManager.getAllSbcDeviceIds();
+        expectLastCall().andReturn(ids);
+
+        ProfileManager profileManager = createMock(ProfileManager.class);
+        profileManager.restartDevices(ids, null);
+        expectLastCall().once();
+
+        replay(target, processContext, sbcDeviceManager, profileManager);
 
         LazyDialPlanActivationManager dpam = new LazyDialPlanActivationManager();
         dpam.setTarget(target);
         dpam.setSipxProcessContext(processContext);
+        dpam.setSbcDeviceManager(sbcDeviceManager);
+        dpam.setSbcProfileManager(profileManager);
         dpam.setSleepInterval(100);
         dpam.init();
 
@@ -53,7 +70,10 @@ public class LazyDialPlanActivationManagerTestIntegration extends TestCase {
         dpam.replicateDialPlan(false);
         sleep(300);
 
-        verify(target, processContext);
+        dpam.replicateDialPlan(true);
+        dpam.onApplicationEvent(new DialPlanActivatedEvent(dpam, false));
+        sleep(300);
+        verify(target, processContext, sbcDeviceManager, profileManager);
     }
 
 }

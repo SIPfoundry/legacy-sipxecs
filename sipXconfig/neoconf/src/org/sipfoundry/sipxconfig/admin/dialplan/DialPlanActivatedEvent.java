@@ -16,7 +16,14 @@ import org.springframework.context.ApplicationEvent;
  */
 public class DialPlanActivatedEvent extends ApplicationEvent {
 
-    public DialPlanActivatedEvent(Object eventSource) {
+    private final boolean m_sbcsRestarted;
+
+    public DialPlanActivatedEvent(Object eventSource, boolean sbcsRestarted) {
         super(eventSource);
+        m_sbcsRestarted = sbcsRestarted;
+    }
+
+    public boolean isSbcsRestarted() {
+        return m_sbcsRestarted;
     }
 }

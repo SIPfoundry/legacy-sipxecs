@@ -157,6 +157,8 @@
     init-method="init">
     <property name="target" ref="eagerDialPlanActivationManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
+    <property name="sbcDeviceManager" ref="sbcDeviceManager" />
+    <property name="sbcProfileManager" ref="sbcProfileManager" />
   </bean>
 
   <bean id="mappingRules" class="org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules" parent="defaultConfigurationFile">

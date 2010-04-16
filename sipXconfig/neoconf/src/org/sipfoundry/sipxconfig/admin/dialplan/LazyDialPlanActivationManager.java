@@ -9,15 +9,21 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan;
 
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
+import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
 import org.springframework.beans.factory.annotation.Required;
+import org.springframework.context.ApplicationEvent;
+import org.springframework.context.ApplicationListener;
 
-public class LazyDialPlanActivationManager implements DialPlanActivationManager {
+public class LazyDialPlanActivationManager implements DialPlanActivationManager, ApplicationListener {
     private static final Log LOG = LogFactory.getLog(LazyDialPlanActivationManager.class);
 
     /**
@@ -37,11 +43,15 @@ public class LazyDialPlanActivationManager implements DialPlanActivationManager 
 
     private SipxProcessContext m_sipxProcessContext;
 
+    private SbcDeviceManager m_sbcDeviceManager;
+
+    private ProfileManager m_sbcProfileManager;
+
     public synchronized void replicateDialPlan(boolean restartSbcDevices) {
         m_replicate = true;
         m_restart = m_restart || restartSbcDevices;
         m_sipxProcessContext.markDialPlanRelatedServicesForRestart(SipxProxyService.BEAN_ID,
-                SipxRegistrarService.BEAN_ID);
+                    SipxRegistrarService.BEAN_ID);
         notifyWorker();
     }
 
@@ -49,6 +59,17 @@ public class LazyDialPlanActivationManager implements DialPlanActivationManager 
         if (getReplicate()) {
             boolean restart = getRestart();
             m_target.replicateDialPlan(restart);
+        }
+    }
+
+    @Override
+    public void onApplicationEvent(ApplicationEvent event) {
+        if (event instanceof DialPlanActivatedEvent) {
+            getReplicate();
+            if (getRestart() && !((DialPlanActivatedEvent) event).isSbcsRestarted()) {
+                Collection<Integer> sbcIds = m_sbcDeviceManager.getAllSbcDeviceIds();
+                m_sbcProfileManager.restartDevices(sbcIds, null);
+            }
         }
     }
 
@@ -111,6 +132,16 @@ public class LazyDialPlanActivationManager implements DialPlanActivationManager 
     @Required
     public void setSipxProcessContext(SipxProcessContext sipxProcessContext) {
         m_sipxProcessContext = sipxProcessContext;
+    }
+
+    @Required
+    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
+        m_sbcDeviceManager = sbcDeviceManager;
+    }
+
+    @Required
+    public void setSbcProfileManager(ProfileManager sbcProfileManager) {
+        m_sbcProfileManager = sbcProfileManager;
     }
 
     public void setSleepInterval(int sleepInterval) {

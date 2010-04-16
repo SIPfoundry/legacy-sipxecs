@@ -30,6 +30,25 @@ public class ProfileManagerImplTest extends TestCase {
         new TestPhone();
     }
 
+    public void testRestartDevices() {
+        Integer[] ids = {
+            new Integer(1000), new Integer(2000)
+        };
+
+        RestartManager restartManager = createMock(RestartManager.class);
+        restartManager.restart(ids[0], null);
+        restartManager.restart(ids[1], null);
+
+        replay(restartManager);
+
+        ProfileManagerImpl pm = new ProfileManagerImpl();
+        pm.setRestartManager(restartManager);
+
+        pm.restartDevices(Arrays.asList(ids), null);
+
+        verify(restartManager);
+    }
+
     public void testGenerateProfilesAndRestart() {
         Integer jobId = new Integer(4);
 
