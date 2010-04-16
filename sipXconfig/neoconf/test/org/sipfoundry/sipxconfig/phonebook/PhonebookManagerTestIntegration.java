@@ -361,6 +361,12 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         PagedPhonebook pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "100", null);
         assertEquals(7, pagedPhonebook.getSize());
         Iterator<PhonebookEntry> entries = pagedPhonebook.getEntries().iterator();
+
+        PhonebookEntry editableContact = entries.next();
+        assertEquals(new Integer(101), editableContact.getId());
+        assertEquals("10020", editableContact.getNumber());
+
+
         PhonebookEntry contact1 = entries.next();
         assertEquals("canadian", contact1.getNumber());
         assertEquals(new Integer(-1), contact1.getId());
@@ -371,9 +377,6 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals("pintail", entries.next().getNumber());
         assertEquals("song", entries.next().getNumber());
         assertEquals("yellowthroat", entries.next().getNumber());
-        PhonebookEntry editableContact = entries.next();
-        assertEquals(new Integer(101), editableContact.getId());
-        assertEquals("10020", editableContact.getNumber());
 
         // test everyone disabled
         m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
@@ -382,6 +385,9 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "100", null);
         assertEquals(5, pagedPhonebook.getSize());
         entries = pagedPhonebook.getEntries().iterator();
+        editableContact = entries.next();
+        assertEquals(new Integer(101), editableContact.getId());
+        assertEquals("10020", editableContact.getNumber());
         contact1 = entries.next();
         assertEquals("canadian", contact1.getNumber());
         assertEquals(new Integer(-1), contact1.getId());
@@ -390,9 +396,6 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         assertEquals(new Integer(-1), contact2.getId());
         assertEquals("pintail", entries.next().getNumber());
         assertEquals("yellowthroat", entries.next().getNumber());
-        editableContact = entries.next();
-        assertEquals(new Integer(101), editableContact.getId());
-        assertEquals("10020", editableContact.getNumber());
 
         //reset everyone default
         m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
