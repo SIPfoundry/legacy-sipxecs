@@ -87,8 +87,9 @@ void CallId::getNewCallId(UtlString& callId)
    // Lock to protect common variables.
    OsLock lock(sCallIdMutex);
 
-   // Increment the call number.
-   sCallNum += 1;
+   // Increment the call number, rolling over after 0xFFFF, since we only
+   // use the low-order 16 bits.
+   sCallNum = (sCallNum + 1) & 0xFFFF;
 
    // Compute the next value.
    nextValue();

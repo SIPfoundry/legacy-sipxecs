@@ -308,6 +308,12 @@ UtlLink* UtlLink::get()
 /// Return a UtlLink to the pool.
 void UtlLink::release()
 {
+   // Clear the pointer to the subordinate object, to ensure that it doesn't
+   // appear to be pointed-to.
+   data = NULL;
+   // Clear the hash, in case it has the same value (bit-wise) as "data".
+   hash = 0;
+
    spLinkPool->release(this);
 }
 
@@ -368,5 +374,9 @@ UtlPair* UtlPair::get()
 
 void UtlPair::release()
 {
+   // Clear the pointer to the subordinate object, to ensure that it doesn't
+   // appear to be pointed-to.
+   value = NULL;
+
    spPairPool->release(this);
 }

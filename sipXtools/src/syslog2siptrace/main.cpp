@@ -79,19 +79,18 @@ void writeBranchId(int outputFileDescriptor,
 }
 
 void writeBranchNodeData(int outputFileDescriptor,
-                      UtlString& time,
-                      UtlString& source,
-                      UtlString& destination,
-                      UtlString& sourceAddress,
-                      UtlString& destinationAddress,
-                      UtlBoolean& isOutgoing,
-                      UtlString& remoteAddress,
-                      UtlString& transactionId,
-                      UtlString& frameId,
-                      UtlString& method,
-                      UtlString& responseCode,
-                      UtlString& responseText,
-                      UtlString& message)
+                         UtlString& time,
+                         UtlString& source,
+                         UtlString& destination,
+                         UtlString& sourceAddress,
+                         UtlString& destinationAddress,
+                         UtlBoolean& isOutgoing,
+                         UtlString& transactionId,
+                         UtlString& frameId,
+                         UtlString& method,
+                         UtlString& responseCode,
+                         UtlString& responseText,
+                         UtlString& message)
 {
     NameValueTokenizer::frontBackTrim(&time, " \t\n\r");
     NameValueTokenizer::frontBackTrim(&source, " \t\n\r");
@@ -103,7 +102,6 @@ void writeBranchNodeData(int outputFileDescriptor,
     NameValueTokenizer::frontBackTrim(&method, " \t\n\r");
     NameValueTokenizer::frontBackTrim(&responseCode, " \t\n\r");
     NameValueTokenizer::frontBackTrim(&responseText, " \t\n\r");
-    NameValueTokenizer::frontBackTrim(&remoteAddress," \t\n\r");
     //NameValueTokenizer::frontBackTrim(&message, " \t\n\r");
 
     UtlString node("\t\t<time>");
@@ -132,8 +130,6 @@ void writeBranchNodeData(int outputFileDescriptor,
     node.append(destinationAddress);
     node.append("</destinationAddress>\n");
 
-
-
     node.append("\t\t<transactionId>");
     node.append(transactionId);
     node.append("</transactionId>\n");
@@ -159,20 +155,26 @@ void writeBranchNodeData(int outputFileDescriptor,
     node.append(frameId);
     node.append("</frameId>\n");
 
-    node.append("\t\t<remoteHostPort>");
-    node.append(remoteAddress);
-    node.append("</remoteHostPort>\n");
+    if (isOutgoing)
+    {
+       node.append("\t\t<remoteHostPort>");
+       node.append(destinationAddress);
+       node.append("</remoteHostPort>\n");
 
-    node.append("\t\t<isOutgoing>");
-    if ( isOutgoing )
-     {
-        node.append("true");
-     }
-     else
-     {
-      	node.append("false");
-     }
-     node.append("</isOutgoing>\n");
+       node.append("\t\t<isOutgoing>");
+       node.append("true");
+       node.append("</isOutgoing>\n");
+    }
+    else
+    {
+       node.append("\t\t<remoteHostPort>");
+       node.append(sourceAddress);
+       node.append("</remoteHostPort>\n");
+
+       node.append("\t\t<isOutgoing>");
+       node.append("false");
+       node.append("</isOutgoing>\n");
+    }
 
     node.append("\t\t<message><![CDATA[");
     node.append(message);
@@ -189,10 +191,14 @@ void getMessageData(UtlString& content,
                    UtlString& eventCount,
                    int outputFileDescriptor)
 {
-    UtlString remoteHost;
-    UtlString remoteAddress;
-    UtlString remotePort;
-    UtlString remoteSourceAddress;
+    UtlString remoteHostPort;   // remote host-port
+    UtlString remoteAddress;    // remote address from "Remote Host:"
+    UtlString remotePort;       // remote port from "Port:"
+    UtlString localHostPort;    // local host-port, if known
+    UtlString localAddress;     // local address from "Remote Host:", if known
+    UtlString localPort;        // local port from "Port:", if known
+    UtlString topViaHostPort;   // host-port reported in top Via
+    UtlBoolean topViaIsRemote;  // true if top Via describes the remote element
     UtlString message;
     UtlString branchId;
     UtlString transactionId;
@@ -201,29 +207,32 @@ void getMessageData(UtlString& content,
     UtlString responseText;
     UtlBoolean failed = FALSE;
 
+    // Search for "----Remote Host:" to identify usable lines.
     ssize_t hostIndex = content.index("----Remote Host:");
-    if(hostIndex > 0)
+    if (hostIndex > 0)
     {
+        // Obtain remoteAddress and remotePort.
+
         hostIndex += 16;
         ssize_t hostEnd = content.index("----", hostIndex);
-        remoteHost.append(&(content.data()[hostIndex]),
-                          hostEnd - hostIndex);
-
-        remoteAddress = remoteHost;
-
-        remoteHost.append(":");
+        remoteAddress.append(&(content.data()[hostIndex]),
+                             hostEnd - hostIndex);
 
         size_t portIndex = hostEnd + 11;
         ssize_t portEnd = content.index("----", portIndex);
         remotePort.append(&(content.data()[portIndex]),
                           portEnd - portIndex);
-        remoteHost.append(remotePort);
 
-        UtlString remoteHostPort = remoteHost;
+        remoteHostPort = remoteAddress;
+        remoteHostPort.append(":");
+        remoteHostPort.append(remotePort);
 
         size_t messageIndex = portEnd + 5;
         ssize_t messageEnd;
-        if(isOutgoing)
+
+        // Extract the SIP message text.
+
+        if (isOutgoing)
         {
             messageEnd = content.index("--------------------END", messageIndex);
             // Record whether the send failed or not.
@@ -234,33 +243,33 @@ void getMessageData(UtlString& content,
         {
             messageEnd = content.index("====================END", messageIndex);
         }
-        if ( (ssize_t)UTL_NOT_FOUND == messageEnd )
+        if ((ssize_t) UTL_NOT_FOUND == messageEnd)
         {
            messageEnd = content.length();
         }
-
         message.append(&(content.data()[messageIndex]),
                           messageEnd - messageIndex);
-
         SipMessage sipMsg(message);
 
-        remoteSourceAddress = remoteHost;
-
-        if(sipMsg.isResponse())
+        // Perform processing dependent on whether the message is a
+        // request or response.
+        if (sipMsg.isResponse())
         {
-            sipMsg.getFirstHeaderLinePart(1, &responseCode);
-            if (failed)
-            {
-               responseCode = responseCode + " FAILED";
-            }
-            sipMsg.getFirstHeaderLinePart(2, &responseText);
+           // Get the response code and text.
+           sipMsg.getFirstHeaderLinePart(1, &responseCode);
+           sipMsg.getFirstHeaderLinePart(2, &responseText);
+           // Prepend FAILED if it is a failed transmission.
+           if (failed)
+           {
+              responseCode = "FAILED " + responseCode;
+           }
         }
         else
         {
             // Get the method.
             sipMsg.getRequestMethod(&method);
 
-            // If it is a re-INVITE, make that clear.
+            // If it is a re-INVITE, change the method to "re-INVITE".
             if (method.compareTo("INVITE", UtlString::ignoreCase) == 0)
             {
                Url to;
@@ -278,34 +287,56 @@ void getMessageData(UtlString& content,
             {
                method = "FAILED " + method;
             }
+        }
 
-            // We can derive the source entity from the via in
-            // incoming requests
-            if(!isOutgoing)
-            {
-                UtlString viaAddress;
-                UtlString protocol;
-                int viaPortNum;
+        // Determine whether the top Via host-port describes the remote end
+        // of this message.  That is, if this is an incoming request or an
+        // outgoing response.
+        // However, we can only get additional information if this is an incoming
+        // request, since if it is an outgoing response, the remoteHostPort
+        // is the same as the top Via host-port.
+        topViaIsRemote = !isOutgoing && !sipMsg.isResponse();
+        if (topViaIsRemote) 
+        {
+           // Extract the top Via host-port.
 
-                sipMsg.getTopVia(&viaAddress,
-                                 &viaPortNum,
-                                 &protocol);
-                char numBuff[30];
+           UtlString protocol;
+           int viaPortNum;
+           sipMsg.getTopVia(&topViaHostPort,
+                            &viaPortNum,
+                            &protocol);
+           topViaHostPort.append(":");
 
-                /*
-                 * Translating an unspecified port to 5060 may not always be correct:
-                 * if the host specifier is a name rather than an address, then port
-                 * _could_ be resolved using RFC 3263, but at this time we know of no
-                 * implementations that do this (much less rely on it).  Since leaving
-                 * the viaPortNum as PORT_NONE results in more confusing displays in
-                 * the normal case, this is a good compromise.
-                 */
-                sprintf(numBuff, "%d", ( viaPortNum == PORT_NONE ? SIP_PORT : viaPortNum ));
-                UtlString viaPort(numBuff);
+           /*
+            * Translating an unspecified port to 5060 may not
+            * always be correct:  if the host specifier is a name
+            * rather than an address, then port _could_ be
+            * resolved using RFC 3263, but at this time we know of
+            * no implementations that do this (much less rely on
+            * it).  Since leaving the viaPortNum as PORT_NONE
+            * results in more confusing displays in the normal
+            * case, this is a good compromise.
+            */
+           topViaHostPort.appendNumber(viaPortNum == PORT_NONE ? SIP_PORT : viaPortNum);
+        }
 
-                remoteHost = remoteAddress + ":" + viaPort;
+        // Now get the local address/port, if it is present.
+        hostIndex = content.index("----Local Host:");
+        if ((ssize_t) UTL_NOT_FOUND != hostIndex)
+        {
+           hostIndex += 15;
+           hostEnd = content.index("----", hostIndex);
+           localAddress.append(&(content.data()[hostIndex]),
+                               hostEnd - hostIndex);
 
-            }
+           portIndex = hostEnd + 11;
+           portEnd = content.index("----", portIndex);
+           localPort.append(&(content.data()[portIndex]),
+                             portEnd - portIndex);
+
+           localHostPort = localAddress;
+           localHostPort.append(":");
+           localHostPort.append(localPort);
         }
 
         // transaction token: [C/A]cseq-number,call-id,from-tag,to-tag
@@ -364,19 +395,30 @@ void getMessageData(UtlString& content,
 
         // Write out the rest of the node data
         writeBranchNodeData(outputFileDescriptor,
-                 date,
-                 isOutgoing ? hostname : remoteHost,
-                 isOutgoing ? remoteHost : hostname,
-                 isOutgoing ? hostname : remoteSourceAddress,
-                 isOutgoing ? remoteSourceAddress : hostname,
-                 isOutgoing,
-                 remoteHostPort,
-                 transactionId,
-                 eventCount,
-                 method,
-                 responseCode,
-                 responseText,
-                 message);
+                            date,
+                            // source
+                            isOutgoing ? hostname :
+                            (topViaIsRemote ? topViaHostPort : remoteHostPort),
+                            // destination
+                            isOutgoing ? remoteHostPort : hostname,
+                            // sourceAddress
+                            isOutgoing ?
+                            (remoteHostPort.isNull() ? hostname : remoteHostPort) :
+                            remoteHostPort,
+                            // destinationAddress
+                            isOutgoing ?
+                            remoteHostPort :
+                            (localHostPort.isNull() ? hostname : localHostPort),
+                            // isOutgoing
+                            isOutgoing,
+                            // transactionId
+                            transactionId,
+                            // frameId
+                            eventCount,
+                            method,
+                            responseCode,
+                            responseText,
+                            message);
 
         // Write out the node container finish
         writeBranchNodeEnd(outputFileDescriptor);
@@ -432,7 +474,6 @@ void convertToXml(UtlString& bufferString, int outputFileDescriptor)
                        hostname,
                        eventCount,
                        outputFileDescriptor);
-
     }
 }
 

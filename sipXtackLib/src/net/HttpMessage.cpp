@@ -2587,31 +2587,30 @@ void HttpMessage::setRequestFirstHeaderLine(const char* method,
 
 void HttpMessage::getRequestMethod(UtlString* method) const
 {
-    getFirstHeaderLinePart(0, method);
-    *method =method->strip(UtlString::both);
+   getFirstHeaderLinePart(0, method);
+   *method =method->strip(UtlString::both);
 }
 
 void HttpMessage::getRequestUri(UtlString* uri) const
 {
-    getFirstHeaderLinePart(1, uri);
+   getFirstHeaderLinePart(1, uri);
 }
 
 void HttpMessage::getRequestProtocol(UtlString* protocol) const
 {
-    getFirstHeaderLinePart(2, protocol);
-    *protocol = protocol->strip(UtlString::both);
+   getFirstHeaderLinePart(2, protocol);
+   *protocol = protocol->strip(UtlString::both);
 }
 
 void HttpMessage::changeRequestUri(const char* newUri)
 {
-    UtlString method;
-    UtlString protocol;
-    getFirstHeaderLinePart(0, &method);
-    getFirstHeaderLinePart(2, &protocol);
-    setRequestFirstHeaderLine(method.data(), newUri,
-                              protocol.data());
+   UtlString method;
+   UtlString protocol;
+   getFirstHeaderLinePart(0, &method);
+   getFirstHeaderLinePart(2, &protocol);
+   setRequestFirstHeaderLine(method.data(), newUri,
+                             protocol.data());
 }
-
 
 UtlBoolean HttpMessage::getAuthenticationScheme(UtlString* scheme,
                                                 HttpMessage::HttpEndpointEnum authorizationEntity

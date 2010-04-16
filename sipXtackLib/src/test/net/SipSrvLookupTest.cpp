@@ -560,6 +560,12 @@ public:
            "2.1.8.3:5060,100,0.009,2,TCP\n"
            "" },
 
+         // Numeric IPv6 address.
+         // Yields no destinations, because we haven't implemented IPv6 lookup,
+         // but this ensures that the URI can be processed without faulting.
+         { "[a0:32:44::99]", "sip", OsSocket::UNKNOWN, -1, NULL,
+           "" },
+
       };
 
       // Flag for whether any test cases have failed.

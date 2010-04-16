@@ -1,7 +1,7 @@
-# included directly (or indirectory) in every Makefile.am
+# Included directly (or indirectly) in every Makefile.am.
 
-# unclear why this is nec, putting in common place incase this is
-# relevant to some odd platform
+# It is unclear why this is necessary; putting it in a common place in
+# case this is relevant to some odd platform.
 INSTALL=@INSTALL@
 
 SIPX_VERSION:=@VERSION@-$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@)

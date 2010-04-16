@@ -320,6 +320,13 @@ server_t* SipSrvLookup::servers(const char* domain,
       server_insert_addr(serverList, list_length_allocated, list_length_used,
                          domain, socketType, in, 0, 0);
    }
+   // Case 1A: Domain name is a literal IPv6 address.
+   else if (domain[0] == '[')
+   {
+      OsSysLog::add(FAC_SIP, PRI_INFO,
+                    "SipSrvLookup::servers IPv6 address '%s'", domain);
+      /* Add no elements to the list. */
+   }
    else
    {
       // Free unused server_t instances, pointer must always be reloaded in this path
