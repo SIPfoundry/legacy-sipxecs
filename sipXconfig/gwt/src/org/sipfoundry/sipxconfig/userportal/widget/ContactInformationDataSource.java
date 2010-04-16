@@ -18,7 +18,6 @@ import com.smartgwt.client.widgets.form.ValuesManager;
 
 import org.sipfoundry.sipxconfig.userportal.client.HttpRequestBuilder;
 
-
 public class ContactInformationDataSource extends DataSource {
 
     public static final String JOB_TITLE = "jobTitle";
@@ -33,6 +32,8 @@ public class ContactInformationDataSource extends DataSource {
     public static final String IM_DISPLAY_ID = "imDisplayName";
     public static final String ALTERNATE_IM_ID = "alternateImId";
     public static final String LOCATION = "location";
+    public static final String FIRST_NAME = "firstName";
+    public static final String LAST_NAME = "lastName";
 
     public static final String HOME_ADDRESS = "homeAddress";
     public static final String HOME_STREET = "homeStreet";
@@ -54,8 +55,8 @@ public class ContactInformationDataSource extends DataSource {
     public static final String ALTERNATE_EMAIL_ADDRESS = "alternateEmailAddress";
 
     public static final String[] FIELDS_GENERAL = {
-        EMAIL_ADDRESS, LOCATION, ALTERNATE_EMAIL_ADDRESS, JOB_TITLE,
-        CELL_PHONE_NUMBER, IM_ID, JOB_DEPT, FAX_NUMBER, ALTERNATE_IM_ID, COMPANY_NAME
+        FIRST_NAME, LAST_NAME, EMAIL_ADDRESS, LOCATION, ALTERNATE_EMAIL_ADDRESS, JOB_TITLE, CELL_PHONE_NUMBER,
+        IM_ID, JOB_DEPT, FAX_NUMBER, ALTERNATE_IM_ID, COMPANY_NAME
     };
 
     public static final String[] FIELDS_HOME = {
@@ -63,8 +64,8 @@ public class ContactInformationDataSource extends DataSource {
     };
 
     public static final String[] FIELDS_OFFICE = {
-        OFFICE_DESIGNATION, OFFICE_STREET, OFFICE_COUNTRY, ASSISTANT_NAME, OFFICE_CITY,
-        OFFICE_ZIP, ASSISTANT_PHONE_NUMBER, OFFICE_STATE
+        OFFICE_DESIGNATION, OFFICE_STREET, OFFICE_COUNTRY, ASSISTANT_NAME, OFFICE_CITY, OFFICE_ZIP,
+        ASSISTANT_PHONE_NUMBER, OFFICE_STATE
     };
 
     private static final String REST_URL = "/sipxconfig/rest/my/contact-information/";
@@ -78,14 +79,16 @@ public class ContactInformationDataSource extends DataSource {
     private static final String VARIANT = "application/json";
     private static final String CONTENT_TYPE = "Content-Type";
 
-
     public ContactInformationDataSource(String id) {
         super();
         setID(id);
 
         DataSourceField emailAddress = new DataSourceTextField(EMAIL_ADDRESS);
         emailAddress.setValueXPath(EMAIL_ADDRESS);
-
+        DataSourceField firstName = new DataSourceTextField(FIRST_NAME);
+        firstName.setValueXPath(FIRST_NAME);
+        DataSourceField lastName = new DataSourceTextField(LAST_NAME);
+        lastName.setValueXPath(LAST_NAME);
         DataSourceField jobTitle = new DataSourceTextField(JOB_TITLE);
         jobTitle.setValueXPath(JOB_TITLE);
         DataSourceField jobDept = new DataSourceTextField(JOB_DEPT);
@@ -141,19 +144,19 @@ public class ContactInformationDataSource extends DataSource {
         DataSourceField avatar = new DataSourceTextField(AVATAR);
         avatar.setValueXPath(AVATAR);
 
-        setFields(emailAddress, jobTitle, jobDept, companyName, assistantName, location, cellPhoneNumber,
-                homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId,
+        setFields(firstName, lastName, emailAddress, jobTitle, jobDept, companyName, assistantName, location,
+                cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId,
                 alternateEmailAddress, homeStreet, homeCity, homeCountry, homeState, homeZip, officeStreet,
                 officeCity, officeCountry, officeState, officeZip, officeDesignation, avatar, useBranchAddress);
         setRecordXPath("/contact-information");
         setDataURL(REST_URL);
 
         /*
-         * NOTE -
-         * ECLIPSE DEBUGGING
+         * NOTE - ECLIPSE DEBUGGING
          *
-         * REST URL is not accessible when debugging the project from inside eclipse. You can use the data URL
-         * "ContactInformationTestData.xml" instead. It will give you a set of test data to work with.
+         * REST URL is not accessible when debugging the project from inside eclipse. You can use
+         * the data URL "ContactInformationTestData.xml" instead. It will give you a set of test
+         * data to work with.
          *
          * setDataURL("ContactInformationTestData.xml");
          */
@@ -161,12 +164,13 @@ public class ContactInformationDataSource extends DataSource {
     }
 
     public void editEntry(ValuesManager vm) {
-        HttpRequestBuilder.doPut(REST_URL, buildJsonRequest(vm).toString(), CONTENT_TYPE,
-                VARIANT);
+        HttpRequestBuilder.doPut(REST_URL, buildJsonRequest(vm).toString(), CONTENT_TYPE, VARIANT);
     }
 
     public JSONObject buildJsonRequest(ValuesManager form) {
         JSONObject contactInfo = new JSONObject();
+        addToJsonObject(contactInfo, FIRST_NAME, form.getValueAsString(FIRST_NAME));
+        addToJsonObject(contactInfo, LAST_NAME, form.getValueAsString(LAST_NAME));
         addToJsonObject(contactInfo, JOB_TITLE, form.getValueAsString(JOB_TITLE));
         addToJsonObject(contactInfo, JOB_DEPT, form.getValueAsString(JOB_DEPT));
         addToJsonObject(contactInfo, COMPANY_NAME, form.getValueAsString(COMPANY_NAME));
