@@ -51,6 +51,8 @@ public abstract class DialRuleCommon extends BaseComponent {
 
     public abstract Collection<Integer> getGatewaysToAdd();
 
+    public abstract String getDialRuleHelp();
+
     boolean isValid() {
         IValidationDelegate delegate = TapestryUtils.getValidator(this);
         try {
