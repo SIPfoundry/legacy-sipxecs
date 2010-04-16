@@ -16,7 +16,7 @@
                      userid="${sipxopenfire.db.user}" password="${sipxopenfire.db.password}" classpath="${jdbc-driver-jar}" />
         </presetdef>
         <target name="drop"  description="drops database!">
-            <exec executable="dropdb" outputproperty="eatme">
+            <exec executable="dropdb">
                  <arg line="-U ${sipxopenfire.db.user} ${sipxopenfire.db.name}" />
             </exec>
         </target>
@@ -26,7 +26,7 @@
             <sleep seconds="3" />
             <!-- sporadic template1 in use, allow dropdb to disconnect... -->
             <exec executable="createdb" failonerror="true">
-                 <arg line="-q -U ${sipxopenfire.db.user} --encoding=UNICODE ${sipxopenfire.db.name}" />
+                 <arg line="-U ${sipxopenfire.db.user} --encoding=UNICODE ${sipxopenfire.db.name}" />
             </exec>
         </target>
 

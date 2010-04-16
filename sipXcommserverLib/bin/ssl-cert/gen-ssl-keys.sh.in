@@ -1249,7 +1249,7 @@ fi
 
 randomFile=${WorkDir}/rnd_seed
 
-test -r ${Defaults} && . ${Defaults}
+test -r ${Defaults} && . ./${Defaults}
 
 case ${Action} in
 

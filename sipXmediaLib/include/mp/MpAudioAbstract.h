@@ -12,6 +12,7 @@
 
 #include <os/iostream>
 #include <stdio.h>
+#include <stdint.h>
 
 typedef int16_t AudioSample;
 typedef unsigned char AudioByte;

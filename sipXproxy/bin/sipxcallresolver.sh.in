@@ -41,7 +41,7 @@ resolverArgs="--confdir ${ConfDir} --logdir ${LogDir}"
 Database=SIPXCDR
 Today=`date`
 
-PsqlCmd="${Psql} --quiet --tuples-only --no-align --username ${PgUser} --dbname ${Database}"
+PsqlCmd="${Psql} --tuples-only --no-align --username ${PgUser} --dbname ${Database}"
 
 # Make sure we are running as root during installation setup
 assertRoot() {
@@ -139,12 +139,12 @@ databaseCommand() {
 
     case ${1} in
        create)
-         createdb --quiet -U ${PgUser} --encoding=UNICODE ${Database}
+         createdb -U ${PgUser} --encoding=UNICODE ${Database}
          ${PsqlCmd} -f ${PgSchema}
        ;;
 
        drop)
-         dropdb --quiet -U ${PgUser} ${Database}
+         dropdb -U ${PgUser} ${Database}
        ;;
    esac
 }

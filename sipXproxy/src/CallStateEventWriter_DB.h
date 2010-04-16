@@ -10,8 +10,8 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-#include "odbc/OdbcWrapper.h"
 #include "CallStateEventWriter.h"
+#include "odbc/OdbcWrapper.h"
 
 // DEFINES
 // MACROS

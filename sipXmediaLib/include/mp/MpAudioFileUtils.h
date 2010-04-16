@@ -12,6 +12,7 @@
 #define MP_AUDIO_FILE_UTILS_H
 
 #include <os/iostream>
+#include <stdint.h>
 
 typedef short AudioSample;
 
