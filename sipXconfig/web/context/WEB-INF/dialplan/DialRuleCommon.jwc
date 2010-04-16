@@ -12,6 +12,7 @@
   <parameter name="callback" />
   <parameter name="renderGateways" required="no" default-value="true" />
   <parameter name="availableSchedules" required="no" />
+  <parameter name="dialRuleHelp" required="no" />
 
   <inject property="dialPlanContext" object="spring:dialPlanContext" />
   <inject property="gatewayContext" object="spring:gatewayContext" />
