@@ -31,7 +31,14 @@
      <description>The reference unique gateway ID</description>
     </setting>
     <setting name="user-name">
-      <label>User name</label>
+      <label>Username</label>
+      <type>
+        <string />
+      </type>
+      <description>The user name attached to the account.</description>
+    </setting>
+    <setting name="authentication-user-name" advanced="yes">
+      <label>Authentication Username</label>
       <type>
         <string />
       </type>

@@ -30,11 +30,18 @@
       <description>The reference unique gateway ID</description>
     </setting>
     <setting name="user-name">
-      <label>User name</label>
+      <label>Username</label>
       <type>
         <string />
       </type>
-      <description>The authentication user name attached to the account. This will typically be your inbound phone number.</description>
+      <description>The user name attached to the account. This will typically be your inbound phone number.</description>
+    </setting>
+    <setting name="authentication-user-name" advanced="yes">
+      <label>Authentication Username</label>
+      <type>
+        <string />
+      </type>
+      <description>The authentication user name attached to the account.</description>
     </setting>
     <setting name="password">
       <label>Password</label>
