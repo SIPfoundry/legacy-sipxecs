@@ -1488,7 +1488,7 @@ void SipSrvLookupThread::isDone()
  */
 
 SipSrvLookupThread::SipSrvLookupThread(LookupTypes lookupType) :
-   OsServerTask("SipSrvLookupThread%d")
+   OsServerTask("SipSrvLookupThread-%d")
 {
    mLookupType = lookupType;
    mQueryCompleted = new OsEvent();

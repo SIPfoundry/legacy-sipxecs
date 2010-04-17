@@ -89,7 +89,8 @@ SipPublishServer* SipPublishServer::buildBasicServer(SipUserAgent& userAgent,
 SipPublishServer::SipPublishServer(SipUserAgent& defaultUserAgent,
                                    SipPublishServerEventStateMgr& defaultEventStateMgr,
                                    SipPublishServerEventStateCompositor& defaultEventStateCompositor)
-   : mPublishServerMutex(OsMutex::Q_FIFO)
+   : OsServerTask("SipPublishServer")
+   , mPublishServerMutex(OsMutex::Q_FIFO)
 {
     mpDefaultUserAgent = &defaultUserAgent;
     mpDefaultEventStateMgr = &defaultEventStateMgr;
@@ -98,10 +99,6 @@ SipPublishServer::SipPublishServer(SipUserAgent& defaultUserAgent,
 
 
 // Copy constructor NOT IMPLEMENTED
-SipPublishServer::SipPublishServer(const SipPublishServer& rSipPublishServer)
-   : mPublishServerMutex(OsMutex::Q_FIFO)
-{
-}
 
 
 // Destructor

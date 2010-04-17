@@ -28,6 +28,7 @@ EmailSendTask::EmailSendTask(UtlString& fromStr,
                              UtlString& replyTo,
                              UtlString& smtpServer
                              ) :
+   OsServerTask("EmailSendTask-%d"),
    mMessage(fromStr, replyTo, smtpServer) // garbage initialization
 {
    // start the task which will listen for messages and send email notifications

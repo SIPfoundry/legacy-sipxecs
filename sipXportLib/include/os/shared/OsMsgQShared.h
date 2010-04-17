@@ -48,10 +48,10 @@ public:
 /* ============================ CREATORS ================================== */
 
    OsMsgQShared(
-      const int       maxMsgs=DEF_MAX_MSGS,      //:max number of messages
-      const int       maxMsgLen=DEF_MAX_MSG_LEN, //:max msg length (bytes)
-      const int       options=Q_PRIORITY, //:how to queue blocked tasks
-      const UtlString& name=""             //:global name for this queue
+      const char* name,                        //:global name for this queue
+      const int   maxMsgs = DEF_MAX_MSGS,      //:max number of messages
+      const int   maxMsgLen = DEF_MAX_MSG_LEN, //:max msg length (bytes)
+      const int   options = Q_PRIORITY         //:how to queue blocked tasks
       );
      //:Constructor
      // If name is specified but is already in use, throw an exception

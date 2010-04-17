@@ -34,7 +34,8 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-CommandMsgProcessor::CommandMsgProcessor(SipUserAgent* sipUserAgent)
+CommandMsgProcessor::CommandMsgProcessor(SipUserAgent* sipUserAgent) :
+   OsServerTask("CommandMsgProcessor")
 {
 #ifdef TEST
    if (!sIsTested)
@@ -51,10 +52,7 @@ CommandMsgProcessor::CommandMsgProcessor(SipUserAgent* sipUserAgent)
    mpLastResponseMessage = NULL;
 }
 
-// Copy constructor
-CommandMsgProcessor::CommandMsgProcessor(const CommandMsgProcessor& rCommandMsgProcessor)
-{
-}
+// Copy constructor not implemented
 
 // Destructor
 CommandMsgProcessor::~CommandMsgProcessor()
@@ -63,15 +61,7 @@ CommandMsgProcessor::~CommandMsgProcessor()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Assignment operator
-CommandMsgProcessor&
-CommandMsgProcessor::operator=(const CommandMsgProcessor& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
+// Assignment operator not implemented
 
 UtlBoolean CommandMsgProcessor::handleMessage(OsMsg& eventMessage)
 {

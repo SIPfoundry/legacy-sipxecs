@@ -33,6 +33,7 @@ const int   DEFAULT_SUPERVISOR_PORT = 8092;  // MUST match sipXsupervisor/src/si
 
 
 AlarmRequestTask::AlarmRequestTask()
+   : OsServerTask("AlarmRequestTask-%d")
 {
    // pull Alarm Server address out of config file
    initXMLRPCsettings();

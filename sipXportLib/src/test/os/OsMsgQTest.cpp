@@ -38,8 +38,9 @@ public:
         OsMsg* pMsg2;
         OsMsg* pRecvMsg;
 
-        pMsgQ1 = new OsMsgQ(OsMsgQ::DEF_MAX_MSGS, OsMsgQ::DEF_MAX_MSG_LEN,
-                       OsMsgQ::Q_PRIORITY, "MQ1");
+        pMsgQ1 = new OsMsgQ("MQ1",
+                            OsMsgQ::DEF_MAX_MSGS, OsMsgQ::DEF_MAX_MSG_LEN,
+                            OsMsgQ::Q_PRIORITY);
 
         pMsg1  = new OsMsg(OsMsg::UNSPECIFIED, 0);
         pMsg2  = new OsMsg(OsMsg::UNSPECIFIED, 0);

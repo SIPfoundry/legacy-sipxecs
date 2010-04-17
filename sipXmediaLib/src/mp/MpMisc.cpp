@@ -578,12 +578,12 @@ OsStatus mpStartUp(int sampleRate, int samplesPerFrame,
         assert(
             (MIC_BUFFER_Q_LEN+SPK_BUFFER_Q_LEN+MIC_BUFFER_Q_LEN) <
                                (MpBufPool_getNumBufs(MpMisc.UcbPool)-3));
-        MpMisc.pMicQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
-        MpMisc.pSpkQ = new OsMsgQ(SPK_BUFFER_Q_LEN);
-        MpMisc.pEchoQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
+        MpMisc.pMicQ = new OsMsgQ("mpStartUp::MpMisc.pMicQ", MIC_BUFFER_Q_LEN);
+        MpMisc.pSpkQ = new OsMsgQ("mpStartUp::MpMisc.pSpkQ", SPK_BUFFER_Q_LEN);
+        MpMisc.pEchoQ = new OsMsgQ("mpStartUp::MpMisc.pEchoQ", MIC_BUFFER_Q_LEN);
 #ifdef _VXWORKS /* [ */
         MpMisc.doLoopBack = 0;
-        MpMisc.pLoopBackQ = new OsMsgQ(MIC_BUFFER_Q_LEN);
+        MpMisc.pLoopBackQ = new OsMsgQ("mpStartUp::MpMisc.pLoopBackQ", MIC_BUFFER_Q_LEN);
 #endif /* _VXWORKS ] */
 
         assert(MprFromMic::MAX_MIC_BUFFERS > 0);

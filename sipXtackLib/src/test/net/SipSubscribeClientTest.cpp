@@ -383,6 +383,11 @@ class SipSubscribeClientTest2 : public CppUnit::TestCase
 
 public:
 
+   SipSubscribeClientTest2()
+      : incomingClientMsgQueue("SipSubscribeClientTest2::incomingClientMsgQueue")
+      {
+      }
+
    // Variables used by setUp/tearDown and the tests.
 
    UtlString hostIp;
@@ -999,6 +1004,11 @@ class SipSubscribeClientTest4 : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
+
+   SipSubscribeClientTest4()
+      : incomingServerMsgQueue("SipSubscribeClientTest4::incomingServerMsgQueue")
+      {
+      }
 
    // Variables used by setUp/tearDown and the tests.
 
@@ -1864,6 +1874,14 @@ class SipSubscribeClientTest5 : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
+
+   SipSubscribeClientTest5()
+      : subIncomingServerMsgQueue("SipSubscribeClientTest5::subIncomingServerMsgQueue")
+      , subIncomingClientMsgQueue("SipSubscribeClientTest5::subIncomingClientMsgQueue")
+      , notIncomingServerMsgQueue("SipSubscribeClientTest5::notIncomingServerMsgQueue")
+      , notIncomingClientMsgQueue("SipSubscribeClientTest5::notIncomingClientMsgQueue")
+      {
+      }
 
    UtlBoolean removeMessage(OsMsgQ& messageQueue,
                             int waitMilliSeconds,

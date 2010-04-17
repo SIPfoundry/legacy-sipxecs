@@ -691,11 +691,12 @@ SipRedirectorPickUp::lookUpDialog(
                c.setHeaderParameter("Replaces", header_value.data());
                c.setHeaderParameter(SIP_REQUIRE_FIELD,
                                     SIP_REPLACES_EXTENSION);
+
                // Put this contact at a lower priority than the one in
                // the correct order.
                c.setFieldParameter("q", "0.9");
 
-               contactList.add( c,  *this );
+               contactList.add(c, *this);
             }
          }
       }

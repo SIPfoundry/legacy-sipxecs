@@ -52,8 +52,10 @@
 
 // Constructor
 // If the name is specified but is already in use, throw an exception
-OsMsgQShared::OsMsgQShared(const int maxMsgs, const int maxMsgLen,
-                     const int options, const UtlString& name)
+OsMsgQShared::OsMsgQShared(const char* name,
+                           const int maxMsgs,
+                           const int maxMsgLen,
+                           const int options)
    :
    OsMsgQBase(name),
    mGuard(OsMutex::Q_PRIORITY + OsMutex::INVERSION_SAFE +

@@ -62,12 +62,12 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsServerTask(const UtlString& name="",
-                void* pArg=NULL,
-                const int maxRequestQMsgs=DEF_MAX_MSGS,
-                const int priority=DEF_PRIO,
-                const int options=DEF_OPTIONS,
-                const int stackSize=DEF_STACKSIZE);
+   OsServerTask(const char* name,
+                void* pArg = NULL,
+                const int maxRequestQMsgs = DEF_MAX_MSGS,
+                const int priority = DEF_PRIO,
+                const int options = DEF_OPTIONS,
+                const int stackSize = DEF_STACKSIZE);
 
    virtual
    ~OsServerTask();

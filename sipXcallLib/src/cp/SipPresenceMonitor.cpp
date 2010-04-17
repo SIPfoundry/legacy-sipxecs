@@ -893,6 +893,7 @@ void SipPresenceMonitor::getState(const Url& aor, UtlString& status)
 // Constructor
 SipPresenceMonitorPersistenceTask::SipPresenceMonitorPersistenceTask(
    SipPresenceMonitor* presenceMonitor) :
+   OsServerTask("SipPresenceMonitorPersistenceTask-%d"),
    mSipPresenceMonitor(presenceMonitor)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG,

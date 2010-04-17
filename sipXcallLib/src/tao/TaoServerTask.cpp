@@ -56,6 +56,7 @@ TaoServerTask::TaoServerTask(CpCallManager *pCallMgr,
                 const int options,
                 const int stackSize)
                 : OsServerTask(name.data(), pArg, maxRequestQMsgs, priority, options, stackSize)
+                , mOutgoingQ("TaoServerTask::mOutgoingQ")
 {
         mpCallMgr = pCallMgr;
         mpPhoneTask = pPhoneTask;
@@ -74,6 +75,7 @@ TaoServerTask::TaoServerTask(const UtlString& name,
                 const int options,
                 const int stackSize)
                 : OsServerTask(name.data(), pArg, maxRequestQMsgs, priority, options, stackSize)
+                , mOutgoingQ("TaoServerTask::mOutgoingQ")
 {
         mClientHandle = 0;
         mEventClient = 0;
@@ -85,6 +87,7 @@ TaoServerTask::TaoServerTask(const UtlString& name,
 // Constructor
 TaoServerTask::TaoServerTask(const int maxIncomingQMsgs)
         : OsServerTask("TaoServerTask-%d", NULL, maxIncomingQMsgs)
+        , mOutgoingQ("TaoServerTask::mOutgoingQ")
 {
         mClientHandle = 0;
         mEventClient = 0;

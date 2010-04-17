@@ -236,6 +236,7 @@ class SipMessageResponder : public OsServerTask
      SipUserAgent *pUserAgent;
 
      SipMessageResponder()
+        : OsServerTask("SipMessageResponder")
      {
         start();
         pUserAgent = new SipUserAgent(     8886

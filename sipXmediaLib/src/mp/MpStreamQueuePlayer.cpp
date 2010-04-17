@@ -455,27 +455,9 @@ UtlBoolean MpStreamQueuePlayer::isPlaying()
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
 
-// Copy constructor
-MpStreamQueuePlayer::MpStreamQueuePlayer(const MpStreamQueuePlayer& rMpStreamQueuePlayer)
-   : mSemQueueChange(OsBSem::Q_PRIORITY, OsBSem::FULL)
-   , mSemWaitSynch(OsBSem::Q_FIFO, OsBSem::EMPTY)
-   , mListenerMutex(OsMutex::Q_PRIORITY)
-{
-   assert(FALSE) ;
-}
+// Copy constructor not implemented
 
-// Assignment operator
-MpStreamQueuePlayer&
-MpStreamQueuePlayer::operator=(const MpStreamQueuePlayer& rhs)
-{
-   assert(FALSE) ;
-
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
-
+// Assignment operator not implemented
 
 // Handles OS server task events/messages
 UtlBoolean MpStreamQueuePlayer::handleMessage(OsMsg& rMsg)
