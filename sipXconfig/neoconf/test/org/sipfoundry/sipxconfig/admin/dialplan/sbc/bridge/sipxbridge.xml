@@ -31,6 +31,7 @@
     <sipxecs-lineid>1</sipxecs-lineid>
     </sipxecs-lineids>
     <user-name>juser</user-name>
+    <authentication-user-name>anuser</authentication-user-name>
     <password>1234</password>
     <register-on-initialization>false</register-on-initialization>
     <itsp-proxy-address>itsp.example.com</itsp-proxy-address>
