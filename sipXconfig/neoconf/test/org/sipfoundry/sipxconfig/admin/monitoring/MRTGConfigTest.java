@@ -22,13 +22,14 @@ import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class MRTGConfigTest extends TestCase {
     private MRTGConfig m_mrtgConfig;
+    private File m_mrtgTempDir;
     private File m_mrtgConfigFile;
 
     protected void setUp() throws Exception {
-        File mrtgTempDir = TestUtil.createTempDir("mrtg-temp");
+        m_mrtgTempDir = TestUtil.createTempDir("mrtg-temp");
         FileInputStream mrtgCfgStream = new FileInputStream(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
-        TestHelper.copyStreamToDirectory(mrtgCfgStream, mrtgTempDir.getAbsolutePath(), "mrtg.cfg");
-        m_mrtgConfigFile = new File(mrtgTempDir, "mrtg.cfg");
+        TestHelper.copyStreamToDirectory(mrtgCfgStream, m_mrtgTempDir.getAbsolutePath(), "mrtg.cfg");
+        m_mrtgConfigFile = new File(m_mrtgTempDir, "mrtg.cfg");
         m_mrtgConfig = new MRTGConfig(m_mrtgConfigFile.toString());
 
         try {
@@ -37,6 +38,11 @@ public class MRTGConfigTest extends TestCase {
         } catch (Exception ex) {
             // could not initialize monitoring context, tests will fail
         }
+    }
+
+    protected void tearDown() throws Exception {
+	m_mrtgConfigFile.delete();
+	m_mrtgTempDir.delete();
     }
 
     public void testGetMRTGConfigTargets() {

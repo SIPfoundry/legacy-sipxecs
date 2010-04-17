@@ -29,6 +29,8 @@ public class MonitoringContextImplTest extends TestCase {
     private LocationsManager m_locationsManager;
     private MRTGConfig m_mrtgConfig;
     private MRTGConfig m_mrtgTemplateConfig;
+    private File m_mrtgTempDir;
+    private File m_mrtgConfigFile;
 
     @Override
     protected void setUp() throws Exception {
@@ -48,10 +50,11 @@ public class MonitoringContextImplTest extends TestCase {
 
         m_monitoringContextImpl.setLocationsManager(m_locationsManager);
 
-        File mrtgTempDir = TestUtil.createTempDir("mrtg-temp");
+        m_mrtgTempDir = TestUtil.createTempDir("mrtg-temp");
         FileInputStream mrtgCfgStream = new FileInputStream(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg.cfg");
-        TestHelper.copyStreamToDirectory(mrtgCfgStream, mrtgTempDir.getAbsolutePath(), "mrtg.cfg");
-        m_mrtgConfig = new MRTGConfig(new File(mrtgTempDir, "mrtg.cfg").toString());
+        TestHelper.copyStreamToDirectory(mrtgCfgStream, m_mrtgTempDir.getAbsolutePath(), "mrtg.cfg");
+	m_mrtgConfigFile = new File(m_mrtgTempDir, "mrtg.cfg");
+        m_mrtgConfig = new MRTGConfig(m_mrtgConfigFile.toString());
 
         m_mrtgTemplateConfig = new MRTGConfig(TestUtil.getTestSourceDirectory(getClass()) + "/" + "mrtg-t.cfg");
         m_monitoringContextImpl.setMrtgConfig(m_mrtgConfig);
@@ -61,6 +64,11 @@ public class MonitoringContextImplTest extends TestCase {
         } catch (Exception ex) {
             fail("could not initialize monitoring context");
         }
+    }
+
+    protected void tearDown() throws Exception {
+	m_mrtgConfigFile.delete();
+	m_mrtgTempDir.delete();
     }
 
     public void testGetAvailableHosts() {
