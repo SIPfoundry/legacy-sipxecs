@@ -258,6 +258,7 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
          {
             if ((lineMgr = new SipLineMgr()))
             {
+               lineMgr->startLineMgr();
                if (lineMgr->addLine(*line))
                {
                   if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator

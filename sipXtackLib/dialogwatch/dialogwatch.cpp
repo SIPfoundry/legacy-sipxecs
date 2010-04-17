@@ -271,6 +271,7 @@ int main(int argc, char* argv[])
    // Create the SIP Subscribe Client
 
    SipLineMgr lineMgr;
+   lineMgr.startLineMgr();
 
    // Add credentials if they were specified.
    if (realm)

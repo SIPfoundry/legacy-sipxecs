@@ -262,7 +262,7 @@ public:
         for (int i=0; i<NUM_OF_RUNS; ++i)
         {
             SipLineMgr*    lineMgr = new SipLineMgr();
-            lineMgr->StartLineMgr();
+            lineMgr->startLineMgr();
             SipUserAgent* sipUA = new SipUserAgent( 5090
                                                     ,5090
                                                     ,5091
@@ -341,7 +341,7 @@ public:
             SipLineMgr*    lineMgr = new SipLineMgr();
             SipRefreshMgr* refreshMgr = new SipRefreshMgr();
 
-            lineMgr->StartLineMgr();
+            lineMgr->startLineMgr();
             lineMgr->initializeRefreshMgr( refreshMgr );
 
             SipUserAgent* sipUA = new SipUserAgent( 5090

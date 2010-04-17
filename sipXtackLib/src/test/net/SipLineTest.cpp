@@ -144,6 +144,7 @@ public:
         int iRC ;
 
         SipLineMgr mgr ;
+        mgr.startLineMgr();
         SipLine line(identity, identity, "userId") ;
         lineId = line.getLineId() ;
 
@@ -305,6 +306,7 @@ public:
         Url from ;
         Url contact ;
         SipLineMgr mgr ;
+        mgr.startLineMgr();
 
         // Add line
         SipLine line(identity, identity, "userId") ;

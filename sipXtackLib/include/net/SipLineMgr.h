@@ -83,7 +83,7 @@ public:
 
 /* ============================ MANIPULATORS ============================== */
 
-   void StartLineMgr();
+   void startLineMgr();
 
    UtlBoolean initializeRefreshMgr(SipRefreshMgr * refreshMgr);
 

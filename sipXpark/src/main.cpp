@@ -419,6 +419,7 @@ int main(int argc, char* argv[])
                 {
                    if ((lineMgr = new SipLineMgr()))
                    {
+                      lineMgr->startLineMgr();
                       if (lineMgr->addLine(*line))
                       {
                          if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator

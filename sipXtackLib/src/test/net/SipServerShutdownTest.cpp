@@ -16,7 +16,6 @@
 #include <os/OsProcess.h>
 #include <net/SipMessage.h>
 #include <net/SipUserAgent.h>
-#include <net/SipLineMgr.h>
 #include <net/SipRefreshMgr.h>
 #include <net/SipTcpServer.h>
 

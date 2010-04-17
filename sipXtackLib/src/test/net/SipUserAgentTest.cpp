@@ -121,7 +121,7 @@ public:
             SipLineMgr    lineMgr;
             SipRefreshMgr refreshMgr;
 
-            lineMgr.StartLineMgr();
+            lineMgr.startLineMgr();
             lineMgr.initializeRefreshMgr( &refreshMgr );
 
             SipUserAgent sipUA( 5090
@@ -197,7 +197,7 @@ public:
             SipLineMgr    lineMgr;
             SipRefreshMgr refreshMgr;
 
-            lineMgr.StartLineMgr();
+            lineMgr.startLineMgr();
             lineMgr.initializeRefreshMgr( &refreshMgr );
 
             SipUserAgent sipUA( 5090

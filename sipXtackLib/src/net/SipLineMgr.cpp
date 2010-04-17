@@ -67,7 +67,7 @@ SipLineMgr::~SipLineMgr()
 }
 
 void
-SipLineMgr::StartLineMgr()
+SipLineMgr::startLineMgr()
 {
     if(!isStarted())
     {
@@ -105,7 +105,7 @@ SipLineMgr::handleMessage(OsMsg &eventMessage)
           Url tempUrl ( toUrl );
         line = sLineList.getLine( tempUrl );
 
-        if ( line)
+        if (line)
         {   // is this a request with a timeout?
             if ( !sipMsg->isResponse() && (messageType==SipMessageEvent::TRANSPORT_ERROR) )
             {

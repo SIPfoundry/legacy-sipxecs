@@ -172,7 +172,7 @@ int main(int argc, char* argv[])
    SipLineMgr*    lineMgr = new SipLineMgr();
    SipRefreshMgr* refreshMgr = new SipRefreshMgr();
 
-   lineMgr->StartLineMgr();
+   lineMgr->startLineMgr();
    lineMgr->initializeRefreshMgr( refreshMgr );
 
    SipUserAgent*  sipUA = new SipUserAgent( proxyTcpPort
