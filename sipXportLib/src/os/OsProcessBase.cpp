@@ -30,7 +30,9 @@
 
 // Constructor
 OsProcessBase::OsProcessBase() :
-mPID(-1), mParentPID(-1), mProcessName("")
+   mPID(-1),
+   mParentPID(-1),
+   mProcessName("")
 {
 }
 

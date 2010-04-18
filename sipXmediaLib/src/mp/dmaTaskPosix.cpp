@@ -594,7 +594,7 @@ static AudioStreamBasicDescription CoreAudio_device_desc, CoreAudio_local_desc;
 static AudioConverterRef CoreAudio_output_converter, CoreAudio_input_converter;
 static UInt32 CoreAudio_device_io_size;
 
-static int CoreAudio_socket[2];
+static int CoreAudio_socket[2] = {-1, -1};
 
 struct CoreAudio_data_desc {
    void * data;
@@ -725,7 +725,10 @@ static int CoreAudio_shutdown(void)
    AudioConverterDispose(CoreAudio_input_converter);
 
    /* the other side was closed by the client */
-   close(CoreAudio_socket[0]);
+   if (CoreAudio_socket[0] != -1)
+   {
+      close(CoreAudio_socket[0]);
+   }
 
    return 0;
 }
@@ -776,14 +779,14 @@ unsigned long cpuSpeed(void)
       {
          // Entry found, read speed.
          speed = atoi(&entry[10]);
-         fclose (cpuinfo);
+         fclose(cpuinfo);
          osPrintf("cpuSpeed - CPU Speed = %luMHz\n", speed);
          return speed;
       }
    }
 
    // Unable to find CPU Speed info!
-   fclose (cpuinfo);
+   fclose(cpuinfo);
    osPrintf("cpuSpeed - Unable to determind CPU Speed!\n");
    return 0;
 }
