@@ -750,7 +750,9 @@ private:
     OsRWMutex mOutputProcessorMutex;
     // The local address and port.
     UtlString mLocalHostAddress;
-    int mLocalHostPort;
+    int mLocalUdpHostPort;
+    int mLocalTcpHostPort;
+    int mLocalTlsHostPort;
     bool mLocalHostValid;       // true if fetching mLocalHostAddress succeeded
 
     // Timers (in seconds or milliseconds)
