@@ -163,6 +163,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                                          this,
                                          bUseNextAvailablePort,
                                          defaultAddress);
+        mSipTlsServer->start();
         mSipTlsServer->startListener();
         mTlsPort = mSipTlsServer->getServerPort();
 
@@ -181,6 +182,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                                          "SipTcpServer-%d",
                                          bUseNextAvailablePort,
                                          defaultAddress);
+        mSipTcpServer->start();
         mSipTcpServer->startListener();
         mTcpPort = mSipTcpServer->getServerPort();
 
@@ -199,6 +201,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
                                          readBufferSize,
                                          bUseNextAvailablePort,
                                          defaultAddress);
+        mSipUdpServer->start();
         mSipUdpServer->startListener();
         // Get the UDP port that was obtained (in case mUdpPort was
         // PORT_DEFAULT).
