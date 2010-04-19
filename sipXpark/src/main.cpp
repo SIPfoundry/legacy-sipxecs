@@ -382,7 +382,6 @@ int main(int argc, char* argv[])
     UtlString   realm;
     UtlString   user;
 
-    SipLine*    line = NULL;
     SipLineMgr* lineMgr = NULL;
 
     OsConfigDb  domainConfiguration;
@@ -408,63 +407,55 @@ int main(int argc, char* argv[])
 
              if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
              {
-                if ((line = new SipLine( identity // user entered url
-                                        ,identity // identity url
-                                        ,user     // user
-                                        ,TRUE     // visible
-                                        ,SipLine::LINE_STATE_PROVISIONED
-                                        ,TRUE     // auto enable
-                                        ,FALSE    // use call handling
-                                        )))
+                if ((lineMgr = new SipLineMgr()))
                 {
-                   if ((lineMgr = new SipLineMgr()))
+                   SipLine line(identity // user entered url
+                                ,identity // identity url
+                                ,user     // user
+                                ,TRUE     // visible
+                                ,SipLine::LINE_STATE_PROVISIONED
+                                ,TRUE     // auto enable
+                                ,FALSE    // use call handling
+                      );
+
+                   if (lineMgr->addLine(line))
                    {
                       lineMgr->startLineMgr();
-                      if (lineMgr->addLine(*line))
-                      {
-                         if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
-                                                           ,HTTP_DIGEST_AUTHENTICATION
-                                                           )
+                      if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                        ,HTTP_DIGEST_AUTHENTICATION
                              )
-                         {
-                            OsSysLog::add(LOG_FACILITY, PRI_INFO,
-                                          "Added identity '%s': user='%s' realm='%s'"
-                                          ,identity.toString().data(), user.data(), realm.data()
-                                          );
-                         }
-                         else
-                         {
-                            OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                                          "Error adding identity '%s': user='%s' realm='%s'\n"
-                                          "  escape and timeout from park may not work.",
-                                          identity.toString().data(), user.data(), realm.data()
-                                          );
-                         }
-
-                         lineMgr->setDefaultOutboundLine(identity);
-                      }     // end addLine
+                         )
+                      {
+                         OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                                       "Added identity '%s': user='%s' realm='%s'"
+                                       ,identity.toString().data(), user.data(), realm.data()
+                            );
+                      }
                       else
                       {
                          OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                                       "addLine failed: "
-                                       "  escape and timeout from park may not work."
-                                       );
+                                       "Error adding identity '%s': user='%s' realm='%s'\n"
+                                       "  escape and timeout from park may not work.",
+                                       identity.toString().data(), user.data(), realm.data()
+                            );
                       }
-                   }
+
+                      lineMgr->setDefaultOutboundLine(identity);
+                   }     // end addLine
                    else
                    {
                       OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                                    "Constructing SipLineMgr failed:  "
+                                    "addLine failed: "
                                     "  escape and timeout from park may not work."
-                                    );
+                         );
                    }
-                }   // end new SipLine
+                }
                 else
                 {
                    OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                                 "Constructing SipLine failed:  "
+                                 "Constructing SipLineMgr failed:  "
                                  "  escape and timeout from park may not work."
-                                 );
+                      );
                 }
              }  // end getCredential
              else

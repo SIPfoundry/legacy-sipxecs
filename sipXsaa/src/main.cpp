@@ -222,7 +222,6 @@ void initSysLog(OsConfigDb* pConfig)
 // Get and add the credentials for sipXsaa
 SipLineMgr* addCredentials (UtlString domain, UtlString realm)
 {
-   SipLine* line = NULL;
    SipLineMgr* lineMgr = NULL;
    UtlString user;
 
@@ -239,56 +238,49 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
 
       if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
-         if ((line = new SipLine( identity // user entered url
-                                 ,identity // identity url
-                                 ,user     // user
-                                 ,TRUE     // visible
-                                 ,SipLine::LINE_STATE_PROVISIONED
-                                 ,TRUE     // auto enable
-                                 ,FALSE    // use call handling
-                                 )))
+         if ((lineMgr = new SipLineMgr()))
          {
-            if ((lineMgr = new SipLineMgr()))
+            SipLine line(identity // user entered url
+                         ,identity // identity url
+                         ,user     // user
+                         ,TRUE     // visible
+                         ,SipLine::LINE_STATE_PROVISIONED
+                         ,TRUE     // auto enable
+                         ,FALSE    // use call handling
+               );
+            if (lineMgr->addLine(line))
             {
                lineMgr->startLineMgr();
-               if (lineMgr->addLine(*line))
-               {
-                  if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
-                                                    ,HTTP_DIGEST_AUTHENTICATION
-                                                    )
+               if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                  ,HTTP_DIGEST_AUTHENTICATION
                       )
-                  {
-                     lineMgr->setDefaultOutboundLine(identity);
-                     bSuccess = true;
+                  )
+               {
+                  lineMgr->setDefaultOutboundLine(identity);
+                  bSuccess = true;
 
-                     OsSysLog::add(LOG_FACILITY, PRI_INFO,
-                                   "Added identity '%s': user='%s' realm='%s'"
-                                   ,identity.toString().data(), user.data(), realm.data()
-                                   );
-                  }
-                  else
-                  {
-                     OsSysLog::add(LOG_FACILITY, PRI_CRIT,
-                                   "Error adding identity '%s': user='%s' realm='%s'\n",
-                                   identity.toString().data(), user.data(), realm.data()
-                                   );
-                  }
+                  OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                                "Added identity '%s': user='%s' realm='%s'"
+                                ,identity.toString().data(), user.data(), realm.data()
+                     );
                }
                else
                {
-                  OsSysLog::add(LOG_FACILITY, PRI_CRIT, "addLine failed" );
+                  OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                                "Error adding identity '%s': user='%s' realm='%s'\n",
+                                identity.toString().data(), user.data(), realm.data()
+                     );
                }
             }
             else
             {
-               OsSysLog::add(LOG_FACILITY, PRI_CRIT,
-                             "Constructing SipLineMgr failed" );
+               OsSysLog::add(LOG_FACILITY, PRI_CRIT, "addLine failed" );
             }
          }
          else
          {
             OsSysLog::add(LOG_FACILITY, PRI_CRIT,
-                          "Constructing SipLine failed" );
+                          "Constructing SipLineMgr failed" );
          }
       }
       else
@@ -301,9 +293,6 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
 
       if( !bSuccess )
       {
-         delete line;
-         line = NULL;
-
          delete lineMgr;
          lineMgr = NULL;
       }

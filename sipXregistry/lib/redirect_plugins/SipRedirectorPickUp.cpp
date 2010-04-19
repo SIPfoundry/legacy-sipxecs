@@ -1295,57 +1295,50 @@ SipRedirectorPickUp::addCredentials (UtlString domain, UtlString realm)
 
       if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
-         if ((line = new SipLine( identity // user entered url
-                                 ,identity // identity url
-                                 ,user     // user
-                                 ,TRUE     // visible
-                                 ,SipLine::LINE_STATE_PROVISIONED
-                                 ,TRUE     // auto enable
-                                 ,FALSE    // use call handling
-                                 )))
+         if ((lineMgr = new SipLineMgr()))
          {
-            if ((lineMgr = new SipLineMgr()))
+            SipLine line(identity // user entered url
+                         ,identity // identity url
+                         ,user     // user
+                         ,TRUE     // visible
+                         ,SipLine::LINE_STATE_PROVISIONED
+                         ,TRUE     // auto enable
+                         ,FALSE    // use call handling
+               );
+            if (lineMgr->addLine(line))
             {
                lineMgr->startLineMgr();
-               if (lineMgr->addLine(*line))
-               {
-                  if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
-                                                    ,HTTP_DIGEST_AUTHENTICATION
-                                                    )
+               if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                  ,HTTP_DIGEST_AUTHENTICATION
                       )
-                  {
-                     lineMgr->setDefaultOutboundLine(identity);
-                     bSuccess = true;
+                  )
+               {
+                  lineMgr->setDefaultOutboundLine(identity);
+                  bSuccess = true;
 
-                     OsSysLog::add(FAC_SIP, PRI_INFO,
-                                   "Added identity '%s': user='%s' realm='%s'"
-                                   ,identity.toString().data(), user.data(), realm.data()
-                                   );
-                  }
-                  else
-                  {
-                     OsSysLog::add(FAC_SIP, PRI_ERR,
-                                   "Error adding identity '%s': user='%s' realm='%s'\n"
-                                   "Call Pickup will not work!",
-                                   identity.toString().data(), user.data(), realm.data()
-                                   );
-                  }
+                  OsSysLog::add(FAC_SIP, PRI_INFO,
+                                "Added identity '%s': user='%s' realm='%s'"
+                                ,identity.toString().data(), user.data(), realm.data()
+                     );
                }
                else
                {
-                  OsSysLog::add(FAC_SIP, PRI_ERR, "addLine failed. Call Pickup will not work!" );
+                  OsSysLog::add(FAC_SIP, PRI_ERR,
+                                "Error adding identity '%s': user='%s' realm='%s'\n"
+                                "Call Pickup will not work!",
+                                identity.toString().data(), user.data(), realm.data()
+                     );
                }
             }
             else
             {
-               OsSysLog::add(FAC_SIP, PRI_ERR,
-                             "Constructing SipLineMgr failed. Call Pickup will not work!" );
+               OsSysLog::add(FAC_SIP, PRI_ERR, "addLine failed. Call Pickup will not work!" );
             }
          }
          else
          {
             OsSysLog::add(FAC_SIP, PRI_ERR,
-                          "Constructing SipLine failed. Call Pickup will not work!" );
+                          "Constructing SipLineMgr failed. Call Pickup will not work!" );
          }
       }
       else
