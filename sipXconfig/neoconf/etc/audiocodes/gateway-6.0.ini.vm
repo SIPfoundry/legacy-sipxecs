@@ -201,7 +201,8 @@ FORMAT ProxySet_Index = ProxySet_EnableProxyKeepAlive, ProxySet_ProxyKeepAliveTi
 #foreach ($route in $gateway.tel2iproutes)
 #set($route_id = $route.RouteId)
 #set($keepalive = $route.ProxyKeepalive)
-ProxySet $route_id = $keepalive, 60, 0, 0, 0;
+#set($keeptime = $route.ProxyKeeptime)
+ProxySet $route_id = $keepalive, $keeptime, 0, 0, 0;
 #end
 [ \ProxySet ]
 ## end of trunkGateway parameters
