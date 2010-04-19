@@ -134,6 +134,39 @@ public class EditConferenceTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
     }
 
+    public void testWebConference() {
+        SiteTestHelper.home(tester);
+        clickLink("ListBridges");
+        clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
+        clickLink("link:conferences");
+        tester.setWorkingForm("refreshForm");
+        SiteTestHelper.clickSubmitLink(tester, "conference:add");
+        setTextField("item:name", "dimdimConference");
+        setTextField("item:extension", "123456");
+        setTextField("setting:participant-code","1122");
+
+        assertElementNotPresent("link:dimdim");
+        submit("form:apply");
+        assertElementPresent("link:dimdim");
+        clickLink("link:dimdim");
+        assertTextFieldEquals("setting:dimdim-host", "webmeeting.dimdim.com");
+        setTextField("setting:user", "test");
+        setTextField("setting:password", "test");
+        setTextField("setting:did", "22222");
+        assertElementNotPresent("startWebConference");
+        assertElementNotPresent("inviteEmail");
+        submit("form:apply");
+        assertElementPresent("startWebConference");
+        assertElementPresent("inviteEmail");
+        tester.setWorkingForm("dimdimForm");
+        assertHiddenFieldPresent("account", "test");
+        assertHiddenFieldPresent("password", "test");
+        assertHiddenFieldPresent("meetingName","dimdimConference");
+        assertHiddenFieldPresent("internationalTollNumber", "22222");
+        assertHiddenFieldPresent("attendeePhonePassCode", "1122");
+        assertHiddenFieldPresent("attendeeKey", "1122");
+    }
+
     /**
      * Tests to ensure a validation error is displayed when no conference bridge is selected.
      */

@@ -89,7 +89,7 @@ public class DimDimConference {
         return m_conference.getSettingValue("web-meeting/dimdim-host").toString();
     }
 
-    String getUser() {
+    public String getUser() {
         String user = m_conference.getSettingValue("web-meeting/user");
         if (StringUtils.isNotBlank(user)) {
             return user;
@@ -109,14 +109,29 @@ public class DimDimConference {
         return owner.getDisplayName();
     }
 
-    String getPassword() {
+    public String getPassword() {
         return m_conference.getSettingValue("web-meeting/password");
     }
 
-    String getDid() {
+    public String getDid() {
         return m_conference.getSettingValue("web-meeting/did");
     }
 
+    public String getAttendeePwd() {
+        return m_conference.getParticipantAccessCode();
+    }
+
+    public String getAttendeePasscode() {
+        return m_conference.getParticipantAccessCode();
+    }
+
+    public String getConfName() {
+        return m_conference.getName();
+    }
+
+    public String getAgenda() {
+        return m_conference.getDescription();
+    }
     // attendeePwd, Attendee Password, which Attendees need to know this password
     // to join the Dimdim Meeting.
     private void addAttendeePwd(Map<String, String> params) {

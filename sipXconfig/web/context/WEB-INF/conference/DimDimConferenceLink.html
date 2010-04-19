@@ -1,24 +1,16 @@
 <div jwcid="@If" condition="ognl:dimDimConference.configured" renderTag="false">
-  <p>
-    <span key="prompt.createDimDim">To start dimdim conference click</span>&nbsp;
-    <a jwcid="@GenericLink" id="dimdimConference:link"
-      href="ognl:dimDimConference.createMeetingUrl"
-      target="_blank"><span key="prompt.here">here</span></a>
-  </p>
-  <form jwcid="@Form">
-    <table>
-      <tr jwcid="@common/FieldPanel"
-        for="dimdim:joinMeetingUrl"
-        label="message:label.joinMeetingUrl"
-        field="component:joinMeetingUrl"
-        description="message:description.joinMeetingUrl" >
-        <input jwcid="joinMeetingUrl@TextField"
-          id="dimdim:joinMeetingUrl"
-          value="ognl:dimDimConference.joinMeetingUrl"
-          readonly="readonly"
-          size="60"
-          displayName="message:label.joinMeetingUrl"/>
-      </tr>
-    </table>
+  <br/><br/>
+  <form jwcid="dimdimForm@Any" action="ognl:startUrl" method="post" target="_blank">
+        <input jwcid="account@Any" type="hidden" name="account" value="ognl:dimDimConference.user"/>
+        <input jwcid="password@Any" type="hidden" name="password" value="ognl:dimDimConference.password"/>
+        <input jwcid="confName@Any" type="hidden" name="meetingName" value="ognl:dimDimConference.confName" />
+        <input jwcid="internToll@Any" type="hidden" name="internationalTollNumber" value="ognl:dimDimConference.did"/>
+        <input jwcid="attendeePasscode@Any" type="hidden" name="attendeePhonePassCode" value="ognl:dimDimConference.attendeePasscode"/>
+        <input jwcid="attendeePwd@Any" type="hidden" name="attendeeKey" value="ognl:dimDimConference.attendeePwd" />
+        <input jwcid="agenda@Any" type="hidden" name="agenda" value="ognl:dimDimConference.agenda" />
+        <input jwcid="startWebConference@Any" type="submit" value="ognl:startWebConference"/>
   </form>
-</div>
+  <br/>
+    <a jwcid="inviteEmail@Any" href="ognl:InviteEmail">Invite Participants</a>
+  <br/><br/>
+ </div>
