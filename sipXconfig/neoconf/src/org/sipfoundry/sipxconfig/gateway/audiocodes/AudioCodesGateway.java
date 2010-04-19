@@ -91,6 +91,7 @@ public abstract class AudioCodesGateway extends Gateway {
         normalRoute.setDescription("Normal");
         normalRoute.setSettingProxyAddress("tel2ip-call-routing/tel-to-ip-normal/ProxyAddress");
         normalRoute.setSettingProxyKeepalive("tel2ip-call-routing/tel-to-ip-normal/ProxyKeepalive");
+        normalRoute.setSettingProxyKeeptime("tel2ip-call-routing/tel-to-ip-normal/ProxyKeeptime");
         normalRoute.setSettingDestManipulation("tel2ip-call-routing/tel-to-ip-normal/DestManipulation");
         m_tel2IpRoutes.add(normalRoute);
         // Add the default Tel2Ip Failover routes
@@ -100,6 +101,7 @@ public abstract class AudioCodesGateway extends Gateway {
         failoverRoute.setDescription("Failover");
         failoverRoute.setSettingProxyAddress("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress");
         failoverRoute.setSettingProxyKeepalive("tel2ip-call-routing/tel-to-ip-failover/ProxyKeepalive");
+        failoverRoute.setSettingProxyKeeptime("tel2ip-call-routing/tel-to-ip-failover/ProxyKeeptime");
         failoverRoute.setSettingDestManipulation("tel2ip-call-routing/tel-to-ip-failover/DestManipulation");
         m_tel2IpRoutes.add(failoverRoute);
     }

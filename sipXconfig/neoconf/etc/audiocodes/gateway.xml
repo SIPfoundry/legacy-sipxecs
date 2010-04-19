@@ -1029,6 +1029,13 @@
         <type refid="proxy-keepalive-type"/>
         <value>1</value>
       </setting>
+      <setting name="ProxyKeeptime">
+        <profileName>$ignore$</profileName>
+        <type>
+          <integer min="5" max="2000000"/>
+        </type>
+        <value>60</value>
+      </setting>
       <setting name="DestManipulation">
         <profileName>$ignore$</profileName>
         <type>
@@ -1048,6 +1055,13 @@
         <profileName>$ignore$</profileName>
         <type refid="proxy-keepalive-type"/>
         <value>0</value>
+      </setting>
+      <setting name="ProxyKeeptime">
+        <profileName>$ignore$</profileName>
+        <type>
+          <integer min="5" max="2000000"/>
+        </type>
+        <value>60</value>
       </setting>
       <setting name="DestManipulation">
         <profileName>$ignore$</profileName>
