@@ -80,6 +80,7 @@ public class AudioCodesDigitalGatewayTest extends TestCase {
         m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
         if(AudioCodesModel.REL_6_0 == version) {
            m_gateway.setSettingValue("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress", "10.10.10.50:5080");
+           m_gateway.setSettingValue("advanced_general/AdditionalIPs", "176.1.2.3 176.1.2.4");
         }
 
         m_gateway.generateProfiles(location);

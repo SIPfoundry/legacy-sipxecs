@@ -147,6 +147,13 @@ FORMAT PREFIX_Index = PREFIX_DestinationPrefix, PREFIX_DestAddress, PREFIX_Sourc
 #set($route_id = $route.RouteId)
 PREFIX $table_idx = *, , *, 0, 255, 0, -1, , $route_id, , -1, -1;
 #end
+## Add any additional accepted IP addreses
+#if($additionalIPs)
+#foreach($ip in $additionalIPs)
+#set($extra_idx = $table_idx + $velocityCount)
+PREFIX $extra_idx = *, ${ip}, *, 1, 255, 0, -1, , , , -1, -1;
+#end
+#end
 [ \PREFIX ]
 
 ## IP to Tel Destination Phone Number Manipulation Table

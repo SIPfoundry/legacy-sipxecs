@@ -51,6 +51,7 @@ class AudioCodesContext extends ProfileContext {
             context.put("portFlatSettings", portFlatSettings);
         }
         context.put("allowedIPs", getAllowedIPs());
+        context.put("additionalIPs", getAdditionalIPs());
         context.put("firstDefaultCLID", getFirstDefaultCLID());
 
         return context;
@@ -59,6 +60,15 @@ class AudioCodesContext extends ProfileContext {
     private String[] getAllowedIPs() {
         BeanWithSettings gateway = getDevice();
         Setting setting = gateway.getSettings().getSetting("advanced_general/AllowedIPs");
+        if (setting != null) {
+            return StringUtils.split(setting.getValue());
+        }
+        return null;
+    }
+
+    private String[] getAdditionalIPs() {
+        BeanWithSettings gateway = getDevice();
+        Setting setting = gateway.getSettings().getSetting("advanced_general/AdditionalIPs");
         if (setting != null) {
             return StringUtils.split(setting.getValue());
         }

@@ -738,6 +738,12 @@
         <string/>
       </type>
     </setting>
+    <setting name="AdditionalIPs" advanced="yes" if="6.0orLater" unless="fxs">
+      <profileName>$$</profileName>
+      <type>
+        <string/>
+      </type>
+    </setting>
     <setting name="EnableDigitDelivery" advanced="yes">
       <type>
         <boolean/>
