@@ -128,23 +128,6 @@ class State
         # delay notification for failed CDRs - they will get another chance
         @failed_calls[call_id] = FailedCdr.new(cdr, @generation)        
       end
-    else
-      if cse.reference && cse.reference.include?("rel=chain")
-         # extract the call-id related to the chain.  If we don't know about the call
-         # remove the whole chain reference as we do not want CDR to filter it as a chained call.
-         cdrrefs = cdr.reference.split(",") 
-         cdrrefs.each { |ref| 
-            #Check each reference as there may be multiple ones.
-            if ref.include?("rel=chain") 
-               reftokens = ref.split(";")
-               if @cdrs[reftokens[0]].nil? 
-                  # We're not tracking the referenced call.  Remove the chain reference.
-                  cdrrefs.delete(ref)
-               end
-            end
-         }
-         cdr.reference = cdrrefs.join(",")
-      end
     end    
   end
   
@@ -152,7 +135,21 @@ class State
   # The detection of chained calls is done by checking for a reference which indicates chaining.
   def filter_cdr_chained(cdr)
      if cdr.reference && cdr.reference.include?("rel=chain")
-        return true
+        # extract the call-id related to the chain.  If we don't know about the call
+        # then we shouldn't filter it out.
+        filtercall = true;
+        cdrrefs = cdr.reference.split(",") 
+        cdrrefs.each { |ref| 
+           #Check each reference as there may be multiple ones.
+           if ref.include?("rel=chain") 
+              reftokens = ref.split(";")
+              if @cdrs[reftokens[0]].nil? && @retired_calls[reftokens[0]].nil?
+                 # We're not tracking the referenced call. Don't filter the call.
+                 filtercall = false;
+              end
+           end
+        }
+        return filtercall
      end
      return false
   end
