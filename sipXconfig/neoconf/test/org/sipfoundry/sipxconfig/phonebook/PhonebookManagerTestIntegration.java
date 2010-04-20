@@ -17,8 +17,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
@@ -26,6 +29,12 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     private PhonebookManager m_phonebookManager;
     private SettingDao m_settingDao;
     private CoreContext m_coreContext;
+    private PermissionManager m_permissionManager;
+
+
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
+    }
 
     public void setPhonebookManager(PhonebookManager phonebookManager) {
         m_phonebookManager = phonebookManager;
@@ -259,6 +268,9 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     public void testGetPagedPhonebookEveryone() throws Exception {
         loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
         User yellowthroat = m_coreContext.loadUser(1001);
+        yellowthroat.setPermissionManager(m_permissionManager);
+        User user1002 = m_coreContext.loadUser(1002);
+        user1002.setPermissionManager(m_permissionManager);
         Collection<Phonebook> books = m_phonebookManager.getPublicPhonebooksByUser(yellowthroat);
 
         PagedPhonebook pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "0", "1", "l");
@@ -302,7 +314,10 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         //everyone disabled
         m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
 
+        User user1002 = m_coreContext.loadUser(1002);
+        user1002.setPermissionManager(m_permissionManager);
         User yellowthroat = m_coreContext.loadUser(1001);
+        yellowthroat.setPermissionManager(m_permissionManager);
         Collection<Phonebook> books = m_phonebookManager.getPublicPhonebooksByUser(yellowthroat);
 
         PagedPhonebook pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, yellowthroat, "0", "1", "l");
@@ -354,8 +369,10 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
 
     public void testGetPrivatePagedPhonebook() throws Exception {
         loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
+        User user1001 = m_coreContext.loadUser(1001);
+        user1001.setPermissionManager(m_permissionManager);
         User canadian = m_coreContext.loadUser(1002);
-
+        canadian.setPermissionManager(m_permissionManager);
         //test everyone enabled
         Collection<Phonebook> books = m_phonebookManager.getPublicPhonebooksByUser(canadian);
         PagedPhonebook pagedPhonebook = m_phonebookManager.getPagedPhonebook(books, canadian, "0", "100", null);

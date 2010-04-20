@@ -16,6 +16,7 @@ import junit.framework.TestCase;
 import org.acegisecurity.Authentication;
 import org.acegisecurity.context.SecurityContextHolder;
 import org.apache.commons.io.IOUtils;
+import org.easymock.classextension.EasyMock;
 import org.restlet.data.ChallengeResponse;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -25,10 +26,15 @@ import org.restlet.resource.Variant;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.Gravatar;
 import org.sipfoundry.sipxconfig.security.TestAuthenticationToken;
+import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingImpl;
+import org.sipfoundry.sipxconfig.setting.SettingSet;
+import org.sipfoundry.sipxconfig.setting.type.BooleanSetting;
 
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
@@ -46,6 +52,23 @@ public class ContactInformationResourceTest extends TestCase {
         m_user.setUserName("200");
         m_user.setFirstName("John");
         m_user.setLastName("Doe");
+
+        Setting s = new SettingSet();
+        s.setName("im/im-account");
+        Setting s1 = new SettingSet("im");
+        Setting s2 = new SettingImpl("im-account");
+        s2.setType(new BooleanSetting());
+        s2.setTypedValue(true);
+
+        s.addSetting(s1);
+        s1.addSetting(s2);
+        PermissionManager pManager = EasyMock.createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(s).anyTimes();
+        EasyMock.replay(pManager);
+        m_user.setPermissionManager(pManager);
+
+
 
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
         SecurityContextHolder.getContext().setAuthentication(token);

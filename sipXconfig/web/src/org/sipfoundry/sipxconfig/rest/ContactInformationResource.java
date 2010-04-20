@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.rest;
 import java.io.Serializable;
 
 import com.thoughtworks.xstream.XStream;
+
+import org.apache.commons.lang.StringUtils;
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Request;
@@ -39,7 +41,10 @@ public class ContactInformationResource extends UserResource {
         User user = getUser();
         AddressBookEntry addressBook = user.getAddressBookEntry();
 
-        Representable representable = new Representable(user.getFirstName(), user.getLastName(), addressBook);
+        boolean imEnabled = (Boolean) user.getSettingTypedValue("im/im-account");
+        Representable representable = new Representable(user.getFirstName(), user.getLastName(), addressBook,
+                imEnabled);
+
         return new AddressBookRepresentation(variant.getMediaType(), representable);
     }
 
@@ -72,11 +77,15 @@ public class ContactInformationResource extends UserResource {
         private final String m_firstName;
         private final String m_lastName;
 
-        public Representable(String firstName, String lastName, AddressBookEntry addressBook) {
+        public Representable(String firstName, String lastName, AddressBookEntry addressBook, boolean imEnabled) {
             m_firstName = firstName;
             m_lastName = lastName;
             if (addressBook != null) {
                 this.update(addressBook);
+                if (!imEnabled) {
+                    setImId(StringUtils.EMPTY);
+                }
+
             }
         }
 
