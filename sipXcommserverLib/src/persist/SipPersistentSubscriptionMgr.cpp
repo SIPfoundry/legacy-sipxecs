@@ -295,7 +295,6 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
    SipMessage& subscribeResponse,
    SipSubscribeServerEventHandler& handler)
 {
-
    UtlBoolean ret;
 
    // Call SipSubscriptionMgr to update the in-memory data.
@@ -376,6 +375,15 @@ UtlBoolean SipPersistentSubscriptionMgr::updateDialogInfo(
       // Start the save timer.
       mPersistenceTimer.oneshotAfter(sPersistInterval);
    }
+
+   OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                 "SipPersistentSubscriptionMgr::updateDialogInfo "
+                 "subscribeDialogHandle = '%s', "
+                 "ret = %d, isNew = %d, isSubscriptionExpired = %d, "
+                 "resourceId = '%s', eventTypeKey = '%s', eventType = '%s'",
+                 subscribeDialogHandle.data(),
+                 ret, isNew, isSubscriptionExpired,
+                 resourceId.data(), eventTypeKey.data(), eventType.data());
 
    return ret;
 }

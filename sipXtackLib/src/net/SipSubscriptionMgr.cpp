@@ -547,6 +547,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 // Set the resource information so our caller can generate a NOTIFY.
                 resourceId = state->mResourceId;
                 eventTypeKey = state->mEventTypeKey;
+                eventType = state->mEventType;
             }
 
             // No state, but SUBSCRIBE had a to-tag.
@@ -572,7 +573,16 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
         }
     }
 
-    return(subscriptionSucceeded);
+    OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                  "SipSubscriptionMgr::updateDialogInfo "
+                  "subscribeDialogHandle = '%s', "
+                  "subscriptionSucceeded = %d, isNew = %d, isSubscriptionExpired = %d, "
+                  "resourceId = '%s', eventTypeKey = '%s', eventType = '%s'",
+                  subscribeDialogHandle.data(),
+                  subscriptionSucceeded, isNew, isSubscriptionExpired,
+                  resourceId.data(), eventTypeKey.data(), eventType.data());
+
+    return subscriptionSucceeded;
 }
 
 
@@ -800,8 +810,13 @@ UtlBoolean SipSubscriptionMgr::insertDialogInfo(const SipMessage& subscribeReque
 
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipSubscriptionMgr::insertDialogInfo "
-                  "subscribeDialogHandle = '%s', isNew = %d, ret = %d",
-                  subscribeDialogHandle.data(), isNew, subscriptionSucceeded);
+                  "subscribeDialogHandle = '%s', "
+                  "subscriptionSucceeded = %d, isNew = %d, subscriptionSucceeded = %d, "
+                  "resourceId = '%s', eventTypeKey = '%s', eventType = '%s'",
+                  subscribeDialogHandle.data(),
+                  subscriptionSucceeded, isNew, subscriptionSucceeded,
+                  resourceId.data(), eventTypeKey.data(), eventType.data());
+
     return subscriptionSucceeded;
 }
 
