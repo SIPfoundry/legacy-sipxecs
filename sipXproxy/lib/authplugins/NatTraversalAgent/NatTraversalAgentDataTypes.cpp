@@ -251,11 +251,60 @@ EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules&
          mPublicTransport.fromUrl( urlWithLocationInformation );
          mNativeTransport.fromUrl( urlWithLocationInformation );
 
-         OsSysLog::add(FAC_NAT, PRI_DEBUG, "EndpointDescriptor::EndpointDescriptor: Retrieved location info for UNKNOWN user from regDB:'%s'",
+         OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[1]: Retrieved location info for UNKNOWN user from regDB:'%s'",
                pMatchingContact->data() );
 
          //update location information based on new information
          mLocation = computeLocation( natRules );
+      }
+      else
+      {
+         // no match for the supplied identity - make one last attempt to recover location markers
+         // from the registration DB by trying to look for a contact that has the URL's hostport matching
+         // a DB entry's sipx-privcontact and the URL's user matching a DB entry's contact user part
+         UtlString userIdToMatch;
+         url.getUserId( userIdToMatch );
+         
+         UtlString host;
+         int port;
+         url.getHostAddress( host );
+         port = url.getHostPort();
+         UtlString tmpStringToMatch = SIPX_PRIVATE_CONTACT_URI_PARAM;
+         tmpStringToMatch.append('='); 
+         tmpStringToMatch.append( host );
+         if( port != PORT_NONE )
+         {
+            tmpStringToMatch.append("%3A");   // %3A is the escaped version of the '=' character.
+            tmpStringToMatch.appendNumber( port );
+         }
+
+OsSysLog::add(FAC_NAT, PRI_INFO, "bobjoly %s", tmpStringToMatch.data() );
+
+         
+         pRegistrationDB->getUnexpiredContactsFieldsContaining( tmpStringToMatch, timeNow, resultList );
+         UtlSListIterator iter( resultList );
+         UtlContainable* pEntry;
+         while( ( pEntry = iter() ) != NULL )
+         {
+            pMatchingContact = (UtlString*)pEntry;
+OsSysLog::add(FAC_NAT, PRI_INFO, "bobjoly got one possible match %s", pMatchingContact->data() );
+            
+            Url urlWithLocationInformation( *pMatchingContact );
+            UtlString userId;
+            urlWithLocationInformation.getUserId( userId );
+            if( userId.compareTo( userIdToMatch ) == 0 )
+            {  
+               mPublicTransport.fromUrl( urlWithLocationInformation );
+               mNativeTransport.fromUrl( urlWithLocationInformation );
+   
+               OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[2]: Retrieved location info for UNKNOWN user from regDB:'%s'",
+                     pMatchingContact->data() );
+   
+               //update location information based on new information
+               mLocation = computeLocation( natRules );
+               break;
+            }
+         }
       }
       resultList.destroyAll();
    }

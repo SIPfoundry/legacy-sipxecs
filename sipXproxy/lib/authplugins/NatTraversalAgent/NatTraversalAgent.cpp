@@ -157,7 +157,7 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          // start the timer that will be the heartbeat to delete stale session context objects
          OsTime cleanUpTimerPeriod( CLEAN_UP_TIMER_IN_SECS, 0 );
          mCleanupTimer.periodicEvery( cleanUpTimerPeriod, cleanUpTimerPeriod );
-         OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig successfully initialized media relay - NAT traversal feature will is enabled",
+         OsSysLog::add(FAC_NAT, PRI_INFO, "NatTraversalAgent[%s]::readConfig successfully initialized media relay - NAT traversal feature will be enabled",
                        mInstanceName.data() );
       }
    }
@@ -322,7 +322,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             // If x-sipX-privcontact is present, the a SipxNatRoute will be added to the address in the request-URI.
             // Without this step, a request would get routed to the endpoint's private IP address:port as
             // captured in x-sipX-privcontact due to the call made to UndoChangesToRequestUri() later on
-            // which restores the request-URI to contain the endpoint's private IP address.
+            // which restores the request-URI to contain the endpoint's private IP address. (See XX-8225)
             UtlString sipxNatRouteString;
 
             const char* pParameterName = ( directionIsCallerToCalled ? CALLEE_PUBLIC_TRANSPORT_PARAM : CALLER_PUBLIC_TRANSPORT_PARAM );
