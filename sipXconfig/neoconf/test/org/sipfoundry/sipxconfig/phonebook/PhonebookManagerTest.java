@@ -334,6 +334,13 @@ public class PhonebookManagerTest extends TestCase {
         assertEquals(1, entriesThatMatchAlias.size());
         assertTrue(entriesThatMatchAlias.contains(testHelper.getEntryByNumber(userWithAlias.getUserName())));
 
+        // test searching lucene stop names
+        Collection<PhonebookEntry> entriesThatMatchStopWords = out.search(singletonList(new Phonebook()),
+                PhonebookTestHelper.LUCENE_STOP_WORD_USERNAME, userPortal);
+        assertEquals(1, entriesThatMatchStopWords.size());
+        assertTrue(entriesThatMatchStopWords.contains(testHelper.getEntryByNumber(
+                PhonebookTestHelper.LUCENE_STOP_WORD_USERNAME)));
+
         out.search(singletonList(new Phonebook()), "300", userPortal);
         out.search(singletonList(new Phonebook()), "nulluser", userPortal);
     }

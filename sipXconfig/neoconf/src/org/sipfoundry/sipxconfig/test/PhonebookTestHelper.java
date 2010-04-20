@@ -21,6 +21,8 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 
 public class PhonebookTestHelper {
 
+    public  static final String LUCENE_STOP_WORD_USERNAME = "the";
+
     private static final String NUMBER_PATTERN = "\\d+";
     private static final String SECONDUSER_USERNAME = "300";
     private static final String SECONDUSER_FIRSTNAME = "second";
@@ -44,6 +46,7 @@ public class PhonebookTestHelper {
         m_phonebookEntries.add(createPhonebookEntry("700", "third", "other"));
         m_phonebookEntries.add(createPhonebookEntry("fourthUser", "fourth", USER_LASTNAME));
         m_phonebookEntries.add(createPhonebookEntry(NULLUSER_USERNAME, null, null));
+        m_phonebookEntries.add(createPhonebookEntry(LUCENE_STOP_WORD_USERNAME, null, null));
     }
 
     public Collection<PhonebookEntry> getPhonebookEntries() {
