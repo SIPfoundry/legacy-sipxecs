@@ -322,7 +322,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
             // If x-sipX-privcontact is present, the a SipxNatRoute will be added to the address in the request-URI.
             // Without this step, a request would get routed to the endpoint's private IP address:port as
             // captured in x-sipX-privcontact due to the call made to UndoChangesToRequestUri() later on
-            // which restores the request-URI to contain the endpoint's private IP address. (See XX-8225)
+            // which restores the request-URI to contain the endpoint's private IP address.
             UtlString sipxNatRouteString;
 
             const char* pParameterName = ( directionIsCallerToCalled ? CALLEE_PUBLIC_TRANSPORT_PARAM : CALLER_PUBLIC_TRANSPORT_PARAM );
