@@ -85,7 +85,7 @@ public class UserPhonebookPageTest extends TestCase {
     }
 
     public void testGetPhoneBookEntries() {
-        assertEquals(5, m_out.getPhonebookEntries().size());
+        assertEquals(6, m_out.getPhonebookEntries().size());
     }
 
     public void testCall() {

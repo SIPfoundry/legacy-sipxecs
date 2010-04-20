@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -386,7 +387,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
         Map<String, PhonebookEntry> usersToEntries = new HashMap<String, PhonebookEntry>();
         try {
-            IndexWriter indexWriter = new IndexWriter(index, new StandardAnalyzer(), true);
+            IndexWriter indexWriter = new IndexWriter(index, new StandardAnalyzer(new HashSet<String>()), true);
             for (PhonebookEntry entry : phonebookEntries) {
                 Document doc = null;
                 User user = getUserForEntry(entry);
