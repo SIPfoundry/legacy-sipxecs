@@ -261,7 +261,7 @@ EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules&
       {
          // no match for the supplied identity - make one last attempt to recover location markers
          // from the registration DB by trying to look for a contact that has the URL's hostport matching
-         // a DB entry's sipx-privcontact and the URL's user matching a DB entry's contact user part
+         // a DB entry's sipx-privcontact and the URL's user matching a DB entry's contact user part. (see XX-8225)
          UtlString userIdToMatch;
          url.getUserId( userIdToMatch );
          
@@ -278,17 +278,12 @@ EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules&
             tmpStringToMatch.appendNumber( port );
          }
 
-OsSysLog::add(FAC_NAT, PRI_INFO, "bobjoly %s", tmpStringToMatch.data() );
-
-         
          pRegistrationDB->getUnexpiredContactsFieldsContaining( tmpStringToMatch, timeNow, resultList );
          UtlSListIterator iter( resultList );
          UtlContainable* pEntry;
          while( ( pEntry = iter() ) != NULL )
          {
             pMatchingContact = (UtlString*)pEntry;
-OsSysLog::add(FAC_NAT, PRI_INFO, "bobjoly got one possible match %s", pMatchingContact->data() );
-            
             Url urlWithLocationInformation( *pMatchingContact );
             UtlString userId;
             urlWithLocationInformation.getUserId( userId );
