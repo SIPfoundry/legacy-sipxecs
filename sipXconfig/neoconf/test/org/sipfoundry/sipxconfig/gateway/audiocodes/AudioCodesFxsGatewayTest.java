@@ -35,6 +35,7 @@ public class AudioCodesFxsGatewayTest extends TestCase {
         model.setBeanId("gwFxsAudiocodes");
         Set<String> features = new HashSet<String>();
         features.add("fxs");
+        features.add("useProxySet0");
         model.setSupportedFeatures(features);
         model.setProfileTemplate("audiocodes/gateway-%s.ini.vm");
         model.setModelDir("audiocodes");

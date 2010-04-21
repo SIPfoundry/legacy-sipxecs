@@ -209,7 +209,8 @@ FORMAT ProxySet_Index = ProxySet_EnableProxyKeepAlive, ProxySet_ProxyKeepAliveTi
 #set($route_id = $route.RouteId)
 #set($keepalive = $route.ProxyKeepalive)
 #set($keeptime = $route.ProxyKeeptime)
-ProxySet $route_id = $keepalive, $keeptime, 0, 0, 0;
+#set($hotswap = $route.ProxyHotSwap)
+ProxySet $route_id = $keepalive, $keeptime, 0, $hotswap, 0;
 #end
 [ \ProxySet ]
 ## end of trunkGateway parameters

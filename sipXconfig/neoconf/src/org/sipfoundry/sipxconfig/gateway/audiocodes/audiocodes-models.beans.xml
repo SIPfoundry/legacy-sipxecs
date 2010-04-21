@@ -127,6 +127,7 @@
     <property name="supportedFeatures">
 	  <set>
 		<value>fxs</value>
+		<value>useProxySet0</value>
 	  </set>
     </property>
   </bean>

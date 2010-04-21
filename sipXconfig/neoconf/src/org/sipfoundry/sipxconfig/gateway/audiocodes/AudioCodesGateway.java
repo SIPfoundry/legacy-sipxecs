@@ -32,6 +32,7 @@ public abstract class AudioCodesGateway extends Gateway {
     private static final String REL_5_4_OR_LATER = "5.4orLater";
     private static final String REL_5_6_OR_LATER = "5.6orLater";
     private static final String REL_6_0_OR_LATER = "6.0orLater";
+    private static final String REL_USE_PROXYSET0 = "useProxySet0";
     private static final String[] COPY_FILES = {CALL_PROGRESS_TONES_FILE, FXS_LOOP_CHARACTERISTICS_FILE};
 
     private List<Ip2TelRoute> m_ip2TelRoutes = new ArrayList<Ip2TelRoute>();
@@ -58,12 +59,20 @@ public abstract class AudioCodesGateway extends Gateway {
         super.setDeviceVersion(version);
         DeviceVersion myVersion = getDeviceVersion();
 
-        if (myVersion == AudioCodesModel.REL_5_4) {
+        if (myVersion == AudioCodesModel.REL_5_0) {
+            myVersion.addSupportedFeature(REL_USE_PROXYSET0);
+        } else if (myVersion == AudioCodesModel.REL_5_2) {
+            myVersion.addSupportedFeature(REL_USE_PROXYSET0);
+        } else if (myVersion == AudioCodesModel.REL_5_4) {
+            myVersion.addSupportedFeature(REL_USE_PROXYSET0);
             myVersion.addSupportedFeature(REL_5_4_OR_LATER);
         } else if (myVersion == AudioCodesModel.REL_5_6) {
+            myVersion.addSupportedFeature(REL_USE_PROXYSET0);
             myVersion.addSupportedFeature(REL_5_4_OR_LATER);
             myVersion.addSupportedFeature(REL_5_6_OR_LATER);
         } else if (myVersion == AudioCodesModel.REL_6_0) {
+            // Trunk gateways version 6.0 and later use Proxy Set 1 (Normal mode) and
+            // Proxy Set 2 (Failover mode) rather than the default Proxy Set 0.
             myVersion.addSupportedFeature(REL_5_4_OR_LATER);
             myVersion.addSupportedFeature(REL_5_6_OR_LATER);
             myVersion.addSupportedFeature(REL_6_0_OR_LATER);
@@ -92,6 +101,7 @@ public abstract class AudioCodesGateway extends Gateway {
         normalRoute.setSettingProxyAddress("tel2ip-call-routing/tel-to-ip-normal/ProxyAddress");
         normalRoute.setSettingProxyKeepalive("tel2ip-call-routing/tel-to-ip-normal/ProxyKeepalive");
         normalRoute.setSettingProxyKeeptime("tel2ip-call-routing/tel-to-ip-normal/ProxyKeeptime");
+        normalRoute.setSettingProxyHotSwap("tel2ip-call-routing/tel-to-ip-normal/ProxyHotSwap");
         normalRoute.setSettingDestManipulation("tel2ip-call-routing/tel-to-ip-normal/DestManipulation");
         m_tel2IpRoutes.add(normalRoute);
         // Add the default Tel2Ip Failover routes
@@ -102,6 +112,7 @@ public abstract class AudioCodesGateway extends Gateway {
         failoverRoute.setSettingProxyAddress("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress");
         failoverRoute.setSettingProxyKeepalive("tel2ip-call-routing/tel-to-ip-failover/ProxyKeepalive");
         failoverRoute.setSettingProxyKeeptime("tel2ip-call-routing/tel-to-ip-failover/ProxyKeeptime");
+        failoverRoute.setSettingProxyHotSwap("tel2ip-call-routing/tel-to-ip-failover/ProxyHotSwap");
         failoverRoute.setSettingDestManipulation("tel2ip-call-routing/tel-to-ip-failover/DestManipulation");
         m_tel2IpRoutes.add(failoverRoute);
     }
