@@ -718,6 +718,8 @@ public class Servlet extends HttpServlet {
 
         PHONE_MODEL_MAP.put("SSIP_4000", new PhoneModel("polycom4000", "SoundStation IP 4000"));
 
+        PHONE_MODEL_MAP.put("SSIP_5000", new PhoneModel("polycom5000", "SoundStation IP 5000"));
+
         PHONE_MODEL_MAP.put("SSIP_6000", new PhoneModel("polycom6000", "SoundStation IP 6000"));
 
         PHONE_MODEL_MAP.put("SSIP_7000", new PhoneModel("polycom7000", "SoundStation IP 7000"));
