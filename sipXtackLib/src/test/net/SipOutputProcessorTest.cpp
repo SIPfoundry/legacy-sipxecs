@@ -998,7 +998,6 @@ public:
       sipUA.removeSipOutputProcessor( pProcessor );
       sipUA.shutdown();
       delete( pProcessor );
-   
    }
    
    void testProcess1xxResponses()
@@ -1055,8 +1054,9 @@ public:
       pProcessor->resetCallbackTrace();
       sipUA.send( cancelMsg );
       CPPUNIT_ASSERT( pProcessor->waitForMessages( 1, 10 ) == true );
-      sipUA.removeSipOutputProcessor( pProcessor );
       sipUA.shutdown();
+
+      sipResponder->pUserAgent->removeSipOutputProcessor( pProcessor );
       delete( pProcessor );
    }
    
@@ -1109,8 +1109,9 @@ public:
       CallbackTrace reference200( expected200ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference200 );
-      sipUA.removeSipOutputProcessor( pProcessor );
       sipUA.shutdown();
+
+      sipResponder->pUserAgent->removeSipOutputProcessor( pProcessor );
       delete( pProcessor );
    }
    
@@ -1161,8 +1162,9 @@ public:
       CallbackTrace reference301( expected301ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference301 );
-      sipUA.removeSipOutputProcessor( pProcessor );
       sipUA.shutdown();
+
+      sipResponder->pUserAgent->removeSipOutputProcessor( pProcessor );
       delete( pProcessor );
    }
    
@@ -1213,8 +1215,9 @@ public:
       CallbackTrace reference400( expected400ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference400 );
-      sipUA.removeSipOutputProcessor( pProcessor );
       sipUA.shutdown();
+
+      sipResponder->pUserAgent->removeSipOutputProcessor( pProcessor );
       delete( pProcessor );
    }
    
@@ -1265,8 +1268,9 @@ public:
       CallbackTrace reference501( expected501ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference501 );
-      sipUA.removeSipOutputProcessor( pProcessor );
       sipUA.shutdown();
+
+      sipResponder->pUserAgent->removeSipOutputProcessor( pProcessor );
       delete( pProcessor );
    }
 
@@ -1317,8 +1321,9 @@ public:
       CallbackTrace reference603( expected603ResponseMsg, "127.0.0.1", 9997 );
       
       CPPUNIT_ASSERT( pProcessor->getStoredCallbackTrace(1) == reference603 );
-      sipUA.removeSipOutputProcessor( pProcessor );
       sipUA.shutdown();
+
+      sipResponder->pUserAgent->removeSipOutputProcessor( pProcessor );
       delete( pProcessor );
    }
    
