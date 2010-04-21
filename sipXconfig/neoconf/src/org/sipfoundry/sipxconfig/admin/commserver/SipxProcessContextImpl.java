@@ -205,10 +205,7 @@ public class SipxProcessContextImpl implements SipxProcessContext {
         }
     }
 
-    private void replicateDialPlanBeforeRestart(Collection< ? extends SipxService> processes, Command command) {
-        if (command != Command.RESTART) {
-            return;
-        }
+    private void replicateDialPlanBeforeRestart(Collection< ? extends SipxService> processes) {
         for (SipxService process : processes) {
             if (m_replicateDialPlanBeforeRestartServices.contains(process.getBeanId())) {
                 m_dialPlanActivationManager.replicateIfNeeded();
@@ -225,7 +222,8 @@ public class SipxProcessContextImpl implements SipxProcessContext {
         if (!location.isRegistered()) {
             return;
         }
-        replicateDialPlanBeforeRestart(processes, command);
+        // any command: start, stop, restart effectively triggers a dial plan replication (if needed).
+        replicateDialPlanBeforeRestart(processes);
         try {
             String[] processNames = new String[processes.size()];
             int i = 0;
