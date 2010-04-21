@@ -28,7 +28,7 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 
-public class DirectoryConfigurationTest extends XMLTestCase {
+public class DirectoryConfigurationTest extends PolycomXmlTestCase {
     private ProfileGenerator m_pg;
     private MemoryProfileLocation m_location;
 
@@ -65,11 +65,8 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         m_pg.generate(m_location, dir, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-empty-directory.xml");
-        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = m_location.getReader();
-
-        Diff phoneDiff = new Diff(expectedXml, generatedXml);
-        assertXMLEqual(phoneDiff, true);
+        assertPolycomXmlEquals(expectedPhoneStream, generatedXml);
         expectedPhoneStream.close();
     }
 
@@ -86,11 +83,8 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         m_pg.generate(m_location, dir, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-directory.xml");
-        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = m_location.getReader();
-
-        Diff phoneDiff = new Diff(expectedXml, generatedXml);
-        assertXMLEqual(phoneDiff, true);
+        assertPolycomXmlEquals(expectedPhoneStream, generatedXml);
         expectedPhoneStream.close();
 
     }
@@ -108,11 +102,8 @@ public class DirectoryConfigurationTest extends XMLTestCase {
         m_pg.generate(m_location, dir, null, "profile");
 
         InputStream expectedPhoneStream = getClass().getResourceAsStream("expected-speeddial-directory.xml");
-        Reader expectedXml = new InputStreamReader(expectedPhoneStream);
         Reader generatedXml = m_location.getReader();
-
-        Diff phoneDiff = new Diff(expectedXml, generatedXml);
-        assertXMLEqual(phoneDiff, true);
+        assertPolycomXmlEquals(expectedPhoneStream, generatedXml);
         expectedPhoneStream.close();
     }
 }
