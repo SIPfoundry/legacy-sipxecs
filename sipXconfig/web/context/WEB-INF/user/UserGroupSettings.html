@@ -74,7 +74,10 @@
 
   <span jwcid="@If" condition="ognl:parentSetting || tab.equals('schedules')" renderTag="false">
     <span jwcid="settingsForm@Form" delegate="bean:validator">
-      <span jwcid="settings@setting/SettingsFieldset" requiredEnabled="literal:false" settings="ognl:parentSetting" />
+      <span jwcid="settings@setting/SettingsFieldset"
+            requiredEnabled="literal:false"
+            settings="ognl:parentSetting"
+            settingsToHide="ognl:settingsToHide" />
       <ul jwcid="formActions@common/FormActions" listener="listener:apply" callback="ognl:callback"/>
     </span>
   </span>
