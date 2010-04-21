@@ -2357,8 +2357,7 @@ class CallControlManager implements SymmitronResetHandler {
                     DialogContext.get(dialog).setLastResponse(response);
                     DialogContext.get(continuation.getDialog()).setPendingAction(
                             PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
-                    CallControlUtilities.sendSdpAnswerInAck(dialog,null);
-
+                  
 
                     DialogContext.getRtpSession(continuation.getDialog()).getReceiver()
                             .setSessionDescription(responseSessionDescription);
@@ -2370,6 +2369,8 @@ class CallControlManager implements SymmitronResetHandler {
                             .createClientTxToMohServer(responseSessionDescription,responseEvent.getResponse());
 
                     DialogContext.get(dialog).sendMohInvite(mohCtx);
+                    
+                    CallControlUtilities.sendSdpAnswerInAck(dialog,null);
 
                 }
 
