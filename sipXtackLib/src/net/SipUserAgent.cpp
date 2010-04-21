@@ -698,7 +698,7 @@ void SipUserAgent::executeAllSipOutputProcessors( SipMessage& message,
 
    // Traverse all of the processors and call their handleOutputMessage() method
    UtlSortedListIterator iterator(mOutputProcessors);
-   while ((pProcessor = (SipOutputProcessor*) iterator()))
+   while ((pProcessor = dynamic_cast <SipOutputProcessor*> (iterator())))
    {
       pProcessor->handleOutputMessage( message, address, port );
    }
