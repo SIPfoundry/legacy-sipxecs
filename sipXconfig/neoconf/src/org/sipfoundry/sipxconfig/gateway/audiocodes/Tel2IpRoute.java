@@ -20,6 +20,7 @@ public class Tel2IpRoute extends RouteTable {
     private String m_settingProxyAddress;
     private String m_settingProxyKeepalive;
     private String m_settingProxyKeeptime;
+    private String m_settingProxyHotSwap;
 
     public String getDescription() {
         return m_description;
@@ -51,6 +52,14 @@ public class Tel2IpRoute extends RouteTable {
 
     public void setSettingProxyKeeptime(String settingProxyKeeptime) {
         m_settingProxyKeeptime = settingProxyKeeptime;
+    }
+
+    public String getProxyHotSwap() {
+        return getGateway().getSettingValue(m_settingProxyHotSwap);
+    }
+
+    public void setSettingProxyHotSwap(String settingProxyHotSwap) {
+        m_settingProxyHotSwap = settingProxyHotSwap;
     }
 
 
