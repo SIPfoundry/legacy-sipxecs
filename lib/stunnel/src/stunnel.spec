@@ -49,7 +49,8 @@ CFLAGS="%{optflags}" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir}
 %{__install} -m755 -s src/stunnel %{buildroot}%{_sbindir}
 %{__install} -m755 src/.libs/libstunnel.so %{buildroot}%{_libdir}
 %{__install} -m755 src/.libs/libstunnel.la %{buildroot}%{_libdir}
-%{__install} -m644 doc/stunnel.8 %{buildroot}%{_mandir}/man8/stunnel.8.gz
+%{__gzip} doc/stunnel.8
+%{__install} -m644 doc/stunnel.8.gz %{buildroot}%{_mandir}/man8/stunnel.8.gz
 %{__install} -m644 tools/stunnel.conf-sample %{buildroot}%{_sysconfdir}/stunnel
 %{__install} -m500 tools/stunnel.init %{buildroot}%{_initrddir}/stunnel
 
