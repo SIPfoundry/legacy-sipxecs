@@ -217,94 +217,40 @@ bool TransportData::isInitialized( void ) const
    return mAddress.compareTo( UNKNOWN_IP_ADDRESS_STRING );
 }
 
-EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules& natRules ) :
-   mNativeTransport( url ),
-   mPublicTransport( url )
-{
-   mLocation = computeLocation( natRules );
-}
-
 EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules& natRules, const RegistrationDB* pRegistrationDB ) :
    mNativeTransport( url ),
    mPublicTransport( url )
 {
-   mLocation = computeLocation( natRules );
-   if( mLocation == UNKNOWN && pRegistrationDB )
-   {
-      // we could not establish the location of the user however we got supplied with
-      // a pointer to the registration DB.  Search the Registration DB looking for a
-      // Contact entry matching the supplied URI's user@hostport hoping to find
-      // the location markers that are needed to establish the location of the endpoint.
-
-      // extract user@hostport information from Request-URI
-      UtlString stringToMatch;
-      url.getIdentity( stringToMatch );
-
-      int timeNow = OsDateTime::getSecsSinceEpoch();
-      UtlSList resultList;
-      pRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
-      UtlString* pMatchingContact;
-      if( !resultList.isEmpty() )
-      {
-         pMatchingContact = (UtlString*)resultList.first();
-         Url urlWithLocationInformation( *pMatchingContact );
-         mPublicTransport.fromUrl( urlWithLocationInformation );
-         mNativeTransport.fromUrl( urlWithLocationInformation );
-
-         OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[1]: Retrieved location info for UNKNOWN user from regDB:'%s'",
-               pMatchingContact->data() );
-
-         //update location information based on new information
-         mLocation = computeLocation( natRules );
-      }
-      else
-      {
-         // no match for the supplied identity - make one last attempt to recover location markers
-         // from the registration DB by trying to look for a contact that has the URL's hostport matching
-         // a DB entry's sipx-privcontact and the URL's user matching a DB entry's contact user part. (see XX-8225)
-         UtlString userIdToMatch;
-         url.getUserId( userIdToMatch );
-         
-         UtlString host;
-         int port;
-         url.getHostAddress( host );
-         port = url.getHostPort();
-         UtlString tmpStringToMatch = SIPX_PRIVATE_CONTACT_URI_PARAM;
-         tmpStringToMatch.append('='); 
-         tmpStringToMatch.append( host );
-         if( port != PORT_NONE )
-         {
-            tmpStringToMatch.append("%3A");   // %3A is the escaped version of the '=' character.
-            tmpStringToMatch.appendNumber( port );
-         }
-
-         pRegistrationDB->getUnexpiredContactsFieldsContaining( tmpStringToMatch, timeNow, resultList );
-         UtlSListIterator iter( resultList );
-         UtlContainable* pEntry;
-         while( ( pEntry = iter() ) != NULL )
-         {
-            pMatchingContact = (UtlString*)pEntry;
-            Url urlWithLocationInformation( *pMatchingContact );
-            UtlString userId;
-            urlWithLocationInformation.getUserId( userId );
-            if( userId.compareTo( userIdToMatch ) == 0 )
-            {  
-               mPublicTransport.fromUrl( urlWithLocationInformation );
-               mNativeTransport.fromUrl( urlWithLocationInformation );
-   
-               OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[2]: Retrieved location info for UNKNOWN user from regDB:'%s'",
-                     pMatchingContact->data() );
-   
-               //update location information based on new information
-               mLocation = computeLocation( natRules );
-               break;
-            }
-         }
-      }
-      resultList.destroyAll();
-   }
+   mLocation = computeLocation( url, natRules, pRegistrationDB );
 }
 
+LocationCode EndpointDescriptor::computeLocation( const Url& url,
+                                                  const NatTraversalRules& natRules,
+                                                  const RegistrationDB* pRegistrationDB )
+{
+   LocationCode computedLocation = computeLocationFromPublicAndNativeTransports( natRules );
+   if( computedLocation == UNKNOWN )
+   {
+      if( pRegistrationDB )
+      {
+         // we could not establish the location of the user based on public and 
+         // native transport information alone, however we got supplied with
+         // a pointer to the registration DB.  Look it up in search of an
+         // entry that will give us the information we need to compute the location.
+         computedLocation = computeLocationFromRegDbData( url, natRules, pRegistrationDB );
+      }
+      if( computedLocation == UNKNOWN )
+      {
+         // we could not establish the location of the endpoint, revert
+         // to a brute force compare of the Native IP address against the configured
+         // local private network topology.  
+         // Note:  computeLocationFromRegDbData() has to come before 
+         //        computeLocationFromNetworkTopology() because of XX-8225
+         computedLocation = computeLocationFromNetworkTopology( natRules );
+      }
+   }
+   return computedLocation;
+}
 
 const TransportData& EndpointDescriptor::getNativeTransportAddress( void ) const
 {
@@ -321,7 +267,7 @@ LocationCode EndpointDescriptor::getLocationCode( void ) const
    return mLocation;
 }
 
-LocationCode EndpointDescriptor::computeLocation( const NatTraversalRules& natRules )
+LocationCode EndpointDescriptor::computeLocationFromPublicAndNativeTransports( const NatTraversalRules& natRules )
 {
    LocationCode computedLocation = UNKNOWN;
 
@@ -360,30 +306,109 @@ LocationCode EndpointDescriptor::computeLocation( const NatTraversalRules& natRu
          computedLocation = REMOTE_NATED;
       }
    }
-   else
-   {
+   return computedLocation;
+}
 
-      // the public IP address is not known.  Examine the endpoint's native IP address to find out if
-      // it resides within our local private network
-      if( natRules.isPartOfLocalTopology( mNativeTransport.getAddress(), true, true ) )
+
+LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
+                                                               const NatTraversalRules& natRules,
+                                                               const RegistrationDB* pRegistrationDB )
+{
+   LocationCode computedLocation = UNKNOWN;
+   if( pRegistrationDB )
+   {
+      //  Search the Registration DB looking for a
+      // Contact entry matching the supplied URI's user@hostport hoping to find
+      // the location markers that are needed to establish the location of the endpoint.
+      
+      // extract user@hostport information from Request-URI
+      UtlString stringToMatch;
+      url.getIdentity( stringToMatch );
+      
+      int timeNow = OsDateTime::getSecsSinceEpoch();
+      UtlSList resultList;
+      pRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
+      UtlString* pMatchingContact;
+      if( !resultList.isEmpty() )
       {
-         // the endpoint is actually on this machine.  It could be for VM, AA, ACD or some
-         // other media server endpoint.  Check it the sipXecs is behind a NAT...
-         if( natRules.isBehindNat() )
-         {
-            // The endpoint is sipXecs and it is behind a NAT, location is therefore LOCAL_NATED
-            computedLocation = LOCAL_NATED;
-         }
-         else
-         {
-            // The endpoint is sipXecs and it is NOT behind a NAT, location is therefore PUBLIC
-            computedLocation = PUBLIC;
-         }
+         pMatchingContact = (UtlString*)resultList.first();
+         Url urlWithLocationInformation( *pMatchingContact );
+         mPublicTransport.fromUrl( urlWithLocationInformation );
+         mNativeTransport.fromUrl( urlWithLocationInformation );
+      
+         OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[1]: Retrieved location info for UNKNOWN user from regDB:'%s'",
+               pMatchingContact->data() );
+      
+         //update location information based on new information
+         computedLocation = computeLocationFromPublicAndNativeTransports( natRules );
       }
       else
       {
-         // we have not information about the location of the public address, Location is therefore UNKNOWN
-         computedLocation = UNKNOWN;
+         // no match for the supplied identity - make one last attempt to recover location markers
+         // from the registration DB by trying to look for a contact that has the URL's hostport matching
+         // a DB entry's sipx-privcontact and the URL's user matching a DB entry's contact user part. (see XX-8225)
+         UtlString userIdToMatch;
+         url.getUserId( userIdToMatch );
+         
+         UtlString host;
+         int port;
+         url.getHostAddress( host );
+         port = url.getHostPort();
+         UtlString tmpStringToMatch = SIPX_PRIVATE_CONTACT_URI_PARAM;
+         tmpStringToMatch.append('='); 
+         tmpStringToMatch.append( host );
+         if( port != PORT_NONE )
+         {
+            tmpStringToMatch.append("%3A");   // %3A is the escaped version of the '=' character.
+            tmpStringToMatch.appendNumber( port );
+         }
+      
+         pRegistrationDB->getUnexpiredContactsFieldsContaining( tmpStringToMatch, timeNow, resultList );
+         UtlSListIterator iter( resultList );
+         UtlContainable* pEntry;
+         while( ( pEntry = iter() ) != NULL )
+         {
+            pMatchingContact = (UtlString*)pEntry;
+            Url urlWithLocationInformation( *pMatchingContact );
+            UtlString userId;
+            urlWithLocationInformation.getUserId( userId );
+            if( userId.compareTo( userIdToMatch ) == 0 )
+            {  
+               mPublicTransport.fromUrl( urlWithLocationInformation );
+               mNativeTransport.fromUrl( urlWithLocationInformation );
+      
+               OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[2]: Retrieved location info for UNKNOWN user from regDB:'%s'",
+                     pMatchingContact->data() );
+      
+               // update location information based on new information
+               computedLocation = computeLocationFromPublicAndNativeTransports( natRules );
+               break;
+            }
+         }
+      }
+      resultList.destroyAll();
+   }
+   return computedLocation;
+}
+
+LocationCode EndpointDescriptor::computeLocationFromNetworkTopology( const NatTraversalRules& natRules )
+{
+   LocationCode computedLocation = UNKNOWN;
+   // Examine the endpoint's native IP address to find out if
+   // it resides within our local private network
+   if( natRules.isPartOfLocalTopology( mNativeTransport.getAddress(), true, true ) )
+   {
+      // the endpoint is actually on this machine.  It could be for VM, AA, ACD or some
+      // other media server endpoint.  Check it the sipXecs is behind a NAT...
+      if( natRules.isBehindNat() )
+      {
+         // The endpoint is sipXecs and it is behind a NAT, location is therefore LOCAL_NATED
+         computedLocation = LOCAL_NATED;
+      }
+      else
+      {
+         // The endpoint is sipXecs and it is NOT behind a NAT, location is therefore PUBLIC
+         computedLocation = PUBLIC;
       }
    }
    return computedLocation;
