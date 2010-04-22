@@ -149,7 +149,7 @@ public class EditConferenceTestUi extends WebTestCase {
         submit("form:apply");
         assertElementPresent("link:dimdim");
         clickLink("link:dimdim");
-        assertTextFieldEquals("setting:dimdim-host", "webmeeting.dimdim.com");
+        assertTextFieldEquals("setting:dimdim-host", "my.dimdim.com");
         setTextField("setting:user", "test");
         setTextField("setting:password", "test");
         setTextField("setting:did", "22222");
