@@ -625,14 +625,14 @@ public:
                                       );
 
     // Add a Proxy-Authenticate or WWW-Authenticate challenge to a 401
-    // or 407 response.
+    // or 407 response, constructing it from the field values.
     void setAuthenticateData(const char* scheme, const char* realm,
                              const char* nonce, const char* opaque,
                              const char* domain = NULL,
                              enum HttpEndpointEnum authEntity = SERVER);
 
-    // Add a Proxy-Authenticate or WWW-Authenticate challenge to a 401
-    // or 407 response.
+    // Add a Proxy-Authenticate or WWW-Authenticate (challenge) field
+    // value to a 401 or 407 response.
     void addAuthenticateField(const UtlString&      authenticationField,
                               enum HttpEndpointEnum authType
                               );
