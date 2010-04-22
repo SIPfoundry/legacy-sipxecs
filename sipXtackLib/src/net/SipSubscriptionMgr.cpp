@@ -301,8 +301,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
 
     isNew = FALSE;
     UtlBoolean subscriptionSucceeded = FALSE;
-    UtlString dialogHandle;
-    subscribeRequest.getDialogHandle(dialogHandle);
+    subscribeRequest.getDialogHandle(subscribeDialogHandle);
     SubscriptionServerState* state = NULL;
     int expiration = -1;
     isSubscriptionExpired = TRUE;
@@ -381,14 +380,14 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                   expiration);
 
     // If this is an early dialog we need to make it an established dialog.
-    if(SipDialog::isEarlyDialog(dialogHandle))
+    if(SipDialog::isEarlyDialog(subscribeDialogHandle))
     {
         UtlString establishedDialogHandle;
-        if(mDialogMgr.getEstablishedDialogHandleFor(dialogHandle, establishedDialogHandle))
+        if(mDialogMgr.getEstablishedDialogHandleFor(subscribeDialogHandle, establishedDialogHandle))
         {
             OsSysLog::add(FAC_SIP, PRI_WARNING,
                 "Incoming early SUBSCRIBE dialog: %s matches established dialog: %s",
-                dialogHandle.data(), establishedDialogHandle.data());
+                subscribeDialogHandle.data(), establishedDialogHandle.data());
         }
 
         // make up a To tag and set it
@@ -420,18 +419,18 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             subscribeCopy->setToFieldTag(toTag);
 
             // Re-get the dialog handle now that the To tag is set
-            subscribeCopy->getDialogHandle(dialogHandle);
+            subscribeCopy->getDialogHandle(subscribeDialogHandle);
 
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipSubscriptionMgr::updateDialogInfo dialogHandle = '%s'",
-                          dialogHandle.data());
+                          "SipSubscriptionMgr::updateDialogInfo subscribeDialogHandle = '%s'",
+                          subscribeDialogHandle.data());
 
             // Create the dialog
-            mDialogMgr.createDialog(*subscribeCopy, FALSE, dialogHandle);
+            mDialogMgr.createDialog(*subscribeCopy, FALSE, subscribeDialogHandle);
             isNew = TRUE;
 
             // Create a subscription state
-            state = new SubscriptionServerState(dialogHandle, mpResendMsgQ);
+            state = new SubscriptionServerState(subscribeDialogHandle, mpResendMsgQ);
             state->mEventTypeKey = eventTypeKey;
             state->mEventType = eventType;
             state->mpLastSubscribeRequest = subscribeCopy;
@@ -507,7 +506,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
            expiration == 0)
         {
             // Update the dialog state
-            mDialogMgr.updateDialog(subscribeRequest, dialogHandle);
+            mDialogMgr.updateDialog(subscribeRequest, subscribeDialogHandle);
 
             // Get the subscription state and update that
             // TODO:  This assumes that no one reuses the same dialog
@@ -516,8 +515,8 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             // search through to find a matching event type
             lock();
             state = (SubscriptionServerState*)
-                mSubscriptionStatesByDialogHandle.find(&dialogHandle);
-            if(state)
+                mSubscriptionStatesByDialogHandle.find(&subscribeDialogHandle);
+            if (state)
             {
                 // Update the expiration time.
                 long now = OsDateTime::getSecsSinceEpoch();
@@ -546,7 +545,6 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                 subscribeResponse.setExpiresField(expiration);
                 subscriptionSucceeded = TRUE;
                 isSubscriptionExpired = FALSE;
-                subscribeDialogHandle = dialogHandle;
 
                 // Set the resource information so our caller can generate a NOTIFY.
                 resourceId = state->mResourceId;
@@ -573,7 +571,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                                                 SIP_TOO_BRIEF_CODE,
                                                 SIP_SUB_TOO_BRIEF_TEXT);
             subscribeResponse.setMinExpiresField(mMinExpiration);
-            isSubscriptionExpired = isExpired(dialogHandle);
+            isSubscriptionExpired = isExpired(subscribeDialogHandle);
         }
     }
 
