@@ -13,7 +13,6 @@ package org.sipfoundry.sipxconfig.conference;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,45 +39,6 @@ public class DimDimConference {
 
     public String getSignupUrl() {
         return "http://www.dimdim.com";
-    }
-
-    public String getCreateMeetingUrl() {
-        if (!isConfigured()) {
-            return null;
-        }
-        Map<String, String> params1 = new LinkedHashMap<String, String>();
-        params1.put("name", getUser());
-        params1.put("password", getPassword());
-        params1.put("confname", m_conference.getName());
-        params1.put(INTERTOLL, m_conference.getExtension());
-
-        Map<String, String> params2 = new LinkedHashMap<String, String>();
-        params2.put(INTERTOLL, getDid());
-        addAttendeePasscode(params2);
-        addAttendeePwd(params2);
-        String displayName = getDisplayName();
-        if (StringUtils.isNotBlank(displayName)) {
-            params2.put("displayname", displayName);
-        }
-
-        String uri = String.format("http://%s/portal/start.action?%s&%s",
-            getDimDimHost(), paramsToQuery(params1), paramsToQuery(params2));
-
-        return uri;
-    }
-
-    public String getJoinMeetingUrl() {
-        if (!isConfigured()) {
-            return null;
-        }
-        Map<String, String> params = new LinkedHashMap<String, String>();
-        params.put("meetingRoomName", getUser());
-        addAttendeePasscode(params);
-        addAttendeePwd(params);
-
-        String uri = String.format("http://%s/portal/JoinForm.action?%s",
-                getDimDimHost(), paramsToQuery(params));
-        return uri;
     }
 
     public Setting getSettings() {
