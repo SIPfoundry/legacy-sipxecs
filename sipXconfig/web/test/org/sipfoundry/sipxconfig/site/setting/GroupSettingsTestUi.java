@@ -172,4 +172,16 @@ public class GroupSettingsTestUi extends WebTestCase {
         clickButton("form:apply");
         SiteTestHelper.assertUserError(tester);
     }
+
+    public void testUnifiedMessaging() {
+        SiteTestHelper.createAdminUserAndAdminGroup(tester);
+        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
+        SiteTestHelper.home(tester);
+        clickLink("UserGroups");
+        clickLinkWithExactText(CoreContextImpl.ADMIN_GROUP_NAME);
+        clickLink("link:voicemail");
+        setWorkingForm("voicemailForm");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoException(tester);
+    }
 }

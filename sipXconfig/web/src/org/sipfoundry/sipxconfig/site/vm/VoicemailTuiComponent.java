@@ -72,7 +72,9 @@ public abstract class VoicemailTuiComponent extends BaseComponent {
         }
         super.renderComponent(writer, cycle);
         if (TapestryUtils.isRewinding(cycle, this)) {
-            getSettings().getSetting(VOICEMAIL_TUI_SETTING).setValue(getVoicemailTui().getValue());
+            if (null != getVoicemailTui()) {
+                getSettings().getSetting(VOICEMAIL_TUI_SETTING).setValue(getVoicemailTui().getValue());
+            }
         }
     }
 
