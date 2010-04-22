@@ -26,7 +26,7 @@ public abstract class DimDimConferenceLink extends BaseComponent {
     }
 
     public String getStartUrl() {
-        return "http://" + getDimDimConference().getDimDimHost() + "/mashup/start";
+        return "https://" + getDimDimConference().getDimDimHost() + "/mashup/start";
     }
 
     public String getInviteEmail() {
