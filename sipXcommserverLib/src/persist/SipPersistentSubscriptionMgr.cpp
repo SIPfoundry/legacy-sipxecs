@@ -412,7 +412,8 @@ UtlBoolean SipPersistentSubscriptionMgr::getNotifyDialogInfo(
    UtlString* resourceId,
    UtlString* eventTypeKey,
    UtlString* eventType,
-   UtlString* acceptHeaderValue)
+   UtlString* acceptHeaderValue,
+   bool* fullContent)
 {
    UtlBoolean ret;
 
@@ -423,7 +424,8 @@ UtlBoolean SipPersistentSubscriptionMgr::getNotifyDialogInfo(
                                                  resourceId,
                                                  eventTypeKey,
                                                  eventType,
-                                                 acceptHeaderValue);
+                                                 acceptHeaderValue,
+                                                 fullContent);
 
    // If that succeeded, update the IMDB to show the to/from URIs as
    // they appear in the NOTIFY, esp. including the to-tag.

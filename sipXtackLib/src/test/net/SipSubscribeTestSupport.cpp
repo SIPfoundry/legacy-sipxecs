@@ -119,6 +119,10 @@ bool runListener(OsMsgQ& msgQueue,
       ASSERT(sipMessage);
       int messageType = ((SipMessageEvent*) message)->getMessageStatus();
       ASSERT(messageType == SipMessageEvent::APPLICATION);
+      OsSysLog::add(FAC_UNIT_TEST, PRI_DEBUG,
+                    "SipSubscribeTestSupport::runListener "
+                    "received message: %s",
+                    sipMessage->getBytes());
 
       if (sipMessage->isResponse())
       {

@@ -146,7 +146,8 @@ public:
                                           UtlString* resourceId = NULL,
                                           UtlString* eventTypeKey = NULL,
                                           UtlString* eventType = NULL,
-                                          UtlString* acceptHeaderValue = NULL);
+                                          UtlString* acceptHeaderValue = NULL,
+                                          bool* fullContent = NULL);
 
    //! End the dialog for the subscription indicated, by the dialog handle
    /*! Finds a matching dialog and expires the subscription if it has

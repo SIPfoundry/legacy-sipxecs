@@ -209,22 +209,23 @@ Voice-Message: 0/0 (0/0)\r\n";
          ASSERT_STR_EQUAL(mwiEventHeader, nextNotifyEventHeader);
          ASSERT_STR_EQUAL("message-summary;foo=bar;id=44", nextNotifyEventHeader);
 
-
          // Get notifies for all of the subscriptions for a resourceId
          // TODO: Should probably add more subscriptions for the same resource
          int numNotifiesCreated;
-         UtlString** acceptHeaderValuesArray = NULL;
-         SipMessage** notifyArray = NULL;
+         UtlString* acceptHeaderValuesArray = NULL;
+         SipMessage* notifyArray = NULL;
+         bool* fullContentArray = NULL;
          subMgr.createNotifiesDialogInfo(resourceId,
                                          eventTypeKey,
                                          "active;expires=%ld",
                                          numNotifiesCreated,
                                          acceptHeaderValuesArray,
+                                         fullContentArray,
                                          notifyArray);
          CPPUNIT_ASSERT(numNotifiesCreated == 1);
          CPPUNIT_ASSERT(acceptHeaderValuesArray);
          CPPUNIT_ASSERT(notifyArray);
-         SipMessage* notify0FromArray = notifyArray[0];
+         SipMessage* notify0FromArray = &notifyArray[0];
          CPPUNIT_ASSERT(notify0FromArray);
          int arrayNotify0Cseq;
          UtlString arrayNotify0Method;
@@ -244,10 +245,9 @@ Voice-Message: 0/0 (0/0)\r\n";
          notify0FromArray->getEventField(notify0FromArrayEventField);
          ASSERT_STR_EQUAL("message-summary;foo=bar;id=44", notify0FromArrayEventField);
 
-
-         subMgr.freeNotifies(numNotifiesCreated,
-                            acceptHeaderValuesArray,
-                            notifyArray);
+         delete[] acceptHeaderValuesArray;
+         delete[] notifyArray;
+         delete[] fullContentArray;
 
          CPPUNIT_ASSERT(subMgr.dialogExists(subscribeDialogHandle));
          CPPUNIT_ASSERT(!subMgr.isExpired(subscribeDialogHandle));
