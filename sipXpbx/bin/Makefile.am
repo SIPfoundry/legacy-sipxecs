@@ -30,12 +30,13 @@ bin_SCRIPTS = \
 	 sipx-test-maxfds
 
 SipxLibexecScripts = \
+	ibm_jvm_tmpdir \
 	sipx-activate-ntp \
 	sipx-config-httpd-access \
 	sipx-config-vxml-domain \
 	initial-config \
 	sipx-strip-db-secrets.pl \
-        sipxkeystoregen
+	sipxkeystoregen
 
 SipxLibexecPythonScripts = \
 	 sipxecs_setup_common.py
@@ -105,6 +106,7 @@ install-exec-hook : \
 	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/011_sipx-config-httpd-access \
 	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/012_sipx-config-vxml-domain \
 	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/013_sipxkeystoregen \
+	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/020_ibm_jvm_tmpdir \
 	remove-obsolete-bins
 
 .PHONY: remove-obsolete-bins
@@ -168,6 +170,10 @@ $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/012_sipx-config-vxml-domain: $(DESTDIR)@SIPX
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/013_sipxkeystoregen: $(DESTDIR)@SIPX_LIBEXECDIR@/sipxkeystoregen $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
 	cd $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d \
 	&& ln -sf ../sipxkeystoregen 013_sipxkeystoregen
+
+$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/020_ibm_jvm_tmpdir: $(DESTDIR)@SIPX_LIBEXECDIR@/ibm_jvm_tmpdir $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
+	cd $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d \
+	&& ln -sf ../ibm_jvm_tmpdir 020_ibm_jvm_tmpdir
 
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d:
 	$(INSTALL) -d $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
