@@ -71,7 +71,13 @@ public:
     //! Asks the SipSubscriptionMgr to initialize itself and sets the address 
     // of the queue to which to send resend messages.  The SipSubscriptionMgr
     // may not be used until initialize() returns.
-    virtual void initialize(OsMsgQ* pMsgQ);
+    virtual void initialize(OsMsgQ* pMsgQ
+                            /**< the address of the queue to which to
+                             *   send 'resend' messages indicating that a
+                             *   previously failed NOTIFY should be resent
+                             *   Usually sipSubscribeServer.getMessageQueue().
+                             */
+       );
    
     //! Add/Update subscription for the given SUBSCRIBE request
     /** The resourceId, eventTypeKey, and eventType are set based on
@@ -132,15 +138,16 @@ public:
     //! Set the subscription dialog information and cseq for the next NOTIFY request
     // Constructs the Subscription-State header using subscriptionStateFormat.
     // (See ::createNotifiesDialogInfo() for details.)
-    // Returns resource, event-type, and accept-header about the subscription
-    // if requested.
+    // Returns resource, event-type, accept-header,and "send full
+    // content" about the subscription if requested.
     virtual UtlBoolean getNotifyDialogInfo(const UtlString& subscribeDialogHandle,
                                            SipMessage& notifyRequest,
                                            const char* subscriptionStateFormat,
                                            UtlString* resourceId = NULL,
                                            UtlString* eventTypeKey = NULL,
                                            UtlString* eventType = NULL,
-                                           UtlString* acceptHeaderValue = NULL);
+                                           UtlString* acceptHeaderValue = NULL,
+                                           bool* fullContent = NULL);
 
     //! Construct a NOTIFY request for each subscription/dialog subscribed to the given resourceId and eventTypeKey
     /*! Allocates a SipMessage* array and allocates a SipMessage and sets the
@@ -155,17 +162,21 @@ public:
      *         100 characters.
      *  \param numNotifiesCreated - number of pointers to NOTIFY requests in
      *         the returned notifyArray
-     *  \param acceptHeaderValuesArray - allocated array holding a UtlString*
+     *  \param acceptHeaderValuesArray - allocated array holding a UtlString
      *         for each subscription, containing the Accept header values
-     *  \param notifyArray - allocated array holding a SipMessage* for
+     *  \param fullContentArray - allocated array holding a bool for each
+     *         subscription, telling whether the subscription has had a failed
+     *         notify and should send a full-content NOTIFY next
+     *  \param notifyArray - allocated array holding a SipMessage for
      *         each subscription, containing the generated NOTIFY requests
      */
     virtual void createNotifiesDialogInfo(const char* resourceId,
                                           const char* eventTypeKey,
                                           const char* subscriptionStateFormat,
                                           int& numNotifiesCreated,
-                                          UtlString**& acceptHeaderValuesArray,
-                                          SipMessage**& notifyArray);
+                                          UtlString*& acceptHeaderValuesArray,
+                                          bool*& fullContentArray,
+                                          SipMessage*& notifyArray);
 
     //! Construct a NOTIFY request for each subscription/dialog subscribed to the given eventType.
     /*! Allocates a SipMessage* array and allocates a SipMessage and sets the
@@ -178,27 +189,26 @@ public:
      *         100 characters.
      *  \param numNotifiesCreated - number of pointers to NOTIFY requests in
      *         the returned notifyArray
-     *  \param acceptHeaderValuesArray - allocated array holding a UtlString*
+     *  \param acceptHeaderValuesArray - allocated array holding a UtlString
      *         for each subscription, containing the Accept header values
-     *  \param notifyArray - allocated array holding a SipMessage* for
+     *  \param notifyArray - allocated array holding a SipMessage for
      *         each subscription, containing the generated NOTIFY requests
-     *  \param resourceIdArray - allocated array holding a char*
+     *  \param resourceIdArray - allocated array holding a UtlString
      *         for each subscription, containing the resource Id values.
-     *  \param eventTypeKeyArray - allocated array holding a char*
+     *  \param eventTypeKeyArray - allocated array holding a UtlString
      *         for each subscription, containing the event type key values.
+     *  \param fullContentArray - allocated array holding a bool for each
+     *         subscription, telling whether the subscription has had a failed
+     *         notify and should send a full-content NOTIFY next
      */
     virtual void createNotifiesDialogInfoEvent(const UtlString& eventType,
                                                const char* subscriptionStateFormat,
                                                int& numNotifiesCreated,
-                                               UtlString**& acceptHeaderValuesArray,
-                                               SipMessage**& notifyArray,
-                                               UtlString**& resourceIdArray,
-                                               UtlString**& eventTypeKeyArray);
-
-    //! frees up the notifies created in createNotifiesDialogInfo
-    static void freeNotifies(int numNotifies,
-                             UtlString** acceptHeaderValues,
-                             SipMessage** notifiesArray);
+                                               UtlString*& acceptHeaderValuesArray,
+                                               SipMessage*& notifyArray,
+                                               UtlString*& resourceIdArray,
+                                               UtlString*& eventTypeKeyArray,
+                                               bool*& fullContentArray);
 
     //! End the dialog for the subscription indicated by the dialog handle
     /*! Finds a matching dialog and expires the subscription if it has
@@ -215,18 +225,28 @@ public:
     //! Remove old subscriptions, ones that expired before the given time.
     virtual void removeOldSubscriptions(long oldEpochTimeSeconds);
 
-    //! Get the current resend interval for a subscription.
-    //  Returns 1,000,000 (which is larger than the max-resend value)
-    //  if the subscription cannot be found.
-    int getNextResendInterval(const UtlString& dialogHandle);
+    //! Tell that a new NOTIFY has been generated and sent for a subscription.
+    //  This resets the resend interval for the subscription to the minimum,
+    //  so that the next resend (if any) will be sent quickly.
+    //  This ensures that every change will reinvigorate the resend sequence.
+    //  (Does not restart the timer with the lower interval, because the current
+    //  NOTIFY has not failed -- if it fails, the ::startResendTimer for the
+    //  current NOTIFY will have the minimum interval.)
+    void newNotify(const UtlString& dialogHandle
+                   //< dialog handle of the SUBSCRIBE, which is the reverse
+                   //< of the dialog handle of the NOTIFY.
+       );
 
-    //! Set the current resend interval for a subscription.
-    void setNextResendInterval(const UtlString& dialogHandle,
-                               int interval);
+    //! Start the resend timer for a failed subscription NOTIFY.
+    //  If the timer is already running, does not start it again.
+    //  If the resend interval is longer than the maximum, does nothing.
+    //  Lengthens the resend interval for the next ::startResendTimer() call.
+    void startResendTimer(const UtlString& dialogHandle);
 
-    //! Start the resend timer for a dialog, unless it is set to fire sooner.
-    void startResendTimer(const UtlString& dialogHandle,
-                          int interval);
+    //! Note that a NOTIFY for this subscription has received a success response.
+    //  Thus, the flag saying to send full content in the next NOTIFY
+    //  should be cleared.
+    void successResponse(const UtlString& dialogHandle);
 
     //! Get pointer to the dialog handle of a resend message.
     static const UtlString* getHandleOfResendEventMsg(const OsMsg& msg);

@@ -558,6 +558,7 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(SipSubscribeServerTest1);
 
+
 class SipSubscribeServerTest2 : public CppUnit::TestCase
 {
    CPPUNIT_TEST_SUITE(SipSubscribeServerTest2);
@@ -568,6 +569,7 @@ class SipSubscribeServerTest2 : public CppUnit::TestCase
    CPPUNIT_TEST(responseContact);
 #ifdef EXECUTE_SLOW_TESTS
    CPPUNIT_TEST(notifyResend);
+   CPPUNIT_TEST(fullVsPartial);
 #endif // EXECUTE_SLOW_TESTS
 
    CPPUNIT_TEST_SUITE_END();
@@ -739,6 +741,13 @@ public:
                const HttpBody* bodyPtr = notifyRequest->getBody();
                CPPUNIT_ASSERT(bodyPtr != NULL);
             }
+
+            // Update the to-tag of the SUBSCRIBE.
+            Url responseToField;
+            subscribeResponse->getToUrl(responseToField);
+            UtlString toTag;
+            responseToField.getFieldParameter("tag", toTag);
+            mwiSubscribeRequest.setToFieldTag(toTag);
          }
 
          // Send a re-SUBSCRIBE
@@ -1377,6 +1386,428 @@ public:
             // We should not have received a NOTIFY request.
             CPPUNIT_ASSERT(!notifyRequest);
          }
+      }
+
+   // Test sending full vs. partial content.
+   void fullVsPartial()
+      {
+         // Enable a new event type which allows partial as well as full content.
+         UtlString eventName("x-test");
+         UtlString mimeType("application/x-test");
+         subServerp->enableEventType(eventName, NULL, NULL, NULL,
+                                     SipSubscribeServer::standardVersionCallback,
+                                     FALSE);
+         // Register an interest in SUBSCRIBE responses and NOTIFY requests
+         // for this event type
+         // Do not add observer for SUBSCRIBE responses, because one was added
+         // in ::setUp(), and despite appearances, the response observers do not
+         // filter on event type.
+         userAgentp->addMessageObserver(incomingClientMsgQueue,
+                                        SIP_NOTIFY_METHOD,
+                                        TRUE, // requests
+                                        FALSE, // not reponses
+                                        TRUE, // incoming
+                                        FALSE, // no outgoing
+                                        eventName,
+                                        NULL,
+                                        NULL);
+
+         // Publish full and partial content.
+         const char* full_content = "Full content";
+         const char* partial_content = "Partial content";
+         SipPublishContentMgr* pubMgrp = subServerp->getPublishMgr(eventName);
+         // Publish full content first.
+         // We have to copy these bodies every time we pass them to 
+         // SipPublishContentMgr::publish(), because ::publish takes ownership
+         // of its input bodies.
+         HttpBody full_body(full_content, strlen(full_content), mimeType);
+         HttpBody partial_body(partial_content, strlen(partial_content), mimeType);
+         HttpBody* b;
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(full_body), &b),
+                          TRUE,
+                          TRUE);
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(partial_body), &b),
+                          FALSE);
+
+         // Send a SUBSCRIBE to ourselves and receive full content.
+
+         const char* subscribe =
+            "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
+            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "To: <sip:111@example.com>\r\n"
+            "Cseq: 1 SUBSCRIBE\r\n"
+            "Event: x-test\r\n"
+            "Accept: application/x-test\r\n"
+            "Expires: 3600\r\n"
+            "Date: Tue, 26 Apr 2005 14:59:30 GMT\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: Pingtel/2.2.0 (VxWorks)\r\n"
+            "Accept-Language: en\r\n"
+            "Supported: sip-cc, sip-cc-01, timer, replaces\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         SipMessage subscribeRequest(subscribe);
+         {
+            UtlString c;
+            CallId::getNewCallId(c);
+            subscribeRequest.setCallIdField(c);
+         }
+         subscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
+                                                       aor,
+                                                       SIP_PROTOCOL_VERSION);
+         subscribeRequest.setContactField(aor_name_addr);
+         subscribeRequest.incrementCSeqNumber();
+
+         CPPUNIT_ASSERT(userAgentp->send(subscribeRequest));
+
+         // We should get a 202 response and a NOTIFY request in the queue
+         // Send a 200 response to the NOTIFY.
+         {
+            OsTime messageTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should have received a SUBSCRIBE response and a NOTIFY request.
+            CPPUNIT_ASSERT(subscribeResponse);
+
+            // Check that the subscribe response is what we expected.
+            CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                 subscribeResponse->getResponseStatusCode());
+
+            // Check that the NOTIFY has full content.
+            CPPUNIT_ASSERT(notifyRequest);
+            ASSERT_STR_EQUAL(full_content, notifyRequest->getBody()->getBytes());
+
+            // Update the to-tag of the SUBSCRIBE.
+            Url responseToField;
+            subscribeResponse->getToUrl(responseToField);
+            UtlString toTag;
+            responseToField.getFieldParameter("tag", toTag);
+            subscribeRequest.setToFieldTag(toTag);
+         }
+
+         // Update the content and see if we get a partial-content NOTIFY.
+
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(full_body), &b),
+                          TRUE,
+                          TRUE);
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(partial_body), &b),
+                          FALSE);
+
+         // We should get a NOTIFY request in the queue
+         // Send a 200 response to the NOTIFY.
+         {
+            OsTime messageTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // Check that there is no subscribe response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // Check that the NOTIFY has partial content.
+            CPPUNIT_ASSERT(notifyRequest);
+            ASSERT_STR_EQUAL(partial_content, notifyRequest->getBody()->getBytes());
+         }
+
+         // Re-SUBSCRIBE and see if we get full content.
+
+         subscribeRequest.incrementCSeqNumber();
+
+         CPPUNIT_ASSERT(userAgentp->send(subscribeRequest));
+
+         // We should get a 202 response and a NOTIFY request in the queue
+         // Send a 200 response to the NOTIFY.
+         {
+            OsTime messageTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should have received a SUBSCRIBE response and a NOTIFY request.
+            CPPUNIT_ASSERT(subscribeResponse);
+
+            // Check that the subscribe response is what we expected.
+            CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                 subscribeResponse->getResponseStatusCode());
+
+            // Check that the NOTIFY has full content.
+            CPPUNIT_ASSERT(notifyRequest);
+            ASSERT_STR_EQUAL(full_content, notifyRequest->getBody()->getBytes());
+         }
+
+         // Publish content and receive a partial-content NOTIFY.
+         // Send a failure response to the NOTIFY to cause a re-send NOTIFY.
+
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(full_body), &b),
+                          TRUE,
+                          TRUE);
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(partial_body), &b),
+                          FALSE);
+
+         // We should get and a NOTIFY request in the queue
+         // Send a 200 response to the NOTIFY.
+         {
+            OsTime messageTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_REQUEST_TIMEOUT_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should not have received a SUBSCRIBE response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // Check that the NOTIFY has partial content.
+            CPPUNIT_ASSERT(notifyRequest);
+            ASSERT_STR_EQUAL(partial_content, notifyRequest->getBody()->getBytes());
+         }
+
+         // Wait 10 seconds for the NOTIFY to be resent.
+         // Respond 200 and check that it is full content.
+         {
+            fprintf(stderr, "Waiting 11 seconds...\n");
+            OsTime firstTimeout(11, 0);  // 11 seconds
+            OsTime nextTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       firstTimeout,
+                                       nextTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should not have received a response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // Check that the NOTIFY is what we expected.
+            CPPUNIT_ASSERT(notifyRequest);
+            ASSERT_STR_EQUAL(full_content, notifyRequest->getBody()->getBytes());
+         }
+
+         // Update the content and see if we get a partial-content NOTIFY.
+
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(full_body), &b),
+                          TRUE,
+                          TRUE);
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(partial_body), &b),
+                          FALSE);
+
+         // We should get a NOTIFY request in the queue.
+         // Send a 200 response to the NOTIFY.
+         {
+            OsTime messageTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // Check that there is no subscribe response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // Check that the NOTIFY has partial content.
+            CPPUNIT_ASSERT(notifyRequest);
+            ASSERT_STR_EQUAL(partial_content, notifyRequest->getBody()->getBytes());
+         }
+
+         // Publish content and receive a partial-content NOTIFY.
+         // Send a failure response to the NOTIFY to cause a re-send NOTIFY.
+
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(full_body), &b),
+                          TRUE,
+                          TRUE);
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(partial_body), &b),
+                          FALSE);
+
+         // We should get and a NOTIFY request in the queue
+         // Send a 200 response to the NOTIFY.
+         {
+            OsTime messageTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_REQUEST_TIMEOUT_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should not have received a SUBSCRIBE response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // Check that the NOTIFY has partial content.
+            CPPUNIT_ASSERT(notifyRequest);
+            ASSERT_STR_EQUAL(partial_content, notifyRequest->getBody()->getBytes());
+         }
+
+         // While the re-send of the last NOTIFY is pending:
+         // Publish content and receive a full-content NOTIFY.
+         // Send a success response to the NOTIFY.
+
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(full_body), &b),
+                          TRUE,
+                          TRUE);
+         pubMgrp->publish(resource_id,
+                          eventName,
+                          eventName,
+                          1,
+                          (b = new HttpBody(partial_body), &b),
+                          FALSE);
+
+         // We should get a NOTIFY request in the queue.
+         // Send a 200 response to the NOTIFY.
+         {
+            OsTime messageTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should not have received a SUBSCRIBE response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // Check that the NOTIFY has partial content.
+            CPPUNIT_ASSERT(notifyRequest);
+            ASSERT_STR_EQUAL(full_content, notifyRequest->getBody()->getBytes());
+         }
+
+         // Wait 10 seconds for the NOTIFY to be resent.
+         // Respond 200 and check that it is partial content.
+         // (We expect partial content because the last NOTIFY sent got a success
+         // response.)
+         {
+            fprintf(stderr, "Waiting 11 seconds...\n");
+            OsTime firstTimeout(11, 0);  // 11 seconds
+            OsTime nextTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       firstTimeout,
+                                       nextTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_REQUEST_TIMEOUT_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should not have received a response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // Check that the NOTIFY is what we expected.
+            CPPUNIT_ASSERT(notifyRequest);
+            ASSERT_STR_EQUAL(partial_content, notifyRequest->getBody()->getBytes());
+         }
+
+         // Clean up to prevent use of the queue after it goes out of scope.
+         userAgentp->removeMessageObserver(incomingClientMsgQueue);
+         userAgentp->removeMessageObserver(incomingClientMsgQueue);
       }
 
 };
