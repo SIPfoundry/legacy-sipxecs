@@ -56,6 +56,13 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     private InetSocketAddress socketAddress;
 
     private InetSocketAddress farEnd;
+
+	private boolean mediaDiverted;
+
+	private InetSocketAddress mediaDiversionAddress;
+	
+	
+	
     class SendKeepaliveWorkItem extends WorkItem {
          Bridge bridge;
       
@@ -255,6 +262,12 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
         
         try {
 
+        	if ( this.isMediaDiverted() && this.getMediaDiversionAddress() != null ) {
+        		int bytesSent = this.datagramChannel.send(byteBuffer.duplicate(), this.mediaDiversionAddress);
+        		if ( logger.isTraceEnabled()) {
+        			logger.trace("SymTransmitterEndpoint: diverted " + bytesSent + " to " + this.mediaDiversionAddress);
+        		}
+        	}
             /*
              * Check if the packet is self-routed. If so route it back.
              */
@@ -441,5 +454,27 @@ final class SymTransmitterEndpoint extends SymEndpoint implements SymTransmitter
     public InetSocketAddress getSocketAddress() {
         return socketAddress;
     }
+
+	public void setDivertMedia(boolean mediaDiverted) {
+		this.mediaDiverted = mediaDiverted;
+	}
+
+	public void setMediaDiversionIpAddressAndPort(String ipAddress,
+			int port) throws UnknownHostException {
+		this.mediaDiversionAddress = new InetSocketAddress(InetAddress.getByName(ipAddress), port);       
+	}
+
+	
+	public InetSocketAddress getMediaDiversionAddress() {
+		return mediaDiversionAddress;
+	}
+
+	public void setMediaDiverted(boolean mediaDiverted) {
+		this.mediaDiverted = mediaDiverted;
+	}
+
+	public boolean isMediaDiverted() {
+		return mediaDiverted;
+	}
 
 }

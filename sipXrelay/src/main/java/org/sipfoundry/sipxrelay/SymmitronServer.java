@@ -1040,7 +1040,7 @@ public class SymmitronServer implements Symmitron {
             Sym rtpSession = sessionMap.get(sessionId);
             if (rtpSession == null) {
                 return this.createErrorMap(SESSION_NOT_FOUND,
-                        "Specified RTP Session was not found " + sessionId);
+                        "Specified Sym was not found " + sessionId);
             }
             if (rtpSession.getTransmitter() == null) {
                 return this.createErrorMap(ILLEGAL_STATE,
@@ -1056,7 +1056,91 @@ public class SymmitronServer implements Symmitron {
             release(controllerHandle);
         }
     }
+    
+    
+	public Map<String, Object> startMediaDiversion(String controllerHandle,
+			String symId) {
+			 try {
+             logger.info("startMediaDiversion : " + controllerHandle + " symId = "
+                     + symId);
+             this.checkForControllerReboot(controllerHandle);
+             Sym rtpSession = sessionMap.get(symId);
+             if (rtpSession == null) {
+                 return this.createErrorMap(SESSION_NOT_FOUND,
+                         "Specified Sym was not found " + symId);
+             }
+             if (rtpSession.getTransmitter() == null) {
+                 return this.createErrorMap(ILLEGAL_STATE,
+                         "transmitter is not assigned for rtp session "
+                                 + symId);
+             }
+             rtpSession.getTransmitter().setDivertMedia(true);
+             return this.createSuccessMap();
+         } catch (Exception ex) {
+             logger.error("Processing Error", ex);
+             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+         }finally {
+             release(controllerHandle);
+         }
+	}
 
+   
+	public Map<String, Object> stopMediaDiversion(String controllerHandle,
+			String symId) {
+		
+		 try {
+             logger.info("stopMediaDiversion : " + controllerHandle + " symId = "
+                     + symId);
+             this.checkForControllerReboot(controllerHandle);
+             Sym rtpSession = sessionMap.get(symId);
+             if (rtpSession == null) {
+                 return this.createErrorMap(SESSION_NOT_FOUND,
+                         "Specified Sym was not found " + symId);
+             }
+             if (rtpSession.getTransmitter() == null) {
+                 return this.createErrorMap(ILLEGAL_STATE,
+                         "transmitter is not assigned for rtp session "
+                                 + symId);
+             }
+             rtpSession.getTransmitter().setDivertMedia(false);
+             return this.createSuccessMap();
+         } catch (Exception ex) {
+             logger.error("Processing Error", ex);
+             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+         }finally {
+             release(controllerHandle);
+         }
+	}
+   
+	public Map<String, Object> setMediaDiversionDestination(
+			String controllerHandle, String symId, String destinationIpAddress,
+			int destinationPort) {
+		
+		 try {
+             logger.info("stopMediaDiversion : " + controllerHandle + " symId = "
+                     + symId);
+             this.checkForControllerReboot(controllerHandle);
+             Sym rtpSession = sessionMap.get(symId);
+             if (rtpSession == null) {
+                 return this.createErrorMap(SESSION_NOT_FOUND,
+                         "Specified Sym was not found " + symId);
+             }
+             if (rtpSession.getTransmitter() == null) {
+                 return this.createErrorMap(ILLEGAL_STATE,
+                         "transmitter is not assigned for rtp session "
+                                 + symId);
+             }
+             rtpSession.getTransmitter().setMediaDiversionIpAddressAndPort(destinationIpAddress,destinationPort);
+             return this.createSuccessMap();
+         } catch (Exception ex) {
+             logger.error("Processing Error", ex);
+             return createErrorMap(PROCESSING_ERROR, ex.getMessage());
+         }finally {
+             release(controllerHandle);
+         }
+	}
+
+    
     /*
      * (non-Javadoc)
      * 
@@ -1856,6 +1940,11 @@ public class SymmitronServer implements Symmitron {
             System.exit(-1);
         }
     }
+
+	
+	
+
+	
 
    
 

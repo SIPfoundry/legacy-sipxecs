@@ -378,6 +378,29 @@ public interface Symmitron {
      * @return a standard map
      */
     public Map<String, Object> resumeSym(String controllerHandle, String symId);
+    
+    /**
+     * Pause media diversion.
+     *  @param controllerHandle -
+     *            the controller handle making this call.
+     * @param symId --
+     *            the session Id for the sym.
+     * 
+     * 
+     */
+    public Map<String,Object> startMediaDiversion(String controllerHandle, String symId);
+    
+    /**
+     * Pause media diversion.
+     *  @param controllerHandle -
+     *            the controller handle making this call.
+     * @param symId --
+     *            the session Id for the sym.
+     * 
+     * 
+     */
+    public Map<String,Object> stopMediaDiversion(String controllerHandle, String symId);
+     
 
     /**
      * 
@@ -417,6 +440,33 @@ public interface Symmitron {
     public Map<String, Object> setDestination(String controllerHandle,
             String symId, String destinationIpAddress, int destinationPort,
             int keepAliveTime, String keepaliveMethod);
+    
+    /**
+     * Set a media diversion destination. This is useful for call recording.
+     * 
+     *  
+     * @param controllerHandle -
+     *            the controller handle that is making this call.
+     * 
+     * @param symId --
+     *            the Sym Identifier for the sym Session for which we need to
+     *            add a remote endpoint.
+     * 
+     * 
+     * @param destinationIpAddress --
+     *            the destinationIpAddress
+     *            
+     * 
+     * @param destinationPort --
+     *            the destination port. 
+     *            
+     * @return - a standard map.
+     */
+    public Map<String,Object> setMediaDiversionDestination(String controllerHandle, String symId, 
+    		String destinationIpAddress, int destinationPort);
+    
+    
+    
 
     /**
      * Remove a sym from a bridge.

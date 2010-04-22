@@ -29,7 +29,7 @@ import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
 @SuppressWarnings("unchecked")
 public class SymmitronClient {
 
-	private static final Logger logger = Logger
+	private static  Logger logger = Logger
 			.getLogger("org.sipfoundry.sipxrelay");
 
 	private String clientHandle;
@@ -45,6 +45,10 @@ public class SymmitronClient {
 	private String clientName;
 
 	private static Timer timer = new Timer();
+	
+	public static void setLogger(Logger log) {
+		SymmitronClient.logger = log;
+	}
 
 	private boolean checkForServerReboot(Map map) throws SymmitronException {
 
@@ -126,6 +130,7 @@ public class SymmitronClient {
 			boolean isSipxRelaySecure, SymmitronResetHandler resetHandler)
 			throws SymmitronException {
 		try {
+			logger.debug("SymmitronClient " + clientName + " serverAddress " + serverAddress + " port = " + port );
 			XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
 			String protocol = isSipxRelaySecure ? "https" : "http";
 			try {
@@ -165,7 +170,8 @@ public class SymmitronClient {
 		}
 
 	}
-
+	
+	
 	public SymImpl createEvenSym() throws SymmitronException {
 
 		int count = 1;
@@ -312,6 +318,29 @@ public class SymmitronClient {
 		}
 
 	}
+	
+	public void setMediaDiversionDestination(SymInterface sym, String ipAddress, int destinationPort ) {
+		try {
+			Object[] params = new Object[4];
+			params[0] = clientHandle;
+			params[1] = sym.getId();
+			params[2] = ipAddress;
+			params[3] = new Integer(destinationPort);
+			logger.debug(String.format("setMediaDiversionDestination " +
+					" sym = %s " +
+					" ipAddress = %s " +
+					" destinationPort = %s ",
+					params[1].toString(),params[2].toString(),params[3].toString()));
+			Map retval = (Map) client.execute("sipXrelay.setMediaDiversionDestination",
+					params);
+			if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+				throw new SymmitronException("Error in processing request "
+						+ retval.get(Symmitron.ERROR_INFO));
+			}
+		} catch (XmlRpcException ex) {
+			throw new SymmitronException("RPC error in executing method", ex);
+		}
+	}
 
 	public void addSym(String bridge, SymInterface sym)
 			throws SymmitronException {
@@ -456,6 +485,41 @@ public class SymmitronClient {
 			Map retval;
 			try {
 				retval = (Map) client.execute("sipXrelay.resumeSym", args);
+			} catch (XmlRpcException e) {
+				logger.error(e);
+				throw new SymmitronException(e);
+			}
+			if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+				throw new SymmitronException("Error in processing request "
+						+ retval.get(Symmitron.ERROR_INFO));
+			}
+		}
+	}
+	
+	
+	public void divertMedia(String symId, boolean diversionFlag) {
+		Object[] args = new Object[2];
+		args[0] = clientHandle;
+		args[1] = symId;
+		
+		logger.debug("divertMedia " + symId  + " holdFlag " + diversionFlag);
+		
+		if (diversionFlag) {
+			Map retval;
+			try {
+				retval = (Map) client.execute("sipXrelay.startMediaDiversion", args);
+			} catch (XmlRpcException e) {
+				logger.error(e);
+				throw new SymmitronException(e);
+			}
+			if (retval.get(Symmitron.STATUS_CODE).equals(Symmitron.ERROR)) {
+				throw new SymmitronException("Error in processing request "
+						+ retval.get(Symmitron.ERROR_INFO));
+			}
+		} else {
+			Map retval;
+			try {
+				retval = (Map) client.execute("sipXrelay.stopMediaDiversion", args);
 			} catch (XmlRpcException e) {
 				logger.error(e);
 				throw new SymmitronException(e);
