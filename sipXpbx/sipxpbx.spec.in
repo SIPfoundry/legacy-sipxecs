@@ -149,6 +149,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/012_sipx-config-vxml-domain
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipxkeystoregen
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/013_sipxkeystoregen
+%attr(755,root,root) %{_libexecdir}/sipXecs/ibm_jvm_tmpdir
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/020_ibm_jvm_tmpdir
 
 %attr(755,root,root) %{_sysconfdir}/init.d/sipxecs
 %attr(755,root,root) %{_sysconfdir}/init.d/phonelogd
