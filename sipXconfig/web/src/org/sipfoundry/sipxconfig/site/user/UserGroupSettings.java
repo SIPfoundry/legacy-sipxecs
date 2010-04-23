@@ -289,4 +289,11 @@ public abstract class UserGroupSettings extends GroupSettings {
         }
         return StringUtils.join(names, ",");
     }
+
+    public String getSettingsToHide() {
+        if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
+            return "add-pa-to-group";
+        }
+        return "";
+    }
 }
