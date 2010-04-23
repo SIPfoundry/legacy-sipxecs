@@ -8,7 +8,7 @@
 
 # ede_build_devuser.sh
 #
-# See http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+Setup for instructions.
+# See http://wiki.sipfoundry.org/display/xecsdev/Express+Development+Environment+%28EDE%29 for instructions.
 
 # Usage: $0 [-h] [-d] [-r] [-c CODEDIR]
 #   -h: Print this usage information and exit.
@@ -193,6 +193,7 @@ NORTEL_INTERNAL_BUILD_HOST=falcon.us.nortel.com
 function add_sipxecs_unstable_repo {
 
    sudo rm -rf /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
+   sudo rm -rf /var/cache/yum/sipxecs-*
 
    nslookup $NORTEL_INTERNAL_BUILD_HOST | grep "Name:" &> /dev/null
    if [ $? == 0 ]; then
@@ -206,14 +207,14 @@ function add_sipxecs_unstable_repo {
       cat <<EOF >> tmp.repo
 [sipxecs-unstable]
 name=sipXecs $NORTEL_INTERNAL_BUILD_HOST
-baseurl=http://$NORTEL_INTERNAL_BUILD_HOST/ecs/main/$DISTRO_PART/`uname -i`/current/RPM
+baseurl=http://$NORTEL_INTERNAL_BUILD_HOST/scs/main/$DISTRO_PART/`uname -i`/current/RPM
 gpgcheck=0
 enabled=1
 EOF
       sudo mv tmp.repo /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
    else
-      # Use sipfoundry.org
-      sudo_wget_retry http://sipxecs.sipfoundry.org/temp/sipXecs/$(return_sipxecs_unstable_repo_name).repo /etc/yum.repos.d
+      # Use sipxecssw.org
+      sudo_wget_retry http://sipxecssw.org/pub/sipXecs/$(return_sipxecs_unstable_repo_name).repo /etc/yum.repos.d
       if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
          # SIPfoundry doesn't yet have a dependency repo for 10/11, but the 8 RPMs (except FreeSWITCH) work well.
          sudo sed -i -e "s/\$releasever/8/g" /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
