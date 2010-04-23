@@ -28,7 +28,7 @@ ECLIPSE_WORKSPACE=eclipse-workspace
 EDE_BIN=bin_ede
 DEP_RPM_TOPDIR=DEP_RPM_TOPDIR
 SIPX_RPM_TOPDIR=SIPX_RPM_TOPDIR
-CODE=main
+CODE=4.2
 LINKS=links
 DIST=DIST
 EDE_LOGS=logs_ede
@@ -207,7 +207,7 @@ function add_sipxecs_unstable_repo {
       cat <<EOF >> tmp.repo
 [sipxecs-unstable]
 name=sipXecs $NORTEL_INTERNAL_BUILD_HOST
-baseurl=http://$NORTEL_INTERNAL_BUILD_HOST/scs/main/$DISTRO_PART/`uname -i`/current/RPM
+baseurl=http://$NORTEL_INTERNAL_BUILD_HOST/scs/branches/4.2/$DISTRO_PART/`uname -i`/current/RPM
 gpgcheck=0
 enabled=1
 EOF
@@ -217,6 +217,10 @@ EOF
       sudo_wget_retry http://sipxecssw.org/pub/sipXecs/$(return_sipxecs_unstable_repo_name).repo /etc/yum.repos.d
       if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
          # SIPfoundry doesn't yet have a dependency repo for 10/11, but the 8 RPMs (except FreeSWITCH) work well.
+#
+# 22 April 2010 - In fact SIPfoundry doesn't even have a Fedora build loop for 4.2, only CentOS.  Fedora will still
+# work with 4.2, but you'll need to use the -d option to have the script build all SIPfoundry dependency RPMs locally.
+#
          sudo sed -i -e "s/\$releasever/8/g" /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
       fi
       sudo sed -i -e "s/gpgcheck=1/gpgcheck=0/g" /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
