@@ -4,12 +4,10 @@
 # Failure to do so causes Java processes to consume unnecessary CPU cycles (XX-7634)
 IBM_JVM_TMPDIR=/tmp/.com_ibm_tools_attach
 
-test -e -a ! -d ${IBM_JVM_TMPDIR} \
+test ! -d ${IBM_JVM_TMPDIR} \
 && rm -f ${IBM_JVM_TMPDIR} > /dev/null
 
 test -d ${IBM_JVM_TMPDIR} \
 || mkdir ${IBM_JVM_TMPDIR} > /dev/null 2>&1
 
 chown -R @SIPXPBXUSER@:@SIPXPBXGROUP@ ${IBM_JVM_TMPDIR} > /dev/null 2>&1
-
-
