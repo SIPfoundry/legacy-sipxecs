@@ -346,8 +346,14 @@ public class PhonebookManagerTest extends TestCase {
     }
 
     public void testUserPhoneBookEntry() throws Exception {
-        User user = new User();
-        UserPhonebookEntry entry = new PhonebookManagerImpl.UserPhonebookEntry(user);
+        User user = new MockUser(Boolean.TRUE);
+        AddressBookEntry abe = new AddressBookEntry();
+        abe.setImId("test");
+        user.setAddressBookEntry(abe);
+                 UserPhonebookEntry entry = new PhonebookManagerImpl.UserPhonebookEntry(user);
+
+        assertEquals("test", entry.getAddressBookEntry().getImId());
+
 
         user.setUserName("500");
         assertEquals("500", entry.getNumber());
@@ -357,7 +363,25 @@ public class PhonebookManagerTest extends TestCase {
 
         user.setAliasesString("501");
         assertEquals("501", entry.getNumber());
+
+        user = new MockUser(Boolean.FALSE);
+        user.setAddressBookEntry(abe);
+        entry = new PhonebookManagerImpl.UserPhonebookEntry(user);
+        assertEquals("", entry.getAddressBookEntry().getImId());
     }
+
+    private class MockUser extends User {
+        private Boolean m_imEnabled;
+
+        public MockUser(Boolean imEnabled) {
+            m_imEnabled = imEnabled;
+        }
+
+        public Object getSettingTypedValue(String path) {
+            return m_imEnabled;
+        }
+    }
+
 
     public void testGetEntries() throws Exception {
         // check if get entries removes duplicates properly

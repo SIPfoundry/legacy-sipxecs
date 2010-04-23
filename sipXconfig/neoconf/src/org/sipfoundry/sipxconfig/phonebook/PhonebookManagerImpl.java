@@ -684,7 +684,18 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
         @Override
         public AddressBookEntry getAddressBookEntry() {
-            return m_user.getAddressBookEntry();
+            AddressBookEntry userAbe = m_user.getAddressBookEntry();
+            if (userAbe != null) {
+                AddressBookEntry representableAbe = new AddressBookEntry();
+                representableAbe.update(userAbe);
+                boolean imEnabled = (Boolean) m_user.getSettingTypedValue("im/im-account");
+                if (!imEnabled) {
+                    representableAbe.setImId(StringUtils.EMPTY);
+                }
+                return representableAbe;
+            }
+            return null;
+
         }
     }
 
