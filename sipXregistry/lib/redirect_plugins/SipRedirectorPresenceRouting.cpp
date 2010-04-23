@@ -702,6 +702,7 @@ OsStatus PresenceRoutingUserPreferences::initialize()
 
 OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
 {
+   OsStatus rc = OS_SUCCESS;
    OsLock lock( mMutex );
    TiXmlNode* presenceRoutingNode;
    mUserVmOnDndPreferences.destroyAll();
@@ -734,6 +735,12 @@ OsStatus PresenceRoutingUserPreferences::parseDocument( TiXmlDocument* pDoc )
          }
       }
    }
+   else
+   {
+      OsSysLog::add( FAC_NAT, PRI_ERR, "PresenceRoutingUserPreferences::parseDocument could not find node 'presenceRoutingPrefs'");
+      rc = OS_FAILED;
+   }
+   return rc;
 }
 
 bool PresenceRoutingUserPreferences::forwardToVoicemailOnDnd(const UtlString& sipUsername )
