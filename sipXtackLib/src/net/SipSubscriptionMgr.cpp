@@ -38,7 +38,7 @@ public:
    UtlString mEventTypeKey;
    UtlString mEventType;
    UtlString mAcceptHeaderValue;
-   long mExpirationDate;       // expiration time
+   unsigned long mExpirationDate;       // expiration time
    int mDialogVer;             // the last value used in a 'version' attribute
    SipMessage* mpLastSubscribeRequest;
    OsTimer* mpExpirationTimer;
@@ -51,7 +51,7 @@ public:
    //  This value starts at SipSubscriptionMgr::sInitialNextResendInterval and
    //  is doubled until it exceeds SipSubscriptionMgr::sMaxNextResendInterval,
    //  at which point the NOTIFY is no longer resent.
-   int mNextResendInterval;
+   unsigned mNextResendInterval;
 
    /// The timer to send a resend message to the owning SipSubscribeServer.
    OsTimer mResendTimer;
@@ -165,9 +165,9 @@ private:
 // Initial resend interval, in seconds.
 // Intervals shorter than 10 seconds may cause tests to fail due to unexpected
 // resends of NOTIFYs.
-int SipSubscriptionMgr::sInitialNextResendInterval = 10;
+unsigned SipSubscriptionMgr::sInitialNextResendInterval = 10;
 // Maximum resend interval, in seconds.
-int SipSubscriptionMgr::sMaxNextResendInterval = 15 * 60;
+unsigned SipSubscriptionMgr::sMaxNextResendInterval = 15 * 60;
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 
@@ -442,7 +442,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
                state->mAcceptHeaderValue = SipPublishContentMgr::acceptAllTypes;
             }
 
-            long now = OsDateTime::getSecsSinceEpoch();
+            long unsigned now = OsDateTime::getSecsSinceEpoch();
             state->mExpirationDate = now + expiration;
 
             // TODO: currently the SipSubsribeServer does not handle timeout
@@ -519,7 +519,7 @@ UtlBoolean SipSubscriptionMgr::updateDialogInfo(const SipMessage& subscribeReque
             if (state)
             {
                 // Update the expiration time.
-                long now = OsDateTime::getSecsSinceEpoch();
+                long unsigned now = OsDateTime::getSecsSinceEpoch();
                 state->mExpirationDate = now + expiration;
                 // Record this SUBSCRIBE as the latest SUBSCRIBE request.
                 if(state->mpLastSubscribeRequest)
@@ -950,7 +950,7 @@ void SipSubscriptionMgr::createNotifiesDialogInfo(const char* resourceId,
    notifyArray = new SipMessage[count];
    fullContentArray = new bool[count];
    iterator.reset();
-   long now = OsDateTime::getSecsSinceEpoch();
+   long unsigned now = OsDateTime::getSecsSinceEpoch();
 
    while ((subscriptionIndex =
            dynamic_cast <SubscriptionServerStateIndex*> (iterator())))
@@ -1088,7 +1088,7 @@ void SipSubscriptionMgr::createNotifiesDialogInfoEvent(const UtlString& eventTyp
    fullContentArray = new bool[count];
 
    iterator.reset();
-   long now = OsDateTime::getSecsSinceEpoch();
+   long unsigned now = OsDateTime::getSecsSinceEpoch();
 
    while ((subscription =
            dynamic_cast <SubscriptionServerState*> (iterator())))
@@ -1238,7 +1238,7 @@ UtlBoolean SipSubscriptionMgr::endSubscription(const UtlString& dialogHandle,
     return(subscriptionFound);
 }
 
-void SipSubscriptionMgr::removeOldSubscriptions(long oldEpochTimeSeconds)
+void SipSubscriptionMgr::removeOldSubscriptions(long unsigned oldEpochTimeSeconds)
 {
     lock();
     UtlHashBagIterator iterator(mSubscriptionStateResourceIndex);
@@ -1329,8 +1329,10 @@ void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle)
 
       // Check the current resend interval.
       // If it is over the maximum, do not resend.
-      int interval = state->mNextResendInterval;
-      if (interval <= sMaxNextResendInterval)
+      // If it exceeds the remaining lifetime of the subscription, do not resend.
+      unsigned interval = state->mNextResendInterval;
+      if (interval <= sMaxNextResendInterval &&
+          OsDateTime::getSecsSinceEpoch() + interval <= state->mExpirationDate)
       {
          // Resend interval is short enough; do the resend.
 
@@ -1343,7 +1345,7 @@ void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle)
          OsTimer::Interval period;
 
          state->mResendTimer.getFullState(timerState, expiresAt, periodic, period);
-         int current_interval = 0;
+         unsigned current_interval = 0;
          if (timerState == OsTimer::STOPPED ||
              (current_interval = expiresAt - OsTimer::now()) > interval)
          {
@@ -1367,6 +1369,16 @@ void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle)
                           current_interval, interval,
                           state->mNextResendInterval);
          }
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_WARNING,
+                       "SipSubscriptionMgr::startResendTimer "
+                       "Not starting resend timer for dialog '%s' "
+                       "because interval (%d) exceeds maximum (%d) or "
+                       "now (%ld) is too close to expiration (%ld)",
+                       dialogHandle.data(), interval, sMaxNextResendInterval,
+                       OsDateTime::getSecsSinceEpoch(), state->mExpirationDate);
       }
    }
    else
@@ -1568,9 +1580,9 @@ UtlBoolean SipSubscriptionMgr::isExpired(UtlString& dialogHandle)
         mSubscriptionStatesByDialogHandle.find(&dialogHandle);
     if(state)
     {
-        long now = OsDateTime::getSecsSinceEpoch();
+        long unsigned now = OsDateTime::getSecsSinceEpoch();
 
-        if(now <= state->mExpirationDate)
+        if (now <= state->mExpirationDate)
         {
             subscriptionExpired = FALSE;
         }
