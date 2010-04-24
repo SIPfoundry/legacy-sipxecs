@@ -693,7 +693,7 @@ public:
          // Test MWI messages
          const char* mwiSubscribe =
             "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
-            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "From: <sip:111@example.com>\r\n"
             "To: <sip:111@example.com>\r\n"
             "Cseq: 1 SUBSCRIBE\r\n"
             "Event: message-summary\r\n"
@@ -713,6 +713,8 @@ public:
             UtlString c;
             CallId::getNewCallId(c);
             mwiSubscribeRequest.setCallIdField(c);
+            CallId::getNewTag(c);
+            mwiSubscribeRequest.setFromFieldTag(c);
          }
          mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
                                                           aor,
@@ -812,7 +814,7 @@ public:
          // Test MWI messages
          const char* mwiSubscribe =
             "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
-            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "From: <sip:111@example.com>\r\n"
             "To: <sip:111@example.com>\r\n"
             "Cseq: 1 SUBSCRIBE\r\n"
             "Event: message-summary\r\n"
@@ -852,6 +854,8 @@ public:
                UtlString c;
                CallId::getNewCallId(c);
                mwiSubscribeRequest.setCallIdField(c);
+               CallId::getNewTag(c);
+               mwiSubscribeRequest.setFromFieldTag(c);
             }
             mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
                                                              aor,
@@ -970,7 +974,7 @@ public:
          // Test MWI messages
          const char* mwiSubscribe =
             "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
-            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "From: <sip:111@example.com>\r\n"
             "To: <sip:111@example.com>\r\n"
             "Cseq: 1 SUBSCRIBE\r\n"
             "Event: message-summary\r\n"
@@ -990,6 +994,8 @@ public:
             UtlString c;
             CallId::getNewCallId(c);
             mwiSubscribeRequest.setCallIdField(c);
+            CallId::getNewTag(c);
+            mwiSubscribeRequest.setFromFieldTag(c);
          }
          mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
                                                           aor,
@@ -1086,7 +1092,7 @@ public:
          // Test MWI messages
          const char* mwiSubscribe =
             "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
-            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "From: <sip:111@example.com>\r\n"
             "To: <sip:111@example.com>\r\n"
             "Cseq: 1 SUBSCRIBE\r\n"
             "Event: message-summary\r\n"
@@ -1114,6 +1120,8 @@ public:
                UtlString c;
                CallId::getNewCallId(c);
                mwiSubscribeRequest.setCallIdField(c);
+               CallId::getNewTag(c);
+               mwiSubscribeRequest.setFromFieldTag(c);
             }
             mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
                                                              aor,
@@ -1198,7 +1206,7 @@ public:
          // Test MWI messages
          const char* mwiSubscribe =
             "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
-            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "From: <sip:111@example.com>\r\n"
             "To: <sip:111@example.com>\r\n"
             "Cseq: 1 SUBSCRIBE\r\n"
             "Event: message-summary\r\n"
@@ -1218,6 +1226,8 @@ public:
             UtlString c;
             CallId::getNewCallId(c);
             mwiSubscribeRequest.setCallIdField(c);
+            CallId::getNewTag(c);
+            mwiSubscribeRequest.setFromFieldTag(c);
          }
          mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
                                                           aor,
@@ -1264,7 +1274,7 @@ public:
          // Test MWI messages
          const char* mwiSubscribe =
             "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
-            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "From: <sip:111@example.com>\r\n"
             "To: <sip:111@example.com>\r\n"
             "Cseq: 1 SUBSCRIBE\r\n"
             "Event: message-summary\r\n"
@@ -1284,6 +1294,8 @@ public:
             UtlString c;
             CallId::getNewCallId(c);
             mwiSubscribeRequest.setCallIdField(c);
+            CallId::getNewTag(c);
+            mwiSubscribeRequest.setFromFieldTag(c);
          }
          mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
                                                           aor,
@@ -1451,7 +1463,7 @@ public:
 
          const char* subscribe =
             "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
-            "From: <sip:111@example.com>;tag=1612c1612\r\n"
+            "From: <sip:111@example.com>\r\n"
             "To: <sip:111@example.com>\r\n"
             "Cseq: 1 SUBSCRIBE\r\n"
             "Event: x-test\r\n"
@@ -1470,6 +1482,8 @@ public:
             UtlString c;
             CallId::getNewCallId(c);
             subscribeRequest.setCallIdField(c);
+            CallId::getNewTag(c);
+            subscribeRequest.setFromFieldTag(c);
          }
          subscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
                                                        aor,
