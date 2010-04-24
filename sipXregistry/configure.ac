@@ -41,6 +41,11 @@ CHECK_CPPUNIT
 # Checks for typedefs, structures, and compiler characteristics.
 # Checks for library functions.
 
+# Note that SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED must be called before
+# SFAC_INIT_FLAGS.
+SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED
+SFAC_INIT_FLAGS
+
 SFAC_LIB_CALL
 SFAC_LIB_COMMSERVER
 
