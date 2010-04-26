@@ -1329,10 +1329,8 @@ void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle)
 
       // Check the current resend interval.
       // If it is over the maximum, do not resend.
-      // If it exceeds the remaining lifetime of the subscription, do not resend.
       unsigned interval = state->mNextResendInterval;
-      if (interval <= sMaxNextResendInterval &&
-          OsDateTime::getSecsSinceEpoch() + interval <= state->mExpirationDate)
+      if (interval <= sMaxNextResendInterval)
       {
          // Resend interval is short enough; do the resend.
 
@@ -1375,10 +1373,8 @@ void SipSubscriptionMgr::startResendTimer(const UtlString& dialogHandle)
          OsSysLog::add(FAC_SIP, PRI_WARNING,
                        "SipSubscriptionMgr::startResendTimer "
                        "Not starting resend timer for dialog '%s' "
-                       "because interval (%d) exceeds maximum (%d) or "
-                       "now (%ld) is too close to expiration (%ld)",
-                       dialogHandle.data(), interval, sMaxNextResendInterval,
-                       OsDateTime::getSecsSinceEpoch(), state->mExpirationDate);
+                       "because interval (%d) exceeds maximum (%d)",
+                       dialogHandle.data(), interval, sMaxNextResendInterval);
       }
    }
    else
