@@ -570,6 +570,7 @@ class SipSubscribeServerTest2 : public CppUnit::TestCase
 #ifdef EXECUTE_SLOW_TESTS
    CPPUNIT_TEST(notifyResend);
    CPPUNIT_TEST(fullVsPartial);
+   CPPUNIT_TEST(resendTermination);
 #endif // EXECUTE_SLOW_TESTS
 
    CPPUNIT_TEST_SUITE_END();
@@ -1808,6 +1809,148 @@ public:
          // Clean up to prevent use of the queue after it goes out of scope.
          userAgentp->removeMessageObserver(incomingClientMsgQueue);
          userAgentp->removeMessageObserver(incomingClientMsgQueue);
+      }
+
+   // Verify that termination NOTIFYs that fail won't be resent forever.
+   void resendTermination()
+      {
+         // Test MWI messages
+         const char* mwiSubscribe =
+            "SUBSCRIBE sip:111@localhost SIP/2.0\r\n"
+            "From: <sip:111@example.com>\r\n"
+            "To: <sip:111@example.com>\r\n"
+            "Cseq: 1 SUBSCRIBE\r\n"
+            "Event: message-summary\r\n"
+            "Accept: application/simple-message-summary\r\n"
+            "Expires: 3600\r\n"
+            "Date: Tue, 26 Apr 2005 14:59:30 GMT\r\n"
+            "Max-Forwards: 20\r\n"
+            "User-Agent: Pingtel/2.2.0 (VxWorks)\r\n"
+            "Accept-Language: en\r\n"
+            "Supported: sip-cc, sip-cc-01, timer, replaces\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n";
+
+         // Send a SUBSCRIBE to ourselves
+         SipMessage mwiSubscribeRequest(mwiSubscribe);
+         {
+            UtlString c;
+            CallId::getNewCallId(c);
+            mwiSubscribeRequest.setCallIdField(c);
+            CallId::getNewTag(c);
+            mwiSubscribeRequest.setFromFieldTag(c);
+         }
+         mwiSubscribeRequest.setSipRequestFirstHeaderLine(SIP_SUBSCRIBE_METHOD,
+                                                          aor,
+                                                          SIP_PROTOCOL_VERSION);
+         mwiSubscribeRequest.setContactField(aor_name_addr);
+
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+
+         // We should get a 202 response and a NOTIFY request in the queue
+         // Send the specified response to the NOTIFY.
+         OsTime messageTimeout(1, 0);  // 1 second
+         {
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should have received a SUBSCRIBE response and a NOTIFY request.
+            CPPUNIT_ASSERT(subscribeResponse);
+            CPPUNIT_ASSERT(notifyRequest);
+
+            CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                 subscribeResponse->getResponseStatusCode());
+         }
+
+         // Send a terminating SUBSCRIBE.
+         mwiSubscribeRequest.incrementCSeqNumber();
+         mwiSubscribeRequest.setExpiresField(0);
+
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+
+         // We should get a 202 response and a NOTIFY request in the queue
+         // Send failure response to the NOTIFY.
+         {
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_REQUEST_TIMEOUT_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should have received a SUBSCRIBE response and a NOTIFY request.
+            CPPUNIT_ASSERT(subscribeResponse);
+            CPPUNIT_ASSERT(notifyRequest);
+
+            CPPUNIT_ASSERT_EQUAL(SIP_ACCEPTED_CODE,
+                                 subscribeResponse->getResponseStatusCode());
+         }
+
+         // Wait to see if we get a resend of the NOTIFY.
+         // Wait 10 seconds for the NOTIFY to be resent.
+         {
+            fprintf(stderr, "Waiting 11 seconds...\n");
+            OsTime firstTimeout(11, 0);  // 11 seconds
+            OsTime nextTimeout(1, 0);  // 1 second
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       firstTimeout,
+                                       nextTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_REQUEST_TIMEOUT_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+
+            // We should not have received a response.
+            CPPUNIT_ASSERT(!subscribeResponse);
+
+            // We should not have received a NOTIFY.
+            CPPUNIT_ASSERT(!notifyRequest);
+         }
+
+         // Send a terminating SUBSCRIBE and confirm the NOTIFY to flush
+         // the subscription out of the Subscribe Server so it won't send
+         // another NOTIFY when we shut down.
+         mwiSubscribeRequest.incrementCSeqNumber();
+
+         CPPUNIT_ASSERT(userAgentp->send(mwiSubscribeRequest));
+
+         // We should get a 202 response and a NOTIFY request in the queue
+         // Send failure response to the NOTIFY.
+         {
+            const SipMessage* subscribeResponse;
+            const SipMessage* notifyRequest;
+            CPPUNIT_ASSERT(runListener(incomingClientMsgQueue,
+                                       *userAgentp,
+                                       messageTimeout,
+                                       messageTimeout,
+                                       notifyRequest,
+                                       subscribeResponse,
+                                       SIP_OK_CODE,
+                                       FALSE,
+                                       0,
+                                       NULL));
+         }
       }
 
 };
