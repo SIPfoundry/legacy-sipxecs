@@ -16,6 +16,9 @@
   <div jwcid="@common/ProfilePreview" device="ognl:gateway"/>
   <div jwcid="@common/DeviceResources" deviceDescriptor="ognl:gateway.model" />
   <div jwcid="@common/QuickHelp" value="message:help.gatewayConfig">gateway config help text here...</div>
+  <span jwcid="@If" condition="ognl:activeTab.equals('gcai')">
+    <span jwcid="@common/QuickHelp" value="message:quick.help.gatewayCallerAlias"/>
+  </span>
 
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:gateway.isNew()?'':'div'">
     <form jwcid="@Form" delegate="bean:validator" id="gateway">
@@ -45,9 +48,7 @@
             </tbody>
           </table>
         </fieldset>
-
         <fieldset jwcid="@dialplan/DialRulesPanel" gateway="ognl:gateway" />
-
       </div>
 
       <div jwcid="portsBlock@Block">
@@ -55,7 +56,6 @@
           gateway="ognl:gateway"
           editPortListener="listener:editPort"
           addPortListener="listener:addPort"/>
-
       </div>
 
       <div jwcid="settingsBlock@Block">
