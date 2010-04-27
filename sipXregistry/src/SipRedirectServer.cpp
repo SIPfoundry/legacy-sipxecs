@@ -136,7 +136,7 @@ SipRedirectServer::initialize(OsConfigDb& configDb
          }
          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                        "SipRedirectServer::initialize "
-                       "Initialized redirector %s (authority level = %d)", redirectorName.data(), mpConfiguredRedirectors[i].authorityLevel );
+                       "Initialized redirector %s (authority level = %zd)", redirectorName.data(), mpConfiguredRedirectors[i].authorityLevel );
       }
       else
       {
@@ -477,7 +477,7 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                    {
                       OsSysLog::add(FAC_SIP, PRI_CRIT,
                                     "SipRedirectServer::processRedirect "
-                                    "Failed to retrieve contact index %d", index );
+                                    "Failed to retrieve contact index %zu", index );
                    }
                 }
              }

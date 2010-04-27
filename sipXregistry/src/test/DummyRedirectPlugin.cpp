@@ -62,7 +62,7 @@ class DummyRedirectPlugin: public RedirectPlugin
       ErrorDescriptor& errorDescriptor)
    {
       char diagMessage[100];
-      sprintf( diagMessage, "%s::lookUp: contactList Size=%d", mLogName.data(), contactList.entries() );
+      sprintf( diagMessage, "%s::lookUp: contactList Size=%zu", mLogName.data(), contactList.entries() );
       globalList.push_back( diagMessage );
       if( mBehavior.compareTo("ADD_SELF_AS_CONTACT") == 0 )
       {
@@ -93,7 +93,7 @@ class DummyRedirectPlugin: public RedirectPlugin
                                )
    {
       char diagMessage[100];
-      sprintf( diagMessage, "%s::observe: contactList Size=%d", mLogName.data(), contactList.entries() );
+      sprintf( diagMessage, "%s::observe: contactList Size=%zu", mLogName.data(), contactList.entries() );
       globalList.push_back( diagMessage );
    }
    
