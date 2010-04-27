@@ -16,6 +16,8 @@ import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Vector;
 
+import org.sipfoundry.commons.util.RFC2396UrlDecoder;
+
 /**
  * A FreeSwitch event is the group of lines that FreeSwitch sends in response to a command or to
  * an asynchronous occurrence. The event may contain a "content-type" header, and if so there is
@@ -101,12 +103,7 @@ public class FreeSwitchEvent {
                 name = header.substring(0, colon).toLowerCase();
                 String valueEscaped = header.substring(colon + 1).trim();
                 // Unescape URL escaped values
-                try {
-                    value = URLDecoder.decode(valueEscaped, "UTF-8");
-                } catch (UnsupportedEncodingException e) {
-                    // Now what?
-                    value = valueEscaped;
-                }
+                value = RFC2396UrlDecoder.decode(valueEscaped);            
             } else {
                 // A naked header line
                 name = header.toLowerCase();
