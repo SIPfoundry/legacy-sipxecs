@@ -17,6 +17,8 @@ BuildRequires: java-devel >= 1.6
 BuildRequires: zip
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxrelay >= %version
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
 
 Source: %name-%version.tar.gz
 

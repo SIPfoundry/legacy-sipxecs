@@ -20,6 +20,8 @@ BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxmediaadapterlib-devel >= %version
 BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
 
 Source: %name-%version.tar.gz
 

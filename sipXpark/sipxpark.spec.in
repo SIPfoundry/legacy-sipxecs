@@ -21,6 +21,8 @@ BuildRequires: sipxcalllib-devel >= %version
 BuildRequires: sipxmediaadapterlib-devel >= %version
 BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxcommserverlib-devel  >= %version
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
 
 Source:   %name-%version.tar.gz
 

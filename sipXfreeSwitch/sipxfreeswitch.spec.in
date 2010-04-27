@@ -12,6 +12,8 @@ Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Vendor: SIPfoundry
 
 BuildRequires: automake
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
 
 Requires: sipx-freeswitch >= 1.0.4
 Requires: sipxcommserverlib >= %version

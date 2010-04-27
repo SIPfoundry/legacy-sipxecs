@@ -23,6 +23,8 @@ BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxcommserverlib-devel >= %version
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxtacklib-devel >= %version
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
 
 Source: %name-%version.tar.gz
 

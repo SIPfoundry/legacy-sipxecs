@@ -18,6 +18,8 @@ BuildRequires: zip
 BuildRequires: sipxcommserverlib
 BuildRequires: sipxcommons
 BuildRequires: sipx-openfire
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
 
 Source: %name-%version.tar.gz
 

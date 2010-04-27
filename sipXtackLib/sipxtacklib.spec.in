@@ -15,6 +15,8 @@ BuildRequires: cppunit-devel
 BuildRequires: doxygen
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxportlib-devel >= %version
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
 
 Requires: sipxportlib >= %version
 

@@ -18,6 +18,8 @@ BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxtacklib-devel  >= %version
 BuildRequires: sipxportlib-devel  >= %version
+BuildRequires: asciidoc
+BuildRequires: docbook-style-xsl
 
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
