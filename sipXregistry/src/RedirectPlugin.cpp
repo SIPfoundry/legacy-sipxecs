@@ -261,7 +261,7 @@ bool ContactList::add( const UtlString& contact, const RedirectPlugin& plugin )
    mbListWasModified = true;
    mContactList.push_back( contact );
    OsSysLog::add(FAC_SIP, PRI_NOTICE, "ContactList::add(): %s added contact for '%s':\n"
-                             "   '%s' (contact index %d)",
+                             "   '%s' (contact index %zu)",
                              plugin.name().data(),
                              mRequestString.data(),
                              contact.data(),
@@ -282,7 +282,7 @@ bool ContactList::set( size_t index, const UtlString& contact, const RedirectPlu
       mbListWasModified = true;
       success = true;
 
-      OsSysLog::add(FAC_SIP, PRI_NOTICE, "ContactList::set(): %s modified contact index %d for '%s':\n"
+      OsSysLog::add(FAC_SIP, PRI_NOTICE, "ContactList::set(): %s modified contact index %zu for '%s':\n"
                                 "   was:    '%s'\n"
                                 "   now is: '%s'",
                                 plugin.name().data(),
@@ -294,7 +294,7 @@ bool ContactList::set( size_t index, const UtlString& contact, const RedirectPlu
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "ContactList::set(): %s failed to set contact index %d - list only has %d elements",
+      OsSysLog::add(FAC_SIP, PRI_ERR, "ContactList::set(): %s failed to set contact index %zu - list only has %zu elements",
                                 plugin.name().data(),
                                 index,
                                 mContactList.size() );
@@ -312,7 +312,7 @@ bool ContactList::get( size_t index, UtlString& contact ) const
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_DEBUG, "ContactList::get(): plugin failed to get contact index %d - list only has %d elements",
+      OsSysLog::add(FAC_SIP, PRI_DEBUG, "ContactList::get(): plugin failed to get contact index %zu - list only has %zu elements",
                                 index,
                                 mContactList.size() );
    }
@@ -338,7 +338,7 @@ bool ContactList::remove( size_t index, const RedirectPlugin& plugin )
       success = true;
       mbListWasModified = true;
 
-      OsSysLog::add(FAC_SIP, PRI_NOTICE, "ContactList::remove(): %s removed contact index %d  for '%s':\n"
+      OsSysLog::add(FAC_SIP, PRI_NOTICE, "ContactList::remove(): %s removed contact index %zu  for '%s':\n"
                                         "   was:    '%s'",
                                 plugin.name().data(),
                                 index,
@@ -349,7 +349,7 @@ bool ContactList::remove( size_t index, const RedirectPlugin& plugin )
    }
    else
    {
-      OsSysLog::add(FAC_SIP, PRI_ERR, "ContactList::remove(): %s failed to remove contact index %d - list only has %d elements",
+      OsSysLog::add(FAC_SIP, PRI_ERR, "ContactList::remove(): %s failed to remove contact index %zu - list only has %zu elements",
                                 plugin.name().data(),
                                 index,
                                 mContactList.size() );
@@ -359,7 +359,7 @@ bool ContactList::remove( size_t index, const RedirectPlugin& plugin )
 
 bool ContactList::removeAll( const RedirectPlugin& plugin )
 {
-   OsSysLog::add(FAC_SIP, PRI_NOTICE, "ContactList::removeAll(): %s removed %d contacts for '%s'",
+   OsSysLog::add(FAC_SIP, PRI_NOTICE, "ContactList::removeAll(): %s removed %zu contacts for '%s'",
                              plugin.name().data(),
                              mContactList.size(),
                              mRequestString.data() );
