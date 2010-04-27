@@ -58,7 +58,8 @@ AC_ARG_WITH([dailydir],
   [DAILYDIR=${withval}],[DAILYDIR='$(sysconfdir)/cron.daily'])
 AC_SUBST([DAILYDIR])
 
-AC_ARG_VAR(SIPX_PROJECTS, [What are all the known sipx projects, feel set them for enhanced sipxecs-config utility])
+# What are all the known sipx projects, feel set them for enhanced sipxecs-config utility
+AC_SUBST(SIPX_PROJECTS, [sipxportlib sipxtacklib sipxmedialib sipxmediaadapterlib sipxcalllib sipxcommserverlib sipxcommons sipxacd sipxbridge sipxcallcontroller sipxcdrlog sipxconfig sipxfreeswitch sipximbot sipxivr sipxopenfire sipxpage sipxpark sipxpresence sipxprovision sipxproxy sipxpublisher sipxrecording sipxregistry sipxrelay sipxrest sipxrls sipxsaa sipxsupervisor sipxtools sipxecs-doc sipxpbx sipxecs])
 
 CHECK_POSTGRES
 CHECK_SERVICEDIR
