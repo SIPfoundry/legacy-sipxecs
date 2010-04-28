@@ -1,5 +1,5 @@
 <table jwcid="branchTable@common/Table" id="branch:list"
-  columns="literal:* name, !users, !gateways, !sbcs, !servers, description"
+  columns="literal:* name, !users, !gateways, !servers, description"
   source="ognl:branchTableModel"
   usePager="true"
   row="ognl:currentRow"
@@ -16,9 +16,6 @@
   </span>
   <span jwcid="gatewaysColumnValue@Block">
     <span jwcid=@Insert value="ognl:gatewayCounts[currentRow.id]"/>
-  </span>
-  <span jwcid="sbcsColumnValue@Block">
-    <span jwcid=@Insert value="ognl:sbcDeviceCounts[currentRow.id]"/>
   </span>
   <span jwcid="serversColumnValue@Block">
     <span jwcid=@Insert value="ognl:serverCounts[currentRow.id]"/>
