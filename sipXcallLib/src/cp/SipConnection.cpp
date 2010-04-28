@@ -20,6 +20,7 @@
 #include <os/OsQueuedEvent.h>
 #include <os/OsTimer.h>
 #include <os/OsUtil.h>
+#include <net/CallId.h>
 #include <net/SipMessageEvent.h>
 #include <net/SipUserAgent.h>
 #include <net/NameValueTokenizer.h>
@@ -198,8 +199,7 @@ UtlBoolean SipConnection::dequeue(UtlBoolean callInFocus)
 #endif
     if(getState() == CONNECTION_QUEUED)
     {
-        int tagNum = -1;
-        proceedToRinging(mInviteMsg, sipUserAgent, tagNum, mLineAvailableBehavior);
+        proceedToRinging(mInviteMsg, sipUserAgent, mLineAvailableBehavior);
 
         setState(CONNECTION_ALERTING, CONNECTION_LOCAL);
         /** SIPXTAPI: TBD **/
@@ -1116,7 +1116,7 @@ UtlBoolean SipConnection::accept(int ringingTimeOutSeconds)
                         numMatchingCodecs, matchingCodecs, srtpParams);
             }
             ringingSent = TRUE;
-            proceedToRinging(mInviteMsg, sipUserAgent, -1, mLineAvailableBehavior);
+            proceedToRinging(mInviteMsg, sipUserAgent, mLineAvailableBehavior);
 
             // Keep track of the fact that this is a transfer
             if(cause != CONNECTION_CAUSE_TRANSFER)
@@ -2392,7 +2392,8 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     //UtlBoolean sendCodecSet;
     int requestSequenceNum = 0;
     UtlString requestSeqMethod;
-    int tagNum = -1;
+    bool setToTag;
+    UtlString toTag;
 
     setLocalAddress(request->getInterfaceIp().data());
     request->getCSeqField(&requestSequenceNum, &requestSeqMethod);
@@ -2420,10 +2421,11 @@ void SipConnection::processInviteRequest(const SipMessage* request)
 
         request->getToAddress(&toAddr, &toPort, &toProto, NULL,
             NULL, &tag);
-        // The tag is not set, add it
-        if(tag.isNull())
+        // The tag is not set, add it.
+        setToTag = tag.isNull();
+        if (setToTag)
         {
-            tagNum = rand();
+           CallId::getNewTag(toTag);
         }
     }
 
@@ -2465,9 +2467,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
     {
         SipMessage sipResponse;
         sipResponse.setBadTransactionData(request);
-        if(tagNum >= 0)
+        if(setToTag)
         {
-            sipResponse.setToFieldTag(tagNum);
+           sipResponse.setToFieldTag(toTag.data());
         }
         send(sipResponse);
     }
@@ -2491,9 +2493,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         {
             SipMessage sipResponse;
             sipResponse.setLoopDetectedData(request);
-            if(tagNum >= 0)
+            if(setToTag)
             {
-                sipResponse.setToFieldTag(tagNum);
+               sipResponse.setToFieldTag(toTag.data());
             }
             send(sipResponse);
         }
@@ -2688,9 +2690,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                       mRouteField.data());
 #endif
         // Set the to tag if it is not set in the Invite
-        if(tagNum >= 0)
+        if(setToTag)
         {
-            mInviteMsg->setToFieldTag(tagNum);
+            mInviteMsg->setToFieldTag(toTag.data());
 
             // Update the cached from field after saving the tag
             mInviteMsg->getToUrl(mFromUrl);
@@ -2920,9 +2922,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                     matchingCodecs,
                     srtpParams, mDefaultSessionReinviteTimer,
                     mLocalContact.data());
-                if(tagNum >= 0)
+                if(setToTag)
                 {
-                    sipResponse.setToFieldTag(tagNum);
+                   sipResponse.setToFieldTag(toTag.data());
                 }
                 send(sipResponse);
                 mPrevSdp = (sipResponse.getSdpBody())->copy();
@@ -2937,9 +2939,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 setCallerId();
 
 
-                if(tagNum >= 0)
+                if(setToTag)
                 {
-                    mInviteMsg->setToFieldTag(tagNum);
+                    mInviteMsg->setToFieldTag(toTag.data());
 
                     // Update the cached from field after saving the tag
                     mInviteMsg->getToUrl(mFromUrl);
@@ -2952,9 +2954,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 // No common codecs send INVITE error response
                 SipMessage sipResponse;
                 sipResponse.setInviteBadCodecs(request, sipUserAgent);
-                if(tagNum >= 0)
+                if(setToTag)
                 {
-                    sipResponse.setToFieldTag(tagNum);
+                   sipResponse.setToFieldTag(toTag.data());
                 }
                 send(sipResponse);
             }
@@ -2983,9 +2985,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
                 numMatchingCodecs, matchingCodecs,
                 srtpParams,
                 mDefaultSessionReinviteTimer, mLocalContact.data());
-            if(tagNum >= 0)
+            if(setToTag)
             {
-                sipResponse.setToFieldTag(tagNum);
+               sipResponse.setToFieldTag(toTag.data());
             }
             send(sipResponse);
 
@@ -2998,9 +3000,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
             inviteFromThisSide = FALSE;
             setCallerId();
 
-            if(tagNum >= 0)
+            if(setToTag)
             {
-                mInviteMsg->setToFieldTag(tagNum);
+                mInviteMsg->setToFieldTag(toTag.data());
 
                 // Update the cached from field after saving the tag
                 mInviteMsg->getToUrl(mFromUrl);
@@ -3101,9 +3103,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Create and send a queued response
         SipMessage sipResponse;
         sipResponse.setQueuedResponseData(request);
-        if(tagNum >= 0)
+        if(setToTag)
         {
-            sipResponse.setToFieldTag(tagNum);
+           sipResponse.setToFieldTag(toTag.data());
         }
         send(sipResponse);
         mPrevSdp = (sipResponse.getSdpBody())->copy();
@@ -3134,9 +3136,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         SipMessage sipResponse;
         sipResponse.setForwardResponseData(request,
             mForwardOnBusy.data());
-        if(tagNum >= 0)
+        if(setToTag)
         {
-            sipResponse.setToFieldTag(tagNum);
+           sipResponse.setToFieldTag(toTag.data());
         }
         send(sipResponse);
 
@@ -3170,9 +3172,9 @@ void SipConnection::processInviteRequest(const SipMessage* request)
         // Send back a busy INVITE response
         SipMessage sipResponse;
         sipResponse.setInviteBusyData(request);
-        if(tagNum >= 0)
+        if(setToTag)
         {
-            sipResponse.setToFieldTag(tagNum);
+           sipResponse.setToFieldTag(toTag.data());
         }
         send(sipResponse);
 
@@ -5941,7 +5943,7 @@ UtlBoolean SipConnection::isMethodAllowed(const char* method)
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
 void SipConnection::proceedToRinging(const SipMessage* inviteMessage,
-                                     SipUserAgent* sipUserAgent, int tagNum,
+                                     SipUserAgent* sipUserAgent,
                                      int availableBehavior)
 {
     UtlString name = mpCall->getName();
@@ -5952,11 +5954,7 @@ void SipConnection::proceedToRinging(const SipMessage* inviteMessage,
     // Send back a ringing INVITE response
     SipMessage sipResponse;
     sipResponse.setInviteRingingData(inviteMessage, mLocalContact);
-    if(tagNum >= 0)
-    {
-        sipResponse.setToFieldTag(tagNum);
-    }
-    if(send(sipResponse))
+    if (send(sipResponse))
     {
 #ifdef TEST_PRINT
         osPrintf("INVITE Ringing sent successfully\n");

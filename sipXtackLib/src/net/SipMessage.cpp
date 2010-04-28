@@ -2971,13 +2971,6 @@ void SipMessage::setToFieldTag(const char* tagValue)
    setRawToField(toField.data());
 }
 
-void SipMessage::setToFieldTag(int tagValue)
-{
-    char tagString[MAXIMUM_INTEGER_STRING_LENGTH];
-    sprintf(tagString, "%d", tagValue);
-    setToFieldTag(tagString);
-}
-
 void SipMessage::setFromFieldTag(const char* tagValue)
 {
    UtlString fromField;

@@ -1,0 +1,93 @@
+#!/usr/bin/perl
+
+use Digest::MD5 qw(md5_hex);
+
+$HELP = <<HELP;
+    Calculates SIP authentication hashes.
+
+    The first argument is the hash algorithm, which must be 'MD5'.
+    It is followed by the username, realm, password, request method,
+    request-URI, and nonce, giving:
+
+    $0 MD5 username realm password method request-URI nonce
+
+    If qop is used, these arguments are followed by the qop value, 
+    which must be 'auth', the cnonce, and the nc values:
+
+    $0 MD5 ... auth cnonce nc
+
+    Examples:
+
+    $0 \\
+       MD5 \\
+	   204 us.example.com iRUQTS6m SUBSCRIBE sip:204\@us.example.com \\
+	   bdc18587c743
+
+    $0 \\
+       MD5 \\
+	   204 us.example.com iRUQTS6m SUBSCRIBE sip:204\@us.example.com \\
+	   bdc18587c743 \\
+       auth \\
+           491c3670 00000123
+HELP
+
+$mini_HELP =<<HELP;
+    Use --help to get usage information.
+HELP
+
+if ($ARGV[0] eq '--help') {
+    print STDERR $HELP;
+    exit 1;
+}
+
+$alg = shift(@ARGV);
+
+if ($alg eq 'MD5') {
+    if ($#ARGV < 5) {
+	print STDERR "Not enough arguments.\n";
+	print STDERR $mini_HELP;
+	exit 1;
+    }
+    ($User, $realm, $Password, $Method, $Target, $nonce) = @ARGV[0..5];
+    @ARGV = @ARGV[6..$#ARGV];
+} else {
+    print STDERR "Algorithm '$alg' is not supported.\n";
+    print STDERR $mini_HELP;
+    exit 1;
+}
+
+$qop = shift(@ARGV) || '';
+
+if ($qop eq '') {
+    # OK
+} elsif ($qop eq 'auth') {
+    if ($#ARGV < 1) {
+	print STDERR "Not enough arguments.\n";
+	print STDERR $mini_HELP;
+	exit 1;
+    }
+    ($cnonce, $nc) = @ARGV[0..1];
+    @ARGV = @ARGV[2..$#ARGV];
+} else {
+    print STDERR "qop '$qop' is not supported.\n";
+    print STDERR $mini_HELP;
+    exit 1;
+}
+
+if ($#ARGV != -1) {
+    print STDERR "Too many arguments.\n";
+    print STDERR $mini_HELP;
+    exit 1;
+}
+
+$A1hash = &md5_hex("$User:$realm:$Password");
+
+$A2hash = &md5_hex("$Method:$Target");
+
+if ($qop eq 'auth') {
+    $hash = &md5_hex("$A1hash:$nonce:$nc:$cnonce:$qop:$A2hash");
+} else {
+    $hash = &md5_hex("$A1hash:$nonce:$A2hash");
+}
+
+print "$hash\n";

@@ -141,6 +141,11 @@ protected:
     OsSocket::IpProtocolSocketType mSocketType;
     SipUserAgentBase* mpSipUserAgent;
     SipProtocolServerBase* mpSipServer;
+    /** The address and port of mClientSocket, as obtained from the network
+     *  layer.
+     */
+    UtlString mLocalHostAddress;
+    int mLocalHostPort;
 
     /** The name of the remote end of mClientSocket, as obtained from
      *  mClientSocket.  Null if mClientSocket is un-connected.

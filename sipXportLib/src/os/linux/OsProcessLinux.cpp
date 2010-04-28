@@ -76,7 +76,7 @@ OsStatus OsProcessLinux::setPriority(int prio)
 {
     OsStatus retval = OS_FAILED;
 
-    if (setpriority(PRIO_PROCESS,mPID,prio) == 0)
+    if (setpriority(PRIO_PROCESS, mPID, prio) == 0)
     {
         retval = OS_SUCCESS;
     }
@@ -291,8 +291,12 @@ void handle_child(int sig)
    // ignore child signal
 }
 
-OsStatus OsProcessLinux::launch(UtlString &rAppName, UtlString parameters[], OsPath &startupDir,
-                    OsProcessPriorityClass prioClass, UtlBoolean bExclusive, UtlBoolean bIgnoreChildSignals)
+OsStatus OsProcessLinux::launch(UtlString &rAppName,
+                                UtlString parameters[],
+                                OsPath &startupDir,
+                                OsProcessPriorityClass prioClass,
+                                UtlBoolean bExclusive,
+                                UtlBoolean bIgnoreChildSignals)
 {
     OsStatus retval = OS_FAILED;
     mProcessName = rAppName;

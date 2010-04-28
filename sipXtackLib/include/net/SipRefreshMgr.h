@@ -18,7 +18,6 @@
 #include "os/OsServerTask.h"
 #include "net/SipMessage.h"
 #include "net/SipTcpServer.h"
-#include "net/SipUdpServer.h"
 #include "net/SipMessageList.h"
 #include "net/SipMessageEvent.h"
 #include "utl/UtlRandom.h"

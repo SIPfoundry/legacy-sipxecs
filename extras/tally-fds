@@ -1,5 +1,8 @@
 #! /usr/bin/perl
 
+# A sufficient grep for extracting the useful lines is:
+#	grep -E 'shared socket |OsConnectionSocket::.* connected |close socket |OsServerTaskWaitable::_ pipe|OsServerTaskWaitable::~ closed '
+
 # -d turns on debugging prints
 if ($ARGV[0] eq '-d') {
     shift;

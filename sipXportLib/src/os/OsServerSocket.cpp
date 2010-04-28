@@ -203,15 +203,21 @@ OsConnectionSocket* OsServerSocket::accept()
    /* Block while waiting for a client to connect. */
    struct sockaddr_in clientSocketAddr;
    SocketLenType clientAddrLength = sizeof (clientSocketAddr);
-   int clientSocket = ::accept(socketDescriptor,
+   // Remember the value of socketDescriptor, which may be changed by other
+   // methods (particularly in a race with ::close()).
+   int s = socketDescriptor;
+   int clientSocket = ::accept(s,
                                (struct sockaddr*) &clientSocketAddr,
                                &clientAddrLength);
    if (clientSocket < 0)
    {
       int error = OsSocketGetERRNO();
       OsSysLog::add(FAC_KERNEL, PRI_ERR, "OsServerSocket: accept(%d) error: %d=%s",
-                    socketDescriptor, error, strerror(error));
+                    s, error, strerror(error));
+      // Flag the socket as invalid.
       socketDescriptor = OS_INVALID_SOCKET_DESCRIPTOR;
+      // Close the socket, since we are losing record that we have it open.
+      ::close(s);
    }
    else
    {
@@ -272,14 +278,18 @@ OsConnectionSocket* OsServerSocket::accept(long waitMilliseconds)
 
 void OsServerSocket::close()
 {
-   if(socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
+   if (socketDescriptor > OS_INVALID_SOCKET_DESCRIPTOR)
    {
+      // Save socketDescriptor because other methods on this object
+      // (especially ::accept()) may change it before we are done.
+      int s = socketDescriptor;
+
 #if defined(_WIN32)
-      closesocket(socketDescriptor);
+      closesocket(s);
 #elif defined(_VXWORKS) || defined(__pingtel_on_posix__)
       // Call shutdown first to unblock blocking calls on Linux
-      ::shutdown(socketDescriptor,2);
-      ::close(socketDescriptor);
+      ::shutdown(s, 2);
+      ::close(s);
 #else
 #error Unsupported target platform.
 #endif

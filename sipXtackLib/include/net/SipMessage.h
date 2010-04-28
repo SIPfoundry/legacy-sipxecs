@@ -927,8 +927,6 @@ public:
                     const char* toLabel = NULL);
     void setToFieldTag(const char* tagValue);
 
-    void setToFieldTag(int tagValue);
-
     void setFromFieldTag(const char* tagValue);
 
     void setExpiresField(int expiresInSeconds);
@@ -1241,7 +1239,7 @@ public:
     //@}
 
     // This method is needed to cover the symetrical situation which is
-    // specific to SIP authorization (i.e. authentication and authorize
+    // specific to SIP authorization (i.e. authentication and authorization
     // fields may be in either requests or responses
     UtlBoolean verifyMd5Authorization(const char* userId,
                                       const char* password,

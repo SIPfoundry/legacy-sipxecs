@@ -15,6 +15,7 @@
 // APPLICATION INCLUDES
 
 #include <os/OsDateTime.h>
+#include <os/OsLock.h>
 #include <os/OsTimer.h>
 #include <os/OsUnLock.h>
 #include <net/SipSubscribeClient.h>
@@ -1906,45 +1907,45 @@ void SipSubscribeClient::reestablish(const UtlString& handle)
    // Terminate all current subscriptions for this group.
    // (This should be factored with ::endSubscriptionGroup.)
 
+   OsLockUnlockable lock(mSemaphore);
+
    // Repeatedly look up the group and terminate one subscription.
    {
       UtlHashBagIterator iterator(mSubscriptionDialogs);
       int count = 0;
       UtlBoolean found;
-      UtlString key;
 
       do {
+         found = FALSE;
+         // Look up the group state.
+         // We must find the group state again on every iteration because
+         // we unlock mSemaphore before calling ::endSubscriptionDialog() below.
+         SubscriptionGroupState* groupState =
+            getGroupStateByOriginalHandle(handle);
+         // Check that reestablishment is set for this group.
+         if (groupState && groupState->mReestablish)
          {
-            OsLock lock(mSemaphore);
+            iterator.reset();
 
+            SubscriptionDialogState* dialogState;
             found = FALSE;
-            // Look up the group state.
-            SubscriptionGroupState* groupState =
-               getGroupStateByOriginalHandle(handle);
-            // Check that reestablishment is set for this group.
-            if (groupState && groupState->mReestablish)
+            while (!found &&
+                   (dialogState = (dynamic_cast <SubscriptionDialogState*> (iterator()))))
             {
-               iterator.reset();
-
-               SubscriptionDialogState* dialog;
-               found = FALSE;
-               while (!found &&
-                      (dialog = (dynamic_cast <SubscriptionDialogState*> (iterator()))))
+               found = dialogState->mpGroupState == groupState;
+               if (found)
                {
-                  found = dialog->mpGroupState == groupState;
-                  if (found)
-                  {
-                     // Save the key of the dialog.
-                     key = *static_cast <UtlString*> (dialog);
-                  }
+                  // Remember the key of the dialog.
+                  UtlString key(*static_cast <UtlString*> (dialogState));
+                  count++;
+                  // Unlock mSemaphore so ::endSubscriptionDialog() can lock it.
+                  OsUnLock unlock(lock);
+                  dialogState = NULL;
+                  groupState = NULL;
+
+                  endSubscriptionDialog(key);
                }
             }
-         }
-
-         if (found)
-         {
-            endSubscriptionDialog(key);
-            count++;
          }
       } while (found);
 
@@ -1952,36 +1953,34 @@ void SipSubscribeClient::reestablish(const UtlString& handle)
                     "SipSubscribeClient::reestablish ended %d dialogs",
 	            count);
 
+      // Look up the group state.
+      // We must find the group state again because we unlocked
+      // mSemaphore before calling ::endSubscriptionDialog() above.
+      SubscriptionGroupState* groupState =
+         getGroupStateByOriginalHandle(handle);
+
+      // Test whether reestablish is set.
+      // It may be false because the subscription group is being ended.
+      if (groupState && groupState->mReestablish)
       {
-         OsLock lock(mSemaphore);
+         // Prepare for the next starting attempt.
+         groupState->resetStarting();
+         // Reindex the group under the new early dialog handle.
+         reindexGroupState(groupState);
 
-         // Look up the group state.
-         SubscriptionGroupState* groupState =
-            getGroupStateByOriginalHandle(handle);
+         // Try establishing the subscription again.
+         groupState->setStartingTimer(false);
 
-         // Test whether reestablish is set.
-         // It may be false because the subscription group is being ended.
-         if (groupState && groupState->mReestablish)
-         {
-            // Prepare for the next starting attempt.
-            groupState->resetStarting();
-            // Reindex the group under the new early dialog handle.
-            reindexGroupState(groupState);
-
-            // Try establishing the subscription again.
-            groupState->setStartingTimer(false);
-
-            // Give a copy of the request to the refresh manager to send the
-            // SUBSCRIBE and keep the subscription alive.
-            UtlString earlyDialogHandle;
-            mpRefreshManager->
-               initiateRefresh(new SipMessage(*groupState->mpSubscriptionRequest),
-                               //< give ownership to mpRefreshManager
-                               this,
-                               // refreshCallback receives the SipSubscribeClient as app. data
-                               SipSubscribeClient::refreshCallback,
-                               earlyDialogHandle);
-         }
+         // Give a copy of the request to the refresh manager to send the
+         // SUBSCRIBE and keep the subscription alive.
+         UtlString earlyDialogHandle;
+         mpRefreshManager->
+            initiateRefresh(new SipMessage(*groupState->mpSubscriptionRequest),
+                            //< give ownership to mpRefreshManager
+                            this,
+                            // refreshCallback receives the SipSubscribeClient as app. data
+                            SipSubscribeClient::refreshCallback,
+                            earlyDialogHandle);
       }
    }
 }

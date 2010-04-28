@@ -101,14 +101,26 @@ const RegEx AngleBrackets( SWS "<([^>]+)>" );
  *    The number and order of the strings in the following two constants MUST match the
  *    the number and order of the enum values in the Url::Scheme type.
  *
- *    The value SupportedSchemes.Matches()-1 is used to assign the Scheme in Url::Scheme,
- *    so if the above rule is broken, the scheme recognition will not work.
+ *    The expression
+ *        SupportedSchemes.Matches()
+ *            - SUPPORTED_SCHEMES_FIRST_MATCHES
+ *            + SUPPORTED_SCHEMES_FIRST_VALUE
+ *    
+ *    is used to compute Url::Scheme of the Url, so if the above rule is broken, the
+ *    scheme recognition will not work.
  *
  *    Similarly, the Scheme value is used as an index into SchemeName, so the translation
  *    to a string will be wrong if that is not kept correct.
  */
 #define SUPPORTED_SCHEMES "(?i:(UNKNOWN-URL-SCHEME)|(sip)|(sips)|(http)|(https)|(ftp)|(file)|(mailto))"
-const RegEx SupportedScheme( SWS SUPPORTED_SCHEMES SWS ":" );
+// The value returned by regex.Matches() if the first alternative in
+// "RegEx regex(SUPPORTED_SCHEMES)" matches.
+#define SUPPORTED_SCHEMES_FIRST_MATCHES 2
+// The Scheme value for the first alternative in SUPPORTED_SCHEMES.
+#define SUPPORTED_SCHEMES_FIRST_VALUE UnknownUrlScheme
+
+const RegEx SupportedScheme( SUPPORTED_SCHEMES ":" );
+const RegEx SupportedSchemeSWS( SWS SUPPORTED_SCHEMES SWS ":" );
 const RegEx SupportedSchemeExact( "^" SUPPORTED_SCHEMES "$" );
 const char* SchemeName[ Url::NUM_SUPPORTED_URL_SCHEMES ] =
 {
@@ -225,8 +237,15 @@ const RegEx HeaderOrQueryParams( SWS "\\?([^,>]++)" );
 // AllDigits
 const RegEx AllDigits("^\\+?[0-9*]++$");
 
-// Comma separator between multiple values
+// Comma separator between multiple values in name-addrs
 const RegEx CommaSeparator(SWS "," SWS);
+
+// Regexps that describe what may follow a name-addr/addr-spec in various
+// contexts.
+const RegEx End("$");           // addr-spec not in list
+const RegEx EndComma("$|,");    // addr-spec in list
+const RegEx EndSws(SWS "$");    // name-addr not in list
+const RegEx EndSwsComma(SWS "$|" SWS "," SWS); // name-addr in list
 const RegEx EndUrl(SWS "$");
 
 // STATIC VARIABLE INITIALIZATIONS
@@ -263,7 +282,7 @@ Url::Url(const char* urlString, UtlBoolean isAddrSpec) :
    reset();
    if (urlString && *urlString)
    {
-      parseString(urlString ,isAddrSpec ? AddrSpec : NameAddr, NULL);
+      parseString(urlString, isAddrSpec ? AddrSpec : NameAddr, NULL);
    }
 }
 
@@ -1415,7 +1434,8 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    }
 
    // Try to catch when a name-addr is passed but we are expecting an
-   // addr-spec -- many name-addr's start with '<' or '"'.
+   // addr-spec -- many name-addr's start with '<' or '"', but of course
+   // addr-spec's (or any URI) cannot.
    if (AddrSpec == uriForm && (urlString[0] == '<' || urlString[0] == '"'))
    {
       OsSysLog::add(FAC_SIP, PRI_ERR, "Url::parseString "
@@ -1505,13 +1525,16 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
     * We resolve the first case by treating anything left of the colon as a scheme if
     * it is one of the supported schemes.  Otherwise, we set the scheme to the
     * default (sip) and go on so that it will be parsed as a hostname.  This does not
-    * do the right thing for the (scheme 'sips' host '333') case, but they get what
-    * they deserve.
+    * do the right thing for the (host 'sips' port '333') case, but they get what
+    * they deserve for not writing the scheme explicitly (which they are supposed
+    * to do).
     */
 
-   // Parse the scheme (aka url type)
+   // Parse the scheme (aka URI type)
    LOG_TIME("scheme   < ");
-   RegEx supportedScheme(SupportedScheme);
+   RegEx supportedScheme(AddrSpec == uriForm ?
+                         SupportedScheme :
+                         SupportedSchemeSWS);
    if (   (supportedScheme.SearchAt(urlString,workingOffset))
        && (supportedScheme.MatchStart(0) == workingOffset)
        )
@@ -1519,11 +1542,14 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
       LOG_TIME("scheme   > ");
       // the scheme name matches one of the supported schemes
       // The first alternative in SUPPORTED_SCHEMES will cause
-      // RegEx::Matches() to return 2, the second will return 3, etc.
-      // So subtract 2 from ::Matches() and add the code for the first
-      // alternative to generate the Scheme value.
-      mScheme = static_cast<Scheme>(
-      	      supportedScheme.Matches() - 2 + Url::UnknownUrlScheme
+      // RegEx::Matches() to return SUPPORTED_SCHEMES_FIRST_MATCHES,
+      // the second will return SUPPORTED_SCHEMES_FIRST_MATCHES+1, etc.
+      // The first alternative is for scheme SUPPORTED_SCHEMES_FIRST_VALUE,
+      // etc.
+      mScheme = static_cast <Scheme> (
+      	      supportedScheme.Matches()
+                  - SUPPORTED_SCHEMES_FIRST_MATCHES
+                  + SUPPORTED_SCHEMES_FIRST_VALUE
 	      );
       workingOffset = supportedScheme.AfterMatch(0); // past the ':'
    }
@@ -1531,15 +1557,14 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
    {
       /*
        * It did not match one of the supported scheme names so proceed
-       * on the assumption that it's a host and "sip:" is implied
-       * Leave the workingOffset where it is (before the token).  The
-       * code below, through the parsing of host and port treats this
-       * as an implicit 'sip:' url; if it parses ok up to that point,
-       * it resets the scheme to SipsUrlScheme
+       * on the assumption that the text is a host and "sip:" is
+       * implied.  Leave the workingOffset where it is (before the
+       * token).  The code below, through the parsing of host and port,
+       * treats this as an implicit 'sip:' url; if it parses OK up to
+       * that point, it resets the scheme to SipsUrlScheme.
        */
       mScheme = UnrecognizableUrlScheme;
    }
-
 
    // skip over any '//' following the scheme for the ones we know use that
    switch (mScheme)
@@ -1767,12 +1792,11 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
             else if (   (commaSeparator.SearchAt(urlString, workingOffset))
                      && (commaSeparator.MatchStart(0) == workingOffset) )
             {
-               if (nextUri)
-               {
-                  commaSeparator.AfterMatchString(nextUri);
-               }
-               
-               workingOffset = commaSeparator.AfterMatch(0);
+               // Do not advance workingOffset, so that it remains
+               // pointing at the comma separator.  The code below
+               // that checks that the URI parsing ended at the
+               // correct location needs to have workingOffset
+               // pointing at the comma separator.
                finishedFieldParams = true;
             }
             else if (   (fieldParamNameEquals.SearchAt(urlString, workingOffset))
@@ -1822,6 +1846,40 @@ bool Url::parseString(const char* urlString, ///< string to parse URL from
          LOG_TIME("fldparm   > ");
       }
    }
+
+   if (UnknownUrlScheme != mScheme)
+   {
+      // At this point, the parse has reached the end of the URI, or the end
+      // of what could be parsed.  Based on uriForm and nextUri, determine
+      // if the parse is successful and return the "remainder of the string"
+      // value.
+      {
+         // Select the regexp that describes allowed following characters.
+         const RegEx* test =
+            AddrSpec == uriForm ?
+            (nextUri ? &EndComma : &End) :
+            (nextUri ? &EndSwsComma : &EndSws);
+         RegEx re(*test);
+
+         // Match the regexp.
+         if (   (re.SearchAt(urlString, workingOffset))
+             && (re.MatchStart(0) == workingOffset)
+             )
+         {
+            // If the match succeeded and nextUri != NULL, store into nextUri.
+            if (nextUri)
+            {
+               re.AfterMatchString(nextUri);
+            }
+         }
+         else
+         {
+            // If the match failed, mark the Url as invalid.
+            mScheme = UnknownUrlScheme;
+         }
+      }
+   }
+
 #  ifdef TIME_PARSE
      UtlString timeDump;
    timeLog.getLogString(timeDump);
@@ -1881,7 +1939,7 @@ void Url::getIdentity(UtlString &identity) const
 }
 
 /// Translate a scheme string (not including the terminating colon) to a Scheme enum.
-Url::Scheme Url::scheme( const UtlString& schemeName )
+Url::Scheme Url::scheme(const UtlString& schemeName)
 {
    Scheme theScheme;
 
@@ -1892,8 +1950,10 @@ Url::Scheme Url::scheme( const UtlString& schemeName )
       // RegEx::Matches() to return 2, the second will return 3, etc.
       // So subtract 2 from ::Matches() and add the code for the first
       // alternative to generate the Scheme value.
-      theScheme = static_cast<Scheme>(
-         supportedSchemeExact.Matches() - 2 + Url::UnknownUrlScheme
+      theScheme = static_cast <Scheme> (
+         supportedSchemeExact.Matches()
+             - SUPPORTED_SCHEMES_FIRST_MATCHES
+             + SUPPORTED_SCHEMES_FIRST_VALUE
          );
    }
    else
@@ -1905,7 +1965,7 @@ Url::Scheme Url::scheme( const UtlString& schemeName )
 
 
 /// Get the canonical (lowercase) name of a supported Scheme.
-const char* Url::schemeName( Url::Scheme scheme ) const
+const char* Url::schemeName(Url::Scheme scheme)
 {
    const char* theName;
    if (scheme > UnknownUrlScheme && scheme < NUM_SUPPORTED_URL_SCHEMES)

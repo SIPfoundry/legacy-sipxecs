@@ -4070,7 +4070,7 @@ void CallManager::doConnect(const char* callId,
                              "CallManager::doConnect "
                              "mOutboundLine uses unsupported scheme '%s'"
                              " - using null identity",
-                             outboundLineUrl.schemeName(outboundLineUrlScheme)
+                             Url::schemeName(outboundLineUrlScheme)
                              );
                break;
             }

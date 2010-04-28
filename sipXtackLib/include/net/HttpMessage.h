@@ -624,11 +624,15 @@ public:
                                       UtlString* domain
                                       );
 
+    // Add a Proxy-Authenticate or WWW-Authenticate challenge to a 401
+    // or 407 response.
     void setAuthenticateData(const char* scheme, const char* realm,
                              const char* nonce, const char* opaque,
                              const char* domain = NULL,
                              enum HttpEndpointEnum authEntity = SERVER);
 
+    // Add a Proxy-Authenticate or WWW-Authenticate challenge to a 401
+    // or 407 response.
     void addAuthenticateField(const UtlString&      authenticationField,
                               enum HttpEndpointEnum authType
                               );

@@ -132,9 +132,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
         : SipUserAgentBase(sipTcpPort, sipUdpPort, sipTlsPort, queueSize)
         , mSipTcpServer(NULL)
         , mSipUdpServer(NULL)
-#ifdef SIP_TLS
         , mSipTlsServer(NULL)
-#endif
         , mMessageLogRMutex(OsRWMutex::Q_FIFO)
         , mMessageLogWMutex(OsRWMutex::Q_FIFO)
         , mOutputProcessorMutex(OsRWMutex::Q_FIFO)
@@ -456,15 +454,13 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     OsTime time;
     OsDateTime::getCurTimeSinceBoot(time);
     mLastCleanUpTime = time.seconds();
+
+    // Record the local address.
+    cacheLocalAddress();
 }
 
-// Copy constructor
-SipUserAgent::SipUserAgent(const SipUserAgent& rSipUserAgent) :
-        mMessageLogRMutex(OsRWMutex::Q_FIFO),
-        mMessageLogWMutex(OsRWMutex::Q_FIFO),
-        mOutputProcessorMutex(OsRWMutex::Q_FIFO)
-{
-}
+// Copy constructor NOT ALLOWED
+//SipUserAgent::SipUserAgent(const SipUserAgent& rSipUserAgent)
 
 // Destructor
 SipUserAgent::~SipUserAgent()
@@ -1188,9 +1184,14 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
     }
 
   // If we have not failed, schedule a resend.
-  if(sentOk)
+  if (sentOk)
     {
       messageStatusString.append("UDP SIP User Agent sent message:\n");
+      messageStatusString.append("----Local Host:");
+      messageStatusString.append(mLocalHostAddress);
+      messageStatusString.append("---- Port: ");
+      messageStatusString.appendNumber(mLocalUdpHostPort);
+      messageStatusString.append("----\n");
       messageStatusString.append("----Remote Host:");
       messageStatusString.append(serverAddress);
       messageStatusString.append("---- Port: ");
@@ -1202,6 +1203,11 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
   else
     {
       messageStatusString.append("UDP SIP User Agent failed to send message:\n");
+      messageStatusString.append("----Local Host:");
+      messageStatusString.append(mLocalHostAddress);
+      messageStatusString.append("---- Port: ");
+      messageStatusString.appendNumber(mLocalUdpHostPort);
+      messageStatusString.append("----\n");
       messageStatusString.append("----Remote Host:");
       messageStatusString.append(serverAddress);
       messageStatusString.append("---- Port: ");
@@ -1265,7 +1271,13 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
 
         if(sentOk)
         {
-            outcomeMsg.append("UDP SIP User Agent sentTo message:\n----Remote Host:");
+            outcomeMsg.append("UDP SIP User Agent sentTo message:\n");
+            outcomeMsg.append("----Local Host:");
+            outcomeMsg.append(mLocalHostAddress);
+            outcomeMsg.append("---- Port: ");
+            outcomeMsg.appendNumber(mLocalUdpHostPort);
+            outcomeMsg.append("----\n");
+            outcomeMsg.append("----Remote Host:");
             outcomeMsg.append(serverAddress);
             outcomeMsg.append("---- Port: ");
             outcomeMsg.append(portString);
@@ -1275,7 +1287,13 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
         }
         else
         {
-            outcomeMsg.append("SIP User agent FAILED sendTo message:\n----Remote Host:");
+            outcomeMsg.append("SIP User agent FAILED sendTo message:\n");
+            outcomeMsg.append("----Local Host:");
+            outcomeMsg.append(mLocalHostAddress);
+            outcomeMsg.append("---- Port: ");
+            outcomeMsg.appendNumber(mLocalUdpHostPort);
+            outcomeMsg.append("----\n");
+            outcomeMsg.append("----Remote Host:");
             outcomeMsg.append(serverAddress);
             outcomeMsg.append("---- Port: ");
             outcomeMsg.append(portString);
@@ -1479,6 +1497,11 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
         )
     {
        message->getBytes(&msgBytes, &len);
+       messageStatusString.append("----Local Host:");
+       messageStatusString.append(mLocalHostAddress);
+       messageStatusString.append("---- Port: ");
+       messageStatusString.appendNumber(mLocalTcpHostPort);
+       messageStatusString.append("----\n");
        messageStatusString.append("----Remote Host:");
        messageStatusString.append(serverAddress);
        messageStatusString.append("---- Port: ");
@@ -1553,6 +1576,11 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
        OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
    {
       message->getBytes(&msgBytes, &len);
+      messageStatusString.append("----Local Host:");
+      messageStatusString.append(mLocalHostAddress);
+      messageStatusString.append("---- Port: ");
+      messageStatusString.appendNumber(mLocalTlsHostPort);
+      messageStatusString.append("----\n");
       messageStatusString.append("----Remote Host:");
       messageStatusString.append(serverAddress);
       messageStatusString.append("---- Port: ");
@@ -2994,36 +3022,70 @@ UtlBoolean SipUserAgent::getConfiguredPublicAddress(UtlString* pIpAddress, int* 
     return bSuccess;
 }
 
-// Get the local address and port
+// Get the local address and port.
 UtlBoolean SipUserAgent::getLocalAddress(UtlString* pIpAddress, int* pPort)
 {
-    UtlBoolean bSuccess = FALSE;
+   if (pIpAddress)
+   {
+      *pIpAddress = mLocalHostAddress;
+   }
 
-    if (mSipUdpServer)
-    {
-       if (pIpAddress)
-       {
-          if (defaultSipAddress.length() > 0)
-          {
-             *pIpAddress = defaultSipAddress;
-          }
-          else
-          {
-             OsSocket::getHostIp(pIpAddress);
-          }
-       }
+   if (pPort)
+   {
+      if (mLocalUdpHostPort != -1)
+      {
+         *pPort = mLocalUdpHostPort;
+      }
+      else if (mLocalTcpHostPort != -1)
+      {
+         *pPort = mLocalTcpHostPort;
+      }
+      else if (mLocalTlsHostPort != -1)
+      {
+         *pPort = mLocalTlsHostPort;
+      }
+   }
 
-       if (pPort)
-       {
-          *pPort = mSipUdpServer->getServerPort();
-       }
-
-       bSuccess = TRUE;
-    }
-
-    return bSuccess;
+   return mLocalHostValid;
 }
 
+// Get the local address and port when SipUserAgent starts and save them.
+void SipUserAgent::cacheLocalAddress()
+{
+   mLocalHostValid = false;
+   mLocalUdpHostPort = -1;
+   mLocalTcpHostPort = -1;
+   mLocalTlsHostPort = -1;
+
+   if (mSipUdpServer || mSipTcpServer || mSipTlsServer)
+   {
+      if (defaultSipAddress.length() > 0)
+      {
+         mLocalHostAddress = defaultSipAddress;
+      }
+      else
+      {
+         OsSocket::getHostIp(&mLocalHostAddress);
+      }
+
+      if (mSipUdpServer)
+      {
+         mLocalUdpHostPort = mSipUdpServer->getServerPort();
+      }
+      else if (mSipTcpServer)
+      {
+         mLocalTcpHostPort = mSipTcpServer->getServerPort();
+      }
+#ifdef SIP_TLS
+      else if (mSipTlsServer)
+      {
+         mLocalTlsHostPort = mSipTlsServer->getServerPort();
+      }
+#endif
+
+      mLocalHostValid = true;
+   }
+}
 
 // Get the NAT mapped address and port
 UtlBoolean SipUserAgent::getNatMappedAddress(UtlString* pIpAddress, int* pPort)

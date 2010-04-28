@@ -60,7 +60,6 @@ typedef struct OS_PROCESS_STRUCT
 class OsProcessBase
 {
 
-
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
 public:
     friend class OsProcessIteratorWnt;

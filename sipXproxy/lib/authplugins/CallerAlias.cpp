@@ -171,7 +171,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
                              "CallerAlias[%s]::check4andApplyAlias From uses unsupported scheme '%s'"
                              " - using null identity",
                              mInstanceName.data(),
-                             fromUrl.schemeName(fromUrlScheme)
+                             Url::schemeName(fromUrlScheme)
                              );
                break;
             }

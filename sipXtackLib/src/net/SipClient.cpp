@@ -190,15 +190,17 @@ SipClient::SipClient(OsSocket* socket,
    {
        mClientSocket->getRemoteHostName(&mRemoteHostName);
        mClientSocket->getRemoteHostIp(&mRemoteSocketAddress, &mRemoteHostPort);
+       mClientSocket->getLocalHostIp(&mLocalHostAddress);
+       mLocalHostPort = mClientSocket->getLocalHostPort();
 
        OsSysLog::add(FAC_SIP, PRI_INFO,
-                     "SipClient[%s]::_ created %s %s socket %d: host '%s' '%s' port %d, local IP '%s'",
+                     "SipClient[%s]::_ created %s %s socket %d: host '%s' '%s' port %d, local IP '%s' port %d",
                      mName.data(),
                      OsSocket::ipProtocolString(mSocketType),
                      mbSharedSocket ? "shared" : "unshared",
                      socket->getSocketDescriptor(),
                      mRemoteHostName.data(), mRemoteSocketAddress.data(), mRemoteHostPort,
-                     mClientSocket->getLocalIp().data()
+                     mLocalHostAddress.data(), mLocalHostPort
                      );
    }
 }
@@ -684,11 +686,17 @@ int SipClient::run(void* runArg)
             {
                UtlString logMessage;
                logMessage.append("Read keepalive message:\n");
+               logMessage.append("----Local Host:");
+               logMessage.append(mLocalHostAddress);
+               logMessage.append("---- Port: ");
+               logMessage.appendNumber(
+                  portIsValid(mLocalHostPort) ? mLocalHostPort : defaultPort());
+               logMessage.append("----\n");
                logMessage.append("----Remote Host:");
                logMessage.append(fromIpAddress);
                logMessage.append("---- Port: ");
                logMessage.appendNumber(
-                          portIsValid(fromPort) ? fromPort : defaultPort());
+                  portIsValid(fromPort) ? fromPort : defaultPort());
                logMessage.append("----\n");
 
                logMessage.append(readBuffer.data(), res);
@@ -877,6 +885,12 @@ void SipClient::preprocessMessage(SipMessage& msg,
    {
       UtlString logMessage;
       logMessage.append("Read SIP message:\n");
+      logMessage.append("----Local Host:");
+      logMessage.append(mLocalHostAddress);
+      logMessage.append("---- Port: ");
+      logMessage.appendNumber(
+                 portIsValid(mLocalHostPort) ? mLocalHostPort : defaultPort());
+      logMessage.append("----\n");
       logMessage.append("----Remote Host:");
       logMessage.append(fromIpAddress);
       logMessage.append("---- Port: ");
