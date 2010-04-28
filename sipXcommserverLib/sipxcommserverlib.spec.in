@@ -42,7 +42,7 @@ Requires: ruby
 Requires: patch
 # bind-utils required for dig
 Requires: bind-utils
-Requires: %{name}-doc
+Obsoletes: %{name}-doc
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -76,14 +76,6 @@ Summary: Header files for %name
 %description devel
 This package contains the neccessary header files and static libraries
 helpful to build projects using the sipXcommserverLib library
-
-%package doc
-Group: Development/Libraries
-Vendor: SIPfoundry
-Summary: Common document files for sipXecs
-
-%description doc
-This package contains common files for sipXecs documentation
 
 %prep
 %setup -q
@@ -171,6 +163,7 @@ fi
 %{_datadir}/sipxecs/schema/registration.xsd
 %{_datadir}/sipxecs/schema/subscription.xsd
 %{_datadir}/sipxecs/schema/urlmap.xsd
+%{_mandir}/man1
 
 # These should match sipXlib.m4 or at least sent
 # to configure script
@@ -203,7 +196,3 @@ fi
 %{_includedir}/alarm/*
 %{_includedir}/sipXecsService/*
 %{_includedir}/testlib/*
-
-%files doc
-%docdir %{_datadir}/doc/sipxecs
-%{_datadir}/doc/sipxecs

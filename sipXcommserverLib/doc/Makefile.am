@@ -8,32 +8,17 @@ EXTRA_DIST = \
   Doxyfile.project.in \
   footer.html \
   credential.xml \
-  permission.xml
+  permission.xml \
+  INSTALL.ssl.in
 
-if GENERATE_DOCBOOK
+if GENERATE_MANPAGES
+MAN_PAGES_OPT = gen-ssl-keys.1
+endif
 
-EXTRA_DIST += \
-	INSTALL.ssl.in \
-	$(top_srcdir)/config/sipxecs_entities.ent
+man_MANS = $(MAN_PAGES_OPT)
 
-DOCBOOK_XML_DOCS=INSTALL.ssl
+gen-ssl-keys.xml : INSTALL.ssl.in
+	$(ASCIIDOC) -d manpage -b docbook -o $@ $<
 
-include $(top_srcdir)/config/docbook.am
-
-if GENERATE_DOCBOOK_HTML
-
-EXTRA_DIST+= \
-	$(top_srcdir)/config/sipXecs.css
-
-DOCBOOK_OUTPUTS+=sipXecs.css
-
-CLEANFILES+=sipXecs.css
-
-endif # GENERATE_DOCBOOK_HTML
-
-endif # GENERATE_DOCBOOK
-
-install-data-hook: $(foreach doc,$(DOCBOOK_OUTPUTS),$(DESTDIR)@SIPX_DOCDIR@/$(doc))
-
-$(foreach doc,$(DOCBOOK_OUTPUTS),$(DESTDIR)@SIPX_DOCDIR@/$(doc)) : $(DESTDIR)@SIPX_DOCDIR@/% : %
-	$(INSTALL) -D -m 644 $< $@;
+%.1 : %.xml
+	$(XSLTPROC) $(DOCBOOK_2_MAN_XSL) $<

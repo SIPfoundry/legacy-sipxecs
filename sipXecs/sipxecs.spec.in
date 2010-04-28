@@ -27,7 +27,6 @@ Requires: sipxconfig-ftp >= %version
 Requires: sipxconfig-mrtg >= %version
 Requires: sipxconfig-report >= %version
 Requires: sipxconfig-tftp >= %version
-Requires: sipxecs-doc >= %version
 Requires: sipxfreeswitch >= %version
 Requires: sipx-freeswitch >= 1.0 
 Requires: sipx-freeswitch-codec-passthru-amr 
@@ -52,6 +51,8 @@ Requires: sipxrest >= %version
 Requires: sipxcallcontroller >= %version
 Requires: sipxcdrlog >= %version
 Requires: sipxprovision >= %version
+
+Obsoletes: %{name}-doc
 
 Source: %name-%version.tar.gz
 

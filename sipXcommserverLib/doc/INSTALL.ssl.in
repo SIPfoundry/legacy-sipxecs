@@ -1,4 +1,16 @@
+GEN-SSL-KEYS(1)
+===============
 
+NAME
+----
+gen-ssl-keys - Generate SSL keys
+
+SYNOPSIS
+--------
+gen-ssl-keys [options]
+
+DESCRIPTION
+-----------
     ====================================
     SSL Key and Certificate Installation
     ====================================
@@ -199,3 +211,11 @@ Key and Certificate Installation
         run the following command as root in this directory.
 
         @bindir@/ssl-cert/install-cert.sh
+
+ENVIRONMENT
+-----------
+NONE
+
+EXAMPLE
+-------
+NONE
