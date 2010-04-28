@@ -89,7 +89,6 @@ public class UserMapper implements NameClassPairMapper {
 
         // group names found in distinguished name
         if (sr.isRelative()) {
-            // The name string returns an escaped name (e.g. O\\'Reilly) so we must unescape here
             String name = sr.getName();
             LdapName ldapName = new LdapName(name);
             List<Rdn> rdns = ldapName.getRdns();
