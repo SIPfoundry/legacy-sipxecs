@@ -223,7 +223,7 @@ public:
                                        enum subscriptionChange change);
 
     //! Remove old subscriptions, ones that expired before the given time.
-    virtual void removeOldSubscriptions(long oldEpochTimeSeconds);
+    virtual void removeOldSubscriptions(long unsigned oldEpochTimeSeconds);
 
     //! Tell that a new NOTIFY has been generated and sent for a subscription.
     //  This resets the resend interval for the subscription to the minimum,
@@ -323,9 +323,9 @@ public:
     void dumpState();
 
     /// Initial resend interval, in seconds.
-    static int sInitialNextResendInterval;
+    static unsigned sInitialNextResendInterval;
     /// Maximum resend interval, in seconds.
-    static int sMaxNextResendInterval;
+    static unsigned sMaxNextResendInterval;
 
     // msgSubType for a ResendEventMsg.
     static int sEventResend;
