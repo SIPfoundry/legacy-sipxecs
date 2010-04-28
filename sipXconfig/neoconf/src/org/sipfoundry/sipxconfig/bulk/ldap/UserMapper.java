@@ -27,7 +27,6 @@ import javax.naming.ldap.LdapName;
 import javax.naming.ldap.Rdn;
 
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
@@ -91,7 +90,7 @@ public class UserMapper implements NameClassPairMapper {
         // group names found in distinguished name
         if (sr.isRelative()) {
             // The name string returns an escaped name (e.g. O\\'Reilly) so we must unescape here
-            String name = StringEscapeUtils.unescapeJava(sr.getName());
+            String name = sr.getName();
             LdapName ldapName = new LdapName(name);
             List<Rdn> rdns = ldapName.getRdns();
             for (Rdn rdn : rdns) {
