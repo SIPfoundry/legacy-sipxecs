@@ -34,48 +34,50 @@
   <span jwcid="@common/QuickHelp" value="message:statistics.help"/>
   <span jwcid="@If" condition="ognl:hostHasTargetsForMonitoring">
     <div id="settings-content">
-      <h3><span jwcid="@Insert" value="ognl:messages.getMessage(reportName)" /></h3>
-      <span jwcid="@If" condition="ognl:summaryReport">
-        <table>
-          <tr>
-          <td align="left" valign="top">
-            <fieldset>
-              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
-                <span jwcid="@If" condition="ognl:evenIndex">
-                  <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
-                  <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
-                    <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" />
-                  </a>
-                  <br/><br/>
-                </span>
-              </span>
-            </fieldset>
-          </td>
-          <td align="left" valign="top">
-            <fieldset>
-              <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
-                <span jwcid="@If" condition="ognl:!evenIndex">
-                  <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
-                  <a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
-                    <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" />
-                  </a>
-                  <br/><br/>
-                </span>
-              </span>
-            </fieldset>
-          <td>
-          </tr>
-        </table>
-      </span>
-      <span jwcid="@Else">
-        <fieldset>
-          <span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
-            <b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)" /></b><br/>
-            <span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /><br/>
-            <span jwcid="@Insert" value="ognl:currentBean.htmlDetails" raw="true" /><br/>
-          </span>
-        </fieldset>
-      </span>
+    	<div class="tableDiv">
+				<h3><span jwcid="@Insert" value="ognl:messages.getMessage(reportName)" /></h3>
+				<span jwcid="@If" condition="ognl:summaryReport">
+					<table>
+						<tr>
+						<td align="left" valign="top">
+							<fieldset>
+								<span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
+									<span jwcid="@If" condition="ognl:evenIndex">
+										<b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
+										<a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
+											<span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" />
+										</a>
+										<br/><br/>
+									</span>
+								</span>
+							</fieldset>
+						</td>
+						<td align="left" valign="top">
+							<fieldset>
+								<span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
+									<span jwcid="@If" condition="ognl:!evenIndex">
+										<b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)"/></b><br/>
+										<a href="#" jwcid="@DirectLink" listener="listener:showReport" parameters="ognl:{currentBean.targetTitle, host}" id="ognl:'image' + index">
+											<span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" />
+										</a>
+										<br/><br/>
+									</span>
+								</span>
+							</fieldset>
+						<td>
+						</tr>
+					</table>
+				</span>
+				<span jwcid="@Else">
+					<fieldset>
+						<span jwcid="@For" source="ognl:reportBeans" value="ognl:currentBean" index="ognl:index">
+							<b><span jwcid="@Insert" value="ognl:messages.getMessage(currentBean.targetTitle)" /></b><br/>
+							<span jwcid="@common/ImageLink" path="ognl:currentBean.imageLink" /><br/>
+							<span jwcid="@Insert" value="ognl:currentBean.htmlDetails" raw="true" /><br/>
+						</span>
+					</fieldset>
+				</span>
+			</div>
     </div>
   </span>
   <span jwcid="@Else">
