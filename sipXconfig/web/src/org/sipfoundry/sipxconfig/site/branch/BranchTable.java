@@ -20,7 +20,6 @@ import org.apache.tapestry.contrib.table.model.IBasicTableModel;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.User;
@@ -62,10 +61,6 @@ public abstract class BranchTable extends BaseComponent implements PageBeginRend
 
     public abstract void setGatewayCounts(Map<Integer, Long> counts);
 
-    public abstract Map<Integer, Long> getSbcDeviceCounts();
-
-    public abstract void setSbcDeviceCounts(Map<Integer, Long> counts);
-
     public abstract Map<Integer, Long> getServerCounts();
 
     public abstract void setServerCounts(Map<Integer, Long> counts);
@@ -80,9 +75,6 @@ public abstract class BranchTable extends BaseComponent implements PageBeginRend
         }
         if (getGatewayCounts() == null) {
             setGatewayCounts(getSettingContext().getBranchMemberCountIndexedByBranchId(Gateway.class));
-        }
-        if (getSbcDeviceCounts() == null) {
-            setSbcDeviceCounts(getSettingContext().getBranchMemberCountIndexedByBranchId(SbcDevice.class));
         }
     }
 
