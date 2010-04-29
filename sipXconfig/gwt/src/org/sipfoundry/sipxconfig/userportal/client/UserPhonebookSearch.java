@@ -8,7 +8,9 @@
  */
 package org.sipfoundry.sipxconfig.userportal.client;
 
+import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
@@ -67,6 +69,9 @@ public class UserPhonebookSearch implements EntryPoint {
     private static final String DUMMY_ID = "-1";
     private static final String EMPTY_STRING = "";
     private static final String WILD_CARD = "*";
+    private static final int CLICK_TO_CALL_ERROR = 400;
+    private static final String VARIANT = "application/json";
+    private static final String CONTENT_TYPE = "Content-Type";
 
     private static final String[] FIELDS_PHONENUMBERS = {
         PhonebookDataSource.NUMBER, PhonebookDataSource.CELL_PHONE_NUMBER, PhonebookDataSource.HOME_PHONE_NUMBER,
@@ -696,9 +701,6 @@ public class UserPhonebookSearch implements EntryPoint {
     }
 
     private static class ClickToCallModalWindow extends ModalWindow {
-        private static final String VALID_PHONE_OR_SIP_URI = "([-_.!~*'\\(\\)&amp;=+$,;?/a-zA-Z0-9]|"
-            + "(&#37;[0-9a-fA-F]{2}))+|([-_.!~*'\\(\\)&amp;=+$,;?/a-zA-Z0-9]|(&#37;[0-9a-fA-F]{2}))"
-            + "+@\\w[-._\\w]*\\w\\.\\w{2,6}";
 
         public ClickToCallModalWindow(LinkedHashMap<String, String> phoneMap) {
 
@@ -733,12 +735,8 @@ public class UserPhonebookSearch implements EntryPoint {
                 @Override
                 public void onClick(ClickEvent event) {
                     String dialNumber = (String) numberToDail.getValue();
-                    if (!dialNumber.isEmpty() && dialNumber.matches(VALID_PHONE_OR_SIP_URI)) {
-                        clickToCallRestCall(dialNumber);
-                        destroy();
-                    } else {
-                        SC.warn(s_searchConstants.invalidPhoneNumber());
-                    }
+                    clickToCallRestCall(dialNumber);
+                    destroy();
                 }
             });
 
@@ -749,7 +747,10 @@ public class UserPhonebookSearch implements EntryPoint {
     }
 
     private static void clickToCallRestCall(String number) {
-        HttpRequestBuilder.doPut("/sipxconfig/rest/my/call/" + number);
+        Map<Integer, String> errorStatuses = new HashMap<Integer, String>();
+        errorStatuses.put(CLICK_TO_CALL_ERROR, s_searchConstants.invalidPhoneNumber());
+        HttpRequestBuilder.doPut("/sipxconfig/rest/my/call/" + number, null,
+                CONTENT_TYPE, VARIANT, null, errorStatuses);
     }
 
     /**
@@ -892,7 +893,7 @@ public class UserPhonebookSearch implements EntryPoint {
                     String pass = gmailForm.getValueAsString(PASSWORD_FIELD_NAME);
                     String url = "/sipxconfig/rest/my/phonebook/googleImport";
                     RequestBuilder reqBuilder = new RequestBuilder(RequestBuilder.POST, url);
-                    reqBuilder.setHeader("Content-Type", "application/json");
+                    reqBuilder.setHeader(CONTENT_TYPE, VARIANT);
                     try {
                         reqBuilder.sendRequest(createPostData(email, pass), new RequestCallback() {
 
