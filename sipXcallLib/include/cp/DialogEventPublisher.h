@@ -57,6 +57,11 @@ class TaoString;
  * resourceId must be the request-URI of an incoming SUBSCRIBE in order
  * for a subscription to retrieve the desired event packages.
  *
+ * The caller must connect the DialogEventPublisher with the
+ * SipSubscribeServer by calling SipSubscribeServer::enableEventType().
+ * Note that the DialogEventPublisher does not publish partial content,
+ * so the onlyFullState argument to that call must be true.
+ * 
  * (I don't know if DialogEventPublisher tracks outgoing calls correctly.)
  */
 class DialogEventPublisher: public TaoAdaptor

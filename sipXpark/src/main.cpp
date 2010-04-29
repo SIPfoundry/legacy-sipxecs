@@ -626,7 +626,10 @@ int main(int argc, char* argv[])
     SipSubscribeServer subscribeServer(SipSubscribeServer::terminationReasonSilent,
                                        *userAgent, publisher,
                                        subscriptionMgr, policyHolder);
-    subscribeServer.enableEventType(DIALOG_EVENT_TYPE);
+    subscribeServer.enableEventType(DIALOG_EVENT_TYPE, NULL, NULL, NULL,
+                                    SipSubscribeServer::standardVersionCallback,
+                                    TRUE // dialogEvents only produces full content.
+       );
     subscribeServer.start();
 
     // Create the DialogEventPublisher.
