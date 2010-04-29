@@ -299,12 +299,15 @@ Usage:
 
     The --log-start and --log-stop switches allow you to limit the log file
     size that is included in the snapshot to the times between the start and
-    stop times.  Times MUST be specified in UCT (aka GMT) as used in the log
+    stop times.  Times MUST be specified in UTC (aka GMT) as used in the log
     files.  Only times in the 'current' log may be specified (not in archived
     logs).  If the --log-stop switch is not specified, the extract is from the
     start time to the end of the log file.
 
-      --log-start '2004-12-08 17:45:30' --log-stop '2004-12-08 18:12:52'
+    Example:
+      --log-start '2004-12-08T17:45:30' --log-stop '2004-12-08T18:12:52'
+    The 'T' in the date-time values may be replaced with ' ' (quoted!), but
+    that usage is only for backward compatibility and is being deprecated.
 
     The --no-logs switch causes the sipX and Apache logs to be omitted
     from the snapshot; the default is to include them.  (deprecated but
@@ -631,9 +634,9 @@ EOF
    if [ -n "${LogStart}" ]
    then
      echo -n "Cut start: "
-     date -d "${LogStart} Z"
+     date -d "${LogStart}Z"
      echo -n "Cut stop:  "
-     date -d "${LogStop} Z"
+     date -d "${LogStop}Z"
      echo ""
    fi
    echo -n "SysVersion: "

@@ -157,7 +157,7 @@ public class Snapshot {
             cmds.add("current");
             // Log start/stop times may only be specified with '--logs current'
             if (m_filterTime) {
-                // Times must be specified in UCT
+                // Times must be specified in UTC
                 cmds.add("--log-start");
                 cmds.add(formatDate(startDate));
                 cmds.add("--log-stop");
@@ -189,7 +189,7 @@ public class Snapshot {
     private String formatDate(Date date) {
         Calendar calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         calendar.setTime(date);
-        return (String.format("%1$tF %1$tT", calendar));
+        return (String.format("%1$tFT%1$tT", calendar));
     }
 
     public boolean isCredentials() {
