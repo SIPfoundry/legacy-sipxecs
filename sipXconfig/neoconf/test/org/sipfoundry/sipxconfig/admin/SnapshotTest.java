@@ -32,14 +32,14 @@ public class SnapshotTest extends TestCase {
 
         snapshot.setFilterTime(true);
         cmdLine = join(snapshot.getCmdLine(startDate, endDate), '|');
-        assertEquals("--logs|current|--log-start|2008-07-11 12:34:46|"
-                + "--log-stop|2008-07-11 12:36:50", cmdLine);
+        assertEquals("--logs|current|--log-start|2008-07-11T12:34:46|"
+                + "--log-stop|2008-07-11T12:36:50", cmdLine);
 
         snapshot.setCredentials(true);
         snapshot.setWww(false);
         cmdLine = join(snapshot.getCmdLine(startDate, endDate), '|');
-        assertEquals("--logs|current|--log-start|2008-07-11 12:34:46|"
-                + "--log-stop|2008-07-11 12:36:50|--credentials|--no-www", cmdLine);
+        assertEquals("--logs|current|--log-start|2008-07-11T12:34:46|"
+                + "--log-stop|2008-07-11T12:36:50|--credentials|--no-www", cmdLine);
 
         snapshot.setLogs(false);
         snapshot.setCdr(true);
