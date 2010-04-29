@@ -10,3 +10,4 @@ then
 fi
 
 @bindir@/sipxcallresolver.sh --setup
+@bindir@/sipxcallresolver.sh --patch
