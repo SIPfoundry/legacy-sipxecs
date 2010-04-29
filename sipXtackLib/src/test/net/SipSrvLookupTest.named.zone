@@ -2,8 +2,8 @@
 ;
 $TTL	86400
 $ORIGIN .
-@	1D IN SOA	@ worley.ariadne.com. (
-			2009121000	; serial
+@	1D IN SOA	@ dummy.example.com. (
+			2010042800	; serial
 			24H		; refresh
 			1H		; retry
 			1W		; expire

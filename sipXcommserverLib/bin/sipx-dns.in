@@ -353,7 +353,7 @@ generate_zone_header () {
                        ${ZoneSerialNumber} ; serial#
                        1800            ; refresh, seconds
                        1800            ; retry, seconds
-                       1800            ; expire, seconds
+                       1209600         ; expire, seconds
                        1800 )          ; minimum TTL, seconds
 EOF
 }
