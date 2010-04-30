@@ -71,7 +71,7 @@ public class SipListenerImpl implements SipListenerExt {
         ClientTransaction ctx = responseEvent.getClientTransaction();
         
         if ( ctx == null ) {
-            logger.debug("Dropping response");
+            if ( logger.isDebugEnabled() ) logger.debug("Dropping response");
             return;
         }
 
@@ -196,7 +196,7 @@ public class SipListenerImpl implements SipListenerExt {
              * Forward the challenge back to the call originator if this is a dummy account we
              * created for purposes of bridging the call.
              */
-            logger.debug("Forwarding challenge from WAN for dummy account");
+            if ( logger.isDebugEnabled() ) logger.debug("Forwarding challenge from WAN for dummy account");
              if (stx.getState() != TransactionState.TERMINATED ) {
                 Response errorResponse = SipUtilities.createResponse(stx, statusCode);
                 SipUtilities.copyHeaders(responseEvent.getResponse(),errorResponse);
@@ -208,7 +208,7 @@ public class SipListenerImpl implements SipListenerExt {
                 stx.sendResponse(errorResponse);
                 return;
             } else {
-                logger.debug("Late arriving response for a dummy response -- ignoring. \n" +
+                if ( logger.isDebugEnabled() ) logger.debug("Late arriving response for a dummy response -- ignoring. \n" +
                 		"Could not find server transaction or server transaction is TERMINATED." +
                 		"Discarding the response.");
                 return;
@@ -231,7 +231,7 @@ public class SipListenerImpl implements SipListenerExt {
             newClientTransaction.sendRequest();
         } else {
             if (logger.isDebugEnabled()) {
-                logger.debug("SipListenerImpl : dialog = " + dialog);
+                if ( logger.isDebugEnabled() ) logger.debug("SipListenerImpl : dialog = " + dialog);
             }
 
             BackToBackUserAgent b2bua = DialogContext
@@ -317,9 +317,11 @@ public class SipListenerImpl implements SipListenerExt {
     public void processDialogTerminated(DialogTerminatedEvent dte) {
         DialogContext dialogContext = DialogContext.get(dte.getDialog());
         if ( dialogContext != null ) {
-            logger.debug("DialogTerminatedEvent:  dialog created at " + dialogContext.getCreationPointStackTrace());
-            logger.debug("DialogTerminatedEvent: dialog inserted at " + dialogContext.getInsertionPointStackTrace());
-            logger.debug("DialogCreated by request: " + dialogContext.getRequest());
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("DialogTerminatedEvent:  dialog created at " + dialogContext.getCreationPointStackTrace());
+                logger.debug("DialogTerminatedEvent: dialog inserted at " + dialogContext.getInsertionPointStackTrace());
+                logger.debug("DialogCreated by request: " + dialogContext.getRequest());
+            }
             dialogContext.cancelSessionTimer();
             BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
             if (b2bua != null) {
@@ -344,7 +346,7 @@ public class SipListenerImpl implements SipListenerExt {
     public void processRequest(RequestEvent requestEvent) {
 
         if (logger.isDebugEnabled()) {
-            logger.debug("Gateway: got an incoming request "
+            if ( logger.isDebugEnabled() ) logger.debug("Gateway: got an incoming request "
                     + requestEvent.getRequest());
         }
         Request request = requestEvent.getRequest();
@@ -356,10 +358,10 @@ public class SipListenerImpl implements SipListenerExt {
         try {
 
             if (Gateway.getState() == GatewayState.STOPPING) {
-                logger.debug("Gateway is stopping -- returning");
+                if ( logger.isDebugEnabled() ) logger.debug("Gateway is stopping -- returning");
                 return;
             } else if (Gateway.getState() == GatewayState.INITIALIZING) {
-                logger.debug("Rejecting request -- gateway is initializing");
+                if ( logger.isDebugEnabled() ) logger.debug("Rejecting request -- gateway is initializing");
 
                 Response response = ProtocolObjects.messageFactory
                         .createResponse(Response.SERVICE_UNAVAILABLE, request);
@@ -373,7 +375,7 @@ public class SipListenerImpl implements SipListenerExt {
                 st.sendResponse(response);
                 return;
             } else if ( SipUtilities.requestContainsUnsupportedExtension(request, provider == Gateway.getLanProvider()) ) {
-            	  logger.debug("Rejecting request -- request contains unsupported extension");
+            	  if ( logger.isDebugEnabled() ) logger.debug("Rejecting request -- request contains unsupported extension");
 
                   Response response = ProtocolObjects.messageFactory
                           .createResponse(Response.BAD_EXTENSION, request);
@@ -482,7 +484,7 @@ public class SipListenerImpl implements SipListenerExt {
     public void processResponse(ResponseEvent responseEvent) {
 
         if (Gateway.getState() == GatewayState.STOPPING) {
-            logger.debug("Gateway is stopping -- returning");
+            if ( logger.isDebugEnabled() ) logger.debug("Gateway is stopping -- returning");
             return;
         }
 
@@ -496,7 +498,7 @@ public class SipListenerImpl implements SipListenerExt {
             if ( method.equals(Request.INVITE)      &&
                  response.getStatusCode() == 200    && 
                  response.getHeader(ContactHeader.NAME) == null ) {
-                logger.debug("Dropping bad response");
+                if ( logger.isDebugEnabled() ) logger.debug("Dropping bad response");
                 if (dialog != null && DialogContext.get(dialog) != null) {
                     DialogContext.get(dialog).getBackToBackUserAgent().tearDown("sipXbridge", ReasonCode.PROTOCOL_ERROR, "Protocol Error - 200 OK with no contact");
                 } else if ( dialog != null ) {
@@ -515,7 +517,7 @@ public class SipListenerImpl implements SipListenerExt {
                  */
 
                 SipProvider provider = (SipProvider) responseEvent.getSource();
-                logger.debug("Forked dialog response detected.");
+                if ( logger.isDebugEnabled() ) logger.debug("Forked dialog response detected.");
                 String callId = SipUtilities.getCallId(response);
                 BackToBackUserAgent b2bua = Gateway.getBackToBackUserAgentFactory().getBackToBackUserAgent(callId);
                 
@@ -569,8 +571,8 @@ public class SipListenerImpl implements SipListenerExt {
                  * to that leg.
                  */
                 if ( dialog.getApplicationData() == null  ) {
-                    logger.debug("callLegId = " + callLegId);
-                    logger.debug("dialogTable = " + b2bua.dialogTable);
+                    if ( logger.isDebugEnabled() ) logger.debug("callLegId = " + callLegId);
+                    if ( logger.isDebugEnabled() ) logger.debug("dialogTable = " + b2bua.dialogTable);
                     b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.FORK_TIMED_OUT, "Fork timed out"); 
                     return;
                 } 
@@ -673,7 +675,7 @@ public class SipListenerImpl implements SipListenerExt {
                     } else {
                         if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP
                                 || transactionContext.getOperation() == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {
-                            logger.debug("Timed sending request to ITSP -- trying alternate proxy");
+                            if ( logger.isDebugEnabled() ) logger.debug("Timed sending request to ITSP -- trying alternate proxy");
                             if ( ctx.getState() != TransactionState.TERMINATED ) {
                                 ctx.terminate();
                             }
@@ -703,7 +705,7 @@ public class SipListenerImpl implements SipListenerExt {
                             }
 
                         } else {
-                            logger.debug("Timed out processing "
+                            if ( logger.isDebugEnabled() ) logger.debug("Timed out processing "
                                     + transactionContext.getOperation());
 
                             b2bua.sendByeToMohServer();
@@ -720,7 +722,7 @@ public class SipListenerImpl implements SipListenerExt {
 
     public void processTransactionTerminated(TransactionTerminatedEvent tte) {
 
-        logger.debug("Transaction terminated event");
+        if ( logger.isDebugEnabled() ) logger.debug("Transaction terminated event");
     }
 
     /**

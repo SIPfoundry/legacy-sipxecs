@@ -59,7 +59,7 @@ class RtpTransmitterEndpoint {
 
     public void setIpAddressAndPort(String ipAddress, int port, int keepAliveInterval,
             KeepaliveMethod keepAliveMethod) throws UnknownHostException {
-        logger.debug("setIpAddressAndPort " + this.rtpSession.getSym().getId() + " current  = "
+        if ( logger.isDebugEnabled() ) logger.debug("setIpAddressAndPort " + this.rtpSession.getSym().getId() + " current  = "
                 + this.ipAddress + "/" + this.port + " new " + ipAddress + "/" + port);
 
         this.ipAddress = ipAddress;
@@ -72,7 +72,7 @@ class RtpTransmitterEndpoint {
     }
 
     public void setIpAddressAndPort(String ipAddress, int port) throws UnknownHostException {
-        logger.debug("setIpAddressAndPort " + this.rtpSession.getSym().getId() + " current  = "
+        if ( logger.isDebugEnabled() ) logger.debug("setIpAddressAndPort " + this.rtpSession.getSym().getId() + " current  = "
                 + this.ipAddress + "/" + this.port + " new " + ipAddress + "/" + port);
 
         this.ipAddress = ipAddress;
@@ -85,7 +85,7 @@ class RtpTransmitterEndpoint {
 
     public void setIpAddressAndPort(int keepaliveInterval, KeepaliveMethod keepaliveMethod)
             throws UnknownHostException {
-        logger.debug("setIpAddressAndPort " + this.rtpSession.getSym().getId() + " current  = "
+        if ( logger.isDebugEnabled() ) logger.debug("setIpAddressAndPort " + this.rtpSession.getSym().getId() + " current  = "
                 + this.ipAddress + "/" + this.port + " new " + ipAddress + "/" + port);
 
         this.keepAliveInterval = keepaliveInterval;
@@ -123,7 +123,7 @@ class RtpTransmitterEndpoint {
         }
         
         if ( logger.isDebugEnabled() ) {
-        	logger.debug("setOnHold : " + this.rtpSession.getSym().getId() + this + " : " + flag );
+        	if ( logger.isDebugEnabled() ) logger.debug("setOnHold : " + this.rtpSession.getSym().getId() + this + " : " + flag );
         }
         
         this.symTransmitter.setOnHold(flag);
@@ -132,9 +132,9 @@ class RtpTransmitterEndpoint {
 
     void setSessionDescription(SessionDescription sessionDescription, boolean isOffer) {
         if (this.sessionDescription != null) {
-            logger.debug("replacing session description");
+            if ( logger.isDebugEnabled() ) logger.debug("replacing session description");
         } else {
-        	logger.debug("setting session description");
+        	if ( logger.isDebugEnabled() ) logger.debug("setting session description");
         }
 
         
@@ -149,7 +149,7 @@ class RtpTransmitterEndpoint {
                     
 
             if (logger.isDebugEnabled()) {
-                logger.debug("isTransmitter = true : Setting ipAddress : " + ipAddress
+                if ( logger.isDebugEnabled() ) logger.debug("isTransmitter = true : Setting ipAddress : " + ipAddress
                         + " Setting port " + port +  " isOffer = " + isOffer);
             }
 

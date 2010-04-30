@@ -115,7 +115,7 @@ public class RegistrationManager {
             throws SipXbridgeException, SipException, InvalidArgumentException {
 
         Response response = responseEvent.getResponse();
-        logger.debug("registrationManager.processResponse() "
+        if ( logger.isDebugEnabled() ) logger.debug("registrationManager.processResponse() "
                 + response.getStatusCode());
         ClientTransaction ct = responseEvent.getClientTransaction();
         if ( ct == null ) {
@@ -157,7 +157,7 @@ public class RegistrationManager {
                     if (port == -1) {
                         port = 5060;
                     }
-                    logger.debug("checking contact " + contactHeader);
+                    if ( logger.isDebugEnabled() ) logger.debug("checking contact " + contactHeader);
                     if (responseContactUri.getHost().equals(
                             requestContactUri.getHost())
                             && requestContactUri.getPort() == port) {
@@ -211,7 +211,7 @@ public class RegistrationManager {
                 itspAccount.startCrLfTimerTask();
 
             }
-            logger.debug("time = " + time + " Seconds ");
+            if ( logger.isDebugEnabled() ) logger.debug("time = " + time + " Seconds ");
             if (time > 0) {
                 if (itspAccount.registrationTimerTask != null)
                     itspAccount.registrationTimerTask.cancel();
@@ -229,7 +229,7 @@ public class RegistrationManager {
                                 itspAccount.getSipDomain());
                         itspAccount.setAlarmSent(true);
                     } catch (Exception ex) {
-                        logger.debug("Could not send alarm", ex);
+                        if ( logger.isDebugEnabled() ) logger.debug("Could not send alarm", ex);
                     }
                 }
                 /*
@@ -273,7 +273,7 @@ public class RegistrationManager {
                                 itspAccount.getSipDomain());
                         itspAccount.setAlarmSent(true);
                     } catch (Exception ex) {
-                        logger.debug("Could not send alarm", ex);
+                        if ( logger.isDebugEnabled() ) logger.debug("Could not send alarm", ex);
                     }
                 }
                 /*

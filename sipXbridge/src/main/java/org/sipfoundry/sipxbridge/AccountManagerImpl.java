@@ -101,7 +101,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     ItspAccountInfo getAccount(Request request) {
 
         SipURI sipUri = (SipURI) request.getRequestURI();
-        logger.debug("getAccount: fetching account for " + sipUri);
+        if ( logger.isDebugEnabled() ) logger.debug("getAccount: fetching account for " + sipUri);
         ItspAccountInfo accountFound = null;
         try {
 
@@ -181,7 +181,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             this.addItspAccount(accountFound);
             return accountFound;
         } finally {
-            logger.debug("getItspAccount: returning " + accountFound);
+            if ( logger.isDebugEnabled() ) logger.debug("getItspAccount: returning " + accountFound);
         }
     }
 
@@ -205,23 +205,23 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
      * @return
      */
     ItspAccountInfo getItspAccount(String host, int port) {
-        logger.debug("INVITE received on " + host + ":" + port);
+        if ( logger.isDebugEnabled() ) logger.debug("INVITE received on " + host + ":" + port);
         if (port == -1)
             port = 5060; // set default.
         try {
             String viaHost = InetAddress.getByName(host).getHostAddress();
-            logger.debug("viaHost = " + viaHost + "viaPort = " + port);
+            if ( logger.isDebugEnabled() ) logger.debug("viaHost = " + viaHost + "viaPort = " + port);
             for (ItspAccountInfo accountInfo : this.getItspAccounts()) {
                 if (accountInfo.isRegisterOnInitialization()) {
                     // Account needs registration.
                     String registrarHost = accountInfo.getOutboundRegistrar();
                     // We assume that the Registrar is the same as the INBOUND proxy
                     // server.
-                    logger.debug("registrarHost = " + registrarHost);
+                    if ( logger.isDebugEnabled() ) logger.debug("registrarHost = " + registrarHost);
                     try {
                         Hop hop = accountInfo.getHopToRegistrar();
                         if (hop != null && viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())) {
-                            logger.debug("found account " + accountInfo.getProxyDomain());
+                            if ( logger.isDebugEnabled() ) logger.debug("found account " + accountInfo.getProxyDomain());
                             return accountInfo;
 
                         }
@@ -231,11 +231,11 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
                 } else {
                     for (Hop hop : accountInfo.getInboundProxies()) {
                         if (hop != null) {
-                           logger.debug("Checking " + hop.getHost() + " port " + hop.getPort());
+                           if ( logger.isDebugEnabled() ) logger.debug("Checking " + hop.getHost() + " port " + hop.getPort());
                            try {
                                if (viaHost.equals(InetAddress.getByName(hop.getHost()).getHostAddress())
                                        && hop.getPort() == port) {
-                                   logger.debug("Inbound request from : " + accountInfo.getProxyDomain());
+                                   if ( logger.isDebugEnabled() ) logger.debug("Inbound request from : " + accountInfo.getProxyDomain());
                                    return accountInfo;
                                }
                            } catch ( UnknownHostException ex) {
@@ -249,7 +249,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
             logger.error("unexpected error parsing domain", ex);
             return null;
         }
-        logger.debug("Could not find ITSP account for inbound request");
+        if ( logger.isDebugEnabled() ) logger.debug("Could not find ITSP account for inbound request");
         return null;
     }
 

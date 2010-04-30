@@ -48,7 +48,7 @@ class RtpSession {
     }
 
     protected void setTransmitter(RtpTransmitterEndpoint endpoint) {
-        logger.debug("setTransmitter " + this.symImpl.getId());
+        if ( logger.isDebugEnabled() ) logger.debug("setTransmitter " + this.symImpl.getId());
         this.rtpTransmitterEndpoint = endpoint;
         symImpl.setTransmitter(endpoint.getSymTransmitter());
     }
@@ -63,7 +63,7 @@ class RtpSession {
     protected boolean isHoldRequest(SessionDescription sessionDescription) {
     	
     	if ( logger.isDebugEnabled()) {
-    		logger.debug("isHoldRequest " + sessionDescription);
+    		 logger.debug("isHoldRequest " + sessionDescription);
     	}
 
         int oldPort = this.getTransmitter().getPort();
@@ -84,9 +84,9 @@ class RtpSession {
         String sessionAttribute = SipUtilities.getSessionDescriptionAttribute(sessionDescription);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("mediaAttribute = " + mediaAttribute + "sessionAttribute = "
+             logger.debug("mediaAttribute = " + mediaAttribute + "sessionAttribute = "
                     + sessionAttribute);
-            logger.debug("mediaIpAddress = " + newIpAddress + " oldPort " + oldPort + " newPort = " + newport );
+             logger.debug("mediaIpAddress = " + newIpAddress + " oldPort " + oldPort + " newPort = " + newport );
         }
         /*
          * RFC2543 specified that placing a user on hold was accomplished by setting the

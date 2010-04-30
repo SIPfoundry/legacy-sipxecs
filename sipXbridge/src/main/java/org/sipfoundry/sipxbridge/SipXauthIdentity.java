@@ -86,7 +86,7 @@ public class SipXauthIdentity {
             return false;
         }
 
-        logger.debug("SipXauthIdentity.insert '" + identity + "' into " + headerName);
+        if ( logger.isDebugEnabled() ) logger.debug("SipXauthIdentity.insert '" + identity + "' into " + headerName);
 
         // make sure there is no existing identity in the message
         message.removeHeader(headerName);

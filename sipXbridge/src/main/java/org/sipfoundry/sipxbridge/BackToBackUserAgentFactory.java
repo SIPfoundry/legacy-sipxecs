@@ -53,7 +53,7 @@ public class BackToBackUserAgentFactory {
 	                BackToBackUserAgent b2bua = iter.next();
 	                if ( b2bua.isPendingTermination() ) {
 	                    b2bua.cleanUp();
-	                    logger.debug("Removing BackToBackUserAgent");
+	                    if ( logger.isDebugEnabled() ) logger.debug("Removing BackToBackUserAgent");
 	                    iter.remove();
 	                    removed = true;
 	                }
@@ -62,14 +62,14 @@ public class BackToBackUserAgentFactory {
 	             * Check for dialog leaks. This us useful for unit testing.
 	             */
 	            if ( logger.isDebugEnabled() && removed ) {
-	                logger.debug("Dialog Table : ");
+	                if ( logger.isDebugEnabled() ) logger.debug("Dialog Table : ");
 	                for (Dialog dialog : ( (SipStackExt) ProtocolObjects.getSipStack()).getDialogs() ) {
-	                    logger.debug("Dialog " + dialog + " dialogState = " + dialog.getState() ); 
+	                    if ( logger.isDebugEnabled() ) logger.debug("Dialog " + dialog + " dialogState = " + dialog.getState() ); 
 	                    if ( dialog.getState() != DialogState.TERMINATED ) {
 	                    	if ( DialogContext.get(dialog) != null ) {
-	                    		logger.debug("Dialog was allocated at " + DialogContext.get(dialog).getCreationPointStackTrace());
+	                    		if ( logger.isDebugEnabled() ) logger.debug("Dialog was allocated at " + DialogContext.get(dialog).getCreationPointStackTrace());
 	                    	} else {
-	                    		logger.debug("Null dialog context!");
+	                    		if ( logger.isDebugEnabled() ) logger.debug("Null dialog context!");
 	                    	}
 	                    }
 	                }
@@ -194,7 +194,7 @@ public class BackToBackUserAgentFactory {
 			throw new SipXbridgeException(
 					"Initialization exception while processing request", ex);
 		} finally {
-			logger.debug("returning " + b2bua);
+			if ( logger.isDebugEnabled() ) logger.debug("returning " + b2bua);
 		}
 		return b2bua;
 

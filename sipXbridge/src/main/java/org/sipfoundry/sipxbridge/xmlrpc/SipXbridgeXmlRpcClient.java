@@ -35,7 +35,7 @@ public class SipXbridgeXmlRpcClient {
         	config.setEnabledForExceptions(true);
 			config.setEnabledForExtensions(true);
 			String url = (isSecure? "https" : "http") + "://" + serverAddress + ":" + port;
-			logger.debug("SipXbridgeXmlRpcClient: url =  " + url);
+			if ( logger.isDebugEnabled() ) logger.debug("SipXbridgeXmlRpcClient: url =  " + url);
             config.setServerURL(new URL(url));
             this.client = new XmlRpcClient();
             this.client.setConfig(config);

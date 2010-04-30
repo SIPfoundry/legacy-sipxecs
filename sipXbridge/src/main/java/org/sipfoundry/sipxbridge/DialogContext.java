@@ -211,14 +211,14 @@ class DialogContext {
 
             try {
                 if (dialog.getState() == DialogState.TERMINATED) {
-                    logger.debug("Dialog is terminated -- not firing the  session timer");
+                    if ( logger.isDebugEnabled() ) logger.debug("Dialog is terminated -- not firing the  session timer");
                     this.cancel();
                     return;
                 }
                 Request request;
-                logger.debug("Firing Session timer " );
-                logger.debug("DialogState = " + dialog.getState());
-                logger.debug("peerDialog " + DialogContext.this.getPeerDialog());
+                if ( logger.isDebugEnabled() ) logger.debug("Firing Session timer " );
+                if ( logger.isDebugEnabled() ) logger.debug("DialogState = " + dialog.getState());
+                if ( logger.isDebugEnabled() ) logger.debug("peerDialog " + DialogContext.this.getPeerDialog());
 
                 if (dialog.getState() == DialogState.CONFIRMED
                         && DialogContext.get(dialog).getPeerDialog() != null) {
@@ -235,14 +235,14 @@ class DialogContext {
                         long currentTime = System.currentTimeMillis();
                         if ( (currentTime - DialogContext.this.lastReInviteSent)/1000 <
                              getItspInfo().getSessionTimerInterval()) {
-                            logger.debug("Session timer was already dispatched. Not sending");
+                            if ( logger.isDebugEnabled() ) logger.debug("Session timer was already dispatched. Not sending");
                             return;
                         }
                         /*
                          * We now re-INVITE to shuffle the SDP and get them to point at each other.
                          */
 
-                        logger.debug("Sending Session timer re-invite");
+                        if ( logger.isDebugEnabled() ) logger.debug("Sending Session timer re-invite");
 
                         DialogContext.getPeerDialogContext(getDialog()).setPendingAction(PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER);
                         DialogContext.getPeerDialogContext(getDialog()).solicitSdpOfferFromPeerDialog(null,getRequest());
@@ -301,7 +301,7 @@ class DialogContext {
         }
 
         public void terminate() {
-            logger.debug("Terminating session Timer Task for " + dialog);
+            if ( logger.isDebugEnabled() ) logger.debug("Terminating session Timer Task for " + dialog);
             this.cancel();
         }
     }
@@ -324,7 +324,7 @@ class DialogContext {
         public void run() {
             try {
                 if (!DialogContext.get(mohCtx.getDialog()).terminateOnConfirm) {
-                    logger.debug("Bridge sending INVITE to MOH server");
+                    if ( logger.isDebugEnabled() ) logger.debug("Bridge sending INVITE to MOH server");
                     TransactionContext.get(mohCtx).setDialogPendingSdpAnswer(dialog);
                     DialogContext mohDialogContext = DialogContext.get(mohCtx.getDialog());
                     mohDialogContext.setPendingAction(
@@ -333,7 +333,7 @@ class DialogContext {
                     mohDialogContext.setRtpSession(getPeerRtpSession(dialog));
                     mohCtx.sendRequest();
                 } else {
-                    logger.debug("Phone already sent INVITE - canceling MOH transaction");
+                    if ( logger.isDebugEnabled() ) logger.debug("Phone already sent INVITE - canceling MOH transaction");
                     mohCtx.terminate();
                 }
             } catch (Exception ex) {
@@ -350,12 +350,12 @@ class DialogContext {
     }
 
     public void startSessionTimer() {
-        logger.debug("startSessionTimer() for " + this.dialog);
+        if ( logger.isDebugEnabled() ) logger.debug("startSessionTimer() for " + this.dialog);
         this.startSessionTimer(this.sessionExpires);
     }
 
    public void startSessionTimer( int sessionTimeout ) {
-       logger.debug(String.format("startSessionTimer(%d)",sessionTimeout) + " dialog " + dialog);
+       if ( logger.isDebugEnabled() ) logger.debug(String.format("startSessionTimer(%d)",sessionTimeout) + " dialog " + dialog);
        this.sessionTimer = new SessionTimerTask(Gateway.getSessionTimerMethod());
        this.sessionExpires = sessionTimeout;
        int time = (this.sessionExpires - Gateway.TIMER_ADVANCE) * 1000;
@@ -398,7 +398,7 @@ class DialogContext {
      *
      */
     static void pairDialogs(Dialog dialog1, Dialog dialog2) {
-        logger.debug("pairDialogs dialogs = " + dialog1 + " " + dialog2);
+        if ( logger.isDebugEnabled() ) logger.debug("pairDialogs dialogs = " + dialog1 + " " + dialog2);
 
         DialogContext dad1 = DialogContext.get(dialog1);
         DialogContext dad2 = DialogContext.get(dialog2);
@@ -408,10 +408,10 @@ class DialogContext {
 
     static BackToBackUserAgent getBackToBackUserAgent(Dialog dialog) {
         if (dialog == null) {
-            logger.debug("null dialog -- returning null ");
+            if ( logger.isDebugEnabled() ) logger.debug("null dialog -- returning null ");
             return null;
         } else if (dialog.getApplicationData() == null) {
-            logger.debug("null dialog application data -- returning null");
+            if ( logger.isDebugEnabled() ) logger.debug("null dialog application data -- returning null");
             return null;
         } else {
             return ((DialogContext) dialog.getApplicationData()).getBackToBackUserAgent();
@@ -431,7 +431,7 @@ class DialogContext {
     }
 
     static RtpSession getRtpSession(Dialog dialog) {
-        logger.debug("DialogApplicationData.getRtpSession " + dialog);
+        if ( logger.isDebugEnabled() ) logger.debug("DialogApplicationData.getRtpSession " + dialog);
         return ((DialogContext) dialog.getApplicationData()).rtpSession;
     }
 
@@ -440,7 +440,7 @@ class DialogContext {
         if (backToBackUserAgent == null)
             throw new NullPointerException("Null back2back ua");
         if (dialog.getApplicationData() != null) {
-            logger.debug("DialogContext: Context Already set!!");
+            if ( logger.isDebugEnabled() ) logger.debug("DialogContext: Context Already set!!");
             return (DialogContext) dialog.getApplicationData();
         }
         DialogContext dialogContext = new DialogContext(dialog);
@@ -566,7 +566,7 @@ class DialogContext {
      * Cancel the session timer.
      */
     void cancelSessionTimer() {
-        logger.debug("cancelSessionTimer " + this.dialog);
+        if ( logger.isDebugEnabled() ) logger.debug("cancelSessionTimer " + this.dialog);
         if (this.sessionTimer != null) {
             this.sessionTimer.terminate();
             this.sessionTimer = null;
@@ -686,7 +686,7 @@ class DialogContext {
              */
 
             if (peerDialog != null && peerDialog.getState() != DialogState.TERMINATED) {
-                logger.debug("solicitSdpOfferFromPeerDialog -- sending query to " + peerDialog
+                if ( logger.isDebugEnabled() ) logger.debug("solicitSdpOfferFromPeerDialog -- sending query to " + peerDialog
                         + " continuationOperation = " +
                         (continuationData != null ? continuationData.getOperation() : null));
 
@@ -769,7 +769,7 @@ class DialogContext {
      * @param pendingAction
      */
     void setPendingAction(PendingDialogAction pendingAction) {
-    	logger.debug("setPendingAction " + this + " pendingAction = " + pendingAction);
+    	if ( logger.isDebugEnabled() ) logger.debug("setPendingAction " + this + " pendingAction = " + pendingAction);
         /*
          * A dialog can have only a single outstanding action.
          */
@@ -796,11 +796,11 @@ class DialogContext {
      * @param lastResponse
      */
     void setLastResponse(Response lastResponse) {
-        logger.debug("DialogContext.setLastResponse ");
+        if ( logger.isDebugEnabled() ) logger.debug("DialogContext.setLastResponse ");
         if (lastResponse == null) {
-            logger.debug("lastResponse = " + null);
+            if ( logger.isDebugEnabled() ) logger.debug("lastResponse = " + null);
         } else {
-            logger.debug("lastResponse = " + ((SIPResponse) lastResponse).getFirstLine());
+            if ( logger.isDebugEnabled() ) logger.debug("lastResponse = " + ((SIPResponse) lastResponse).getFirstLine());
         }
 
 
@@ -837,7 +837,7 @@ class DialogContext {
         if ( CallControlUtilities.isRemoveRelay(this) ) {
             sdpOffer = SipUtilities.getSessionDescription(triggeringResponse);
         } else {
-            logger.debug("ITSP has set always relay media -- rewriting SDP ");
+            if ( logger.isDebugEnabled() ) logger.debug("ITSP has set always relay media -- rewriting SDP ");
            
             this.getRtpSession().getReceiver().setSessionDescription(sdpOffer);
         }
@@ -903,7 +903,7 @@ class DialogContext {
     void sendAck(Request ack) throws SipException {
         this.recordLastAckTime();
         this.lastAck = ack;
-        logger.debug("SendingAck ON " + dialog);
+        if ( logger.isDebugEnabled() ) logger.debug("SendingAck ON " + dialog);
         if ( this.proxyAuthorizationHeader != null ) {
         	ack.setHeader(proxyAuthorizationHeader);
         }
@@ -911,7 +911,7 @@ class DialogContext {
 
 
         if (terminateOnConfirm) {
-            logger.debug("tearing down MOH dialog because of terminateOnConfirm.");
+            if ( logger.isDebugEnabled() ) logger.debug("tearing down MOH dialog because of terminateOnConfirm.");
             Request byeRequest = dialog.createRequest(Request.BYE);
 
             ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
@@ -929,7 +929,7 @@ class DialogContext {
      */
     void setTerminateOnConfirm() {
         this.terminateOnConfirm = true;
-        logger.debug("setTerminateOnConfirm: " + this);
+        if ( logger.isDebugEnabled() ) logger.debug("setTerminateOnConfirm: " + this);
         /*
          * Fire off a timer to reap this guy if he does not die in 8 seconds.
          */
@@ -938,7 +938,7 @@ class DialogContext {
             public void run() {
                 try {
                     if (DialogContext.this.dialog.getState() != DialogState.TERMINATED) {
-                        logger.debug("terminating dialog " + dialog + " because no confirmation received and terminateOnConfirm is set");
+                        if ( logger.isDebugEnabled() ) logger.debug("terminating dialog " + dialog + " because no confirmation received and terminateOnConfirm is set");
                         DialogContext.this.dialog.delete();
                     }
                 } catch (Exception ex) {
@@ -960,7 +960,7 @@ class DialogContext {
      * Send a re-INVITE. The dialog layer will asynchronously send the re-INVITE
      */
     void sendReInvite(ClientTransaction clientTransaction) {
-    	logger.debug("sendReInvite " + SipUtilities.getStackTrace());
+    	if ( logger.isDebugEnabled() ) logger.debug("sendReInvite " + SipUtilities.getStackTrace());
     	if ( this.proxyAuthorizationHeader != null ) {
     		clientTransaction.getRequest().setHeader(this.proxyAuthorizationHeader);
     	}
@@ -994,7 +994,7 @@ class DialogContext {
      * Set the peer dialog of this dialog.
      */
     void setPeerDialog(Dialog peerDialog) {
-        logger.debug("DialogContext.setPeerDialog: " + this.dialog + " peer = " + peerDialog);
+        if ( logger.isDebugEnabled() ) logger.debug("DialogContext.setPeerDialog: " + this.dialog + " peer = " + peerDialog);
 
         this.peerDialog = peerDialog;
 
@@ -1015,7 +1015,7 @@ class DialogContext {
      * Flag that controls whether or not BYE is forwarded to the peer dialog.
      */
     void setForwardByeToPeer(boolean forwardByeToPeer) {
-        logger.debug("setForwardByeToPeer " + forwardByeToPeer);
+        if ( logger.isDebugEnabled() ) logger.debug("setForwardByeToPeer " + forwardByeToPeer);
         this.forwardByeToPeer = forwardByeToPeer;
     }
 
@@ -1179,7 +1179,7 @@ class DialogContext {
      */
     void setSessionTimerResponseSent() {
         if (this.sessionTimer != null) {
-            logger.debug("setSessionTimerResponseSent()");
+            if ( logger.isDebugEnabled() ) logger.debug("setSessionTimerResponseSent()");
             this.cancelSessionTimer();
             this.startSessionTimer();
         }

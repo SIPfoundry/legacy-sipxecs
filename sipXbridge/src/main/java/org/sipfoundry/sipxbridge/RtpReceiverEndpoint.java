@@ -113,7 +113,7 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
             
 
             if ( logger.isDebugEnabled() ) {
-                logger.debug("sessionDescription after fixup : " + sessionDescription);
+                 logger.debug("sessionDescription after fixup : " + sessionDescription);
             }
 
         } catch (Exception ex) {
@@ -139,7 +139,7 @@ class RtpReceiverEndpoint implements SymEndpointInterface {
      */
 
     void setUseGlobalAddressing(boolean globalAddressingUsed) {
-            logger.debug("setUseGlobalAddressing " + globalAddressingUsed);
+            if ( logger.isDebugEnabled() ) logger.debug("setUseGlobalAddressing " + globalAddressingUsed);
              this.useGlobalAddressing = globalAddressingUsed;
              // Reset the address in the sessoin description.
              if ( this.sessionDescription != null ) {
