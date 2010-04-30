@@ -181,6 +181,8 @@ public:
 
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
+   virtual void DoExitAction( SipxProcess& impl ) const;
+   virtual void evTimeout( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
    virtual void evProcessStopped( SipxProcess& impl ) const;
    virtual void evStopCompleted( SipxProcess& impl ) const;
