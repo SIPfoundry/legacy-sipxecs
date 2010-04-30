@@ -283,7 +283,7 @@ public class ConfigurationParser {
      * @return
      */
 
-    AccountManagerImpl createAccountManager(String url) {
+    public AccountManagerImpl createAccountManager(String url) {
         // Create a Digester instance
         Digester digester = new Digester();
 

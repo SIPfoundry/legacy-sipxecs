@@ -57,7 +57,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     /**
      * @return the bridgeConfiguration
      */
-    BridgeConfiguration getBridgeConfiguration() {
+    public BridgeConfiguration getBridgeConfiguration() {
         return bridgeConfiguration;
     }
 
@@ -74,7 +74,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
     /**
      * Get the default outbound ITSP account for outbound calls.
      */
-    ItspAccountInfo getDefaultAccount() {
+    public ItspAccountInfo getDefaultAccount() {
         return itspAccounts.iterator().next();
     }
 
