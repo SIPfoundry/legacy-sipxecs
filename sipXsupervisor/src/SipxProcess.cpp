@@ -42,6 +42,7 @@ const int retry_interval[] = {
       1*60*OsTime::MSECS_PER_SEC,
       5*60*OsTime::MSECS_PER_SEC };
 const int DELAY_REPORTING_TIMEOUT = 60*OsTime::MSECS_PER_SEC;
+const int STOP_TIMEOUT = 120*OsTime::MSECS_PER_SEC;
 
 const UtlContainableType SipxProcess::TYPE = "SipxProcess";
 
@@ -1170,6 +1171,12 @@ void SipxProcess::stopProcess()
    mStop->execute(this);
 }
 
+void SipxProcess::killProcess()
+{
+   mStart->kill();
+   mStop->kill();
+}
+
 void SipxProcess::processFailed()
 {
    OsLock mutex(mLock);
@@ -1217,6 +1224,11 @@ void SipxProcess::startRetryTimer()
 void SipxProcess::startDelayReportingTimer()
 {
    startTimer(DELAY_REPORTING_TIMEOUT);
+}
+
+void SipxProcess::startStopTimer()
+{
+   startTimer(STOP_TIMEOUT);
 }
 
 void SipxProcess::startTimer(int timerVal)

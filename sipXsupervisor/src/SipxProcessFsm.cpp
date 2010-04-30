@@ -357,14 +357,27 @@ void Starting::evProcessStarted( SipxProcess& impl ) const
 void Stopping::DoEntryAction( SipxProcess& impl ) const
 {
    impl.checkThreadId();
+   impl.startStopTimer();
    impl.stopProcess();
+}
+
+void Stopping::evTimeout( SipxProcess& impl ) const
+{
+   OsSysLog::add(FAC_SUPERVISOR,PRI_WARNING,"'%s': process did not stop after 120 seconds, trying kill",
+         impl.name() );
+   impl.killProcess();
+}
+
+void Stopping::DoExitAction( SipxProcess& impl ) const
+{
+   impl.cancelTimer();
 }
 
 void Stopping::evRestartProcess( SipxProcess& impl ) const
 {
-   // we will always check if we should start up again once this stop is complete
-   OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"'%s': Ignoring event evRestartProcess while in state '%s'",
+   OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"'%s': Retrying event evRestartProcess while in state '%s'",
          impl.name(), impl.GetCurrentState()->name() );
+   ChangeState( impl, impl.pStopping );
 }
 
 // We need both the actual process, and the script which stops it, to finish

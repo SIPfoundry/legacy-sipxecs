@@ -285,8 +285,10 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    void killConfigTest();
    virtual void startProcess();
    virtual void stopProcess();
+   void killProcess();
    void processFailed();
    void startRetryTimer();
+   void startStopTimer();
    void startDelayReportingTimer();
    void startTimer(int timerVal);
    void cancelTimer();
