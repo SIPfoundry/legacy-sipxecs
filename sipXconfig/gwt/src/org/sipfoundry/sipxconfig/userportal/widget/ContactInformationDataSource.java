@@ -30,6 +30,7 @@ public class ContactInformationDataSource extends DataSource {
     public static final String FAX_NUMBER = "faxNumber";
     public static final String IM_ID = "imId";
     public static final String IM_DISPLAY_ID = "imDisplayName";
+    public static final String IM_PASSWORD = "imPassword";
     public static final String ALTERNATE_IM_ID = "alternateImId";
     public static final String LOCATION = "location";
     public static final String FIRST_NAME = "firstName";
@@ -181,6 +182,7 @@ public class ContactInformationDataSource extends DataSource {
         addToJsonObject(contactInfo, FAX_NUMBER, form.getValueAsString(FAX_NUMBER));
         addToJsonObject(contactInfo, IM_ID, form.getValueAsString(IM_ID));
         addToJsonObject(contactInfo, IM_DISPLAY_ID, form.getValueAsString(IM_DISPLAY_ID));
+        addToJsonObject(contactInfo, IM_PASSWORD, form.getValueAsString(IM_PASSWORD));
         addToJsonObject(contactInfo, ALTERNATE_IM_ID, form.getValueAsString(ALTERNATE_IM_ID));
         addToJsonObject(contactInfo, LOCATION, form.getValueAsString(LOCATION));
         addToJsonObject(contactInfo, EMAIL_ADDRESS, form.getValueAsString(EMAIL_ADDRESS));
