@@ -15,6 +15,7 @@
 #include "xmlparser/ExtractContent.h"
 #include "sipXecsService/SipXecsService.h"
 
+#include "AlarmServer.h"
 #include "SipxResource.h"
 #include "SipxProcessManager.h"
 #include "SipxSupervisorProcess.h"
@@ -295,8 +296,21 @@ void SipxSupervisorProcess::configurationChange(const SipxResource& changedResou
                  "SipxSupervisorProcess[%s]::configurationChange(%s)",
                  data(), changedResourceDescription.data());
 
-   // tell Supervisor to reload its config files
-   SipXecsService::setLogPriority(SUPERVISOR_CONFIG_SETTINGS_FILE, SUPERVISOR_CONFIG_PREFIX );
+   UtlString configFile = changedResource.data();
+   if (configFile.contains(SUPERVISOR_CONFIG_SETTINGS_FILE))
+   {
+      // tell Supervisor to reload its config files
+      OsSysLogPriority level = SipXecsService::setLogPriority(SUPERVISOR_CONFIG_SETTINGS_FILE, SUPERVISOR_CONFIG_PREFIX );
+      OsSysLog::add(FAC_SUPERVISOR, level,
+                 "Log level set to %s",
+                 OsSysLog::priorityName(level));
+   }
+   else if ( configFile.contains("alarm-groups.xml") || configFile.contains("sipXalarms-config.xml") )
+   {
+      // tell Alarm Server to reload
+      // Note that we will reload twice if both files change
+      cAlarmServer::getInstance()->reloadAlarms();
+   }
 }
 
 /// Notify the SipxSupervisorProcess that some configuration change has occurred.
