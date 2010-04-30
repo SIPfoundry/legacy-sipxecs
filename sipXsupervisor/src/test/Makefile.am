@@ -1,3 +1,6 @@
+## SipxProcess this file with automake to produce Makefile.in
+include $(top_srcdir)/config/subdir.am
+
 INCLUDES = \
 	-I$(top_srcdir)/src \
 	-I$(top_srcdir)/include
@@ -14,7 +17,8 @@ testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
 
 testsuite_LDADD = \
    @SIPXCOMMSERVERTEST_LIBS@ \
-   ../libsipXsupervisor.la
+   ../libsipXsupervisor.la \
+    ../libsipXalarms.la
 
 testsuite_SOURCES = \
     SipxProcessDefinitionParserTest.cpp \

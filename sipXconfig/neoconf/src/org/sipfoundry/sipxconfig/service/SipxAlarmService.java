@@ -9,7 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -18,10 +17,6 @@ public class SipxAlarmService extends SipxService {
     public static final String BEAN_ID = "sipxAlarmService";
 
     private AlarmContext m_alarmContext;
-
-    public void afterReplication(Location location) {
-        m_alarmContext.reloadAlarms();
-    }
 
     @Required
     public void setAlarmContext(AlarmContext alarmContext) {
