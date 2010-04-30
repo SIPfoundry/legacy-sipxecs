@@ -47,7 +47,9 @@ public class ImAccount {
         if (isNotBlank(imId)) {
             return imId;
         }
-        return getDefaultImId();
+        imId = getDefaultImId();
+        setImId(imId);
+        return imId;
     }
 
     /**

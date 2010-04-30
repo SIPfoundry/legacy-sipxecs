@@ -21,15 +21,19 @@ public class ImAccountTest extends TestCase {
 
         user.setUserName("555");
         assertEquals("555", imAccount.getImId());
+        user.setImId(null);
 
         user.addAlias("444");
         assertEquals("555", imAccount.getImId());
+        user.setImId(null);
 
         user.addAlias("bongo");
         assertEquals("bongo", imAccount.getImId());
+        user.setImId(null);
 
         user.addAlias("7777");
         assertEquals("bongo", imAccount.getImId());
+        user.setImId(null);
 
         user.setUserName("kuku");
         assertEquals("kuku", imAccount.getImId());
@@ -44,6 +48,7 @@ public class ImAccountTest extends TestCase {
 
         user.setUserName("555");
         assertEquals("555", imAccount.getImId());
+        assertEquals("555", user.getImId());
 
         imAccount.setImId("777");
         assertEquals("777", imAccount.getImId());
