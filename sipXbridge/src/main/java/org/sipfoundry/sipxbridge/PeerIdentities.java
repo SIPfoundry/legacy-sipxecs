@@ -24,7 +24,7 @@ public class PeerIdentities {
      * Add an ITSP account to the peer database (method is accessed by the digester).
      */
     public void addPeer(Peer peer) {
-        logger.debug("addPeer: domain " + peer.getTrustedDomain() + ", internal user " + peer.getInternalUser());
+        if ( logger.isDebugEnabled() ) logger.debug("addPeer: domain " + peer.getTrustedDomain() + ", internal user " + peer.getInternalUser());
         mPeers.add(peer);
     }
 
@@ -46,7 +46,7 @@ public class PeerIdentities {
     public String getUserId(String domain) {
         for (Peer peer : mPeers) {
             if (peer.getTrustedDomain().equalsIgnoreCase(domain)) {
-                logger.debug("getUserId(" + domain + ") = " + peer.getInternalUser());
+                if ( logger.isDebugEnabled() ) logger.debug("getUserId(" + domain + ") = " + peer.getInternalUser());
                 return peer.getInternalUser();
             }
         }
@@ -67,7 +67,7 @@ public class PeerIdentities {
     }
 
     public PeerIdentities parse(String url) {
-        logger.debug("parsing peer identities file " + url);
+        if ( logger.isDebugEnabled() ) logger.debug("parsing peer identities file " + url);
         Digester digester = new Digester();
         digester.setValidating(false);
         addRules(digester);
@@ -75,7 +75,7 @@ public class PeerIdentities {
             InputSource inputSource = new InputSource(url);
             PeerIdentities peerIdentities = (PeerIdentities)digester.parse(inputSource);
             for (Peer peer : peerIdentities.getPeers()) {
-                logger.debug("domain: " + peer.getTrustedDomain() + ", internal user " + peer.getInternalUser());
+                if ( logger.isDebugEnabled() ) logger.debug("domain: " + peer.getTrustedDomain() + ", internal user " + peer.getInternalUser());
             }
             return peerIdentities;
         } catch (Exception ex) {

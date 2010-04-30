@@ -48,7 +48,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 				isWebServerRunning = true;
 				webServer = new HttpServer();
 
-				logger.debug("Starting xml rpc server on inetAddr:port "
+				if ( logger.isDebugEnabled() ) logger.debug("Starting xml rpc server on inetAddr:port "
 						+ Gateway.getBridgeConfiguration().getLocalAddress()
 						+ ":"
 						+ Gateway.getBridgeConfiguration().getXmlRpcPort());
@@ -64,11 +64,11 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
 					String keystore = System.getProperties().getProperty(
 							"javax.net.ssl.keyStore");
-					logger.debug("keystore = " + keystore);
+					if ( logger.isDebugEnabled() ) logger.debug("keystore = " + keystore);
 					sslListener.setKeystore(keystore);
 					String algorithm = System.getProperties().getProperty(
 							"jetty.x509.algorithm");
-					logger.debug("algorithm = " + algorithm);
+					if ( logger.isDebugEnabled() ) logger.debug("algorithm = " + algorithm);
 					sslListener.setAlgorithm(algorithm);
 					String password = System.getProperties().getProperty(
 							"jetty.ssl.password");
@@ -107,7 +107,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 					webServer.setListeners(new HttpListener[] { sslListener });
 
 					for (HttpListener listener : webServer.getListeners()) {
-						logger.debug("Listener = " + listener);
+						if ( logger.isDebugEnabled() ) logger.debug("Listener = " + listener);
 
 						listener.start();
 					}
@@ -133,7 +133,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
 				webServer.start();
 
-				logger.debug("Web server started.");
+				if ( logger.isDebugEnabled() ) logger.debug("Web server started.");
 
 			}
 		} catch (Exception ex) {
@@ -176,7 +176,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 		    throw new ServletException(formatStackTrace(ex), ex);
 		}
 
-		logger.debug("getRegistrationStatus: " + retval);
+		if ( logger.isDebugEnabled() ) logger.debug("getRegistrationStatus: " + retval);
 		return retval;
 	}
 
@@ -193,7 +193,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
 	public Boolean start() throws ServletException {
 
-		logger.debug("Gateway.start()");
+		if ( logger.isDebugEnabled() ) logger.debug("Gateway.start()");
 		try {
 			Gateway.start();
 		} catch (Exception ex) {
@@ -205,7 +205,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
 	public Boolean stop() throws ServletException {
 
-		logger.debug("Gateway.stop()");
+		if ( logger.isDebugEnabled() ) logger.debug("Gateway.stop()");
 
 		try {
 			Gateway.stop();
@@ -216,7 +216,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 	}
 
 	public Boolean exit() throws ServletException {
-		logger.debug("Gateway.exit()");
+		if ( logger.isDebugEnabled() ) logger.debug("Gateway.exit()");
 
 		try {
 
@@ -229,7 +229,7 @@ public class SipXbridgeXmlRpcServerImpl implements SipXbridgeXmlRpcServer {
 
 			new Timer().schedule(new TimerTask() {
 				public void run() {
-					logger.debug("Exiting bridge!");
+					if ( logger.isDebugEnabled() ) logger.debug("Exiting bridge!");
 					System.exit(0);
 				}
 			}, 1000);

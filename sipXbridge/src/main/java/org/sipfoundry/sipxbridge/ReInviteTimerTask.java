@@ -52,7 +52,7 @@ class ReInviteTimerTask extends TimerTask {
 				RtpSessionUtilities.forwardReInvite(rtpSession, serverTransaction, dialog, false);
 				this.cancel();
 			} else if ( serverTransaction.getState() == TransactionState.TERMINATED) {
-				logger.debug("server transaction has already been processed");
+				if ( logger.isDebugEnabled() ) logger.debug("server transaction has already been processed");
 				this.cancel();
 			} else if (peerDialog.getState() == DialogState.TERMINATED ) {
 				CallControlUtilities.sendInternalError(serverTransaction, "Peer dialog is Terminated");

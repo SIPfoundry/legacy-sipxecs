@@ -460,7 +460,7 @@ class SipUtilities {
 
 		if (hop == null) {
 
-			logger.debug("outboundRegistrar = " + outboundRegistrar);
+			if ( logger.isDebugEnabled() ) logger.debug("outboundRegistrar = " + outboundRegistrar);
 			SipURI registrarUri = ProtocolObjects.addressFactory.createSipURI(
 					null, outboundRegistrar);
 
@@ -792,7 +792,7 @@ class SipUtilities {
 			Iterator<Hop> hopIter = addresses.iterator();
 			Hop hop = hopIter.next();
 			hopIter.remove();
-			logger.debug("Addresses size = " + addresses.size());
+			if ( logger.isDebugEnabled() ) logger.debug("Addresses size = " + addresses.size());
 
 			/*
 			 * Does ITSP accept Lr routing? If so, use that. Otherwise use maddr
@@ -971,10 +971,10 @@ class SipUtilities {
 					Attribute attr = (Attribute) it1.next();
 					if (attr.getName().equalsIgnoreCase("crypto")) {
 						it1.remove();
-						logger.debug("remove crypto");
+						if ( logger.isDebugEnabled() ) logger.debug("remove crypto");
 					} else if (attr.getName().equalsIgnoreCase("encryption")) {
 						it1.remove();
-						logger.debug("remove encryption");
+						if ( logger.isDebugEnabled() ) logger.debug("remove encryption");
 					}
 				}
 
@@ -1005,7 +1005,7 @@ class SipUtilities {
 				return sessionDescription;
 			}
 
-			logger.debug("Codecs = " + codecs);
+			if ( logger.isDebugEnabled() ) logger.debug("Codecs = " + codecs);
 			Vector mediaDescriptions = sessionDescription
 					.getMediaDescriptions(true);
 
@@ -1041,7 +1041,7 @@ class SipUtilities {
 					for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
 						Attribute attr = (Attribute) it1.next();
 						if (logger.isDebugEnabled()) {
-							logger.debug("attrName = " + attr.getName());
+							if ( logger.isDebugEnabled() ) logger.debug("attrName = " + attr.getName());
 						}
 
 						if (attr.getName().equalsIgnoreCase("rtpmap") || attr.getName().equalsIgnoreCase("fmtp")) {
@@ -1065,10 +1065,10 @@ class SipUtilities {
 							}
 						} else if (attr.getName().equalsIgnoreCase("crypto")) {
 							it1.remove();
-							logger.debug("Not adding crypto");
+							if ( logger.isDebugEnabled() ) logger.debug("Not adding crypto");
 						} else if (attr.getName().equalsIgnoreCase("encryption")) {
 							it1.remove();
-							logger.debug("Not adding encryption");
+							if ( logger.isDebugEnabled() ) logger.debug("Not adding encryption");
 						}
 
 					}
@@ -1501,7 +1501,7 @@ class SipUtilities {
 			MediaDescription mediaDescription = (MediaDescription) sessionDescription
 					.getMediaDescriptions(true).get(0);
 			String mediaType = mediaDescription.getMedia().getMediaType();
-			logger.debug("media type " + mediaType);
+			if ( logger.isDebugEnabled() ) logger.debug("media type " + mediaType);
 			return mediaType;
 
 		} catch (Exception ex) {
@@ -1572,7 +1572,7 @@ class SipUtilities {
 					.getMediaFormats(true));
 			HashSet<String> fmt2 = new HashSet<String>(md2.getMedia()
 					.getMediaFormats(true));
-			logger.debug("Comparing " + fmt1 + " with " + fmt2 + " returning "
+			if ( logger.isDebugEnabled() ) logger.debug("Comparing " + fmt1 + " with " + fmt2 + " returning "
 					+ !fmt1.equals(fmt2));
 			return !fmt1.equals(fmt2);
 		} catch (Exception ex) {
@@ -2100,7 +2100,7 @@ class SipUtilities {
 	}
 
 	static void printStackTrace() {
-		logger.debug("stackTrace = " + getStackTrace());
+		if ( logger.isDebugEnabled() ) logger.debug("stackTrace = " + getStackTrace());
 	}
 
 	static String getStackTrace() {

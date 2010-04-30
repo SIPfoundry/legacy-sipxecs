@@ -146,7 +146,7 @@ class TransactionContext {
     void setServerTransaction(ServerTransaction stx) {
 
         if ( this.serverTransaction != null) {
-            logger.debug("serverTransactionPointer already set");
+            if ( logger.isDebugEnabled() ) logger.debug("serverTransactionPointer already set");
             this.serverTransaction.setApplicationData(null);
         }
         stx.setApplicationData(this);
@@ -161,7 +161,7 @@ class TransactionContext {
      */
     void setClientTransaction(ClientTransaction ctx) {
        if (this.clientTransaction != null ) {
-           logger.debug("Tx pointer already set.");
+           if ( logger.isDebugEnabled() ) logger.debug("Tx pointer already set.");
            this.clientTransaction.setApplicationData(null);
        }
        ctx.setApplicationData(this);

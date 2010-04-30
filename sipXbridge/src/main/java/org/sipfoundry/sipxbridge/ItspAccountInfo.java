@@ -470,7 +470,7 @@ public class ItspAccountInfo  {
             this.failureCountTable.put(callId, fc);
         }
         int retval = fc.increment();
-        logger.debug("incrementFailureCount : " + callId + " currentCount = " + retval);
+        if ( logger.isDebugEnabled() ) logger.debug("incrementFailureCount : " + callId + " currentCount = " + retval);
 
         return retval;
 
@@ -513,7 +513,7 @@ public class ItspAccountInfo  {
             this.crLfTimerTaskStarted = true;
             this.crlfTimerTask = new CrLfTimerTask(Gateway
                     .getWanProvider("udp"), this);
-            logger.debug("ItspAccountInfo: startCrLfTimerTask() : "
+            if ( logger.isDebugEnabled() ) logger.debug("ItspAccountInfo: startCrLfTimerTask() : "
                     + this.getProxyDomain() + " keepalive = "
                     + Gateway.getSipKeepaliveSeconds());
             Gateway.getTimer().schedule(crlfTimerTask,
@@ -525,7 +525,7 @@ public class ItspAccountInfo  {
 
     public void stopCrLfTimerTask() {
         if (this.crLfTimerTaskStarted) {
-            logger.debug("ItspAccountInfo: stopCrLfTimerTask() : "
+            if ( logger.isDebugEnabled() ) logger.debug("ItspAccountInfo: stopCrLfTimerTask() : "
                     + this.getProxyDomain());
             this.crLfTimerTaskStarted = false;
             this.crlfTimerTask.cancel();
@@ -701,7 +701,7 @@ public class ItspAccountInfo  {
      * @param callId
      */
     public void removeFailureCounter(String callId) {
-        logger.debug("removeFailureCounter " + callId);
+        if ( logger.isDebugEnabled() ) logger.debug("removeFailureCounter " + callId);
         this.failureCountTable.remove(callId);
     }
 
@@ -849,7 +849,7 @@ public class ItspAccountInfo  {
     }
 
     public SipProvider getSipProvider() {
-        logger.debug("Provider = " + Gateway.getWanProvider(this.outboundTransport.toLowerCase()) );
+        if ( logger.isDebugEnabled() ) logger.debug("Provider = " + Gateway.getWanProvider(this.outboundTransport.toLowerCase()) );
         return Gateway.getWanProvider(this.outboundTransport.toLowerCase());
     }
 

@@ -37,7 +37,7 @@ public class SipxTlsSecurityPolicy implements TlsSecurityPolicy {
     public void enforceTlsPolicy(ClientTransactionExt transaction) throws SecurityException
     {
        // accept only certificates that match the intended destination
-        logger.debug("SipxTlsSecurityPolicy::enforceTlsPolicy");
+        if ( logger.isDebugEnabled() ) logger.debug("SipxTlsSecurityPolicy::enforceTlsPolicy");
         List<String> certIdentities = null;
         try {
             certIdentities = ((SIPTransaction)transaction).extractCertIdentities();
@@ -49,7 +49,7 @@ public class SipxTlsSecurityPolicy implements TlsSecurityPolicy {
             logger.warn("Could not find any identities in the TLS certificate");
         }
         else {
-            logger.debug("found identities: " + certIdentities);
+            if ( logger.isDebugEnabled() ) logger.debug("found identities: " + certIdentities);
             // Policy enforcement: now use the set of SIP domain identities gathered from
             // the certificate to make authorization decisions.
             // Validate that one of the identities in the certificate matches the request domain.
@@ -64,7 +64,7 @@ public class SipxTlsSecurityPolicy implements TlsSecurityPolicy {
             // SIP Domain from the request URI
             peerDomain = ((SipURI) transaction.getRequest().getRequestURI()).getHost();
             String expectedIpAddress = ((SipURI) route.getAddress().getURI()).getHost();
-            logger.debug("SIP domain from reqUri is " + peerDomain +
+            if ( logger.isDebugEnabled() ) logger.debug("SIP domain from reqUri is " + peerDomain +
                 ", expected IP from route is " + expectedIpAddress);
 
             Boolean foundPeerIdentity = false;

@@ -205,7 +205,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void handleReInvite(RequestEvent requestEvent) throws Exception {
-        logger.debug("handleReInvite");
+        if ( logger.isDebugEnabled() ) logger.debug("handleReInvite");
 
         /*
          * Grab context information from inbound request.
@@ -365,7 +365,7 @@ class CallControlManager implements SymmitronResetHandler {
             RtpSessionOperation operation = RtpSessionUtilities
                     .reAssignRtpSessionParameters(serverTransaction);
 
-            logger.debug("Rtp Operation " + operation);
+            if ( logger.isDebugEnabled() ) logger.debug("Rtp Operation " + operation);
 
             /*
              * The other side sent us a media hold operation.
@@ -408,7 +408,7 @@ class CallControlManager implements SymmitronResetHandler {
                  * This is a request that can be handled locally. Grab the previous session
                  * description from the receiver side.
                  */
-                logger.debug("session Timer INVITE -- sending old response ");
+                if ( logger.isDebugEnabled() ) logger.debug("session Timer INVITE -- sending old response ");
                 SessionDescription newDescription = rtpSession.getReceiver()
                         .getSessionDescription();
                 Response response = SipUtilities.createResponse(serverTransaction, Response.OK);
@@ -450,7 +450,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param requestEvent
      */
     private void processInvite(RequestEvent requestEvent) {
-        logger.debug("processInvite");
+        if ( logger.isDebugEnabled() ) logger.debug("processInvite");
 
         Request request = requestEvent.getRequest();
 
@@ -479,7 +479,7 @@ class CallControlManager implements SymmitronResetHandler {
             Dialog dialog = serverTransaction.getDialog();
 
             if (dialog.getState() == DialogState.TERMINATED) {
-                logger.debug("Got a stray request on a terminated dialog!");
+                if ( logger.isDebugEnabled() ) logger.debug("Got a stray request on a terminated dialog!");
                 Response response = SipUtilities.createResponse(serverTransaction,
                         Response.SERVER_INTERNAL_ERROR);
                 serverTransaction.sendResponse(response);
@@ -492,7 +492,7 @@ class CallControlManager implements SymmitronResetHandler {
             }
 
             if (Gateway.getGlobalAddress() == null) {
-                logger.debug("Global address not available -- cannot process request");
+                if ( logger.isDebugEnabled() ) logger.debug("Global address not available -- cannot process request");
                 Response response = SipUtilities.createResponse(serverTransaction,
                         Response.SERVICE_UNAVAILABLE);
                 response
@@ -550,7 +550,7 @@ class CallControlManager implements SymmitronResetHandler {
                 b2bua.addDialog(newDialogContext);
 
                 Dialog peerDialog = dat.getPeerDialog();
-                logger.debug("replacesDialogState = " + replacesDialog.getState());
+                if ( logger.isDebugEnabled() ) logger.debug("replacesDialogState = " + replacesDialog.getState());
 
 
                 DialogContext.pairDialogs(dialog, peerDialog);
@@ -595,7 +595,7 @@ class CallControlManager implements SymmitronResetHandler {
              * INVITE on its way.
              */
             if (provider == Gateway.getLanProvider()) {
-                logger.debug("Request received from LAN side");
+                if ( logger.isDebugEnabled() ) logger.debug("Request received from LAN side");
                 String toDomain = null;
                 // outbound call. better check for valid account
 
@@ -620,7 +620,7 @@ class CallControlManager implements SymmitronResetHandler {
                  */
                 btobua.sendInviteToItsp(requestEvent, serverTransaction, toDomain);
             } else {
-                logger.debug("request received from Wan side");
+                if ( logger.isDebugEnabled() ) logger.debug("request received from Wan side");
                 btobua.sendInviteToSipxProxy(requestEvent, serverTransaction);
 
             }
@@ -641,7 +641,7 @@ class CallControlManager implements SymmitronResetHandler {
      *
      */
     private void processOptions(RequestEvent requestEvent) {
-        logger.debug("processOptions");
+        if ( logger.isDebugEnabled() ) logger.debug("processOptions");
         SipProvider provider = (SipProvider) requestEvent.getSource();
         Request request = requestEvent.getRequest();
         ServerTransaction st = requestEvent.getServerTransaction();
@@ -718,13 +718,13 @@ class CallControlManager implements SymmitronResetHandler {
      * @param requestEvent
      */
     private void processRefer(RequestEvent requestEvent) {
-        logger.debug("processRefer");
+        if ( logger.isDebugEnabled() ) logger.debug("processRefer");
         TransactionContext tad = null;
 
         BackToBackUserAgent btobua = null;
         try {
 
-            logger.debug("Got a REFER - establishing new call leg and tearing down old call leg");
+            if ( logger.isDebugEnabled() ) logger.debug("Got a REFER - establishing new call leg and tearing down old call leg");
             Dialog dialog = requestEvent.getDialog();
             Request request = requestEvent.getRequest();
             SipProvider provider = (SipProvider) requestEvent.getSource();
@@ -848,7 +848,7 @@ class CallControlManager implements SymmitronResetHandler {
     private void processPrack(RequestEvent requestEvent) {
         try {
             SipProvider provider = (SipProvider) requestEvent.getSource();
-            logger.debug("processPRACK");
+            if ( logger.isDebugEnabled() ) logger.debug("processPRACK");
 
             ServerTransaction serverTransactionId = requestEvent.getServerTransaction();
             /*
@@ -885,13 +885,13 @@ class CallControlManager implements SymmitronResetHandler {
      * @param requestEvent -- the ACK request event.
      */
     private void processAck(RequestEvent requestEvent) {
-        logger.debug("processAck");
+        if ( logger.isDebugEnabled() ) logger.debug("processAck");
         try {
             BackToBackUserAgent btobua = DialogContext.getBackToBackUserAgent(requestEvent
                     .getDialog());
 
             if (btobua == null) {
-                logger.debug("Could not find B2BUA -- not forwarding ACK ");
+                if ( logger.isDebugEnabled() ) logger.debug("Could not find B2BUA -- not forwarding ACK ");
                 return;
             }
             DialogContext dialogContext = (DialogContext) requestEvent.getDialog()
@@ -899,7 +899,7 @@ class CallControlManager implements SymmitronResetHandler {
 
             Dialog peerDialog = dialogContext.getPeerDialog();
 
-            logger.debug(String.format("processAck: Dialog/peerDialog  = %s/%s",requestEvent.getDialog(),peerDialog));
+            if ( logger.isDebugEnabled() ) logger.debug(String.format("processAck: Dialog/peerDialog  = %s/%s",requestEvent.getDialog(),peerDialog));
             /*
              * Forward the ACK if we have not already done so.
              */
@@ -910,9 +910,9 @@ class CallControlManager implements SymmitronResetHandler {
 
 
             if (peerDialog == null) {
-                logger.debug("Could not find peer dialog -- not forwarding ACK!");
+                if ( logger.isDebugEnabled() ) logger.debug("Could not find peer dialog -- not forwarding ACK!");
                 if ( SipUtilities.isOriginatorSipXbridge(inboundAck) && provider == Gateway.getLanProvider()) {
-                    logger.debug("The ack was originated by sipxbridge - tearing down call leg");
+                    if ( logger.isDebugEnabled() ) logger.debug("The ack was originated by sipxbridge - tearing down call leg");
                     btobua.addDialogToCleanup(requestEvent.getDialog());
                 }
                 return;
@@ -922,17 +922,17 @@ class CallControlManager implements SymmitronResetHandler {
             DialogContext peerDialogContext = (DialogContext) peerDialog.getApplicationData();
 
             if (logger.isDebugEnabled()) {
-            	logger.debug("peerDialog = " + peerDialog + " peerDialogState = " + peerDialog.getState());
-            	logger.debug("dialogContext : " + dialogContext + " peerDialogContext " + peerDialogContext);
-            	if (peerDialogContext != null ) {
-                 	logger.debug("peerDialogContext.lastResponse " + peerDialogContext.getLastResponse());
-            		logger.debug("peerDialogContext.pendingAction = " + peerDialogContext.getPendingAction());
-            	} else {
-            		logger.debug("peerDialogContext is null " );
-            	}
-            	if ( dialogContext != null ) {
-            	    logger.debug("dialogContext.pendingAction " + dialogContext.getPendingAction());
-            	}
+                logger.debug("peerDialog = " + peerDialog + " peerDialogState = " + peerDialog.getState());
+                logger.debug("dialogContext : " + dialogContext + " peerDialogContext " + peerDialogContext);
+                if (peerDialogContext != null ) {
+                    logger.debug("peerDialogContext.lastResponse " + peerDialogContext.getLastResponse());
+                    logger.debug("peerDialogContext.pendingAction = " + peerDialogContext.getPendingAction());
+                } else {
+                    logger.debug("peerDialogContext is null " );
+                }
+                if ( dialogContext != null ) {
+                    logger.debug("dialogContext.pendingAction " + dialogContext.getPendingAction());
+                }
             }
 
             if (peerDialogContext != null
@@ -941,7 +941,7 @@ class CallControlManager implements SymmitronResetHandler {
                     && peerDialogContext.getLastResponse().getStatusCode() == Response.OK
                     && ((CSeqHeader) peerDialogContext.getLastResponse().getHeader(
                             CSeqHeader.NAME)).getMethod().equals(Request.INVITE)) {
-                logger.debug("createAck: " + peerDialog);
+                if ( logger.isDebugEnabled() ) logger.debug("createAck: " + peerDialog);
 
                 /*
                  * This case happens in loopback calls. We can query sdp from a peer that is in
@@ -1010,11 +1010,11 @@ class CallControlManager implements SymmitronResetHandler {
                          * The content length is 0. There is no answer but the other side expects
                          * one. Just silently return.
                          */
-                        logger.debug("no SDP body in ACK but the other side expects one");
+                        if ( logger.isDebugEnabled() ) logger.debug("no SDP body in ACK but the other side expects one");
                         return;
 
                     } else if (peerDialogContext.getPendingAction() == PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
-                        logger.debug("Pending SDP Answer in ACK  -- not forwarding inbound ACK. Will forward later when OK comes in");
+                        if ( logger.isDebugEnabled() ) logger.debug("Pending SDP Answer in ACK  -- not forwarding inbound ACK. Will forward later when OK comes in");
                         return;
 
                     } else {
@@ -1094,7 +1094,7 @@ class CallControlManager implements SymmitronResetHandler {
      *
      */
     private void processCancel(RequestEvent requestEvent) {
-        logger.debug("processCancel");
+        if ( logger.isDebugEnabled() ) logger.debug("processCancel");
 
         Dialog dialog = requestEvent.getDialog();
 
@@ -1104,7 +1104,7 @@ class CallControlManager implements SymmitronResetHandler {
             requestEvent.getServerTransaction().sendResponse(cancelOk);
 
             if (requestEvent.getServerTransaction() == null) {
-                logger.debug("Null ServerTx: Late arriving cancel");
+                if ( logger.isDebugEnabled() ) logger.debug("Null ServerTx: Late arriving cancel");
                 return;
             }
             ServerTransaction inviteServerTransaction = ((SIPServerTransaction) requestEvent
@@ -1113,7 +1113,7 @@ class CallControlManager implements SymmitronResetHandler {
             if (inviteServerTransaction.getState() != TransactionState.PROCEEDING) {
 
                 // Too late to cancel.
-                logger.debug(String.format("Transaction State is %s too late to cancel",
+                if ( logger.isDebugEnabled() ) logger.debug(String.format("Transaction State is %s too late to cancel",
                         inviteServerTransaction.getState()));
                 return;
             }
@@ -1143,7 +1143,7 @@ class CallControlManager implements SymmitronResetHandler {
                     clientTransaction = provider
                         .getNewClientTransaction(cancelRequest);
                 } catch (TransactionUnavailableException ex) {
-                    logger.debug("Cancel Already in progress -- returning silrently");
+                    if ( logger.isDebugEnabled() ) logger.debug("Cancel Already in progress -- returning silrently");
                     return;
                 }
                 clientTransaction.sendRequest();
@@ -1166,7 +1166,7 @@ class CallControlManager implements SymmitronResetHandler {
 
                 inviteServerTransaction.sendResponse(requestTerminatedResponse);
             } else {
-                logger.debug("CallControlManager:processCancel -- too late to CANCEL " + ct.getState());
+                if ( logger.isDebugEnabled() ) logger.debug("CallControlManager:processCancel -- too late to CANCEL " + ct.getState());
             }
         } catch (Exception ex) {
             logger.error("Unexpected exception processing cancel", ex);
@@ -1178,13 +1178,13 @@ class CallControlManager implements SymmitronResetHandler {
      * Processes an INCOMING BYE
      */
     private void processBye(RequestEvent requestEvent) {
-        logger.debug("processBye");
+        if ( logger.isDebugEnabled() ) logger.debug("processBye");
         try {
             BackToBackUserAgent b2bua = DialogContext.getBackToBackUserAgent(requestEvent
                     .getDialog());
 
             if (requestEvent.getServerTransaction() != null) {
-                logger.debug("serverTransaction Not found -- stray request -- discarding ");
+                if ( logger.isDebugEnabled() ) logger.debug("serverTransaction Not found -- stray request -- discarding ");
             }
 
             if (b2bua != null) {
@@ -1249,7 +1249,7 @@ class CallControlManager implements SymmitronResetHandler {
 
         b2bua.sendByeToMohServer();
 
-        logger.debug("Processing ERROR Response " + response.getStatusCode());
+        if ( logger.isDebugEnabled() ) logger.debug("Processing ERROR Response " + response.getStatusCode());
 
         // Processing an error resonse.
         ClientTransaction ct = responseEvent.getClientTransaction();
@@ -1289,7 +1289,7 @@ class CallControlManager implements SymmitronResetHandler {
             if (transactionContext.getOperation() == Operation.CANCEL_REPLACED_INVITE
                     || transactionContext.getOperation() == Operation.CANCEL_MOH_INVITE
                     || transactionContext.getOperation() == Operation.SEND_INVITE_TO_MOH_SERVER) {
-                logger.debug("ingoring 4xx response " + transactionContext.getOperation());
+                if ( logger.isDebugEnabled() ) logger.debug("ingoring 4xx response " + transactionContext.getOperation());
             } else if (transactionContext.getOperation() != Operation.REFER_INVITE_TO_SIPX_PROXY) {
                 // Is the dialog marked as one that needs an SDP answer in ACK? If so replay the old SDP answer
                 if (serverTransaction != null) {
@@ -1352,7 +1352,7 @@ class CallControlManager implements SymmitronResetHandler {
      */
 
     private void inviteToItspOrProxyResponse(ResponseEvent responseEvent) throws Exception {
-        logger.debug("inviteToItspOrProxyResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("inviteToItspOrProxyResponse");
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -1434,15 +1434,17 @@ class CallControlManager implements SymmitronResetHandler {
             if (rtpSession != null) {
                 hisEndpoint = rtpSession.getTransmitter();
             } else {
-                logger.debug("CallControlManager: inviteToItspOrProxyResponse: null rtpSession");
-                logger.debug("DialogContext " + dialogContext);
+                if ( logger.isDebugEnabled() ) {
+                    logger.debug("CallControlManager: inviteToItspOrProxyResponse: null rtpSession");
+                    logger.debug("DialogContext " + dialogContext);
+                }
             }
 
             if (hisEndpoint == null) {
                 hisEndpoint = new RtpTransmitterEndpoint(rtpSession, b2bua.getSymmitronClient());
                 rtpSession.setTransmitter(hisEndpoint);
             } else {
-                logger.debug("CallControlManager: inviteToItspOrProxyResponse: hisEndpoint != null" );
+                if ( logger.isDebugEnabled() ) logger.debug("CallControlManager: inviteToItspOrProxyResponse: hisEndpoint != null" );
             }
 
             KeepaliveMethod keepaliveMethod;
@@ -1516,13 +1518,13 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void sendSdpReofferResponse(ResponseEvent responseEvent ) throws Exception {
-        logger.debug("sendSdpReofferResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("sendSdpReofferResponse");
     	 Dialog dialog = responseEvent.getDialog();
          DialogContext dialogContext = DialogContext.get(dialog);
          Response response = responseEvent.getResponse();
          long seqno = SipUtilities.getSeqNumber(response);
       	 PendingDialogAction pendingOperation = dialogContext.getPendingAction();
-      	 logger.debug("sendSdpReOfferResponse pendingDialogAction " + pendingOperation);
+      	 if ( logger.isDebugEnabled() ) logger.debug("sendSdpReOfferResponse pendingDialogAction " + pendingOperation);
          if (response.getStatusCode() == Response.OK) {
             RtpSession rtpSession = DialogContext.getRtpSession(dialog);
             SessionDescription inboundSessionDescription = SipUtilities
@@ -1552,7 +1554,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param responseEvent
      */
     private void forwardSdpSolicitationResponse(ResponseEvent responseEvent) throws Exception {
-        logger.debug("forwardSdpSolicitationResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("forwardSdpSolicitationResponse");
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
 
@@ -1625,7 +1627,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void handleInviteWithReplacesResponse(ResponseEvent responseEvent) throws Exception {
-        logger.debug("handleInviteWithReplacesResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("handleInviteWithReplacesResponse");
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -1701,7 +1703,7 @@ class CallControlManager implements SymmitronResetHandler {
      *
      */
     private void forwardReInviteResponse(ResponseEvent responseEvent) throws Exception {
-        logger.debug("forwardReInviteResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("forwardReInviteResponse");
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -1792,7 +1794,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void referInviteToSipxProxyResponse(ResponseEvent responseEvent) throws Exception {
-        logger.debug("referInviteToSipxProxyResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("referInviteToSipxProxyResponse");
 
         Dialog dialog = responseEvent.getDialog();
         DialogContext dialogContext = DialogContext.get(dialog);
@@ -1880,7 +1882,7 @@ class CallControlManager implements SymmitronResetHandler {
                     ((ServerTransaction) peerDat.dialogCreatingTransaction)
                             .sendResponse(forwardedResponse);
                 } else {
-                    logger.debug("not forwarding response peerDat.transaction  = "
+                    if ( logger.isDebugEnabled() ) logger.debug("not forwarding response peerDat.transaction  = "
                             + peerDat.dialogCreatingTransaction);
                 }
 
@@ -1944,10 +1946,10 @@ class CallControlManager implements SymmitronResetHandler {
 
             } else {
                 if (logger.isDebugEnabled()) {
-                    logger.debug("tad.dialogPendingSdpAnswer = "
+                    if ( logger.isDebugEnabled() ) logger.debug("tad.dialogPendingSdpAnswer = "
                             + tad.getDialogPendingSdpAnswer());
                     if (tad.getDialogPendingSdpAnswer() != null) {
-                        logger.debug("pendingAction = "
+                        if ( logger.isDebugEnabled() ) logger.debug("pendingAction = "
                                 + DialogContext.get(tad.getDialogPendingSdpAnswer())
                                         .getPendingAction());
                     }
@@ -2083,7 +2085,7 @@ class CallControlManager implements SymmitronResetHandler {
 
 
                 } else {
-                    logger.debug("not forwarding response peerDat.transaction  = "
+                    if ( logger.isDebugEnabled() ) logger.debug("not forwarding response peerDat.transaction  = "
                             + transactionContext.getServerTransaction());
                 }
 
@@ -2110,7 +2112,7 @@ class CallControlManager implements SymmitronResetHandler {
          * call. We have already redirected the RTP media to the redirected party at this point.
          */
 
-        logger.debug("referDialog.getState() " + referDialog.getState() + " isOriginatorSipxbridge = "  + SipUtilities.isOriginatorSipXbridge(response));
+        if ( logger.isDebugEnabled() ) logger.debug("referDialog.getState() " + referDialog.getState() + " isOriginatorSipxbridge = "  + SipUtilities.isOriginatorSipXbridge(response));
         if (referDialog.getState() == DialogState.CONFIRMED
                 && SipUtilities.isOriginatorSipXbridge(response)) {
 
@@ -2140,7 +2142,7 @@ class CallControlManager implements SymmitronResetHandler {
             b2bua.addDialog(DialogContext.get(dialog));
             Request ackRequest = dialog.createAck(((CSeqHeader) response
                     .getHeader(CSeqHeader.NAME)).getSeqNumber());
-            logger.debug("peerDialog : " + DialogContext.getPeerDialog(dialog));
+            if ( logger.isDebugEnabled() ) logger.debug("peerDialog : " + DialogContext.getPeerDialog(dialog));
             DialogContext.pairDialogs(DialogContext.getPeerDialog(dialog), dialog);
 
             DialogContext.get(dialog).sendAck(ackRequest);
@@ -2163,7 +2165,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @throws Exception
      */
     private void sendInviteToMohServerResponse(ResponseEvent responseEvent) throws Exception {
-        logger.debug("sendInviteToMohServerResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("sendInviteToMohServerResponse");
         Response response = responseEvent.getResponse();
         Dialog dialog = responseEvent.getDialog();
         TransactionContext tad = TransactionContext.get(responseEvent.getClientTransaction());
@@ -2212,7 +2214,7 @@ class CallControlManager implements SymmitronResetHandler {
                     }
                 }
             } else {
-                logger.debug("MOH negotiation failed. Response code is  " + response.getStatusCode());
+                if ( logger.isDebugEnabled() ) logger.debug("MOH negotiation failed. Response code is  " + response.getStatusCode());
                 if (tad.getDialogPendingSdpAnswer() != null
                         && DialogContext.getPendingAction(tad.getDialogPendingSdpAnswer()) ==
                             PendingDialogAction.PENDING_SDP_ANSWER_IN_ACK) {
@@ -2247,7 +2249,7 @@ class CallControlManager implements SymmitronResetHandler {
     private void solicitSdpOfferFromPeerDialogResponse(ResponseEvent responseEvent)
             throws Exception {
 
-        logger.debug("solicitSdpOfferFromPeerDialogResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("solicitSdpOfferFromPeerDialogResponse");
         /*
          * Grab the response from the IB response event.
          */
@@ -2294,9 +2296,9 @@ class CallControlManager implements SymmitronResetHandler {
         SessionDescription responseSessionDescription;
         dialogContext.setLastResponse(response);
 
-        logger.debug("continuationOperation = " + continuationOperation);
+        if ( logger.isDebugEnabled() ) logger.debug("continuationOperation = " + continuationOperation);
         DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog);
-        logger.debug("peerDialog.pendingAction = " + peerDialogContext.getPendingAction());
+        if ( logger.isDebugEnabled() ) logger.debug("peerDialog.pendingAction = " + peerDialogContext.getPendingAction());
         
         if (response.getContentLength().getContentLength() != 0) {
             /*
@@ -2507,7 +2509,7 @@ class CallControlManager implements SymmitronResetHandler {
                     ClientTransaction ctx = b2bua.createClientTxToMohServer(clonedSd,responseEvent.getResponse());
                     RtpSession mohRtpSession = DialogContext.getPeerRtpSession(dialog);
                     DialogContext.get(ctx.getDialog()).setRtpSession(mohRtpSession);
-                    logger.debug("mohRtpSession = " + mohRtpSession );
+                    if ( logger.isDebugEnabled() ) logger.debug("mohRtpSession = " + mohRtpSession );
 
                     /*
                      * Note that we owe the dialog an sdp answer when we get it.
@@ -2604,7 +2606,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param responseEvent -- the response event.
      */
     private void processInviteResponse(ResponseEvent responseEvent) {
-        logger.debug("processInviteResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("processInviteResponse");
 
         Response response = responseEvent.getResponse();
 
@@ -2623,15 +2625,15 @@ class CallControlManager implements SymmitronResetHandler {
              */
             if ( SipUtilities.getFromTag(response) != null
                     && SipUtilities.getToTag(response) != null ) {
-                logger.debug("Dropping IN Dialog response -- no client transaction");
+                if ( logger.isDebugEnabled() ) logger.debug("Dropping IN Dialog response -- no client transaction");
                 return;
             } else if ( dialog == null ) {
-                logger.debug("Dialog not found -- dropping response!");
+                if ( logger.isDebugEnabled() ) logger.debug("Dialog not found -- dropping response!");
                 return;
             } else if (DialogContext.get(dialog).getDialogCreatingTransaction() instanceof ClientTransaction ) {
                 clientTransaction = (ClientTransaction) DialogContext.get(dialog).getDialogCreatingTransaction();
             } else {
-                logger.debug("Dropping response -- no client transaction");
+                if ( logger.isDebugEnabled() ) logger.debug("Dropping response -- no client transaction");
                 return;
             }
         } else {
@@ -2711,7 +2713,7 @@ class CallControlManager implements SymmitronResetHandler {
                 TransactionContext tad = (TransactionContext) responseEvent
                         .getClientTransaction().getApplicationData();
 
-                logger.debug("Operation = " + tad.getOperation());
+                if ( logger.isDebugEnabled() ) logger.debug("Operation = " + tad.getOperation());
                 /*
                  * Set our final dialog. Note that the 1xx Dialog may be different.
                  */
@@ -2908,7 +2910,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param responseEvent
      */
     private void processOptionsResponse(ResponseEvent responseEvent) {
-        logger.debug("processOptionsResponse ");
+        if ( logger.isDebugEnabled() ) logger.debug("processOptionsResponse ");
     }
 
     /**
@@ -2922,7 +2924,7 @@ class CallControlManager implements SymmitronResetHandler {
      */
     private void notifyReferDialog(Request referRequest, Dialog referDialog, Response response)
             throws SipException {
-        logger.debug("notifyReferDialog");
+        if ( logger.isDebugEnabled() ) logger.debug("notifyReferDialog");
         try {
             Request notifyRequest = referDialog.createRequest(Request.NOTIFY);
             EventHeader eventHeader = ProtocolObjects.headerFactory.createEventHeader("refer");
@@ -2968,7 +2970,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param responseEvent
      */
     private void processCancelResponse(ResponseEvent responseEvent) {
-        logger.debug("CallControlManager: processCancelResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("CallControlManager: processCancelResponse");
 
     }
 
@@ -2978,7 +2980,7 @@ class CallControlManager implements SymmitronResetHandler {
      * @param responseEvent
      */
     private void processNotifyResponse(ResponseEvent responseEvent) {
-        logger.debug("CallControlManager: processNotifyResponse");
+        if ( logger.isDebugEnabled() ) logger.debug("CallControlManager: processNotifyResponse");
     }
 
     /**
@@ -2988,7 +2990,7 @@ class CallControlManager implements SymmitronResetHandler {
      */
     private void processReferResponse(ResponseEvent responseEvent) {
         try {
-            logger.debug("CallControlManager: processReferResponse");
+            if ( logger.isDebugEnabled() ) logger.debug("CallControlManager: processReferResponse");
             ClientTransaction ctx = responseEvent.getClientTransaction();
             TransactionContext tad = (TransactionContext) ctx.getApplicationData();
             ServerTransaction referServerTx = tad.getServerTransaction();
@@ -3023,7 +3025,7 @@ class CallControlManager implements SymmitronResetHandler {
 
     private void processByeResponse(ResponseEvent responseEvent) {
         try {
-            logger.debug("CallControlManager: processByeResponse");
+            if ( logger.isDebugEnabled() ) logger.debug("CallControlManager: processByeResponse");
             ClientTransaction ct = responseEvent.getClientTransaction();
             TransactionContext tad = (TransactionContext) ct.getApplicationData();
             if (tad != null) {

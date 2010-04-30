@@ -177,7 +177,7 @@ public class CallControlUtilities {
 
         DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
         if (logger.isDebugEnabled()) {
-            logger.debug("sendSdpAnswerInAck : dialog = " + dialog
+            if ( logger.isDebugEnabled() ) logger.debug("sendSdpAnswerInAck : dialog = " + dialog
                     + " peerDialogApplicationData = " + dialogContext + "\nlastResponse = "
                     + dialogContext.getLastResponse());
         }
@@ -194,7 +194,7 @@ public class CallControlUtilities {
              */
             Set<Integer> answerCodecs = SipUtilities.getMediaFormats(answerSessionDescription);
 
-            logger.debug("peerTransmitter = " + DialogContext.getPeerTransmitter(dialog));
+            if ( logger.isDebugEnabled() ) logger.debug("peerTransmitter = " + DialogContext.getPeerTransmitter(dialog));
 
             /*
              * The session description to send back in the ACK.
@@ -301,7 +301,7 @@ public class CallControlUtilities {
         
         DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
         if (logger.isDebugEnabled()) {
-            logger.debug("sendSdpAnswerInAck : dialog = " + dialog
+            if ( logger.isDebugEnabled() ) logger.debug("sendSdpAnswerInAck : dialog = " + dialog
                     + " peerDialogApplicationData = " + dialogContext + "\nlastResponse = "
                     + dialogContext.getLastResponse());
         }

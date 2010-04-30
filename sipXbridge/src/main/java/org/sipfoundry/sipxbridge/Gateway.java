@@ -388,7 +388,7 @@ public class Gateway {
 
                 globalAddress = report.getPublicAddress().getSocketAddress()
                         .getAddress().getHostAddress();
-                logger.debug("Stun report = " + report);
+                if ( logger.isDebugEnabled() ) logger.debug("Stun report = " + report);
 
                 if ( oldPublicAddress != null && !oldPublicAddress.equals(globalAddress) ||
                     ( oldStunPort != -1 && oldStunPort != report.getPublicAddress().getPort() ) ) {
@@ -421,7 +421,7 @@ public class Gateway {
             }
             return;
         } finally {
-           logger.debug("global address = " + globalAddress);
+           if ( logger.isDebugEnabled() ) logger.debug("global address = " + globalAddress);
         }
     }
 
@@ -503,7 +503,7 @@ public class Gateway {
             Collection<Hop> hops = serverFinder.findSipServers(proxyUri);
             PriorityQueue<Hop> proxyAddressTable = new PriorityQueue<Hop>();
             proxyAddressTable.addAll(hops);
-            logger.debug("proxy address table = " + proxyAddressTable);
+            if ( logger.isDebugEnabled() ) logger.debug("proxy address table = " + proxyAddressTable);
             return proxyAddressTable;
         } catch (Exception ex) {
             logger.error("Cannot do address lookup ", ex);
@@ -539,7 +539,7 @@ public class Gateway {
 
             int externalPort = bridgeConfiguration.getExternalPort();
             String externalAddress = bridgeConfiguration.getExternalAddress();
-            logger.debug("External Address:port = " + externalAddress + ":"
+            if ( logger.isDebugEnabled() ) logger.debug("External Address:port = " + externalAddress + ":"
                     + externalPort);
             ListeningPoint externalUdpListeningPoint = ProtocolObjects
                     .getSipStack().createListeningPoint(externalAddress,
@@ -550,7 +550,7 @@ public class Gateway {
                             externalPort, "tcp");
             Gateway.supportedTransports.add("tcp");
             if (Gateway.isTlsSupportEnabled) {
-                logger.debug("tlsSupport is enabled -- creating TLS Listening point and provider");
+                if ( logger.isDebugEnabled() ) logger.debug("tlsSupport is enabled -- creating TLS Listening point and provider");
                 ListeningPoint externalTlsListeningPoint = ProtocolObjects
                         .getSipStack().createListeningPoint(externalAddress,
                                 externalPort + 1, "tls");
@@ -575,7 +575,7 @@ public class Gateway {
             gatewayFromAddress = ProtocolObjects.addressFactory
                     .createAddress(ProtocolObjects.addressFactory.createSipURI(
                             SIPXBRIDGE_USER, domain));
-            logger.debug("Local Address:port " + localIpAddress + ":"
+            if ( logger.isDebugEnabled() ) logger.debug("Local Address:port " + localIpAddress + ":"
                     + localPort);
 
             if ( !Gateway.getSipxProxyTransport().equalsIgnoreCase("tls")) {
@@ -592,7 +592,7 @@ public class Gateway {
 
                 internalProvider.addListeningPoint(internalTcpListeningPoint);
             } else {
-                logger.debug("tlsSupport is for proxy enabled -- creating TLS Listening point and provider");
+                if ( logger.isDebugEnabled() ) logger.debug("tlsSupport is for proxy enabled -- creating TLS Listening point and provider");
                 ListeningPoint internalTlsListeningPoint = ProtocolObjects
                         .getSipStack().createListeningPoint(localIpAddress,
                                 localPort, "tls");
@@ -632,7 +632,7 @@ public class Gateway {
         if (alarmClient == null) {
             String supervisorHost = getBridgeConfiguration()
                     .getSipXSupervisorHost();
-            logger.debug("supervisorHost = " + supervisorHost);
+            if ( logger.isDebugEnabled() ) logger.debug("supervisorHost = " + supervisorHost);
             alarmClient = new SipXAlarmClient(supervisorHost,
                     getBridgeConfiguration().getSipXSupervisorXmlRpcPort());
         }
@@ -1022,10 +1022,10 @@ public class Gateway {
             Gateway.proxyURI = ProtocolObjects.addressFactory.createSipURI(
                     null, getBridgeConfiguration().getSipxProxyDomain());
             if (  getBridgeConfiguration().getSipxProxyPort() > 0  ) {
-                logger.debug("setting sipx proxy port " + getBridgeConfiguration().getSipxProxyPort() );
+                if ( logger.isDebugEnabled() ) logger.debug("setting sipx proxy port " + getBridgeConfiguration().getSipxProxyPort() );
                 Gateway.proxyURI.setPort( getBridgeConfiguration().getSipxProxyPort());
             } else {
-                logger.debug("sipx proxy port is : " + getBridgeConfiguration().getSipxProxyPort() );
+                if ( logger.isDebugEnabled() ) logger.debug("sipx proxy port is : " + getBridgeConfiguration().getSipxProxyPort() );
                 
             }
         } catch (Exception ex) {
@@ -1071,7 +1071,7 @@ public class Gateway {
                 System.exit(0);
             }
         }
-        logger.debug("Global address = " + Gateway.getGlobalAddress());
+        if ( logger.isDebugEnabled() ) logger.debug("Global address = " + Gateway.getGlobalAddress());
 
         /*
          * Can start sending outbound calls. Cannot yet make inbound calls.
@@ -1120,7 +1120,7 @@ public class Gateway {
     static synchronized void stop() {
         Gateway.state = GatewayState.STOPPING;
 
-        logger.debug("Stopping Gateway");
+        if ( logger.isDebugEnabled() ) logger.debug("Stopping Gateway");
         // Purge the timer.
         getTimer().purge();
         try {
@@ -1172,7 +1172,7 @@ public class Gateway {
          * Stop bridge, release all resources and exit.
          */
         Gateway.initializeLogging();
-        logger.debug("exit()");
+        if ( logger.isDebugEnabled() ) logger.debug("exit()");
         /*
          * Initialize the HTTPS client.
          */

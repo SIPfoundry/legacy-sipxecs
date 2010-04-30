@@ -150,7 +150,7 @@ public class RtpSessionUtilities {
 			/*
 			 * Make sure that global addressing is set.
 			 */
-			logger.debug("peerDat.itspInfo " + peerDat.getItspInfo());
+			if ( logger.isDebugEnabled() ) logger.debug("peerDat.itspInfo " + peerDat.getItspInfo());
 			if (peerDat.getItspInfo() == null
 					|| peerDat.getItspInfo().isGlobalAddressingUsed()) {
 				if (Gateway.getGlobalAddress() != null) {
@@ -227,7 +227,7 @@ public class RtpSessionUtilities {
 	static void removeHold(RtpSession rtpSession,
 			ServerTransaction serverTransaction, Dialog dialog) {
 		try {
-			logger.debug("Remove media on hold!");
+			if ( logger.isDebugEnabled() ) logger.debug("Remove media on hold!");
 			SipUtilities.setDuplexity(rtpSession.getReceiver()
 					.getSessionDescription(), "sendrecv");
 			SipUtilities.incrementSessionVersion(rtpSession.getReceiver()
@@ -302,13 +302,13 @@ public class RtpSessionUtilities {
 		
 
 		if (peerDialog != null) {
-			logger.debug("reAssignSessionParameters: dialog = " + dialog
+			if ( logger.isDebugEnabled() ) logger.debug("reAssignSessionParameters: dialog = " + dialog
 					+ " peerDialog = "
 					+ peerDialog + " peerDialog.lastResponse = \n"
 					+ DialogContext.get(peerDialog).getLastResponse());
 		}
 		
-		logger.debug("rtpSession.getTransmitter().sessionDescription = " + rtpSession.getTransmitter().getSessionDescription());
+		if ( logger.isDebugEnabled() ) logger.debug("rtpSession.getTransmitter().sessionDescription = " + rtpSession.getTransmitter().getSessionDescription());
 
 		SessionDescription sessionDescription = SipUtilities.getSessionDescription(request);
 
@@ -330,7 +330,7 @@ public class RtpSessionUtilities {
 				.getSessionDescriptionAttribute(sessionDescription);
 
 		if (logger.isDebugEnabled()) {
-			logger.debug("mediaAttribute = " + mediaAttribute
+		    logger.debug("mediaAttribute = " + mediaAttribute
 					+ " sessionAttribute = " + sessionAttribute);
 		}
 

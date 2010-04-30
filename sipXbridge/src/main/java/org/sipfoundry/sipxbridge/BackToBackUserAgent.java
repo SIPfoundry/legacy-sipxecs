@@ -261,7 +261,7 @@ public class BackToBackUserAgent implements Comparable {
                 throw new IOException(
                         "Could not locate a sipx proxy server -- cannot create B2BUA");
             }
-            logger.debug("routing call to " + this.proxyAddress.getHost() + ":"
+            if ( logger.isDebugEnabled() ) logger.debug("routing call to " + this.proxyAddress.getHost() + ":"
                     + this.proxyAddress.getPort() + " relay load = " + load);
         }
 
@@ -425,8 +425,8 @@ public class BackToBackUserAgent implements Comparable {
             ((DialogContext) replacedDialog.getApplicationData()).setPeerDialog(null);
 
             if (logger.isDebugEnabled()) {
-                logger.debug("referingDialog = " + referingDialog);
-                logger.debug("replacedDialog = " + replacedDialog);
+               logger.debug("referingDialog = " + referingDialog);
+               logger.debug("replacedDialog = " + replacedDialog);
             }
 
             /*
@@ -556,7 +556,7 @@ public class BackToBackUserAgent implements Comparable {
             return;
         }
 
-        logger.debug("removeDialog " + dialog + " dialogTableSize = " + this.dialogTable.size());
+        if ( logger.isDebugEnabled() ) logger.debug("removeDialog " + dialog + " dialogTableSize = " + this.dialogTable.size());
 
         this.dialogTable.remove(dialog);
 
@@ -586,7 +586,7 @@ public class BackToBackUserAgent implements Comparable {
 
         if (dialogTable.size() == 0) {
             try {
-                logger.debug("Terminating all calls on B2BUA " + this);
+                if ( logger.isDebugEnabled() ) logger.debug("Terminating all calls on B2BUA " + this);
                 this.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.CALL_TERMINATED,
                         "Call Termination Detected");
                 this.sendByeToMohServer();
@@ -596,7 +596,7 @@ public class BackToBackUserAgent implements Comparable {
             }
         }
         if ( logger.isDebugEnabled() ) {
-        	logger.debug("dialog table after remove " + this.dialogTable );
+        	 logger.debug("dialog table after remove " + this.dialogTable );
         }
     }
 
@@ -617,7 +617,7 @@ public class BackToBackUserAgent implements Comparable {
 
         Dialog dialog = dialogContext.getDialog();
         if (dialogTable.contains(dialog)) {
-            logger.debug("Dialog already in table");
+            if ( logger.isDebugEnabled() ) logger.debug("Dialog already in table");
             return;
         }
         /*
@@ -634,10 +634,12 @@ public class BackToBackUserAgent implements Comparable {
         this.myCallIds.add(callId);
         dialogContext.setBackToBackUserAgent(this);
         if ( logger.isDebugEnabled()) {
-        	logger.debug("addDialog " + dialog + "at " 
-        	 + SipUtilities.getStackTrace() + " dialogTableSize = " +
-        	 " Dialog was created at: "
-        	 + DialogContext.get(dialog).getCreationPointStackTrace());
+        	if ( logger.isDebugEnabled() ) {
+        	    logger.debug("addDialog " + dialog + "at " 
+        	   + SipUtilities.getStackTrace() + " dialogTableSize = " +
+        	   " Dialog was created at: "
+        	   + DialogContext.get(dialog).getCreationPointStackTrace());
+        	}
         }
         if (this.cleanupList.contains(dialog)) {
             logger.warn("Cleanup list also contains dialog");
@@ -661,9 +663,11 @@ public class BackToBackUserAgent implements Comparable {
             this.dialogTable.remove(dialog);
         }
 
-        logger.debug("addDialogToCleanup " + dialog + " listSize " + this.cleanupList.size()
+        if ( logger.isDebugEnabled() ) {
+             logger.debug("addDialogToCleanup " + dialog + " listSize " + this.cleanupList.size()
                 + " Dialog was created at: "
                 + DialogContext.get(dialog).getCreationPointStackTrace());
+        }
         this.cleanupList.add(dialog);
     }
     
@@ -757,14 +761,14 @@ public class BackToBackUserAgent implements Comparable {
              * phone!
              */
             RouteHeader proxyRoute = SipUtilities.createRouteHeader(this.proxyAddress);          
-            logger.debug("setting ProxyRoute : " + proxyRoute);                      
+            if ( logger.isDebugEnabled() ) logger.debug("setting ProxyRoute : " + proxyRoute);                      
             newRequest.setHeader(proxyRoute);
 
             /*
              * Does the refer to header contain a Replaces? ( attended transfer )
              */
             String replacesParam = uri.getHeader(ReplacesHeader.NAME);
-            logger.debug("replacesParam = " + replacesParam);
+            if ( logger.isDebugEnabled() ) logger.debug("replacesParam = " + replacesParam);
 
             ReplacesHeader replacesHeader = null;
 
@@ -866,7 +870,7 @@ public class BackToBackUserAgent implements Comparable {
     void referInviteToSipxProxy(Request inviteRequest, ClientTransaction mohClientTransaction,
             Dialog dialogPendingSdpAnswer, RequestEvent referRequestEvent,
             SessionDescription sessionDescription) {
-        logger.debug("referInviteToSipxProxy: ");
+        if ( logger.isDebugEnabled() ) logger.debug("referInviteToSipxProxy: ");
 
         try {
 
@@ -932,7 +936,7 @@ public class BackToBackUserAgent implements Comparable {
             newDialogContext.setPeerDialog(referDialogContext.getPeerDialog());
 
             if (logger.isDebugEnabled()) {
-                logger.debug("referInviteToSipxProxy peerDialog = "
+                 logger.debug("referInviteToSipxProxy peerDialog = "
                         + newDialogContext.getPeerDialog());
 
             }
@@ -1107,7 +1111,7 @@ public class BackToBackUserAgent implements Comparable {
     void sendInviteToSipxProxy(RequestEvent requestEvent, ServerTransaction serverTransaction) {
         Request request = requestEvent.getRequest();
 
-        logger.debug("sendInviteToSipXProxy " + ((SIPMessage) request).getFirstLine());
+        if ( logger.isDebugEnabled() ) logger.debug("sendInviteToSipXProxy " + ((SIPMessage) request).getFirstLine());
 
         try {
             /*
@@ -1117,7 +1121,7 @@ public class BackToBackUserAgent implements Comparable {
 
             SipURI incomingRequestURI = (SipURI) request.getRequestURI();
             Dialog inboundDialog = serverTransaction.getDialog();
-            logger.debug("inboundDialog  " + inboundDialog);
+            if ( logger.isDebugEnabled() ) logger.debug("inboundDialog  " + inboundDialog);
             /*
              * Add the dialog context to our table of managed dialogs.
              */
@@ -1279,8 +1283,10 @@ public class BackToBackUserAgent implements Comparable {
             
             RtpSession outboundSession = this.createRtpSession(outboundDialog);
 
-            logger.debug("outboundSession = " + outboundSession);
-            logger.debug("outboundDialogContext = " + DialogContext.get(outboundDialog));
+            if ( logger.isDebugEnabled() ) {
+                logger.debug("outboundSession = " + outboundSession);
+                logger.debug("outboundDialogContext = " + DialogContext.get(outboundDialog));
+            }
 
             outboundSession.getReceiver().setSessionDescription(sd);
 
@@ -1290,13 +1296,13 @@ public class BackToBackUserAgent implements Comparable {
             SipUtilities.addLanAllowHeaders(newRequest);
 
             if ( SipUtilities.getViaTransport(request).equalsIgnoreCase("TLS")) {
-                logger.debug("incoming request came over TLS");
+                if ( logger.isDebugEnabled() ) logger.debug("incoming request came over TLS");
                 List<String> certIdentities = ((SIPTransaction)serverTransaction).extractCertIdentities();
                 if (certIdentities.isEmpty()) {
                     logger.warn("Could not find any identities in the TLS certificate");
                 }
                 else {
-                    logger.debug("found identities: " + certIdentities);
+                    if ( logger.isDebugEnabled() ) logger.debug("found identities: " + certIdentities);
                     // Policy enforcement: now use the set of SIP
                     // domain identities gathered from the certificate to
                     // make authorization decisions.
@@ -1482,7 +1488,7 @@ public class BackToBackUserAgent implements Comparable {
             if (this.musicOnHoldDialog != null
                     && this.musicOnHoldDialog.getState() != DialogState.TERMINATED) {
                 if (this.musicOnHoldDialog.getState() == DialogState.CONFIRMED) {
-                    logger.debug("sendByeToMohServer");
+                    if ( logger.isDebugEnabled() ) logger.debug("sendByeToMohServer");
                     Request byeRequest = musicOnHoldDialog.createRequest(Request.BYE);
 
                     ClientTransaction ctx = Gateway.getLanProvider().getNewClientTransaction(
@@ -1513,7 +1519,7 @@ public class BackToBackUserAgent implements Comparable {
     void sendInviteToItsp(RequestEvent requestEvent, ServerTransaction serverTransaction,
             String toDomain) throws SipException {
 
-        logger.debug("sendInviteToItsp: " + this);
+        if ( logger.isDebugEnabled() ) logger.debug("sendInviteToItsp: " + this);
         Request incomingRequest = serverTransaction.getRequest();
         Dialog incomingDialog = serverTransaction.getDialog();
         ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getAccount(incomingRequest);
@@ -1528,7 +1534,7 @@ public class BackToBackUserAgent implements Comparable {
                 .getHeader(ReplacesHeader.NAME);
 
         if (logger.isDebugEnabled()) {
-            logger.debug("sendInviteToItsp: spiral=" + spiral);
+             logger.debug("sendInviteToItsp: spiral=" + spiral);
         }
         try {
             if (replacesHeader != null) {
@@ -1982,7 +1988,7 @@ public class BackToBackUserAgent implements Comparable {
             ServerTransaction serverTransaction) throws Exception {
         Request request = requestEvent.getRequest();
         SessionDescription newOffer = SipUtilities.getSessionDescription(request);
-        logger.debug("handleInviteWithReplaces: replacedDialog = " + replacedDialog);
+        if ( logger.isDebugEnabled() ) logger.debug("handleInviteWithReplaces: replacedDialog = " + replacedDialog);
         String address = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getHost();
         DialogContext inviteDat = DialogContext.get(serverTransaction.getDialog());
 
@@ -2008,7 +2014,7 @@ public class BackToBackUserAgent implements Comparable {
             }
             rtpSession.getTransmitter().setOnHold(false);
             
-            logger.debug("replacedDialog.getState() : " + replacedDialog.getState());
+            if ( logger.isDebugEnabled() ) logger.debug("replacedDialog.getState() : " + replacedDialog.getState());
 
             DialogContext replacedDialogApplicationData = DialogContext.get(replacedDialog);
 
@@ -2069,7 +2075,7 @@ public class BackToBackUserAgent implements Comparable {
                  */
                 HashSet<Integer> codecs = SipUtilities.getCommonCodec(sdes, newOffer);
 
-                logger.debug("Codecs = " + codecs);
+                if ( logger.isDebugEnabled() ) logger.debug("Codecs = " + codecs);
 
                 if (replacedDialog.getState() != DialogState.CONFIRMED) {
                     if (codecs.size() == 0) {
@@ -2158,9 +2164,9 @@ public class BackToBackUserAgent implements Comparable {
 					peerOk.setContent(answerSdes, cth);
 					peerSt.sendResponse(peerOk);
 		         } else {
-                	logger.debug("peerSt = " + peerSt);
+                	if ( logger.isDebugEnabled() ) logger.debug("peerSt = " + peerSt);
                 	if ( peerSt != null ) {
-                		logger.debug("peerSt.getState() : " + peerSt.getState());
+                		if ( logger.isDebugEnabled() ) logger.debug("peerSt.getState() : " + peerSt.getState());
                 	}
                 }
                 
@@ -2188,7 +2194,7 @@ public class BackToBackUserAgent implements Comparable {
      */
     void processBye(RequestEvent requestEvent) throws SipException {
         Dialog dialog = requestEvent.getDialog();
-        logger.debug("processBye : BYE received on dialog " + dialog);
+        if ( logger.isDebugEnabled() ) logger.debug("processBye : BYE received on dialog " + dialog);
         ServerTransaction st = requestEvent.getServerTransaction();
         CallControlUtilities.sendTryingResponse(st);
 
@@ -2230,9 +2236,9 @@ public class BackToBackUserAgent implements Comparable {
             /*
              * Peer dialog is not yet established or is terminated.
              */
-            logger.debug("BackToBackUserAgent: peerDialog = " + peer);
+            if ( logger.isDebugEnabled() ) logger.debug("BackToBackUserAgent: peerDialog = " + peer);
             if (peer != null) {
-                logger.debug("BackToBackUserAgent: peerDialog state = " + peer.getState());
+                if ( logger.isDebugEnabled() ) logger.debug("BackToBackUserAgent: peerDialog state = " + peer.getState());
             }
             try {
                 Response ok = SipUtilities.createResponse(st, Response.OK);
@@ -2313,7 +2319,7 @@ public class BackToBackUserAgent implements Comparable {
         temp.addAll(this.dialogTable);
 
         for (Dialog dialog : temp) {
-            logger.debug("tearing down " + dialog + " dialogState = " + dialog.getState()
+            if ( logger.isDebugEnabled() ) logger.debug("tearing down " + dialog + " dialogState = " + dialog.getState()
                     + " dialog.isServer " + dialog.isServer());
             if (dialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(dialog);
@@ -2332,9 +2338,9 @@ public class BackToBackUserAgent implements Comparable {
                             cancelTx.sendRequest();
                         }
                     } catch (TransactionAlreadyExistsException ex) {
-                        logger.debug("CANCEL Already issued on transaction");
+                        if ( logger.isDebugEnabled() ) logger.debug("CANCEL Already issued on transaction");
                     } catch (TransactionUnavailableException ex) {
-                        logger.debug("Too late to CANCEL the transaction");
+                        if ( logger.isDebugEnabled() ) logger.debug("Too late to CANCEL the transaction");
                     }
                 }
 
@@ -2380,7 +2386,7 @@ public class BackToBackUserAgent implements Comparable {
                 if (reason != null) {
                     byeRequest.addHeader(reason);
                 }
-                logger.debug("Tear down call " + dialog);
+                if ( logger.isDebugEnabled() ) logger.debug("Tear down call " + dialog);
                 ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
                         .getNewClientTransaction(byeRequest);
                 TransactionContext.attach(ctx, Operation.SEND_BYE_FOR_TEARDOWN);
@@ -2474,7 +2480,7 @@ public class BackToBackUserAgent implements Comparable {
 
 
     void tearDownNow() {
-        logger.debug("tearDownNow " + this);
+        if ( logger.isDebugEnabled() ) logger.debug("tearDownNow " + this);
         if ( this.rtpBridge != null ) this.rtpBridge.stop();
         Gateway.getBackToBackUserAgentFactory().removeBackToBackUserAgent(this);
         this.tearDown();
