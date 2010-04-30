@@ -74,10 +74,6 @@ public abstract class ExtendedUserInfoComponent extends BaseComponent {
         User user = getUser();
         user.setAddressBookEntry(getAddressBookEntry());
 
-        if (getImAccount().getDefaultImId().equals(user.getImId())) {
-            user.setImId(null);
-        }
-
         getCoreContext().saveUser(user);
     }
 }
