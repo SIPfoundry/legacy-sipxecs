@@ -96,6 +96,7 @@ public class EditMyInformationTestUi extends WebTestCase {
         clickLink("link:openfire");
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
+        assertElementPresent("user:imAccountSetting");
         assertElementPresent("user:imId");
         assertElementPresent("user:imDisplayName");
     }

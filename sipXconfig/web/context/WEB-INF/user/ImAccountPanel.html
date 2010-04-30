@@ -4,15 +4,14 @@
 </ul>
 <table>
   <tbody>
-    <div jwcid="@If" condition="ognl:adminMode" renderTag="false">
-      <tr jwcid="@common/FieldPanel" for="user:imAccountSetting"
-        field="component:imAccountSetting"
-        label="message:enabled">
-        <checkbox jwcid="imAccountSetting@Checkbox"
-          id="user:imAccountSetting"
-          value="ognl:imAccount.enabled" />
-      </tr>
-    </div>
+    <tr jwcid="@common/FieldPanel" for="user:imAccountSetting"
+      field="component:imAccountSetting"
+      label="message:enabled">
+      <checkbox jwcid="imAccountSetting@Checkbox"
+        id="user:imAccountSetting"
+        value="ognl:imAccount.enabled"
+        disabled="ognl:!adminMode" />
+    </tr>
     <tr jwcid="@common/FieldPanel" for="user:imId"
       field="component:imId"
       label="message:label.imId"
