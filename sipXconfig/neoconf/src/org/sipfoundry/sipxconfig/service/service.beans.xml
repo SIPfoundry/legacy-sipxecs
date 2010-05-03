@@ -255,6 +255,7 @@
     <property name="processName" value="CallResolver" />
     <property name="modelName" value="sipxcallresolver.xml" />
     <property name="modelDir" value="sipxcallresolver" />
+    <property name="libExecDir" value="${sysdir.libexec}" />
     <property name="locationManager" ref="locationsManager" />
     <property name="configurations">
       <list>

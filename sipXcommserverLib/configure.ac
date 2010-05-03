@@ -87,5 +87,6 @@ AC_CONFIG_FILES([
   src/sipxzoneadmin/Makefile
   src/sipxtimemanager/Makefile
   src/sipxchangetimezone/Makefile
+  src/sipxcdrpostgres/Makefile
 ])
 AC_OUTPUT
