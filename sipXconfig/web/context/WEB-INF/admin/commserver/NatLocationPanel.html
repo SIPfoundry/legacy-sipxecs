@@ -21,7 +21,7 @@
 		  label="message:public.port">
 	    <td jwcid="publicPort@TextField"
 		    value="ognl:natLocation.publicPort"
-		    translator="translator:sipxnumber,omitZero=true"
+		    translator="translator:integer,omitZero=true"
 		    validators="validators:required,min=1024,max=65535"
 		    displayName="message:public.port"/>
 	  </tr>
@@ -32,7 +32,7 @@
 		    description="message:startRtp.port.description">
 	      <td jwcid="startRtpPort@TextField"
 		      value="ognl:natLocation.startRtpPort"
-		      translator="translator:sipxnumber,omitZero=true"
+		      translator="translator:integer,omitZero=true"
 		      validators="validators:required,min=1024,max=65535"
 		      displayName="message:startRtp.port"/>
 	    </tr>
@@ -42,7 +42,7 @@
 		    description="message:stopRtp.port.description">
 	      <td jwcid="stopRtpPort@TextField"
 		      value="ognl:natLocation.stopRtpPort"
-		      translator="translator:sipxnumber,omitZero=true"
+		      translator="translator:integer,omitZero=true"
 		      validators="validators:required,min=1024,max=65535"
 		      displayName="message:stopRtp.port"/>
 	    </tr>
@@ -64,7 +64,7 @@
 		    description="message:stun.interval.description">
 	    <td jwcid="stunInterval@TextField"
 	        value="ognl:natLocation.stunInterval"
-	        translator="translator:sipxnumber,omitZero=true"
+	        translator="translator:integer,omitZero=true"
 	        validators="validators:required,min=1"
 	        displayName="message:stun.interval"/>
       </tr>

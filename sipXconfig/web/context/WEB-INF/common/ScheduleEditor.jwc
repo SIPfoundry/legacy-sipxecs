@@ -40,7 +40,7 @@
   <component id="minutes" type="TextField">
     <binding name="value" value="schedule.min" />
     <binding name="validators" value="validators:required,min=0,max=59" />
-    <binding name="translator" value="translator:sipxnumber,omitZero=true"/>
+    <binding name="translator" value="translator:integer,omitZero=true"/>
     <binding name="displayName" value="message:label.minutes" />
   </component>
   <component id="labelMinutes" type="FieldLabel">
