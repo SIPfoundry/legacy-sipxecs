@@ -76,14 +76,16 @@
 
 <!ELEMENT pattern (#PCDATA)>
 
-<!ELEMENT file (directory?,contentType?,exclude?)>
+<!ELEMENT file (directory?,contentType?,rename?,exclude?)>
 <!ATTLIST file
     required %flag; "no"
     variable %flag; "no">
 
 <!ELEMENT directory (#PCDATA)>
 <!ELEMENT contentType (#PCDATA)>
+<!ELEMENT rename (#PCDATA)>
 <!ELEMENT exclude (filename+)>
+
 
 <!ELEMENT filename (#PCDATA)>
 

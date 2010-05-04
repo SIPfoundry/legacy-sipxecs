@@ -28,7 +28,7 @@
 #end
 
 #macro( ModelSpecificAttributes $model $fw )
-   APP_FILE_PATH${model}="${cfg.SipBinaryFilename}"
+   APP_FILE_PATH${model}="sip${fw}.ld"
    CONFIG_FILES${model}="${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1${fw}.cfg, polycom_sip${fw}.cfg"
 #end
 
