@@ -36,5 +36,13 @@
     <setting name="license.cfg">
       <type refid="binary"/>
     </setting>
+    <setting name="sip_31x.ld">
+      <type>
+        <file>
+          <contentType>application/binary</contentType>
+          <rename>sip_3.1.X.ld</rename>
+        </file>
+      </type>
+    </setting>
   </group>
 </model>

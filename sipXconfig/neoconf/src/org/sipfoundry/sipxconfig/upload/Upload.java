@@ -121,7 +121,6 @@ public class Upload extends BeanWithSettings {
     protected Setting loadSettings() {
         String modelFile = getSpecification().getModelFilePath();
         Setting settings = getModelFilesContext().loadModelFile(modelFile);
-
         // Hack, bean id should be valid
         settings.acceptVisitor(new UploadDirectorySetter());
 
@@ -155,7 +154,7 @@ public class Upload extends BeanWithSettings {
                 deployZipFile(new File(getDestinationDirectory()), new File(getUploadDirectory(), filename),
                         (FileSetting) type);
             } else {
-                deployFile(filename);
+                deployFile(filename, ((FileSetting) type).getRename());
             }
         }
     }
@@ -175,20 +174,29 @@ public class Upload extends BeanWithSettings {
             if (contentType.equalsIgnoreCase(ZIP_TYPE)) {
                 undeployZipFile(new File(getDestinationDirectory()), new File(getUploadDirectory(), filename),
                         (FileSetting) type);
-            } else {
+            } else  {
                 File f = new File(getDestinationDirectory(), filename);
                 f.delete();
+                if (((FileSetting) type).getRename() != null) {
+                    File legacyFile = new File(getDestinationDirectory(), ((FileSetting) type).getRename());
+                    legacyFile.delete();
+                }
             }
         }
     }
 
-    private void deployFile(String file) {
+    private void deployFile(String file, String toFileName) {
         InputStream from;
+        OutputStream to;
         try {
             from = new FileInputStream(new File(getUploadDirectory(), file));
             File destDir = new File(getDestinationDirectory());
             destDir.mkdirs();
-            OutputStream to = new FileOutputStream(new File(destDir, file));
+            if (toFileName != null) {
+                to = new FileOutputStream(new File(destDir, toFileName));
+            } else {
+                to = new FileOutputStream(new File(destDir, file));
+            }
             IOUtils.copy(from, to);
         } catch (IOException e) {
             throw new RuntimeException(e);

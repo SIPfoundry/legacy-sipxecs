@@ -31,6 +31,8 @@ public class FileSetting extends AbstractSettingType {
     /** Mime content type */
     private String m_contentType = "audio/x-wav";
 
+    private String m_rename;
+
     public boolean isRequired() {
         return m_required;
     }
@@ -65,6 +67,14 @@ public class FileSetting extends AbstractSettingType {
 
     public String getName() {
         return "file";
+    }
+
+    public void setRename(String name) {
+        m_rename = name;
+    }
+
+    public String getRename() {
+        return m_rename;
     }
 
     public void addZipExclude(String filename) {

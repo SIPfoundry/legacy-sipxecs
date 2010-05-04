@@ -31,10 +31,6 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
         m_profileDir = phone.getProfileDir();
     }
 
-    public String getSipBinaryFilename() {
-        return "sip.ld";
-    }
-
     public String getAppFilename() {
         return getDevice().getAppFilename();
     }
