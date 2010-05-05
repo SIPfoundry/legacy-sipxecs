@@ -207,6 +207,7 @@
       <replacefilter token="@sipxpbx.libexec.dir@" property="sipxpbx.libexec.dir"/>
       <replacefilter token="@sipxpbx.user@" property="sipxpbx.user"/>
       <replacefilter token="@sipxconfig.db.user@" property="sipxconfig.db.user"/>
+      <replacefilter token="@sipxvxml.data.dir@" property="sipxvxml.data.dir" />
       <replacefilter token="@bash@" property="bash"/>
       <replacefilter token="@prefix@" property="prefix"/>
       <replacefilter token="@classpath.run@" property="classpath.run"/>
