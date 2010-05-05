@@ -3,6 +3,7 @@
 
 <project name="sipXpage" default="jar" basedir="." >
 
+  <property name="project.dir" value="sipxpage" />
   <property name="debug" value="true"/>
   <patternset id="test.classes" excludes="**"/>
   <property name="build.dir" value="${top.build.dir}"/>
@@ -19,13 +20,13 @@
 
 
   <!-- J A R -->
-  <target name="jar" depends="compile" description="create jar file">
+  <target name="jar" depends="compile,manifest" description="create jar file">
 
-    <jar jarfile="${build.dir}/dist/sipXpage.jar">
+    <sipx-jar jarfile="${build.dir}/dist/sipXpage.jar">
       <fileset dir="${classes.dir}" >
         <include name="**/*.class" />
       </fileset>
-    </jar>
+    </sipx-jar>
   </target>
 
   <!--

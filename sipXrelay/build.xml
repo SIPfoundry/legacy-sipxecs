@@ -21,6 +21,7 @@
 
 
   	<import file="ant-targets.xml"/>
+  <property name="project.dir" value="sipxrelay" />
   	<property name="dist.dir" value="${top.build.dir}/dist" />
   	<property name="test.results.dir" value="${build.dir}/test-results" />
   	<property name="test.classes.dir" value="${build.dir}/tests"/>
@@ -102,7 +103,7 @@
   	</target>
 
 
-<!-- Compile the soruce code -->
+<!-- Compile the source code -->
 
 	<target name="compile.test"  description="compile the source and tests ">
 		<!-- Compile the java code from ${src} into ${classes} -->
@@ -119,7 +120,7 @@
 			</assertions>
 	</target>
 
-	<target name="compile-exclude-tests"  description="compile the source no tests">
+	<target name="compile-exclude-tests"  depends="init" description="compile the source no tests">
 		<!-- Compile the java code from ${src} into ${classes} -->
 		<mkdir dir="${classes}" />
 		<javac srcdir="${src.dir}/src/main/java"
@@ -134,15 +135,15 @@
 	</target>
 
 <!-- BUILD a Jar file -->
-	<target name="jar" depends="compile-exclude-tests" description="create a jar file" >
+	<target name="jar" depends="compile-exclude-tests, manifest" description="create a jar file" >
 		<mkdir dir="${build.dir}/dist" />
 		<copy file="${build.dir}/config.properties" todir="${classes}" />
-		<jar jarfile="${build.dir}/dist/sipXrelay.jar">
+		<sipx-jar jarfile="${build.dir}/dist/sipXrelay.jar">
 			<fileset dir="${classes}" >
 				<include name="**/*.class" />
 				<include name="config.properties" />
 			</fileset>
-		</jar>
+		</sipx-jar>
 	</target>
 
 <!-- Install the jar file -->

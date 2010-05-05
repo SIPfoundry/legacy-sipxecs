@@ -112,6 +112,29 @@
 
 
   <!--
+    - J A R  &  M A N I F E S T
+    -->
+  <target name="manifest">
+    <sipx-manifest/>
+  </target>
+
+  <presetdef name="sipx-manifest">
+    <manifest file="${dist.dir}/MANIFEST.MF">
+      <attribute name="Specification-Title" value="sipXbridge"/>
+      <attribute name="Specification-Version" value="${version}"/>
+      <attribute name="Specification-Vendor" value="SIPfoundry"/>
+      <attribute name="Implementation-Title" value="${build.dir}"/>
+      <attribute name="Implementation-Version" value="${version.buildno}"/>
+      <attribute name="Implementation-Vendor" value="SIPfoundry"/>
+    </manifest>
+  </presetdef>
+
+  <presetdef name="sipx-jar">
+    <jar manifest="${dist.dir}/MANIFEST.MF"/>
+  </presetdef>
+
+
+  <!--
    - C O M P I L E
    -->
   <target name="compile" depends="init" unless="subdirs"

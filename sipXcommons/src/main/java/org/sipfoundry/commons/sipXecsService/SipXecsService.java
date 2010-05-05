@@ -52,7 +52,8 @@ public abstract class SipXecsService implements StdinListener, Runnable {
        props.setProperty("log4j.appender.file.layout","org.sipfoundry.commons.log4j.SipFoundryLayout") ;
        props.setProperty("log4j.appender.file.layout.facility", mServiceName) ;
        PropertyConfigurator.configure(props) ;
-       LOG.info(mServiceName + " >>>>>>>>>>>>>>>> STARTED");
+       String version = getClass().getPackage().getImplementationVersion();
+       LOG.info(mServiceName + " " + version + " >>>>>>>>>>>>>>>> STARTED");
 
        // spawn thread to listen to stdin, and call gotInput when there is input
        stdIn = new BufferedReader(new InputStreamReader(System.in));

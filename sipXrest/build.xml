@@ -19,6 +19,7 @@
 
 
 
+  <property name="project.dir" value="sipxrest" />
   	<import file="ant-targets.xml"/>
   	<property name="dist.dir" value="${top.build.dir}/dist" />
   	<property name="test.results.dir" value="${build.dir}/test-results" />
@@ -106,7 +107,7 @@
   	</target>
 
 
-<!-- Compile the soruce code and install the test cases. -->
+<!-- Compile the source code and install the test cases. -->
 
 	<target name="compiletest"  description="compile tests ">
 		<!-- Compile the java code from ${src} into ${classes} -->
@@ -139,8 +140,8 @@
     	        <copy file="${build.dir}/dist/restletb.jar" todir="${dest.dir}${sipxrest.dir}/plugins"/>
 	</target>
 
-<!-- Compile the soruce code exclude the test cases. -->
-	<target name="compile-exclude-tests"  description="compile the source no tests">
+<!-- Compile the source code exclude the test cases. -->
+	<target name="compile-exclude-tests"  depends="init" description="compile the source no tests">
 		<!-- Compile the java code from ${src} into ${classes} -->
 		<mkdir dir="${classes}" />
 		<javac srcdir="${src.dir}/src/main/java"
@@ -154,15 +155,15 @@
 
 <!-- BUILD a Jar file -->
 	<target name="jar" 
-	depends="compile-exclude-tests" description="create a jar file" >
+	depends="compile-exclude-tests, manifest" description="create a jar file" >
 		<mkdir dir="${build.dir}/dist" />
 		<copy file="${build.dir}/config.properties" todir="${classes}" />
-		<jar jarfile="${build.dir}/dist/sipxrest.jar">
+		<sipx-jar jarfile="${build.dir}/dist/sipxrest.jar">
 			<fileset dir="${classes}" >
 				<include name="**/*.class" />
 				<include name="config.properties" />
 			</fileset>
-		</jar>
+		</sipx-jar>
 	</target>
 
      <target name="install">
