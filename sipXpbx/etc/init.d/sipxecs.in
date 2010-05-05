@@ -383,10 +383,6 @@ global_localhost_configured_check () {
         then
             # expect the ipv4 address
             echo "${localhost_localaddr}"  >> ${goodAddrs}
-        elif test "${localhost_localaddr}" = "::1"
-        then
-            # ignore the ipv6 address
-            :
         else
             echo "      ${localhost_localaddr}"  >> ${badAddrs}
         fi
@@ -395,7 +391,8 @@ global_localhost_configured_check () {
     then
         cat <<EOF
 The name 'localhost' must map to only the IPv4 address 127.0.0.1
-   Any other IPv4 address for that name may cause routing or authentication errors.
+   Any IPv6 address or other IPv4 address for that name may cause
+   routing or authentication errors.
 
    Remove the following addresses from /etc/hosts:
 
@@ -435,6 +432,10 @@ global_localhost_shared_check () {
                 ;;
             localhost.localdomain)
                 ;;
+            localhost4)
+                ;;
+            localhost4.localdomain4)
+                ;;
             *)
                 echo "      ${name}" >> ${badNames}
                 ;;
@@ -443,8 +444,11 @@ global_localhost_shared_check () {
     if [ -s ${badNames} ]
     then
         cat <<EOF
-The 127.0.0.1 address should map to only the names
-   'localhost.localdomain' and 'localhost'.
+The 127.0.0.1 address should map to only the names:
+   localhost
+   localhost.localdomain
+   localhost4
+   localhost4.localdomain4
 
    Any other name for that address may cause routing or authentication errors.
 
