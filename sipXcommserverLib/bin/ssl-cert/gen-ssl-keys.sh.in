@@ -89,7 +89,7 @@ caName=""
 configDir="@SIPX_CONFDIR@"
 
 # if there is a file of saved default answers for the questions, read them
-DefaultDefaults=SSL_DEFAULTS
+DefaultDefaults=./SSL_DEFAULTS
 Defaults=""
 
 DefaultServer=`hostname --fqdn`
@@ -1162,6 +1162,11 @@ do
                 break
             else
                 Defaults=${2}
+                if [ ! -r "${Defaults}" ]
+                then
+                    echo "Defaults file '${Defaults}' not found" 1>&2
+                    Action=USAGE
+                fi
                 shift # consume the switch ( for n values, consume n-1 )
             fi
             ;;
@@ -1249,7 +1254,10 @@ fi
 
 randomFile=${WorkDir}/rnd_seed
 
-test -r ${Defaults} && . ${Defaults}
+if [ -r ${Defaults} ]
+then
+    . ${Defaults} || exit 1
+fi
 
 case ${Action} in
 
