@@ -278,7 +278,7 @@ public class ConfigurationParser {
      * Create an account manager structure and initialize it with the information pointed to by
      * the given URL.
      *
-     * @param url -- the rul from where to fetch the config file.
+     * @param url -- the url from where to fetch the config file.
      *
      * @return
      */
@@ -308,10 +308,10 @@ public class ConfigurationParser {
         } catch (java.io.IOException ioe) {
             // Note that we do not have a debug file here so we need to print to stderr.
             ioe.printStackTrace(System.err);
-            throw new SipXbridgeException("Intiialzation exception", ioe);
+            throw new SipXbridgeException("Initialzation exception", ioe);
         } catch (org.xml.sax.SAXException se) {
             se.printStackTrace(System.err);
-            throw new SipXbridgeException("Intiialzation exception", se);
+            throw new SipXbridgeException("Initialzation exception", se);
         }
 
     }

@@ -107,7 +107,8 @@ public class ProtocolObjects {
             Logger stackLogger  = Logger.getLogger(StackLoggerImpl.class);
             stackLogger.addAppender(Gateway.logAppender);
             stackLogger.setLevel(Level.toLevel(logLevel));
-         
+            stackLogger.log(Level.toLevel(logLevel), "Stack logger set to level " + logLevel);
+
             /*
              * Break up the via encoding.
              */
@@ -143,4 +144,18 @@ public class ProtocolObjects {
         return sipStack;
     }
 
+    public static void setLogLevel(String logLevel) {
+        // stack log levels are "off by one": otherwise too much logging at DEBUG level
+        if (logLevel.equalsIgnoreCase("TRACE")) {
+            logLevel = "DEBUG";
+        }
+        else if (logLevel.equalsIgnoreCase("DEBUG")) {
+            logLevel = "INFO";
+        }
+
+        Logger stackLogger  = Logger.getLogger(StackLoggerImpl.class);
+        stackLogger.setLevel(Level.toLevel(logLevel));
+        stackLogger.log(Level.toLevel(logLevel), "Stack logger set to level " + logLevel);
+        // note that the stack properties (e.g. TRACE_ON_MESSAGE) are not dynamically adjusted
+    }
 }

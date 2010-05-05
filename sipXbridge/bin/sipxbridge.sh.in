@@ -94,7 +94,7 @@ setTruststoreOpts
 case ${Action} in
    RUN)
       echo $$ > @SIPX_RUNDIR@/sipxbridge.pid
-      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@  		\
+      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@ -Dlog.dir=@SIPX_LOGDIR@ \
 	 $TrustStoreOpts 				\
 	 $KeyStoreOpts					\
 	 -Djetty.x509.algorithm=$X509Algorithm		\

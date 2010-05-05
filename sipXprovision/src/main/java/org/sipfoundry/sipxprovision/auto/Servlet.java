@@ -143,7 +143,6 @@ public class Servlet extends HttpServlet {
             m_config = new Configuration();
             m_config.configureLog4j();
 
-            LOG.info("START.");
             LOG.debug(String.format("Unique ID - length: %d  set size: %d  combinations: %d.",
                     ShortHash.ID_LENGTH, ShortHash.ID_CHARS.length,
                     new Double(Math.pow(ShortHash.ID_CHARS.length, ShortHash.ID_LENGTH)).intValue()));

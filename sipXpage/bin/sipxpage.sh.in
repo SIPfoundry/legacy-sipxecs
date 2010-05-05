@@ -39,12 +39,13 @@ case ${Action} in
      JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
      LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXpage/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar`
      ClassPath=$LibPath
-     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@ \
+     exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@ -Dlog.dir=@SIPX_LOGDIR@\
          -cp $ClassPath sipxpage.SipXpage \
          $Args
      ;;
 
    STOP)
+     sleep 1
      sipx_stop sipxpage ${pidfile}
      ;;
 

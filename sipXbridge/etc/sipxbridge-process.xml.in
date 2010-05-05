@@ -25,4 +25,5 @@
     <file>@SIPX_CONFDIR@/sipxbridge.xml</file>
     <file required='false'>@SIPX_CONFDIR@/peeridentities.xml</file>
   </resources>
+  <stdinpipe>true</stdinpipe>
 </sipXecs-process>

@@ -12,6 +12,6 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/dnsjava.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/org.restlet.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-codec.jar"/>
-	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar"/>
+	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar" sourcepath="/SIPX_SRC_TOP/sipXcommons/src/main/java"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

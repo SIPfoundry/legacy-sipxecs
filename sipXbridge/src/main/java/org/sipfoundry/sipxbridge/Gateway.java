@@ -37,13 +37,11 @@ import net.java.stun4j.client.NetworkConfigurationDiscoveryProcess;
 import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.ConsoleAppender;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.SimpleLayout;
 import org.apache.xmlrpc.XmlRpcException;
 import org.sipfoundry.commons.alarm.SipXAlarmClient;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
-import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.sipxrelay.SymmitronClient;
@@ -58,15 +56,20 @@ import org.sipfoundry.sipxbridge.xmlrpc.SipXbridgeXmlRpcClient;
 public class Gateway {
 
     private static Logger logger = Logger.getLogger(Gateway.class.getPackage().getName());
-    private static Logger commonsLogger = Logger.getLogger("org.sipfoundry.commons");
 
     private static String configurationFile = "file:///etc/sipxpbx/sipxbridge.xml";
     private static String domainConfigFile = "file:///etc/sipxpbx/domain-config";
+    private static String peerIdentitiesFile = "file:///etc/sipxpbx/peeridentities.xml";
 
     /*
      * This is a reserved name for the sipxbridge user.
      */
     static final String SIPXBRIDGE_USER = "~~id~bridge";
+    /*
+     * Implementation of the SipXecsService
+     */
+    @SuppressWarnings("unused")
+    private static SipXbridgeService sipXbridgeService;
     /*
      * The account manager -- tracks user accounts. This is populated by reading
      * the sipxbridge.xml configuration file.
@@ -209,7 +212,7 @@ public class Gateway {
 
     private static int oldStunPort = -1;
 
-    private static HashSet<String> supportedTransports = new HashSet<String>(); 
+    private static HashSet<String> supportedTransports = new HashSet<String>();
 
     // ///////////////////////////////////////////////////////////////////////
 
@@ -283,15 +286,12 @@ public class Gateway {
     /**
      * Initialize the loggers for the libraries used.
      *
-     * @throws SipXbridgeExcception -
+     * @throws SipXbridgeException -
      *             if logging initialization failed.
      */
-    static void initializeLogging() throws SipXbridgeException {
+    static synchronized void initializeLogging(String logLevel) throws SipXbridgeException {
         try {
-           
-            BridgeConfiguration bridgeConfiguration = Gateway
-                    .getBridgeConfiguration();
-            String logLevel = bridgeConfiguration.getLogLevel();
+            accountManager.getBridgeConfiguration().setLogLevel(logLevel);
 
             java.util.logging.Level level = java.util.logging.Level.OFF;
             if (logLevel.equals("INFO"))
@@ -300,7 +300,7 @@ public class Gateway {
                 level = java.util.logging.Level.FINE;
             else if (logLevel.equals("TRACE"))
                 level = java.util.logging.Level.FINER;
-            else if (logLevel.equals("WARN"))
+            else if (logLevel.equals("WARNING"))
                 level = java.util.logging.Level.WARNING;
 
             /*
@@ -325,14 +325,6 @@ public class Gateway {
              * Add the file handler.
              */
             log.addHandler(fileHandler);
-
-            Gateway.logAppender = new SipFoundryAppender(
-                    new SipFoundryLayout(), Gateway.getLogFile(),true);
-            
-            logger.setLevel(Level.toLevel(logLevel));
-            logger.addAppender(logAppender);
-            commonsLogger.setLevel(Level.toLevel(logLevel));
-            commonsLogger.addAppender(logAppender);
         } catch (Exception ex) {
             throw new SipXbridgeException("Error initializing logging", ex);
         }
@@ -705,7 +697,7 @@ public class Gateway {
      *
      * @return the bridge log level.
      */
-    static String getLogLevel() {
+    static synchronized String getLogLevel() {
         return accountManager.getBridgeConfiguration().getLogLevel();
     }
 
@@ -1002,9 +994,9 @@ public class Gateway {
      *
      */
     static void start() throws SipXbridgeException {
-        // Wait for the configuration file to become available.
+        sipXbridgeService = new SipXbridgeService("sipxbridge");
 
-        Gateway.initializeLogging();
+        Gateway.initializeLogging(Gateway.getBridgeConfiguration().getLogLevel());
         Gateway.parseDomainConfigFile();
         Gateway.parsePeerIdentitiesFile();
 
@@ -1093,9 +1085,9 @@ public class Gateway {
 
     }
 
-    private static void parsePeerIdentitiesFile() {
+    public static synchronized void parsePeerIdentitiesFile() {
         Gateway.setConfigurationPath();
-        String peerIdentitiesFile = Gateway.configurationPath
+        Gateway.peerIdentitiesFile = Gateway.configurationPath
                 + "/peeridentities.xml";
 
         if (!new File(peerIdentitiesFile).exists()) {
@@ -1171,7 +1163,7 @@ public class Gateway {
         /*
          * Stop bridge, release all resources and exit.
          */
-        Gateway.initializeLogging();
+        Gateway.initializeLogging(Gateway.getBridgeConfiguration().getLogLevel());
         if ( logger.isDebugEnabled() ) logger.debug("exit()");
         /*
          * Initialize the HTTPS client.
@@ -1414,10 +1406,16 @@ public class Gateway {
 
     }
 
-    public static PeerIdentities getPeerIdentities() {
+    public static String getConfigFile() {
+        return configurationFile;
+    }
+
+    public static synchronized PeerIdentities getPeerIdentities() {
         return peerIdentities;
     }
 
-   
+    public static synchronized String getPeerIdentitiesFile() {
+        return peerIdentitiesFile;
+    }
 
 }

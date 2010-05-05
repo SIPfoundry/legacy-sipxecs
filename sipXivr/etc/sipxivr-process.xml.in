@@ -25,4 +25,5 @@
     <file>@SIPX_CONFDIR@/sipxivr.properties</file>
     <file>@SIPX_CONFDIR@/autoattendants.xml</file>
   </resources>
+  <stdinpipe>true</stdinpipe>
 </sipXecs-process>

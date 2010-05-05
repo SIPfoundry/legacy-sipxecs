@@ -22,6 +22,7 @@ import org.sipfoundry.conference.ConfRecordThread;
 public class SipXrecording implements Runnable {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxrecording");
     private static RecordingConfiguration s_config;
+    private static SipXrecordingService sipXrecordingService;
 
     private Socket m_clientSocket;
 
@@ -47,9 +48,14 @@ public class SipXrecording implements Runnable {
      * @throws Throwable
      */
     static void init() throws Throwable {
+        sipXrecordingService = new SipXrecordingService("sipxrecording");
+
         // Load the configuration
         s_config = RecordingConfiguration.get();
+        // log4j configuration is mostly done by SipXecsService; just need to set our level
+        sipXrecordingService.setLogLevel(s_config.getLogLevel());
 
+        /*
         // Configure log4j
         Properties props = new Properties();
         props.setProperty("log4j.rootLogger", "warn, file");
@@ -60,6 +66,7 @@ public class SipXrecording implements Runnable {
         props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
         props.setProperty("log4j.appender.file.layout.facility", "sipXrecording");
         PropertyConfigurator.configure(props);
+        */
         
         // Start conference recording task
         ConfRecordThread confThread = new ConfRecordThread(s_config);

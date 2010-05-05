@@ -8,6 +8,7 @@ package org.sipfoundry.sipxrelay;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -38,7 +39,6 @@ import net.java.stun4j.client.StunDiscoveryReport;
 
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.apache.xmlrpc.XmlRpcException;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
@@ -49,8 +49,6 @@ import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
 import org.sipfoundry.commons.alarm.SipXAlarmClient;
-import org.sipfoundry.commons.log4j.SipFoundryAppender;
-import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
 /**
  * The SIPXbridge XML RPC handler.
@@ -67,6 +65,11 @@ public class SymmitronServer implements Symmitron {
     protected static Timer timer = new Timer();
 
     private static String status;
+
+    /*
+     * Implementation of the SipXecsService
+     */
+    private static SipXrelayService sipXrelayService;
 
     /*
      * Map that pairs the SymSession id with the SymSession
@@ -148,6 +151,7 @@ public class SymmitronServer implements Symmitron {
      * Dir where config file is stored.
      */
     private static String configDir;
+    private static String configurationFile;
 
     private static final String STUN_FAILURE_ALARM_ID = "STUN_ADDRESS_DISCOVERY_FAILED";
 
@@ -1807,9 +1811,11 @@ public class SymmitronServer implements Symmitron {
     }
 
     public static void start() throws Exception {
+        sipXrelayService = new SipXrelayService("sipxrelay");
+
         SymmitronServer.configDir = System.getProperty("conf.dir",
                 "/etc/sipxpbx");
-        String configurationFile = configDir + "/nattraversalrules.xml";
+        configurationFile = configDir + "/nattraversalrules.xml";
         if (!new File(configurationFile).exists()) {
             System.err.println("Configuration file " + configurationFile
                     + " missing.");
@@ -1818,40 +1824,13 @@ public class SymmitronServer implements Symmitron {
 
         SymmitronConfig config = new SymmitronConfigParser().parse("file:"
                 + configurationFile);
+        // log4j configuration is mostly done by SipXecsService; just need to set our level
+        sipXrelayService.setLogLevel(adjustLogLevel(config.getLogLevel()));
 
         SymmitronServer.alarmClient = new SipXAlarmClient(config
                 .getSipXSupervisorHost(), config.getSipXSupervisorXmlRpcPort());
 
         InetAddress localAddr = findIpAddress(config.getLocalAddress());
-
-        if (config.getLogFileDirectory() == null) {
-            String installRoot = configDir.substring(0, configDir
-                    .indexOf("/etc/sipxpbx"));
-            config.setLogFileDirectory(installRoot + "/var/log/sipxpbx");
-        }
-        config.setLogFileName("sipxrelay.log");
-
-        // Configure log4j
-        Properties props = new Properties();
-        props.setProperty("log4j.rootLogger", "warn, file");
-        props.setProperty("log4j.logger.org.sipfoundry.sipxrelay",
-                SipFoundryLayout.mapSipFoundry2log4j(config.getLogLevel()).toString());
-        props.setProperty("log4j.appender.file", SipFoundryAppender.class.getName());
-        props.setProperty("log4j.appender.file.File", config.getLogFileDirectory() + "/" + config.getLogFileName());
-        props.setProperty("log4j.appender.file.layout", SipFoundryLayout.class.getName());
-        props.setProperty("log4j.appender.file.layout.facility", "JAVA");
-        String log4jProps = configDir + "/log4j.properties";
-        if (new File(log4jProps).exists()) {
-            Properties fileProps = new Properties();
-            fileProps.load(new FileInputStream(log4jProps));
-            String level = fileProps
-                    .getProperty("log4j.logger.org.sipfoundry.sipxrelay");
-            if (level != null) {
-                props.setProperty("log4j.logger.org.sipfoundry.sipxrelay",level);
-            }
-        }
-      
-        PropertyConfigurator.configure(props);
 
         SymmitronServer.setSymmitronConfig(config);
 
@@ -1895,6 +1874,23 @@ public class SymmitronServer implements Symmitron {
 
     }
     
+    public static String adjustLogLevel(String logLevel) {
+        String log4jProps = configDir + "/log4j.properties";
+        if (new File(log4jProps).exists()) {
+            Properties fileProps = new Properties();
+            try {
+                fileProps.load(new FileInputStream(log4jProps));
+                String level = fileProps.getProperty("log4j.logger.org.sipfoundry.sipxrelay");
+                if (level != null) {
+                    logLevel = level;
+                }
+            } catch (FileNotFoundException e) {
+            } catch (IOException e) {
+            }
+        }
+        return logLevel;
+    }
+
     public static void printBridges() {
       for ( Bridge bridge : SymmitronServer.bridgeMap.values() ) {
           logger.error("Bridge = " + bridge);
@@ -1907,6 +1903,10 @@ public class SymmitronServer implements Symmitron {
     
     public static Collection<Bridge> getBridges() {
        return SymmitronServer.bridgeMap.values();
+    }
+
+    public static String getConfigFile() {
+        return configurationFile;
     }
 
    
@@ -1941,13 +1941,5 @@ public class SymmitronServer implements Symmitron {
         }
     }
 
-	
-	
-
-	
-
-   
-
     
-
 }

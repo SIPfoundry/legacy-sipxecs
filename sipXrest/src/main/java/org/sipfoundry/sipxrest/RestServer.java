@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.Timer;
 
 import javax.net.ssl.SSLServerSocket;
-import javax.sip.SipFactory;
 import javax.sip.address.AddressFactory;
 import javax.sip.header.HeaderFactory;
 import javax.sip.message.MessageFactory;
@@ -24,8 +23,6 @@ import org.mortbay.http.SslListener;
 import org.mortbay.jetty.servlet.ServletHandler;
 import org.mortbay.util.InetAddrPort;
 import org.mortbay.util.ThreadedServer;
-import org.sipfoundry.commons.log4j.SipFoundryAppender;
-import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.restconfig.RestServerConfig;
 import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
 
@@ -33,6 +30,9 @@ public class RestServer {
     
     private static Logger logger = Logger.getLogger(RestServer.class);
     
+    @SuppressWarnings("unused")
+    private static SipXrestService restService;
+
     static final String PACKAGE = "org.sipfoundry.sipxrest";
     
     private static String configFileName = "/etc/sipxpbx/sipxrest-config.xml";
@@ -52,13 +52,15 @@ public class RestServer {
     private static AccountManagerImpl accountManager;
 
     private static SipStackBean sipStackBean;
-    
-  
+
     public static RestServerConfig getRestServerConfig() {
         return restServerConfig;
     }
-   
-   
+
+    public static String getRestServerConfigFile() {
+        return configFileName;
+    }
+
     /**
      * @param appender the appender to set
      */
@@ -214,12 +216,7 @@ public class RestServer {
 
         restServerConfig = new RestServerConfigFileParser().parse("file://"
                 + configFileName);
-        Logger.getLogger(PACKAGE).setLevel(
-                SipFoundryLayout.mapSipFoundry2log4j(restServerConfig.getLogLevel()));
-        setAppender(new SipFoundryAppender(new SipFoundryLayout(),
-                RestServer.getRestServerConfig().getLogDirectory()
-                +"/sipxrest.log"));
-        Logger.getLogger(PACKAGE).addAppender(getAppender());
+        restService = new SipXrestService("sipxrest");
         
         accountManager = new AccountManagerImpl();
         sipStackBean = new SipStackBean();

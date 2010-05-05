@@ -24,4 +24,5 @@
     <file>@SIPX_CONFDIR@/conferencebridge.xml</file>
     <file>@SIPX_CONFDIR@/sipxrecording.properties</file>
   </resources>
+  <stdinpipe>true</stdinpipe>
 </sipXecs-process>

@@ -46,6 +46,10 @@ public class RecordingConfiguration implements FreeSwitchConfigurationInterface 
         return update(false);
     }
     
+    public static String getConfigFile() {
+        return s_propertiesFile.getPath();
+    }
+
     /**
      * Load new Configuration object if the underlying properties files have changed since the last
      * time

@@ -16,15 +16,16 @@ import javax.sip.SipFactory;
 import javax.sip.SipProvider;
 import javax.sip.SipStack;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.siprouter.ProxyRouter;
+import org.sipfoundry.commons.sipXecsService.SipXecsService;
 import org.sipfoundry.commons.util.Hostname;
 
 import sipxpage.Configuration.PageGroupConfig;
 
-public class SipXpage implements LegListener
+public class SipXpage extends SipXecsService implements LegListener
 {
    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxpage");
 
@@ -33,6 +34,10 @@ public class SipXpage implements LegListener
    private ListeningPoint tcpListeningPoint;
    private SipProvider sipProvider;
    private LegSipListener legSipListener;
+
+   public SipXpage() {
+       super("sipxpage");
+   }
 
    /**
     * pageGroups holds the each PageGroup object that has been configured
@@ -43,6 +48,26 @@ public class SipXpage implements LegListener
    private Vector<PageGroup> pageGroups = new Vector<PageGroup>();
    private HashMap<String, PageGroup>user2Group = new HashMap<String, PageGroup>() ;
 
+   /// A config file has changed.
+   //  Child processes can implement this to handle the config changes as they wish.
+   //  Note that this method is called in the StdinListener thread, so the implementation must be threadsafe.
+   public void resourceChanged(String fileType, String configFile) {
+       LOG.debug("SipXpage::resourceChanged " + configFile + " (type " + fileType + ")");
+
+       // Reload the configuration and adjust the log level if necessary
+       config = new Configuration() ;
+       Level newLevel = SipFoundryLayout.mapSipFoundry2log4j(config.logLevel);
+       if (LOG.getLevel() != newLevel) {
+           setLogLevel(config.logLevel.toString());
+       }
+   }
+
+   /// The child process must exit.
+   public void shutdown() {
+       LOG.debug("SipXpage shutting down...");
+       sipStack.stop();
+       super.shutdown();
+   }
 
    /**
     * Initialize everything.
@@ -54,16 +79,8 @@ public class SipXpage implements LegListener
       // Load the configuration
       config = new Configuration() ;
 
-      // Configure log4j
-      Properties props = new Properties() ;
-      props.setProperty("log4j.rootLogger","warn, file") ;
-      props.setProperty("log4j.logger.org.sipfoundry.sipxpage",
-            SipFoundryLayout.mapSipFoundry2log4j(config.logLevel).toString()) ;
-      props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender") ;
-      props.setProperty("log4j.appender.file.File", "./sipxpage.log") ;
-      props.setProperty("log4j.appender.file.layout","org.sipfoundry.commons.log4j.SipFoundryLayout") ;
-      props.setProperty("log4j.appender.file.layout.facility","sipXpage") ;
-      PropertyConfigurator.configure(props) ;
+      // log4j configuration is mostly done by SipXecsService; just need to set our level
+      setLogLevel(config.logLevel.toString());
 
       // Start the SIP stack
       SipFactory sipFactory = null;
@@ -104,7 +121,6 @@ public class SipXpage implements LegListener
       // properties.setProperty("javax.sip.OUTBOUND_PROXY", proxy);
 
       properties.setProperty("javax.sip.ROUTER_PATH", ProxyRouter.class.getName());
-
 
       try {
          // Create SipStack object

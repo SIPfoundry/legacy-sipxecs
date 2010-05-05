@@ -75,7 +75,7 @@ case ${Action} in
      echo $$ > @SIPX_RUNDIR@/sipxrelay.pid
 
 
-     exec $JavaCmd -server -Dconf.dir=@SIPX_CONFDIR@  \
+     exec $JavaCmd -server -Dconf.dir=@SIPX_CONFDIR@ -Dlog.dir=@SIPX_LOGDIR@ \
 	 $TrustStoreOpts				\
 	 $KeyStoreOpts					\
 	 -Dsipxrelay.command=start \

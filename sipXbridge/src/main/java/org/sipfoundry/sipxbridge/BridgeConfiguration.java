@@ -36,7 +36,7 @@ public class BridgeConfiguration {
     private int sipxProxyPort = -1;
     private String sipxProxyDomain;
     private String stunServerAddress = null;
-    private String logLevel = "WARN";
+    private String logLevel = "WARNING";
     private String musicOnHoldName = "~~mh~";
     private boolean musicOnHoldEnabled = false;
     private int xmlRpcPort = 0;
@@ -210,7 +210,7 @@ public class BridgeConfiguration {
      * @param logLevel the logLevel to set (one of the sipXecs-defined levels)
      */
     public void setLogLevel(String level) {
-        this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();  
+        this.logLevel = SipFoundryLayout.mapSipFoundry2log4j(level).toString();
         if (logLevel.equals("DEBUG")) {
             try {
                 String log4jProps = Gateway.configurationPath + "/log4j.properties";

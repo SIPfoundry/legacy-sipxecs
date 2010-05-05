@@ -13,10 +13,13 @@ import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.util.Properties;
 
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.commons.codec.binary.Base64;
 
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.sipXecsService.SipXecsService;
 import org.sipfoundry.commons.util.Hostname;
 
 /**
@@ -24,7 +27,9 @@ import org.sipfoundry.commons.util.Hostname;
  *
  * @author Paul Mossman
  */
-public class Configuration {
+public class Configuration extends SipXecsService {
+
+    static final Logger LOG = Logger.getLogger("Configuration");
 
     private static final String DEFAULT_STRING = "unknown";
 
@@ -53,6 +58,7 @@ public class Configuration {
     private static final String DEBUG_BY_DEFAULT = "false";
 
     public Configuration() {
+        super("sipxprovision");
 
         // Passed on the command-line.
         String var_dir = System.getProperty("var.dir");
@@ -81,6 +87,8 @@ public class Configuration {
             m_ProvisionSipPassword = prov_config.getProperty("provision.password", DEFAULT_STRING);
             m_ConfigurationUri  = prov_config.getProperty("provision.configUrl", DEFAULT_STRING);
         }
+
+        setLogLevel(m_LogLevel);
     }
 
     protected static Properties loadProperties(String path_under_conf_dir) {
@@ -113,13 +121,8 @@ public class Configuration {
     public void configureLog4j() {
 
        Properties props = new Properties();
-       props.setProperty("log4j.rootLogger", "warn, file");
        props.setProperty("log4j.logger.Queue", getLog4jLevel());
        props.setProperty("log4j.logger.Servlet", getLog4jLevel());
-       props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender");
-       props.setProperty("log4j.appender.file.File", getLogfile());
-       props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
-       props.setProperty("log4j.appender.file.layout.facility", "");
        PropertyConfigurator.configure(props);
     }
 
@@ -197,6 +200,26 @@ public class Configuration {
             }
         }
         out.flush();
+    }
+
+    /// A config file has changed.
+    //  Child processes can implement this to handle the config changes as they wish.
+    //  Note that this method is called in the StdinListener thread, so the implementation must be threadsafe.
+    public void resourceChanged(String fileType, String configFile) {
+       LOG.debug("SipXprovision::resourceChanged " + configFile + " (type " + fileType + ")");
+
+       if (configFile.contains("/sipxprovision-config")) {
+          // Reload the configuration and adjust the log level if necessary
+          Properties prov_config = loadProperties("/sipxprovision-config");
+          if (null != prov_config) {
+              m_LogLevel = prov_config.getProperty("log.level", DEFAULT_STRING);
+          }
+          Level newLevel = SipFoundryLayout.mapSipFoundry2log4j(m_LogLevel);
+          if (LOG.getLevel() != newLevel) {
+             setLogLevel(m_LogLevel);
+             configureLog4j();
+          }
+       }
     }
 
     public static void main(String[] args) {

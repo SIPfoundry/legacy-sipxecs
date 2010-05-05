@@ -180,6 +180,10 @@ public class IvrConfiguration implements FreeSwitchConfigurationInterface {
         return m_logFile;
     }
 
+    public String getConfigFile() {
+        return s_propertiesFile.getPath();
+    }
+
     public int getEventSocketPort() {
         return m_eventSocketPort;
     }
