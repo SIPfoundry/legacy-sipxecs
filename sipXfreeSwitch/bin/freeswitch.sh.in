@@ -86,7 +86,6 @@ case ${Action} in
      if [ $iam = root ]
      then
         Status=0
-        echo -e "\n Installing FreeSWITCH folder \n"
         rm -rf $SIPXDIRS
         @SIPX_LIBEXECDIR@/setup.d/freeswitch_setup.sh
      else
