@@ -8,10 +8,10 @@
 #define _SIPXECSSERVICE_H_
 
 // SYSTEM INCLUDES
-
 // APPLICATION INCLUDES
+#include "sipXecsService/SignalTask.h"
+#include "sipXecsService/StdinListener.h"
 #include "utl/UtlString.h"
-#include "os/OsFS.h"
 #include "os/OsConfigDb.h"
 #include "os/OsSysLog.h"
 
@@ -24,8 +24,14 @@ typedef const char* const DirectoryType;
 /// Superclass for common features of all sipXecs services
 /**
  * This class provides for the common features of sipXecs service processes.
+ * It sets up the proper signal handling and listens for change notifications from the supervisor.
+ * It initializes the logfile and sets the log level based on the <serviceName>-config setting.
+ * It invokes change callbacks when config files change which subclasses can override to
+ * make changes dynamically.
+ * The superclass configDbChanged function reloads the <serviceName>-config when it changes
+ * and adjusts the log level appropriately.
  */
-class SipXecsService
+class SipXecsService : public StdinListener
 {
   public:
 
@@ -44,7 +50,7 @@ class SipXecsService
    /// Get a full path for a file in the specified directory type
    static OsPath Path(DirectoryType pathType, const char* fileName = NULL);
    /**<
-    * The returned path will concatentate the base directory type with the
+    * The returned path will concatenate the base directory type with the
     * OsPath;:separator and the file name (if either already contains the
     * separator where this concatenation would put it, then it is not inserted).
     *
@@ -77,6 +83,10 @@ class SipXecsService
    /// Name for the sipXecs system (can be overridden by environment or configure)
    static const char* Name();
 
+   /// Load the config file for this service.  Sets the log level; other settings must be parsed by service.
+   /// SipXecsService retains ownership of this configDB.
+   OsConfigDb* loadConfig();
+
    /// Read the log level from the specified config file and set it for the current process
    static OsSysLogPriority setLogPriority(const char* configSettingsFile, ///< path to configuration file
                               const char* servicePrefix, /**< the string "_LOG_LEVEL" is appended
@@ -100,17 +110,40 @@ class SipXecsService
                                                                           * level name */
                               );
 
+   void       setShutdownFlag(UtlBoolean state) {mSignalTask->setShutdownFlag(state);}
+   UtlBoolean getShutdownFlag() {return mSignalTask->getShutdownFlag();}
+   UtlString  getWorkingDirectory() {return mWorkingDirectory;}
+
+   /// Return reference to the configDb (from <service>-config)
+   OsConfigDb& getConfigDb() {return *mConfigDb;}
+
+   /// The config DB has changed.  Reloads it and adjusts the log level.
+   /// Child processes can override this; they should call SipXecsService::configDbChanged() and
+   /// then handle the other config changes as they wish.
+   virtual void configDbChanged(UtlString& configFile);
+
+   /// A config file has changed.
+   /// Child processes can implement this to handle the config changes as they wish.
+   virtual void resourceChanged(UtlString& fileType, UtlString& configFile);
+
+   /// Constructor.  Provide the service name, and follow with a call to loadConfig to load settings.
+   SipXecsService(const char* serviceName,   ///< used in <serviceName>.log, <serviceName>-config files
+                  const char* servicePrefix, ///< base of settings in <serviceName>-config file
+                  const char* version        ///< build version
+                  );
+
+   /// destructor
+   virtual ~SipXecsService();
+
+   // StdinListener interface:
+   /// Process input that has been received
+   void gotInput(UtlString& stdinMsg);
+
   protected:
 
    /// Translate a log level name string to the enum value
    static bool decodeLogLevel(UtlString& logLevel, OsSysLogPriority& priority);
    ///< @returns true iff a valid translation was found.
-
-   /// constructor
-   SipXecsService(const char* serviceName);
-
-   /// destructor
-   virtual ~SipXecsService();
 
   private:
 
@@ -131,6 +164,12 @@ class SipXecsService
    static const char* DefaultName;
 
    UtlString  mServiceName;
+   UtlString  mServiceConfigPrefix;
+   ChildSignalTask* mSignalTask;
+   StdinListenerTask* mStdinListenerTask;
+
+   OsConfigDb* mConfigDb;
+   UtlString  mWorkingDirectory;
 
    // @cond INCLUDENOCOPY
    /// There is no copy constructor.
@@ -139,6 +178,12 @@ class SipXecsService
    /// There is no assignment operator.
    SipXecsService& operator=(const SipXecsService& noassignmentoperator);
    // @endcond
+
+
+   void initSysLog(OsConfigDb* pConfig);
+
+   /// Reload the config file after a change notification.
+   OsConfigDb* reloadConfig();
 };
 
 #endif // _SIPXECSSERVICE_H_

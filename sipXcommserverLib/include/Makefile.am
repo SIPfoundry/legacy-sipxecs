@@ -8,7 +8,9 @@ nobase_includeHEADERS_INSTALL = $(INSTALL) -D -p -c -m 644
 nobase_include_HEADERS =  \
     sipXecsService/SipXecsService.h \
     sipXecsService/SharedSecret.h \
+    sipXecsService/SignalTask.h \
     sipXecsService/SipNonceDb.h \
+    sipXecsService/StdinListener.h \
     configrpc/ConfigRPC.h \
     sipdb/AliasDB.h \
     sipdb/AliasRow.h \
