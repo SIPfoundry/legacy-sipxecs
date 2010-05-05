@@ -17,8 +17,7 @@ CHECK_AUTOCONF
 AC_CONFIG_SRCDIR([src/os/OsConfigDb.cpp])
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
-# check the shared library file extension - sets LTDL_SHLIB_EXT
-AC_LTDL_SHLIBEXT
+AC_LIB_LTDL
 
 # Checks for programs.
 AC_PATH_PROG([BASH], [bash])

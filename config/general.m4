@@ -14,6 +14,7 @@ AC_DEFUN([CHECK_AUTOCONF],
     [:])
 ])
 
+
 # ============ C L O V E R  =======================
 AC_DEFUN([CHECK_CLOVER],
 [
@@ -530,16 +531,6 @@ AC_DEFUN([CHECK_APACHE2],
        AC_MSG_ERROR('httpd' not found; tried: $apache2_bin_search_path)
    fi
 
-   ## Get the version numbers for this Apache installation.
-   ## APACHE2_MMN is the module magic number, which is the version of
-   ## the API that modules have to interface to.
-   ## Some versions have a $incdir/.mmn file containing only the MMN, but
-   ## we can't depend on that.
-   apache2_mmn=`sed <$incdir/ap_mmn.h \
-                -e '/#define MODULE_MAGIC_NUMBER_MAJOR/!d' \
-                -e 's/#define MODULE_MAGIC_NUMBER_MAJOR //'`
-   AC_SUBST(APACHE2_MMN, $apache2_mmn)
-   AC_MSG_RESULT(apachd2_mmn=$apache2_mmn)
    ## APACHE2_VERSION is the Apache version number.
    ## This makes it easier for the uninitiated to see what versions of Apache
    ## might be compatible with this mod_cplusplus.  But compatibility is really
