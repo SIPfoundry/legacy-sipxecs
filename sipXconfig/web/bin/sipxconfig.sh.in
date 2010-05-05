@@ -25,6 +25,7 @@ Args=""
 : ${Chown:=chown}
 : ${LogDir:=@sipxpbx.log.dir@}
 : ${TmpDir:=@sipxpbx.tmp.dir@}
+: ${MailstoreDir:=@sipxvxml.data.dir@/mailstore}
 : ${RunningUser:=@sipxpbx.user@}
 : ${StorePassword:=changeit}
 : ${PostgresUser:=@sipxconfig.db.user@}
@@ -128,6 +129,8 @@ databaseCommand() {
     if [ $? != "0" ]; then
        echo "$CmdOut" | grep -v '^Unable to locate tools.jar' >&2
     fi
+
+    chown -R $RunningUser:$RunningUser ${MailstoreDir}
 }
 
 runningUserCheck() {
