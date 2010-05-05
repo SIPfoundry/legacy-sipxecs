@@ -43,6 +43,5 @@ public class EditCallResolverServiceTestUi extends WebTestCase {
         clickLink("editSipxService");
         SiteTestHelper.assertNoException(tester);
         assertElementPresent("setting:SIP_CALLRESOLVER_PURGE_AGE_CDR");
-        assertElementPresent("setting:SIP_CALLRESOLVER_REMOTE_ACCESS");
     }
 }
