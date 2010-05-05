@@ -1,6 +1,6 @@
 PROJECTS ?= @subdirs@
 
-PROJECTS_ORDERED ?= $(shell MAKEFLAGS= $(MAKE) -s -f @TOP_SRCDIR@/dependencies.mak  $(PROJECTS))
+PROJECTS_ORDERED ?= $(shell MAKEFLAGS= $(MAKE) -s -f @TOP_SRCDIR@/dependencies.mak sipXecs)
 
 # Useful for uninstalling targets
 PROJECTS_REVERSE := $(shell x=""; for i in $(PROJECTS_ORDERED); do x="$$i $$x"; done; echo $$x)
