@@ -257,7 +257,46 @@ public:
 
     enum messageRelationship whatRelation(const SipMessage& message,
                                           UtlBoolean isOutgoing) const;
-    //: Check if the given message is part of this transaction
+    //: Check if the given message is part of this transaction.  
+    //< returns enum messageRelationship values.   :
+    //<   Note: Per rfc-3261, if the proper via branch-id prefix is present, we only try to match branch ids.
+    //<         If the prefix is not present, we do all the work needed to compare to- and from- tags explicitly.   
+    //<
+    //< - MESSAGE_UNRELATED ---------- if match fails for any of: 
+    //<                                  {call id, via branch-id (if no 3261 prefix must match from-tag AND to-tag)}
+    //< - MESSAGE_SAME_SESSION ------- match ALL of {call id, via branch-id (if no 3261 prefix must match from-tag AND to-tag)} but NOT Cseq
+    //< - MESSAGE_DIFFERENT_BRANCH --- match ALL of {call id, via branch-id (if no 3261 prefix must match from-tag AND to-tag), Cseq} 
+    //<                                   BUT isServerTransaction() value of message doesn't match the transaction's value
+    //<                                     (one is a client transaction (is outbound request or inbound response) 
+    //                                        and the other is a server transaction (is inbound request or outbound response) )
+    //<                            --- match ALL of {call id, via branch-id (if no 3261 prefix must match from-tag AND to-tag), Cseq}
+    //<                                   BUT it is NOT true that-  
+    //<                                  - the branch ids of this message and this transaction match
+    //<                                  - OR the message branch id matches the parent's branch AND the RequestURIs match
+    //<                                  - OR it is an ACK request for this client UA(no more vias) which had a 2xx final response
+    //<                                  - OR it is an ACK request for this server which had a 2xx final response
+    //<                                  - OR it is an ACK request which had a 2xx final response, to be forwarded by proxy
+    //<                                  - OR it is a CANCEL request for this client UA(no more vias)
+    //<
+    //< The remaining responses are only set AFTER checking that none of the cases above occur!
+    //< - MESSAGE_REQUEST ---------------- is a request other than ACK or CANCEl with no previous request
+    //< - MESSAGE_PROVISIONAL ------------ is a provisional response (1xx)
+    //< - MESSAGE_FINAL ------------------ is a first response to any request
+    //< - MESSAGE_NEW_FINAL -------------- is a second (or later) response to an invite request with identical status but different to-tag 
+    //<                                        (different fork)
+    //<                              ----- is a second (or later) response to any request but with a different status code
+    //< - MESSAGE_CANCEL ----------------- is CANCEL request, regardless whether there is a previous request of any kind
+    //< - MESSAGE_CANCEL_RESPONSE -------- is a response to CANCEL request
+    //< - MESSAGE_ACK -------------------- is ACK request for transaction with 3xx or greater (non-2xx) response
+    //<                              ----- is ACK request for transaction with no final response
+    //<                              ----- is ACK request for transaction with no previous request
+    //< - MESSAGE_2XX_ACK ---------------- is ACK request for "server" transaction with 2xx response
+    //< - MESSAGE_2XX_ACK_PROXY ---------- is ACK request for "proxy" transaction with 2xx response
+    //< - MESSAGE_DUPLICATE -------------- is a second (or later) response to an invite request with identical to-tag and status (same fork)
+    //<                              ----- is a second (or later) response to other-than-invite with identical status
+    //<                              ----- is a second (or later) request with identical method 
+    //<                              ----- is a second (or later) request with different method but not ACK or CANCEL 
+
 
     UtlBoolean isBusy();
     //: is this transaction being used (e.g. locked)
@@ -386,7 +425,8 @@ private:
     UtlString mRequestMethod;
     int mCseq;
     UtlBoolean mIsServerTransaction; ///< TRUE = server, FALSE = client
-    UtlBoolean mIsUaTransaction;     ///< UA or proxy transaction
+    UtlBoolean mIsUaTransaction;     ///< UA or proxy transaction, TRUE unless created by proxy SipUserAgent or
+                                     ///<   if SUA::send message already has a VIA header
     UtlString mCancelReasonValue;    ///< Value of Reason header to be sent in CANCEL of any children (or null)
 
     // Address and transport that have been established for this transaction.

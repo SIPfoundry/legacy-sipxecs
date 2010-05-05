@@ -84,7 +84,7 @@ void SipTransactionList::addTransaction(SipTransaction* transaction,
 SipTransaction*
 SipTransactionList::findTransactionFor(const SipMessage& message,
                                        UtlBoolean isOutgoing,
-                   enum SipTransaction::messageRelationship& relationship)
+                                       enum SipTransaction::messageRelationship& relationship)
 {
     SipTransaction* transactionFound = NULL;
     SipTransaction* transaction2xxFound = NULL;
@@ -247,8 +247,7 @@ SipTransactionList::findTransactionFor(const SipMessage& message,
     UtlBoolean isBusy = FALSE;
     if(transactionFound == NULL)
     {
-        relationship =
-            SipTransaction::MESSAGE_UNKNOWN;
+        relationship = SipTransaction::MESSAGE_UNKNOWN;
     }
     else
     {

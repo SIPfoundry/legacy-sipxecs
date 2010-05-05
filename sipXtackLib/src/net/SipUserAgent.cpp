@@ -833,10 +833,10 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
    //mSipTransactions.lock();
 
    // verify that the transaction does not already exist
-   SipTransaction* transaction = mSipTransactions.findTransactionFor(
-      message,
-      TRUE, // outgoing
-      relationship);
+   SipTransaction* transaction = mSipTransactions.findTransactionFor(message,
+                                                                     TRUE, // outgoing
+                                                                     relationship);
+
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
    OsSysLog::add(FAC_SIP, PRI_DEBUG
                  ,"SipUserAgent[%s]::send "
@@ -879,10 +879,9 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       // Request for which a transaction already exists
       else
       {
-         // should not get here unless this is a CANCEL or ACK
-         // request
-         if((method.compareTo(SIP_CANCEL_METHOD) == 0) ||
-            (method.compareTo(SIP_ACK_METHOD) == 0))
+         // should not get here unless this is a CANCEL or ACK request
+         if ((method.compareTo(SIP_CANCEL_METHOD) == 0) 
+             || (method.compareTo(SIP_ACK_METHOD) == 0))
          {
             // no-op
          }
@@ -954,14 +953,12 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
          transaction->markBusy();
          mSipTransactions.addTransaction(transaction);
 
-         if (!isUaTransaction &&
-             parentTransaction)
+         if (!isUaTransaction && parentTransaction)
          {
             if (parentRelationship ==
                 SipTransaction::MESSAGE_DUPLICATE)
             {
-               // Link the parent server transaction to the
-               // child client transaction
+               // Link the parent server transaction to the child client transaction
                parentTransaction->linkChild(*transaction);
                // The parent will be unlocked with the transaction
             }
@@ -2601,11 +2598,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          {
             if(sipMessage)
             {
-               // WARNING: you cannot touch the contents of the transaction
-               // attached to the message until the transaction has been
-               // locked (via findTransactionFor, if no transaction is
-               // returned, it either no longer exists or we could not get
-               // a lock for it.
+               // WARNING: you cannot touch the contents of the transaction attached to the message until 
+               // the transaction has been locked (via findTransactionFor).
+               // if no transaction is returned, it either no longer exists or we could not get a lock for it.
 
                if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
                {
@@ -2635,20 +2630,19 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                           "searching for transaction",
                           getName().data());
 #           endif
-               SipTransaction* transaction =
-                  mSipTransactions.findTransactionFor(*sipMessage,
-                                                      TRUE, // timers are only set for outgoing messages I think
-                                                      relationship);
-               if(transaction)
+               SipTransaction* transaction = mSipTransactions.findTransactionFor(*sipMessage,
+                                                                                 TRUE, // timers are only set for outgoing messages I think
+                                                                                 relationship);
+               if (transaction)
                {
 #ifdef TRANSACTION_MATCH_DEBUG // enable only for transaction match debugging - log is confusing otherwise
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipUserAgent[%s]::handleMessage(resend) found transaction %p",
+                          "SipUserAgent[%s]::handleMessage "
+                          "(resend) found transaction %p",
                           getName().data(), transaction);
 #endif
-                   // If we are in shutdown mode, unlock the transaction
-                   // and set it to null.  We pretend that the transaction
-                   // does not exist (i.e. no-op).
+                   // If we are in shutdown mode, unlock the transaction and set it to null.
+                   // We pretend that the transaction does not exist (i.e. no-op).
                    if (mbShuttingDown || mbShutdownDone)
                    {
                        mSipTransactions.markAvailable(*transaction);
@@ -2657,11 +2651,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                }
 
 
-               // If we cannot lock it, it does not exist (or at least
-               // pretend it does not exist.  The transaction will be
-               // null if it has been deleted or we cannot get a lock
-               // on the transaction.
-               if(transaction)
+               // If we cannot lock it, it does not exist (or at least we  pretend it does not exist).
+               // The transaction will be null if it has been deleted or we cannot get a lock on it.
+               if (transaction)
                {
                   SipMessage* delayedDispatchMessage = NULL;
                   transaction->handleResendEvent(*sipMessage,
