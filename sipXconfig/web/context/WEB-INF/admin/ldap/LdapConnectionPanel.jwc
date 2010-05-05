@@ -31,8 +31,8 @@
   </component>
   <component id="port" type="TextField">
     <binding name="value" value="lcp.port"/>
-    <binding name="translator" value="translator:sipxnumber,omitZero=true"/>
-    <binding name="validators" value="validators:required"/>
+    <binding name="translator" value="translator:integer,omitZero=true"/>
+    <binding name="validators" value="validators:required,min=1,max=65535"/>
     <binding name="displayName" value="message:label.port"/>
   </component>
 

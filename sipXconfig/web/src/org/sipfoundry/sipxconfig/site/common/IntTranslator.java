@@ -42,10 +42,11 @@ public class IntTranslator extends SipxconfigNumberTranslator {
     @Override
     protected Object parseText(IFormComponent field, ValidationMessages messages, String text)
         throws ValidatorException {
-        if (text.matches("(\\d)+(\\D)+")) {
-            throw new ValidatorException(buildMessage(messages, field, getMessageKey()), getConstraint());
-        } else {
+        try {
+            Integer.parseInt(text);
             return super.parseText(field, messages, text);
+        } catch (NumberFormatException e) {
+            throw new ValidatorException(buildMessage(messages, field, getMessageKey()), getConstraint());
         }
     }
 }

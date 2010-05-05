@@ -39,7 +39,17 @@ public class EditSbcDeviceTestUi extends WebTestCase {
 
         selectOption("PropertySelection", "Unmanaged SBC");
         setTextField("sbcDevice:name", "sbc1");
+        setTextField("sbcDevice:address", "22");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
         setTextField("sbcDevice:address", "10.1.1.1");
+        setTextField("sbcDevice:port", "20ab");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        setTextField("sbcDevice:port", "-1");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        setTextField("sbcDevice:port", "100");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
         sbcsTable = getTable("list:sbc");
@@ -111,5 +121,16 @@ public class EditSbcDeviceTestUi extends WebTestCase {
         clickButton("form:cancel");
         assertTableRowCountEquals("list:sbc", rowCount);
 
+    }
+
+    public void testSbcPort() {
+        selectOption("PropertySelection", "Unmanaged SBC");
+
+        setWorkingForm("Form");
+        setTextField("sbcDevice:name", "uniqueSbcName");
+        setTextField("sbcDevice:address", "10.1.1.2");
+        setTextField("sbcDevice:port", "2a");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
     }
 }

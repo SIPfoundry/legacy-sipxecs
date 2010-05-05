@@ -106,4 +106,22 @@ public class LocationsPageTestUi extends WebTestCase {
         // does not throw exceptions any more since replication happens in the background
         SiteTestHelper.assertNoException(tester);
     }
+
+    public void testNatPanel() {
+        SiteTestHelper.assertNoUserError(tester);
+        assertTextPresent("host.example.org");
+        assertEquals("Registered", SiteTestHelper.getCellAsText(getTable("locations:list"), 1, 4));
+        clickLink("editLocationLink");
+        clickLink("link:natLocation");
+        setTextField("stunInterval", "abc");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        setTextField("stunInterval", "1025");
+        setTextField("publicPort", "77777");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        setTextField("publicPort", "20abc");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+    }
 }

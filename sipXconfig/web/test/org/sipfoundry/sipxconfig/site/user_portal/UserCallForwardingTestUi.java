@@ -137,4 +137,24 @@ public class UserCallForwardingTestUi extends WebTestCase {
         clickButton("schedule:delete");
         SiteTestHelper.assertNoUserError(tester);
     }
+
+    public void testRingingTime() throws Exception {
+        SiteTestHelper.home(getTester());
+        clickLink("UserCallForwarding");
+
+        setWorkingForm("callForwardingForm");
+        setTextField("delay", "2");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+
+        setWorkingForm("callForwardingForm");
+        setTextField("delay", "2abc");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+
+        setWorkingForm("callForwardingForm");
+        setTextField("delay", "12345678910");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+    }
 }

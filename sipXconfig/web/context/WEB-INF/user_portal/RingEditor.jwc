@@ -60,7 +60,7 @@
   <component id="expiration" type="TextField">
     <binding name="value" value="ring.expiration"/>
     <binding name="displayName" value="message:label.ring"/>
-    <binding name="translator" value="translator:sipxnumber,omitZero=true"/>
+    <binding name="translator" value="translator:integer,omitZero=true"/>
     <binding name="validators" value="validators:required,min=1,max=999"/>
   </component>
   <component id="deleteRing" type="DirectLink">
