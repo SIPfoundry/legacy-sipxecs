@@ -28,10 +28,12 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-AppearanceGroupFileReader::AppearanceGroupFileReader(const UtlString& appearanceGroupFile,
+AppearanceGroupFileReader::AppearanceGroupFileReader(SipXecsService* service,
+                                                     const UtlString& appearanceGroupFile,
                                                AppearanceGroupSet* appearanceGroupSet
                                                ) :
    RefreshingFileReader(),
+   mService(service),
    mAppearanceGroupSet(appearanceGroupSet)
 {
    setFileName(&appearanceGroupFile);
@@ -117,7 +119,7 @@ OsStatus AppearanceGroupFileReader::initialize()
          mAppearanceGroupSet->getAllAppearanceGroups(oldGroupList);
          UtlSListIterator oldGroupItor(oldGroupList);
          UtlString* group;
-         while (!gShutdownFlag && (group = dynamic_cast <UtlString*> (oldGroupItor())))
+         while (!mService->getShutdownFlag() && (group = dynamic_cast <UtlString*> (oldGroupItor())))
          {
             UtlSListIterator newGroupItor(newGroupList);
             UtlString* newGroup;
@@ -137,7 +139,7 @@ OsStatus AppearanceGroupFileReader::initialize()
          }
          // For all groups in the new list, add to GroupSet if they are not there.
          UtlSListIterator groupItor(newGroupList);
-         while (!gShutdownFlag && (group = dynamic_cast <UtlString*> (groupItor())))
+         while (!mService->getShutdownFlag() && (group = dynamic_cast <UtlString*> (groupItor())))
          {
             if (!mAppearanceGroupSet->findAppearanceGroup(group->data()))
             {

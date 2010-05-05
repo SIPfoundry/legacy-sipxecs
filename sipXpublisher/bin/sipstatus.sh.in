@@ -44,7 +44,7 @@ case ${Action} in
    CONFIGTEST)
      Status=0
 
-     sipx_config_exists @SIPX_CONFDIR@/status-config
+     sipx_config_exists @SIPX_CONFDIR@/sipstatus-config
      Status=$(($Status+$?))
      sipx_config_exists @SIPX_CONFDIR@/status-plugin.xml
      Status=$(($Status+$?))

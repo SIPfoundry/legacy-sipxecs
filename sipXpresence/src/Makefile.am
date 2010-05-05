@@ -18,6 +18,8 @@ sipxpresence_CXXFLAGS = \
 sipxpresence_SOURCES =  \
 	$(top_builddir)/config/sipxpresence-buildstamp.h \
 	$(top_builddir)/config/sipxpresence-buildstamp.cpp \
+	AcdPresenceService.h \
+	AcdPresenceService.cpp \
 	main.cpp
 
 noinst_HEADERS =

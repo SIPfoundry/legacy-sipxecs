@@ -16,7 +16,7 @@
  *   of the originator of the REGISTER, and if so, creates and sends those SUBSCRIBE
  *   requests.
  *
- * Configuration is in the registrar-config file.  Directives that begin with the
+ * Configuration is in the sipregistrar-config file.  Directives that begin with the
  *   ConfigPrefix (const below) specify a regular expression to be checked against
  *   the User-Agent value in the REGISTER request.  When it matches, this module
  *   generates a SUBSCRIBE for message waiting indication on behalf of the phone.

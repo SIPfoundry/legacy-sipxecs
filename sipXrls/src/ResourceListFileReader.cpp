@@ -33,9 +33,11 @@
 /* ============================ CREATORS ================================== */
 
 // Constructor
-ResourceListFileReader::ResourceListFileReader(const UtlString& resourceListFile,
+ResourceListFileReader::ResourceListFileReader(SipXecsService* service,
+                                               const UtlString& resourceListFile,
                                                ResourceListSet* resourceListSet) :
    RefreshingFileReader(),
+   mService(service),
    mResourceListSet(resourceListSet)
 {
    setFileName(&resourceListFile);
@@ -92,7 +94,7 @@ OsStatus ResourceListFileReader::initialize()
          for (TiXmlNode* list_node = 0;
               (list_node = lists_node->IterateChildren("list",
                                                        list_node)) &&
-                 !gShutdownFlag;
+                 !mService->getShutdownFlag();
             )
          {
             if (list_node->Type() == TiXmlNode::ELEMENT)
@@ -152,7 +154,7 @@ OsStatus ResourceListFileReader::initialize()
                   for (TiXmlNode* resource_node = 0;
                        (resource_node = list_element->IterateChildren("resource",
                                                                       resource_node)) &&
-                          !gShutdownFlag;
+                          !mService->getShutdownFlag();
                      )
                   {
                      if (resource_node->Type() == TiXmlNode::ELEMENT)

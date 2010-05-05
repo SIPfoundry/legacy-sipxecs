@@ -54,7 +54,8 @@ class ResourceListServer : public UtlContainableAtomic
   public:
 
    //! Construct a resource list server.
-   ResourceListServer(/** The host-part of the canonical form of the resource list
+   ResourceListServer(SipXecsService* service,
+                      /** The host-part of the canonical form of the resource list
                         *  URIs, which is the sipX domain. */
                       const UtlString& domainName,
                       /// The realm used for authentication
@@ -217,6 +218,7 @@ class ResourceListServer : public UtlContainableAtomic
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
+   SipXecsService* mService;
    //! SIP domain name.
    UtlString mDomainName;
    //! The server local host-part.

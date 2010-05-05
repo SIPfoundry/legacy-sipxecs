@@ -160,10 +160,10 @@ void sig_routine(int sig)
 }
 
 
-class SignalTask : public OsTask
+class SupervisorSignalTask : public OsTask
 {
 public:
-   SignalTask() : OsTask("SignalTask") {}
+   SupervisorSignalTask() : OsTask("SupervisorSignalTask") {}
 
    int
    run(void *pArg)
@@ -276,9 +276,6 @@ void forkSupervisorInWaiting()
 
 int main(int argc, char* argv[])
 {
-   // All osPrintf output should go to the console until the log file is initialized.
-   enableConsoleOutput(true);
-
    UtlString argString;
 
     for (int argIndex = 1; argIndex < argc; argIndex++)
@@ -296,7 +293,7 @@ int main(int argc, char* argv[])
         }
         if (argString.compareTo("-v") == 0)
         {
-           osPrintf("sipxsupervisor %s\n\n", SipXsupervisorVersion);
+           printf("sipxsupervisor %s (%s)\n", SipXsupervisorVersion, SipXsupervisorBuildStamp);
            return 0;
         }
         else
@@ -307,9 +304,9 @@ int main(int argc, char* argv[])
 
         if (usageExit)
         {
-            osPrintf("usage: %s [-h] [-v]\n", argv[0]);
-            osPrintf(" -h           Print this help and exit.\n");
-            osPrintf(" -v           Print version number.\n");
+            printf("usage: %s [-h] [-v]\n", argv[0]);
+            printf(" -h           Print this help and exit.\n");
+            printf(" -v           Print version number.\n");
             return valueExit;
         }
     }
@@ -407,9 +404,6 @@ int supervisorMain(bool bOriginalSupervisor)
     SupervisorSignalTask signalTask;
     signalTask.start() ;
 
-    // All osPrintf output should go to the console until the log file is initialized.
-    enableConsoleOutput(true);
-
     // Initialize the log file.
     OsSysLog::initialize(0, "Supervisor") ;
     UtlString logFile = SipXecsService::Path(SipXecsService::LogDirType, "sipxsupervisor.log");
@@ -424,9 +418,6 @@ int supervisorMain(bool bOriginalSupervisor)
                   ">>>>> Starting sipxsupervisor version %s",
                   SipXsupervisorVersion);
 
-    // Now that the log file is initialized, stop sending osPrintf to the console.
-    // All relevant log messages from this point on must use OsSysLog::add().
-    enableConsoleOutput(false);
     fflush(NULL); // Flush all output so children don't get a buffer of output
 
     // Open the supervisor configuration file

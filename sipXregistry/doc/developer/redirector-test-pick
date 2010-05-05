@@ -20,7 +20,7 @@
 # and Contact: headers from the responses.  Any lines in
 # $SIPX_LOGDIR/sipregistrar.log containing "SipRedirector" are also
 # logged.  It may help to set "SIP_REGISTRAR_LOG_LEVEL : DEBUG" in
-# $SIPX_CONFDIR/registrar-config.
+# $SIPX_CONFDIR/sipregistrar-config.
 
 # Tests:
 #
@@ -82,7 +82,7 @@ echo Loading IMDB...
 
 # Get the global call pick-up code.
 GLOBAL_CALL_PICKUP=$(
-    grep <$SIPX_CONFDIR/registrar-config \
+    grep <$SIPX_CONFDIR/sipregistrar-config \
 	'^ *SIP_REGISTRAR_GLOBAL_PICKUP_ID *:' |
     sed -e 's/^ *SIP_REGISTRAR_GLOBAL_PICKUP_ID *: *//' -e 's/ *$//'
     )
@@ -90,7 +90,7 @@ GLOBAL_CALL_PICKUP=$(
 GLOBAL_CALL_PICKUP="${GLOBAL_CALL_PICKUP:-*76}"
 # Get the call pick-up code.
 CALL_PICKUP=$(
-    grep <$SIPX_CONFDIR/registrar-config \
+    grep <$SIPX_CONFDIR/sipregistrar-config \
 	'^ *SIP_REGISTRAR_CALL_PICKUP_ID *:' |
     sed -e 's/^ *SIP_REGISTRAR_CALL_PICKUP_ID *: *//' -e 's/ *$//'
     )

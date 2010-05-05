@@ -1,6 +1,4 @@
-SIP_RLS_LOG_DIR :
 SIP_RLS_LOG_LEVEL : $settings.getSetting('SIP_RLS_LOG_LEVEL').Value
-SIP_RLS_LOG_CONSOLE : 
 SIP_RLS_UDP_PORT : $rlsService.rlsPort
 SIP_RLS_TCP_PORT : $rlsService.rlsPort
 SIP_RLS_BIND_IP : $location.address

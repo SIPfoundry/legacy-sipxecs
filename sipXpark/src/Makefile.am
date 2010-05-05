@@ -29,11 +29,13 @@ sipxpark_SOURCES =  \
 	$(top_builddir)/config/sipxpark-buildstamp.cpp \
 	main.cpp \
 	OrbitListener.cpp \
-	ParkedCallObject.cpp
+	ParkedCallObject.cpp \
+	ParkService.cpp
 
 noinst_HEADERS = \
 	OrbitListener.h \
-	ParkedCallObject.h
+	ParkedCallObject.h \
+	ParkService.h
 
 install-exec-hook :
 

@@ -66,7 +66,9 @@ libsipXproxy_la_SOURCES = \
    CallStateEventWriter_XML.h \
    CallStateEventWriter_XML.cpp \
    CallStateEventWriter_DB.h \
-   CallStateEventWriter_DB.cpp
+   CallStateEventWriter_DB.cpp \
+   ProxyService.h \
+   ProxyService.cpp
 
 libsipXproxy_la_CXXFLAGS = \
 	$(SIPXPROXY_COMMON_CXX_FLAGS)

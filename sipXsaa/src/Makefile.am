@@ -32,7 +32,8 @@ sipxsaa_SOURCES =  \
 	ResourceSubscriptionReceiver.cpp \
 	ResourceNotifyReceiver.cpp \
 	ResourceListMsg.cpp \
-	AppearanceAgent.cpp
+	AppearanceAgent.cpp \
+	AppearanceAgentService.cpp
 
 noinst_HEADERS = \
 	AppAgentSubscribePolicy.h \
@@ -42,6 +43,7 @@ noinst_HEADERS = \
 	AppearanceGroupFileReader.h \
 	AppearanceGroupSet.h \
 	AppearanceAgent.h \
+	AppearanceAgentService.h \
 	ResourceSubscriptionReceiver.h \
 	ResourceNotifyReceiver.h \
 	ResourceListMsg.h \

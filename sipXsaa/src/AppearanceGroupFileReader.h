@@ -13,6 +13,7 @@
 // APPLICATION INCLUDES
 
 #include "filereader/RefreshingFileReader.h"
+#include "sipXecsService/SipXecsService.h"
 
 // DEFINES
 // MACROS
@@ -35,7 +36,8 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   AppearanceGroupFileReader(/// file name to read from or ""
+   AppearanceGroupFileReader(SipXecsService* service,
+                             /// file name to read from or ""
                           const UtlString& appearanceGroupFile,
                           AppearanceGroupSet* appearanceGroupSet
          );
@@ -60,6 +62,8 @@ private:
 
     AppearanceGroupFileReader& operator=(const AppearanceGroupFileReader& rAppearanceGroupFileReader);
     //:Assignment operator
+
+    SipXecsService* mService;
 
     //! The AppearanceGroupSet to load from the file.
     AppearanceGroupSet* mAppearanceGroupSet;

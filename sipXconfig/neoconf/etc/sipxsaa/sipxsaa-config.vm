@@ -1,6 +1,4 @@
-SIP_SAA_LOG_DIR :
 SIP_SAA_LOG_LEVEL : ${saaService.logLevel}
-SIP_SAA_LOG_CONSOLE :
 SIP_SAA_UDP_PORT : ${saaService.udpPort}
 SIP_SAA_TCP_PORT : ${saaService.tcpPort}
 SIP_SAA_BIND_IP : ${location.address}

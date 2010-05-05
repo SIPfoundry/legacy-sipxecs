@@ -38,7 +38,7 @@ SubscribePersistThread::SubscribePersistThread(StatusServer& statusServer) :
 {
    // Get the persist interval.  This configuration parameter is provided mainly for
    // testing and debugging.  Usually it is not set explicitly in the configuration file.
-   mStatusServer.getConfigDb().get("SIP_STATUS_PERSIST_INTERVAL", mPersistInterval);
+   mStatusServer.getConfigDb()->get("SIP_STATUS_PERSIST_INTERVAL", mPersistInterval);
    if (mPersistInterval == -1)
    {
       mPersistInterval = SIP_STATUS_DEFAULT_PERSIST_INTERVAL;

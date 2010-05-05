@@ -16,9 +16,6 @@
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
-
-extern UtlBoolean gShutdownFlag;
-
 // CONSTANTS
 // STRUCTS
 // TYPEDEFS

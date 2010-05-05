@@ -29,7 +29,6 @@
 #include "RlsTestFixtures.h"
 
 // GLOBALS
-UtlBoolean    gShutdownFlag = FALSE;
 
 class AppearanceAgentTest : public CppUnit::TestCase
 {
@@ -93,7 +92,9 @@ public:
       // Stop SipUserAgent from rejecting all SUBSCRIBEs
       pSipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD, true);
 
-      pAppearanceAgentUnderTest = new AppearanceAgent(
+      SipXecsService* saaTestService = new SipXecsService("sipxsaaTest", "SIPX_SAA", "TestCase");
+
+      pAppearanceAgentUnderTest = new AppearanceAgent(saaTestService,
                                        domainName, // domain
                                        "rlstest.test", // realm
                                        NULL,  // line manager

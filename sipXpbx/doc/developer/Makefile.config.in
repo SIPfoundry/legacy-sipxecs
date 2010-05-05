@@ -153,8 +153,8 @@ log-debug:
 	cd @SIPX_CONFDIR@ ; \
 	for FILE in \
 	    mediaserver-config.in sipXproxy-config.in \
-	    registrar-config.in sipxdialog-config.in sipxpark-config.in \
-	    sipxpresence-config.in status-config.in voicemail.xml.in ; \
+	    sipregistrar-config.in sipxdialog-config.in sipxpark-config.in \
+	    sipxpresence-config.in sipstatus-config.in voicemail.xml.in ; \
 	do \
 	    mv $$FILE $$FILE.tmp ; \
 	    sed <$$FILE.tmp >$$FILE \

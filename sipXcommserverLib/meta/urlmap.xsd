@@ -204,7 +204,7 @@
         the request URI being transformed.
 
         Configuration tokens - the values for these are taken from system
-        configuration variables (see sipXregistry/registrar-config):
+        configuration variables (see sipXregistry/sipregistrar-config):
           {localhost}
           {mediaserver}
           {voicemail}

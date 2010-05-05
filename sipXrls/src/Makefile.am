@@ -36,6 +36,7 @@ sipxrls_SOURCES =  \
 	ResourceNotifyReceiver.cpp \
 	ResourceReference.cpp \
 	ResourceSubscriptionReceiver.cpp \
+	RlsService.cpp \
 	RlsSubscribePolicy.cpp \
 	SubscriptionSet.cpp
 
@@ -53,6 +54,7 @@ noinst_HEADERS = \
 	ResourceNotifyReceiver.h \
 	ResourceReference.h \
 	ResourceSubscriptionReceiver.h \
+	RlsService.h \
 	RlsSubscribePolicy.h \
 	SubscriptionSet.h \
 	main.h

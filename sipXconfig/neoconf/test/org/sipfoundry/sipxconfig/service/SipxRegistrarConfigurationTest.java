@@ -130,14 +130,14 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         m_out.setLocationsManager(locationsManager);
 
         m_out.setSipxServiceManager(m_sipxServiceManager);
-        m_out.setTemplate("sipxregistrar/registrar-config.vm");
+        m_out.setTemplate("sipxregistrar/sipregistrar-config.vm");
     }
 
     public void testWriteWithoutOpenfire() throws Exception {
         expect(m_sipxServiceManager.isServiceInstalled("sipxOpenfireService")).andReturn(false);
         replay(m_sipxServiceManager);
 
-        assertCorrectFileGeneration(m_out, "expected-registrar-config-without-openfire");
+        assertCorrectFileGeneration(m_out, "expected-sipregistrar-config-without-openfire");
         verify(m_sipxServiceManager);
 
     }
@@ -146,7 +146,7 @@ public class SipxRegistrarConfigurationTest extends SipxServiceTestBase {
         expect(m_sipxServiceManager.isServiceInstalled("sipxOpenfireService")).andReturn(true);
         replay(m_sipxServiceManager);
 
-        assertCorrectFileGeneration(m_out, "expected-registrar-config-with-openfire");
+        assertCorrectFileGeneration(m_out, "expected-sipregistrar-config-with-openfire");
         verify(m_sipxServiceManager);
 
     }

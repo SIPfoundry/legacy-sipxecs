@@ -14,6 +14,7 @@
 // APPLICATION INCLUDES
 
 #include "filereader/RefreshingFileReader.h"
+#include "sipXecsService/SipXecsService.h"
 
 // DEFINES
 // MACROS
@@ -36,7 +37,8 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   ResourceListFileReader(/// file name to read from or ""
+   ResourceListFileReader(SipXecsService* service,
+                          /// file name to read from or ""
                           const UtlString& resourceListFile,
                           /// ResourceListSet to load
                           ResourceListSet* resourceListSet);
@@ -61,6 +63,8 @@ private:
 
     ResourceListFileReader& operator=(const ResourceListFileReader& rResourceListFileReader);
     //:Assignment operator
+
+    SipXecsService* mService;
 
     //! The ResourceListSet to load from the file.
     ResourceListSet* mResourceListSet;

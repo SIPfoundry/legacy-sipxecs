@@ -1,6 +1,4 @@
-SIP_PARK_LOG_DIR : 
 SIP_PARK_LOG_LEVEL : $settings.getSetting('SIP_PARK_LOG_LEVEL').Value
-SIP_PARK_LOG_CONSOLE : 
 SIP_PARK_UDP_PORT : ${parkService.parkServerSipPort}
 SIP_PARK_TCP_PORT : ${parkService.parkServerSipPort}
 SIP_PARK_BIND_IP : $!{location.address}

@@ -19,6 +19,7 @@ sipstatus_SOURCES =  \
     $(top_builddir)/config/sipxpublisher-buildstamp.cpp \
     statusserver/main.cpp \
     statusserver/MwiPlugin.cpp \
+    statusserver/MwiStatusService.cpp \
     statusserver/Notifier.cpp \
     statusserver/PluginXmlParser.cpp \
     statusserver/StatusPluginReference.cpp \
@@ -27,3 +28,6 @@ sipstatus_SOURCES =  \
     statusserver/SubscribeServerPluginBase.cpp \
     statusserver/SubscribeServerThread.cpp \
     statusserver/WebServer.cpp
+
+noinst_HEADERS = \
+    statusserver/MwiStatusService.h

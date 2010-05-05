@@ -30,7 +30,9 @@ const int AppearanceAgent::sChangeDelay = 10;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-AppearanceAgent::AppearanceAgent(const UtlString& domainName,
+AppearanceAgent::AppearanceAgent(
+      SipXecsService* service,
+      const UtlString& domainName,
                                        const UtlString& realm,
                                        SipLineMgr* lineMgr,
                                        int tcpPort,
@@ -49,6 +51,7 @@ AppearanceAgent::AppearanceAgent(const UtlString& domainName,
                                        int serverMaxExpiration,
                                        const UtlString&  subscriptionDbName,
                                        const UtlString&  credentialDbName) :
+   mService(service),
    mDomainName(domainName),
    mAppearanceGroupFile(*appearanceGroupFile),
    mRefreshInterval(refreshInterval),
@@ -90,7 +93,7 @@ AppearanceAgent::AppearanceAgent(const UtlString& domainName,
    // Do not set the appearance group file name yet, so the AppearanceGroupFileReader
    // doesn't add elements to the AppearanceGroupSet before we have the
    // SIP tasks set up.
-   mAppearanceGroupFileReader(UtlString(""), &mAppearanceGroupSet)
+   mAppearanceGroupFileReader(mService, UtlString(""), &mAppearanceGroupSet)
 {
    OsSysLog::add(FAC_SAA, PRI_DEBUG,
                  "AppearanceAgent::_ this = %p, mDomainName = '%s', "

@@ -17,6 +17,7 @@
 #include "os/OsBSem.h"
 #include "os/OsServerTask.h"
 #include "net/SipUserAgent.h"
+#include "sipXecsService/SipXecsService.h"
 #include "statusserver/PluginXmlParser.h"
 
 // DEFINES
@@ -24,18 +25,13 @@
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
 // CONSTANTS
-#define CONFIG_ETC_DIR          SIPX_CONFDIR
-#define CONFIG_SETTINGS_FILE  "status-config"
 // Configuration names pulled from config-file
-#define CONFIG_SETTING_PREFIX         "SIP_STATUS"
-#define CONFIG_SETTING_LOG_CONSOLE    "SIP_STATUS_LOG_CONSOLE"
-#define CONFIG_SETTING_LOG_DIR        "SIP_STATUS_LOG_DIR"
 
 #define HTTP_SERVER_ROOT_DIR    SIPX_CONFDIR
 #define HTTP_SERVER_PORT        8100
 #define HTTPS_SERVER_PORT       8101
-#define HTTPS_PUBLIC_CERTIFICATE_FILE_LOCATION CONFIG_ETC_DIR "/ssl/ssl.crt"
-#define HTTPS_PRIVATE_KEY_FILE_LOCATION CONFIG_ETC_DIR "/ssl/ssl.key"
+#define HTTPS_PUBLIC_CERTIFICATE_FILE_LOCATION HTTP_SERVER_ROOT_DIR "/ssl/ssl.crt"
+#define HTTPS_PRIVATE_KEY_FILE_LOCATION HTTP_SERVER_ROOT_DIR "/ssl/ssl.key"
 
 #define LOG_FACILITY          FAC_SIP
 #define CONFIG_LOG_DIR        SIPX_LOGDIR
@@ -71,16 +67,14 @@ public:
      //:Destructor
 
 /* ============================ MANIPULATORS ============================== */
-    static StatusServer* startStatusServer(
-        const UtlString workingDir,
-        const char* configFileName);
+    static StatusServer* startStatusServer(SipXecsService* service, OsConfigDb* configDb);
 
     static StatusServer* getInstance();
     // Singleton constructor/accessor
     // Note: this class does not need to be a singleton.  The only method that
     // assumes singleton is getStatusServer
 
-    static OsConfigDb& getConfigDb();
+    static OsConfigDb* getConfigDb();
     SubscribePersistThread* getSubscribePersistThread();
     SubscribeServerThread* getSubscribeServerThread();
 
@@ -99,7 +93,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-    static OsConfigDb& sConfigDb;
+    static OsConfigDb* sConfigDb;
     Notifier* mNotifier;
     SipUserAgent* mpSipUserAgent;
     SubscribeServerThread* mSubscribeServerThread;

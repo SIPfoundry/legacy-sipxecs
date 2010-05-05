@@ -62,7 +62,8 @@ class AppearanceAgent : public UtlContainableAtomic
   public:
 
    //! Construct a Shared Appearance Agent.
-   AppearanceAgent(/** The host-part of the canonical form of the appearance AORs,
+   AppearanceAgent(SipXecsService* service,
+                   /** The host-part of the canonical form of the appearance AORs,
                         *  which is the sipX domain. */
                       const UtlString& domainName,
                       /// The realm used for authentication
@@ -177,6 +178,7 @@ class AppearanceAgent : public UtlContainableAtomic
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
 
+   SipXecsService* mService;
    //! SIP domain name.
    UtlString mDomainName;
    //! From URI for mServerUserAgent.

@@ -190,8 +190,8 @@
 
   <bean id="sipxRegistrarConfiguration" class="org.sipfoundry.sipxconfig.service.SipxRegistrarConfiguration"
     scope="prototype" parent="serviceConfigurationFile">
-    <property name="template" value="sipxregistrar/registrar-config.vm" />
-    <property name="name" value="registrar-config" />
+    <property name="template" value="sipxregistrar/sipregistrar-config.vm" />
+    <property name="name" value="sipregistrar-config" />
     <property name="locationsManager" ref="locationsManager" />
   </bean>
 
@@ -397,8 +397,8 @@
 
   <bean id="sipxStatusConfiguration" class="org.sipfoundry.sipxconfig.service.SipxStatusConfiguration" scope="prototype"
     parent="serviceConfigurationFile">
-    <property name="template" value="sipxstatus/status-config.vm" />
-    <property name="name" value="status-config" />
+    <property name="template" value="sipxstatus/sipstatus-config.vm" />
+    <property name="name" value="sipstatus-config" />
   </bean>
 
   <bean id="statusPluginConfiguration" class="org.sipfoundry.sipxconfig.service.StatusPluginConfiguration" scope="prototype"

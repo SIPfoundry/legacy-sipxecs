@@ -38,7 +38,8 @@ const int ResourceListServer::sChangeDelay = 100;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-ResourceListServer::ResourceListServer(const UtlString& domainName,
+ResourceListServer::ResourceListServer(SipXecsService* service,
+                                       const UtlString& domainName,
                                        const UtlString& realm,
                                        SipLineMgr* lineMgr,
                                        const char* eventType,
@@ -60,6 +61,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
                                        int serverMaxExpiration,
                                        const UtlString&  subscriptionDbName,
                                        const UtlString&  credentialDbName) :
+   mService(service),
    mDomainName(domainName),
    mEventType(eventType),
    mContentType(contentType),
@@ -125,7 +127,7 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    // Do not set the resource list file name yet, so the ResourceListFileReader
    // doesn't add elements to the ResourceListSet before we have the
    // SIP tasks set up.
-   mResourceListFileReader(UtlString(""), &mResourceListSet)
+   mResourceListFileReader(mService, UtlString(""), &mResourceListSet)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer::_ this = %p, mDomainName = '%s', mEventType = '%s', mContentType = '%s', "

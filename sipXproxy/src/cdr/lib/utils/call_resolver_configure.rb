@@ -32,13 +32,8 @@ class CallResolverConfigure
 
   # Configuration parameters and defaults
 
-  # Whether console logging is enabled or disabled.  Legal values are "ENABLE"
-  # or "DISABLE".  Comparison is case-insensitive with this and other values.
-  LOG_CONSOLE_CONFIG = 'SIP_CALLRESOLVER_LOG_CONSOLE'
-
   # The directory holding log files.
   LOG_DIR_CONFIG = 'SIP_CALLRESOLVER_LOG_DIR'
-  LOG_DIR_CONFIG_DEFAULT = '/var/log/sipxpbx'
 
   # Logging severity level
   LOG_LEVEL_CONFIG = 'SIP_CALLRESOLVER_LOG_LEVEL'
@@ -193,13 +188,11 @@ class CallResolverConfigure
   end
 
   # Determines the log device
-  # if console logging is enabled than log to console
   # if log directory is provided in configuration log there
   # otherwise log to logdir directory passed as parameter
   def get_log_device(logdir)
-    return STDOUT if @config.enabled?(LOG_CONSOLE_CONFIG, Configure::DISABLE)
 
-    log_dir = @config.fetch(LOG_DIR_CONFIG, logdir)
+    log_dir = logdir
     unless File.exists?(log_dir)
       $stderr.puts("init_logging: Log directory '#{@log_dir}' does not exist. " +
       "Log messages will go to the console.") if $DEBUG

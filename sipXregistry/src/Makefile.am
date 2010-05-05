@@ -44,6 +44,8 @@ libsipXregistry_la_SOURCES = \
     RegistrarPeer.h \
     RegistrarPersist.cpp \
     RegistrarPersist.h \
+    RegistrarService.cpp \
+    RegistrarService.h \
     RegistrarSync.cpp \
     RegistrarSync.h \
     RegistrarTest.cpp \

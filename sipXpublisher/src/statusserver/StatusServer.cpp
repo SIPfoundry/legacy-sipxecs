@@ -44,7 +44,7 @@
 // STATIC VARIABLE INITIALIZATIONS
 StatusServer* StatusServer::spInstance = NULL;
 OsBSem StatusServer::sLock( OsBSem::Q_PRIORITY, OsBSem::FULL );
-OsConfigDb& StatusServer::sConfigDb(*(new OsConfigDb()));
+OsConfigDb* StatusServer::sConfigDb(NULL);
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -244,9 +244,7 @@ StatusServer::handleMessage( OsMsg& eventMessage )
 }
 
 StatusServer*
-StatusServer::startStatusServer (
-    const UtlString workingDir,
-    const char* configFileName )
+StatusServer::startStatusServer (SipXecsService* service, OsConfigDb* configDb)
 {
     int httpPort  = PORT_NONE;
     int httpsPort = PORT_NONE;
@@ -265,33 +263,25 @@ StatusServer::startStatusServer (
 
     UtlBoolean isCredentialDB = TRUE;
 
-    // if the configuration file exists, load the name value pairs
-    if ( sConfigDb.loadFromFile(configFileName) == OS_SUCCESS )
-    {
-        OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                      "Found config file: %s", configFileName);
-    } else
-    {
-       OsSysLog::add(FAC_SIP, PRI_CRIT,
-                     "Could not read config file: %s", configFileName);
-       fprintf(stderr, "Could not read config file: %s", configFileName);
-       exit(1);
-    }
+    // crit sec, ensure only one instance starts the status server
+    sLock.acquire();
+
+    sConfigDb = configDb;
 
     OsSysLog::add(LOG_FACILITY, PRI_INFO, "Starting - version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
 
-    sConfigDb.get("SIP_STATUS_AUTHENTICATE_ALGORITHM", authAlgorithm);
-    sConfigDb.get("SIP_STATUS_AUTHENTICATE_QOP", authQop);
-    sConfigDb.get("SIP_STATUS_AUTHENTICATE_REALM", authRealm);
-    sConfigDb.get("SIP_STATUS_AUTHENTICATE_SCHEME", authScheme);
-    sConfigDb.get("SIP_STATUS_DOMAIN_NAME", domainName);
-    sConfigDb.get("SIP_STATUS_HTTP_PORT", httpPort);
-    sConfigDb.get("SIP_STATUS_HTTPS_PORT", httpsPort);
-    sConfigDb.get("SIP_STATUS_MAX_EXPIRES", defaultMaxExpiresTime);
-    sConfigDb.get("SIP_STATUS_MIN_EXPIRES", defaultMinExpiresTime);
+    sConfigDb->get("SIP_STATUS_AUTHENTICATE_ALGORITHM", authAlgorithm);
+    sConfigDb->get("SIP_STATUS_AUTHENTICATE_QOP", authQop);
+    sConfigDb->get("SIP_STATUS_AUTHENTICATE_REALM", authRealm);
+    sConfigDb->get("SIP_STATUS_AUTHENTICATE_SCHEME", authScheme);
+    sConfigDb->get("SIP_STATUS_DOMAIN_NAME", domainName);
+    sConfigDb->get("SIP_STATUS_HTTP_PORT", httpPort);
+    sConfigDb->get("SIP_STATUS_HTTPS_PORT", httpsPort);
+    sConfigDb->get("SIP_STATUS_MAX_EXPIRES", defaultMaxExpiresTime);
+    sConfigDb->get("SIP_STATUS_MIN_EXPIRES", defaultMinExpiresTime);
 
     // SIP_STATUS_UDP_PORT
-    udpPort = sConfigDb.getPort("SIP_STATUS_UDP_PORT") ;
+    udpPort = sConfigDb->getPort("SIP_STATUS_UDP_PORT") ;
     if ( udpPort == PORT_NONE )
     {
        udpPort = 5110;
@@ -299,7 +289,7 @@ StatusServer::startStatusServer (
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_UDP_PORT : %d", udpPort);
 
     // SIP_STATUS_TCP_PORT
-    tcpPort = sConfigDb.getPort("SIP_STATUS_TCP_PORT") ;
+    tcpPort = sConfigDb->getPort("SIP_STATUS_TCP_PORT") ;
     if ( tcpPort == PORT_NONE )
     {
        tcpPort = 5110;
@@ -307,7 +297,7 @@ StatusServer::startStatusServer (
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TCP_PORT : %d", tcpPort);
 
     // SIP_STATUS_TLS_PORT
-    tlsPort = sConfigDb.getPort("SIP_STATUS_TLS_PORT") ;
+    tlsPort = sConfigDb->getPort("SIP_STATUS_TLS_PORT") ;
     if ( tlsPort == PORT_NONE )
     {
        tlsPort = 5111;
@@ -315,7 +305,7 @@ StatusServer::startStatusServer (
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_TLS_PORT : %d", tlsPort);
 
     // SIP_STATUS_BIND_IP
-    sConfigDb.get("SIP_STATUS_BIND_IP", bindIp) ;
+    sConfigDb->get("SIP_STATUS_BIND_IP", bindIp) ;
     if ((bindIp.isNull()) || !OsSocket::isIp4Address(bindIp))
     {
        bindIp = "0.0.0.0";
@@ -325,7 +315,7 @@ StatusServer::startStatusServer (
     UtlString separatedList;
     // Get the HTTP server Valid IP address database
     OsConfigDb* pValidIpAddressDB = new OsConfigDb();
-    sConfigDb.get("SIP_STATUS_HTTP_VALID_IPS", separatedList);
+    sConfigDb->get("SIP_STATUS_HTTP_VALID_IPS", separatedList);
     parseList ("SIP_STATUS_HTTP_VALID_IPS", separatedList, *pValidIpAddressDB);
 
     if( pValidIpAddressDB->isEmpty() )
@@ -382,7 +372,7 @@ StatusServer::startStatusServer (
     // SIP_STATUS_HTTPS_PORT - See if the SECURE one is set first
     OsStatus result;
     UtlString portStr;
-    result = sConfigDb.get("SIP_STATUS_HTTPS_PORT", portStr);
+    result = sConfigDb->get("SIP_STATUS_HTTPS_PORT", portStr);
     OsSysLog::add(FAC_SIP, PRI_INFO,
                   "startStatusServer : HTTPS port %s result %d",
                   portStr.data(), result);
@@ -399,7 +389,7 @@ StatusServer::startStatusServer (
     if ( httpsPort == PORT_NONE )
     {
         // SIP_STATUS_HTTP_PORT
-        result = sConfigDb.get("SIP_STATUS_HTTP_PORT", portStr);
+        result = sConfigDb->get("SIP_STATUS_HTTP_PORT", portStr);
         OsSysLog::add(FAC_SIP, PRI_INFO,
                       "startStatusServer : HTTP port %s result %d",
                       portStr.data(), result);
@@ -412,7 +402,7 @@ StatusServer::startStatusServer (
     }
 
     int maxNumSrvRecords = -1;
-    sConfigDb.get("SIP_STATUS_DNSSRV_MAX_DESTS", maxNumSrvRecords);
+    sConfigDb->get("SIP_STATUS_DNSSRV_MAX_DESTS", maxNumSrvRecords);
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_DNSSRV_MAX_DESTS : %d",
               maxNumSrvRecords);
     // If explicitly set to a valid number
@@ -426,7 +416,7 @@ StatusServer::startStatusServer (
     }
 
     int dnsSrvTimeout = -1; //seconds
-    sConfigDb.get("SIP_STATUS_DNSSRV_TIMEOUT", dnsSrvTimeout);
+    sConfigDb->get("SIP_STATUS_DNSSRV_TIMEOUT", dnsSrvTimeout);
     OsSysLog::add(FAC_SIP, PRI_INFO, "SIP_STATUS_DNSSRV_TIMEOUT : %d",
               dnsSrvTimeout);
     // If explicitly set to a valid number
@@ -537,10 +527,13 @@ StatusServer::startStatusServer (
                 authAlgorithm,
                 authQop,
                 authRealm,
-                workingDir,
+                service->getWorkingDirectory(),
                 serverSocket,
                 httpServer);
     status->start();
+    spInstance = status;
+    // release the critsec
+    sLock.release();
     return(status);
 }
 
@@ -553,27 +546,9 @@ StatusServer::getInstance()
 
     if ( spInstance == NULL )
     {
-        OsPath workingDirectory;
-        if ( OsFileSystem::exists( CONFIG_ETC_DIR ) )
-        {
-            workingDirectory = CONFIG_ETC_DIR;
-            OsPath path(workingDirectory);
-            path.getNativePath(workingDirectory);
-        }
-        else
-        {
-            OsPath path;
-            OsFileSystem::getWorkingDirectory(path);
-            path.getNativePath(workingDirectory);
-        }
-
-        UtlString fileName =  workingDirectory +
-            OsPathBase::separator +
-            "status-config";
-
-        spInstance = startStatusServer(
-            workingDirectory,
-            fileName );
+          OsSysLog::add(FAC_SIP, PRI_CRIT,
+                        "StatusServer::getInstance server is not started");
+          assert(spInstance);
     }
 
     // If the task object already exists, and the corresponding low-level task
@@ -590,7 +565,7 @@ StatusServer::getInstance()
 }
 
 
-OsConfigDb& StatusServer::getConfigDb()
+OsConfigDb* StatusServer::getConfigDb()
 {
    return sConfigDb;
 }

@@ -37,7 +37,7 @@ Method: configurationParameter.get
     <methodName>configurationParameter.get</methodName>
     <params>
       <param>
-        <value><string>registrar-config</string></value> <!-- dbname -->
+        <value><string>sipregistrar-config</string></value> <!-- dbname -->
       </param>
       <param>
         <value> <!-- list of parameter names -->
@@ -95,7 +95,7 @@ Method: configurationParameter.set
     <methodName>configurationParameter.set</methodName>
     <params>
       <param> <!-- dbname -->
-        <value><string>registrar-config</string></value>
+        <value><string>sipregistrar-config</string></value>
       </param>
       <param> <!-- structure of name-value pairs -->
         <value>
@@ -136,7 +136,7 @@ Method: configurationParameter.delete
     <methodName>configurationParameter.delete</methodName>
     <params>
       <param> <!-- dbname -->
-        <value><string>registrar-config</string></value>
+        <value><string>sipregistrar-config</string></value>
       </param>
       <param>
         <value> <!-- list of parameter names to delete -->

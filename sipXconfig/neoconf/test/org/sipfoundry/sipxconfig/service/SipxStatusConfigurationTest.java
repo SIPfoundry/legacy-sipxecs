@@ -35,9 +35,9 @@ public class SipxStatusConfigurationTest extends SipxServiceTestBase {
 
         SipxStatusConfiguration out = new SipxStatusConfiguration();
         out.setSipxServiceManager(sipxServiceManager);
-        out.setTemplate("sipxstatus/status-config.vm");
+        out.setTemplate("sipxstatus/sipstatus-config.vm");
 
-        assertCorrectFileGeneration(out, "expected-status-config");
+        assertCorrectFileGeneration(out, "expected-sipstatus-config");
     }
 
     @Override

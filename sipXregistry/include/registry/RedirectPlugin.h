@@ -66,7 +66,7 @@ class ErrorDescriptor;
  *     optionally its virtual methods.
  *
  *   - Secondly, to configure the redirect plug-in into the SipRedirectServer,
- *     the registrar-config file must have a directive configuring the plugin
+ *     the sipregistrar-config file must have a directive configuring the plugin
  *     library:
  *     @code
  *         SIP_REDIRECT_HOOK_LIBRARY.[###-UNIQUE_NAME] : [path to libexampleregplugin.so]
@@ -134,7 +134,7 @@ class RedirectPlugin : public Plugin
     * The configDb is the subset of the configuration
     * parameters tagged for this plug-in ,i.e. of the form
     * SIP_REDIRECT.[###-UNIQUE_NAME.PARAM_NAME] : [PARAM_VALUE]
-    * in the registrar-config configuration file.
+    * in the sipregistrar-config configuration file.
     * configDb is a UtlHashMap that gives the complete
     * [PARAM_NAME]->[PARAM_VALUE] configuration pairs relevant to the
     * plug-in.
@@ -165,7 +165,7 @@ class RedirectPlugin : public Plugin
     * The configDb is the subset of the configuration
     * parameters tagged for this plug-in ,i.e. of the form
     * SIP_REDIRECT.[###-UNIQUE_NAME.PARAM_NAME] : [PARAM_VALUE]
-    * in the registrar-config configuration file.
+    * in the sipregistrar-config configuration file.
     * configDb is a UtlHashMap that gives the complete
     * [PARAM_NAME]->[PARAM_VALUE] configuration pairs relevant to the
     * plug-in.

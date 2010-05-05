@@ -16,14 +16,14 @@ CONFIGS = \
 	mappingrules.xml.in \
 	mediaserver-config.in \
 	nattraversalrules.xml.in \
-	registrar-config.in \
+	sipregistrar-config.in \
 	sipxdialog-config.in \
 	sipxivr.properties.in \
 	sipxpark-config.in \
 	sipXproxy-config.in \
 	sipxrls-config.in \
 	sipxsupervisor-config.in \
-	status-config.in \
+	sipstatus-config.in \
 	status-plugin.xml.in \
 	voicemail.xml.in
 

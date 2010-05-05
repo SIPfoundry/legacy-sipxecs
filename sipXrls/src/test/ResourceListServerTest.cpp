@@ -27,7 +27,6 @@
 #include "RlsTestFixtures.h"
 
 // GLOBALS
-UtlBoolean    gShutdownFlag = FALSE;
 
 class ResourceListServerTest : public CppUnit::TestCase
 {
@@ -107,7 +106,9 @@ public:
       // Stop SipUserAgent from rejecting all SUBSCRIBEs
       pSipUserAgent->allowMethod(SIP_SUBSCRIBE_METHOD, true);
 
-      pResourceServerUnderTest = new ResourceListServer(
+      SipXecsService* rlsTestService = new SipXecsService("sipxrlsTest", "SIPX_RLS", "TestCase");
+
+      pResourceServerUnderTest = new ResourceListServer(rlsTestService,
                                        domianName, // domain 
                                        "rlstest.test", // realm
                                        NULL, 

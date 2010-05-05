@@ -18,6 +18,7 @@
 #include <net/NameValueTokenizer.h>
 #include <os/OsTask.h>
 #include <os/OsSysLog.h>
+#include "sipXecsService/SipXecsService.h"
 #include <utl/UtlString.h>
 #include "ACDServer.h"
 
@@ -54,60 +55,6 @@ UtlBoolean       gRestartFlag = FALSE;
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //
-//  NAME:        SignalTask
-//
-//  SYNOPSIS:
-//
-//  DESCRIPTION: This is the signal handler, When called this sets the global gShutdownFlag
-//               allowing the main processing loop to exit cleanly.
-//
-//  RETURNS:     None.
-//
-//  ERRORS:      None.
-//
-//  CAVEATS:     None.
-//
-////////////////////////////////////////////////////////////////////////////////////////////////////
-
-class SignalTask : public OsTask
-{
-public:
-   SignalTask() : OsTask() {}
-
-   int
-   run(void *pArg)
-   {
-       int sig_num ;
-       OsStatus res ;
-
-       // Wait for a signal.  This will unblock signals
-       // for THIS thread only, so this will be the only thread
-       // to catch an async signal directed to the process
-       // from the outside.
-       res = awaitSignal(sig_num);
-       if (res == OS_SUCCESS)
-       {
-          if (SIGTERM == sig_num)
-          {
-             OsSysLog::add( LOG_FACILITY, PRI_INFO, "SignalTask: terminate signal received.");
-          }
-          else
-          {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: caught signal: %d", sig_num );
-          }
-       }
-       else
-       {
-            OsSysLog::add( LOG_FACILITY, PRI_CRIT, "SignalTask: awaitSignal() failed");
-       }
-       // set the global shutdown flag
-       gShutdownFlag = TRUE ;
-       return 0 ;
-   }
-} ;
-
-////////////////////////////////////////////////////////////////////////////////////////////////////
-//
 //  NAME:        ::main
 //
 //  SYNOPSIS:
@@ -130,7 +77,7 @@ int main(int argc, char* argv[])
 
    // Create a new task to wait for signals.  Only that task
    // will ever see a signal from the outside.
-   SignalTask* signalTask = new SignalTask();
+   ChildSignalTask* signalTask = new ChildSignalTask();
    signalTask->start();
 
    int provisioningAgentPort = 8110;

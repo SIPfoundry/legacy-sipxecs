@@ -31,4 +31,5 @@
     <imdb>caller-alias</imdb>
     <process>SipXrelay</process>
   </resources>
+  <stdinpipe>true</stdinpipe>
 </sipXecs-process>
