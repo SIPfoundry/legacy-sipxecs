@@ -24,6 +24,7 @@
         <element ref='proc:commands'  minOccurs='1' maxOccurs='1'/>
         <element ref='proc:status'    minOccurs='1' maxOccurs='1'/>
         <element ref='proc:resources' minOccurs='0' maxOccurs='1'/>
+        <element ref='proc:stdinpipe' minOccurs='0' maxOccurs='1'/>
       </sequence>
     </complexType>
   </element>
@@ -409,4 +410,12 @@
     </complexType>
   </element>
 
+  <element name='stdinpipe' type='boolean'>
+    <annotation>
+      <documentation>
+        Set to 'true' if the process supports the sipXecs stdin commands
+        (e.g. CONFIG_CHANGED).
+      </documentation>
+    </annotation>
+  </element>
 </schema>

@@ -110,6 +110,8 @@ class FileResource : public SipxResource
    /// There is no assignment operator.
    FileResource& operator=(const FileResource& noassignmentoperator);
    // @endcond
+
+   UtlString mFileType;
 };
 
 #endif // _FILERESOURCE_H_

@@ -33,4 +33,5 @@
     <imdb>userlocation</imdb>
     <imdb>userforward</imdb>
   </resources>
+  <stdinpipe>true</stdinpipe>
 </sipXecs-process>

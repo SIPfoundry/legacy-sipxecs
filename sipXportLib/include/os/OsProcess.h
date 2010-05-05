@@ -224,6 +224,7 @@ protected:
 
     int m_fdout[2];   /// copy of stdout pipe after fork
     int m_fderr[2];   /// copy of stderr pipe after fork
+    int m_fdin[2];   /// copy of stdin pipe after fork
 
     OsConfigDb mEnvList;
     //: Place to store the env variables before launching the process

@@ -94,7 +94,7 @@ void SipxProcessFsm::evStopCompleted( SipxProcess& impl ) const
          impl.name(), impl.GetCurrentState()->name() );
 }
 
-void SipxProcessFsm::evConfigurationChanged( SipxProcess& impl ) const
+void SipxProcessFsm::evConfigurationChanged( SipxProcess& impl, const SipxResource* resource ) const
 {
    OsSysLog::add(FAC_SUPERVISOR,PRI_INFO,"'%s': Received event evConfigurationChanged while in state '%s', ignored",
          impl.name(), impl.GetCurrentState()->name() );
@@ -189,7 +189,7 @@ void ConfigurationMismatch::DoEntryAction( SipxProcess& impl ) const
    }
 }
 
-void ConfigurationMismatch::evConfigurationChanged( SipxProcess& impl ) const
+void ConfigurationMismatch::evConfigurationChanged( SipxProcess& impl, const SipxResource* resource ) const
 {
    impl.clearStatusMessages();
    if ( impl.configurationVersionMatches() )
@@ -238,7 +238,7 @@ void ResourceRequired::DoEntryAction( SipxProcess& impl ) const
    }
 }
 
-void ResourceRequired::evConfigurationChanged( SipxProcess& impl ) const
+void ResourceRequired::evConfigurationChanged( SipxProcess& impl, const SipxResource* resource ) const
 {
    ChangeState( impl, impl.pConfigurationMismatch );
 }
@@ -322,7 +322,7 @@ void ConfigTestFailed::evRestartProcess( SipxProcess& impl ) const
    ChangeState( impl, impl.pConfigurationMismatch );
 }
 
-void ConfigTestFailed::evConfigurationChanged( SipxProcess& impl ) const
+void ConfigTestFailed::evConfigurationChanged( SipxProcess& impl, const SipxResource* resource ) const
 {
    ChangeState( impl, impl.pConfigurationMismatch );
 }
@@ -357,6 +357,7 @@ void Starting::evProcessStarted( SipxProcess& impl ) const
 void Stopping::DoEntryAction( SipxProcess& impl ) const
 {
    impl.checkThreadId();
+   impl.notifyShutdown();
    impl.startStopTimer();
    impl.stopProcess();
 }
@@ -456,10 +457,11 @@ void Running::DoEntryAction( SipxProcess& impl ) const
    impl.notifyProcessRunning();
 }
 
-void Running::evConfigurationChanged( SipxProcess& impl ) const
+void Running::evConfigurationChanged( SipxProcess& impl, const SipxResource* resource ) const
 {
-   OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,"'%s': configuration changed in state '%s', ignored",
+   OsSysLog::add(FAC_SUPERVISOR, PRI_INFO,"'%s': configuration changed in state '%s'",
                  impl.name(), impl.GetCurrentState()->name());
+   impl.notifyConfigChanged(resource);
 }
 
 void Running::evStopProcess( SipxProcess& impl ) const

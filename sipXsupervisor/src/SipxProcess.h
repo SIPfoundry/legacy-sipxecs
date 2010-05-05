@@ -226,6 +226,12 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// Notify all the processes that have a dependency on this one that it is now running
    void notifyProcessRunning();
 
+   /// Notify the process that its config has changed (via stdin pipe)
+   void notifyConfigChanged(const SipxResource *resource);
+
+   /// Notify the process that it should shutdown.
+   void notifyShutdown();
+
    /// Custom comparison method that allows SipxProcess retrieved in Utl containers
    /// using UtlStrings or any UtlString-derived object.
    virtual int compareTo(UtlContainable const *other) const;
@@ -441,6 +447,8 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    /// Get the version stamp value of the configuration.
    void getConfigurationVersion(UtlString& version);
 
+   /// Get the stdinpipeEnabled setting
+   UtlBoolean getStdinpipeEnabled() {return mStdinpipeEnabled;}
   protected:
 
    /// Read version stamp value of the configuration into mConfigVersion.
@@ -504,11 +512,13 @@ class SipxProcess : public UtlString, OsServerTask, SipxProcessCmdOwner
    UtlSList         mStatusMessages;   ///< list of messages relevant to current state
    int              mNumStdoutMsgs;    ///< number of messages received since last restart
    int              mNumStderrMsgs;    ///< number of messages received since last restart
+   UtlBoolean       mStdinpipeEnabled; ///< true if process understands sipXecs stdinpipe commands
 
    /// constructor
    SipxProcess(const UtlString& name,
                const UtlString& version,
-               const OsPath&    definitionPath
+               const OsPath&    definitionPath,
+               const UtlBoolean stdinpipeEnabled
                );
 
    // @cond INCLUDENOCOPY

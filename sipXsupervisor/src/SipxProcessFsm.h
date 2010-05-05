@@ -18,6 +18,7 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 class SipxProcess;
+class SipxResource;
 
 class SipxProcessFsm
 {
@@ -47,7 +48,7 @@ public:
    virtual ~SipxProcessFsm(){};
 
    // State machine events
-   virtual void evConfigurationChanged( SipxProcess& impl ) const;
+   virtual void evConfigurationChanged( SipxProcess& impl, const SipxResource* resource = NULL ) const;
    virtual void evConfigurationVersionUpdated( SipxProcess& impl ) const;
    virtual void evResourceCreated( SipxProcess& impl ) const;
    virtual void evConfigTestPassed( SipxProcess& impl ) const;
@@ -100,7 +101,7 @@ public:
 
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
-   virtual void evConfigurationChanged( SipxProcess& impl ) const;
+   virtual void evConfigurationChanged( SipxProcess& impl, const SipxResource* resource = NULL ) const;
    virtual void evConfigurationVersionUpdated( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
    virtual void evTimeout( SipxProcess& impl ) const;
@@ -115,7 +116,7 @@ public:
 
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
-   virtual void evConfigurationChanged( SipxProcess& impl ) const;
+   virtual void evConfigurationChanged( SipxProcess& impl, const SipxResource* resource = NULL ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
    virtual void evTimeout( SipxProcess& impl ) const;
    virtual void DoExitAction( SipxProcess& impl ) const;
@@ -157,7 +158,7 @@ public:
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
-   virtual void evConfigurationChanged( SipxProcess& impl ) const;
+   virtual void evConfigurationChanged( SipxProcess& impl, const SipxResource* resource = NULL ) const;
    virtual void evConfigurationVersionUpdated( SipxProcess& impl ) const;
 };
 
@@ -211,7 +212,7 @@ public:
 
    // State machine events relevant for this state
    virtual void DoEntryAction( SipxProcess& impl ) const;
-   virtual void evConfigurationChanged( SipxProcess& impl ) const;
+   virtual void evConfigurationChanged( SipxProcess& impl, const SipxResource* resource ) const;
    virtual void evRestartProcess( SipxProcess& impl ) const;
    virtual void evShutdown( SipxProcess& impl ) const;
    virtual void evStopProcess( SipxProcess& impl ) const;

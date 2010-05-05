@@ -102,7 +102,8 @@ Undefined*               SipxProcess::pUndefined = 0;
 /// constructor
 SipxProcess::SipxProcess(const UtlString& name,
                          const UtlString& version,
-                         const OsPath& definitionFile
+                         const OsPath& definitionFile,
+                         const UtlBoolean stdinpipeEnabled
                          ) :
    UtlString(name),
    OsServerTask("SipxProcess-%d"),
@@ -122,7 +123,8 @@ SipxProcess::SipxProcess(const UtlString& name,
    mNumRetryIntervals(sizeof(retry_interval) / sizeof(retry_interval[0])),
    mbProcessBlocked(false),
    mNumStdoutMsgs(0),
-   mNumStderrMsgs(0)
+   mNumStderrMsgs(0),
+   mStdinpipeEnabled(stdinpipeEnabled)
 {
    // Init state pointers
    initializeStatePointers();
@@ -243,6 +245,7 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
             TiXmlElement* commandsElement = NULL;
             TiXmlElement* statusElement = NULL;
             TiXmlElement* resourcesElement = NULL;
+            UtlBoolean stdinpipe = false;
 
             // Get the 'name' element
             nameElement = processDefElem->FirstChildElement();
@@ -374,11 +377,26 @@ SipxProcess* SipxProcess::createFromDefinition(const OsPath& definitionFile)
                }
             }
 
+            // Get the 'stdinpipe' setting
+            if ( definitionValid )
+            {
+               TiXmlElement* stdinpipeElement;
+               if ((stdinpipeElement = processDefElem->FirstChildElement("stdinpipe")))
+               {
+                  UtlString stdinpipeString;
+                  if (textContent(stdinpipeString, stdinpipeElement) && !stdinpipeString.isNull() &&
+                     (stdinpipeString.compareTo("true", UtlString::ignoreCase) == 0))
+                  {
+                     stdinpipe = true;
+                  }
+               }
+            }
+
             /* All the required top level elements have been found, so create
              * the SipxProcess object and invoke the parsers for the components. */
             if (definitionValid)
             {
-               if ((process = new SipxProcess(name, version, definitionFile)))
+               if ((process = new SipxProcess(name, version, definitionFile, stdinpipe)))
                {
                   // Parse the 'commands' elements
                   TiXmlElement* configtestCmdElement;
@@ -1137,7 +1155,7 @@ void SipxProcess::configurationChangeInTask(const SipxResource* changedResource)
                  data(), changedResourceDescription.data());
    checkThreadId();
 
-   mpCurrentState->evConfigurationChanged(*this);
+   mpCurrentState->evConfigurationChanged(*this, changedResource);
 }
 
 /// Notify the SipxProcess that some configuration change has occurred.
@@ -1604,6 +1622,31 @@ void SipxProcess::processBlocked(const char* alarmId)
 void SipxProcess::notifyProcessRunning()
 {
    resource()->modified();
+}
+
+// Notify the process that its config has changed, so that it can reload as appropriate.
+void SipxProcess::notifyConfigChanged(const SipxResource* resource)
+{
+   if (mStdinpipeEnabled)
+   {
+      UtlString msg = "CONFIG_CHANGED ";
+      resource->appendDescription(msg);
+      msg.append("\n");
+      OsSysLog::add(FAC_SUPERVISOR, PRI_DEBUG,
+                    "SipxProcess::notifyConfigChanged writing %s", msg.data());
+      mStart->sendInput(msg);
+   }
+}
+
+// Notify the process that it should shutdown.
+void SipxProcess::notifyShutdown()
+{
+   if (mStdinpipeEnabled)
+   {
+      UtlString msg = "SHUTDOWN ";
+      msg.append("\n");
+      mStart->sendInput(msg);
+   }
 }
 
 /// Custom comparison method that allows SipxProcess retrieved in Utl containers

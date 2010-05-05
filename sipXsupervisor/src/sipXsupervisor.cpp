@@ -404,8 +404,8 @@ int supervisorMain(bool bOriginalSupervisor)
 
     // Create a new task to wait for signals.  Only that task
     // will ever see a signal from the outside.
-    SignalTask* signalTask = new SignalTask();
-    signalTask->start() ;
+    SupervisorSignalTask signalTask;
+    signalTask.start() ;
 
     // All osPrintf output should go to the console until the log file is initialized.
     enableConsoleOutput(true);

@@ -56,6 +56,7 @@ bool FileResource::parse(const TiXmlDocument& fileDefinitionDoc, ///< process de
                                                     FileResourceManager::RequireExactFileMatch)))
          {
             fileResource = new FileResource(path);
+            fileResource->mFileType = resourceElement->Value();
          }
 
          fileResource->usedBy(currentProcess);
@@ -123,6 +124,7 @@ FileResource* FileResource::logFileResource(const UtlString& logFilePath, SipxPr
       // a log file resource is read-only and not required
       logFile = new FileResource(logFilePath.data());
       logFile->usedBy(currentProcess);
+      logFile->mFileType = FileResource::FileResourceTypeName;
       currentProcess->resourceIsOptional(logFile); // logs are never required
 
       logFile->mImplicitAccess = false;
@@ -141,7 +143,8 @@ FileResource* FileResource::logFileResource(const UtlString& logFilePath, SipxPr
 // get a description of the FileResource (for use in logging)
 void FileResource::appendDescription(UtlString&  description /**< returned description */) const
 {
-   description.append("file '");
+   description.append(mFileType.data());
+   description.append(" '");
    description.append(data());
    description.append("'");
 }
@@ -171,7 +174,8 @@ UtlContainableType FileResource::getContainableType() const
 
 /// constructor
 FileResource::FileResource(const char* uniqueId) :
-   SipxResource(uniqueId)
+   SipxResource(uniqueId),
+   mFileType("unknown")
 {
 }
 

@@ -24,4 +24,5 @@
     <osconfig>@SIPX_CONFDIR@/sipxpresence-config</osconfig>
     <imdb required='false' configAccess='read-only'>subscription</imdb>
   </resources>
+  <stdinpipe>true</stdinpipe>
 </sipXecs-process>

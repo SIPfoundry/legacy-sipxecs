@@ -236,6 +236,11 @@ void SipxProcessCmd::kill()
    mProcess.kill();
 }
 
+void SipxProcessCmd::sendInput(UtlString& message)
+{
+   mProcess.sendInput(message);
+}
+
 UtlBoolean SipxProcessCmd::handleMessage( OsMsg& rMsg )
 {
    UtlBoolean handled = FALSE;

@@ -108,7 +108,7 @@ public:
          CPPUNIT_ASSERT( fileResource->isWriteable());
          description.remove(0);
          fileResource->appendDescription(description);
-         ASSERT_STR_EQUAL("file '/etc/sipxpbx/firstprocess-config'",description.data());
+         ASSERT_STR_EQUAL("osconfig '/etc/sipxpbx/firstprocess-config'",description.data());
          CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
 
          CPPUNIT_ASSERT((fileResource =
@@ -211,7 +211,7 @@ public:
          CPPUNIT_ASSERT( fileResource->isWriteable());
          description.remove(0);
          fileResource->appendDescription(description);
-         ASSERT_STR_EQUAL("file '/etc/sipxpbx/secondprocess-config'",description.data());
+         ASSERT_STR_EQUAL("osconfig '/etc/sipxpbx/secondprocess-config'",description.data());
          CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
 
          CPPUNIT_ASSERT((fileResource =

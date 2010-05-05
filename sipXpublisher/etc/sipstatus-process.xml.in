@@ -26,4 +26,5 @@
     <imdb configAccess='read-only'>subscription</imdb>
     <imdb>userstatic</imdb>
   </resources>
+  <stdinpipe>true</stdinpipe>
 </sipXecs-process>

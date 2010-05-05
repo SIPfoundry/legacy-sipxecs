@@ -55,6 +55,9 @@ class SipxProcessCmd : public UtlString, OsServerTask
    /// Return true if the command process is currently running
    bool isRunning();
 
+   /// Send message to the process's stdin
+   void sendInput(UtlString& message);
+
    /// Kill the command process
    void kill();
 

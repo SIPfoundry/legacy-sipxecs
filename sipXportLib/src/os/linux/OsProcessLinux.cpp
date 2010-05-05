@@ -116,6 +116,18 @@ int readAll(int fd, UtlString* message)
    return rc;
 }
 
+ssize_t OsProcessLinux::sendInput(UtlString& stdinMsg)
+{
+   if ( m_fdin[1] < 0 )
+   {
+      // if pipes have not been created, we can't send any input
+      return -1;
+   }
+   int rc = TEMP_FAILURE_RETRY(write(m_fdin[1], stdinMsg.data(), stdinMsg.length()));
+   fflush(NULL);
+   return rc;
+}
+
 int OsProcessLinux::getOutput(UtlString* stdoutMsg, UtlString *stderrMsg)
 {
    if ( m_fdout[0] < 0 || m_fderr[0] < 0 )
@@ -207,6 +219,7 @@ int OsProcessLinux::wait(int WaitInSecs)
                // Parent closes the reading end of the pipes.
                close(m_fdout[0]);
                close(m_fderr[0]);
+               close(m_fdin[1]);
 
                if ( pid < 0 )
                {
@@ -262,7 +275,7 @@ OsStatus OsProcessLinux::kill()
             ::kill(mPID, SIGTERM);
         }
 
-        //bust a cap in it's....
+        //bust a cap in its....
         trycount = 0;
         while (isRunning() && trycount++ < 30)
         {
@@ -328,17 +341,24 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName,
     // create pipes between the parent and child for stdout and stderr
     if ( pipe(m_fdout) < 0 )
     {
-       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d",
+       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create stdout pipe for '%s', errno %d",
                      rAppName.data(), errno);
        m_fdout[0] = -1;
        m_fdout[1] = -1;
     }
     if ( pipe(m_fderr) < 0 )
     {
-       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create pipe for '%s', errno %d",
+       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create stderr pipe for '%s', errno %d",
                      rAppName.data(), errno);
        m_fderr[0] = -1;
        m_fderr[1] = -1;
+    }
+    if ( pipe(m_fdin) < 0 )
+    {
+       OsSysLog::add(FAC_PROCESS, PRI_CRIT,"Failed to create stdin pipe for '%s', errno %d",
+                     rAppName.data(), errno);
+       m_fdin[0] = -1;
+       m_fdin[1] = -1;
     }
 
     //now fork into two processes
@@ -360,7 +380,7 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName,
                     // abstraction layer, and the way threads are implemented on
                     // Linux.
 
-                    // child closes the reading end of the pipes
+                    // child closes the reading end of the output pipes
                     close(m_fdout[0]);
                     close(m_fderr[0]);
 
@@ -399,6 +419,24 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName,
                                         rAppName.data(), errno);
                        }
 
+                    // child closes the writing end of the stdin pipe
+                    close(m_fdin[1]);
+                    // replace stdin with read part of the pipe
+                    if ( dup2(m_fdin[0], STDIN_FILENO) < 0 )
+                    {
+                       osPrintf("Failed to dup2 stdin pipe for '%s', errno %d!\n",
+                                     rAppName.data(), errno);
+                    }
+                    // ideally, no buffering on pipes - but this does not work
+                    /*
+                    setvbuf(stdin, (char*)NULL, _IOFBF, 0);
+                    setvbuf(stdout, (char*)NULL, _IOFBF, 0);
+                    FILE *tmp = fdopen(m_fdin[1], "a");
+                    setvbuf(tmp, (char*)NULL, _IOFBF, 0);
+                    tmp = fdopen(m_fdout[0], "r");
+                    setvbuf(tmp, (char*)NULL, _IOFBF, 0);
+                    */
+
                     // close all other file descriptors that may be open
                     int max_fd=1023;
                     struct rlimit limits ;
@@ -413,7 +451,6 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName,
 
                     // Clear signal mask so the new process starts with
                     // a "normal" mask
-
                     OsTask::unBlockSignals();
 
                     //now apply the env variables the user may have set
@@ -434,9 +471,18 @@ OsStatus OsProcessLinux::launch(UtlString &rAppName,
                     mPID = forkReturnVal;
                     mParentPID = getpid();
 
-                    // parent closes the writing end of the pipes
+                    // ideally, no buffering on pipes - but this does not work
+                    /*
+                    FILE *tmp = fdopen(m_fdin[1], "a");
+                    setvbuf(tmp, (char*)NULL, _IOFBF, 0);
+                    tmp = fdopen(m_fdout[0], "r");
+                    setvbuf(tmp, (char*)NULL, _IOFBF, 0);
+                    */
+                    // parent closes the writing end of the output pipes
                     close(m_fdout[1]);
                     close(m_fderr[1]);
+                    // parent closes the reading end of the stdin pipe
+                    close(m_fdin[0]);
                     retval = OS_SUCCESS;
                     break;
     }

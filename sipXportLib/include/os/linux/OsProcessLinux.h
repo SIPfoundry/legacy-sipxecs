@@ -161,6 +161,12 @@ public:
     int wait(int WaitInSecs  ///< Amount of seconds to wait.
             );
 
+    /// Send message to the child process's stdin
+    /// Returns the total number of bytes written.
+    /// It is recommended that all messages be terminated with a newline
+    /// because I have been unable to turn off buffering.
+    ssize_t sendInput(UtlString& stdinMsg);
+
     /// Read messages from the child process on stdout or stderr.
     /// Returns the total number of bytes read.  The Msg strings are cleared on entry.
     /// When it returns 0, the child has exited and the parent should call wait(0)

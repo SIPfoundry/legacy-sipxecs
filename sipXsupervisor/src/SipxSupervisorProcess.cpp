@@ -38,7 +38,7 @@ SipxSupervisorProcess::SipxSupervisorProcess(const UtlString& name,
                          const UtlString& version,
                          const OsPath& definitionFile
                          ) :
-   SipxProcess(name, version, definitionFile)
+   SipxProcess(name, version, definitionFile, false)
 {
 };
 

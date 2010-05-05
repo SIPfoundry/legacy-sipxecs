@@ -47,6 +47,7 @@ class SipxProcessDefinitionParserTest : public CppUnit::TestCase
    CPPUNIT_TEST(badPattern);
    CPPUNIT_TEST(goodProcess);
    CPPUNIT_TEST(duplicateProcess);
+   CPPUNIT_TEST(stdinpipe);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -320,7 +321,7 @@ public:
          CPPUNIT_ASSERT( fileResource->isWriteable());
          description.remove(0);
          fileResource->appendDescription(description);
-         ASSERT_STR_EQUAL("file '/etc/sipxpbx/goodprocess-config'",description.data());
+         ASSERT_STR_EQUAL("osconfig '/etc/sipxpbx/goodprocess-config'",description.data());
          CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
 
          ImdbResource* imdbResource;
@@ -465,7 +466,7 @@ public:
          CPPUNIT_ASSERT( fileResource->isWriteable());
          description.remove(0);
          fileResource->appendDescription(description);
-         ASSERT_STR_EQUAL("file '/etc/sipxpbx/goodprocess-config'",description.data());
+         ASSERT_STR_EQUAL("osconfig '/etc/sipxpbx/goodprocess-config'",description.data());
          CPPUNIT_ASSERT(fileResource->mUsedBy.containsReference(processResource));
 
          ImdbResource* imdbResource;
@@ -485,6 +486,27 @@ public:
          sqldbResource->appendDescription(description);
          ASSERT_STR_EQUAL("SQL database 'GOODdbserverdbuser'",description.data());
          CPPUNIT_ASSERT(sqldbResource->mUsedBy.containsReference(processResource));
+      };
+
+   void stdinpipe()
+      {
+         FileTestContext testContext(TEST_DATA_DIR "processDef",
+                                     TEST_WORK_DIR "processDef"
+                                     );
+         UtlString path;
+         SipxProcess* process;
+
+         testContext.inputFilePath("stdinpipe.xml", path);
+         CPPUNIT_ASSERT((process = SipxProcess::createFromDefinition(path)));
+         CPPUNIT_ASSERT(process->getStdinpipeEnabled());
+
+         testContext.inputFilePath("nostdinpipe.xml", path);
+         CPPUNIT_ASSERT((process = SipxProcess::createFromDefinition(path)));
+         CPPUNIT_ASSERT(!process->getStdinpipeEnabled());
+
+         // no stdinpipe entry: defaults to disabled
+         CPPUNIT_ASSERT((process = SipxProcessManager::getInstance()->findProcess("Good")));
+         CPPUNIT_ASSERT(!process->getStdinpipeEnabled());
       };
 
 };
