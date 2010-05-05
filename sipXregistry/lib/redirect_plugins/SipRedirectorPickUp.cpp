@@ -743,7 +743,12 @@ SipRedirectorPickUp::lookUpDialog(
          subscribeRequestUri.append(subscribeUser);
          subscribeRequestUri.append("@");
          subscribeRequestUri.append(mDomain);
-
+		 
+		 UtlString subscribeTo(subscribeRequestUri);
+		 
+		 subscribeRequestUri.append(";sipx-noroute=Voicemail");
+		 subscribeRequestUri.append(";sipx-userforward=false");
+		 
          // Construct a Call-Id for the SUBSCRIBE.
          UtlString callId;
          CallId::getNewCallId(callId);
@@ -776,7 +781,7 @@ SipRedirectorPickUp::lookUpDialog(
             SIP_SUBSCRIBE_METHOD,
             subscribeRequestUri.data(), // request URI
             fromUri, // From:
-            subscribeRequestUri.data(), // To:
+            subscribeTo.data(), // To:
             callId,
             mCSeq);
          // Increment CSeq and roll it over if necessary.
