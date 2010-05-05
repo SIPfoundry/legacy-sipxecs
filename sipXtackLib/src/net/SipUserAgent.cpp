@@ -3480,8 +3480,8 @@ void SipUserAgent::setDefaultSerialExpiresSeconds(int expiresSeconds)
     }
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::setDefaultSerialExpiresSeconds "
-                  "mDefaultExpiresSeconds %d ",
-                  mDefaultExpiresSeconds);
+                  "mDefaultSerialExpiresSeconds %d ",
+                  mDefaultSerialExpiresSeconds);
 }
 
 void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)
