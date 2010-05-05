@@ -266,6 +266,7 @@ if ( $TraceHops )
         
         print STDERR &Blue()."Sending Max-Forwards: $MaxForwards".&Black()."\n";
 
+        $Require = 'TraceRequestDoNotAnswer' unless $Require;
         ($StatusCode, $Rsp) = &RequestAndResponse;
 
         if ( $Verbosity < 1 )
