@@ -439,8 +439,9 @@ void SipProtocolServerBase::removeOldClients(long oldTime)
             UtlString names;
             client->getClientNames(names);
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                          "SipProtocolServerBase[%s]::removeOldClients leaving client:\n%s",
-                          getName().data(), names.data());
+                          "SipProtocolServerBase[%s]::removeOldClients leaving client %s(%p): %s",
+                          getName().data(), client->getName().data(),
+                          client, clientNames.data());
             #endif
          }
       }

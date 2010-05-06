@@ -62,7 +62,8 @@ MpStreamPlayer::MpStreamPlayer(OsMsgQ* pMsg, Url url, int flags, const char *pTa
 // Constructs a stream player given a msgq, net buffer, and playing
 // flags.
 MpStreamPlayer::MpStreamPlayer(OsMsgQ* pMsgQ, UtlString* pBuffer, int flags, const char *pTarget)
-   : MpPlayer()
+   : OsServerTask("MpStreamPlayer-%d")
+   , MpPlayer()
    , mSemStateChange(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
    , mSemStateGuard(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
@@ -507,22 +508,9 @@ OsStatus MpStreamPlayer::getSourceBuffer(UtlString*& pBuffer)  const
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Copy constructor
-MpStreamPlayer::MpStreamPlayer(const MpStreamPlayer& rMpStreamPlayer)
-   : mSemStateChange(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
-   , mSemStateGuard(OsBSem::Q_PRIORITY, OsBSem::FULL)
-{
-}
+// Copy constructor not implemented
 
-// Assignment operator
-MpStreamPlayer&
-MpStreamPlayer::operator=(const MpStreamPlayer& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
+// Assignment operator not implemented
 
 #ifdef MP_STREAM_DEBUG /* [ */
 const char* getFeederEventString(int iEvent)

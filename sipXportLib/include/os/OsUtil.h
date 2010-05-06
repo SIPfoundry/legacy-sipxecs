@@ -63,7 +63,7 @@ public:
 
    static const UtlString NULL_OS_STRING;
 
-   //! Search a buffer for first occurance of another buffer. binary or ascii
+   //! Search a buffer for first occurrence of another buffer. binary or ascii
    static char *memscan(const char *lookIn,
                         int lookInLen,
                         const char *lookFor,

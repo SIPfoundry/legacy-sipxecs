@@ -85,20 +85,8 @@ UtlBoolean SipUserAgentBase::waitUntilReady()
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 
-// Assignment operator
-SipUserAgentBase&
-SipUserAgentBase::operator=(const SipUserAgentBase& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
+// Assignment operator not implemented
 
-   return *this;
-}
-
-// Copy constructor
-SipUserAgentBase::SipUserAgentBase(const SipUserAgentBase& rSipUserAgentBase) :
-    mObserverMutex(OsRWMutex::Q_FIFO)
-{
-}
+// Copy constructor not implemented
 
 /* ============================ FUNCTIONS ================================= */

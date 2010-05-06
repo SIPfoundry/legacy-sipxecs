@@ -27,7 +27,8 @@
 
 // Constructor
 SipPimClient::SipPimClient(SipUserAgent& userAgent,
-                           Url& presentityAor)
+                           Url& presentityAor) :
+   OsServerTask("SipPimClient")
 {
     presentityAor.toString(mFromField);
     mPresentityAor = presentityAor;
@@ -42,11 +43,6 @@ SipPimClient::SipPimClient(SipUserAgent& userAgent,
                                 TRUE, // incoming
                                 FALSE); // outgoing
 
-}
-
-// Copy constructor
-SipPimClient::SipPimClient(const SipPimClient& rSipPimClient)
-{
 }
 
 // Destructor
@@ -103,7 +99,7 @@ UtlBoolean SipPimClient::sendPagerMessage(Url& destinationAor,
 
         // Set the queue to which the response will be deposited
         // for this specific request.
-        OsMsgQ responseQueue;
+        OsMsgQ responseQueue("SipPimClient::sendPagerMessage::responseQueue");
         messageRequest.setResponseListenerQueue(&responseQueue);
 
         // Send the request

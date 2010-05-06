@@ -48,10 +48,14 @@ public:
 /* ============================ CREATORS ================================== */
 
    OsMsgQShared(
-      const int       maxMsgs=DEF_MAX_MSGS,      //:max number of messages
-      const int       maxMsgLen=DEF_MAX_MSG_LEN, //:max msg length (bytes)
-      const int       options=Q_PRIORITY, //:how to queue blocked tasks
-      const UtlString& name=""             //:global name for this queue
+      const char* name,                        //:global name for this queue
+      int         maxMsgs = DEF_MAX_MSGS,      //:max number of messages
+      int         maxMsgLen = DEF_MAX_MSG_LEN, //:max msg length (bytes)
+      int         options = Q_PRIORITY,        //:how to queue blocked tasks
+      bool        reportFull = true
+                  ///< should be true for work queues of OsServerTask's
+                  ///< should be false for media processing queues which
+                  ///< are usually full
       );
      //:Constructor
      // If name is specified but is already in use, throw an exception
@@ -130,9 +134,10 @@ private:
    OsCSem   mFull;   // counting semaphore used to coordinate receiving msgs
                      //  from the queue and blocking receivers when there are
                      //  no messages to receive.
-   UtlDList  mDlist;  // doubly-linked list used to store messages
-   int      mOptions;// message queue options
-   int      mHighCnt;// high water mark for the number of msgs in the queue
+   UtlDList  mDlist; // doubly-linked list used to store messages
+   int      mOptions; // message queue options
+   int      mHighCnt; // high water mark for the number of msgs in the queue
+   bool     mReportFull; // if true, report when queue is over half full
 
 #ifdef OS_MSGQ_REPORTING
    int      mIncreaseLevel;   // emit a message to the log when the number

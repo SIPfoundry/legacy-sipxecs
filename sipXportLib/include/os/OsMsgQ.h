@@ -33,7 +33,7 @@ class OsMsg;
 
 // TYPEDEFS
 typedef UtlBoolean (*OsMsgQSendHookPtr) (const OsMsg& rMsg);
-typedef void      (*OsMsgQFlushHookPtr) (const OsMsg& rMsg);
+typedef void       (*OsMsgQFlushHookPtr) (const OsMsg& rMsg);
 
 //:Message queue for inter-task communication
 
@@ -60,7 +60,7 @@ public:
 
 /* ============================ CREATORS ================================== */
 
-   OsMsgQBase(const UtlString& name);
+   OsMsgQBase(const char* name);
      //:Constructor
      // If the name is specified but is already in use, throw an exception.
 

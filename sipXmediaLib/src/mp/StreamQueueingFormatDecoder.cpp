@@ -48,13 +48,13 @@ unsigned int StreamQueueingFormatDecoder::sTotalThrottles = 0 ;
 StreamQueueingFormatDecoder::
 StreamQueueingFormatDecoder(StreamDataSource* pDataSource, int iQueueLength)
    : StreamFormatDecoder(pDataSource)
-   , mMsgqFrames(iQueueLength)
+   , mMsgqFrames("StreamQueueingFormatDecoder::mMsgFrames", iQueueLength,
+                 OsMsgQ::DEF_MAX_MSG_LEN, OsMsgQ::Q_PRIORITY, false)
    , mMsgPool("StreamQueueingFormatDecoder", StreamQueueMsg(),
-         iQueueLength+1,iQueueLength+2,
-         iQueueLength+2, 1, OsMsgPool::SINGLE_CLIENT)
+              iQueueLength+1, iQueueLength+2,
+              iQueueLength+2, 1, OsMsgPool::SINGLE_CLIENT)
    , mbReportThrottle(TRUE)
 {
-
    miMaxQueueLength = iQueueLength ;
 
    mbDraining = FALSE ;
@@ -219,27 +219,9 @@ int StreamQueueingFormatDecoder::getNumQueuedFrames()
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Copy constructor (not supported)
-StreamQueueingFormatDecoder::StreamQueueingFormatDecoder(
-      const StreamQueueingFormatDecoder& rStreamQueueingFormatDecoder)
-   : StreamFormatDecoder(NULL)
-   , mMsgPool("StreamQueueingFormatDecoder", StreamQueueMsg(), 1001, 1001,
-          1001, 1, OsMsgPool::SINGLE_CLIENT)
-{
-    assert(FALSE) ;
-}
+// Copy constructor (not implemented)
 
-// Assignment operator (not supported)
-StreamQueueingFormatDecoder&
-StreamQueueingFormatDecoder::operator=(const StreamQueueingFormatDecoder& rhs)
-{
-   assert(FALSE) ;
-
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
-
-   return *this;
-}
+// Assignment operator (not implemented)
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

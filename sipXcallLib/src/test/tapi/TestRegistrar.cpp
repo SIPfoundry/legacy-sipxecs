@@ -57,10 +57,7 @@ TestRegistrar::TestRegistrar()
                 false) ;                    // bUseNextAvailablePort
 }
 
-// Copy constructor
-TestRegistrar::TestRegistrar(const TestRegistrar& rTestRegistrar)
-{
-}
+// Copy constructor not implemented
 
 // Destructor
 TestRegistrar::~TestRegistrar()

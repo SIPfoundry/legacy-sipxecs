@@ -42,6 +42,11 @@ class SipRefreshManagerTest : public CppUnit::TestCase
 
     public:
 
+    SipRefreshManagerTest()
+       : incomingServerMsgQueue("SipRefreshManagerTest::incomingServerMsgQueue")
+      {
+      }
+
     // Initializations of these variables are at the bottom of this file.
     static SipRefreshManager::RefreshRequestState smLatestSubState;
     static int smCallbackCount;

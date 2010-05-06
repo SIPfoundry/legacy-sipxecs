@@ -132,7 +132,7 @@ Voice-Message: 0/0 (0/0)\r\n";
 
          // Dummy OsMsgQ to receive resend messages from subMgr.
          // Allocate before subMgr, which will point to it.
-         OsMsgQ msgQ;
+         OsMsgQ msgQ("SipSubscriptionMgrTest::subscriptionTest::magQ");
          SipSubscriptionMgr subMgr;
          subMgr.initialize(&msgQ);
          

@@ -132,11 +132,6 @@ SipNotifyStateTask::SipNotifyStateTask(const UtlString& checkSyncPolicy,
    mpRunScriptEvent = NULL ;
 }
 
-// Copy constructor
-SipNotifyStateTask::SipNotifyStateTask(const SipNotifyStateTask& rSipNotifyStateTask)
-{
-}
-
 // Destructor
 SipNotifyStateTask::~SipNotifyStateTask()
 {

@@ -43,6 +43,11 @@ class SipSubscribeServerTest1 : public CppUnit::TestCase
 
 public:
 
+   SipSubscribeServerTest1()
+      : incomingClientMsgQueue("SipSubscribeServerTest1::incomingClientMsgQueue")
+      {
+      }
+
    UtlString hostIp;
    const char* mwiStateString;
    UtlString eventName;
@@ -575,6 +580,11 @@ class SipSubscribeServerTest2 : public CppUnit::TestCase
    CPPUNIT_TEST_SUITE_END();
 
 public:
+
+   SipSubscribeServerTest2()
+      : incomingClientMsgQueue("SipSubscribeServerTest2::incomingClientMsgQueue")
+      {
+      }
 
    UtlString hostIp;
    const char* mwiStateString;

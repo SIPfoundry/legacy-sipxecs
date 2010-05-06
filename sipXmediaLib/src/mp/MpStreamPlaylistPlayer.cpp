@@ -556,7 +556,8 @@ OsStatus MpStreamPlaylistPlayer::getState(PlayerState& state)
 
 // Copy constructor
 MpStreamPlaylistPlayer::MpStreamPlaylistPlayer(const MpStreamPlaylistPlayer& rMpStreamPlaylistPlayer)
-   : mSemStateChange(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
+   : OsServerTask("MpStreamPlaylistPlayer-%d")
+   , mSemStateChange(OsBSem::Q_PRIORITY, OsBSem::EMPTY)
    , mWaitEvent(0)
 {
 }

@@ -190,8 +190,10 @@ void * CMsgQueue::InitMessageThread(void * argument1)
 #elif defined(__pingtel_on_posix__)
 
     /* set up the OsMsgQ */
-    poMsgQueue->m_pMsgQ = new OsMsgQ(MAX_NOTIFY_MESSAGES_DEFINE,
-                                  OsMsgQ::DEF_MAX_MSG_LEN, OsMsgQ::Q_PRIORITY);
+    poMsgQueue->m_pMsgQ = new OsMsgQ("CMsgQueue::InitMessageThread::poMsgQueue->m_pMsgQ",
+                                     MAX_NOTIFY_MESSAGES_DEFINE,
+                                     OsMsgQ::DEF_MAX_MSG_LEN,
+                                     OsMsgQ::Q_PRIORITY);
     if(!poMsgQueue->m_pMsgQ)
         return(0);
 

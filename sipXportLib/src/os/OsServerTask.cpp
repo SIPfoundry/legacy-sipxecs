@@ -29,7 +29,7 @@ const int OsServerTask::DEF_MAX_MSGS = OsMsgQ::DEF_MAX_MSGS;
 /* ============================ CREATORS ================================== */
 
 // Constructor
-OsServerTask::OsServerTask(const UtlString& name,
+OsServerTask::OsServerTask(const char* name,
                            void* pArg,
                            const int maxRequestQMsgs,
                            const int priority,
@@ -40,8 +40,8 @@ OsServerTask::OsServerTask(const UtlString& name,
    // log the name of the task that owns a queue that has filled.
    // Note that if 'name' contains '%d', then the OsTask's name is different
    // from 'name', so we have to fetch the real task name from the OsTask.
-   mIncomingQ(maxRequestQMsgs, OsMsgQ::DEF_MAX_MSG_LEN, OsMsgQ::Q_PRIORITY,
-              getName())
+   mIncomingQ(getName(),
+              maxRequestQMsgs, OsMsgQ::DEF_MAX_MSG_LEN, OsMsgQ::Q_PRIORITY)
    // Other than initialization, no work is required.
 {
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
@@ -78,6 +78,9 @@ UtlBoolean OsServerTask::handleMessage(OsMsg& rMsg)
    case OsMsg::OS_SHUTDOWN:
       OsTask::requestShutdown();
       handled = TRUE;
+      OsSysLog::add(FAC_KERNEL, PRI_DEBUG,
+                    "OsServerTask::handleMessage: "
+                    "OS_SHUTDOWN processed");
       break;
    default:
       OsSysLog::add(FAC_KERNEL, PRI_CRIT,

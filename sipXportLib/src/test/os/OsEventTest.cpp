@@ -24,7 +24,8 @@ class RightEventThread : public OsServerTask
     int mMaxEvents;
     int* mpDeletedEvent;
 
-    RightEventThread(int* eventOutcome, int eventsSize)
+    RightEventThread(int* eventOutcome, int eventsSize) :
+       OsServerTask("RightEventThread")
     {
         mNumEvents = -1;
         mMaxEvents = eventsSize;

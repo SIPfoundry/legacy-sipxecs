@@ -21,6 +21,7 @@
 #include "os/OsMsg.h"
 #include "os/OsMsgQ.h"
 #include "os/OsUtil.h"
+#include "os/OsSysLog.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -37,26 +38,26 @@ const UtlString OsMsgQBase::MSGQ_PREFIX("MsgQ.");
 
 // Constructor
 // If the name is specified but is already in use, throw an exception
-OsMsgQBase::OsMsgQBase(const UtlString& name)
+OsMsgQBase::OsMsgQBase(const char* name)
 :  mSendHookFunc(NULL),
    mFlushHookFunc(NULL),
    mName(name)
 {
    if (mName != "")
    {
-      OsUtil::insertKeyValue(MSGQ_PREFIX, mName, this);
+      // Duplicate names are OK.
+      OsUtil::insertKeyValue(MSGQ_PREFIX, mName, this, FALSE);
    }
 }
 
 // Destructor
 OsMsgQBase::~OsMsgQBase()
 {
-   OsStatus res;
-
    if (mName != "")
    {
-      res = OsUtil::deleteKeyValue(MSGQ_PREFIX, mName);
-      assert(res == OS_SUCCESS);
+      OsUtil::deleteKeyValue(MSGQ_PREFIX, mName);
+      // If the name was a duplicate, the first deletion of it
+      // will succeed and later ones will fail.
    }
 }
 

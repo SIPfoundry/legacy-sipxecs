@@ -52,8 +52,11 @@
 
 // Constructor
 // If the name is specified but is already in use, throw an exception
-OsMsgQShared::OsMsgQShared(const int maxMsgs, const int maxMsgLen,
-                     const int options, const UtlString& name)
+OsMsgQShared::OsMsgQShared(const char* name,
+                           int maxMsgs,
+                           int maxMsgLen,
+                           int options,
+                           bool reportFull)
    :
    OsMsgQBase(name),
    mGuard(OsMutex::Q_PRIORITY + OsMutex::INVERSION_SAFE +
@@ -62,7 +65,8 @@ OsMsgQShared::OsMsgQShared(const int maxMsgs, const int maxMsgLen,
    mFull(OsCSem::Q_PRIORITY, maxMsgs, 0),
    mDlist(),
    mOptions(options),
-   mHighCnt(0)
+   mHighCnt(0),
+   mReportFull(reportFull)
 {
    mMaxMsgs = maxMsgs;
 
@@ -289,9 +293,9 @@ OsStatus OsMsgQShared::doSendCore(OsMsg* pMsg,
    {
       int count, max;
       mFull.getCountMax(count, max);
-      // Do not log problem with the queue for the syslog task to prevent
+      // Do not log problems with the queue for the syslog task to prevent
       // infinite recursion.
-      if (2 * count > max && mName != "syslog")
+      if (mReportFull && 2 * count > max && mName != "syslog")
       {
          OsSysLog::add(FAC_KERNEL, PRI_NOTICE,
                        "OsMsgQShared::doSendCore message queue '%s' is over half full - count = %d, max = %d",

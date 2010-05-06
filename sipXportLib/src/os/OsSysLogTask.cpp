@@ -217,22 +217,9 @@ OsStatus OsSysLogTask::getLogEntries(  const int maxEntries,
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 
-// Assignment operator
-OsSysLogTask&
-OsSysLogTask::operator=(const OsSysLogTask& rhs)
-{
-   if (this == &rhs)            // handle the assignment to self case
-      return *this;
+// Assignment operator not implemented
 
-   return *this;
-}
-
-// Copy constructor
-OsSysLogTask::OsSysLogTask(const OsSysLogTask& rOsSysLogTask)
-   : mRWMutex(OsRWMutex::Q_PRIORITY)
-{
-}
-
+// Copy constructor not implemented
 
 // Receive incoming messages and redispatch to the corresponding
 // processXXX handler.

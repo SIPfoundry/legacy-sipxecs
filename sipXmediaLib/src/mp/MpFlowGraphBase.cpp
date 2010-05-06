@@ -36,7 +36,7 @@ MpFlowGraphBase::MpFlowGraphBase(int samplesPerFrame, int samplesPerSec)
 : mRWMutex(OsRWMutex::Q_PRIORITY),
   mResourceDict(),
   mCurState(STOPPED),
-  mMessages(MAX_FLOWGRAPH_MESSAGES),
+  mMessages("MpFlowGraphBase::mMessages", MAX_FLOWGRAPH_MESSAGES),
   mPeriodCnt(0),
   mLinkCnt(0),
   mResourceCnt(0),

@@ -27,13 +27,11 @@
 
 // Constructor
 CpGatewayManager::CpGatewayManager()
+   : OsServerTask("CpGatewayManager-%d")
 {
 }
 
-// Copy constructor
-CpGatewayManager::CpGatewayManager(const CpGatewayManager& rCpGatewayManager)
-{
-}
+// Copy constructor not implemented
 
 // Destructor
 CpGatewayManager::~CpGatewayManager()

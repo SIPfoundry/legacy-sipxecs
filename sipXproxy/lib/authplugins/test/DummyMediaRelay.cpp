@@ -323,6 +323,7 @@ int MediaBridgePair::compareTo(UtlContainable const *rhs ) const
 }
 
 AsynchMediaRelayRequestSender::AsynchMediaRelayRequestSender( MediaRelay* pOwningMediaRelay ) :
+   OsServerTask( "AsynchMediaRelayRequestSender-%d" ),
    mpOwningMediaRelay( pOwningMediaRelay )
 {
 }
