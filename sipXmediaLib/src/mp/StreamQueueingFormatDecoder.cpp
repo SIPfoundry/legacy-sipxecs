@@ -48,7 +48,8 @@ unsigned int StreamQueueingFormatDecoder::sTotalThrottles = 0 ;
 StreamQueueingFormatDecoder::
 StreamQueueingFormatDecoder(StreamDataSource* pDataSource, int iQueueLength)
    : StreamFormatDecoder(pDataSource)
-   , mMsgqFrames("StreamQueueingFormatDecoder::mMsgFrames", iQueueLength)
+   , mMsgqFrames("StreamQueueingFormatDecoder::mMsgFrames", iQueueLength,
+                 OsMsgQ::DEF_MAX_MSG_LEN, OsMsgQ::Q_PRIORITY, false)
    , mMsgPool("StreamQueueingFormatDecoder", StreamQueueMsg(),
               iQueueLength+1, iQueueLength+2,
               iQueueLength+2, 1, OsMsgPool::SINGLE_CLIENT)

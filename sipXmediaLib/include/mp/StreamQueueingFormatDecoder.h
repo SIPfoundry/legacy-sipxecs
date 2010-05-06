@@ -88,7 +88,7 @@ protected:
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
-   OsMsgQ    mMsgqFrames ;        // Queue of frames
+   OsMsgQ    mMsgqFrames;         // Queue of frames
    OsMsgPool mMsgPool;            // Pool for msg containers
    int       miMaxQueueLength ;   // Max size of the queue length
    UtlBoolean mbReportThrottle ;   // Should this report throttles?
