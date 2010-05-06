@@ -896,9 +896,11 @@ div.userPortal
 
 #logtext {
 	height: 400px;
-	width: 600px;
+	width: 700px;
 	overflow: auto;
 	border: 1px solid #666;
 	background-color: #ccc;
 	padding: 8px;
+	font-family: Monospace;
+	margin-top: 8px;
 }
