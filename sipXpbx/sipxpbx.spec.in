@@ -172,6 +172,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(775,@SIPXPBXUSER@,root) %{_datadir}/www/doc
 %config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/index.html
 %config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/retrieve-update-log.cgi
+%config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/retrieve-error-log.cgi
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/doc/aa_vxml
 %config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/stdprompts
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/doc/vm_vxml

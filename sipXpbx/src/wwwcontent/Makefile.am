@@ -551,7 +551,8 @@ wwwcontent = \
 	vm_vxml/root.vxml.in \
 	vm_vxml/savemessage.vxml \
 	vm_vxml/savemessage_no_operator.vxml \
-	retrieve-update-log.cgi
+	retrieve-update-log.cgi \
+	retrieve-error-log.cgi
 
 install-data-hook: install-wwwcontent
 

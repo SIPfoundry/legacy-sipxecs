@@ -11,36 +11,73 @@
 
 		var timer = null;
         var start_position = 1;
-		var text;
+		var outputLog;
+		var errorLog;
 		var url_base = "http://" + getUrlBase();
 
         function scrollTimer() {
+				readOutputLog();
 
-                if (timer) clearTimeout(timer);
+				if (outputLog != undefined) {
+					outputLog = replaceCRandSpaces(outputLog);
 
-				var url = url_base + "/retrieve-update-log.cgi?start_pos=" + start_position;
-				$.getJSON(url + "&jsoncallback=?", function(data) {
-					text = data.Message;
+					if (outputLog.search(/END/) != -1) {
+						if (getReturnedStatus(outputLog) != "0") {
+							outputLog = removeStatusFromText(outputLog);
+							printLog(outputLog);
 
-					if (text != undefined) {
-						start_position += (text.split(/<br\/>/g).length - 1);
-						text = text.replace(/\n/g, "<br/>");
-
-						logtextDiv.innerHTML=logtextDiv.innerHTML + text;
-
-						if (checkbox.checked == true)
-							logtextDiv.scrollTop = logtextDiv.scrollHeight;
+							readAndDisplayErrorLog();
+							updatePageComponentsAfterError();
+						} else {
+							outputLog = removeStatusFromText(outputLog);
+							printLog(outputLog);
+							updatePageComponentsAfterSuccess();
+			                clearTimeout(timer);
+			                timer = setTimeout('checkServer()', 2000);
+						}
+					} else {
+						printLog(outputLog);
+						timer = setTimeout("scrollTimer()", 1000);
 					}
-				});
-
-
-                // keep on keepin' on
-                if (text != undefined && text.search(/END/) != -1) {
-	                updatePageComponentsAfterUpdate();
-	                clearTimeout(timer);
-	                timer = setTimeout('checkServer()', 2000);
-                } else
+				} else
 					timer = setTimeout("scrollTimer()", 1000);
+        }
+
+        function readAndDisplayErrorLog() {
+			$.getJSON(url_base + "/retrieve-error-log.cgi?" + "jsoncallback=?", function(data) {
+					errorLog = data.Message;
+					errorLog = replaceCRandSpaces(errorLog);
+					printLog("<span style=\"color:red;\">" + errorLog + "</span>");
+				});
+        }
+
+        function readOutputLog() {
+			$.getJSON(url_base + "/retrieve-update-log.cgi?start_pos=" + start_position + "&jsoncallback=?", function(data) {
+				outputLog = data.Message;
+				if (outputLog != undefined)
+					start_position += (outputLog.split(/<br\/>/g).length - 1);
+				});
+        }
+
+        function getReturnedStatus(outputLog) {
+			var split = outputLog.split("<br/>");
+			return split[split.length - 2];
+        }
+
+        function removeStatusFromText(text) {
+			return text.substring(0, text.lastIndexOf(getReturnedStatus(text)));
+        }
+
+        function printLog(logText) {
+			logtextDiv.innerHTML = logtextDiv.innerHTML + logText;
+
+			if (checkbox.checked == true)
+				logtextDiv.scrollTop = logtextDiv.scrollHeight;
+        }
+
+        function replaceCRandSpaces(text) {
+			text = text.replace(/\n/g, "<br/>");
+			return text.replace(/ /g,"&nbsp;");
         }
 
 		function getUrlBase() {
@@ -52,7 +89,18 @@
 				return host;
 		}
 
-		function updatePageComponentsAfterUpdate() {
+		function updatePageComponentsAfterError() {
+			$('#scrollPanel').hide();
+			$('#installationIndicator').hide();
+			$('#updateTitle').text("Software update failed!");
+			$('#goToLoginButton').val("Go to Home");
+			$('#goToLoginButton').show();
+			$('#goToLoginButton').click(function() {
+				location.href = url_base;
+			});
+		}
+
+		function updatePageComponentsAfterSuccess() {
 			$('#scrollPanel').hide();
 			$('#installationIndicator').hide();
 			$('#restartingIndicator').show();
