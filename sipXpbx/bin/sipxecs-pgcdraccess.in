@@ -194,7 +194,7 @@ function convert_ip()
 if [ "$OPERATION" == "subnet" ]; then
 #       NOT SUPPORTED.
 	echo '#Following allows database connections from subnet connected to eth0' >> /var/lib/pgsql/data/pg_hba.conf
-	a='host SIPXCDR all '
+	a='host SIPXCDR cdrremote '
 	b=`cat /etc/sysconfig/network-scripts/ifcfg-eth0 | grep 'NETWORK' | sed 's/NETWORK=//g'`
 	c=' '
 	d=`cat /etc/sysconfig/network-scripts/ifcfg-eth0 | grep 'NETMASK' | sed 's/NETMASK=//g'`
@@ -205,7 +205,7 @@ if [ "$OPERATION" == "subnet" ]; then
 	sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" $BASEDIR/postgresql.conf
 	sed -i "s/listen_addresses = 'localhost'/listen_addresses = '*'/g" $BASEDIR/postgresql.conf
 else
-	a='host SIPXCDR all '
+	a='host SIPXCDR cdrremote '
         if [ "$IP_ADDRESS" != "" ]
         then
 #          generate mask for ip address
