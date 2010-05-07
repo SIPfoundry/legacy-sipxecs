@@ -231,8 +231,11 @@ public class PhonebookManagerTest extends TestCase {
         context.setVcardEncoding("US-ASCII");
 
         ByteArrayOutputStream empty = new ByteArrayOutputStream();
-        context.exportPhonebook(new ArrayList(), empty);
-
+        try {
+          context.exportPhonebook(new ArrayList(), empty);
+        } catch (UserException e){
+            assertTrue(true);
+        }
         PhonebookEntry e1 = new StringArrayPhonebookEntry("Jean Luc", "Picard", "1234");
         PhonebookEntry e2 = new StringArrayPhonebookEntry("Luke", "Skywalker", "1235");
         PhonebookEntry e3 = new StringArrayPhonebookEntry("", "", "1235");

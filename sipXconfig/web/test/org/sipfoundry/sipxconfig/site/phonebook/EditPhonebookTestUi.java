@@ -37,6 +37,7 @@ public class EditPhonebookTestUi extends WebTestCase {
         setTextField("item:name", "test-phonebook");
         clickButton("form:apply");
         SiteTestHelper.assertNoUserError(tester);
+        assertLinkPresent("exportPhonebook");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
     }

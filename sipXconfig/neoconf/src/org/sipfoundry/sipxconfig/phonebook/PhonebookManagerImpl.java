@@ -735,6 +735,9 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException {
+        if (entries.isEmpty()) {
+            throw new UserException("&error.phonebookEmpty");
+        }
         Writer writer = new OutputStreamWriter(out, m_vcardEncoding);
         for (PhonebookEntry entry : entries) {
             m_vcardWriter.write(writer, entry);
