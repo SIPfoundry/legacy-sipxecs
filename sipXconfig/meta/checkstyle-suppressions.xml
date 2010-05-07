@@ -10,4 +10,8 @@
               lines="38-42"/>
     <suppress checks=".*"
               files="org.sipfoundry.sipxconfig.sip.log4j.*" />
+    <suppress checks="[a-zA-Z0-9]*"
+              files="DaoAuthenticationProvider.java"/>
+    <suppress checks="[a-zA-Z0-9]*"
+              files="DigestProcessingFilter.java"/>
 </suppressions>
