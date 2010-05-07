@@ -35,12 +35,6 @@
 #set ($sip_local_port = $cfg.EndpointSettings.getSetting('voIpProt.SIP').getSetting('local').getSetting('port'))
       voIpProt.local.port="$!{sip_local_port.Value}"
     />
-    <server
-#set ($group = $cfg.EndpointSettings.getSetting('voIpProt.server.dhcp'))
-#foreach ($setting in $cfg.getSettings($group))
-      voIpProt.server.dhcp.${setting.ProfileName}="$!{setting.Value}"
-#end
-    />
     <SIP
 #set ($allow_Transfer_On_Proceeding = "2")
       voIpProt.SIP.allowTransferOnProceeding="$!{allow_Transfer_On_Proceeding}"

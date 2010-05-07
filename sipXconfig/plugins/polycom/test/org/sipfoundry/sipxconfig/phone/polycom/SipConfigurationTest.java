@@ -129,7 +129,5 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
         phone.setSettingValue("call/rejectBusyOnDnd", "0");
 
         tester.getPrimaryLine().setSettingValue("call/serverMissedCall/enabled", "1");
-
-        assertEquals("0", phone.getSettingValue("voIpProt.server.dhcp/available"));
     }
 }

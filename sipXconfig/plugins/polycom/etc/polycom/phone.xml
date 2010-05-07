@@ -2435,33 +2435,6 @@
       </setting>
     </group>
   </group>
-  <group name="voIpProt.server.dhcp">
-    <setting name="available">
-      <type>
-        <boolean />
-      </type>
-      <value>0</value>
-    </setting>
-    <setting name="option">
-      <type>
-        <integer min="128" max="255" />
-      </type>
-      <value />
-    </setting>
-    <setting name="type">
-      <type>
-        <enum>
-          <option>
-            <value>0</value>
-          </option>
-          <option>
-            <value>1</value>
-          </option>
-        </enum>
-      </type>
-      <value />
-    </setting>
-  </group>
   <!-- SIMILIAR SECTION EXISTS IN line.xml to control dialplans per line -->
   <group name="dialplan">
     <setting name="impossibleMatchHandling">

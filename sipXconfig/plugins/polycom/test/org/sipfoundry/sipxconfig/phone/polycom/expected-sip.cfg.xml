@@ -7,11 +7,6 @@
     <local
       voIpProt.local.port="5061"
     />
-    <server
-      voIpProt.server.dhcp.available="0"
-      voIpProt.server.dhcp.option=""
-      voIpProt.server.dhcp.type=""
-    />
     <SIP
       voIpProt.SIP.local.port="5061"
       voIpProt.SIP.csta="0"
