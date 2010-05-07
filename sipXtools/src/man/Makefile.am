@@ -10,6 +10,7 @@ MAN_PAGES = \
 	sipx-readroute.1 \
 	sipx-trace.1 \
 	sipx-log-cut.1 \
+	sipx-network-trace.1 \
 	sipx-servtest.1 \
 	expire-spread.1 \
 	monitor-spread.1 \

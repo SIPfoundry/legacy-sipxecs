@@ -17,7 +17,8 @@ LOCAL_SHELLSCRIPTS = \
 	expire-spread \
 	monitor-spread \
 	sipxproc \
-	sipxreplicate
+	sipxreplicate \
+	sipx-network-trace
 
 bin_SCRIPTS = \
    $(LOCAL_SHELLSCRIPTS)
