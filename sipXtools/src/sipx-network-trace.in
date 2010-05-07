@@ -1,0 +1,244 @@
+#!/bin/bash
+
+# Copyright (C) 2010 Avaya Corp., certain elements licensed under a Contributor Agreement.
+# Contributors retain copyright to elements licensed under a Contributor Agreement.
+# Licensed to the User under the LGPL license.
+
+LOCKFILE="@SIPX_RUNDIR@/tcpdump.pid"
+TRACE_FILENAME=undefined
+INTERFACE=any
+PROCESSNAME=sipx-network-trace
+
+# default file size is 4*1000000 bytes
+FILESIZE=4
+
+#default number of files generated.
+FILECOUNT=10
+
+#default time out is 10 minutes
+TIMEOUT=600
+
+function getLock ()
+{
+    if ln "${PID_KEY}" "${LOCKFILE}" 2>/dev/null # atomic creation and test
+    then
+        return 0
+    else
+        return 1
+    fi
+}
+
+usage()
+{
+    echo "Usage: $0 [-i <interface>] [-f <output file>] [-s <file size x 1,000,000 bytes>] [-r <number of files>] [-t <seconds to run>] {start|stop|status}"
+    echo "  -i <interface> (default any)"
+    echo "  -f <output file> (default sipx-net-trace-<datestamp>.pcap)"
+    echo "  -s <file size in MB> (default 4MB)"
+    echo "  -r <number of files> (default 10)"
+    echo "  -t <number of seconds to run> (default 10 minutes)"
+    echo "  start | stop | status"
+    echo "Creates one or more pcap files containing network packets sent to the specified interface."
+    echo "By default, will run for ten minutes or until stopped or killed, and store up to 40MB worth of trace information."
+    echo "Output files are created in a 'trace' subdirectory under the sipXecs log directory."
+    echo "Must be run as root."
+}
+
+do_start()
+{
+    echo "Starting $PROCESSNAME ..."
+    if [ -n "${SIPX_TCPDUMP}" ]
+    then
+        TcpDump="${SIPX_TCPDUMP}"
+    else
+        TcpDump=$(which tcpdump)
+        if [ $? -ne 0 ]
+        then
+            echo "Install tcpdump or, if it is installed, set SIPX_TCPDUMP to the path to it" 1>&2
+            rm -f ${LOCKFILE} 2>/dev/null
+            exit 1
+        fi
+    fi
+
+    if [ ! -d @SIPX_LOGDIR@/trace ]; then
+        mkdir @SIPX_LOGDIR@/trace
+    fi
+
+    #if not setuid, will get permission denied even with root permission.
+    chown tcpdump:tcpdump @SIPX_LOGDIR@/trace
+
+    if [ $TRACE_FILENAME == "undefined" ]; then
+        TRACE_FILENAME=sipx-net-trace-`date '+%y%m%dT%H%M%S'`.pcap
+        sleep 1 # make sure the file name is unique.
+    fi
+
+    cd @SIPX_LOGDIR@/trace
+    ${TcpDump} -n -nn -s 0 -W $FILECOUNT -C $FILESIZE -i $INTERFACE -w $TRACE_FILENAME &  echo $! > $LOCKFILE
+    PID=`cat $LOCKFILE 2> /dev/null`
+    echo "Output: @SIPX_LOGDIR@/trace/$TRACE_FILENAME*"
+}
+
+do_stop()
+{
+    if [ -f $LOCKFILE ] ; then
+        PID=`cat $LOCKFILE`
+        if proc_alive "$PID"
+        then
+            kill -SIGTERM $PID 2>/dev/null
+            sleep 1
+        fi
+
+        if proc_alive "$PID"
+        then
+            kill -9 $PID 2>/dev/null
+            sleep 1
+        fi
+
+        if proc_alive "$PID"
+        then
+            echo tcpdump still alive
+        else
+            rm -f $LOCKFILE
+        fi
+    fi
+    rm -f ${PID_KEY} 2>/dev/null
+}
+
+
+# Check if the process is alive
+proc_alive() # pid
+{
+   2>/dev/null kill -0 $1
+   return $?
+}
+
+
+## display and return the status of the tcpdump process
+do_status()
+{
+    local proc_status=0
+
+    echo -n "Checking  $0 ..."
+    if [ ! -e $LOCKFILE ]
+    then
+        echo "[Not Running] "
+        proc_status=3
+    else
+        PID=`cat $LOCKFILE`
+        if [ "$PID" != "" ]
+        then
+            if proc_alive "$PID"
+            then
+                echo [success];
+                printf "$0 is running, process id %s\n" "$PID"
+                echo ''
+            else
+                echo "$0 is not running, but stale PID file found with process id $PID"
+                echo "run [$0 stop] to clean up stale process id file"
+                echo ''
+                proc_status=1
+            fi
+        else
+            echo "no valid PID found!"
+        fi
+    fi
+    return ${proc_status}
+}
+
+## Parse options
+traceFileflag=
+interfaceFlag=
+while getopts 'i:f:s:r:t:' OPTION
+do
+    case $OPTION in
+    f)
+        traceFileFlag=1
+        TRACE_FILENAME="$OPTARG"
+        ;;
+    i)
+        interfaceFlag=1
+        INTERFACE="$OPTARG"
+        ;;
+    s)
+        FILESIZE="$OPTARG"
+        ;;
+    r)
+        FILECOUNT="$OPTARG"
+        ;;
+    t)
+        TIMEOUT="$OPTARG"
+        ;;
+    *)
+        usage
+        exit -2
+  esac
+done
+
+## Skip options
+shift $(($OPTIND - 1))
+
+if [ "`whoami`" != root ]
+then
+   echo "You must be root in order to run $0."
+   exit 4
+fi
+
+if [ $TIMEOUT -gt 86400 ]
+then
+   echo "Max timeout is one day (86400 seconds)"
+   TIMEOUT=86400
+fi
+
+ExitStatus=0
+case "$*" in
+    start)
+
+        # wait for a lock
+        PID_KEY=$(mktemp @SIPX_RUNDIR@/net-trace-key.XXXXXX)
+        trap "rm -f ${PID_KEY} 2>/dev/null" 0 # clean up on exit
+        retries=4
+        until [ $retries == 0 ] || getLock ; do
+            echo "An instance is already running, will wait 1 sec and try again"
+            let retries=retries-1
+            sleep 1
+        done
+        if [ $retries == 0 ]
+        then
+            echo "An instance is already running (stop it with $0 stop)"
+            exit -1
+        fi
+
+        do_start
+
+        trap "do_stop" 0 # clean up on exit
+        #start monitoring for the specified time
+        elapse=0
+        PID=`cat $LOCKFILE 2> /dev/null`
+        while [ $elapse -lt $TIMEOUT ]
+        do
+            if proc_alive "$PID"
+            then
+                let elapse=elapse+2
+                sleep 2
+            else
+                break;
+            fi
+        done
+
+        trap - 0 # we're already exiting, no need for more trap handling
+        do_stop
+
+        ExitStatus=$?
+        ;;
+    stop)
+        do_stop
+        ;;
+    status)
+        do_status
+        ExitStatus=$?
+        ;;
+    *)
+        usage
+        ExitStatus=1
+esac
+
+exit ${ExitStatus}
