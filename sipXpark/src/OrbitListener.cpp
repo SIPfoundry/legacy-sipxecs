@@ -225,7 +225,7 @@ UtlBoolean OrbitListener::handleMessage(OsMsg& rMsg)
                               (int) taoEventId, callIdTao.data(), addressTao.data());
                 if (mTransferCalls.find(&callIdTao))
                 {
-                   // found call-id in transfer hashmap, get origi call-id value (if any)
+                   // found call-id in transfer hashmap, get original call-id value (if any)
                    OsSysLog::add(FAC_PARK, PRI_DEBUG,
                                  "OrbitListener::handleMessage - %d "
                                  "callId: '%s', address: '%s' found in mTransferCalls",

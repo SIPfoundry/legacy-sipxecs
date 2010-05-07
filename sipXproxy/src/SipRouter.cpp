@@ -1123,7 +1123,7 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
              OsSysLog::add(FAC_AUTH, PRI_DEBUG,
                            "SipRouter::isAuthenticated "
                            "found credential "
-                           "user: \"%s\" passToken: \"%s\"",
+                           "user: '%s' passToken: '%s'",
                            requestUser.data(), passTokenDB.data());
 #endif
              authenticated = sipRequest.verifyMd5Authorization(requestUser.data(),
