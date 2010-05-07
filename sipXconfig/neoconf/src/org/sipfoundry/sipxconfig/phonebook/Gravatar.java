@@ -24,11 +24,11 @@ public class Gravatar {
     public static final String DEFAULT_AVATAR = "https://secure.gravatar.com/avatar";
 
     public enum DefaultType {
-        identicon, monsterid, wavatar
+        identicon, monsterid, wavatar, G
     }
 
     private final String m_email;
-    private DefaultType m_type = DefaultType.wavatar;
+    private DefaultType m_type = DefaultType.G;
     private int m_size = 80;
 
     public Gravatar(User user) {
