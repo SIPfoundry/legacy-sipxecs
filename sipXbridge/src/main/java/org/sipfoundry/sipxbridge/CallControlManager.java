@@ -537,7 +537,7 @@ class CallControlManager implements SymmitronResetHandler {
                         .getReplacesDialog(replacesHeader);
                 if (replacesDialog == null) {
                     Response response = SipUtilities.createResponse(serverTransaction,
-                            Response.SERVER_INTERNAL_ERROR);
+                            Response.NOT_FOUND);
                     response.setReasonPhrase("Dialog Not Found");
                     serverTransaction.sendResponse(response);
                     return;
