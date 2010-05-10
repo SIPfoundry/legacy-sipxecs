@@ -22,8 +22,14 @@ import org.sipfoundry.sipxconfig.phone.PhoneContext;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class PhoneCloud extends BaseComponent {
+
     @InjectObject(value = "spring:phoneContext")
     public abstract PhoneContext getPhoneContext();
+
+    // Allows pseudo device discovery by showing phone page
+    // with filter set to show unassigned phone
+    @InjectPage(value = ManagePhones.PAGE)
+    public abstract ManagePhones getManagePhonesPage();
 
     @InjectPage(value = EditPhone.PAGE)
     public abstract EditPhone getEditPhonePage();
@@ -55,6 +61,13 @@ public abstract class PhoneCloud extends BaseComponent {
         EditPhone page = getEditPhonePage();
         page.setPhoneId(phoneId);
         page.setReturnPage(getPage());
+        return page;
+    }
+
+    // DirectLink listener to display phone page
+    public IPage discover() {
+        ManagePhones page = getManagePhonesPage();
+        page.setDiscovery(true);
         return page;
     }
 

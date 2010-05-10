@@ -14,7 +14,6 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-
 public class DiscoverDevicesTestUi extends WebTestCase {
 
     public static Test suite() throws Exception {
@@ -26,12 +25,12 @@ public class DiscoverDevicesTestUi extends WebTestCase {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
         clickLink("toggleNavigation");
-        clickLink("menu.discoverDevices");
-    }
+        clickLink("HomePage");
+        assertTitleEquals("sipXconfig::Home");
+        clickLink("discoverDevicesLink");
+    };
 
     public void testDiscover() {
-        assertSubmitButtonPresent("notStartedDiscover");
-        clickButton("notStartedDiscover");
-        assertSubmitButtonPresent("refresh");
+        assertSelectedOptionEquals("group:filter", "- unassigned -");
     }
 }
