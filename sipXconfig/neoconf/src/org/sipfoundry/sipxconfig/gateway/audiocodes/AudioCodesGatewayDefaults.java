@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  */
 public class AudioCodesGatewayDefaults {
     private static final String REL_6_0_OR_LATER = "6.0orLater";
+    private static final String REL_USE_PROXYSET0 = "useProxySet0";
     private static final String OPTION_ZERO = "0";
     private static final String OPTION_ONE = "1";
     private static final String AUTH_PER_ENDPOINT = OPTION_ZERO;
@@ -57,6 +58,15 @@ public class AudioCodesGatewayDefaults {
             return CSMODE_CYCLICASCEND;
         }
         return CSMODE_DESTPHONE;
+    }
+
+    @SettingEntry(path = "SIP_Proxy_Registration/IsProxyUsed")
+    public boolean getIsProxyUsed() {
+        if (m_fxoGateway != null) {
+            DeviceVersion myVersion = m_fxoGateway.getDeviceVersion();
+            return myVersion.isSupported(REL_USE_PROXYSET0);
+        }
+        return true;
     }
 
     @SettingEntry(path = "SIP_Proxy_Registration/SIPDestinationPort")
