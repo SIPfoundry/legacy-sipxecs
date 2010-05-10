@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.service.UnmanagedService;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
@@ -21,6 +22,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
  * derived from the same base.
  */
 public class AudioCodesGatewayDefaults {
+    private static final String REL_6_0_OR_LATER = "6.0orLater";
     private static final String OPTION_ZERO = "0";
     private static final String OPTION_ONE = "1";
     private static final String AUTH_PER_ENDPOINT = OPTION_ZERO;
@@ -116,10 +118,21 @@ public class AudioCodesGatewayDefaults {
 
     @SettingEntry(path = "advanced_general/MaxActiveCalls")
     public int getMaxActiveCalls() {
+        DeviceVersion myVersion;
+        int numPorts;
         if (m_fxoGateway != null) {
-            return m_fxoGateway.getMaxCalls();
+            myVersion = m_fxoGateway.getDeviceVersion();
+            numPorts = m_fxoGateway.getMaxCalls();
+        } else {
+            myVersion = m_fxsGateway.getDeviceVersion();
+            numPorts = m_fxsGateway.getLines().size();
         }
-        return m_fxsGateway.getLines().size();
+        // Release 6.00 firmware allows two calls per port.
+        int multiplier = 1;
+        if (myVersion.isSupported(REL_6_0_OR_LATER)) {
+            multiplier = 2;
+        }
+        return (multiplier * numPorts);
     }
 
     /**
