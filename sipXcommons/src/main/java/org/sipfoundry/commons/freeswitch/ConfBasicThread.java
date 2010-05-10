@@ -129,22 +129,42 @@ public class ConfBasicThread extends Thread {
                 }
             }
             
+            if(action.equalsIgnoreCase("floor-change")) {
+                String newFloorMemberId =  event.getEventValue("New-ID");
+                conf.setLastMemberTalking(newFloorMemberId);
+                
+                conf.setNoOneTalking(newFloorMemberId.equals("0"));                 
+            }
+            
             if(action.equalsIgnoreCase("start-talking")) {
-                conf.setLastMemberTalking(memberId);
-                conf.setNoOneTalking(false);
+                if(conf.isNoOneTalking()) {
+                    conf.setLastMemberTalking(memberId);
+                    conf.setNoOneTalking(false);
+                }
+                
             }
             
             if(action.equalsIgnoreCase("stop-talking")) {
-                if(conf.getWhosTalking().equals(memberId)) {
+                String whoTalking = conf.getWhosTalking();                
+                if(whoTalking == null) return true;
+                
+                if(memberId.equals(whoTalking)) {
                     conf.setNoOneTalking(true);
-                }
+                }               
             }
-                        
+                                    
             if(action.equalsIgnoreCase("mute-member") || action.equalsIgnoreCase("unmute-member")) {
-                ConferenceMember member = conf.get(event.getEventValue("member-id"));
+                ConferenceMember member = conf.get(memberId);
                 if(member != null) {
                     member.m_muted = action.equalsIgnoreCase("mute-member");
-                }          
+                }    
+                
+                String whoTalking = conf.getWhosTalking();
+                if(whoTalking == null) return true;
+                
+                if(memberId.equals(whoTalking)) {
+                    conf.setNoOneTalking(action.equalsIgnoreCase("mute-member"));
+                }               
             }           
             
             if(action.equalsIgnoreCase("lock") || action.equalsIgnoreCase("unlock")) {
