@@ -31,6 +31,7 @@ import com.smartgwt.client.types.Side;
 import com.smartgwt.client.types.Visibility;
 import com.smartgwt.client.util.BooleanCallback;
 import com.smartgwt.client.util.SC;
+import com.smartgwt.client.util.StringUtil;
 import com.smartgwt.client.widgets.Canvas;
 import com.smartgwt.client.widgets.IButton;
 import com.smartgwt.client.widgets.Img;
@@ -49,6 +50,7 @@ import com.smartgwt.client.widgets.form.fields.SelectItem;
 import com.smartgwt.client.widgets.form.fields.TextItem;
 import com.smartgwt.client.widgets.form.fields.events.ChangedEvent;
 import com.smartgwt.client.widgets.form.fields.events.ChangedHandler;
+import com.smartgwt.client.widgets.grid.CellFormatter;
 import com.smartgwt.client.widgets.grid.ListGrid;
 import com.smartgwt.client.widgets.grid.ListGridField;
 import com.smartgwt.client.widgets.grid.ListGridRecord;
@@ -255,7 +257,11 @@ public class UserPhonebookSearch implements EntryPoint {
                     .emailAddress());
 
             firstNameField.setWidth(NRML_TABLE_FIELD_WIDTH);
+            firstNameField.setCellFormatter(getHtmlCellFormatter());
+
             lastNameField.setWidth(NRML_TABLE_FIELD_WIDTH);
+            lastNameField.setCellFormatter(getHtmlCellFormatter());
+
             numberField.setWidth(NRML_TABLE_FIELD_WIDTH);
             emailField.setWidth(WILD_CARD);
 
@@ -322,6 +328,15 @@ public class UserPhonebookSearch implements EntryPoint {
         private void resetExpandedRowIndex() {
             m_expandedRecord = null;
             m_expandedRecordIndex = Integer.valueOf(DUMMY_ID);
+        }
+
+        private CellFormatter getHtmlCellFormatter() {
+            return new CellFormatter() {
+                @Override
+                public String format(Object value, ListGridRecord record, int rowNum, int colNum) {
+                    return StringUtil.asHTML((String) value);
+                }
+            };
         }
     }
 
@@ -749,8 +764,8 @@ public class UserPhonebookSearch implements EntryPoint {
     private static void clickToCallRestCall(String number) {
         Map<Integer, String> errorStatuses = new HashMap<Integer, String>();
         errorStatuses.put(CLICK_TO_CALL_ERROR, s_searchConstants.invalidPhoneNumber());
-        HttpRequestBuilder.doPut("/sipxconfig/rest/my/call/" + number, null,
-                CONTENT_TYPE, VARIANT, null, errorStatuses);
+        HttpRequestBuilder.doPut("/sipxconfig/rest/my/call/" + number, null, CONTENT_TYPE, VARIANT, null,
+                errorStatuses);
     }
 
     /**
@@ -817,7 +832,7 @@ public class UserPhonebookSearch implements EntryPoint {
 
         private void refreshSection(String imgSrc, String contactName) {
             m_avatar.setSrc(imgSrc);
-            m_contactName.setContents(contactName);
+            m_contactName.setContents(StringUtil.asHTML(contactName));
         }
 
         private String getNullSafeValue(String value) {
