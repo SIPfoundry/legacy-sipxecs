@@ -61,10 +61,9 @@ do_start()
 
     if [ ! -d @SIPX_LOGDIR@/trace ]; then
         mkdir @SIPX_LOGDIR@/trace
+        #if not setuid, will get permission denied even with root permission.
+        chown @SIPXPBXUSER@:@SIPXPBXUSER@ @SIPX_LOGDIR@/trace
     fi
-
-    #if not setuid, will get permission denied even with root permission.
-    chown tcpdump:tcpdump @SIPX_LOGDIR@/trace
 
     if [ $TRACE_FILENAME == "undefined" ]; then
         TRACE_FILENAME=sipx-net-trace-`date '+%y%m%dT%H%M%S'`.pcap
@@ -72,7 +71,7 @@ do_start()
     fi
 
     cd @SIPX_LOGDIR@/trace
-    ${TcpDump} -n -nn -s 0 -W $FILECOUNT -C $FILESIZE -i $INTERFACE -w $TRACE_FILENAME &  echo $! > $LOCKFILE
+    ${TcpDump} -n -nn -s 0 -W $FILECOUNT -C $FILESIZE -i $INTERFACE -w $TRACE_FILENAME -Z @SIPXPBXUSER@ &  echo $! > $LOCKFILE
     PID=`cat $LOCKFILE 2> /dev/null`
     echo "Output: @SIPX_LOGDIR@/trace/$TRACE_FILENAME*"
 }
