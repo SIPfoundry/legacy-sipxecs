@@ -1300,6 +1300,7 @@
       <value>3</value>
     </setting>
     <setting name="LineBuildOutLoss">
+      <profileName>LineBuildOut.Loss</profileName>
       <type>
         <enum>
           <option>
@@ -1390,6 +1391,7 @@
       <value>1</value>
     </setting>
     <setting name="LineBuildOutLoss">
+      <profileName>LineBuildOut.Loss</profileName>
       <type>
         <enum>
           <option>
