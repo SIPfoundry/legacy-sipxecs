@@ -5,7 +5,7 @@
   <span jwcid="@Form">
     <span jwcid="@phone/ModelSelector"/>
   </span>
-  <a jwcid="@PageLink" page="phone/DiscoverDevices">
+  <a jwcid="discoverDevicesLink@DirectLink" listener="listener:discover" >
     <span key="link.discoverDevices"></span>
   </a>
 </span>
@@ -15,7 +15,7 @@
       <span jwcid="@Insert" value="ognl:phone.serialNumber"/>,
     </a>
   </span>
-  <a jwcid="@PageLink" page="phone/ManagePhones">
+  <a jwcid="ManagePhonesLink@PageLink" page="phone/ManagePhones">
     <span key="more.etc">more...</span>
   </a>
 </span>

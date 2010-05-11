@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.search.SearchManager;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.sipfoundry.sipxconfig.setting.GroupFilter;
 
 /**
  * List all the phones/phones for management and details drill-down
@@ -74,6 +75,10 @@ public abstract class ManagePhones extends SipxBasePage implements PageBeginRend
     @InitialValue("false")
     @Persist
     public abstract boolean getUnassignedMode();
+
+    public void setDiscovery(Boolean discovery) {
+        ((GroupFilter) getComponent("settingGroupFilter")).setUnassignedMode(discovery);
+    }
 
     public IBasicTableModel getTableModel() {
         String queryText = getQueryText();
