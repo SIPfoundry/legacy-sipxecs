@@ -47,7 +47,6 @@
       type="org.sipfoundry.sipxconfig.device.DeviceVersion$Type" />
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage" />
-    <many-to-one name="branch" column="branch_id" not-found="ignore" />
   </class>
 
   <query name="sbcIds">
@@ -64,10 +63,6 @@
 
   <query name="sbcsForSbcDeviceId">
     <![CDATA[from Sbc sbc where sbc.sbcDevice.id = :sbcId]]>
-  </query>
-
-  <query name="sbcDevicesForBranch">
-    <![CDATA[from SbcDevice s where s.branch = :branch]]>
   </query>
 
   <sql-query name="allSbcs">

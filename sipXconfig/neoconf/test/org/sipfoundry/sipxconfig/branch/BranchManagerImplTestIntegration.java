@@ -11,11 +11,9 @@ package org.sipfoundry.sipxconfig.branch;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.UserException;
 
@@ -26,7 +24,6 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
     private BranchManager m_branchManager;
     private CoreContext m_coreContext;
     private LocationsManager m_locationManager;
-    private SbcDeviceManager m_sbcDeviceManager;
 
     public void setBranchManager(BranchManager branchManager) {
         m_branchManager = branchManager;
@@ -38,10 +35,6 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setSbcDeviceManager(SbcDeviceManager sbcDeviceManager) {
-        m_sbcDeviceManager = sbcDeviceManager;
     }
 
     public void testGetBranch() throws Exception {
@@ -80,7 +73,6 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
         assertNotNull(branch1);
 
         assertSame(branch1, m_coreContext.loadUser(1000).getBranch());
-        assertSame(branch1, m_sbcDeviceManager.getSbcDevice(1000).getBranch());
         assertSame(branch1, m_locationManager.getLocation(1000).getBranch());
 
         m_branchManager.deleteBranch(branch1);
@@ -129,22 +121,26 @@ public class BranchManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testLoadBranchesByPage() throws Exception {
-    loadDataSet("branch/branches.db.xml");
+        loadDataSet("branch/branches.db.xml");
 
-    List<Branch> page1 = m_branchManager.loadBranchesByPage(0, 5, new String[] { "name" }, true);
-    // Check that we have the expected number of branches
-    assertEquals(NUM_BRANCHES, page1.size());
+        List<Branch> page1 = m_branchManager.loadBranchesByPage(0, 5, new String[] {
+            "name"
+        }, true);
+        // Check that we have the expected number of branches
+        assertEquals(NUM_BRANCHES, page1.size());
 
-    assertEquals("branch1", page1.get(0).getName());
-    assertEquals("branch2", page1.get(1).getName());
-    assertEquals("branch4", page1.get(3).getName());
+        assertEquals("branch1", page1.get(0).getName());
+        assertEquals("branch2", page1.get(1).getName());
+        assertEquals("branch4", page1.get(3).getName());
 
-    List<Branch> page2 = m_branchManager.loadBranchesByPage(0, 5, new String[] { "description" }, true);
-    // Check that we have the expected number of branches
-    assertEquals(NUM_BRANCHES, page2.size());
+        List<Branch> page2 = m_branchManager.loadBranchesByPage(0, 5, new String[] {
+            "description"
+        }, true);
+        // Check that we have the expected number of branches
+        assertEquals(NUM_BRANCHES, page2.size());
 
-    assertEquals("fifth_", page2.get(0).getDescription());
-    assertEquals("first_", page2.get(1).getDescription());
-    assertEquals("second", page2.get(3).getDescription());
+        assertEquals("fifth_", page2.get(0).getDescription());
+        assertEquals("first_", page2.get(1).getDescription());
+        assertEquals("second", page2.get(3).getDescription());
     }
 }
