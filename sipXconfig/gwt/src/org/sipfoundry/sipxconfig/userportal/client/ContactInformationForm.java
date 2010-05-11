@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import com.google.gwt.i18n.client.ConstantsWithLookup;
+import com.smartgwt.client.util.StringUtil;
 import com.smartgwt.client.widgets.form.DynamicForm;
 import com.smartgwt.client.widgets.form.fields.FormItem;
 import com.smartgwt.client.widgets.form.fields.StaticTextItem;
@@ -50,7 +51,7 @@ public class ContactInformationForm extends DynamicForm {
             setItemData(textItem, selectionValue, false);
 
             FormItem staticTextItem = m_staticTextItems.get(i);
-            setItemData(staticTextItem, selectionValue, true);
+            setItemData(staticTextItem, StringUtil.asHTML(selectionValue), true);
         }
     }
 
