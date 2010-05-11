@@ -22,6 +22,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
+import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.conference.ConfRecordStatus;
 import org.sipfoundry.moh.Moh;
 import org.sipfoundry.voicemail.Emailer;
@@ -49,29 +50,50 @@ public class SipXivr implements Runnable {
         String divHeader = m_fses.getVariable("variable_sip_h_diversion");
                
         if(divHeader != null) {
+            LOG.debug("SipXivr::parseDiversionHeader header=" + divHeader);
             divHeader = divHeader.toLowerCase();
             String[] subParms = divHeader.split(";");
-            
-            int index = divHeader.indexOf("tel:");
-            
-            if(index >= 0) {
-                divHeader = divHeader.substring(index+4);
-                index = divHeader.indexOf(">");
-                if(index > 0) {
-                    divHeader = divHeader.substring(0, index);
+            String ocn = null;
+
+            // Look for the OCN format <tel:3948809>
+            if (ocn == null) {
+                int index = divHeader.indexOf("<tel:");
+                if(index >= 0) {
+                    divHeader = divHeader.substring(index+5);
+                    index = divHeader.indexOf(">");
+                    if(index > 0) {
+                        ocn = divHeader.substring(0, index);
+                    }
+                }
+            }
+
+            // Look for the OCN format <sip:3948809@196.8.1.7>
+            if (ocn == null) {
+                int index = divHeader.indexOf("<sip:");
+                if(index >= 0) {
+                    divHeader = divHeader.substring(index+5);
+                    index = divHeader.indexOf(">");
+                    if(index > 0) {
+                        String sipOcn = divHeader.substring(0, index);
+                        // Ignore the domain for now (it may be an IP address)
+                        ocn = ValidUsersXML.getUserPart(sipOcn);
+                    }
+                }
+            }
+
+            if (ocn != null) {
+                LOG.debug("SipXivr::parseDiversionHeader OCN=" + ocn);
+                parameters.put("action", "deposit");
+                parameters.put("origCalledNumber", ocn);
                     
-                    parameters.put("action", "deposit");
-                    parameters.put("origCalledNumber", divHeader); 
-                    
-                    // now look for call forward reason
-                    for (String param : subParms) {                      
-                        if(param.startsWith("reason=")) {
-                            param = param.substring("reason=".length());
-                            param.trim();
-                            parameters.put("call-forward-reason", param);
-                            break;
-                        }                      
-                    }                               
+                // now look for call forward reason
+                for (String param : subParms) {
+                    if(param.startsWith("reason=")) {
+                        param = param.substring("reason=".length());
+                        param.trim();
+                        parameters.put("call-forward-reason", param);
+                        break;
+                    }
                 }
             }
         }
