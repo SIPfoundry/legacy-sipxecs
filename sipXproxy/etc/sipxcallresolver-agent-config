@@ -8,6 +8,7 @@ cert    = @SIPX_CONFDIR@/ssl/ssl.crt
 key     = @SIPX_CONFDIR@/ssl/ssl.key
 client  = no
 foreground = yes
+fips = no
 
 [postgresql]
 accept  = 9300
