@@ -69,6 +69,9 @@
           <classpath>
              <pathelement location="${log4j}" />
              <pathelement location="${openfire-jar}/" />
+             <pathelement location="${xml-rpc-common}" />
+             <pathelement location="${xml-rpc-server}" />
+             <pathelement location="${xml-rpc-client}" />
              <pathelement location="${sipxcommons}" />
              <pathelement location="${commons-digester}" />
              <pathelement location="${noelios-restlet}" />
@@ -110,7 +113,7 @@
 		</jar>
 		<copy file="${root}/sipx-openfire-presence-plugin.jar" todir="${root}/lib" />
       
-      <copy todir="${root}/lib">
+                <copy todir="${root}/lib">
 		    <fileset dir="${sipxcommons.dir}">
 			       <include name="${log4j.jarname}"/>
 			       <include name="${xml-rpc-common.jarname}"/>
@@ -156,6 +159,10 @@
 		<copy file="${root}/dist/sipx-openfire-presence.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
                 <copy file="${root}/dist/sipx-openfire-presence-plugin.jar" todir="${dest.dir}${sipxopenfire.dir}/plugins" />
                 <copy file="${root}/dist/sipx-openfire-vcard-provider.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
+                <copy file="${sipxcommons.dir}/ws-commons-util.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
+                <copy file="${sipxcommons.dir}/xmlrpc-client.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
+                <copy file="${sipxcommons.dir}/xmlrpc-common.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
+                <copy file="${sipxcommons.dir}/xmlrpc-server.jar" todir="${dest.dir}${sipxopenfire.dir}/lib" />
 		<copy file="${src.dir}/sipxopenfire-initdb.sql" todir="${dest.dir}${sipxpbx.conf.dir}/database" /> 
 		<copy file="${root}/sipxopenfire-setup.sh" todir="${dest.dir}${sipxpbx.libexec.dir}/setup.d" />
 		<copy file="${src.dir}/etc/sipxopenfire-prompts.properties" todir="${dest.dir}${sipxpbx.conf.dir}/openfire" />

@@ -1,11 +1,7 @@
 /*
- *
- *
  * Copyright (C) 2010 Avaya, certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- *
- * $
  */
 package org.sipfoundry.openfire.vcard.provider;
 
@@ -19,11 +15,15 @@ import java.io.OutputStreamWriter;
 import java.io.StringReader;
 import java.net.ConnectException;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
 import javax.imageio.ImageIO;
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.stream.StreamSource;
@@ -63,10 +63,12 @@ public class RestInterface {
         try {
             StringBuilder urlStr = new StringBuilder().append(REST_CALL_PROTO).append(sipXserver).append(":")
                     .append(REST_CALL_PORT).append(REST_CALL_URL_CONTACT_INFO);
-            Log.debug("call REST URL " + urlStr.toString());
+            Log.debug("call REST URL " + urlStr.toString() + "[username:" + username + "]" );
             URL serverURL = new URL(urlStr.toString());
             HttpsURLConnection conn = (HttpsURLConnection) serverURL.openConnection();
-            conn.setSSLSocketFactory(new CustomSSLSocketFactory(conn.getSSLSocketFactory(), SSL_CONNECTION_TIMEOUT));
+            conn.setConnectTimeout(SSL_CONNECTION_TIMEOUT);
+            conn.setReadTimeout(READ_TIMEOUT);
+
             conn.setDoOutput(true);
             conn.setRequestMethod(method);
 
@@ -501,23 +503,8 @@ public class RestInterface {
     }
 
     public static String getEncodedAvatar(String avatarURL) {
-
-        try {
-            Log.debug("Avatar URL " + avatarURL);
-
-            URL serverURL = new URL(avatarURL);
-            return getPngStringTimeout(serverURL);
-        }
-
-        catch (IOException ex) {
-            Log.error("In getEncodedAvatar IOException " + ex.getMessage());
-            return null;
-        }
-
-        catch (Exception ex) {
-            Log.error("In getEncodedAvatar Exception " + ex.getMessage());
-            return null;
-        }
+        Log.debug("Avatar URL " + avatarURL);
+        return getPngStringTimeout(avatarURL);
     }
 
     public static String getPngString(URL url) {
@@ -536,9 +523,27 @@ public class RestInterface {
         }
     }
 
-    public static String getPngStringTimeout(URL url) {
+    public static String getPngStringTimeout(String urlStr) {
         try {
+            URL url = new URL(urlStr);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            if (url.getProtocol().equalsIgnoreCase("https")) {
+                TrustManager[] trustAllCerts = new TrustManager[] {
+                    new X509TrustManager() {
+                        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+                            return null;
+                        }
+                        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                        }
+                        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+                        }
+                    }
+                };
+
+                SSLContext sc = SSLContext.getInstance("TLS");
+                sc.init(null, trustAllCerts, new java.security.SecureRandom());
+                ((HttpsURLConnection) conn).setSSLSocketFactory(sc.getSocketFactory());
+            }
             conn.setConnectTimeout(CONNECTION_TIMEOUT);
             conn.setReadTimeout(READ_TIMEOUT);
             conn.setRequestMethod("GET");
@@ -550,14 +555,16 @@ public class RestInterface {
             ImageIO.write(image, "png", os);
 
             return new String(new Base64().encode(os.toByteArray()));
+        } catch (MalformedURLException e) {
+            Log.error("In getPngStringTimeout, MalformedURLException:" + e.getMessage());
+            return null;
         } catch (IOException e) {
-            Log.error("In getPngStringTimeout, error:" + e.getMessage());
+            Log.error("In getPngStringTimeout, IOException:" + e.getMessage());
             return null;
         } catch (Exception e) {
-            Log.error(e.getMessage());
+            Log.error("In getPngStringTimeout, Exception:" + e.getMessage());
             return null;
         }
 
     }
-
 }

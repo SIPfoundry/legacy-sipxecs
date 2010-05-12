@@ -1,11 +1,7 @@
 /*
- *
- *
  * Copyright (C) 2010 Avaya, certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- *
- * $
  */
 package org.sipfoundry.openfire.vcard.provider;
 
@@ -14,6 +10,7 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.ConnectException;
@@ -21,9 +18,13 @@ import java.util.Iterator;
 import java.util.Properties;
 
 import org.dom4j.Document;
+import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.Namespace;
 import org.dom4j.Node;
+import org.dom4j.io.SAXReader;
+import org.jivesoftware.openfire.vcard.VCardManager;
 import org.jivesoftware.openfire.vcard.VCardProvider;
 import org.jivesoftware.openfire.vcard.DefaultVCardProvider;
 import org.jivesoftware.util.AlreadyExistsException;
@@ -59,9 +60,13 @@ public class SipXVCardProvider implements VCardProvider {
     private String m_ConfigHostName;
     private String m_SharedSecret;
     static long ID_index = 0;
+    static final int DEFAULT_RPC_PORT = 9099;
+    static final String NAME_VCARD_RPC_PORT = "sipx-vcard-xml-rpc-port";
+    static final String NAME_SIXOPENFIRE_CONFIG_FILE_NAME = "/sipxopenfire-vcard.xml";
 
     private Cache<String, Element> vcardCache;
     private DefaultVCardProvider defaultProvider;
+    private String m_openfireConfigFile = null;
 
     public SipXVCardProvider() {
         super();
@@ -79,8 +84,12 @@ public class SipXVCardProvider implements VCardProvider {
 
         initTLS();
 
-        String cacheName = "SipXVCardCashe";
+        String cacheName = "SipXVCardCache";
         vcardCache = CacheFactory.createCache(cacheName);
+
+        Log.info(this.getClass().getName() + " starting XML RPC server ...");
+        VCardRpcServer vcardRpcServer = new VCardRpcServer(getRpcPort(m_openfireConfigFile));
+        vcardRpcServer.start();
 
         Log.info(this.getClass().getName() + " initialized");
 
@@ -102,6 +111,10 @@ public class SipXVCardProvider implements VCardProvider {
     synchronized public void deleteVCard(String username) {
         vcardCache.remove(username);
         defaultProvider.deleteVCard(username);
+
+        // Refill the cache
+        Element vCard = cacheVCard(username);
+        ContactInfoHandlerImp.updateAvatar(username, vCard, false);
     }
 
     public Element createVCard(String username, Element element) {
@@ -172,7 +185,7 @@ public class SipXVCardProvider implements VCardProvider {
     /**
      * Loads the vCard using the SipX vCard Provider first On failure, attempt to load it from
      * database.
-     *
+     * 
      */
     public Element loadVCard(String username) {
         synchronized (username.intern()) {
@@ -234,7 +247,15 @@ public class SipXVCardProvider implements VCardProvider {
                 if (attempts >= MAX_ATTEMPTS)
                     Log.error("Failed to update contact info for user " + username + ", sipXconfig might be down");
 
-                return cacheVCard(username);
+                Element vcardAfterUpdate = cacheVCard(username);
+
+                //If client doesn't set local avatar, use the avatar from sipx/gravatar.
+                if (getAvatar(vCardElement) == null) {
+                    VCardManager.getInstance().reset();
+                    ContactInfoHandlerImp.updateAvatar(username, vcardAfterUpdate, false);
+                }
+
+                return vcardAfterUpdate;
 
             } else {
                 Log.error("Failed to find a valid SIP account for user " + username);
@@ -251,7 +272,7 @@ public class SipXVCardProvider implements VCardProvider {
     /**
      * Returns <tt>false</tt> to allow users to save vCards, even if only the avatar will be
      * saved.
-     *
+     * 
      * @return <tt>false</tt>
      */
     public boolean isReadOnly() {
@@ -273,6 +294,10 @@ public class SipXVCardProvider implements VCardProvider {
 
         String file_path = properties.getProperty(PROP_SIPX_CONF_DIR) + path_under_conf_dir;
         Log.info("Domain config file path is  " + file_path);
+
+        m_openfireConfigFile = properties.getProperty(PROP_SIPX_CONF_DIR) + NAME_SIXOPENFIRE_CONFIG_FILE_NAME;
+        Log.info("openfire config file is  " + m_openfireConfigFile);
+
         try {
             FileInputStream fis = new FileInputStream(file_path);
             result = new Properties();
@@ -382,7 +407,7 @@ public class SipXVCardProvider implements VCardProvider {
 
     /**
      * Loads the vCard using the LDAP vCard Provider and re-adds the avatar from the database.
-     *
+     * 
      * @param username
      * @return LDAP vCard re-added avatar element
      */
@@ -428,6 +453,30 @@ public class SipXVCardProvider implements VCardProvider {
             return vcard.element(AVATAR_ELEMENT);
         }
         return avatarElement;
+    }
+
+    int getRpcPort(String fileName) {
+        SAXReader sreader = new SAXReader();
+        try {
+            Document configDoc = sreader.read(new FileReader(fileName));
+            Log.info("filename is " + fileName);
+            Element rootElement = configDoc.getRootElement();
+
+            rootElement
+                    .add(new Namespace("default", "http://www.sipfoundry.org/sipX/schema/xml/sipxopenfire-00-00"));
+            String portStr = RestInterface.getNodeText(rootElement, "default:" + NAME_VCARD_RPC_PORT);
+            Log.info("sipx vcard xml rpc port is " + portStr);
+            if (!portStr.equals("")) {
+                return Integer.parseInt(portStr);
+            }
+        } catch (FileNotFoundException e) {
+            Log.error(fileName + " is not found!");
+        } catch (DocumentException e) {
+            Log.error(fileName + " parsing error!" + e.getMessage());
+        } catch (Exception e) {
+            Log.error(" exception" + e.getMessage());
+        }
+        return DEFAULT_RPC_PORT;
     }
 
 }
