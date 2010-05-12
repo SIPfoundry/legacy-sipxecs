@@ -54,4 +54,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.enable_openfire_admin_console
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/conf/web.xml.disable_openfire_admin_console
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/lib/sipx-openfire-vcard-provider.jar
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/lib/ws-commons-util.jar
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/lib/xmlrpc-client.jar
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/lib/xmlrpc-common.jar
+%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXopenfire/lib/xmlrpc-server.jar
 
