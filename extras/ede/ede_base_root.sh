@@ -74,7 +74,7 @@ DISTRO_EXIT_ERROR=5 # exit
       echo "Fedora 11!  Not yet supported by EDE!  (A work in progress.  Not recommended.)"
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora8 ]; then
       echo "Fedora 8 is no longer supported by EDE."
-      exit $DISTRO_EXIT_ERROR >&2 
+      exit $DISTRO_EXIT_ERROR >&2
    else
       echo -n "Unsupported Linux distribution: "
       uname -a | cut -d" " -f3
@@ -83,11 +83,11 @@ DISTRO_EXIT_ERROR=5 # exit
    echo ""
    sleep 3
 
-   # Dependencies that are required.  Fedora 10/11 has these available in the standard repository.  For 
+   # Dependencies that are required.  Fedora 10/11 has these available in the standard repository.  For
    # CentOS 5.2, they must be installed from SIPfoundry dependency RPMs.
    BASE_DEPS="xerces-c xerces-c-devel cppunit-devel w3c-libwww w3c-libwww-apps w3c-libwww-devel rrdtool rrdtool-perl rubygems"
 
-   # In Fedora 10/11 nsis and nsis-data are provided by mingw32-nsis, which is avalable from the  
+   # In Fedora 10/11 nsis and nsis-data are provided by mingw32-nsis, which is avalable from the
    # standard repository.
    if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
       BASE_DEPS="$BASE_DEPS nsis nsis-data"
