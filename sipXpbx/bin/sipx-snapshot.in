@@ -504,7 +504,7 @@ EOF
 
 	   # Place extract.log at the top level of the tar file.
 	   CommentFiles="${CommentFiles} ${cutDir}/extract.log"
-	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs)
+	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	       # Start cutting at the base log.
 	       if cutIfTimestamps "${base_log}"
@@ -548,7 +548,7 @@ EOF
 	   done
 	   ;;
        current)
-	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs)
+	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	     echo $log >> $Work.copy-files
 	   done
@@ -567,7 +567,7 @@ EOF
 	   fi
 	   ;;
        all)
-	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log
+	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log @SIPX_LOGDIR@/trace/*.pcap*
 	   do
 	     echo $log >> $Work.copy-files
 	   done
