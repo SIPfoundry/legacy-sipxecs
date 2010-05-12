@@ -3,6 +3,9 @@
     <span jwcid="@Insert" value="ognl:parentSettingDescription"/>
   </span>
   <span jwcid="@common/ErrorMsg"></span>
+  <span jwcid="@If" condition="ognl:parentSettingName.equals('im_notification')" renderTag="false">
+    <div jwcid="@common/QuickHelp" value="message:quick.help.myBuddy"></div>
+  </span>
   <form jwcid="userSettings@Form" delegate="bean:validator">
 	<fieldset>
 	<span jwcid="@If" condition="ognl:parentSettingName.equals('im')" renderTag="false" >
