@@ -21,13 +21,13 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-
 import static org.apache.commons.collections.CollectionUtils.disjunction;
 
 public abstract class ConfigureBundlesPanel extends BaseComponent {
@@ -90,6 +90,11 @@ public abstract class ConfigureBundlesPanel extends BaseComponent {
         }
         Location location = getLocationBean();
         List<SipxServiceBundle> bundles = getBundles();
+
+        if (bundles == null || bundles.size() == 0) {
+            throw new NoRoleException();
+        }
+
         Collection<SipxServiceBundle> oldBundles = getSipxServiceManager().getBundlesForLocation(location);
         Collection<SipxServiceBundle> newBundles = getBundles();
 
@@ -111,5 +116,11 @@ public abstract class ConfigureBundlesPanel extends BaseComponent {
             getLocationsManager().storeServerRoleLocation(location, role);
         }
 
+    }
+
+    static class NoRoleException extends UserException {
+        public NoRoleException() {
+            super("&msg.foundNoRoles");
+        }
     }
 }
