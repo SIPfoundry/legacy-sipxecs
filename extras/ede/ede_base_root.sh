@@ -73,12 +73,12 @@ DISTRO_EXIT_ERROR=5 # exit
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
       echo "Fedora 11!  Not yet supported by EDE!  (A work in progress.  Not recommended.)"
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora8 ]; then
-      echo "Fedora 8 is no longer supported by EDE."
-      exit $DISTRO_EXIT_ERROR >&2
+      echo "Fedora 8 is no longer supported by EDE." >&2
+      exit $DISTRO_EXIT_ERROR
    else
-      echo -n "Unsupported Linux distribution: "
-      uname -a | cut -d" " -f3
-      exit $DISTRO_EXIT_ERROR >&2
+      echo -n "Unsupported Linux distribution: " >&2
+      uname -a | cut -d" " -f3 >&2
+      exit $DISTRO_EXIT_ERROR
    fi
    echo ""
    sleep 3
