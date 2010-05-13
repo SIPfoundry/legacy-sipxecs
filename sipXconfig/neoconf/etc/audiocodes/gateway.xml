@@ -710,7 +710,8 @@
         </type>
         <value>300</value>
       </setting>
-      <setting name="FlashHookPeriod" if="fxs">
+      <setting name="MaxFlashHookTime" if="fxs">
+        <profileName>FlashHookPeriod</profileName>
         <type>
           <integer min="25" max="1500"/>
         </type>
