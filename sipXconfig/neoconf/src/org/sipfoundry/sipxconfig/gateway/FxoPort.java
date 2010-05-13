@@ -8,6 +8,8 @@
  */
 package org.sipfoundry.sipxconfig.gateway;
 
+import java.util.Iterator;
+
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -50,6 +52,22 @@ public class FxoPort extends BeanWithSettings {
         }
         gateway.initializePort(this);
         m_initialized = true;
+    }
+
+    private int getPortNumber(int portId) {
+        int portNumber = 1;
+        Iterator iports = getGateway().getPorts().iterator();
+        for (; iports.hasNext(); portNumber++) {
+            if (((FxoPort) iports.next()).getId() == portId) {
+                return portNumber;
+            }
+        }
+
+        return 0;
+    }
+
+    public String getNumber() {
+        return Integer.toString(getPortNumber(getId()));
     }
 
     public String getLabel() {
