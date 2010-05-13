@@ -445,6 +445,8 @@ xferlog_std_format=YES
 pam_service_name=vsftpd
 listen=YES
 chroot_local_user=YES
+pasv_min_port=50000
+pasv_max_port=50050
 EOF
 chmod 600 %{vsftpd_conf}
 
