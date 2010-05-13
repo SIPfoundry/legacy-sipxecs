@@ -1285,6 +1285,37 @@
         </type>
       </setting>
     </group>
+    <group name="transfer" if="5.6orLater">
+      <setting name="KeyBlindTransfer">
+        <type>
+          <string/>
+        </type>
+      </setting>
+    </group>
+    <group name="call-waiting" if="5.6orLater">
+      <setting name="KeyCallWaiting">
+        <type>
+          <string/>
+        </type>
+      </setting>
+      <setting name="KeyCallWaitingDeact">
+        <type>
+          <string/>
+        </type>
+      </setting>
+    </group>
+    <group name="reject-anonymous" if="5.6orLater">
+      <setting name="KeyRejectAnonymousCall">
+        <type>
+          <string/>
+        </type>
+      </setting>
+      <setting name="KeyRejectAnonymousCallDeact">
+        <type>
+          <string/>
+        </type>
+      </setting>
+    </group>
   </group>
   <group name="digital-trunk" if="digital" unless="bri">
     <setting name="PCMLawSelect">
