@@ -349,7 +349,7 @@ generate_zone_header () {
     ZoneSerialNumber=`date +%Y%m%d${SerialNumber}`
     cat <<EOF
 \$TTL 1800
-@       IN     SOA    ns1.${SipDomain}. root.${SipDomain}. (
+@       IN     SOA    ${Host[0]}. root.${SipDomain}. (
                        ${ZoneSerialNumber} ; serial#
                        1800            ; refresh, seconds
                        1800            ; retry, seconds
