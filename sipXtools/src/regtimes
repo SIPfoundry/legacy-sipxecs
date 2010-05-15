@@ -61,7 +61,7 @@ while(<>)
     m|^"([^"]+)":| && do { $LastLogTime = $1; }; # "
 
     # REGISTER Request
-    if (m|^"[^"]+":\d+:INCOMING:INFO:.*Read SIP message:(?:.+?)\\nREGISTER\s+.*\\nCall-Id:\s+(.+?)\\r|i ) # "
+    if (m|^"[^"]+":\d+:INCOMING:DEBUG:.*Read SIP message:(?:.+?)\\nREGISTER\s+.*\\nCall-Id:\s+(.+?)\\r|i ) # "
     {
         $cid  = $1;
 

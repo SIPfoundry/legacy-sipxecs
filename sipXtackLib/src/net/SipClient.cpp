@@ -880,7 +880,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
    // Log the message.
    // Only bother processing if the logs are enabled
    if (   mpSipUserAgent->isMessageLoggingEnabled()
-          || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_INFO)
+          || OsSysLog::willLog(FAC_SIP_INCOMING, PRI_DEBUG)
       )
    {
       UtlString logMessage;
@@ -906,7 +906,7 @@ void SipClient::preprocessMessage(SipMessage& msg,
       // Send the message to the SipUserAgent for its internal log.
       mpSipUserAgent->logMessage(logMessage.data(), logMessage.length());
       // Write the message to the syslog.
-      OsSysLog::add(FAC_SIP_INCOMING, PRI_INFO, "%s", logMessage.data());
+      OsSysLog::add(FAC_SIP_INCOMING, PRI_DEBUG, "%s", logMessage.data());
    }
 
    // Set the date field if not present
