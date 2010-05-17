@@ -1359,25 +1359,26 @@ class SipUtilities {
 	 * @param request
 	 */
 	static void setGlobalAddresses(Request request) {
-		try {
-			String transport = ((ViaHeader) request.getHeader(ViaHeader.NAME))
-					.getTransport().toLowerCase();
-			SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
-					Gateway.getGlobalAddress());
-			sipUri.setPort(Gateway.getGlobalPort(transport));
-
-			ContactHeader contactHeader = (ContactHeader) request
-					.getHeader(ContactHeader.NAME);
-			if (contactHeader != null) {
-				contactHeader.getAddress().setURI(sipUri);
-			}
-			ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
-			viaHeader.setHost(Gateway.getGlobalAddress());
-			viaHeader.setPort(Gateway.getGlobalPort(transport));
-		} catch (Exception ex) {
-			logger.error("Unexpected exception ", ex);
-			throw new SipXbridgeException("Unexepcted exception", ex);
-		}
+	    try {
+	        String transport = ((ViaHeader) request.getHeader(ViaHeader.NAME))
+	                            .getTransport().toLowerCase();
+	        SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
+	                        Gateway.getGlobalAddress());
+	        sipUri.setPort(Gateway.getGlobalPort(transport));
+	        ContactHeader contactHeader = (ContactHeader) request.getHeader(ContactHeader.NAME);
+	        if (contactHeader != null) {
+	            if ( transport.equalsIgnoreCase("TLS")) {
+	                sipUri.setTransportParam(transport);
+	            }
+	            contactHeader.getAddress().setURI(sipUri);
+	        }
+	        ViaHeader viaHeader = (ViaHeader) request.getHeader(ViaHeader.NAME);
+	        viaHeader.setHost(Gateway.getGlobalAddress());
+	        viaHeader.setPort(Gateway.getGlobalPort(transport));
+	    } catch (Exception ex) {
+	        logger.error("Unexpected exception ", ex);
+	        throw new SipXbridgeException("Unexepcted exception", ex);
+	    }
 
 	}
 
@@ -1388,6 +1389,9 @@ class SipUtilities {
 			SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(null,
 					Gateway.getGlobalAddress());
 			sipUri.setPort(Gateway.getGlobalPort(transport));
+			if (transport.equalsIgnoreCase("TLS")) {
+			    sipUri.setTransportParam(transport);
+			}
 
 			ContactHeader contactHeader = (ContactHeader) response
 					.getHeader(ContactHeader.NAME);

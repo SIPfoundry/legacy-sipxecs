@@ -17,7 +17,7 @@
 	<classpathentry kind="lib" path="lib/commons-lang.jar"/>
 	<classpathentry kind="lib" path="lib/jce.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl.jar"/>
-	<classpathentry kind="lib" path="lib/jain-sip-sdp.jar"/>
+	<classpathentry kind="lib" path="lib/jain-sip-sdp.jar"  sourcepath="JAIN-SRC"/>
 	<classpathentry kind="lib" path="lib/xmlrpc-client.jar"/>
 	<classpathentry kind="lib" path="lib/xmlrpc-common.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-jdbc.jar"/>

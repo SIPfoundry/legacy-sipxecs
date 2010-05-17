@@ -1939,11 +1939,8 @@ class CallControlManager implements SymmitronResetHandler {
                 tad.setDialogPendingSdpAnswer(null);
                 CallControlUtilities.sendSdpAnswerInAck(response, dialogToAck);
             } else if (dialogContext.getPendingAction() == PendingDialogAction.PENDING_RE_INVITE_WITH_SDP_OFFER) {
-            	 dialogContext.setPendingAction(PendingDialogAction.NONE);
-
-
-            	CallControlUtilities.sendSdpReOffer(responseEvent, dialog, peerDialog);
-
+                dialogContext.setPendingAction(PendingDialogAction.NONE);
+                CallControlUtilities.sendSdpReOffer(responseEvent, dialog, peerDialog);
             } else {
                 if (logger.isDebugEnabled()) {
                     if ( logger.isDebugEnabled() ) logger.debug("tad.dialogPendingSdpAnswer = "
