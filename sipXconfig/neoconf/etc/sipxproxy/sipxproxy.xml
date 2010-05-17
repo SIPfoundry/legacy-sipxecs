@@ -41,7 +41,7 @@
       <type>
         <integer />
       </type>
-      <value>180</value>
+      <value>300</value>
     </setting>
     <setting name="SIPX_PROXY_LOG_LEVEL" hidden="yes">
       <type refid="loglevel" />

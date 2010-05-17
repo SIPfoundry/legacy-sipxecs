@@ -14,7 +14,7 @@
       <transform>
         <user>333</user>
         <host>10.1.1.14</host>
-        <headerparams>expires=60</headerparams>
+        <headerparams>expires=7200</headerparams>
         <fieldparams>Q=0.97</fieldparams>
       </transform>
     </userMatch>
@@ -28,7 +28,7 @@
       <transform>
         <user>333</user>
         <host>10.1.1.14</host>
-        <headerparams>expires=60</headerparams>
+        <headerparams>expires=7200</headerparams>
         <fieldparams>Q=0.97</fieldparams>
       </transform>
     </userMatch>

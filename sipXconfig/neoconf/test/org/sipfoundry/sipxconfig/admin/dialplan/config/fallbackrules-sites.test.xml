@@ -16,7 +16,7 @@
         <transform>
           <user>444</user>
           <host>montreal.example.org</host>
-          <headerparams>expires=60</headerparams>
+          <headerparams>expires=7200</headerparams>
           <fieldparams>q=0.95</fieldparams>
         </transform>
       </callerLocationMatch>
@@ -25,7 +25,7 @@
         <transform>
           <user>9444</user>
           <host>lisbon.example.org</host>
-          <headerparams>expires=60</headerparams>
+          <headerparams>expires=7200</headerparams>
           <fieldparams>q=0.95</fieldparams>
         </transform>
       </callerLocationMatch>
@@ -42,7 +42,7 @@
         <transform>
           <user>444</user>
           <host>montreal.example.org</host>
-          <headerparams>expires=60</headerparams>
+          <headerparams>expires=7200</headerparams>
           <fieldparams>q=0.95</fieldparams>
         </transform>
       </callerLocationMatch>
@@ -51,7 +51,7 @@
         <transform>
           <user>9444</user>
           <host>lisbon.example.org</host>
-          <headerparams>expires=60</headerparams>
+          <headerparams>expires=7200</headerparams>
           <fieldparams>q=0.95</fieldparams>
         </transform>
       </callerLocationMatch>

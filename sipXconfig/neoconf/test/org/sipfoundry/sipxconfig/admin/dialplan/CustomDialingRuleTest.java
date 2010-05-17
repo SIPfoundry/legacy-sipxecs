@@ -130,7 +130,7 @@ public class CustomDialingRuleTest {
             String[] fieldParams = full.getFieldParams();
             assertEquals(1, fieldParams.length);
             assertTrue(fieldParams[0].startsWith("q="));
-            assertEquals(full.getHeaderParams()[0], "expires=60");
+            assertEquals(full.getHeaderParams()[0], "expires=7200");
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
             EmergencyRuleTest.assertUrlParams(full.getUrlParams());
             assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
@@ -149,7 +149,7 @@ public class CustomDialingRuleTest {
             assertEquals(2, fieldParams.length);
             assertTrue(fieldParams[0].startsWith("q="));
             assertTrue(fieldParams[1].startsWith("sipx-ValidTime="));
-            assertEquals(full.getHeaderParams()[0], "expires=60");
+            assertEquals(full.getHeaderParams()[0], "expires=7200");
             assertEquals(GATEWAYADDRESSES[i], full.getHost());
             EmergencyRuleTest.assertUrlParams(full.getUrlParams());
             assertTrue(full.getUser().startsWith(StringUtils.defaultString(PREFIXES[i]) + "999"));
