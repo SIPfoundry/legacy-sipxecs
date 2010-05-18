@@ -248,8 +248,9 @@ public class ValidUsersXML {
         }
         // If account isn't set, use the e-mail username
         if (i.getAccount() == null || i.getAccount().length() == 0) {
-                i.setAccount(u.getEmailAddress().split("@")[0]);
-
+            if(u.getEmailAddress() != null) {
+                i.setAccount(u.getEmailAddress().split("@")[0]); 
+            }
         }
         u.setImapInfo(i);
         if(i.isSynchronize()) {

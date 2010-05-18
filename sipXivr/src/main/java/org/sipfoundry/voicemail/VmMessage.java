@@ -574,7 +574,14 @@ public class VmMessage {
         if (midFile.exists()) {
             try {
                 // The messageid in the file is the NEXT one
-                messageId = FileUtils.readFileToString(midFile);
+                messageId = FileUtils.readFileToString(midFile); 
+
+                // on older systems, this messageid.txt file may have a newline 
+                // character in it.. need to strip if off
+                if(messageId.endsWith("\n")) {
+                    messageId = messageId.substring(0, 8);
+                }
+
                 numericMessageId = Long.parseLong(messageId);
             } catch (IOException e) {
                 LOG.error("Message::nextMessageId cannot read "+messageIdFilePath, e);
