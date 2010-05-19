@@ -17,7 +17,6 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookWriter;
 
 public class CsvWriter implements PhonebookWriter {
-    public static final String FORMAT_CSV = "csv";
     private Writer m_writer;
     private boolean m_quote = true;
 

@@ -339,6 +339,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
                 .getDomainName());
     }
 
+    public Collection<PhonebookEntry> getEntries(int phonebookId) {
+        return getEntries(getPhonebook(phonebookId));
+    }
+
     public Collection<PhonebookEntry> getEntries(Phonebook phonebook) {
         Map<String, PhonebookEntry> entries = new TreeMap<String, PhonebookEntry>();
         Collection<Group> members = phonebook.getMembers();
@@ -356,6 +360,40 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         List<PhonebookEntry> finalList = new ArrayList(entries.values());
         Collections.sort(finalList, new PhoneEntryComparator());
         return finalList;
+    }
+
+    public Collection<PhonebookEntry> getAllEntries(int phonebookId) {
+        Map<String, PhonebookEntry> entriesMap = new TreeMap<String, PhonebookEntry>();
+        Collection<PhonebookEntry> entries = getEntries(getPhonebook(phonebookId));
+
+        for (PhonebookEntry entry : entries) {
+            entriesMap.put(getEntryKey(entry), entry);
+
+        }
+        boolean everyone = getGeneralPhonebookSettings().isEveryoneEnabled();
+        if (everyone) {
+            addEveryoneEntries(entriesMap);
+        }
+
+        List<PhonebookEntry> finalList = new ArrayList(entriesMap.values());
+        Collections.sort(finalList, new PhoneEntryComparator());
+        return finalList;
+    }
+
+    private void addEveryoneEntries(final Map<String, PhonebookEntry> entries) {
+        Closure<User> closure = new Closure<User>() {
+            @Override
+            public void execute(User closureUser) {
+                Map<String, PhonebookEntry> entry = new TreeMap<String, PhonebookEntry>();
+                UserPhonebookEntry userEntry = new UserPhonebookEntry(closureUser);
+                String entryKey = getEntryKey(userEntry);
+                entry.put(entryKey, userEntry);
+                if (!entries.containsKey(entryKey)) {
+                    entries.put(entryKey, userEntry);
+                }
+            }
+        };
+        forAllUsersDo(m_coreContext, closure);
     }
 
     private void addUserEntries(Collection<User> users, Map<String, PhonebookEntry> entries) {
@@ -736,14 +774,14 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_vcardWriter = vcardWriter;
     }
 
-    public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out, String format)
+    public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out, PhonebookFormat format)
         throws IOException {
         if (entries.isEmpty()) {
             throw new UserException("&error.phonebookEmpty");
         }
         Writer writer = new OutputStreamWriter(out, m_vcardEncoding);
         PhonebookWriter pbWriter;
-        if (StringUtils.equals(format, CsvWriter.FORMAT_CSV)) {
+        if (format == PhonebookFormat.CSV) {
             pbWriter = new CsvWriter(writer, true, PhonebookEntry.labels());
         } else {
             pbWriter = new VcardWriter(writer);

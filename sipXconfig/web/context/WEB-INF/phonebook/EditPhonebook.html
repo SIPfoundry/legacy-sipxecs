@@ -81,15 +81,15 @@
         <h3><label jwcid="@Insert" value="message:label.Download"/></h3>
         <div jwcid="phonebook@phonebook/ExportPhonebookComponent"
           name="ognl:phonebookManager.getPhonebook(phonebookId).name"
-          entries="ognl:phonebookManager.getEntries(phonebookManager.getPhonebook(phonebookId))"
+          entries="ognl:phonebookManager.getAllEntries(phonebookId)"
           validator="bean:validator"
-          format="vcard">
+          format="ognl:vcardFormat">
         </div>
         <div jwcid="phonebookCsv@phonebook/ExportPhonebookComponent"
           name="ognl:phonebookManager.getPhonebook(phonebookId).name"
-          entries="ognl:phonebookManager.getEntries(phonebookManager.getPhonebook(phonebookId))"
+          entries="ognl:phonebookManager.getAllEntries(phonebookId)"
           validator="bean:validator"
-          format="csv">
+          format="ognl:csvFormat">
         </div>
     </div>
     <span jwcid="formActions@common/FormActions" listener="listener:savePhonebook" callback="ognl:callback" />

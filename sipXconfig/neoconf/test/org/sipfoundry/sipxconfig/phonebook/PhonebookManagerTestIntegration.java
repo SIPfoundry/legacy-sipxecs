@@ -479,4 +479,13 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
         User user1001 = m_coreContext.loadUser(1001);
         assertNull(m_phonebookManager.getDuplicatePhonebookEntry(newEntry, user1001));
     }
+
+    public void testGetAllEntries(){
+        loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
+        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(false);
+
+        assertTrue(m_phonebookManager.getAllEntries(1002).isEmpty());
+        m_phonebookManager.getGeneralPhonebookSettings().setEveryoneEnabled(true);
+        assertFalse(m_phonebookManager.getAllEntries(1002).isEmpty());
+    }
 }

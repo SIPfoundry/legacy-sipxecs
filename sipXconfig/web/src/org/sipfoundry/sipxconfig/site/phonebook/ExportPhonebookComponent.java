@@ -15,7 +15,6 @@ import java.util.Collection;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.hivemind.Messages;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Parameter;
@@ -25,6 +24,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager.PhonebookFormat;
 
 public abstract class ExportPhonebookComponent extends BaseComponent {
     private static final Log LOG = LogFactory.getLog(ExportPhonebookComponent.class);
@@ -42,7 +42,7 @@ public abstract class ExportPhonebookComponent extends BaseComponent {
      * Required because of the label formatting
      */
     @Parameter(required = true)
-    public abstract String getFormat();
+    public abstract PhonebookFormat getFormat();
 
     /**
      * the name of the phonebook file. It can be the username or the name of the phonebook
@@ -55,14 +55,13 @@ public abstract class ExportPhonebookComponent extends BaseComponent {
 
     public void export() {
         try {
-            String name = String.format("phonebook_%s.vcf", getName());
+            String name = String.format("phonebook_%s.%s", getName(), getFormat().getName());
             OutputStream stream = TapestryUtils.getResponseOutputStream(getResponse(), name, "text/x-vcard");
             Collection<PhonebookEntry> entries = getEntries();
             getPhonebookManager().exportPhonebook(entries, stream, getFormat());
             stream.close();
         } catch (IOException e) {
             LOG.error("Cannot export phonebook", e);
-            Messages messages = getMessages();
             getValidator().record("msg.exportError", ValidationConstraint.CONSISTENCY);
         }
     }

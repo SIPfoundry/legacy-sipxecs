@@ -13,7 +13,6 @@ import java.io.Writer;
 import java.util.Formatter;
 
 public class VcardWriter implements PhonebookWriter {
-    public static final String FORMAT_VCARD = "vcard";
     private Writer m_writer;
 
     public VcardWriter() {

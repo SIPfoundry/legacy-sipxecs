@@ -20,6 +20,17 @@ import org.sipfoundry.sipxconfig.common.User;
 
 public interface PhonebookManager extends DataObjectSource<Phonebook> {
     public static final String CONTEXT_BEAN_NAME = "phonebookManager";
+    public enum PhonebookFormat {
+        VCARD("vcf"), CSV("csv");
+        private String m_name;
+
+        PhonebookFormat(String name) {
+            m_name = name;
+        }
+        public String getName() {
+            return m_name;
+        }
+    }
 
     /**
      * Gets whether or not phonebook management is enabled.
@@ -57,7 +68,8 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     void reset();
 
-    void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out, String format) throws IOException;
+    void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out, PhonebookFormat format)
+        throws IOException;
 
     int addEntriesFromFile(Integer phonebookId, InputStream in);
 
@@ -98,5 +110,12 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
     GeneralPhonebookSettings getGeneralPhonebookSettings();
 
     PhonebookEntry getDuplicatePhonebookEntry(PhonebookEntry newEntry, User user);
+
+    /**
+     * Gets all the entries of a phonebook and adds "everyone" if "everyone" is enabled
+     */
+    public Collection<PhonebookEntry> getAllEntries(int phonebookId);
+
+    public Collection<PhonebookEntry> getEntries(int phonebookId);
 
 }

@@ -13,6 +13,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager.PhonebookFormat;
 import org.sipfoundry.sipxconfig.sip.SipService;
 
 public abstract class UserPhonebookPage extends UserBasePage {
@@ -25,6 +26,14 @@ public abstract class UserPhonebookPage extends UserBasePage {
 
     @InjectObject("spring:phonebookManager")
     public abstract PhonebookManager getPhonebookManager();
+
+    public PhonebookFormat getVcardFormat() {
+        return PhonebookFormat.VCARD;
+    }
+
+    public PhonebookFormat getCsvFormat() {
+        return PhonebookFormat.CSV;
+    }
 
     public String getWidgetSrc() {
         return getRequestCycle().getAbsoluteURL('/' + UserPhonebookWidgetPage.PAGE + ".html");

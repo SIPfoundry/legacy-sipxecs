@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.phonebook;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singleton;
+import static java.util.Collections.singletonList;
+
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -22,23 +26,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singleton;
-import static java.util.Collections.singletonList;
-
-import junit.framework.TestCase;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.acd.BeanWithSettingsTestCase;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
-import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager.PhonebookFormat;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.FileEntrySearchPredicate;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.GoogleEntrySearchPredicate;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.PhoneEntryComparator;
@@ -47,11 +46,32 @@ import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.StringArrayPhone
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManagerImpl.UserPhonebookEntry;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.test.PhonebookTestHelper;
+import org.springframework.orm.hibernate3.HibernateTemplate;
 
-public class PhonebookManagerTest extends TestCase {
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.classextension.EasyMock.createMock;
+import static org.easymock.classextension.EasyMock.replay;
+
+public class PhonebookManagerTest extends BeanWithSettingsTestCase {
+    GeneralPhonebookSettings settings;
+    HibernateTemplate m_hibernateTemplate;
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        settings = new GeneralPhonebookSettings();
+        initializeBeanWithSettings(settings);
+        settings.setEveryoneEnabled(false);
+        List<GeneralPhonebookSettings> settingsList = new ArrayList<GeneralPhonebookSettings>();
+        settingsList.add(settings);
+        m_hibernateTemplate = createMock(HibernateTemplate.class);
+        m_hibernateTemplate.loadAll(GeneralPhonebookSettings.class);
+        expectLastCall().andReturn(settingsList);
+        replay(m_hibernateTemplate);
+    }
 
     public void testGetEmptyPhonebookRows() {
         PhonebookManagerImpl context = new PhonebookManagerImpl();
+        context.setHibernateTemplate(m_hibernateTemplate);
         assertEquals(0, context.getEntries(new Phonebook()).size());
     }
 
@@ -72,6 +92,7 @@ public class PhonebookManagerTest extends TestCase {
 
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         context.setCoreContext(coreContext);
+        context.setHibernateTemplate(m_hibernateTemplate);
         Collection<PhonebookEntry> entries = context.getEntries(phonebook);
         assertEquals(1, entries.size());
         PhonebookEntry entry = entries.iterator().next();
@@ -233,21 +254,22 @@ public class PhonebookManagerTest extends TestCase {
 
         ByteArrayOutputStream empty = new ByteArrayOutputStream();
         try {
-          context.exportPhonebook(new ArrayList(), empty, VcardWriter.FORMAT_VCARD);
-        } catch (UserException e){
+            context.exportPhonebook(new ArrayList(), empty, PhonebookFormat.VCARD);
+        } catch (UserException e) {
             assertTrue(true);
         }
         PhonebookEntry e1 = new StringArrayPhonebookEntry("Jean Luc", "Picard", "1234");
         PhonebookEntry e2 = new StringArrayPhonebookEntry("Luke", "Skywalker", "1235");
         PhonebookEntry e3 = new StringArrayPhonebookEntry("", "", "1235");
         PhonebookEntry e4 = new StringArrayPhonebookEntry("Frank", "Dawson", "+1-919-676-9515", "Senior Programmer",
-                "IT Dept", "Lotus Development Corporation", "Lois Lane", "+34(345)112-345", "+34 (445) 43 22", "+34 (445) 43 33",
-                "+1-919-676-9564", "frankDawson", "dawsonFrank", "location", "Mountain View", "U.S.A.", "CA", "501 E. Middlefield Rd.", "94043",
-                "Raleigh", "U.S.A.", "NC", "6544 Battleford Drive", "27613-3502", "Lotus PostOffice",
-                "Frank_Dawson@Lotus.com", "fdawson@earthlink.net");
+                "IT Dept", "Lotus Development Corporation", "Lois Lane", "+34(345)112-345", "+34 (445) 43 22",
+                "+34 (445) 43 33", "+1-919-676-9564", "frankDawson", "dawsonFrank", "location", "Mountain View",
+                "U.S.A.", "CA", "501 E. Middlefield Rd.", "94043", "Raleigh", "U.S.A.", "NC",
+                "6544 Battleford Drive", "27613-3502", "Lotus PostOffice", "Frank_Dawson@Lotus.com",
+                "fdawson@earthlink.net");
 
         ByteArrayOutputStream actual = new ByteArrayOutputStream();
-        context.exportPhonebook(asList(e1, e2, e3, e4), actual, VcardWriter.FORMAT_VCARD);
+        context.exportPhonebook(asList(e1, e2, e3, e4), actual, PhonebookFormat.VCARD);
 
         InputStream expectedStream = getClass().getResourceAsStream("export.test.vcf");
         assertNotNull(expectedStream);
@@ -255,7 +277,7 @@ public class PhonebookManagerTest extends TestCase {
         assertEquals(expected, actual.toString("UTF-8"));
 
         actual = new ByteArrayOutputStream();
-        context.exportPhonebook(asList(e1, e2, e3, e4), actual, CsvWriter.FORMAT_CSV);
+        context.exportPhonebook(asList(e1, e2, e3, e4), actual, PhonebookFormat.CSV);
 
         InputStream expectedStreamCsv = getClass().getResourceAsStream("export.test.csv");
         assertNotNull(expectedStreamCsv);
@@ -350,8 +372,8 @@ public class PhonebookManagerTest extends TestCase {
         Collection<PhonebookEntry> entriesThatMatchStopWords = out.search(singletonList(new Phonebook()),
                 PhonebookTestHelper.LUCENE_STOP_WORD_USERNAME, userPortal);
         assertEquals(1, entriesThatMatchStopWords.size());
-        assertTrue(entriesThatMatchStopWords.contains(testHelper.getEntryByNumber(
-                PhonebookTestHelper.LUCENE_STOP_WORD_USERNAME)));
+        assertTrue(entriesThatMatchStopWords.contains(testHelper
+                .getEntryByNumber(PhonebookTestHelper.LUCENE_STOP_WORD_USERNAME)));
 
         out.search(singletonList(new Phonebook()), "300", userPortal);
         out.search(singletonList(new Phonebook()), "nulluser", userPortal);
@@ -362,10 +384,9 @@ public class PhonebookManagerTest extends TestCase {
         AddressBookEntry abe = new AddressBookEntry();
         abe.setImId("test");
         user.setAddressBookEntry(abe);
-                 UserPhonebookEntry entry = new PhonebookManagerImpl.UserPhonebookEntry(user);
+        UserPhonebookEntry entry = new PhonebookManagerImpl.UserPhonebookEntry(user);
 
         assertEquals("test", entry.getAddressBookEntry().getImId());
-
 
         user.setUserName("500");
         assertEquals("500", entry.getNumber());
@@ -394,7 +415,6 @@ public class PhonebookManagerTest extends TestCase {
         }
     }
 
-
     public void testGetEntries() throws Exception {
         // check if get entries removes duplicates properly
         PhonebookManagerImpl impl = new PhonebookManagerImpl();
@@ -410,6 +430,7 @@ public class PhonebookManagerTest extends TestCase {
         Phonebook phonebook = new Phonebook();
         phonebook.setEntries(asList(entry, entry, entry2));
 
+        impl.setHibernateTemplate(m_hibernateTemplate);
         Collection<PhonebookEntry> entries = impl.getEntries(phonebook);
         assertEquals(2, entries.size());
         Iterator<PhonebookEntry> it = entries.iterator();

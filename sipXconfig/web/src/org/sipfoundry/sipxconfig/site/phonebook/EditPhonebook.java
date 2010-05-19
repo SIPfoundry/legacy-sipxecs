@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.phonebook.Phonebook;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookManager.PhonebookFormat;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
@@ -70,6 +71,14 @@ public abstract class EditPhonebook extends PageWithCallback implements PageBegi
     public abstract String getGoogleAddress();
 
     public abstract String getGooglePassword();
+
+    public PhonebookFormat getVcardFormat() {
+        return PhonebookFormat.VCARD;
+    }
+
+    public PhonebookFormat getCsvFormat() {
+        return PhonebookFormat.CSV;
+    }
 
     public void importGoogleAddressBook() {
         String googleAddress = getGoogleAddress();

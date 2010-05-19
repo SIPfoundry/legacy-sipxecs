@@ -10,13 +10,13 @@
     name="ognl:user.name"
     entries="ognl:phonebookManager.getEntries(phonebookManager.getAllPhonebooksByUser(user), user)"
     validator="bean:validator"
-    format="vcard">
+    format="ognl:vcardFormat">
   </span>
   <span jwcid="phonebookCsv@phonebook/ExportPhonebookComponent"
     name="ognl:user.name"
     entries="ognl:phonebookManager.getEntries(phonebookManager.getAllPhonebooksByUser(user), user)"
     validator="bean:validator"
-    format="csv">
+    format="ognl:csvFormat">
   </span>
   <br />
   <br />
