@@ -78,11 +78,19 @@
           <input jwcid="importGoogleButton@Submit" value="message:import.contacts" listener="listener:importGoogleAddressBook" />
         </li>
       </ul>
-      <fieldset jwcid="phonebook@phonebook/ExportPhonebookComponent"
-        name="ognl:phonebookManager.getPhonebook(phonebookId).name"
-        entries="ognl:phonebookManager.getPhonebook(phonebookId).entries"
-        validator="bean:validator">
-      </fieldset>
+        <h3><label jwcid="@Insert" value="message:label.Download"/></h3>
+        <div jwcid="phonebook@phonebook/ExportPhonebookComponent"
+          name="ognl:phonebookManager.getPhonebook(phonebookId).name"
+          entries="ognl:phonebookManager.getEntries(phonebookManager.getPhonebook(phonebookId))"
+          validator="bean:validator"
+          format="vcard">
+        </div>
+        <div jwcid="phonebookCsv@phonebook/ExportPhonebookComponent"
+          name="ognl:phonebookManager.getPhonebook(phonebookId).name"
+          entries="ognl:phonebookManager.getEntries(phonebookManager.getPhonebook(phonebookId))"
+          validator="bean:validator"
+          format="csv">
+        </div>
     </div>
     <span jwcid="formActions@common/FormActions" listener="listener:savePhonebook" callback="ognl:callback" />
   </form>

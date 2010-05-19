@@ -38,6 +38,12 @@ public abstract class ExportPhonebookComponent extends BaseComponent {
     @Parameter(required = true)
     public abstract SipxValidationDelegate getValidator();
 
+    /*
+     * Required because of the label formatting
+     */
+    @Parameter(required = true)
+    public abstract String getFormat();
+
     /**
      * the name of the phonebook file. It can be the username or the name of the phonebook
      */
@@ -52,13 +58,12 @@ public abstract class ExportPhonebookComponent extends BaseComponent {
             String name = String.format("phonebook_%s.vcf", getName());
             OutputStream stream = TapestryUtils.getResponseOutputStream(getResponse(), name, "text/x-vcard");
             Collection<PhonebookEntry> entries = getEntries();
-            getPhonebookManager().exportPhonebook(entries, stream);
+            getPhonebookManager().exportPhonebook(entries, stream, getFormat());
             stream.close();
         } catch (IOException e) {
             LOG.error("Cannot export phonebook", e);
             Messages messages = getMessages();
-            getValidator().record("msg.exportError",
-                    ValidationConstraint.CONSISTENCY);
+            getValidator().record("msg.exportError", ValidationConstraint.CONSISTENCY);
         }
     }
 

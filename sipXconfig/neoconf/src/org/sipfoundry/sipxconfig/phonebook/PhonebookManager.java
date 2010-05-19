@@ -57,7 +57,7 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     void reset();
 
-    void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException;
+    void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out, String format) throws IOException;
 
     int addEntriesFromFile(Integer phonebookId, InputStream in);
 
@@ -86,9 +86,11 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
     void removeTableColumns();
 
     Map<Integer, String[]> getPhonebookFilesName();
+
     // <--
 
     GoogleDomain getGoogleDomain();
+
     void saveGoogleDomain(GoogleDomain gd);
 
     void saveGeneralPhonebookSettings(GeneralPhonebookSettings generalPhonebookSettings);
@@ -96,4 +98,5 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
     GeneralPhonebookSettings getGeneralPhonebookSettings();
 
     PhonebookEntry getDuplicatePhonebookEntry(PhonebookEntry newEntry, User user);
+
 }

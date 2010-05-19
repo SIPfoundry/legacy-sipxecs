@@ -13,12 +13,22 @@ import java.io.IOException;
 import java.io.Writer;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
+import org.sipfoundry.sipxconfig.phonebook.PhonebookWriter;
 
-public class CsvWriter {
+public class CsvWriter implements PhonebookWriter {
+    public static final String FORMAT_CSV = "csv";
     private Writer m_writer;
+    private boolean m_quote = true;
 
     public CsvWriter(Writer writer) {
         m_writer = writer;
+    }
+
+    public CsvWriter(Writer writer, boolean quote, String[] header) throws IOException {
+        m_writer = writer;
+        m_quote = quote;
+        write(header, m_quote);
     }
 
     public void write(String[] fields, boolean quote) throws IOException {
@@ -42,6 +52,16 @@ public class CsvWriter {
         m_writer.write(line.toString());
     }
 
+    public void write(PhonebookEntry entry) throws IOException {
+        if (entry == null) {
+            return;
+        }
+        if (!entry.isWritable()) {
+            return;
+        }
+        write(entry.getFields(), m_quote);
+    }
+
     /**
      * Similar to write but translates exceptions to UserException
      */
@@ -52,4 +72,5 @@ public class CsvWriter {
             new RuntimeException(e);
         }
     }
+
 }

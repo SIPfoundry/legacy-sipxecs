@@ -10,18 +10,14 @@
 package org.sipfoundry.sipxconfig.phonebook;
 
 import java.io.StringWriter;
-import java.io.Writer;
-
 import org.apache.commons.io.IOUtils;
-import org.easymock.EasyMock;
-
 import junit.framework.TestCase;
 
 public class VcardWriterTest extends TestCase {
 
     public void testWrite() throws Exception {
-        VcardWriter cardWriter = new VcardWriter();
         StringWriter writer = new StringWriter();
+        VcardWriter cardWriter = new VcardWriter(writer);
 
         PhonebookEntry entry = new PhonebookEntry();
         entry.setFirstName("Michael");
@@ -51,18 +47,18 @@ public class VcardWriterTest extends TestCase {
         abe.setJobTitle("Mr.");
 
         entry.setAddressBookEntry(abe);
-        cardWriter.write(writer, entry);
+        cardWriter.write(entry);
 
-        cardWriter.write(writer, null);
+        cardWriter.write(null);
 
         PhonebookEntry noEntry = new PhonebookEntry();
-        cardWriter.write(writer, noEntry);
+        cardWriter.write(noEntry);
 
         PhonebookEntry entry1 = new PhonebookEntry();
         entry1.setFirstName("Teemu");
         entry1.setLastName("Selanne");
         entry1.setNumber("789");
-        cardWriter.write(writer, entry1);
+        cardWriter.write(entry1);
 
         PhonebookEntry entry2 = new PhonebookEntry();
         entry2.setFirstName("Saku");
@@ -70,7 +66,7 @@ public class VcardWriterTest extends TestCase {
         entry2.setNumber("5432");
         AddressBookEntry abe2 = new AddressBookEntry();
         entry2.setAddressBookEntry(abe2);
-        cardWriter.write(writer, entry2);
+        cardWriter.write(entry2);
 
         PhonebookEntry entry3 = new PhonebookEntry();
         entry3.setFirstName("Eric");
@@ -82,7 +78,7 @@ public class VcardWriterTest extends TestCase {
         Address home = new Address();
         abe3.setHomeAddress(home);
         entry3.setAddressBookEntry(abe3);
-        cardWriter.write(writer, entry3);
+        cardWriter.write(entry3);
 
         assertEquals(IOUtils.toString(getClass().getResourceAsStream("phonebook_test.vcf")), writer
                 .getBuffer().toString());

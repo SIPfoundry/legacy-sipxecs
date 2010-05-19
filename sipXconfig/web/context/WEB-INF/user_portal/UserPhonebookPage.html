@@ -6,11 +6,20 @@
      <span jwcid="query@Hidden" value="ognl:query" encode="false"/>
     </fieldset>
   </form>
-  <fieldset jwcid="phonebook@phonebook/ExportPhonebookComponent"
+  <span jwcid="phonebook@phonebook/ExportPhonebookComponent"
     name="ognl:user.name"
     entries="ognl:phonebookManager.getEntries(phonebookManager.getAllPhonebooksByUser(user), user)"
-    validator="bean:validator">
-  </fieldset>
+    validator="bean:validator"
+    format="vcard">
+  </span>
+  <span jwcid="phonebookCsv@phonebook/ExportPhonebookComponent"
+    name="ognl:user.name"
+    entries="ognl:phonebookManager.getEntries(phonebookManager.getAllPhonebooksByUser(user), user)"
+    validator="bean:validator"
+    format="csv">
+  </span>
+  <br />
+  <br />
   <div class="component">
     <iframe jwcid="@Any" id="user_phonebook_grid_frame" class="phonebookIframe" src="ognl:widgetSrc" scrolling="no"
       marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0" allowtransparency="true"> </iframe>

@@ -12,99 +12,46 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Formatter;
 
-import org.apache.commons.lang.StringUtils;
+public class VcardWriter implements PhonebookWriter {
+    public static final String FORMAT_VCARD = "vcard";
+    private Writer m_writer;
 
-public class VcardWriter {
-    public void write(Writer writer, PhonebookEntry entry) throws IOException {
+    public VcardWriter() {
+    }
 
+    public VcardWriter(Writer writer) {
+        m_writer = writer;
+    }
+
+    public void write(PhonebookEntry entry) throws IOException {
         if (entry == null) {
             return;
         }
-
-        if (StringUtils.isEmpty(entry.getFirstName()) && StringUtils.isEmpty(entry.getLastName())) {
+        if (!entry.isWritable()) {
             return;
         }
+        String[] fields = entry.getFields();
 
-        String firstName = StringUtils.defaultString(entry.getFirstName());
-        String lastName = StringUtils.defaultString(entry.getLastName());
-        String phoneNumber = StringUtils.defaultString(entry.getNumber());
-
-        String cellPhoneNumber = StringUtils.EMPTY;
-        String homePhoneNumber = StringUtils.EMPTY;
-        String faxNumber = StringUtils.EMPTY;
-
-        String emailAddress = StringUtils.EMPTY;
-        String alternateEmailAddress = StringUtils.EMPTY;
-
-        String companyName = StringUtils.EMPTY;
-        String jobTitle = StringUtils.EMPTY;
-        String jobDept = StringUtils.EMPTY;
-
-        String homeAddressStreet = StringUtils.EMPTY;
-        String homeAddressZip = StringUtils.EMPTY;
-        String homeAddressCountry = StringUtils.EMPTY;
-        String homeAddressState = StringUtils.EMPTY;
-        String homeAddressCity = StringUtils.EMPTY;
-
-        String officeAddressStreet = StringUtils.EMPTY;
-        String officeAddressZip = StringUtils.EMPTY;
-        String officeAddressCountry = StringUtils.EMPTY;
-        String officeAddressState = StringUtils.EMPTY;
-        String officeAddressCity = StringUtils.EMPTY;
-        String officeAddressOfficeDesignation = StringUtils.EMPTY;
-
-        AddressBookEntry addressBook = entry.getAddressBookEntry();
-        if (addressBook != null) {
-            cellPhoneNumber = StringUtils.defaultString(addressBook.getCellPhoneNumber());
-            homePhoneNumber = StringUtils.defaultString(addressBook.getHomePhoneNumber());
-            faxNumber = StringUtils.defaultString(addressBook.getFaxNumber());
-
-            emailAddress = StringUtils.defaultString(addressBook.getEmailAddress());
-            alternateEmailAddress = StringUtils.defaultString(addressBook.getAlternateEmailAddress());
-
-            companyName = StringUtils.defaultString(addressBook.getCompanyName());
-            jobTitle = StringUtils.defaultString(addressBook.getJobTitle());
-            jobDept = StringUtils.defaultString(addressBook.getJobDept());
-
-            if (addressBook.getHomeAddress() != null) {
-                homeAddressStreet = StringUtils.defaultString(addressBook.getHomeAddress().getStreet());
-                homeAddressZip = StringUtils.defaultString(addressBook.getHomeAddress().getZip());
-                homeAddressCountry = StringUtils.defaultString(addressBook.getHomeAddress().getCountry());
-                homeAddressState = StringUtils.defaultString(addressBook.getHomeAddress().getState());
-                homeAddressCity = StringUtils.defaultString(addressBook.getHomeAddress().getCity());
-            }
-
-            if (addressBook.getOfficeAddress() != null) {
-                officeAddressStreet = StringUtils.defaultString(addressBook.getOfficeAddress().getStreet());
-                officeAddressZip = StringUtils.defaultString(addressBook.getOfficeAddress().getZip());
-                officeAddressCountry = StringUtils.defaultString(addressBook.getOfficeAddress().getCountry());
-                officeAddressState = StringUtils.defaultString(addressBook.getOfficeAddress().getState());
-                officeAddressCity = StringUtils.defaultString(addressBook.getOfficeAddress().getCity());
-                officeAddressOfficeDesignation = StringUtils.defaultString(addressBook.getOfficeAddress()
-                        .getOfficeDesignation());
-            }
+        Formatter formatter = new Formatter(m_writer);
+        m_writer.write("BEGIN:vCard\n");
+        m_writer.write("VERSION:3.0\n");
+        formatter.format("FN:%s %s\n", fields[0], fields[1]);
+        formatter.format("N:%s;%s;;;\n", fields[1], fields[0]);
+        formatter.format("TEL;TYPE=WORK:%s\n", fields[2]);
+        if (entry.getAddressBookEntry() != null) {
+            formatter.format("TEL;TYPE=HOME:%s\n", fields[8]);
+            formatter.format("TEL;TYPE=CELL:%s\n", fields[7]);
+            formatter.format("TEL;TYPE=FAX:%s\n", fields[10]);
+            formatter.format("ADR;TYPE=WORK:%s;;%s;%s;%s;%s;%s\n", fields[24], fields[22], fields[19], fields[21],
+                    fields[23], fields[20]);
+            formatter.format("ADR;TYPE=HOME:;;%s;%s;%s;%s;%s\n", fields[17], fields[14], fields[16], fields[18],
+                    fields[15]);
+            formatter.format("EMAIL;TYPE=PREF:%s\n", fields[25]);
+            formatter.format("EMAIL:%s\n", fields[26]);
+            formatter.format("ORG:%s;%s\n", fields[5], fields[4]);
+            formatter.format("TITLE:%s\n", fields[3]);
         }
-
-        Formatter formatter = new Formatter(writer);
-        writer.write("BEGIN:vCard\n");
-        writer.write("VERSION:3.0\n");
-        formatter.format("FN:%s %s\n", firstName, lastName);
-        formatter.format("N:%s;%s;;;\n", lastName, firstName);
-        formatter.format("TEL;TYPE=WORK:%s\n", phoneNumber);
-        if (addressBook != null) {
-            formatter.format("TEL;TYPE=HOME:%s\n", homePhoneNumber);
-            formatter.format("TEL;TYPE=CELL:%s\n", cellPhoneNumber);
-            formatter.format("TEL;TYPE=FAX:%s\n", faxNumber);
-            formatter.format("ADR;TYPE=WORK:%s;;%s;%s;%s;%s;%s\n", officeAddressOfficeDesignation,
-                    officeAddressStreet, officeAddressCity, officeAddressState, officeAddressZip,
-                    officeAddressCountry);
-            formatter.format("ADR;TYPE=HOME:;;%s;%s;%s;%s;%s\n", homeAddressStreet, homeAddressCity,
-                    homeAddressState, homeAddressZip, homeAddressCountry);
-            formatter.format("EMAIL;TYPE=PREF:%s\n", emailAddress);
-            formatter.format("EMAIL:%s\n", alternateEmailAddress);
-            formatter.format("ORG:%s;%s\n", companyName, jobDept);
-            formatter.format("TITLE:%s\n", jobTitle);
-        }
-        writer.write("END:vCard\n\n");
+        m_writer.write("END:vCard\n\n");
     }
+
 }

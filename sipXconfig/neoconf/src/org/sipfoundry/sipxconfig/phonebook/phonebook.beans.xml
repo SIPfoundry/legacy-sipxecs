@@ -26,7 +26,6 @@
     <property name="phonebookManagementEnabled" value="true" />
     <property name="csvParser" ref="phonebookCsvParser" />
     <property name="vcardParser" ref="vcardParser" />
-    <property name="vcardWriter" ref="vcardWriter" />
     <property name="vcardEncoding" value="UTF-8" />
 	<property name="generalPhonebookSettings" ref="generalPhonebookSettings" />
   </bean>

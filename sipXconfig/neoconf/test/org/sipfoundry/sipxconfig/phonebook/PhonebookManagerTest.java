@@ -34,6 +34,7 @@ import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.bulk.csv.CsvParserImpl;
+import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.vcard.VcardParserImpl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -224,7 +225,7 @@ public class PhonebookManagerTest extends TestCase {
 
     }
 
-    public void testExportVCard() throws Exception {
+    public void testExport() throws Exception {
         VcardWriter vcardWriter = new VcardWriter();
         PhonebookManagerImpl context = new PhonebookManagerImpl();
         context.setVcardWriter(vcardWriter);
@@ -232,7 +233,7 @@ public class PhonebookManagerTest extends TestCase {
 
         ByteArrayOutputStream empty = new ByteArrayOutputStream();
         try {
-          context.exportPhonebook(new ArrayList(), empty);
+          context.exportPhonebook(new ArrayList(), empty, VcardWriter.FORMAT_VCARD);
         } catch (UserException e){
             assertTrue(true);
         }
@@ -240,17 +241,25 @@ public class PhonebookManagerTest extends TestCase {
         PhonebookEntry e2 = new StringArrayPhonebookEntry("Luke", "Skywalker", "1235");
         PhonebookEntry e3 = new StringArrayPhonebookEntry("", "", "1235");
         PhonebookEntry e4 = new StringArrayPhonebookEntry("Frank", "Dawson", "+1-919-676-9515", "Senior Programmer",
-                "IT Dept", "Lotus Development Corporation", "", "+34(345)112-345", "+34 (445) 43 22", "",
-                "+1-919-676-9564", "", "", "", "Mountain View", "U.S.A.", "CA", "501 E. Middlefield Rd.", "94043",
+                "IT Dept", "Lotus Development Corporation", "Lois Lane", "+34(345)112-345", "+34 (445) 43 22", "+34 (445) 43 33",
+                "+1-919-676-9564", "frankDawson", "dawsonFrank", "location", "Mountain View", "U.S.A.", "CA", "501 E. Middlefield Rd.", "94043",
                 "Raleigh", "U.S.A.", "NC", "6544 Battleford Drive", "27613-3502", "Lotus PostOffice",
                 "Frank_Dawson@Lotus.com", "fdawson@earthlink.net");
 
         ByteArrayOutputStream actual = new ByteArrayOutputStream();
-        context.exportPhonebook(asList(e1, e2, e3, e4), actual);
+        context.exportPhonebook(asList(e1, e2, e3, e4), actual, VcardWriter.FORMAT_VCARD);
 
         InputStream expectedStream = getClass().getResourceAsStream("export.test.vcf");
         assertNotNull(expectedStream);
         String expected = IOUtils.toString(expectedStream);
+        assertEquals(expected, actual.toString("UTF-8"));
+
+        actual = new ByteArrayOutputStream();
+        context.exportPhonebook(asList(e1, e2, e3, e4), actual, CsvWriter.FORMAT_CSV);
+
+        InputStream expectedStreamCsv = getClass().getResourceAsStream("export.test.csv");
+        assertNotNull(expectedStreamCsv);
+        expected = IOUtils.toString(expectedStreamCsv);
         assertEquals(expected, actual.toString("UTF-8"));
     }
 

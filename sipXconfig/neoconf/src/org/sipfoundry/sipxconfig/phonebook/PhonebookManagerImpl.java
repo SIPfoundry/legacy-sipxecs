@@ -39,6 +39,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.addAll;
 
 import com.glaforge.i18n.io.CharsetToolkit;
+
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -60,6 +61,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
 import org.sipfoundry.sipxconfig.bulk.BulkParser;
+import org.sipfoundry.sipxconfig.bulk.csv.CsvWriter;
 import org.sipfoundry.sipxconfig.bulk.vcard.VCardParserException;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -160,9 +162,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             super("A phonebook already exists with that name.");
         }
     }
+
     public PhonebookEntry getDuplicatePhonebookEntry(PhonebookEntry newEntry, User user) {
         PhoneEntryComparator entriesComparator = new PhoneEntryComparator();
-        Collection<Phonebook>allUserPhonebooks = getAllPhonebooksByUser(user);
+        Collection<Phonebook> allUserPhonebooks = getAllPhonebooksByUser(user);
         Collection<PhonebookEntry> entries = getEntries(allUserPhonebooks, user);
         for (PhonebookEntry entry : entries) {
             if (entriesComparator.compare(entry, newEntry) == 0) {
@@ -263,9 +266,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         return entries.values();
     }
 
-    private Collection<PhonebookEntry> getEntriesConverted(Collection<Phonebook> phonebooks,
-                                                            User user,
-                                                            Collection<Phonebook> privatePhonebooks) {
+    private Collection<PhonebookEntry> getEntriesConverted(Collection<Phonebook> phonebooks, User user,
+            Collection<Phonebook> privatePhonebooks) {
         Map<String, PhonebookEntry> entries = new TreeMap();
 
         if (!phonebooks.isEmpty()) {
@@ -315,7 +317,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             String endRow, String queryString) {
 
         Collection<PhonebookEntry> entries = null;
-        Collection<Phonebook>  privatePhonebooks = new ArrayList<Phonebook>();
+        Collection<Phonebook> privatePhonebooks = new ArrayList<Phonebook>();
 
         // add private phonebook
         Boolean showOnPhone = null;
@@ -734,13 +736,20 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_vcardWriter = vcardWriter;
     }
 
-    public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out) throws IOException {
+    public void exportPhonebook(Collection<PhonebookEntry> entries, OutputStream out, String format)
+        throws IOException {
         if (entries.isEmpty()) {
             throw new UserException("&error.phonebookEmpty");
         }
         Writer writer = new OutputStreamWriter(out, m_vcardEncoding);
+        PhonebookWriter pbWriter;
+        if (StringUtils.equals(format, CsvWriter.FORMAT_CSV)) {
+            pbWriter = new CsvWriter(writer, true, PhonebookEntry.labels());
+        } else {
+            pbWriter = new VcardWriter(writer);
+        }
         for (PhonebookEntry entry : entries) {
-            m_vcardWriter.write(writer, entry);
+            pbWriter.write(entry);
         }
         writer.flush();
     }
@@ -773,8 +782,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     private void deleteGoogleImportedEntries(String account, Phonebook phonebook) {
-        Collection existingEntries = select(phonebook.getEntries(), new GoogleEntrySearchPredicate(
-                account));
+        Collection existingEntries = select(phonebook.getEntries(), new GoogleEntrySearchPredicate(account));
         phonebook.getEntries().removeAll(existingEntries);
 
     }
@@ -803,8 +811,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             String uniqueKey = getEntryKey(fileEntry);
             fileEntry.setInternalId(uniqueKey);
 
-            PhonebookEntry oldEntry = (PhonebookEntry) find(phonebook.getEntries(),
-                    new FileEntrySearchPredicate(uniqueKey));
+            PhonebookEntry oldEntry = (PhonebookEntry) find(phonebook.getEntries(), new FileEntrySearchPredicate(
+                    uniqueKey));
             phonebook.getEntries().remove(oldEntry);
 
             phonebook.addEntry(fileEntry);
@@ -951,7 +959,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public GeneralPhonebookSettings getGeneralPhonebookSettings() {
-        List list =  getHibernateTemplate().loadAll(GeneralPhonebookSettings.class);
+        List list = getHibernateTemplate().loadAll(GeneralPhonebookSettings.class);
         return isEmpty(list) ? m_generalPhonebookSettings : (GeneralPhonebookSettings) singleResult(list);
     }
 

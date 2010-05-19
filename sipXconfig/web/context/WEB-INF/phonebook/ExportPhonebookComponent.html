@@ -1,7 +1,5 @@
-<ul class="component-links">
-  <li>
-    <a jwcid="export@common/ExportLink" id="exportPhonebook" listener="listener:export">
-       <span key="link.export">Export</span>
-    </a>
-  </li>
-</ul>
+<div>
+  <a jwcid="export@common/ExportLink" id="exportPhonebook" listener="listener:export">
+    <span jwcid="@Insert" value="ognl:messages.getMessage('link.export'+format)">Export</span>
+  </a>
+</div>
