@@ -151,6 +151,7 @@ public class ContactInformationDataSource extends DataSource {
                 officeCity, officeCountry, officeState, officeZip, officeDesignation, avatar, useBranchAddress);
         setRecordXPath("/contact-information");
         setDataURL(REST_URL);
+        setShowPrompt(false);
 
         /*
          * NOTE - ECLIPSE DEBUGGING
