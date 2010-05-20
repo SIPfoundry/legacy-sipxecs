@@ -23,14 +23,15 @@ import org.springframework.beans.factory.annotation.Required;
 
 public class CallResource extends UserResource {
     private static final String VALID_PHONE_OR_SIP_URI = "([-_.!~*'\\(\\)&=+$,;?/a-zA-Z0-9]|"
-        + "(%[0-9a-fA-F]{2}))+|([-_.!~*'\\(\\)&=+$,;?/a-zA-Z0-9]|"
-        + "(%[0-9a-fA-F]{2}))+@\\w[-._\\w]*\\w\\.\\w{2,6}";
+            + "(%[0-9a-fA-F]{2}))+|([-_.!~*'\\(\\)&=+$,;?/a-zA-Z0-9]|"
+            + "(%[0-9a-fA-F]{2}))+@\\w[-._\\w]*\\w\\.\\w{2,6}";
 
     private SipService m_sipService;
     private DomainManager m_domainManager;
     private String m_to;
     private String m_from;
     private Status m_errorStatus;
+
     @Override
     public void init(Context context, Request request, Response response) {
         super.init(context, request, response);

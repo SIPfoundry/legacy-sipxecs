@@ -36,7 +36,7 @@ public class CallResourceTest extends TestCase {
         m_user.setEmailAddress("myName@email.com");
 
         m_sipService = createMock(SipService.class);
-        m_sipService.sendRefer(m_user, "sip:portalUser@example.org", "sip:123@example.org");
+        m_sipService.sendRefer(m_user, "sip:portalUser@example.org", "sip:9986406999@example.org");
         replay(m_sipService);
 
         Authentication token = new TestAuthenticationToken(m_user, false, false).authenticateToken();
@@ -67,7 +67,7 @@ public class CallResourceTest extends TestCase {
         ChallengeResponse challengeResponse = new ChallengeResponse(null, "200", new char[0]);
 
         Request request = new Request();
-        request.getAttributes().put("to", "123");
+        request.getAttributes().put("to", "9.9-86(406)9[99]");
         request.setChallengeResponse(challengeResponse);
         request.setMethod(Method.PUT);
         Response response = new Response(request);
@@ -84,5 +84,6 @@ public class CallResourceTest extends TestCase {
         resource.put(null);
         status = response.getStatus();
         assertEquals("Bad Request", status.getName());
+
     }
 }
