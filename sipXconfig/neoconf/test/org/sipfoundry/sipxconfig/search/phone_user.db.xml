@@ -7,7 +7,7 @@
 		phone_id="1000" 
 		description="unittest-sample phone1" 
 		bean_id="testPhone"
-      model_id=""/>
+        model_id="testPhoneModel"/>
 	<line 
 		line_id="1000" 
 		phone_id="1000" 

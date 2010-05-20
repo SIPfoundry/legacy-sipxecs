@@ -33,6 +33,7 @@
     class="org.sipfoundry.sipxconfig.search.LoadIndexingInterceptor">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="indexer" ref="bulkIndexer"/>
+    <property name="beanIndexHelper" ref="beanIndexHelper"/>
   </bean>
 
   <bean id="loadIndexingHibernateTemplate"
@@ -72,4 +73,7 @@
     </property>
   </bean>
 
+  <bean id="beanIndexHelper" class="org.sipfoundry.sipxconfig.search.BeanIndexHelper">
+    <property name="sessionFactory" ref="sessionFactory"/>
+  </bean>
 </beans>

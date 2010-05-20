@@ -62,4 +62,13 @@ public class IndexManagerImplTestDb extends TestCaseDb {
         assertEquals(1, users.size());
     }
 
+    public void testSearchPhoneModelLabel() throws Exception {
+        TestHelper.cleanInsertFlat("search/phone_user.db.xml");
+        m_indexManager.indexAll();
+
+        List phones = m_searchManager.search("Test Phone", null);
+        // check if phone is found using the model label
+        assertEquals(1, phones.size());
+    }
+
 }
