@@ -36,6 +36,7 @@ public class CallResource extends UserResource {
         super.init(context, request, response);
         String domain = m_domainManager.getDomain().getName();
         String to = (String) getRequest().getAttributes().get("to");
+        to = to.replaceAll("[\\[\\]\\(\\)\\.\\{\\}\\-]", "");
         if (!to.isEmpty() && to.matches(VALID_PHONE_OR_SIP_URI)) {
             m_from = getUser().getAddrSpec(domain);
             m_to = SipUri.fix(to, domain);
