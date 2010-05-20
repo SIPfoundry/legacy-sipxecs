@@ -39,6 +39,7 @@ public class Location extends BeanWithId {
     public static final int PROCESS_MONITOR_PORT = 8092;
     private static final int SOFTWARE_ADMIN_PORT = 8092;
     private static final int HTTPS_SERVER_PORT = 8092;
+    private static final int OPENFIRE_CONTACT_INFO_UPDATE_PORT = 9099;
     private static final int LOCATION_PASSWORD_LEN = 8;
     private static final String XML_RPC_URL = "https://%s:%d/RPC2";
 
@@ -140,6 +141,10 @@ public class Location extends BeanWithId {
 
     public String getHttpsServerUrl() {
         return String.format("https://%s:%d", m_fqdn, HTTPS_SERVER_PORT);
+    }
+
+    public String getXmppContactInfoUpdateUrl() {
+        return String.format("http://%s:%d/xmlrpc", m_fqdn, OPENFIRE_CONTACT_INFO_UPDATE_PORT);
     }
 
     /**

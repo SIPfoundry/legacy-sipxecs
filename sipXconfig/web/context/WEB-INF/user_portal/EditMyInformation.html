@@ -6,8 +6,14 @@
   </div>
 </div>
 <div jwcid="extendedInfoTab@Block">
-    <iframe id="contact_information" class="contactInformationIframe" src="ContactInformationWidgetPage.html" scrolling="no"
-      marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0" allowtransparency="true"> </iframe>
+  <iframe id="contact_information" class="contactInformationIframe" src="ContactInformationWidgetPage.html" scrolling="no"
+    marginwidth="0" marginheight="0" frameborder="0" vspace="0" hspace="0" allowtransparency="true"> </iframe>
+    <form jwcid="syncXmppForm@Form">
+      <input id="syncXmppContacts"
+        jwcid="syncXmppContacts@Submit"
+        listener="listener:syncXmppContacts"
+        value="message:label.syncXmppContacts" />
+    </form>
 </div>
 <div jwcid="infoTab@Block">
 	<form jwcid="infoForm@Form" delegate="bean:validator">

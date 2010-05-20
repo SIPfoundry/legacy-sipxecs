@@ -136,4 +136,11 @@
 	<property name="sipxProcessContext" ref="sipxProcessContext" />
   </bean>
 
+  <bean id="xmppContactInformationUpdate" class="org.sipfoundry.sipxconfig.admin.update.XmppContactInformationUpdate">
+    <property name="contactInfoChangeApiProvider" ref="contactInfoChangeApiProvider" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
+  </bean>
+
 </beans>

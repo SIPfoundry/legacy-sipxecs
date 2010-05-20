@@ -58,6 +58,14 @@
       value="org.sipfoundry.sipxconfig.admin.commserver.imdb.FileApi" />
   </bean>
 
+  <bean id="contactInfoChangeApiProvider"
+    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
+    <property name="methodNamePrefix" value="ContactInfoHandler." />
+    <property name="secure" value="false" />
+    <property name="serviceInterface"
+      value="org.sipfoundry.sipxconfig.admin.commserver.ContactInfoChangeApi" />
+  </bean>
+
   <bean id="imdbProvider"
     class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
     <property name="methodNamePrefix" value="ImdbTable." />

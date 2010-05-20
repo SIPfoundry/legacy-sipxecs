@@ -19,7 +19,9 @@ import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.components.Block;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.sipfoundry.sipxconfig.admin.update.XmppContactInformationUpdate;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -46,6 +48,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
     @InjectObject("spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
+
+    @InjectObject("spring:xmppContactInformationUpdate")
+    public abstract XmppContactInformationUpdate getXmppContactInformationUpdate();
 
     public abstract String getPin();
 
@@ -146,6 +151,14 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
             Block b = (Block) getComponent("userConferencesPanel").getComponent("conferencesPanel").getComponent(
                     "conferenceActions");
             setActionBlockForConferencesTab(b);
+        }
+    }
+
+    public void syncXmppContacts() {
+        try {
+            getXmppContactInformationUpdate().notifyChange(getUser());
+        } catch (Exception e) {
+            throw new UserException(getMessages().getMessage("xmpp.sync.error"), e.getMessage());
         }
     }
 
