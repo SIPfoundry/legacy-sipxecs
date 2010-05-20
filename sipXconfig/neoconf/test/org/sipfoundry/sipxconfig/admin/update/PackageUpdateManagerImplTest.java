@@ -66,7 +66,7 @@ public class PackageUpdateManagerImplTest {
         replay(alarmContext, updateApi);
 
         PackageUpdateManagerImpl updater = new PackageUpdateManagerImpl();
-        assertEquals(UpdaterState.NO_UPDATES_AVAILABLE, updater.getState());
+        assertEquals(UpdaterState.UPDATES_NOT_CHECKED, updater.getState());
         updater.setAlarmContext(alarmContext);
         updater.setUpdateApi(updateApi);
 
@@ -89,11 +89,12 @@ public class PackageUpdateManagerImplTest {
 
         PackageUpdateManagerImpl updater = new PackageUpdateManagerImpl();
         updater.setUpdateApi(updateApi);
-        assertEquals(UpdaterState.NO_UPDATES_AVAILABLE, updater.getState());
+        assertEquals(UpdaterState.UPDATES_NOT_CHECKED, updater.getState());
         Future< ? > future = updater.installUpdates();
         future.get();
 
-        assertEquals(UpdaterState.UPDATE_COMPLETED, updater.getState());
+        // this scenario appears only if an error occurred on installation
+        assertEquals(UpdaterState.UPDATES_AVAILABLE, updater.getState());
         verify(updateApi);
     }
 }

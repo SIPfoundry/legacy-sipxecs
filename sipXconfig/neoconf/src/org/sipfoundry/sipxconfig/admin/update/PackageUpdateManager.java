@@ -19,6 +19,7 @@ import org.sipfoundry.sipxconfig.common.UserException;
 public interface PackageUpdateManager {
 
     public enum UpdaterState {
+        UPDATES_NOT_CHECKED(false), // Updates were not searched yet
         NO_UPDATES_AVAILABLE(false), // System up-to-date, no updates available
         CHECKING_FOR_UPDATES(true), // Checking sipXecs repository for updated packages
         UPDATES_AVAILABLE(false), // Check complete, updated packages were found

@@ -30,6 +30,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.INSTALLING;
 import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE;
+import static org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager.UpdaterState.UPDATES_NOT_CHECKED;;
 
 public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBeginRenderListener {
 
@@ -91,6 +92,10 @@ public abstract class SoftwareUpdatesPage extends SipxBasePage implements PageBe
     public void pageBeginRender(PageEvent event) {
         if (getCurrentVersion() == null || getCurrentVersion().equals(UpdateApi.VERSION_NOT_DETERMINED)) {
             setCurrentVersion(getPackageUpdateManager().getCurrentVersion());
+        }
+
+        if (getPackageUpdateManager().getState().equals(UPDATES_NOT_CHECKED)) {
+            checkForUpdates();
         }
         UserException passedException = getPackageUpdateManager().getUserException();
         if (passedException != null) {

@@ -33,7 +33,7 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
     private final ExecutorService m_updateExecutor = Executors.newSingleThreadExecutor();
 
     /** The current state of the updater. */
-    private UpdaterState m_state = UpdaterState.NO_UPDATES_AVAILABLE;
+    private UpdaterState m_state = UpdaterState.UPDATES_NOT_CHECKED;
 
     /** The current list of available sipXecs package updates. */
     private List<PackageUpdate> m_availablePackages = new ArrayList<PackageUpdate>();
@@ -85,7 +85,9 @@ public class PackageUpdateManagerImpl implements Serializable, PackageUpdateMana
         Runnable task = new Runnable() {
             public void run() {
                 m_updateApi.installUpdates();
-                m_state = UpdaterState.UPDATE_COMPLETED;
+                // in case of error during installation, the manager status should indicate
+                // available updates when user gets back on page
+                m_state = UpdaterState.UPDATES_AVAILABLE;
             }
         };
         return m_updateExecutor.submit(task);
