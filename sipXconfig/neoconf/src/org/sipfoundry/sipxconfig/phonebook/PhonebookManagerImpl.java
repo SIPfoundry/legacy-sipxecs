@@ -552,7 +552,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     static class FileEntrySearchPredicate implements Predicate {
 
-        private String m_internalId;
+        private final String m_internalId;
 
         public FileEntrySearchPredicate(String internalId) {
             m_internalId = internalId;
@@ -572,7 +572,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
     static class GoogleEntrySearchPredicate implements Predicate {
 
-        private String m_account;
+        private final String m_account;
 
         public GoogleEntrySearchPredicate(String account) {
             m_account = account;
@@ -752,10 +752,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             }
         } else if (entity instanceof User) {
             User user = (User) entity;
-            Phonebook privatePhonebook = getPrivatePhonebook(user);
-            if (privatePhonebook != null) {
-                deletePhonebook(privatePhonebook);
-            }
+            deletePrivatePhonebook(user);
         }
     }
 
@@ -1006,4 +1003,10 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_generalPhonebookSettings = generalPhonebookSettings;
     }
 
+    public void deletePrivatePhonebook(User user) {
+        Phonebook privatePhonebook = getPrivatePhonebook(user);
+        if (privatePhonebook != null) {
+            deletePhonebook(privatePhonebook);
+        }
+    }
 }

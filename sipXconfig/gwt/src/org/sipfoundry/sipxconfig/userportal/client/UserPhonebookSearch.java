@@ -146,6 +146,25 @@ public class UserPhonebookSearch implements EntryPoint {
         });
         gmailImport.setAutoFit(true);
 
+        IButton deletePrivatePhonebook = new IButton(s_searchConstants.deletePrivatePhonebookTitle());
+        deletePrivatePhonebook.addClickHandler(new ClickHandler() {
+
+            @Override
+            public void onClick(ClickEvent event) {
+                SC.ask(s_searchConstants.confirmDeletePrivatePhonebook(), new BooleanCallback() {
+                    @Override
+                    public void execute(Boolean value) {
+                        if (value != null && value) {
+                            String url = "/sipxconfig/rest/my/phonebook";
+                            HttpRequestBuilder.doDelete(url, s_searchConstants.deletePrivatePhonebookSuccess());
+                            phonebookGrid.refreshRecordsWithDelay();
+                        }
+                    }
+                });
+            }
+        });
+        deletePrivatePhonebook.setAutoFit(true);
+
         TabSet tabSet = new TabSet();
         tabSet.setTabBarPosition(Side.TOP);
         tabSet.setWidth100();
@@ -153,16 +172,22 @@ public class UserPhonebookSearch implements EntryPoint {
 
         Tab entriesTab = new Tab(s_searchConstants.entries());
 
+        VLayout searchLayout = new VLayout();
+        searchLayout.setMargin(5);
+        searchLayout.addMember(searchForm);
+        searchLayout.addMember(showOnPhoneForm);
+
         HLayout leftHLayout = new HLayout();
         leftHLayout.setMargin(10);
-        leftHLayout.addMember(searchForm);
-        leftHLayout.addMember(showOnPhoneForm);
-        leftHLayout.setWidth("50%");
+        leftHLayout.addMember(searchLayout);
+        leftHLayout.setWidth("30%");
+        leftHLayout.setAlign(Alignment.LEFT);
 
         HLayout rightHLayout = new HLayout();
         rightHLayout.setMargin(10);
         rightHLayout.addMember(googleDomain);
         rightHLayout.addMember(gmailImport);
+        rightHLayout.addMember(deletePrivatePhonebook);
         rightHLayout.setWidth(WILD_CARD);
         rightHLayout.setAlign(Alignment.RIGHT);
 

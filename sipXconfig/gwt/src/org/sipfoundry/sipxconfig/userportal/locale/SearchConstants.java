@@ -174,4 +174,10 @@ public interface SearchConstants extends ConstantsWithLookup {
     String editDuplicatePhonebookEntry();
 
     String invalidPhoneNumber();
+
+    String deletePrivatePhonebookTitle();
+
+    String deletePrivatePhonebookSuccess();
+
+    String confirmDeletePrivatePhonebook();
 }

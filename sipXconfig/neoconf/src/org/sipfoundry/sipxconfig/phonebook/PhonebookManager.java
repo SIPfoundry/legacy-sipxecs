@@ -22,7 +22,7 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
     public static final String CONTEXT_BEAN_NAME = "phonebookManager";
     public enum PhonebookFormat {
         VCARD("vcf"), CSV("csv");
-        private String m_name;
+        private final String m_name;
 
         PhonebookFormat(String name) {
             m_name = name;
@@ -117,5 +117,7 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
     public Collection<PhonebookEntry> getAllEntries(int phonebookId);
 
     public Collection<PhonebookEntry> getEntries(int phonebookId);
+
+    public void deletePrivatePhonebook(User user);
 
 }

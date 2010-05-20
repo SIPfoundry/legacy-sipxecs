@@ -48,6 +48,12 @@ public class UserPhonebookResource extends UserPhonebookSearchResource {
         getPhonebookManager().savePhonebook(privatePhonebook);
     }
 
+    @Override
+    public void removeRepresentations() throws ResourceException {
+        User user = getUser();
+        getPhonebookManager().deletePrivatePhonebook(user);
+    }
+
     static class PrivatePhonebookRepresentation extends XStreamRepresentation<Collection<PhonebookEntry>> {
         public PrivatePhonebookRepresentation(MediaType mediaType, Collection<PhonebookEntry> object) {
             super(mediaType, object);
