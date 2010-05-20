@@ -791,13 +791,13 @@
         <type>
           <boolean/>
         </type>
-        <value>0</value>
+        <value>1</value>
       </setting>
       <setting name="BrokenConnectionEventTimeout">
         <type>
           <integer max="1000" min="1"/>
         </type>
-        <value>100</value>
+        <value>1000</value>
       </setting>
       <setting name="EnableSilenceDisconnect">
         <type>
