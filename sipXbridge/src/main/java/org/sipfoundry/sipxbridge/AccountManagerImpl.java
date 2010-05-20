@@ -6,8 +6,10 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
+import gov.nist.javax.sip.header.extensions.ReplacesHeader;
 import gov.nist.javax.sip.header.ims.PAssertedIdentityHeader;
 import gov.nist.javax.sip.header.ims.PPreferredIdentityHeader;
 
@@ -21,6 +23,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.sip.ClientTransaction;
+import javax.sip.Dialog;
+import javax.sip.ServerTransaction;
 import javax.sip.SipProvider;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
@@ -102,6 +106,15 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
 
         SipURI sipUri = (SipURI) request.getRequestURI();
         if ( logger.isDebugEnabled() ) logger.debug("getAccount: fetching account for " + sipUri);
+        // Request originated from LAN. If In-DIALOG request use previously discovered ITSP account
+        if (request.getMethod().equals(Request.INVITE) && request.getHeader(ReplacesHeader.NAME) != null) {
+           Dialog replacesDialog =  ((SipStackExt)ProtocolObjects.getSipStack()).getReplacesDialog((ReplacesHeader)request.getHeader(ReplacesHeader.NAME)); 
+           if ( replacesDialog == null ) {
+               logger.error("Could not find replaces dialog - returning null for ITSP account");
+               return null;
+           }
+           return DialogContext.get(replacesDialog).getItspInfo();           
+        }
         ItspAccountInfo accountFound = null;
         try {
 
@@ -252,6 +265,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         if ( logger.isDebugEnabled() ) logger.debug("Could not find ITSP account for inbound request");
         return null;
     }
+    
 
     // //////////////////////////////////////////////////////////////////
     // Public methods.
@@ -318,5 +332,7 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         }
 
     }
+
+  
 
 }
