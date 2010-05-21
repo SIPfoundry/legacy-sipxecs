@@ -52,6 +52,7 @@
         <value>classpath:/org/sipfoundry/sipxconfig/vm/vm.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/moh/moh.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/tls/tls.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/externaltools/externaltools.beans.xml</value>
         <!-- all *-models.beans.xml files on the classpath -->
         <value>classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml</value>
         <value>classpath*:/region_*/dialrules.beans.xml</value>

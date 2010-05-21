@@ -62,6 +62,7 @@
       classpath:/org/sipfoundry/sipxconfig/vm/vm.beans.xml
       classpath:/org/sipfoundry/sipxconfig/branch/branch.beans.xml
       classpath:/org/sipfoundry/sipxconfig/moh/moh.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/externaltools/externaltools.beans.xml
       classpath*:/sipxplugin.beans.xml
       classpath*:/org/sipfoundry/sipxconfig/**/*-models.beans.xml
       classpath*:/dialplan/*.dialrules.beans.xml

@@ -46,6 +46,7 @@ import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.externaltools.ToolbarDownloadContext;
 import org.sipfoundry.sipxconfig.login.PrivateUserKeyManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.sip.SipService;
@@ -84,6 +85,9 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
 
     @InjectObject("spring:privateUserKeyManager")
     public abstract PrivateUserKeyManager getPrivateUserKeyManager();
+
+    @InjectObject(value = "spring:toolbarDownloadContext")
+    public abstract ToolbarDownloadContext getToolbarDownloadContext();
 
     public abstract VoicemailSource getVoicemailSource();
 
@@ -127,6 +131,9 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
         return getUser().hasPermission(PermissionName.VOICEMAIL);
     }
 
+    public boolean getToolbarInstallerPresent() {
+        return getToolbarDownloadContext().isToolbarInstallerPresent();
+    }
     public IAsset getVoicemailIcon() {
         Voicemail voicemail = getVoicemail();
         return voicemail.isHeard() ? getHeardVoicemailIcon() : getNewVoicemailIcon();
@@ -327,5 +334,9 @@ public abstract class ManageVoicemail extends UserBasePage implements IExternalP
          * </HACK>
          */
         return voicemailLink;
+    }
+
+    public String getDownloadToolbarLabel() {
+        return getMessages().format("prompt.installtoolbar", getMessages().getMessage("product.name.short"));
     }
 }

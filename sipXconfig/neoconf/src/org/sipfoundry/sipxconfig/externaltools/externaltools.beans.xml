@@ -1,0 +1,9 @@
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="toolbarDownloadContext"
+    class="org.sipfoundry.sipxconfig.externaltools.ToolbarDownloadContextImpl">
+    <property name="toolbarInstallerLocation" value="${sysdir.share}/scs-toolbar/setup-scs-toolbar.exe" />
+  </bean>
+
+</beans>

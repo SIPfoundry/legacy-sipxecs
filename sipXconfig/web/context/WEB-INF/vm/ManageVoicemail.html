@@ -8,6 +8,22 @@
     <span class="user-warning" id="noVoicemailPermission" key="warning.noVoicemailPermissionNotice"/>
   </span>
 
+    <span jwcid="@If" condition="ognl:toolbarInstallerPresent">  
+      <div jwcid="@common/QuickLinks">
+        <ul>
+          <li>
+            <span jwcid="downloadLink@common/DownloadLink"
+              id="downloadLink"
+              fileName="ognl:toolbarDownloadContext.toolbarInstaller.name"
+              dirName="ognl:toolbarDownloadContext.toolbarInstaller.parent"
+              contentType="literal:application/octet-stream">
+              <span jwcid="@Insert" value="ognl:downloadToolbarLabel"/>
+            </span>
+          </li>
+        </ul>
+      </div>
+    </span>
+
   <span jwcid="@common/TabNavigation" elementId="voicemailFolders" tabNames="ognl:folderIds" selectedTab="ognl:folderId"/>
 
   <div id="settings-content">
