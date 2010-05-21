@@ -222,7 +222,7 @@ void AppearanceGroup::subscriptionEventCallback(
          }
          else
          {
-            OsSysLog::add(FAC_SAA, PRI_WARNING,
+            OsSysLog::add(FAC_SAA, PRI_DEBUG,
                           "AppearanceGroup::subscriptionEventCallback "
                           "mSubscriptions element already exists for this dialog handle mUri = '%s', dialogHandle = '%s'",
                           mSharedUser.data(),
