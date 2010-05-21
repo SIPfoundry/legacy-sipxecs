@@ -104,7 +104,7 @@
       </type>
       <value>1</value>
     </setting>
-    <setting name="ChannelSelectMode" advanced="yes">
+    <setting name="ChannelSelectMode" unless="digital" advanced="yes">
       <type>
         <enum>
           <option>
