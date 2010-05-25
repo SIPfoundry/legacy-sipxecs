@@ -65,6 +65,7 @@ import org.sipfoundry.commons.userdb.ImapInfo;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.GreetingType;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.Greeting;
 
@@ -635,8 +636,8 @@ public class ExtMailStore {
             message.addRecipient(MimeMessage.RecipientType.TO, new InternetAddress(user.getEmailAddress()));
 
             message.setSubject("e-mail password change required");
-            message.setText("You must change your e-mail password by logging in at " + "http://"
-                    + ident.substring(ident.indexOf('@') + 1));
+            message.setText("You must change your e-mail password by logging in at " + 
+                    IvrConfiguration.get().getConfigUrl() + "/sipxconfig/app");
             Transport.send(message);
                         
         } catch (Exception e) {
