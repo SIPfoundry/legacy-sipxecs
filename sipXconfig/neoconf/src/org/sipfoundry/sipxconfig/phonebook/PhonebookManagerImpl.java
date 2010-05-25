@@ -752,7 +752,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
             }
         } else if (entity instanceof User) {
             User user = (User) entity;
-            deletePrivatePhonebook(user);
+            removePrivatePhonebook(user);
         }
     }
 
@@ -1003,7 +1003,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
         m_generalPhonebookSettings = generalPhonebookSettings;
     }
 
-    public void deletePrivatePhonebook(User user) {
+    public void removePrivatePhonebook(User user) {
         Phonebook privatePhonebook = getPrivatePhonebook(user);
         if (privatePhonebook != null) {
             deletePhonebook(privatePhonebook);

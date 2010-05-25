@@ -118,6 +118,6 @@ public interface PhonebookManager extends DataObjectSource<Phonebook> {
 
     public Collection<PhonebookEntry> getEntries(int phonebookId);
 
-    public void deletePrivatePhonebook(User user);
+    public void removePrivatePhonebook(User user);
 
 }

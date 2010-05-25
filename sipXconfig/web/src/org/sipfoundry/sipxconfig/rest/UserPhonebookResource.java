@@ -51,7 +51,7 @@ public class UserPhonebookResource extends UserPhonebookSearchResource {
     @Override
     public void removeRepresentations() throws ResourceException {
         User user = getUser();
-        getPhonebookManager().deletePrivatePhonebook(user);
+        getPhonebookManager().removePrivatePhonebook(user);
     }
 
     static class PrivatePhonebookRepresentation extends XStreamRepresentation<Collection<PhonebookEntry>> {
