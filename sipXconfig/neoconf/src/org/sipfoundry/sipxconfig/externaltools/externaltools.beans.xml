@@ -3,7 +3,7 @@
 <beans>
   <bean id="toolbarDownloadContext"
     class="org.sipfoundry.sipxconfig.externaltools.ToolbarDownloadContextImpl">
-    <property name="toolbarInstallerLocation" value="${sysdir.share}/scs-toolbar/setup-scs-toolbar.exe" />
+    <property name="toolbarInstallerLocation" value="${sysdir.thirdparty}/scs-toolbar/setup-scs-toolbar.exe" />
   </bean>
 
 </beans>
