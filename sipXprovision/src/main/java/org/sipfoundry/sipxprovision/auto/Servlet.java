@@ -74,7 +74,7 @@ public class Servlet extends HttpServlet {
         return ShortHash.get(seed_string);
     }
 
-    private static final String POLYCOM_PATH_PREFIX = "/";
+    protected static final String POLYCOM_PATH_PREFIX = "/";
 
     private static final String POLYCOM_PATH_FORMAT_RE_STR =
         "^" + POLYCOM_PATH_PREFIX + MAC_RE_STR + "-%s$";
@@ -100,7 +100,7 @@ public class Servlet extends HttpServlet {
     private static final String POLYCOM_UA_DELIMITER = "UA/";
 
 
-    private static final String NORTEL_IP_12X0_PATH_PREFIX = "/Nortel/config/SIP";
+    protected static final String NORTEL_IP_12X0_PATH_PREFIX = "/Nortel/config/SIP";
 
     private static final Pattern NORTEL_IP_12X0_PATH_RE =
         Pattern.compile("^" + NORTEL_IP_12X0_PATH_PREFIX + MAC_RE_STR + ".xml$");
@@ -118,13 +118,15 @@ public class Servlet extends HttpServlet {
     }
 
     /**
-     * Extracts the MAC from the specified path, starting immediately after the specified prefix.
+     * Extracts the MAC from the specified path, starting immediately after the first occurrence
+     * of the specified prefix.
      *
      * @return the MAC, or null on failure.
      */
     protected static String extractMac(String path, String prefix) {
         try {
-            String mac = path.substring(prefix.length(), prefix.length()+12);
+            int start = path.indexOf(prefix) + prefix.length();
+            String mac = path.substring(start, start + 12);
             if (isMacAddress(mac)) {
                 return mac.toLowerCase();
             }
@@ -436,8 +438,8 @@ public class Servlet extends HttpServlet {
             POLYCOM_000000000000_CONTACTS_PATH_RE.matcher(path).matches();
     }
 
-    protected boolean isNortelIp12x0ConfigurationFilePath(String path) {
-        return NORTEL_IP_12X0_PATH_RE.matcher(path).matches();
+    static protected boolean isNortelIp12x0ConfigurationFilePath(String path) {
+        return null != extractMac(path, NORTEL_IP_12X0_PATH_PREFIX);
     }
 
     // TODO: Test case (x2 phone types) when MAC is too short (should not invoke the do___Get...)
@@ -480,7 +482,7 @@ public class Servlet extends HttpServlet {
                 return;
             }
         }
-        else if (NORTEL_IP_12X0_PATH_RE.matcher(path).matches()) {
+        else if (isNortelIp12x0ConfigurationFilePath(path)) {
 
             // Nortel IP 1210/1220/1230
             phone = new DetectedPhone();
@@ -527,6 +529,11 @@ public class Servlet extends HttpServlet {
             }
         }
         else if (isNortelIp12x0ConfigurationFilePath(path)) {
+
+            int index = path.indexOf(NORTEL_IP_12X0_PATH_PREFIX);
+            if (-1 != index) {
+                path = path.substring(index, path.length());
+            }
 
             writeProfileConfigurationResponse(path, extractMac(path, NORTEL_IP_12X0_PATH_PREFIX), response);
         }

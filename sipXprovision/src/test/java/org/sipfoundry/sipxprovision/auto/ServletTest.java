@@ -32,7 +32,7 @@ public class ServletTest extends TestCase {
 
     public void testExtractMac() {
 
-        assertEquals("c0ffee000000", Servlet.extractMac("/c0ffee000000", "/"));
+        assertEquals("c0ffee000000", Servlet.extractMac("/C0FFEE000000", "/"));
         assertEquals("c0ffee000000", Servlet.extractMac("/longer-c0ffee000000", "/longer-"));
 
         assertEquals(null, Servlet.extractMac("/c0ffee00000g", "/"));
@@ -77,6 +77,25 @@ public class ServletTest extends TestCase {
         assertEquals("3.1.3.0439", phone.version);
 
         // TODO - test case that includes Serial Number string in th UA header.
+    }
+
+    public void testExtractMacFromConfigurationFilePath() {
+        assertEquals("c0ffee000016", Servlet.extractMac("/c0ffee000016-sipx-sip.cfg", Servlet.POLYCOM_PATH_PREFIX));
+        assertEquals("002162ff374b", Servlet.extractMac("/Nortel/config/SIP002162FF374B.xml", Servlet.NORTEL_IP_12X0_PATH_PREFIX));
+
+        // XX-8437 Support auto-provisioning Avaya IP 1200 Remote Worker phones
+        assertEquals("002162ffb0ff", Servlet.extractMac("/phone/profile/tftproot/Nortel/config/SIP002162FFB0FF.xml",
+            Servlet.NORTEL_IP_12X0_PATH_PREFIX));
+    }
+
+    public void testIsNortelIp12x0ConfigurationFilePath() {
+        assertFalse(Servlet.isNortelIp12x0ConfigurationFilePath(""));
+        assertFalse(Servlet.isNortelIp12x0ConfigurationFilePath("not a good path"));
+        assertTrue(Servlet.isNortelIp12x0ConfigurationFilePath("/Nortel/config/SIP002162FFB0FF.xml"));
+
+        // XX-8437 Support auto-provisioning Avaya IP 1200 Remote Worker phones
+        String long_path = "/phone/profile/tftproot/Nortel/config/SIP002162FFB0FF.xml";
+        assertTrue(Servlet.isNortelIp12x0ConfigurationFilePath(long_path));
     }
 
     public void testExtractNortelIp12X0ModelAndVersion() {
