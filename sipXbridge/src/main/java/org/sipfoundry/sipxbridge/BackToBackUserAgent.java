@@ -1575,6 +1575,8 @@ public class BackToBackUserAgent implements Comparable {
              */
             Collection<Hop> addresses = new HashSet<Hop>();
             SipURI outboundRequestUri = (SipURI) incomingRequestUri.clone();
+            /* remove sipx-line-id to avoid confusing the other end in case he is a sipx too */
+             outboundRequestUri.removeParameter("sipxecs-lineid");                  
             /*
              * Determine next hop information for the re-originated request. If the inbound
              * request URI has a maddr param, use it. Otherwise look at the topmost Route header.
