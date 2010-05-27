@@ -17,9 +17,13 @@ import org.dom4j.DocumentException;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.jivesoftware.openfire.MessageRouter;
+import org.jivesoftware.openfire.PresenceManager;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.XMPPServerInfo;
 import org.jivesoftware.openfire.handler.PresenceUpdateHandler;
+import org.jivesoftware.openfire.user.User;
+import org.jivesoftware.openfire.user.UserManager;
+import org.jivesoftware.openfire.user.UserNotFoundException;
 import org.jivesoftware.openfire.vcard.VCardManager;
 import org.jivesoftware.util.Log;
 import org.xmpp.packet.Message;
@@ -130,11 +134,25 @@ public class ContactInfoHandlerImp implements ContactInfoHandler {
             Presence avatar = new Presence(rootElement);
 
             avatar.setFrom(aor);
+            
+            UserManager um = XMPPServer.getInstance().getUserManager();
+            User me = um.getUser(aor);
+            
+            PresenceManager pm = XMPPServer.getInstance().getPresenceManager();
+            Presence mypresence = pm.getPresence(me);                        
+            
+            avatar.setType(mypresence.getType());
+            avatar.setShow(mypresence.getShow());
+            avatar.setStatus(mypresence.getStatus());
+            
             avatar.setID(aor + "_presenceAvatar");
 
             return avatar;
         } catch (DocumentException e) {
             Log.error("In createPresenceAvatar, DocumentException " + e.getMessage());
+            return null;
+        } catch (UserNotFoundException e) {
+            Log.error("In createPresenceAvatar, UserNotFoundException for aor " + aor);
             return null;
         }
 
