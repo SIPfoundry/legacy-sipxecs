@@ -175,7 +175,7 @@ public class ContactInfoHandlerImp implements ContactInfoHandler {
         builder.append(getCurrentDate());
         builder.append("\n");
         builder.append("Detail: \n");
-        builder.append("--- User info is changed from server, please relogin to synchronize ---");
+        builder.append("--- User info has changed on the server; you MUST relogin to synchronize before modifying any of your profile information including avatar ---");
         msg.setBody(builder.toString());
 
         return msg;
