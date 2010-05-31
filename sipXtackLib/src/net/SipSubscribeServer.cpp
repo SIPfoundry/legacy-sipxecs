@@ -988,10 +988,23 @@ UtlBoolean SipSubscribeServer::handleSubscribe(const SipMessage& subscribeReques
                        if (OsSysLog::willLog(FAC_SIP, PRI_INFO))
                        {
                           UtlString requestContact;
+                          UtlString callId;
+                          int expires;
                           subscribeRequest.getContactField(0, requestContact);
-                          OsSysLog::add(FAC_SIP, PRI_INFO,
-                              "SipSubscribeServer::handleSubscribe: %s has set up subscription to %s, eventTypeKey %s",
-                              requestContact.data(), resourceId.data(), eventTypeKey.data());
+                          subscribeRequest.getCallIdField(&callId);
+                          subscribeResponse.getExpiresField(&expires);
+                          if (expires > 0)
+                          {
+                             OsSysLog::add(FAC_SIP, PRI_INFO,
+                                 "SipSubscribeServer::handleSubscribe: %s has set up subscription to %s, eventTypeKey %s, callId %s, expires %d",
+                                 requestContact.data(), resourceId.data(), eventTypeKey.data(), callId.data(), expires);
+                          }
+                          else
+                          {
+                             OsSysLog::add(FAC_SIP, PRI_INFO,
+                                 "SipSubscribeServer::handleSubscribe: %s has terminated subscription to %s, eventTypeKey %s, callId %s",
+                                 requestContact.data(), resourceId.data(), eventTypeKey.data(), callId.data());
+                          }
                        }
                     }
                     else
