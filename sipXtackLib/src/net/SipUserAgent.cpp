@@ -1163,7 +1163,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
     {
       // Only bother processing if the logs are enabled
       if (    isMessageLoggingEnabled() ||
-              OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_DEBUG))
+              OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
         {
           UtlString msgBytes;
           ssize_t msgLen;
@@ -1171,7 +1171,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
           msgBytes.insert(0, "No send address\n");
           msgBytes.append("--------------------END--------------------\n");
           logMessage(msgBytes.data(), msgBytes.length());
-          OsSysLog::add(FAC_SIP_OUTGOING, PRI_DEBUG, "%s", msgBytes.data());
+          OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
         }
       sentOk = FALSE;
     }
@@ -1217,7 +1217,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
 
   // Only bother processing if the logs are enabled
   if (    isMessageLoggingEnabled() ||
-          OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_DEBUG))
+          OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
     {
       ssize_t len;
       message->getBytes(&msgBytes, &len);
@@ -1226,7 +1226,7 @@ UtlBoolean SipUserAgent::sendUdp(SipMessage* message,
       logMessage(msgBytes.data(), msgBytes.length());
       if (msgBytes.length())
       {
-        OsSysLog::add(FAC_SIP_OUTGOING, PRI_DEBUG, "%s", msgBytes.data());
+        OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
       }
     }
 
@@ -1257,7 +1257,7 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
 
     // Don't bother processing unless the logs are enabled
     if (    isMessageLoggingEnabled() ||
-            OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_DEBUG))
+            OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
     {
         UtlString msgBytes;
         ssize_t msgLen;
@@ -1300,7 +1300,7 @@ UtlBoolean SipUserAgent::sendSymmetricUdp(SipMessage& message,
         }
 
         logMessage(msgBytes.data(), msgBytes.length());
-        OsSysLog::add(FAC_SIP_OUTGOING, PRI_DEBUG, "%s", msgBytes.data());
+        OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
     }
 
     return(sentOk);
@@ -1464,13 +1464,13 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     else if (*serverAddress == '\0')
     {
        if (isMessageLoggingEnabled() ||
-           OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_DEBUG))
+           OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
        {
           message->getBytes(&msgBytes, &len);
           msgBytes.insert(0, "No send address\n");
           msgBytes.append("--------------------END--------------------\n");
           logMessage(msgBytes.data(), msgBytes.length());
-          OsSysLog::add(FAC_SIP_OUTGOING, PRI_DEBUG, "%s", msgBytes.data());
+          OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
        }
        sendSucceeded = FALSE;
     }
@@ -1490,7 +1490,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
     }
 
     if (   isMessageLoggingEnabled()
-        || OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_DEBUG)
+        || OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO)
         )
     {
        message->getBytes(&msgBytes, &len);
@@ -1511,7 +1511,7 @@ UtlBoolean SipUserAgent::sendTcp(SipMessage* message,
        msgBytes.append("--------------------END--------------------\n");
 
        logMessage(msgBytes.data(), msgBytes.length());
-       OsSysLog::add(FAC_SIP_OUTGOING , PRI_DEBUG, "%s", msgBytes.data());
+       OsSysLog::add(FAC_SIP_OUTGOING , PRI_INFO, "%s", msgBytes.data());
     }
 
     return (sendSucceeded);
@@ -1541,13 +1541,13 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    else if(*serverAddress == '\0')
    {
       if (    isMessageLoggingEnabled() ||
-          OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_DEBUG))
+          OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
       {
          message->getBytes(&msgBytes, &len);
          msgBytes.insert(0, "No send address\n");
          msgBytes.append("--------------------END--------------------\n");
          logMessage(msgBytes.data(), msgBytes.length());
-         OsSysLog::add(FAC_SIP_OUTGOING, PRI_DEBUG, "%s", msgBytes.data());
+         OsSysLog::add(FAC_SIP_OUTGOING, PRI_INFO, "%s", msgBytes.data());
       }
       sendSucceeded = FALSE;
    }
@@ -1570,7 +1570,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
    }
 
    if (    isMessageLoggingEnabled() ||
-       OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_DEBUG))
+       OsSysLog::willLog(FAC_SIP_OUTGOING, PRI_INFO))
    {
       message->getBytes(&msgBytes, &len);
       messageStatusString.append("----Local Host:");
@@ -1590,7 +1590,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
       msgBytes.append("--------------------END--------------------\n");
 
       logMessage(msgBytes.data(), msgBytes.length());
-      OsSysLog::add(FAC_SIP_OUTGOING , PRI_DEBUG, "%s", msgBytes.data());
+      OsSysLog::add(FAC_SIP_OUTGOING , PRI_INFO, "%s", msgBytes.data());
    }
 
    return(sendSucceeded);
@@ -3522,7 +3522,7 @@ void SipUserAgent::setHostAliases(const UtlString& aliases)
             hostAlias.append(portString);
         }
 
-        OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipUserAgent::setHostAliases adding '%s'",
+        OsSysLog::add(FAC_SIP, PRI_INFO, "SipUserAgent::setHostAliases adding '%s'",
                       hostAlias.data());
 
         UtlString* newAlias = new UtlString(hostAlias);

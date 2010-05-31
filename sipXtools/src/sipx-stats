@@ -3,13 +3,13 @@
 $CurrentHour='';
 while(<>)
 {
-#    "2006-08-04T14:28:20.542522Z":42:INCOMING:DEBUG:sukothai.pingtel.com:SipClient-10:B777DBA0:SipProxy:"Read SIP message:\n----Remote Host:10.1.1.20---- Port: 53863----\nREGISTER sip:sukothai.pingtel.com SIP/2.0\r\nVia: SIP/2.0/TCP 10.1.1.20:53863;branch=z9hG4bK-20039ed44ec472a05c4034d33428068a\r\nTo: sip:222@sukothai.pingtel.com\r\nFrom: Sip Send <sip:sipsend@10.1.1.20>;tag=3e4776f6\r\nCall-ID: 85af55620b92196425cdd4f8c3289448@10.1.1.20\r\nCseq: 1 REGISTER\r\nMax-Forwards: 20\r\nUser-Agent: sipsend/0.02\r\nDate: Fri, 4 Aug 2006 14:28:20 GMT\r\nContent-Length: 0\r\n\r\n====================END====================\n"
+#    "2006-08-04T14:28:20.542522Z":42:INCOMING:INFO:sukothai.pingtel.com:SipClient-10:B777DBA0:SipProxy:"Read SIP message:\n----Remote Host:10.1.1.20---- Port: 53863----\nREGISTER sip:sukothai.pingtel.com SIP/2.0\r\nVia: SIP/2.0/TCP 10.1.1.20:53863;branch=z9hG4bK-20039ed44ec472a05c4034d33428068a\r\nTo: sip:222@sukothai.pingtel.com\r\nFrom: Sip Send <sip:sipsend@10.1.1.20>;tag=3e4776f6\r\nCall-ID: 85af55620b92196425cdd4f8c3289448@10.1.1.20\r\nCseq: 1 REGISTER\r\nMax-Forwards: 20\r\nUser-Agent: sipsend/0.02\r\nDate: Fri, 4 Aug 2006 14:28:20 GMT\r\nContent-Length: 0\r\n\r\n====================END====================\n"
 
     if ( m|^"(\d{4}-\d{2}-\d{2}T\d{2}):| ) # " get time stamp (through the hour)
     {
         &record($1);
 
-        if ( s|^.*:INCOMING:DEBUG:.*:SipClient-\d+:.*:\"Read SIP message:\\n----Remote Host:\d+\.\d+\.\d+\.\d+---- Port: \d+----\\n|| )
+        if ( s|^.*:INCOMING:INFO:.*:SipClient-\d+:.*:\"Read SIP message:\\n----Remote Host:\d+\.\d+\.\d+\.\d+---- Port: \d+----\\n|| )
         {
             &countMessage('first');
         }
