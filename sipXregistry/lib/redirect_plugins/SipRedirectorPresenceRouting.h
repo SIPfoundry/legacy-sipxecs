@@ -113,9 +113,9 @@ class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
 
    // created for unit testability
    RedirectPlugin::LookUpStatus
-   doLookUp(
-      const Url& toUrl,
-      ContactList& contactList);
+   doLookUp( const Url& requestUri,
+             const SipMessage& message,
+             ContactList& contactList );
 
    virtual const UtlString& name( void ) const;
 
@@ -138,6 +138,7 @@ class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
    bool mbRegisteredWithOpenfire;
 
   private:
+   void addContactToContactList( const UtlString& target, const Url& requestUri, const SipMessage& message, ContactList& contactList );
    void removeNonVoicemailContacts( ContactList& contactList );
    OsStatus startPresenceMonitorXmlRpcServer( void );
    OsStatus registerPresenceMonitorServerWithOpenfire(void );
