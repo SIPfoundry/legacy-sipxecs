@@ -19,6 +19,7 @@ import com.google.gwt.http.client.RequestBuilder;
 import com.google.gwt.http.client.RequestCallback;
 import com.google.gwt.http.client.RequestException;
 import com.google.gwt.http.client.Response;
+import com.google.gwt.http.client.URL;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONString;
 import com.google.gwt.user.client.Timer;
@@ -789,8 +790,8 @@ public class UserPhonebookSearch implements EntryPoint {
     private static void clickToCallRestCall(String number) {
         Map<Integer, String> errorStatuses = new HashMap<Integer, String>();
         errorStatuses.put(CLICK_TO_CALL_ERROR, s_searchConstants.invalidPhoneNumber());
-        HttpRequestBuilder.doPut("/sipxconfig/rest/my/call/" + number, null, CONTENT_TYPE, VARIANT, null,
-                errorStatuses);
+        HttpRequestBuilder.doPut("/sipxconfig/rest/my/call/" + URL.encodeComponent(number),
+                null, CONTENT_TYPE, VARIANT, null, errorStatuses);
     }
 
     /**
