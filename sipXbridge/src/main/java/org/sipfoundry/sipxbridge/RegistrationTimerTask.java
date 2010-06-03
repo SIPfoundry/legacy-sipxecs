@@ -35,8 +35,8 @@ public class RegistrationTimerTask extends TimerTask {
     public void run() {
 
         try {
-            Gateway.getRegistrationManager().sendRegister(itspAccount,callId,cseq+1);
             this.itspAccount.registrationTimerTask = null;
+            Gateway.getRegistrationManager().sendRegister(itspAccount,callId,cseq+1);
         } catch (Exception ex) {
             RegistrationTimerTask ttask = new RegistrationTimerTask(itspAccount, null, 1L);
             Gateway.getTimer().schedule(ttask, 60 * 1000);
