@@ -129,6 +129,8 @@ public class RegistrationManager {
                 .getURI();
         TransactionContext transactionContext = TransactionContext.get(ct);
         ItspAccountInfo itspAccount = transactionContext.getItspAccountInfo();
+        
+        RegistrationTimerTask ttask = null;
 
         if (!itspAccount.isRegisterOnInitialization() ) {
             /*
@@ -213,11 +215,11 @@ public class RegistrationManager {
             }
             if ( logger.isDebugEnabled() ) logger.debug("time = " + time + " Seconds ");
             if (time > 0) {
-                if (itspAccount.registrationTimerTask != null)
-                    itspAccount.registrationTimerTask.cancel();
+                if ((ttask = itspAccount.registrationTimerTask ) != null) ttask.cancel();
+                
                 String callId = SipUtilities.getCallId(response);
                 long cseq = SipUtilities.getSeqNumber(response);
-                TimerTask ttask = new RegistrationTimerTask(itspAccount,callId,cseq);
+                ttask = new RegistrationTimerTask(itspAccount,callId,cseq);
                 Gateway.getTimer().schedule(ttask, time * 1000);
             }
       } else {
@@ -235,10 +237,10 @@ public class RegistrationManager {
                 /*
                  * Retry the server again after 60 seconds.
                  */
-                if (itspAccount.registrationTimerTask == null) {
-                    TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
-                    Gateway.getTimer().schedule(ttask, 60 * 1000);
-                }
+                if ((ttask = itspAccount.registrationTimerTask ) != null) ttask.cancel();         
+                ttask = new RegistrationTimerTask(itspAccount,null,1L);
+                Gateway.getTimer().schedule(ttask, 60 * 1000);
+                
             } else if (response.getStatusCode() == Response.REQUEST_TIMEOUT) {
                 if (itspAccount.getSipKeepaliveMethod().equals("CR-LF")) {
                     itspAccount.stopCrLfTimerTask();
@@ -256,10 +258,12 @@ public class RegistrationManager {
                 /*
                  * Retry the server again after 60 seconds.
                  */
-                if (itspAccount.registrationTimerTask == null) {
-                    TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
-                    Gateway.getTimer().schedule(ttask, 60 * 1000);
-                }
+                
+                if ((ttask = itspAccount.registrationTimerTask) != null) ttask.cancel();
+              
+                ttask = new RegistrationTimerTask(itspAccount,null,1L);
+                Gateway.getTimer().schedule(ttask, 60 * 1000);
+               
             } else if (response.getStatusCode() / 100 == 5
                     || response.getStatusCode() / 100 == 6
                     || response.getStatusCode() / 100 == 4) {
@@ -279,10 +283,11 @@ public class RegistrationManager {
                 /*
                  * Retry the server again after 60 seconds.
                  */
-                if (itspAccount.registrationTimerTask == null) {
-                    TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
-                    Gateway.getTimer().schedule(ttask, 60 * 1000);
-                }
+                if ((ttask = itspAccount.registrationTimerTask) != null)  ttask.cancel();
+                       
+                ttask = new RegistrationTimerTask(itspAccount,null,1L);
+                Gateway.getTimer().schedule(ttask, 60 * 1000);
+               
             } else {
                 if (response.getStatusCode() != 100) {
                     logger
@@ -304,14 +309,16 @@ public class RegistrationManager {
         ItspAccountInfo itspAccount = ((TransactionContext) ctx
                 .getApplicationData()).getItspAccountInfo();
         /*
-         * Try again to register after 30 seconds ( maybe somebody pulled the
+         * Try again to register after 60 seconds ( maybe somebody pulled the
          * plug).
          */
-        if (itspAccount.registrationTimerTask == null) {
-            TimerTask ttask = new RegistrationTimerTask(itspAccount,null,1L);
-            Gateway.getTimer().schedule(ttask, 60 * 1000);
+        RegistrationTimerTask ttask;
+        if((ttask = itspAccount.registrationTimerTask) != null ) {
+            ttask.cancel();
         }
-        try {
+        ttask = new RegistrationTimerTask(itspAccount,null,1L);
+        Gateway.getTimer().schedule(ttask, 60 * 1000);
+         try {
             if (!itspAccount.isAlarmSent()) {
                 Gateway.getAlarmClient().raiseAlarm(
                         Gateway.SIPX_BRIDGE_OPERATION_TIMED_OUT,

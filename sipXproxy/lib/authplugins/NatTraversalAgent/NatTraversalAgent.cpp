@@ -412,10 +412,7 @@ void NatTraversalAgent::handleOutputMessage( SipMessage& message,
 
    if( mbNatTraversalFeatureEnabled )
    {
-      UtlString msgBytes;
-      ssize_t msgLen;
-      message.getBytes(&msgBytes, &msgLen);
-      OsSysLog::add(FAC_NAT, PRI_DEBUG, "handleOutputMessage considering %s", msgBytes.data() );
+      OsSysLog::add(FAC_NAT, PRI_DEBUG, "handleOutputMessage considering %s from %s:%u", message.getFirstHeaderLine(), address, port );
 
       // Check if the sipXecs is located behind a NAT.  If it is and the message
       // is going to a destination that is not on our local private subnet then

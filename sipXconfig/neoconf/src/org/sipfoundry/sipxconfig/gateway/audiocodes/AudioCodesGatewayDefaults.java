@@ -47,26 +47,34 @@ public class AudioCodesGatewayDefaults {
         m_defaults = defaults;
     }
 
-    /**
-     * We need to return "Cyclic ascendant(1)" for FXO gateway and "By phone number(0)" for FXO
-     * gateways.
-     */
-    @SettingEntry(path = "SIP_general/ChannelSelectMode")
-    public String getChannelSelecMode() {
-        if (m_fxoGateway != null) {
-            //
-            return CSMODE_CYCLICASCEND;
-        }
-        return CSMODE_DESTPHONE;
-    }
-
-    @SettingEntry(path = "SIP_Proxy_Registration/IsProxyUsed")
-    public boolean getIsProxyUsed() {
+    private boolean supportProxySet0() {
         if (m_fxoGateway != null) {
             DeviceVersion myVersion = m_fxoGateway.getDeviceVersion();
             return myVersion.isSupported(REL_USE_PROXYSET0);
         }
         return true;
+    }
+
+    /**
+     * We need to return "Cyclic ascendant(1)" for FXO gateways and
+     * "By phone number(0)" for FXS gateways.
+     */
+    @SettingEntry(path = "SIP_general/ChannelSelectMode")
+    public String getChannelSelecMode() {
+        if (m_fxoGateway != null) {
+            return CSMODE_CYCLICASCEND;
+        }
+        return CSMODE_DESTPHONE;
+    }
+
+    @SettingEntry(path = "SIP_general/EnableSemiAttendedTransfer")
+    public boolean getEnableSemiAttendedTransfer() {
+        return (m_fxsGateway != null);
+    }
+
+    @SettingEntry(path = "SIP_Proxy_Registration/IsProxyUsed")
+    public boolean getIsProxyUsed() {
+        return supportProxySet0();
     }
 
     @SettingEntry(path = "SIP_Proxy_Registration/SIPDestinationPort")
@@ -156,6 +164,14 @@ public class AudioCodesGatewayDefaults {
     @SettingEntry(path = "advanced_general/SAS/SASDefaultGatewayIP")
     public String getSasGatewayIP() {
         return m_fxoGateway.getAddress();
+    }
+
+    @SettingEntry(path = "advanced_general/SAS/SASProxySet")
+    public String getSasProxySet() {
+        if (supportProxySet0()) {
+            return OPTION_ZERO;
+        }
+        return OPTION_ONE;
     }
 
     @SettingEntry(path = "tel2ip-call-routing/tel-to-ip-normal/ProxyAddress")

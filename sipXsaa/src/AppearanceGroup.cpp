@@ -573,8 +573,6 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
       // Publish the content to the subscribe server.
       // Make a copy, because SipPublishContentMgr will own it.
       HttpBody* pHttpBody = new HttpBody(*(HttpBody*)lFullContent);
-      OsSysLog::add(FAC_SAA, PRI_INFO,
-            "AppearanceGroup::handleNotifyRequest outgoing NOTIFY body: %s", pHttpBody->getBytes());
 
       getAppearanceAgent()->getEventPublisher().publish(
             mSharedUser.data(),
@@ -591,8 +589,6 @@ void AppearanceGroup::publish(bool bSendFullContent, bool bSendPartialContent, S
       lContent->setState(STATE_PARTIAL);
       lContent->buildBody();
       HttpBody* pPartialBody = new HttpBody(*(HttpBody*)lContent);
-      OsSysLog::add(FAC_SAA, PRI_INFO,
-            "AppearanceGroup::handleNotifyRequest outgoing NOTIFY body: %s", pPartialBody->getBytes());
       getAppearanceAgent()->getEventPublisher().publish(
             mSharedUser.data(),
             DIALOG_SLA_EVENT_TYPE, //eventTypeKey

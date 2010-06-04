@@ -803,7 +803,7 @@ subnet %s netmask %s {\n\
    option domain-name           "%s";\n\
    option tftp-server-name      "%s";\n\
    option sip-servers-name      "%s:12000/cmcprov/login";\n\
-'  % (Subnet, NetMask, rangeStart, rangeEnd, Gateway, NetMask, DomainName, HostName, HostName)
+'  % (Subnet, NetMask, rangeStart, rangeEnd, Gateway, NetMask, DomainName, IpAddress, HostName)
 
         if ProvideDNS:
             dhcpdConf +='   option domain-name-servers   %s' % IpAddress

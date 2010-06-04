@@ -12,10 +12,13 @@
 // APPLICATION INCLUDES
 #include <utl/UtlRegex.h>
 #include <utl/UtlBool.h>
+#include "net/SipXauthIdentity.h"
 #include "net/XmlRpcRequest.h"
 #include "net/XmlRpcMethod.h"
 #include "net/XmlRpcDispatch.h"
 #include "net/XmlRpcResponse.h"
+#include "sipXecsService/SipXecsService.h"
+#include "sipXecsService/SharedSecret.h"
 #include "os/OsDateTime.h"
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
@@ -267,6 +270,14 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
                       mLogName.data(), presenceMonitorServerUrlAsString.data() );
         mLocalPresenceMonitorServerUrl.fromString( presenceMonitorServerUrlAsString );
     }
+
+    // read the domain configuration
+    OsConfigDb domainConfiguration;
+    domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
+   // get the shared secret for generating signatures
+    SharedSecret secret(domainConfiguration);
+    // Set secret for signing SipXauthIdentity
+    SipXauthIdentity::setSecret(secret.data());
 }
 
 // Initialize
@@ -321,40 +332,48 @@ SipRedirectorPresenceRouting::lookUp(
    // query the unified presence container to find out
    // the presence state of the called party.
 
-   Url toUrl;
-   UtlString userId;
-   UtlString authTypeDB;
-   UtlString passTokenDB;
-   message.getToUrl(toUrl);
+   UtlString realm;
+   UtlString authType;
 
-   // If the identity portion of the To header can be found in the
-   // identity column of the credentials database, then a request
-   // is to a local user, find out its presence state...
-   if(CredentialDB::getInstance()->getCredential(toUrl,
-                                                 mRealm,
-                                                 userId,
-                                                 passTokenDB,
-                                                 authTypeDB))
+   // If the request URI can be found in the identity column of the credentials
+   // database, then a request is to a local user, find out its presence state...
+   if( CredentialDB::getInstance()->isUriDefined( requestUri,
+                                                  realm,
+                                                  authType ) )
    {
-      rc = doLookUp( toUrl, contactList );
+      // If url param sipx-userforward = false, do not redirect...
+      UtlString disableForwarding;
+      requestUri.getUrlParameter("sipx-userforward", disableForwarding);
+      if (disableForwarding.compareTo("false", UtlString::ignoreCase) == 0)
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp user forwarding disabled by parameter",
+                       mLogName.data());
+      }
+      else
+      {
+         OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
+                       mLogName.data(), requestString.data());
+         rc = doLookUp( requestUri, message, contactList );
+      }
    }
    return rc;
 }
 
 RedirectPlugin::LookUpStatus
 SipRedirectorPresenceRouting::doLookUp(
-   const Url& toUrl,
+   const Url& requestUri,
+   const SipMessage& message,
    ContactList& contactList)
 {
    // check if we have unified presence info for this user
    const UnifiedPresence* pUp;
-   UtlString to;
+   UtlString identity;
    UtlString username;
-   toUrl.getIdentity( to );
-   toUrl.getUserId( username );
+   requestUri.getIdentity( identity );
+   requestUri.getUserId( username );
    OsSysLog::add(FAC_SIP, PRI_INFO, "%s::LookUpStatus is looking up '%s'",
-                                    mLogName.data(),to.data() );
-   pUp = UnifiedPresenceContainer::getInstance()->lookup( &to );
+                                    mLogName.data(),identity.data() );
+   pUp = UnifiedPresenceContainer::getInstance()->lookup( &identity );
 
    if( pUp )
    {
@@ -366,30 +385,30 @@ SipRedirectorPresenceRouting::doLookUp(
                                        "    XMPP presence: '%s'"
                                        "    Custom presence message: '%s'",
                                        mLogName.data(),
-                                       to.data(), pUp->getSipState().data(),
+                                       identity.data(), pUp->getSipState().data(),
                                        pUp->getXmppPresence().data(),
                                        pUp->getXmppStatusMessage().data() );
 
       // look for tel URI in the custom presence message
       RegEx telUri( TelUri );
       telUri.Search( pUp->getXmppStatusMessage().data() );
-      UtlString targetUri;
-      if( !mSipDomain.isNull() && telUri.MatchString( &targetUri, 1 ) )
+      UtlString target;
+      if( !mSipDomain.isNull() && telUri.MatchString( &target, 1 ) )
       {
          // prepend 'sip:', append the SIP domain and add resulting target as contact 
-         targetUri.insert( 0, "sip:" );
-         targetUri.append( '@' );
-         targetUri.append( mSipDomain );
-         contactList.add( targetUri, *this );
+         target.insert( 0, "sip:" );
+         target.append( '@' );
+         target.append( mSipDomain );
+         addContactToContactList( target, requestUri, message, contactList );
       }
       else
       {
          // no tel URI - look for a sip URI then
          RegEx sipUri( SipUri );
          sipUri.Search( pUp->getXmppStatusMessage().data() );
-         if( sipUri.MatchString( &targetUri, 1 ) )
+         if( sipUri.MatchString( &target, 1 ) )
          {
-           contactList.add( targetUri, *this );
+            addContactToContactList( target, requestUri, message, contactList );
          }
          else
          {
@@ -405,6 +424,21 @@ SipRedirectorPresenceRouting::doLookUp(
       }   
    }
    return RedirectPlugin::SUCCESS;
+}
+
+void SipRedirectorPresenceRouting::addContactToContactList( const UtlString& target,
+                                                            const Url& requestUri,
+                                                            const SipMessage& message,
+                                                            ContactList& contactList )
+{
+   UtlString requestIdentity;
+   requestUri.getIdentity( requestIdentity );
+   SipXauthIdentity authIdentity;
+   authIdentity.setIdentity( requestIdentity );
+   Url targetUri( target );
+   // Encode AuthIdentity into the URI
+   authIdentity.encodeUri(targetUri, message);
+   contactList.add( targetUri, *this );
 }
 
 void SipRedirectorPresenceRouting::removeNonVoicemailContacts( ContactList& contactList )

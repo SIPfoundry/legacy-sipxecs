@@ -43,10 +43,26 @@ class SipRedirectorPresenceRoutingTest : public CppUnit::TestCase,  public Dummy
 public:
    UnifiedPresenceContainer* pPresenceContainer;
    UnifiedPresence* pUp;
+   SipMessage* pDummySipMessage;
 
    SipRedirectorPresenceRoutingTest() :
       DummyPlugin("Dummy PlugIn")
    {
+      const char* message =
+         "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
+         "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
+         "From: bob <sip:601@example.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
+         "To: joseph <sip:dummy@example.com>\r\n"
+         "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
+         "Cseq: 1 INVITE\r\n"
+         "Max-Forwards: 19\r\n"
+         "Supported: replaces\r\n"
+         "User-Agent: LG-Nortel LIP 6804 v1.2.38sp SN/00405A187376\r\n"
+         "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
+         "Content-Length: 0\r\n"
+         "Via: SIP/2.0/UDP 192.168.1.101:5060;branch=z9hG4bK-3e635-f3b41fc-310ddca7;received=47.135.162.145;rport=14956\r\n"
+         "\r\n";
+      pDummySipMessage = new SipMessage(message, strlen(message));
    }
 
    UnifiedPresence* insertUnifiedPresenceEntry( void )
@@ -63,23 +79,8 @@ public:
    void removeVoicemailContactTop()
    {
        pUp = insertUnifiedPresenceEntry();
-       const char* message =
-          "INVITE sip:601@47.135.162.145:29544;x-sipX-privcontact=192.168.1.11%3A5060 SIP/2.0\r\n"
-          "Record-Route: <sip:192.168.0.2:5060;lr>\r\n"
-          "From: bob <sip:601@example.com>;tag=94bc25b8-c0a80165-13c4-3e635-37aa1989-3e635\r\n"
-          "To: joseph <sip:dummy@example.com>\r\n"
-          "Call-Id: 94bb2520-c0a80165-13c4-3e635-3ccd2971-3e635@rjolyscs2.ca.nortel.com\r\n"
-          "Cseq: 1 INVITE\r\n"
-          "Max-Forwards: 19\r\n"
-          "Supported: replaces\r\n"
-          "User-Agent: LG-Nortel LIP 6804 v1.2.38sp SN/00405A187376\r\n"
-          "Contact: <sip:602@47.135.162.145:14956;x-sipX-privcontact=192.168.1.101%3A5060>\r\n"
-          "Content-Length: 0\r\n"
-          "Via: SIP/2.0/UDP 192.168.1.101:5060;branch=z9hG4bK-3e635-f3b41fc-310ddca7;received=47.135.162.145;rport=14956\r\n"
-          "\r\n";
-      SipMessage dummySipMessage(message, strlen(message));
       Url toUrl;
-      dummySipMessage.getToUrl(toUrl);
+      pDummySipMessage->getToUrl(toUrl);
 
       pUp->setSipState("BUSY");
       pUp->setXmppStatusMessage("svsdvsdvsdvsvd");
@@ -98,6 +99,7 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
       UtlString tmpString;
@@ -126,6 +128,7 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
       UtlString tmpString;
@@ -154,6 +157,7 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
       UtlString tmpString;
@@ -181,6 +185,7 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
       UtlString tmpString;
@@ -208,6 +213,7 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
       UtlString tmpString;
@@ -236,13 +242,16 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
-      UtlString tmpString;
+      Url tmpUrl;
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
-      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:12345@bobnet.net", tmpString.data() );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpUrl ) == true );
+      UtlString tmpString;
+      tmpUrl.getIdentity( tmpString );
+      ASSERT_STR_EQUAL( "12345@bobnet.net", tmpString.data() );
    }
 
    void routeToTelUriMiddle1()
@@ -265,13 +274,16 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
-      UtlString tmpString;
+      Url tmpUrl;
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
-      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:+1234567890@bobnet.net", tmpString.data() );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpUrl ) == true );
+      UtlString tmpString;
+      tmpUrl.getIdentity( tmpString );
+      ASSERT_STR_EQUAL( "+1234567890@bobnet.net", tmpString.data() );
    }
 
    void routeToTelUriMiddle2()
@@ -294,13 +306,16 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
-      UtlString tmpString;
+      Url tmpUrl;
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
-      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:+1234567890@bobnet.net", tmpString.data() );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpUrl ) == true );
+      UtlString tmpString;
+      tmpUrl.getIdentity( tmpString );
+      ASSERT_STR_EQUAL( "+1234567890@bobnet.net", tmpString.data() );
    }
 
    void routeToTelUriEnd()
@@ -323,13 +338,16 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
-      UtlString tmpString;
+      Url tmpUrl;
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
-      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:+(800)-555-1212.1234@bobnet.net", tmpString.data() );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpUrl ) == true );
+      UtlString tmpString;
+      tmpUrl.getIdentity( tmpString );
+      ASSERT_STR_EQUAL( "+(800)-555-1212.1234@bobnet.net", tmpString.data() );
    }
 
    void routeToInvalidTelUris()
@@ -351,27 +369,27 @@ public:
       RedirectPlugin::LookUpStatus rc;
 
       pUp->setXmppStatusMessage("You can reach me at tel:+(800)-555-1212.1234@bobnet.net");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      rc = pluginUnderTest.doLookUp( toUrl, *pDummySipMessage, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
 
       pUp->setXmppStatusMessage("You can reach me at tel:+(800)-555-1212.1234#");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      rc = pluginUnderTest.doLookUp( toUrl, *pDummySipMessage, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
 
       pUp->setXmppStatusMessage("You can reach me at tel 1234;bob");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      rc = pluginUnderTest.doLookUp( toUrl, *pDummySipMessage, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
 
       pUp->setXmppStatusMessage("You can reach me at tel:1234/bob");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      rc = pluginUnderTest.doLookUp( toUrl, *pDummySipMessage, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
 
       pUp->setXmppStatusMessage("You can reach me at tel:1234a");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      rc = pluginUnderTest.doLookUp( toUrl, *pDummySipMessage, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
 
@@ -397,13 +415,16 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
-      UtlString tmpString;
+      Url tmpUrl;
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
-      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpUrl ) == true );
+      UtlString tmpString;
+      tmpUrl.getIdentity( tmpString );
+      ASSERT_STR_EQUAL( "bob@bobnet.net", tmpString.data() );
    }
 
    void routeToSipUriMiddle1()
@@ -426,13 +447,16 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
-      UtlString tmpString;
+      Url tmpUrl;
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
-      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpUrl ) == true );
+      UtlString tmpString;
+      tmpUrl.getIdentity( tmpString );
+      ASSERT_STR_EQUAL( "bob@bobnet.net", tmpString.data() );
    }
 
    void routeToSipUriMiddle2()
@@ -455,13 +479,16 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
-      UtlString tmpString;
+      Url tmpUrl;
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
-      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpUrl ) == true );
+      UtlString tmpString;
+      tmpUrl.getIdentity( tmpString );
+      ASSERT_STR_EQUAL( "bob@bobnet.net", tmpString.data() );
    }
 
    void routeToSipUriEnd()
@@ -484,13 +511,16 @@ public:
       RedirectPlugin::LookUpStatus rc;
       rc = pluginUnderTest.doLookUp(
             toUrl,
+            *pDummySipMessage,
             contactList );
 
-      UtlString tmpString;
+      Url tmpUrl;
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.entries() == 4 );
-      CPPUNIT_ASSERT( contactList.get( 3, tmpString ) == true );
-      ASSERT_STR_EQUAL( "sip:bob@bobnet.net", tmpString.data() );
+      CPPUNIT_ASSERT( contactList.get( 3, tmpUrl ) == true );
+      UtlString tmpString;
+      tmpUrl.getIdentity( tmpString );
+      ASSERT_STR_EQUAL( "bob@bobnet.net", tmpString.data() );
    }
 
    void routeToInvalidSipUris()
@@ -512,17 +542,17 @@ public:
       RedirectPlugin::LookUpStatus rc;
 
       pUp->setXmppStatusMessage("You can reach me at bob@bobnet.net");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      rc = pluginUnderTest.doLookUp( toUrl, *pDummySipMessage, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
 
       pUp->setXmppStatusMessage("You can reach me at sip:bobnet.net");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      rc = pluginUnderTest.doLookUp( toUrl, *pDummySipMessage, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
 
       pUp->setXmppStatusMessage("You can reach me at sip:bob");
-      rc = pluginUnderTest.doLookUp( toUrl, contactList );
+      rc = pluginUnderTest.doLookUp( toUrl, *pDummySipMessage, contactList );
       CPPUNIT_ASSERT( rc == RedirectPlugin::SUCCESS );
       CPPUNIT_ASSERT( contactList.wasListModified() == false );
    }

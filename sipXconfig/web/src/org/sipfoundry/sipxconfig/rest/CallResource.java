@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.rest;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import org.restlet.Context;
 import org.restlet.data.MediaType;
 import org.restlet.data.Method;
@@ -37,11 +40,15 @@ public class CallResource extends UserResource {
         super.init(context, request, response);
         String domain = m_domainManager.getDomain().getName();
         String to = (String) getRequest().getAttributes().get("to");
-        to = to.replaceAll("[\\[\\]\\(\\)\\.\\{\\}\\-]", "");
-        if (!to.isEmpty() && to.matches(VALID_PHONE_OR_SIP_URI)) {
-            m_from = getUser().getAddrSpec(domain);
-            m_to = SipUri.fix(to, domain);
-        } else {
+        try {
+            to = URLDecoder.decode(to, "UTF-8").replaceAll("[\\[\\]\\(\\)\\.\\{\\}\\-]", "");
+            if (!to.isEmpty() && to.matches(VALID_PHONE_OR_SIP_URI)) {
+                m_from = getUser().getAddrSpec(domain);
+                m_to = SipUri.fix(to, domain);
+            } else {
+                m_errorStatus = Status.CLIENT_ERROR_BAD_REQUEST;
+            }
+        } catch (UnsupportedEncodingException e) {
             m_errorStatus = Status.CLIENT_ERROR_BAD_REQUEST;
         }
 

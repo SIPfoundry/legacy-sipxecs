@@ -184,10 +184,12 @@ public class SipListenerImpl implements SipListenerExt {
                  * Try again to register after 10 minutes ( maybe somebody pulled the
                  * plug or is trying to reconfigure the system).
                  */
-                if (accountInfo.registrationTimerTask == null) {
-                    TimerTask ttask = new RegistrationTimerTask(accountInfo,null,1L);
-                    Gateway.getTimer().schedule(ttask, 10 * 60 * 1000);
-                }
+                TimerTask ttask = null;
+                if ( (ttask = accountInfo.registrationTimerTask) != null ) ttask.cancel();
+                
+                 ttask = new RegistrationTimerTask(accountInfo,null,1L);
+                 Gateway.getTimer().schedule(ttask, 10 * 60 * 1000);
+               
             }
             return;
 

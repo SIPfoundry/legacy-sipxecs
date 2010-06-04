@@ -130,7 +130,9 @@ databaseCommand() {
        echo "$CmdOut" | grep -v '^Unable to locate tools.jar' >&2
     fi
 
-    chown -R $RunningUser:$RunningUser ${MailstoreDir}
+    if [ -d "${MailstoreDir}" ]; then
+      chown -R $RunningUser:$RunningUser ${MailstoreDir}
+    fi
 }
 
 runningUserCheck() {
