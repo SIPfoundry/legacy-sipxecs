@@ -738,13 +738,13 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="AllowedIPs" advanced="yes" if="trunkGateway" unless="6.0orLater">
+    <setting name="AllowedIPs" advanced="yes" if="trunkGateway" unless="5.8orLater">
       <profileName>$$</profileName>
       <type>
         <string/>
       </type>
     </setting>
-    <setting name="AdditionalIPs" advanced="yes" if="6.0orLater" unless="fxs">
+    <setting name="AdditionalIPs" advanced="yes" if="5.8orLater" unless="fxs">
       <profileName>$$</profileName>
       <type>
         <string/>
@@ -976,7 +976,7 @@
       </setting>
     </group>
   </group>
-  <group name="ip2tel-call-routing" if="6.0orLater" unless="fxs">
+  <group name="ip2tel-call-routing" if="5.8orLater" unless="fxs">
     <setting name="RouteModeIP2Tel" advanced="yes">
       <type refid="route-mode-type"/>
       <value>1</value>
@@ -1012,7 +1012,7 @@
       </setting>
     </group>
   </group>
-  <group name="tel2ip-call-routing" if="6.0orLater" unless="fxs">
+  <group name="tel2ip-call-routing" if="5.8orLater" unless="fxs">
     <setting name="RouteModeTel2IP" advanced="yes">
       <type refid="route-mode-type"/>
       <value>1</value>

@@ -16,9 +16,10 @@ public class AudioCodesModelTest extends TestCase {
     public void testGetDeviceVersions() {
         DeviceVersion[] actualVersions = AudioCodesModel.getDeviceVersions();
         assertEquals("6.0", actualVersions[0].getVersionId());
-        assertEquals("5.6", actualVersions[1].getVersionId());
-        assertEquals("5.4", actualVersions[2].getVersionId());
-        assertEquals("5.2", actualVersions[3].getVersionId());
-        assertEquals("5.0", actualVersions[4].getVersionId());
+        assertEquals("5.8", actualVersions[1].getVersionId());
+        assertEquals("5.6", actualVersions[2].getVersionId());
+        assertEquals("5.4", actualVersions[3].getVersionId());
+        assertEquals("5.2", actualVersions[4].getVersionId());
+        assertEquals("5.0", actualVersions[5].getVersionId());
     }
 }
