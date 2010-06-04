@@ -33,6 +33,8 @@ public final class LuceneUtils {
             searcher.close();
         } catch (IOException e) {
             LOG.error(ERROR, e);
+        } catch (IllegalStateException e) {
+            LOG.error(ERROR, e);
         }
     }
 
@@ -44,6 +46,8 @@ public final class LuceneUtils {
             writer.close();
         } catch (IOException e) {
             LOG.error(ERROR, e);
+        } catch (IllegalStateException e) {
+            LOG.error(ERROR, e);
         }
     }
 
@@ -54,6 +58,8 @@ public final class LuceneUtils {
         try {
             reader.close();
         } catch (IOException e) {
+            LOG.error(ERROR, e);
+        } catch (IllegalStateException e) {
             LOG.error(ERROR, e);
         }
     }
