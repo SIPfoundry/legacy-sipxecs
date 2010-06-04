@@ -1,0 +1,224 @@
+## Velocity macros
+## emit comma separated list of values
+## works with arrays
+#macro(emit_csv_index $array $index $setting_names)
+#foreach ($sn in $setting_names)
+#if($velocityCount > 1),#end
+#set($s=$array.getSetting("$sn[$index]"))
+#if($s && $s.Value)$s.Value#else$ignore#end
+#end
+
+#end
+## Emits a parameter table.
+#macro(emit_parameter_table $s)
+#set($backslash = '\')
+#if($s.ProfileName && $s.ProfileName != '$ignore$' && $s.ProfileName != "CoderName")
+[$s.profileName]
+FORMAT ${s.profileName}_Index =#foreach ($name in $s.settingNames)#if ($velocityCount > 1),#end ${s.profileName}_$name#end;
+#foreach ($row in [1..$s.size])
+#set ($settingIndex = $velocityCount - 1)
+$s.profileName $settingIndex=#foreach ($name in $s.settingNames)#if ($velocityCount > 1), #end$s.getSetting($settingIndex, $name).value#end;
+#end
+[${backslash}${s.profileName}]
+#elseif($s.ProfileName == "CoderName")
+#set($codecs = $s.getTypedValue())
+[$s.profileName]
+FORMAT CoderName_Index = CoderName_Type;
+#foreach ($codec in $codecs)
+#set ($settingIndex = $velocityCount - 1)
+$s.profileName $settingIndex=${codec};
+#end
+[${backslash}${s.profileName}]
+#end
+#end
+;**************
+;** Ini File **
+;**************
+
+;generated from template by sipXconfig
+;------------------------------
+
+#foreach ($s in $flatSettings)
+#if($s.ProfileName != '$ignore$')
+#if($parameterTables.contains(${s.ProfileName}))
+#emit_parameter_table($s)
+#elseif($s.Leaf)
+#if(${s.Value})
+${s.ProfileName}=$!{s.Value}
+#if($s.ProfileName == "DHCPEnable")
+## Special handling for this parameter - inverse of the DHCPEnable setting
+#if ($s.Value == 0)
+BootPSelectiveEnable=1
+#else
+BootPSelectiveEnable=0
+#end
+#end
+#end
+#else
+
+[${s.ProfileName}]
+#end
+#end
+#end
+
+#if(${gateway.ModelDefinitions.contains("fxo")})
+[Trunks]
+TRUNKGROUP_1=1-${gateway.ports.size()},$!{firstDefaultCLID},0
+PSTNPREFIX=*,1,*,*,0
+TRUNKGROUPSETTINGS=1,1,255,$ignore
+
+## TargetOfChannel parameter table
+[TargetOfChannel]
+FORMAT TargetOfChannel_Index = TargetOfChannel_Destination, TargetOfChannel_Type;
+#foreach ($port in $gateway.ports)
+#set($port_id = $velocityCount - 1)
+#set($extension = $port.getSettingValue('Port/Extension'))
+#set($enable = $port.getSettingValue('Port/AutomaticDialing'))
+TargetOfChannel ${port_id} = ${extension}, ${enable};
+#end
+[\TargetOfChannel]
+#end
+#if(${gateway.ModelDefinitions.contains("digital")})
+[Trunks]
+#foreach ($port in $gateway.ports)
+#set($port_id = $velocityCount - 1)
+#set($trunk_id = $velocityCount)
+#set($firstDefaultCLID = $port.getSettingValue('Trunk/TrunkGroup_X_FirstPhoneNumber'))
+#set($prefix = $port.getSettingValue('Trunk/Prefix'))
+#set($minChannel = $port.getSettingValue('Trunk/MinChannel'))
+#set($maxChannel = $port.getSettingValue('Trunk/MaxChannel'))
+#set($csm = $port.getSettingValue('Trunk/ChannelSelectMode'))
+TRUNKGROUP_$trunk_id=${port_id}-${port_id}/${minChannel}-${maxChannel},$!{firstDefaultCLID},0
+TRUNKGROUPSETTINGS=${trunk_id},${csm},255,$ignore
+PSTNPREFIX=${prefix},${trunk_id},*,*,0
+#end
+
+#end
+## fxs parameters only
+#if(${gateway.ModelDefinitions.contains("fxs")})
+[Lines]
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount - 1)
+#set($trunk_id = $velocityCount)
+#set($settings = $line.Settings)
+#set($username = $line.getSettingValue('SIP/Authentication/Username'))
+#set($password = $line.getSettingValue('SIP/Authentication/Password'))
+TRUNKGROUP=${trunk_id}-${trunk_id},${username}
+#end
+
+[Authentication]
+FORMAT Authentication_Index = Authentication_UserId, Authentication_UserPassword;
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount - 1)
+#set($username = $line.getSettingValue('SIP/Authentication/Username'))
+#set($password = $line.getSettingValue('SIP/Authentication/Password'))
+Authentication $line_id = $username, ${password};
+#end
+[\Authentication]
+#end
+
+#if(${gateway.ModelDefinitions.contains("digital")})
+#foreach ($portSettings in $portFlatSettings)
+#set($port_id = $velocityCount - 1)
+; Parameters for trunk: $port_id
+#foreach ($s in $portSettings)
+#if($s.ProfileName != '$ignore$')
+#if($s.Leaf)
+#if(${s.Value})
+${s.ProfileName}_$port_id=$!{s.Value}
+#end
+#else
+
+[${s.ProfileName}_$port_id]
+#end
+#end
+#end
+
+#end
+#end
+
+## Start of trunkGateway parameters
+#if(${gateway.ModelDefinitions.contains("trunkGateway")})
+## Tel to IP Routing Table
+[ PREFIX ]
+FORMAT PREFIX_Index = PREFIX_DestinationPrefix, PREFIX_DestAddress, PREFIX_SourcePrefix, PREFIX_ProfileId, PREFIX_MeteringCode, PREFIX_DestPort, PREFIX_SrcIPGroupID, PREFIX_DestHostPrefix, PREFIX_DestIPGroupID, PREFIX_SrcHostPrefix, PREFIX_TransportType, PREFIX_SrcTrunkGroupID;
+#foreach ($route in $gateway.tel2iproutes)
+#set($table_idx = $velocityCount - 1)
+#set($route_id = $route.RouteId)
+PREFIX $table_idx = *, , *, 0, 255, 0, -1, , $route_id, , -1, -1;
+#end
+## Add any additional accepted IP addreses
+#if($additionalIPs)
+#foreach($ip in $additionalIPs)
+#set($extra_idx = $table_idx + $velocityCount)
+PREFIX $extra_idx = *, ${ip}, *, 1, 255, 0, -1, , , , -1, -1;
+#end
+#end
+[ \PREFIX ]
+
+## IP to Tel Destination Phone Number Manipulation Table
+[ NumberMapIp2Tel ]
+FORMAT NumberMapIp2Tel_Index = NumberMapIp2Tel_DestinationPrefix, NumberMapIp2Tel_SourcePrefix, NumberMapIp2Tel_SourceAddress, NumberMapIp2Tel_NumberType, NumberMapIp2Tel_NumberPlan, NumberMapIp2Tel_RemoveFromLeft, NumberMapIp2Tel_RemoveFromRight, NumberMapIp2Tel_LeaveFromRight, NumberMapIp2Tel_Prefix2Add, NumberMapIp2Tel_Suffix2Add, NumberMapIp2Tel_IsPresentationRestricted, NumberMapIp2Tel_SrcTrunkGroupID, NumberMapIp2Tel_SrcIPGroupID;
+#foreach ($route in $gateway.ip2telroutes)
+#set($route_id = $route.RouteId)
+#set($destprefix = $route.DestPrefix)
+#set($srcprefix = $route.SrcPrefix)
+#set($leftstrip = $route.DestLeftStrip)
+#set($rightstrip = $route.DestRightStrip)
+NumberMapIp2Tel $route_id = $destprefix, $srcprefix, *, 255, 255, $leftstrip, $rightstrip, 255, , , 255, -1, -1;
+#end
+[ \NumberMapIp2Tel ]
+
+## Tel to IP Destination Phone Number Manipulation Table
+[ NumberMapTel2Ip ]
+FORMAT NumberMapTel2Ip_Index = NumberMapTel2Ip_DestinationPrefix, NumberMapTel2Ip_SourcePrefix, NumberMapTel2Ip_SourceAddress, NumberMapTel2Ip_NumberType, NumberMapTel2Ip_NumberPlan, NumberMapTel2Ip_RemoveFromLeft, NumberMapTel2Ip_RemoveFromRight, NumberMapTel2Ip_LeaveFromRight, NumberMapTel2Ip_Prefix2Add, NumberMapTel2Ip_Suffix2Add, NumberMapTel2Ip_IsPresentationRestricted, NumberMapTel2Ip_SrcTrunkGroupID, NumberMapTel2Ip_SrcIPGroupID;
+#foreach ($route in $gateway.tel2iproutes)
+#set($route_id = $route.RouteId)
+#set($destprefix = $route.DestPrefix)
+#set($srcprefix = $route.SrcPrefix)
+#set($leftstrip = $route.DestLeftStrip)
+#set($rightstrip = $route.DestRightStrip)
+NumberMapTel2Ip $route_id = $destprefix, $srcprefix, *, 255, 255, $leftstrip, $rightstrip, 255, , , 255, -1, -1;
+#end
+[ \NumberMapTel2Ip ]
+
+## IP Group Table
+[ IPGroup ]
+FORMAT IPGroup_Index = IPGroup_Type, IPGroup_Description, IPGroup_ProxySetId, IPGroup_SIPGroupName, IPGroup_ContactUser, IPGroup_EnableSurvivability, IPGroup_ServingIPGroup, IPGroup_SipReRoutingMode, IPGroup_AlwaysUseRouteTable, IPGroup_RoutingMode, IPGroup_SRD, IPGroup_MediaRealm, IPGroup_ClassifyByProxySet, IPGroup_ProfileId;
+#foreach ($route in $gateway.tel2iproutes)
+#set($route_id = $route.RouteId)
+#set($description = $route.Description)
+IPGroup $route_id = 0, $description, $route_id, , , 0, -1, 0, 0, -1, 0, , 1, 0;
+#end
+[ \IPGroup ]
+
+## Proxy Sets Table (part 1)
+[ ProxyIp ]
+FORMAT ProxyIp_Index = ProxyIp_IpAddress, ProxyIp_TransportType, ProxyIp_ProxySetId;
+#foreach ($route in $gateway.tel2iproutes)
+#set($route_id = $route.RouteId)
+#set($proxy = $route.ProxyAddress)
+ProxyIp $route_id = $proxy, -1, $route_id;
+#end
+[ \ProxyIp ]
+
+## Proxy Sets Table (part 2)
+[ ProxySet ]
+FORMAT ProxySet_Index = ProxySet_EnableProxyKeepAlive, ProxySet_ProxyKeepAliveTime, ProxySet_ProxyLoadBalancingMethod, ProxySet_IsProxyHotSwap, ProxySet_SRD;
+#foreach ($route in $gateway.tel2iproutes)
+#set($route_id = $route.RouteId)
+#set($keepalive = $route.ProxyKeepalive)
+#set($keeptime = $route.ProxyKeeptime)
+#set($hotswap = $route.ProxyHotSwap)
+ProxySet $route_id = $keepalive, $keeptime, 0, $hotswap, 0;
+#end
+[ \ProxySet ]
+## end of trunkGateway parameters
+#end
+
+## parameters that are not configurable per gateway go here
+[IniFileOnlyParams]
+EnableLANWatchDog=1
+IdlePCMPattern=85
+LogoWidth=339
+## end of generated file

@@ -31,6 +31,7 @@ public abstract class AudioCodesGateway extends Gateway {
         "Media_RTP_RTPC/Telephony/FXSLoopCharacteristicsFilename";
     private static final String REL_5_4_OR_LATER = "5.4orLater";
     private static final String REL_5_6_OR_LATER = "5.6orLater";
+    private static final String REL_5_8_OR_LATER = "5.8orLater";
     private static final String REL_6_0_OR_LATER = "6.0orLater";
     private static final String REL_USE_PROXYSET0 = "useProxySet0";
     private static final String[] COPY_FILES = {CALL_PROGRESS_TONES_FILE, FXS_LOOP_CHARACTERISTICS_FILE};
@@ -70,11 +71,16 @@ public abstract class AudioCodesGateway extends Gateway {
             myVersion.addSupportedFeature(REL_USE_PROXYSET0);
             myVersion.addSupportedFeature(REL_5_4_OR_LATER);
             myVersion.addSupportedFeature(REL_5_6_OR_LATER);
-        } else if (myVersion == AudioCodesModel.REL_6_0) {
-            // Trunk gateways version 6.0 and later use Proxy Set 1 (Normal mode) and
+        } else if (myVersion == AudioCodesModel.REL_5_8) {
+            // Trunk gateways version 5.8 and later use Proxy Set 1 (Normal mode) and
             // Proxy Set 2 (Failover mode) rather than the default Proxy Set 0.
             myVersion.addSupportedFeature(REL_5_4_OR_LATER);
             myVersion.addSupportedFeature(REL_5_6_OR_LATER);
+            myVersion.addSupportedFeature(REL_5_8_OR_LATER);
+        } else if (myVersion == AudioCodesModel.REL_6_0) {
+            myVersion.addSupportedFeature(REL_5_4_OR_LATER);
+            myVersion.addSupportedFeature(REL_5_6_OR_LATER);
+            myVersion.addSupportedFeature(REL_5_8_OR_LATER);
             myVersion.addSupportedFeature(REL_6_0_OR_LATER);
         }
     }

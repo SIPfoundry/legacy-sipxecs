@@ -70,7 +70,8 @@ public class AudioCodesBRIGatewayTest extends TestCase {
         m_gateway.setSettingValue("SIP_general/REMOVECLIWHENRESTRICTED", "1");
         m_gateway.setSettingValue("SIP_coders/CoderName", "g711Alaw64k|g729");
         m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
-        if(AudioCodesModel.REL_6_0 == version) {
+        if((AudioCodesModel.REL_5_8 == version) ||
+           (AudioCodesModel.REL_6_0 == version)) {
             m_gateway.setSettingValue("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress", "10.10.10.50:5080");
         }
 
