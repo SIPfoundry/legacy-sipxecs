@@ -17,20 +17,22 @@ class SipxLoggerTest < Test::Unit::TestCase
   def setup
     @tempfile = Tempfile.new("SipxLoggerTest")
     @log = SipxLogger.new(@tempfile) 
+    @hostname = Socket.gethostname
+    @taskname = "main"
   end
   
   # Log a message.  The logged message should have the severity prefixed.
   def test_log
     @log.info('message in a keg')
     file = @tempfile.open
-    assert_match(/".*":INFO:message in a keg\n/, file.readline)
+    assert_match(/".*":2:CDR:INFO:#{@hostname}:#{@taskname}:00000000:cdr:\"message in a keg\"\n/, file.readline)
   end
   
   # Log a message using a block.  The logged message should have the severity prefixed.
   def test_log_with_block
     @log.fatal {'message in a klein bottle'}
     file = @tempfile.open
-    assert_match(/".*":CRIT:message in a klein bottle\n/, file.readline)
+    assert_match(/".*":3:CDR:CRIT:#{@hostname}:#{@taskname}:00000000:cdr:\"message in a klein bottle\"\n/, file.readline)
   end
   
 end
