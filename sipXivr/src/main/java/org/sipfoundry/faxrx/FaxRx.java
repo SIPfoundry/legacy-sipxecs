@@ -195,6 +195,7 @@ public class FaxRx {
             return;
         }
         
+        user.setLocale(m_loc.getLocale());
         m_mailbox = new Mailbox(user);  
         
         try {
