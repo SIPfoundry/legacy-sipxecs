@@ -16,6 +16,8 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/xmlrpc-common.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/xmlrpc-client.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/ws-commons-util.jar"/>
+	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar" sourcepath="SIPX_SRC_TOP/sipXopenfire"/>
 	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar" sourcepath="/SIPX_SRC_TOP/sipXcommons/src/main/java"/>
+	<classpathentry kind="src" path="/sipxcommons"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

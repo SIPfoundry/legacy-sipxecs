@@ -25,6 +25,7 @@ import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.conference.ConfRecordStatus;
 import org.sipfoundry.moh.Moh;
+import org.sipfoundry.faxrx.FaxRx;
 import org.sipfoundry.voicemail.Emailer;
 import org.sipfoundry.voicemail.ExtMailStore;
 import org.sipfoundry.voicemail.MailboxServlet;
@@ -150,6 +151,10 @@ public class SipXivr implements Runnable {
 		        	// Run VoiceMail
 		        	VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
 		        	app.run();
+                        } else if (action.equals("faxrx")) {
+                            // Run fax receive application
+                            FaxRx app = new FaxRx(s_config, m_fses, parameters);
+                            app.run() ;
 		        } else if (action.equals("moh")) {
 		            // Run Music On Hold
 		            Moh app = new Moh(s_config, m_fses, parameters);

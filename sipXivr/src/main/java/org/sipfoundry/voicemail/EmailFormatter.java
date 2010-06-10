@@ -57,7 +57,8 @@ public class EmailFormatter {
         default:
             return null;
         }
-        emf.init(ivrConfig, mailbox, vmessage);
+
+        emf.init(ivrConfig, mailbox, vmessage);        
         return emf;
     }
     
@@ -70,32 +71,21 @@ public class EmailFormatter {
      * @param mailbox
      * @param vmessage
      */
+    
     private void init(IvrConfiguration ivrConfig, Mailbox mailbox, VmMessage vmessage) {
+        
+        String fromDisplay = null;
+        Object[] args = new Object[15];
+        String fromUri = "";
+        String fromUser = "";
+        
         m_ivrConfig = ivrConfig;
         m_mailbox = mailbox;
-        m_vmMessage = vmessage;
+        
         Locale locale = m_mailbox.getUser().getLocale();
         if (locale == null) {
             locale = Locale.getDefault();
         }
-        String fromUri = m_vmMessage.getMessageDescriptor().getFromUri();
-        String fromUser = ValidUsersXML.getUserPart(fromUri);
-        String fromDisplay = ValidUsersXML.getDisplayPart(fromUri);
-        if (fromDisplay==null) {
-            fromDisplay = "";
-        }
-        
-        // Build original set of args
-        Object[] args = new Object[15];
-        args[ 0] = new Long(m_vmMessage.getDuration()*1000);    //  0 audio Duration in mS
-        args[ 1] = fromUri;                                     //  1 From URI
-        args[ 2] = fromUser;                                    //  2 From User Part (phone number, most likely)
-        args[ 3] = fromDisplay;                                 //  3 From Display Name
-        args[ 4] = String.format("%s/sipxconfig/mailbox/%s/inbox/", 
-                m_ivrConfig.getConfigUrl(),m_mailbox.getUser().getUserName());       
-                                                                //  4 Portal Link URL
-        args[ 5] = m_vmMessage.getMessageId();                  //  5 Message Id
-        args[ 6] = new Date(m_vmMessage.getTimestamp());        //  6 message timestamp
         
         try {
             // Look for "EmailFormats" most likely in an /etc/ path somewhere
@@ -104,7 +94,30 @@ public class EmailFormatter {
             // Use the built in one as a last resort
             m_bundle = ResourceBundle.getBundle(EMAIL_FORMATS_BUNDLE, locale);
         }
+
+        m_vmMessage = vmessage;
+
+        if(m_vmMessage != null) {
+            fromUri = m_vmMessage.getMessageDescriptor().getFromUri();
+            fromUser = ValidUsersXML.getUserPart(fromUri);
+            fromDisplay = ValidUsersXML.getDisplayPart(fromUri);
+            args[ 0] = new Long(m_vmMessage.getDuration()*1000);    //  0 audio Duration in mS
+            args[ 5] = m_vmMessage.getMessageId();                  //  5 Message Id
+            args[ 6] = new Date(m_vmMessage.getTimestamp());        //  6 message timestamp         
+        }
         
+        if (fromDisplay==null) {
+            fromDisplay = "";
+        }
+        
+        // Build original set of args
+       
+        args[ 1] = fromUri;                                     //  1 From URI
+        args[ 2] = fromUser;                                    //  2 From User Part (phone number, most likely)
+        args[ 3] = fromDisplay;                                 //  3 From Display Name
+        args[ 4] = String.format("%s/sipxconfig/mailbox/%s/inbox/", 
+                m_ivrConfig.getConfigUrl(),m_mailbox.getUser().getUserName());       
+                                                                //  4 Portal Link URL             
         // Using the existing args, add some more, recursively as they are defined with some of the above variables.
         args[ 7] = fmt("SenderName", args);                     //  7 Sender Name
         args[ 8] = fmt("SenderMailto", args);                   //  8 Sender mailto
