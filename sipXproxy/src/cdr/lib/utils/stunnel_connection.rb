@@ -68,6 +68,7 @@ verify = 2
 debug = #{@config.stunnel_debug}
 output = #{log_file}
 pid = #{pid_file}
+fips = no
 
 [Postgres-1]
 accept = #{@config.cse_hosts[1].port}
