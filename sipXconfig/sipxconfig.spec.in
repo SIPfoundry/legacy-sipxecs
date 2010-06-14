@@ -32,7 +32,7 @@ Requires: sipxpbx >= %version
 Requires: postgresql-server
 Requires: ruby
 Requires: rubygems
-Requires: sipx-jasperreports-deps
+Obsoletes: sipx-jasperreports-deps
 
 %if %{_vendor} == suse
 Requires: apache2-prefork

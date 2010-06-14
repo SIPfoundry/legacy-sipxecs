@@ -31,6 +31,11 @@
     <pathelement location="${commons-net.jar}" />
     <pathelement location="${commons-io.jar}" />
     <pathelement location="${xmlrpc.jar}" />
+    <pathelement location="${iText.jar}" />
+    <pathelement location="${poi.jar}" />
+    <pathelement location="${jcommon.jar}" />
+    <pathelement location="${jfreechart.jar}" />
+    <pathelement location="${jasperreports.jar}" />
     <pathelement location="${acegi-security.jar}" />
     <pathelement location="${xstream.jar}" />
     <pathelement location="${jettison.jar}" />
@@ -69,6 +74,11 @@
     <pathelement location="${cglib.jar}" />
     <pathelement location="${antlr.jar}" />
     <pathelement location="${jta.jar}" />
+    <pathelement location="${iText.jar}" />
+    <pathelement location="${poi.jar}" />
+    <pathelement location="${jcommon.jar}" />
+    <pathelement location="${jfreechart.jar}" />
+    <pathelement location="${jasperreports.jar}" />
     <pathelement location="${jdbc-driver.jar}" />
     <pathelement location="${odmg.jar}" />
     <pathelement location="${ehcache.jar}" />
@@ -230,6 +240,11 @@
       <fileset file="${velocity-tools-generic.jar}" />
       <fileset file="${commons-logging.jar}" />
       <fileset file="${servlet.jsp.jar}" />
+      <fileset file="${iText.jar}" />
+      <fileset file="${poi.jar}" />
+      <fileset file="${jcommon.jar}" />
+      <fileset file="${jfreechart.jar}" />
+      <fileset file="${jasperreports.jar}" />
       <fileset file="${jasper-compiler.jar}" />
       <fileset file="${jasper-runtime.jar}" />
       <fileset file="${c3p0.jar}" />

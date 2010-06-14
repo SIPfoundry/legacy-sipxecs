@@ -25,7 +25,6 @@ AC_TARGETS = \
 	ruby-dbi \
 	rubygems \
 	ruby-postgres \
-	sipx-jasperreports-deps \
 	sipx-openfire \
 	w3c-libwww \
 	xerces-c \
@@ -43,7 +42,7 @@ $(AC_TARGETS) :
 	$(MAKE) $@.bld
 
 # required on all platforms
-CUSTOM_PACKAGES = ruby-postgres ruby-dbi freeswitch sipx-jasperreports-deps
+CUSTOM_PACKAGES = ruby-postgres ruby-dbi freeswitch
 
 .PHONY: fc8
 fc8 : $(CUSTOM_PACKAGES) nsis cppunit xerces-c rubygems rrdtool
