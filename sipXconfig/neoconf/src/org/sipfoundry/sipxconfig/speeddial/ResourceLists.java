@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.im.ImAccount;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
@@ -126,6 +127,11 @@ public class ResourceLists extends XmlFile {
             if (speedDial == null) {
                 return;
             }
+            // don't add buttons if the user doesn't have "Subscribe to Presence" permission
+            if (!user.hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE)) {
+                return;
+            }
+
             List<Button> buttons = speedDial.getButtons();
             Element list = null;
             for (Button button : buttons) {

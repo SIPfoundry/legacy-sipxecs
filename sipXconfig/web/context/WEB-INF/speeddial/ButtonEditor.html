@@ -11,8 +11,12 @@
       displayName="ognl:container.messages.getMessage('label.number')" />
   </td>
   <td>
-    <span jwcid="blf@Checkbox"
-      value="ognl:button.blf" />
+	<span jwcid="@If" condition="ognl:subscribeToPresenceDisabled" renderTag="ognl:false">
+		<span jwcid="@Checkbox" value="ognl:false" disabled="ognl:true" />
+	</span>
+	<span jwcid="@Else" renderTag="ognl:false">
+		<span jwcid="blf@Checkbox" value="ognl:button.blf" />
+	</span>
   </td>
   <td>
     <a jwcid="linkDelete@LinkSubmit"

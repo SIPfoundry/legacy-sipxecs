@@ -19,6 +19,7 @@ import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
@@ -54,6 +55,10 @@ public abstract class SpeedDialPage extends UserBasePage {
 
     public abstract void setGroupSynced(boolean groupSynced);
 
+    public abstract boolean isSubscribeToPresenceDisabled();
+
+    public abstract void setSubscribeToPresenceDisabled(boolean subscribeToPresenceDisabled);
+
     @Override
     public void pageBeginRender(PageEvent event) {
         super.pageBeginRender(event);
@@ -68,6 +73,7 @@ public abstract class SpeedDialPage extends UserBasePage {
         setSpeedDial(speedDial);
         setSavedUserId(userId);
         setGroupSynced(!getSpeedDialManager().isSpeedDialDefinedForUserId(userId));
+        setSubscribeToPresenceDisabled(!getUser().hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE));
     }
 
     @EventListener(events = "onclick", targets = "groupSync")
