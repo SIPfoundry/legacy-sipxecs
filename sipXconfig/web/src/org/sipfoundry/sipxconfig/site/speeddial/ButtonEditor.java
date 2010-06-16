@@ -38,6 +38,9 @@ public abstract class ButtonEditor extends BaseComponent {
 
     public abstract void setMoveOffset(int offset);
 
+    @Parameter(required = true)
+    public abstract boolean isSubscribeToPresenceDisabled();
+
     public void up() {
         move(-1);
     }
