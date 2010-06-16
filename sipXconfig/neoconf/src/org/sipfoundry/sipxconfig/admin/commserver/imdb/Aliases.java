@@ -36,6 +36,7 @@ public class Aliases extends DataSetGenerator {
             Map<String, String> aliasItem = addItem(items);
             aliasItem.put("identity", alias.getIdentity());
             aliasItem.put("contact", alias.getContact());
+            aliasItem.put("relation", alias.getRelation());
         }
     }
 

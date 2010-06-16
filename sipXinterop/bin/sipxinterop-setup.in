@@ -381,7 +381,7 @@ if [ ${Feedback} = VERBOSE ]; then echo ""; fi
 if [ ${Feedback} = VERBOSE ]; then echo -n "Generate aliases "; fi
 cat <<EOF > @SIPX_DBDIR@/alias.xml
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<items type="alias" xmlns="http://www.sipfoundry.org/sipX/schema/xml/alias-00-00">
+<items type="alias" xmlns="http://www.sipfoundry.org/sipX/schema/xml/alias-00-01">
 EOF
 for gg in {10..99}; do # The 89 Groups
    cat <<EOF >> @SIPX_DBDIR@/alias.xml
@@ -392,6 +392,7 @@ EOF
    <item> 
       <identity>5${gg}0@${SIP_DOMAIN_NAME}</identity> 
       <contact>&lt;1${gg}${e}@${SIP_DOMAIN_NAME}&gt;;q=0.$((8 - ${e}))</contact>
+      <relation>interopconfig</relation>
    </item>
 EOF
    done
@@ -403,6 +404,7 @@ EOF
    <item> 
       <identity>6${gg}0@${SIP_DOMAIN_NAME}</identity> 
       <contact>&lt;1${gg}${e}@${SIP_DOMAIN_NAME}&gt;</contact>
+      <relation>interopconfig</relation>
    </item>
 EOF
    done
@@ -413,6 +415,7 @@ done
       <item>
          <identity>9000@${SIP_DOMAIN_NAME}</identity>
          <contact>sip:9000_1@${SIP_DOMAIN_NAME}</contact>
+         <relation>interopconfig</relation>
       </item>
 EOF
 for x in {1..21}; do # 21 hops
@@ -421,6 +424,7 @@ for x in {1..21}; do # 21 hops
       <item>
          <identity>9000_${x}@${SIP_DOMAIN_NAME}</identity>
          <contact>sip:9000_${next}@${SIP_DOMAIN_NAME}</contact>
+         <relation>interopconfig</relation>
       </item>
 EOF
 done

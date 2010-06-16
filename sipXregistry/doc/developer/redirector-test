@@ -127,28 +127,33 @@ cp $TMPDIR/registration.xml $SIPX_DBDIR/registration.xml
 # Set up the alias database.
 cat >$TMPDIR/alias.xml <<EOF
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<items type="alias" xmlns='http://www.sipfoundry.org/sipX/schema/xml/alias-00-00'>
+<items type="alias" xmlns='http://www.sipfoundry.org/sipX/schema/xml/alias-00-01'>
     <item>
         <identity>300@$SIPXCHANGE_DOMAIN_NAME</identity>
         <contact>&quot;Carol Roe&quot;&lt;sip:300alias@$SIPXCHANGE_DOMAIN_NAME&gt;</contact>
+        <relation>userforward</relation>
     </item>
     <item>
         <identity>600@$SIPXCHANGE_DOMAIN_NAME</identity>
         <contact>&lt;sip:600-1@$SIPXCHANGE_DOMAIN_NAME&gt;</contact>
+        <relation>userforward</relation>
     </item>
     <item>
         <identity>600@$SIPXCHANGE_DOMAIN_NAME</identity>
         <contact>&lt;sip:600-2@$SIPXCHANGE_DOMAIN_NAME&gt;</contact>
+        <relation>userforward</relation>
     </item>
     <!-- Make sure that one q field parameter uses "q" and one uses "Q",
          to test for case-insensitivity of processing routines. -->
     <item>
         <identity>600@$SIPXCHANGE_DOMAIN_NAME</identity>
         <contact>&lt;sip:600-3@$SIPXCHANGE_DOMAIN_NAME&gt;;q=0.8</contact>
+        <relation>userforward</relation>
     </item>
     <item>
         <identity>600@$SIPXCHANGE_DOMAIN_NAME</identity>
         <contact>&lt;sip:600-4@$SIPXCHANGE_DOMAIN_NAME&gt;;Q=0</contact>
+        <relation>userforward</relation>
     </item>
 </items>
 EOF

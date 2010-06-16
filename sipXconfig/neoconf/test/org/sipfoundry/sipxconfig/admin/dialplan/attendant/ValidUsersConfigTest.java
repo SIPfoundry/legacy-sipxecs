@@ -87,8 +87,8 @@ public class ValidUsersConfigTest extends TestCase {
         expect(domainManager.getDomain()).andReturn(domain).anyTimes();
         expect(domainManager.getAuthorizationRealm()).andReturn("example").anyTimes();
 
-        AliasMapping am1 = new AliasMapping("500@example.com", "sip:500@example.com");
-        AliasMapping am2 = new AliasMapping("501@example.com", "sip:501@example.com");
+        AliasMapping am1 = new AliasMapping("500@example.com", "sip:500@example.com", "test");
+        AliasMapping am2 = new AliasMapping("501@example.com", "sip:501@example.com", "test");
 
         AliasProvider aliasProvider = createMock(AliasProvider.class);
         expect(aliasProvider.getAliasMappings()).andReturn(Arrays.asList(am1, am2)).anyTimes();

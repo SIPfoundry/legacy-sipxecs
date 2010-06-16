@@ -33,10 +33,12 @@ class AliasRow
 public:
     const char* identity;    // this is the alias uri identity
     const char* contact;     // This is the link to the CredentialsDB (full URI)
+    const char* relation;    // The value of the 'relation' field.
 
     TYPE_DESCRIPTOR(
        (KEY(identity, INDEXED),
-        FIELD(contact)));
+        FIELD(contact),
+        FIELD(relation)));
 };
 
 #endif //ALIASROW_H

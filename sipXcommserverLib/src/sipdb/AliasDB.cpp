@@ -32,12 +32,13 @@ AliasDB* AliasDB::spInstance = NULL;
 OsMutex  AliasDB::sLockMutex (OsMutex::Q_FIFO);
 UtlString AliasDB::gIdentityKey("identity");
 UtlString AliasDB::gContactKey("contact");
+UtlString AliasDB::gRelationKey("relation");
 
 // The 'type' attribute of the top-level 'items' element.
 const UtlString AliasDB::sType("alias");
 
 // The XML namespace of the top-level 'items' element.
-const UtlString AliasDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/alias-00-00");
+const UtlString AliasDB::sXmlNamespace("http://www.sipfoundry.org/sipX/schema/xml/alias-00-01");
 
 /* ============================ CREATORS ================================== */
 
@@ -310,16 +311,25 @@ AliasDB::insertRow (const UtlHashMap& nvPairs)
 {
     // Note we do not need the identity object here
     // as it is inferred from the uri
-    UtlString identity, contact;
+    UtlString identity, contact, relation;
     identity = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gIdentityKey)));
     contact = *(dynamic_cast <UtlString*> (nvPairs.findValue(&gContactKey)));
-    return insertRow ( Url( identity ), Url( contact ) );
+    // For upward compatibility from the old alias format which has no
+    // <relation> value, if the relation value is not provided, use
+    // the null string:
+    UtlString* relationp = dynamic_cast <UtlString*> (nvPairs.findValue(&gRelationKey));
+    if (relationp)
+    {
+       relation = *relationp;
+    }
+    return insertRow ( Url( identity ), Url( contact ), relation );
 }
 
 UtlBoolean
 AliasDB::insertRow (
     const Url& identity,
     const Url& contact,
+    const UtlString& relation,
     bool updateContact )
 {
     UtlBoolean result = FALSE;
@@ -362,6 +372,7 @@ AliasDB::insertRow (
                 // Fill out the row columns
                 row.identity = identityStr;
                 row.contact = contactStr;
+                row.relation = relation;
                 insert (row);
             }
         } else // always insert
@@ -369,6 +380,7 @@ AliasDB::insertRow (
             // Fill out the row columns
             row.identity = identityStr;
             row.contact = contactStr;
+            row.relation = relation;
             insert (row);
         }
 
@@ -507,15 +519,20 @@ AliasDB::getContacts (
                     new UtlString ( cursor->identity );
                 UtlString* contactValue =
                     new UtlString ( cursor->contact );
+                UtlString* relationValue =
+                    new UtlString ( cursor->relation );
 
                 // Memory Leak fixes, make shallow copies of static keys
                 UtlString* identityKey = new UtlString( gIdentityKey );
                 UtlString* contactKey = new UtlString( gContactKey );
+                UtlString* relationKey = new UtlString( gRelationKey );
 
                 record.insertKeyAndValue (
                     identityKey, identityValue );
                 record.insertKeyAndValue (
                     contactKey, contactValue );
+                record.insertKeyAndValue (
+                    relationKey, relationValue );
 
                 rResultSet.addValue(record);
             } while ( cursor.next() );

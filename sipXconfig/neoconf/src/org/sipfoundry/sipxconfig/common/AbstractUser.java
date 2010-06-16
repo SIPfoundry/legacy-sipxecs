@@ -355,7 +355,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
             throw new RuntimeException("Found an empty alias for user " + m_userName);
         }
         final String identity = createUri(alias, domainName);
-        AliasMapping mapping = new AliasMapping(identity, contact);
+        AliasMapping mapping = new AliasMapping(identity, contact, "alias");
         return mapping;
     }
 

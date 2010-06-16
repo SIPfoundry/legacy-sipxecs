@@ -16,6 +16,9 @@
 #include "os/OsMutex.h"
 
 // DEFINES
+
+#define ALIASDB_RELATION_USERFORWARD "userforward"
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -62,6 +65,7 @@ public:
     UtlBoolean insertRow (
         const Url& aliasIdentity,
         const Url& contact,
+        const UtlString& relation,
         bool updateContact = FALSE);
 
     // Delete methods
@@ -109,6 +113,7 @@ protected:
     // ResultSet column Keys
     static UtlString gIdentityKey;
     static UtlString gContactKey;
+    static UtlString gRelationKey;
 
     // Fast DB instance
     dbDatabase* m_pFastDB;

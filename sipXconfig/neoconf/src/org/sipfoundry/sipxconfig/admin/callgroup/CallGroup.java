@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.User;
 
 public class CallGroup extends AbstractCallSequence implements NamedObject {
     private static final int SIP_PASSWORD_LEN = 10;
+    private static final String ALIAS_RELATION = "callgroup";
 
     private boolean m_enabled;
     private String m_name;
@@ -172,18 +173,20 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
                 }
                 String vmailContact = lastRing.calculateContact(domainName, forkQueueValue,
                         false, m_userForward, MappingRule.Voicemail.VM_PREFIX);
-                aliases.add(new AliasMapping(myIdentity, vmailContact));
+                aliases.add(new AliasMapping(myIdentity, vmailContact, ALIAS_RELATION));
             }
         } else if (StringUtils.isNotBlank(m_fallbackDestination)) {
             String falback = SipUri.fix(m_fallbackDestination, domainName);
             String fallbackContact = String
                     .format("<%s>;%s", falback, forkQueueValue.getSerial());
-            aliases.add(new AliasMapping(myIdentity, fallbackContact));
+            aliases.add(new AliasMapping(myIdentity, fallbackContact, ALIAS_RELATION));
         }
 
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
-            AliasMapping extensionAlias = new AliasMapping(AliasMapping.createUri(m_extension,
-                    domainName), myIdentity);
+            AliasMapping extensionAlias =
+                new AliasMapping(AliasMapping.createUri(m_extension, domainName),
+                                 myIdentity,
+                                 ALIAS_RELATION);
             aliases.add(extensionAlias);
         }
         return aliases;

@@ -8,25 +8,30 @@
   -      Betty Boop (in parallel), and then if those fail
   -      to Jane Doe.
   -->
-<items type="alias" xmlns='http://www.sipfoundry.org/sipX/schema/xml/alias-00-00'>
+<items type="alias" xmlns='http://www.sipfoundry.org/sipX/schema/xml/alias-00-01'>
     <item>
         <identity>301@example.org</identity>
         <contact>&quot;John Doe&quot;&lt;sip:john.doe@example.org&gt;</contact>
+        <relation>userforward</relation>
     </item>
     <item>
         <identity>302@example.org</identity>
         <contact>&quot;Jane Doe&quot;&lt;sip:jane.doe@example.org&gt;;q=0.5</contact>
+        <relation>userforward</relation>
     </item>
     <item>
         <identity>302@example.org</identity>
         <contact>&quot;Betty Boop&quot;&lt;sip:betty.boop@example.org&gt;;q=0.8</contact>
+        <relation>userforward</relation>
     </item>
     <item>
         <identity>302@example.org</identity>
         <contact>&quot;Bill Boop&quot;&lt;sip:bill.boop@example.org&gt;;q=0.8</contact>
+        <relation>userforward</relation>
     </item>
     <item>
         <identity>303@example.org</identity>
         <contact>&quot;John Doe&quot;&lt;sip:john.doe@example.org&gt;</contact>
+        <relation>userforward</relation>
     </item>
 </items>
