@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--  -->
+
+<project name="sipXacccode" default="jar" basedir="." >
+
+  <property name="project.dir" value="sipxacccode" />
+  <property name="debug" value="true"/>
+  <patternset id="test.classes" excludes="**"/>
+  <property name="build.dir" value="${top.build.dir}"/>
+  <import file="ant-targets.xml"/>
+
+  <path id="base.path" >
+    <pathelement location="${sipxcommons.jar}"/>
+    <pathelement location="${junit.jar}"/>
+    <pathelement location="${log4j.jar}"/>
+    <pathelement location="${dom4j.jar}"/>
+    <pathelement location="${commons-io.jar}"/>
+    <pathelement location="${jaxen.jar}"/>
+    <pathelement location="${commons-codec.jar}"/>
+    <pathelement location="${commons-logging.jar}"/>
+  </path>
+  <property name="classpath" refid="base.path" />
+
+
+  <!-- J A R -->
+  <target name="jar" depends="compile,manifest" description="create jar file">
+
+    <sipx-jar jarfile="${build.dir}/dist/sipXacccode.jar">
+      <fileset dir="${classes.dir}" >
+        <include name="**/*.class" />
+      </fileset>
+      <fileset dir="${src.dir}/src/main/java" >
+        <include name="**/*.properties" /> 
+      </fileset>
+    </sipx-jar>
+  </target>
+
+  <!--
+    -  I N S T A L L
+    -->
+  <target name="install">
+
+    <!-- BINARIES/LIB/SCRIPTS -->
+    <delete dir="${dest.dir}${sipxacccode.lib.dir}"/>
+    <mkdir dir="${dest.dir}${sipxacccode.lib.dir}"/>
+    <copy todir="${dest.dir}${sipxacccode.lib.dir}">
+       <fileset file="${build.dir}/dist/sipXacccode.jar"/>
+    </copy>
+
+  </target>
+
+  <target name="uninstall">
+    <delete file="${dest.dir}${bin.dir}/sipxacccode.sh"/>
+    <delete dir="${dest.dir}${sipxacccode.lib.dir}"/>
+  </target>
+
+</project>

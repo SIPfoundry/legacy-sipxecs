@@ -305,6 +305,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxivr/*
 %dir %{sipxpbxconf}/sipxproxy
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
+%dir %{sipxpbxconf}/sipxacccode
+%config(noreplace) %{sipxpbxconf}/sipxacccode/*
 %dir %{sipxpbxconf}/sipxregistrar
 %config(noreplace) %{sipxpbxconf}/sipxregistrar/*
 %dir %{sipxpbxconf}/sipxcallresolver

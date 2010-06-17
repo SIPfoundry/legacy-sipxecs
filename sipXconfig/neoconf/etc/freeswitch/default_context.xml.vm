@@ -18,4 +18,11 @@
       <action application="socket" data="${location.address}:8084 async full"/>
     </condition>
   </extension>
+#if ($authcode)
+  <extension name="AUTH">
+    <condition field="destination_number" expression="^AUTH${dollar}">
+      <action application="socket" data="${location.address}:8184 async full"/>
+    </condition>
+  </extension>
+#end
 </context>

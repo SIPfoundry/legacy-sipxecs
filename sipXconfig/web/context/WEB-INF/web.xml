@@ -11,6 +11,7 @@
     <param-name>contextConfigLocation</param-name>
     <param-value>
       classpath:/org/sipfoundry/sipxconfig/system.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/acccode/acccode.beans.xml
       classpath:/org/sipfoundry/sipxconfig/acd/acd.beans.xml
       classpath:/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml
       classpath:/org/sipfoundry/sipxconfig/admin/admin.beans.xml

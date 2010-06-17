@@ -10,6 +10,7 @@ package org.sipfoundry.sipxconfig.service.freeswitch;
 import java.util.Set;
 
 import org.apache.velocity.VelocityContext;
+import org.sipfoundry.sipxconfig.acccode.AccCodeContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Required;
 public class DefaultContextConfiguration extends SipxServiceConfiguration {
 
     private ConferenceBridgeContext m_conferenceContext;
+    private AccCodeContext m_acccodeContext;
 
     @Override
     protected VelocityContext setupContext(Location location) {
@@ -32,12 +34,21 @@ public class DefaultContextConfiguration extends SipxServiceConfiguration {
             Set conferences = bridge.getConferences();
             context.put("conferences", conferences);
         }
+        if (m_acccodeContext.isEnabled()) {
+            boolean authcodeActive = true;
+            context.put("authcode", authcodeActive);
+        }
         return context;
     }
 
     @Required
     public void setConferenceContext(ConferenceBridgeContext conferenceContext) {
         m_conferenceContext = conferenceContext;
+    }
+
+    @Required
+    public void setAccCodeContext(AccCodeContext accCodeContext) {
+        m_acccodeContext = accCodeContext;
     }
 
     @Override

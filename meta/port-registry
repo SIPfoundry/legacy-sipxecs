@@ -89,6 +89,8 @@ Port    Component         Use
 
 8130    sipXconfig        call resolver remote data
 
+8184    sipXacccode       Access Code - event_socket interface
+
 8185    sipXprovision     HTTP Auto-Provisioning Servlet
 
 8443    sipXconfig        SSL web UI

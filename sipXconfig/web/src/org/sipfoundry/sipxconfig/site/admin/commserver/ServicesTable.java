@@ -46,6 +46,7 @@ import org.sipfoundry.sipxconfig.components.ObjectSelectionModel;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
+import org.sipfoundry.sipxconfig.service.SipxAccCodeService;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
@@ -58,6 +59,7 @@ import org.sipfoundry.sipxconfig.site.acd.AcdServerPage;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
 import org.sipfoundry.sipxconfig.site.sbc.EditSbcDevice;
+import org.sipfoundry.sipxconfig.site.service.EditAccCodeService;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
 import org.sipfoundry.sipxconfig.site.service.EditSipxService;
@@ -73,6 +75,7 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put(SipxCallResolverService.BEAN_ID, EditCallResolverService.PAGE);
         SERVICE_MAP.put(SipxBridgeService.BEAN_ID, EditSbcDevice.PAGE);
         SERVICE_MAP.put(SipxAcdService.BEAN_ID, AcdServerPage.PAGE);
+        SERVICE_MAP.put(SipxAccCodeService.BEAN_ID, EditAccCodeService.PAGE);
     }
 
     @InjectObject("service:tapestry.ognl.ExpressionEvaluator")
