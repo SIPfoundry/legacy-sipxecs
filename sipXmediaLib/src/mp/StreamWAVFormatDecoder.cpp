@@ -35,7 +35,7 @@
 // Constructor
 StreamWAVFormatDecoder::StreamWAVFormatDecoder(StreamDataSource* pDataSource)
    : StreamQueueingFormatDecoder(pDataSource, 1600)
-   , OsTask("WAVDecoder-%d")
+   , OsTask("StreamWAVFormatDecoder-%d")
    , mSemExited(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
 }
