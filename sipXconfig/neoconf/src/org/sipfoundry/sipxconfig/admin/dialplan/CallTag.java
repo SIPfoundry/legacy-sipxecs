@@ -34,6 +34,7 @@ public enum CallTag {
     PARK("Park", "PARK"), // Park
     RPARK("Retrieve Park", "RPARK"), // Retrieve Park
     DPUP("Directed Pickup", "DPUP"), // Directed Pickup
+    AUTH("Authorization Code", "AUTH"), // Authorization Code
     UNK("Unknown", "UNK"); // unknown
 
     private String m_name;

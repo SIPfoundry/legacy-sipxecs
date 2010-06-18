@@ -46,6 +46,7 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     public static final Log LOG = LogFactory.getLog(MusicOnHoldManagerImpl.class);
 
     private static final String MOH = "moh";
+    private static final String ALIAS_RELATION = MOH;
 
     private SipxServiceManager m_sipxServiceManager;
     private String m_audioDirectory;
@@ -127,11 +128,11 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         }
 
         List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(1);
-        aliasMappings.add(new AliasMapping(getDefaultMohUri(), contact));
+        aliasMappings.add(new AliasMapping(getDefaultMohUri(), contact, ALIAS_RELATION));
 
-        aliasMappings.add(new AliasMapping(getLocalFilesMohUri(), getLocalFilesMohUriMapping()));
-        aliasMappings.add(new AliasMapping(getPortAudioMohUri(), getPortAudioMohUriMapping()));
-        aliasMappings.add(new AliasMapping(getNoneMohUri(), getNoneMohUriMapping()));
+        aliasMappings.add(new AliasMapping(getLocalFilesMohUri(), getLocalFilesMohUriMapping(), ALIAS_RELATION));
+        aliasMappings.add(new AliasMapping(getPortAudioMohUri(), getPortAudioMohUriMapping(), ALIAS_RELATION));
+        aliasMappings.add(new AliasMapping(getNoneMohUri(), getNoneMohUriMapping(), ALIAS_RELATION));
 
         return aliasMappings;
     }

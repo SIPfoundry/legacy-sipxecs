@@ -464,6 +464,32 @@
     </property>
   </bean>
 
+  <bean id="sipxAccCodeService" class="org.sipfoundry.sipxconfig.service.SipxAccCodeService" parent="sipxService" scope="prototype">
+      <property name="processName" value="sipXacccode" />
+      <property name="modelName" value="sipxacccode.xml" />
+      <property name="modelDir" value="sipxacccode" />
+      <property name="groupTitleEnabled" value="true" />
+      <property name="configurations">
+        <list>
+          <ref bean="sipxAccCodeConfiguration" />
+          <ref bean="authCodesConfig" />
+        </list>
+      </property>
+      <property name="promptsDir" value="${sysdir.vxml.prompts}" />
+      <property name="docDir" value="${sysdir.doc}" />
+      <property name="bundles">
+        <set>
+          <ref bean="voicemailBundle" />
+        </set>
+      </property>
+  </bean>
+
+  <bean id="sipxAccCodeConfiguration" class="org.sipfoundry.sipxconfig.service.SipxAccCodeConfiguration" scope="prototype"
+      parent="serviceConfigurationFile">
+      <property name="template" value="sipxacccode/sipxacccode.properties.vm" />
+      <property name="name" value="sipxacccode.properties" />
+  </bean>
+
   <bean id="phoneLogConfiguration" class="org.sipfoundry.sipxconfig.service.PhoneLogConfiguration" scope="prototype"
     parent="serviceConfigurationFile">
     <property name="template" value="sipxconfig/phonelog-config.vm" />
@@ -579,6 +605,7 @@
     <property name="template" value="freeswitch/default_context.xml.vm" />
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/dialplan" />
     <property name="conferenceContext" ref="conferenceBridgeContext" />
+    <property name="accCodeContext" ref="accCodeContext" />
   </bean>
 
   <bean id="sofiaConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.SofiaConfiguration"

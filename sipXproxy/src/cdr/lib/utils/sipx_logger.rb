@@ -54,10 +54,16 @@ class SipxLogger < Logger
   # trying to imitate sipx log file format
   class SipxFormatter
   
+    @@seqnum = 0
+    @@maxseqnum = (2 ** 32) - 1
+    @@hostname = Socket.gethostname
+    @@taskname = "main"
     def call(severity, time, progname, msg)
       sipx_severity = LOG_LEVEL_LOGGER_TO_SIPX[severity]
       time_str = time.utc.strftime("%Y-%m-%dT%H:%M:%S.") << "%06dZ" % time.usec
-      %Q<"#{time_str}":#{sipx_severity}:#{msg.chomp}\n>
+      @@seqnum = 0 if @@seqnum >= @@maxseqnum
+      @@seqnum = @@seqnum + 1
+      %Q<"#{time_str}":#{@@seqnum}:CDR:#{sipx_severity}:#{@@hostname}:#{@@taskname}:00000000:cdr:#{msg.chomp.dump}\n>
     end
 
   end

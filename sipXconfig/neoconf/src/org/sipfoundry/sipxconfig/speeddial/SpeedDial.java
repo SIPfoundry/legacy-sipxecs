@@ -10,6 +10,7 @@
 package org.sipfoundry.sipxconfig.speeddial;
 
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 /**
  * Collection of speeddial buttons associated with the user.
@@ -51,6 +52,10 @@ public class SpeedDial extends SpeedDialButtons {
      * If at least one button supports BLF we need to register this list as BLF
      */
     public boolean isBlf() {
+        if (m_user != null && !m_user.hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE)) {
+            return false;
+        }
+
         for (Button button : getButtons()) {
             if (button.isBlf()) {
                 return true;

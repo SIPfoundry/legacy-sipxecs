@@ -36,6 +36,9 @@ public abstract class SpeedDialPanel extends BaseComponent {
     @Parameter(required = false, defaultValue = "false")
     public abstract boolean isAddNumberLinkDisabled();
 
+    @Parameter(required = false, defaultValue = "false")
+    public abstract boolean isSubscribeToPresenceDisabled();
+
     public abstract void setSpeedDialGroup(SpeedDialGroup speedDialGroup);
 
     public abstract List<Button> getButtons();

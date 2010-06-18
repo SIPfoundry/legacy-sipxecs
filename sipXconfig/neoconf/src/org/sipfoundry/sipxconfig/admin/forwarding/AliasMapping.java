@@ -20,10 +20,13 @@ import org.apache.commons.lang.builder.ToStringBuilder;
  * 300      ->  sip:sales@kuku
  * sales    ->  sip:user-one@kuku
  * sales    ->  sip:user-two@kuku
+ * 'relation' gives the nature of the source of the mapping.
+ * See sipXregistry/meta/alias.xsd.in for valid values.
  */
 public class AliasMapping {
     private String m_identity;
     private String m_contact;
+    private String m_relation;
 
     public AliasMapping() {
         // empty default
@@ -32,10 +35,12 @@ public class AliasMapping {
     /**
      * @param identity
      * @param contact
+     * @param relation
      */
-    public AliasMapping(String identity, String contact) {
+    public AliasMapping(String identity, String contact, String relation) {
         this.m_identity = identity;
         this.m_contact = contact;
+        this.m_relation = relation;
     }
 
     public synchronized String getContact() {
@@ -54,10 +59,19 @@ public class AliasMapping {
         this.m_identity = identity;
     }
 
+    public synchronized String getRelation() {
+        return m_relation;
+    }
+
+    public synchronized void setRelation(String relation) {
+        this.m_relation = relation;
+    }
+
     public String toString() {
         ToStringBuilder builder = new ToStringBuilder(this);
         builder.append("identity", m_identity);
         builder.append("contact", m_contact);
+        builder.append("relation", m_relation);
         return builder.toString();
     }
 
@@ -72,11 +86,12 @@ public class AliasMapping {
         EqualsBuilder builder = new EqualsBuilder();
         builder.append(m_identity, rhs.m_identity);
         builder.append(m_contact, rhs.m_contact);
+        builder.append(m_relation, rhs.m_relation);
         return builder.isEquals();
     }
 
     public int hashCode() {
-        return new HashCodeBuilder().append(m_identity).append(m_contact).toHashCode();
+        return new HashCodeBuilder().append(m_identity).append(m_contact).append(m_relation).toHashCode();
     }
 
     public static String createUri(String user, String domain) {

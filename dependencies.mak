@@ -114,6 +114,10 @@ sipXsaa : sipXcommserverLib
 sipXopenfire : sipXcommons
 	@echo sipXopenfire
 
+.PHONY: sipXacccode
+sipXacccode : sipXcommons
+	@echo sipXacccode
+
 .PHONY: sipXrecording
 sipXrecording: sipXcommons sipXopenfire
 	@echo sipXrecording
@@ -138,6 +142,7 @@ sipXimbot : sipXrest sipXcommons sipXopenfire
 # List all components as dependencies of sipXecs, in alphabetical order.
 sipXecs : \
 	doc \
+	sipXacccode \
 	sipXacd \
 	sipXbridge \
 	sipXcallController \

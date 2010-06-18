@@ -45,6 +45,8 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public static final String MOH = "fs-conf-conference/MOH";
     public static final String MOH_SOUNDCARD_SOURCE = "SOUNDCARD_SRC";
 
+    private static final String ALIAS_RELATION = "conference";
+
     private boolean m_enabled;
 
     private String m_name;
@@ -266,7 +268,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
             // add extension mapping
             String extensionUri = AliasMapping.createUri(m_extension, domainName);
             String identityUri = SipUri.format(m_name, domainName, false);
-            AliasMapping extensionAlias = new AliasMapping(extensionUri, identityUri);
+            AliasMapping extensionAlias = new AliasMapping(extensionUri, identityUri, ALIAS_RELATION);
             aliases.add(extensionAlias);
         }
         aliases.add(createFreeSwitchAlias(domainName));
@@ -276,6 +278,6 @@ public class Conference extends BeanWithSettings implements NamedObject {
     private AliasMapping createFreeSwitchAlias(String domainName) {
         String freeswitchUri = getUri();
         String identity = AliasMapping.createUri(m_name, domainName);
-        return new AliasMapping(identity, freeswitchUri);
+        return new AliasMapping(identity, freeswitchUri, ALIAS_RELATION);
     }
 }

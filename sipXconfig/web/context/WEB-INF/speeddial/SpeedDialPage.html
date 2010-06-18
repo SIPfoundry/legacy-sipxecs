@@ -5,7 +5,10 @@
   <div jwcid="@common/OptionalElement" id="settings-content" element="ognl:(userSession.admin ? 'div' : null)">
     <!--  form jwcid="@tacos:AjaxForm" delegate="bean:validator" -->
     <form jwcid="speedDialForm@Form" delegate="bean:validator" listener="listener:onSubmit">
-      <fieldset jwcid="@speeddial/SpeedDialPanel" speedDial="ognl:speedDial" addNumberLinkDisabled="ognl:groupSynced"/>
+      <fieldset jwcid="@speeddial/SpeedDialPanel"
+				speedDial="ognl:speedDial"
+				addNumberLinkDisabled="ognl:groupSynced"
+				subscribeToPresenceDisabled="ognl:subscribeToPresenceDisabled"/>
       <fieldset>
         <table>
           <tr jwcid="@common/FieldPanel" for="item:groupSync" field="component:groupSync" label="message:label.groupSync"

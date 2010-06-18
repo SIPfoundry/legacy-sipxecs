@@ -19,6 +19,7 @@
         <value>classpath:/org/sipfoundry/sipxconfig/admin/commserver/commserver.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/mail/mail.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/alias/alias.beans.xml</value>
+        <value>classpath:/org/sipfoundry/sipxconfig/acccode/acccode.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/acd/acd.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/acd/stats/acdstats.beans.xml</value>
         <value>classpath:/org/sipfoundry/sipxconfig/admin/forwarding/forwarding.beans.xml</value>

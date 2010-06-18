@@ -254,7 +254,7 @@ function sudo_gem_install_and_check {
 }
 
 function return_sipxecs_installed_rpms {
-   echo `rpm -qa | grep sipx | grep -v freeswitch | grep -v jasperreports | grep -v openfire`
+   echo `rpm -qa | grep sipx | grep -v freeswitch | grep -v openfire`
 }
 
 function uninstall_sipxecs_rpms {
@@ -305,7 +305,7 @@ if [ -z "$SANDBOX_MODE" ]; then
 
    # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
    # Fedora 10/11 and CentOS 5.2.)
-   SIPFOUNDRY_BASE_DEPS="cppunit cppunit-devel ruby-dbi ruby-postgres sipx-jasperreports-deps sipx-openfire"
+   SIPFOUNDRY_BASE_DEPS="cppunit cppunit-devel ruby-dbi ruby-postgres sipx-openfire"
 
    # Dependencies that are required, but only available from SIPfoundry dependency RPMs.  (Applies to both
    # Fedora 10/11 and CentOS 5.2.)  But in the case of Fedora 10/11 these MUST be built locally.

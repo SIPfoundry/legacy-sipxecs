@@ -81,7 +81,7 @@ AC_DEFUN([CHECK_JAR],
 				SFAC_VAR_APPEND([CLASSPATH_BUILD],[$jar])
 			fi
 		],
-		[AC_MSG_ERROR([cannot find jar $2])]
+		[AC_MSG_ERROR([cannot find jar $2: '$JPACKAGE_FIND_JAR $2' failed])]
 	)
 ])
 
@@ -91,12 +91,3 @@ AC_DEFUN([CHECK_JUNIT],[CHECK_JAR([JUNIT_JAR],[junit],[CLASSPATH_BUILD])])
 
 AC_DEFUN([CHECK_JUNIT4],[CHECK_JAR([JUNIT4_JAR],[junit4],[CLASSPATH_BUILD])])
 
-# ======= J A S P E R - R E P O R T S =======
-AC_DEFUN([CHECK_SIPX_JASPER_REPORTS_DEPS],
-[
-	CHECK_JAR([JASPERREPORTS_JAR],[sipx-jasperreports-deps/jasperreports])
-	CHECK_JAR([ITEXT_JAR], [sipx-jasperreports-deps/itext])
-	CHECK_JAR([JAKARTA_POI_JAR], [sipx-jasperreports-deps/jakarta-poi])
-	CHECK_JAR([JFREECHART_JAR], [sipx-jasperreports-deps/jfreechart])
-	CHECK_JAR([JCOMMON_JAR], [sipx-jasperreports-deps/jcommon])
-])

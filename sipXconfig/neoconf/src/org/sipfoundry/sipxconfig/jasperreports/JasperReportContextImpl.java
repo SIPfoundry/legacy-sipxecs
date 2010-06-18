@@ -19,9 +19,9 @@ import net.sf.jasperreports.engine.JasperFillManager;
 import net.sf.jasperreports.engine.JasperPrint;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
 import net.sf.jasperreports.engine.export.JRCsvExporter;
-import net.sf.jasperreports.engine.export.JRHtmlExporter;
 import net.sf.jasperreports.engine.export.JRHtmlExporterParameter;
 import net.sf.jasperreports.engine.export.JRPdfExporter;
+import net.sf.jasperreports.engine.export.JRXhtmlExporter;
 import net.sf.jasperreports.engine.export.JRXlsExporter;
 
 import org.apache.commons.logging.Log;
@@ -58,7 +58,7 @@ public class JasperReportContextImpl extends HibernateDaoSupport implements Jasp
     }
 
     public void generateHtmlReport(JasperPrint jasperPrint, String htmlFile) {
-        JRHtmlExporter exporter = new JRHtmlExporter();
+        JRXhtmlExporter exporter = new JRXhtmlExporter();
         try {
             exporter.setParameter(JRExporterParameter.JASPER_PRINT, jasperPrint);
             exporter.setParameter(JRExporterParameter.OUTPUT_FILE_NAME, htmlFile);

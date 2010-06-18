@@ -140,7 +140,7 @@ public class AcdLine extends AcdComponent {
         String server = StringUtils.defaultIfEmpty(m_acdServer.getLocation().getFqdn(), "localhost");
         String contact = SipUri.format(getName(), server, m_acdServer.getSipPort());
 
-        aliases.add(new AliasMapping(identity, contact));
+        aliases.add(new AliasMapping(identity, contact, "acd"));
     }
 
     public Serializable getAcdServerId() {

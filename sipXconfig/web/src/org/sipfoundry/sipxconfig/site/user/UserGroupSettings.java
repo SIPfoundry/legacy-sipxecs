@@ -44,6 +44,8 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
 public abstract class UserGroupSettings extends GroupSettings {
     public static final String PAGE = "user/UserGroupSettings";
 
+    private static final String SEPARATOR = ",";
+
     private static final String SCHEDULES = "schedules";
     private static final String CONFERENCE = "conference";
     private static final String EXTCONTACT = "extcontact";
@@ -287,13 +289,18 @@ public abstract class UserGroupSettings extends GroupSettings {
         if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
             names.add("im_notification");
         }
-        return StringUtils.join(names, ",");
+        return StringUtils.join(names, SEPARATOR);
     }
 
     public String getSettingsToHide() {
+        List<String> names = new LinkedList<String>();
+
         if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
-            return "add-pa-to-group";
+            names.add("add-pa-to-group");
         }
-        return "";
+        if (getParentSettingName() != null && getParentSettingName().equals("permission")) {
+            names.add("subscribe-to-presence");
+        }
+        return StringUtils.join(names, SEPARATOR);
     }
 }

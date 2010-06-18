@@ -58,7 +58,7 @@ Requires: sipxpbx >= %version
 Requires: postgresql-server
 Requires: ruby
 Requires: rubygems
-Requires: sipx-jasperreports-deps
+Obsoletes: sipx-jasperreports-deps
 
 %if %{_vendor} == suse
 Requires: apache2-prefork
@@ -284,6 +284,7 @@ rm -rf $RPM_BUILD_ROOT
 %{sipxpbxconf}/acd/*
 %dir %{sipxpbxconf}/alarms
 %config(noreplace) %{sipxpbxconf}/alarms/*
+%dir %{sipxpbxconf}/audiocodes
 %config(noreplace) %{sipxpbxconf}/audiocodes/*
 %dir %{sipxpbxconf}/ciscoAta
 %config(noreplace) %{sipxpbxconf}/ciscoAta/*
@@ -298,6 +299,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/database/*
 %dir %{sipxpbxconf}/region_*
 %config %{sipxpbxconf}/region_*/*
+%dir %{sipxpbxconf}/grandstream
 %config(noreplace) %{sipxpbxconf}/grandstream/*
 %config(noreplace) %{sipxpbxconf}/gtek/*
 %config(noreplace) %{sipxpbxconf}/gtek-aq/*
@@ -314,6 +316,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{sipxpbxconf}/counterpath
 %config(noreplace) %{sipxpbxconf}/counterpath/*
 %config(noreplace) %{sipxpbxconf}/mitel/*
+%dir %{sipxpbxconf}/nattraversal
 %config(noreplace) %{sipxpbxconf}/nattraversal/*
 %dir %{sipxpbxconf}/nortel
 %{sipxpbxconf}/nortel/*
@@ -321,14 +324,23 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/nortel12x0/*
 %dir %{sipxpbxconf}/nt1535
 %{sipxpbxconf}/nt1535/*
+%dir %{sipxpbxconf}/sipxbridge
 %config(noreplace) %{sipxpbxconf}/sipxbridge/*
+%dir %{sipxpbxconf}/sipxconference
 %config(noreplace) %{sipxpbxconf}/sipxconference/*
 %dir %{sipxpbxconf}/sipxconfig
 %config(noreplace) %{sipxpbxconf}/sipxconfig/*
+%dir %{sipxpbxconf}/sipximbot
 %config(noreplace) %{sipxpbxconf}/sipximbot/*
+%dir %{sipxpbxconf}/scsimbot
 %config(noreplace) %{sipxpbxconf}/scsimbot/*
+%dir %{sipxpbxconf}/sipxivr
 %config(noreplace) %{sipxpbxconf}/sipxivr/*
+%dir %{sipxpbxconf}/sipxproxy
 %config(noreplace) %{sipxpbxconf}/sipxproxy/*
+%dir %{sipxpbxconf}/sipxacccode
+%config(noreplace) %{sipxpbxconf}/sipxacccode/*
+%dir %{sipxpbxconf}/sipxregistrar
 %config(noreplace) %{sipxpbxconf}/sipxregistrar/*
 %dir %{sipxpbxconf}/sipxcallresolver
 %config(noreplace) %{sipxpbxconf}/sipxcallresolver/*
@@ -342,6 +354,7 @@ rm -rf $RPM_BUILD_ROOT
 %{sipxpbxconf}/sipxpark/*
 %dir %{sipxpbxconf}/sipxpage
 %config(noreplace) %{sipxpbxconf}/sipxpage/*
+%dir %{sipxpbxconf}/sipxrecording
 %config(noreplace) %{sipxpbxconf}/sipxrecording/*
 %dir %{sipxpbxconf}/sipxrls
 %config(noreplace) %{sipxpbxconf}/sipxrls/*
@@ -349,10 +362,15 @@ rm -rf $RPM_BUILD_ROOT
 %{sipxpbxconf}/sipxvxml/*
 %config(noreplace) %{sipxpbxconf}/test.d/*
 %config(noreplace) %{sipxpbxconf}/unmanagedPhone/*
+%dir %{sipxpbxconf}/mailbox
 %config(noreplace) %{sipxpbxconf}/mailbox/*
+%dir %{sipxpbxconf}/sipxsaa
 %config(noreplace) %{sipxpbxconf}/sipxsaa/*
+%dir %{sipxpbxconf}/openfire
 %config(noreplace) %{sipxpbxconf}/openfire/*
+%dir %{sipxpbxconf}/sipxrest
 %config(noreplace) %{sipxpbxconf}/sipxrest/*
+%dir %{sipxpbxconf}/sipxprovision
 %config(noreplace) %{sipxpbxconf}/sipxprovision/*
 
 %define audiocodesdir %{_localstatedir}/sipxdata/audiocodes

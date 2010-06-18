@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.Set;
 import java.util.TreeSet;
 
+import org.sipfoundry.sipxconfig.acccode.AccCodeContext;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -75,8 +76,11 @@ public class DefaultContextConfigurationTest extends SipxServiceTestBase {
         configuration.setTemplate("freeswitch/default_context.xml.vm");
 
         ConferenceBridgeContext conferenceContext = createNiceMock(ConferenceBridgeContext.class);
+        AccCodeContext accCodeContext = createNiceMock(AccCodeContext.class);
         configuration.setConferenceContext(conferenceContext);
+        configuration.setAccCodeContext(accCodeContext);
         replay(conferenceContext);
+        replay(accCodeContext);
 
         assertCorrectFileGeneration(configuration, "default_context-no-conferences.test.xml");
 
@@ -93,8 +97,12 @@ public class DefaultContextConfigurationTest extends SipxServiceTestBase {
         ConferenceBridgeContext conferenceContext = createMock(ConferenceBridgeContext.class);
         expect(conferenceContext.getBridgeByServer("sipx.example.org")).andReturn(createBridge());
         replay(conferenceContext);
+        AccCodeContext accCodeContext = createMock(AccCodeContext.class);
+        expect(accCodeContext.isEnabled()).andReturn(false);
+        replay(accCodeContext);
 
         configuration.setConferenceContext(conferenceContext);
+        configuration.setAccCodeContext(accCodeContext);
 
         assertCorrectFileGeneration(configuration, "default_context.test.xml");
 

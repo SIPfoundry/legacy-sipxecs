@@ -73,7 +73,8 @@ public class AudioCodesFxoGatewayTest extends TestCase {
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_gateway);
 
         m_gateway.setSettingValue("Network/NTPServerIP", "10.10.10.40");
-        if(AudioCodesModel.REL_6_0 == version) {
+        if((AudioCodesModel.REL_5_8 == version) ||
+           (AudioCodesModel.REL_6_0 == version)) {
             m_gateway.setSettingValue("tel2ip-call-routing/tel-to-ip-failover/ProxyAddress", "10.10.10.50:5080");
         }
 

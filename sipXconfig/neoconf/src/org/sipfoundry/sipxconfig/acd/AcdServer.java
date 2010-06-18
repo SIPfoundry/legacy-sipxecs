@@ -196,6 +196,7 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
         AliasMapping mapping = new AliasMapping();
         mapping.setIdentity(AliasMapping.createUri(code, domainName));
         mapping.setContact(SipUri.format(code, getLocation().getFqdn(), port));
+        mapping.setRelation("acd");
         return mapping;
     }
 

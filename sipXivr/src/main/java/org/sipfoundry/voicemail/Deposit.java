@@ -22,9 +22,11 @@ import org.sipfoundry.callpilot.CpCmd.Command;
 import org.sipfoundry.commons.freeswitch.Collect;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
+import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.User.EmailFormats;
 import org.sipfoundry.sipxivr.GreetingType;
 import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
@@ -44,6 +46,7 @@ public class Deposit {
     private PersonalAttendant m_pa;
     private Greeting m_greeting;
     private Message m_message;
+    private EmailFormatter m_emf;
     
     // maps username to freeswitch channel UUID
     private static Map<String, String> m_depositMap = Collections.synchronizedMap(new HashMap<String, String>());
@@ -83,23 +86,23 @@ public class Deposit {
         m_depositMap.put(user.getUserName(), uuid);     
         
         sendIM(m_mailbox.getUser(), true, m_fses.getVariable("channel-caller-id-name") +
-               " (" + m_fses.getVariable("channel-caller-id-number") + ")" +        
-               " is leaving a voice message.");
+               " (" + m_fses.getVariable("channel-caller-id-number") + ") " +   
+               m_emf.fmt("leaving_msg"));
     }
     
     private void clearChannelUUID(User user) {
         if(m_depositMap.remove(user.getUserName()) != null) {
             
-            String description = " disconnected without leaving a voice message.";
+            String description = m_emf.fmt("did_not_leave_msg");
             if(m_message != null) {
                  
                 if(m_message.isToBeStored() && m_message.getDuration() > 1) {
-                    description = " just left a voice message.";
+                    description = m_emf.fmt("just_left_msg");
                 }
             }            
             
             sendIM(m_mailbox.getUser(), false, m_fses.getVariable("channel-caller-id-name") +
-                   " (" + m_fses.getVariable("channel-caller-id-number") + ")" +     
+                   " (" + m_fses.getVariable("channel-caller-id-number") + ") " +     
                    description);
         }
     }
@@ -112,6 +115,8 @@ public class Deposit {
         m_mailbox = vm.getMailbox();
         m_pa = m_mailbox.getPersonalAttendant();
         m_message = null;
+        m_emf = EmailFormatter.getEmailFormatter(EmailFormats.FORMAT_BRIEF, m_vm.getIvrConfig(), 
+                m_mailbox, null);
         
         String localeString = m_pa.getLanguage();
         if (localeString != null) {

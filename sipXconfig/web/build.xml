@@ -25,6 +25,11 @@
     <pathelement path="${tapestry-contrib.jar}"/>
     <pathelement path="${tapestry-annotations.jar}"/>
     <pathelement path="${ognl.jar}"/>
+    <pathelement path="${iText.jar}" />
+    <pathelement path="${poi.jar}" />
+    <pathelement path="${jcommon.jar}" />
+    <pathelement path="${jfreechart.jar}" />
+    <pathelement path="${jasperreports.jar}" />
     <pathelement path="${restlet.jar}"/>
     <pathelement path="${restlet-impl.jar}"/>
     <pathelement path="${restlet-servlet.jar}"/>
@@ -58,6 +63,11 @@
     <pathelement path="${dom4j.jar}"/>
     <pathelement path="${ehcache.jar}"/>
     <pathelement path="${jakarta-oro.jar}"/>
+    <pathelement path="${iText.jar}" />
+    <pathelement path="${poi.jar}" />
+    <pathelement path="${jcommon.jar}" />
+    <pathelement path="${jfreechart.jar}" />
+    <pathelement path="${jasperreports.jar}" />
     <pathelement path="${jasper-compiler.jar}"/>
     <pathelement path="${jasper-runtime.jar}"/>
     <pathelement path="${javassist.jar}"/>

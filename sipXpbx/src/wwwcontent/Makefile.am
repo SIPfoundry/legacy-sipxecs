@@ -252,11 +252,13 @@ wwwcontent = \
 	stdprompts/dist_list_invalid.wav \
 	stdprompts/e.wav \
 	stdprompts/end_of_messages.wav \
+	stdprompts/enter.wav \
 	stdprompts/enter_different_name.wav \
 	stdprompts/enter_new_passwd.wav \
 	stdprompts/enter_pin.wav \
 	stdprompts/enter_new_pin.wav \
 	stdprompts/enter_new_pin_again.wav \
+	stdprompts/error_hang_up.wav \
 	stdprompts/extd_abs_greeting_is.wav \
 	stdprompts/extd_abs_selected.wav \
 	stdprompts/extension.wav \
@@ -416,6 +418,7 @@ wwwcontent = \
 	stdprompts/standard_system_greeting_is.wav \
 	stdprompts/standard_system_greeting_selected.wav \
 	stdprompts/star.wav \
+	stdprompts/start.wav \
 	stdprompts/sunday.wav \
 	stdprompts/system_admin_options.wav \
 	stdprompts/system_error.wav \
@@ -500,6 +503,7 @@ wwwcontent = \
 	stdprompts/to_use_this_greeting.wav \
 	stdprompts/to_use_this_recording.wav \
 	stdprompts/today.wav \
+	stdprompts/tryagain.wav \
 	stdprompts/tuesday.wav \
 	stdprompts/u.wav \
 	stdprompts/unheard_msg.wav \

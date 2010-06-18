@@ -30,6 +30,8 @@ public final class DialingRuleType extends Enum {
     public static final DialingRuleType PAGING = new DialingRuleType("Paging", PagingRule.class, CallTag.PAGE);
     public static final DialingRuleType SITE_TO_SITE = new DialingRuleType("Site To Site",
             SiteToSiteDialingRule.class, CallTag.STS);
+    public static final DialingRuleType AUTHCODE = new DialingRuleType("Authorization Code",
+            AuthorizationCodeRule.class, CallTag.AUTH);
 
     private final Class< ? extends DialingRule> m_klass;
     private final CallTag m_callTag;

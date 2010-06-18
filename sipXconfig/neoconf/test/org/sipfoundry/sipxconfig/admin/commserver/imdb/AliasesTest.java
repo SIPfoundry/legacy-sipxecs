@@ -20,15 +20,15 @@ import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 public class AliasesTest extends TestCase {
     private final static String[][] DATA = {
         {
-            "301@example.org", "\"John Doe\"<sip:john.doe@example.org>"
+            "301@example.org", "\"John Doe\"<sip:john.doe@example.org>", "test"
         }, {
-            "302@example.org", "\"Jane Doe\"<sip:jane.doe@example.org>;q=0.5"
+            "302@example.org", "\"Jane Doe\"<sip:jane.doe@example.org>;q=0.5", "test"
         }, {
-            "302@example.org", "\"Betty Boop\"<sip:betty.boop@example.org>;q=0.8"
+            "302@example.org", "\"Betty Boop\"<sip:betty.boop@example.org>;q=0.8", "test"
         }, {
-            "302@example.org", "\"Bill Boop\"<sip:bill.boop@example.org>;q=0.8"
+            "302@example.org", "\"Bill Boop\"<sip:bill.boop@example.org>;q=0.8", "test"
         }, {
-            "303@example.org", "\"John Doe\"<sip:john.doe@example.org>"
+            "303@example.org", "\"John Doe\"<sip:john.doe@example.org>", "test"
         }
     };
 
@@ -45,6 +45,7 @@ public class AliasesTest extends TestCase {
             AliasMapping mapping = new AliasMapping();
             mapping.setIdentity(aliasRow[0]);
             mapping.setContact(aliasRow[1]);
+	    mapping.setRelation(aliasRow[2]);
             aliases.add(mapping);
         }
 
@@ -56,6 +57,7 @@ public class AliasesTest extends TestCase {
             String[] aliasRow = DATA[i];
             assertEquals(aliasRow[0], result.get(i).get("identity"));
             assertEquals(aliasRow[1], result.get(i).get("contact"));
+            assertEquals(aliasRow[2], result.get(i).get("relation"));
         }
     }
 }

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model 
+    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN" 
+    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <type id="loglevel">
+    <enum>
+      <option>
+        <value>DEBUG</value>
+      </option>
+      <option>
+        <value>INFO</value>
+      </option>
+      <option>
+        <value>NOTICE</value>
+      </option>
+      <option>
+        <value>WARNING</value>
+      </option>
+      <option>
+        <value>ERR</value>
+      </option>
+      <option>
+        <value>CRIT</value>
+      </option>
+      <option>
+        <value>ALERT</value>
+      </option>
+      <option>
+        <value>EMERG</value>
+      </option>
+    </enum>
+  </type>
+  <type id="feature-code">
+    <string>
+      <pattern>[0-9*#]+</pattern>
+    </string>
+  </type>
+  <type id="port-number">
+    <integer required="yes" min="1024" max="65534" />
+  </type>
+  <group name="authcode">
+    <setting name="SIP_AUTH_CODE_PREFIX">
+      <type refid="feature-code" />
+      <value>*81</value>
+    </setting>
+  </group>
+  <group name="acccode" hidden="yes">
+    <setting name="freeswitch.eventSocketPort" hidden="yes">
+      <type refid="port-number" />
+      <value>8184</value>
+    </setting>
+    <setting name="log.level" hidden="yes">
+      <type refid="loglevel" />
+      <value>NOTICE</value>
+    </setting>
+  </group>
+</model>

@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema
+	targetNamespace="http://www.sipfoundry.org/sipX/schema/xml/authcodes-00-00"
+	xmlns="http://www.w3.org/2001/XMLSchema"
+	xmlns:tns="http://www.sipfoundry.org/sipX/schema/xml/authcodes-00-00">
+
+	<element name="code" type="normalizedString">
+		<annotation>
+			<documentation>
+				The authorization code
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="authname" type="normalizedString">
+		<annotation>
+			<documentation>
+				The SIP Authenticated Name associated with the authorization code.
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="authpassword" type="normalizedString">
+		<annotation>
+			<documentation>
+				The SIP password for the SIP Authenticated Name
+			</documentation>
+		</annotation>
+	</element>
+
+	<element name="authcode">
+		<complexType>
+			<sequence>
+                <element ref="tns:authname" maxOccurs="1" minOccurs="1">
+				</element>
+                <element ref="tns:authpassword" maxOccurs="1" minOccurs="1">
+				</element>
+			</sequence>
+                        <attribute name="code" type="string" use="required"/>
+		</complexType>
+	</element>
+
+        <element name="authcodes">
+                <complexType>
+                        <sequence>
+                <element ref="tns:authcode" maxOccurs="unbounded" minOccurs="0">
+                               </element>
+                        </sequence>
+                </complexType>
+        </element>
+</schema>
