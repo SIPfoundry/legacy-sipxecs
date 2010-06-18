@@ -31,7 +31,28 @@ public enum Index {
     SERIAL_NUMBER("serialNumber", 8), MODEL_ID("modelId", 9), PHONE_GROUP("phoneGroupName", 10), PHONE_DESCRIPTION(
             "description", 11),
     // XMPP
-    IM_ID("imId", 12);
+    IM_ID("imId", 12),
+    JOB_TITLE("createdAddressBookEntry.jobTitle", 25),
+    JOB_DEPT("createdAddressBookEntry.jobDept", 25),
+    COMPANY_NAME("createdAddressBookEntry.companyName", 25),
+    ASSISTANT_NAME("createdAddressBookEntry.assistantName", 25),
+    CELL_PHONE_NUMBER("createdAddressBookEntry.cellPhoneNumber", 20),
+    HOME_PHONE_NUMBER("createdAddressBookEntry.homePhoneNumber", 20),
+    ASSISTANT_PHONE_NUMBER("createdAddressBookEntry.assistantPhoneNumber", 20),
+    FAX_NUMBER("createdAddressBookEntry.faxNumber", 20),
+    ALTERNATE_EMAIL("createdAddressBookEntry.alternateEmailAddress", 20),
+    ALTERNATE_IM_ID("createdAddressBookEntry.alternateImId", 12),
+    LOCATION("createdAddressBookEntry.location", 20),
+    HOME_STREET("createdAddressBookEntry.homeAddress.street", 20),
+    HOME_CITY("createdAddressBookEntry.homeAddress.city", 20),
+    HOME_STATE("createdAddressBookEntry.homeAddress.state", 20),
+    HOME_COUNTRY("createdAddressBookEntry.homeAddress.country", 20),
+    HOME_ZIP("createdAddressBookEntry.homeAddress.zip", 20),
+    OFFICE_STREET("createdAddressBookEntry.officeAddress.street", 20),
+    OFFICE_CITY("createdAddressBookEntry.officeAddress.city", 20),
+    OFFICE_STATE("createdAddressBookEntry.officeAddress.state", 20),
+    OFFICE_COUNTRY("createdAddressBookEntry.officeAddress.country", 20),
+    OFFICE_ZIP("createdAddressBookEntry.officeAddress.zip", 20);
 
     private final String m_name;
     private final int m_value;
@@ -102,7 +123,11 @@ public enum Index {
         return new String[] {
             "User name", "Voice-mail PIN", "SIP password", "First name", "Last name",
             "User alias", "EMail address", "User group", "Phone serial number", "Phone model",
-            "Phone group", "Phone description", "Im Id"
+            "Phone group", "Phone description", "Im Id", "Job Title", "Job department",
+            "Company name", "Assistant name", "Cell phone number", "Home phone number",
+            "Assistant phone number", "Fax number", "Alternate email", "Alternate im",
+            "Location", "Home street", "Home city", "Home state", "Home country", "Home zip",
+            "Office street", "Office city", "Office state", "Office country", "Office zip"
         };
     }
 }

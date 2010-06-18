@@ -1,5 +1,4 @@
 <div jwcis="$content$">
-<fieldset>
   <table>
     <tr jwcid="searchBasePanel">
       <input jwcid="searchBase" />
@@ -38,6 +37,204 @@
     <tr jwcid="imIdPanel">
       <input jwcid="imId" />
     </tr>
+    <tr jwcid="@common/FieldPanel" id="jobTitlePanel"
+    	for="user:jobTitle"
+        field="component:jobTitle"
+        label="message:label.jobTitle"
+        description="message:description.jobTitle">
+    	<input jwcid="jobTitle@PropertySelection" id="user:jobTitle", value="ognl:attrMap.attribute['createdAddressBookEntry.jobTitle']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.jobTitle"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="departmentPanel"
+    	for="user:department"
+        field="component:department"
+        label="message:label.department"
+        description="message:description.department">
+    	<input jwcid="department@PropertySelection" id="user:department", value="ognl:attrMap.attribute['createdAddressBookEntry.jobDept']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.department"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="companyNamePanel"
+    	for="user:companyName"
+        field="component:companyName"
+        label="message:label.companyName"
+        description="message:description.companyName">
+    	<input jwcid="companyName@PropertySelection" id="user:companyName", value="ognl:attrMap.attribute['createdAddressBookEntry.companyName']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.companyName"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="assistantNamePanel"
+    	for="user:assistantName"
+        field="component:assistantName"
+        label="message:label.assistantName"
+        description="message:description.assistantName">
+    	<input jwcid="assistantName@PropertySelection" id="user:assistantName", value="ognl:attrMap.attribute['createdAddressBookEntry.assistantName']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.assistantName"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="cellPhoneNumberPanel"
+    	for="user:cellPhoneNumber"
+        field="component:cellPhoneNumber"
+        label="message:label.cellPhoneNumber"
+        description="message:description.cellPhoneNumber">
+    	<input jwcid="cellPhoneNumber@PropertySelection" id="user:cellPhoneNumber", value="ognl:attrMap.attribute['createdAddressBookEntry.cellPhoneNumber']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.homePhoneNumber"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="homePhoneNumberPanel"
+    	for="user:homePhoneNumber"
+        field="component:homePhoneNumber"
+        label="message:label.homePhoneNumber"
+        description="message:description.homePhoneNumber">
+    	<input jwcid="homePhoneNumber@PropertySelection" id="user:homePhoneNumber", value="ognl:attrMap.attribute['createdAddressBookEntry.homePhoneNumber']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.homePhoneNumber"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="assistantPhoneNumberPanel"
+    	for="user:assistantPhoneNumber"
+        field="component:assistantPhoneNumber"
+        label="message:label.assistantPhoneNumber"
+        description="message:description.assistantPhoneNumber">
+    	<input jwcid="assistantPhoneNumber@PropertySelection" id="user:assistantPhoneNumber", value="ognl:attrMap.attribute['createdAddressBookEntry.assistantPhoneNumber']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.assistantPhoneNumber"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="faxNumberPanel"
+    	for="user:faxNumber"
+        field="component:faxNumber"
+        label="message:label.faxNumber"
+        description="message:description.faxNumber">
+    	<input jwcid="faxNumber@PropertySelection" id="user:faxNumber", value="ognl:attrMap.attribute['createdAddressBookEntry.faxNumber']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.faxNumber"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="alternateEmailPanel"
+    	for="user:alternateEmail"
+        field="component:alternateEmail"
+        label="message:label.alternateEmail"
+        description="message:description.alternateEmail">
+    	<input jwcid="alternateEmail@PropertySelection" id="user:alternateEmail", value="ognl:attrMap.attribute['createdAddressBookEntry.alternateEmailAddress']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.alternateEmail"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="alternateImIdPanel"
+    	for="user:alternateImId"
+        field="component:alternateImId"
+        label="message:label.alternateImId"
+        description="message:description.alternateImId">
+    	<input jwcid="alternateImId@PropertySelection" id="user:alternateImId", value="ognl:attrMap.attribute['createdAddressBookEntry.alternateImId']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.alternateImId"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="locationPanel"
+    	for="user:location"
+        field="component:location"
+        label="message:label.location"
+        description="message:description.location">
+    	<input jwcid="location@PropertySelection" id="user:location", value="ognl:attrMap.attribute['createdAddressBookEntry.location']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.location"/>
+    </tr>
+	<tr>
+  		<td>
+    		<b><span jwcid="@Insert" value="message:homeAddressTitle"/>
+  		</td>
+	</tr>     
+    <tr jwcid="@common/FieldPanel" id="homeStreetPanel"
+    	for="user:homeStreet"
+        field="component:homeStreet"
+        label="message:label.street"
+        description="message:description.street">
+    	<input jwcid="homeStreet@PropertySelection" id="user:homeStreet", value="ognl:attrMap.attribute['createdAddressBookEntry.homeAddress.street']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.street"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="homeCityPanel"
+    	for="user:homeCity"
+        field="component:homeCity"
+        label="message:label.city"
+        description="message:description.city">
+    	<input jwcid="homeCity@PropertySelection" id="user:homeCity", value="ognl:attrMap.attribute['createdAddressBookEntry.homeAddress.city']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.city"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="homeStatePanel"
+    	for="user:homeState"
+        field="component:homeState"
+        label="message:label.state"
+        description="message:description.state">
+    	<input jwcid="homeState@PropertySelection" id="user:homeState", value="ognl:attrMap.attribute['createdAddressBookEntry.homeAddress.state']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.state"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="homeCountryPanel"
+    	for="user:homeCountry"
+        field="component:homeCountry"
+        label="message:label.country"
+        description="message:description.country">
+    	<input jwcid="homeCountry@PropertySelection" id="user:homeCountry", value="ognl:attrMap.attribute['createdAddressBookEntry.homeAddress.country']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.country"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="homeCountryPanel"
+    	for="user:homeZip"
+        field="component:homeZip"
+        label="message:label.zip"
+        description="message:description.zip">
+    	<input jwcid="homeZip@PropertySelection" id="user:homeZip", value="ognl:attrMap.attribute['createdAddressBookEntry.homeAddress.zip']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.zip"/>
+    </tr>
+	<tr>
+  		<td>
+    		<b><span jwcid="@Insert" value="message:officeAddressTitle"/>
+  		</td>
+	</tr>     
+    <tr jwcid="@common/FieldPanel" id="officeStreetPanel"
+    	for="user:officeStreet"
+        field="component:officeStreet"
+        label="message:label.street"
+        description="message:description.street">
+    	<input jwcid="officeStreet@PropertySelection" id="user:officeStreet", value="ognl:attrMap.attribute['createdAddressBookEntry.officeAddress.street']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.street"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="officeCityPanel"
+    	for="user:officeCity"
+        field="component:officeCity"
+        label="message:label.city"
+        description="message:description.city">
+    	<input jwcid="officeCity@PropertySelection" id="user:officeCity", value="ognl:attrMap.attribute['createdAddressBookEntry.officeAddress.city']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.city"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="officeStatePanel"
+    	for="user:officeState"
+        field="component:officeState"
+        label="message:label.state"
+        description="message:description.state">
+    	<input jwcid="officeState@PropertySelection" id="user:officeState", value="ognl:attrMap.attribute['createdAddressBookEntry.officeAddress.state']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.state"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="officeCountryPanel"
+    	for="user:officeCountry"
+        field="component:officeCountry"
+        label="message:label.country"
+        description="message:description.country">
+    	<input jwcid="officeCountry@PropertySelection" id="user:officeCountry", value="ognl:attrMap.attribute['createdAddressBookEntry.officeAddress.country']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.country"/>
+    </tr>
+    <tr jwcid="@common/FieldPanel" id="officeCountryPanel"
+    	for="user:officeZip"
+        field="component:officeZip"
+        label="message:label.zip"
+        description="message:description.zip">
+    	<input jwcid="officeZip@PropertySelection" id="user:officeZip", value="ognl:attrMap.attribute['createdAddressBookEntry.officeAddress.zip']"
+    		model="ognl:attributesOptionalSelectionModel"
+    		displayName="message:label.zip"/>
+    </tr>    
   </table>
-</fieldset>
 </div>

@@ -43,7 +43,8 @@ public class ExportCsvTest extends TestCase {
         Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
         assertEquals(0, userIds.size());
         assertEquals(
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\"," +
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -99,7 +100,8 @@ public class ExportCsvTest extends TestCase {
         assertEquals(1, userIds.size());
         assertTrue(userIds.contains("jlennon"));
         assertEquals(
-                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"\n",
+                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"jlennon@gmail.com\",\"ug1 ug2 ug3\",\"665544332211\",\"testPhoneModel\",\"phonegroup1 phonegroup2 phonegroup3, phonegroup4\",\"phone description\",\"imId\"," +
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -126,7 +128,8 @@ public class ExportCsvTest extends TestCase {
         Collection<String> userIds = exportCsv.exportPhone(csv, phone, "example.org");
         assertEquals(0, userIds.size());
         assertEquals(
-                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\"\n",
+                "\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"665544332211\",\"testPhoneModel\",\"\",\"phone description\",\"\"" +
+                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 
@@ -146,7 +149,8 @@ public class ExportCsvTest extends TestCase {
 
         exportCsv.exportUser(csv, row, user, "example.org");
         assertEquals(
-                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
+                "\"jlennon\",\"example.org#b5032ad9a3aa310dc62bf140a6d8b36e\",\"sip_pass\",\"John\",\"Lennon\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"" +
+                ",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\"\n",
                 writer.toString());
     }
 }
