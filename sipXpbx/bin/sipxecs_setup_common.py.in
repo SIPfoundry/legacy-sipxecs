@@ -5,10 +5,12 @@
 # This is a common library for setup scripting
 #----------------------------------------------------------------------
 
-import os, commands, sys, re, time, traceback, glob, signal, snack, urllib, tarfile
+import os, commands, sys, re, time, traceback, glob, signal, snack, urllib, tarfile, locale
 
 from socket import gethostname, getfqdn, inet_ntoa, inet_aton
 from struct import pack
+
+import gettext
 
 # Globals
 
@@ -36,6 +38,17 @@ class sipxecsGlobals:
    NetcatCommand = 'nc'
    NtpServiceName = 'ntpd'
    NamedDirectory = '/var/named'
+   Language = os.environ.get('LANG', '')
+
+   def _(self, message):
+      ''' This special version of the function returns the built-in prompt if the lang
+          is US English; otherwise it uses the installed translation file.
+          It causes warnings when generating the Portable Object Template with pygettext.py
+          - ignore them.'''
+      if self.Language == 'en_US' :
+         return message
+      else :
+         return _(message)
 
    def __init(self):
       pass
@@ -65,6 +78,77 @@ DomainName = ''
 global SipDomain
 SipDomain = ''
 
+# These format functions come from the 2.5 version of the locale.py module.
+# The 2.4 version has only format, with a different signature.
+# Neither works on both platforms.
+# When we are sure that no supported platform is running python < 2.5,
+# the format2_5 and format_string2_5 functions can be removed, and the
+# references to format_string2_5 changed to locale.format_string.
+def format2_5(percent, value, grouping=False, monetary=False, *additional):
+    """Returns the locale-aware substitution of a %? specifier
+    (percent).
+
+    additional is for format strings which contain one or more
+    '*' modifiers."""
+    # this is only for one-percent-specifier strings and this should be checked
+    if percent[0] != '%':
+        raise ValueError("format() must be given exactly one %char "
+                         "format specifier")
+    if additional:
+        formatted = percent % ((value,) + additional)
+    else:
+        formatted = percent % value
+    # floats and decimal ints need special action!
+    if percent[-1] in 'eEfFgG':
+        seps = 0
+        parts = formatted.split('.')
+        if grouping:
+            parts[0], seps = _group(parts[0], monetary=monetary)
+        decimal_point = localeconv()[monetary and 'mon_decimal_point'
+                                              or 'decimal_point']
+        formatted = decimal_point.join(parts)
+        while seps:
+            sp = formatted.find(' ')
+            if sp == -1: break
+            formatted = formatted[:sp] + formatted[sp+1:]
+            seps -= 1
+    elif percent[-1] in 'diu':
+        if grouping:
+            formatted = _group(formatted, monetary=monetary)[0]
+    return formatted
+
+import re, operator
+_percent_re = re.compile(r'%(?:\((?P<key>.*?)\))?'
+                         r'(?P<modifiers>[-#0-9 +*.hlL]*?)[eEfFgGdiouxXcrs%]')
+
+# Note that the second parameter contains all the string parameters specified in one list:
+# e.g. format_string2_5("%s %s", ('one', 'two')) NOT format_string2_5("%s %s", 'one', 'two')
+def format_string2_5(f, val, grouping=False):
+    """Formats a string in the same way that the % formatting would use,
+    but takes the current locale into account.
+    Grouping is applied if the third parameter is true."""
+    percents = list(_percent_re.finditer(f))
+    new_f = _percent_re.sub('%s', f)
+
+    if isinstance(val, tuple):
+        new_val = list(val)
+        i = 0
+        for perc in percents:
+            starcount = perc.group('modifiers').count('*')
+            new_val[i] = format2_5(perc.group(), new_val[i], grouping, False, *new_val[i+1:i+1+starcount])
+            del new_val[i+1:i+1+starcount]
+            i += (1 + starcount)
+        val = tuple(new_val)
+    elif operator.isMappingType(val):
+        for perc in percents:
+            key = perc.group("key")
+            val[key] = format2_5(perc.group(), val[key], grouping)
+    else:
+        # val is a single value
+        val = format2_5(percents[0].group(), val, grouping)
+
+    return new_f % val
+
 # user identification
 def runningAsRoot() :
     global MyID
@@ -73,6 +157,41 @@ def runningAsRoot() :
         MyID = commands.getoutput('id -n -u')
 
     return MyID == 'root'
+
+def chooseLanguage() :
+   ''' Offer a list of all the language packs installed '''
+
+   supportedLanguages = ['en_US']
+   try:
+      for sipXecsLocale in os.listdir('@SIPX_DATADIR@/locale'):
+         if os.path.exists('@SIPX_DATADIR@/locale/' + sipXecsLocale + "/LC_MESSAGES/sipXecs.mo"):
+            supportedLanguages.append(sipXecsLocale)
+   except:
+      log_printout("No sipxecs locale directory: using built-in prompts")
+      return
+   if len(supportedLanguages) == 1:
+      log_printout("No languages installed: using built-in prompts")
+      return
+
+   DEFAULT_LANGUAGE=os.environ.get('LANG', '')
+
+   list=snack.Listbox(10,1,1,32)
+   for lang in supportedLanguages : list.append(lang,'%s'%lang)
+   if supportedLanguages.count(DEFAULT_LANGUAGE) != 0:
+        list.setCurrent(DEFAULT_LANGUAGE)
+
+   f = screen_setup(sipxecsGlobals()._("Set Language"), _('Select your language.'), list)
+   sipxecsGlobals.Language = f.run().current()
+   log_printout("Language set to " + sipxecsGlobals.Language)
+   locale.setlocale(locale.LC_ALL, sipxecsGlobals.Language)
+
+   # If the chosen language is US English, we go with the built-in prompts.
+   # Otherwise load a translation file.
+   if sipxecsGlobals.Language != 'en_US' :
+      lang = gettext.translation('sipXecs', localedir='@SIPX_DATADIR@/locale', languages=[sipxecsGlobals.Language])
+      lang.install()
+
+   screen_end()
 
 def checkSystemType () :
     ''' Update filenames and commands to reflect current system.
@@ -120,6 +239,7 @@ def log_init ():
     if setupScriptName.find("/") > -1 :
         setupScriptName = os.path.basename(setupScriptName)
     fout=open(SIPX_SETUP_LOG,"w")
+    os.system('chown @SIPXPBXUSER@:@SIPXPBXUSER@ ' + SIPX_SETUP_LOG)
 
 def log_printout (outString):
     global fout
@@ -182,6 +302,7 @@ def page_setup (explainMsg):
     layout.setField(progressbar, 0, 2, (1,1,1,1))
 
     layout.setField(stepmsg, 0, 3)
+    screen.pushHelpLine(sipxecsGlobals()._("<Tab> between elements   |  <Space>/<Enter> selects"))
 
     return layout
 
@@ -211,16 +332,16 @@ def screen_finish () :
     global screen
     screen.finish()
 
-def screen_err (errorMessage,buttonLabel="Redo"):
+def screen_err (errorMessage,buttonLabel=sipxecsGlobals()._("Redo")):
     global explain
 
     button=snack.Button(buttonLabel)
-    form = screen_setup("Error", errorMessage, button)
+    form = screen_setup(sipxecsGlobals()._("Error"), errorMessage, button)
 
     form.run()
     screen_end()
 
-def screen_msg (message,buttonLabel="Ok"):
+def screen_msg (message,buttonLabel=sipxecsGlobals()._("OK")):
     global explain
 
     button=snack.Button(buttonLabel)
@@ -249,7 +370,7 @@ def cleanExit () :
 # error handling
 def abortMsgAndExit (outString):
     log_printout (outString)
-    screen_err(outString, "Abort")
+    screen_err(outString, sipxecsGlobals()._("Abort"))
     cleanExit()
 
 # progress screen
@@ -299,18 +420,18 @@ def screen_ask_first ():
 
     global isFirstSystem
 
-    SystemTypeMessage ="\
-Is this the first @SIPXECS_NAME@ server for this domain ? \n\
-"
+    SystemTypeMessage = format_string2_5( sipxecsGlobals()._("\
+Is this the first %s server for this domain ? \n\
+"), '@SIPXECS_NAME@')
     grid = snack.Grid(2, 1)
 
-    firstButton = snack.Button("First Server")
+    firstButton = snack.Button(sipxecsGlobals()._("First Server"))
     grid.setField(firstButton, 0, 0, (1,0,1,1))
 
-    nthButton = snack.Button("Adding A Server")
+    nthButton = snack.Button(sipxecsGlobals()._("Adding A Server"))
     grid.setField(nthButton, 1, 0, (1,0,1,1))
 
-    form = screen_setup("System Type", SystemTypeMessage, grid)
+    form = screen_setup(sipxecsGlobals()._("System Type"), SystemTypeMessage, grid)
     choice = form.run()
 
     screen_end()
@@ -331,32 +452,32 @@ def get_hostname () :
    hosterror = ''
 
    if hostname == '' :
-      hosterror = 'hostname is not set'
+      hosterror = sipxecsGlobals()._('hostname is not set')
    elif not reDomain.search(hostname) :
-      hosterror = "\
+      hosterror = format_string2_5( sipxecsGlobals()._("\
 hostname '%s'\n\
-is not a valid fully qualified domain name." % hostname
+is not a valid fully qualified domain name."), hostname)
    elif hostname == 'localhost.localdomain' :
-      hosterror = "hostname lookup returned '%s'" % hostname
+      hosterror = format_string2_5( sipxecsGlobals()._("hostname lookup returned '%s'"), hostname)
 
    while hosterror != '' :
 
-      hostExplanation ="\
+      hostExplanation = format_string2_5( sipxecsGlobals()._("\
 %s\n\
-Please set the correct system hostname." % hosterror
+Please set the correct system hostname."), hosterror)
 
       inner = snack.Grid(2, 3)
 
-      l1 = snack.Label("Host Name: ")
+      l1 = snack.Label(sipxecsGlobals()._("Host Name: "))
       e1 = snack.Entry(32, HostName)
 
       inner.setField(l1, 0, 1)
       inner.setField(e1, 1, 1)
 
-      okButton = snack.Button("   OK   ")
+      okButton = snack.Button('   OK   ')
       inner.setField(okButton, 0, 2, (1,1,1,1))
 
-      f = screen_setup("Host Name", hostExplanation, inner)
+      f = screen_setup(sipxecsGlobals()._("Host Name"), hostExplanation, inner)
 
       f.run()
 
@@ -366,15 +487,15 @@ Please set the correct system hostname." % hosterror
 
       # Test for valid SIP domain name
       if hostname == "" :
-         hosterror = "hostname is not set"
+         hosterror = sipxecsGlobals()._("hostname is not set")
       elif not reDomain.search(hostname) :
-         hosterror = "\
+         hosterror = format_string2_5( sipxecsGlobals()._("\
 hostname '%s'\n\
-is not a valid fully qualified domain name." % hostname
+is not a valid fully qualified domain name."), hostname)
       elif hostname == 'localhost.localdomain' :
-         hosterror = "\
+         hosterror = format_string2_5( sipxecsGlobals()._("\
 the name '%s' cannot be\n\
-used by other systems" % hostname
+used by other systems"), hostname)
       else:
          hosterror = ''
            
@@ -392,7 +513,7 @@ class ConfigURLOpener(urllib.FancyURLopener):
         return self.__user, self.__passwd
 
 def screen_confirm_master_config ():
-    confirmationMessage="\
+    confirmationMessage = sipxecsGlobals()._("\
 To add an additional system, you must first add this new server\n\
 in the Servers configuration page of your first (master) system.\n\
 \n\
@@ -400,8 +521,8 @@ When you have added this system using that screen,\n\
 note the Setup Password value assigned to this system.\n\
 You will need that Setup Password before you can proceed on\n\
 the next screen\n\
-"
-    screen_msg(confirmationMessage, "System Added In Configuration")
+")
+    screen_msg(confirmationMessage, sipxecsGlobals()._("System Added In Configuration"))
 
 def screen_fetch_config ():
     global HostName
@@ -410,35 +531,35 @@ def screen_fetch_config ():
     masterSystemName=''
     gotConfig=False
     while not gotConfig :
-        MasterSystemMessage ="\
+        MasterSystemMessage = sipxecsGlobals()._("\
 Enter the full hostname of your Master system,\n\
 and the Setup Password assigned to this new system\n\
 to fetch the configuration for this system.\
-"
+")
         sg = snack.Grid(2, 4)
 
-        l1 = snack.Label("Master Hostname:   ")
+        l1 = snack.Label(sipxecsGlobals()._("Master Hostname:   "))
         e1 = snack.Entry(32, masterSystemName)
         sg.setField(l1, 0, 0)
         sg.setField(e1, 1, 0)
 
-        l2 = snack.Label("Master IP Address:   ")
+        l2 = snack.Label(sipxecsGlobals()._("Master IP Address:   "))
         e2 = snack.Entry(15, "")
         sg.setField(l2, 0, 1)
         sg.setField(e2, 1, 1)
 
-        l3 = snack.Label("%s Setup Password:   " % HostName)
+        l3 = snack.Label(format_string2_5(sipxecsGlobals()._("%s Setup Password:   "), HostName))
         e3 = snack.Entry(8, "")
         sg.setField(l3, 0, 2)
         sg.setField(e3, 1, 2)
 
-        okButton = snack.Button("   OK   ")
+        okButton = snack.Button('   OK   ')
         sg.setField(okButton, 0, 3, (1,1,1,1))
 
-        abortButton = snack.Button("Abort")
+        abortButton = snack.Button(sipxecsGlobals()._("Abort"))
         sg.setField(abortButton, 1, 3, (1,1,1,1))
 
-        form = screen_setup("Configuration Master", MasterSystemMessage, sg)
+        form = screen_setup(sipxecsGlobals()._("Configuration Master"), MasterSystemMessage, sg)
         choice = form.run()
 
         screen_end()
@@ -448,7 +569,7 @@ to fetch the configuration for this system.\
             masterSystemAddr=e2.value().lower()
             password=e3.value()
 
-            progress(40, "Contact %s" % masterSystemName)
+            progress(40, format_string2_5(sipxecsGlobals()._("Contact %s"), masterSystemName))
             show_progress()
 
             # temporarily set the local resolver to use the master as the dns server
@@ -494,38 +615,38 @@ nameserver %s\n\
                     
                 except:
                     excType, excData, excTrace = sys.exc_info()
-                    errorMsg="\
+                    errorMsg=format_string2_5(sipxecsGlobals()._("\
 Invalid configuration returned from\n\
   %s\n\
 exception %s\n\
   %s\n\
 headers\n\
 %s\n\
-" % ( ConfigUrl, excType, excData, headers )
+"), (ConfigUrl, excType, excData, headers) )
                     log_printout(errorMsg)
                     screen_msg(errorMsg)
                     
             except:
                 
                 excType, excData, excTrace = sys.exc_info()
-                errorMsg="\
+                errorMsg=format_string2_5(sipxecsGlobals()._("\
 Failure fetching configuration from:\n\
   %s\n\
 failed with error\n\
   %s\n\
-" % ( ConfigUrl, excData )
+"), (ConfigUrl, excData) )
                 log_printout(errorMsg)
                 screen_err(errorMsg)
 
             os.chdir (curDir)
 
         else:
-            NotDone='\
+            NotDone=sipxecsGlobals()._('\
 Bootstrap configuration is not complete.\n\
 \n\
 To finish bootstrap configuration, execute:\n\
    sipxecs-setup\n\
-\n'
+\n')
             abortMsgAndExit(NotDone)
 
 def screen_ask_sip () :
@@ -533,18 +654,18 @@ def screen_ask_sip () :
     global DomainName
     global reDomain
 
-    sipExplanation ="\
+    sipExplanation = format_string2_5( sipxecsGlobals()._("\
 Your SIP Domain name is the name to the right\n\
 of the '@' in your SIP addresses, like this:\n\
      sip:user@%s\n\
-" % DomainName
+"), DomainName)
 
     valuesOk=False
     while not valuesOk :
 
         inner = snack.Grid(2, 3)
 
-        l1 = snack.Label("SIP Domain Name: ")
+        l1 = snack.Label(sipxecsGlobals()._("SIP Domain Name: "))
         e1 = snack.Entry(32, DomainName)
 
         inner.setField(l1, 0, 1)
@@ -553,7 +674,7 @@ of the '@' in your SIP addresses, like this:\n\
         okButton = snack.Button("   OK   ")
         inner.setField(okButton, 0, 2, (1,1,1,1))
 
-        f = screen_setup("SIP Settings", sipExplanation, inner)
+        f = screen_setup(sipxecsGlobals()._("SIP Settings"), sipExplanation, inner)
 
         f.run()
 
@@ -565,7 +686,7 @@ of the '@' in your SIP addresses, like this:\n\
         if reDomain.search(SipDomain) :
             valuesOk = True
         else :
-            screen_err("Your SIP Domain must be at least two DNS labels separated by dots.")
+            screen_err(sipxecsGlobals()._("Your SIP Domain must be at least two DNS labels separated by dots."))
 
     log_result("SipDomain", SipDomain)
    
@@ -763,11 +884,11 @@ def configure_autostart_service() :
         cmdoutput=commands.getoutput ('/sbin/chkconfig --level %d sipxecs on' % RUNLEVEL)
         log_printout(cmdoutput)
     else :
-        screen_msg("\
+        screen_msg(format_string2_5( sipxecsGlobals()._("\
 Because you are not running as root,\n\
-the sipxecs services have not been\n\
+the %s services have not been\n\
 configured to start by default.\
-")
+"), '@SIPXECS_NAME@'))
         log_printout('autostart not configured - not root')
 
 def get_netif () :
@@ -820,35 +941,35 @@ def screen_ask_netif ():
    global IpAddress
    global NetMask
 
-   netExplanation="\
+   netExplanation=format_string2_5( sipxecsGlobals()._("\
 Unable to obtain the network address and mask data\n\
 from the configuration file:\n\
    %s\n\
 Enter the network interface settings for the interface\n\
-to be used by @SIPXECS_NAME@ services:\n\
-" % sipxecsGlobals.IfCfgFile
+to be used by %s services:\n\
+"), (sipxecsGlobals.IfCfgFile, '@SIPXECS_NAME@'))
 
    valuesOk=False
    while not valuesOk :
        sg = snack.Grid(3, 3)
        l0 = snack.Label(" ")
 
-       l2 = snack.Label("Ip:         ")
+       l2 = snack.Label(sipxecsGlobals()._("Ip:         "))
        e2 = snack.Entry(32, IpAddress)
        sg.setField(l2, 0, 0)
        sg.setField(e2, 1, 0)
 
-       l3 = snack.Label("Netmask:    ")
+       l3 = snack.Label(sipxecsGlobals()._("Netmask:    "))
        e3 = snack.Entry(32, NetMask)
        sg.setField(l3, 0, 1)
        sg.setField(e3, 1, 1)
 
-       okButton = snack.Button("   OK   ")
+       okButton = snack.Button('   OK   ')
        sg.setField(okButton, 0, 2, (1,1,1,1))
 
        sg.place(1,1)
 
-       f = screen_setup("Enter network settings", netExplanation, sg)
+       f = screen_setup(sipxecsGlobals()._("Enter network settings"), netExplanation, sg)
        f.run()
 
        IpAddress=e2.value()
@@ -862,21 +983,21 @@ to be used by @SIPXECS_NAME@ services:\n\
        #--- validation
        if len(NetMask.split('.')) < 4:
            valuesOk=False
-           screen_err('"%s" is not a valid Netmask' % NetMask)
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid Netmask'), NetMask))
 
        elif not (NetMask.split('.')[0] == '255' and NetMask.split('.')[1] == '255') :
            valuesOk=False
-           screen_err('"%s" is not a valid Netmask.' % NetMask)
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid Netmask.'), NetMask))
        else :
            for i in range(4):
                if not NetMask.split('.')[i] in ('255', '0', '128', '192', '224', '240', '248', '252', '254'):
                    valuesOk=False
-                   screen_err('"%s" is not a valid Netmask' % NetMask)
+                   screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid Netmask'), NetMask))
 
        if IpAddress.count('.') < 3:
            # We expect at least 3 dots in an IP addr
            valuesOk=False
-           screen_err('"%s" is not a valid IP addr' % IpAddress)
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid IP addr'), IpAddress))
        else:
            addrLst = IpAddress.split('.')
            maskLst = NetMask.split('.')
@@ -884,8 +1005,8 @@ to be used by @SIPXECS_NAME@ services:\n\
            broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
            if IpAddress == netwAddr or IpAddress == broadAddr :
                valuesOk=False
-               screen_err('\
-"%s, %s" is not a valid IP address / Netmask combination' % (IpAddress, NetMask))
+               screen_err(format_string2_5(sipxecsGlobals()._('\
+"%s, %s" is not a valid IP address / Netmask combination'), (IpAddress, NetMask)))
 
 def write_master_netif() :
     global IpAddress
@@ -911,7 +1032,7 @@ def do_sipx_setup() :
 
     show_progress()
 
-    progress(10,"Get System Type")
+    progress(10,sipxecsGlobals()._("Get System Type"))
     screen_ask_first ()
 
     HostName = get_hostname()
@@ -923,20 +1044,20 @@ def do_sipx_setup() :
 
     if isFirstSystem:
         
-        progress(15,"Get Network Parameters")
+        progress(15, sipxecsGlobals()._("Get Network Parameters"))
         if not get_netif():
             screen_ask_netif()
 
         write_master_netif()
         
-        progress(20, "Get SIP Domain Name")
+        progress(20, sipxecsGlobals()._("Get SIP Domain Name"))
         screen_ask_sip()
 
-        progress(30, "Set SIP Domain Name and Realm")
+        progress(30, sipxecsGlobals()._("Set SIP Domain Name and Realm"))
         setup_domain_config()
 
         if ( SipDomain != DomainName ):
-           progress(35, "Create DNS records");
+           progress(35, sipxecsGlobals()._("Create DNS records"));
            setup_DNS_zone( SipDomain, HostName, IpAddress )
            log_printout("NOTE: if the DNS running on this machine is not authoritative for zone %s,\
  you may have to remove the zone file %s/%s.zone and the reference to it in /etc/named.conf" %
@@ -955,62 +1076,62 @@ def do_sipx_setup() :
               log_printout("The SIP Domain is different from the Domain Name, \
 but not running as root, so DNS zone file was not written." )
 
-        progress(40, "Generate TLS/SSL Certificate")
+        progress(40, sipxecsGlobals()._("Generate TLS/SSL Certificate"))
         set_fixed_cert_params()
         generate_ssl_cert()
 
-        progress(60, "Install TLS/SSL Certificate")
+        progress(60, sipxecsGlobals()._("Install TLS/SSL Certificate"))
         install_ssl_cert()
 
-        progress(70, "Enabling sipXconfig")
+        progress(70, sipxecsGlobals()._("Enabling sipXconfig"))
         enable_sipXconfig()
 
     else :
         # this is an additional system
-        progress(20, "Preparation Check")
+        progress(20, sipxecsGlobals()._("Preparation Check"))
         screen_confirm_master_config()
 
-        progress(30, "Retrieve @SIPXECS_NAME@ Configuration")
+        progress(30, format_string2_5(sipxecsGlobals()._("Retrieve %s Configuration"), '@SIPXECS_NAME@'))
         HostName=get_hostname()
         screen_fetch_config()
         cmdoutput=commands.getoutput('/sbin/service named restart')
 
-        progress(40, "Synchronize NTP Time")
+        progress(40, sipxecsGlobals()._("Synchronize NTP Time"))
         sync_ntp_time()
         
-    progress(90, 'Configuring @SIPXECS_NAME@ Autostart' )
+    progress(90, format_string2_5(sipxecsGlobals()._('Configuring %s Autostart'), '@SIPXECS_NAME@'))
     configure_autostart_service()
 
 def setup_completed () :
     global HostName
     
-    completedMessage ="\
+    completedMessage = format_string2_5(sipxecsGlobals()._("\
 All bootstrap parameters have been configured. \n\
 \n\
-When the @SIPXECS_NAME@ services have started, open\n\
+When the %s services have started, open\n\
 \n\
    http://%s\n\
 \n\
 in your web browser to continue configuring\n\
-your @SIPXECS_NAME@ services.\
-" % HostName
+your %s services.\
+"), ('@SIPXECS_NAME@', HostName, '@SIPXECS_NAME@'))
 
     outer = snack.Grid(1, 2)
 
-    startButton = snack.Button("Start @SIPXECS_NAME@")
+    startButton = snack.Button(format_string2_5(sipxecsGlobals()._("Start %s"), '@SIPXECS_NAME@'))
     outer.setField(startButton, 0, 0, (1,0,1,1))
 
     inner = snack.Grid(2, 1)
 
-    shellButton = snack.Button("Exit to Prompt")
+    shellButton = snack.Button(sipxecsGlobals()._("Exit to Prompt"))
     inner.setField(shellButton, 0, 0, (1,0,1,1))
 
-    rebootButton = snack.Button("Reboot")
+    rebootButton = snack.Button(sipxecsGlobals()._("Reboot"))
     inner.setField(rebootButton, 1, 0, (1,0,1,1))
 
     outer.setField(inner, 0, 1)
 
-    form = screen_setup("Setup Completed", completedMessage, outer)
+    form = screen_setup(sipxecsGlobals()._("Setup Completed"), completedMessage, outer)
     choice = form.run()
 
     screen_end()
