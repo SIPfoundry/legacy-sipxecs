@@ -919,11 +919,11 @@ EOF
 		     sort `
    do
      echo ""
-     if test -x @bindir@/sipx${component}-config
+     if test -x @bindir@/${component}-config
      then
-	 @bindir@/sipx${component}-config --all
+	 @bindir@/${component}-config --all
      else
-	 echo Missing: @SIPX_BINDIR@/sipx${component}-config
+	 echo Missing: @SIPX_BINDIR@/${component}-config
      fi
    done
 
@@ -986,7 +986,7 @@ EOF
    # Get a good directory listing of the system
    # Variable assignments for the command cannot be put in a variable that is
    # substituted into the command line.
-   command='ls -lR @SIPX_BINDIR@ @SIPX_CONFDIR@ @SIPX_DATADIR@ @SIPX_DBDIR@ @SIPX_LIBEXECDIR@ @SIPX_LOGDIR@ @SIPX_RUNDIR@ @SIPX_VARDIR@ @bindir@ @wwwdir@'
+   command='ls -lR @SIPX_BINDIR@ @SIPX_CONFDIR@ @SIPX_DATADIR@ @SIPX_DBDIR@ @SIPX_LIBDIR@ @SIPX_LIBEXECDIR@ @SIPX_LOGDIR@ @SIPX_RUNDIR@ @SIPX_VARDIR@ @bindir@ @wwwdir@'
    DirListing=${Work}/ls-lR
    echo ======== TZ=UTC $command  > ${DirListing}
    echo                          >> ${DirListing}
