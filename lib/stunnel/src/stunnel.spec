@@ -3,7 +3,7 @@
 
 Summary: Program that wraps normal socket connections with SSL/TLS
 Name: stunnel
-Version: 4.26
+Version: 4.33
 Release: 1
 License: GPL
 Group: Applications/Networking
@@ -49,8 +49,7 @@ CFLAGS="%{optflags}" ./configure --prefix=%{_prefix} --sysconfdir=%{_sysconfdir}
 %{__install} -m755 -s src/stunnel %{buildroot}%{_sbindir}
 %{__install} -m755 src/.libs/libstunnel.so %{buildroot}%{_libdir}
 %{__install} -m755 src/.libs/libstunnel.la %{buildroot}%{_libdir}
-%{__gzip} doc/stunnel.8
-%{__install} -m644 doc/stunnel.8.gz %{buildroot}%{_mandir}/man8/stunnel.8.gz
+%{__install} -m644 doc/stunnel.8 %{buildroot}%{_mandir}/man8/stunnel.8.gz
 %{__install} -m644 tools/stunnel.conf-sample %{buildroot}%{_sysconfdir}/stunnel
 %{__install} -m500 tools/stunnel.init %{buildroot}%{_initrddir}/stunnel
 
@@ -65,7 +64,7 @@ ldconfig
 
 %files
 %defattr(-,root,root)
-%doc COPYING COPYRIGHT.GPL README ChangeLog doc/stunnel.html doc/en/transproxy.txt doc/en/VNC_StunnelHOWTO.html
+%doc COPYING COPYRIGHT.GPL README ChangeLog doc/stunnel.html doc/en/VNC_StunnelHOWTO.html
 %doc tools/ca.html tools/ca.pl tools/importCA.html tools/importCA.sh tools/stunnel.cnf
 %dir %{_sysconfdir}/stunnel
 %config %{_sysconfdir}/stunnel/*

@@ -1,13 +1,6 @@
 #!/bin/sh
 # Sample stunnel SysV startup file
 # Copyright by Michal Trojnara 2002,2007,2008
-### BEGIN INIT INFO
-# Provides: stunnel
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
-# Short-Description: start and stop NetworkManager
-# Description: Starts and stops the stunnel process
-### END INIT INFO
 
 PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 DAEMON=@prefix@/bin/stunnel
