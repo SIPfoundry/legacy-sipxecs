@@ -1,8 +1,8 @@
-<project name="Ciscospa" default="default">
+<project name="ciscospa" default="default">
 
-  <property name="project.dir" value="plugins/Ciscospa" />
-  <property name="plugin.models.dir" value="etc/Ciscospa" />
-  <property name="plugin.name" value="Ciscospa-phones" />
+  <property name="project.dir" value="plugins/ciscospa" />
+  <property name="plugin.models.dir" value="etc/ciscospa" />
+  <property name="plugin.name" value="ciscospa-phones" />
 
   <import file="../plugins.build.xml" />
 
