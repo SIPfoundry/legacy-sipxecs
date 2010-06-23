@@ -880,8 +880,6 @@ def screen_set_time () :
 
     list=snack.Listbox(10,1,1,32)
     for zone in majorZones : list.append(zone,'%s'%zone)
-    if majorZones.count(DEFAULT_CONTINENT) != 0:
-        list.setCurrent(DEFAULT_CONTINENT)
 
     sysLocale = os.environ.get('LANG', '')
     global DEFAULT_CONTINENT
@@ -889,6 +887,9 @@ def screen_set_time () :
     if sysLocale == 'pt_BR':
        DEFAULT_CONTINENT = 'Brazil'
        DEFAULT_CITY = 'Acre'
+
+    if majorZones.count(DEFAULT_CONTINENT) != 0:
+        list.setCurrent(DEFAULT_CONTINENT)
 
     f = screen_setup(sipxecsGlobals()._("Set System Time Zone"), tzExplanationMajor, list)
     major = f.run().current()
