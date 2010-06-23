@@ -580,7 +580,7 @@ public class BackToBackUserAgent implements Comparable {
                     }
                    
                 }
-            }, 4000);
+            }, 2000);
 
         }
 
@@ -589,10 +589,12 @@ public class BackToBackUserAgent implements Comparable {
                 if ( logger.isDebugEnabled() ) logger.debug("Terminating all calls on B2BUA " + this);
                 this.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.CALL_TERMINATED,
                         "Call Termination Detected");
-                this.sendByeToMohServer();
+                //this.sendByeToMohServer();
+                //this.cleanReferences();
+                this.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.CALL_TERMINATED, "Normal Call Termination");
                 this.pendingTermination = true;
             } catch (Exception ex) {
-                logger.error("Problem tearing down backToBackUserAgent.");
+                logger.error("Problem tearing down backToBackUserAgent.",ex);
             }
         }
         if ( logger.isDebugEnabled() ) {
@@ -600,11 +602,28 @@ public class BackToBackUserAgent implements Comparable {
         }
     }
 
-    public void cleanUp() {
+    /**
+     * Let go of references early for reduced memory consumption.
+     */
+    void cleanReferences() {
+        this.musicOnHoldDialog = null;
+        if ( cleanupList != null ) {
+            this.cleanupList.clear();
+        }
+        this.referingDialog = null;
+        this.referingDialogPeer = null;
+        if ( this.myCallIds != null ) {
+            this.myCallIds.clear();
+        }
         if (this.rtpBridge != null) {
             rtpBridge.stop();
         }
+        
+        this.rtpBridge = null;
+        this.symmitronClient = null;
     }
+
+    
 
     /**
      * Add a dialog entry to the b2bua. This implies that the given dialog holds a pointer to this
@@ -2201,6 +2220,7 @@ public class BackToBackUserAgent implements Comparable {
         CallControlUtilities.sendTryingResponse(st);
 
         DialogContext dialogContext = (DialogContext) dialog.getApplicationData();
+        dialogContext.cancelSessionTimer();
         Dialog peer = dialogContext.getPeerDialog();
         
         if (!SipUtilities.isRequestNotForwarded(st.getRequest())
@@ -2325,6 +2345,10 @@ public class BackToBackUserAgent implements Comparable {
                     + " dialog.isServer " + dialog.isServer());
             if (dialog.getState() != DialogState.TERMINATED) {
                 DialogContext dialogCtx = DialogContext.get(dialog);
+                if ( dialogCtx != null ) {
+                      dialogCtx.cancelSessionTimer(); 
+                      dialogCtx.removeDialogContext(dialogCtx);
+                }
                 SipProvider lanProvider = ((DialogExt) dialog).getSipProvider();
                 if (dialogCtx != null
                         && dialogCtx.getDialogCreatingTransaction() != null
@@ -2360,7 +2384,7 @@ public class BackToBackUserAgent implements Comparable {
                     TransactionContext.attach(ct, Operation.SEND_BYE_FOR_TEARDOWN);
                     dialog.sendRequest(ct);
                 } else {
-                    DialogContext.get(dialog).setTerminateOnConfirm();
+                     DialogContext.get(dialog).setTerminateOnConfirm();
                 }
 
             }
@@ -2381,23 +2405,27 @@ public class BackToBackUserAgent implements Comparable {
          * Garbage collect those dialogs that were supposed to be terminated during normal
          * processing.
          */
-        for (Dialog dialog : this.cleanupList) {
-            if (dialog.getState() != null && dialog.getState() != DialogState.TERMINATED
-                    && dialog.getState() != DialogState.EARLY) {
-                Request byeRequest = dialog.createRequest(Request.BYE);
-                if (reason != null) {
-                    byeRequest.addHeader(reason);
+        if ( this.cleanupList != null ) {
+            for (Dialog dialog : this.cleanupList) {
+                if (dialog.getState() != null && dialog.getState() != DialogState.TERMINATED
+                        && dialog.getState() != DialogState.EARLY) {
+                    Request byeRequest = dialog.createRequest(Request.BYE);
+                    if (reason != null) {
+                        byeRequest.addHeader(reason);
+                    }
+                    if ( logger.isDebugEnabled() ) logger.debug("Tear down call " + dialog);
+                    ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
+                    .getNewClientTransaction(byeRequest);
+                    TransactionContext.attach(ctx, Operation.SEND_BYE_FOR_TEARDOWN);
+                    dialog.sendRequest(ctx);
+                } else if (dialog.getState() != DialogState.TERMINATED) {
+                    dialog.delete();
                 }
-                if ( logger.isDebugEnabled() ) logger.debug("Tear down call " + dialog);
-                ClientTransaction ctx = ((DialogExt) dialog).getSipProvider()
-                        .getNewClientTransaction(byeRequest);
-                TransactionContext.attach(ctx, Operation.SEND_BYE_FOR_TEARDOWN);
-                dialog.sendRequest(ctx);
-            } else if (dialog.getState() != DialogState.TERMINATED) {
-                dialog.delete();
             }
         }
-
+         Gateway.getBackToBackUserAgentFactory().removeBackToBackUserAgent(this);
+         this.cleanReferences();
+         
     }
 
     /**

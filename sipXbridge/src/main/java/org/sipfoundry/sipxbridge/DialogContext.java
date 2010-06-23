@@ -186,6 +186,10 @@ class DialogContext {
 
 	private ServerTransaction pendingReInvite;
 
+    private MohTimer mohTimer;
+    
+    private static int taskCounter;
+
 
 
 
@@ -302,7 +306,14 @@ class DialogContext {
 
         public void terminate() {
             if ( logger.isDebugEnabled() ) logger.debug("Terminating session Timer Task for " + dialog);
+            this.method = null;
             this.cancel();
+            // Purge the gateway timer every 100 tasks.
+            if (taskCounter % 100 == 0 ) {
+                taskCounter ++;
+                Gateway.getTimer().purge();
+            }
+            DialogContext.this.sessionTimer = null;
         }
     }
 
@@ -318,6 +329,11 @@ class DialogContext {
 
         public MohTimer(ClientTransaction mohCtx) {
             this.mohCtx = mohCtx;
+        }
+        
+        public void terminate() {
+            this.mohCtx = null;
+            this.cancel();
         }
 
         @Override
@@ -569,7 +585,9 @@ class DialogContext {
         if ( logger.isDebugEnabled() ) logger.debug("cancelSessionTimer " + this.dialog);
         if (this.sessionTimer != null) {
             this.sessionTimer.terminate();
-            this.sessionTimer = null;
+        }
+        if ( this.mohTimer != null ) {
+            this.mohTimer.terminate();
         }
     }
 
@@ -939,6 +957,7 @@ class DialogContext {
                 try {
                     if (DialogContext.this.dialog.getState() != DialogState.TERMINATED) {
                         if ( logger.isDebugEnabled() ) logger.debug("terminating dialog " + dialog + " because no confirmation received and terminateOnConfirm is set");
+                        DialogContext.this.cancelSessionTimer();
                         DialogContext.this.dialog.delete();
                     }
                 } catch (Exception ex) {
@@ -986,7 +1005,8 @@ class DialogContext {
      * Send INVITE to MOH server.
      */
     void sendMohInvite(ClientTransaction mohClientTransaction) {
-        Gateway.getTimer().schedule(new MohTimer(mohClientTransaction),
+        this.mohTimer = new MohTimer(mohClientTransaction);
+        Gateway.getTimer().schedule(this.mohTimer,
                 Gateway.getMusicOnHoldDelayMiliseconds());
     }
 
@@ -1107,6 +1127,7 @@ class DialogContext {
     void sendBye(boolean forward, String reason) throws SipException {
         try {
             Request bye = dialog.createRequest(Request.BYE);
+           
 
             if ( getSipProvider() != Gateway.getLanProvider() ) {
                 if ( itspInfo == null || itspInfo.isGlobalAddressingUsed()) {
@@ -1128,6 +1149,10 @@ class DialogContext {
             transactionContext.setItspAccountInfo(this.itspInfo);
 
             dialog.sendRequest(clientTransaction);
+            
+            if ( this.sessionTimer != null ) {
+                this.sessionTimer.terminate();
+            }
         } catch (ParseException ex) {
             logger.error("Unexpected exception",ex);
             throw new SipXbridgeException("Unexpected exception",ex);
@@ -1150,6 +1175,7 @@ class DialogContext {
      * @throws SipException
      */
     void forwardBye(ServerTransaction serverTransaction) throws SipException {
+        this.cancelSessionTimer();
         Request bye = dialog.createRequest(Request.BYE);
         ReferencesHeader referencesHeader = SipUtilities.createReferencesHeader(serverTransaction.getRequest(),
                 ReferencesHeader.CHAIN);
@@ -1215,6 +1241,9 @@ class DialogContext {
       this.dialog.setApplicationData(null);
       this.dialog = null;
       this.pendingAction = PendingDialogAction.NONE;
+      if ( this.sessionTimer != null ){
+          this.sessionTimer.terminate();
+      }
     }
 
     /**
@@ -1284,6 +1313,12 @@ class DialogContext {
 		return this.getSipProvider() == Gateway.getLanProvider();
 	}
 
+	@Override
+	public void finalize() {
+	    if ( this.sessionTimer != null ) {
+	        this.sessionTimer.terminate();
+	    }
+	}
 	
 
 

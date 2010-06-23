@@ -57,6 +57,7 @@ public class BridgeConfiguration {
     private String sipxSupervisorHost;
     private int sipxSupervisorXmlRpcPort;
     private int callLimit = -1;
+    private boolean strictProtocolEnforcement = true;
     
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
@@ -537,6 +538,14 @@ public class BridgeConfiguration {
      */
     public int getCallLimit() {
         return callLimit;
+    }
+
+    public boolean isStrictProtocolEnforcement() {
+       return this.strictProtocolEnforcement ;
+    }
+    
+    public void setStrictProtocolEnforcement(String flagString) {
+        this.strictProtocolEnforcement = Boolean.parseBoolean(flagString);
     }
 
   

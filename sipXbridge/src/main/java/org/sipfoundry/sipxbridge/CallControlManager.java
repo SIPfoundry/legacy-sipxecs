@@ -2252,12 +2252,13 @@ class CallControlManager implements SymmitronResetHandler {
          */
 
         Response response = responseEvent.getResponse();
-
+        
         if (response.getContentLength().getContentLength() == 0) {
             logger
                     .warn("PROTOCOL ERROR -- Expecting a content length != 0. Re-use previous SDP answer ");
 
         }
+
 
         /*
          * Grab the client tx from the inbound response.
@@ -2283,21 +2284,32 @@ class CallControlManager implements SymmitronResetHandler {
          */
 
         BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
+        if ( Gateway.isStrictProtocolEnforcement() ) {
+            if ( response.getContentLength().getContentLength() == 0 ) {
+                logger.error("PROTOCOL ERROR -- Expecting a content length != 0. Tearing down call! ");
+                dialogContext.sendAck(response);
+                b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.PROTOCOL_ERROR,
+                "protocol error - SDP solicitation response with 0 length SDP.");
+                return;
+            }
+        }
 
         /*
          * The continuation context.
          */
         Operation continuationOperation = transactionContext.getContinuationOperation();
-
+        
 
         SessionDescription responseSessionDescription;
+        
         dialogContext.setLastResponse(response);
 
         if ( logger.isDebugEnabled() ) logger.debug("continuationOperation = " + continuationOperation);
         DialogContext peerDialogContext = DialogContext.getPeerDialogContext(dialog);
         if ( logger.isDebugEnabled() ) logger.debug("peerDialog.pendingAction = " + peerDialogContext.getPendingAction());
         
-        if (response.getContentLength().getContentLength() != 0) {
+       
+       if (response.getContentLength().getContentLength() != 0) {
             /*
              * Reasonable response.
              */
@@ -2310,15 +2322,11 @@ class CallControlManager implements SymmitronResetHandler {
              */
             RtpSession peerRtpSession = DialogContext.getPeerRtpSession(transactionContext
                     .getContinuationData().getDialog());
-           
-
-            responseSessionDescription = peerRtpSession.getReceiver().getSessionDescription();
+             responseSessionDescription = peerRtpSession.getReceiver().getSessionDescription();
            
 
         }
-  
-
-
+          
         if (continuationOperation == Operation.REFER_INVITE_TO_SIPX_PROXY) {
 
             /*
@@ -2390,7 +2398,7 @@ class CallControlManager implements SymmitronResetHandler {
             }
 
         } else if (continuationOperation == Operation.SEND_INVITE_TO_MOH_SERVER) {
-            /*
+                      /*
              * This is a query for MOH server. Lets see if he returned a codec that park server
              * handle in the query. If the ITSP does not return a codec that the park server
              * supports, we just ACK with the previously negotiated codec. MOH will not play in
@@ -3101,6 +3109,7 @@ class CallControlManager implements SymmitronResetHandler {
         for (Dialog dialog : dialogs) {
             if (dialog.getApplicationData() instanceof DialogContext) {
                 BackToBackUserAgent btobua = DialogContext.getBackToBackUserAgent(dialog);
+                DialogContext.get(dialog).cancelSessionTimer();
                 if (serverHandle.equals(btobua.getSymmitronServerHandle())) {
                     try {
                         btobua.tearDown();
