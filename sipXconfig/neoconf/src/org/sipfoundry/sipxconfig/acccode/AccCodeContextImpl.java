@@ -84,14 +84,20 @@ public class AccCodeContextImpl extends SipxHibernateDaoSupport implements AccCo
 
     public String getAuthCodePrefix() {
         String prefix;
-        m_acccodeService = (SipxAccCodeService) m_sipxServiceManager
-             .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
+        if (m_acccodeService == null) {
+            m_acccodeService = (SipxAccCodeService) m_sipxServiceManager
+                 .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
+        }
         prefix = m_acccodeService.getSettingValue(SipxAccCodeService.AUTH_CODE_PREFIX);
 
         return prefix;
     }
 
     public void setAuthCodePrefix(String prefix) {
+        if (m_acccodeService == null) {
+            m_acccodeService = (SipxAccCodeService) m_sipxServiceManager
+                 .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
+        }
         m_acccodeService.setAuthCodePrefix(prefix);
     }
 
@@ -101,8 +107,6 @@ public class AccCodeContextImpl extends SipxHibernateDaoSupport implements AccCo
 
     public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
         m_sipxServiceManager = sipxServiceManager;
-        m_acccodeService = (SipxAccCodeService) m_sipxServiceManager
-                .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
     }
 
     @Required
