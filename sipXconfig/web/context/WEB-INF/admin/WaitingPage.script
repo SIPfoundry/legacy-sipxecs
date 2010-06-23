@@ -11,6 +11,17 @@ dojo.require("dojo.io.ScriptSrcIO");
 var waitForServerDown = true;
 var timeToExpire = 0;
 var targetUrl = location.href;
+var base_url = "http://" + getUrlBase();
+
+
+function getUrlBase() {
+      var host = location.host;
+      var pos = host.indexOf(":");
+      if (pos != -1)
+           return host.substr(0, pos);
+       else
+       return host;
+}
 
 function makeRequest() {
     dojo.io.bind({
@@ -27,14 +38,14 @@ function onLoad(type, data, event){
 	if(waitForServerDown){
 		if(timeToExpire>1800000){
 		    alert("Timeout expired. Server is not down.");
-		    window.location=targetUrl;
+		    window.location=base_url;
 	    }
 	    else{
 			setTimeout('makeRequest()', 5000);
 		    timeToExpire+=5000;
 	    }
 	}else{
-		window.location=targetUrl;
+		window.location=base_url;
 	}
 }
 function onError(type,error){
