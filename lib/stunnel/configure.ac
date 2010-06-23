@@ -1,5 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(stunnel, 4.26.1, sipx-dev@list.sipfoundry.org)
+AC_INIT(stunnel, 4.33.1, support@avaya.com)
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])

@@ -13,11 +13,16 @@
 #   ntp servers
 #   time (this need not be "correct" but must _not_ be in the future)
 #
+#  You can run this script to test it without making any system changes,
+#  by changing the testing function to return True, and NOT running it as root.
 #----------------------------------------------------------------------
 
-import os, commands, sys, re, time, traceback, glob, signal, snack
+import os, commands, sys, re, time, traceback, glob, signal, snack, locale
 
 sys.path.insert(0,'@SIPX_LIBEXECDIR@')
+
+import gettext
+gettext.install('sipXecs', '@SIPX_DATADIR@/locale')
 
 from sipxecs_setup_common import *
 
@@ -122,26 +127,27 @@ def NetmaskNrBits(NetmaskString) :
 def screen_startup ():
    global explain
 
-   initialMessage ='\
+   t = sipxecsGlobals()
+   initialMessage = t._('\
 This wizard configures the basic system settings \
 needed to start your system.\n\
 \n\
 Any existing configuration will be overwritten unless you Exit.\
-'
+')
    grid = snack.Grid(2, 1)
-   continueButton = snack.Button("Start")
+   continueButton = snack.Button(t._("Start"))
    grid.setField(continueButton, 0, 0, (1,0,1,1))
 
-   exitButton = snack.Button("Exit")
+   exitButton = snack.Button(t._("Exit"))
    grid.setField(exitButton, 1, 0, (1,0,1,1))
 
    if testing() :
        if runningAsRoot():
-           title="Setup Wizard TESTING(root)"
+           title=t._("Setup Wizard") + " TESTING(root)"
        else:
-           title="Setup Wizard TESTING(simulated)"
+           title=t._("Setup Wizard") + " TESTING(simulated)"
    else:
-       title="Setup Wizard"
+       title=t._("Setup Wizard")
        
    f = screen_setup(title, initialMessage, grid)
    choice = f.run()
@@ -155,48 +161,48 @@ Any existing configuration will be overwritten unless you Exit.\
 def screen_setup_admin ():
 
    show_progress()
-   adminExplanation = "\
+   adminExplanation = format_string2_5( sipxecsGlobals()._("\
 Choose a new password for the 'root' user.\n\
 This is the password for the root shell, not for the\n\
-@SIPXECS_NAME@ administration web user interface."
+%s administration web user interface."), '@SIPXECS_NAME@')
 
-   okButton = snack.Button("   OK   ")
+   okButton = snack.Button(sipxecsGlobals()._('   OK   '))
 
    valuesOk=False
    while not valuesOk :
        sg = snack.Grid(2, 3)
 
-       l1a = snack.Label("Admin Password:")
+       l1a = snack.Label(sipxecsGlobals()._("Admin Password:"))
        e1a = snack.Entry(32, '', 0, 1)
        sg.setField(l1a, 0, 0)
        sg.setField(e1a, 1, 0)
 
-       l1b = snack.Label("Admin Password:")
+       l1b = snack.Label(sipxecsGlobals()._("Admin Password:"))
        e1b = snack.Entry(32, '', 0, 1)
        sg.setField(l1b, 0, 1)
        sg.setField(e1b, 1, 1)
 
        sg.setField(okButton, 0, 2, (1,1,1,1), growx=1)
 
-       f = screen_setup("Administrator Password", adminExplanation, sg)
+       f = screen_setup(sipxecsGlobals()._("Administrator Password"), adminExplanation, sg)
 
        formaction = f.run()
        screen_end()
 
        if e1a.value() != e1b.value() :
-           screen_err("Admin Password values do not match")
+           screen_err(sipxecsGlobals()._("Admin Password values do not match"))
        else :
            adminPassword = e1a.value()
            valuesOk=True
 
-           progress(15, "Set Password")
+           progress(15, sipxecsGlobals()._("Set Password"))
            show_progress()
 
            passwdSetCmd='echo "%s" | passwd --stdin root' % adminPassword
            if runningAsRoot() :
                outRep = commands.getstatusoutput(passwdSetCmd)
                if outRep[0] != 0:
-                   screen_err( 'Failed to set the root password\n%s' % outRep[1] )
+                   screen_err( format_string2_5(sipxecsGlobals()._('Failed to set the root password\n%s'), outRep[1]) )
                log_printout(outRep[1])
            else :
                log_printout('(simulated) %s' % passwdSetCmd)
@@ -208,39 +214,39 @@ def screen_ask_net ():
    global NetMask
    global Gateway
 
-   netExplanation='Configure network settings for this system:\n'
+   netExplanation=sipxecsGlobals()._('Configure network settings for this system:\n')
 
    valuesOk=False
    while not valuesOk :
        sg = snack.Grid(3, 5)
        l0 = snack.Label(" ")
 
-       l1 = snack.Label("Hostname:   ")
+       l1 = snack.Label(sipxecsGlobals()._("Hostname:   "))
        e1 = snack.Entry(32, HostName)
        sg.setField(l1, 0, 0)
        sg.setField(e1, 1, 0)
 
-       l2 = snack.Label("Ip:         ")
+       l2 = snack.Label(sipxecsGlobals()._("Ip:         "))
        e2 = snack.Entry(32, IpAddress)
        sg.setField(l2, 0, 1)
        sg.setField(e2, 1, 1)
 
-       l3 = snack.Label("Netmask:    ")
+       l3 = snack.Label(sipxecsGlobals()._("Netmask:    "))
        e3 = snack.Entry(32, NetMask)
        sg.setField(l3, 0, 2)
        sg.setField(e3, 1, 2)
 
-       l4 = snack.Label("Gateway Address: ")
+       l4 = snack.Label(sipxecsGlobals()._("Gateway Address: "))
        e4 = snack.Entry(32, Gateway)
        sg.setField(l4, 0, 3)
        sg.setField(e4, 1, 3)
 
-       okButton = snack.Button("   OK   ")
+       okButton = snack.Button(sipxecsGlobals()._('   OK   '))
        sg.setField(okButton, 0, 4, (1,1,1,1))
 
        sg.place(1,1)
 
-       f = screen_setup("Enter the network settings", netExplanation, sg)
+       f = screen_setup(sipxecsGlobals()._("Enter the network settings"), netExplanation, sg)
        f.run()
 
        HostName=e1.value().lower()
@@ -257,28 +263,28 @@ def screen_ask_net ():
        if HostName.count('.') < 2:
            # We expect at least 2 dots in the new fully qualified host name
            valuesOk=False
-           screen_err('"%s" is not a fully qualified host name' % HostName)
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a fully qualified host name'), HostName))
        else :
            # Domain name == whatever follows the first dot
            DomainName = '.'.join (HostName.split('.')[1:])
 
        if len(NetMask.split('.')) < 4:
            valuesOk=False
-           screen_err('"%s" is not a valid Netmask' % NetMask)
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid Netmask'), NetMask))
 
        elif not (NetMask.split('.')[0] == '255' and NetMask.split('.')[1] == '255') :
            valuesOk=False
-           screen_err('"%s" is not a valid Netmask.' % NetMask)
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid Netmask.'), NetMask))
        else :
            for i in range(4):
                if not NetMask.split('.')[i] in ('255', '0', '128', '192', '224', '240', '248', '252', '254'):
                    valuesOk=False
-                   screen_err('"%s" is not a valid Netmask' % NetMask)
+                   screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid Netmask'), NetMask))
 
        if IpAddress.count('.') < 3:
            # We expect at least 3 dots in an IP addr
            valuesOk=False
-           screen_err('"%s" is not a valid IP addr' % IpAddress)
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid IP addr'), IpAddress))
        else:
            addrLst = IpAddress.split('.')
            maskLst = NetMask.split('.')
@@ -286,22 +292,22 @@ def screen_ask_net ():
            broadAddr = '.'.join([str(int(addrLst[i]) | (255 - int(maskLst[i]))) for i in range(4)])
            if IpAddress == netwAddr or IpAddress == broadAddr :
                valuesOk=False
-               screen_err('\
-"%s, %s" is not a valid IP address / Netmask combination' % (IpAddress, NetMask))
+               screen_err(format_string2_5(sipxecsGlobals()._('\
+"%s, %s" is not a valid IP address / Netmask combination'), (IpAddress, NetMask)))
 
        if Gateway.count('.') < 3:
            # We expect at least 3 dots in an IP addr
            valuesOk=False
-           screen_err('"%s" is not a valid Gateway addr' % Gateway)
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid Gateway addr'), Gateway))
        else:
            GWaddrLst = Gateway.split('.')
            GWnetwAddr  = '.'.join([str(int(GWaddrLst[i]) & int(maskLst[i]))  for i in range(4)])
            if GWnetwAddr != netwAddr or Gateway == netwAddr or Gateway == broadAddr :
                valuesOk=False
-               screen_err('\
+               screen_err(format_string2_5(sipxecsGlobals()._('\
 "%s" is not a valid Gateway address.\n\
 It is not in the addr range defined by \n\
-the Netmask / IP addr combination.' % Gateway)
+the Netmask / IP addr combination.'), Gateway))
 
 
    log_result("HostName", HostName)
@@ -317,17 +323,17 @@ def screen_ask_DNS ():
 
    show_progress()
 
-   serverMessage ='\
+   serverMessage = sipxecsGlobals()._('\
 Do you have a DNS server on another system?\
-'
+')
 
    layout = snack.Grid(1, 2)
-   yesButton = snack.Button("Yes - %s SHOULD NOT be my DNS server." % HostName)
-   noButton  = snack.Button("No  - %s SHOULD be my DNS server." % HostName)
+   yesButton = snack.Button(format_string2_5(sipxecsGlobals()._("Yes - %s SHOULD NOT be my DNS server."), HostName))
+   noButton  = snack.Button(format_string2_5(sipxecsGlobals()._("No  - %s SHOULD be my DNS server."), HostName))
    layout.setField(yesButton, 0, 0, (1,1,1,1))
    layout.setField(noButton, 0, 1, (1,1,1,1))
 
-   f = screen_setup("DNS Service", serverMessage, layout)
+   f = screen_setup(sipxecsGlobals()._("DNS Service"), serverMessage, layout)
    choice = f.run()
 
    if choice == noButton :
@@ -336,24 +342,24 @@ Do you have a DNS server on another system?\
    screen_end()
 
    if ProvideDNS :
-       dnsExplanation='\
+       dnsExplanation=sipxecsGlobals()._('\
 Configure upstream DNS servers to be used, if any.\n\
 If you have an intranet DNS system,\n\
 or use DNS from your IP service provider,\n\
 enter those servers here.\n\
 Otherwise, leave these entries blank.\
-'
+')
    else:
-       dnsExplanation='\
+       dnsExplanation=sipxecsGlobals()._('\
 Enter the addresses of your DNS servers:\
-'      
+')
 
    valuesOk = False
    while not valuesOk :
 
        sg = snack.Grid(2, 3)
 
-       l1 = snack.Label("Nameserver 1 Address: ")
+       l1 = snack.Label(sipxecsGlobals()._("Nameserver 1 Address: "))
        try:
            e1 = snack.Entry(32, DnsServers[0])
        except:
@@ -361,7 +367,7 @@ Enter the addresses of your DNS servers:\
        sg.setField(l1, 0, 0)
        sg.setField(e1, 1, 0)
 
-       l2 = snack.Label("Nameserver 2 Address: ")
+       l2 = snack.Label(sipxecsGlobals()._("Nameserver 2 Address: "))
        try:
            e2 = snack.Entry(32, DnsServers[1])
        except:
@@ -369,10 +375,10 @@ Enter the addresses of your DNS servers:\
        sg.setField(l2, 0, 1)
        sg.setField(e2, 1, 1)
 
-       okButton = snack.Button("   OK   ")
+       okButton = snack.Button(sipxecsGlobals()._('   OK   '))
        sg.setField(okButton, 0, 2, (1,1,1,1))
 
-       f = screen_setup("DNS servers", dnsExplanation, sg)
+       f = screen_setup(sipxecsGlobals()._("DNS servers"), dnsExplanation, sg)
 
        f.run()
 
@@ -383,13 +389,13 @@ Enter the addresses of your DNS servers:\
        if DnsServers[0] != '' and DnsServers[0].count('.') < 3:
            # We expect at least 3 dots in an IP addr
            valuesOk=False
-           screen_err('"%s" is not a valid DNS addr' % DnsServers[0])
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid DNS addr'), DnsServers[0]))
            DnsServers[0]=''
 
        if DnsServers[1] != '' and DnsServers[1].count('.') < 3:
            # We expect at least 3 dots in an IP addr
            valuesOk=False
-           screen_err('"%s" is not a valid DNS addr' % DnsServers[1])
+           screen_err(format_string2_5(sipxecsGlobals()._('"%s" is not a valid DNS addr'), DnsServers[1]))
            DnsServers[1]=''
 
        screen_end()
@@ -414,7 +420,7 @@ def set_netif () :
          ifcfgContents   = file (sipxecsGlobals.IfCfgFile).read().strip()
          log_printout("Read network info from %s" % sipxecsGlobals.IfCfgFile)
      except:
-         abortMsgAndExit( "Could not find network file %s" % sipxecsGlobals.IfCfgFile )
+         abortMsgAndExit(format_string2_5(sipxecsGlobals()._( "Could not find network file %s"), sipxecsGlobals.IfCfgFile ))
 
      # Get IP address and IP mask
      addrLst = IpAddress.split('.')
@@ -742,19 +748,19 @@ def screen_set_dhcpd () :
     global HostName
 
     show_progress()
-    serverMessage ='\
+    serverMessage = sipxecsGlobals()._('\
 You will need a DHCP server for your phones.\n\
 \n\
 Do you have a DHCP server on your network?\
-'
+')
 
     layout = snack.Grid(1, 2)
-    yesButton = snack.Button("Yes - %s SHOULD NOT be my DHCP server." % HostName)
-    noButton  = snack.Button("No  - %s SHOULD be my DHCP server." % HostName)
+    yesButton = snack.Button(format_string2_5(sipxecsGlobals()._("Yes - %s SHOULD NOT be my DHCP server."), HostName))
+    noButton  = snack.Button(format_string2_5(sipxecsGlobals()._("No  - %s SHOULD be my DHCP server."), HostName))
     layout.setField(yesButton, 0, 0, (1,1,1,1))
     layout.setField(noButton, 0, 1, (1,1,1,1))
 
-    f = screen_setup("DHCP Service", serverMessage, layout)
+    f = screen_setup(sipxecsGlobals()._("DHCP Service"), serverMessage, layout)
     choice = f.run()
 
     if choice == noButton :
@@ -868,7 +874,7 @@ def screen_set_time () :
 
     show_progress()
 
-    tzExplanationMajor='Select your continent.'
+    tzExplanationMajor=sipxecsGlobals()._('Select your continent.')
 
     majorZones=getZones()
 
@@ -877,7 +883,14 @@ def screen_set_time () :
     if majorZones.count(DEFAULT_CONTINENT) != 0:
         list.setCurrent(DEFAULT_CONTINENT)
 
-    f = screen_setup("Set System Time Zone", tzExplanationMajor, list)
+    sysLocale = os.environ.get('LANG', '')
+    global DEFAULT_CONTINENT
+    global DEFAULT_CITY
+    if sysLocale == 'pt_BR':
+       DEFAULT_CONTINENT = 'Brazil'
+       DEFAULT_CITY = 'Acre'
+
+    f = screen_setup(sipxecsGlobals()._("Set System Time Zone"), tzExplanationMajor, list)
     major = f.run().current()
     TimeZone=major
     screen_end()
@@ -885,14 +898,14 @@ def screen_set_time () :
     if isZoneDir(major) :
         minorZones=getZones(major)
 
-        tzExplanationMinor='Select a city in your time zone.'
+        tzExplanationMinor=sipxecsGlobals()._('Select a city in your time zone.')
 
         minorList=snack.Listbox(10,1,1,32)
         for zone in minorZones : minorList.append(zone,major+'/'+zone)
         if minorZones.count(DEFAULT_CITY) != 0:
             minorList.setCurrent(DEFAULT_CONTINENT+'/'+DEFAULT_CITY)
 
-        f = screen_setup("Time Zone", tzExplanationMinor, minorList)
+        f = screen_setup(sipxecsGlobals()._("Time Zone"), tzExplanationMinor, minorList)
         selection = f.run().current()
         TimeZone=selection
         screen_end()
@@ -928,7 +941,7 @@ UTC=true\n' % TimeZone
     #--- Create /etc/ntp.conf
 
     # must be after the timezone
-    progress(70, "Set system clock")
+    progress(70, sipxecsGlobals()._("Set system clock"))
     show_progress()
 
     timeBeforeSet=time.strftime("%Y-%m-%d %H:%M:%S +000", time.gmtime())
@@ -941,13 +954,13 @@ UTC=true\n' % TimeZone
         # Test for something listening to the ntp port on the configured servers
         # so we don't get stuck in the ntpd command if it's unreachable
         ntpProbe=72
-        checkMsg  = 'Checking reachability of NTP servers:\n   '
+        checkMsg  = sipxecsGlobals()._('Checking reachability of NTP servers:\n   ')
         checkMsg += '\n   '.join(NtpServers)
         progress(ntpProbe, checkMsg)
         show_progress()
         for ts in NtpServers :
             ntpProbe+=1
-            probeMsg="Probe of NTP server '%s'" % ts
+            probeMsg=format_string2_5(sipxecsGlobals()._("Probe of NTP server '%s'"), ts)
             progress(ntpProbe, probeMsg)
             show_starting()
             peerCmd='ping -c 1 -i 0.5 "%s"' % ts
@@ -961,29 +974,29 @@ UTC=true\n' % TimeZone
                 log_printout(peerResult[1])
                 if peerResult[0] == 0 :
                     ntpServerReachable=True
-                    probeMsg="NTP server found at '%s'" % ts
+                    probeMsg=format_string2_5(sipxecsGlobals()._("NTP server found at '%s'"), ts)
                 else:
-                    probeMsg="No NTP server detected at '%s'" % ts
+                    probeMsg=format_string2_5(sipxecsGlobals()._("No NTP server detected at '%s'"), ts)
             else:
-                probeMsg="Probe of NTP server '%s' Failed" % ts
+                probeMsg=format_string2_5(sipxecsGlobals()._("Probe of NTP server '%s' Failed"), ts)
             show_next()
             progress(ntpProbe, probeMsg)
             show_progress()
             
         if not ntpServerReachable :
-            errorMsg  = 'Unable to verify reachability of any NTP servers:\n   '
+            errorMsg  = sipxecsGlobals()._('Unable to verify reachability of any NTP servers:\n   ')
             errorMsg += '\n   '.join(NtpServers)
-            errorMsg += '\n\
+            errorMsg += sipxecsGlobals()._('\n\
 It is important that the system time is controlled\n\
-using NTP if possible.'
+using NTP if possible.')
             grid = snack.Grid(2, 1)
-            reconfigButton = snack.Button("Reconfigure servers")
+            reconfigButton = snack.Button(sipxecsGlobals()._("Reconfigure servers"))
             grid.setField(reconfigButton, 0, 0, (1,0,1,1))
 
-            continueButton = snack.Button("Continue with these servers")
+            continueButton = snack.Button(sipxecsGlobals()._("Continue with these servers"))
             grid.setField(continueButton, 1, 0, (1,0,1,1))
 
-            f = screen_setup("NTP Server Reachability", errorMsg, grid)
+            f = screen_setup(sipxecsGlobals()._("NTP Server Reachability"), errorMsg, grid)
             choice = f.run()
 
             screen_end()
@@ -992,13 +1005,13 @@ using NTP if possible.'
                 log_printout("User continued with unreachable servers")
                 ntpServerForceReady=True
             else :
-                netExplanation='Configure NTP Servers:\n'
+                netExplanation=sipxecsGlobals()._('Configure NTP Servers:\n')
 
                 sg = snack.Grid(1, 4)
                 try:
                     e1 = snack.Entry(32, NtpServers[0])
                 except:
-                    e1 = snack.Entry(32, '')                        
+                    e1 = snack.Entry(32, '')
                 sg.setField(e1, 0, 0)
                 try:
                     e2 = snack.Entry(32, NtpServers[1])
@@ -1011,9 +1024,9 @@ using NTP if possible.'
                     e3 = snack.Entry(32, '')
                 sg.setField(e3, 0, 2)
 
-                okButton = snack.Button("   OK   ")
+                okButton = snack.Button(sipxecsGlobals()._('   OK   '))
                 sg.setField(okButton, 0, 3, (1,1,1,1))
-                f = screen_setup("NTP Servers", netExplanation, sg)
+                f = screen_setup(sipxecsGlobals()._("NTP Servers"), netExplanation, sg)
                 f.run()
 
                 NtpServers=[]
@@ -1070,7 +1083,7 @@ driftfile /var/lib/ntp/drift\n\
     if ntpServerReachable :
         # Set Time
         # try setting the clock with ntp if possible
-        ntpSetMsg="Setting time with NTP"
+        ntpSetMsg=sipxecsGlobals()._("Setting time with NTP")
         progress(78, ntpSetMsg)
         show_starting()
         if runningAsRoot() :
@@ -1097,13 +1110,13 @@ driftfile /var/lib/ntp/drift\n\
         # Set time manually
         grid=snack.Grid(6,4)
 
-        timeExplanation="\
+        timeExplanation=sipxecsGlobals()._("\
 Unable to set the time with NTP.\n\
 Set the local date and time manually.\n\
 Use the up and down arrow keys to increment and decrement each field; tab between fields.\n\
 Hours are 00-23.\
-    "
-        dateLabel=snack.Label("Date (year-month-day)")
+    ")
+        dateLabel=snack.Label(sipxecsGlobals()._("Date (year-month-day)"))
         grid.setField(dateLabel,0,0)
 
         year=snack.Listbox(1,0,0,4,0)
@@ -1178,7 +1191,7 @@ Hours are 00-23.\
         day.setCurrent("01")
         grid.setField(day,5,0)
 
-        timeLabel=snack.Label("Time (hour:minute)")
+        timeLabel=snack.Label(sipxecsGlobals()._("Time (hour:minute)"))
         grid.setField(timeLabel,0,1)
 
         hour=snack.Listbox(1,0,0,2,0)
@@ -1276,10 +1289,10 @@ Hours are 00-23.\
         minute.setCurrent("00")
         grid.setField(minute,3,1)
 
-        okButton = snack.Button("OK")
+        okButton = snack.Button(sipxecsGlobals()._("OK"))
         grid.setField(okButton,0,2,(1,1,1,1))
 
-        f = screen_setup("Set Date/Time", timeExplanation, grid)
+        f = screen_setup(sipxecsGlobals()._("Set Date/Time"), timeExplanation, grid)
         f.run()
 
         dateCmd="date --set='%s-%s-%s %s:%s'" % (year.current(),month.current(),day.current(),hour.current(),minute.current())
@@ -1301,7 +1314,7 @@ Hours are 00-23.\
     else:
         log_printout("(simulated) Setting hardware clock: "+dateCmd)
 
-    ntpStartMsg='Start NTP Server'
+    ntpStartMsg=sipxecsGlobals()._('Start NTP Server')
     progress(79, ntpStartMsg)
     show_starting()
     if runningAsRoot() :
@@ -1345,7 +1358,7 @@ def update_preLogonMessage () :
      global HostName
      global IpAddress
      
-     logonMessage = '\
+     logonMessage = format_string2_5(sipxecsGlobals()._('\
 \n\
 Welcome to your new VoIP system\n\
 ===============================\n\
@@ -1353,7 +1366,7 @@ Welcome to your new VoIP system\n\
 Admin interface:\n\
 Point a Browser at: http://%s\n\
                 or: http://%s\n\
-\n' % ( HostName, IpAddress )
+\n'), (HostName, IpAddress))
 
      log_printout("/etc/issue file:")
      log_printout(logonMessage)
@@ -1364,12 +1377,12 @@ Point a Browser at: http://%s\n\
 def screen_services () :
     show_progress()
 
-    servicesMessage ="\
+    servicesMessage = format_string2_5(sipxecsGlobals()._("\
 The system level parameters have been configured. \n\
-The next step is to configure the @SIPXECS_NAME@\n\
+The next step is to configure the %s\n\
 service bootstrap parameters.\n\
 \n\
-"
+"), '@SIPXECS_NAME@')
     screen_msg(servicesMessage)
 
 
@@ -1386,7 +1399,6 @@ log_printout("Start @SIPX_VERSION@");
 screen_init()
 
 try:
-
     # Root user should run this script
     if runningAsRoot() :
         log_result('Root user', 'Ok')
@@ -1394,50 +1406,52 @@ try:
         if testing() :
             log_printout('\n TESTING AS NON-ROOT USER')
         else :
-            abortMsgAndExit( 'You must be the "root" user to run this script' )
-            
+            abortMsgAndExit( sipxecsGlobals()._('You must be the "root" user to run this script' ))
+
+    chooseLanguage()
+
     removeInitScript()
     linuxType=checkSystemType()
 
-    progress(3,"Start Wizard")
+    progress(3, sipxecsGlobals()._("Start Wizard"))
     screen_startup()
 
-    progress(10, "Administrative Password")
+    progress(10, sipxecsGlobals()._("Administrative Password"))
     screen_setup_admin()
 
-    progress(20, "Collect Network Settings")
+    progress(20, sipxecsGlobals()._("Collect Network Settings"))
     screen_ask_net()
 
-    progress(30, "Collect DNS Settings")
+    progress(30, sipxecsGlobals()._("Collect DNS Settings"))
     screen_ask_DNS()
 
-    progress(40, "Configure network interface")
+    progress(40, sipxecsGlobals()._("Configure network interface"))
     set_netif()
 
-    progress(50, "Configure network services")
+    progress(50, sipxecsGlobals()._("Configure network services"))
     set_network()
     set_DNS()
 
-    progress(55, "Start network")
+    progress(55, sipxecsGlobals()._("Start network"))
     start_network()
     
-    progress(60, "Time Settings")
+    progress(60, sipxecsGlobals()._("Time Settings"))
     screen_set_time()
 
-    progress(80, "DHCP Service")
+    progress(80, sipxecsGlobals()._("DHCP Service"))
     screen_set_dhcpd()
 
     # Modify console logon message
-    progress(90, "Finish system setup")
+    progress(90, sipxecsGlobals()._("Finish system setup"))
     update_preLogonMessage ()
 
-    progress(100, "Setup @SIPXECS_NAME@ Services")
+    progress(100, format_string2_5( sipxecsGlobals()._("Setup %s Services"), '@SIPXECS_NAME@'))
     screen_services()
     
-    progress(0, "@SIPXECS_NAME@ Services Setup")
+    progress(0, format_string2_5( sipxecsGlobals()._("%s Services Setup"), '@SIPXECS_NAME@'))
     do_sipx_setup()
 
-    progress(100, 'Ready')
+    progress(100, sipxecsGlobals()._('Ready'))
     setup_completed()
     # setup_completed does not return
 
@@ -1451,7 +1465,8 @@ except:
         errStack = traceback.extract_tb(excTrace)[-1]
         errMsg   = 'UNEXPECTED EXCEPTION CAPTURED:\n'
         errMsg  += '%s: %s ' % (str(excType), str(excData))
-        errMsg  += '(exception occured in file: %s, line: %s)' % (errStack[0], errStack[1])
+        errMsg  += '(exception occured in file: %s, line: %s)\n\n' % (errStack[0], errStack[1])
+        errMsg += traceback.format_exc()
         abortMsgAndExit( errMsg )
     cleanExit()
 

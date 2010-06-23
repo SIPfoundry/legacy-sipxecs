@@ -24,5 +24,4 @@
     <file>@SIPX_CONFDIR@/sipxacccode.properties</file>
     <file>@SIPX_CONFDIR@/authcodes.xml</file>
   </resources>
-  <stdinpipe>true</stdinpipe>
 </sipXecs-process>

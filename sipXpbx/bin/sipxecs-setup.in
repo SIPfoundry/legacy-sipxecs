@@ -28,9 +28,13 @@
 #
 #----------------------------------------------------------------------
 
-import os, commands, sys, re, time, traceback, glob, signal, snack
+import os, commands, sys, re, time, traceback, glob, signal, snack, locale
 
 sys.path.insert(0,'@SIPX_LIBEXECDIR@')
+
+import gettext
+gettext.install('sipXecs', '@SIPX_DATADIR@/locale')
+locale.setlocale(locale.LC_ALL, '')
 
 from sipxecs_setup_common import *
 
@@ -40,20 +44,22 @@ HostName = ''
 def screen_sipx_startup ():
    global explain
 
-   initialMessage ='\
+   t = sipxecsGlobals()
+   initialMessage = format_string2_5( t._('\
 This wizard creates the bootstrap configuration\n\
-for @SIPXECS_NAME@.\n\
+for %s.\n\
 \n\
 Any existing configuration will be overwritten if you continue.\
-'
+'), '@SIPXECS_NAME@')
    grid = snack.Grid(2, 1)
-   continueButton = snack.Button("Continue")
+   continueButton = snack.Button(t._("Continue"))
    grid.setField(continueButton, 0, 0, (1,0,1,1))
 
-   exitButton = snack.Button("Exit")
+   exitButton = snack.Button(t._("Exit"))
    grid.setField(exitButton, 1, 0, (1,0,1,1))
 
-   f = screen_setup("@SIPXECS_NAME@ System Setup Wizard", initialMessage, grid)
+   titleMessage = format_string2_5(t._('%s System Setup Wizard'), '@SIPXECS_NAME@')
+   f = screen_setup(titleMessage, initialMessage, grid)
    choice = f.run()
 
    screen_end()
@@ -64,7 +70,7 @@ Any existing configuration will be overwritten if you continue.\
 
 def refresh_sipxconfig_db () :
     
-    progress(95, 'Refreshing configuration database' )
+    progress(95, sipxecsGlobals()._('Refreshing configuration database') )
     show_progress()
 
     cmdoutput=commands.getoutput('@SIPX_BINDIR@/sipxconfig.sh --first-run')
@@ -83,7 +89,8 @@ log_printout("Start @SIPX_VERSION@")
 screen_init()
 
 try:
-    progress(1,"Start @SIPXECS_NAME@ Services Setup")
+    chooseLanguage()
+    progress(1, format_string2_5(sipxecsGlobals()._("Start %s Services Setup"), '@SIPXECS_NAME@'))
     screen_sipx_startup()
 
     checkSystemType()
@@ -91,7 +98,7 @@ try:
 
     refresh_sipxconfig_db()
 
-    progress(100, 'Ready')
+    progress(100, sipxecsGlobals()._('Ready'))
     setup_completed()
     # setup_completed does not return
 
@@ -105,7 +112,8 @@ except:
         errStack = traceback.extract_tb(excTrace)[-1]
         errMsg   = 'UNEXPECTED EXCEPTION CAPTURED:\n\n'
         errMsg  += '%s: %s ' % (str(excType), str(excData))
-        errMsg  += '(exception occured in file: %s, line: %s)' % (errStack[0], errStack[1])
+        errMsg  += '(exception occured in file: %s, line: %s)\n\n' % (errStack[0], errStack[1])
+        errMsg += traceback.format_exc()
         abortMsgAndExit( errMsg )
     cleanExit()
 

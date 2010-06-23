@@ -244,7 +244,7 @@
             <value>English</value>
           </option>
           <option>
-            <value>Canadien français</value>
+	    <value>Portuguese-BR</value>
           </option>
         </enum>
       </type>
