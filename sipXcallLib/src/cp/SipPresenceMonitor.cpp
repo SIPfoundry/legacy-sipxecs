@@ -42,10 +42,6 @@
 #define CONFIG_SETTING_HTTP_PORT              "SIP_PRESENCE_HTTP_PORT"
 #define PRESENCE_DEFAULT_HTTP_PORT            8111
 
-// The presence status we attribute to resources that we have no
-// information about.
-#define DEFAULT_PRESENCE_STATUS STATUS_CLOSED
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -69,6 +65,12 @@ const UtlString SipPresenceMonitor::sXmlNamespace("http://www.sipfoundry.org/sip
 class PresenceDefaultConstructor : public SipPublishContentMgrDefaultConstructor
 {
   public:
+   // Constructor
+   PresenceDefaultConstructor(// owning SipPresenceMonitor
+                              SipPresenceMonitor* mSipPresenceMonitor);
+
+   // Destructor
+   ~PresenceDefaultConstructor();
 
    /** Generate the content for a resource and event.
     */
@@ -85,10 +87,25 @@ class PresenceDefaultConstructor : public SipPublishContentMgrDefaultConstructor
 
 protected:
    static UtlContainableType TYPE;    /** < Class type used for runtime checking */
+
+   //! The owning SipPresenceMonitor
+   SipPresenceMonitor* mpSipPresenceMonitor;
+
 };
 
 // Static identifier for the type.
 const UtlContainableType PresenceDefaultConstructor::TYPE = "PresenceDefaultConstructor";
+
+// Constructor
+PresenceDefaultConstructor::PresenceDefaultConstructor(SipPresenceMonitor* parent) :
+   mpSipPresenceMonitor(parent)
+{
+}
+
+// Destructor
+PresenceDefaultConstructor::~PresenceDefaultConstructor()
+{
+}
 
 // Generate the default content for presence status.
 void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* contentMgr,
@@ -110,7 +127,10 @@ void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
    UtlString resource(resourceId);
    SipPresenceMonitor::makeId(id, resource);
    Tuple* tuple = new Tuple(id.data());
-   tuple->setStatus(DEFAULT_PRESENCE_STATUS);
+   Url aor(resourceId);
+   UtlString status;
+   mpSipPresenceMonitor->getState(aor, status);
+   tuple->setStatus(status);
    tuple->setContact(resourceId, 1.0);
 
    sipPresenceEvent->insertTuple(tuple);
@@ -130,7 +150,7 @@ void PresenceDefaultConstructor::generateDefaultContent(SipPublishContentMgr* co
 SipPublishContentMgrDefaultConstructor* PresenceDefaultConstructor::copy()
 {
    // Copying these objects is easy, since they have no member variables, etc.
-   return new PresenceDefaultConstructor;
+   return new PresenceDefaultConstructor(mpSipPresenceMonitor);
 }
 
 // Get the ContainableType for a UtlContainable derived class.
@@ -229,7 +249,7 @@ SipPresenceMonitor::SipPresenceMonitor(SipUserAgent* userAgent,
                                 *mpSubscriptionMgr, mPolicyHolder);
       // Arrange to generate default content for presence events.
       mSipPublishContentMgr.publishDefault(PRESENCE_EVENT_TYPE, PRESENCE_EVENT_TYPE,
-                                           new PresenceDefaultConstructor);
+                                           new PresenceDefaultConstructor(this));
       mpSubscribeServer->enableEventType(PRESENCE_EVENT_TYPE);
       mpSubscribeServer->start();
    }
