@@ -14,6 +14,7 @@
         user="ognl:user"/>
       <span jwcid="voicemailServer@vm/VoicemailServerComponent" id="voicemailServer"
         settings="ognl:editedUser.settings"/>
+      <span jwcid="@setting/SettingsFieldset" settings="ognl:getUserFaxSettings" renderGroupTitle="ognl:true"/>
     </table>
     <span jwcid="@common/FormActions" listener="listener:onApply" callback="ognl:callback"/>
   </form>

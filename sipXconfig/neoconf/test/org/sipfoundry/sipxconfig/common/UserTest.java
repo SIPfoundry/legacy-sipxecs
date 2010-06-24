@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
@@ -145,7 +146,12 @@ public class UserTest extends TestCase {
     }
 
     public void testGetAliases() {
-        User user = new User();
+        User user = new User() {
+            @Override
+            public Integer getFaxExtension() {
+                return new Integer(321);
+            }
+        };
         user.setUserName("username");
 
         Set aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
@@ -160,7 +166,7 @@ public class UserTest extends TestCase {
         checkAliases(user);
 
         List aliasMappings = user.getAliasMappings("sipfoundry.org", "imId");
-        assertEquals(3, aliasMappings.size());
+        assertEquals(4, aliasMappings.size());
 
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
         assertEquals("mambo@sipfoundry.org", alias.getIdentity());
@@ -174,14 +180,18 @@ public class UserTest extends TestCase {
         AliasMapping imIdAlias = (AliasMapping) aliasMappings.get(2);
         assertEquals("imId@sipfoundry.org", imIdAlias.getIdentity());
 
+        AliasMapping faxAlias = (AliasMapping) aliasMappings.get(3);
+        assertEquals("321@sipfoundry.org", faxAlias.getIdentity());
+        assertEquals("sip:~~fx~" + user.getUserName() + "@sipfoundry.org", faxAlias.getContact());
+
         List otherAliasMappings1 = user.getAliasMappings("sipfoundry.org", "mambo");
-        assertEquals(2, otherAliasMappings1.size());
+        assertEquals(3, otherAliasMappings1.size());
 
         // Set the additional alias, imId, to user's userName, it should not be
         // added as an alias.
         String imId = user.getUserName();
         List otherAliasMappings2 = user.getAliasMappings("sipfoundry.org", imId);
-        assertEquals(2, otherAliasMappings2.size());
+        assertEquals(3, otherAliasMappings2.size());
     }
 
     private void checkAliases(User user) {
@@ -193,7 +203,12 @@ public class UserTest extends TestCase {
     }
 
     public void testGetEmptyAliases() {
-        User user = new User();
+        User user = new User() {
+            @Override
+            public Integer getFaxExtension() {
+                return null;
+            }
+        };
         user.setUserName("username");
         List aliasMappings = user.getAliasMappings("sipfoundry.org", "");
         assertEquals(0, aliasMappings.size());

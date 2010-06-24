@@ -96,11 +96,12 @@ public class InternalRuleTest extends TestCase {
         List<DialingRule> rules = new ArrayList<DialingRule>();
         ir.appendToGenerationRules(rules);
 
-        assertEquals(3, rules.size());
+        assertEquals(4, rules.size());
 
         MappingRule v = (MappingRule) rules.get(0);
         MappingRule vt = (MappingRule) rules.get(1);
         MappingRule vf = (MappingRule) rules.get(2);
+        MappingRule faxRule = (MappingRule) rules.get(3);
 
         assertEquals(TEST_DESCRIPTION, v.getDescription());
         assertEquals("20004", v.getPatterns()[0]);
@@ -119,6 +120,12 @@ public class InternalRuleTest extends TestCase {
         assertEquals(PermissionName.FREESWITH_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>;q=0.1", tvf.getUrl());
+
+        assertEquals("Fax Routing rule", faxRule.getDescription());
+        assertEquals("~~fx~.", faxRule.getPatterns()[0]);
+        assertEquals(0 == faxRule.getPermissionNames().size(), true);
+        UrlTransform faxRuleUrl = (UrlTransform) faxRule.getTransforms()[0];
+        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=faxrx>", faxRuleUrl.getUrl());
 
         EasyMock.verify(m_beanFactory, m_localizationContext);
     }
@@ -142,7 +149,7 @@ public class InternalRuleTest extends TestCase {
         List<DialingRule> rules = new ArrayList<DialingRule>();
         ir.appendToGenerationRules(rules);
 
-        assertEquals(3, rules.size());
+        assertEquals(4, rules.size());
 
         MappingRule v = (MappingRule) rules.get(0);
         v.setSchedule(m_schedule);
@@ -192,11 +199,12 @@ public class InternalRuleTest extends TestCase {
         List rules = new ArrayList();
         ir.appendToGenerationRules(rules);
 
-        assertEquals(3, rules.size());
+        assertEquals(4, rules.size());
 
         MappingRule v = (MappingRule) rules.get(0);
         MappingRule vt = (MappingRule) rules.get(1);
         MappingRule vf = (MappingRule) rules.get(2);
+        MappingRule faxRule = (MappingRule) rules.get(3);
 
         assertEquals(TEST_DESCRIPTION, v.getDescription());
         assertEquals("20004", v.getPatterns()[0]);
@@ -215,6 +223,12 @@ public class InternalRuleTest extends TestCase {
         assertEquals(PermissionName.FREESWITH_VOICEMAIL.getName(), vf.getPermissionNames().get(0));
         UrlTransform tvf = (UrlTransform) vf.getTransforms()[0];
         assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit;locale=pl>;q=0.1", tvf.getUrl());
+
+        assertEquals("Fax Routing rule", faxRule.getDescription());
+        assertEquals("~~fx~.", faxRule.getPatterns()[0]);
+        assertEquals(0 == faxRule.getPermissionNames().size(), true);
+        UrlTransform faxRuleUrl = (UrlTransform) faxRule.getTransforms()[0];
+        assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=faxrx;locale=pl>", faxRuleUrl.getUrl());
 
         EasyMock.verify(m_beanFactory, m_localizationContext);
     }

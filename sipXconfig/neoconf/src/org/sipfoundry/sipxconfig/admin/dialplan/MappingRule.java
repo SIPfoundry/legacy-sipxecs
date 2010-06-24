@@ -17,6 +17,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Transform;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
 
 /**
  * MappingRule
@@ -193,6 +194,21 @@ public class MappingRule extends DialingRule {
             return CallTag.VM;
         }
     }
+
+    public static class FaxForward extends MappingRule {
+        public FaxForward(MediaServer mediaServer) {
+            setPatterns(new String[] {
+                AbstractUser.FAX_EXTENSION_PREFIX + "."
+            });
+            setUrl(mediaServer.buildFaxForwardUrl());
+        }
+
+        @Override
+        public CallTag getCallTag() {
+            return CallTag.FAX;
+        }
+    }
+
 
     public static class VoicemailTransfer extends MappingRule {
         public VoicemailTransfer(String prefix, int extensionLen, MediaServer mediaServer) {

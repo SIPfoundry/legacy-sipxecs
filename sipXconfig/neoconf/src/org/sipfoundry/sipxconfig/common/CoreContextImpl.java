@@ -307,6 +307,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         List names = new ArrayList(user.getAliases());
         String userName = user.getUserName();
         names.add(userName);
+        String faxExtension = null == user.getFaxExtension() ? "" : user.getFaxExtension().toString();
+        if (!faxExtension.isEmpty()) {
+            names.add(faxExtension);
+        }
         result = checkForDuplicateString(names);
         if (result == null) {
             // Check whether the userName is a duplicate.
@@ -326,6 +330,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                     result = imAccount.getImId();
                 }
 
+                // check if the user's fax extension is unique in the alias namespace
+                if (!faxExtension.isEmpty()) {
+                    if (!m_aliasManager.canObjectUseAlias(user, faxExtension)) {
+                        result = faxExtension;
+                    }
+                }
             }
         }
 

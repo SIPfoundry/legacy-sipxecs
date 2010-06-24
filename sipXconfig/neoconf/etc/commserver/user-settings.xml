@@ -166,6 +166,13 @@
     </setting>
   </group>
   <group name="voicemail">
+    <group name="fax">
+      <setting name="extension">
+        <type>
+          <integer />
+        </type>
+      </setting>
+    </group>
     <group name="mailbox" hidden="yes">
       <setting name="active-greeting">
         <type>

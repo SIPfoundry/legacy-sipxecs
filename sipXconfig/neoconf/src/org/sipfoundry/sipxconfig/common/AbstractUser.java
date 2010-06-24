@@ -61,6 +61,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
 
     public static final String MOH_SETTING = "moh";
     public static final String MOH_AUDIO_SOURCE_SETTING = "moh/audio-source";
+    public static final String FAX_EXTENSION_PREFIX = "~~fx~";
 
     public static enum MohAudioSource {
         FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
@@ -107,7 +108,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
 
     private MusicOnHoldManager m_musicOnHoldManager;
 
-    private Client m_restClient = new Client(Protocol.HTTP);
+    private final Client m_restClient = new Client(Protocol.HTTP);
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -336,7 +337,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
 
     public List getAliasMappings(String domainName, String additionalAlias) {
         final String contact = getUri(domainName);
-        List mappings = new ArrayList(getAliases().size());
+        List mappings = new ArrayList();
         for (String alias : getAliases()) {
             mappings.add(getAliasMapping(alias, contact, domainName));
         }
@@ -347,16 +348,25 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
             mappings.add(getAliasMapping(additionalAlias, contact, domainName));
         }
 
+        // add fax extension aliases
+        String faxExtension = null == getFaxExtension() ? "" : getFaxExtension().toString();
+        if (!faxExtension.isEmpty()) {
+            String faxContactUri = SipUri.format(getDisplayName(), FAX_EXTENSION_PREFIX + getUserName(), domainName);
+            mappings.add(getAliasMapping(faxExtension, faxContactUri, domainName, true));
+        }
         return mappings;
     }
 
     private AliasMapping getAliasMapping(String alias, final String contact, String domainName) {
+        return getAliasMapping(alias, contact, domainName, false);
+    }
+
+    private AliasMapping getAliasMapping(String alias, final String contact, String domainName, boolean isFaxAlais) {
         if (isBlank(alias)) {
             throw new RuntimeException("Found an empty alias for user " + m_userName);
         }
         final String identity = createUri(alias, domainName);
-        AliasMapping mapping = new AliasMapping(identity, contact, "alias");
-        return mapping;
+        return new AliasMapping(identity, contact, isFaxAlais ? "fax" : "alias");
     }
 
     /**
@@ -429,6 +439,11 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
 
     private Setting retrieveSettingForPermission(Permission permission) {
         return retrieveSettingForSettingPath(permission.getSettingPath(), permission.getName());
+    }
+
+    public Integer getFaxExtension() {
+        Setting setting = null == getSettings() ? null : getSettings().getSetting("voicemail/fax/extension");
+        return null == setting ? null : (Integer) setting.getTypedValue();
     }
 
     public boolean isSupervisor() {
