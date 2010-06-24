@@ -6,6 +6,7 @@ bin_SCRIPTS = \
 	 sipxecs-setup \
 	 sipxecs-upgrade \
 	 sipxecs-setup-system \
+	 sipxecs-pgcdraccess \
 	 analyze_483s \
 	 sipx-snapshot \
 	 sipx-backup \
@@ -69,6 +70,7 @@ SCRIPT_TEMPLATES = \
 	sipx-archive-common.in \
 	sipx-test-tmp.in \
 	sipx-test-maxfds.in \
+	sipxecs-pgcdraccess.in \
 	sipx-zoneadmin.sh.in
 
 PythonScripts = \

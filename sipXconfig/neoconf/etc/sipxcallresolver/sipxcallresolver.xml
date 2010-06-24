@@ -46,6 +46,12 @@
       <type refid="enablestate" />
       <value>ENABLE</value>
     </setting>
+    <setting name="SIP_CALLRESOLVER_REMOTE_ACCESS" advanced="yes">
+      <type>
+         <ipaddrwildcard/>
+      </type>
+      <value />
+    </setting>
     <setting name="SIP_CALLRESOLVER_PURGE">
       <type refid="enablestate" />
       <value>ENABLE</value>
