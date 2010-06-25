@@ -96,7 +96,6 @@ nobase_include_HEADERS = \
     os/shared/OsTimerMessage.h \
     os/OsStunAgentTask.h \
     os/OsStunQueryAgent.h \
-    os/OsStunAgentTask.h \
     os/OsStunDatagramSocket.h \
     os/qsTypes.h \
     xmlparser/XmlErrorMsg.h \
