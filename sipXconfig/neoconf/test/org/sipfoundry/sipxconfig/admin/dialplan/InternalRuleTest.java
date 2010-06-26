@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
@@ -122,7 +123,7 @@ public class InternalRuleTest extends TestCase {
         assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit>;q=0.1", tvf.getUrl());
 
         assertEquals("Fax Routing rule", faxRule.getDescription());
-        assertEquals("~~fx~.", faxRule.getPatterns()[0]);
+        assertEquals("~~ff~.", faxRule.getPatterns()[0]);
         assertEquals(0 == faxRule.getPermissionNames().size(), true);
         UrlTransform faxRuleUrl = (UrlTransform) faxRule.getTransforms()[0];
         assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=faxrx>", faxRuleUrl.getUrl());
@@ -225,7 +226,7 @@ public class InternalRuleTest extends TestCase {
         assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=deposit;locale=pl>;q=0.1", tvf.getUrl());
 
         assertEquals("Fax Routing rule", faxRule.getDescription());
-        assertEquals("~~fx~.", faxRule.getPatterns()[0]);
+        assertEquals("~~ff~.", faxRule.getPatterns()[0]);
         assertEquals(0 == faxRule.getPermissionNames().size(), true);
         UrlTransform faxRuleUrl = (UrlTransform) faxRule.getTransforms()[0];
         assertEquals("<sip:IVR@192.168.1.1:0;mailbox={vdigits};action=faxrx;locale=pl>", faxRuleUrl.getUrl());

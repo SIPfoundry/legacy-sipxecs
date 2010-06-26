@@ -61,7 +61,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
 
     public static final String MOH_SETTING = "moh";
     public static final String MOH_AUDIO_SOURCE_SETTING = "moh/audio-source";
-    public static final String FAX_EXTENSION_PREFIX = "~~fx~";
+    public static final String FAX_EXTENSION_PREFIX = "~~ff~";
 
     public static enum MohAudioSource {
         FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;

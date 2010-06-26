@@ -182,7 +182,7 @@ public class UserTest extends TestCase {
 
         AliasMapping faxAlias = (AliasMapping) aliasMappings.get(3);
         assertEquals("321@sipfoundry.org", faxAlias.getIdentity());
-        assertEquals("sip:~~fx~" + user.getUserName() + "@sipfoundry.org", faxAlias.getContact());
+        assertEquals("sip:~~ff~" + user.getUserName() + "@sipfoundry.org", faxAlias.getContact());
 
         List otherAliasMappings1 = user.getAliasMappings("sipfoundry.org", "mambo");
         assertEquals(3, otherAliasMappings1.size());
