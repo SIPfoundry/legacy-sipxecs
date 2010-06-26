@@ -904,3 +904,14 @@ div.userPortal
 	font-family: Monospace;
 	margin-top: 8px;
 }
+
+div.dialog
+{
+	background-color: white;
+	width: 400px;
+	height: 540px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	border:3px solid #3F4D5D;
+}

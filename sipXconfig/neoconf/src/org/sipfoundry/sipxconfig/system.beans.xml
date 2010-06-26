@@ -273,6 +273,17 @@
     </property>
   </bean>
 
+  <bean id="velocityEngineClasspath" class="org.springframework.ui.velocity.VelocityEngineFactoryBean">
+    <property name="resourceLoaderPath">
+      <value>classpath:org/sipfoundry/sipxconfig</value>
+    </property>
+    <property name="velocityPropertiesMap">
+      <map>
+        <entry key="velocimacro.permissions.allow.inline.local.scope" value="true" />
+      </map>
+    </property>
+  </bean>
+
   <!--
     - E H C A C H E
   -->

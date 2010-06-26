@@ -1,0 +1,16 @@
+<table width="100%" align="left">
+    <tr>
+	<td><H3>${defaultAbout.title}</H3></td>
+    </tr>
+	<tr>
+		<td>${defaultAbout.name}</td>
+	</tr>
+	<BR/>
+	<tr>
+		<td>${defaultAbout.details}</td>
+	</tr>
+	<BR/>
+	<tr>
+		<td>${defaultAbout.copyright}</td>
+	</tr>
+</table>
