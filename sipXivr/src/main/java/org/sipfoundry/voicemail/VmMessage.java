@@ -522,6 +522,9 @@ public class VmMessage {
 
             operation = "writing SequnceInputStream to "+newFile.getPath();
             AudioSystem.write(concatStream, AudioFileFormat.Type.WAVE, newFile);
+            clip1.close();
+            clip2.close();
+            concatStream.close();
             LOG.info("VmMessage::concatAudio created combined file "+newFile.getPath());
         } catch (Exception e) {
             String trouble = "VmMessage::concatAudio Problem while "+operation;
