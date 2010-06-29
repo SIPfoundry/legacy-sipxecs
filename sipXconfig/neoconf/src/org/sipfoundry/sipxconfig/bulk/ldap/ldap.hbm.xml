@@ -3,6 +3,14 @@
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.bulk.ldap" default-lazy="false">
 
+  <class name="LdapSystemSettings" table="ldap_settings">
+    <id name="id" column="ldap_settings_id" type="int" unsaved-value="-1">
+      <generator class="native" />
+    </id>
+    <property name="enableWebAuthentication" />
+    <property name="enableOpenfireConfiguration" />
+  </class>
+
   <class name="LdapConnectionParams" table="ldap_connection">
     <id name="id" column="ldap_connection_id" type="int" unsaved-value="-1">
       <generator class="native" />

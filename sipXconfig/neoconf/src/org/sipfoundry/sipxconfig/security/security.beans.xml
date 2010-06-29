@@ -32,6 +32,7 @@
         <ref local="userAuthenticationProvider" />
         <ref local="sharedSecretUserAuthenticationProvider" />
         <ref local="locationAuthenticationProvider" />
+        <ref local="ldapAuthProvider" />
       </list>
     </property>
   </bean>
@@ -177,6 +178,14 @@
         /(services|rest)/.*=ROLE_ADMIN
         /initial-config/.*=ROLE_LOCATION
       </value>
+    </property>
+  </bean>
+
+  <bean id="ldapAuthProvider" class="org.sipfoundry.sipxconfig.security.ConfigurableLdapAuthenticationProvider">
+    <property name="userDetailsService" ref="sharedSecretUserDetailsService" />
+    <property name="ldapManager" ref="ldapManager"/>   
+    <property name="authoritiesPopulator">
+      <bean class="org.sipfoundry.sipxconfig.security.SipxLdapAuthoritiesPopulator"/>            
     </property>
   </bean>
 

@@ -416,6 +416,13 @@
     object_class CDATA #IMPLIED
 >
 
+<!ELEMENT ldap_settings EMPTY>
+<!ATTLIST ldap_settings
+    ldap_settings_id CDATA #REQUIRED
+    enable_web_authentication CDATA #IMPLIED
+    enable_openfire_configuration CDATA #IMPLIED
+>
+
 <!ELEMENT ldap_user_property_to_ldap_attr EMPTY>
 <!ATTLIST ldap_user_property_to_ldap_attr
     ldap_attr_map_id CDATA #REQUIRED

@@ -127,6 +127,6 @@ public abstract class LdapImportPreview extends SipxBasePage implements PageBegi
     public String ok() {
         setExample(null);
         setFile(null);
-        return LdapImport.PAGE;
+        return LdapPage.PAGE;
     }
 }

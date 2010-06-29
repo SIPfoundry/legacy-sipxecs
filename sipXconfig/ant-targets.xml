@@ -365,9 +365,10 @@
 	<javac
        destdir="${test.classes.dir}"
        classpathref="base.path"
-       debug="${debug}"
+       debug="true"
+       debuglevel="lines,vars,source"
        deprecation="${deprecation}"
-       optimize="${optimize}"
+       optimize="false"
        source="1.6"
        target="1.6"/>
   </presetdef>

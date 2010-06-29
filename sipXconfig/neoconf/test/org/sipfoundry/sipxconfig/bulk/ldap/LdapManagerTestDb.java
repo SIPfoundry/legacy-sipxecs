@@ -28,6 +28,20 @@ public class LdapManagerTestDb extends TestCaseDb {
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
+    public void testLdapSystemSettings() throws Exception {
+        LdapSystemSettings settings = m_context.getSystemSettings();    	
+        assertNotNull(settings);
+        ITable before = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
+        assertEquals(0, before.getRowCount());
+        settings.setEnableWebAuthentication(true);
+        settings.setEnableOpenfireConfiguration(true);
+        m_context.saveSystemSettings(settings);
+        ITable after = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
+        assertEquals(1, after.getRowCount());     
+        assertTrue((Boolean)after.getValue(0, "enable_web_authentication"));        
+        assertTrue((Boolean)after.getValue(0, "enable_openfire_configuration"));        
+    }
+
     public void testGetConnectionParams() throws Exception {
         LdapConnectionParams connectionParams = m_context.getConnectionParams();
         assertNotNull(connectionParams);
@@ -84,7 +98,7 @@ public class LdapManagerTestDb extends TestCaseDb {
         assertTrue(selectedObjectClasses.contains("abc"));
         assertTrue(selectedObjectClasses.contains("def"));
     }
-
+    
     public void testSetAttrMap() throws Exception {
         AttrMap attrMap = m_context.getAttrMap();
         attrMap.setFilter("ou=marketing");

@@ -25,7 +25,7 @@ public class LdapImportPageTestUi extends WebTestCase {
         SiteTestHelper.setScriptingEnabled(tester, true);
         SiteTestHelper.home(tester);
         clickLink("toggleNavigation");
-        clickLink("menu.importLdap");
+        clickLink("menu.ldap");
         SiteTestHelper.assertNoException(tester);
         assertButtonPresent("import:verify");
         assertButtonPresent("import:ok");

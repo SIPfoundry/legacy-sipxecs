@@ -31,6 +31,8 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.ldap.AttributesMapper;
 import org.springframework.ldap.UncategorizedLdapException;
 
+import static org.springframework.dao.support.DataAccessUtils.singleResult;
+
 /**
  * Maintains LDAP connection params, attribute maps and schedule LdapManagerImpl
  */
@@ -84,7 +86,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             cons.setSearchScope(SearchControls.OBJECT_SCOPE);
 
             Schema schema = (Schema) m_templateFactory.getLdapTemplate().search(subschemaSubentry,
-                    LdapManager.FILTER_ALL_CLASSES, cons, new SchemaMapper(), LdapManager.NULL_PROCESSOR).get(0);
+                                            LdapManager.FILTER_ALL_CLASSES, cons, new SchemaMapper(),
+                                            LdapManager.NULL_PROCESSOR).get(0);
 
             return schema;
         } catch (DataIntegrityViolationException e) {
@@ -125,29 +128,30 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     }
 
     /**
-     * Connects to LDAP to retrieve the namingContexts attribute from root. Good way to verify if
-     * LDAP is accessible. Command line anologue is:
+     * Connects to LDAP to retrieve the namingContexts attribute from root. Good
+     * way to verify if LDAP is accessible. Command line anologue is:
      *
      * ldapsearch -x -b '' -s base '(objectclass=*)' namingContexts
      *
-     * @param attrNames TODO
+     * @param attrNames
+     *            TODO
      *
-     * @return namingContext value - can be used as the search base for user if nothing more
-     *         specific is provided
+     * @return namingContext value - can be used as the search base for user if
+     *         nothing more specific is provided
      * @throws NamingException
      */
     private Map<String, String> retrieveDefaultSearchBase(LdapConnectionParams params, String[] attrNames)
         throws NamingException {
+
         SearchControls cons = new SearchControls();
 
         cons.setReturningAttributes(attrNames);
         cons.setSearchScope(SearchControls.OBJECT_SCOPE);
 
-        List<Map<String, String>> results = m_templateFactory.getLdapTemplate(params).search("", FILTER_ALL_CLASSES,
-                cons, new AttributesToValues(attrNames), NULL_PROCESSOR);
+        List<Map<String, String>> results = m_templateFactory.getLdapTemplate(params).search("",
+                FILTER_ALL_CLASSES, cons, new AttributesToValues(attrNames), NULL_PROCESSOR);
         // only interested in the first result
         if (results.size() > 0) {
-
             return results.get(0);
         }
         return null;
@@ -178,8 +182,10 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     public void setSchedule(CronSchedule schedule) {
         if (!schedule.isNew()) {
             // XCF-1168 incoming schedule is probably an update to this schedule
-            // so add this schedule to cache preempt hibernate error about multiple
-            // objects with same ID in session. This is only true because schedule
+            // so add this schedule to cache preempt hibernate error about
+            // multiple
+            // objects with same ID in session. This is only true because
+            // schedule
             // is managed by LdapConnectionParams object.
             getHibernateTemplate().update(schedule);
         }
@@ -206,14 +212,28 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         if (!connections.isEmpty()) {
             return connections.get(0);
         }
-        LdapConnectionParams params = (LdapConnectionParams) m_applicationContext.getBean("ldapConnectionParams",
-                LdapConnectionParams.class);
+        LdapConnectionParams params = (LdapConnectionParams) m_applicationContext.getBean(
+                                        "ldapConnectionParams", LdapConnectionParams.class);
         getHibernateTemplate().save(params);
         return params;
     }
 
     public void setAttrMap(AttrMap attrMap) {
         getHibernateTemplate().saveOrUpdate(attrMap);
+    }
+
+    public void saveSystemSettings(LdapSystemSettings settings) {
+        getHibernateTemplate().saveOrUpdate(settings);
+    }
+
+    public LdapSystemSettings getSystemSettings() {
+        List settingses = getHibernateTemplate().loadAll(LdapSystemSettings.class);
+        LdapSystemSettings settings = (LdapSystemSettings) singleResult(settingses);
+        if (settings == null) {
+            settings = (LdapSystemSettings) m_applicationContext.getBean("ldapSystemSettings",
+                                            LdapSystemSettings.class);
+        }
+        return settings;
     }
 
     public void setConnectionParams(LdapConnectionParams params) {

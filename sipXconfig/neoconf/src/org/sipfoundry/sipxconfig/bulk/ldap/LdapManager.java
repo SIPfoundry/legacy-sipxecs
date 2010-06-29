@@ -53,4 +53,8 @@ public interface LdapManager {
      * @throws UserException if connection is not possible for some reason
      */
     void verify(LdapConnectionParams params, AttrMap attrMap);
+
+    void saveSystemSettings(LdapSystemSettings settings);
+
+    LdapSystemSettings getSystemSettings();
 }

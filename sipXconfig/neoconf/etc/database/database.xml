@@ -358,6 +358,8 @@
   </target>
 
   <target name="version11" description="upgrade from version 10" unless="version12">
+    <antcall target="ldap_settings" />
+      
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="12" -->
   </target>
@@ -371,7 +373,10 @@
     <mark-patch-applied patch="nattraversal_defaults" />
   </target>
 
-
+  <target name="ldap_settings" unless="ldap_settings">
+    <db-patch patch="ldap_settings" />
+  </target>
+  
   <target name="time_of_day" unless="time_of_day">
     <db-patch patch="time_of_day" />
   </target>

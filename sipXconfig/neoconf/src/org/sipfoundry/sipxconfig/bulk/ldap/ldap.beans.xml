@@ -1,7 +1,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
 	"http://www.springframework.org/dtd/spring-beans.dtd">
 
-<beans>
+<beans>  
   <!-- prototype, call ldapManager.getAttrMap for system's current attribute mapping  -->
   <bean id="attrMap" class="org.sipfoundry.sipxconfig.bulk.ldap.AttrMap" singleton="false">
     <property name="userToLdap">
@@ -33,6 +33,9 @@
         <value>organizationalPerson</value>
       </set>
     </property>
+  </bean>
+  
+  <bean id="ldapSystemSettings" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings" singleton="false">
   </bean>
 
   <bean id="ldapConnectionParams" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams" singleton="false">

@@ -9,20 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.site.admin.ldap;
 
+import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
-import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class LdapImport extends SipxBasePage implements PageBeginRenderListener {
-
-    public static final String PAGE = "admin/ldap/LdapImport";
+@ComponentClass(allowBody = false, allowInformalParameters = false)
+public abstract class LdapImport extends BaseComponent implements PageBeginRenderListener {
 
     public abstract LdapImportManager getLdapImportManager();
 
