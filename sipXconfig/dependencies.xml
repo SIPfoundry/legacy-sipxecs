@@ -6,18 +6,18 @@
  - ant default target called    
 -->
 <project name="dependencies" default="depend.all">
-  <target name="depend.all" depends="depend.neoconf, depend.gwt, depend.web">
+  <target name="depend.all" depends="depend.neoconf, depend.gwt, depend.web" unless="skip-depends">
   </target>
 
-  <target name="depend.web" depends="depend.neoconf, depend.gwt">
+  <target name="depend.web" depends="depend.neoconf, depend.gwt" unless="skip-depends">
     <ant dir="${top.dir}/web" inheritAll="false"/>
   </target>
 
-  <target name="depend.gwt" depends="depend.neoconf">
+  <target name="depend.gwt" depends="depend.neoconf" unless="skip-depends">
     <ant dir="${top.dir}/gwt" inheritAll="false"/>
   </target>
 
-  <target name="depend.neoconf">
+  <target name="depend.neoconf" unless="skip-depends">
     <ant dir="${top.dir}/neoconf" inheritAll="false"/>
   </target>
 </project>
