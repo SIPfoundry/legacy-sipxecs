@@ -1,0 +1,18 @@
+<span jwcid="@Script" scriptAsset="asset:aboutDialogScript"/>
+
+<a jwcid="about@DirectLink" listener="listener:showDialog" updateComponents="aboutDialog">
+	<span jwcid="@Insert" value="ognl:linkTitle">Link</span></a>
+
+<div jwcid="aboutDialog@Dialog" dojoType="Dialog" hidden="ognl:dialogHidden" toggle="literal:plain"
+	 class="dialog"
+	 title="ognl:linkTitle">
+
+<table cellpadding="25">
+    <tr>
+	<td align="left"><span jwcid="@Insert" raw="true" value="ognl:about.content"/></td>
+    </tr>
+	<tr>
+	    <td align="right"><input jwcid="close@Any" type="button" value="message:close" name="close"/></td>
+	</tr>
+</table>
+</div>

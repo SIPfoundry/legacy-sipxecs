@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
@@ -107,7 +108,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
 
     private MusicOnHoldManager m_musicOnHoldManager;
 
-    private Client m_restClient = new Client(Protocol.HTTP);
+    private final Client m_restClient = new Client(Protocol.HTTP);
 
     /**
      * Return the pintoken, which is the hash of the user's PIN. The PIN itself is private to the
@@ -343,7 +344,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
 
         // add additional alias only if not blank and not in existing mappings
         if (!isBlank(additionalAlias) && !getAliases().contains(additionalAlias)
-               && !additionalAlias.equals(getUserName())) {
+                && !additionalAlias.equals(getUserName())) {
             mappings.add(getAliasMapping(additionalAlias, contact, domainName));
         }
 
@@ -537,6 +538,22 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     }
 
     public AddressBookEntry getAddressBookEntry() {
+        return m_addressBookEntry;
+    }
+
+    /**
+     * Need a getter method to return created address book entry in order to
+     * dinamically pass address book entry attributes
+     * @return
+     */
+    public AddressBookEntry getCreatedAddressBookEntry() {
+        useAddressBookEntry();
+        if (m_addressBookEntry.getHomeAddress() == null) {
+            m_addressBookEntry.setHomeAddress(new Address());
+        }
+        if (m_addressBookEntry.getOfficeAddress() == null) {
+            m_addressBookEntry.setOfficeAddress(new Address());
+        }
         return m_addressBookEntry;
     }
 

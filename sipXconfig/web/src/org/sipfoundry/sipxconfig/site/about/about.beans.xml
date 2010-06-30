@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="aboutContext" class="org.sipfoundry.sipxconfig.site.about.AboutContext">
+    <property name="velocityEngine" ref="velocityEngineClasspath" />
+    <property name="aboutBean" ref = "aboutBean"/>
+    <property name="configurationFile" value="site/about/about.vm" />
+  </bean>
+  <bean id="aboutBean" class="org.sipfoundry.sipxconfig.site.about.AboutBean" scope="prototype">
+    <property name="versionInfo" ref="versionInfo"/>
+  </bean>
+</beans>

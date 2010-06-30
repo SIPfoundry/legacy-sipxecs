@@ -109,7 +109,7 @@ public abstract class LdapServer extends SipxBasePage implements PageBeginRender
     public IPropertySelectionModel getObjectClassesSelectionModel() {
         Collection<String> objectClasses = getAttrMap().getSelectedObjectClasses();
         return new StringPropertySelectionModel(objectClasses.toArray(new String[objectClasses
-                .size()]));
+                                                                                 .size()]));
     }
 
     public IPropertySelectionModel getAttributesSelectionModel() {

@@ -66,6 +66,27 @@ public class UserMapper implements NameClassPairMapper {
         setProperty(user, attrs, Index.SIP_PASSWORD);
         setProperty(user, attrs, Index.IM_ID);
         setProperty(user, attrs, Index.EMAIL);
+        setProperty(user, attrs, Index.JOB_TITLE);
+        setProperty(user, attrs, Index.JOB_DEPT);
+        setProperty(user, attrs, Index.COMPANY_NAME);
+        setProperty(user, attrs, Index.ASSISTANT_NAME);
+        setProperty(user, attrs, Index.CELL_PHONE_NUMBER);
+        setProperty(user, attrs, Index.HOME_PHONE_NUMBER);
+        setProperty(user, attrs, Index.ASSISTANT_PHONE_NUMBER);
+        setProperty(user, attrs, Index.FAX_NUMBER);
+        setProperty(user, attrs, Index.ALTERNATE_EMAIL);
+        setProperty(user, attrs, Index.ALTERNATE_IM_ID);
+        setProperty(user, attrs, Index.LOCATION);
+        setProperty(user, attrs, Index.HOME_STREET);
+        setProperty(user, attrs, Index.HOME_CITY);
+        setProperty(user, attrs, Index.HOME_STATE);
+        setProperty(user, attrs, Index.HOME_COUNTRY);
+        setProperty(user, attrs, Index.HOME_ZIP);
+        setProperty(user, attrs, Index.OFFICE_STREET);
+        setProperty(user, attrs, Index.OFFICE_CITY);
+        setProperty(user, attrs, Index.OFFICE_STATE);
+        setProperty(user, attrs, Index.OFFICE_COUNTRY);
+        setProperty(user, attrs, Index.OFFICE_ZIP);
 
         Set<String> aliases = getValues(attrs, Index.ALIAS);
         if (aliases != null) {
