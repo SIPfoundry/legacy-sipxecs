@@ -184,9 +184,6 @@
   <bean id="ldapAuthProvider" class="org.sipfoundry.sipxconfig.security.ConfigurableLdapAuthenticationProvider">
     <property name="userDetailsService" ref="sharedSecretUserDetailsService" />
     <property name="ldapManager" ref="ldapManager"/>   
-    <property name="authoritiesPopulator">
-      <bean class="org.sipfoundry.sipxconfig.security.SipxLdapAuthoritiesPopulator"/>            
-    </property>
   </bean>
 
 </beans>
