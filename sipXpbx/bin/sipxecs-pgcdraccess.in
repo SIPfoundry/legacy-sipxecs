@@ -1,0 +1,256 @@
+#!/bin/bash
+#
+# Script to add or remove ipaddress from PostgreSQL allow list
+#
+BASEDIR=/var/lib/pgsql/data
+OPERATION="add"
+IP_ADDRESS=""
+
+regValidIp="^(25[0-5]|2[0-4][0-9]|[01]?[0-9]{1,2})\.(([0-9]{1,3})|[\*])\.(([0-9]{1,3})|[\*])\.(([0-9]{1,3})|[\*])$"
+pgUser="postgres"
+
+if [ `uname -s` = FreeBSD ]
+then
+   BASEDIR=~@POSTGRESQL_USER@/data
+elif test -d /var/lib/postgresql/data
+then
+   # Gentoo
+   BASEDIR=/var/lib/postgresql/data
+elif test -d /var/lib/pgsql/data
+then
+   # Redhat, Fedora, CentOS & SUSE
+   BASEDIR=/var/lib/pgsql/data
+fi
+
+usage() {
+  echo
+  echo Usage: $0 parameters
+  echo
+  echo "   CDR Postgres remote database access configuration." 
+  echo
+  echo Parameters:
+  echo "   -h|--help             Display this help text."
+  echo "   -a|--add              Add access to the SIPXCDR database for a particular IP address"
+  echo "   -d|--delete           Remove access to the SIPXCDR database for a particular IP"
+  echo "                         address."
+  echo
+}
+
+# Test an IP address for validity
+function valid_ip()
+{
+    local  ip=$1
+    local  stat=0
+
+    if [[ $ip =~ $regValidIp ]]; then
+        OIFS=$IFS
+        IFS='.'
+        set -o noglob
+        iparray=($ip)
+        IFS=$OIFS
+        stat=1
+        set +o noglob
+    fi
+    return $stat
+}
+
+
+if [ "`whoami`" != root ]
+then
+  echo "You must be root in order to update the postgres configuration files."
+  exit 2
+fi
+
+if [ -z "${1}" ]
+then
+   usage
+   exit 1
+fi
+
+# Process the rest of the command-line arguments.
+while [ $# -ne 0 ]
+do
+  case ${1} in
+    -a|--add)
+      OPERATION="add"
+      # Parse and check the IP address.
+      if [ -z "${2}" ]
+      then
+        echo "No argument specified for ${1}."
+        usage
+        exit 1
+      else
+        # The argument specifies the IP address to add.
+        # Store it, then consume it.
+        IP_ADDRESS="${2}"
+        if valid_ip $IP_ADDRESS
+        then
+          echo "Bad IP address"
+          exit 3
+        fi 
+        shift
+      fi
+      ;;
+
+    -d|--delete)
+      OPERATION="delete"
+      # Parse and check the IP address.
+      if [ -z "${2}" ]
+      then
+        # no IP address indicates remove all access.
+        IP_ADDRESS=""
+      else
+        IP_ADDRESS="${2}"
+        if valid_ip $IP_ADDRESS
+        then
+           echo "Bad IP address"
+           exit 3
+        fi
+        shift
+      fi
+      ;;
+
+    -h|--help)
+      usage
+      exit 1
+      ;;
+
+    *)
+      echo "Unknown option: ${1}"
+      usage
+      exit 1
+      ;;
+    esac
+  shift # always consume one argument
+done
+
+
+# Generate a mask for an IP address.  Wildcards (i.e. *) in the IP address will
+# use 0 as the mask for the octet.
+function generate_mask()
+{
+    local  ip=$1
+    local  __ipmask=''
+
+    if [[ $ip =~ $regValidIp ]]; then
+        OIFS=$IFS
+        IFS='.'
+        # turn off automatic interpreting.  Required so that wildcards (i.e. *) don't get touched. 
+        set -o noglob
+        iparray=($ip)
+        IFS=$OIFS
+        set +o noglob
+        count="1"
+        __ipmask="255"
+        while [ $count -lt ${#iparray[@]} ] 
+        do
+           if [ "${iparray[$count]}" == "*" ]; then
+              __ipmask=$__ipmask'.0'
+           else
+              __ipmask=$__ipmask'.255'
+           fi
+           count=$[$count+1]
+        done
+    fi
+    eval "$2=$__ipmask"
+    return 1
+}
+
+
+# Convert an IP address if wildcards are present (i.e. *).
+# A wildcard will be substituted with a 0.
+function convert_ip()
+{
+    local  ip=$1
+    local  __ipconv=''
+
+    if [[ $ip =~ $regValidIp ]]; then
+        OIFS=$IFS
+        IFS=$'.'
+        # turn off automatic interpreting.  Required so that wildcards (i.e. *) don't get touched. 
+        set -o noglob
+        ip=($ip)
+        IFS=$OIFS
+        set +o noglob
+        count="1"
+        __ipconv=${ip[0]}
+        while [ $count -lt ${#ip[@]} ]
+        do
+           if [ "${ip[$count]}" == "*" ]; then
+              __ipconv=$__ipconv'.0'
+           else
+              __ipconv=$__ipconv'.'${ip[$count]}
+           fi
+           count=$[$count+1]
+        done
+    fi
+    eval "$2=$__ipconv"
+    return 1
+}
+
+
+#################################################
+
+if [ "$OPERATION" == "subnet" ]; then
+#       NOT SUPPORTED.
+	echo '#Following allows database connections from subnet connected to eth0' >> /var/lib/pgsql/data/pg_hba.conf
+	a='host SIPXCDR cdrremote '
+	b=`cat /etc/sysconfig/network-scripts/ifcfg-eth0 | grep 'NETWORK' | sed 's/NETWORK=//g'`
+	c=' '
+	d=`cat /etc/sysconfig/network-scripts/ifcfg-eth0 | grep 'NETMASK' | sed 's/NETMASK=//g'`
+	e=' trust'
+	newline=$a$b$c$d
+	cp $BASEDIR/pg_hba.conf $BASEDIR/pg_hba.conf.bak
+	echo $newline >> $BASEDIR/pg_hba.conf
+	sed -i "s/#listen_addresses = 'localhost'/listen_addresses = '*'/g" $BASEDIR/postgresql.conf
+	sed -i "s/listen_addresses = 'localhost'/listen_addresses = '*'/g" $BASEDIR/postgresql.conf
+else
+	a='host SIPXCDR cdrremote '
+        if [ "$IP_ADDRESS" != "" ]
+        then
+#          generate mask for ip address
+           generate_mask $IP_ADDRESS ipmask
+#          convert ip address if required (i.e. replace wildcards with 0).
+           convert_ip $IP_ADDRESS ipconv
+	   b=$ipconv
+	   c=' '
+	   d=$ipmask
+           e=' '
+           f='trust'
+	   newline=$a$b$c$d$e$f
+        fi
+
+	if [ "$OPERATION" = "add" ]; then
+		cp $BASEDIR/pg_hba.conf $BASEDIR/pg_hba.conf.bak
+                # Remove all SIPXCDR entries first.
+		sed '/'"$a"'/d' $BASEDIR/pg_hba.conf > $BASEDIR/pg_hba.conf.new
+
+                #add new SIPXCDR database access permissions.
+		echo $newline >> $BASEDIR/pg_hba.conf.new
+		cp $BASEDIR/pg_hba.conf.new $BASEDIR/pg_hba.conf
+		sed -i "s/#listen_addresses/listen_addresses/g" $BASEDIR/postgresql.conf
+		sed -i "s/listen_addresses = 'localhost'/listen_addresses = '*'/g" $BASEDIR/postgresql.conf
+                chown $pgUser $BASEDIR/pg_hba.conf
+                chgrp $pgUser $BASEDIR/pg_hba.conf
+	fi
+
+	if [ "$OPERATION" = "delete" ]; then
+		cp $BASEDIR/pg_hba.conf $BASEDIR/pg_hba.conf.bak
+                if [ "$IP_ADDRESS" != "" ] 
+                then
+		   sed '/'"$newline"'/d' $BASEDIR/pg_hba.conf > $BASEDIR/pg_hba.conf.new
+                else
+		   sed '/'"$a"'/d' $BASEDIR/pg_hba.conf > $BASEDIR/pg_hba.conf.new
+                fi
+		cp $BASEDIR/pg_hba.conf.new $BASEDIR/pg_hba.conf
+                chown $pgUser $BASEDIR/pg_hba.conf
+                chgrp $pgUser $BASEDIR/pg_hba.conf
+		sed -i "s/^listen_addresses/#listen_addresses/g" $BASEDIR/postgresql.conf
+		rm $BASEDIR/pg_hba.conf.new
+	fi
+
+fi
+
+# Reload PostgreSQL configuration
+su - postgres -c "pg_ctl reload -D $BASEDIR"
+exit 0

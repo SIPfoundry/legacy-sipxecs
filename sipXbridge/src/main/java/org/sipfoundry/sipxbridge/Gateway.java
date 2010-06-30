@@ -605,7 +605,7 @@ public class Gateway {
 
             callControlManager = new CallControlManager();
 
-            backToBackUserAgentFactory = new BackToBackUserAgentFactory();
+            backToBackUserAgentFactory = BackToBackUserAgentFactory.getInstance();
 
         } catch (Throwable ex) {
             ex.printStackTrace();
@@ -1057,8 +1057,12 @@ public class Gateway {
          */
         startSipListener();
 
-        // Set secret for signing SipXauthIdentity
-        SipXauthIdentity.setSecret(DomainConfiguration.getSharedSecret());
+        // Set secret for signing SipXauthIdentity. The null check is for the regression tester's benefit.
+        if ( DomainConfiguration.getSharedSecret() != null ) {
+            SipXauthIdentity.setSecret(DomainConfiguration.getSharedSecret());
+        } else {
+            logger.warn("Shared secret is null!");
+        }
 
         /*
          * Register with ITSPs. Now we can take inbound calls
@@ -1383,6 +1387,16 @@ public class Gateway {
         }
     }
 
+  
+
+    public static PeerIdentities getPeerIdentities() {
+        return peerIdentities;
+    }
+
+    public static boolean isStrictProtocolEnforcement() {
+        return Gateway.getBridgeConfiguration().isStrictProtocolEnforcement();
+    }
+
     /**
      * The main method for the Bridge.
      *
@@ -1413,11 +1427,5 @@ public class Gateway {
         }
 
     }
-
-    public static PeerIdentities getPeerIdentities() {
-        return peerIdentities;
-    }
-
-   
 
 }

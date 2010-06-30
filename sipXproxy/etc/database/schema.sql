@@ -39,8 +39,9 @@ create table version_history(
  * Version 4: index CSE and CDR tables on timestamp
  * Version 5: add reference field in CSE and CDR tables.
  * Version 6: add branch_id and via_count fields in CSE table.
+ * Version 7: add cdrremote user and grant it read-only access to cdrs table.
  */
-insert into version_history (version, applied) values (6, now());
+insert into version_history (version, applied) values (7, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -191,3 +192,12 @@ create view view_cdrs as
  *   Intranetwork (A): for calls that are pure SIP and don't go through a gateway
  */
 
+/*
+ * Special Users.
+ *
+ * cdrremote - user id that provides read-only access to the cdrs table only.  Used for
+ *             remote CDR database access.
+ */
+create user cdrremote NOSUPERUSER NOCREATEDB NOCREATEROLE;
+grant select on cdrs to cdrremote;
+grant select on view_cdrs to cdrremote;

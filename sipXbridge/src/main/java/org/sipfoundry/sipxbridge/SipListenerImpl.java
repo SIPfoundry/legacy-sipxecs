@@ -324,12 +324,12 @@ public class SipListenerImpl implements SipListenerExt {
                 logger.debug("DialogTerminatedEvent: dialog inserted at " + dialogContext.getInsertionPointStackTrace());
                 logger.debug("DialogCreated by request: " + dialogContext.getRequest());
             }
+            DialogContext.removeDialogContext(dialogContext);         
             dialogContext.cancelSessionTimer();
             BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
             if (b2bua != null) {
                 b2bua.removeDialog(dte.getDialog());
             }
-            DialogContext.removeDialogContext(dialogContext);
         }
 
     }
@@ -525,9 +525,11 @@ public class SipListenerImpl implements SipListenerExt {
                 
                 
                 /*
-                 * Kill off the dialog if we cannot find a dialog context.
+                 * Kill off the dialog if we cannot find a dialog context. Note the remote target check
+                 * to compensate for ITSPs that do not attach a Contact header to the 200 OK.
                  */
                 if (b2bua == null && response.getStatusCode() == Response.OK) {
+                   if (  dialog.getRemoteTarget() != null) {        
                         Request ackRequest = dialog.createAck(cseqHeader
                                 .getSeqNumber());
                         /* Cannot access the dialogContext here */
@@ -537,6 +539,14 @@ public class SipListenerImpl implements SipListenerExt {
                         .getNewClientTransaction(byeRequest);
                         dialog.sendRequest(byeClientTransaction);
                         return;
+                   } else {
+                       /*
+                        * Remote target not specified (no contact in OK) so just silently kill the dialog
+                        * and return.
+                        */
+                       dialog.delete();
+                       return;
+                   }
                 }
                 /*
                  * This is a forked response. We need to find the original call
@@ -674,6 +684,8 @@ public class SipListenerImpl implements SipListenerExt {
                             b2bua.tearDown(Gateway.SIPXBRIDGE_USER,
                                     ReasonCode.CALL_SETUP_ERROR,
                                     "SipxProxy is down");
+                    } else if (transactionContext.getOperation() == Operation.SESSION_TIMER ) {
+                        b2bua.tearDown(Gateway.SIPXBRIDGE_USER, ReasonCode.SESSION_TIMER_ERROR, "Session timer timed out");
                     } else {
                         if (transactionContext.getOperation() == Operation.SEND_INVITE_TO_ITSP
                                 || transactionContext.getOperation() == Operation.SPIRAL_BLIND_TRANSFER_INVITE_TO_ITSP) {

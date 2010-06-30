@@ -1320,7 +1320,8 @@ public:
                             UtlBoolean responseCodesMustMatch = FALSE) const;
 
     //! Is message part of a server or client transaction?
-    /*! \param isOutgoing - the message is to be sent as opposed to received
+    /*! Incoming request or Outgoing response returns TRUE
+     *! \param isOutgoing - the message is to be sent as opposed to received
      */
     UtlBoolean isServerTransaction(UtlBoolean isOutgoing) const;
 

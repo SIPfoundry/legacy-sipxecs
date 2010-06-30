@@ -2,17 +2,19 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
+  <bean id="accCodeContext" class="org.springframework.aop.framework.ProxyFactoryBean"
+    parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acccode.AccCodeContext"/>
+    <property name="target">
+      <ref local="accCodeContextImpl"/>
+    </property>
+  </bean>
+
   <bean id="accCodeContextImpl" class="org.sipfoundry.sipxconfig.acccode.AccCodeContextImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="locationsManager" ref="locationsManager"/>
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
-  </bean>
-
-  <bean id="accCodeContext" class="org.springframework.aop.framework.ProxyFactoryBean"
-    parent="abstractDao">
-    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.acccode.AccCodeContext"/>
-    <property name="target" ref="accCodeContextImpl"/>
   </bean>
 
   <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig"

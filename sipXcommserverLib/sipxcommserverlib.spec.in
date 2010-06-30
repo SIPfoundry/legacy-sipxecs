@@ -152,11 +152,13 @@ fi
 %attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxzoneadmin
 %attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipx-sudo-timezone
 %attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipx-sudo-time-manager
+%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxcdrpostgres
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-time-manager-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-change-timezone-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxpackage-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxswadmin-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxzoneadmin-init
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxcdrpostgres-init
 %{_datadir}/sipxecs/schema/xml.xsd
 %{_datadir}/sipxecs/schema/authrules.xsd
 %{_datadir}/sipxecs/schema/credential.xsd

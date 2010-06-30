@@ -121,6 +121,7 @@
     </property>
     <property name="mappingResources">
       <list>
+        <value>org/sipfoundry/sipxconfig/acccode/acccode.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/callgroup/callGroup.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/commserver/location.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/parkorbit/parkOrbit.hbm.xml</value>

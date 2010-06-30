@@ -10,6 +10,7 @@ sql_files = \
     reference.sql \
     contact.sql \
     calldirection.sql \
+    cdrremote.sql \
     transaction.sql
 
 EXTRA_DIST = \

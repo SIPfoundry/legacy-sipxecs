@@ -4680,6 +4680,8 @@ UtlBoolean SipMessage::isResponse() const
    return(responseType);
 }
 
+// Return TRUE if this message is a request and argument is FALSE 
+//          OR if this message is a response and argument is TRUE
 UtlBoolean SipMessage::isServerTransaction(UtlBoolean isOutgoing) const
 {
     UtlBoolean returnCode;

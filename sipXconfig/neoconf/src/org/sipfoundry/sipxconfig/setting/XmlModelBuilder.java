@@ -33,6 +33,7 @@ import org.sipfoundry.sipxconfig.setting.type.FileSetting;
 import org.sipfoundry.sipxconfig.setting.type.HostnameSetting;
 import org.sipfoundry.sipxconfig.setting.type.IntegerSetting;
 import org.sipfoundry.sipxconfig.setting.type.IpAddrSetting;
+import org.sipfoundry.sipxconfig.setting.type.IpAddrWildCardSetting;
 import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 import org.sipfoundry.sipxconfig.setting.type.PhonePadPinSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
@@ -125,6 +126,8 @@ public class XmlModelBuilder implements ModelBuilder {
                 SipUriSetting.class));
         digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "ipaddr", typeIdRule,
                 IpAddrSetting.class));
+        digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "ipaddrwildcard", typeIdRule,
+                IpAddrWildCardSetting.class));
         digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "hostname", typeIdRule,
                 HostnameSetting.class));
         digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "phonepadpin", typeIdRule,

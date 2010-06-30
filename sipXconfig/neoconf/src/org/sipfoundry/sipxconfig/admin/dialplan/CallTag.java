@@ -35,7 +35,8 @@ public enum CallTag {
     RPARK("Retrieve Park", "RPARK"), // Retrieve Park
     DPUP("Directed Pickup", "DPUP"), // Directed Pickup
     AUTH("Authorization Code", "AUTH"), // Authorization Code
-    UNK("Unknown", "UNK"); // unknown
+    UNK("Unknown", "UNK"), // unknown
+    FAX("Fax", "FAX"); //Fax extension
 
     private String m_name;
     private String m_shortname;

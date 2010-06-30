@@ -50,12 +50,21 @@ class ReInviteTimerTask extends TimerTask {
 					serverTransaction.getState() != TransactionState.TERMINATED ) {
 				DialogContext.get(dialog).setPendingReInvite(null);
 				RtpSessionUtilities.forwardReInvite(rtpSession, serverTransaction, dialog, false);
+				this.rtpSession = null;
+				this.dialog = null;
+				this.serverTransaction = null;
 				this.cancel();
 			} else if ( serverTransaction.getState() == TransactionState.TERMINATED) {
 				if ( logger.isDebugEnabled() ) logger.debug("server transaction has already been processed");
+				this.rtpSession = null;
+                this.dialog = null;
+                this.serverTransaction = null;
 				this.cancel();
 			} else if (peerDialog.getState() == DialogState.TERMINATED ) {
 				CallControlUtilities.sendInternalError(serverTransaction, "Peer dialog is Terminated");
+				this.rtpSession = null;
+                this.dialog = null;
+                this.serverTransaction = null;
 				this.cancel();
 			} else {
 				logger.trace("waiting to forward re-INVITE");
@@ -63,7 +72,12 @@ class ReInviteTimerTask extends TimerTask {
 		} catch (Exception ex) {
 			logger.error("Error processing request" + serverTransaction.getRequest(), ex);
             CallControlUtilities.sendInternalError(serverTransaction, ex);
+            this.rtpSession = null;
+            this.dialog = null;
+            this.serverTransaction = null;
+            this.cancel();
 		}
+	
 	}
 	
 }

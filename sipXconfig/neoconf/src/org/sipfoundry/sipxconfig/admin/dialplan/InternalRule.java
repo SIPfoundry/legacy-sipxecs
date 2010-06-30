@@ -22,6 +22,7 @@ public class InternalRule extends DialingRule {
     public static final String DEFAULT_VOICEMAIL = "101";
     private static final String DEFAULT_VMAIL_PREFIX = "8";
     private static final int DEFAULT_LOCAL_EXT_LEN = 3;
+    private static final String FAX_RULE_DESCRIPTION = "Fax Routing rule";
 
     private String m_voiceMailPrefix = DEFAULT_VMAIL_PREFIX;
     private int m_localExtensionLen = DEFAULT_LOCAL_EXT_LEN;
@@ -131,6 +132,10 @@ public class InternalRule extends DialingRule {
         }
 
         rules.add(fallback);
+
+        MappingRule faxForward = new MappingRule.FaxForward(mediaServer);
+        faxForward.setDescription(FAX_RULE_DESCRIPTION);
+        rules.add(faxForward);
     }
 
     public boolean isInternal() {
