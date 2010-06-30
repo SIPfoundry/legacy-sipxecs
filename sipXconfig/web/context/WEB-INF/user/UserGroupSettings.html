@@ -54,7 +54,7 @@
 
   <div jwcid="speeddialTab@Block">
     <form jwcid="speedDialForm@Form" delegate="bean:validator" listener="listener:onSpeedDialSubmit">
-      <fieldset jwcid="@speeddial/SpeedDialPanel" speedDialGroup="ognl:speedDialGroup"/>
+      <fieldset jwcid="@speeddial/SpeedDialPanel" speedDialGroup="ognl:speedDialGroup" subscribeToPresenceDisabled="ognl:subscribePresenceGroupDisabled"/>
         <ul jwcid="@common/FormActions" listener="listener:onSpeedDialApply" callback="ognl:callback">
 	      <li>
 	        <input jwcid="speedialUpdatePhones@Submit" listener="listener:onSpeedDialUpdatePhones" id="form:speedialUpdatePhones"

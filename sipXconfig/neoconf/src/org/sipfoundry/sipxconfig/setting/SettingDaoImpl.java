@@ -26,6 +26,8 @@ import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
+import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
+import org.springframework.beans.factory.annotation.Required;
 
 /**
  * Use hibernate to perform database operations
@@ -38,8 +40,15 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
 
     private DaoEventPublisher m_daoEventPublisher;
 
+    private ConfigFileActivationManager m_configFileManager;
+
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
+    }
+
+    @Required
+    public void setRlsConfigFilesActivator(ConfigFileActivationManager configFileManager) {
+        m_configFileManager = configFileManager;
     }
 
     public Group getGroup(Integer groupId) {
@@ -66,6 +75,7 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
                 affectAdmin = true;
             }
         }
+        m_configFileManager.activateConfigFiles();
         getHibernateTemplate().deleteAll(groups);
         return affectAdmin;
     }
@@ -88,6 +98,8 @@ public class SettingDaoImpl extends SipxHibernateDaoSupport implements SettingDa
                 throw new UserException("&msg.error.renameAdminGroup");
             }
         }
+
+        m_configFileManager.activateConfigFiles();
         getHibernateTemplate().saveOrUpdate(group);
     }
 
