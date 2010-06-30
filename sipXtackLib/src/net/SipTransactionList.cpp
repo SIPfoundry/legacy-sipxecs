@@ -355,6 +355,12 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
                               )
                 )
             {
+#ifdef TRANSACTION_MATCH_DEBUG
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                              "SipTransactionList::removeOldTransactions "
+                              " removing %p",  transactionFound );
+#endif
+
                 // Remove it from the list
                 mTransactions.removeReference(transactionFound);
 
@@ -389,7 +395,8 @@ void SipTransactionList::removeOldTransactions(long oldTransaction,
 
     if ( deleteCount || busyCount ) // do not log 'doing nothing when nothing to do', even at debug
     {
-       OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipTransactionList::removeOldTransactions"
+       OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                     "SipTransactionList::removeOldTransactions"
                      " deleting %d of %d transactions (%d busy)",
                      deleteCount , numTransactions, busyCount
                      );

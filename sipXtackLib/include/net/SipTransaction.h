@@ -456,7 +456,8 @@ private:
     // Recursion members
     UtlBoolean mIsCanceled;
     UtlBoolean mIsRecursing;   ///< TRUE if any braches have not be pursued
-    UtlBoolean mIsDnsSrvChild; ///< This CT pursues one of the SRV records of the parent CT
+    UtlBoolean mIsDnsSrvChild; ///< This Child Transaction pursues one of the Server_T objects of the parent CT
+                               ///  This transaction is prepared to actually a send a Sip message
     double mQvalue;            ///< Recurse order.  equal values are recursed in parallel
     int mExpires;              ///< Maximum time (seconds) to wait for a final outcome
     UtlBoolean mIsBusy;

@@ -350,7 +350,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     // Set up timers.
     // First, calculate mUnreliableTransportTimeoutMs based on the
     // sipUnreliableTransportTimeout by applying appropriate limitations.
-    // (Default is thus 100 msec.)
+    // (SIP_DEFAULT_RTT default is thus 100 msec.)
     if (sipUnreliableTransportTimeout <= 0)
     {
         mUnreliableTransportTimeoutMs = SIP_DEFAULT_RTT;
@@ -366,13 +366,13 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     }
 
     // The other timers are scaled based on mUnreliableTransportTimeoutMs.
-    // (Default is 800 msec.)
+    // (Default sets resend to 800 msec.)
     mMaxResendTimeoutMs = 8 * mUnreliableTransportTimeoutMs;
     // Initial timeout for TCP is same as the UDP initial timeout.
-    // (Default is 100 msec.)
+    // (Default sets reliable to 100 msec.)
     mReliableTransportTimeoutMs = mUnreliableTransportTimeoutMs;
 
-    // (Default is 8000 msec.)
+    // (Default sets state timeout to 8000 msec.)
     mTransactionStateTimeoutMs = 10 * mMaxResendTimeoutMs;
     // How long before we expire transactions by default
     mDefaultExpiresSeconds = DEFAULT_SIP_TRANSACTION_EXPIRES;
@@ -729,6 +729,7 @@ void SipUserAgent::allowMethod(const char* methodName, const bool bAllow)
 }
 
 
+// Note: Jun 2010 - only SipConnection objects call with a responseListener queue
 UtlBoolean SipUserAgent::send(SipMessage& message,
                               OsMsgQ* responseListener,
                               void* responseListenerData)
@@ -949,6 +950,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
 
          // Create a new transactions
          // This should only be for requests
+         // so it should not be a server transaction
          transaction = new SipTransaction(&message, TRUE /* outgoing */, isUaTransaction);
          transaction->markBusy();
          mSipTransactions.addTransaction(transaction);
@@ -1086,6 +1088,9 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       else
       {
          //  All other messages just get sent.
+          OsSysLog::add(FAC_SIP, PRI_ERR,
+                        "SipUserAgent::send "
+                        "outgoing call 1");
          sendSucceeded = transaction->handleOutgoing(message,
                                                      *this,
                                                      mSipTransactions,
@@ -1710,6 +1715,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
          // New transaction for incoming request
          else
          {
+             // Should create a server transaction
             transaction = new SipTransaction(message, FALSE /* incoming */, isUaTransaction);
 
             // Add the new transaction to the list
@@ -2065,6 +2071,9 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             if(response)
             {
                // Send the error response
+                OsSysLog::add(FAC_SIP, PRI_ERR,
+                              "SipUserAgent::send "
+                              "outgoing call 2");
                transaction->handleOutgoing(*response,
                                            *this,
                                            mSipTransactions,
@@ -3388,7 +3397,7 @@ void SipUserAgent::setInviteTransactionTimeoutSeconds(int expiresSeconds)
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::setInviteTransactionTimeoutSeconds "
                   "mMinInviteTransactionTimeout %d ",
-                  mDefaultExpiresSeconds);
+                  mMinInviteTransactionTimeout);
 }
 
 int SipUserAgent::getDefaultExpiresSeconds() const
@@ -3469,8 +3478,8 @@ void SipUserAgent::setDefaultSerialExpiresSeconds(int expiresSeconds)
     }
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::setDefaultSerialExpiresSeconds "
-                  "mDefaultExpiresSeconds %d ",
-                  mDefaultExpiresSeconds);
+                  "mDefaultSerialExpiresSeconds %d ",
+                  mDefaultSerialExpiresSeconds);
 }
 
 void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)
@@ -3487,8 +3496,8 @@ void SipUserAgent::setMaxTcpSocketIdleTime(int idleTimeSeconds)
     }
     OsSysLog::add(FAC_SIP, PRI_DEBUG,
                   "SipUserAgent::setMaxTcpSocketIdleTime "
-                  "mMinInviteTransactionTimeout value: %d ",
-                  mMinInviteTransactionTimeout);
+                  "mMaxTcpSocketIdleTime value: %d ",
+                  mMaxTcpSocketIdleTime);
 }
 
 void SipUserAgent::setHostAliases(const UtlString& aliases)
