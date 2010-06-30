@@ -2,14 +2,14 @@
 <sipxbridge-config xmlns="http://www.sipfoundry.org/sipX/schema/xml/sipxbridge-00-00">
 
   <bridge-configuration>
-    <global-address>192.168.5.240</global-address>
-    <external-address>192.168.5.240</external-address>
+    <global-address>192.168.5.76</global-address>
+    <external-address>192.168.5.76</external-address>
     <external-port>5080</external-port>
-    <local-address>192.168.5.240</local-address>
+    <local-address>192.168.5.76</local-address>
     <local-port>5090</local-port>
     <sipx-proxy-domain>192.168.5.240</sipx-proxy-domain>
     <sipx-proxy-port>5055</sipx-proxy-port>
-    <sipx-supervisor-host>192.168.5.240</sipx-supervisor-host>
+    <sipx-supervisor-host>192.168.5.76</sipx-supervisor-host>
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
     <media-keepalive-seconds>1</media-keepalive-seconds>
@@ -37,7 +37,7 @@
     <is-user-phone>true</is-user-phone>
     <loose-route-invite>true</loose-route-invite>
     <registration-interval>600</registration-interval>
-    <sip-session-timer-interval-seconds>1800</sip-session-timer-interval-seconds>
+    <sip-session-timer-interval-seconds>90</sip-session-timer-interval-seconds>
     <sip-keepalive-method>CR-LF</sip-keepalive-method>
     <rtp-keepalive-method>NONE</rtp-keepalive-method>
   </itsp-account>

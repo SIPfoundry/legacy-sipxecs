@@ -40,6 +40,7 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.apache.xmlrpc.XmlRpcException;
+import org.mortbay.http.HttpConnection;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpListener;
 import org.mortbay.http.HttpServer;
@@ -600,11 +601,23 @@ public class SymmitronServer implements Symmitron {
             log.setLevel(Level.OFF);
             isWebServerRunning = true;
             webServer = new HttpServer();
+            
+            
 
             InetAddrPort inetAddrPort = new InetAddrPort(symmitronConfig
                     .getLocalAddress(), symmitronConfig.getXmlRpcPort());
             inetAddrPort.setInetAddress(InetAddress.getByName(symmitronConfig
                     .getLocalAddress()));
+            
+            HttpContext httpContext = new HttpContext();
+            HttpConnection connection= httpContext.getHttpConnection();
+           
+            httpContext.setContextPath("/");
+            ServletHandler servletHandler = new ServletHandler();
+            servletHandler.addServlet("symmitron", "/*", SymmitronServlet.class
+                    .getName());
+            httpContext.addHandler(servletHandler);
+
 
             if (symmitronConfig.getUseHttps()) {
                 logger.info("Starting  secure xml rpc server on inetAddr:port "
@@ -639,7 +652,8 @@ public class SymmitronServer implements Symmitron {
 
                 sslListener.setMaxThreads(32);
                 sslListener.setMinThreads(4);
-                sslListener.setLingerTimeSecs(30000);
+                //sslListener.setLingerTimeSecs(30000);
+                sslListener.persistConnection(connection);
 
                 ((ThreadedServer) sslListener).open();
 
@@ -670,6 +684,8 @@ public class SymmitronServer implements Symmitron {
 
                     listener.start();
                 }
+                
+            
 
             } else {
                 logger
@@ -681,18 +697,12 @@ public class SymmitronServer implements Symmitron {
                 SocketListener socketListener = new SocketListener(inetAddrPort);
                 socketListener.setMaxThreads(32);
                 socketListener.setMinThreads(4);
-                socketListener.setLingerTimeSecs(30000);
+                //socketListener.setLingerTimeSecs(30000);
+                socketListener.persistConnection(connection);
                 webServer.addListener(socketListener);
             }
 
-            HttpContext httpContext = new HttpContext();
-
-            httpContext.setContextPath("/");
-            ServletHandler servletHandler = new ServletHandler();
-            servletHandler.addServlet("symmitron", "/*", SymmitronServlet.class
-                    .getName());
-            httpContext.addHandler(servletHandler);
-
+           
             webServer.addContext(httpContext);
 
             webServer.start();
@@ -773,56 +783,64 @@ public class SymmitronServer implements Symmitron {
             throw new IllegalArgumentException("Illegal handle format");
         }
         String componentName = handleParts[0];
-       
-        String previousInstance = instanceTable.get(componentName);
-        if (previousInstance == null) {
-            instanceTable.put(componentName, controllerHandle);
-            semaphoreLockTable.put(controllerHandle, new SipXrelaySemaphore(1));
-        } else if (!previousInstance.equals(controllerHandle)) {
-        	SipXrelaySemaphore previousSem = semaphoreLockTable.get(previousInstance);
-        	if ( ! previousSem.tryAcquire(1000, TimeUnit.MILLISECONDS) ) {
-        		// guard against pending operations from last generation.
-        		throw new Exception("Unable to acquire sem from previous handleInstance");
-        	}
-            HashSet<Bridge> rtpBridges = bridgeResourceMap
-            .get(previousInstance);
-            if (rtpBridges != null) {
-                for (Bridge rtpBridge : rtpBridges) {
-                    rtpBridge.stop();
+        synchronized(semaphoreLockTable) {
+            String previousInstance = instanceTable.get(componentName);
+            if (previousInstance == null) {
+                instanceTable.put(componentName, controllerHandle);
+                semaphoreLockTable.put(controllerHandle, new SipXrelaySemaphore(1));
+            } else if (!previousInstance.equals(controllerHandle)) {
+                SipXrelaySemaphore previousSem = semaphoreLockTable.get(previousInstance);
+                if ( ! previousSem.tryAcquire(1000, TimeUnit.MILLISECONDS) ) {
+                    // guard against pending operations from last generation.
+                    throw new Exception("Unable to acquire sem from previous handleInstance");
                 }
-            }
-            bridgeResourceMap.remove(previousInstance);
-            bridgeResourceMap.put(controllerHandle, new HashSet<Bridge>());
-            HashSet<Sym> rtpSessions = sessionResourceMap.get(previousInstance);
-            if (rtpSessions != null) {
-                for (Sym rtpSession : rtpSessions) {
-                    rtpSession.close();
+                HashSet<Bridge> rtpBridges = bridgeResourceMap
+                .get(previousInstance);
+                if (rtpBridges != null) {
+                    for (Bridge rtpBridge : rtpBridges) {
+                        rtpBridge.stop();
+                    }
                 }
+                bridgeResourceMap.remove(previousInstance);
+                bridgeResourceMap.put(controllerHandle, new HashSet<Bridge>());
+                HashSet<Sym> rtpSessions = sessionResourceMap.get(previousInstance);
+                if (rtpSessions != null) {
+                    for (Sym rtpSession : rtpSessions) {
+                        rtpSession.close();
+                    }
+                }
+
+                semaphoreLockTable.remove(previousInstance);
+                sessionResourceMap.remove(previousInstance);
+                sessionResourceMap.put(controllerHandle, new HashSet<Sym>());
+                semaphoreLockTable.put(controllerHandle, new SipXrelaySemaphore(1));
+
+                instanceTable.put(componentName, controllerHandle);
             }
 
-            semaphoreLockTable.remove(previousInstance);
-            sessionResourceMap.remove(previousInstance);
-            sessionResourceMap.put(controllerHandle, new HashSet<Sym>());
-            semaphoreLockTable.put(controllerHandle, new SipXrelaySemaphore(1));
-
-            instanceTable.put(componentName, controllerHandle);
+            try {
+                if (! this.semaphoreLockTable.get(controllerHandle).tryAcquire(10,TimeUnit.SECONDS) ) {
+                    logger.error("Error occured during lock acquire for controller handle " + controllerHandle);
+                    throw new RuntimeException("Could not successfully acquire handle lock for 10 seconds, giving up");
+                } else {
+                    logger.debug("Acquired handle lock for " + controllerHandle);
+                }
+            } catch (InterruptedException ex) {
+                throw new RuntimeException("Interrupted while trying to aquire lock", ex);
+            }
         }
-       
-        try {
-           if (! this.semaphoreLockTable.get(controllerHandle).tryAcquire(10,TimeUnit.SECONDS) ) {
-               logger.error("Error occured during lock acquire for controller handle " + controllerHandle);
-               throw new RuntimeException("Could not successfully acquire handle lock for 10 seconds, giving up");
-           } else {
-               logger.debug("Acquired handle lock for " + controllerHandle);
-           }
-        } catch (InterruptedException ex) {
-            throw new RuntimeException("Interrupted while trying to aquire lock", ex);
-        }
+        
         
     }
     
     private void release(String handle) {
-        this.semaphoreLockTable.get(handle).release();
+        synchronized(semaphoreLockTable) {
+            if ( this.semaphoreLockTable.get(handle) != null ) {
+                this.semaphoreLockTable.get(handle).release();
+            } else {
+                logger.error("NULL semaphore in table corresponding to handle " + handle);
+            }
+        }
     }
 
     /**

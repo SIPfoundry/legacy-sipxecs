@@ -259,7 +259,8 @@ public class Gateway {
         DomainConfiguration parser = new DomainConfiguration(domainConfigFile);
     }
 
-    static SymmitronClient initializeSymmitron(String address) {
+    static synchronized SymmitronClient initializeSymmitron(String address) {
+        logger.info("initialize Symmitron " + address);
         /*
          * Looks up a symmitron for a given address.
          */
@@ -1309,7 +1310,7 @@ public class Gateway {
      *            the address ( extracted from the Via header).
      * @return -- the client to talk to the symmitron.
      */
-    static SymmitronClient getSymmitronClient(String address) {
+    static synchronized  SymmitronClient getSymmitronClient(String address) {
         String lookupAddress = address;
         if (Gateway.getBridgeConfiguration().getSymmitronHost() != null) {
             lookupAddress = Gateway.getBridgeConfiguration().getSymmitronHost();
@@ -1317,6 +1318,7 @@ public class Gateway {
 
         SymmitronClient symmitronClient = symmitronClients.get(lookupAddress);
         if (symmitronClient == null) {
+            logger.info("getSymmitronClient " + lookupAddress);
             symmitronClient = initializeSymmitron(lookupAddress);
             try {
                 Thread.sleep(100);

@@ -46,8 +46,8 @@ public class PerformanceTester {
 
     static Timer timer = new Timer();
 
-    static int RING_TIME = 10 * 1000;
-    static int CALL_TIME = 2 * 60 * 1000;
+    static int RING_TIME = 100;
+    static int CALL_TIME = 2 * 1000;
     
     static long startTime  = System.currentTimeMillis() ;
   
@@ -96,6 +96,8 @@ public class PerformanceTester {
     }
 
     public static void main(String[] args ) throws Exception {
+        
+        System.out.println("Performance tester");
         SipFactory sipFactory = null;
         sipFactory = SipFactory.getInstance();
         sipFactory.setPathName("gov.nist");
@@ -104,8 +106,12 @@ public class PerformanceTester {
         messageFactory = (MessageFactoryExt) sipFactory.createMessageFactory();
        
         
-        String confDir = System.getProperties().getProperty("conf.dir","/usr/local/sipx/etc/sipxpbx");
-        String confFile = "file:///" + confDir + "/" + "sipxbridge.xml";
+        String confDir = System.getProperties().getProperty("conf.dir","/usr/local/sipx/etc/sipxpbx/");
+        
+        String confFile = confDir.equals("./")? "file:sipxbridge.xml" : "file:///" + confDir + "/" + "sipxbridge.xml";
+        
+        System.out.println("confFile = "+ confFile);
+        
         ConfigurationParser configFileParser = new ConfigurationParser();
         AccountManagerImpl accountManager = configFileParser.createAccountManager(confFile);
         bridgeConfiguration = accountManager.getBridgeConfiguration();
@@ -116,9 +122,12 @@ public class PerformanceTester {
         Logger logger = Logger.getLogger(PerformanceTester.class.getPackage().getName());
         logger.addAppender(logAppender);
         
+        
         Logger stackLogger  = Logger.getLogger(StackLoggerImpl.class);
         stackLogger.addAppender(logAppender);
         stackLogger.setLevel(Level.toLevel(bridgeConfiguration.getLogLevel()));
+        
+        logger.info("confFile = " + confFile);
         
         try {
             // Create SipStack object
@@ -183,10 +192,10 @@ public class PerformanceTester {
                  
             ItspListener itspListener = new ItspListener(itspListeningPoint,itspProvider);
             itspProvider.addSipListener(itspListener);
-            
-            for ( int i = 0; i < 10000 ; i++) {
+            System.out.println("Sending INVITE");
+            for ( int i = 0; i < 1000000 ; i++) {
                 phoneListener.sendInvite();
-                Thread.sleep(50);
+                Thread.sleep(150);
             }
             
             Thread.sleep(120*1000);

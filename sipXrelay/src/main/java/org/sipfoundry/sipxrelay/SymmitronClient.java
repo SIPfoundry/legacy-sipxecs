@@ -46,7 +46,7 @@ public class SymmitronClient {
 
 	private static Timer timer = new Timer();
 
-	private boolean checkForServerReboot(Map map) throws SymmitronException {
+	private synchronized boolean checkForServerReboot(Map map) throws SymmitronException {
 
 		String handle = (String) map.get(Symmitron.INSTANCE_HANDLE);
 
