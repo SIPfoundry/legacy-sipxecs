@@ -39,6 +39,8 @@ class SipTransactionList;
 class OsEvent;
 class OsTimer;
 
+#define DEFAULT_SIP_TIMER_C_EXPIRES 180
+
 /** SipTransaction correlates requests and responses.
  *
  * CallId  + 's' or 'c' (for server or client) is used as
@@ -450,8 +452,69 @@ private:
     enum transactionStates mTransactionState;
     UtlBoolean mDispatchedFinalResponse; ///< For UA recursion
     UtlBoolean mProvisionalSdp;          ///< early media
+    int mExpireEventTimeSec;             ///< timer value used for Expiration timers
     UtlSList mTimers;                    /**< A list of all outstanding timers
                                           *   started by this transaction. */
+    /**< SipTransaction Timer Usage 
+      * In this comment, "transaction" refers to the SipTransaction object in the code, not an RFC3261 transaction. 
+      * Timer objects contain the corresponding SipMessage to be used when events are processed. 
+      *  
+      * Two timers are possible - 
+      *  
+      * 1- transaction resend timer 
+      * --- posts TRANSACTION_RESEND event on timeout
+      * --- initially set in doFirstSend, can be set again in handleResendEvent 
+      * --- initial value is set from SipUserAgent variables, default is  SIP_DEFAULT_RTT, can be overridden in SUA::+ 
+      * --- for resend, value is set according to RFC3261 rules 
+      *  
+      * --- TRANSACTION_RESEND Timeout behavior --- 
+      * ------  Resend message according to RFC3261 rules.
+      *  
+      * 2- transaction expires timer  
+      * --- posts TRANSACTION_EXPIRATION event 
+      * --- can be set in doFirstSend or recurseDnsSrvChildren 
+      * --- default values are set in SipUserAgent::+, can be overridden  
+      * --- more complicated than resend timer 
+      *  
+      * --- In doFirstSend, 
+      * ------ Only set when sending request and this is not a server transaction 
+      * ------ in all cases, the max value is SipUserAgent::mDefaultExpiresSeconds 
+      * ---------- default is DEFAULT_SIP_TRANSACTION_EXPIRES (180s), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
+      * ------ smaller values are set based on SipTransaction variables:
+      * --------  for a serial child transaction resulting from DNS lookup, value is set to mDnsSrvTimeout
+      * -------------- default is (4s ), can override, see proxy(), SIPX_PROXY_DNSSRV_TIMEOUT
+      * --------  for any other transaction when message has an expires header, value is set to the expires header value
+      * --------  for serial child transaction and no expires header, value is set to mDefaultSerialExpiresSeconds
+      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_EXPIRES 
+      *  
+      * --- In recurseDnsSrvChildren, 
+      * ------ for transactions tied to INVITE messages, the max value is SipUserAgent::mDefaultExpiresSeconds 
+      * ---------- default is DEFAULT_SIP_TRANSACTION_EXPIRES (180s), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
+      * ------ for transactions tied to non- INVITE messages, the max value is SipUserAgent::mTransactionStateTimeoutMs 
+      * ---------- default is (8s), no override is provided
+      * ------ smaller values are set based on SipTransaction variables:
+      * --------  for any transaction when message has an expires header, value is set to the expires header value
+      * --------  for serial child transaction and no expires header, value is set to mDefaultSerialExpiresSeconds
+      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_EXPIRES 
+      *  
+      * --- In the real world, this all means that for any transaction, SipUserAgent::mDefaultExpiresSeconds is the maximun limit. 
+      * --- Only one EXPIRATION timer will be set for a given transaction. 
+      *  
+      * --- TRANSACTION_EXPIRATION event behavior --- 
+      * ------ Ignore timeout if attached SipMessage is a response. 
+      * ------ Do not send CANCEL if: 
+      * ---------- tx is mIsDnsChild and a final or provisional response has occurred 
+      * ---------- tx is in a serial search tree and has received provisional SDP 
+      * ---------- tx state is COMPLETED or CONFIRMED (transaction has finished its own work)
+      * ------ After making CANCEL decision ( and sending CANCEL if required), find the top of the transaction tree. 
+      * ---------- Step through the tree, if any transactions have more to do, nothing further is done. 
+      * ---------- If all transactions have reached an end state, find the best response and send it if needed. 
+      *  
+      *  
+      *  
+      * --- When  
+      *  
+      * */
 
     // Recursion members
     UtlBoolean mIsCanceled;
@@ -461,6 +524,7 @@ private:
     double mQvalue;            ///< Recurse order.  equal values are recursed in parallel
     int mExpires;              ///< Maximum time (seconds) to wait for a final outcome
     UtlBoolean mIsBusy;
+    UtlBoolean mProvoExtendsTimer;  ///< Set for response 101-199; clear and prevent CANCEL on EXPIRATION_EVENT
     UtlString mBusyTaskName;
     UtlSList* mWaitingList;    /**< Events waiting until this is available
                                 * Note only a parent tx should have a waiting list */

@@ -70,12 +70,14 @@ SipTransaction::SipTransaction(SipMessage* initialMsg,
    , mTransactionState(TRANSACTION_LOCALLY_INIITATED)
    , mDispatchedFinalResponse(FALSE)
    , mProvisionalSdp(FALSE)
+   , mExpireEventTimeSec(-1)
    , mIsCanceled(FALSE)
    , mIsRecursing(FALSE)
    , mIsDnsSrvChild(FALSE)
    , mQvalue(1.0)
    , mExpires(-1)
    , mIsBusy(FALSE)
+   , mProvoExtendsTimer(FALSE)
    , mWaitingList(NULL)
 {
 
@@ -345,6 +347,23 @@ SipTransaction::addResponse(SipMessage*& response,
         break;
 
     case MESSAGE_PROVISIONAL:
+#ifdef TEST_PRINT
+        {
+            int responseCode = response->getResponseStatusCode();
+            int lastResponseCode = -1;
+
+            if (mpLastProvisionalResponse)
+            {
+                lastResponseCode = mpLastProvisionalResponse->getResponseStatusCode();
+            }
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::addResponse"
+                          " got provo - last=%p/%d new=%p/%d outgoing=%d extend=%d",
+                          mpLastProvisionalResponse, lastResponseCode,
+                          response, responseCode, isOutGoing, mProvoExtendsTimer );
+        }
+#endif
         if (mpLastProvisionalResponse)
         {
             delete mpLastProvisionalResponse;
@@ -354,6 +373,20 @@ SipTransaction::addResponse(SipMessage*& response,
         {
            mTransactionState = TRANSACTION_PROCEEDING;
         }
+
+        // Set flag if this is an incoming provisional response >100  (101-199)
+        // The flag will be tested if the expires timer fires
+        // If TRUE, CANCEL will _not_ be sent, instead, a new Expires timer will be started
+        if (! isOutGoing )
+        {
+            int responseCode = mpLastProvisionalResponse->getResponseStatusCode();
+            if (   responseCode > SIP_1XX_CLASS_CODE
+                && responseCode < SIP_2XX_CLASS_CODE)
+            {
+                mProvoExtendsTimer = TRUE;
+            }
+        }
+
         // Check if there is early media
         // We need this state member as there may be multiple
         // provisional responses and we cannot rely upon the fact
@@ -1290,6 +1323,7 @@ UtlBoolean SipTransaction::doFirstSend(SipMessage& message,
                               this, expireSeconds
                               );
 
+                mExpireEventTimeSec = expireSeconds;
                 OsTime expiresTime(expireSeconds, 0);
                 expiresTimer->oneshotAfter(expiresTime);
             }
@@ -1613,6 +1647,50 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
     }
 
     // Requests
+    else if (mProvoExtendsTimer)
+    {
+        // Extends(creates new) expire timer if appropriate provisional response has come in since 
+        // the previous time-out.
+        mProvoExtendsTimer = FALSE;
+
+        // set new timer UNLESS timer value is < 0 
+        // OR mIsDnsSrvChild would cause the timeout event to be ignored anyway.
+        if (  mExpireEventTimeSec > 0
+            && !mIsDnsSrvChild)
+        {
+            // Keep separate message copy for the timer
+            SipMessage* pRequestMessage = NULL;
+            pRequestMessage = new SipMessage(*mpRequest);
+
+            SipMessageEvent* expiresEvent =
+                new SipMessageEvent(pRequestMessage,
+                                    SipMessageEvent::TRANSACTION_EXPIRATION);
+
+            OsMsgQ* incomingQ = userAgent.getMessageQueue();
+            OsTimer* expiresTimer = new OsTimer(incomingQ, expiresEvent);
+            mTimers.append(expiresTimer);
+
+            OsSysLog::add(FAC_SIP, PRI_DEBUG, 
+                          "SipTransaction::handleExpiresEvent"
+                          " provoExtendsTimer - transaction %p setting timeout %d secs.",
+                          this, mExpireEventTimeSec);
+
+            // set new timer to larger of original timeout value or 3 minutes. 
+            if (mExpireEventTimeSec < DEFAULT_SIP_TIMER_C_EXPIRES)
+            {
+                mExpireEventTimeSec = DEFAULT_SIP_TIMER_C_EXPIRES;
+            }
+#ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleExpiresEvent "
+                          "provoExtendsTimer - Tx %p"
+                          "add timer %p to timer list, expire time = %d secs ",
+                          this, expiresTimer, mExpireEventTimeSec);
+#endif
+            OsTime expiresTime(mExpireEventTimeSec, 0);
+            expiresTimer->oneshotAfter(expiresTime);
+        }
+    }
     else
     {
         // When should we send CANCEL?
@@ -1722,6 +1800,16 @@ UtlBoolean SipTransaction::handleChildIncoming(//SipTransaction& child,
         // If there is a parent pass it up
         if(mpParentTransaction)
         {
+
+#           ifdef TEST_PRINT
+            OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                          "SipTransaction::handleChildIncoming "
+                          "%p provoExtends this=>%d parent=>%d",
+                          this, mProvoExtendsTimer, 
+                          mpParentTransaction->mProvoExtendsTimer );
+#           endif
+            mpParentTransaction->mProvoExtendsTimer = mProvoExtendsTimer;
+
             // May want to short cut this and first get
             // the top most parent.  However if the state
             // change is interesting to intermediate (i.e.
@@ -2615,6 +2703,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                           this, expireSeconds
                );
 
+            mExpireEventTimeSec = expireSeconds;
             OsTime expiresTime(expireSeconds, 0);
             expiresTimer->oneshotAfter(expiresTime);
 
@@ -4729,6 +4818,13 @@ void SipTransaction::toString(UtlString& dumpString,
 
     dumpString.append("\n\tmProvisionalSdp: ");
     dumpString.append(mProvisionalSdp ? "TRUE" : " FALSE");
+
+    dumpString.append("\n\tmProvoExtendsTimer: ");
+    dumpString.append(mProvoExtendsTimer ? "TRUE" : "FALSE");
+
+    dumpString.append("\n\tmExpireEventTimeSec: ");
+    sprintf(numBuffer, "%d", mExpireEventTimeSec);
+    dumpString.append(numBuffer);
 
     dumpString.append("\n\tmQvalue: ");
     sprintf(numBuffer, "%lf", mQvalue);
