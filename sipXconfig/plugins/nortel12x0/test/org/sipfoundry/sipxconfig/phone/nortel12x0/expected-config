@@ -14,7 +14,7 @@
 <enableSyslog><![CDATA[FALSE]]></enableSyslog>
 <syslogServer><![CDATA[10.4.5.2]]></syslogServer>
 <enableSessionTimer><![CDATA[FALSE]]></enableSessionTimer>
-<sessionTimerInSec><![CDATA[30]]></sessionTimerInSec>
+<sessionTimerInSec><![CDATA[1800]]></sessionTimerInSec>
 <sessionRefresherFlag><![CDATA[FALSE]]></sessionRefresherFlag>
 <subscriptionExpires><![CDATA[86400]]></subscriptionExpires>
 <groupPagingSecret><![CDATA[sipXpage]]></groupPagingSecret>

@@ -288,7 +288,7 @@
       <type>
         <integer min="30" max="3600" />
       </type>
-      <value>30</value>
+      <value>1800</value>
     </setting>
     <setting name="sessionRefresherFlag">
       <type refid="on-off" />
