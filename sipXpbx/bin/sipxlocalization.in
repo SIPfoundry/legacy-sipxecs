@@ -3,9 +3,9 @@
 
 # Check that the right number of arguments have been supplied.
 # Otherwise give the usage message.
-if [ $# -ne 4 ]; then
-    echo "Usage: $0 (localization package file) (voice prompt directory) (region directory) (third party directory)" >&2
-    echo "E.g. : $0 LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx /usr/share/sipxpbx" >&2
+if [ $# -ne 5 ]; then
+    echo "Usage: $0 (localization package file) (voice prompt directory) (region directory) (third party directory) (sipxconfig java directory)" >&2
+    echo "E.g. : $0 LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx /usr/share/sipxpbx /share/java/sipXecs/sipXconfig/" >&2
     exit 1
 fi
 
@@ -13,6 +13,7 @@ FILE=$1
 VOICE_PROMPT_DIR=$2
 REGION_DIR=$3
 SHARE_DIR=$4
+JAVA_DIR=$5
 
 # Check the localization package file and specified directories for validity.
 if ! [ -d $VOICE_PROMPT_DIR -a -w $VOICE_PROMPT_DIR ]; then
@@ -31,6 +32,11 @@ if ! [ -f $FILE -a -r $FILE ]; then
     echo "'$FILE' does not exist or is not a readable file." >&2
     exit 1
 fi
+if ! [ -d $JAVA_DIR -a -w $JAVA_DIR ]; then
+    echo "'$JAVA_DIR' is not a writable directory." >&2
+    exit 1
+fi
+
 # Check that 'tar' can read the file.
 if ! tar --wildcards -tf $FILE >/dev/null 2>&1 ; then
     echo "'$FILE' is not a (possibly gzipped) tar file." >&2
@@ -59,6 +65,10 @@ fi
 if tar --wildcards -tf $FILE third_party >/dev/null 2>&1 ; then
     # The file contains third party files - extract them
     tar --wildcards -xf $FILE --directory=$SHARE_DIR 'third_party/*'
+fi
+if tar --wildcards -tf $FILE sipXconfig >/dev/null 2>&1 ; then
+    # The file contains java files - extract them
+    tar --wildcards -xf $FILE --directory=$JAVA_DIR 'sipXconfig/*'
 fi
 
 # Delete the localization package file

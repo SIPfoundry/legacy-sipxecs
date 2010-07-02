@@ -49,6 +49,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private String m_promptsDir;
     private String m_binDir;
     private String m_thirdPartyDir;
+    private String m_javaDir;
     private String m_defaultRegion;
     private String m_defaultLanguage;
     private ResetDialPlanTask m_resetDialPlanTask;
@@ -257,7 +258,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         try {
             String[] cmd = new String[] {
                 m_binDir + File.separator + "sipxlocalization", fileToApply.getPath(), m_promptsDir, m_regionDir,
-                m_thirdPartyDir
+                m_thirdPartyDir, m_javaDir
             };
             Process p = Runtime.getRuntime().exec(cmd);
             BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -278,5 +279,13 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
             LOG.error("Problems with executing sipxlocalization script.", ex);
             throw installFailureException;
         }
+    }
+
+    public void setJavaDir(String javaDir) {
+        this.m_javaDir = javaDir;
+    }
+
+    public String getJavaDir() {
+        return m_javaDir;
     }
 }

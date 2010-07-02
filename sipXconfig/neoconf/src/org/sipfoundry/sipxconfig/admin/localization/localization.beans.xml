@@ -11,6 +11,7 @@
     <property name="promptsDir" value="${sysdir.doc}"/>
     <property name="binDir" value="${sysdir.bin}"/>
     <property name="thirdPartyDir" value="${sysdir.thirdparty}"/>
+    <property name="javaDir" value="${sysdir.share}"/>
     <property name="defaultRegion" value="region_na" />
     <property name="defaultLanguage" value="en" />
     <property name="resetDialPlanTask" ref="resetDialPlanTask" />

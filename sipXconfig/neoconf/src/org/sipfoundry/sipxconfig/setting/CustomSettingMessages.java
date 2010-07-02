@@ -23,7 +23,7 @@ public final class CustomSettingMessages {
     }
 
     public static String getMessagePattern(String key, Locale locale) {
-        return ResourceBundle.getBundle(RESOURCE_BUNDLE).getString(key);
+        return ResourceBundle.getBundle(RESOURCE_BUNDLE, locale).getString(key);
     }
 
 }
