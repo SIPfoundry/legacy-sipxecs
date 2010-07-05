@@ -5,25 +5,42 @@
  */
 package org.sipfoundry.openfire.plugin.presence;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import java.util.Locale;
+import java.util.MissingResourceException;
+import java.util.ResourceBundle;
+
 import org.apache.log4j.Logger;
 
 public class Localizer
 {
     private static Logger log = Logger.getLogger(Localizer.class);
-
-    Properties localizationTable;
+    private ResourceBundle m_bundle;
     
-    Localizer( Properties props ){
-        localizationTable = props;
+    Localizer(String localeString, ClassLoader classloader) {    
+           
+        Locale locale;
+            
+        if(localeString == null) {
+            // just in case .. shouldn't happen though
+            locale = Locale.ENGLISH; 
+        } else {
+            locale = new Locale(localeString);
+        }
+        
+        try {
+            m_bundle = ResourceBundle.getBundle("sipxopenfire-prompts", locale, classloader);    
+        } catch (MissingResourceException e) {
+            log.error("can't find sipxopenfire-prompts properties file: " + e.getMessage());
+        }
     }
 
-    public String localize( String promptToLocalize ){
-        return localizationTable.getProperty( promptToLocalize, "<<error - not localized>>");
+    public synchronized String localize(String promptToLocalize ){
+        
+        if(m_bundle == null) {
+            return "Cannot find prompts file";
+        } else { 
+            return m_bundle.getString(promptToLocalize);
+        }        
     }
-    
+
 }

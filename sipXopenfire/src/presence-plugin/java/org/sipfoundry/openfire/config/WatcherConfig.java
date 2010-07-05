@@ -24,6 +24,7 @@ public class WatcherConfig {
     private boolean bImMessageLogging = false;
     private String imMessageLoggingDirectory;
     private XmppS2sInfo xmppS2sInfo;     // Server to server settings
+    private String locale;
 
     public String getSipxProxyTransport() {
         return sipxProxyTransport;
@@ -219,6 +220,16 @@ public class WatcherConfig {
     	this.imMessageLoggingDirectory = imMessageLoggingDirectory;
     }
 
+    public void setLocale( String locale )
+    {
+        this.locale = locale;
+    }
+    
+    public String getLocale()
+    {
+        return this.locale;
+    }
+    
     public void addS2sInfo(XmppS2sInfo xmppS2sInfo) throws Exception {
     	this.xmppS2sInfo = xmppS2sInfo;
     }
