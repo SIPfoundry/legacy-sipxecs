@@ -75,6 +75,8 @@ public class SipxOpenfireConfigurationTest extends SipxServiceTestBase {
                 "http://server1.org:1234, " + "server2:12345, server2,   server2,     server2, server2:12345");
         m_service.setSettingValue(SipxOpenfireService.SERVER_TO_SERVER_DISALLOWED_SERVERS_SETTING,
                 "server3.org:1111");
+        m_service.setSettingValue(SipxOpenfireService.LOCALE_SETTING, "default");
+
 
         m_sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
         m_sipxServiceManager.getServiceByBeanId(SipxOpenfireService.BEAN_ID);

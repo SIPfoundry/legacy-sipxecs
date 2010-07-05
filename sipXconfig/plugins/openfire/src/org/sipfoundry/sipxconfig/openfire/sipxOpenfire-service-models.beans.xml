@@ -39,6 +39,7 @@
     <property name="template" value="openfire/sipxopenfire.vm" />
     <property name="name" value="sipxopenfire.xml" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="restartRequired" value="true" />
     <property name="coreContext" ref="coreContext" />
   </bean>
 
@@ -59,10 +60,13 @@
 
   <bean id="sipxOpenfireDaoListener" class="org.sipfoundry.sipxconfig.openfire.SipxOpenfireDaoListener">
     <property name="sipxReplicationContext" ref="sipxReplicationContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="configurationFiles">
       <list>
         <ref bean="xmppAccountInfo" />
         <ref bean="presenceRoutingConfiguration" />
+        <ref bean="sipxOpenfireConfiguration" />
       </list>
     </property>
   </bean>

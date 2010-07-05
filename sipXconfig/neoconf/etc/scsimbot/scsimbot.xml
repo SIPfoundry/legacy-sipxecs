@@ -45,6 +45,12 @@
       </type>
       <value>8086</value>
     </setting>
+    <setting name="locale" hidden="yes">
+      <type>
+        <string/>
+      </type>
+      <value>default</value>
+    </setting>
     <setting name="imId">
       <type>
         <string required="yes" />

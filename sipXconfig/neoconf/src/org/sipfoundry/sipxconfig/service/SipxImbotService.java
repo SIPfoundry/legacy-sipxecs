@@ -19,6 +19,7 @@ public class SipxImbotService extends SipxService implements LoggingEntity {
     public static final String PA_USER_NAME_SETTING = "imbot/imId";
     public static final String PA_PASSWORD_SETTING = "imbot/imPassword";
     public static final String HTTP_PORT = "imbot/httpPort";
+    public static final String LOCALE_SETTING = "imbot/locale";
 
     private static final int PASS_LENGTH = 8;
 
@@ -74,6 +75,10 @@ public class SipxImbotService extends SipxService implements LoggingEntity {
 
     public String getHttpPort() {
         return getSettingValue(HTTP_PORT);
+    }
+
+    public void setLocale(String localeString) {
+        getSettings().getSetting(LOCALE_SETTING).setValue(localeString);
     }
 
     public void setAvailable(boolean available) {

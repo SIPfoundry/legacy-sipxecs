@@ -13,15 +13,21 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.localization.Localization;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.conference.Conference;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Group;
+import org.springframework.beans.factory.annotation.Required;
 
 public class SipxOpenfireDaoListener implements DaoEventListener {
 
     private SipxReplicationContext m_sipxReplicationContext;
+    private SipxServiceManager m_sipxServiceManager;
     private List<ConfigurationFile> m_configurationFiles;
+    private ServiceConfigurator m_serviceConfigurator;
 
     public void onDelete(Object entity) {
         if (checkGenerateConfig(entity)) {
@@ -46,6 +52,14 @@ public class SipxOpenfireDaoListener implements DaoEventListener {
         if (entity instanceof Conference) {
             return true;
         }
+        if (entity instanceof Localization) {
+            Localization locale = (Localization) entity;
+            SipxOpenfireService instantMessagingService = (SipxOpenfireService) m_sipxServiceManager
+                    .getServiceByBeanId("sipxOpenfireService");
+            instantMessagingService.setLocale(locale.getLanguage());
+            m_serviceConfigurator.markServiceForRestart(instantMessagingService);
+            return true;
+        }
         return false;
     }
 
@@ -64,5 +78,14 @@ public class SipxOpenfireDaoListener implements DaoEventListener {
 
     public void setConfigurationFiles(List<ConfigurationFile> configurationFiles) {
         m_configurationFiles = configurationFiles;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 }
