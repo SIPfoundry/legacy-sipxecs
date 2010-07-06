@@ -24,7 +24,22 @@ public class Localizer
             // just in case .. shouldn't happen though
             locale = Locale.ENGLISH; 
         } else {
-            locale = new Locale(localeString);
+            // convert any dashes to underscores, as sometimes locales are mis-represented
+            String ls = localeString.replace('-', '_');
+            String[] localeElements = ls.split("_");
+            String lang = "";
+            String country = "";
+            String variant = "";
+            if (localeElements.length >= 3) {
+                variant = localeElements[2];
+            }
+            if (localeElements.length >= 2) {
+                country = localeElements[1];
+            }
+            if (localeElements.length >= 1) {
+                lang = localeElements[0];
+            }
+            locale = new Locale(lang, country, variant);        
         }
         
         try {
