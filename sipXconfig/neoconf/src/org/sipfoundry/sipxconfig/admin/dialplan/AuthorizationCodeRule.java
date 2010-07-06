@@ -14,7 +14,7 @@ import org.sipfoundry.sipxconfig.admin.dialplan.config.UrlTransform;
 
 public class AuthorizationCodeRule extends DialingRule {
 
-    private static final String USER_PART = "AUTH";
+    private static final String USER_PART = "ACC";
     private static final String COMMAND_PART = "command=";
     private final UrlTransform m_transform;
     private final DialPattern m_dialPattern;
