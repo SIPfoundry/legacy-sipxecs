@@ -127,7 +127,10 @@ public class ResourceLists extends XmlFile {
             if (speedDial == null) {
                 return;
             }
-            // don't add buttons if the user doesn't have "Subscribe to Presence" permission
+
+            // check if the user has the "Subscribe to Presence" permission since the blf flag
+            // might not be set to FALSE even when the user doesn't have this permission(this could happen
+            // when the user use the group's speed dial)
             if (!user.hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE)) {
                 return;
             }

@@ -224,6 +224,48 @@ public class ResourceListsTest extends XMLTestCase {
         coreContextControl.verify();
     }
 
+    public void testGenerateConsideringSubscribePermission() throws Exception {
+        //set "subscribe to presence" permission of user_a to false
+        m_users.get(1).getSettings().getSetting("permission/application/subscribe-to-presence").setValue("DISABLE");
+
+        IMocksControl coreContextControl = EasyMock.createControl();
+        CoreContext coreContext = coreContextControl.createMock(CoreContext.class);
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
+        coreContextControl.andReturn(m_users);
+        coreContext.getDomainName();
+        coreContextControl.andReturn("example.org").anyTimes();
+        coreContext.loadUserByAlias("100");
+        coreContextControl.andReturn(null);
+        coreContextControl.replay();
+
+        IMocksControl sdmControl = EasyMock.createControl();
+        SpeedDialManager sdm = sdmControl.createMock(SpeedDialManager.class);
+        sdm.getSpeedDialForUserId(m_users.get(0).getId(), false);
+        sdmControl.andReturn(null);
+        sdm.getSpeedDialForUserId(m_users.get(1).getId(), false);
+        sdmControl.andReturn(m_sd1);
+        sdm.getSpeedDialForUserId(m_users.get(2).getId(), false);
+        sdmControl.andReturn(m_sd2);
+        sdm.getSpeedDialForUserId(m_users.get(3).getId(), false);
+        sdmControl.andReturn(m_sd3);
+        sdm.getSpeedDialForUserId(m_users.get(4).getId(), false);
+        sdmControl.andReturn(null);
+        sdm.getSpeedDialForUserId(m_users.get(5).getId(), false);
+        sdmControl.andReturn(null);
+        sdmControl.replay();
+
+        ResourceLists rl = new ResourceLists();
+        rl.setCoreContext(coreContext);
+        rl.setSpeedDialManager(sdm);
+
+        String generatedXml = getFileContent(rl, null);
+        InputStream referenceXml = getClass().getResourceAsStream("resource-lists-considering-permission.test.xml");
+        assertXMLEqual(new InputStreamReader(referenceXml), new StringReader(generatedXml));
+
+        coreContextControl.verify();
+        sdmControl.verify();
+    }
+
     private class DummyUser extends User {
         int m_id;
 
