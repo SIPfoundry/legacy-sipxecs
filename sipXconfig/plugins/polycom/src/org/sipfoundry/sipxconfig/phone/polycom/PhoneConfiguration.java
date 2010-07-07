@@ -18,6 +18,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -30,6 +31,9 @@ public class PhoneConfiguration extends ProfileContext {
     public static final int TEMPLATE_DEFAULT_LINE_COUNT = 6;
 
     private static final String PHONE_TEMPLATE = PolycomPhone.TEMPLATE_DIR + "/phone.cfg.vm";
+
+    private static final String MWI_SUBSCRIBE_SETTING = "msg.mwi/subscribe";
+    private static final String BLANK_STRING = "";
 
     public PhoneConfiguration(Device device) {
         super(device, PHONE_TEMPLATE);
@@ -50,7 +54,7 @@ public class PhoneConfiguration extends ProfileContext {
         if (lines.isEmpty()) {
             Line line = phone.createSpecialPhoneProvisionUserLine();
             line.setSettingValue("reg/label", line.getUser().getDisplayName());
-            line.setSettingValue("msg.mwi/subscribe", "");
+            line.setSettingValue(MWI_SUBSCRIBE_SETTING, BLANK_STRING);
             line.setSettingValue("msg.mwi/callBackMode", "disabled");
             lines = new LinkedList<Line>();
             lines.add(line);
@@ -60,6 +64,9 @@ public class PhoneConfiguration extends ProfileContext {
         ArrayList linesSettings = new ArrayList(lineCount);
 
         for (Line line : lines) {
+            if (!line.getUser().hasPermission(PermissionName.VOICEMAIL)) {
+                line.setSettingValue(MWI_SUBSCRIBE_SETTING, BLANK_STRING);
+            }
             linesSettings.add(line.getSettings());
         }
 
@@ -76,9 +83,7 @@ public class PhoneConfiguration extends ProfileContext {
     }
 
     public String[] getLineEmergencySetting(Setting lineset) {
-        String emergencyValue = lineset
-                                .getSetting("line-dialplan/digitmap/routing.1/emergency.1.value")
-                                .getValue();
+        String emergencyValue = lineset.getSetting("line-dialplan/digitmap/routing.1/emergency.1.value").getValue();
 
         return StringUtils.split(emergencyValue, ",");
     }

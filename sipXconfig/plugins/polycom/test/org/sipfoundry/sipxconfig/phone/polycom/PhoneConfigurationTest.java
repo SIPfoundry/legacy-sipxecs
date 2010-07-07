@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.dom4j.Attribute;
@@ -28,6 +29,7 @@ import org.sipfoundry.sipxconfig.device.ProfileGenerator;
 import org.sipfoundry.sipxconfig.device.VelocityProfileGenerator;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
@@ -200,5 +202,52 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
             attribute = (Attribute) mwi_element.selectSingleNode("@msg.mwi." + x + ".callBackMode");
             assertEquals("disabled", attribute.getStringValue());
         }
+    }
+
+    public void testGenerateProfileVersion20WithoutVoicemailPermission() throws Exception {
+        PolycomModel model = new PolycomModel();
+        model.setMaxLineCount(6);
+        phone.setModel(model);
+
+        List<User> users = new ArrayList<User>();
+
+        PermissionManagerImpl pManager = new PermissionManagerImpl();
+        pManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+
+        User user1 = new User();
+        user1.setUserName("juser");
+        user1.setFirstName("Joe");
+        user1.setLastName("User");
+        user1.setSipPassword("1234");
+        user1.setPermissionManager(pManager);
+        user1.setPermission(PermissionName.VOICEMAIL, false);
+
+        User user2 = new User();
+        user2.setUserName("kuser");
+        user2.setFirstName("Kate");
+        user2.setLastName("User");
+        user2.setSipPassword("1234");
+        user2.setPermissionManager(pManager);
+        user2.setPermission(PermissionName.VOICEMAIL, true);
+
+        users.add(user1);
+        users.add(user2);
+
+        m_testDriver = PhoneTestDriver.supplyTestData(phone, users);
+
+        // XCF-3581: No longer automatically generating phone emergency dial routing. These
+        // settings
+        // are as if they'd been manually configured under Line 1 - Dial Plan - Emergency Routing.
+        Line line = phone.getLines().get(0);
+        line.setSettingValue("line-dialplan/digitmap/routing.1/address", "emergency-gateway.example.org");
+        line.setSettingValue("line-dialplan/digitmap/routing.1/port", "5440");
+        line.setSettingValue("line-dialplan/digitmap/routing.1/emergency.1.value", "911,9911");
+
+        phone.beforeProfileGeneration();
+        PhoneConfiguration cfg = new PhoneConfiguration(phone);
+
+        m_pg.generate(m_location, cfg, null, "profile");
+
+        assertPolycomXmlEquals(getClass().getResourceAsStream("expected-without-voicemail-permission-phone.cfg.xml"), m_location.getReader());
     }
 }

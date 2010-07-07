@@ -25,6 +25,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.DeviceTimeZone;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
@@ -74,7 +75,8 @@ public class Nortel12x0Phone extends Phone {
     @Override
     public void initialize() {
         SpeedDial speedDial = getPhoneContext().getSpeedDial(this);
-        Nortel12x0PhoneDefaults defaults = new Nortel12x0PhoneDefaults(getPhoneContext().getPhoneDefaults(), speedDial);
+        Nortel12x0PhoneDefaults defaults = new Nortel12x0PhoneDefaults(getPhoneContext().getPhoneDefaults(),
+                speedDial);
         addDefaultBeanSettingHandler(defaults);
 
         Nortel12x0IntercomDefaults intercomDefaults = new Nortel12x0IntercomDefaults(this);
@@ -101,7 +103,7 @@ public class Nortel12x0Phone extends Phone {
         line.setSettingValue(PASSWORD_SETTING, info.getPassword());
         line.setSettingValue(REGISTRATION_SERVER_SETTING, info.getRegistrationServer());
         line.setSettingValue(VOICEMAIL_ACCESS_NUMBER_SETTING, info.getVoiceMail() + '@'
-            + info.getRegistrationServer());
+                + info.getRegistrationServer());
         line.setSettingValue(MWI_SUBSCRIBE_SETTING, info.getUserId() + '@' + info.getRegistrationServer());
     }
 
@@ -291,7 +293,7 @@ public class Nortel12x0Phone extends Phone {
     }
 
     public static class Nortel12x0LineDefaults {
-        private Line m_line;
+        private final Line m_line;
 
         Nortel12x0LineDefaults(Line line) {
             m_line = line;
@@ -388,7 +390,7 @@ public class Nortel12x0Phone extends Phone {
             User user = m_line.getUser();
             if (user != null) {
                 String mohUri = user.getMusicOnHoldUri();
-                return  SipUri.stripSipPrefix(mohUri);
+                return SipUri.stripSipPrefix(mohUri);
             }
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return SipUri.stripSipPrefix(defaults.getMusicOnHoldUri());
@@ -404,9 +406,8 @@ public class Nortel12x0Phone extends Phone {
         private SpeedDial m_speedDial;
         private Collection<PhonebookEntry> m_phoneBook;
 
-        public Nortel12x0Context(Nortel12x0Phone device, SpeedDial speedDial,
-            CoreContext coreContext, Collection<PhonebookEntry> phoneBook,
-            String profileTemplate) {
+        public Nortel12x0Context(Nortel12x0Phone device, SpeedDial speedDial, CoreContext coreContext,
+                Collection<PhonebookEntry> phoneBook, String profileTemplate) {
             super(device, profileTemplate);
             m_speedDial = speedDial;
             m_phoneBook = trim(phoneBook);
@@ -431,6 +432,12 @@ public class Nortel12x0Phone extends Phone {
                 line.setSettingValue("registrationAndProxy/mwiSubscribe", "FALSE");
                 lines = new LinkedList<Line>();
                 lines.add(line);
+            }
+
+            for (Line line : lines) {
+                if (line.getUser() != null && !line.getUser().hasPermission(PermissionName.VOICEMAIL)) {
+                    line.setSettingValue(MWI_SUBSCRIBE_SETTING, "");
+                }
             }
 
             return lines;

@@ -11,6 +11,9 @@
  */
 package org.sipfoundry.sipxconfig.phone.nortel12x0;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
+
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +24,7 @@ import java.util.List;
 import java.util.Set;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.io.IOUtils;
 import org.dom4j.Document;
 import org.dom4j.dom.DOMDocumentFactory;
@@ -28,7 +32,6 @@ import org.dom4j.dom.DOMElement;
 import org.dom4j.io.SAXReader;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import static org.easymock.EasyMock.expectLastCall;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -36,6 +39,7 @@ import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -46,7 +50,6 @@ import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 public class Nortel12x0PhoneTest extends TestCase {
 
@@ -445,4 +448,43 @@ public class Nortel12x0PhoneTest extends TestCase {
         }
     }
 
+    public void testNortel12x0ProfileGenerationForUserWithoutVoicemailPermission() throws Exception {
+        List<User> users = new ArrayList<User>();
+
+        PermissionManagerImpl pManager = new PermissionManagerImpl();
+        pManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+
+        User user1 = new User();
+        user1.setUserName("juser");
+        user1.setFirstName("Joe");
+        user1.setLastName("User");
+        user1.setSipPassword("1234");
+        user1.setPermissionManager(pManager);
+        user1.setPermission(PermissionName.VOICEMAIL, false);
+
+        User user2 = new User();
+        user2.setUserName("kuser");
+        user2.setFirstName("Kate");
+        user2.setLastName("User");
+        user2.setSipPassword("1234");
+        user2.setPermissionManager(pManager);
+        user2.setPermission(PermissionName.VOICEMAIL, true);
+
+        users.add(user1);
+        users.add(user2);
+
+        Nortel12x0Phone phone = new Nortel12x0Phone();
+        PhoneModel model = new PhoneModel("nortel12x0");
+        model.setLabel("Nortel IP Phone 1230");
+        model.setModelDir("nortel12x0");
+        model.setProfileTemplate("nortel12x0/nortel12x0.vm");
+        phone.setModel(model);
+        PhoneTestDriver.supplyTestData(phone, users);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        phone.generateProfiles(location);
+        InputStream expectedProfile = getClass().getResourceAsStream("expected-config-no-voicemail-permission");
+        String expected = IOUtils.toString(expectedProfile);
+        expectedProfile.close();
+        assertEquals(expected, location.toString());
+    }
 }

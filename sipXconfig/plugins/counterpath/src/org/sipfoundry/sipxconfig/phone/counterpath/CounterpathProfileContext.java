@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.im.ImAccount;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
@@ -49,6 +50,10 @@ public class CounterpathProfileContext extends ProfileContext<Phone> {
             lineSipSettings.add(ls.getSip());
             if (isImEnabled(line)) {
                 lineXmppSettings.add(ls.getXmpp());
+            }
+
+            if (!line.getUser().hasPermission(PermissionName.VOICEMAIL)) {
+                line.setSettingValue("voicemail/voicemail_url", "");
             }
         }
         context.put("line_sip_settings", lineSipSettings);

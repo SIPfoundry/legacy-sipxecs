@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +19,6 @@ import junit.framework.TestCase;
 
 import org.apache.commons.io.IOUtils;
 import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -24,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
@@ -31,10 +34,6 @@ import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathL
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathPhoneDefaults;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
-
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.sipfoundry.sipxconfig.test.TestUtil.getModelDirectory;
 
 public class CounterpathPhoneTest extends TestCase {
     private Line m_line;
@@ -189,5 +188,53 @@ public class CounterpathPhoneTest extends TestCase {
         m_user.setSipPassword("1234");
         m_user.setImId("jsmit_id");
         m_user.setImDisplayName("John Smith Id");
+    }
+
+    public void testGenerateCounterpathCMCEnterpriseWithoutVoicemailPermission() throws Exception {
+        List<User> users = new ArrayList<User>();
+
+        PermissionManagerImpl pManager = new PermissionManagerImpl();
+        pManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+
+        User user1 = new User();
+        user1.setUserName("juser");
+        user1.setFirstName("Joe");
+        user1.setLastName("User");
+        user1.setSipPassword("1234");
+        user1.setPermissionManager(pManager);
+        user1.setPermission(PermissionName.VOICEMAIL, false);
+
+        User user2 = new User();
+        user2.setUserName("kuser");
+        user2.setFirstName("Kate");
+        user2.setLastName("User");
+        user2.setSipPassword("1234");
+        user2.setPermissionManager(pManager);
+        user2.setPermission(PermissionName.VOICEMAIL, true);
+
+        users.add(user1);
+        users.add(user2);
+
+        PhoneTestDriver.supplyTestData(m_phone, users);
+        User firstUser = m_phone.getLines().get(0).getUser();
+        firstUser.setPermissionManager(m_permissionManager);
+        firstUser.setImId("jsmit_id");
+        firstUser.setImDisplayName("John Smith Id");
+        firstUser.getSettings().getSetting("im/im-account").setValue("1");
+
+        Location locationMock = new LocationMock();
+        LocationsManager locationsManagerMock = EasyMock.createMock(LocationsManager.class);
+        locationsManagerMock.getLocationByBundle("imBundle");
+        EasyMock.expectLastCall().andReturn(locationMock);
+        locationsManagerMock.getPrimaryLocation();
+        expectLastCall().andReturn(locationMock).anyTimes();
+        EasyMock.replay(locationsManagerMock);
+        m_phone.setLocationsManager(locationsManagerMock);
+
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
+        m_phone.generateProfiles(location);
+        String expected = IOUtils.toString(getClass().getResourceAsStream("cmc-enterprise-without-voicemail-permission.ini"));
+
+        assertEquals(expected, location.toString(m_phone.getPhoneFilename()));
     }
 }
