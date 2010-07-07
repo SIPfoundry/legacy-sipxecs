@@ -11,6 +11,7 @@
     <property name="promptsDir" value="${sysdir.doc}"/>
     <property name="binDir" value="${sysdir.bin}"/>
     <property name="thirdPartyDir" value="${sysdir.thirdparty}"/>
+    <property name="javaDir" value="${sysdir.share}"/>
     <property name="defaultRegion" value="region_na" />
     <property name="defaultLanguage" value="en" />
     <property name="resetDialPlanTask" ref="resetDialPlanTask" />
@@ -18,6 +19,8 @@
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
     <property name="autoAttendantManager" ref="autoAttendantManager" />
     <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
   <bean id="localizationContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

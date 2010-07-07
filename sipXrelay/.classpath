@@ -18,5 +18,5 @@
 	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXrelay/dist/sipXrelay.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/junit.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/xmlrpc-client.jar"/>
-	<classpathentry kind="output" path="bin.eclipse"/>
+	<classpathentry kind="output" path="classes"/>
 </classpath>

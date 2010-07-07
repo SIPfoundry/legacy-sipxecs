@@ -52,6 +52,9 @@ public class SpeedDial extends SpeedDialButtons {
      * If at least one button supports BLF we need to register this list as BLF
      */
     public boolean isBlf() {
+        // check if the user has the "Subscribe to Presence" permission since the blf flag
+        // might not be set to FALSE even when the user doesn't have this permission(this could happen
+        // when the user use the group's speed dial)
         if (m_user != null && !m_user.hasPermission(PermissionName.SUBSCRIBE_TO_PRESENCE)) {
             return false;
         }

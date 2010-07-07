@@ -5,6 +5,7 @@
   <bean id="settingDaoImpl" class="org.sipfoundry.sipxconfig.setting.SettingDaoImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
+    <property name="rlsConfigFilesActivator" ref="rlsConfigFilesActivator" />
   </bean>
 
   <bean id="settingDao" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

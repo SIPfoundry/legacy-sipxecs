@@ -115,10 +115,11 @@ public abstract class SettingEditor extends BaseComponent {
         // see XCF-1726 'required' constraint *is* enforced (even if isRequiredEnabled is false)
         // for all settings that have non empty default values
         boolean hasDefault = StringUtils.isNotEmpty(getSetting().getDefaultValue());
-        return validatorListForType(type, hasDefault || isRequiredEnabled());
+        Locale locale = getPage().getLocale();
+        return validatorListForType(type, hasDefault || isRequiredEnabled(), locale);
     }
 
-    static List validatorListForType(SettingType type, boolean enforceRequired) {
+    static List validatorListForType(SettingType type, boolean enforceRequired, Locale locale) {
         List<Validator> validators = new ArrayList<Validator>();
         if (type.isRequired() && enforceRequired) {
             validators.add(new Required());
@@ -164,17 +165,18 @@ public abstract class SettingEditor extends BaseComponent {
                 // (e.g IpAddrSetting and HostnameSetting).
                 // /////////////////////////////////////////////////////////////////
 
+
                 if (type instanceof HostnameSetting) {
                     String customMessage = CustomSettingMessages.getMessagePattern(
-                            CustomSettingMessages.INVALID_HOSTNAME_PATTERN, Locale.getDefault());
+                            CustomSettingMessages.INVALID_HOSTNAME_PATTERN, locale);
                     pattern.setMessage(customMessage);
                 } else if (type instanceof IpAddrSetting) {
                     String customMessage = CustomSettingMessages.getMessagePattern(
-                            CustomSettingMessages.INVALID_IPADDR_PATTERN, Locale.getDefault());
+                            CustomSettingMessages.INVALID_IPADDR_PATTERN, locale);
                     pattern.setMessage(customMessage);
                 } else if (type instanceof PhonePadPinSetting) {
                     String customMessage = CustomSettingMessages.getMessagePattern(
-                            CustomSettingMessages.INVALID_PHONEPADPIN_PATTERN, Locale.getDefault());
+                            CustomSettingMessages.INVALID_PHONEPADPIN_PATTERN, locale);
                     pattern.setMessage(customMessage);
                 }
 

@@ -68,6 +68,8 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
 
     private String m_backupDirectory;
 
+    private Locale m_locale;
+
     public abstract List<Map<Type, BackupBean>> getBackups();
 
     public abstract File[] doPerform(String binPath) throws IOException, InterruptedException;
@@ -148,9 +150,8 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         if (confFile == null) {
             return;
         }
-        Locale locale = Locale.getDefault();
-        String subject = m_applicationContext.getMessage("backup.subject", ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
-        String body = m_applicationContext.getMessage("backup.body", ArrayUtils.EMPTY_OBJECT_ARRAY, locale);
+        String subject = m_applicationContext.getMessage("backup.subject", ArrayUtils.EMPTY_OBJECT_ARRAY, m_locale);
+        String body = m_applicationContext.getMessage("backup.body", ArrayUtils.EMPTY_OBJECT_ARRAY, m_locale);
         m_mailSenderContext.sendMail(m_emailAddress, m_emailFromAddress, subject, body, confFile);
     }
 
@@ -337,5 +338,13 @@ public abstract class BackupPlan extends BeanWithId implements ApplicationContex
         timer = new Timer(false); // daemon, dies with main thread
         setTimer(timer);
         schedule(timer, binDirectory);
+    }
+
+    public void setLocale(Locale locale) {
+        this.m_locale = locale;
+    }
+
+    public Locale getLocale() {
+        return m_locale;
     }
 }

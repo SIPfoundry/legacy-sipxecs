@@ -31,8 +31,11 @@ import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContextImpl.RegionDialPl
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.support.DataAccessUtils;
 
@@ -49,6 +52,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private String m_promptsDir;
     private String m_binDir;
     private String m_thirdPartyDir;
+    private String m_javaDir;
     private String m_defaultRegion;
     private String m_defaultLanguage;
     private ResetDialPlanTask m_resetDialPlanTask;
@@ -56,6 +60,9 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     private DialPlanActivationManager m_dialPlanActivationManager;
     private AutoAttendantManager m_autoAttendantManager;
     private ConferenceBridgeContext m_conferenceBridgeContext;
+    private SipxServiceManager m_sipxServiceManager;
+
+    private DaoEventPublisher m_daoEventPublisher;
 
     public void setRegionDir(String regionDir) {
         m_regionDir = regionDir;
@@ -95,6 +102,18 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
     @Required
     public void setConferenceBridgeContext(ConferenceBridgeContext conferenceBridgeContext) {
         m_conferenceBridgeContext = conferenceBridgeContext;
+    }
+
+    public SipxServiceManager getSipxServiceManager() {
+        return m_sipxServiceManager;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager serviceManager) {
+        m_sipxServiceManager = serviceManager;
+    }
+
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
     }
 
     public void setDefaultLanguage(String defaultLanguage) {
@@ -194,6 +213,8 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
             m_resetDialPlanTask.reset(dialPlanBeanId);
             m_dialPlanActivationManager.replicateDialPlan(false);
             getHibernateTemplate().saveOrUpdate(localization);
+            replicateImbotService();
+            m_daoEventPublisher.publishSave(localization);
         } catch (RegionDialPlanException e) {
             LOG.error("Trying to set unsupported region: " + region);
             return -1;
@@ -225,7 +246,16 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         // new to push domain config and dial plans for all locations...
         m_serviceConfigurator.initLocations();
         m_conferenceBridgeContext.updateConfAudio();
+        replicateImbotService();
+        m_daoEventPublisher.publishSave(localization);
         return 1;
+    }
+
+    private void replicateImbotService() {
+        SipxImbotService imbotService = (SipxImbotService) m_sipxServiceManager
+                .getServiceByBeanId(SipxImbotService.BEAN_ID);
+        imbotService.setLocale(getLocalization().getLanguage());
+        m_serviceConfigurator.replicateServiceConfig(imbotService);
     }
 
     /**
@@ -257,7 +287,7 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
         try {
             String[] cmd = new String[] {
                 m_binDir + File.separator + "sipxlocalization", fileToApply.getPath(), m_promptsDir, m_regionDir,
-                m_thirdPartyDir
+                m_thirdPartyDir, m_javaDir
             };
             Process p = Runtime.getRuntime().exec(cmd);
             BufferedReader scriptErrorReader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
@@ -278,5 +308,13 @@ public class LocalizationContextImpl extends SipxHibernateDaoSupport implements 
             LOG.error("Problems with executing sipxlocalization script.", ex);
             throw installFailureException;
         }
+    }
+
+    public void setJavaDir(String javaDir) {
+        this.m_javaDir = javaDir;
+    }
+
+    public String getJavaDir() {
+        return m_javaDir;
     }
 }

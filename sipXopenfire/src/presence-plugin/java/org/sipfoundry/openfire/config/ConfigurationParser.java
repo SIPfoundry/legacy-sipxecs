@@ -82,6 +82,7 @@ public class ConfigurationParser {
        addCallMethodInt("sipxrest-external-http-port", "setSipXrestHttpPort");
        addCallMethodString("IM-message-logging", "setImMessageLogging");
        addCallMethodString("IM-message-logging-directory", "setImMessageLoggingDirectory");
+       addCallMethodString("locale", "setLocale");
 
        currentTag = s2sTag;
        addCallMethodString("enabled", "setS2sServerActive");

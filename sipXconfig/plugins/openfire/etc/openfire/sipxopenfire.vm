@@ -20,6 +20,7 @@
 	<log-level>$service.logLevelsMappings.get("${settings.getSetting('settings/log-level').Value}")</log-level>
 	<openfire-xml-rpc-port>$settings.getSetting('settings/openfire-xml-rpc-port').Value</openfire-xml-rpc-port>
 	<openfire-host>$settings.getSetting('settings/openfire-host').Value</openfire-host>
+	<locale>$settings.getSetting('settings/locale').Value</locale>
 	<sipxrest-ip-address>$!{restService.address}</sipxrest-ip-address>
 	<sipxrest-https-port>$!{restService.httpsPort}</sipxrest-https-port>
 	<sipxrest-external-http-port>$!{restService.extHttpPort}</sipxrest-external-http-port>

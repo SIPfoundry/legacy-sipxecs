@@ -27,6 +27,7 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
     public static final String HOST_SETTING = "settings/openfire-host";
     public static final String WATCHER_SETTING = "settings/watcher-address";
     public static final String DOMAIN_SETTING = "settings/sipx-proxy-domain";
+    public static final String LOCALE_SETTING = "settings/locale";
     public static final String XML_RPC_PORT_SETTING = "settings/openfire-xml-rpc-port";
     public static final String SERVER_TO_SERVER_ALLOWED_SERVERS_SETTING = "openfire-server-to-server/allowed-servers";
     public static final String SERVER_TO_SERVER_DISALLOWED_SERVERS_SETTING =
@@ -77,6 +78,10 @@ public class SipxOpenfireService extends SipxService implements LoggingEntity {
 
     public int getPort() {
         return (Integer) getSettings().getSetting(XML_RPC_PORT_SETTING).getTypedValue();
+    }
+
+    public void setLocale(String localeString) {
+        getSettings().getSetting(LOCALE_SETTING).setValue(localeString);
     }
 
     public static class Defaults {

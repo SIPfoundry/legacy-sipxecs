@@ -18,6 +18,7 @@ import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
 import javax.sip.SipProvider;
 import javax.sip.TimeoutEvent;
+import javax.sip.Transaction;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.header.CSeqHeader;
 import javax.sip.message.Request;
@@ -86,6 +87,11 @@ public class ItspListener implements SipListenerExt {
                         Response.OK, request);
                 serverTransaction.sendResponse(response);
 
+            } else if ( request.getMethod().equals(Request.ACK)) {
+                SipProvider sipProvider = (SipProvider) requestEvent
+                .getSource();
+                PerformanceTester.timer.schedule(new ByeTimerTask(requestEvent,
+                            listeningPoint),PerformanceTester.CALL_TIME);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -114,8 +120,10 @@ public class ItspListener implements SipListenerExt {
     }
 
     @Override
-    public void processTimeout(TimeoutEvent arg0) {
-        System.out.println("Timeout occured stopping test");
+    public void processTimeout(TimeoutEvent timeout) {
+        Transaction tr = timeout.getClientTransaction() == null ? timeout.getServerTransaction() :
+                timeout.getClientTransaction();
+        System.out.println("Timeout occured stopping test " + tr.getRequest() );
         System.exit(0);
     }
 

@@ -13,6 +13,7 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.InjectObject;
@@ -104,6 +105,8 @@ public abstract class BackupPage extends SipxBasePage implements PageBeginRender
             getAdminContext().storeBackupPlan(plan);
         }
 
+        Locale locale = getPage().getLocale();
+        plan.setLocale(locale);
         setBackupPlan(plan);
     }
 

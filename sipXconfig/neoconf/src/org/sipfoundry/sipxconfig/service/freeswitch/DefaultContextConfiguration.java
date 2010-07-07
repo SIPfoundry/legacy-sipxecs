@@ -35,8 +35,8 @@ public class DefaultContextConfiguration extends SipxServiceConfiguration {
             context.put("conferences", conferences);
         }
         if (m_acccodeContext.isEnabled()) {
-            boolean authcodeActive = true;
-            context.put("authcode", authcodeActive);
+            boolean acccodeActive = true;
+            context.put("acccode", acccodeActive);
         }
         return context;
     }

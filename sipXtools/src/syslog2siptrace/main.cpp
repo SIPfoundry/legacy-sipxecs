@@ -400,10 +400,12 @@ void getMessageData(UtlString& content,
                             isOutgoing ? hostname :
                             (topViaIsRemote ? topViaHostPort : remoteHostPort),
                             // destination
-                            isOutgoing ? remoteHostPort : hostname,
+                            isOutgoing ?
+                            (topViaIsRemote ? topViaHostPort : remoteHostPort) :
+                            hostname,
                             // sourceAddress
                             isOutgoing ?
-                            (remoteHostPort.isNull() ? hostname : remoteHostPort) :
+                            (localHostPort.isNull() ? hostname : localHostPort) :
                             remoteHostPort,
                             // destinationAddress
                             isOutgoing ?

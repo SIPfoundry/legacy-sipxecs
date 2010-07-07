@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2010 Avaya, certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  */
@@ -11,6 +10,9 @@ import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -143,7 +145,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         public void setPin(String pin) {
             this.pin = pin;
         }
-
+        
         public String getName() {
             return name;
         }
@@ -270,17 +272,34 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             componentManager.getLog().error(ex);
             throw new SipXOpenfirePluginException("Error reading config file ", ex);
         }
-
-        pluginManager = manager;
-        ClassLoader classLoader = pluginManager.getPluginClassloader(this);
-        classLoader.setPackageAssertionStatus("org.sipfoundry", true);
-        Thread.currentThread().setContextClassLoader(classLoader);
-        configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
-        this.localizer = instantiateLocalizer();
         
+        configurationPath = System.getProperty("conf.dir", "/etc/sipxpbx");
         parseConfigurationFile();
+        
         initializeLogging();   
         log.info(">>>>>>>>STARTING " + SipXOpenfirePlugin.class + "<<<<<<<<");
+        
+        pluginManager = manager;
+        ClassLoader classLoader = pluginManager.getPluginClassloader(this);
+        
+        try {
+            // add this directory to classpath so ResouceBundle class can find
+            // resources (language specific properties files) there
+            URL url = new URL("file:" + configurationPath + "/openfire/");
+            
+            URLClassLoader urlClassLoader
+            = new URLClassLoader(new URL[]{url}, classLoader);        
+        
+            urlClassLoader.setPackageAssertionStatus("org.sipfoundry", true);
+        
+            Thread.currentThread().setContextClassLoader(urlClassLoader);
+           
+            String locale = watcherConfig.getLocale();        
+            this.localizer = new Localizer(locale, urlClassLoader);
+        } catch (MalformedURLException e1) {
+            log.error("can't update classpath: " + e1.getMessage());
+        }  
+        
         server = XMPPServer.getInstance();
 
         userManager = server.getUserManager();
@@ -391,6 +410,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         isInitialized = true;
     }
     
+
     void loadDefault() {
         DefaultMessagePacketInterceptor originalInterceptor = new DefaultMessagePacketInterceptor();
         originalInterceptor.start(this);
@@ -1055,7 +1075,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 && password != null || mucRoom.getPassword() != password
                 || !mucRoom.getPassword().equals(password)) {
             mucRoom.setPassword(password);
-
         }
 
         if (!mucRoom.canOccupantsChangeSubject()) {
@@ -1280,7 +1299,7 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
         return confInfo.pin;
     }
-
+    
     public HashSet<UserAccount> getUserAccounts() {
         HashSet<UserAccount> userAccounts = new HashSet<UserAccount>();
         for (User user : this.userManager.getUsers()) {
@@ -1449,25 +1468,10 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         }
         return true;
     }
-
-    private Localizer instantiateLocalizer(){
-        String localizationFile = System.getProperty("localization.file", "/etc/sipxpbx/openfire/sipxopenfire-prompts.properties");
-        Properties props = new Properties();
-        try
-        {
-            props.load(new FileInputStream(localizationFile));
-        } 
-        catch (FileNotFoundException e){
-            log.warn("Localizer cannot find localization file '" + localizationFile + "'");
-        } catch (IOException e)
-        {
-            log.error("Localizer caught " + e );
-        }
-        return new Localizer( props );
-    }
     
     public Localizer getLocalizer(){
         return this.localizer;
     }
+
 }
 

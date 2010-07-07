@@ -29,6 +29,8 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
+import org.sipfoundry.sipxconfig.permission.Permission;
+import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -298,9 +300,17 @@ public abstract class UserGroupSettings extends GroupSettings {
         if (!getSipxServiceManager().getServiceByBeanId(SipxImbotService.BEAN_ID).isAvailable()) {
             names.add("add-pa-to-group");
         }
-        if (getParentSettingName() != null && getParentSettingName().equals("permission")) {
-            names.add("subscribe-to-presence");
-        }
         return StringUtils.join(names, SEPARATOR);
+    }
+
+    public boolean getSubscribePresenceGroupDisabled() {
+        Setting groupSettings = getGroup().inherhitSettingsForEditing(getBean());
+        Setting setting = groupSettings.getSetting(PermissionName.SUBSCRIBE_TO_PRESENCE.getPath());
+        if (setting == null) {
+            throw new IllegalArgumentException("Setting " + PermissionName.SUBSCRIBE_TO_PRESENCE.getName()
+                    + " does not exist in user setting model");
+        }
+
+        return !Permission.isEnabled(setting.getValue());
     }
 }

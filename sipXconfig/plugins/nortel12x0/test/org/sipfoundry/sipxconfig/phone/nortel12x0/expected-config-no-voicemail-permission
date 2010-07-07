@@ -14,7 +14,7 @@
 <enableSyslog><![CDATA[FALSE]]></enableSyslog>
 <syslogServer><![CDATA[10.4.5.2]]></syslogServer>
 <enableSessionTimer><![CDATA[FALSE]]></enableSessionTimer>
-<sessionTimerInSec><![CDATA[1800]]></sessionTimerInSec>
+<sessionTimerInSec><![CDATA[30]]></sessionTimerInSec>
 <sessionRefresherFlag><![CDATA[FALSE]]></sessionRefresherFlag>
 <subscriptionExpires><![CDATA[86400]]></subscriptionExpires>
 <groupPagingSecret><![CDATA[sipXpage]]></groupPagingSecret>
@@ -68,20 +68,6 @@
 <proxy1Transport><![CDATA[Auto]]></proxy1Transport>
 <sipPingForServerRedundancy><![CDATA[FALSE]]></sipPingForServerRedundancy>
 </sipProxy>
-<phoneBook>
-<bookEntry1>
-<name><![CDATA[bookFirstName001 bookLastName001]]></name>
-<number><![CDATA[bookNumber001]]></number>
-</bookEntry1>
-<bookEntry2>
-<name><![CDATA[bookFirstName003 bookLastName003]]></name>
-<number><![CDATA[bookNumber003]]></number>
-</bookEntry2>
-<bookEntry3>
-<name><![CDATA[bookFirstName005 bookLastName005]]></name>
-<number><![CDATA[bookNumber005]]></number>
-</bookEntry3>
-</phoneBook>
 </phoneSettings>
 <sipAccounts>
 <account_L1>
@@ -97,7 +83,6 @@
 </registrar>
 <accTransport><![CDATA[Auto]]></accTransport>
 <mwiSubscribe><![CDATA[TRUE]]></mwiSubscribe>
-<mwiReqUri><![CDATA[juser@sipfoundry.org]]></mwiReqUri>
 <numberofLinekeys><![CDATA[1]]></numberofLinekeys>
 <accProxyAddress><![CDATA[sipfoundry.org]]></accProxyAddress>
 <voiceMailServerAddress><![CDATA[101@sipfoundry.org]]></voiceMailServerAddress>
@@ -107,5 +92,28 @@
 <callForwardTimer><![CDATA[20]]></callForwardTimer>
 </callForwardMode>
 </account_L1>
+<account_L2>
+<lineShared><![CDATA[FALSE]]></lineShared>
+<authname><![CDATA[kuser]]></authname>
+<authPassword><![CDATA[1234]]></authPassword>
+<authId><![CDATA[kuser/0004f200e06b]]></authId>
+<displayname><![CDATA[Kate User]]></displayname>
+<registrar>
+<registrarAddress><![CDATA[sipfoundry.org]]></registrarAddress>
+<registrarUsedomainName><![CDATA[FALSE]]></registrarUsedomainName>
+<registertimer><![CDATA[3600]]></registertimer>
+</registrar>
+<accTransport><![CDATA[Auto]]></accTransport>
+<mwiSubscribe><![CDATA[TRUE]]></mwiSubscribe>
+<mwiReqUri><![CDATA[kuser@sipfoundry.org]]></mwiReqUri>
+<numberofLinekeys><![CDATA[1]]></numberofLinekeys>
+<accProxyAddress><![CDATA[sipfoundry.org]]></accProxyAddress>
+<voiceMailServerAddress><![CDATA[101@sipfoundry.org]]></voiceMailServerAddress>
+<AccMohServer><![CDATA[~~mh~kuser@sipfoundry.org]]></AccMohServer>
+<callForwardMode>
+<none>TRUE</none>
+<callForwardTimer><![CDATA[20]]></callForwardTimer>
+</callForwardMode>
+</account_L2>
 </sipAccounts>
 </configuration>

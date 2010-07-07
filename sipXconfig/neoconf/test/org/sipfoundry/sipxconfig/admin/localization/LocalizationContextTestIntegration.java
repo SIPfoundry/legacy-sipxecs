@@ -13,6 +13,8 @@ import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxImbotService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.replay;
@@ -41,6 +43,12 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
     private void updateLanguage(String language, String languageDirectory) throws Exception {
         ServiceConfigurator sc = createMock(ServiceConfigurator.class);
         sc.initLocations();
+        SipxService service = org.easymock.classextension.EasyMock.createMock(SipxService.class);
+        service.getBeanId();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(SipxImbotService.BEAN_ID);
+        org.easymock.classextension.EasyMock.replay(service);
+        sc.replicateServiceConfig(service);
+        EasyMock.expectLastCall().anyTimes();
         replay(sc);
 
         modifyContext(m_localizationContextImpl, "serviceConfigurator", m_origServiceConfigurator, sc);

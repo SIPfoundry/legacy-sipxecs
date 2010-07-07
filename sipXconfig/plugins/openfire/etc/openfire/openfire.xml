@@ -79,6 +79,12 @@
         <string required="yes" />
       </type>
     </setting>
+    <setting name="locale" hidden="yes">
+      <type>
+        <string required="yes" />
+      </type>
+      <value>en</value>
+    </setting>
   </group>
   <group name="openfire-server-to-server">
     <setting name="enabled">

@@ -18,6 +18,7 @@ import javax.sip.DialogTerminatedEvent;
 import javax.sip.IOExceptionEvent;
 import javax.sip.RequestEvent;
 import javax.sip.ResponseEvent;
+import javax.sip.ServerTransaction;
 import javax.sip.TimeoutEvent;
 import javax.sip.TransactionTerminatedEvent;
 import javax.sip.address.Address;
@@ -34,11 +35,9 @@ import javax.sip.header.ViaHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
 
-
 public class PhoneListener implements SipListenerExt {
 
-  
-      private ListeningPointExt listeningPoint;
+    private ListeningPointExt listeningPoint;
     private SipProviderExt sipProvider;
     private String transport = "tcp";
 
@@ -68,7 +67,15 @@ public class PhoneListener implements SipListenerExt {
 
     @Override
     public void processRequest(RequestEvent requestEvent) {
-        // TODO Auto-generated method stub
+        try {
+            ServerTransaction st = requestEvent.getServerTransaction();
+            Response response = PerformanceTester.messageFactory
+                    .createResponse(Response.OK, requestEvent.getRequest());
+            st.sendResponse(response);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            System.exit(0);
+        }
 
     }
 
@@ -76,16 +83,17 @@ public class PhoneListener implements SipListenerExt {
     public void processResponse(ResponseEvent responseEvent) {
         try {
             DialogExt dialog = (DialogExt) responseEvent.getDialog();
-            ResponseExt response = (ResponseExt) responseEvent
-                    .getResponse();
+            ResponseExt response = (ResponseExt) responseEvent.getResponse();
             CSeqHeader cseqHeader = response.getCSeqHeader();
             if (response.getStatusCode() == Response.OK
                     && cseqHeader.getMethod().equals(Request.INVITE)) {
                 long cseqNo = cseqHeader.getSeqNumber();
                 Request ackRequest = dialog.createAck(cseqNo);
-                dialog.setApplicationData(new DialogContext((DialogExt)dialog));
+                dialog
+                        .setApplicationData(new DialogContext(
+                                (DialogExt) dialog));
                 dialog.sendAck(ackRequest);
-              
+
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -116,33 +124,35 @@ public class PhoneListener implements SipListenerExt {
         String toDisplayName = "The Little Blister";
 
         // create >From Header
-        SipURI fromAddress = PerformanceTester.addressFactory.createSipURI(fromName,
-                fromSipAddress);
+        SipURI fromAddress = PerformanceTester.addressFactory.createSipURI(
+                fromName, fromSipAddress);
 
-        Address fromNameAddress = PerformanceTester.addressFactory.createAddress(fromAddress);
+        Address fromNameAddress = PerformanceTester.addressFactory
+                .createAddress(fromAddress);
         fromNameAddress.setDisplayName(fromDisplayName);
-        String fromTag = Integer.toHexString(Math.abs(new Random()
-                .nextInt()));
-        FromHeader fromHeader = PerformanceTester.headerFactory.createFromHeader(
-                fromNameAddress, fromTag);
+        String fromTag = Integer.toHexString(Math.abs(new Random().nextInt()));
+        FromHeader fromHeader = PerformanceTester.headerFactory
+                .createFromHeader(fromNameAddress, fromTag);
 
         // create To Header
-        SipURI toAddress = PerformanceTester.addressFactory
-                .createSipURI(toUser, toSipAddress);
-        Address toNameAddress = PerformanceTester.addressFactory.createAddress(toAddress);
+        SipURI toAddress = PerformanceTester.addressFactory.createSipURI(
+                toUser, toSipAddress);
+        Address toNameAddress = PerformanceTester.addressFactory
+                .createAddress(toAddress);
         toNameAddress.setDisplayName(toDisplayName);
-        ToHeader toHeader = PerformanceTester.headerFactory.createToHeader(toNameAddress,
-                null);
+        ToHeader toHeader = PerformanceTester.headerFactory.createToHeader(
+                toNameAddress, null);
 
         // create Request URI
-        SipURI requestURI = PerformanceTester.addressFactory.createSipURI(toUser, "ot.bandwidth.com");
+        SipURI requestURI = PerformanceTester.addressFactory.createSipURI(
+                toUser, "ot.bandwidth.com");
 
         // Create ViaHeaders
 
         ArrayList viaHeaders = new ArrayList();
         String ipAddress = listeningPoint.getIPAddress();
-        ViaHeader viaHeader = PerformanceTester.headerFactory.createViaHeader(ipAddress,
-                sipProvider.getListeningPoint(transport).getPort(),
+        ViaHeader viaHeader = PerformanceTester.headerFactory.createViaHeader(
+                ipAddress, sipProvider.getListeningPoint(transport).getPort(),
                 transport, null);
 
         // add via headers
@@ -156,29 +166,31 @@ public class PhoneListener implements SipListenerExt {
         CallIdHeader callIdHeader = sipProvider.getNewCallId();
 
         // Create a new Cseq header
-        CSeqHeader cSeqHeader = PerformanceTester.headerFactory.createCSeqHeader(1L,
-                Request.INVITE);
+        CSeqHeader cSeqHeader = PerformanceTester.headerFactory
+                .createCSeqHeader(1L, Request.INVITE);
 
         // Create a new MaxForwardsHeader
         MaxForwardsHeader maxForwards = PerformanceTester.headerFactory
                 .createMaxForwardsHeader(70);
 
         // Create the request.
-        Request request = PerformanceTester.messageFactory.createRequest(requestURI,
-                Request.INVITE, callIdHeader, cSeqHeader, fromHeader,
-                toHeader, viaHeaders, maxForwards);
+        Request request = PerformanceTester.messageFactory.createRequest(
+                requestURI, Request.INVITE, callIdHeader, cSeqHeader,
+                fromHeader, toHeader, viaHeaders, maxForwards);
         // Create contact headers
         String host = ipAddress;
 
-        SipURI contactUrl = PerformanceTester.addressFactory.createSipURI(fromName, host);
+        SipURI contactUrl = PerformanceTester.addressFactory.createSipURI(
+                fromName, host);
         contactUrl.setPort(listeningPoint.getPort());
-      
-        // Create the contact name address.
-        SipURI contactURI = PerformanceTester.addressFactory.createSipURI(fromName, host);
-        contactURI.setPort(sipProvider.getListeningPoint(transport)
-                .getPort());
 
-        Address contactAddress = PerformanceTester.addressFactory.createAddress(contactURI);
+        // Create the contact name address.
+        SipURI contactURI = PerformanceTester.addressFactory.createSipURI(
+                fromName, host);
+        contactURI.setPort(sipProvider.getListeningPoint(transport).getPort());
+
+        Address contactAddress = PerformanceTester.addressFactory
+                .createAddress(contactURI);
 
         // Add the contact address.
         contactAddress.setDisplayName(fromName);
@@ -186,25 +198,28 @@ public class PhoneListener implements SipListenerExt {
         ContactHeader contactHeader = PerformanceTester.headerFactory
                 .createContactHeader(contactAddress);
         request.addHeader(contactHeader);
-        
-        SipURI routeURI = PerformanceTester.addressFactory.createSipURI(null, PerformanceTester.bridgeConfiguration.getSipxProxyDomain());
+
+        SipURI routeURI = PerformanceTester.addressFactory.createSipURI(null,
+                PerformanceTester.bridgeConfiguration.getExternalAddress());
 
         int proxyPort = PerformanceTester.bridgeConfiguration.getLocalPort();
-        
+
         routeURI.setPort(proxyPort);
         routeURI.setLrParam();
-        
-        Address address = PerformanceTester.addressFactory.createAddress(routeURI);
-        
-        RouteHeader routeHeader = PerformanceTester.headerFactory.createRouteHeader(address);
-        
+
+        Address address = PerformanceTester.addressFactory
+                .createAddress(routeURI);
+
+        RouteHeader routeHeader = PerformanceTester.headerFactory
+                .createRouteHeader(address);
+
         request.setHeader(routeHeader);
-        
-        String sdpData = PerformanceTester.createSessionDescription(listeningPoint.getIPAddress()).toString();
+
+        String sdpData = PerformanceTester.createSessionDescription(
+                listeningPoint.getIPAddress()).toString();
         byte[] contents = sdpData.getBytes();
 
         request.setContent(contents, contentTypeHeader);
-       
 
         // Create the client transaction.
         ClientTransactionExt inviteTid = (ClientTransactionExt) sipProvider

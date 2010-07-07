@@ -37,6 +37,8 @@ public class SettingEditorTest extends TestCase {
 
     private SettingEditor m_editor;
 
+    private static Locale s_locale = Locale.ENGLISH;
+
     @Override
     protected void setUp() throws Exception {
         m_editor = (SettingEditor) new Creator().newInstance(SettingEditor.class);
@@ -44,7 +46,7 @@ public class SettingEditorTest extends TestCase {
 
     public void testValidatorForInteger() {
         IntegerSetting type = new IntegerSetting();
-        List validators = SettingEditor.validatorListForType(type, true);
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
         assertEquals(2, validators.size());
         assertTrue(validators.get(0) instanceof Min);
         assertTrue(validators.get(1) instanceof Max);
@@ -52,7 +54,7 @@ public class SettingEditorTest extends TestCase {
 
     public void testValidatorForReal() {
         RealSetting type = new RealSetting();
-        List validators = SettingEditor.validatorListForType(type, true);
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
         assertEquals(2, validators.size());
         assertTrue(validators.get(0) instanceof Min);
         assertTrue(validators.get(1) instanceof Max);
@@ -62,13 +64,13 @@ public class SettingEditorTest extends TestCase {
         StringSetting type = new StringSetting();
         type.setMaxLen(15);
         type.setRequired(true);
-        List validators = SettingEditor.validatorListForType(type, true);
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
         assertEquals(2, validators.size());
         assertTrue(validators.get(0) instanceof Required);
         assertTrue(validators.get(1) instanceof MaxLength);
 
         type.setMinLen(3);
-        validators = SettingEditor.validatorListForType(type, true);
+        validators = SettingEditor.validatorListForType(type, true, s_locale);
         assertTrue(validators.get(2) instanceof MinLength);
     }
 
@@ -76,7 +78,7 @@ public class SettingEditorTest extends TestCase {
         StringSetting type = new StringSetting();
         type.setMaxLen(15);
         type.setRequired(true);
-        List validators = SettingEditor.validatorListForType(type, false);
+        List validators = SettingEditor.validatorListForType(type, false, s_locale);
         assertEquals(1, validators.size());
         assertTrue(validators.get(0) instanceof MaxLength);
     }
@@ -86,7 +88,7 @@ public class SettingEditorTest extends TestCase {
         type.setMaxLen(15);
         type.setRequired(true);
         type.setPattern("kuku");
-        List validators = SettingEditor.validatorListForType(type, true);
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
         assertEquals(3, validators.size());
         assertTrue(validators.get(0) instanceof Required);
         assertTrue(validators.get(1) instanceof MaxLength);
@@ -153,7 +155,7 @@ public class SettingEditorTest extends TestCase {
     // Testing of PhonePadPinSetting
     public void testValidatorForPhonePadDefaults() {
         PhonePadPinSetting type = new PhonePadPinSetting();
-        List validators = SettingEditor.validatorListForType(type, true);
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
 
         assertEquals(2, validators.size());
         assertTrue(validators.get(0) instanceof MaxLength);
@@ -167,7 +169,7 @@ public class SettingEditorTest extends TestCase {
         type.setMaxLen(15);
         type.setRequired(true);
 
-        List validators = SettingEditor.validatorListForType(type, true);
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
         assertEquals(3, validators.size());
         assertTrue(validators.get(0) instanceof Required);
         assertTrue(validators.get(1) instanceof MaxLength);
@@ -175,14 +177,14 @@ public class SettingEditorTest extends TestCase {
         assertEquals("[\\d#*]+", ((Pattern) validators.get(2)).getPattern());
 
         type.setMinLen(3);
-        validators = SettingEditor.validatorListForType(type, true);
+        validators = SettingEditor.validatorListForType(type, true, s_locale);
         assertTrue(validators.get(2) instanceof MinLength);
         assertTrue(validators.get(3) instanceof Pattern);
     }
 
     public void testValidatorForPhonePadPinCustomMessage() {
         PhonePadPinSetting type = new PhonePadPinSetting();
-        List validators = SettingEditor.validatorListForType(type, true);
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
 
         assertEquals(CustomSettingMessages.getMessagePattern(CustomSettingMessages.INVALID_PHONEPADPIN_PATTERN,
                 Locale.getDefault()), ((Pattern) validators.get(1)).getMessage());

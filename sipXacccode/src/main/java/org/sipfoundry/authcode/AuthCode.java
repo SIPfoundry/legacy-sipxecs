@@ -129,7 +129,6 @@ public class AuthCode {
             if (destdial != null) {
                 // Build a SIP URL and transfer the call to this destination.
                 String destURL = extensionToUrl(destdial);
-                destURL = paramAddToUrl(destURL, "sipXecs-AuthCode", currentauthorization);
                 //Add account code to URL
                 transfer(destURL, authcode.getAuthName(), authcode.getAuthPassword());
             }
