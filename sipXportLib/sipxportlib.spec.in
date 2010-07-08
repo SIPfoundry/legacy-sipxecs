@@ -1,3 +1,5 @@
+#!BuildIgnore: post-build-checks
+# see http://lizards.opensuse.org/2008/09/08/opensuse-build-service-build-checks/
 Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
@@ -6,7 +8,6 @@ Summary: OS Abstraction and OS Utilities library for sipX modules
 License: Pingtel Commercial License
 Group: Development/Libraries
 Vendor: Pingtel Corp
-Packager: Pingtel <support@pingtel.com>
 Url: http://www.pingtel.com
 
 BuildRequires: automake
@@ -17,7 +18,11 @@ BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: findutils
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 # sipXphone would require 0.9.7c to decrypt profiles to get access to
 # certain new alg.  If this is still nec., this may need to be
@@ -29,6 +34,7 @@ Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
 
 Source: %name-%version.tar.gz
+Source100: %name-%version-rpmlintrc
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -50,6 +56,10 @@ encapsulate functions and operations for:
   * File and Directory
   * Operating System Processes
   * Dynamic loading of shared libraries and symbols
+
+%if %{_vendor} == suse
+%debug_package
+%endif
 
 # Install header files
 %package devel
@@ -117,16 +127,22 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %docdir doc
+%dir %attr(755,root,root) %{_datadir}/doc/sipxecs
 %docdir %{_datadir}/doc/sipxecs/%name
 %{_datadir}/doc/sipxecs/%name
 
-%attr(755,root,root) %{_libdir}/libsipXunit.la
-%attr(755,root,root) %{_libdir}/libsipXunit.a
-%attr(755,root,root) %{_libdir}/libsipXport.a
+%{_libdir}/libsipXunit.la
+%{_libdir}/libsipXunit.a
+%{_libdir}/libsipXport.la
+%{_libdir}/libsipXport.a
 
+%dir %attr(755,root,root) %{_includedir}/os
 %{_includedir}/os/*
+%dir %attr(755,root,root) %{_includedir}/utl
 %{_includedir}/utl/*
+%dir %attr(755,root,root) %{_includedir}/xmlparser
 %{_includedir}/xmlparser/*
+%dir %attr(755,root,root) %{_includedir}/sipxunit
 %{_includedir}/sipxunit/*
 
 %post
