@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- models -->
+  <bean id="karelModelParent" parent="abstractPhoneModel" abstract="true">
+    <property name="beanId" value="karel" />
+    <property name="profileTemplate" value="karel/config.vm" />
+    <property name="vendor" value="KAREL" />
+  </bean>
+
+  <bean id="karelNT321" parent="karelModelParent">
+    <property name="label" value="KAREL NT321" />
+    <property name="maxLineCount" value="2" />
+  </bean>
+
+  <bean id="karelNT421" parent="karelModelParent">
+    <property name="label" value="KAREL NT421" />
+    <property name="maxLineCount" value="4" />
+  </bean>
+
+  <!-- implementation -->
+  <bean id="karel" class="org.sipfoundry.sipxconfig.phone.karel.KarelPhone" singleton="false" parent="abstractPhone">
+  </bean>
+</beans>

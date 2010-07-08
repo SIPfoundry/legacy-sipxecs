@@ -1,0 +1,999 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+
+<model>
+
+
+<!-- 
+GENERAL SETTINGS
+  <group name="GENERAL_SETTINGS">
+    <label>General Settings</label>
+    <description>Those settings relate with general parameters of Karel Phones of NT Series</description>
+-->
+  <group name="GENERAL_SETTINGS">
+    <setting name="language">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="dnd">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+
+    <setting name="headset">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+
+    <setting name="busyWarning">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+
+    <setting name="startUpMessage">
+      <type>
+        <string />
+      </type>
+      <value>Karel NT Series</value>
+    </setting>
+    <setting name="transferType">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+
+
+<!-- 
+NETWORK SETTINGS
+-->
+  <group name="NETWORK_SETTINGS">
+    <setting name="ipType">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+
+    <setting name="ipAddress">
+      <type>
+        <string />
+      </type>
+    </setting>
+
+    <setting name="netmask">
+      <type>
+        <string />
+      </type>
+    </setting>
+
+    <setting name="gateway">
+      <type>
+        <string />
+      </type>
+    </setting>
+
+    <setting name="dnsType">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+
+    <setting name="dnsIp1">
+      <type>
+        <string />
+      </type>
+      <value>0.0.0.0</value>
+    </setting>
+    <setting name="dnsIp2">
+      <type>
+        <string />
+      </type>
+      <value>0.0.0.0</value>
+    </setting>
+  </group>
+
+
+<!--
+SIP GLOBAL
+-->
+  <group name="SIP_GLOBAL">
+    <setting name="sipPort">
+      <type>
+        <integer min="1024" max="65535" />
+      </type>
+      <value>5060</value>
+    </setting>
+
+    <setting name="rtpPort">
+      <type>
+        <integer min="1024" max="65535" />
+      </type>
+      <value>4000</value>
+    </setting>
+
+    <setting name="sipNatTraversal">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+
+    <setting name="sipNatIp">
+      <type>
+        <string />
+      </type>
+      <value>0.0.0.0</value>
+    </setting>
+
+    <setting name="sipStunIp">
+      <type>
+        <string />
+      </type>
+    </setting>
+
+    <setting name="sipStunPort">
+      <type>
+        <integer min="1" max="65535" />
+      </type>
+    </setting>
+  </group>
+
+
+<!-- 
+CODEC SETTINGS
+-->
+  <group name="CODEC_SETTINGS">
+    <setting name="codecChoice0">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>7</value>
+    </setting>
+
+    <setting name="codecChoice1">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>3</value>
+    </setting>
+
+    <setting name="codecChoice2">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+      <value>5</value>
+    </setting>
+
+    <setting name="codecChoice3">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+
+    <setting name="codecChoice4">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+
+    <setting name="codecChoice5">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+
+    <setting name="codecChoice6">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+
+    <setting name="codecChoice7">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+<!-- 
+End of Codecs 1-8 
+-->
+
+    <setting name="codecRtpSize0">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="codecRtpSize1">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="codecRtpSize2">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="codecRtpSize3">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="codecRtpSize4">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="codecRtpSize5">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="codecRtpSize6">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="codecRtpSize7">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+<!-- 
+End of RTP Sizes 1-8 
+-->
+
+    <setting name="g723Rate">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="vad">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="agc">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="aec">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="agcGain">
+      <type>
+        <integer min="0" max="31" />
+      </type>
+    </setting>
+  </group>
+
+
+<!-- 
+TIME SETTINGS
+-->
+  <group name="TIME_SETTINGS">
+    <setting name="dateFormat">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+
+    <setting name="dst">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+
+    <setting name='TIMEZONE'>
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+          <option>
+            <value>9</value>
+          </option>
+          <option>
+            <value>10</value>
+          </option>
+          <option>
+            <value>11</value>
+          </option>
+          <option>
+            <value>12</value>
+          </option>
+          <option>
+            <value>13</value>
+          </option>
+          <option>
+            <value>14</value>
+          </option>
+          <option>
+            <value>15</value>
+          </option>
+          <option>
+            <value>16</value>
+          </option>
+          <option>
+            <value>17</value>
+          </option>
+          <option>
+            <value>18</value>
+          </option>
+          <option>
+            <value>19</value>
+          </option>
+          <option>
+            <value>20</value>
+          </option>
+          <option>
+            <value>21</value>
+          </option>
+          <option>
+            <value>22</value>
+          </option>
+          <option>
+            <value>23</value>
+          </option>
+          <option>
+            <value>24</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+
+    <setting name="sntpServer">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+
+
+<!-- 
+SCREEN SETTINGS
+-->
+  <group name="SCREEN_SETTINGS">
+    <setting name="backlightStatus">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="backlight">
+      <type>
+        <integer min="0" max="8" />
+      </type>
+    </setting>
+    <setting name="backlightMin">
+      <type>
+        <integer min="0" max="8" />
+      </type>
+    </setting>
+    <setting name="constrast">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+    </setting>
+  </group>
+
+
+<!-- 
+RING SETTINGS
+-->
+  <group name="RING_SETTINGS">
+    <setting name="ringtoneLevel">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+    </setting>
+
+    <setting name="RingtoneOption">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+          <option>
+            <value>8</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+  </group>
+
+
+<!-- 
+CALL SETTINGS
+-->
+  <group name="CALL_SETTINGS">
+    <setting name="autoAnswer">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="interdigitTimeout">
+      <type>
+        <integer min="1" max="10" />
+      </type>
+    </setting>
+    <setting name="hotLineEnable">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="hotLineTimeout">
+      <type>
+        <integer min="0" max="10" />
+      </type>
+    </setting>
+    <setting name="hotLineNumber">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+
+
+<!-- 
+KEY TONE SETTINGS
+-->
+  <group name="KEY_TONE_SETTINGS">
+    <setting name="keySound">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+
+    <setting name="keypadTone">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+
+    <setting name="keypadToneLevel">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+      <value>10</value>
+    </setting>
+  </group>
+
+
+<!-- 
+GAIN SETTINGS
+-->
+  <group name="GAIN_SETTINGS">
+    <setting name="soundTone">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+    </setting>
+  </group>
+
+
+<!-- 
+SYSTEM SETTINGS
+-->
+  <group name="SYSTEM_SETTINGS">
+    <setting name="httpPassword">
+      <type>
+        <string />
+      </type>
+    </setting>
+
+    <setting name="tftpServer">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+
+    <setting name="systemLogSave">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+
+    <setting name="systemLogType">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+
+    <setting name="systemLogServerIp">
+      <type>
+        <string />
+      </type>
+      <value>0.0.0.0</value>
+    </setting>
+
+    <setting name="systemLogServerPort">
+      <type>
+        <integer min="1" max="65535" />
+      </type>
+    </setting>
+  </group>
+
+</model>

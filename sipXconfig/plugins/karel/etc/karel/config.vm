@@ -1,0 +1,59 @@
+## Velocity macros
+## emit 'setting value' pair - skipping _ignored_ settings
+#macro(emit_setting $s)
+#if($s.ProfileName != '$ignore$')
+${s.ProfileName}=$!{s.Value}
+#end
+#end
+## emit setting line for every setting in the group
+#macro(emit_group $g)
+[${g.ProfileName}]
+#foreach ($s in $g.Values)
+#emit_setting($s)
+#end
+
+#end
+#macro(emit_groups_by_name $group_names)
+#foreach ($gn in $group_names)
+#emit_group($phone.Settings.getSetting("$gn"))
+#end
+#end
+## Config file starts here
+;
+;KAREL NT SERIES PHONES
+VERSION=2.0
+#foreach ($group in $phone.Settings.Values)
+;
+;${group.Name}
+#foreach ($setting in $group.Values)
+${setting.ProfileName}=$!{setting.Value}
+#end
+#end
+;
+;LINE related parameters are listed below
+;
+#foreach ($line in $phone.lines)
+#set($line_index = $velocityCount - 1)
+#foreach ($group in $line.Settings.Values)
+[${group.Name}_${line_index}]
+#foreach ($setting in $group.Values)
+${setting.ProfileName}=$!{setting.Value}
+#end
+
+#end
+#end
+## Speed dial generation goes here
+#foreach ($button in $speeddial.buttons)
+#set($button_id = $velocityCount - 1)
+[SPEED_DIAL_${button_id}]
+NUM=${button.Number}
+#if ($button.Blf)
+TYPE=BLF
+RLS=$speeddial.getResourceListId(false)
+#else
+TYPE=SPEED_DIAL
+#end
+## always use the first line
+ACCOUNT=0
+
+#end

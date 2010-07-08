@@ -117,6 +117,7 @@ AC_CONFIG_FILES([
     plugins/gtek-aq/Makefile
     plugins/hitachi/Makefile
     plugins/ipdialog/Makefile
+    plugins/karel/Makefile
     plugins/lg-nortel/Makefile
     plugins/linksys/Makefile
     plugins/mitel/Makefile

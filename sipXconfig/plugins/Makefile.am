@@ -6,6 +6,7 @@ SUBDIRS = \
 	gtek-aq \
 	hitachi \
 	ipdialog \
+	karel \
 	lg-nortel \
 	linksys \
 	mitel \

@@ -1,0 +1,230 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+
+<!--
+KarelPhone.java  refers to the parameters below
+
+String USER_ID_SETTING = "SIP_ACCOUNT/REGIST_ID";
+String DISPLAY_NAME_SETTING = "SIP_ACCOUNT/DISP_NAME";
+String PASSWORD_SETTING = "SIP_ACCOUNT/REGIST_PASS";
+String REGISTRATION_SERVER_SETTING = "SIP_ACCOUNT/REGIST_SERVER";
+-->
+
+<model>
+  <group name="SIP_ACCOUNT">
+    <setting name="RegistrarEnable">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="REGIST_SERVER">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="RegistrarPort">
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="REGIST_ID">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="AUTH_ID">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="REGIST_PASS">
+      <type>
+        <string password="yes" />
+      </type>
+    </setting>
+    <setting name="DISP_NAME">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="PROXY_SERVER">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="MessageNumber">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Expire">
+      <type>
+        <integer min="60" max="3600" />
+      </type>
+      <value>360</value>
+    </setting>
+    <setting name="sipKeepAlive">
+      <type>
+        <integer />
+      </type>
+      <value>20000</value>
+    </setting>
+    <setting name="sipDtmf">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="PublishInterval">
+      <type>
+        <integer />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="SubscribeInterval">
+      <type>
+        <integer />
+      </type>
+      <value>60</value>
+    </setting>
+    <setting name="TransportType">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+  </group>
+
+
+<!-- 
+CALL_ACCOUNT 
+-->
+  <group name="CALL_ACCOUNT">
+    <setting name="LinePriority">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+
+
+    <setting name="HookInGain">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+    </setting>
+    <setting name="HookOutGain">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+    </setting>
+
+    <setting name="HookExtInGain">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+    </setting>
+    <setting name="HookExtOutGain">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+    </setting>
+
+    <setting name="HandsfreeInGain">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+    </setting>
+    <setting name="HandsfreeOutGain">
+      <type>
+        <integer min="0" max="16" />
+      </type>
+    </setting>
+
+
+
+    <setting name="CfwNum">
+      <type>
+        <string />
+      </type>
+    </setting>
+
+    <setting name="CfwType">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+
+    <setting name="CfwUnanswerTime">
+      <type>
+        <integer min="1" max="99" />
+      </type>
+      <value>5</value>
+    </setting>
+
+    <setting name="CallWaiting">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+
+
+  </group>
+
+</model>
