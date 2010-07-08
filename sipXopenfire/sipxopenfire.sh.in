@@ -74,6 +74,7 @@ start() {
 	echo "conf.dir=@SIPX_CONFDIR@" > ${TMP_DIR}/sipx.properties
 	echo "localization.file=@SIPX_CONFDIR@/openfire/sipxopenfire-prompts.properties" >> ${TMP_DIR}/sipx.properties
 	echo "openfire.home=${OPENFIRE_HOME}" >> ${TMP_DIR}/sipx.properties
+	databaseCommand use-openfire-xml
 	${OPENFIRE_HOME}/${OPENFIRE} start
 	sleep 10
 	ps aux | grep openfire | grep 'startup\.jar' | awk '{print $2}' > ${PIDFILE}

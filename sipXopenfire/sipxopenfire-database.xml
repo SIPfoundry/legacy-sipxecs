@@ -42,6 +42,14 @@
            </sipx-sql>
         </target>
 
+        <target name="use-openfire-xml">
+          <echo  file="/tmp/of-use-openfire-xml.sql" >
+            DELETE FROM ofProperty where name like 'ldap.%' or name like 'provider.%';
+          </echo>
+          <sipx-sql src="/tmp/of-use-openfire-xml.sql" />
+          <delete file="/tmp/of-use-openfire-xml.sql" />
+        </target>
+
         <target name="setdomain">
           <echo  file="/tmp/of-setdomain.sql" >
              DELETE FROM ofProperty where name='xmpp.domain';
@@ -93,8 +101,6 @@
              INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.socket.ssl.active','true');
              DELETE FROM ofProperty where name='xmpp.server.certificate.selfsigned';
              INSERT INTO ofProperty (name, propValue) VALUES ('xmpp.server.certificate.selfsigned','true');
-             DELETE FROM ofProperty where name='provider.vcard.className';
-             INSERT INTO ofProperty (name, propValue) VALUES ('provider.vcard.className','org.sipfoundry.openfire.vcard.provider.SipXVCardProvider');
           </echo>
           <sipx-sql src="/tmp/of-init.sql" />
           <delete file="/tmp/of-init.sql" />

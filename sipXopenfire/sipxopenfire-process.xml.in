@@ -23,6 +23,7 @@
   <resources>
     <file>@SIPX_CONFDIR@/sipxopenfire.xml</file>
     <file>@SIPX_CONFDIR@/xmpp-account-info.xml</file>
+    <file>@SIPX_JAVADIR@/sipXopenfire/conf/openfire.xml</file>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
   </resources>
 </sipXecs-process>

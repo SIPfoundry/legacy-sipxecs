@@ -24,6 +24,10 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.DataAccessException;
@@ -40,6 +44,8 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     private static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
     private LdapTemplateFactory m_templateFactory;
     private ApplicationContext m_applicationContext;
+    private SipxServiceManager m_sipxServiceManager;
+    private ServiceConfigurator m_serviceConfigurator;
 
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
         try {
@@ -240,11 +246,26 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
         getHibernateTemplate().saveOrUpdate(params);
     }
 
+    public void replicateOpenfireConfig() {
+        SipxService openfireService = m_sipxServiceManager.getServiceByBeanId("sipxOpenfireService");
+        m_serviceConfigurator.replicateServiceConfig(openfireService);
+    }
+
     public void setApplicationContext(ApplicationContext applicationContext) {
         m_applicationContext = applicationContext;
     }
 
     public void setTemplateFactory(LdapTemplateFactory templateFactory) {
         m_templateFactory = templateFactory;
+    }
+
+    @Required
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    @Required
+    public void setServiceConfigurator(ServiceConfigurator serviceConfigurator) {
+        m_serviceConfigurator = serviceConfigurator;
     }
 }

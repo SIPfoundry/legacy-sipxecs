@@ -17,6 +17,7 @@
     <property name="configurations">
       <list>
         <ref bean="sipxOpenfireConfiguration" />
+        <ref bean="openfireConfiguration" />
         <ref bean="xmppAccountInfo" />
         <ref bean="sipxRegistrarConfiguration" />
       </list>
@@ -41,6 +42,15 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="restartRequired" value="true" />
     <property name="coreContext" ref="coreContext" />
+  </bean>
+
+  <bean id="openfireConfiguration" class="org.sipfoundry.sipxconfig.openfire.OpenfireConfiguration"
+    scope="prototype" parent="openfireConfigurationFile">
+    <property name="velocityEngine" ref="velocityEngine" />
+    <property name="template" value="openfire/openfire.vm" />
+    <property name="name" value="openfire.xml" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="ldapManager" ref="ldapManager" />
   </bean>
 
   <bean id="openfireApiProvider" class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This file stores bootstrap properties needed by Openfire.
+    Property names must be in the format: "prop.name.is.blah=value"
+    That will be stored as:
+        <prop>
+            <name>
+                <is>
+                    <blah>value</blah>
+                </is>
+            </name>
+        </prop>
+
+    Most properties are stored in the Openfire database. A
+    property viewer and editor is included in the admin console.
+-->
+<!-- root element, all properties must be under this element -->
+<jive>
+  <adminConsole>
+	<!-- Disable either port by setting the value to -1 -->
+	<port>9094</port>
+	<securePort>9095</securePort>
+  </adminConsole>
+  <ldap>
+	<host>localhost</host>
+	<port>389</port>
+	<baseDN>dc=example,dc=com</baseDN>
+	<adminDN>cn=Directory Manager</adminDN>
+	<adminPassword>secret</adminPassword>
+  </ldap>
+  <provider>
+    <auth>
+      <className>org.jivesoftware.openfire.ldap.LdapAuthProvider</className>
+    </auth>
+    <user>
+      <className>org.jivesoftware.openfire.ldap.LdapUserProvider</className>
+    </user>
+    <vcard>
+      <className>org.jivesoftware.openfire.ldap.LdapVCardProvider</className>
+    </vcard>
+  </provider>
+  <connectionProvider>
+	<className>org.jivesoftware.database.DefaultConnectionProvider</className>
+  </connectionProvider>
+  <database>
+	<defaultProvider>
+	  <driver>org.postgresql.Driver</driver>
+	  <serverURL>jdbc:postgresql://localhost:5432/openfire</serverURL>
+	  <username>postgres</username>
+	  <password>postgres</password>
+	</defaultProvider>
+  </database>
+  <setup>true</setup>
+  <log>
+	<debug>
+	  <enabled>false</enabled>
+	</debug>
+  </log>
+</jive>

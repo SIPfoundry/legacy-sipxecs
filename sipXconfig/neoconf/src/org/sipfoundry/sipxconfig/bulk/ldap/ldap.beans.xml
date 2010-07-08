@@ -87,6 +87,8 @@
     <property name="templateFactory">
       <ref local="ldapTemplateFactory" />
     </property>
+	<property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
   </bean>
 
   <bean id="ldapManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

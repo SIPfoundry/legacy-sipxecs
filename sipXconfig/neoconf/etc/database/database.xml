@@ -358,10 +358,9 @@
   </target>
 
   <target name="version11" description="upgrade from version 10" unless="version12">
-    <antcall target="ldap_settings" />
-      
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="12" -->
+    <antcall target="ldap_settings" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">

@@ -57,4 +57,6 @@ public interface LdapManager {
     void saveSystemSettings(LdapSystemSettings settings);
 
     LdapSystemSettings getSystemSettings();
+
+    void replicateOpenfireConfig();
 }

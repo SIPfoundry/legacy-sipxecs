@@ -382,28 +382,6 @@ INSERT INTO ofID (idType, id) VALUES (26, 1);
 
 INSERT INTO ofVersion (name, version) VALUES ('openfire', 20);
 
-
-INSERT INTO ofProperty (name, propValue)
-  VALUES('provider.admin.className','org.jivesoftware.openfire.admin.DefaultAdminProvider');
-
-INSERT INTO ofProperty (name, propValue)
-  VALUES('provider.auth.className','org.jivesoftware.openfire.auth.DefaultAuthProvider');
-
-INSERT INTO ofProperty (name, propValue)
-  VALUES('provider.group.className','org.jivesoftware.openfire.group.DefaultGroupProvider');
-
-INSERT INTO ofProperty (name, propValue)
-  VALUES('provider.lockout.className','org.jivesoftware.openfire.lockout.DefaultLockOutProvider');
-
-INSERT INTO ofProperty (name, propValue)
- VALUES('provider.securityAudit.className','org.jivesoftware.openfire.security.DefaultSecurityAuditProvider');
-
-INSERT INTO ofProperty (name, propValue)
- VALUES('provider.user.className','org.jivesoftware.openfire.user.DefaultUserProvider');
-
-INSERT INTO ofProperty (name, propValue)
- VALUES('provider.vcard.className','org.jivesoftware.openfire.vcard.DefaultVCardProvider');
-
 INSERT INTO ofProperty (name, propValue)
  VALUES('update.notify-admins','false');
 

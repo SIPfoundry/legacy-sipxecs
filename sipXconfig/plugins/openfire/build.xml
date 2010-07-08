@@ -4,4 +4,16 @@
 	<property name="plugin.models.dir" value="etc/openfire" />
 	<property name="plugin.name" value="openfire-service" />
 	<import file="../plugins.build.xml" />
+
+	<path id="compile.dependencies">
+	  <pathelement location="${sipxconfig.jar}" />
+	  <pathelement location="${spring.jar}" />
+	  <pathelement location="${spring-ldap.jar}" />
+	  <pathelement location="${commons-collections.jar}" />
+	  <pathelement location="${commons-digester.jar}" />
+	  <pathelement location="${commons-lang.jar}" />
+	  <pathelement location="${hibernate.jar}" />
+	  <pathelement location="${velocity.jar}" />
+	  <pathelement location="${velocity-tools-generic.jar}" />
+	</path>
 </project>

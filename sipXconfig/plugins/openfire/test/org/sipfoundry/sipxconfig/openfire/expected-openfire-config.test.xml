@@ -15,11 +15,11 @@
     property viewer and editor is included in the admin console.
 -->
 <!-- root element, all properties must be under this element -->
-<jive> 
+<jive>
   <adminConsole>
-    <!-- Disable either port by setting the value to -1 -->  
-    <port>9094</port>
-    <securePort>9095</securePort> 
+	<!-- Disable either port by setting the value to -1 -->
+	<port>9094</port>
+	<securePort>9095</securePort>
   </adminConsole>
   <provider>
     <admin>
@@ -45,20 +45,20 @@
     </vcard>
   </provider>
   <connectionProvider>
-    <className>org.jivesoftware.database.DefaultConnectionProvider</className>
+	<className>org.jivesoftware.database.DefaultConnectionProvider</className>
   </connectionProvider>
   <database>
-    <defaultProvider>
-      <driver>org.postgresql.Driver</driver>
-      <serverURL>jdbc:postgresql://localhost:5432/openfire</serverURL>
-      <username>postgres</username>
-      <password>postgres</password>
-    </defaultProvider>
+	<defaultProvider>
+	  <driver>org.postgresql.Driver</driver>
+	  <serverURL>jdbc:postgresql://localhost:5432/openfire</serverURL>
+	  <username>postgres</username>
+	  <password>postgres</password>
+	</defaultProvider>
   </database>
   <setup>true</setup>
   <log>
-    <debug>
-      <enabled>false</enabled>
-    </debug>
+	<debug>
+	  <enabled>false</enabled>
+	</debug>
   </log>
 </jive>

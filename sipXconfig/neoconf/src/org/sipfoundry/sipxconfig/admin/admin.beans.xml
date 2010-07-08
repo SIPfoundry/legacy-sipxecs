@@ -86,6 +86,10 @@
     <property name="directory" value="${sysdir.etc}" />
   </bean>
 
+  <bean id="openfireConfigurationFile" abstract="true">
+    <property name="directory" value="${sysdir.share}/sipXopenfire/conf" />
+  </bean>
+
   <bean id="updateApi" class="org.sipfoundry.sipxconfig.admin.update.UpdateApiXmlRpc">
     <property name="softwareAdminApiProvider" ref="softwareAdminApiProvider" />
     <property name="locationsManager" ref="locationsManager" />
