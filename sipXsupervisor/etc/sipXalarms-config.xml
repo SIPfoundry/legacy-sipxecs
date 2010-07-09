@@ -280,6 +280,22 @@
                  />
       </alarm>
 
+      <alarm id="CERT_EXPIRY_SOON">
+         <code>SPX00042</code>
+         <severity>warning</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
+      <alarm id="CERT_EXPIRED">
+         <code>SPX00043</code>
+         <severity>crit</severity>
+         <component>sipXsupervisor</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.
           Notes:

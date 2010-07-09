@@ -1,0 +1,63 @@
+#!/bin/sh
+
+# Check all installed certificates (including CA certs) and raise
+# an alarm if they have expired or will expire soon.
+
+DATE=date
+OPENSSL=/usr/bin/openssl
+WARN_PERIOD=30   # number of days before expiry to start warnings
+
+checkExpiry()
+{
+   cert_file=$1
+   warnSeconds=$((${WARN_PERIOD} * 3600 * 24))
+
+   enddate=`${OPENSSL} x509 -in "${cert_file}" -noout -enddate`
+   if [ $? -ne 0 ]
+   then
+      echo "$cert_file does not contain a valid certificate" >&2
+      rc=4
+      return
+   fi
+
+   cert_expires=`echo ${enddate} | sed 's/notAfter\=//'`
+   now=`${DATE} +%s`
+
+   if [ $? -eq 0 ] # date command supports epoch format
+   then
+      exp=`${DATE} --date="${cert_expires}" +%s`
+      if [ $? -eq 0 ] # date can fail for some dates and not others in some timezones - strange
+      then
+         # both dates converted to epoch seconds - compare them
+         remaining=$(($exp - $now))
+
+         if [ ${remaining} -le 0 ] # cert expired
+         then
+            #echo "SSL certificate '${cert_file}' has expired (on ${cert_expires})" >&2
+            @SIPX_BINDIR@/sipx-alarm --alarmId CERT_EXPIRED "${cert_file}" "${cert_expires}" >/dev/null
+            rc=2
+
+         elif [ ${remaining} -le ${warnSeconds} ]
+         then
+            diff=$(($remaining / 3600 / 24))
+            #echo "SSL certificate '${cert_file}' will expire in ${diff} days (on ${cert_expires})" >&2
+            @SIPX_BINDIR@/sipx-alarm --alarmId CERT_EXPIRY_SOON "${cert_file}" $diff "${cert_expires}" >/dev/null
+            rc=1
+         fi
+      else
+         echo "Your 'date' command failed to convert the certificate expiry date - cannot calculate expiration." 1>&2
+         echo "SSL certificate '${cert_file}' expires: ${cert_expires}" 1>&2
+      fi
+      else
+      echo "Your 'date' command does not support %s format - cannot calculate expiration." 1>&2
+      echo "SSL certificate '${cert_file}' expires: ${cert_expires}" 1>&2
+   fi
+
+}
+
+# sipXecs requires all certificates to end in .crt (the process definition file
+# declares the pattern for certificates so that they can be replicated).
+for file in `ls @SIPX_CONFDIR@/ssl/*.crt @SIPX_CONFDIR@/ssl/authorities/*.crt`
+do
+   checkExpiry $file
+done

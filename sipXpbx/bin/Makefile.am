@@ -89,6 +89,7 @@ EXTRA_DIST = \
 	analyze_483s \
 	ipcclean.pl \
 	sipxecs_setup_common.py.in \
+	sipx-cert-check.in \
 	$(foreach libexecScript, $(SipxLibexecScripts), $(libexecScript).in) \
 	$(PythonScripts) \
 	$(SCRIPT_TEMPLATES)
@@ -102,6 +103,7 @@ install-exec-hook : \
 	$(DESTDIR)@DAILYDIR@/voicemail_clean \
 	$(DESTDIR)@DAILYDIR@/sipx-core-clean \
 	$(DESTDIR)@DAILYDIR@/sipx-chkspace \
+	$(DESTDIR)@DAILYDIR@/sipx-cert-check \
 	$(foreach sipxScript,$(SipxLibexecScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
 	$(foreach sipxScript,$(SipxLibexecPythonScripts),$(DESTDIR)@SIPX_LIBEXECDIR@/$(sipxScript)) \
 	$(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp \
@@ -156,6 +158,11 @@ $(DESTDIR)@DAILYDIR@/sipx-chkspace: sipx-chkspace.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $(srcdir)/sipx-chkspace.in > sipx-chkspace
 	$(INSTALL) -D -m 755 sipx-chkspace $(DESTDIR)@DAILYDIR@/sipx-chkspace
+
+$(DESTDIR)@DAILYDIR@/sipx-cert-check: sipx-cert-check.in
+	@echo "Localize $< -> $@"
+	@$(LocalizeSipXconfig) $(srcdir)/sipx-cert-check.in > sipx-cert-check
+	$(INSTALL) -D -m 755 sipx-cert-check $(DESTDIR)@DAILYDIR@/sipx-cert-check
 
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/010_sipx-activate-ntp: $(DESTDIR)@SIPX_LIBEXECDIR@/sipx-activate-ntp $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
 	cd $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d \
