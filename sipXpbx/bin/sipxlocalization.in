@@ -32,8 +32,8 @@ if ! [ -f $FILE -a -r $FILE ]; then
     echo "'$FILE' does not exist or is not a readable file." >&2
     exit 1
 fi
-if ! [ -d $JAVA_DIR -a -w $JAVA_DIR ]; then
-    echo "'$JAVA_DIR' is not a writable directory." >&2
+if ! [ -d $JAVA_DIR/sipXconfig -a -w $JAVA_DIR/sipXconfig ]; then
+    echo "'$JAVA_DIR'/sipXconfig is not a writable directory." >&2
     exit 1
 fi
 
