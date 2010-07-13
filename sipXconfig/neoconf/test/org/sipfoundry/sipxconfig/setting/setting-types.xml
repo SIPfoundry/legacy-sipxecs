@@ -78,6 +78,13 @@
       </type>
       <value>1234#*</value>
     </setting>
+    <setting name="username_sequence_setting">
+      <label>phonepad pin setting</label>
+      <type>
+        <username_sequence/>
+      </type>
+      <value>joe 135 *81</value>
+    </setting>
     <setting name="enum_setting">
       <label>Enum setting label</label>
       <type>

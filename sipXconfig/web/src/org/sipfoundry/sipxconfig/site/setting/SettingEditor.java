@@ -44,6 +44,7 @@ import org.sipfoundry.sipxconfig.setting.type.PhonePadPinSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
+import org.sipfoundry.sipxconfig.setting.type.UsernameSequenceSetting;
 import org.springframework.context.MessageSource;
 
 @ComponentClass(allowBody = true, allowInformalParameters = true)
@@ -177,6 +178,10 @@ public abstract class SettingEditor extends BaseComponent {
                 } else if (type instanceof PhonePadPinSetting) {
                     String customMessage = CustomSettingMessages.getMessagePattern(
                             CustomSettingMessages.INVALID_PHONEPADPIN_PATTERN, locale);
+                    pattern.setMessage(customMessage);
+                } else if (type instanceof UsernameSequenceSetting) {
+                    String customMessage = CustomSettingMessages.getMessagePattern(
+                            CustomSettingMessages.INVALID_USERNAME_SEQUENCE_PATTERN, locale);
                     pattern.setMessage(customMessage);
                 }
 

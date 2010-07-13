@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
+import org.sipfoundry.sipxconfig.setting.type.UsernameSequenceSetting;
 
 public class SettingTypesTest extends TestCase {
 
@@ -349,5 +350,19 @@ public class SettingTypesTest extends TestCase {
 
         assertTrue(multiEnumSetting.getTypedValue() instanceof List);
         assertEquals(Arrays.asList("VALUE_0", "VALUE_2"), multiEnumSetting.getTypedValue());
+    }
+
+    public void testUsernameSequenceSettingType() throws Exception {
+        Setting setting = group.getSetting("username_sequence_setting");
+        SettingType type = setting.getType();
+        assertTrue(type instanceof UsernameSequenceSetting);
+        UsernameSequenceSetting usernameSequenceSetting = (UsernameSequenceSetting) type;
+        assertFalse(usernameSequenceSetting.isRequired());
+        // not hidden in UI
+        assertFalse(usernameSequenceSetting.isPassword());
+
+        assertEquals("joe 135 *81", setting.getValue());
+        assertTrue(setting.getTypedValue() instanceof String);
+        assertSame(setting.getTypedValue().toString(), setting.getValue());
     }
 }

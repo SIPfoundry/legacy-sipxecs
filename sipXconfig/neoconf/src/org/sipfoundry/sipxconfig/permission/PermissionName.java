@@ -99,4 +99,8 @@ public enum PermissionName {
         }
         return null;
     }
+
+    public Type getType() {
+        return m_type;
+    }
 }

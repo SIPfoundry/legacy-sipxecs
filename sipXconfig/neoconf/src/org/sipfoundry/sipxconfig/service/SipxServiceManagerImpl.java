@@ -167,7 +167,12 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
                 // HACK: during tests bundles are not initialized properly
                 // copy them from already loaded services...
                 SipxService template = beanIdsToServices.get(sipxService.getBeanId());
-                sipxService.setBundles(template.getBundles());
+                if (template == null) {
+                    LOG.error("::buildServiceDefinitionsMap: null sipxService from model: bean: "
+                            + sipxService.getBeanId());
+                } else {
+                    sipxService.setBundles(template.getBundles());
+                }
             }
             beanIdsToServices.put(sipxService.getBeanId(), sipxService);
         }

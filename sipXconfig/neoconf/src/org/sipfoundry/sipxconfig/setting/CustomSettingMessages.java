@@ -16,6 +16,7 @@ public final class CustomSettingMessages {
     public static final String INVALID_HOSTNAME_PATTERN = "invalid_hostname_pattern";
     public static final String INVALID_IPADDR_PATTERN = "invalid_ipaddr_pattern";
     public static final String INVALID_PHONEPADPIN_PATTERN = "invalid_phonepadpin_pattern";
+    public static final String INVALID_USERNAME_SEQUENCE_PATTERN = "invalid_username_sequence_pattern";
 
     private static final String RESOURCE_BUNDLE = CustomSettingMessages.class.getName();
 

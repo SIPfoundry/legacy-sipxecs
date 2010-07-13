@@ -470,6 +470,8 @@
       <property name="modelName" value="sipxacccode.xml" />
       <property name="modelDir" value="sipxacccode" />
       <property name="groupTitleEnabled" value="true" />
+      <property name="aliasManager" ref="aliasManager" />
+      <property name="replicationContext" ref="sipxReplicationContextDao" />
       <property name="configurations">
         <list>
           <ref bean="sipxAccCodeConfiguration" />
@@ -490,6 +492,19 @@
       <property name="template" value="sipxacccode/sipxacccode.properties.vm" />
       <property name="name" value="sipxacccode.properties" />
   </bean>
+<!-- 
+  <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig" scope="prototype"
+    parent="defaultConfigurationFile">
+    <property name="name" value="authcodes.xml" />
+    <property name="authCodeManager" value="authCodeManager" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="dialPlanContext" ref="dialPlanContext" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="restartRequired" value="false" />
+  </bean>
+
+ -->
+
 
   <bean id="phoneLogConfiguration" class="org.sipfoundry.sipxconfig.service.PhoneLogConfiguration" scope="prototype"
     parent="serviceConfigurationFile">

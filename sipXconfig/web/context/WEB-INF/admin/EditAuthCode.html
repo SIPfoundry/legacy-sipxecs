@@ -1,0 +1,47 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickHelp" value="message:quick.help">help text here...</div>
+  <div>
+    <span jwcid="@common/ErrorMsg"></span>
+    <form jwcid="@Form" delegate="bean:validator">
+      <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel"
+            for="code:code"
+            field="component:code"
+            label="message:code.label"
+            description="message:code.description">
+            <input jwcid="code@TextField"
+              id="code:name"
+              value="ognl:authCode.code"
+              validators="spring-validators:validPhone,minLength=5,maxLength=10,required"
+              displayName="message:code.label"
+              />
+          </tr>
+          
+          <tr jwcid="@common/FieldPanel"
+            for="code:description"
+            field="component:description"
+            label="message:description.label"
+            description="message:description.description">
+            <span jwcid="description@TextArea" id="code:description" value="ognl:authCode.description"
+              cols="45" rows="3" validators="spring-validators:validFieldSize"/>
+          </tr>
+        </tbody>
+      </table>
+      </fieldset>
+      
+      <h3><span key="permissions">Permissions</span></h3>
+      
+      <span jwcid="@user/UserSettingsPanel" 
+            user="ognl:authCode.internalUser" 
+            groupToDisplay="permission"
+            settingsToHide="superadmin,tui-change-pin,personal-auto-attendant,music-on-hold,Voicemail,RecordSystemPrompts,AutoAttendant,subscribe-to-presence"
+            callback="ognl:callback" />
+            
+      <ul jwcid="@common/FormActions" 
+          listener="listener:saveAuthCode" 
+          callback="ognl:callback"/>
+    </form>
+  </div>
+</div>

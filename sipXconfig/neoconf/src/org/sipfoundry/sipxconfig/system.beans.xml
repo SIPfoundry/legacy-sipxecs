@@ -160,6 +160,7 @@
         <value>org/sipfoundry/sipxconfig/device/timezone.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/branch/branch.hbm.xml</value>
         <value>org/sipfoundry/sipxconfig/admin/tls/tls.hbm.xml</value>
+        <value>org/sipfoundry/sipxconfig/admin/authcode/authcode.hbm.xml</value>
       </list>
     </property>
     <property name="baseClassBeanIds">
