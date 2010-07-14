@@ -1,7 +1,7 @@
 /*
  *
  *
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2010 Avaya, certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
  *
@@ -20,8 +20,6 @@ import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
-
-    private static final int NUM_BRANCHES = 5;
 
     private AuthCodeManager m_authCodeManager;
 
