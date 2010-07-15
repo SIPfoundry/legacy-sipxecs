@@ -2653,7 +2653,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
             int expireSeconds = mExpires;
 
             // Non-INVITE transactions time out sooner
-            int maxExpires = (  (this->mRequestMethod.compareTo(SIP_INVITE_METHOD) != 0)
+            int maxExpires = (  (mRequestMethod.compareTo(SIP_INVITE_METHOD) != 0)
                               ? (userAgent.getSipStateTransactionTimeout())/1000
                               : userAgent.getDefaultExpiresSeconds()
                               );

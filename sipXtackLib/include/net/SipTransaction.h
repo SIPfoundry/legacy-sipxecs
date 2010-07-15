@@ -486,30 +486,30 @@ private:
       * ---------- default is DEFAULT_SIP_TRANSACTION_EXPIRES (180s), can override, see proxy(), SIPX_PROXY_DEFAULT_EXPIRES
       * ------ smaller values are set based on SipTransaction variables:
       * --------  for a serial child transaction resulting from DNS lookup, value is set to mDnsSrvTimeout
-      * -------------- default is (4s ), can override, see proxy(), SIPX_PROXY_DNSSRV_TIMEOUT
-      * --------  for any other transaction when message has an expires header, value is set to the expires header value
-      * --------  for serial child transaction and no expires header, value is set to mDefaultSerialExpiresSeconds
-      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
+      * -------------- default is (4s), can override, see proxy(), SIPX_PROXY_DNSSRV_TIMEOUT
+      * --------  for any other transaction when message has an Expires header, value is set to the Expires header value
+      * --------  for serial child transaction and no Expires header, value is set to mDefaultSerialExpiresSeconds
+      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
       * --- The transactions which have their transaction expires timer set in doFirstSend are those that send requests themselves.
       * --- This timer is used to determine whether the target address reaches an active element (and if not, to do the next thing).
       *
       * --- In recurseDnsSrvChildren,
-      * ----- These timers will be extended if 101-199 response has been received.
+      * ----- These timers will be extended if 101-199 response has been received since the timer was last set/extended.
       * ------ for transactions tied to INVITE messages, the max value is SipUserAgent::mDefaultExpiresSeconds
       * ---------- default is DEFAULT_SIP_TRANSACTION_EXPIRES (180s), can override, see proxy(), SIPX_PROXY_DEFAULT_EXPIRES
-      * ------ for transactions tied to non- INVITE messages, the max value is SipUserAgent::mTransactionStateTimeoutMs
+      * ------ for transactions tied to non-INVITE messages, the max value is SipUserAgent::mTransactionStateTimeoutMs
       * ---------- default is (8s), no override is provided
       * ------ smaller values are set based on SipTransaction variables:
-      * --------  for any transaction when message has an expires header, value is set to the expires header value
-      * --------  for serial child transaction and no expires header, value is set to mDefaultSerialExpiresSeconds
-      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
+      * --------  for any transaction when message has an Expires header, value is set to the Expires header value
+      * --------  for serial child transaction and no Expires header, value is set to mDefaultSerialExpiresSeconds
+      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
       * --- The transactions which have their transaction expires timers set in recurseDnsSrvChildren are those that
       * --- execute the RFC 3263 resolution process on the request-URI and generate sending transaction children.
       * --- This timer is used to determine whether the request-URI receives provisional and final responses that indicate the
       * --- target is responding "before the request expires" (and if not, to do the next thing).
       *
       * --- In the real world, this all means that for any transaction, SipUserAgent::mDefaultExpiresSeconds is the maximun limit.
-      * --- Only one EXPIRATION timer will be set for a given transaction.
+      * --- Only one transaction expires timer will be set for a given transaction.
       *
       * --- TRANSACTION_EXPIRATION event behavior ---
       * ------ Ignore timeout if attached SipMessage is a response.
@@ -519,14 +519,9 @@ private:
       * ---------- tx state is COMPLETED or CONFIRMED (transaction has finished its own work)
       * ------ Do not send CANCEL and extend timer if:
       * ---------- None of the previous cases are true AND a provisional response > 100 has been received since the previous expiration.
-      * ------ After making CANCEL decision ( and sending CANCEL if required), find the top of the transaction tree.
+      * ------ After making CANCEL decision (and sending CANCEL if required), find the top of the transaction tree.
       * ---------- Step through the tree, if any transactions have more to do, nothing further is done.
       * ---------- If all transactions have reached an end state, find the best response and send it if needed.
-      *
-      *
-      *
-      * --- When
-      *
       * */
 
     // Recursion members
