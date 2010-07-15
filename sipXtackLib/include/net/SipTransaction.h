@@ -39,8 +39,6 @@ class SipTransactionList;
 class OsEvent;
 class OsTimer;
 
-#define DEFAULT_SIP_TIMER_C_EXPIRES 180
-
 /** SipTransaction correlates requests and responses.
  *
  * CallId  + 's' or 'c' (for server or client) is used as
@@ -452,7 +450,7 @@ private:
     enum transactionStates mTransactionState;
     UtlBoolean mDispatchedFinalResponse; ///< For UA recursion
     UtlBoolean mProvisionalSdp;          ///< early media
-    int mExpireEventTimeSec;             ///< timer value used for Expiration timers
+    int mExpireEventTimeSec;             ///< timer value used for expiration timers
     UtlSList mTimers;                    /**< A list of all outstanding timers
                                           *   started by this transaction. */
     /**< SipTransaction Timer Usage
@@ -496,13 +494,15 @@ private:
       * --- In recurseDnsSrvChildren,
       * ----- These timers will be extended if 101-199 response has been received since the timer was last set/extended.
       * ------ for transactions tied to INVITE messages, the max value is SipUserAgent::mDefaultExpiresSeconds
-      * ---------- default is DEFAULT_SIP_TRANSACTION_EXPIRES (180s), can override, see proxy(), SIPX_PROXY_DEFAULT_EXPIRES
-      * ------ for transactions tied to non-INVITE messages, the max value is SipUserAgent::mTransactionStateTimeoutMs
-      * ---------- default is (8s), no override is provided
+      * ---------- mDefaultExpiresSeconds is initialized as DEFAULT_SIP_TRANSACTION_EXPIRES (180s);
+      * ---------- in sipXproxy, it is changed to the config value SIPX_PROXY_DEFAULT_EXPIRES (if provided)
+      * ------ for transactions tied to non-INVITE messages, the max value is SipUserAgent::mTransactionStateTimeoutMs/1000
+      * ---------- default is (8s), no override is provided in sipXproxy
       * ------ smaller values are set based on SipTransaction variables:
-      * --------  for any transaction when message has an Expires header, value is set to the Expires header value
-      * --------  for serial child transaction and no Expires header, value is set to mDefaultSerialExpiresSeconds
-      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
+      * --------- for any INVITE transaction, when message has an Expires header, value is reduced to the Expires header value
+      * --------- for serial child transaction and no Expires header, value is set to SipUserAgent::mDefaultSerialExpiresSeconds
+      * ------------ mDefaultSerialExpiresSeconds is initialized as DEFAULT_SIP_SERIAL_EXPIRES (20s);
+      * ------------ in sipXproxy, it is changed to the config value SIPX_PROXY_DEFAULT_SERIAL_EXPIRES (if provided)
       * --- The transactions which have their transaction expires timers set in recurseDnsSrvChildren are those that
       * --- execute the RFC 3263 resolution process on the request-URI and generate sending transaction children.
       * --- This timer is used to determine whether the request-URI receives provisional and final responses that indicate the
@@ -529,10 +529,16 @@ private:
     UtlBoolean mIsRecursing;   ///< TRUE if any braches have not be pursued
     UtlBoolean mIsDnsSrvChild; ///< This Child Transaction pursues one of the Server_T objects of the parent CT
                                ///  This transaction is prepared to actually a send a Sip message
-    double mQvalue;            ///< Recurse order.  equal values are recursed in parallel
-    int mExpires;              ///< Maximum time (seconds) to wait for a final outcome
+    double mQvalue;            ///< Recurse order (q-value).  Larger values are processed first; equal values are recursed in parallel.
+    int mExpires;              ///< The value of the Expires header of initial INVITE message, or -1 if none.
+                               //   Maximum time (seconds) to wait for a final response
     UtlBoolean mIsBusy;
-    UtlBoolean mProvoExtendsTimer;  ///< Set for response 101-199; clear and prevent CANCEL on EXPIRATION_EVENT
+    /** TRUE if a provisional response 101-199 has been processed since the last time
+     *  the expiration timer was set/extended.
+     *  Set by processing a response 101-199; when expiration timer fires, if set, this flag is
+     *  cleared and CANCEL on EXPIRATION_EVENT is not done.
+     */
+    UtlBoolean mProvoExtendsTimer;
     UtlString mBusyTaskName;
     UtlSList* mWaitingList;    /**< Events waiting until this is available
                                 * Note only a parent tx should have a waiting list */

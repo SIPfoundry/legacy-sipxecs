@@ -1675,10 +1675,12 @@ void SipTransaction::handleExpiresEvent(const SipMessage& outgoingMessage,
                           " provoExtendsTimer - transaction %p setting timeout %d secs.",
                           this, mExpireEventTimeSec);
 
-            // set new timer to larger of original timeout value or 3 minutes. 
-            if (mExpireEventTimeSec < DEFAULT_SIP_TIMER_C_EXPIRES)
+            // Set new timer to the larger of original timeout value or 3 minutes,
+            // because the UAS that is sending provisional respones doesn't know
+            // that we have (had) a short expiration time for this fork.
+            if (mExpireEventTimeSec < DEFAULT_SIP_TRANSACTION_EXPIRES)
             {
-                mExpireEventTimeSec = DEFAULT_SIP_TIMER_C_EXPIRES;
+                mExpireEventTimeSec = DEFAULT_SIP_TRANSACTION_EXPIRES;
             }
 #ifdef TEST_PRINT
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
@@ -2649,16 +2651,16 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                                   mpBranchId->data());
             }
 
-            // Set the transaction expires timeout for the DNS parent
-            int expireSeconds = mExpires;
+            // Set the transaction expires timeout for the DNS parent (this transaction)
 
             // Non-INVITE transactions time out sooner
-            int maxExpires = (  (mRequestMethod.compareTo(SIP_INVITE_METHOD) != 0)
-                              ? (userAgent.getSipStateTransactionTimeout())/1000
+            int maxExpires = (  mRequestMethod.compareTo(SIP_INVITE_METHOD) != 0
+                              ? userAgent.getSipStateTransactionTimeout()/1000
                               : userAgent.getDefaultExpiresSeconds()
                               );
 
-            if(expireSeconds <= 0)
+            int expireSeconds = mExpires;
+            if (expireSeconds <= 0)
             {
                expireSeconds = (  (   mpParentTransaction
                                    && mpParentTransaction->isChildSerial()
@@ -2670,7 +2672,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 
             // Make sure the expiration is not longer than
             // the maximum length of time we keep a transaction around
-            if(expireSeconds > maxExpires)
+            if (expireSeconds > maxExpires)
             {
                 expireSeconds = maxExpires;
             }
@@ -2776,7 +2778,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
                         transactionList.addTransaction(childTransaction);
 
                         // Link it in to this parent
-                        this->linkChild(*childTransaction);
+                        linkChild(*childTransaction);
                     }
 
                     numSrvRecords++;
@@ -2918,7 +2920,7 @@ UtlBoolean SipTransaction::recurseDnsSrvChildren(SipUserAgent& userAgent,
 }
 
 UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
-                                   SipTransactionList& transactionList)
+                                           SipTransactionList& transactionList)
 {
     UtlBoolean childRecursed = FALSE;
 
@@ -3049,7 +3051,7 @@ UtlBoolean SipTransaction::recurseChildren(SipUserAgent& userAgent,
                      childTransaction->mExpires = expiresSeconds;
 
                      // Link it in to this parent
-                     this->linkChild(*childTransaction);
+                     linkChild(*childTransaction);
                   }  // isUriRecursed was not set
                   else // We have already recursed this contact
                   {
