@@ -259,20 +259,20 @@ public:
 
     enum messageRelationship whatRelation(const SipMessage& message,
                                           UtlBoolean isOutgoing) const;
-    //: Check if the given message is part of this transaction.  
+    //: Check if the given message is part of this transaction.
     //< returns enum messageRelationship values.   :
     //<   Note: Per rfc-3261, if the proper via branch-id prefix is present, we only try to match branch ids.
-    //<         If the prefix is not present, we do all the work needed to compare to- and from- tags explicitly.   
+    //<         If the prefix is not present, we do all the work needed to compare to- and from- tags explicitly.
     //<
-    //< - MESSAGE_UNRELATED ---------- if match fails for any of: 
+    //< - MESSAGE_UNRELATED ---------- if match fails for any of:
     //<                                  {call id, via branch-id (if no 3261 prefix must match from-tag AND to-tag)}
     //< - MESSAGE_SAME_SESSION ------- match ALL of {call id, via branch-id (if no 3261 prefix must match from-tag AND to-tag)} but NOT Cseq
-    //< - MESSAGE_DIFFERENT_BRANCH --- match ALL of {call id, via branch-id (if no 3261 prefix must match from-tag AND to-tag), Cseq} 
+    //< - MESSAGE_DIFFERENT_BRANCH --- match ALL of {call id, via branch-id (if no 3261 prefix must match from-tag AND to-tag), Cseq}
     //<                                   BUT isServerTransaction() value of message doesn't match the transaction's value
-    //<                                     (one is a client transaction (is outbound request or inbound response) 
+    //<                                     (one is a client transaction (is outbound request or inbound response)
     //                                        and the other is a server transaction (is inbound request or outbound response) )
     //<                            --- match ALL of {call id, via branch-id (if no 3261 prefix must match from-tag AND to-tag), Cseq}
-    //<                                   BUT it is NOT true that-  
+    //<                                   BUT it is NOT true that-
     //<                                  - the branch ids of this message and this transaction match
     //<                                  - OR the message branch id matches the parent's branch AND the RequestURIs match
     //<                                  - OR it is an ACK request for this client UA(no more vias) which had a 2xx final response
@@ -284,7 +284,7 @@ public:
     //< - MESSAGE_REQUEST ---------------- is a request other than ACK or CANCEl with no previous request
     //< - MESSAGE_PROVISIONAL ------------ is a provisional response (1xx)
     //< - MESSAGE_FINAL ------------------ is a first response to any request
-    //< - MESSAGE_NEW_FINAL -------------- is a second (or later) response to an invite request with identical status but different to-tag 
+    //< - MESSAGE_NEW_FINAL -------------- is a second (or later) response to an invite request with identical status but different to-tag
     //<                                        (different fork)
     //<                              ----- is a second (or later) response to any request but with a different status code
     //< - MESSAGE_CANCEL ----------------- is CANCEL request, regardless whether there is a previous request of any kind
@@ -296,8 +296,8 @@ public:
     //< - MESSAGE_2XX_ACK_PROXY ---------- is ACK request for "proxy" transaction with 2xx response
     //< - MESSAGE_DUPLICATE -------------- is a second (or later) response to an invite request with identical to-tag and status (same fork)
     //<                              ----- is a second (or later) response to other-than-invite with identical status
-    //<                              ----- is a second (or later) request with identical method 
-    //<                              ----- is a second (or later) request with different method but not ACK or CANCEL 
+    //<                              ----- is a second (or later) request with identical method
+    //<                              ----- is a second (or later) request with different method but not ACK or CANCEL
 
 
     UtlBoolean isBusy();
@@ -455,65 +455,65 @@ private:
     int mExpireEventTimeSec;             ///< timer value used for Expiration timers
     UtlSList mTimers;                    /**< A list of all outstanding timers
                                           *   started by this transaction. */
-    /**< SipTransaction Timer Usage 
-      * In this comment, "transaction" refers to the SipTransaction object in the code, not an RFC3261 transaction. 
-      * Timer objects contain the corresponding SipMessage to be used when events are processed. 
-      *  
-      * Two timers are possible - 
-      *  
-      * 1- transaction resend timer 
+    /**< SipTransaction Timer Usage
+      * In this comment, "transaction" refers to the SipTransaction object in the code, not an RFC3261 transaction.
+      * Timer objects contain the corresponding SipMessage to be used when events are processed.
+      *
+      * Two timers are possible -
+      *
+      * 1- transaction resend timer
       * --- posts TRANSACTION_RESEND event on timeout
-      * --- initially set in doFirstSend, can be set again in handleResendEvent 
-      * --- initial value is set from SipUserAgent variables, default is  SIP_DEFAULT_RTT, can be overridden in SUA::+ 
-      * --- for resend, value is set according to RFC3261 rules 
-      *  
-      * --- TRANSACTION_RESEND Timeout behavior --- 
+      * --- initially set in doFirstSend, can be set again in handleResendEvent
+      * --- initial value is set from SipUserAgent variables, default is  SIP_DEFAULT_RTT, can be overridden in SUA::+
+      * --- for resend, value is set according to RFC3261 rules
+      *
+      * --- TRANSACTION_RESEND Timeout behavior ---
       * ------  Resend message according to RFC3261 rules.
-      *  
-      * 2- transaction expires timer  
-      * --- posts TRANSACTION_EXPIRATION event 
-      * --- can be set in doFirstSend or recurseDnsSrvChildren 
-      * --- default values are set in SipUserAgent::+, can be overridden  
-      * --- more complicated than resend timer 
-      *  
-      * --- In doFirstSend, 
-      * ------ Only set when sending request and this is not a server transaction 
-      * ------ in all cases, the max value is SipUserAgent::mDefaultExpiresSeconds 
+      *
+      * 2- transaction expires timer
+      * --- posts TRANSACTION_EXPIRATION event
+      * --- can be set in doFirstSend or recurseDnsSrvChildren
+      * --- default values are set in SipUserAgent::+, can be overridden
+      * --- more complicated than resend timer
+      *
+      * --- In doFirstSend,
+      * ------ Only set when sending request and this is not a server transaction
+      * ------ in all cases, the max value is SipUserAgent::mDefaultExpiresSeconds
       * ---------- default is DEFAULT_SIP_TRANSACTION_EXPIRES (180s), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
       * ------ smaller values are set based on SipTransaction variables:
       * --------  for a serial child transaction resulting from DNS lookup, value is set to mDnsSrvTimeout
       * -------------- default is (4s ), can override, see proxy(), SIPX_PROXY_DNSSRV_TIMEOUT
       * --------  for any other transaction when message has an expires header, value is set to the expires header value
       * --------  for serial child transaction and no expires header, value is set to mDefaultSerialExpiresSeconds
-      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_EXPIRES 
-      *  
-      * --- In recurseDnsSrvChildren, 
-      * ------ for transactions tied to INVITE messages, the max value is SipUserAgent::mDefaultExpiresSeconds 
+      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_EXPIRES
+      *
+      * --- In recurseDnsSrvChildren,
+      * ------ for transactions tied to INVITE messages, the max value is SipUserAgent::mDefaultExpiresSeconds
       * ---------- default is DEFAULT_SIP_TRANSACTION_EXPIRES (180s), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
-      * ------ for transactions tied to non- INVITE messages, the max value is SipUserAgent::mTransactionStateTimeoutMs 
+      * ------ for transactions tied to non- INVITE messages, the max value is SipUserAgent::mTransactionStateTimeoutMs
       * ---------- default is (8s), no override is provided
       * ------ smaller values are set based on SipTransaction variables:
       * --------  for any transaction when message has an expires header, value is set to the expires header value
       * --------  for serial child transaction and no expires header, value is set to mDefaultSerialExpiresSeconds
-      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_EXPIRES 
-      *  
-      * --- In the real world, this all means that for any transaction, SipUserAgent::mDefaultExpiresSeconds is the maximun limit. 
-      * --- Only one EXPIRATION timer will be set for a given transaction. 
-      *  
-      * --- TRANSACTION_EXPIRATION event behavior --- 
-      * ------ Ignore timeout if attached SipMessage is a response. 
-      * ------ Do not send CANCEL if: 
-      * ---------- tx is mIsDnsChild and a final or provisional response has occurred 
-      * ---------- tx is in a serial search tree and has received provisional SDP 
+      * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_EXPIRES
+      *
+      * --- In the real world, this all means that for any transaction, SipUserAgent::mDefaultExpiresSeconds is the maximun limit.
+      * --- Only one EXPIRATION timer will be set for a given transaction.
+      *
+      * --- TRANSACTION_EXPIRATION event behavior ---
+      * ------ Ignore timeout if attached SipMessage is a response.
+      * ------ Do not send CANCEL if:
+      * ---------- tx is mIsDnsChild and a final or provisional response has occurred
+      * ---------- tx is in a serial search tree and has received provisional SDP
       * ---------- tx state is COMPLETED or CONFIRMED (transaction has finished its own work)
-      * ------ After making CANCEL decision ( and sending CANCEL if required), find the top of the transaction tree. 
-      * ---------- Step through the tree, if any transactions have more to do, nothing further is done. 
-      * ---------- If all transactions have reached an end state, find the best response and send it if needed. 
-      *  
-      *  
-      *  
-      * --- When  
-      *  
+      * ------ After making CANCEL decision ( and sending CANCEL if required), find the top of the transaction tree.
+      * ---------- Step through the tree, if any transactions have more to do, nothing further is done.
+      * ---------- If all transactions have reached an end state, find the best response and send it if needed.
+      *
+      *
+      *
+      * --- When
+      *
       * */
 
     // Recursion members
