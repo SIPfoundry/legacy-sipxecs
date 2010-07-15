@@ -476,6 +476,8 @@ private:
       * --- default values are set in SipUserAgent::+, can be overridden
       * --- more complicated than resend timer
       *
+      * --- All client transactions for request messages fall into two classes:
+      *
       * --- In doFirstSend,
       * ----- Due to various transaction state variables, these timers are generally ignored once any response is received.
       * ---------- see mIsDnsSrvChild and the transaction state value
@@ -488,6 +490,8 @@ private:
       * --------  for any other transaction when message has an expires header, value is set to the expires header value
       * --------  for serial child transaction and no expires header, value is set to mDefaultSerialExpiresSeconds
       * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
+      * --- The transactions which have their transaction expires timer set in doFirstSend are those that send requests themselves.
+      * --- This timer is used to determine whether the target address reaches an active element (and if not, to do the next thing).
       *
       * --- In recurseDnsSrvChildren,
       * ----- These timers will be extended if 101-199 response has been received.
@@ -499,6 +503,10 @@ private:
       * --------  for any transaction when message has an expires header, value is set to the expires header value
       * --------  for serial child transaction and no expires header, value is set to mDefaultSerialExpiresSeconds
       * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s ), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
+      * --- The transactions which have their transaction expires timers set in recurseDnsSrvChildren are those that
+      * --- execute the RFC 3263 resolution process on the request-URI and generate sending transaction children.
+      * --- This timer is used to determine whether the request-URI receives provisional and final responses that indicate the
+      * --- target is responding "before the request expires" (and if not, to do the next thing).
       *
       * --- In the real world, this all means that for any transaction, SipUserAgent::mDefaultExpiresSeconds is the maximun limit.
       * --- Only one EXPIRATION timer will be set for a given transaction.
