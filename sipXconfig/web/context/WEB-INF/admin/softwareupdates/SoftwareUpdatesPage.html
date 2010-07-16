@@ -70,9 +70,10 @@
 	</div>
 	<div jwcid="@Else">
 		<span jwcid="@common/QuickHelp" value="message:quick.help.installation" />
+		<h4><span id="updateTitle"></span></h4>
 		<h3>
 			<img id="restartingIndicator" jwcid="@Image" image="asset:loadingImage" style="display:none"/>
-			<span id="updateTitle"><span jwcid="@Insert" value="message:label.installing"/></span>
+			<span id="restartTitle"><span jwcid="@Insert" value="message:label.installing"/></span>
 		</h3>
 	    <img id="installationIndicator" jwcid="@Image" image="asset:installationProgressBar" />
 	    <input type="button" value="Go to login" id="goToLoginButton" style="display:none"/>

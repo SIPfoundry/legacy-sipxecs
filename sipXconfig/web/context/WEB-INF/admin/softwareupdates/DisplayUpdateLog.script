@@ -6,9 +6,6 @@
 	<include-script resource-path="/org/sipfoundry/sipxconfig/js/jquery-1.4.2.min.js"/>
     <body>
     <![CDATA[
-
-        var logtextDiv, checkbox;
-
 		var timer = null;
         var start_position = 1;
 		var outputLog;
@@ -22,19 +19,17 @@
 					outputLog = replaceCRandSpaces(outputLog);
 
 					if (outputLog.search(/END/) != -1) {
+						printLog(removeStatusFromText(outputLog));
 						if (getReturnedStatus(outputLog) != "0") {
-							outputLog = removeStatusFromText(outputLog);
-							printLog(outputLog);
-
+							//display error log
 							readAndDisplayErrorLog();
 							updatePageComponentsAfterError();
 						} else {
-							outputLog = removeStatusFromText(outputLog);
-							printLog(outputLog);
 							updatePageComponentsAfterSuccess();
-			                clearTimeout(timer);
-			                timer = setTimeout('checkServer()', 2000);
 						}
+						//check the server status
+			            clearTimeout(timer);
+			            timer = setTimeout('checkServer()', 2000);
 					} else {
 						printLog(outputLog);
 						timer = setTimeout("scrollTimer()", 1000);
@@ -69,10 +64,10 @@
         }
 
         function printLog(logText) {
-			logtextDiv.innerHTML = logtextDiv.innerHTML + logText;
+			$('#logtext').html($('#logtext').html() + logText);
 
-			if (checkbox.checked == true)
-				logtextDiv.scrollTop = logtextDiv.scrollHeight;
+			if ($('#scroll').is(':checked'))
+				$('#logtext').animate({scrollTop: $('#logtext')[0].scrollHeight});
         }
 
         function replaceCRandSpaces(text) {
@@ -90,21 +85,22 @@
 		}
 
 		function updatePageComponentsAfterError() {
-			$('#scrollPanel').hide();
-			$('#installationIndicator').hide();
-			$('#updateTitle').text("Software update failed!");
-			$('#goToLoginButton').val("Go to Home");
-			$('#goToLoginButton').show();
-			$('#goToLoginButton').click(function() {
-				location.href = url_base;
-			});
+			showRestart();
+			$('#updateTitle').addClass('user-error');
+			$('#updateTitle').text("Software Updates process failed or some errors occurred during update!");
 		}
 
 		function updatePageComponentsAfterSuccess() {
+			showRestart();
+			$('#updateTitle').addClass('user-success');
+			$('#updateTitle').text("Software Updates process completed successfully!");
+		}
+
+		function showRestart() {
 			$('#scrollPanel').hide();
 			$('#installationIndicator').hide();
 			$('#restartingIndicator').show();
-			$('#updateTitle').text("Server is restarting...");
+			$('#restartTitle').text("Server is restarting...");
 		}
 
 		function removeBrokenLinks() {
@@ -134,7 +130,8 @@
 
 		function serverIsUp() {
 			$('#restartingIndicator').hide();
-			$('#updateTitle').text("Restart complete.");
+			$('#restartTitle').text("Restart complete.");
+			$('#updateTitle').hide();
 			$('#goToLoginButton').show();
 			$('#goToLoginButton').click(function() {
 				location.href = url_base;
@@ -146,9 +143,6 @@
     <initialization>
 		jQuery(document).ready(function() {
 				removeBrokenLinks();
-
-				logtextDiv = document.getElementById('logtext');
-				checkbox = document.getElementById('scroll');
 				timer = setTimeout("scrollTimer()", 1000);
 	        });
     </initialization>
