@@ -2012,6 +2012,17 @@ public class BackToBackUserAgent implements Comparable {
         if ( logger.isDebugEnabled() ) logger.debug("handleInviteWithReplaces: replacedDialog = " + replacedDialog);
         String address = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getHost();
         DialogContext inviteDat = DialogContext.get(serverTransaction.getDialog());
+        DialogContext replacedDialogApplicationData = DialogContext.get(replacedDialog);
+
+        Dialog peerDialog = replacedDialogApplicationData.getPeerDialog();
+        DialogContext peerDat = DialogContext.get(peerDialog);
+
+        if ( peerDialog.getState() != DialogState.CONFIRMED && peerDat.getDialogCreatingTransaction() instanceof ClientTransaction ) {
+            Response response = SipUtilities.createResponse(serverTransaction, Response.DECLINE);
+            serverTransaction.sendResponse(response);
+            peerDat.sendBye(false);
+            return;
+        }
 
         try {
             RtpSession rtpSession = this.createRtpSession(replacedDialog);
@@ -2037,11 +2048,7 @@ public class BackToBackUserAgent implements Comparable {
             
             if ( logger.isDebugEnabled() ) logger.debug("replacedDialog.getState() : " + replacedDialog.getState());
 
-            DialogContext replacedDialogApplicationData = DialogContext.get(replacedDialog);
-
-            Dialog peerDialog = replacedDialogApplicationData.getPeerDialog();
-            DialogContext peerDat = DialogContext.get(peerDialog);
-
+        
             if (peerDat.getDialogCreatingTransaction() instanceof ClientTransaction) {
 
                 Request reInvite = peerDialog.createRequest(Request.INVITE);
