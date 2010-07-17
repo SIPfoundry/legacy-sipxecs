@@ -2017,10 +2017,26 @@ public class BackToBackUserAgent implements Comparable {
         Dialog peerDialog = replacedDialogApplicationData.getPeerDialog();
         DialogContext peerDat = DialogContext.get(peerDialog);
 
+        /*
+         * Cannot consultatively transfer call when transfer target is Ringing.
+         */
         if ( peerDialog.getState() != DialogState.CONFIRMED && peerDat.getDialogCreatingTransaction() instanceof ClientTransaction ) {
             Response response = SipUtilities.createResponse(serverTransaction, Response.DECLINE);
             serverTransaction.sendResponse(response);
-            peerDat.sendBye(false);
+            if ( peerDialog.getState() == DialogState.EARLY  && 
+                    peerDat.getDialogCreatingTransaction().getState() != TransactionState.TERMINATED)  {
+                ClientTransaction ctx = (ClientTransaction) peerDat.getDialogCreatingTransaction();
+                Request cancelRequest = ctx.createCancel();
+                SipProvider provider = ((TransactionExt)ctx).getSipProvider();
+                ClientTransaction cancelCtx = provider.getNewClientTransaction(cancelRequest);
+                TransactionContext tc = TransactionContext.attach(cancelCtx, Operation.CANCEL_INVITE);
+                cancelCtx.sendRequest();
+            }
+            try {
+                peerDat.sendBye(false);
+            } catch (SipException ex) {
+                logger.error("Problem sending bye ", ex);
+            }
             return;
         }
 
