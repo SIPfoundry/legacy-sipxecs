@@ -735,12 +735,23 @@ public class BackToBackUserAgent implements Comparable {
             ServerTransaction referServerTransaction = requestEvent.getServerTransaction();
             Request referRequest = referServerTransaction.getRequest();
             DialogContext dialogContext = DialogContext.get(dialog);
+           
+            ToHeader toHeader = (ToHeader) referRequest.getHeader(ToHeader.NAME).clone();
+            toHeader.removeParameter("tag");
+            
+            /*
             FromHeader fromHeader = (FromHeader) dialogContext.getRequest().getHeader(
                     FromHeader.NAME).clone();
             fromHeader.removeParameter("tag");
+            */
 
-            ToHeader toHeader = (ToHeader) referRequest.getHeader(ToHeader.NAME).clone();
-            toHeader.removeParameter("tag");
+
+
+            SipURI ruri = (SipURI) dialogContext.getRequest().getRequestURI();
+            Address fromAddress = ProtocolObjects.addressFactory.createAddress(ruri);
+            FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress, null);
+
+
             /*
              * Get the Refer-To header and convert it into an INVITE to send to the REFER target.
              */
