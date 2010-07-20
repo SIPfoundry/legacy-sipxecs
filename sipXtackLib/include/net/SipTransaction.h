@@ -148,7 +148,10 @@ public:
                             SipTransactionList& transactionList,
                             // Time until the next resend should happen (msec) (output)
                             int& nextTimeout,
-                            SipMessage*& delayedDispatchedMessage);
+                            SipMessage*& delayedDispatchedMessage,
+                            /// TRUE if Timer C event -- timer can be extended by 101-199 responses
+                            bool extendable
+       );
 
     UtlBoolean handleIncoming(SipMessage& incomingMessage,
                              SipUserAgent& userAgent,
@@ -450,7 +453,6 @@ private:
     enum transactionStates mTransactionState;
     UtlBoolean mDispatchedFinalResponse; ///< For UA recursion
     UtlBoolean mProvisionalSdp;          ///< early media
-    int mExpireEventTimeSec;             ///< timer value used for expiration timers
     UtlSList mTimers;                    /**< A list of all outstanding timers
                                           *   started by this transaction. */
     /**< SipTransaction Timer Usage
@@ -476,7 +478,17 @@ private:
       *
       * --- All client transactions for request messages fall into two classes:
       *
-      * --- In doFirstSend,
+      * --- 1. Transactions that are created to send a request to a request-URI.  These transactions execute the RFC 3263 process
+      * --- and create a class 2 transaction child for each address/port that is a destination for the request-URI.  Class 1 transactions
+      * --- carry the timer(s) that enforce "request expiration", that is, the Expires header and Timer C for INVITEs.
+      * --- These transactions' timers are set in recurseDnsSrvChildren.
+      *
+      * --- 2. Transactions that are created to send a request to an address/port.  These transactions are children of a class 1
+      * --- transaction.  These transactions carry the timer that watches whether the address/port is responding at all, or
+      * --- whether the request should be sent to an alternative address/port (by a sibling class 2 transaction).  These transactions'
+      * --- timers are set in doFirstSend.
+      *
+      * --- Class 2 transactions, whose timers are set in doFirstSend:
       * ----- Due to various transaction state variables, these timers are generally ignored once any response is received.
       * ---------- see mIsDnsSrvChild and the transaction state value
       * ------ Only set when sending request and this is not a server transaction
@@ -488,37 +500,34 @@ private:
       * --------  for any other transaction when message has an Expires header, value is set to the Expires header value
       * --------  for serial child transaction and no Expires header, value is set to mDefaultSerialExpiresSeconds
       * -------------- default is DEFAULT_SIP_SERIAL_EXPIRES (20s), can override, see proxy(), SIPX_PROXY_DEFAULT_SERIAL_EXPIRES
-      * --- The transactions which have their transaction expires timer set in doFirstSend are those that send requests themselves.
-      * --- This timer is used to determine whether the target address reaches an active element (and if not, to do the next thing).
       *
-      * --- In recurseDnsSrvChildren,
-      * ----- These timers will be extended if 101-199 response has been received since the timer was last set/extended.
-      * ------ for transactions tied to INVITE messages, the max value is SipUserAgent::mDefaultExpiresSeconds
+      * --- Class 1 transactions, whose timers are set in recurseDnsSrvChildren:
+      * ----- These transactions can have two timers.  One is a "Timer C" timer which will be extended if a 101-199 response has
+      * ----- been received since the timer was last set/extended.  The other is absolute and is not affected by provisional
+      * ----- responses.
+      * ------ for transactions tied to INVITE messages, the Timer C timer is SipUserAgent::mDefaultExpiresSeconds
       * ---------- mDefaultExpiresSeconds is initialized as DEFAULT_SIP_TRANSACTION_EXPIRES (180s);
       * ---------- in sipXproxy, it is changed to the config value SIPX_PROXY_DEFAULT_EXPIRES (if provided)
-      * ------ for transactions tied to non-INVITE messages, the max value is SipUserAgent::mTransactionStateTimeoutMs/1000
-      * ---------- default is (8s), no override is provided in sipXproxy
-      * ------ smaller values are set based on SipTransaction variables:
-      * --------- for any INVITE transaction, when message has an Expires header, value is reduced to the Expires header value
-      * --------- for serial child transaction and no Expires header, value is set to SipUserAgent::mDefaultSerialExpiresSeconds
+      * ------ non-INVITE transactions do not get a Timer C timer.
+      * ------ for all transactions, the absolute timer is set if any of the following provides an expiration time (the timer
+      * ------ is set to the minimum of them):
+      * ---------- for transactions tied to non-INVITE messages, SipUserAgent::mTransactionStateTimeoutMs/1000
+      * ------------ default is (8s), no override is provided in sipXproxy
+      * ---------- for any INVITE transaction, when message has an Expires header, the Expires header value
+      * ---------- for serial child transaction and no Expires header in the associated request, SipUserAgent::mDefaultSerialExpiresSeconds
       * ------------ mDefaultSerialExpiresSeconds is initialized as DEFAULT_SIP_SERIAL_EXPIRES (20s);
       * ------------ in sipXproxy, it is changed to the config value SIPX_PROXY_DEFAULT_SERIAL_EXPIRES (if provided)
-      * --- The transactions which have their transaction expires timers set in recurseDnsSrvChildren are those that
-      * --- execute the RFC 3263 resolution process on the request-URI and generate sending transaction children.
-      * --- This timer is used to determine whether the request-URI receives provisional and final responses that indicate the
-      * --- target is responding "before the request expires" (and if not, to do the next thing).
       *
-      * --- In the real world, this all means that for any transaction, SipUserAgent::mDefaultExpiresSeconds is the maximun limit.
-      * --- Only one transaction expires timer will be set for a given transaction.
-      *
-      * --- TRANSACTION_EXPIRATION event behavior ---
+      * --- TRANSACTION_EXPIRATION/TRANSACTION_EXPIRATION_TIMER_C event behavior ---
       * ------ Ignore timeout if attached SipMessage is a response.
       * ------ Do not send CANCEL if:
       * ---------- tx is mIsDnsChild and a final or provisional response has occurred
       * ---------- tx is in a serial search tree and has received provisional SDP
       * ---------- tx state is COMPLETED or CONFIRMED (transaction has finished its own work)
       * ------ Do not send CANCEL and extend timer if:
-      * ---------- None of the previous cases are true AND a provisional response > 100 has been received since the previous expiration.
+      * ---------- None of the previous cases are true
+      * ---------- AND this is a TRANSACTION_EXPIRATION_TIMER_C event
+      * ---------- AND a provisional response > 100 has been received since the previous TRANSACTION_EXPIRATION_TIMER_C expiration.
       * ------ After making CANCEL decision (and sending CANCEL if required), find the top of the transaction tree.
       * ---------- Step through the tree, if any transactions have more to do, nothing further is done.
       * ---------- If all transactions have reached an end state, find the best response and send it if needed.
@@ -530,13 +539,17 @@ private:
     UtlBoolean mIsDnsSrvChild; ///< This Child Transaction pursues one of the Server_T objects of the parent CT
                                ///  This transaction is prepared to actually a send a Sip message
     double mQvalue;            ///< Recurse order (q-value).  Larger values are processed first; equal values are recursed in parallel.
-    int mExpires;              ///< The value of the Expires header of initial INVITE message, or -1 if none.
+    int mExpires;              ///< The value of the Expires header of the initial INVITE message, or -1 if none.
+                               //   (initialMsg parameter of SipTransaction::().)
                                //   Maximum time (seconds) to wait for a final response
     UtlBoolean mIsBusy;
     /** TRUE if a provisional response 101-199 has been processed since the last time
-     *  the expiration timer was set/extended.
-     *  Set by processing a response 101-199; when expiration timer fires, if set, this flag is
-     *  cleared and CANCEL on EXPIRATION_EVENT is not done.
+     *  the Timer C expiration timer was set/extended.
+     *  Set by processing a response 101-199; when expiration timer fires.
+     *  Upon a TRANSACTION_EXPIRATION_TIMER_C event, if this flag is set, the
+     *  CANCEL is not done and this flag is cleared.
+     *  TRANSACTION_EXPIRATION events are not affected by this flag; they always
+     *  cause CANCEL.
      */
     UtlBoolean mProvoExtendsTimer;
     UtlString mBusyTaskName;
