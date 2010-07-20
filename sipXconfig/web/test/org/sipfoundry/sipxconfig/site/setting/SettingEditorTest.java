@@ -32,10 +32,14 @@ import org.sipfoundry.sipxconfig.setting.type.PhonePadPinSetting;
 import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
+import org.sipfoundry.sipxconfig.setting.type.UsernameSequenceSetting;
 
 public class SettingEditorTest extends TestCase {
 
     private SettingEditor m_editor;
+
+    private static final String USERNAME_SEQUENCE_PAT = 
+          "((([-_.!~*'\\(\\)&amp;=+$,;?/;a-zA-Z0-9]|(&#37;[0-9a-fA-F]{2});)+)\\s*)*";
 
     private static Locale s_locale = Locale.ENGLISH;
 
@@ -193,7 +197,63 @@ public class SettingEditorTest extends TestCase {
     public void testGetDefaultValueForPhonePadPin() {
         PhonePadPinSetting type = new PhonePadPinSetting();
 
-        // IMocksControl settingCtrl = EasyMock.createControl();
+        IMocksControl settingCtrl = EasyMock.createStrictControl();
+        Setting setting = settingCtrl.createMock(Setting.class);
+
+        setting.getType();
+        settingCtrl.andReturn(type);
+        setting.getDefaultValue();
+        settingCtrl.andReturn("bongo");
+        settingCtrl.replay();
+
+        m_editor.setSetting(setting);
+
+        assertEquals("bongo", m_editor.getDefaultValue());
+
+        settingCtrl.verify();
+    }
+
+    // Testing of UsernameSequenceSetting
+    public void testValidatorForUsernameSequenceDefaults() {
+        UsernameSequenceSetting type = new UsernameSequenceSetting();
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
+
+        assertEquals(2, validators.size());
+        assertTrue(validators.get(0) instanceof MaxLength);
+        assertTrue(validators.get(1) instanceof Pattern);
+        assertEquals(255, ((MaxLength) validators.get(0)).getMaxLength());
+        assertEquals(USERNAME_SEQUENCE_PAT, ((Pattern) validators.get(1)).getPattern());
+    }
+
+    public void testValidatorForUsernameSequenceOptions() {
+        UsernameSequenceSetting type = new UsernameSequenceSetting();
+        type.setMaxLen(15);
+        type.setRequired(true);
+
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
+        assertEquals(3, validators.size());
+        assertTrue(validators.get(0) instanceof Required);
+        assertTrue(validators.get(1) instanceof MaxLength);
+        assertTrue(validators.get(2) instanceof Pattern);
+        assertEquals(USERNAME_SEQUENCE_PAT, ((Pattern) validators.get(2)).getPattern());
+
+        type.setMinLen(3);
+        validators = SettingEditor.validatorListForType(type, true, s_locale);
+        assertTrue(validators.get(2) instanceof MinLength);
+        assertTrue(validators.get(3) instanceof Pattern);
+    }
+
+    public void testValidatorForUsernameSequenceCustomMessage() {
+        UsernameSequenceSetting type = new UsernameSequenceSetting();
+        List validators = SettingEditor.validatorListForType(type, true, s_locale);
+
+        assertEquals(CustomSettingMessages.getMessagePattern(CustomSettingMessages.INVALID_USERNAME_SEQUENCE_PATTERN,
+                Locale.getDefault()), ((Pattern) validators.get(1)).getMessage());
+    }
+
+    public void testGetDefaultValueForUsernameSequence() {
+        UsernameSequenceSetting type = new UsernameSequenceSetting();
+
         IMocksControl settingCtrl = EasyMock.createStrictControl();
         Setting setting = settingCtrl.createMock(Setting.class);
 

@@ -164,17 +164,25 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
         String sourceAddressSpec = SipUri.fix(inviteNumber, domain);
 
         if (conference.hasOwner()) {
+
+            String partPin = conference.getParticipantAccessCode();
+            String dest = m_conferenceBridgeContext.getAddressSpec(conference);
+
+            if (partPin != null && partPin.length() > 0) {
+                dest += "?X-ConfPin=" + partPin;
+            }
+
             m_sipService.sendRefer(conference.getOwner(), // Who are we (credentials)
                   sourceAddressSpec,                      // Who we are inviting
                   conference.getName(),                   // From this name
                                                           // From this address
-                  m_conferenceBridgeContext.getAddressSpec(conference),
+                  dest,
                   // Use the above, not this one: conference.getUri(), as the
                   // former will be extension@proxy, the latter will be
                   // confname@domain:freeswitchport.  We want the former
                   // so calls back to it will go via the proxy, not directly
                   // to the conference which may not be externally addressable
-                  m_conferenceBridgeContext.getAddressSpec(conference), true);
+                  dest, true);
         } else {
             LOG.warn("conference does not have owner -- cannot INVITE participant");
             // TODO -- throw exception!

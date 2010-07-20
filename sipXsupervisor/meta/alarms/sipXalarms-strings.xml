@@ -189,6 +189,16 @@
                      does not match the address it came from.
                      Ensure that the certificate identity matches the request domain.</resolution>
       </alarm>
+      <alarm id="CERT_EXPIRY_SOON">
+         <shorttitle>An SSL certificate will expire soon</shorttitle>
+         <description>The SSL certificate in '{0}' will expire in {1} day(s) (on {2}).</description>
+         <resolution>Please install a fresh certificate before the expiry date.</resolution>
+      </alarm>
+      <alarm id="CERT_EXPIRED">
+         <shorttitle>An SSL certificate has expired</shorttitle>
+         <description>The SSL certificate in '{0}' has expired (on {1}).</description>
+         <resolution>Please install a fresh certificate and delete this one.</resolution>
+      </alarm>
 
       <!-- Add new alarms above this line.
           Notes:

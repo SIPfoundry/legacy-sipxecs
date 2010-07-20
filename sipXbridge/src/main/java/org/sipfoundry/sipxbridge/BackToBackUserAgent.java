@@ -735,12 +735,23 @@ public class BackToBackUserAgent implements Comparable {
             ServerTransaction referServerTransaction = requestEvent.getServerTransaction();
             Request referRequest = referServerTransaction.getRequest();
             DialogContext dialogContext = DialogContext.get(dialog);
+           
+            ToHeader toHeader = (ToHeader) referRequest.getHeader(ToHeader.NAME).clone();
+            toHeader.removeParameter("tag");
+            
+            /*
             FromHeader fromHeader = (FromHeader) dialogContext.getRequest().getHeader(
                     FromHeader.NAME).clone();
             fromHeader.removeParameter("tag");
+            */
 
-            ToHeader toHeader = (ToHeader) referRequest.getHeader(ToHeader.NAME).clone();
-            toHeader.removeParameter("tag");
+
+
+            SipURI ruri = (SipURI) dialogContext.getRequest().getRequestURI();
+            Address fromAddress = ProtocolObjects.addressFactory.createAddress(ruri);
+            FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress, null);
+
+
             /*
              * Get the Refer-To header and convert it into an INVITE to send to the REFER target.
              */
@@ -2018,6 +2029,33 @@ public class BackToBackUserAgent implements Comparable {
         if ( logger.isDebugEnabled() ) logger.debug("handleInviteWithReplaces: replacedDialog = " + replacedDialog);
         String address = ((ViaHeader) request.getHeader(ViaHeader.NAME)).getHost();
         DialogContext inviteDat = DialogContext.get(serverTransaction.getDialog());
+        DialogContext replacedDialogApplicationData = DialogContext.get(replacedDialog);
+
+        Dialog peerDialog = replacedDialogApplicationData.getPeerDialog();
+        DialogContext peerDat = DialogContext.get(peerDialog);
+
+        /*
+         * Cannot consultatively transfer call when transfer target is Ringing.
+         */
+        if ( peerDialog.getState() != DialogState.CONFIRMED && peerDat.getDialogCreatingTransaction() instanceof ClientTransaction ) {
+            Response response = SipUtilities.createResponse(serverTransaction, Response.DECLINE);
+            serverTransaction.sendResponse(response);
+            if ( peerDialog.getState() == DialogState.EARLY  && 
+                    peerDat.getDialogCreatingTransaction().getState() != TransactionState.TERMINATED)  {
+                ClientTransaction ctx = (ClientTransaction) peerDat.getDialogCreatingTransaction();
+                Request cancelRequest = ctx.createCancel();
+                SipProvider provider = ((TransactionExt)ctx).getSipProvider();
+                ClientTransaction cancelCtx = provider.getNewClientTransaction(cancelRequest);
+                TransactionContext tc = TransactionContext.attach(cancelCtx, Operation.CANCEL_INVITE);
+                cancelCtx.sendRequest();
+            }
+            try {
+                peerDat.sendBye(false);
+            } catch (SipException ex) {
+                logger.error("Problem sending bye ", ex);
+            }
+            return;
+        }
 
         try {
             RtpSession rtpSession = this.createRtpSession(replacedDialog);
@@ -2043,11 +2081,7 @@ public class BackToBackUserAgent implements Comparable {
             
             if ( logger.isDebugEnabled() ) logger.debug("replacedDialog.getState() : " + replacedDialog.getState());
 
-            DialogContext replacedDialogApplicationData = DialogContext.get(replacedDialog);
-
-            Dialog peerDialog = replacedDialogApplicationData.getPeerDialog();
-            DialogContext peerDat = DialogContext.get(peerDialog);
-
+        
             if (peerDat.getDialogCreatingTransaction() instanceof ClientTransaction) {
 
                 Request reInvite = peerDialog.createRequest(Request.INVITE);

@@ -906,3 +906,11 @@
     name CDATA #REQUIRED
     internal_user_id CDATA #IMPLIED
 >
+
+<!ELEMENT auth_code EMPTY>
+<!ATTLIST auth_code
+    auth_code_id CDATA #REQUIRED
+    code CDATA #REQUIRED
+    description CDATA #IMPLIED
+    internal_user_id CDATA #IMPLIED
+>

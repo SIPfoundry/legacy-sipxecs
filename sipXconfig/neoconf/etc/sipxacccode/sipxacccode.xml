@@ -41,8 +41,13 @@
   </type>
   <group name="authcode">
     <setting name="SIP_AUTH_CODE_PREFIX">
-      <type refid="feature-code" />
+      <type refid="feature-code" required="yes" />
       <value>*81</value>
+    </setting>
+    <setting name="SIP_AUTH_CODE_ALIASES" >
+      <type id="aliases" >
+        <username_sequence />
+      </type>
     </setting>
   </group>
   <group name="acccode" hidden="yes">

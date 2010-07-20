@@ -1,0 +1,71 @@
+<div jwcid="@common/Border" restricted="false" borderTitle="ognl:borderTitle">
+  <div jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <span jwcid="@common/ErrorMsg"/>
+  
+    <form jwcid="form@Form" delegate="bean:validator">
+    
+    <fieldset>
+      <table>
+        <tr>
+          <fieldset  jwcid="@setting/SettingsFieldset"
+              settings="ognl:myConfigSettings"
+              settingsToHide="ognl:myHiddenSettings"
+              renderGroupTitle="false" />
+        </tr>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" callback="ognl:callback"
+        listener="listener:apply"/>
+  </form>
+  
+  <form jwcid="authCodeTableForm@Form">
+    <fieldset>
+      <ul class="component-links">
+        <li>
+          <a jwcid="addAuthCodeLink@DirectLink" id="code:add"
+            listener="listener:addAuthCode">
+            <span key="add">Add Authorization Code</span>
+          </a>
+        </li>
+      </ul>
+    </fieldset>
+    <ul class="component-submit">
+      <li>
+        <span jwcid="settingGroupFilter@setting/GroupFilter" 
+          selectedGroupId="ognl:groupId"
+          queryText="ognl:queryText"
+          searchMode="ognl:searchMode" />
+      </li>
+    </ul>
+    
+    <table jwcid="@common/Table" id="authcode:list"
+      columns="* code, description"
+      usePager="ognl:true"
+      source="ognl:tableModel"
+      row="ognl:currentRow"
+      selections="bean:selections">
+      <span jwcid="codeColumnValue@Block">
+        <span jwcid="editCodeLink@DirectLink"
+            listener="listener:editAuthCode" parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="ognl:currentRow.code"/>
+        </span>
+      </span>
+      
+      <span jwcid="descriptionColumnValue@Block">
+          <span jwcid="@Insert" value="ognl:currentRow.description"/>
+      </span>
+      
+    </table>
+    
+    <ul class="component-submit">
+      <li>
+        <input jwcid="delete@Submit"
+          id="authCodes:delete"
+          action="listener:deleteAuthCodes"
+          value="message:button.delete" />
+        <span jwcid="@common/Confirm" component="component:delete" prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+    
+  </form>
+</div>

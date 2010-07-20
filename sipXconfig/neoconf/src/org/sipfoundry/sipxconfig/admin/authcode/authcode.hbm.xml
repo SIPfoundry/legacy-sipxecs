@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.admin.authcode" default-lazy="false">
+  <!--
+    - Auth Code
+  -->
+
+  <class name="AuthCode" table="auth_code">
+    <id name="id" column="auth_code_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">auth_code_seq</param>
+      </generator>
+    </id>
+    <property name="description" />
+    <property name="code" />
+    <many-to-one name="internalUser" column="internal_user_id" class="org.sipfoundry.sipxconfig.common.InternalUser" cascade="all"/>
+  </class>
+
+  <query name="authCodeByCode">
+    <![CDATA[select code from AuthCode code where code.code= :code]]>
+  </query>
+
+</hibernate-mapping>

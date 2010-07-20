@@ -84,13 +84,12 @@ def update():
     print "Package update complete.\n"
     sys.stderr.write('***END***\n')
     sys.stdout.write('***END***\n')
-#print the status code return by the yum command
+# print the status code return by the yum command
     print yumProcess
     sys.stdout.flush()
     sys.stderr.flush()
     time.sleep(2)
-    if yumProcess == 0:
-	restart()
+    restart()
 
 # Restarts the sipXecs
 def restart():

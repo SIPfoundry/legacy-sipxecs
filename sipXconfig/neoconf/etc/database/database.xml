@@ -361,6 +361,8 @@
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="12" -->
     <antcall target="ldap_settings" />
+    <antcall target="add_acccode_service" />
+    <antcall target="auth_code" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1126,6 +1128,13 @@
   <target name="update_usebranch_default_value" unless="update_usebranch_default_value">
     <db-patch patch="update_usebranch_default_value"/>
   </target>
+  <target name="add_acccode_service" unless="add_acccode_service">
+    <db-patch patch="add_acccode_service"/>
+  </target>
+  <target name="auth_code" unless="auth_code">
+    <db-patch patch="auth_code"/>
+  </target>
+
 
   <!--
     - SUPPORT UTILITIES

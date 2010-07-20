@@ -308,8 +308,12 @@ public class CallControlUtilities {
 
         dialogContext.setPendingAction(PendingDialogAction.NONE);
 
-        SessionDescription transmitterSd = DialogContext.getPeerTransmitter(dialog)
-        .getTransmitter().getSessionDescription();
+       // SessionDescription transmitterSd = DialogContext.getPeerTransmitter(dialog)
+       // .getTransmitter().getSessionDescription();
+        
+        SessionDescription transmitterSd = DialogContext.getRtpSession(dialog)
+         .getTransmitter().getSessionDescription(); 
+        
         /*
          * Extract the codec numbers previously offered.
          */

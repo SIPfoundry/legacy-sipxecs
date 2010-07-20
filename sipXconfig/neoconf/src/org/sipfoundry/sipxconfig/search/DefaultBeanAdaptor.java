@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.acd.AcdAgent;
 import org.sipfoundry.sipxconfig.acd.AcdLine;
 import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -46,7 +47,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         // TODO: inject externally
         User.class, Phone.class, Group.class, Gateway.class, CallGroup.class, DialingRule.class, Bridge.class,
         Conference.class, ParkOrbit.class, AutoAttendant.class, Upload.class, AcdServer.class, AcdQueue.class,
-        AcdLine.class, AcdAgent.class, Branch.class
+        AcdLine.class, AcdAgent.class, Branch.class, AuthCode.class
     };
 
     private static final Log LOG = LogFactory.getLog(DefaultBeanAdaptor.class);
@@ -62,7 +63,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
      * List of fields that will be part of index name
      */
     private static final String[] NAME_FIELDS = {
-        "lastName", "firstName", "name", "extension", "userName", "serialNumber", "host"
+        "lastName", "firstName", "name", "extension", "userName", "serialNumber", "host", "code"
     };
 
     /**

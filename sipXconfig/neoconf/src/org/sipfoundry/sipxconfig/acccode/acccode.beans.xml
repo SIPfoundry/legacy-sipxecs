@@ -20,9 +20,25 @@
   <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig"
     parent="defaultConfigurationFile">
     <property name="name" value="authcodes.xml" />
+    <property name="authCodeManager" ref="authCodeManager" />
     <property name="domainManager" ref="domainManager" />
     <property name="dialPlanContext" ref="dialPlanContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="restartRequired" value="false" />
+  </bean>
+  
+  <bean id="authCodeManagerImpl" class="org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
+  </bean>
+
+  <bean id="authCodeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" 
+              value="org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager,
+                    org.sipfoundry.sipxconfig.admin.commserver.AliasProvider " />
+    <property name="target" ref="authCodeManagerImpl" />
   </bean>
 </beans>

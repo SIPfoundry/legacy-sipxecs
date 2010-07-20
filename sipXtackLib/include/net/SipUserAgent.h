@@ -41,6 +41,13 @@
 // proxy, registrar, etc. OsServerTask OsMsg queue size
 #define SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE 10000
 
+// Default expiry times (in seconds)
+// Also known as Timer C:
+#define DEFAULT_SIP_TRANSACTION_EXPIRES 180
+// To be used as the default Expires time for forks that have a following
+// serial fork (i.e., with lower q value).
+#define DEFAULT_SIP_SERIAL_EXPIRES 20
+
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

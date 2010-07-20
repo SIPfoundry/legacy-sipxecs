@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE dataset SYSTEM "../../sipxconfig-db.dtd">
+<dataset>
+  <users user_name="user1" user_id="1000" pintoken="1234" user_type="C"/>
+  <users user_name="user2" user_id="1001" pintoken="1234" user_type="C"/>
+  <users user_name="~~ac~1" user_id="1002" user_type="I"/>
+  <users user_name="~~ac~2" user_id="1003" user_type="I"/>
+  <auth_code auth_code_id="1" code="12345" description="This is a description for authcode1" internal_user_id="1002"/>
+  <auth_code auth_code_id="2" code="67890" description="This is a description for authcode2" internal_user_id="1003"/>
+</dataset>

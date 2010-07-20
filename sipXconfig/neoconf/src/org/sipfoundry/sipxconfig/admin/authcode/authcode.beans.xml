@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <!--
+    - Auth Code 
+  -->
+  <bean id="authCodeManagerImpl" class="org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManagerImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="coreContext" ref="coreContext" />
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
+  </bean>
+
+  <bean id="authCodeManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager" />
+    <property name="target" ref="authCodeManagerImpl" />
+  </bean>
+</beans>

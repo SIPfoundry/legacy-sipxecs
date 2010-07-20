@@ -81,6 +81,11 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     }
 
     public void replicateServiceConfig(SipxService service) {
+        //Want to replicate only config files which don't
+        //require restart?
+        // Nope, we want to replicate all config files.
+        // Therefore, set the noRestartOnly
+        //boolean to "false"
         replicateServiceConfig(service, false);
     }
 
@@ -128,6 +133,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         for (ConfigurationFile configuration : configurations) {
             m_replicationContext.replicate(configuration);
             if (configuration.isRestartRequired()) {
+                LOG.info("replicate service " + service.getBeanId()
+                    + " config " + configuration.getName()
+                    + " Restart required:" + configuration.isRestartRequired());
                 serviceRequiresRestart = true;
             }
         }

@@ -107,6 +107,10 @@
       <value>18</value>
       <value>sipxCallResolverAgentService</value>
     </row>
+    <row>
+      <value>19</value>
+      <value>sipxAccCodeService</value>
+    </row>
   </table>
   <table name="location_specific_service">
     <column>location_specific_service_id</column>

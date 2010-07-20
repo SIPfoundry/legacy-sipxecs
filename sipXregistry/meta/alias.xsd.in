@@ -133,6 +133,13 @@
 	  </documentation>
 	</annotation>
       </enumeration>
+      <enumeration value='fax'>
+        <annotation>
+          <documentation>
+            Fax extension routing.
+          </documentation>
+        </annotation>
+      </enumeration>
     </restriction>
   </simpleType>
 

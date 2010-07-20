@@ -1055,7 +1055,8 @@ class SipUtilities {
 					for (Iterator it1 = attributes.iterator(); it1.hasNext();) {
 						Attribute attr = (Attribute) it1.next();
 						if (logger.isDebugEnabled()) {
-							if ( logger.isDebugEnabled() ) logger.debug("attrName = " + attr.getName());
+							logger.debug("attrName = " + attr.getName() + " attrValue = " + attr.getValue() );
+							
 						}
 
 						if (attr.getName().equalsIgnoreCase("rtpmap") || attr.getName().equalsIgnoreCase("fmtp")) {
@@ -1070,6 +1071,9 @@ class SipUtilities {
 									 * some ITSPs otherwise. AT&T Hack.
 									 */
 									if (rtpMapCodec != 100 && rtpMapCodec != 101) {
+									    if ( logger.isDebugEnabled()) {
+									        logger.debug("codecs does not contain " + rtpMapCodec + " removing it ");
+									    }
 										it1.remove();
 									}
 								}

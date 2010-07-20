@@ -66,10 +66,6 @@
 // Default value is 5 minutes.
 #define DEFAULT_TCP_SOCKET_IDLE_TIME 300
 
-// Default expiry times (in seconds)
-#define DEFAULT_SIP_TRANSACTION_EXPIRES 180
-#define DEFAULT_SIP_SERIAL_EXPIRES 20
-
 #define MAXIMUM_SIP_LOG_SIZE 100000
 #define SIP_UA_LOG "sipuseragent.log"
 #define CONFIG_LOG_DIR SIPX_LOGDIR

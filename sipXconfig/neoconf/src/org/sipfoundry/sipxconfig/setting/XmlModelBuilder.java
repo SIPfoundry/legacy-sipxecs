@@ -40,6 +40,7 @@ import org.sipfoundry.sipxconfig.setting.type.RealSetting;
 import org.sipfoundry.sipxconfig.setting.type.SettingType;
 import org.sipfoundry.sipxconfig.setting.type.SipUriSetting;
 import org.sipfoundry.sipxconfig.setting.type.StringSetting;
+import org.sipfoundry.sipxconfig.setting.type.UsernameSequenceSetting;
 import org.xml.sax.Attributes;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -132,6 +133,8 @@ public class XmlModelBuilder implements ModelBuilder {
                 HostnameSetting.class));
         digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "phonepadpin", typeIdRule,
                 PhonePadPinSetting.class));
+        digester.addRuleSet(new SpecializedStringSettingRule(patternPrefix + "username_sequence", typeIdRule,
+                UsernameSequenceSetting.class));
     }
 
     static class AbstractSettingRuleSet extends RuleSetBase {

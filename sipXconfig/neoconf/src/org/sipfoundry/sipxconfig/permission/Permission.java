@@ -57,6 +57,8 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
     public static final String CALL_PERMISSION_PATH = PATH_PREFIX + CALLHANDLING_NAME;
     public static final String VOICEMAIL_SERVER_PATH = PATH_PREFIX + VOICEMAIL_NAME;
 
+    public static final String NAME_PREFIX = "perm_";
+
     private Type m_type = Type.CALL;
 
     private String m_label;
@@ -134,7 +136,7 @@ public class Permission implements Comparable<Permission>, PrimaryKeySource {
     }
 
     public String getName() {
-        return "perm_" + getId();
+        return NAME_PREFIX + getId();
     }
 
     public Object getPrimaryKey() {

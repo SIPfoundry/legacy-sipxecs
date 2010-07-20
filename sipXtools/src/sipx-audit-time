@@ -1,0 +1,120 @@
+#! /usr/bin/perl
+
+# Process one or more log files to spot anomalies in the time sequencing.
+# Significant time anomalies may indicate a problem with the system clock,
+# which will cause many problems in sipXecs.
+
+# When given arguments, processes each one as a file.  If the argument ends
+# with ".gz", it is gunzipped first.  When given no arguments, processes
+# stdin as a file.
+
+# Problems opening or unzipping a file are reported to stderr.
+# Problems seen within a file are reported to stdout, along with the contents
+# of the line in question.
+
+# An input line is reported if its timestamp is more than 3 seconds before
+# the timestamp of the previous line, or 180 seconds after the timestamp of the
+# previous line.  The allowed backward difference is required because the logging
+# of lines is not strictly time-ordered.  Large forward differences are common
+# when sipXecs is restarted; in such cases the reported logging line should
+# show a restart of the component in question.
+
+# It is probably best to run sipx-audit-time on sipXproxy.log, as the Proxy is
+# likely to have the most traffic and so not likely to accidentally have long
+# periods of idleness.
+
+use warnings;
+use strict 'vars';
+use English;
+use Date::Parse;
+
+# Maximum backward step allowed (a negative number, in seconds).
+my($maximum_backward) = -3;
+# Maximum forward step allowed (a postive number, in seconds).
+my($maximum_forward) = 3 * 60;
+
+# Offset and length of the time field.
+my($time_offset) = 1;
+my($time_length) = 26;
+
+if ($#ARGV >= 0) {
+    # Files are provided; process them one by one.
+    my($file);
+    foreach $file (@ARGV) {
+	process_file($file);
+    }
+} else {
+    # Process stdin.
+    process_file(undef);
+}
+
+exit 0;
+
+# Process a file.
+# If file is undef, process stdin.
+sub process_file {
+    my($file) = @_;
+
+    # Open or reopen the file.
+    if (defined($file)) {
+	if ($file =~ /\.gz$/) {
+	    my($command) = "gunzip <$file";
+	    open(FILE, "$command |") || do {
+		print STDERR "Error gunzipping input file '$file' with command '$command': $!\n";
+		return;
+	    }
+	} else {
+	    open(FILE, $file) || do {
+		print STDERR "Error opening input file '$file': $!\n";
+		return;
+	    }
+	}
+    } else {
+	open(FILE, "<&STDIN") || do {
+	    print STDERR "Error duplicating stdin: $!\n";
+	    return;
+	}
+    }
+
+    # Read through the file, checking for problems.
+    my($last_time, $current_time);
+    for ($last_time = undef;
+	 $_ = <FILE>;
+	 $last_time = $current_time) {
+	$current_time = &time($_);
+	if (!defined($current_time)) {
+	    &report("Unable to parse time field '" .
+		    substr($_, $time_offset, $time_length) . "'",
+		    $INPUT_LINE_NUMBER, $_, $file);
+	} elsif ($last_time) {
+	    my($d) = $current_time - $last_time;
+	    if ($d < $maximum_backward) {
+		&report("Backward step of $d seconds", $INPUT_LINE_NUMBER,
+			$_, $file);
+	    } elsif ($d > $maximum_forward) {
+		&report("Forward step of $d seconds", $INPUT_LINE_NUMBER,
+			$_, $file);
+	    }
+	}
+    }
+
+    # Close the file.
+    close FILE;
+}
+
+# Get the time from a line, as a floating-point number of seconds from the Unix
+# epoch.
+sub time {
+    my($line) = @_;
+
+    return str2time(substr($line, $time_offset, $time_length), 'UTC');
+}
+
+# Report a problem.
+sub report {
+    my($message, $line_no, $line, $file_name) = @_;
+
+    $message .= " at line $line_no";
+    $message .= " of file $file_name" if defined($file_name);
+    print "$message:\n\t$line";
+}
