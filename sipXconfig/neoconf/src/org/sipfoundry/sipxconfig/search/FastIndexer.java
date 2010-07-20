@@ -12,6 +12,8 @@ package org.sipfoundry.sipxconfig.search;
 import java.io.IOException;
 import java.io.Serializable;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.index.IndexWriter;
@@ -19,6 +21,7 @@ import org.apache.lucene.index.Term;
 import org.hibernate.type.Type;
 
 public class FastIndexer implements Indexer {
+    private static final Log LOG = LogFactory.getLog(FastIndexer.class);
     private IndexSource m_indexSource;
 
     private BeanAdaptor m_beanAdaptor;
@@ -48,7 +51,7 @@ public class FastIndexer implements Indexer {
             writer = m_indexSource.getWriter(false);
             writer.addDocument(document);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOG.error(e);
         } finally {
             LuceneUtils.closeQuietly(writer);
         }
@@ -61,7 +64,7 @@ public class FastIndexer implements Indexer {
             Term idTerm = m_beanAdaptor.getIdentityTerm(bean, id);
             reader.deleteDocuments(idTerm);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            LOG.error(e);
         } finally {
             LuceneUtils.closeQuietly(reader);
         }
