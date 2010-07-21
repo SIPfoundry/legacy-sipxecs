@@ -297,7 +297,8 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
         String contact = null;
         String identity = null;
         for (String alias : aliasesSet) {
-            identity = getIdentityUri(alias);
+            //simple alias@bcm2072.com type of identity
+            identity = AliasMapping.createUri(alias, m_coreContext.getDomainName());
             contact = getContactUri();
             // direct mapping is for testing only
             // contact = getDirectContactUri();
