@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
@@ -92,11 +93,16 @@ public class Attendant {
      * Don't forget the schedules and the organization preferences!
      * 
      */
-    void loadConfig() {
-        // Load the resources for the given locale.
-        m_loc = new Localization(RESOURCE_NAME, 
-                m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
-        
+    void loadConfig() {            
+        try {
+            m_loc = new Localization("AutoAttendant", 
+                    m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
+        } catch (MissingResourceException e) {
+            // Use the built in one as a last resort
+            m_loc = new Localization(RESOURCE_NAME, 
+                    m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
+        }
+                
         // Load the attendant configuration
         m_attendantConfig = Configuration.update(true);
 
