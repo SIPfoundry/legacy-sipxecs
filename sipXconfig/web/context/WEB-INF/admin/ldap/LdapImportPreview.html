@@ -35,6 +35,184 @@
         <tr jwcid="imIdPanel" for="user:imId">
           <input jwcid="imId" id="user:imId" type="text" />
         </tr>
+        <tr jwcid="@common/FieldPanel"
+		  for="jobTitle"
+          field="component:jobTitle"
+          label="message:label.jobTitle">
+          <td jwcid="jobTitle@TextField"
+            value="ognl:user.addressBookEntry.jobTitle"
+            displayName="message:label.jobTitle" disabled="true"/>
+        </tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="jobDept"
+          field="component:jobDept"
+          label="message:label.jobDept">
+          <td jwcid="jobDept@TextField"
+            value="ognl:user.addressBookEntry.jobDept"
+            displayName="message:label.jobDept" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="companyName"
+          field="component:companyName"
+          label="message:label.companyName">
+          <td jwcid="companyName@TextField"
+            value="ognl:user.addressBookEntry.companyName"
+            displayName="message:label.companyName" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="assistantName"
+          field="component:assistantName"
+          label="message:label.assistantName">
+          <td jwcid="assistantName@TextField"
+            value="ognl:user.addressBookEntry.assistantName"
+            displayName="message:label.assistantName" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="cellPhoneNumber"
+          field="component:cellPhoneNumber"
+          label="message:label.cellPhoneNumber">
+          <td jwcid="cellPhoneNumber@TextField"
+            value="ognl:user.addressBookEntry.cellPhoneNumber"
+            displayName="message:label.cellPhoneNumber" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="homePhoneNumber"
+          field="component:homePhoneNumber"
+          label="message:label.homePhoneNumber">
+          <td jwcid="homePhoneNumber@TextField"
+            value="ognl:user.addressBookEntry.homePhoneNumber"
+            displayName="message:label.homePhoneNumber" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="assistantPhoneNumber"
+          field="component:assistantPhoneNumber"
+          label="message:label.assistantPhoneNumber">
+          <td jwcid="assistantPhoneNumber@TextField"
+            value="ognl:user.addressBookEntry.assistantPhoneNumber"
+            displayName="message:label.assistantPhoneNumber" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="faxNumber"
+          field="component:faxNumber"
+          label="message:label.faxNumber">
+          <td jwcid="faxNumber@TextField"
+            value="ognl:user.addressBookEntry.faxNumber"
+            displayName="message:label.faxNumber" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="alternateEmailAddress"
+          field="component:alternateEmailAddress"
+          label="message:label.alternateEmailAddress">
+          <td jwcid="alternateEmailAddress@TextField"
+            value="ognl:user.addressBookEntry.alternateEmailAddress"
+            displayName="message:label.alternateEmailAddress" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="alternateImId"
+          field="component:alternateImId"
+          label="message:label.alternateImId">
+			<td jwcid="alternateImId@TextField"
+            value="ognl:user.addressBookEntry.alternateImId"
+            displayName="message:label.alternateImId" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="location"
+          field="component:location"
+          label="message:label.location">
+          <td jwcid="location@TextField"
+            value="ognl:user.addressBookEntry.location"
+            displayName="message:label.location" disabled="true"/>
+		</tr>
+		<tr>
+		  <td>
+			<b><span jwcid="@Insert" value="message:label.homeAddressTitle"/>
+		  </td>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="homeStreet"
+          field="component:homeStreet"
+          label="message:label.street">
+          <td jwcid="homeStreet@TextField"
+            value="ognl:user.addressBookEntry.homeAddress.street"
+            displayName="message:label.street" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="homeCity"
+          field="component:homeCity"
+          label="message:label.city">
+          <td jwcid="homeCity@TextField"
+            value="ognl:user.addressBookEntry.homeAddress.city"
+            displayName="message:label.city" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="homeState"
+          field="component:homeState"
+          label="message:label.state">
+          <td jwcid="homeState@TextField"
+            value="ognl:user.addressBookEntry.homeAddress.state"
+            displayName="message:label.state" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="homeCountry"
+          field="component:homeCountry"
+          label="message:label.country">
+          <td jwcid="homeCountry@TextField"
+            value="ognl:user.addressBookEntry.homeAddress.country"
+            displayName="message:label.country" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="homeZip"
+          field="component:homeZip"
+          label="message:label.zip">
+          <td jwcid="homeZip@TextField"
+            value="ognl:user.addressBookEntry.homeAddress.zip"
+            displayName="message:label.zip" disabled="true"/>
+		</tr>
+		<tr>
+		  <td>
+			<b><span jwcid="@Insert" value="message:label.officeAddressTitle"/>
+		  </td>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="officeStreet"
+          field="component:officeStreet"
+          label="message:label.street">
+          <td jwcid="officeStreet@TextField"
+            value="ognl:user.addressBookEntry.officeAddress.street"
+            displayName="message:label.street" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="officeCity"
+          field="component:officeCity"
+          label="message:label.city">
+          <td jwcid="officeCity@TextField"
+            value="ognl:user.addressBookEntry.officeAddress.city"
+            displayName="message:label.city" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for=officeState
+          field="component:officeState"
+          label="message:label.state">
+          <td jwcid="officeState@TextField"
+            value="ognl:user.addressBookEntry.officeAddress.state"
+            displayName="message:label.state" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="officeCountry"
+          field="component:officeCountry"
+          label="message:label.country">
+          <td jwcid="officeCountry@TextField"
+            value="ognl:user.addressBookEntry.officeAddress.country"
+            displayName="message:label.country" disabled="true"/>
+		</tr>
+		<tr jwcid="@common/FieldPanel"
+		  for="officeZip"
+          field="component:officeZip"
+          label="message:label.zip">
+          <td jwcid="officeZip@TextField"
+            value="ognl:user.addressBookEntry.officeAddress.zip"
+            displayName="message:label.zip" disabled="true"/>
+		</tr>
       </table>
     </fieldset>
     <ul class="form-actions">

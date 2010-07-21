@@ -31,6 +31,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.UserPreview;
 import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.phonebook.Address;
+import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.springframework.ldap.NameClassPairMapper;
 
 public class UserMapper implements NameClassPairMapper {
@@ -44,6 +46,17 @@ public class UserMapper implements NameClassPairMapper {
         SearchResult searchResult = (SearchResult) nameClass;
         Attributes attrs = searchResult.getAttributes();
         User user = new User();
+        AddressBookEntry abe = user.getAddressBookEntry();
+        if (abe == null) {
+            abe = new AddressBookEntry();
+        }
+        if (abe.getHomeAddress() == null) {
+            abe.setHomeAddress(new Address());
+        }
+        if (abe.getOfficeAddress() == null) {
+            abe.setOfficeAddress(new Address());
+        }
+        user.setAddressBookEntry(abe);
         List<String> groupNames = new ArrayList<String>(getGroupNames(searchResult));
 
         setUserProperties(user, attrs);
