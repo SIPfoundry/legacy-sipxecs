@@ -1,24 +1,19 @@
 <div jwcid="@common/Border" useDojo="ognl:true" borderTitle="ognl:borderTitle">
-  <div jwcid="@common/QuickLinks">
-  <ul>
-    <li><a jwcid="@PageLink" page="admin/JobStatusPage" href="#"><span key="job.status">Job Status</span></a></li>
-    <li><a jwcid="@PageLink" page="admin/ldap/LdapServer" href="#"><span key="ldap.server">LDAP Server</span></a></li>
-  </ul>
-  </div>
-  <div jwcid="@common/QuickHelp" value="message:quick.help"></div>
   <span jwcid="@common/TabNavigation"
     tabNames="ognl:availableTabNames"
-    selectedTab="ognl:tab"/>    
+    selectedTab="ognl:tab"
+    renderCondition="ognl:ldapManager.verifyLdapConnection" />
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')"/>
   </div>
-
+  <div jwcid="configurationTargetTab@Block">
+     <span jwcid="configurationPanel@admin/ldap/LdapServer" id="ldapConfiguration"/>
+  </div>
   <div jwcid="importTargetTab@Block">
      <span jwcid="importPanel@admin/ldap/LdapImport" id="ldapImport"/>
-  </div>    
- 
+  </div>
   <div jwcid="settingsTargetTab@Block">
      <span jwcid="settingsPanel@admin/ldap/LdapSettings" id="ldapSettings"/>
-  </div>    
+  </div>
 </div>

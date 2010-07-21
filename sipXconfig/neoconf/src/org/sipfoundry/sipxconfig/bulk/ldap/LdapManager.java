@@ -54,6 +54,8 @@ public interface LdapManager {
      */
     void verify(LdapConnectionParams params, AttrMap attrMap);
 
+    boolean verifyLdapConnection();
+
     void saveSystemSettings(LdapSystemSettings settings);
 
     LdapSystemSettings getSystemSettings();

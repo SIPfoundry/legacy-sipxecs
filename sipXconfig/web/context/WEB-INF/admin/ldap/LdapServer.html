@@ -1,6 +1,4 @@
-<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
-  <span jwcid="@common/ErrorMsg" />
-
+<div jwcis="$content$">
   <span jwcid="@If" condition="ognl:stage.equals('connection')">
     <div jwcid="@common/QuickHelp" value="message:quick.helpConnection"></div>
   </span>
@@ -11,7 +9,7 @@
     <div jwcid="@common/QuickHelp" value="message:quick.helpAttrMap"></div>
   </span>
 
-  <form jwcid="form">
+  <form jwcid="configurationForm@Form">
     <div jwcid="connectionBlock@Block">
       <fieldset jwcid="ldapConnectionPanel" />
       <ul class="form-actions">

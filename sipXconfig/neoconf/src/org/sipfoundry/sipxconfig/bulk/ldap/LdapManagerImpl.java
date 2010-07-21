@@ -42,6 +42,8 @@ import static org.springframework.dao.support.DataAccessUtils.singleResult;
  */
 public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapManager, ApplicationContextAware {
     private static final Log LOG = LogFactory.getLog(LdapManagerImpl.class);
+    private static final String NAMING_CONTEXTS = "namingContexts";
+    private static final String SUBSCHEMA_SUBENTRY = "subschemaSubentry";
     private LdapTemplateFactory m_templateFactory;
     private ApplicationContext m_applicationContext;
     private SipxServiceManager m_sipxServiceManager;
@@ -50,7 +52,7 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
     public void verify(LdapConnectionParams params, AttrMap attrMap) {
         try {
             String[] attrNames = new String[] {
-                "namingContexts", "subschemaSubentry"
+                NAMING_CONTEXTS, SUBSCHEMA_SUBENTRY
             };
             Map<String, String> results = retrieveDefaultSearchBase(params, attrNames);
 
@@ -65,6 +67,20 @@ public class LdapManagerImpl extends SipxHibernateDaoSupport implements LdapMana
             verifyException("&readData.failed", e);
         } catch (DataAccessException e) {
             verifyException("&connection.failed", e);
+        }
+    }
+
+    public boolean verifyLdapConnection() {
+        try {
+            String[] attrNames = new String[] {
+                NAMING_CONTEXTS, SUBSCHEMA_SUBENTRY
+            };
+            retrieveDefaultSearchBase(getConnectionParams(), attrNames);
+            return true;
+        } catch (NamingException e) {
+            return false;
+        } catch (DataAccessException e) {
+            return false;
         }
     }
 

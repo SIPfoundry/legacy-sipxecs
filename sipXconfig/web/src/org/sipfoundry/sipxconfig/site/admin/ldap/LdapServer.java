@@ -11,8 +11,10 @@ package org.sipfoundry.sipxconfig.site.admin.ldap;
 
 import java.util.Collection;
 
+import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
+import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
@@ -22,10 +24,10 @@ import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.Schema;
-import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
-public abstract class LdapServer extends SipxBasePage implements PageBeginRenderListener {
+@ComponentClass(allowBody = false, allowInformalParameters = false)
+public abstract class LdapServer extends BaseComponent implements PageBeginRenderListener {
 
     public abstract LdapConnectionParams getConnectionParams();
 

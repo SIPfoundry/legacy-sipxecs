@@ -20,25 +20,31 @@ import java.util.Collection;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class LdapPage extends SipxBasePage {
     public static final String PAGE = "admin/ldap/LdapPage";
-    public static final String IMPORT_TAB = "importTarget";
+    private static final String CONFIGURATION_TAB = "configurationTarget";
+    private static final String IMPORT_TAB = "importTarget";
     private static final String SETTINGS_TAB = "settingsTarget";
+
+    @InjectObject(value = "spring:ldapManager")
+    public abstract LdapManager getLdapManager();
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
     @Persist
-    @InitialValue("literal:" + IMPORT_TAB)
+    @InitialValue("literal:" + CONFIGURATION_TAB)
     public abstract String getTab();
 
     public abstract void setTab(String tab);
 
     public Collection<String> getAvailableTabNames() {
-        return Arrays.asList(IMPORT_TAB, SETTINGS_TAB);
+        return Arrays.asList(CONFIGURATION_TAB, IMPORT_TAB, SETTINGS_TAB);
     }
 }
