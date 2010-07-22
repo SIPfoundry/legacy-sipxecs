@@ -30,6 +30,7 @@
   <!-- connection params stage -->
   <component id="ldapConnectionPanel" type="admin/ldap/LdapConnectionPanel">
     <binding name="lcp" value="connectionParams" />
+    <binding name="settings" value="settings"/>
   </component>
 
   <component id="applyConnectionParams" type="Submit">

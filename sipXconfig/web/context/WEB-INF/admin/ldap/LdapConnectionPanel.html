@@ -1,5 +1,10 @@
 <fieldset>
   <table>
+   <tr jwcid="configuredPanel@common/FieldPanel" for="ldap:configured"
+        	field="ognl:components.configured" label="message:label.configured"
+        	description="message:description.configured">
+      <input jwcid="configured@Checkbox" id="ldap:configured" value="ognl:settings.configured"/>  
+    </tr>  
     <tr jwcid="hostPanel">
       <input jwcid="host" />
     </tr>

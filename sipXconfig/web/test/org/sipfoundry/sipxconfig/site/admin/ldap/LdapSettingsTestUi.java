@@ -40,12 +40,16 @@ public class LdapSettingsTestUi extends WebTestCase {
         clickLink("menu.ldap");
         clickLink("link:settingsTarget");
         assertElementPresent("ldap:authenticationOptions");
+        assertElementPresent("ldap:configured");
         //test default value
         IElement element = getElementById("ldap:authenticationOptions");
         assertEquals("noLDAP", element.getTextContent());
-        //test change LDAP option
+        assertCheckboxSelected("ldap:configured");
+        //test change LDAP option / unconfigured
+        uncheckCheckbox("ldap:configured");
         element.setAttribute("ldap:authenticationOptions", "pinLDAP");
         clickButton("ldap:settings:apply");
+        assertCheckboxNotSelected("ldap:configured");
         assertEquals("pinLDAP", element.getTextContent());
     }
 }

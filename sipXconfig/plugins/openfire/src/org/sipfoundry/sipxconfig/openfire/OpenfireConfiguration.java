@@ -19,6 +19,7 @@ import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -53,7 +54,8 @@ public class OpenfireConfiguration extends TemplateConfigurationFile {
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
-        boolean isEnableOpenfireConfiguration = m_ldapManager.getSystemSettings().isEnableOpenfireConfiguration();
+        LdapSystemSettings settings = m_ldapManager.getSystemSettings();
+        boolean isEnableOpenfireConfiguration = settings.isEnableOpenfireConfiguration() && settings.isConfigured();
         context.put("isEnableOpenfireConfiguration", isEnableOpenfireConfiguration);
         if (!isEnableOpenfireConfiguration) {
             context.put("adminProvider", PROVIDER_ADMIN_CLASSNAME);
