@@ -740,8 +740,16 @@ public class BackToBackUserAgent implements Comparable {
             toHeader.removeParameter("tag");
             
 
-            FromHeader fromHeader = (FromHeader) dialogContext.getRequest().getHeader(FromHeader.NAME).clone();
-            fromHeader.removeParameter("tag");
+            FromHeader fromHeader ;
+            
+            if ( dialogContext.getDialogCreatingTransaction() instanceof ClientTransaction ) {
+                fromHeader = (FromHeader) dialogContext.getRequest().getHeader(FromHeader.NAME).clone();
+                fromHeader.removeParameter("tag");
+            } else {
+                SipURI requestURI = (SipURI) dialogContext.getRequest().getRequestURI();
+                Address fromAddress = ProtocolObjects.addressFactory.createAddress(requestURI);
+                fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,null);
+            }
 
 
             /*
