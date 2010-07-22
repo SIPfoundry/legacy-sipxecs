@@ -319,7 +319,7 @@ public class RestInterface {
             xbuilder.append("<WORK/>");
             xbuilder.append("<VOICE/>");
             xbuilder.append("<NUMBER>");
-            xbuilder.append(userName + "(Work)");
+            xbuilder.append(userName);
             xbuilder.append("</NUMBER>");
             xbuilder.append("</TEL>");
 
@@ -327,7 +327,7 @@ public class RestInterface {
             xbuilder.append("<WORK/>");
             xbuilder.append("<FAX/>");
             xbuilder.append("<NUMBER>");
-            xbuilder.append(getNodeText(rootElement, "faxNumber") + "(FAX)");
+            xbuilder.append(getNodeText(rootElement, "faxNumber"));
             xbuilder.append("</NUMBER>");
             xbuilder.append("</TEL>");
 
@@ -362,7 +362,7 @@ public class RestInterface {
             xbuilder.append("<HOME/>");
             xbuilder.append("<VOICE/>");
             xbuilder.append("<NUMBER>");
-            xbuilder.append(getNodeText(rootElement, "homePhoneNumber") + "(Home)");
+            xbuilder.append(getNodeText(rootElement, "homePhoneNumber"));
             xbuilder.append("</NUMBER>");
             xbuilder.append("</TEL>");
 
@@ -376,7 +376,7 @@ public class RestInterface {
             xbuilder.append("<CELL/>");
             xbuilder.append("<VOICE/>");
             xbuilder.append("<NUMBER>");
-            xbuilder.append(getNodeText(rootElement, "cellPhoneNumber") + "(Mobile)");
+            xbuilder.append(getNodeText(rootElement, "cellPhoneNumber"));
             xbuilder.append("</NUMBER>");
             xbuilder.append("</TEL>");
 

@@ -69,6 +69,7 @@ public class DirectoryConfiguration extends ProfileContext {
      */
     public static class CounterpathPhonebookEntry {
 
+        private static final String ATSIGN = "@";
         private PhonebookEntry m_entry;
         private AddressBookEntry m_subEntry;
         private String m_domainName;
@@ -80,7 +81,7 @@ public class DirectoryConfiguration extends ProfileContext {
         }
 
         public String getUri() {
-            return "sip:" + escapeXml(m_entry.getNumber()) + "@" + m_domainName;
+            return "sip:" + escapeXml(m_entry.getNumber()) + ATSIGN + m_domainName;
         }
 
         public String getGivenName() {
@@ -97,7 +98,11 @@ public class DirectoryConfiguration extends ProfileContext {
 
         public String getXmppAddress() {
             if (m_subEntry != null) {
-                return m_subEntry.getImId() == null ? EMPTY_STRING : escapeXml(m_subEntry.getImId());
+                if (m_subEntry.getImId() == null || m_subEntry.getImId().isEmpty()) {
+                    return EMPTY_STRING;
+                } else {
+                    return (escapeXml(m_subEntry.getImId()) + ATSIGN + m_domainName);
+                }
             }
 
             return EMPTY_STRING;
