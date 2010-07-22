@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.acd.AcdAgent;
 import org.sipfoundry.sipxconfig.acd.AcdLine;
 import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.dialplan.AttendantRule;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendant;
@@ -44,6 +45,7 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.site.acd.EditAcdAgent;
 import org.sipfoundry.sipxconfig.site.acd.EditAcdLine;
 import org.sipfoundry.sipxconfig.site.acd.EditAcdQueue;
+import org.sipfoundry.sipxconfig.site.admin.EditAuthCode;
 import org.sipfoundry.sipxconfig.site.admin.EditCallGroup;
 import org.sipfoundry.sipxconfig.site.admin.EditParkOrbit;
 import org.sipfoundry.sipxconfig.site.branch.EditBranch;
@@ -115,6 +117,8 @@ public class EnumEditPageProvider implements EditPageProvider {
             EditAcdAgent.PAGE, "acdAgentId"
         }, Branch.class, new String[] {
             EditBranch.PAGE, "branchId"
+        }, AuthCode.class, new String[] {
+            EditAuthCode.PAGE, "authCodeId"
         }
     };
 
