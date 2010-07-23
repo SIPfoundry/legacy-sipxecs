@@ -26,6 +26,11 @@ import org.acegisecurity.providers.encoding.PasswordEncoder;
 import org.acegisecurity.providers.encoding.PlaintextPasswordEncoder;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
+import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.common.AbstractUser;
+import org.springframework.beans.factory.annotation.Required;
 import org.springframework.dao.DataAccessException;
 import org.springframework.util.Assert;
 
@@ -46,6 +51,8 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     // ~ Instance fields
     // ================================================================================================
 
+    private LdapManager m_ldapManager;
+
     private PasswordEncoder passwordEncoder = new PlaintextPasswordEncoder();
 
     private SaltSource saltSource;
@@ -57,6 +64,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
     // ~ Methods
     // ========================================================================================================
 
+    @Override
     protected void additionalAuthenticationChecks(UserDetails userDetails,
             UsernamePasswordAuthenticationToken authentication) throws AuthenticationException {
         Object salt = null;
@@ -89,6 +97,7 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         }
     }
 
+    @Override
     protected void doAfterPropertiesSet() throws Exception {
         Assert.notNull(this.userDetailsService, "A UserDetailsService must be set");
     }
@@ -105,9 +114,16 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
         return userDetailsService;
     }
 
+    @Override
     protected final UserDetails retrieveUser(String username, UsernamePasswordAuthenticationToken authentication)
             throws AuthenticationException {
         UserDetails loadedUser;
+
+        LdapSystemSettings settings = m_ldapManager.getSystemSettings();
+        if (settings.isLdapOnly() && ! StringUtils.equals(username, AbstractUser.SUPERADMIN)) {
+            throw new AuthenticationServiceException(
+                "Only LDAP authentication is permitted");
+        }
 
         try {
             loadedUser = this.getUserDetailsService().loadUserByUsername(username);
@@ -157,5 +173,10 @@ public class DaoAuthenticationProvider extends AbstractUserDetailsAuthentication
 
     public void setIncludeDetailsObject(boolean includeDetailsObject) {
         this.includeDetailsObject = includeDetailsObject;
+    }
+
+    @Required
+    public void setLdapManager(LdapManager ldapManager) {
+        m_ldapManager = ldapManager;
     }
 }

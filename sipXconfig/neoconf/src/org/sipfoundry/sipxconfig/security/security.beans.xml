@@ -29,10 +29,10 @@
     <property name="providers">
       <list>
         <ref local="testAuthenticationProvider" />
+        <ref local="ldapAuthProvider" />
         <ref local="userAuthenticationProvider" />
         <ref local="sharedSecretUserAuthenticationProvider" />
         <ref local="locationAuthenticationProvider" />
-        <ref local="ldapAuthProvider" />
       </list>
     </property>
   </bean>
@@ -44,6 +44,7 @@
     <property name="saltSource">
       <bean class="org.sipfoundry.sipxconfig.security.SaltSourceImpl" />
     </property>
+    <property name="ldapManager" ref="ldapManager"/>
   </bean>
 
   <bean id="sharedSecretUserAuthenticationProvider" class="org.acegisecurity.providers.dao.DaoAuthenticationProvider">

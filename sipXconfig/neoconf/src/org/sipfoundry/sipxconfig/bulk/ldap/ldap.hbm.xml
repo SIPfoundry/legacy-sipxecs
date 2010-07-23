@@ -7,7 +7,7 @@
     <id name="id" column="ldap_settings_id" type="int" unsaved-value="-1">
       <generator class="native" />
     </id>
-    <property name="enableWebAuthentication" />
+    <property name="authenticationOptions" column="authentication_options" type="org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings$UserType" />
     <property name="enableOpenfireConfiguration" />
   </class>
 

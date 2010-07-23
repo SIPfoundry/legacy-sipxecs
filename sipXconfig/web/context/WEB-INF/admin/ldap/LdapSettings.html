@@ -3,25 +3,27 @@
     <fieldset>
       <table>
         <tbody>
-          
+
           <tr jwcid="enableOpenfireConfigurationPanel@common/FieldPanel" for="domain:enableOpenfireConfiguration"
             field="ognl:components.enableOpenfireConfiguration" label="message:label.enableOpenfireConfiguration"
             description="message:description.enableOpenfireConfiguration">
-            
-            <input jwcid="enableOpenfireConfiguration@Checkbox" id="domain:enableOpenfireConfiguration"
-              value="ognl:settings.enableOpenfireConfiguration"/>              
-          </tr>
-          
-          <tr jwcid="enableWebAuthenticationPanel@common/FieldPanel" for="domain:enableWebAuthentication"
-            field="ognl:components.enableWebAuthentication" label="message:label.enableWebAuthentication"
-            description="message:description.enableWebAuthentication">
-            
-            <input jwcid="enableWebAuthentication@Checkbox" id="domain:enableWebAuthentication"
-              value="ognl:settings.enableWebAuthentication"/>              
-          </tr>
 
+            <input jwcid="enableOpenfireConfiguration@Checkbox" id="domain:enableOpenfireConfiguration"
+              value="ognl:settings.enableOpenfireConfiguration"/>
+          </tr>
+		  <tr>
+            <label jwcid="@common/FieldPanel" for="ldap:authenticationOptions"
+             field="component:authenticationOptions"
+             label="message:label.authenticationOptions"
+             description="message:description.authenticationOptions">
+             <select jwcid="authenticationOptions@PropertySelection"
+                id="ldap:authenticationOptions"
+                value="ognl:settings.authenticationOptions"
+                model="ognl:authenticationModel" />
+             </label>
+          </tr>
         </tbody>
-      </table>    
+      </table>
     </fieldset>
     <ul class="form-actions">
       <li><input jwcid="apply@Submit" id="ldap:settings:apply" listener="listener:ok" value="message:button.apply"/></li>

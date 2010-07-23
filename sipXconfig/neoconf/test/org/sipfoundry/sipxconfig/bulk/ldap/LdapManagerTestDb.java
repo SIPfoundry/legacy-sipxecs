@@ -16,12 +16,14 @@ import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.TestHelper.TestCaseDb;
 import org.sipfoundry.sipxconfig.admin.CronSchedule;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings.AuthenticationOptions;
 import org.springframework.context.ApplicationContext;
 
 public class LdapManagerTestDb extends TestCaseDb {
 
     private LdapManager m_context;
 
+    @Override
     protected void setUp() throws Exception {
         ApplicationContext appContext = TestHelper.getApplicationContext();
         m_context = (LdapManager) appContext.getBean(LdapManager.CONTEXT_BEAN_NAME);
@@ -29,17 +31,31 @@ public class LdapManagerTestDb extends TestCaseDb {
     }
 
     public void testLdapSystemSettings() throws Exception {
-        LdapSystemSettings settings = m_context.getSystemSettings();    	
+        LdapSystemSettings settings = m_context.getSystemSettings();
         assertNotNull(settings);
         ITable before = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
         assertEquals(0, before.getRowCount());
-        settings.setEnableWebAuthentication(true);
+        settings.setAuthenticationOptions(AuthenticationOptions.LDAP);
         settings.setEnableOpenfireConfiguration(true);
         m_context.saveSystemSettings(settings);
         ITable after = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
-        assertEquals(1, after.getRowCount());     
-        assertTrue((Boolean)after.getValue(0, "enable_web_authentication"));        
-        assertTrue((Boolean)after.getValue(0, "enable_openfire_configuration"));        
+        assertEquals(1, after.getRowCount());
+        assertEquals("LDAP", after.getValue(0, "authentication_options"));
+        assertTrue((Boolean)after.getValue(0, "enable_openfire_configuration"));
+        //test noLDAP
+        settings.setAuthenticationOptions(AuthenticationOptions.NO_LDAP);
+        settings.setEnableOpenfireConfiguration(true);
+        m_context.saveSystemSettings(settings);
+        after = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
+        assertEquals(1, after.getRowCount());
+        assertEquals("noLDAP", after.getValue(0, "authentication_options"));
+        //test pinLDAP
+        settings.setAuthenticationOptions(AuthenticationOptions.PIN_LDAP);
+        settings.setEnableOpenfireConfiguration(true);
+        m_context.saveSystemSettings(settings);
+        after = TestHelper.getConnection().createDataSet().getTable("ldap_settings");
+        assertEquals(1, after.getRowCount());
+        assertEquals("pinLDAP", after.getValue(0, "authentication_options"));
     }
 
     public void testGetConnectionParams() throws Exception {
@@ -98,7 +114,7 @@ public class LdapManagerTestDb extends TestCaseDb {
         assertTrue(selectedObjectClasses.contains("abc"));
         assertTrue(selectedObjectClasses.contains("def"));
     }
-    
+
     public void testSetAttrMap() throws Exception {
         AttrMap attrMap = m_context.getAttrMap();
         attrMap.setFilter("ou=marketing");

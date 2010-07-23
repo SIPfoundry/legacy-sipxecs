@@ -97,7 +97,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
     }
 
     private boolean isEnabled() {
-        return m_provider != null && m_settings.isEnableWebAuthentication();
+        return m_provider != null && m_settings.isLdapEnabled();
     }
 
     private void initialize() {
@@ -162,6 +162,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
             super(authenticator);
         }
 
+        @Override
         protected UserDetails createUserDetails(LdapUserDetails ldapUser, String username, String password) {
             UserDetails loadedUser;
             try {
@@ -177,6 +178,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
             return loadedUser;
         }
 
+        @Override
         protected void additionalAuthenticationChecks(UserDetails userDetails,
                                         UsernamePasswordAuthenticationToken authentication) {
             // passwords are checked in ldap layer

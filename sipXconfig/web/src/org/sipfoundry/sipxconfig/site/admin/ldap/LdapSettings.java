@@ -20,8 +20,11 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
+import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
+import org.sipfoundry.sipxconfig.components.LocalizedOptionModelDecorator;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class LdapSettings extends BaseComponent implements PageBeginRenderListener {
@@ -33,8 +36,15 @@ public abstract class LdapSettings extends BaseComponent implements PageBeginRen
 
     public abstract void setSettings(LdapSystemSettings settings);
 
+    public abstract IPropertySelectionModel getAuthenticationModel();
+
+    public abstract void setAuthenticationModel(IPropertySelectionModel model);
+
     public void pageBeginRender(PageEvent event_) {
         setSettings(getLdapManager().getSystemSettings());
+        if (getAuthenticationModel() == null) {
+            setAuthenticationModel(createAuthenticationModel());
+        }
     }
 
     public void ok() {
@@ -43,5 +53,11 @@ public abstract class LdapSettings extends BaseComponent implements PageBeginRen
 
         // write openfire.xml file /  mark sipxopenfire service for restart
         ldapManager.replicateOpenfireConfig();
+    }
+
+    private IPropertySelectionModel createAuthenticationModel() {
+        EnumPropertySelectionModel rawModel = new EnumPropertySelectionModel();
+        rawModel.setEnumClass(LdapSystemSettings.AuthenticationOptions.class);
+        return new LocalizedOptionModelDecorator(rawModel, getMessages(), "authentication.");
     }
 }

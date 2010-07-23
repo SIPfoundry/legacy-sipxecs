@@ -15,13 +15,16 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
+import org.sipfoundry.sipxconfig.common.EnumUserType;
 
 /**
  * System wide settings for ldap support within sipXecs
  */
 public class LdapSystemSettings extends BeanWithId {
-    private boolean m_enableWebAuthentication;
+    private AuthenticationOptions m_authenticationOptions = AuthenticationOptions.NO_LDAP;
     private boolean m_enableOpenfire;
 
     public boolean isEnableOpenfireConfiguration() {
@@ -32,11 +35,46 @@ public class LdapSystemSettings extends BeanWithId {
         m_enableOpenfire = enableOpenfire;
     }
 
-    public boolean isEnableWebAuthentication() {
-        return m_enableWebAuthentication;
+    public AuthenticationOptions getAuthenticationOptions() {
+        return m_authenticationOptions;
     }
 
-    public void setEnableWebAuthentication(boolean useForWebAuthentication) {
-        m_enableWebAuthentication = useForWebAuthentication;
+    public boolean isLdapEnabled() {
+        return isLdapOnly() || ObjectUtils.equals(m_authenticationOptions, AuthenticationOptions.PIN_LDAP);
+    }
+
+    public boolean isLdapOnly() {
+        return ObjectUtils.equals(m_authenticationOptions, AuthenticationOptions.LDAP);
+    }
+
+    public void setAuthenticationOptions(AuthenticationOptions authenticationOptions) {
+        m_authenticationOptions = authenticationOptions;
+    }
+
+
+    /**
+     * Authentication options enumeration
+     */
+    public static final class AuthenticationOptions extends Enum {
+        public static final AuthenticationOptions NO_LDAP = new AuthenticationOptions("noLDAP");
+        public static final AuthenticationOptions LDAP = new AuthenticationOptions("LDAP");
+        public static final AuthenticationOptions PIN_LDAP = new AuthenticationOptions("pinLDAP");
+
+        public AuthenticationOptions(String name) {
+            super(name);
+        }
+
+        public static AuthenticationOptions getEnum(String type) {
+            return (AuthenticationOptions) getEnum(AuthenticationOptions.class, type);
+        }
+    }
+
+    /**
+     * Used for Hibernate type translation
+     */
+    public static class UserType extends EnumUserType {
+        public UserType() {
+            super(AuthenticationOptions.class);
+        }
     }
 }
