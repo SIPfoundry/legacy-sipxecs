@@ -34,6 +34,11 @@
       </option>
     </enum>
   </type>
+    <type id="validPhone">
+        <string>
+            <pattern>^([\d*]+|([&SIP_USER_CHARS;]|&SIP_USER_ESCAPED;))$</pattern>
+        </string>
+    </type>
   <group name="permission">
     <group name="application">
       <setting name="superadmin">
@@ -168,9 +173,7 @@
   <group name="voicemail">
     <group name="fax">
       <setting name="extension">
-        <type>
-          <integer />
-        </type>
+      <type refid="validPhone" />
       </setting>
     </group>
     <group name="mailbox" hidden="yes">

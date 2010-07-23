@@ -148,8 +148,8 @@ public class UserTest extends TestCase {
     public void testGetAliases() {
         User user = new User() {
             @Override
-            public Integer getFaxExtension() {
-                return new Integer(321);
+            public String getFaxExtension() {
+                return new String("321");
             }
         };
         user.setUserName("username");
@@ -205,8 +205,8 @@ public class UserTest extends TestCase {
     public void testGetEmptyAliases() {
         User user = new User() {
             @Override
-            public Integer getFaxExtension() {
-                return null;
+            public String getFaxExtension() {
+                return "";
             }
         };
         user.setUserName("username");
