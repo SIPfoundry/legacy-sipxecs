@@ -162,11 +162,6 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
         }
     }
 
-//    public String getUserFaxExtension() {
-//        String faxExtension = getUser().getFaxExtension();
-//        return null == faxExtension ? "" : faxExtension;
-//    }
-
     private void initAvailableTabs() {
         List<String> tabNames = new ArrayList<String>();
         tabNames.add("extendedInfo");
