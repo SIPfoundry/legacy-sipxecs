@@ -89,6 +89,9 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
 
     @Override
     public boolean supports(Class authentication) {
+        if (!m_ldapManager.verifyLdapConnection()) {
+            return false;
+        }
         initialize();
         return (isEnabled() ? m_provider.supports(authentication) : false);
     }
