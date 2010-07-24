@@ -1,0 +1,2 @@
+setBadness('suse-filelist-empty', 0)
+setBadness('suse-filelist-forbidden', 0)

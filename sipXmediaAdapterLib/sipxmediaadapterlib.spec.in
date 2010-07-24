@@ -19,7 +19,11 @@ BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxtacklib-devel  >= %version
 BuildRequires: sipxportlib-devel  >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
@@ -65,6 +69,8 @@ subsystem.
 
 %prep
 %setup -q
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 %configure @CONFIGURE_OPTIONS@
@@ -101,4 +107,5 @@ rm -rf $RPM_BUILD_ROOT
 
 # %attr(755,root,root) %{_libdir}/debug/usr/lib/libsipXmediaProcessing.so*
 %{_libdir}/libsipXmediaProcessing.a
+%dir %attr(755,root,root) %{_includedir}/mi
 %{_includedir}/mi/*.h

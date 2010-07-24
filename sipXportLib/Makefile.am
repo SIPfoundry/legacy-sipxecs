@@ -11,6 +11,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     BUILDSTAMP \
     SVN-VERSION \
+    @PACKAGE@-rpmlintrc \
     sipxportlib.spec
 
 RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)

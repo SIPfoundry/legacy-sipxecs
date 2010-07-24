@@ -6,7 +6,6 @@ Summary:  This project provides an RFC 3261, 3263 complient SIP stack
 License: Pingtel Commercial License
 Group: Development/Libraries
 Vendor: Pingtel Corp.
-Packager: Pingtel <support@pingtel.com>
 Url: http://www.pingtel.com
 
 BuildRequires: automake
@@ -16,11 +15,15 @@ BuildRequires: doxygen
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
-
+%endif
 Requires: sipxportlib >= %version
 
 Source: %name-%version.tar.gz
+Source100: %name-rpmlintrc
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -61,6 +64,8 @@ helpful to build projects from the sipX library
 
 %prep
 %setup -q
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 %configure @CONFIGURE_OPTIONS@
@@ -85,6 +90,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
 %docdir doc/license
+%dir %attr(755,root,root) %{_datadir}/sipxecs
+%dir %attr(755,root,root) %{_datadir}/sipxecs/schema
 %attr(755,root,root) %{_bindir}/dialogdisplay
 %attr(755,root,root) %{_bindir}/dialogwatch
 %attr(755,root,root) %{_bindir}/siptest
@@ -92,7 +99,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_libdir}/libsipXtack.la
 %attr(755,root,root) %{_libdir}/libsipXtack.so*
-%attr(755,root,root) %{_datadir}/sipxecs/schema/sip_types.xsd
+%attr(644,root,root) %{_datadir}/sipxecs/schema/sip_types.xsd
 
 %files devel
 %defattr(644,root,root,755)
@@ -100,8 +107,14 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/doc/sipxecs/%name
 
 %attr(755,root,root) %{_libdir}/libsipXtack.a
+%dir %attr(755,root,root) %{_includedir}/tapi
+%dir %attr(755,root,root) %{_includedir}/resparse
+%dir %attr(755,root,root) %{_includedir}/siptest
 
 %{_includedir}/net/*
 %{_includedir}/tapi/*
 %{_includedir}/resparse/*
 %{_includedir}/siptest/*
+
+%changelog
+

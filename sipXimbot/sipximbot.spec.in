@@ -1,3 +1,4 @@
+#!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
@@ -19,7 +20,11 @@ BuildRequires: sipxcommserverlib
 BuildRequires: sipxcommons
 BuildRequires: sipxopenfire
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source: %name-%version.tar.gz
 
@@ -64,4 +69,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipximbot.sh
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipximbot-config
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/imbot
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/imbot/sipximbot-prompts.properties

@@ -1,3 +1,4 @@
+#!BuildIgnore: post-build-checks
 Name:     @PACKAGE@
 Version:  @VERSION@
 Release:  %{buildno}
@@ -32,7 +33,12 @@ BuildRequires: httpd-devel >= 2.0.46
 BuildRequires: apache2-devel
 %endif
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
+
 
 Source:   %name-%version.tar.gz
 
@@ -145,7 +151,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxecs-setup
 %attr(755,root,root) %{_bindir}/sipxecs-upgrade
 %attr(755,root,root) %{_bindir}/sipxecs-setup-system
-%attr(755,root,root) %{_bindir}/sipxecs-pgcdraccess
 %attr(755,root,root) %{_bindir}/sipx-sendmail-configure
 %attr(755,root,root) %{_bindir}/sipx-archive-common
 %attr(755,root,root) %{_bindir}/sipxlocalization

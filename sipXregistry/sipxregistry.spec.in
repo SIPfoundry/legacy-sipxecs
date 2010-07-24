@@ -18,7 +18,11 @@ BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
 BuildRequires: sipxtacklib-devel        >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source:   %name-%version.tar.gz
 
@@ -50,6 +54,9 @@ files that define hook interfaces.
 
 %prep
 %setup -q
+chmod 755 *
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 %configure @CONFIGURE_OPTIONS@
@@ -74,6 +81,8 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 
 %doc CONTRIBUTORS %name.configlog
+%dir %{_datadir}/sipxecs
+%dir %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXregistry-process.xml
 %attr(755,root,root) %{_bindir}/sipregistrar.sh
 %attr(755,root,root) %{_bindir}/sipregistrar
@@ -119,22 +128,27 @@ rm -rf $RPM_BUILD_ROOT
 %docdir %{_datadir}/doc/sipxecs
 %{_datadir}/doc/sipxecs
 
-%attr(755,root,root) %{_libdir}/libRedirectorAliasDB.a
-%attr(755,root,root) %{_libdir}/libRedirectorAuthRouter.a
-%attr(755,root,root) %{_libdir}/libRedirectorENUM.a
-%attr(755,root,root) %{_libdir}/libRedirectorISN.a
-%attr(755,root,root) %{_libdir}/libRedirectorJoin.a
-%attr(755,root,root) %{_libdir}/libRedirectorMapping.a
-%attr(755,root,root) %{_libdir}/libRedirectorFallback.a
-%attr(755,root,root) %{_libdir}/libRedirectorPickUp.a
-%attr(755,root,root) %{_libdir}/libRedirectorPresenceRouting.a
-%attr(755,root,root) %{_libdir}/libRedirectorRegDB.a
-%attr(755,root,root) %{_libdir}/libRedirectorSubscribe.a
-%attr(755,root,root) %{_libdir}/libRedirectorUserParam.a
-%attr(755,root,root) %{_libdir}/libRedirectorTest.a
-%attr(755,root,root) %{_libdir}/libRedirectorTimeOfDay.a
+%attr(644,root,root) %{_libdir}/libRedirectorAliasDB.a
+%attr(644,root,root) %{_libdir}/libRedirectorAuthRouter.a
+%attr(644,root,root) %{_libdir}/libRedirectorENUM.a
+%attr(644,root,root) %{_libdir}/libRedirectorISN.a
+%attr(644,root,root) %{_libdir}/libRedirectorJoin.a
+%attr(644,root,root) %{_libdir}/libRedirectorMapping.a
+%attr(644,root,root) %{_libdir}/libRedirectorFallback.a
+%attr(644,root,root) %{_libdir}/libRedirectorPickUp.a
+%attr(644,root,root) %{_libdir}/libRedirectorPresenceRouting.a
+%attr(644,root,root) %{_libdir}/libRedirectorRegDB.a
+%attr(644,root,root) %{_libdir}/libRedirectorSubscribe.a
+%attr(644,root,root) %{_libdir}/libRedirectorUserParam.a
+%attr(644,root,root) %{_libdir}/libRedirectorTest.a
+%attr(644,root,root) %{_libdir}/libRedirectorTimeOfDay.a
+%dir %{_includedir}/registry
 %{_includedir}/registry/*
 
 %pre
 
 %post
+/sbin/ldconfig
+
+%postun
+/sbin/ldconfig

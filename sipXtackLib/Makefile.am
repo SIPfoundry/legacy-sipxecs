@@ -30,6 +30,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     BUILDSTAMP \
     SVN-VERSION \
+    @PACKAGE@-rpmlintrc \
     sipxtacklib.spec
 
 

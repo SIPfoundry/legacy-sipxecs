@@ -1,3 +1,4 @@
+#!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
@@ -33,7 +34,11 @@ BuildRequires: rubygem-rake
 BuildRequires: sipx-jasperreports-deps
 BuildRequires: sipxcommons >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
@@ -62,6 +67,7 @@ Obsoletes: sipx-jasperreports-deps
 
 %if %{_vendor} == suse
 Requires: apache2-prefork
+Requires: pwdutils
 %endif
 
 %if %{?use_ibm_jvm}0
@@ -204,6 +210,8 @@ run on the same machine it's default setup it to point to localhost.
 
 %prep
 %setup -q
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 
@@ -212,7 +220,7 @@ cp config.log %name.configlog
 make
 
 %install
-
+export NO_BRP_CHECK_BYTECODE_VERSION=true
 # makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
 # libdir, bindir, etc just for make install. This not copesetic w/how
 # our makefiles are built, they'd rather preserve libdir, and use

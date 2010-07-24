@@ -1,3 +1,4 @@
+#!BuildIgnore: post-build-checks
 Name:     @PACKAGE@
 Version:  @VERSION@
 Release:  %{buildno}
@@ -28,7 +29,11 @@ BuildRequires: sipxmediaadapterlib-devel >= %version
 BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source:   %name-%version.tar.gz
 
@@ -80,7 +85,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-
+%dir %{_datadir}/sipxecs
+%dir %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpresence-process.xml
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpresence
 

@@ -8,8 +8,11 @@ Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/sipXcommons
-
+%if %{_vendor} == suse
+BuildRequires: java-1_6_0-sun-devel
+%else
 BuildRequires: java-devel >= 1.6
+%endif
 BuildRequires: ant-commons-logging
 BuildRequires: ant-junit
 BuildRequires: ant-nodeps
@@ -22,11 +25,19 @@ BuildRequires: pwdutils
 %endif
 BuildRequires: zip
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source: %name-%version.tar.gz
 
+%if %{_vendor} == suse
+Requires: pwdutils
+%else
 Requires: shadow-utils
+%endif
 
 %if %{?use_ibm_jvm}0
 Requires: java-ibm >= 1.6
@@ -36,7 +47,7 @@ Requires: java >= 1.6
 %endif
 
 %if %{_vendor} == suse
-Requires: openssl >= 0.9.8k
+Requires: openssl >= 0.9.8
 %endif
 
 Prefix: %_prefix
@@ -47,6 +58,8 @@ Common server side Java packages and supporting third-parth JAR's for sipX
 
 %prep
 %setup -q
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 %configure @CONFIGURE_OPTIONS@
@@ -54,6 +67,8 @@ cp config.log %name.configlog
 make all
 
 %install
+
+export NO_BRP_CHECK_BYTECODE_VERSION=true
 
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
@@ -77,7 +92,10 @@ done
 # Red Hat's useradd command adds the group automatically,
 # but SUSE does not.
 # The -f option means to create the group only if it does not already exist.
-/usr/sbin/groupadd -f @SIPXPBXGROUP@
+%if %{_vendor} == suse
+%else
+/usr/sbin/groupadd -f sipxchange
+%endif
 if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
    /usr/sbin/useradd \
        -c "sipX service daemon" \
@@ -91,4 +109,8 @@ fi
 
 %files
 %defattr(644,root,root,755)
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXcommons
+
+%changelog
+

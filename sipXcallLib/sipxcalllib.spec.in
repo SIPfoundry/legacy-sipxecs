@@ -21,7 +21,11 @@ BuildRequires: sipxmediaadapterlib-devel >= %version
 BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source: %name-%version.tar.gz
 
@@ -45,6 +49,10 @@ contains technologies related to call processing:
 
 * tao - A transport layer designed to decouple (and remote) the
   application layer from call processing.
+
+%if %{_vendor} == suse
+%debug_package
+%endif
 
 # Install header files
 %package devel
@@ -75,6 +83,8 @@ helpful to build projects from the sipX library
 
 %prep
 %setup -q
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 %configure @CONFIGURE_OPTIONS@
@@ -108,6 +118,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/doc/sipxecs/%name
 
 %{_libdir}/libsipXcall.a
+
+%dir %attr(755,root,root) %{_includedir}/cp
+%dir %attr(755,root,root) %{_includedir}/ps
+%dir %attr(755,root,root) %{_includedir}/ptapi
+%dir %attr(755,root,root) %{_includedir}/tao
+%dir %attr(755,root,root) %{_includedir}/tapi
+
 %{_includedir}/cp/*
 %{_includedir}/ps/*
 %{_includedir}/ptapi/*

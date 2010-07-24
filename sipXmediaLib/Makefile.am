@@ -10,6 +10,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     SVN-VERSION \
     BUILDSTAMP \
+    @PACKAGE@-rpmlintrc \
     sipxmedialib.spec
 
 RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)

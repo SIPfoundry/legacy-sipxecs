@@ -1,3 +1,4 @@
+#!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
@@ -6,7 +7,6 @@ Summary: Common Code for sipX servers
 License: Pingtel Commercial License
 Group: Development/Libraries
 Vendor: Pingtel Corp.
-Packager: Pingtel <support@pingtel.com>
 Url: http://www.pingtel.com
 
 BuildRequires: automake
@@ -23,13 +23,21 @@ BuildRequires: xerces-c-devel >= 2.6.0
 BuildRequires: shadow-utils
 %endif
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source: %name-%version.tar.gz
 
 Requires: rpm
 %if %{_vendor} == suse
-Requires: Xerces-c >= 2.6.0
+BuildRequires: apache2-devel
+BuildRequires: xerces-c-devel = 2.8.0
+Requires: xerces-c >= 2.6.0
+BuildRequires: pwdutils
+Requires: pwdutils
 %endif
 %if %{_vendor} == redhat
 Requires: xerces-c >= 2.6.0
@@ -79,6 +87,8 @@ helpful to build projects using the sipXcommserverLib library
 
 %prep
 %setup -q
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 %configure @CONFIGURE_OPTIONS@
@@ -198,3 +208,5 @@ fi
 %{_includedir}/alarm/*
 %{_includedir}/sipXecsService/*
 %{_includedir}/testlib/*
+
+%changelog

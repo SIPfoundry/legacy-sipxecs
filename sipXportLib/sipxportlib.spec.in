@@ -34,7 +34,6 @@ Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
 
 Source: %name-%version.tar.gz
-Source100: %name-%version-rpmlintrc
 
 Prefix: %_prefix
 BuildRoot: %{_tmppath}/%name-%version-root
@@ -92,6 +91,8 @@ helpful to build projects from the sipX library
 
 %prep
 %setup -q
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 %configure @CONFIGURE_OPTIONS@

@@ -1,3 +1,4 @@
+#!BuildIgnore: post-build-checks
 Name:     @PACKAGE@
 Version:  @VERSION@
 Release:  %{buildno}
@@ -20,16 +21,24 @@ BuildRequires: sipxcommserverlib-devel >= %version
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source:   %name-%version.tar.gz
 
 %if %{_vendor} == redhat
 Requires: chkconfig
 %endif
-
+%if %{_vendor} == suse
+Requires: net-snmp >= 5.3.1
+BuildRequires: net-snmp-devel >= 5.3.1
+%else
 BuildRequires: net-snmp-devel >= 5.3.1
 Requires: net-snmp-libs >= 5.3.1
+%endif
 Requires: sipxcommserverlib >= %version
 
 # by requiring sipxpbx, that will be upgraded first so it won't object to this overriding files
@@ -96,10 +105,14 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipxsupervisor
 %attr(755,root,root) %{_bindir}/sipxsupervisor.sh
 %attr(755,root,root) %{_bindir}/%name-config
+%dir %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxsupervisor-process.xml
 
+%dir %{_sysconfdir}/sipxpbx/alarms
 %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/alarms/sipXalarms-config.xml
+%dir %{_datadir}/sipxecs/mibs
 %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.mib
+%dir %{_datadir}/sipxecs/alarms
 %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/alarm-strings.xml
 %attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml
 

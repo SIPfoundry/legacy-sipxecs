@@ -9,6 +9,7 @@ EXTRA_DIST = \
 	config/sipX-buildstamp.h.in \
 	config/sipX-config.in \
 	config/svn-version \
+	@PACKAGE@-rpmlintrc \
 	@PACKAGE@.spec
 
 DISTCLEANFILES = \

@@ -9,6 +9,20 @@ Vendor: SIPfoundry
 Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org
 
+BuildRequires: ant-commons-logging
+BuildRequires: ant-junit
+BuildRequires: ant-nodeps
+BuildRequires: automake
+BuildRequires: java-devel >= 1.6
+BuildRequires: zip
+BuildRequires: sipxcommons >= %version
+BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
+BuildRequires: docbook-style-xsl
+%endif
+
 Source: %name-%version.tar.gz
 
 Requires: sipxcommserverlib >= %version
@@ -43,6 +57,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%dir %{_datadir}/sipxecs
+%dir %{_datadir}/sipxecs/process.d
+%dir %{_datadir}/sipxecs/schema
 %attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/java/sipXecs/sipXacccode
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxacccode-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/schema/authcodes.xsd

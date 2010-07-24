@@ -18,7 +18,11 @@ BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source: %name-%version.tar.gz
 
@@ -55,6 +59,8 @@ helpful to build projects from the sipX library
 
 %prep
 %setup -q
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 %configure @CONFIGURE_OPTIONS@
@@ -88,5 +94,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/doc/sipxecs/%name
 
 %{_libdir}/libsipXmedia.a
+%dir %attr(755,root,root) %{_includedir}/mp
+%dir %attr(755,root,root) %{_includedir}/rtcp
 %{_includedir}/mp/*
 %{_includedir}/rtcp/*

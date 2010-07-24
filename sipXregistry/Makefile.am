@@ -24,6 +24,7 @@ EXTRA_DIST = \
     config/sipX-buildstamp.h.in \
     config/svn-version \
     config/Doxyfile.in \
+    @PACKAGE@-rpmlintrc \
     sipxregistry.spec
 
 DISTCLEANFILES = \

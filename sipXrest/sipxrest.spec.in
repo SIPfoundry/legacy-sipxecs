@@ -17,7 +17,12 @@ BuildRequires: java-devel >= 1.6
 BuildRequires: zip
 BuildRequires: sipxcommons >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
+
 
 Source: %name-%version.tar.gz
 
@@ -45,6 +50,8 @@ make all
 
 %install
 
+export NO_BRP_CHECK_BYTECODE_VERSION=true
+
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -53,6 +60,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%dir %{_datadir}/sipxecs
+%dir %{_datadir}/sipxecs/process.d
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXrest
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrest-process.xml
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxrest.sh

@@ -29,7 +29,11 @@ BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
 BuildRequires: sipxtacklib-devel        >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source:   %name-%version.tar.gz
 
@@ -123,52 +127,53 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipXproxy.sh
 %attr(755,root,root) %{_bindir}/sipXproxy
 %attr(755,root,root) %{_bindir}/%name-config
+%dir %attr(755,root,root) %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXproxy-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxcallresolver-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxcallresolver-agent-process.xml
 %attr(755,root,root) %{_datadir}/sipxecs/schema/forwardingrules.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/nattraversalrules.xsd
-
-%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.la
-%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.a
+%dir %attr(755,root,root) %{_libdir}/authplugins
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.so*
 
-%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.la
-%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.a
 %attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.so*
 
-%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.la
-%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.a
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.so*
 
-%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.la
-%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.a
 %attr(755,root,root) %{_libdir}/authplugins/libTransferControl.so*
 
-%attr(755,root,root) %{_libdir}/authplugins/libCallDestination.la
-%attr(755,root,root) %{_libdir}/authplugins/libCallDestination.a
 %attr(755,root,root) %{_libdir}/authplugins/libCallDestination.so*
 
-%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.la
-%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.a
 %attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.so*
 
-%attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.la
-%attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.a
 %attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.so*
 
-%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.la
-%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.a
 %attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.so*
 
-%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.la
-%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.a
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.so*
 
 %files devel
 %defattr(644,root,root,755)
 %docdir %{_datadir}/doc/sipxecs/%name
 %{_datadir}/doc/sipxecs/%name
+%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.la
+%attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.a
+%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.la
+%attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.a
+%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.la
+%attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.a
+%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.la
+%attr(755,root,root) %{_libdir}/authplugins/libTransferControl.a
+%attr(755,root,root) %{_libdir}/authplugins/libCallDestination.la
+%attr(755,root,root) %{_libdir}/authplugins/libCallDestination.a
+%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.la
+%attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.a
+%attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.la
+%attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.a
+%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.la
+%attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.a
+%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.la
+%attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.a
 
 %pre
 
@@ -182,6 +187,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/cdr/*
 
 %dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/cdr
+
+%dir %attr(755,root,root) %{sipxpbxvarlib}
 %attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 %attr(755,root,root) %{_bindir}/sipxcallresolver-agent.sh

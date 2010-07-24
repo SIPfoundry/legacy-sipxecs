@@ -13,6 +13,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     SVN-VERSION \
     BUILDSTAMP \
+    @PACKAGE@-rpmlintrc \
     sipxcommserverlib.spec
 
 include config/conditional_doc.am

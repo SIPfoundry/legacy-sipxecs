@@ -11,6 +11,7 @@ EXTRA_DIST = \
    BUILDSTAMP \
    SVN-VERSION \
    sipxcommons.spec \
+   @PACKAGE@-rpmlintrc \
    config.properties.in \
    lib \
    src

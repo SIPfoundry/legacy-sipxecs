@@ -12,6 +12,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     SVN-VERSION \
     BUILDSTAMP \
+    @PACKAGE@-rpmlintrc \
     sipxmediaadapterlib.spec
 
 include config/conditional_doc.am

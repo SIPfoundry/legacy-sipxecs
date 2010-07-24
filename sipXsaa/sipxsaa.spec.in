@@ -20,8 +20,13 @@ BuildRequires: cppunit-devel
 BuildRequires: doxygen
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: openssl-devel
-BuildRequires: apr-devel
+%if %{_vendor} == suse
+BuildRequires: apache2-devel
+BuildRequires: libapr1-devel
+%else
 BuildRequires: httpd-devel
+BuildRequires: apr-devel
+%endif
 BuildRequires: sipxcalllib-devel >= %version
 BuildRequires: sipxcommserverlib-devel >= %version
 BuildRequires: sipxmediaadapterlib-devel >= %version
@@ -29,7 +34,11 @@ BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source:   %name-%version.tar.gz
 
@@ -92,6 +101,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
+%dir %{_datadir}/sipxecs/process.d
 %docdir %{_datadir}/doc/sipxecs/%name
 %{_datadir}/doc/sipxecs/%name
 

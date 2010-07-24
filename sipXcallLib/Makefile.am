@@ -22,6 +22,7 @@ EXTRA_DIST = \
     CONTRIBUTORS \
     SVN-VERSION \
     BUILDSTAMP \
+    @PACKAGE@-rpmlintrc \
     sipxcalllib.spec
 
 

@@ -73,6 +73,7 @@ EXTRA_DIST = \
     lib.properties \
     neoconf \
     gwt \
+    @PACKAGE@-rpmlintrc \
     sipxconfig.spec \
     doc \
     web \

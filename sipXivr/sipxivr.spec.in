@@ -18,7 +18,11 @@ BuildRequires: zip
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxopenfire
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source: %name-%version.tar.gz
 
@@ -57,6 +61,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs/schema
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs/process.d
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXivr
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxivr-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/schema/autoattendants.xsd

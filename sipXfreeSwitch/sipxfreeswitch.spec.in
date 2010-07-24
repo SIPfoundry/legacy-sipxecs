@@ -12,8 +12,13 @@ Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Vendor: SIPfoundry
 
 BuildRequires: automake
+BuildRequires: sipxcommserverlib-devel >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Requires: sipx-freeswitch >= 1.0.4
 Requires: sipxcommserverlib >= %version
@@ -44,8 +49,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%dir %{_datadir}/sipxecs
+%dir %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/freeswitch-process.xml
 %attr(755,root,root) %{_bindir}/freeswitch.sh
+%dir %{_libexecdir}/sipXecs
+%dir %{_libexecdir}/sipXecs/setup.d
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/freeswitch_setup.sh
 %attr(755,root,root) %{_bindir}/%name-config
 

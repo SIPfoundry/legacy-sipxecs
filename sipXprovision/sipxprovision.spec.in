@@ -18,7 +18,12 @@ BuildRequires: automake
 BuildRequires: java-devel >= 1.6
 BuildRequires: sipxconfig
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
+
 
 Source: %name-%version.tar.gz
 

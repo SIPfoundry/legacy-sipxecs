@@ -18,7 +18,11 @@ BuildRequires: zip
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxopenfire >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source: %name-%version.tar.gz
 

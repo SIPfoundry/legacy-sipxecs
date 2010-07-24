@@ -18,7 +18,11 @@ BuildRequires: zip
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxrest >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source: %name-%version.tar.gz
 
@@ -46,6 +50,8 @@ cp config.log %name.configlog
 make all
 
 %install
+
+export NO_BRP_CHECK_BYTECODE_VERSION=true
 
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install

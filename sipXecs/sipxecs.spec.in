@@ -1,3 +1,4 @@
+#!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
@@ -14,7 +15,11 @@ Url: http://www.sipfoundry.org
 
 BuildRequires: automake
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 %define sipxconfiglib %{_datadir}/java/sipXecs/sipXconfig
 
@@ -77,6 +82,8 @@ Internal class documentation for the pbx classes
 
 %prep
 %setup -q
+# suse and obs build system
+mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 %configure @CONFIGURE_OPTIONS@

@@ -24,7 +24,11 @@ BuildRequires: sipxcommserverlib-devel >= %version
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxtacklib-devel >= %version
 BuildRequires: asciidoc
+%if %{_vendor} == suse
+BuildRequires: docbook-xsl-stylesheets
+%else
 BuildRequires: docbook-style-xsl
+%endif
 
 Source: %name-%version.tar.gz
 
@@ -56,8 +60,12 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS LICENSE README NEWS TODO ChangeLog %name.configlog
-%attr(755,root,root) %{_bindir}
+%attr(755,root,root) %{_bindir}/*
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/preflight
+%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXviewer
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXviewer/sipviewer.jar
 %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs/sipviewer-install.jar
+%if %{_vendor} == redhat
 %{_mandir}/man1
+%endif
+
