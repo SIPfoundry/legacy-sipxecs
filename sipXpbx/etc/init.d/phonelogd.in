@@ -13,7 +13,7 @@
 ### BEGIN INIT INFO
 # Provides:       phonelog
 # Required-Start: $network $remote_fs
-# Required-Stop:
+# Required-Stop: $null
 # Default-Start:  3 5
 # Default-Stop:
 # Description:    Start the syslog instance for logging from phones

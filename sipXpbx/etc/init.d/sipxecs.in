@@ -17,7 +17,7 @@
 ### BEGIN INIT INFO
 # Provides:       sipxpbx
 # Required-Start: $network $remote_fs
-# Required-Stop:
+# Required-Stop: $null
 # Default-Start:  3 5
 # Default-Stop:
 # Description:    Start the sipXpbx IP PBX application servers
