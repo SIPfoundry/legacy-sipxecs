@@ -219,6 +219,7 @@
         <value>acdContext</value>
         <value>conferenceBridgeContext</value>
         <value>externalAliases</value>
+        <value>authCodeManager</value>
       </list>
     </property>
   </bean>

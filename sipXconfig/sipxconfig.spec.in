@@ -444,32 +444,22 @@ sed /etc/xinetd.d/tftp -i -e 's|^\W*disable\W*=\W*yes\W*$|disable = no|' -e 's|\
 %define nologin /sbin/nologin
 %endif
 
-echo "#1:$?"
 if ! id -u PlcmSpIp > /dev/null 2>&1
 then
-  echo "#2:$?"
   # default user account polycom phones use
-  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M PlcmSpIp
-  echo "#3:$?"
-  echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp
-  echo "#4:$?"
+  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M PlcmSpIp >/dev/null
+  echo -e "PlcmSpIp" | sudo passwd --stdin PlcmSpIp >/dev/null
 fi
 
-echo "#5:$?"
 if ! id -u lvp2890 > /dev/null 2>&1
 then
-  echo "#6:$?"
   # default user account Nortel 1535 phones use
-  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M lvp2890
-  echo "#7:$?"
-  echo -e "28904all" | sudo passwd --stdin lvp2890
-  echo "#8:$?"
+  %{adduser} -d %{phonedir}/profile/tftproot -s %{nologin} -M lvp2890 >/dev/null
+  echo -e "28904all" | sudo passwd --stdin lvp2890 >/dev/null
 fi
 
-echo "#9:$?"
 # 'install' ftpd config file
 mv %{vsftpd_conf} %{vsftpd_conf}.sipx-orig
-echo "#10:$?"
 cat > %{vsftpd_conf} <<EOF
 # vsftpd config for sipxconfig
 local_enable=YES
@@ -485,17 +475,18 @@ chroot_local_user=YES
 pasv_min_port=50000
 pasv_max_port=50050
 EOF
-echo "#11:$?"
 chmod 600 %{vsftpd_conf}
-echo "#12:$?"
 
-/sbin/chkconfig vsftpd on
-echo "#13:$?"
+/sbin/chkconfig vsftpd on >/dev/null
 
 # anaconda installs may not have network installed or ready
 # however they do restart system post installation
-/sbin/service vsftpd start
-echo "#14:$?"
+if /sbin/service vsftpd status | grep -v grep | grep running >/dev/null
+then
+  /sbin/service vsftpd stop >/dev/null
+fi
+
+/sbin/service vsftpd start >/dev/null
 
 %preun ftp
 if [ "$1" = "0" ] ; then

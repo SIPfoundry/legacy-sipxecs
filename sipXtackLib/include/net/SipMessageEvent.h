@@ -44,7 +44,8 @@ class SipMessageEvent : public OsMsg
       AUTHENTICATION_RETRY,
       SESSION_REINVITE_TIMER,
       TRANSACTION_RESEND,
-      TRANSACTION_EXPIRATION
+      TRANSACTION_EXPIRATION,
+      TRANSACTION_EXPIRATION_TIMER_C
    };
 
 /* ============================ CREATORS ================================== */

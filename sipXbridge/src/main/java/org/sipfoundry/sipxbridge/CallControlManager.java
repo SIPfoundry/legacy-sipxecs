@@ -391,8 +391,11 @@ class CallControlManager implements SymmitronResetHandler {
                     SipUtilities.setSessionDescription(response, sessionDescription);
                     /*
                      * Send an OK to the other side with a SD that indicates that the HOLD
-                     * operation is successful.
+                     * operation is successful. The hold operation is handled locally.
                      */
+                    if (dialogContext.getItspInfo() == null || dialogContext.getItspInfo().isGlobalAddressingUsed() ) {
+                        SipUtilities.setGlobalAddress(response);
+                    }
                     serverTransaction.sendResponse(response);
 
                 }

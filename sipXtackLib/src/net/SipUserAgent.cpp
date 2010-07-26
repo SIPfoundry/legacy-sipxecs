@@ -2227,7 +2227,8 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
                                              relationship,
                                              mSipTransactions,
                                              nextTimeout,
-                                             delayedDispatchMessage);
+                                             delayedDispatchMessage,
+                                             false);
 
              mSipTransactions.markAvailable(*transaction);
 
@@ -2750,12 +2751,15 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
          } // End SipMessageEvent::TRANSACTION_RESEND
 
          // Timeout for an transaction to expire
-         else if(msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION)
+         // "Expire" and "Timer C" timers are handled almost the same way --
+         // except "Timer C" timers are extended by 101-199 responses.
+         else if (msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION ||
+                  msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION_TIMER_C)
          {
             OsSysLog::add(FAC_SIP, PRI_DEBUG,
                           "SipUserAgent[%s]::handleMessage "
-                          "transaction expiration message received",
-                          getName().data());
+                          "transaction expiration message received, msgEventType = %d",
+                          getName().data(), msgEventType);
 
             if(sipMessage)
             {
@@ -2813,7 +2817,9 @@ UtlBoolean SipUserAgent::handleMessage(OsMsg& eventMessage)
                                                   relationship,
                                                   mSipTransactions,
                                                   nextTimeout,
-                                                  delayedDispatchMessage);
+                                                  delayedDispatchMessage,
+                                                  msgEventType == SipMessageEvent::TRANSACTION_EXPIRATION_TIMER_C
+                     );
 
                   mSipTransactions.markAvailable(*transaction);
 

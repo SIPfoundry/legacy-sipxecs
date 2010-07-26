@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.Vector;
 
@@ -85,11 +86,22 @@ public class VoiceMail {
             // Okay, try "lang" instead
             localeString = m_parameters.get("lang");
         }
-        
-        m_locStd = new Localization(RESOURCE_NAME, localeString, 
-                   s_resourcesByLocale, m_ivrConfig, m_fses);
-        m_locCpui = new Localization(CPUI_RESOURCE_NAME, localeString, 
+                
+        try {
+            m_locStd = new Localization("VoiceMail", localeString, 
+                       s_resourcesByLocale, m_ivrConfig, m_fses);
+        } catch (MissingResourceException e) {
+            m_locStd = new Localization(RESOURCE_NAME, localeString, 
+                    s_resourcesByLocale, m_ivrConfig, m_fses);
+        }
+             
+        try {
+            m_locCpui = new Localization("CallPilot", localeString, 
                     s_cpui_resourcesByLocale, m_ivrConfig, m_fses);
+        } catch (MissingResourceException e) {    
+            m_locCpui = new Localization(CPUI_RESOURCE_NAME, localeString, 
+                    s_cpui_resourcesByLocale, m_ivrConfig, m_fses);
+        }    
     }
 
     /**
@@ -174,7 +186,7 @@ public class VoiceMail {
                
         User user = m_validUsers.getUser(mailboxString);
         Localization usrLoc = setLoc(usingCpUi(user));
-         
+                 
         m_mailbox = null;
         if (user != null) {
            m_mailbox = new Mailbox(user);   

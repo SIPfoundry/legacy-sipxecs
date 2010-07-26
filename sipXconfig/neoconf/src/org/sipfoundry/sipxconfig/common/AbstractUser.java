@@ -63,6 +63,8 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     public static final String MOH_SETTING = "moh";
     public static final String MOH_AUDIO_SOURCE_SETTING = "moh/audio-source";
     public static final String FAX_EXTENSION_PREFIX = "~~ff~";
+    public static final String EMPTY_STRING = "";
+
 
     public static enum MohAudioSource {
         FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
@@ -350,7 +352,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
         }
 
         // add fax extension aliases
-        String faxExtension = null == getFaxExtension() ? "" : getFaxExtension().toString();
+        String faxExtension = getFaxExtension();
         if (!faxExtension.isEmpty()) {
             String faxContactUri = SipUri.format(getDisplayName(), FAX_EXTENSION_PREFIX + getUserName(), domainName);
             mappings.add(getAliasMapping(faxExtension, faxContactUri, domainName, true));
@@ -442,9 +444,10 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
         return retrieveSettingForSettingPath(permission.getSettingPath(), permission.getName());
     }
 
-    public Integer getFaxExtension() {
+    public String getFaxExtension() {
         Setting setting = null == getSettings() ? null : getSettings().getSetting("voicemail/fax/extension");
-        return null == setting ? null : (Integer) setting.getTypedValue();
+        return null == setting ? EMPTY_STRING : (setting.getTypedValue() == null ? EMPTY_STRING : (String) setting
+                .getTypedValue());
     }
 
     public boolean isSupervisor() {

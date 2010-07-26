@@ -739,17 +739,17 @@ public class BackToBackUserAgent implements Comparable {
             ToHeader toHeader = (ToHeader) referRequest.getHeader(ToHeader.NAME).clone();
             toHeader.removeParameter("tag");
             
-            /*
-            FromHeader fromHeader = (FromHeader) dialogContext.getRequest().getHeader(
-                    FromHeader.NAME).clone();
-            fromHeader.removeParameter("tag");
-            */
 
-
-
-            SipURI ruri = (SipURI) dialogContext.getRequest().getRequestURI();
-            Address fromAddress = ProtocolObjects.addressFactory.createAddress(ruri);
-            FromHeader fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress, null);
+            FromHeader fromHeader ;
+            
+            if ( dialogContext.getDialogCreatingTransaction() instanceof ClientTransaction ) {
+                fromHeader = (FromHeader) dialogContext.getRequest().getHeader(FromHeader.NAME).clone();
+                fromHeader.removeParameter("tag");
+            } else {
+                SipURI requestURI = (SipURI) dialogContext.getRequest().getRequestURI();
+                Address fromAddress = ProtocolObjects.addressFactory.createAddress(requestURI);
+                fromHeader = ProtocolObjects.headerFactory.createFromHeader(fromAddress,null);
+            }
 
 
             /*
@@ -779,7 +779,7 @@ public class BackToBackUserAgent implements Comparable {
                     .createMaxForwardsHeader(20);
 
             CallIdHeader callId = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "." + this.baseCounter + "."
+                    .createCallIdHeader(this.creatingCallId + "-" + this.baseCounter + "-"
                             + this.counter++);
 
             Request newRequest = ProtocolObjects.messageFactory.createRequest(uri,
@@ -1240,7 +1240,7 @@ public class BackToBackUserAgent implements Comparable {
             }
 
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "." + baseCounter);
+                    .createCallIdHeader(this.creatingCallId + "-" + baseCounter);
 
             if (request.getHeader(ProxyAuthorizationHeader.NAME) == null) {
                 this.baseCounter++;
@@ -1430,7 +1430,7 @@ public class BackToBackUserAgent implements Comparable {
             SipURI uri = Gateway.getMusicOnHoldUri();
 
             CallIdHeader callIdHeader = ProtocolObjects.headerFactory
-                    .createCallIdHeader(this.creatingCallId + "." + this.baseCounter + "."
+                    .createCallIdHeader(this.creatingCallId + "-" + this.baseCounter + "-"
                             + this.counter++);
 
             CSeqHeader cseqHeader = ProtocolObjects.headerFactory.createCSeqHeader(1L,
@@ -1700,7 +1700,7 @@ public class BackToBackUserAgent implements Comparable {
 
             Request outgoingRequest = SipUtilities.createInviteRequest(
                     (SipURI) outboundRequestUri, itspProvider, itspAccountInfo, fromHeader,
-                    this.creatingCallId + "." + baseCounter, addresses);
+                    this.creatingCallId + "-" + baseCounter, addresses);
             /*
              * If there is an AUTH header there, it could be that the client is sending
              * us credentials. In that case, do not change the call ID. 

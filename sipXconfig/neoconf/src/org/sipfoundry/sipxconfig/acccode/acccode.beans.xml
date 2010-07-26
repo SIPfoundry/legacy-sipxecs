@@ -17,16 +17,6 @@
     <property name="dialPlanActivationManager" ref="dialPlanActivationManager" />
   </bean>
 
-  <bean id="authCodesConfig" class="org.sipfoundry.sipxconfig.acccode.AuthCodesConfig"
-    parent="defaultConfigurationFile">
-    <property name="name" value="authcodes.xml" />
-    <property name="authCodeManager" ref="authCodeManager" />
-    <property name="domainManager" ref="domainManager" />
-    <property name="dialPlanContext" ref="dialPlanContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="restartRequired" value="false" />
-  </bean>
-  
   <bean id="authCodeManagerImpl" class="org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManagerImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />

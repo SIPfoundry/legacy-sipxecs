@@ -307,7 +307,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         List names = new ArrayList(user.getAliases());
         String userName = user.getUserName();
         names.add(userName);
-        String faxExtension = null == user.getFaxExtension() ? "" : user.getFaxExtension().toString();
+        String faxExtension = user.getFaxExtension();
         if (!faxExtension.isEmpty()) {
             names.add(faxExtension);
         }
