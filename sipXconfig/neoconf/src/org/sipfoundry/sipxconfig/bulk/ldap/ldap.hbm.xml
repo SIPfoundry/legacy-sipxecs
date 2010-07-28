@@ -9,6 +9,7 @@
     </id>
     <property name="authenticationOptions" column="authentication_options" type="org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings$UserType" />
     <property name="enableOpenfireConfiguration" />
+    <property name="configured" />
   </class>
 
   <class name="LdapConnectionParams" table="ldap_connection">

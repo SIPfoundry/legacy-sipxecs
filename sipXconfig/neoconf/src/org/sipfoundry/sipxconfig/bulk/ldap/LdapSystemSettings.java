@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.EnumUserType;
 public class LdapSystemSettings extends BeanWithId {
     private AuthenticationOptions m_authenticationOptions = AuthenticationOptions.NO_LDAP;
     private boolean m_enableOpenfire;
+    private boolean m_configured;
 
     public boolean isEnableOpenfireConfiguration() {
         return m_enableOpenfire;
@@ -51,6 +52,13 @@ public class LdapSystemSettings extends BeanWithId {
         m_authenticationOptions = authenticationOptions;
     }
 
+    public boolean isConfigured() {
+        return m_configured;
+    }
+
+    public void setConfigured(boolean configured) {
+        m_configured = configured;
+    }
 
     /**
      * Authentication options enumeration

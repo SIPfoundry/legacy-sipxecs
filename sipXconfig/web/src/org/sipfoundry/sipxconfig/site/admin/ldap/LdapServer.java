@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.bulk.ldap.Schema;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
@@ -53,8 +54,14 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
 
     public abstract void setSelectedAttributes(String[] selectedAttributes);
 
+    public abstract LdapSystemSettings getSettings();
+
+    public abstract void setSettings(LdapSystemSettings settings);
+
     public void pageBeginRender(PageEvent event_) {
         LdapManager ldapManager = getLdapManager();
+        setSettings(getLdapManager().getSystemSettings());
+
         if (getConnectionParams() == null) {
             setConnectionParams(ldapManager.getConnectionParams());
         }
@@ -80,6 +87,10 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
 
         // save new connection params
         ldapManager.setConnectionParams(connectionParams);
+        ldapManager.saveSystemSettings(getSettings());
+        // write openfire.xml file /  mark sipxopenfire service for restart
+        ldapManager.replicateOpenfireConfig();
+
         ldapManager.setAttrMap(attrMap);
 
         Schema schema = ldapManager.getSchema(attrMap.getSubschemaSubentry());

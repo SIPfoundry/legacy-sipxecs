@@ -97,7 +97,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
     }
 
     private boolean isEnabled() {
-        return m_provider != null && m_settings.isLdapEnabled();
+        return m_provider != null && m_settings.isLdapEnabled() && m_settings.isConfigured();
     }
 
     private void initialize() {

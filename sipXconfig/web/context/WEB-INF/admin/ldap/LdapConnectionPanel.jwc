@@ -6,6 +6,7 @@
       -->
 
   <parameter name="lcp"/>
+  <parameter name="settings"/>
   <!--
       - P R O P E R T I E S
       -->
