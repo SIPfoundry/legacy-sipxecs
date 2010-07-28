@@ -4,10 +4,6 @@
 sipXfreeSwitch :
 	@echo sipXfreeSwitch
 
-.PHONY: doc
-doc : sipXcommserverLib
-	@echo doc
-
 .PHONY: sipXtools
 sipXtools : sipXcommons sipXtackLib 
 	@echo sipXtools
@@ -141,7 +137,6 @@ sipXimbot : sipXrest sipXcommons sipXopenfire
 .PHONY: sipXecs
 # List all components as dependencies of sipXecs, in alphabetical order.
 sipXecs : \
-	doc \
 	sipXacccode \
 	sipXacd \
 	sipXbridge \
