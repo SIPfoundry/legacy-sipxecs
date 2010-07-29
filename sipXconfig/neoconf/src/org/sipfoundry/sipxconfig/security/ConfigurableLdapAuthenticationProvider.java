@@ -128,7 +128,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
     }
 
     InitialDirContextFactory getDirFactory(LdapConnectionParams params) {
-        String bindUrl = String.format("ldap://%s:%d", params.getHost(), params.getPort());
+        String bindUrl = params.getUrl();
         DefaultInitialDirContextFactory dirContextFactory = new DefaultInitialDirContextFactory(bindUrl);
         dirContextFactory.setManagerDn(params.getPrincipal());
         dirContextFactory.setManagerPassword(params.getSecret());

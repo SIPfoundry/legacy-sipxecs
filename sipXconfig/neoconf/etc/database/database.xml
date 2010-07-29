@@ -363,6 +363,7 @@
     <antcall target="ldap_settings" />
     <antcall target="add_acccode_service" />
     <antcall target="auth_code" />
+    <antcall target="ldap_connection_add_tls" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1134,7 +1135,9 @@
   <target name="auth_code" unless="auth_code">
     <db-patch patch="auth_code"/>
   </target>
-
+  <target name="ldap_connection_add_tls" unless="ldap_connection_add_tls">
+    <db-patch patch="ldap_connection_add_tls"/>
+  </target>
 
   <!--
     - SUPPORT UTILITIES

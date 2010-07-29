@@ -8,6 +8,11 @@
     <tr jwcid="hostPanel">
       <input jwcid="host" />
     </tr>
+    <tr jwcid="@common/FieldPanel" for="useTls" field="component:useTls"
+        label="message:label.tls"
+        description="message:description.tls">
+      <span jwcid="useTls@Checkbox" id="useTls" value="ognl:lcp.useTls"/>
+    </tr>
     <tr jwcid="portPanel">
       <input jwcid="port" />
     </tr>

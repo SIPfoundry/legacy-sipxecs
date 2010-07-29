@@ -1,4 +1,3 @@
-## Velocity macros
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
     This file stores bootstrap properties needed by Openfire.
@@ -22,51 +21,25 @@
 	<port>9094</port>
 	<securePort>9095</securePort>
   </adminConsole>
-#if($isEnableOpenfireConfiguration)
   <ldap>
-	<host>${ldapParams.host}</host>
-	<port>${ldapParams.port}</port>
-	<sslEnabled>${ldapParams.useTls}</sslEnabled>
-	<baseDN>${attrMap.searchBase}</baseDN>
-	<adminDN>${ldapParams.principal}</adminDN>
-	<adminPassword>${ldapParams.secret}</adminPassword>
+	<host>localhost</host>
+	<port>389</port>
+	<sslEnabled>true</sslEnabled>
+	<baseDN>dc=example,dc=com</baseDN>
+	<adminDN>cn=Directory Manager</adminDN>
+	<adminPassword>secret</adminPassword>
   </ldap>
   <provider>
     <auth>
-      <className>$ldapAuthProvider</className>
+      <className>org.jivesoftware.openfire.ldap.LdapAuthProvider</className>
     </auth>
     <user>
-      <className>$ldapUserProvider</className>
+      <className>org.jivesoftware.openfire.ldap.LdapUserProvider</className>
     </user>
     <vcard>
-      <className>$ldapVcardProvider</className>
+      <className>org.jivesoftware.openfire.ldap.LdapVCardProvider</className>
     </vcard>
   </provider>
-#else
-  <provider>
-    <admin>
-      <className>$adminProvider</className>
-    </admin>
-    <auth>
-      <className>$authProvider</className>
-    </auth>
-    <group>
-      <className>$groupProvider</className>
-    </group>
-    <user>
-      <className>$userProvider</className>
-    </user>
-    <lockout>
-      <className>$lockoutProvider</className>
-    </lockout>
-    <securityAudit>
-      <className>$securityAuditProvider</className>
-    </securityAudit>
-    <vcard>
-      <className>$sipxVcardProvider</className>
-    </vcard>
-  </provider>
-#end
   <connectionProvider>
 	<className>org.jivesoftware.database.DefaultConnectionProvider</className>
   </connectionProvider>

@@ -36,6 +36,7 @@ public class ConfigurableLdapAuthenticationProviderTest extends TestCase {
         params.setPort(389);
         params.setPrincipal("CN=Administrator,CN=Users,DC=corp,DC=exmaple,DC=com");
         params.setSecret("b1rdg33k");
+        params.setUseTls(false);
         AttrMap attr = new AttrMap();
         lm.getAttrMap();
         expectLastCall().andReturn(attr);        

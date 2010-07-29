@@ -37,6 +37,7 @@ public class LdapServerTestUi extends WebTestCase {
         assertNoUserError(tester);
 
         assertElementPresent("host");
+        assertCheckboxPresent("useTls");
         // Set port to an unlikely ldap port, so that the test passes on systems running a
         // local ldap server.
         assertElementPresent("port");

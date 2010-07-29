@@ -27,6 +27,7 @@ public class LdapConnectionParams extends BeanWithId {
     private int m_port;
     private String m_principal;
     private String m_secret;
+    private boolean m_useTls;
 
     /**
      * Used set Context.REFERRAL property. Needs to be 'follow' for ActiveDirecory.
@@ -67,7 +68,18 @@ public class LdapConnectionParams extends BeanWithId {
         m_secret = secret;
     }
 
-    private String getUrl() {
+    public boolean getUseTls() {
+        return m_useTls;
+    }
+
+    public void setUseTls(boolean useTls) {
+        m_useTls = useTls;
+    }
+
+    public String getUrl() {
+        if (m_useTls) {
+            return String.format("ldaps://%s:%d", m_host, m_port);
+        }
         return String.format("ldap://%s:%d", m_host, m_port);
     }
 

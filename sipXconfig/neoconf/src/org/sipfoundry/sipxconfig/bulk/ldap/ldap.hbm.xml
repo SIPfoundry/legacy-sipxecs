@@ -20,6 +20,7 @@
     <property name="port" />
     <property name="principal" />
     <property name="secret" />
+    <property name="useTls" />
     <many-to-one name="schedule" class="org.sipfoundry.sipxconfig.admin.CronSchedule"
       cascade="all" foreign-key="ldap_connection_cron_schedule">
       <column name="cron_schedule_id" />

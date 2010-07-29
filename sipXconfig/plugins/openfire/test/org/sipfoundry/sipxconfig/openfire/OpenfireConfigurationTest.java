@@ -86,9 +86,19 @@ public class OpenfireConfigurationTest extends TestCase {
 
     public void testGenerateLdapOpenfireConfiguration() throws Exception {
         m_ldapSystemSettings.setEnableOpenfireConfiguration(true);
+        m_ldapSystemSettings.setConfigured(true);
 
         OpenfireConfiguration configuration = generate();
         assertCorrectFileGeneration(configuration, "expected-ldap-openfire-config.test.xml");
+    }
+
+    public void testGenerateLdapTlsOpenfireConfiguration() throws Exception {
+        m_ldapSystemSettings.setEnableOpenfireConfiguration(true);
+        m_ldapSystemSettings.setConfigured(true);
+        m_ldapConnectionParams.setUseTls(true);
+
+        OpenfireConfiguration configuration = generate();
+        assertCorrectFileGeneration(configuration, "expected-ldap-tls-openfire-config.test.xml");
     }
 
     private OpenfireConfiguration generate() {

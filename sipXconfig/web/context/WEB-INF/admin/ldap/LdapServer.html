@@ -1,4 +1,9 @@
 <div jwcis="$content$">
+  <div jwcid="@common/QuickLinks">
+  <ul>
+    <li><a jwcid="@PageLink" page="admin/ManageCertificates" href="#"><span key="label.certificates">Certificates</span></a></li>
+  </ul>
+  </div>
   <span jwcid="@If" condition="ognl:stage.equals('connection')">
     <div jwcid="@common/QuickHelp" value="message:quick.helpConnection"></div>
   </span>

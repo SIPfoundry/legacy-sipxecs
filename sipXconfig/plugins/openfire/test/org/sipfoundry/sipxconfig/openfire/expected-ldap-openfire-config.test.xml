@@ -24,6 +24,7 @@
   <ldap>
 	<host>localhost</host>
 	<port>389</port>
+	<sslEnabled>false</sslEnabled>
 	<baseDN>dc=example,dc=com</baseDN>
 	<adminDN>cn=Directory Manager</adminDN>
 	<adminPassword>secret</adminPassword>
