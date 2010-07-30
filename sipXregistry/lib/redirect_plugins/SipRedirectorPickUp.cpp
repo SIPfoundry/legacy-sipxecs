@@ -284,6 +284,11 @@ void SipRedirectorPickUp::readConfig(OsConfigDb& configDb)
                        mLogName.data(), mWaitSecs, mWaitUSecs);
       }
    }
+   // XX-8438 - regression, cannot pickup by alias
+   mBugXX8438 = configDb.getBoolean("ENABLE_XX_8438_WORKAROUND", FALSE);
+   OsSysLog::add(FAC_SIP, PRI_INFO,
+                 "%s::readConfig mBugXX8438 = %d",
+                 mLogName.data(), mBugXX8438);
 }
 
 // Initializer
@@ -755,7 +760,12 @@ SipRedirectorPickUp::lookUpDialog(
          // Add URI-parameters to prevent forwarding of the SUBSCRIBE to
          // irrelevant contacts.
          subscribeRequestUri.setUrlParameter("sipx-noroute", "Voicemail");
-         subscribeRequestUri.setUrlParameter("sipx-userforward", "false");
+         if (!mBugXX8438)
+	    // This will allow pick by alias or huntgroup but also means you 
+	    // may get forwarded to a cell phone.  This issue is fixed properly
+            // in 4.3.0 with relation table in alias database.
+            subscribeRequestUri.setUrlParameter("sipx-userforward", "false");
+
          // Serialize as name-addr, with URI-parameters.
          subscribeRequestUri.getUri(subscribeRequestStringLong);
          OsSysLog::add(FAC_SIP, PRI_DEBUG,

@@ -166,6 +166,8 @@ class SipRedirectorPickUp : public RedirectPlugin
    // Switch for the "1 second subscription" workaround.
    UtlBoolean mOneSecondSubscription;
 
+   UtlBoolean mBugXX8438;
+
    // Support functions.
    RedirectPlugin::LookUpStatus lookUpDialog(
       const UtlString& requestString,
