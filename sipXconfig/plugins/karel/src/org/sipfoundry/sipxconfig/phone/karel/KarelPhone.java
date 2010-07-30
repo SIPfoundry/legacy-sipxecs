@@ -1,11 +1,17 @@
 /*
  *
  *
- * Copyright (C) 2007 Pingtel Corp., certain elements licensed under a Contributor Agreement.
- * Contributors retain copyright to elements licensed under a Contributor Agreement.
- * Licensed to the User under the LGPL license.
+ * Copyright (C) 2010 Karel Elektronik, A.S. All rights reserved.
  *
- * $
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
  */
 package org.sipfoundry.sipxconfig.phone.karel;
 
@@ -37,7 +43,7 @@ public class KarelPhone extends Phone {
     @Override
     public void initializeLine(Line line) {
         KarelPhoneDefaults defaults = new KarelPhoneDefaults(getPhoneContext().getPhoneDefaults());
-        addDefaultBeanSettingHandler(defaults);
+//        addDefaultBeanSettingHandler(defaults);
         line.addDefaultBeanSettingHandler(new HelixLineDefaults(line));
     }
 
@@ -46,18 +52,16 @@ public class KarelPhone extends Phone {
         KarelPhoneDefaults defaults = new KarelPhoneDefaults(getPhoneContext().getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
     }
-    /*
-    @Override
-    public void initializeLine(Line line) {
-        GrandstreamLineDefaults defaults = new GrandstreamLineDefaults(this, line);
-        line.addDefaultBeanSettingHandler(defaults);
-    }
-*/
 
-
-    @Override
+/*  @Override
     public String getProfileFilename() {
         return getSerialNumber() + ".cfg";
+    } */
+    @Override
+    public String getProfileFilename() {
+       String lowercaseName = getSerialNumber().toUpperCase();
+//     return lowercaseName.toLowerCase();
+       return lowercaseName + ".cfg";
     }
 
     public static class HelixLineDefaults {
@@ -69,6 +73,16 @@ public class KarelPhone extends Phone {
 
         @SettingEntry(path = USER_ID_SETTING)
         public String getUserName() {
+            String userName = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                userName = user.getUserName();
+            }
+            return userName;
+        }
+
+        @SettingEntry(path = "VM_ACCOUNT/SubscribeNo")
+        public String getMwiSubscribe() {
             String userName = null;
             User user = m_line.getUser();
             if (user != null) {
@@ -107,12 +121,17 @@ public class KarelPhone extends Phone {
         public String getProxyServer() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
-//            return defaults.getNtpServer();	checked OK
-//            return ("karelrehaboz.com");  	checked OK
-
+//          return defaults.getNtpServer(); checked OK
+//          return ("karelrehaboz.com");  checked OK
+//          return defaults.getTftpServer();
         }
 
-   
+        @SettingEntry(path = "SIP_ACCOUNT/AUTH_ID")
+        public String getAuthorizationId() {
+            DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
+            return m_line.getAuthenticationUserName();
+        }
+
         @SettingEntry(path = MOH)
         public String getMusicOnHoldUri() {
             User u = m_line.getUser();
@@ -149,7 +168,7 @@ public class KarelPhone extends Phone {
         info.setUserId(line.getSettingValue(USER_ID_SETTING));
         info.setPassword(line.getSettingValue(PASSWORD_SETTING));
         info.setRegistrationServer(line.getSettingValue(REGISTRATION_SERVER_SETTING));
-         info.setRegistrationServerPort(line.getSettingValue(REGISTRATION_PORT_SETTING));
+        info.setRegistrationServerPort(line.getSettingValue(REGISTRATION_PORT_SETTING));
         return info;
     }
 

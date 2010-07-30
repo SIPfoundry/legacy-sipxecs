@@ -2,6 +2,7 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 
+
 <!--
 KarelPhone.java  refers to the parameters below
 
@@ -10,6 +11,7 @@ String DISPLAY_NAME_SETTING = "SIP_ACCOUNT/DISP_NAME";
 String PASSWORD_SETTING = "SIP_ACCOUNT/REGIST_PASS";
 String REGISTRATION_SERVER_SETTING = "SIP_ACCOUNT/REGIST_SERVER";
 -->
+
 
 <model>
   <group name="SIP_ACCOUNT">
@@ -55,22 +57,17 @@ String REGISTRATION_SERVER_SETTING = "SIP_ACCOUNT/REGIST_SERVER";
         <string />
       </type>
     </setting>
-    <setting name="MessageNumber">
-      <type>
-        <string />
-      </type>
-    </setting>
     <setting name="Expire">
       <type>
-        <integer min="60" max="3600" />
+        <integer />
       </type>
-      <value>360</value>
+      <value>60</value>
     </setting>
     <setting name="sipKeepAlive">
       <type>
         <integer />
       </type>
-      <value>20000</value>
+      <value>20</value>
     </setting>
     <setting name="sipDtmf">
       <type>
@@ -86,7 +83,7 @@ String REGISTRATION_SERVER_SETTING = "SIP_ACCOUNT/REGIST_SERVER";
           </option>
         </enum>
       </type>
-      <value>1</value>
+      <value>0</value>
     </setting>
     <setting name="PublishInterval">
       <type>
@@ -114,7 +111,7 @@ String REGISTRATION_SERVER_SETTING = "SIP_ACCOUNT/REGIST_SERVER";
           </option>
         </enum>
       </type>
-      <value>1</value>
+      <value>0</value>
     </setting>
   </group>
 
@@ -149,41 +146,44 @@ CALL_ACCOUNT
       <value>1</value>
     </setting>
 
-
     <setting name="HookInGain">
       <type>
         <integer min="0" max="16" />
       </type>
+      <value>10</value>
     </setting>
     <setting name="HookOutGain">
       <type>
         <integer min="0" max="16" />
       </type>
+      <value>6</value>
     </setting>
 
     <setting name="HookExtInGain">
       <type>
         <integer min="0" max="16" />
       </type>
+      <value>10</value>
     </setting>
     <setting name="HookExtOutGain">
       <type>
         <integer min="0" max="16" />
       </type>
+      <value>10</value>
     </setting>
 
     <setting name="HandsfreeInGain">
       <type>
-        <integer min="0" max="16" />
+        <integer min="0" max="14" />
       </type>
+      <value>10</value>
     </setting>
     <setting name="HandsfreeOutGain">
       <type>
-        <integer min="0" max="16" />
+        <integer min="0" max="12" />
       </type>
+      <value>6</value>
     </setting>
-
-
 
     <setting name="CfwNum">
       <type>
@@ -208,6 +208,7 @@ CALL_ACCOUNT
           </option>
         </enum>
       </type>
+      <value>0</value>
     </setting>
 
     <setting name="CfwUnanswerTime">
@@ -223,8 +224,24 @@ CALL_ACCOUNT
       </type>
       <value>1</value>
     </setting>
-
-
   </group>
+
+
+<!-- 
+VM_ACCOUNT
+-->
+  <group name="VM_ACCOUNT">
+    <setting name="MessageNo">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="SubscribeNo">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+
 
 </model>

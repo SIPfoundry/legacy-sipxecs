@@ -9,14 +9,14 @@
     <property name="vendor" value="KAREL" />
   </bean>
 
-  <bean id="karelNT321" parent="karelModelParent">
-    <property name="label" value="KAREL NT321" />
-    <property name="maxLineCount" value="2" />
+  <bean id="karelNT32I" parent="karelModelParent">
+    <property name="label" value="KAREL NT32I" />
+    <property name="maxLineCount" value="6" />
   </bean>
 
-  <bean id="karelNT421" parent="karelModelParent">
-    <property name="label" value="KAREL NT421" />
-    <property name="maxLineCount" value="4" />
+  <bean id="karelNT42I" parent="karelModelParent">
+    <property name="label" value="KAREL NT42I" />
+    <property name="maxLineCount" value="6" />
   </bean>
 
   <!-- implementation -->

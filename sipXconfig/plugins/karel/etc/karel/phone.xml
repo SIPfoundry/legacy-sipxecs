@@ -23,7 +23,7 @@ GENERAL SETTINGS
           </option>
         </enum>
       </type>
-      <value>1</value>
+      <value>0</value>
     </setting>
 
     <setting name="dnd">
@@ -51,7 +51,6 @@ GENERAL SETTINGS
       <type>
         <string />
       </type>
-      <value>Karel NT Series</value>
     </setting>
     <setting name="transferType">
       <type>
@@ -91,18 +90,21 @@ NETWORK SETTINGS
       <type>
         <string />
       </type>
+      <value>192.168.1.100</value>
     </setting>
 
     <setting name="netmask">
       <type>
         <string />
       </type>
+      <value>255.255.255.0</value>
     </setting>
 
     <setting name="gateway">
       <type>
         <string />
       </type>
+      <value>0.0.0.0</value>
     </setting>
 
     <setting name="dnsType">
@@ -166,7 +168,7 @@ SIP GLOBAL
           </option>
         </enum>
       </type>
-      <value>2</value>
+      <value>0</value>
     </setting>
 
     <setting name="sipNatIp">
@@ -186,6 +188,7 @@ SIP GLOBAL
       <type>
         <integer min="1" max="65535" />
       </type>
+      <value>3478</value>
     </setting>
   </group>
 
@@ -226,7 +229,7 @@ CODEC SETTINGS
           </option>
         </enum>
       </type>
-      <value>7</value>
+      <value>8</value>
     </setting>
 
     <setting name="codecChoice1">
@@ -261,7 +264,7 @@ CODEC SETTINGS
           </option>
         </enum>
       </type>
-      <value>3</value>
+      <value>2</value>
     </setting>
 
     <setting name="codecChoice2">
@@ -296,7 +299,7 @@ CODEC SETTINGS
           </option>
         </enum>
       </type>
-      <value>5</value>
+      <value>1</value>
     </setting>
 
     <setting name="codecChoice3">
@@ -489,6 +492,7 @@ End of Codecs 1-8
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
     <setting name="codecRtpSize1">
       <type>
@@ -507,6 +511,7 @@ End of Codecs 1-8
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
     <setting name="codecRtpSize2">
       <type>
@@ -525,6 +530,7 @@ End of Codecs 1-8
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
     <setting name="codecRtpSize3">
       <type>
@@ -543,6 +549,7 @@ End of Codecs 1-8
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
     <setting name="codecRtpSize4">
       <type>
@@ -561,6 +568,7 @@ End of Codecs 1-8
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
     <setting name="codecRtpSize5">
       <type>
@@ -579,6 +587,7 @@ End of Codecs 1-8
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
     <setting name="codecRtpSize6">
       <type>
@@ -597,6 +606,7 @@ End of Codecs 1-8
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
     <setting name="codecRtpSize7">
       <type>
@@ -615,6 +625,7 @@ End of Codecs 1-8
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
 <!-- 
 End of RTP Sizes 1-8 
@@ -631,26 +642,31 @@ End of RTP Sizes 1-8
           </option>
         </enum>
       </type>
+      <value>0</value>
     </setting>
     <setting name="vad">
       <type>
         <boolean />
       </type>
+      <value>0</value>
     </setting>
     <setting name="agc">
       <type>
         <boolean />
       </type>
+      <value>1</value>
     </setting>
     <setting name="aec">
       <type>
         <boolean />
       </type>
+      <value>1</value>
     </setting>
     <setting name="agcGain">
       <type>
         <integer min="0" max="31" />
       </type>
+      <value>19</value>
     </setting>
   </group>
 
@@ -680,10 +696,9 @@ TIME SETTINGS
       <type>
         <boolean />
       </type>
-      <value>0</value>
     </setting>
 
-    <setting name='TIMEZONE'>
+    <setting name='timeZone'>
       <type>
         <enum>
           <option>
@@ -791,22 +806,125 @@ SCREEN SETTINGS
           </option>
         </enum>
       </type>
-      <value>1</value>
+      <value>2</value>
     </setting>
 
     <setting name="backlight">
       <type>
         <integer min="0" max="8" />
       </type>
+      <value>5</value>
     </setting>
     <setting name="backlightMin">
       <type>
         <integer min="0" max="8" />
       </type>
+      <value>0</value>
     </setting>
     <setting name="constrast">
       <type>
         <integer min="0" max="16" />
+      </type>
+      <value>11</value>
+    </setting>
+  </group>
+
+
+<!-- 
+PICTURE FRAME SETTINGS
+-->
+  <group name="PICTURE_SETTINGS">
+    <setting name="active">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="wait">
+      <type>
+        <integer min="1" max="99" />
+      </type>
+      <value>10</value>
+    </setting>
+    <setting name="interPicture">
+      <type>
+        <integer min="1" max="99" />
+      </type>
+      <value>5</value>
+    </setting>
+  </group>
+
+
+<!-- 
+QOS SETTINGS
+-->
+  <group name="QOS_SETTINGS">
+    <setting name="rtpUserPriority">
+      <type>
+        <integer min="0" max="7" />
+      </type>
+    </setting>
+    <setting name="callControl_UserPriority">
+      <type>
+        <integer min="0" max="7" />
+      </type>
+    </setting>
+    <setting name="otherUserPriority">
+      <type>
+        <integer min="0" max="7" />
+      </type>
+    </setting>
+
+    <setting name="rtpMindelay">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="rtpMaxthroughput">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="rtpMaxreliability">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="rtpMincost">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="rtpPrecedence">
+      <type>
+        <integer min="0" max="7" />
+      </type>
+    </setting>
+
+
+    <setting name="callCmindelay">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="callCmaxthroughput">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="callCmaxreliability">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="callCmincost">
+      <type>
+        <boolean />
+      </type>
+    </setting>
+    <setting name="callCprecedence">
+      <type>
+        <integer min="0" max="7" />
       </type>
     </setting>
   </group>
@@ -820,6 +938,7 @@ RING SETTINGS
       <type>
         <integer min="0" max="16" />
       </type>
+      <value>7</value>
     </setting>
 
     <setting name="RingtoneOption">
@@ -851,6 +970,7 @@ RING SETTINGS
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
   </group>
 
@@ -869,6 +989,7 @@ CALL SETTINGS
       <type>
         <integer min="1" max="10" />
       </type>
+      <value>0</value>
     </setting>
     <setting name="hotLineEnable">
       <type>
@@ -880,10 +1001,16 @@ CALL SETTINGS
       <type>
         <integer min="0" max="10" />
       </type>
+      <value>2</value>
     </setting>
     <setting name="hotLineNumber">
       <type>
         <string />
+      </type>
+    </setting>
+    <setting name="dialToneTimeout">
+      <type>
+        <integer min="0" max="10" />
       </type>
     </setting>
   </group>
@@ -920,6 +1047,7 @@ KEY TONE SETTINGS
           </option>
         </enum>
       </type>
+      <value>0</value>
     </setting>
 
     <setting name="keypadToneLevel">
@@ -939,8 +1067,26 @@ GAIN SETTINGS
       <type>
         <integer min="0" max="16" />
       </type>
+      <value>10</value>
     </setting>
   </group>
+
+
+<!-- 
+SECURITY SETTINGS
+-->
+    <group name="SECURITY_SETTINGS">
+      <setting name="HMAC_SHA1_80">
+        <type>
+          <boolean />
+        </type>
+      </setting>
+      <setting name="HMAC_SHA1_32">
+        <type>
+          <boolean />
+        </type>
+      </setting>
+    </group>
 
 
 <!-- 
@@ -949,15 +1095,11 @@ SYSTEM SETTINGS
   <group name="SYSTEM_SETTINGS">
     <setting name="httpPassword">
       <type>
-        <string />
+        <string password="yes" />
       </type>
+      <value>123456</value>
     </setting>
 
-    <setting name="tftpServer">
-      <type>
-        <boolean />
-      </type>
-    </setting>
 
     <setting name="systemLogSave">
       <type>
@@ -980,6 +1122,7 @@ SYSTEM SETTINGS
           </option>
         </enum>
       </type>
+      <value>1</value>
     </setting>
 
     <setting name="systemLogServerIp">
@@ -994,6 +1137,20 @@ SYSTEM SETTINGS
         <integer min="1" max="65535" />
       </type>
     </setting>
+
+    <setting name="tftpServer">
+      <type>
+        <string />
+      </type>
+    </setting>
+
+    <setting name="DownloadSettingsFromTftp">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+
   </group>
 
 </model>
