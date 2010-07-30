@@ -1,3 +1,5 @@
+#!BuildIgnore: post-build-checks
+# see http://lizards.opensuse.org/2008/09/08/opensuse-build-service-build-checks/
 Name: @PACKAGE@
 Version: @VERSION@
 Release: %{buildno}
