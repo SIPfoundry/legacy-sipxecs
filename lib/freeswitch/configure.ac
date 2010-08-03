@@ -1,5 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(freeswitch, 1.0.5, sales@avaya.com)
+AC_INIT(freeswitch, 1.0.7, cypromis@freeswitch.de)
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])

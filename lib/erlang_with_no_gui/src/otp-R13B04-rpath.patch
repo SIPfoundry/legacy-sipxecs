@@ -1,0 +1,36 @@
+--- otp_src_R13A/lib/crypto/c_src/Makefile.in.rpath	2009-03-12 13:29:01.000000000 +0100
++++ otp_src_R13A/lib/crypto/c_src/Makefile.in	2009-03-19 12:36:44.000000000 +0100
+@@ -83,7 +83,7 @@
+ DYNAMIC_CRYPTO_LIB=@SSL_DYNAMIC_ONLY@
+
+ ifeq ($(DYNAMIC_CRYPTO_LIB),yes)
+-SSL_DED_LD_RUNTIME_LIBRARY_PATH = @SSL_DED_LD_RUNTIME_LIBRARY_PATH@
++SSL_DED_LD_RUNTIME_LIBRARY_PATH =
+ CRYPTO_LINK_LIB=$(SSL_DED_LD_RUNTIME_LIBRARY_PATH) -L$(SSL_LIBDIR) -lcrypto
+ else
+ SSL_DED_LD_RUNTIME_LIBRARY_PATH=
+--- otp_src_R13A/lib/crypto/priv/Makefile.rpath	2004-09-14 14:07:45.000000000 +0200
++++ otp_src_R13A/lib/crypto/priv/Makefile	2009-03-19 12:38:19.000000000 +0100
+@@ -60,7 +60,7 @@
+ # ----------------------------------------------------
+ 
+ $(SO_DRIVER): $(OBJS)
+-	$(SO_LD) $(SO_LDFLAGS) -L$(SO_SSL_LIBDIR) -Wl,-R$(SO_SSL_LIBDIR) \
++	$(SO_LD) $(SO_LDFLAGS) -L$(SO_SSL_LIBDIR) \
+ 	-o $@ $^ -lcrypto
+ 
+ $(DLL_DRIVER): $(OBJS)
+--- otp_src_R13A/lib/ssl/c_src/Makefile.in.rpath	2009-03-19 12:31:45.000000000 +0100
++++ otp_src_R13A/lib/ssl/c_src/Makefile.in	2009-03-19 12:40:44.000000000 +0100
+@@ -115,9 +115,9 @@
+ CC_R_FLAG =
+ else
+ ifeq ($(findstring osf,$(TARGET)),osf)		# osf1: -Wl,-rpath,
+-CC_R_FLAG = -Wl,-rpath,
++CC_R_FLAG =
+ else						# Default: -Wl,-R
+-CC_R_FLAG = -Wl,-R
++CC_R_FLAG =
+ endif
+ endif
+ endif

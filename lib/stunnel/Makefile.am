@@ -21,7 +21,7 @@ build-rpms: $(SRC)
 	cp  $(SRC_DIR)/$(PACKAGE).init.in  @RPMBUILD_TOPDIR@/BUILD/$(NAME)/tools/
 	tar cfz  @RPMBUILD_TOPDIR@/SOURCES/$(NAME).tar.gz -C @RPMBUILD_TOPDIR@/BUILD $(NAME)
 	rm -rf  @RPMBUILD_TOPDIR@/BUILD/$(NAME)
-	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SRC_SPEC_FILE)
+	QA_RPATHS="\$\[ 0x0001|0x0010 ]"  rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SRC_SPEC_FILE)
 
 $(SRPM): build-rpms
 	mv @RPMBUILD_TOPDIR@/SRPMS/`basename $@` $@

@@ -1,0 +1,105 @@
+-------------------------------------------------------------------
+Mon May  3 08:06:35 UTC 2010 - kruber@zib.de
+
+- added a fix from Arch Linux for their bug 17001 (wx not working)
+- install common_test helper script per default
+
+-------------------------------------------------------------------
+Tue Mar 23 08:30:46 UTC 2010 - aj@suse.de
+
+- Split up packages so that tcl/tk and wxGTK requirements are in sub
+  packages.
+- Do not package erlang sources.
+- Link against shared zlib.
+
+-------------------------------------------------------------------
+Mon Mar  1 2010 kruber@zib.de
+
+- fixed emacs support
+
+-------------------------------------------------------------------
+Thu Feb 25 2010 kruber@zib.de
+
+- update to R13B04, highlights:
+ * documentation can now be built from the source
+ * enhanced Native Implemented Functions (NIFs) (but still beta)
+ * enhanced garbage collection of binaries
+ * support for user defined prompt in the shell
+ * enhanced cross compilation support
+- clean repo from old versions
+- added emacs erlang support
+- reduced package size (hardlink duplicates)
+
+-------------------------------------------------------------------
+Thu Nov 26 2009 kruber@zib.de
+
+- update to R13B03, highlights:
+ * Native Implemented Functions (NIFs) still experimental but very useful.
+ * The documentation is built in a new way using xsltproc and Apache FOP.
+   The layout is changed both in HTML and PDF versions. This is the first step,
+   more changes and improvements will come in the following releases. 
+
+-------------------------------------------------------------------
+Mon Oct 12 2009 nico.laus.2001@gmx.de
+
+- update to R13B02, highlights:
+ * Dialyzer can now refer to types defined in another module, using the syntax
+   Module:Type().
+ * There is a new function file:read_line/1 to facilitate reading entire lines
+   in raw mode.
+ * There is new section in the Efficiency Guide about drivers.
+-------------------------------------------------------------------
+* Thu Aug 20 2009 nico.laus.2001@gmx.de
+
+- use RPM_OPT_FLAGS for distributions other than openSUSE 11.0 or Fedora 9
+ (adding this for those was not possible due to a bug in GCC)
+
+-------------------------------------------------------------------
+* Sat Aug  1 2009 alex@simonov.in.ua
+
+- update to R13B01
+- clean repo from old versions
+- integrated compiler patch that fixes an "Internal consistency check failed" error
+  see http://www.erlang.org/cgi-bin/ezmlm-cgi?2:mss:1335:200906:hbcibacodggnfnj
+- version of java must be equal or great then 1.5.0
+
+-------------------------------------------------------------------
+Tue Feb 10 2009 alex@simonov.in.ua
+
+- add OTP-7738 patch  
+A process being garbage collected via the garbage_collect/1
+BIF or the check_process_code/2 BIF didn't handle message
+receive and resume correctly during the garbage collect.
+When this occurred, the process returned to the state it had
+before the garbage collect instead of entering the new state.
+
+-------------------------------------------------------------------
+* Wed Dec 25 2008 <alex@simonov.in.ua>
+
+- fix build on SLE-10
+
+-------------------------------------------------------------------
+* Wed Dec 24 2008 <alex@simonov.in.ua>
+
+- fix build jinterface, set javac target to 1.5
+- remove depend on gcc 4.3.3
+- add smp support
+- add hipe support
+- add kernel poll support
+- add rpmlint file
+- split java interface into separate package
+
+-------------------------------------------------------------------
+Tue Dec  2 2008 <alex@simonov.in.ua>
+
+- update to R12B-5
+- use GCC >= 4.3.3 for openSUSE 11
+
+-------------------------------------------------------------------
+Tue Oct 30 2007 mrueckert@suse.de
+- fix ssl build
+
+-------------------------------------------------------------------
+Tue Sep 25 2007 mrueckert@suse.de
+- update to R11B-5
+

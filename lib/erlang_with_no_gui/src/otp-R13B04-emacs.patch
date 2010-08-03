@@ -1,0 +1,15 @@
+diff -U 3 -H -d -r -N -x .svn -- otp_src_R13B04/lib/tools/emacs/Makefile otp_src_R13B04.emacs/lib/tools/emacs/Makefile
+--- otp_src_R13B04/lib/tools/emacs/Makefile	2009-11-20 14:33:43.000000000 +0100
++++ otp_src_R13B04.emacs/lib/tools/emacs/Makefile	2010-03-01 10:41:52.963143259 +0100
+@@ -39,7 +39,10 @@
+ EMACS_FILES= \
+ 	erlang-start \
+ 	erlang-eunit \
+-	erlang
++	erlang \
++	erlang_appwiz \
++	erlang-skels \
++	erlang-skels-old
+ 
+ README_FILES= README
+ 

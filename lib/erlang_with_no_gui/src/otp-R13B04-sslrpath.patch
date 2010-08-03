@@ -1,0 +1,20 @@
+--- otp_src_R13B04/lib/ssl/c_src/Makefile.in.sslrpath	2010-02-19 19:07:29.000000000 +0100
++++ otp_src_R13B04/lib/ssl/c_src/Makefile.in	2010-02-25 10:53:11.172475223 +0100
+@@ -105,7 +105,7 @@
+ SSL_MAKEFILE =
+ endif
+ 
+-CC_R_FLAG=@CFLAG_RUNTIME_LIBRARY_PATH@
++CC_R_FLAG=
+ 
+ ifeq ($(findstring @,$(CC_R_FLAG)),@)
+ # Old erts configure used which hasn't replaced @CFLAG_RUNTIME_LIBRARY_PATH@;
+@@ -128,7 +128,7 @@
+ CC_R_OPT = $(CC_R_FLAG)$(SSL_LIBDIR)
+ endif
+ 
+-SSL_CC_RUNTIME_LIBRARY_PATH=@SSL_CC_RUNTIME_LIBRARY_PATH@
++SSL_CC_RUNTIME_LIBRARY_PATH=
+ # Sigh...
+ ifeq ($(findstring @,$(SSL_CC_RUNTIME_LIBRARY_PATH)),@)
+ SSL_CC_RUNTIME_LIBRARY_PATH = $(CC_R_OPT)

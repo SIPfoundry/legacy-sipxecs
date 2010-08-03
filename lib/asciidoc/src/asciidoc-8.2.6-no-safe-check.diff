@@ -1,0 +1,19 @@
+---
+ asciidoc.py |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/asciidoc.py
++++ b/asciidoc.py
+@@ -231,9 +231,9 @@
+     if not os.path.isfile(fname):
+         message.warning('include file not found: %s' % fname)
+         return None
+-    if not is_safe_file(fname, parentdir):
+-        message.unsafe('include file: %s' % fname)
+-        return None
++#    if not is_safe_file(fname, parentdir):
++#        message.unsafe('include file: %s' % fname)
++#        return None
+     return fname
+ 
+ def assign(dst,src):
