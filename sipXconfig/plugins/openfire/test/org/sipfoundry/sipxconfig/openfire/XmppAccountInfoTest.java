@@ -110,12 +110,14 @@ public class XmppAccountInfoTest extends TestCase {
         m_userOne.setUserName("One");
         m_userOne.setImId("One_IM");
         m_userOne.setImDisplayName("One_IM_DisplayName");
+        m_userOne.setEmailAddress("one@puppy.org");
 
         m_userTwo = new User();
         m_userTwo.setPermissionManager(m_pm);
         m_userTwo.addGroup(m_group2);
         m_userTwo.setUserName("Two");
         m_userTwo.setImDisplayName("Two_IM_DisplayName");
+        m_userTwo.setEmailAddress("two@puppy.org");
 
         m_userThree = new User();
         m_userThree.setPermissionManager(m_pm);
@@ -125,6 +127,7 @@ public class XmppAccountInfoTest extends TestCase {
         m_userThree.setSettingTypedValue("im/include-call-info", true);
         m_userThree.setUserName("Three");
         m_userThree.setImPassword("bongoImPassword");
+        m_userThree.setEmailAddress("three@puppy.org");
 
         m_userFour = new User();
         m_userFour.setPermissionManager(m_pm);

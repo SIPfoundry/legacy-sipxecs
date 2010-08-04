@@ -6,6 +6,7 @@
     <sip-user-name>One</sip-user-name>
     <display-name>One_IM_DisplayName</display-name>
     <password>One_IM</password>
+    <email>one@puppy.org</email>
     <on-the-phone-message>testing phone message</on-the-phone-message>
     <advertise-on-call-status>true</advertise-on-call-status>
     <show-on-call-details>false</show-on-call-details>
@@ -15,6 +16,7 @@
     <sip-user-name>Three</sip-user-name>
     <display-name>Three</display-name>
     <password>bongoImPassword</password>
+    <email>three@puppy.org</email>
     <on-the-phone-message></on-the-phone-message>
     <advertise-on-call-status>true</advertise-on-call-status>
     <show-on-call-details>true</show-on-call-details>
@@ -24,6 +26,7 @@
     <sip-user-name>Four</sip-user-name>
     <display-name>Four_IM_DisplayName</display-name>
     <password>Four</password>
+    <email></email>
     <on-the-phone-message>On the phone</on-the-phone-message>
     <advertise-on-call-status>true</advertise-on-call-status>
     <show-on-call-details>false</show-on-call-details>
@@ -33,6 +36,7 @@
     <sip-user-name>Five</sip-user-name>
     <display-name>Five_DisplayName</display-name>
     <password>Five</password>
+    <email></email>
     <on-the-phone-message>On the phone</on-the-phone-message>
     <advertise-on-call-status>true</advertise-on-call-status>
     <show-on-call-details>false</show-on-call-details>
@@ -42,6 +46,7 @@
     <sip-user-name>MyAssistant</sip-user-name>
     <display-name>MyAssistant</display-name>
     <password>password</password>
+    <email></email>
     <on-the-phone-message>On the phone</on-the-phone-message>
     <advertise-on-call-status>true</advertise-on-call-status>
     <show-on-call-details>false</show-on-call-details>

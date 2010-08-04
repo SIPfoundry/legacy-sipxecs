@@ -6,6 +6,7 @@
   <sip-user-name>user1</sip-user-name>
   <display-name>Mr. User One </display-name>
   <password>123</password>
+  <email>user1@domain.org</email>
   <on-the-phone-message>I am on the phone so buzz off. </on-the-phone-message>
 </user>
 
@@ -14,6 +15,7 @@
    <sip-user-name>user2</sip-user-name>
    <display-name>Mr. User Two </display-name>
    <password>123</password>
+   <email>user2@domain.org</email>
    <on-the-phone-message>I am on the phone so buzz off. </on-the-phone-message>
 </user>
 

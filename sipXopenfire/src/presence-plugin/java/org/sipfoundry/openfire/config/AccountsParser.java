@@ -333,6 +333,7 @@ public class AccountsParser {
         addCallMethod("password", "setPassword");
         addCallMethod("user-name", "setUserName");
         addCallMethod("sip-user-name", "setSipUserName");
+        addCallMethod("email", "setEmail");
         addCallMethod("display-name", "setDisplayName");
         addCallMethod("on-the-phone-message", "setOnThePhoneMessage");
         addCallMethod("conference-extension", "setConferenceExtension");

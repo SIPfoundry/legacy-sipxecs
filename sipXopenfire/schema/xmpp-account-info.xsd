@@ -33,6 +33,12 @@
     				<documentation>xmpp account password</documentation>
     			</annotation>
     		</element>
+			<element name="email" type="string" minOccurs="1"
+                maxOccurs="1">
+				<annotation>
+					<documentation>xmpp email address</documentation>
+				</annotation>
+			</element>
     		<element name="on-the-phone-message" type="string"
     			minOccurs="1" maxOccurs="1">
     			<annotation>

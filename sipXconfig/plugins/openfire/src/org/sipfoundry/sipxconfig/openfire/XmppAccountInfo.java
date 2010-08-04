@@ -109,11 +109,12 @@ public class XmppAccountInfo extends XmlFile {
         userAccounts.addElement("sip-user-name").setText(user.getName());
         userAccounts.addElement(DISPLAY_NAME).setText(imAccount.getImDisplayName());
         userAccounts.addElement(PASSWORD).setText(imAccount.getImPassword());
+        String email = imAccount.getEmailAddress();
+        userAccounts.addElement("email").setText(email != null ? email : "");
         userAccounts.addElement("on-the-phone-message").setText(imAccount.getOnThePhoneMessage());
         userAccounts.addElement("advertise-on-call-status").setText(
                 Boolean.toString(imAccount.advertiseSipPresence()));
         userAccounts.addElement("show-on-call-details").setText(Boolean.toString(imAccount.includeCallInfo()));
-
     }
 
     private void createXmppChatRoom(Conference conference, Element accountInfos) {

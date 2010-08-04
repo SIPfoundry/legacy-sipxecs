@@ -14,7 +14,9 @@ public class XmppUserAccount extends XmppConfigurationElement {
     private String displayName = "";
     
     private String password = "";
-    
+
+    private String email = "";
+
     private String onThePhoneMessage = "";
     
     private boolean bAdvertiseOnCallStatus = false;
@@ -24,18 +26,18 @@ public class XmppUserAccount extends XmppConfigurationElement {
 
     public XmppUserAccount () {
     }
+
     public String getEmail() {
-        return null;
+        return email;
     }
-    
+
     public String getDisplayName() {
         return this.displayName;
     }
-    
+
     public String getPassword() {
         return this.password;
     }
-
 
     /**
      * @param password the password to set
@@ -43,6 +45,14 @@ public class XmppUserAccount extends XmppConfigurationElement {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    /**
+     * @param email
+     */
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     /**
      * @param userName the userName to set
      */
@@ -121,6 +131,7 @@ public class XmppUserAccount extends XmppConfigurationElement {
             sipUserName.equals(otherAccount.sipUserName)                  &&
             displayName.equals(otherAccount.displayName)                  &&
             password.equals(otherAccount.password)                        &&
+            email.equals(otherAccount.getEmail())                         &&
             onThePhoneMessage.equals(otherAccount.onThePhoneMessage)      &&
             bAdvertiseOnCallStatus == otherAccount.bAdvertiseOnCallStatus &&
             bShowOnCallDetails == otherAccount.bShowOnCallDetails;

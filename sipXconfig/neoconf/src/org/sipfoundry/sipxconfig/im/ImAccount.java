@@ -109,6 +109,10 @@ public class ImAccount {
         return getImId();
     }
 
+    public String getEmailAddress() {
+        return m_user.getEmailAddress();
+    }
+
     public String getOnThePhoneMessage() {
         return defaultString((String) m_user.getSettingTypedValue("im/on-the-phone-message"));
     }
