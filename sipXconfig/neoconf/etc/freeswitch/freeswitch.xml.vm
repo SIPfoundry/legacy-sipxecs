@@ -45,7 +45,7 @@
   -->
 
   <!--\#set "domain=$domain.name"-->
-  <!--\#set "global_codec_prefs=$settings.getSetting('FREESWITCH_CODECS').Value"-->
+  <!--\#set "global_codec_prefs=$settings.getSetting('FREESWITCH_CODECS').Value.replace('|',',')"-->
 
   <section name="configuration" description="Various Configuration">
     <X-PRE-PROCESS cmd="include" data="autoload_configs/*.xml"/>
@@ -69,5 +69,3 @@
   </section>
 
 </document>
-
-

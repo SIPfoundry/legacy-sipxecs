@@ -1,4 +1,7 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <div jwcid="warning@If" condition="ognl:sipxService.warningKey!=null" class="user-warning">
+    <span jwcid="@Insert" value="ognl:messages.getMessage(sipxService.warningKey)">Warning</span>
+  </div>
   <div jwcid="@common/BreadCrumbNavigation" breadCrumbs="ognl:breadCrumbs"/>
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"

@@ -319,6 +319,13 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
         // no validation is done by default
     }
 
+    /**
+     * Override this method if a warning notification should be prompted
+     */
+    public String getWarningKey() {
+        return null;
+    }
+
     @Override
     protected Setting loadSettings() {
         return getModelFilesContext().loadModelFile(m_modelName, m_modelDir);

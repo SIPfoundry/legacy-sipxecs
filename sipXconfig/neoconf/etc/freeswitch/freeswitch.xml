@@ -2,9 +2,31 @@
 <!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
   "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
+  <type id="preffered-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>G722</value>
+      </option>
+      <option>
+        <value>PCMU@20i</value>
+      </option>
+      <option>
+        <value>PCMA@20i</value>
+      </option>
+      <option>
+        <value>speex</value>
+      </option>
+      <option>
+        <value>L16</value>
+      </option>
+      <option>
+        <value>G729</value>
+      </option>                                           
+    </multi-enum>
+  </type>
   <group name="freeswitch-config">
     <setting name="FREESWITCH_CODECS">
-      <value>G722,PCMU@20i,PCMA@20i,speex,L16</value>
+      <type refid="preffered-codecs-type"/>
     </setting>
     <setting name="FREESWITCH_SIP_PORT" advanced="yes">
       <type>

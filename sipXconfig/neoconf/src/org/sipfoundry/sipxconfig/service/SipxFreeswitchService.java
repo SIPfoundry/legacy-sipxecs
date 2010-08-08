@@ -10,7 +10,10 @@
 package org.sipfoundry.sipxconfig.service;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
@@ -19,7 +22,9 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.conference.FreeswitchApi;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
+import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 
 public class SipxFreeswitchService extends SipxService implements LoggingEntity {
@@ -27,10 +32,11 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     public static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
     public static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
     public static final String RELOAD_XML_JOB_TITLE = "FreeSWITCH reload configuration";
-
+    public static final String FREESWITCH_CODECS = "freeswitch-config/FREESWITCH_CODECS";
     public static final String BEAN_ID = "sipxFreeswitchService";
-
     public static final String LOG_SETTING = "freeswitch-config/FREESWITCH_SIP_DEBUG";
+    public static final String G729 = "G729";
+    public static final String G729_STATUS = "Permitted G.729AB channels";
 
     public static final Logger LOG = Logger.getLogger("SipxFreeswitchService.class");
 
@@ -46,6 +52,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
         }
     }
 
+    private static boolean s_codecG729;
     private static final String FALSE = "0";
     private static final String TRUE = "1";
     private static final String DEBUG = "DEBUG";
@@ -68,6 +75,54 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
 
     public String getServiceUri(Location location) {
         return String.format("http://%s:%d/RPC2", location.getFqdn(), getXmlRpcPort());
+    }
+
+    /**
+     * No matter if the service is installed on more than one location,
+     * if at least one location has the G729 codec installed, sipXconfig will consider it
+     * available on all locations
+     */
+    @Override
+    public void onInit() {
+        setCodecG729(isCodecG729Installed());
+    }
+
+    /**
+     * No matter if the service is installed on more than one location,
+     * if at least one location has the G729 codec installed, sipXconfig will consider it
+     * available on all locations
+     */
+    @Override
+    public void onRestart() {
+        setCodecG729(isCodecG729Installed());
+    }
+
+    private boolean isCodecG729Installed() {
+        List<Location> locations =  getLocationsManager().getLocationsForService(this);
+        String serviceUri = null;
+        FreeswitchApi api = null;
+        String result = null;
+        for (Location location : locations) {
+            if (getSipxServiceManager().isServiceInstalled(location.getId(), BEAN_ID)) {
+                serviceUri = getServiceUri(location);
+                api = m_freeswitchApiProvider.getApi(serviceUri);
+                try {
+                    result = api.g729_status();
+                    if (StringUtils.contains(result, G729_STATUS)) {
+                        return true;
+                    }
+                } catch (XmlRpcRemoteException xrre) {
+                    LOG.error(xrre);
+                    return false;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(new Defaults());
     }
 
     @Override
@@ -213,5 +268,39 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     @Override
     public void onConfigChange() {
         m_replicationContext.generate(DataSet.ALIAS);
+    }
+
+    @Override
+    public String getWarningKey() {
+        if (!isCodecG729()) {
+            return "freeswitch.warning";
+        } else {
+            return null;
+        }
+    }
+
+    public static boolean isCodecG729() {
+        return s_codecG729;
+    }
+
+    public static void setCodecG729(boolean mCodecG729) {
+        s_codecG729 = mCodecG729;
+    }
+
+    public static class Defaults {
+
+        @SettingEntry(path = FREESWITCH_CODECS)
+        public List<String> getFreeswitchCodecs() {
+            ArrayList<String> returnList = new ArrayList<String>();
+            returnList.add("G722");
+            returnList.add("PCMU@20i");
+            returnList.add("PCMA@20i");
+            returnList.add("speex");
+            returnList.add("L16");
+            if (s_codecG729) {
+                returnList.add(G729);
+            }
+            return returnList;
+        }
     }
 }

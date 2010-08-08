@@ -17,7 +17,7 @@
     <param name="sip-port" value="15060"/>
     <param name="dialplan" value="XML"/>
     <param name="dtmf-duration" value="100"/>
-    <param name="codec-prefs" value="G722,PCMU@20i,PCMA@20i,speex,L16"/>
+    <param name="codec-prefs" value="G722,PCMU@20i,PCMA@20i,speex,L16,G729"/>
     <param name="hold-music" value="$${hold_music}"/>
     <param name="rtp-timer-name" value="soft"/>
     <!--<param name="enable-100rel" value="true"/>-->

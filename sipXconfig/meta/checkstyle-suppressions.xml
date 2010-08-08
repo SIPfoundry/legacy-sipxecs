@@ -14,4 +14,6 @@
               files="DaoAuthenticationProvider.java"/>
     <suppress checks="[a-zA-Z0-9]*"
               files="DigestProcessingFilter.java"/>
+    <suppress checks="[a-zA-Z0-9]*"
+              files="FreeswitchApi.java"/>              
 </suppressions>

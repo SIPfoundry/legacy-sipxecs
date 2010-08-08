@@ -10,6 +10,8 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService.Defaults;
+import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 
 import junit.framework.TestCase;
 
@@ -34,6 +36,18 @@ public class SipxFreeswitchServiceTest extends TestCase {
 
         assertEquals(8081, m_service.getXmlRpcPort());
         assertEquals(15061, m_service.getFreeswitchSipPort());
+    }
+
+    public void testDefaultCodecs() {
+        SipxFreeswitchService.setCodecG729(true);
+        m_service.initialize();
+        String value = m_service.getSettingValue(SipxFreeswitchService.FREESWITCH_CODECS);
+        assertEquals("G722|PCMU@20i|PCMA@20i|speex|L16|G729", value);
+
+        SipxFreeswitchService.setCodecG729(false);
+        m_service.initialize();
+        value = m_service.getSettingValue(SipxFreeswitchService.FREESWITCH_CODECS);
+        assertEquals("G722|PCMU@20i|PCMA@20i|speex|L16", value);
     }
 
     public void testGetServiceUri() {

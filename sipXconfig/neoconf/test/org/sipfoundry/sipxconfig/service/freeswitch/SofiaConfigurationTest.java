@@ -13,6 +13,8 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService.Defaults;
+import org.sipfoundry.sipxconfig.setting.type.MultiEnumSetting;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -23,10 +25,22 @@ import static org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType.MEDIA
 public class SofiaConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
+        write(false);
+    }
+
+    public void testWriteG729() throws Exception {
+        write(true);
+    }
+
+    private void write(boolean codecG729) throws Exception {
         SipxFreeswitchService service = new SipxFreeswitchService();
         service.setModelDir("freeswitch");
         service.setModelName("freeswitch.xml");
         initCommonAttributes(service);
+
+        //set/unset G729 codec
+        SipxFreeswitchService.setCodecG729(codecG729);
+        service.initialize();
 
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
@@ -51,10 +65,15 @@ public class SofiaConfigurationTest extends SipxServiceTestBase {
         SofiaConfiguration configuration = new SofiaConfiguration();
         configuration.setSipxServiceManager(sipxServiceManager);
         configuration.setTemplate("freeswitch/sofia.conf.xml.vm");
+
         configuration.setDomainManager(domainManager);
         configuration.setCoreContext(coreContext);
 
-        assertCorrectFileGeneration(configuration, "sofia.conf.test.xml");
+        if (!codecG729) {
+            assertCorrectFileGeneration(configuration, "sofia.conf.test.xml");
+        } else {
+            assertCorrectFileGeneration(configuration, "sofia_G729.conf.test.xml");
+        }
 
         verify(sipxServiceManager, domainManager, coreContext);
     }

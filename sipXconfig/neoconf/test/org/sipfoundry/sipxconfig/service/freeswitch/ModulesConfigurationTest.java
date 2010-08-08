@@ -7,35 +7,45 @@
  */
 package org.sipfoundry.sipxconfig.service.freeswitch;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
 public class ModulesConfigurationTest extends SipxServiceTestBase {
 
     public void testWrite() throws Exception {
+        write(false);
+    }
+
+    public void testWriteG729() throws Exception {
+        write(true);
+    }
+
+    public void write(boolean codecG729) throws Exception {
         SipxFreeswitchService service = new SipxFreeswitchService();
         service.setModelDir("freeswitch");
         service.setModelName("freeswitch.xml");
         initCommonAttributes(service);
 
-        SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
-        sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
-        expectLastCall().andReturn(service);
+        //set/unset G729 codec
+        SipxFreeswitchService.setCodecG729(codecG729);
+        service.initialize();
 
-        replay(sipxServiceManager);
+        SipxServiceManager manager = EasyMock.createMock(SipxServiceManager.class);
+        manager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(service).anyTimes();
+        EasyMock.replay(manager);
 
-        XmlRpcConfiguration configuration = new XmlRpcConfiguration();
-        configuration.setSipxServiceManager(sipxServiceManager);
+        ModulesConfiguration configuration = new ModulesConfiguration();
+        configuration.setSipxServiceManager(manager);
         configuration.setTemplate("freeswitch/modules.conf.xml.vm");
 
-        assertCorrectFileGeneration(configuration, "modules.conf.test.xml");
-
-        verify(sipxServiceManager);
+        if (codecG729) {
+            assertCorrectFileGeneration(configuration, "modules_g729.conf.test.xml");
+        } else {
+            assertCorrectFileGeneration(configuration, "modules.conf.test.xml");
+        }
     }
+
 }

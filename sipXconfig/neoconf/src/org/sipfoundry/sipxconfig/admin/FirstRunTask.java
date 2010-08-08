@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.paging.PagingContext;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
@@ -60,6 +62,11 @@ public class FirstRunTask implements ApplicationListener {
         m_resetDialPlanTask.reset(false);
         m_sbcManager.loadDefaultSbc();
         m_alarmServerManager.deployAlarms();
+
+        //by default, select G729 codec and replicate corresponding files
+        SipxService service = m_sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+        service.onInit();
+        m_serviceConfigurator.replicateServiceConfig(service);
 
         enforceRoles();
         generateAllProfiles();
@@ -110,7 +117,6 @@ public class FirstRunTask implements ApplicationListener {
             runTask();
             removeTask();
         }
-
     }
 
     private void removeTask() {

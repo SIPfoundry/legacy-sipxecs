@@ -9,8 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+
 public class FreeswitchApiConnectException extends FreeswitchApiException {
+    private static final String ERROR_CONNECT = "&error.connect";
+
     public FreeswitchApiConnectException(Bridge bridge, Throwable cause) {
-        super("&error.connect", bridge.getHost(), cause.getMessage());
+        super(ERROR_CONNECT, bridge.getHost(), cause.getMessage());
+    }
+
+    public FreeswitchApiConnectException(Location location, Throwable cause) {
+        super(ERROR_CONNECT, location.getFqdn(), cause.getMessage());
     }
 }

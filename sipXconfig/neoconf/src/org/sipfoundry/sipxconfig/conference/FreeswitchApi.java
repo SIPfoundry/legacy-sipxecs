@@ -15,4 +15,5 @@ package org.sipfoundry.sipxconfig.conference;
 public interface FreeswitchApi {
     void reloadxml();
     String conference(String command);
+    String g729_status();
 }

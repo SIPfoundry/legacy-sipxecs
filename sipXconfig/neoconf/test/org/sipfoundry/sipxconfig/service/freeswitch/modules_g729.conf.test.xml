@@ -66,11 +66,7 @@
     <!-- Codec Interfaces -->
     <load module="mod_voipcodecs"/>
     <load module="mod_g723_1"/>
-#if(${codecG729})
     <load module="mod_com_g729"/>
-#else
-    <load module="mod_g729"/>
-#end
     <load module="mod_amr"/>
     <load module="mod_ilbc"/>
     <load module="mod_speex"/>
