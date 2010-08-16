@@ -43,11 +43,11 @@ public class OpenfireConfigurationTest extends TestCase {
 
     private LdapManager m_ldapManager;
 
-    private LdapSystemSettings m_ldapSystemSettings = new LdapSystemSettings();
+    private final LdapSystemSettings m_ldapSystemSettings = new LdapSystemSettings();
 
-    private LdapConnectionParams m_ldapConnectionParams = new LdapConnectionParams();
+    private final LdapConnectionParams m_ldapConnectionParams = new LdapConnectionParams();
 
-    private AttrMap m_ldapAttrMap = new AttrMap();
+    private final AttrMap m_ldapAttrMap = new AttrMap();
 
     private LocationsManager m_locationsManager;
 
@@ -56,7 +56,7 @@ public class OpenfireConfigurationTest extends TestCase {
         m_ldapSystemSettings.setEnableOpenfireConfiguration(false);
 
         m_ldapConnectionParams.setHost("localhost");
-        m_ldapConnectionParams.setPort(389);
+        // no port specified: defaults to 389
         m_ldapConnectionParams.setPrincipal("cn=Directory Manager");
         m_ldapConnectionParams.setSecret("secret");
 

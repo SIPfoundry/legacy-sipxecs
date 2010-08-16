@@ -28,12 +28,11 @@
     <binding name="field" value="components.port"/>
     <binding name="label" value="message:label.port"/>
     <binding name="description" value="message:description.port"/>
-    <binding name="defaultValue" value="message:default.port"/>
   </component>
   <component id="port" type="TextField">
     <binding name="value" value="lcp.port"/>
-    <binding name="translator" value="translator:integer,omitZero=true"/>
-    <binding name="validators" value="validators:required,min=1,max=65535"/>
+    <binding name="translator" value="translator:integer"/>
+    <binding name="validators" value="validators:min=1,max=65535"/>
     <binding name="displayName" value="message:label.port"/>
   </component>
 

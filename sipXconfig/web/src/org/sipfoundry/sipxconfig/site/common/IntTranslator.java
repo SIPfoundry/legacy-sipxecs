@@ -49,4 +49,9 @@ public class IntTranslator extends SipxconfigNumberTranslator {
             throw new ValidatorException(buildMessage(messages, field, getMessageKey()), getConstraint());
         }
     }
+
+    @Override
+    protected Object getValueForEmptyInput() {
+        return null;
+    }
 }

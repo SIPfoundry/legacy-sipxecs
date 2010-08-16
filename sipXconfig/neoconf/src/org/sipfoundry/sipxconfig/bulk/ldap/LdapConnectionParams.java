@@ -23,8 +23,11 @@ import org.springframework.ldap.support.LdapContextSource;
  * Used to store LDAP connections in the DB LdapConnectionParams
  */
 public class LdapConnectionParams extends BeanWithId {
+    private static final int DEFAULT_PORT = 389;
+    private static final int DEFAULT_SSL_PORT = 636;
+
     private String m_host;
-    private int m_port;
+    private Integer m_port;
     private String m_principal;
     private String m_secret;
     private boolean m_useTls;
@@ -44,11 +47,11 @@ public class LdapConnectionParams extends BeanWithId {
         m_host = host;
     }
 
-    public int getPort() {
+    public Integer getPort() {
         return m_port;
     }
 
-    public void setPort(int port) {
+    public void setPort(Integer port) {
         m_port = port;
     }
 
@@ -76,11 +79,20 @@ public class LdapConnectionParams extends BeanWithId {
         m_useTls = useTls;
     }
 
-    public String getUrl() {
-        if (m_useTls) {
-            return String.format("ldaps://%s:%d", m_host, m_port);
+    public Integer getPortToUse() {
+        Integer portToUse = m_port;
+        if (portToUse == null) {
+            portToUse = m_useTls ? DEFAULT_SSL_PORT : DEFAULT_PORT;
         }
-        return String.format("ldap://%s:%d", m_host, m_port);
+        return portToUse;
+    }
+
+    public String getUrl() {
+        Integer portToUse = getPortToUse();
+        if (m_useTls) {
+            return String.format("ldaps://%s:%d", m_host, portToUse);
+        }
+        return String.format("ldap://%s:%d", m_host, portToUse);
     }
 
     public void setSchedule(CronSchedule schedule) {

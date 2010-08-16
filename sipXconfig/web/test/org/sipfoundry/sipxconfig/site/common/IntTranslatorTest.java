@@ -35,6 +35,24 @@ public class IntTranslatorTest extends TestCase {
         assertEquals("3456", formattedInt);
     }
 
+    public void testParseValue() {
+        IntTranslator out = new IntTranslator();
+        IFormComponent field = new TextFieldMock();
+        ValidationMessages messages = new ValidationMessagesImpl(field, Locale.US);
+        Object resultBlank = null;
+        long result = 0;
+        try {
+            String textBlank = "";
+            String text = "111";
+            resultBlank = out.parse(field, messages, textBlank);
+            result = (Long) out.parse(field, messages, text);
+
+        } catch (ValidatorException ex) {
+        }
+        assertEquals(null, resultBlank);
+        assertEquals(111, result);
+    }
+
     public void testParseText() {
         IntTranslator out = new IntTranslator();
         IFormComponent field = new TextFieldMock();

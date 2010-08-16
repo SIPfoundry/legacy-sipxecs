@@ -44,4 +44,27 @@ public class LdapConnectionParamsTest extends TestCase {
 
         EasyMock.verify(config);
     }
+
+    public void testAuthenticationDefaultPort() {
+        Map other = new HashMap();
+        other.put(Context.REFERRAL, "follow");
+
+        LdapContextSource config = EasyMock.createMock(LdapContextSource.class);
+        config.setUrl("ldap://example.sipfoundry.org:389");
+        config.setUserName("uid=bongo,dc=sipfoundry,dc=com");
+        config.setPassword("abc");
+        config.setBaseEnvironmentProperties(other);
+
+        EasyMock.replay(config);
+
+        LdapConnectionParams params = new LdapConnectionParams();
+        params.setHost("example.sipfoundry.org");
+        params.setPrincipal("uid=bongo,dc=sipfoundry,dc=com");
+        params.setSecret("abc");
+        params.setReferral("follow");
+
+        params.applyToContext(config);
+
+        EasyMock.verify(config);
+    }
 }

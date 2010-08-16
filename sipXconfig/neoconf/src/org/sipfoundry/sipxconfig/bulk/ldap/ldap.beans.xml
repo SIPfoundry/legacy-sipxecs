@@ -40,8 +40,7 @@
   </bean>
 
   <bean id="ldapConnectionParams" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams" singleton="false">
-    <property name="host" value="localhost" />
-    <property name="port" value="389" />
+    <property name="host" value="localhost" />    
     <property name="referral" value="follow" />
   </bean>
 
