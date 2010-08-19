@@ -17,6 +17,7 @@ package org.sipfoundry.sipxconfig.security;
 
 import org.acegisecurity.Authentication;
 import org.acegisecurity.AuthenticationServiceException;
+import org.acegisecurity.BadCredentialsException;
 import org.acegisecurity.ldap.DefaultInitialDirContextFactory;
 import org.acegisecurity.ldap.InitialDirContextFactory;
 import org.acegisecurity.ldap.LdapUserSearch;
@@ -30,6 +31,7 @@ import org.acegisecurity.providers.ldap.authenticator.BindAuthenticator;
 import org.acegisecurity.userdetails.UserDetails;
 import org.acegisecurity.userdetails.UserDetailsService;
 import org.acegisecurity.userdetails.ldap.LdapUserDetails;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.bulk.ldap.AttrMap;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
@@ -182,6 +184,13 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         protected void additionalAuthenticationChecks(UserDetails userDetails,
                                         UsernamePasswordAuthenticationToken authentication) {
             // passwords are checked in ldap layer
+            //make sure that LDAP bind password is rejected
+            LdapConnectionParams params = m_ldapManager.getConnectionParams();
+            if (ObjectUtils.equals(authentication.getCredentials(), params.getSecret())) {
+                throw new BadCredentialsException(messages.getMessage(
+                        "AbstractUserDetailsAuthenticationProvider.badCredentials",
+                        "Bad credentials"), userDetails.getUsername());
+            }
             return;
         }
     }
