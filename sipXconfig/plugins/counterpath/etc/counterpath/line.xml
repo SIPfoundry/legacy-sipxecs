@@ -12,6 +12,17 @@
       </false>
     </boolean>
   </type>
+  <group name="dial_plan">
+    <setting name="digit_map">
+      <value />
+    </setting>
+    <setting name="digit_map_timer_critical" advanced="yes">
+      <value>4000</value>
+    </setting>
+    <setting name="digit_map_timer_partial" advanced="yes">
+      <value>16000</value>
+    </setting>
+  </group>
   <group name="registration">
     <setting name="username">
       <value />
@@ -140,6 +151,15 @@
       <type refid="true-false" />
       <value>true</value>
     </setting>
+    <setting name="resource_lists_user_name">
+      <value />
+    </setting>
+    <setting name="resource_lists_password">
+      <value />
+    </setting>
+    <setting name="resource_lists_path">
+      <value />
+    </setting>
     <setting name="resource_lists_poll_time">
       <type>
         <integer />
@@ -214,9 +234,11 @@
         </type>
         <value />
       </setting>
-      <setting name="send_internal_ip_address">
-        <type refid="true-false" />
-        <value>true</value>
+      <setting name="firewall_traversal_mode">
+        <type>
+          <integer />
+        </type>
+        <value>0</value>
       </setting>
       <setting name="send_sip_keep_alive_messages">
         <type refid="true-false" />
