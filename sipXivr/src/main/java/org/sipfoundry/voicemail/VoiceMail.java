@@ -391,10 +391,6 @@ public class VoiceMail {
         return m_config;
     }
 
-    public IvrConfiguration getIvrConfig() {
-        return m_ivrConfig;
-    }
-    
     public void setConfig(Configuration config) {
         m_config = config;
     }
