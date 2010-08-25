@@ -61,6 +61,7 @@ import javax.sip.Transaction;
 import javax.sip.address.Address;
 import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
+import javax.sip.address.URI;
 import javax.sip.header.AllowHeader;
 import javax.sip.header.CSeqHeader;
 import javax.sip.header.CallIdHeader;
@@ -754,14 +755,12 @@ class SipUtilities {
 			 * From: header Domain determination.
 			 */
 			String domain = fromDomain;
-			if (passertedIdentityHeader != null || ppreferredIdentityHeader != null) {
-				// ITSP wants to use P-Asserted-Identity or P-Preferred-Identity.
-				// Generate From header from the account identification.
-				if (itspAccount.getUserName() != null
-						&& itspAccount.getDefaultDomain() != null) {
+			Address fromAddress = null;
+			if (itspAccount.isFromItsp()) {				
+			    if (itspAccount.getUserName() != null && itspAccount.getDefaultDomain() != null) {
 					fromUser = itspAccount.getUserName();
 					domain = itspAccount.getDefaultDomain();
-				}
+			    }
 			} else if (fromUser.equalsIgnoreCase("anonymous")
 					&& fromDomain.equalsIgnoreCase("invalid")) {
 				privacyHeader = ((HeaderFactoryExt) ProtocolObjects.headerFactory)
@@ -780,12 +779,11 @@ class SipUtilities {
 				}
 			}
 
-			SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
-					fromUser, domain);
-			fromHeader = ProtocolObjects.headerFactory.createFromHeader(
-					ProtocolObjects.addressFactory.createAddress(fromUri),
-					new Long(Math.abs(new java.util.Random().nextLong()))
-							.toString());
+           SipURI fromUri = ProtocolObjects.addressFactory.createSipURI(
+                           fromUser, domain);
+           fromHeader = ProtocolObjects.headerFactory.createFromHeader(
+                   ProtocolObjects.addressFactory.createAddress(fromUri),
+				   new Long(Math.abs(new java.util.Random().nextLong())).toString());
 
 			fromHeader.setTag(new Long(Math.abs(new java.util.Random()
 					.nextLong())).toString());

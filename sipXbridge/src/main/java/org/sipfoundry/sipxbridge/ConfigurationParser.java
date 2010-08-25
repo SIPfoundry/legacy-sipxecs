@@ -268,6 +268,11 @@ public class ConfigurationParser {
                     Boolean.class
                 });
 
+        digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "is-from-itsp"),
+                "setFromItsp",0, new Class[] {
+                    Boolean.class
+        });
+
         digester.addCallMethod(String.format("%s/%s", ITSP_CONFIG, "preferred-identity"),
                 "setPreferredCallerId", 0);
         

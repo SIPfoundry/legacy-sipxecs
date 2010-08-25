@@ -234,7 +234,11 @@ public class ItspAccountInfo  {
     
     
     private String authenticationUserName;
-    
+
+    /*
+     * fix the value of the from header for outgoing SIP messages
+     */
+    private boolean isFromItsp;
 
     /**
      * Rewrite To field into message start line request uri for incoming messages
@@ -735,6 +739,17 @@ public class ItspAccountInfo  {
      */
     public void setUseDefaultPreferredIdentity(boolean flag) {
         this.useDefaultPreferredIdentity = flag;
+    }
+
+    /**
+     * fix the value of the From: header for outgoing messages
+     */
+    public void setFromItsp(boolean isFromItsp) {
+        this.isFromItsp = isFromItsp;
+    }
+
+    public boolean isFromItsp() {
+        return this.isFromItsp;
     }
 
     /**
