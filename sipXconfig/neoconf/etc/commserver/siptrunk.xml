@@ -112,6 +112,13 @@
         Override the default asserted identity.
       </description>
     </setting>
+    <setting name="is-from-itsp" advanced="yes">
+      <label>INVITE From ITSP Account</label>
+      <type refid="switch"></type>
+      <description>
+        Set the From header to ITSP account information for outgoing INVITE messages.  If you need to set this, ITSP is not following RFC and should be notified to this fact.
+      </description>
+    </setting>
     <setting name="default-preferred-identity" advanced="yes">
       <label>Use default preferred identity</label>
       <type refid="switch"></type>
