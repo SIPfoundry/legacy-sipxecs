@@ -1,6 +1,6 @@
 <table  id="phone:list" jwcid="newPhoneTable@common/Table"
   source="ognl:source"
-  columns="* serialNumber,!lines,modelId:model.label + version,description"
+  columns="* serialNumber,!lines,modelId:label + version,description"
   usePager="ognl:true"
   row="ognl:phone"
   selections="ognl:selections">
@@ -23,7 +23,7 @@
     </span>
   </span>
   <span jwcid="modelIdColumnValue@Block">
-    <span jwcid="@Insert" value="ognl:phone.model.label"/>
+    <span jwcid="@Insert" value="ognl:label"/>
     <span jwcid="@Insert" value="ognl:version"/>
   </span>
 </table>

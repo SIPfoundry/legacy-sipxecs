@@ -57,6 +57,10 @@ public abstract class PhoneTable extends BaseComponent {
         return page;
     }
 
+    public String getLabel() {
+        return getPhone().getModelLabel();
+    }
+
     public String getVersion() {
         DeviceVersion ver = getPhone().getDeviceVersion();
         if (ver == null) {
