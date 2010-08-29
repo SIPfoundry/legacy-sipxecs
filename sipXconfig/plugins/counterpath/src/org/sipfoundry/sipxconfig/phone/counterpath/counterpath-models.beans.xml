@@ -13,7 +13,7 @@
   </bean>
 
   <bean id="counterpathCMCEnterprise" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhoneModel" parent="counterpathStandard">
-    <property name="label" value="Bria Professional" />
+    <property name="label" value="Bria 3.x" />
   </bean>
 
   <bean id="counterpath" class="org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone" singleton="false" parent="abstractPhone">

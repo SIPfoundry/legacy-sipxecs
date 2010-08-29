@@ -77,7 +77,7 @@ public class CounterpathPhoneTest extends TestCase {
         secondUser.setPermissionManager(m_permissionManager);
         secondUser.setImId("sharedUser_id");
         secondUser.setImDisplayName("Shared User Id");
-        m_phone.getLines().get(1).getSettings().getSetting("presence/allow_dialog_subscriptions").setValue("0");
+        m_phone.getLines().get(1).getSettings().getSetting("presence/workgroup/allow_dialog_subscriptions").setValue("0");
 
         Location locationMock = new LocationMock();
         LocationsManager locationsManagerMock = EasyMock.createMock(LocationsManager.class);

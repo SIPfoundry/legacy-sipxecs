@@ -110,25 +110,17 @@
       </type>
       <value>3600</value>
     </setting>
-    <setting name="workgroup_show_on_start">
-      <type>
-        <enum>
-          <option>
-            <value>0</value>
-          </option>
-          <option>
-            <value>1</value>
-          </option>
-        </enum>
-      </type>
-      <value>1</value>
-    </setting>
-    <setting name="allow_dialog_subscriptions" advanced="yes">
-      <type>
-        <boolean />
-      </type>
-      <value>1</value>
-    </setting>
+    <group name="workgroup">
+      <setting name="workgroup_subscription_aor">
+        <value/>
+      </setting>
+      <setting name="allow_dialog_subscriptions">
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+    </group>
   </group>
   <group name="resources">
     <setting name="resource_list_method">

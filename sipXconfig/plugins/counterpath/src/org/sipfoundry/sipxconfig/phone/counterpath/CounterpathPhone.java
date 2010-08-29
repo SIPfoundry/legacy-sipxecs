@@ -52,7 +52,7 @@ public class CounterpathPhone extends Phone {
     private static final String REG_PASSWORD = "registration/password";
     private static final String REG_DOMAIN = "registration/domain";
     private static final String SUBSCRIPTION_AOR =
-        "network/sip_signaling/proxies:proxy0:workgroup_subscription_aor";
+        "presence/workgroup/workgroup_subscription_aor";
     private static final String RESOURCE_LISTS_PATH =
         "system/resources/system:contact_list_storage:resource_lists_path";
     private static final String RESOURCE_LISTS_FILENAME =

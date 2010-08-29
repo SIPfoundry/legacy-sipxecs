@@ -371,9 +371,6 @@
         <type refid="true-false"/>
         <value>false</value>
       </setting>
-      <setting name="proxies:proxy0:workgroup_subscription_aor" hidden="yes">
-        <value/>
-      </setting>
     </group>
     <group name="dns">
       <setting name="system:network:maximum_time_before_refreshing_dns_results_in_seconds">
