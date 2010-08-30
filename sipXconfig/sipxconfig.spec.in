@@ -313,6 +313,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/karel/*
 %config(noreplace) %{sipxpbxconf}/gtek-aq/*
 %config(noreplace) %{sipxpbxconf}/hitachi/*
+%config(noreplace) %{sipxpbxconf}/unidata/*
 %config(noreplace) %{sipxpbxconf}/ipDialog/*
 %dir %{sipxpbxconf}/lg-nortel
 %{sipxpbxconf}/lg-nortel/*

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+  <bean id="UnidataModel" parent="abstractPhoneModel" abstract="true">
+	<property name="beanId" value="unidata" />
+	<property name="vendor" value="Unidata"/>
+	<property name="profileTemplate" value="unidata/config.vm" />
+	<property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="unidatawpu7700" parent="UnidataModel">
+    <property name="label" value="Unidata WPU-7700" />
+	<property name="maxLineCount" value="1" />
+  </bean>
+
+  <bean id="unidata" class="org.sipfoundry.sipxconfig.phone.unidata.UnidataPhone" scope="prototype" parent="abstractPhone">
+  </bean>
+ 
+</beans>

@@ -128,6 +128,7 @@ AC_CONFIG_FILES([
     plugins/openfire/Makefile
     plugins/polycom/Makefile
     plugins/snom/Makefile
+    plugins/unidata/Makefile
 ])
 
 AC_OUTPUT

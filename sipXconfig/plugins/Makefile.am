@@ -16,7 +16,8 @@ SUBDIRS = \
         cmcprov \
         openfire \
         polycom \
-        snom
+        snom \
+        unidata
 
 EXTRA_DIST = \
 	$(SUBDIRS) \

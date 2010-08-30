@@ -1,0 +1,4 @@
+"Name","Group","Number","Number 1","Number 2","Number 3","Number 4","Key Number","Number type","email","email 1","Messenger","Contents"
+#foreach($entry in $cfg.Phonebook)
+"$!entry.FirstName $!entry.LastName",,$entry.Number,
+#end
