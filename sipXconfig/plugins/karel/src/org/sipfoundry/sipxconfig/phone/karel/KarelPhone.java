@@ -59,9 +59,9 @@ public class KarelPhone extends Phone {
     } */
     @Override
     public String getProfileFilename() {
-       String lowercaseName = getSerialNumber().toUpperCase();
-//     return lowercaseName.toLowerCase();
-       return lowercaseName + ".cfg";
+        String lowercaseName = getSerialNumber().toUpperCase();
+//        return lowercaseName.toLowerCase();
+        return lowercaseName + ".cfg";
     }
 
     public static class HelixLineDefaults {
