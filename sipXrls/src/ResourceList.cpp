@@ -107,41 +107,215 @@ void ResourceList::deleteAllResources()
    mChangesList.destroyAll();
 }
 
+void ResourceList::getAllResourceReferences(UtlSList& list)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceList::getAllResourceReferences this = %p",
+                 this);
+
+   // Iterate through the resource references.
+   UtlSListIterator resourceListItor(mResourcesList);
+   ResourceReference* resourceReference;
+   while ((resourceReference = dynamic_cast <ResourceReference*> (resourceListItor())))
+   {
+      list.append(new UtlString(*resourceReference->getUri()));
+   }
+}
+
 // Create and add a resource to the resource list.
 bool ResourceList::addResource(const char* uri,
                                const char* nameXml,
-                               const char* display_name)
+                               const char* display_name,
+                               const char* previous_uri)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceList::addResource mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s'",
-                 mUserPart.data(), uri, nameXml, display_name);
+                 "ResourceList::addResource mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s', previous_uri = '%s'",
+                 mUserPart.data(), uri, nameXml, display_name, previous_uri);
 
    // See if 'uri' is already in the list of ResourceReference's.
-   bool ret;
-   {
-      UtlSListIterator itor(mResourcesList);
-      ResourceReference* r;
-      // Exit this loop if 'itor' runs out of elements, or if the resource
-      // URI of an element string-equals 'uri'.
-      while ((r = dynamic_cast <ResourceReference*> (itor())) &&
-             r->getUri()->compareTo(uri) != 0)
-      {
-         /* null */
-      }
-      // At this point, r == NULL if no ResourceReference in mResourcesList has
-      // getUri() string-equal to 'uri'.
-      ret = !r;
-   }
+   bool ret = !findResourceReference(uri);
+   ResourceReference* previous = findResourceReference(previous_uri);
 
    if (ret)
    {
-      mResourcesList.append(new ResourceReference(this, uri, nameXml,
-                                                  display_name));
+      // See if at the beginning of list or not
+      if(previous)
+      {
+         ssize_t after_index = mResourcesList.index(previous) + 1;
+         mResourcesList.insertAt(after_index, new ResourceReference(this,
+                                                                    uri,
+                                                                    nameXml,
+                                                                    display_name));
+
+         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                       "ResourceList::addResource Added '%s' into the list after '%s' at index %lu in the ResourceList",
+                       display_name, previous->getDisplayName().data(), (unsigned long)(mResourcesList.index(previous) + 1));
+
+      }
+      else
+      {
+         /// Added to the list but the previous node was not found, so add at the end.
+         if(previous_uri)
+         {
+            mResourcesList.append(new ResourceReference(this,
+                                                        uri,
+                                                        nameXml,
+                                                        display_name));
+
+            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                          "ResourceList::addResource Added at the end of the list: mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s'",
+                          mUserPart.data(), uri, nameXml, display_name);
+         }
+         /// Added as the head of the list, since this node has no previous node to add after.
+         else
+         {
+            mResourcesList.insertAt(0, new ResourceReference(this,
+                                                             uri,
+                                                             nameXml,
+                                                             display_name));
+
+            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                          "ResourceList::addResource Added at the front of the list: mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s'",
+                          mUserPart.data(), uri, nameXml, display_name);
+         }
+      }
    }
    else
    {
       OsSysLog::add(FAC_RLS, PRI_WARNING,
                     "ResourceList::addResource Resource URI '%s' is already in resource list '%s'",
+                    uri, mUserPart.data());
+   }
+
+   return ret;
+}
+
+//! Checks if there are any changes in a resource.
+//  Check if this resource is new to the list, or
+//  if the display_name, nameXml, and the order is different.
+bool ResourceList::resourceChanged(const char* uri,
+                                   const char* nameXml,
+                                   const char* display_name,
+                                   const char* previous_uri)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceList::resourceChanged mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s', previous_uri = '%s'",
+                 mUserPart.data(), uri, nameXml, display_name, previous_uri);
+
+   // Gets the ResourceReference from the list.
+   ResourceReference* resource_reference = findResourceReference(uri);
+   ResourceReference* previous_resource_reference = findResourceReference(previous_uri);
+   bool ret = false;
+
+   bool correct_index = true;
+
+   //! Sees if it can find the previous node in the RLS.
+   //  Only 2 reasons it cannot find the previous node in the RLS
+   //     1. The previous node could not be found based off of
+   //        the previous uri because the previous_uri was a duplicate
+   //        of another node and was not added or any weird glitches.
+   //     2. The current node is the head node and the previous_uri is null.
+   if(previous_resource_reference)
+   {
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceList::resourceChanged Getting index location: current{'%s'} = '%lu', previous{'%s'} = '%lu'",
+                    resource_reference->getDisplayName().data(), (unsigned long)mResourcesList.index(resource_reference), previous_resource_reference->getDisplayName().data(), (unsigned long)mResourcesList.index(previous_resource_reference));
+
+      // Checks if the previous node is really before the current node for order checking.
+      correct_index = mResourcesList.index(resource_reference) == mResourcesList.index(previous_resource_reference) + 1;
+   }
+   else
+   {
+      // Sees if a previous_uri exists
+      if(previous_uri)
+      {
+         OsSysLog::add(FAC_RLS, PRI_ERR,
+                       "ResourceList::resourceChanged The previous_uri could not be found.");
+
+         // The previous node was not found therefore might be in the wrong index.
+         correct_index = false;
+      }
+      else
+      {
+         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                       "ResourceList::resourceChanged This is a head node");
+
+         // Check if it is the first of the list
+         correct_index = mResourcesList.index(resource_reference) == 0;
+      }
+   }
+
+   // Checks if the current node is found and with the correct index
+   if (resource_reference && correct_index)
+   {
+      // Compare the display_name and the nameXml from the XML to the resource_reference.
+      if(resource_reference->compareNameXml(nameXml) != 0 || resource_reference->compareDisplayName(display_name) != 0)
+      {
+         // Has been changed.
+         ret = true;
+
+         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                       "ResourceList::resourceChanged mUserPart = '%s', uri = '%s', nameXml => {old = '%s', new = '%s'}, display_name => {old = '%s', new = '%s'} changed",
+                       mUserPart.data(), uri, resource_reference->getNameXml().data(), nameXml, resource_reference->getDisplayName().data(), display_name);
+      }
+      else
+      {
+         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                       "ResourceList::resourceChanged mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s' not changed",
+                       mUserPart.data(), uri, nameXml, display_name);
+      }
+   }
+   else
+   {
+    // ResourceReference was not found or has wrong index therefore has been changed.
+      ret = true;
+
+      // Current node could not be found
+      if(!resource_reference)
+      {
+         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                       "ResourceList::resourceChanged Resource URI '%s' was not found so it is changed",
+                       uri);
+      }
+      // Current node is found but has the wrong index
+      if(!correct_index && resource_reference)
+     {
+   if(previous_resource_reference)
+         {
+            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                          "ResourceList::resourceChanged Index is wrong: current = '%lu' should be = '%lu'",
+                          (unsigned long)(mResourcesList.index(resource_reference)), (unsigned long)(mResourcesList.index(previous_resource_reference) + 1));
+         }
+         else
+         {
+            OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                          "ResourceList::resourceChanged Index is wrong because previous node could not be found or this is the head node");
+         }
+      }
+   }
+
+   return ret;
+}
+
+// Remove a resource from the resource list.
+bool ResourceList::removeResource(const char* uri)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceList::removeResource mUserPart = '%s', uri = '%s'",
+                 mUserPart.data(), uri);
+
+   // See if 'uri' is in the list of ResourceReference's.
+   bool ret = findResourceReference(uri);
+   ResourceReference* obj = findResourceReference(uri);
+
+   if (ret)
+   {
+      mResourcesList.remove(obj);
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_WARNING,
+                    "ResourceList::removeResource Resource URI '%s' is not found in resource list '%s' to delete",
                     uri, mUserPart.data());
    }
 
@@ -367,6 +541,26 @@ UtlContainableType ResourceList::getContainableType() const
 }
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
+
+// Search for a resource with a given reference (user-uri)
+ResourceReference* ResourceList::findResourceReference(const char* uri)
+{
+   ResourceReference* ret = 0;
+
+   // Iterate through the resource reference lists.
+   UtlSListIterator resourceReferenceListItor(mResourcesList);
+   ResourceReference* resourceReference;
+   while (!ret &&
+          (resourceReference = dynamic_cast <ResourceReference*> (resourceReferenceListItor())))
+   {
+      if (resourceReference->getUri()->compareTo(uri) == 0)
+      {
+         ret = resourceReference;
+      }
+   }
+
+   return ret;
+}
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 

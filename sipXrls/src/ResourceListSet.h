@@ -107,10 +107,21 @@ class ResourceListSet : public UtlContainableAtomic
    //  May be called externally.
    void deleteAllResourceLists();
 
+   //! Deletes a resource list.
+   //  May be called externally.
+   void deleteResourcesList(/// The user-part of the resource list URI to delete.
+                           const char* user);
+
    //! Delete all resources from a resource list.
    //  May be called externally.
    void deleteAllResources(/// The user-part of the resource list URI.
                            const char* user);
+
+   //! Deletes a single resource from a resource list.
+   void deleteResource(/// The user-part of the resource list URI.
+                       const char* user,
+                       ///  The uri-part of the resource reference to delete from the resource list.
+                       const char* uri);
 
    //! Get a list of the user-parts of all resource lists.
    //  May be called externally.
@@ -118,7 +129,17 @@ class ResourceListSet : public UtlContainableAtomic
    void getAllResourceLists(/// The list to add the user-parts to.
                             UtlSList& list);
 
+   //! Get a list of the uri-parts of all resource references.
+   //  for the user.
+   //  May be called externally.
+   //  The UtlString's added to 'list' are owned by 'list'.
+   void getResourceReferences(/// The user to get the list for.
+                              const char* user,
+                              /// The list to add the uri-parts to.
+                              UtlSList& list);
+
    //! Create and add a resource to a resource list.
+   //  based on the previous_uri.
    //  Returns true if resource 'URI' was added, returns false if resource
    //  was not added.
    //  Adding can fail because 'user' is not the name of a resource list.
@@ -130,11 +151,32 @@ class ResourceListSet : public UtlContainableAtomic
    bool addResource(/// The user-part of the resource list URI.
                     const char* user,
                     /// The resource URI.
-                    const char* URI,
+                    const char* uri,
                     /// The XML for the name of the resource.
                     const char* nameXml,
                     /// The display name for consolidated event notices
-                    const char* display_name);
+                    const char* display_name,
+                    //! The uri of the previous node to add after
+                    //  or if this is null then add as head node
+                    //  or if it is not found then add as tail node
+                    const char* previous_uri);
+
+   //! Find the resource list in the RLS based in the user-part from the XML
+   //  to compare the resource in the XML and the resource in the RLS
+   //  based on the URI, nameXml, display_name, and previous_uri.
+   //  If any changes were found then it returns true, false otherwise.
+   //  It also returns false because 'user' is not the name of a resource list.
+   //  May be called externally.
+   bool resourceChanged(/// The user-part of the resource list URI.
+                        const char* user,
+                        /// The resource URI.
+                        const char* URI,
+                        /// The XML for the name of the resource.
+                        const char* nameXml,
+                        /// The display name for consolidated event notices
+                        const char* display_name,
+                        /// The uri from the previous resource for checking order
+                        const char* previous_uri);
 
    //! Callback routine for subscription state events.
    //  May be called externally.

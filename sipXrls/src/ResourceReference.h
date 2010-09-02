@@ -93,7 +93,21 @@ class ResourceReference : public UtlContainableAtomic
                      /// True if resource instances are to be consolidated.
                      UtlBoolean consolidated) const;
 
-   //! Get the URI of the resource.
+   //! Compare the DisplayName of the ResourceReference.
+   int compareDisplayName(const char* newDisplayName);
+
+   //! Compare the NameXML of the ResourceReference.
+   //  This function will use formatNameXml on newNameXml
+   //  in order to match the mNameXml.
+   int compareNameXml(const char* newNameXml);
+
+   //! Get the DisplayName of the ResourceReference.
+   const UtlString getDisplayName() const;
+
+   //! Get the NameXml of the ResourceReference.
+   const UtlString getNameXml() const;
+
+   //! Get the URI of the ResourceReference.
    const UtlString* getUri() const;
 
    //! Dump the object's internal state.
@@ -113,6 +127,12 @@ class ResourceReference : public UtlContainableAtomic
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
   private:
+
+   //! Formats the XML fragment containing the <name> elements
+   //  for the resource.  It is to make sure the XML fragment
+   //  ends with a CR-LF character if it did not end with a
+   //  LF character to begin with.
+   void formatNameXml(UtlString& nameXml);
 
    //! The containing ResourceList.
    ResourceList* mResourceList;
@@ -164,7 +184,20 @@ inline ResourceListServer* ResourceReference::getResourceListServer() const
    return mResourceList->getResourceListServer();
 }
 
-// Get the URI of the resource.
+// Get the DisplayName of the ResourceReference.
+inline const UtlString ResourceReference::getDisplayName() const
+{
+   return mDisplayName;
+}
+
+// Get the NameXml of the ResourceReference.
+inline const UtlString ResourceReference::getNameXml() const
+{
+   return mNameXml;
+}
+
+
+//! Get the URI of the ResourceReference.
 inline const UtlString* ResourceReference::getUri() const
 {
    return mResourceCached->getUri();

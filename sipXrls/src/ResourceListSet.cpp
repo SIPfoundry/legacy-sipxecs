@@ -195,6 +195,25 @@ void ResourceListSet::deleteAllResourceLists()
    } while (rl);
 }
 
+// Deletes a resource list.
+void ResourceListSet::deleteResourcesList(const char* user)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::deleteResourcesList this = %p, user = '%s'",
+                 this, user);
+
+   // Serialize access to the ResourceListSet.
+   OsLock lock(mSemaphore);
+
+   ResourceList*  resourceList = findResourceList(user);
+
+   resourceList->deleteAllResources();
+   // The ResourceList is empty, and so can be removed and deleted.
+   mResourceLists.removeReference(resourceList);
+   delete resourceList;
+
+}
+
 // Delete all resources from a resource list.
 void ResourceListSet::deleteAllResources(const char* user)
 {
@@ -239,12 +258,39 @@ void ResourceListSet::getAllResourceLists(UtlSList& list)
    }
 }
 
+//! Get a list of the uri-parts of all resource references.
+//  for the user.
+void ResourceListSet::getResourceReferences(const char* user,
+                                            UtlSList& list)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::getResourceReferences this = %p, user = '%s'",
+                 this, user);
+
+   // Serialize access to the resource list.
+   OsLock lock(mSemaphore);
+
+   ResourceList* resourceList = findResourceList(user);
+
+   if (resourceList)
+   {
+      resourceList->getAllResourceReferences(list);
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_ERR,
+                    "ResourceListSet::getResourceReferences ResourceList '%s' not found",
+                    user);
+   }
+}
+
 //! Create and add a resource to the resource list.
 //  Returns the generated Resource object.
 bool ResourceListSet::addResource(const char* user,
                                   const char* uri,
                                   const char* nameXml,
-                                  const char* display_name)
+                                  const char* display_name,
+                                  const char* previous_uri)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListSet::addResource this = %p, user = '%s', uri = '%s', nameXml = '%s', display_name = '%s'",
@@ -257,15 +303,97 @@ bool ResourceListSet::addResource(const char* user,
    bool ret;
    if (resourceList)
    {
-      ret = resourceList->addResource(uri, nameXml, display_name);
-      OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                    "ResourceListSet::addResource resource added");
+      ret = resourceList->addResource(uri, nameXml, display_name, previous_uri);
+      if(ret)
+      {
+         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                       "ResourceListSet::addResource resource added");
+      }
+      else
+      {
+          OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                        "ResourceListSet::addResource resource %s was in ResourceList %s",
+                        uri, user);
+      }
    }
    else
    {
       ret = false;
       OsSysLog::add(FAC_RLS, PRI_DEBUG,
                     "ResourceListSet::addResource ResourceList '%s' not found",
+                    user);
+   }
+
+   return ret;
+}
+
+// Delete a resource based on the uri-part from a resource list.
+void ResourceListSet::deleteResource(const char* user,
+                                     const char* uri)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::deleteResource this = %p, user = '%s', uri = '%s'",
+                 this, user, uri);
+
+   // Serialize access to the ResourceListSet.
+   OsLock lock(mSemaphore);
+
+   ResourceList* resourceList = findResourceList(user);
+
+   if (resourceList)
+   {
+      resourceList->removeResource(uri);
+
+      OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                    "ResourceListSet::deleteResource user = %s, uri = %s",
+                    user, uri);
+   }
+   else
+   {
+      OsSysLog::add(FAC_RLS, PRI_ERR,
+                    "ResourceListSet::deleteResource ResourceList '%s' not found",
+                    user);
+   }
+}
+
+//! Checks if this resource is new or changed compared
+//  in the resource list by order and difference in name..
+bool ResourceListSet::resourceChanged(const char* user,
+                                      const char* uri,
+                                      const char* nameXml,
+                                      const char* display_name,
+                                      const char* previous_uri)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListSet::resourceChanged this = %p, user = '%s', uri = '%s', nameXml = '%s', display_name = '%s'",
+                 this, user, uri, nameXml, display_name);
+
+   // Serialize access to the resource list.
+   OsLock lock(mSemaphore);
+
+   ResourceList* resourceList = findResourceList(user);
+   bool ret;
+   if (resourceList)
+   {
+      ret = resourceList->resourceChanged(uri, nameXml, display_name, previous_uri);
+      if(ret)
+      {
+         OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                       "ResourceListSet::resourceChanged difference found in resource %s for ResourceList %s with nameXml %s and display name of %s",
+                       uri, user, nameXml, display_name);
+      }
+      else
+      {
+          OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                        "ResourceListSet::resourceChanged no difference found in resource %s for ResourceList %s",
+                        uri, user);
+      }
+   }
+   else
+   {
+      ret = false;
+      OsSysLog::add(FAC_RLS, PRI_ERR,
+                    "ResourceListSet::resourceChanged ResourceList '%s' not found",
                     user);
    }
 
