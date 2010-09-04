@@ -78,7 +78,7 @@ public class NortelPhoneTest extends TestCase {
      * witin the mac file
      */
     public void testGenerateNortel1140() throws Exception {
-        Phone phone=createPhone();
+        Phone phone = createPhone();
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
         phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("mac_1140.cfg"));
@@ -87,6 +87,19 @@ public class NortelPhoneTest extends TestCase {
         System.out.println(actual);
         System.out.println("*** END actual profile content. ***");
         assertEquals(expected, actual);
+    }
+
+    public void testGenerateNortel1140_32() throws Exception {
+        NortelPhone phone = (NortelPhone)createPhone();
+        phone.setDeviceVersion(NortelPhoneModel.FIRM_3_2);
+        MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
+        phone.generateProfiles(location);
+        String expected = IOUtils.toString(this.getClass().getResourceAsStream("mac_1140_3.2.cfg"));
+        String actual = location.toString("SIP001122334455.cfg");
+        assertEquals(expected, actual);
+        System.out.println("*** BEGIN actual profile content. ***");
+        System.out.println(actual);
+        System.out.println("*** END actual profile content. ***");
     }
 
     private Phone createPhone()

@@ -16,6 +16,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.device.DeviceVersion;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.device.ProfileFilter;
@@ -32,6 +33,7 @@ import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
 public class NortelPhone extends Phone {
 
     private static final String NORTEL_FORCE_CONFIG = "nortel/11xxeSIP.cfg";
+    private static final String REL_3_2_OR_LATER = "3.2orLater";
     private static final String TYPE = "text/plain";
     private String m_phonebookFilename = "{0}-phonebook.ab";
     private String m_featureKeyListFilename = "{0}-fkl.fk";
@@ -87,6 +89,17 @@ public class NortelPhone extends Phone {
 
         return profileTypes;
     }
+
+    @Override
+    public void setDeviceVersion(DeviceVersion version) {
+        super.setDeviceVersion(version);
+        DeviceVersion myVersion = getDeviceVersion();
+
+        if (myVersion == NortelPhoneModel.FIRM_3_2) {
+            myVersion.addSupportedFeature(REL_3_2_OR_LATER);
+        }
+    }
+
     /**
      * Gets the phonebook entries from the phoneContext
      * and creates a ProfileContext by creating a new nortelPhonebook
@@ -201,6 +214,7 @@ public class NortelPhone extends Phone {
         sendCheckSyncToFirstLine();
     }
 
+    @Override
     protected void copyFiles(ProfileLocation location) {
         super.copyFiles(location);
         getProfileGenerator().copy(location, NORTEL_FORCE_CONFIG, "1120eSIP.cfg");
@@ -216,9 +230,11 @@ public class NortelPhone extends Phone {
         private static final String VOIP_SERVER_IP1_2 = "VOIP/SERVER_IP1_2";
         private static final String VOIP_DEF_USER1 = "VOIP/DEF_USER1";
         private static final String VM_VMAIL = "VM/VMAIL";
+        private static final String AUTOLOGIN_ID_KEY = "AUTOLOGIN/AUTOLOGIN_ID_KEY";
+        private static final String AUTOLOGIN_ID_KEY_PASSWD = "AUTOLOGIN/AUTOLOGIN_PASSWD_KEY";
 
-        private Line m_line;
-        private DeviceDefaults m_defaults;
+        private final Line m_line;
+        private final DeviceDefaults m_defaults;
 
         NortelPhoneDefaults(DeviceDefaults defaults, Line line) {
             m_line = line;
@@ -248,6 +264,26 @@ public class NortelPhone extends Phone {
                 userName = user.getUserName();
             }
             return userName;
+        }
+
+        @SettingEntry(path = AUTOLOGIN_ID_KEY)
+        public String getUserNameAutologin() {
+            String userName = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                userName = user.getUserName();
+            }
+            return userName;
+        }
+
+        @SettingEntry(path = AUTOLOGIN_ID_KEY_PASSWD)
+        public String getPasswordAutologin() {
+            String passwd = null;
+            User user = m_line.getUser();
+            if (user != null) {
+                passwd = user.getSipPassword();
+            }
+            return passwd;
         }
 
         @SettingEntry(path = VM_VMAIL)

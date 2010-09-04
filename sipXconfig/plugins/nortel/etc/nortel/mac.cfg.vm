@@ -6,6 +6,36 @@
 #emit_group($phone.Settings.getSetting("$gn"))
 #end
 #end
+#macro(emit_line_groups_by_name $group_names)
+#foreach ($gn in $group_names)
+#set( $array = [0..${phone.getLines().size()}] )
+#foreach($i in $array)
+#if($i<${phone.getLines().size()})
+#set($line = $phone.getLine(${i}))
+#set($counter = $i + 1)
+#if($counter <=9)
+#set($zero="0")
+#set($position = "$zero$counter")
+#else
+#set($position = $counter)
+#end
+#emit_line_group($line.Settings.getSetting("$gn") $position)
+#end
+#end
+#end
+#end
+#macro(emit_line_setting $s $position)
+${s.ProfileName}${position} $!{s.Value}
+#end
+#macro(emit_line_group $g $position)
+#foreach($s in $g.Values)
+#if(!$s.isLeaf())
+#emit_group($s)
+#else
+#emit_line_setting($s $position)
+#end
+#end
+#end
 #macro(emit_setting $s)
 #if($s.ProfileName.equals("RTP_PORT_RANGE"))
 #if($s.Value)
@@ -46,3 +76,4 @@ ${s.ProfileName} $!{s.Value}
 #end
 #end
 #emit_groups_by_name(['ADMIN','AUDIOCODECS','AUTOLOGIN','BLF','CONFIG_UPDATES','DEBUG','DIAGNOSTIC_TOOLS','DOMAIN_SETTINGS','E911','FEATURES','FEDERAL','FILE_MANAGEMENT','HOTLINE','IPV6','LANGUAGE','LICENSING','MADN','MESSAGING','MULTIUSER','NAT','NETWORK','QOS','SECURITY','SERVICES','SERVICE_PACKAGE','SESSIONTIMER','STORAGE','TIME','TONES','UI_SETTINGS','USB'])
+#emit_line_groups_by_name(['AUTOLOGIN'])
