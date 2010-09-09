@@ -364,6 +364,7 @@
     <antcall target="add_acccode_service" />
     <antcall target="auth_code" />
     <antcall target="ldap_connection_add_tls" />
+	<antcall target="drop_sbc_device_branch_column" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1137,6 +1138,9 @@
   </target>
   <target name="ldap_connection_add_tls" unless="ldap_connection_add_tls">
     <db-patch patch="ldap_connection_add_tls"/>
+  </target>
+  <target name="drop_sbc_device_branch_column" unless="drop_sbc_device_branch_column">
+	<db-patch patch="drop_sbc_device_branch_column"/>
   </target>
 
   <!--

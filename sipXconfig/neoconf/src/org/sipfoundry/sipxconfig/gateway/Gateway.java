@@ -15,6 +15,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.Enum;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -51,6 +52,8 @@ public class Gateway extends Device implements NamedObject {
     private boolean m_shared = true; // default enabled
 
     private boolean m_enabled = true;
+
+    private Branch m_branch;
 
     public Gateway() {
     }
@@ -290,4 +293,11 @@ public class Gateway extends Device implements NamedObject {
         m_enabled = enabled;
     }
 
+    public Branch getBranch() {
+        return m_branch;
+    }
+
+    public void setBranch(Branch branch) {
+        m_branch = branch;
+    }
 }
