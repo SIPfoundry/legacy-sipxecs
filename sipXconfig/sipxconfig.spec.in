@@ -31,7 +31,6 @@ BuildRequires: jakarta-commons-collections
 BuildRequires: ruby-devel
 BuildRequires: rubygems
 BuildRequires: rubygem-rake
-BuildRequires: sipx-jasperreports-deps
 BuildRequires: sipxcommons >= %version
 BuildRequires: asciidoc
 %if %{_vendor} == suse
