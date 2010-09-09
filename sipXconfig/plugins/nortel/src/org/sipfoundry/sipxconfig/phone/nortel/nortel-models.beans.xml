@@ -6,7 +6,7 @@
   	parent="abstractPhoneModel">
     <property name="beanId" value="nortel" />
     <property name="label" value="Nortel IP Phone 1120/40" />
-    <property name="maxLineCount" value="24" />
+    <property name="maxLineCount" value="1" />
     <property name="profileTemplate" value="nortel/mac.cfg.vm" />
     <property name="restartSupported" value="true" />
   </bean>

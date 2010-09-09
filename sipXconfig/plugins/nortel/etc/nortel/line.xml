@@ -6,7 +6,7 @@
     <setting name='DEF_USER1'/>
   </group>
   <group name='AUTOLOGIN'>
-    <setting name='AUTOLOGIN_ID_KEY' if="3.2orLater"/>
-    <setting name='AUTOLOGIN_PASSWD_KEY' if="3.2orLater"/>
+    <setting name='AUTOLOGIN_ID_KEY'/>
+    <setting name='AUTOLOGIN_PASSWD_KEY'/>
   </group>
 </model>

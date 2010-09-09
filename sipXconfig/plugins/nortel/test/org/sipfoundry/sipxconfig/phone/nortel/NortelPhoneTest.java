@@ -20,6 +20,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.device.MemoryProfileLocation;
 import org.sipfoundry.sipxconfig.device.Profile;
 import org.sipfoundry.sipxconfig.device.RestartException;
+import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneModel;
@@ -72,6 +73,17 @@ public class NortelPhoneTest extends TestCase {
         }
     }
 
+    public void testMaximumLines() throws Exception {
+        NortelPhoneModel nortelModel = new NortelPhoneModel();
+        nortelModel.setBeanId("nortel");
+        Phone phone = new NortelPhone();
+        phone.setModel(nortelModel);
+        phone.setDeviceVersion(NortelPhoneModel.FIRM_2_2);
+        assertEquals(1, nortelModel.getMaxLineCount());
+        phone.setDeviceVersion(NortelPhoneModel.FIRM_3_2);
+        assertEquals(24, nortelModel.getMaxLineCount());
+    }
+
    /**
      * This test will verify that the Phone Mac file is the same as the mac_1140.cfg
      * It also verifies that the filenames for featurekeylist and phonebook are generated correctly
@@ -92,6 +104,12 @@ public class NortelPhoneTest extends TestCase {
     public void testGenerateNortel1140_32() throws Exception {
         NortelPhone phone = (NortelPhone)createPhone();
         phone.setDeviceVersion(NortelPhoneModel.FIRM_3_2);
+        Line line = new Line();
+        User user = new User();
+        user.setUserName("32user");
+        user.setSipPassword("sip32");
+        line.setUser(user);
+        phone.addLine(line);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
         phone.generateProfiles(location);
         String expected = IOUtils.toString(this.getClass().getResourceAsStream("mac_1140_3.2.cfg"));

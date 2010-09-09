@@ -97,6 +97,9 @@ public class NortelPhone extends Phone {
 
         if (myVersion == NortelPhoneModel.FIRM_3_2) {
             myVersion.addSupportedFeature(REL_3_2_OR_LATER);
+            getModel().setMaxLineCount(NortelPhoneModel.FIRMWARE32ORLATER_MAX_LINES);
+        } else {
+            getModel().setMaxLineCount(NortelPhoneModel.FIRMWARE22_MAX_LINES);
         }
     }
 
@@ -224,10 +227,10 @@ public class NortelPhone extends Phone {
     public static class NortelPhoneDefaults {
 
         private static final String NETWORK_DNS_DOMAIN = "NETWORK/DNS_DOMAIN";
-        private static final String VOIP_SIP_DOMAIN1 = "VOIP/SIP_DOMAIN1";
-        private static final String VOIP_SERVER_IP1_1 = "VOIP/SERVER_IP1_1";
-        private static final String VOIP_SERVER_PORT1_1 = "VOIP/SERVER_PORT1_1";
-        private static final String VOIP_SERVER_IP1_2 = "VOIP/SERVER_IP1_2";
+        private static final String SIP_DOMAIN1 = "DOMAIN_SETTINGS/DOMAIN1/SIP_DOMAIN1";
+        private static final String SERVER_IP1_1 = "DOMAIN_SETTINGS/DOMAIN1/SERVER_IP1_1";
+        private static final String SERVER_PORT1_1 = "DOMAIN_SETTINGS/DOMAIN1/SERVER_PORT1_1";
+        private static final String SERVER_IP1_2 = "DOMAIN_SETTINGS/DOMAIN1/SERVER_IP1_2";
         private static final String VOIP_DEF_USER1 = "VOIP/DEF_USER1";
         private static final String VM_VMAIL = "VM/VMAIL";
         private static final String AUTOLOGIN_ID_KEY = "AUTOLOGIN/AUTOLOGIN_ID_KEY";
@@ -241,17 +244,17 @@ public class NortelPhone extends Phone {
             m_defaults = defaults;
         }
 
-        @SettingEntry(paths = { NETWORK_DNS_DOMAIN, VOIP_SIP_DOMAIN1 })
+        @SettingEntry(paths = { NETWORK_DNS_DOMAIN, SIP_DOMAIN1 })
         public String getSipDomain1() {
             return m_defaults.getDomainName();
         }
 
-        @SettingEntry(paths = { VOIP_SERVER_IP1_1, VOIP_SERVER_IP1_2 })
+        @SettingEntry(paths = { SERVER_IP1_1, SERVER_IP1_2 })
         public String getServerIp() {
             return m_defaults.getProxyServerAddr();
         }
 
-        @SettingEntry(path = VOIP_SERVER_PORT1_1)
+        @SettingEntry(path = SERVER_PORT1_1)
         public String getProxyPort() {
             return m_defaults.getProxyServerSipPort();
         }
@@ -294,15 +297,15 @@ public class NortelPhone extends Phone {
         public static LineInfo getLineInfo(Line line) {
             LineInfo lineInfo = new LineInfo();
             lineInfo.setUserId(line.getSettingValue(VOIP_DEF_USER1));
-            lineInfo.setRegistrationServer(line.getSettingValue(VOIP_SERVER_IP1_1));
-            lineInfo.setRegistrationServerPort(line.getSettingValue(VOIP_SERVER_PORT1_1));
+            lineInfo.setRegistrationServer(line.getSettingValue(SERVER_IP1_1));
+            lineInfo.setRegistrationServerPort(line.getSettingValue(SERVER_PORT1_1));
             return lineInfo;
         }
 
         public static void setLineInfo(Line line, LineInfo lineInfo) {
             line.setSettingValue(VOIP_DEF_USER1, lineInfo.getUserId());
-            line.setSettingValue(VOIP_SERVER_IP1_1, lineInfo.getRegistrationServer());
-            line.setSettingValue(VOIP_SERVER_PORT1_1, lineInfo.getRegistrationServerPort());
+            line.setSettingValue(SERVER_IP1_1, lineInfo.getRegistrationServer());
+            line.setSettingValue(SERVER_PORT1_1, lineInfo.getRegistrationServerPort());
         }
     }
 }
