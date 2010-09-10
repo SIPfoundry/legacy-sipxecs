@@ -27,6 +27,7 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jetty.jar" sourcepath="LIB_SRC/jetty/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jasper-compiler-4.1.31.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jasper-runtime-4.1.31.jar"/>
+        <classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jasperreports-3.7.0.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/javax.servlet.jsp.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/spring-2.0.4.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/javamail-1.3.2.jar"/>
@@ -55,8 +56,8 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/nekohtml-1.9.12.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/backport-util-concurrent-3.1.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/cssparser-0.9.5.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jcommon.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jfreechart.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jcommon-1.0.13.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jfreechart-1.0.10.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jettison-1.1.jar" sourcepath="/LIB_SRC/jettison/1.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/log4j.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/rome-1.0.jar" sourcepath="/LIB_SRC/rome/rome-1.0-sources.jar"/>
