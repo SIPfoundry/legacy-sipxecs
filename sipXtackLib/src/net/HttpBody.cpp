@@ -79,6 +79,7 @@ HttpBody::HttpBody(const char* bytes, ssize_t length, const char* contentType) :
             whiteSpaceIndex = mMultipartBoundary.first('\t');
             if(whiteSpaceIndex > 0) mMultipartBoundary.remove(whiteSpaceIndex);
             //osPrintf("HttpBody: boundary=\"%s\"\n", mMultipartBoundary.data());
+	    mMultipartBoundary.strip(both, '"');
          }
       }
    }
@@ -115,9 +116,10 @@ HttpBody::HttpBody(const char* bytes, ssize_t length, const char* contentType) :
                  {
                      parser.getNextPair(HTTP_NAME_VALUE_DELIMITER,
                      &name, & value);
+                     name.toUpper();
                      if(name.compareTo(HTTP_CONTENT_TYPE_FIELD) == 0)
                      {
-                         contentType = name;
+                         contentType = value;
                      }
                  }
                  while(!name.isNull());
