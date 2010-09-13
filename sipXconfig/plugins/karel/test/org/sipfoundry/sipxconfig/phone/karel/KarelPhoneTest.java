@@ -54,9 +54,7 @@ public class KarelPhoneTest extends TestCase {
         String expected = IOUtils.toString(expectedProfile);
         expectedProfile.close();
 
-//      PhoneTestDriver.java : public class PhoneTestDriver { 
-//       public String serialNumber = "0004f200e06b";
-        assertEquals(expected, location.toString("0004f200e06b.cfg"));
+        assertEquals(expected, location.toString());
     }
 
     public void testGenerateProfileWithBlfSpeeddial() throws Exception {

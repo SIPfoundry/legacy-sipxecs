@@ -90,32 +90,19 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         m_firstRun.setDomainManager(domainManager);
         m_firstRun.setAdminContext(adminContext);
         m_firstRun.setCoreContext(coreContext);
-        m_firstRun.setSbcManager(m_sbcManagerImpl);
 
-        loadDataSetXml("admin/commserver/seedLocationsAndServices.xml");
-        m_firstRun.setLocationsManager(m_locationsManager);
-
-        ServiceConfigurator serviceConfigurator = createMock(ServiceConfigurator.class);
-        serviceConfigurator.initLocations();
-        Location[] locations = m_locationsManager.getLocations();
-        for (Location location : locations) {
-            serviceConfigurator.enforceRole(location);
-        }
-
-        replay(serviceConfigurator);
-
-        m_firstRun.setServiceConfigurator(serviceConfigurator);
+        loadDataSetXml("admin/commserver/seedLocationsAndServices5.xml");
         m_firstRun.runTask();
 
-        verify(domainManager, adminContext, coreContext, alarmContext, serviceConfigurator);
+        verify(domainManager, adminContext, coreContext, alarmContext);
 
         Location primaryLocation = m_locationsManager.getPrimaryLocation();
         Collection<LocationSpecificService> servicesForPrimaryLocation = primaryLocation.getServices();
         assertFalse(servicesForPrimaryLocation.isEmpty());
         // auto-enabled bundles are set for primary location
         // by default, the following bundles are autoEnabled:
-        //Management, Primpary Sip Router, Voicemail, Call Center
-        //SIP Trunking, Conference,  Instant Message
+        // Management, Primpary Sip Router, Voicemail, Call Center
+        // SIP Trunking, Conference, Instant Message
         assertEquals(7, primaryLocation.getInstalledBundles().size());
 
         Location secondaryLocation = m_locationsManager.getLocationByFqdn("secondary.example.org");

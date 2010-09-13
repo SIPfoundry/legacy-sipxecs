@@ -56,5 +56,11 @@
         <string password="yes" />
       </type>
     </setting>
+    <setting name="locale" hidden="yes">
+      <type>
+        <string/>
+      </type>
+     <value>default</value>
+     </setting>
   </group>
 </model>

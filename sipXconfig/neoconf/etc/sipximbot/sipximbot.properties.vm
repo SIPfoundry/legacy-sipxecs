@@ -14,3 +14,4 @@ imbot.openfireXmlRpcPort=$!{sipxServiceManager.getServiceParam('openfire-xml-rpc
 imbot.paUserName=$!{service.personalAssistantImId}@$!{service.domainName}
 imbot.paPassword=$!{service.personalAssistantImPassword}
 imbot.httpport=$!{service.httpPort}
+imbot.locale=$!{service.getSettingValue("imbot/locale")}

@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
+import static java.util.Arrays.asList;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,10 +27,8 @@ import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxConfigService;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
-import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
-import static java.util.Arrays.asList;
 
 public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private LocationsManager m_out;
@@ -40,6 +40,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private SipxServiceBundle m_managementBundle;
     private SipxServiceBundle m_primarySipRouterBundle;
     private SipxServiceBundle m_redundantSipRouterBundle;
+    private SipxFreeswitchService m_sipxFreeswitchService;
 
     public void testGetLocations() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");
@@ -223,12 +224,10 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals(1, m_acdContext.getServers().size());
         assertEquals(0, m_conferenceBridgeContext.getBridges().size());
 
-        SipxService freeswitchService = new SipxFreeswitchService();
-        freeswitchService.setBeanId(SipxFreeswitchService.BEAN_ID);
         LocationSpecificService service = new LocationSpecificService();
-        service.setSipxService(freeswitchService);
+        service.setSipxService(m_sipxFreeswitchService);
         service.setLocation(location);
-        location.addService(freeswitchService);
+        location.addService(m_sipxFreeswitchService);
         location.setInstalledBundles(asList("acdBundle", "conferenceBundle"));
         m_out.storeLocation(location);
         assertEquals(1, m_acdContext.getServers().size());
@@ -361,5 +360,9 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         serverRole.setModifiedBundles(m_serviceManager.getBundlesForLocation(location));
         m_out.storeServerRoleLocation(location, serverRole);
         assertEquals(1,m_conferenceBridgeContext.getBridges().size());
+    }
+
+    public void setSipxFreeswitchService(SipxFreeswitchService sipxFreeswitchService) {
+        m_sipxFreeswitchService = sipxFreeswitchService;
     }
 }

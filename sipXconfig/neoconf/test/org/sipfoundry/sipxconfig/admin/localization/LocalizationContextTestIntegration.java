@@ -56,15 +56,15 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
         assertEquals(1, m_out.updateLanguage(language));
         flush();
         assertEquals(1, getConnection().getRowCount("localization", "where language = '" + language + "'"));
-        assertEquals(languageDirectory, m_out.getCurrentLanguageDir()) ;
+        assertEquals(languageDirectory, m_out.getCurrentLanguageDir());
 
         verify(sc);
     }
 
     public void testUpdateLanguage() throws Exception {
-       updateLanguage("pl", "stdprompts_pl");
-        //update back to default
-       updateLanguage(LocalizationContext.DEFAULT, LocalizationContext.PROMPTS_DEFAULT);
+        updateLanguage("pl", "stdprompts_pl");
+        // update back to default
+        updateLanguage(LocalizationContext.DEFAULT, LocalizationContext.PROMPTS_DEFAULT);
     }
 
     public void testDefaults() {
