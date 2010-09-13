@@ -365,6 +365,7 @@
     <antcall target="auth_code" />
     <antcall target="ldap_connection_add_tls" />
 	<antcall target="drop_sbc_device_branch_column" />
+	<antcall target="remove_discovered_devices" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1141,6 +1142,9 @@
   </target>
   <target name="drop_sbc_device_branch_column" unless="drop_sbc_device_branch_column">
 	<db-patch patch="drop_sbc_device_branch_column"/>
+  </target>
+  <target name="remove_discovered_devices" unless="remove_discovered_devices">
+    <db-patch patch="remove_discovered_devices"/>
   </target>
 
   <!--

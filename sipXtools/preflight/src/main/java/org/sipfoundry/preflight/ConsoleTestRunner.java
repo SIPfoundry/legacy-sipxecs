@@ -10,7 +10,6 @@ import java.util.LinkedList;
 
 import org.apache.commons.cli.*;
 
-import org.sipfoundry.commons.discovery.*;
 import org.sipfoundry.commons.dhcp.NetworkResources;
 import org.sipfoundry.commons.util.JournalService;
 
@@ -41,8 +40,6 @@ public class ConsoleTestRunner {
         // create the Options
         Options options = new Options();
         Option verbose = OptionBuilder.withLongOpt("verbose").withDescription("Enable verbose test progress output.").create('v');
-        Option reportProgress = OptionBuilder.withLongOpt("report-progress").withDescription("Enable discovery progress output.")
-                .create();
 
         Option dhcpTest = OptionBuilder.withLongOpt("dhcp-test").withDescription(
                 "Verify that the networks DHCP server is running and properly issuing IP addresses.").create();
@@ -67,9 +64,6 @@ public class ConsoleTestRunner {
         Option sipTest = OptionBuilder.withLongOpt("120-test").withDescription(
                 "Verify that DHCP server is properly issuing Option 120 addresses.").create();
 
-        Option discover = OptionBuilder.withLongOpt("discover").withDescription(
-                "Attempt to discover SIP devices on the attached subnet.").create();
-
         Option testInterface = OptionBuilder.withLongOpt("interface").withDescription(
                 "IP address of the interface that the tests should run over.").withValueSeparator('=').hasArg().withArgName("address").create();
 
@@ -83,8 +77,6 @@ public class ConsoleTestRunner {
         options.addOption(httpTest);
         options.addOption(sipTest);
         options.addOption(verbose);
-        options.addOption(reportProgress);
-        options.addOption(discover);
         options.addOption(testInterface);
         options.addOption(help);
 
@@ -154,8 +146,7 @@ public class ConsoleTestRunner {
                         + "                     Option 120 addresses.  Possible error conditions:\n"
                         + "                       167: No SIP servers supplied.\n"
                         + "                       168: No SIP server is reachable.\n"
-                        + "--interface=<address> IP address of the interface that the tests should run over.\n" + "\n"
-                        + "--discover           Attempt to discover SIP devices on the attached subnet.\n" + "\n";
+                        + "--interface=<address> IP address of the interface that the tests should run over.\n" + "\n";
                 System.out.println(helpText);
                 System.exit(0);
             }
@@ -177,93 +168,6 @@ public class ConsoleTestRunner {
             } catch (UnknownHostException e) {
                 System.err.println(e.getMessage());
                 System.exit(-1);
-            }
-
-            if (line.hasOption("discover")) {
-                DHCP dhcp = new DHCP();
-                String networkAddress = null;
-                String networkMask = null;
-                InetAddress hostAddress = null;
-                InetAddress inetAddress;
-                String localHostAddress = "0.0.0.0";
-
-                results = dhcp.validate(10, networkResources, journalService, bindAddress);
-                if (results != NONE) {
-                    // Unable to determine the network mask via DHCP.
-                    try {
-                        // Default to a Class C subnet.
-                        journalService.println("\nUnable to determine network mask via DHCP, defaulting to Class C.\n");
-                        networkResources.subnetMask = InetAddress.getByName("255.255.255.0");
-                    } catch (UnknownHostException e1) {
-                        // Ignore.
-                    }
-                }
-
-                try {
-                    // Get local IP Address
-                    inetAddress = InetAddress.getLocalHost();
-                    localHostAddress = inetAddress.getHostAddress();
-                } catch (UnknownHostException e) {
-                    System.err.println(LOCAL_HOST_FAILURE.toString());
-                    System.exit(LOCAL_HOST_FAILURE.toInt());
-                }
-
-                DiscoveryService ds = new DiscoveryService(localHostAddress, 5050);
-
-                try {
-                    // Get local IP Address
-                    hostAddress = InetAddress.getLocalHost();
-                    localHostAddress = hostAddress.getHostAddress();
-                } catch (UnknownHostException e1) {
-                    // Ignore.
-                }
-
-                // Calculate the network address.
-                byte[] rawMaskAddress;
-                byte[] rawHostAddress;
-                byte[] rawNetworkAddress = new byte[4];
-                rawMaskAddress = networkResources.subnetMask.getAddress();
-                rawHostAddress = hostAddress.getAddress();
-                for (int i = 3; i >= 0; i--) {
-                    rawNetworkAddress[i] = (byte) (rawHostAddress[i] & rawMaskAddress[i]);
-                }
-                try {
-                    networkAddress = InetAddress.getByAddress(rawNetworkAddress).getHostAddress();
-                    networkMask = InetAddress.getByAddress(rawMaskAddress).getHostAddress();
-                } catch (UnknownHostException e) {
-                    // Ignore.
-                }
-
-                LinkedList<Device> devices = ds.discover(networkAddress, networkMask, line.hasOption("report-progress"));
-
-                journalService.enable();
-
-                if (devices == null) {
-                    journalService.println("No devices found.");
-                } else {
-                    // Dump out the list of discovered devices.
-                    journalService.println("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>");
-                    journalService.println("<devices xmlns='http://www.sipfoundry.org/sipX/schema/xml/devices-00-00'>");
-                    for (Device device : devices) {
-                        journalService.println("    <device>");
-                        journalService.print("        <hardware-address>");
-                        journalService.print(device.getHardwareAddress());
-                        journalService.println("</hardware-address>");
-                        journalService.print("        <network-address>");
-                        journalService.print(device.getNetworkAddress().getHostAddress());
-                        journalService.println("</network-address>");
-                        journalService.print("        <vendor>");
-                        journalService.print(device.getVendor());
-                        journalService.println("</vendor>");
-                        journalService.print("        <user-agent>");
-                        journalService.print(device.getUserAgentInfo());
-                        journalService.println("</user-agent>");
-                        journalService.println("    </device>");
-                    }
-                    journalService.println("</devices>");
-                }
-
-                System.exit(0);
             }
 
             // Always run the DHCP test first, regardless of what other tests are called for.

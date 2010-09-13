@@ -12,10 +12,6 @@ It is capable of testing proper operation of the following network services:
 
 It can also perform basic testing of the sipXecs proxy, registrar and publisher.
 
-In addition, it also has a device discovery feature which allows it to locate
-and identify SIP compliant telephones attached to the same network for which
-the host running preflight is.
-
 For details on the operation of the command line version of preflight, invoke
 with the "--help" switch.
 

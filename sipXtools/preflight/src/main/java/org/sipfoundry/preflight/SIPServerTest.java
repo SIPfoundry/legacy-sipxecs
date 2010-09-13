@@ -6,10 +6,10 @@
 package org.sipfoundry.preflight;
 
 import java.net.InetAddress;
+import java.util.Random;
 
 import org.sipfoundry.commons.dhcp.NetworkResources;
 import org.sipfoundry.commons.dhcp.SIPServer;
-import org.sipfoundry.commons.discovery.DiscoveryService;
 import org.sipfoundry.commons.icmp.Pinger;
 import org.sipfoundry.commons.util.JournalService;
 
@@ -39,7 +39,7 @@ public class SIPServerTest {
             		targetAddress = server.hostName;
             	}
                 journalService.println("Testing connectivity to SIP Server: " + targetAddress);
-            	pinger = new Pinger(DiscoveryService.rand.nextInt(1234), targetAddress, 500);
+                pinger = new Pinger(new Random().nextInt(1234), targetAddress, 500);
             	if (pinger.ping()) {
             		results = NONE;
             	} else {
