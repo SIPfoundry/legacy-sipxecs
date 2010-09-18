@@ -84,7 +84,7 @@ public class CertificateManagerImpl implements CertificateManager {
     private static final String ERROR_VALID = "&error.valid";
     private static final String EXTERNAL_KEY_BASED = "external-key-based";
     private static final String RESTART_SIPXECS = "restart";
-    private static final String[] SSL_CA_EXTENSIONS = {"crt"};
+    private static final String[] SSL_CA_EXTENSIONS = {"pem", "crt"};
 
     private String m_binCertDirectory;
 
@@ -263,6 +263,9 @@ public class CertificateManagerImpl implements CertificateManager {
 
     public boolean validateCertificateAuthority(File file) {
         try {
+            //validate the file if it can be a certificate
+            runCommand(getValidateCertFileCommand(file, false));
+            //validate the file if it can be an authority certificate
             runCommand(getValidateCertFileCommand(file, true));
             return true;
         } catch (ScriptExitException ex) {

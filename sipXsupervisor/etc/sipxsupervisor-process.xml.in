@@ -46,5 +46,14 @@
       <path>@SIPX_CONFDIR@/ssl/authorities</path>
       <filePattern configAccess='read-write'>*.crt</filePattern>
     </directory>
+    <directory required='true' configAccess='no-access'>
+      <!--
+      - The ssl/authorities directory holds public keys for trusted
+      - certificate authorities.  These are writable so that sipXconfig
+      - can install new ones.
+      -->
+      <path>@SIPX_CONFDIR@/ssl/authorities</path>
+      <filePattern configAccess='read-write'>*.pem</filePattern>
+    </directory>
   </resources>
 </sipXecs-process>
