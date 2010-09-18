@@ -41,8 +41,7 @@ then
    ln -s ${SIPX_OPENFIRE_DIR}/lib/xmlrpc-common.jar ${OPENFIRE_LIB} 2> /dev/null
    rm -f @OPENFIRE_HOME@/extras/sipXecs/lib 2> /dev/null
    mkdir -p @OPENFIRE_HOME@/extras/sipXecs 2> /dev/null
-   ln -s ${SIPX_OPENFIRE_DIR}/extras @OPENFIRE_HOME@/extras/sipXecs/lib 2> /dev/null
-   
+   ln -s ${SIPX_OPENFIRE_DIR}/plugins @OPENFIRE_HOME@/extras/sipXecs/lib 2> /dev/null
 
    # If the openfire configuration directory is either a soft link or does not exist, then
    # create a regular directory and copy the duplicate configuration file managed by sipXecs.

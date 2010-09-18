@@ -100,6 +100,9 @@
 		<copy file="${root}/config.properties" todir="${presence-classes}" />
 		<copy file="${root}/config.properties" todir="${prov-classes}" />
 		<jar jarfile="${root}/sipx-openfire-presence-plugin.jar">
+			<manifest>
+				<attribute name="MessageInterceptorClass" value="org.sipfoundry.openfire.plugin.presence.DefaultMessagePacketInterceptor" />
+			</manifest>
 			<fileset dir="${presence-classes}" >
 				<include name="**/*.class" />
 			    <include name="config.properties" />

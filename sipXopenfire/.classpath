@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="lib" path="/sipxcommons/lib/commons-digester.jar"/>
-	<classpathentry kind="lib" path="/sipxcommons/lib/log4j.jar"/>
 	<classpathentry kind="src" path="src/presence-plugin/java"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/activation.jar"/>
 	<classpathentry kind="var" path="OPENFIRE_ROOT/lib/bouncycastle.jar"/>
@@ -21,6 +19,7 @@
 	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar" sourcepath="/SIPX_SRC_TOP/sipXcommons"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-beanutils.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-collections.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-digester.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/com.noelios.restlet.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/dnsjava.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/dom4j.jar"/>
@@ -28,6 +27,7 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/javax.servlet.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/jdom-1.0.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/junit.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/log4j.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/org.restlet.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/ws-commons-util.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/xmlrpc-client.jar"/>
