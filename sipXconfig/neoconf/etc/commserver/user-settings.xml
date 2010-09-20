@@ -175,6 +175,9 @@
       <setting name="extension">
       <type refid="validPhone" />
       </setting>
+      <setting name="did">
+      <type refid="validPhone" />
+      </setting>
     </group>
     <group name="mailbox" hidden="yes">
       <setting name="active-greeting">

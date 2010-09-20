@@ -22,6 +22,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.update.XmppContactInformationUpdate;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.FaxServicePanel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -98,6 +99,9 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         User user = getUserForEditing();
         UserForm.updatePin(this, user, getCoreContext().getAuthorizationRealm());
+
+        FaxServicePanel fs = (FaxServicePanel) getComponent("faxServicePanel");
+        fs.update(user);
         getCoreContext().saveUser(user);
 
         savePersonalAttendant(user);
@@ -186,4 +190,5 @@ public abstract class EditMyInformation extends UserBasePage implements EditPinC
 
         setAvailableTabNames(tabNames);
     }
+
 }

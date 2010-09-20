@@ -106,9 +106,57 @@ public class EditMyInformationTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
         assertElementPresent("user:emailAddress");
-        //the pin component
+        // the pin component
         assertElementPresent("cp:password");
         assertElementPresent("cp:confirmPassword");
         assertButtonPresent("form:apply");
+    }
+
+    public void testFaxExtension() {
+        clickLink("menu.myInformation");
+        clickLink("link:info");
+
+        SiteTestHelper.assertNoException(tester);
+        SiteTestHelper.assertNoUserError(tester);
+        assertElementPresent("user:emailAddress");
+        assertElementPresent("user:alternateEmailAddress");
+
+        setTextField("user:emailAddress", "");
+        setTextField("user:alternateEmailAddress", "");
+        clickButton("form:apply");
+        assertElementPresentByXPath("//input[@type = 'text' and @id='faxExtension' and @disabled='disabled']");
+        assertElementPresentByXPath("//input[@type = 'text' and @id='faxDid' and @disabled='disabled']");
+
+        setTextField("user:emailAddress", "ciuc@ciuc.com");
+        clickButton("form:apply");
+        assertElementNotPresentByXPath("//input[@type = 'text' and @id='faxExtension' and @disabled='disabled']");
+        assertElementNotPresentByXPath("//input[@type = 'text' and @id='faxDid' and @disabled='disabled']");
+
+        setTextField("user:emailAddress", "");
+        setTextField("user:alternateEmailAddress", "lala@blabla.cc");
+        clickButton("form:apply");
+        assertElementNotPresentByXPath("//input[@type = 'text' and @id='faxExtension' and @disabled='disabled']");
+        assertElementNotPresentByXPath("//input[@type = 'text' and @id='faxDid' and @disabled='disabled']");
+
+        setTextField("faxExtension", "400");
+        setTextField("faxDid", "+12345678");
+        clickButton("form:apply");
+        SiteTestHelper.assertNoUserError(tester);
+        assertTextFieldEquals("faxExtension", "400");
+        assertTextFieldEquals("faxDid", "+12345678");
+
+        setTextField("faxExtension", "&^(*&^(");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+
+        setTextField("faxDid", "&^(*&^(");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+
+        setTextField("faxExtension", "");
+        setTextField("faxDid", "+12345678");
+        clickButton("form:apply");
+        SiteTestHelper.assertUserError(tester);
+
     }
 }

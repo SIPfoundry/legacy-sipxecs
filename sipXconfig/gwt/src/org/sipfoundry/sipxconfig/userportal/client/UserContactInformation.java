@@ -157,7 +157,6 @@ public class UserContactInformation implements EntryPoint {
                 @Override
                 public void onChange(ChangeEvent event) {
                     Boolean useBranch = (Boolean) event.getValue();
-                    ValuesManager vm = m_officeAddressForm.getValuesManager();
                     if (useBranch) {
                         m_officeAddressForm.maskData();
                     } else {

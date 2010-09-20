@@ -25,6 +25,7 @@ public class AddressBookEntry extends BeanWithId {
     private String m_homePhoneNumber;
     private String m_assistantPhoneNumber;
     private String m_faxNumber;
+    private String m_didNumber;
     private String m_imId;
     private String m_imPassword;
     private String m_imDisplayName;
@@ -204,5 +205,13 @@ public class AddressBookEntry extends BeanWithId {
 
     public void setAlternateEmailAddress(String alternateEmailAddress) {
         m_alternateEmailAddress = alternateEmailAddress;
+    }
+
+    public String getDidNumber() {
+        return m_didNumber;
+    }
+
+    public void setDidNumber(String didNumber) {
+        m_didNumber = didNumber;
     }
 }

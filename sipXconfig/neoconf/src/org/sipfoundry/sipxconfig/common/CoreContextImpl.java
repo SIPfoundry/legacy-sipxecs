@@ -311,6 +311,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         if (!faxExtension.isEmpty()) {
             names.add(faxExtension);
         }
+        String faxDid = user.getFaxDid();
+        if (!faxDid.isEmpty()) {
+            names.add(faxDid);
+        }
         result = checkForDuplicateString(names);
         if (result == null) {
             // Check whether the userName is a duplicate.

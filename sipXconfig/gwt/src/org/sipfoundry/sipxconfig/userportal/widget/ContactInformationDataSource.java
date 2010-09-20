@@ -28,6 +28,7 @@ public class ContactInformationDataSource extends DataSource {
     public static final String HOME_PHONE_NUMBER = "homePhoneNumber";
     public static final String ASSISTANT_PHONE_NUMBER = "assistantPhoneNumber";
     public static final String FAX_NUMBER = "faxNumber";
+    public static final String DID_NUMBER = "didNumber";
     public static final String IM_ID = "imId";
     public static final String IM_DISPLAY_ID = "imDisplayName";
     public static final String IM_PASSWORD = "imPassword";
@@ -57,7 +58,7 @@ public class ContactInformationDataSource extends DataSource {
 
     public static final String[] FIELDS_GENERAL = {
         FIRST_NAME, LAST_NAME, EMAIL_ADDRESS, LOCATION, ALTERNATE_EMAIL_ADDRESS, JOB_TITLE, CELL_PHONE_NUMBER,
-        IM_ID, JOB_DEPT, FAX_NUMBER, ALTERNATE_IM_ID, COMPANY_NAME
+        IM_ID, JOB_DEPT, FAX_NUMBER, DID_NUMBER, ALTERNATE_IM_ID, COMPANY_NAME
     };
 
     public static final String[] FIELDS_HOME = {
@@ -108,6 +109,8 @@ public class ContactInformationDataSource extends DataSource {
         assistantPhoneNumber.setValueXPath(ASSISTANT_PHONE_NUMBER);
         DataSourceField faxNumber = new DataSourceTextField(FAX_NUMBER);
         faxNumber.setValueXPath(FAX_NUMBER);
+        DataSourceField didNumber = new DataSourceTextField(DID_NUMBER);
+        didNumber.setValueXPath(DID_NUMBER);
         DataSourceField imId = new DataSourceTextField(IM_ID);
         imId.setValueXPath(IM_ID);
         DataSourceField alternateImId = new DataSourceTextField(ALTERNATE_IM_ID);
@@ -146,7 +149,7 @@ public class ContactInformationDataSource extends DataSource {
         avatar.setValueXPath(AVATAR);
 
         setFields(firstName, lastName, emailAddress, jobTitle, jobDept, companyName, assistantName, location,
-                cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, imId, alternateImId,
+                cellPhoneNumber, homePhoneNumber, assistantPhoneNumber, faxNumber, didNumber, imId, alternateImId,
                 alternateEmailAddress, homeStreet, homeCity, homeCountry, homeState, homeZip, officeStreet,
                 officeCity, officeCountry, officeState, officeZip, officeDesignation, avatar, useBranchAddress);
         setRecordXPath("/contact-information");
@@ -181,6 +184,7 @@ public class ContactInformationDataSource extends DataSource {
         addToJsonObject(contactInfo, HOME_PHONE_NUMBER, form.getValueAsString(HOME_PHONE_NUMBER));
         addToJsonObject(contactInfo, ASSISTANT_PHONE_NUMBER, form.getValueAsString(ASSISTANT_PHONE_NUMBER));
         addToJsonObject(contactInfo, FAX_NUMBER, form.getValueAsString(FAX_NUMBER));
+        addToJsonObject(contactInfo, DID_NUMBER, form.getValueAsString(DID_NUMBER));
         addToJsonObject(contactInfo, IM_ID, form.getValueAsString(IM_ID));
         addToJsonObject(contactInfo, IM_DISPLAY_ID, form.getValueAsString(IM_DISPLAY_ID));
         addToJsonObject(contactInfo, IM_PASSWORD, form.getValueAsString(IM_PASSWORD));

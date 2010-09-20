@@ -17,8 +17,8 @@ import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidationConstraint;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.components.FaxServicePanel;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
-import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.site.user_portal.UserBasePage;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
@@ -55,16 +55,13 @@ public abstract class MailboxPreferencesPage extends UserBasePage {
         User user = getEditedUser();
         checkForUserIdOrAliasCollision();
         getMailboxPreferences().updateUser(user);
+        FaxServicePanel fs = (FaxServicePanel) getComponent("faxServicePanel");
+        fs.update(user);
         getCoreContext().saveUser(user);
         MailboxManager mmgr = getMailboxManager();
         if (mmgr.isEnabled()) {
             getMailboxManager().writePreferencesFile(user);
         }
-    }
-
-    public Setting getUserFaxSettings() {
-        User user = getEditedUser();
-        return user.getSettings().getSetting("voicemail/fax");
     }
 
     // Make sure that the user ID, Fax extension, and aliases don't collide with any other
@@ -89,4 +86,5 @@ public abstract class MailboxPreferencesPage extends UserBasePage {
         }
         delegate.record(message, ValidationConstraint.CONSISTENCY);
     }
+
 }

@@ -37,7 +37,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
-
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -156,8 +155,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
 
         IDataSet expectedDs = TestHelper.loadDataSetFlat("common/SaveSupervisorExpected.xml");
         ITable expected = expectedDs.getTable("supervisor");
-        ITable actual = TestHelper.getConnection().createQueryTable("supervisor",
-                "select * from supervisor");
+        ITable actual = TestHelper.getConnection().createQueryTable("supervisor", "select * from supervisor");
         Assertion.assertEquals(expected, actual);
     }
 
@@ -178,7 +176,6 @@ public class UserTestDb extends SipxDatabaseTestCase {
         assertEquals(1, actual.getRowCount());
     }
 
-
     public void testSupervisorSaveNewGroup() throws Exception {
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         User user = m_core.loadUser(1000);
@@ -189,8 +186,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
         try {
             user.addSupervisorForGroup(group);
             fail();
-        }
-        catch(RuntimeException e) {
+        } catch (RuntimeException e) {
             // ok
         }
     }

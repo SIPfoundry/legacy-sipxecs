@@ -1,0 +1,29 @@
+<span jwcid="$content$">
+<fieldset>
+<table>
+<tr>
+<td colspan="2"><h3><span key="section.faxservice">Fax Service</span></h3></td>
+</tr>
+<tr jwcid="@common/FieldPanel"
+  field="component:faxExtension"
+  label="message:fax.title"
+  description="message:fax.description" >
+  <input jwcid="faxExtension@TextField"
+    value="ognl:faxExtension"
+    displayName="message:fax.title"
+    disabled="ognl:faxDisabled"
+    validators="spring-validators:validSipUserId"/>
+</tr>
+<tr jwcid="@common/FieldPanel"
+  field="component:faxDid"
+  label="message:faxDid.title"
+  description="message:faxDid.description" >
+  <input jwcid="faxDid@TextField"
+    value="ognl:faxDid"
+    displayName="message:faxDid.title"
+    disabled="ognl:faxDisabled"
+    validators="spring-validators:validSipUserId"/>
+</tr>
+</table>
+</fieldset>
+</span>

@@ -151,6 +151,11 @@ public class UserTest extends TestCase {
             public String getFaxExtension() {
                 return new String("321");
             }
+
+            @Override
+            public String getFaxDid() {
+                return new String("+1234");
+            }
         };
         user.setUserName("username");
 
@@ -166,7 +171,7 @@ public class UserTest extends TestCase {
         checkAliases(user);
 
         List aliasMappings = user.getAliasMappings("sipfoundry.org", "imId");
-        assertEquals(4, aliasMappings.size());
+        assertEquals(5, aliasMappings.size());
 
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
         assertEquals("mambo@sipfoundry.org", alias.getIdentity());
@@ -185,13 +190,13 @@ public class UserTest extends TestCase {
         assertEquals("sip:~~ff~" + user.getUserName() + "@sipfoundry.org", faxAlias.getContact());
 
         List otherAliasMappings1 = user.getAliasMappings("sipfoundry.org", "mambo");
-        assertEquals(3, otherAliasMappings1.size());
+        assertEquals(4, otherAliasMappings1.size());
 
         // Set the additional alias, imId, to user's userName, it should not be
         // added as an alias.
         String imId = user.getUserName();
         List otherAliasMappings2 = user.getAliasMappings("sipfoundry.org", imId);
-        assertEquals(3, otherAliasMappings2.size());
+        assertEquals(4, otherAliasMappings2.size());
     }
 
     private void checkAliases(User user) {
@@ -207,6 +212,10 @@ public class UserTest extends TestCase {
             @Override
             public String getFaxExtension() {
                 return "";
+            }
+            @Override
+            public String getFaxDid() {
+                return new String("");
             }
         };
         user.setUserName("username");

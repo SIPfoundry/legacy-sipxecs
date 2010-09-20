@@ -34,6 +34,8 @@ public interface ContactInformationConstants extends ConstantsWithLookup {
 
     String faxNumber();
 
+    String didNumber();
+
     String imId();
 
     String alternateImId();

@@ -17,6 +17,7 @@
     <property name="homePhoneNumber" />
     <property name="assistantPhoneNumber" />
     <property name="faxNumber" />
+    <property name="didNumber" />
     <property name="imId" />
     <property name="imPassword" />
     <property name="imDisplayName" />

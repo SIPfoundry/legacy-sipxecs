@@ -29,14 +29,9 @@
 	          passwordMismatchMessage="message:error.pinMismatch">
 	      </tr>
 	      <tr jwcid="@vm/MailboxPreferencesForm" preferences="ognl:mailboxPreferences"/>
-	      <tr jwcid="@common/FieldPanel"
-              field="component:faxExtension"
-              label="message:fax.title"
-              description="message:fax.description" >
-            <input jwcid="faxExtension@TextField" value="ognl:user.getFaxExtension" displayName="message:fax.title" disabled="true"/>
-          </tr>
 	    </table>
 	  </fieldset>
+      <tr jwcid="faxServicePanel@common/FaxServicePanel" mailboxPreferences="ognl:mailboxPreferences" user="ognl:user"/>
 	  <ul jwcid="@common/FormActions" listener="listener:save" callback="ognl:callback"/>
   </form>
 </div>

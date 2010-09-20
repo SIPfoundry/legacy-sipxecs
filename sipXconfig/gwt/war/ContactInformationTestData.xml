@@ -23,6 +23,7 @@
   <homePhoneNumber>Test_Home phone number</homePhoneNumber>
   <assistantPhoneNumber>Test_Assistant phone number</assistantPhoneNumber>
   <faxNumber>Test_Fax number</faxNumber>
+  <didNumber>Test_Did number</didNumber>
   <alternateImId>201_alt_im</alternateImId>
   <emailAddress>email@address.com</emailAddress>
   <alternateEmailAddress>altemail@addresse.com</alternateEmailAddress>
