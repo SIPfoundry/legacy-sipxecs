@@ -120,8 +120,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
 
     private AccountsParser accountsParser;
     
-    private ImLogger imLogger;
-
     public class ConferenceInformation {
         private String extension;
         private String name;
@@ -341,6 +339,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         PresenceUnifier.setPlugin(this);
         PresenceUnifier.getInstance();
        
+	addInterceptor( new DefaultMessagePacketInterceptor());
+
         // add packet interceptors found in extras directory.
         if( this.getClass().getClassLoader() instanceof PluginClassLoader ){
 
@@ -355,7 +355,6 @@ public class SipXOpenfirePlugin implements Plugin, Component {
                 
                 String extrasDirName = extrasDirNameForClassLoader + "/lib";
                 File extrasDir = new File(extrasDirName);
-                loadDefault();
                 loadExtras(pluginClassLoader, extrasDir);
             }
             else{
@@ -363,9 +362,8 @@ public class SipXOpenfirePlugin implements Plugin, Component {
             }
         }
         
-        if(watcherConfig.isImMessageLoggingEnabled()){
-            imLogger = new ImLogger(watcherConfig.getImMessageLoggingDirectory());
-            InterceptorManager.getInstance().addInterceptor(imLogger);
+        if (watcherConfig.isImMessageLoggingEnabled()){
+            addInterceptor(new ImLogger(watcherConfig.getImMessageLoggingDirectory()));
         }
         
         log.info("plugin initializaton completed");
@@ -391,10 +389,10 @@ public class SipXOpenfirePlugin implements Plugin, Component {
         isInitialized = true;
     }
     
-    void loadDefault() {
-        DefaultMessagePacketInterceptor originalInterceptor = new DefaultMessagePacketInterceptor();
-        originalInterceptor.start(this);
-        abstractMessagePacketInterceptors.add(originalInterceptor);
+    void addInterceptor(AbstractMessagePacketInterceptor interceptor) {
+        interceptor.start(this);
+        abstractMessagePacketInterceptors.add(interceptor);
+	InterceptorManager.getInstance().addInterceptor(interceptor);
     }
     
     void loadExtras(ClassLoader classLoader, File extrasDir){

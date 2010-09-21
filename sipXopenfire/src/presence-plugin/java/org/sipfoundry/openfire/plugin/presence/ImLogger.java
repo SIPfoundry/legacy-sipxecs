@@ -12,7 +12,7 @@ import org.xmpp.packet.Packet;
 import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 
-public class ImLogger implements PacketInterceptor
+public class ImLogger extends AbstractMessagePacketInterceptor
 {
     private static Logger imLogger; 
     private static Logger log = Logger.getLogger(ImLogger.class);
@@ -20,6 +20,9 @@ public class ImLogger implements PacketInterceptor
 
     ImLogger(String  imMessagesLogDirectory) {
         this.imMessagesLogDirectory = imMessagesLogDirectory;
+    }
+
+    public void start(SipXOpenfirePlugin plugin) {
         try{
             String logFile = this.imMessagesLogDirectory + "/sipxopenfire-im.log";
             imLogger = Logger.getLogger("ImLogger");
