@@ -36,7 +36,7 @@
   </bean>
   
   <bean id="ldapSystemSettings" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings" singleton="false">
-  	<property name="configured" value="true"/>
+  	<property name="configured" value="false"/>
   </bean>
 
   <bean id="ldapConnectionParams" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams" singleton="false">

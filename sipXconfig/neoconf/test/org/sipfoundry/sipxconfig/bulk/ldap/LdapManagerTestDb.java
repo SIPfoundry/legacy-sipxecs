@@ -42,7 +42,8 @@ public class LdapManagerTestDb extends TestCaseDb {
         assertEquals(1, after.getRowCount());
         assertEquals("LDAP", after.getValue(0, "authentication_options"));
         assertTrue((Boolean)after.getValue(0, "enable_openfire_configuration"));
-        assertTrue((Boolean)after.getValue(0, "configured"));
+        //by default LDAP configuration is not activated
+        assertFalse((Boolean)after.getValue(0, "configured"));
         //test noLDAP / unconfigured
         settings.setAuthenticationOptions(AuthenticationOptions.NO_LDAP);
         settings.setEnableOpenfireConfiguration(true);
