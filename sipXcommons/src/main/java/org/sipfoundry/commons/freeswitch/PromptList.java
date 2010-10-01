@@ -75,7 +75,7 @@ public class PromptList {
         String usePrefix = localPrefix != null ? localPrefix : m_globalPrefix;
 
         // If no prefix, or if rooted, don't prepend prefix
-        if (usePrefix == null || prompt.startsWith("/") || prompt.startsWith(".") || prompt.startsWith("{")) {
+        if (usePrefix == null || prompt.startsWith("/") || prompt.startsWith("./") || prompt.startsWith("{")) {
             return prompt;
         }
         return usePrefix + prompt;

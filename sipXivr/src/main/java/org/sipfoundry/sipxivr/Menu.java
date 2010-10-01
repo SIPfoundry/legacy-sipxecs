@@ -158,7 +158,7 @@ public class Menu {
                 // What they entered has no corresponding action.
                 LOG.info("Menu::menu Invalid entry");
                 if (m_errorPl != null) {
-                    m_loc.play("invalid_try_again", "");
+                    m_loc.play(m_errorPl, "");
                 }
                 invalidCount++;
             } else {
