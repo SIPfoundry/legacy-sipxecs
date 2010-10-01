@@ -53,8 +53,12 @@ f10 : $(CUSTOM_PACKAGES)
 .PHONY: f11
 f11 : $(CUSTOM_PACKAGES)
 
+.PHONY: f12
+f12 : $(CUSTOM_PACKAGES)
+
 .PHONY: rhel5 centos5
 rhel5 centos5 : $(CUSTOM_PACKAGES) nsis cppunit xerces-c w3c-libwww rubygems rrdtool stunnel
 
 .PHONY: suse11.1
 suse11.1 : $(CUSTOM_PACKAGES) nsis libpcap tcpdump openssl stunnel w3c-libwww
+

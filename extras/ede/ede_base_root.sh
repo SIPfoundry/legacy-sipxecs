@@ -73,21 +73,21 @@ DISTRO_EXIT_ERROR=5 # exit
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
       echo "Fedora 11!  Not yet supported by EDE!  (A work in progress.  Not recommended.)"
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora8 ]; then
-      echo "Fedora 8 is no longer supported by EDE."
-      exit $DISTRO_EXIT_ERROR >&2 
+      echo "Fedora 8 is no longer supported by EDE." >&2
+      exit $DISTRO_EXIT_ERROR
    else
-      echo -n "Unsupported Linux distribution: "
-      uname -a | cut -d" " -f3
-      exit $DISTRO_EXIT_ERROR >&2
+      echo -n "Unsupported Linux distribution: " >&2
+      uname -a | cut -d" " -f3 >&2
+      exit $DISTRO_EXIT_ERROR
    fi
    echo ""
    sleep 3
 
-   # Dependencies that are required.  Fedora 10/11 has these available in the standard repository.  For 
+   # Dependencies that are required.  Fedora 10/11 has these available in the standard repository.  For
    # CentOS 5.2, they must be installed from SIPfoundry dependency RPMs.
    BASE_DEPS="xerces-c xerces-c-devel cppunit-devel w3c-libwww w3c-libwww-apps w3c-libwww-devel rrdtool rrdtool-perl rubygems"
 
-   # In Fedora 10/11 nsis and nsis-data are provided by mingw32-nsis, which is avalable from the  
+   # In Fedora 10/11 nsis and nsis-data are provided by mingw32-nsis, which is avalable from the
    # standard repository.
    if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
       BASE_DEPS="$BASE_DEPS nsis nsis-data"
@@ -256,30 +256,41 @@ function centos_manual_install_packages {
    popd
 }
 
-# Disable SELinux (could be done from a GUI install, but just to be sure....)
+## Disable SELinux (could be done from a GUI install, but just to be sure....)
+
 if [ ! -e /etc/selinux/config_ORIG ] 
 then
   cp /etc/selinux/config /etc/selinux/config_ORIG
 fi
-echo SELINUX=disabled > /etc/selinux/config # This prevents it from starting following reboots.
-echo 0 >/selinux/enforce # This stops it right now, without a reboot.
+# This prevents SELinux from starting following reboots.
+echo SELINUX=disabled > /etc/selinux/config
+# This stops SELinux right now.
+echo 0 >/selinux/enforce
 
-# Disable the Firewall (could be done from a GUI install, but just to be sure....)
+## Disable the Firewall (could be done from a GUI install, but just to be sure....)
+
 /sbin/service iptables stop
 /sbin/chkconfig iptables off
 
-# This tool binds to port 5060, which will obviously cause problems.
+## 'sip-redirect' tool binds to port 5060, which will cause problems, as sipXecs
+## needs to use port 5060.  So disable and remove sip-redirect.
+
 killall sip-redirect
 yum -y remove sip-redirect &> /dev/null
 
-# Install the required packages.
+## Install the required packages.
+
+# YUM_PACKAGES is the list of the required packages.
 YUM_PACKAGES="gcc gcc-c++ autoconf automake libtool subversion subversion-perl rpm-build httpd httpd-devel openssl-devel jpackage-utils pcre-devel expat-devel unixODBC-devel junit ant-commons-logging postgresql-server zlib-devel postgresql-devel postgresql-odbc alsa-lib-devel gnutls-devel mysql-devel ncurses-devel python-devel ruby ruby-devel ruby-rdoc bind tftp-server doxygen zip which unzip createrepo ant-junit mod_ssl libXp libpng-devel libart_lgpl-devel freetype freetype-devel gdb gdbm-devel mysql-devel ncurses-devel vsftpd mod_perl-devel dhcp net-snmp-utils net-snmp-devel net-snmp-perl ntp yum-utils java-1.6.0-openjdk java-1.6.0-openjdk-devel redhat-rpm-config ant ant-trax ant-nodeps jakarta-commons-collections jakarta-commons-beanutils log4j mrtg stunnel logrotate"
 
-# Differences in certain packages between distros.  (See also function centos_manual_install_packages.)
+# Check what distro we are running and update YUM_PACKAGES appropriately.
 if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
    # CentOS 5.2
+   # See also the call of function centos_manual_install_packages below.
 
-   # This is only available from jpackage, yet other RPMs there cause conflicts.
+   # jakarta-commons-net is only available from jpackage.org, yet
+   # other RPMs in that repository cause conflicts.  Thus, we must
+   # download and install only that RPM from that repository.
    rpm -q jakarta-commons-net &> /dev/null
    if [ $? != 0 ]; then
       wget_repofile http://www.jpackage.org/jpackage.repo
@@ -302,31 +313,40 @@ if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
    fi
 
    YUM_PACKAGES="$YUM_PACKAGES curl-devel"
-      # Note: $BASE_DEPS are NOT available from the standard CentOS 5.2 repos.  They will need to be installed
-      # from SIPfoundry dependency RPMs by the next script.  (They will either be built locally, or installed 
-      # from the sipxecs-unstable repo.)
+
+      # Note: The packages listed in $BASE_DEPS are NOT available from
+      # the standard CentOS 5.2 repos.  They will need to be installed
+      # from SIPfoundry dependency RPMs by ede_build_devuser.sh.
+      # (They will either be built locally, or installed from the
+      # sipxecs-unstable repo.)
 else
    # Fedora 10/11
 
-   # $BASE_DEPS are available from the standard Fedora 10/11 repos, so install them now...
+   # The packages in $BASE_DEPS are available from the standard Fedora
+   # 10/11 repos, so install them now...
    YUM_PACKAGES="$YUM_PACKAGES $BASE_DEPS libcurl-devel rpmdevtools git git-svn lzo-devel scons perl-ExtUtils-Embed jakarta-commons-net"
 fi
+# Now that YUM_PACKGES has the correct value, fetch and install all the packages
+# listed in it.
 for package in $YUM_PACKAGES; do
    yum_install_and_check $package
 done
 
-# Many CentOS packages have no repo available, so must be either installed from RPM
-# manually, or built and installed from scratch.
+# Many CentOS packages are not available from any repository, so they
+# must be either installed from RPMs manually, or built and installed
+# from scratch.
 if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
    centos_manual_install_packages
 fi
 
-# Ensure we're using the correct version of java.
+## Ensure we're using the correct version of java, which is IBM 1.6.0.
+
 /usr/sbin/alternatives --set java /usr/lib/jvm/jre-1.6.0-openjdk/bin/java
 /usr/sbin/alternatives --display java > $FULL_PATH_EDE_LOGS/java_alternatives.log
 /usr/sbin/alternatives --set javac /usr/lib/jvm/java-1.6.0-openjdk/bin/javac
 
-# See if the development user already exists.
+## See if the development user already exists and if not, create it.
+
 id $DEVEL_USER 2> /dev/null
 if [ $? != 0 ]
 then
@@ -335,10 +355,12 @@ then
    echo $DEFAULT_PASSWORD | passwd $DEVEL_USER --stdin
 fi
 
-# Give the wheel group password-less sudo privileges.
+## Give the wheel group password-less sudo privileges.
+
 sed -i -e "s/# %wheel[\t]ALL=(ALL)[\t]NOPASSWD/%wheel\tALL=(ALL)\tNOPASSWD/g" /etc/sudoers 
 
-# Add the development user to the wheel group.
+## Add the development user to the wheel group.
+
 ETC_GROUP_FILE="/etc/group"
 WHEEL_GROUP_ORIG=`grep wheel $ETC_GROUP_FILE`
 TMP=`echo $WHEEL_GROUP_ORIG | grep $DEVEL_USER | cut -d: -f4`
@@ -348,19 +370,24 @@ then
    sed -i -e "s/$WHEEL_GROUP_ORIG/$WHEEL_GROUP_ORIG,$DEVEL_USER/g" $ETC_GROUP_FILE
 fi
 
-# Enable TFTP.  Make sure it's using /tftpboot, which will be later be replaced with a symbolic 
-# link by the $DEVEL_USER.  (The Fedora 10/11 default is /var/lib/tftpboot.)
+## Enable TFTP.
+## Make sure it is using /tftpboot as its root directory.  /tftpboot will be
+## replaced with a symbolic link by ede_build_devuser.sh.  (The Fedora 10/11
+## default is /var/lib/tftpboot.)
+
 sed -i -e "s/[\t]disable[\t][\t][\t]= yes/\tdisable\t\t\t= no/g" /etc/xinetd.d/tftp
 sed -i -e "s/\/var\/lib\/tftpboot/\/tftpboot/g" /etc/xinetd.d/tftp
 /sbin/service xinetd stop > /dev/null
 /sbin/service xinetd start
 
-# Enable FTP.
+## Enable FTP.
+
 /sbin/chkconfig vsftpd on
 /sbin/service vsftpd stop > /dev/null
 /sbin/service vsftpd start
 
-# Enable postgresql.
+## Enable postgresql.
+
 /sbin/service postgresql initdb > /dev/null
 /sbin/chkconfig postgresql on
 /sbin/service postgresql stop > /dev/null

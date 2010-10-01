@@ -81,7 +81,7 @@ AC_DEFUN([CHECK_JAR],
 				SFAC_VAR_APPEND([CLASSPATH_BUILD],[$jar])
 			fi
 		],
-		[AC_MSG_ERROR([cannot find jar $2: '$JPACKAGE_FIND_JAR $2' failed])]
+		[AC_MSG_ERROR([cannot find jar $2])]
 	)
 ])
 

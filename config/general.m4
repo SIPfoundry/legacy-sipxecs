@@ -6,10 +6,14 @@
 AC_DEFUN([CHECK_AUTOCONF],
 [
     AC_PATH_PROG([AUTOCONF], autoconf)
-    if test `autoconf --version | grep "2.58" | wc -c` -ne 0 ; then
-        AC_MSG_WARN(["Autoconf 2.58 was found on system.  If you are a maintainer of this library it has known incompatilities.  If you are not a maintainer, 2.58 has serious bugs and you should consider upgrading autoconf"]);
-    fi
+    AutoConfVersion=`autoconf --version | head -n 1 | sed 's/^.*)//'`
+    AX_COMPARE_VERSION($AutoConfVersion, eq, [2.58], 
+    [
+      AC_MSG_WARN(["Autoconf 2.58 was found on system.  If you are a maintainer of this library it has known incompatilities.  If you are not a maintainer, 2.58 has serious bugs and you should consider upgrading autoconf"])
+    ], 
+    [:])
 ])
+
 
 # ============ C L O V E R  =======================
 AC_DEFUN([CHECK_CLOVER],
@@ -491,65 +495,9 @@ AC_DEFUN([CHECK_XERCES],
     AC_MSG_RESULT(yes)
 ])
 
-# CHECK_APR is called from CHECK_APACHE2
-# ============ A P R ==============
-AC_DEFUN([CHECK_APR],
-[
-    found_apr_dir="no"
-    AC_MSG_CHECKING([for apr headers])
-    # May need to add support for Apache post-2.0.50 tarball
-    AC_ARG_WITH(apr,
-                [--with-apr=PATH to apr header files directory],
-                [apr_path=$withval],
-                [apr_path="/usr/include/httpd /usr/include/apr-1 /usr/include/apr-1.0 /usr/include/apr-0 /usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2"
-                ]
-               )
-    for apr_dir in $apr_path ; do
-       if test -f "$apr_dir/apr.h"; then
-          found_apr_dir="yes"
-          break;
-       fi
-    done
-
-    if test x_$found_apr_dir != x_yes; then
-       AC_MSG_ERROR(['apr.h' not found; tried $apr_path])
-    else
-       AC_MSG_RESULT($apr_dir)
-       APACHE2_CFLAGS="$APACHE2_CFLAGS -I$apr_dir"
-       APACHE2_CXXFLAGS="$APACHE2_CXXFLAGS -I$apr_dir"
-    fi
-])dnl
-
 # ============ A P A C H E 2 ==================
 AC_DEFUN([CHECK_APACHE2],
 [
-   AC_REQUIRE([CHECK_APR])
-   found_apache2_inc="no"
-   AC_ARG_WITH([apache-include],
-               [--with-apache-include=PATH the apache2 include directory],
-               [ apache2_inc_search_path=$withval
-                 ],
-               [ apache2_inc_search_path="/usr/local/apache2/include /usr/apache2/include /etc/httpd/include /usr/include/apache2 /usr/include/httpd"
-                 ]
-               )
-
-   ## Include directory
-   AC_MSG_CHECKING([for apache2 include directory])
-   for incdir in $apache2_inc_search_path; do
-          if test -f "$incdir/httpd.h"; then
-       found_apache2_inc="yes";
-       break;
-     fi
-   done
-   if test x_$found_apache2_inc = x_yes; then
-       AC_MSG_RESULT($incdir)
-       AC_SUBST(APACHE2_CFLAGS, -I$incdir)
-       AC_SUBST(APACHE2_CXXFLAGS, -I$incdir)
-       AC_SUBST(APACHE2_INCDIR, $incdir)
-   else
-       AC_MSG_ERROR('httpd.h' not found; tried: $apache2_inc_search_path)
-   fi
-
    ## Apache httpd executable
    AC_MSG_CHECKING([for Apache2 httpd])
    AC_ARG_WITH([apache-httpd],
@@ -583,16 +531,6 @@ AC_DEFUN([CHECK_APACHE2],
        AC_MSG_ERROR('httpd' not found; tried: $apache2_bin_search_path)
    fi
 
-   ## Get the version numbers for this Apache installation.
-   ## APACHE2_MMN is the module magic number, which is the version of
-   ## the API that modules have to interface to.
-   ## Some versions have a $incdir/.mmn file containing only the MMN, but
-   ## we can't depend on that.
-   apache2_mmn=`sed <$incdir/ap_mmn.h \
-                -e '/#define MODULE_MAGIC_NUMBER_MAJOR/!d' \
-                -e 's/#define MODULE_MAGIC_NUMBER_MAJOR //'`
-   AC_SUBST(APACHE2_MMN, $apache2_mmn)
-   AC_MSG_RESULT(apachd2_mmn=$apache2_mmn)
    ## APACHE2_VERSION is the Apache version number.
    ## This makes it easier for the uninitiated to see what versions of Apache
    ## might be compatible with this mod_cplusplus.  But compatibility is really
@@ -660,63 +598,6 @@ AC_DEFUN([CHECK_APACHE2],
        AC_MSG_WARN('$apache2_mod_access', 'mod_cgi.so', and 'httpd.exp' not found; using explicit value: $tried_path)
    else
        AC_MSG_ERROR('$apache2_mod_access' and 'httpd.exp' not found; tried: $tried_path)
-   fi
-
-   ## Apache apxs executable
-   AC_ARG_WITH([apache-apxs],
-               [--with-apache-apxs=PATH the apache2 apxs executable],
-               [ apache2_apxs_search_path="$withval"
-                 ],
-               [ apache2_apxs_search_path="/usr/local/apache2/bin /usr/apache2/bin /etc/httpd/bin /usr/local/sbin /usr/local/bin /usr/sbin /usr/bin"
-                 ]
-               )
-   AC_MSG_CHECKING([for apache2 apxs])
-   found_apache2_apxs="no";
-   for apache2_apxs_dir in $apache2_apxs_search_path; do
-
-     ## Apache >= 2.0.50
-     if test -x "$apache2_apxs_dir/apxs2"; then
-       found_apache2_apxs="yes";
-       apache2_apxs="$apache2_apxs_dir/apxs2";
-       break;
-
-     ## Apache < 2.0.50 or Apache >= 2.2
-     elif test -x "$apache2_apxs_dir/apxs"; then
-       found_apache2_apxs="yes";
-       apache2_apxs="$apache2_apxs_dir/apxs";
-       break;
-     fi
-   done
-   if test x_$found_apache2_apxs = x_yes; then
-       AC_MSG_RESULT($apache2_apxs)
-       AC_SUBST(APACHE2_APXS, $apache2_apxs)
-   else
-       AC_MSG_ERROR('apxs' not found; tried: $apache2_apxs_search_path)
-   fi
-
-   ## Apache "home", the location of build/config_vars.mk, and probably
-   ## the parent of APACHE2_INC, etc.
-   AC_ARG_WITH([apache-home],
-               [--with-apache-home=PATH the apache2 home directory],
-               [ apache2_home_search_path="$withval"
-                 ],
-               [ apache2_home_search_path="/usr/local/apache2 /usr/apache2 /etc/httpd /usr/local/sbin /usr/local /usr/sbin /usr /usr/lib64/apache2 /usr/lib/apache2 /usr/share/apache2 /usr/lib64/httpd /usr/lib/httpd"
-                 ]
-               )
-   AC_MSG_CHECKING([for apache2 home])
-   found_apache2_home="no";
-   for apache2_home_dir in $apache2_home_search_path; do
-   if test -f "$apache2_home_dir/build/config_vars.mk"; then
-       found_apache2_home="yes";
-       apache2_home="$apache2_home_dir";
-       break;
-     fi
-   done
-   if test x_$found_apache2_home = x_yes; then
-       AC_MSG_RESULT($apache2_home)
-       AC_SUBST(APACHE2_HOME, $apache2_home)
-   else
-       AC_MSG_ERROR('build/config_vars.mk' not found; tried: $apache2_home_search_path)
    fi
 ])dnl
 
@@ -1050,7 +931,6 @@ dnl
 dnl @version $Id: ax_compare_version.m4,v 1.1 2004/03/01 19:14:43 guidod Exp $
 dnl @author Tim Toolan <toolan@ele.uri.edu>
 dnl
-
 dnl #########################################################################
 AC_DEFUN([AX_COMPARE_VERSION], [
   # Used to indicate true or false condition
@@ -1756,8 +1636,9 @@ AC_DEFUN([CHECK_NSIS],
 
   if test "x$MAKENSIS" = "x" ; then
     AC_MSG_ERROR([NSIS is required -- makensis not found in the path.
-Build it from the lib/nsis directory or get the RPM's from
-the SIPfoundry repositories.])
+Build it from the lib/nsis directory,
+install the mingw32-nsis rpm,
+or get the RPM's from the SIPfoundry repositories.])
   fi
 ])
 

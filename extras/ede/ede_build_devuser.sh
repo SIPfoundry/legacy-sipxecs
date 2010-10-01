@@ -28,7 +28,7 @@ ECLIPSE_WORKSPACE=eclipse-workspace
 EDE_BIN=bin_ede
 DEP_RPM_TOPDIR=DEP_RPM_TOPDIR
 SIPX_RPM_TOPDIR=SIPX_RPM_TOPDIR
-CODE=4.2
+CODE=main
 LINKS=links
 DIST=DIST
 EDE_LOGS=logs_ede
@@ -43,7 +43,8 @@ FULL_PATH_ECLIPSE_WORKSPACE=$WORKING_DIR/$ECLIPSE_WORKSPACE
 FULL_PATH_EDE_BIN=$WORKING_DIR/$EDE_BIN
 EDE_ENV_FILE=env-ede
 
-# Parse the arguments.
+## Parse the arguments.
+
 USAGE="Usage: $0 [-h] [-d] [-r] [-i] [-s] [-c CODEDIR]"
 while getopts hc:rdis OPT; do
    case "$OPT" in
@@ -125,11 +126,11 @@ DISTRO_EXIT_ERROR=3
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
       echo "Fedora 11!  Not yet supported by EDE!  (A work in progress.  Not recommended.)"
    elif [ $(return_uname_distro_id) == $DISTRO_ID_Fedora8 ]; then
-      echo "Fedora 8 is no longer supported by EDE."
+      echo "Fedora 8 is no longer supported by EDE." >&2
       exit $DISTRO_EXIT_ERROR
    else
-      echo -n "Unsupported Linux distribution: "
-      uname -a | cut -d" " -f3
+      echo -n "Unsupported Linux distribution: " >&2
+      uname -a | cut -d" " -f3 >&2
       exit $DISTRO_EXIT_ERROR
    fi
    echo ""
@@ -207,7 +208,7 @@ function add_sipxecs_unstable_repo {
       cat <<EOF >> tmp.repo
 [sipxecs-unstable]
 name=sipXecs $NORTEL_INTERNAL_BUILD_HOST
-baseurl=http://$NORTEL_INTERNAL_BUILD_HOST/scs/branches/4.2/$DISTRO_PART/`uname -i`/current/RPM
+baseurl=http://$NORTEL_INTERNAL_BUILD_HOST/scs/main/$DISTRO_PART/`uname -i`/current/RPM
 gpgcheck=0
 enabled=1
 EOF
@@ -217,10 +218,6 @@ EOF
       sudo_wget_retry http://sipxecssw.org/pub/sipXecs/$(return_sipxecs_unstable_repo_name).repo /etc/yum.repos.d
       if [ $(return_uname_distro_id) == $DISTRO_ID_Fedora10 -o $(return_uname_distro_id) == $DISTRO_ID_Fedora11 ]; then
          # SIPfoundry doesn't yet have a dependency repo for 10/11, but the 8 RPMs (except FreeSWITCH) work well.
-#
-# 22 April 2010 - In fact SIPfoundry doesn't even have a Fedora build loop for 4.2, only CentOS.  Fedora will still
-# work with 4.2, but you'll need to use the -d option to have the script build all SIPfoundry dependency RPMs locally.
-#
          sudo sed -i -e "s/\$releasever/8/g" /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
       fi
       sudo sed -i -e "s/gpgcheck=1/gpgcheck=0/g" /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
@@ -280,10 +277,13 @@ function uninstall_sipxecs_rpms {
    fi
 }
 
-# Make a fresh EDE log dir.
+## Make a fresh EDE log dir.
+
 sudo rm -rf $EDE_LOGS.old 2> /dev/null
 mv $EDE_LOGS $EDE_LOGS.old 2> /dev/null
 mkdir $EDE_LOGS
+
+## If not in sandbox mode, stop and uninstall any existing sipX.
 
 if [ -z "$SANDBOX_MODE" ]; then
    # Stop the old (which may not be running, or even installed...)
@@ -328,6 +328,8 @@ if [ -z "$SANDBOX_MODE" ]; then
    fi
 fi
 
+## Create the 'env-ede' file, which can be sourced to set the EDE variables.
+
 # This file can be source'd by a shell (using '.' or 'source'.)
 cat <<EOF > $EDE_ENV_FILE
 WORKING="`pwd`"
@@ -358,7 +360,8 @@ parse_git_branch() {
 EOF
 # Note: More content is added below in the Eclipse readiness section.
 
-# Start removing the old and creating the new.
+## Delete build directories and files.  Start creating the new build directories.
+
 sudo rm -rf $INSTALL $BUILD $RPMBUILD $LINKS $DIST $DEP_RPM_TOPDIR $SIPX_RPM_TOPDIR $ECLIPSE_WORKSPACE $EDE_BIN
 mv env env.DELETE_ME 2> /dev/null
 mv eclipse-windowprefs.txt eclipse-windowprefs.txt.DELETE_ME 2> /dev/null
@@ -368,20 +371,24 @@ do
 done
 mkdir $INSTALL
 
+## If not in sandbox mode, remove the sipX start script and the sipX repositories.
+
 if [ -z "$SANDBOX_MODE" ]; then
    sudo rm -rf /etc/init.d/sipxecs /etc/init.d/sipxpbx
    sudo rm -rf /etc/yum.repos.d/sipxecs-dependencies-local.repo
    sudo rm -rf /etc/yum.repos.d/$(return_sipxecs_unstable_repo_name).repo
 fi
 
-# Record useful info.
+## Record useful information into the log file.
+
 echo BUILD_ALL_DEPENDENCIES - $BUILD_ALL_DEPENDENCIES >> $FULL_PATH_EDE_LOGS/info.log
 echo BUILD_RPMS - $BUILD_RPMS >> $FULL_PATH_EDE_LOGS/info.log
 echo CODE - $CODE >> $FULL_PATH_EDE_LOGS/info.log
 echo Distribution - $(return_uname_distro_id) >> $FULL_PATH_EDE_LOGS/info.log
 
+## Build and install any dependency RPMs which are specified and/or required.
+
 if [ -z "$SANDBOX_MODE" ]; then
-   # Build any dependency RPMs which may be specified and/or required.
    if [ $BUILD_ALL_DEPENDENCIES ]; then
       # Build all those required by the distribution.
       if [ $(return_uname_distro_id) == $DISTRO_ID_CentOS5 ]; then
@@ -430,7 +437,7 @@ if [ -z "$SANDBOX_MODE" ]; then
    fi
 
    # Get ready to install the SIPfoundry dependency RPMs with one big yum command below, regardless
-   # of whether it's from the local or sipxecs-unstable repo.
+   # of whether they are from the local or sipxecs-unstable repo.
    sudo yum -y update yum
    BIG_DEP_INSTALL="$SIPFOUNDRY_BASE_DEPS"
 
@@ -479,11 +486,13 @@ if [ -z "$SANDBOX_MODE" ]; then
    done
 fi
 
-# Record the java version being used.
+## Record the java version being used.
+
 sudo /usr/sbin/alternatives --display java >> $FULL_PATH_EDE_LOGS/java_alternatives.log
 sudo /usr/sbin/alternatives --display javac >> $FULL_PATH_EDE_LOGS/java_alternatives.log
 
-# Some handy scripts.
+## Create some handy scripts.
+
 mkdir $EDE_BIN
 cat <<EOF > $FULL_PATH_EDE_BIN/full_conf_build
 #!/bin/bash
@@ -516,6 +525,9 @@ fi
 popd
 
 EOF
+
+## Run autoreconf.
+
 ${AUTORECONF_COMMAND} &> $FULL_PATH_EDE_LOGS/autoreconf_output.log
 if [ $? != 0 ]
 then
@@ -523,6 +535,8 @@ then
    exit 11
 fi
 popd > /dev/null
+
+## Build sipXecs either as RPMs or in a sandbox.
 
 # How are we building sipXecs?
 CONFIGURE_FLAGS="--enable-reports --enable-agent --enable-cdr --enable-mrtg"
@@ -634,7 +648,8 @@ else
    fi
 fi
 
-# Finish the scripts.
+## Finish the scripts.
+
 cat <<EOF >> $FULL_PATH_EDE_BIN/full_conf_build
 pushd $ACTUAL_BUILD_DIR
 $CONFIGURE_COMMAND
@@ -664,7 +679,7 @@ cat $FULL_PATH_EDE_BIN/tmp >> $FULL_PATH_EDE_BIN/full_conf_build
 cat $FULL_PATH_EDE_BIN/tmp >> $FULL_PATH_EDE_BIN/rebuild
 rm -rf $FULL_PATH_EDE_BIN/tmp
 
-# A script for launching Eclipse with the appropriate parameters, 
+# A script for launching Eclipse with the appropriate parameters.
 cat <<EOF >> $FULL_PATH_EDE_BIN/ede-eclipse
 #!/bin/bash
 #
@@ -738,7 +753,8 @@ echo -e '\a'
 EOF
 chmod +x $FULL_PATH_EDE_BIN/config_rebuild_plus
 
-# Create some helpful links.
+## Create some helpful links.
+
 mkdir $LINKS
 pushd $LINKS > /dev/null
 ln -s $ETC_AND_VAR_PATH/var/log/sipxpbx log
@@ -748,6 +764,9 @@ ln -s $ETC_AND_VAR_PATH/etc/sipxpbx home
 ln -s $FULL_INSTALL_PATH/bin bin
 ln -s $FULL_INSTALL_PATH/share/sipxecs/process.d process.d
 popd > /dev/null
+
+## If not sandbox mode, create easy scripts (to start, stop, restart,
+## and get status), and clear any database contents.
 
 if [ -z "$SANDBOX_MODE" ]; then
    # Easy scripts to start, stop, restart, and get status.
@@ -770,10 +789,12 @@ if [ -z "$SANDBOX_MODE" ]; then
    $FULL_INSTALL_PATH/bin/sipxconfig.sh --first-run &> $FULL_PATH_EDE_LOGS/sipxconfig_first-run.log
 fi
 
-# Fix FreeSWITCH
+## Run 'freeswitch.sh --configtest' to fix the FreeSWITCH folder permissions if necessary.
+
 sudo $FULL_INSTALL_PATH/bin/freeswitch.sh --configtest &> $FULL_PATH_EDE_LOGS/freeswitch_configtest.log
 
-# Eclipse readiness.
+## Set up for Eclipse.
+
 mkdir -p $FULL_PATH_ECLIPSE_WORKSPACE
 echo alias \'ede-eclipse=$FULL_PATH_EDE_BIN/ede-eclipse \&\' >> $EDE_ENV_FILE
 echo SIPX_MYBUILD=\"`pwd`/$BUILD\" >> $EDE_ENV_FILE
@@ -814,14 +835,16 @@ else
       > $ETC_AND_VAR_PATH/etc/sipxpbx/sipxconfigrc
 fi
 
-# Non-interactive section complete.
+## The non-interactive section is complete.
+
 echo ""
 echo "Start   : $START_DATE"
 echo -n "Complete: "
 date
 echo ""
 
-# Local setup and run?
+## Run sipxecs-setup, if requested.
+
 if [ -n "$SKIP_LOCAL_SETUP_RUN" ]; then
    echo "Skipping sipxecs-setup..."
 else
@@ -836,5 +859,3 @@ echo "DONE!"
 echo ""
 echo "(Don't forget to run 'source $EDE_ENV_FILE'!)"
 echo ""
-
-
