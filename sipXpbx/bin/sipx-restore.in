@@ -218,8 +218,10 @@ then
   echo "done."
 
   # Configuration files.
+  mkdir -p @SIPX_VARDIR@/upload
   echo -n "Restoring configuration files..."
   tar xzvC / --exclude $DB_TAR < $CONFIGURATION_PATH
+  chown -R @SIPXPBXUSER@ @SIPX_VARDIR@/upload
   echo "done."
 
   # Re-install the local SSL files - it's always a safe thing to do.
