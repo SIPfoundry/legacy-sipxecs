@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.permission;
 import java.util.Collection;
 
 import org.sipfoundry.sipxconfig.common.DataObjectSource;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
@@ -54,8 +55,13 @@ public interface PermissionManager extends DataObjectSource<Permission> {
 
     Setting getPermissionModel();
 
+    String getDefaultInitDelay();
+
     /*
      * Remove all custom permissions
      */
     void clear();
+
+    //used only for tests
+    void setModelFilesContext(ModelFilesContext modelFilesContext);
 }

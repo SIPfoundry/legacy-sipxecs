@@ -23,7 +23,9 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
+import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -48,17 +50,39 @@ public class UserCallForwardTest extends XMLTestCase {
 
     private List<User> m_users;
     private List<CallSequence> m_cs;
+    private PermissionManager m_permManager;
 
     @Override
     protected void setUp() throws Exception {
-        PermissionManagerImpl impl = new PermissionManagerImpl();
-        impl.setModelFilesContext(TestHelper.getModelFilesContext());
+        ModelFilesContext mfc = TestHelper.getModelFilesContext();
+        Setting settings1 = mfc.loadModelFile("commserver/user-settings.xml");
+        Setting settings2 = mfc.loadModelFile("commserver/user-settings.xml");
+        Setting settings3 = mfc.loadModelFile("commserver/user-settings.xml");
+        Setting settings4 = mfc.loadModelFile("commserver/user-settings.xml");
+
+        m_permManager = createMock(PermissionManager.class);
+        m_permManager.getDefaultInitDelay();
+        expectLastCall().andReturn("54").anyTimes();
+        
+        m_permManager.getPermissionModel();
+        expectLastCall().andReturn(settings1).once();
+        m_permManager.getPermissionModel();
+        expectLastCall().andReturn(settings2).once();
+        m_permManager.getPermissionModel();
+        expectLastCall().andReturn(settings3).once();        
+        m_permManager.getPermissionModel();
+        expectLastCall().andReturn(settings4).once();
+        
+        m_permManager.setModelFilesContext(mfc);
+        expectLastCall().anyTimes();     
+        
+        replay(m_permManager);
 
         m_users = new ArrayList<User>();
         m_cs = new ArrayList<CallSequence>();
         for (String[] ud : USER_DATA) {
             User user = new User();
-            user.setPermissionManager(impl);
+            user.setPermissionManager(m_permManager);
 
             user.setFirstName(ud[0]);
             user.setLastName(ud[1]);
@@ -71,6 +95,24 @@ public class UserCallForwardTest extends XMLTestCase {
 
             m_cs.add(cs);
         }
+        //add user with un-set value for cfwd timer - it is supposed to generate the default one for this user(54)
+        User user = createDefaultCfwdUser();
+        m_users.add(user);
+        CallSequence cs = new CallSequence();
+        cs.setUser(user);
+        m_cs.add(cs);
+        
+    }
+    
+    private User createDefaultCfwdUser() {
+        User user = new User();
+        user.setPermissionManager(m_permManager);
+
+        user.setFirstName("first");
+        user.setLastName("last");
+        user.setUserName("200");
+        
+        return user;
     }
 
     public void testGenerateEmpty() throws Exception {
@@ -118,11 +160,11 @@ public class UserCallForwardTest extends XMLTestCase {
         replay(coreContext, forwardingContext);
 
         Document document = uf.generateXml();
-        String ufXml = XmlUnitHelper.asString(document);
+        String ufXml = XmlUnitHelper.asString(document);        
 
         InputStream referenceXmlStream = UserCallForwardTest.class.getResourceAsStream("userforward.test.xml");
         assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(ufXml));
 
         verify(coreContext, forwardingContext);
-    }
+    }    
 }

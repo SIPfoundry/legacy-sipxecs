@@ -12,4 +12,8 @@
         <identity>mir3@example.org</identity>
         <cfwdtime>192</cfwdtime>
     </item>
+    <item>
+    	<identity>200@example.org</identity>
+    	<cfwdtime>54</cfwdtime>
+  	</item>    
 </items>

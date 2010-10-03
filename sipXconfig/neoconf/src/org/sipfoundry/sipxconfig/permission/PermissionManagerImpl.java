@@ -22,6 +22,9 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.springframework.dao.support.DataAccessUtils;
@@ -33,6 +36,8 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
     private ModelFilesContext m_modelFilesContext;
 
     private SipxReplicationContext m_replicationContext;
+
+    private SipxServiceManager m_sipxServiceManager;
 
     public void addCallPermission(Permission permission) {
         if (isLabelInUse(permission)) {
@@ -236,8 +241,18 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         m_replicationContext = replicationContext;
     }
 
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
     public void setModelFilesContext(ModelFilesContext modelFilesContext) {
         m_modelFilesContext = modelFilesContext;
+    }
+
+    public String getDefaultInitDelay() {
+        SipxService proxyService = m_sipxServiceManager.getServiceByBeanId(SipxProxyService.BEAN_ID);
+        Setting proxySettings = proxyService.getSettings().getSetting("proxy-configuration");
+        return proxySettings.getSetting("SIPX_PROXY_DEFAULT_SERIAL_EXPIRES").getValue();
     }
 
     private boolean isLabelInUse(Permission permission) {

@@ -37,6 +37,7 @@ import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.setting.BeanWithGroups;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultString;
@@ -66,6 +67,8 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     public static final String EMPTY_STRING = "";
     public static final String FAX_EXTENSION_SETTING = "voicemail/fax/extension";
     public static final String DID_SETTING = "voicemail/fax/did";
+    public static final String CALLFWD_TIMER = "callfwd/timer";
+
 
     public static enum MohAudioSource {
         FILES_SRC, PERSONAL_FILES_SRC, SOUNDCARD_SRC, SYSTEM_DEFAULT, NONE;
@@ -329,6 +332,11 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
      */
     public String getAddrSpec(String domainName) {
         return SipUri.format(m_userName, domainName, false);
+    }
+
+    @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(new AbstractUserDefaults(m_permissionManager));
     }
 
     @Override
@@ -688,4 +696,16 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
         }
     }
 
+    public static class AbstractUserDefaults {
+        private final PermissionManager m_permissionManager;
+
+        public AbstractUserDefaults(PermissionManager permissionManager) {
+            m_permissionManager = permissionManager;
+        }
+
+        @SettingEntry(path = CALLFWD_TIMER)
+        public String getDefaultInitDelay() {
+            return m_permissionManager.getDefaultInitDelay();
+        }
+    }
 }
