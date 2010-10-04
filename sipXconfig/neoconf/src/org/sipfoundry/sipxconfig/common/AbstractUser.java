@@ -367,8 +367,6 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
             String faxContactUri = SipUri.format(getDisplayName(), FAX_EXTENSION_PREFIX + getUserName(), domainName);
             mappings.add(getAliasMapping(faxExtension, faxContactUri, domainName, true));
             if (!faxDid.isEmpty()) {
-                faxContactUri = SipUri.format(getDisplayName(), FAX_EXTENSION_PREFIX + faxExtension,
-                        domainName);
                 mappings.add(getAliasMapping(faxDid, faxContactUri, domainName, true));
             }
         }
