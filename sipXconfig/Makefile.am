@@ -51,6 +51,7 @@ SUBDIRS = \
 
 install-exec-hook :
 	$(ANT_CMD) $(ANT_FLAGS) remove-jars
+	$(mkdir_p) $(DESTDIR)@SIPX_VARDIR@/upload
 
 precommit :
 	$(ANT_CMD) $(ANT_FLAGS) precommit
