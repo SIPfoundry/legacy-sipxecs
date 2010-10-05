@@ -5,9 +5,9 @@
     <condition field="destination_number" expression="^${conference.name}${dollar}">
 #if(${conference.participantAccessCode})
       <action application="set" data="supplied_pin=${dollar}{sip_h_X-ConfPin}"/>
-      <action application="conference" data="${conference.name}@${conference.extension}+${conference.participantAccessCode}"/>
+      <action application="bridge" data="loopback/app=conference:${conference.name}@${conference.extension}+${conference.participantAccessCode}"/>
 #else
-      <action application="conference" data="${conference.name}@${conference.extension}"/>
+      <action application="bridge" data="loopback/app=conference:${conference.name}@${conference.extension}"/>
 #end
     </condition>
   </extension>

@@ -145,12 +145,11 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
     public List<ActiveConferenceMember> getConferenceMembers(String resultString, Conference conference) {
         List<ActiveConferenceMember> members = new ArrayList<ActiveConferenceMember>();
 
-        String conferenceName = conference.getName();
         Scanner scanner = new Scanner(resultString);
         while (scanner.hasNextLine()) {
             String line = scanner.nextLine();
             try {
-                ActiveConferenceMember member = parseConferenceMember(line, conferenceName);
+                ActiveConferenceMember member = parseConferenceMember(line, conference);
                 members.add(member);
             } catch (NoSuchElementException e) {
                 LOG.error("Skipping conference line:" + line);
@@ -160,7 +159,7 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
         return members;
     }
 
-    private ActiveConferenceMember parseConferenceMember(String line, String conferenceName) {
+    private ActiveConferenceMember parseConferenceMember(String line, Conference conference) {
         ActiveConferenceMember member = new ActiveConferenceMember();
 
         Scanner scan = new Scanner(line);
@@ -168,22 +167,21 @@ public class FreeswitchApiResultParserImpl implements FreeswitchApiResultParser 
 
         member.setId(scan.nextInt());
 
-        String sipAddress = scan.next().split("/")[2];
+        scan.next(); // skip "loopback/conference-b"
 
         member.setUuid(scan.next());
 
         String callerIdName = scan.next();
-        if (callerIdName.equals(conferenceName)) {
+        if (callerIdName.equals(conference.getName())) {
             callerIdName = "";
         }
 
-        scan.next(); // skip caller ID number
+        String callerIdNumber = scan.next();
+        member.setName(callerIdName + " (" + callerIdNumber + "@" + conference.getBridge().getHost() + ")");
 
         String permissions = scan.next();
         member.setCanHear(permissions.contains("hear"));
         member.setCanSpeak(permissions.contains("speak"));
-
-        member.setName(callerIdName + " (" + sipAddress + ")");
 
         member.setVolumeIn(scan.nextInt());
         member.setVolumeOut(scan.nextInt());

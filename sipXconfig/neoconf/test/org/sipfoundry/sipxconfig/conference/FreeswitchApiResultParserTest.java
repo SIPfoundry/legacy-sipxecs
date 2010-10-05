@@ -16,6 +16,7 @@ import junit.framework.JUnit4TestAdapter;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 
 public class FreeswitchApiResultParserTest {
 
@@ -29,8 +30,19 @@ public class FreeswitchApiResultParserTest {
     @Before
     public void setup() {
         m_parser = new FreeswitchApiResultParserImpl();
+
+        final Location location = new Location();
+        location.setFqdn("conf.example.com");
+        Bridge bridge = new Bridge() {
+            @Override
+            public Location getLocation() {
+                return location;
+            }
+        };
+
         m_conference = new Conference();
         m_conference.setName("myconference");
+        m_conference.setBridge(bridge);
     }
 
     @Test
@@ -43,10 +55,10 @@ public class FreeswitchApiResultParserTest {
         Assert.assertEquals(0, m_parser.getActiveConferenceCount("Something else..."));
 
         resultString = "Conference myconf2 (1 member rate: 8000)\n"
-                + "4>,<sofia/eng.bluesocket.com/202@192.168.100.233>,<c6c34057-3844-43de-abbd-816fc64e1926>,<cardassia>,<202>,<hear|speak|floor>,<0>,<0>,<300\n"
+                + "4>,<loopback/conference-b>,<c6c34057-3844-43de-abbd-816fc64e1926>,<cardassia>,<202>,<hear|speak|floor>,<0>,<0>,<300\n"
                 + "Conference myconf1 (2 members rate: 8000)\n"
-                + "2>,<sofia/eng.bluesocket.com/201@192.168.100.233>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<0>,<0>,<300\n"
-                + "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n";
+                + "2>,<loopback/conference-b>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<0>,<0>,<300\n"
+                + "1>,<loopback/conference-b>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n";
 
         Assert.assertEquals(2, m_parser.getActiveConferenceCount(resultString));
     }
@@ -63,14 +75,14 @@ public class FreeswitchApiResultParserTest {
         Assert.assertEquals(0, activeConferences.size());
 
         String resultString = "Conference myconf3 (1 member rate: 8000)\n"
-                + "4>,<sofia/eng.bluesocket.com/202@192.168.100.233>,<c6c34057-3844-43de-abbd-816fc64e1926>,<cardassia>,<202>,<hear|speak|floor>,<0>,<0>,<300\n"
+                + "4>,<loopback/conference-b>,<c6c34057-3844-43de-abbd-816fc64e1926>,<cardassia>,<202>,<hear|speak|floor>,<0>,<0>,<300\n"
                 + "Conference myconf2 (2 members rate: 8000)\n"
-                + "2>,<sofia/eng.bluesocket.com/201@192.168.100.233>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<0>,<0>,<300\n"
-                + "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n"
+                + "2>,<loopback/conference-b>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<0>,<0>,<300\n"
+                + "1>,<loopback/conference-b>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n"
                 + "Conference myconf1 (1 member rate: 8000 locked)\n"
-                + "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n"
+                + "1>,<loopback/conference-b>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n"
                 + "Conference user200-conf (1 member rate: 8000)\n"
-                + "5>,<sofia/eng.bluesocket.com/202@192.168.100.233>,<c6c34057-3844-43de-abbd-816fc64e1926>,<cardassia>,<202>,<hear|speak|floor>,<0>,<0>,<300\n";
+                + "5>,<loopback/conference-b>,<c6c34057-3844-43de-abbd-816fc64e1926>,<cardassia>,<202>,<hear|speak|floor>,<0>,<0>,<300\n";
 
         activeConferences = m_parser.getActiveConferences(resultString);
 
@@ -95,12 +107,12 @@ public class FreeswitchApiResultParserTest {
 
     @Test
     public void testGetConferenceMembers() {
-        String resultString = "2>,<sofia/eng.bluesocket.com/201@192.168.100.233>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<10>,<20>,<300\n"
-                + "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<speak|floor>,<0>,<0>,<300\n";
+        String resultString = "2>,<loopback/conference-b>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<10>,<20>,<300\n"
+                + "1>,<loopback/conference-b>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<speak|floor>,<0>,<0>,<300\n";
 
         List<ActiveConferenceMember> members = m_parser.getConferenceMembers(resultString, m_conference);
         Assert.assertEquals(2, members.size());
-        Assert.assertEquals("201 (201@192.168.100.233)", members.get(0).getName());
+        Assert.assertEquals("201 (201@conf.example.com)", members.get(0).getName());
         Assert.assertTrue(members.get(0).getCanHear());
         Assert.assertTrue(members.get(0).getCanSpeak());
 
@@ -109,32 +121,32 @@ public class FreeswitchApiResultParserTest {
         Assert.assertEquals(300, members.get(0).getEnergyLevel());
         Assert.assertEquals("f69d2b1f-4841-40a4-8e0f-847d1aeef2f0", members.get(0).getUuid());
 
-        Assert.assertEquals("Joe Attardi (200@192.168.100.233)", members.get(1).getName());
+        Assert.assertEquals("Joe Attardi (200@conf.example.com)", members.get(1).getName());
         Assert.assertFalse(members.get(1).getCanHear());
         Assert.assertTrue(members.get(1).getCanSpeak());
     }
 
     @Test
     public void testGetConferenceMembersInvalid() {
-        String resultString = "nan>,<sofia/eng.bluesocket.com/201@192.168.100.233\n"
-                + "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<speak|floor>,<0>,<0>,<300\n";
+        String resultString = "nan>,<loopback/conference-b\n"
+                + "1>,<loopback/conference-b>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<speak|floor>,<0>,<0>,<300\n";
 
         List<ActiveConferenceMember> members = m_parser.getConferenceMembers(resultString, m_conference);
         Assert.assertEquals(1, members.size());
 
-        Assert.assertEquals("Joe Attardi (200@192.168.100.233)", members.get(0).getName());
+        Assert.assertEquals("Joe Attardi (200@conf.example.com)", members.get(0).getName());
         Assert.assertFalse(members.get(0).getCanHear());
         Assert.assertTrue(members.get(0).getCanSpeak());
     }
 
     @Test
     public void testGetConferenceMembersUserParams() {
-        String resultString = "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Carolyn Beeton>,<200;phone-context=cdp.udp>,<speak|floor>,<0>,<0>,<300\n";
+        String resultString = "1>,<loopback/conference-b>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Carolyn Beeton>,<200>,<speak|floor>,<0>,<0>,<300\n";
 
         List<ActiveConferenceMember> members = m_parser.getConferenceMembers(resultString, m_conference);
         Assert.assertEquals(1, members.size());
 
-        Assert.assertEquals("Carolyn Beeton (200@192.168.100.233)", members.get(0).getName());
+        Assert.assertEquals("Carolyn Beeton (200@conf.example.com)", members.get(0).getName());
         Assert.assertFalse(members.get(0).getCanHear());
         Assert.assertTrue(members.get(0).getCanSpeak());
     }
@@ -167,8 +179,8 @@ public class FreeswitchApiResultParserTest {
     public void testVerifyConferenceActionValid() {
         Conference conference = new Conference();
         conference.setName("conference-301");
-        String resultString = "2>,<sofia/eng.bluesocket.com/201@192.168.100.233>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<0>,<0>,<300\n"
-                + "1>,<sofia/eng.bluesocket.com/200@192.168.100.233>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n";
+        String resultString = "2>,<loopback/conference-b>,<f69d2b1f-4841-40a4-8e0f-847d1aeef2f0>,<201>,<201>,<hear|speak>,<0>,<0>,<300\n"
+                + "1>,<loopback/conference-b>,<a5b6cdbe-7cbf-48a7-a52d-98b871eb2491>,<Joe Attardi>,<200>,<hear|speak|floor>,<0>,<0>,<300\n";
         Assert.assertTrue(m_parser.verifyConferenceAction(resultString, conference));
     }
 }
