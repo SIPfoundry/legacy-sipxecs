@@ -131,16 +131,11 @@ class ResourceListServer : public UtlContainableAtomic
    void addResource(/// The user-part of the resource list URI.
                     const char* user,
                     /// The resource URI.
-                    const char* uri,
+                    const char* URI,
                     /// The XML for the name of the resource.
                     const char* nameXml,
                     /// The display name for consolidated event notices
-                    const char* display_name,
-                    //! The uri of the previous node to add after
-                    //  or if this is null then add as head node
-                    //  or if it is not found then add as tail node
-                    const char* previous_uri);
-
+                    const char* display_name);
 
    //! Dump the object's internal state.
    void dumpState();
@@ -329,12 +324,11 @@ inline void ResourceListServer::getAllResourceLists(UtlSList& list)
 
 // Create and add a resource to a resource list.
 inline void ResourceListServer::addResource(const char* user,
-                                            const char* uri,
+                                            const char* URI,
                                             const char* nameXml,
-                                            const char* display_name,
-                                            const char* previous_uri)
+                                            const char* display_name)
 {
-   mResourceListSet.addResource(user, uri, nameXml, display_name, previous_uri);
+   mResourceListSet.addResource(user, URI, nameXml, display_name);
 }
 
 //! Get the event type.

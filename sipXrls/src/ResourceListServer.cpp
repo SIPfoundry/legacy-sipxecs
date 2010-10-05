@@ -30,7 +30,7 @@ const UtlContainableType ResourceListServer::TYPE = "ResourceListServer";
 
 // Milliseconds of delay to allow between calls that add or delete resources
 // to/from ResourceList's when doing bulk updating of ResourceList's.
-const int ResourceListServer::sChangeDelay = 25;
+const int ResourceListServer::sChangeDelay = 100;
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */

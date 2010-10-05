@@ -29,7 +29,7 @@
 
 class ResourceListServer;
 class ResourceListSet;
-class ResourceReference;
+
 
 /**
  * This class maintains information about a resource list that is needed to
@@ -60,49 +60,14 @@ class ResourceList : public UtlContainableAtomic
    //! Delete all Resource's in the resource list.
    void deleteAllResources();
 
-   //! Get a list of the uri-parts of all resource references.
-   //  May be called externally.
-   //  The UtlString's added to 'list' are owned by 'list'.
-   void getAllResourceReferences(/// The list to add the user-parts to.
-                                 UtlSList& list);
-
-   //! Create and add a resource to the resource list in a specific order
-   //  based on the previous_uri.
+   //! Create and add a resource to the resource list.
    //  Returns true if resource 'URI' was added, returns false if resource
    //  was not added.
    //  Adding can fail because 'URI' duplicates (is string-equal to)
    //  the name of an existing resource.
-   bool addResource(/// The resource URI.
-                    const char* uri,
-                    /// The XML for the name of the resource.
+   bool addResource(const char* uri,
                     const char* nameXml,
-                    /// The display name for consolidated event notices
-                    const char* display_name,
-                    //! The uri from the previous resource for inserting after
-                    //  if it exists.  If it is NULL then insert Resource at
-                    //  the beginning of the list, else if it is not found
-                    //  then append at the end of the list.
-                    const char* previous_uri);
-
-   //! Checks if there are any changes in a resource.
-   //  Check if this resource is new to the list, or
-   //  if the display_name and the order is different.
-   bool resourceChanged(/// The resource URI.
-                        const char* uri,
-                        /// The XML for the name of the resource.
-                        const char* nameXml,
-                        /// The display name for consolidated event notices
-                        const char* display_name,
-                        /// The uri from the previous resource for checking order
-                        const char* previous_uri);
-
-   //! Remove a resource from the resource list.
-   //  Returns true if resource 'URI' was removed, returns false if resource
-   //  could not be found and was not removed.
-   //  Removing can fail because 'URI' duplicates (is string-equal to)
-   //  the name of an existing resource.
-   bool removeResource(const char* uri);
-
+                    const char* display_name);
 
    //! Declare that the contents have changed and need to be published.
    //  Does not start the publishing timer.
@@ -144,9 +109,6 @@ class ResourceList : public UtlContainableAtomic
 
    //! Generate and publish the content for the resource list.
    void publish();
-
-   //! Search for a resource with a given reference (user-uri)
-   ResourceReference* findResourceReference(const char* uri);
 
    //! Generate the HttpBody for the current state of the resource list.
    //  The caller owns the returned HttpBody.
