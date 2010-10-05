@@ -98,7 +98,7 @@ UtlBoolean ResourceListTask::handleMessage(OsMsg& rMsg)
             getResourceListServer()->getResourceListSet().publish();
 
             // Allow a longer gap timer before the next timer we publish.
-            getResourceListServer()->getResourceListSet().setGapTimeout();
+            getResourceListServer()->getResourceListSet().startGapTimeout();
          }
 
          handled = TRUE;

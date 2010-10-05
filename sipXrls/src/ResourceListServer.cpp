@@ -28,9 +28,9 @@
 
 const UtlContainableType ResourceListServer::TYPE = "ResourceListServer";
 
-// Milliseconds of delay to allow between calls that add or delete resources
-// to/from ResourceList's when doing bulk updating of ResourceList's.
-const int ResourceListServer::sChangeDelay = 100;
+// The two values for mChangeDelay.
+const int ResourceListServer::sRunningChangeDelay = 100;
+const int ResourceListServer::sShutdownChangeDelay = 10;
 
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
@@ -125,7 +125,8 @@ ResourceListServer::ResourceListServer(const UtlString& domainName,
    // Do not set the resource list file name yet, so the ResourceListFileReader
    // doesn't add elements to the ResourceListSet before we have the
    // SIP tasks set up.
-   mResourceListFileReader(UtlString(""), &mResourceListSet)
+   mResourceListFileReader(UtlString(""), &mResourceListSet),
+   mChangeDelay(sRunningChangeDelay)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceListServer::_ this = %p, mDomainName = '%s', mEventType = '%s', mContentType = '%s', "
@@ -256,6 +257,9 @@ void ResourceListServer::shutdown()
    // Stop all the subscriptions so callbacks are no longer activated.
    mSubscribeClient.endAllSubscriptions();
 
+   // Use the shorter shutdown change delay so the shutdown happens fast enough.
+   mChangeDelay = sShutdownChangeDelay;
+
    // Finalize ResourceListSet, so timers stop queueing messages to
    // ResourceList Task and there are no references to the
    // ResourceCached's.
@@ -273,12 +277,23 @@ void ResourceListServer::shutdown()
    mServerUserAgent.shutdown(FALSE);
    mClientUserAgent.shutdown(FALSE);
    mResourceListTask.requestShutdown();
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListServer::shutdown "
+                 "this = %p, waiting for final objects to shut down",
+                 this);
+
    while (!(mServerUserAgent.isShutdownDone() &&
             mClientUserAgent.isShutdownDone() &&
             mResourceListTask.isShutDown()))
    {
       OsTask::delay(100);
    }
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceListServer::shutdown "
+                 "this = %p, shutdown completed",
+                 this);
 }
 
 /* ============================ ACCESSORS ================================= */

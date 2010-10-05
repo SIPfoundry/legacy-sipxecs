@@ -569,7 +569,7 @@ void ContactSet::updateSubscriptions()
                           "ContactSet::updateSubscriptions deleting subscription for '%s' in mUri = '%s'",
                           ss->data(), mUri.data());
             mSubscriptionSets.destroy(ss);
-	    subscription_ended_but_no_wait_done_yet = true;
+            subscription_ended_but_no_wait_done_yet = true;
          }
       }
    }
@@ -585,12 +585,14 @@ void ContactSet::updateSubscriptions()
       {
          if (!mSubscriptionSets.find(callid_contact))
          {
-	    // If we both terminate subscriptions and create subscriptions,
-	    // wait a short while to allow the terminations to complete.
-            // Note that this wait must be no more than the bulk add/delete
+            // If we both terminate subscriptions and create subscriptions,
+            // wait a short while to allow the terminations to complete.
+            // Note that this wait must be less than the bulk add/delete
             // change delay, as that is how fast ResourceListFileReader
-            // generates requests to the ResourceListServer task.
-            int wait = getResourceListServer()->getChangeDelay();
+            // generates requests to the ResourceListServer task, so a longer
+            // wait would prevent the ResourceListServer task from servicing
+            // requests as fast as it received them.
+            int wait = getResourceListServer()->getChangeDelay() / 2;
             if (wait > 0)
             {
                if (subscription_ended_but_no_wait_done_yet)
@@ -663,7 +665,7 @@ void ContactSet::purgeTerminated()
 /* ============================ INQUIRY =================================== */
 
 // Dump the object's internal state.
-void ContactSet::dumpState()
+void ContactSet::dumpState() const
 {
    // indented 8, 10, and 12
 

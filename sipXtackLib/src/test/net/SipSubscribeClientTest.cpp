@@ -335,7 +335,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr,
                                                     notifier_name_addr,
                                                     subscriber_name_addr,
@@ -495,7 +495,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_aor,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr.data(),
                                                     notifier_name_addr.data(),
                                                     subscriber_name_addr.data(),
@@ -778,7 +778,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr.data(),
                                                     notifier_name_addr.data(),
                                                     NULL, // Let SipUserAgent choose Contact
@@ -924,7 +924,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr.data(),
                                                     notifier_name_addr.data(),
                                                     NULL, // Let SipUserAgent choose Contact
@@ -1141,7 +1141,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr,
                                                     notifier_name_addr,
                                                     subscriber_name_addr,
@@ -1323,7 +1323,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr,
                                                     notifier_name_addr,
                                                     subscriber_name_addr,
@@ -1458,7 +1458,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr,
                                                     notifier_name_addr,
                                                     subscriber_name_addr,
@@ -1565,7 +1565,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr,
                                                     notifier_name_addr,
                                                     subscriber_name_addr,
@@ -1674,7 +1674,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr,
                                                     notifier_name_addr,
                                                     subscriber_name_addr,
@@ -2024,7 +2024,8 @@ public:
          SipPublishContentMgr* pubMgrp = subServerp->getPublishMgr(eventType);
          
          const char* cc = "This is a test\n";
-         HttpBody* c = new HttpBody(cc, strlen(cc), eventType);
+         HttpBody* c = new HttpBody(cc, strlen(cc),
+                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY);
          pubMgrp->publish(resource_id,
                           eventType,
                           eventType,
@@ -2144,7 +2145,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr.data(),
                                                     notifier_name_addr.data(),
                                                     NULL, // Let SipUserAgent choose Contact
@@ -2294,7 +2295,7 @@ public:
          UtlString earlyDialogHandle;
          CPPUNIT_ASSERT(subClientp->addSubscription(notifier_addr_spec,
                                                     eventType,
-                                                    NULL,
+                                                    CONTENT_TYPE_SIMPLE_MESSAGE_SUMMARY,
                                                     subscriber_name_addr.data(),
                                                     notifier_name_addr.data(),
                                                     NULL, // Let SipUserAgent choose Contact

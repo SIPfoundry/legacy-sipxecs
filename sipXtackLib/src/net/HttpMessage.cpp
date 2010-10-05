@@ -2332,13 +2332,21 @@ void HttpMessage::setAcceptField(const char* acceptFieldValue)
 
 UtlBoolean HttpMessage::getAcceptField(UtlString& acceptValue) const
 {
-    const char* value = getHeaderValue(0, HTTP_ACCEPT_FIELD);
     acceptValue.remove(0);
-    if(value)
+
+    const char* value;
+    for (int i = 0;
+         (value = getHeaderValue(i, HTTP_ACCEPT_FIELD));
+         i++)
     {
-        acceptValue = value;
+       if (i > 0)
+       {
+          acceptValue.append(',');
+       }
+       acceptValue.append(value);
     }
-    return(value != NULL);
+
+    return !acceptValue.isNull();
 }
 
 void HttpMessage::getAcceptLanguageField(UtlString* acceptLanaguageFieldValue) const

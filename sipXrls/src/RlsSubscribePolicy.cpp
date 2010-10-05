@@ -24,7 +24,7 @@
 // CONSTANTS
 
 // Expiration time for nonces (in seconds):  5 minutes
-#define RLS_SUBSCRIBE_NONCE_EXPIRATION	(5 * 60)
+#define RLS_SUBSCRIBE_NONCE_EXPIRATION  (5 * 60)
 
 // STATIC VARIABLE INITIALIZATIONS
 

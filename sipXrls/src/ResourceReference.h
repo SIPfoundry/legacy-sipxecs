@@ -78,6 +78,13 @@ class ResourceReference : public UtlContainableAtomic
    //! Destructor
    virtual ~ResourceReference();
 
+   //! Set the pointer to the ResourceCached that implements this
+   //  ResourceReference.
+   void setResourceCached(ResourceCached* rc);
+   //! Get the pointer to the ResourceCached that implements this
+   //  ResourceReference.
+   ResourceCached* getResourceCached() const;
+
    //! Get the parent ResourceList.
    ResourceList* getResourceList() const;
    //! Get the ancestor ResourceListSet.
@@ -96,8 +103,14 @@ class ResourceReference : public UtlContainableAtomic
    //! Get the URI of the resource.
    const UtlString* getUri() const;
 
+   //! Get the name XML of the resource.
+   const UtlString* getNameXml() const;
+
+   //! Get the display name of the resource.
+   const UtlString* getDisplayName() const;
+
    //! Dump the object's internal state.
-   void dumpState();
+   void dumpState() const;
 
    /**
     * Get the ContainableType for a UtlContainable-derived class.
@@ -124,6 +137,7 @@ class ResourceReference : public UtlContainableAtomic
    //  This may differ in different ResourceList's, so it is stored in
    //  the ResourceReference.
    UtlString mNameXml;
+
    /** The string to use as the display name (<local><identity display="...">)
     *  in consolidated event notices.
     */
@@ -168,6 +182,28 @@ inline ResourceListServer* ResourceReference::getResourceListServer() const
 inline const UtlString* ResourceReference::getUri() const
 {
    return mResourceCached->getUri();
+}
+
+// Get the name XML of the resource.
+inline const UtlString* ResourceReference::getNameXml() const
+{
+   return &mNameXml;
+}
+
+// Get the display name of the resource.
+inline const UtlString* ResourceReference::getDisplayName() const
+{
+   return &mDisplayName;
+}
+
+inline void ResourceReference::setResourceCached(ResourceCached* rc)
+{
+   mResourceCached = rc;
+}
+
+inline ResourceCached* ResourceReference::getResourceCached() const
+{
+   return mResourceCached;
 }
 
 #endif  // _ResourceReference_h_

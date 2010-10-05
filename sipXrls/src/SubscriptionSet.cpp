@@ -285,7 +285,7 @@ void SubscriptionSet::generateBody(UtlString& rlmi,
 /* ============================ INQUIRY =================================== */
 
 // Dump the object's internal state.
-void SubscriptionSet::dumpState()
+void SubscriptionSet::dumpState() const
 {
    // indented 10
 

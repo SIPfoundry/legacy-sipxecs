@@ -102,7 +102,7 @@ class ContactSet : public UtlContainableAtomic,
    void purgeTerminated();
 
    //! Dump the object's internal state.
-   void dumpState();
+   void dumpState() const;
 
    /**
     * Get the ContainableType for a UtlContainable-derived class.

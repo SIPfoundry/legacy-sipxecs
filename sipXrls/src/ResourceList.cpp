@@ -96,56 +96,121 @@ ResourceList::~ResourceList()
 
 /* ============================ MANIPULATORS ============================== */
 
-// Delete all ResourceReference's in the resource list.
-void ResourceList::deleteAllResources()
+// Delete a resource identified by position.
+bool ResourceList::deleteResourceAt(size_t at)
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceList::deleteAllResources mUserPart = '%s'",
-                 mUserPart.data());
+   bool resource_deleted = false;
 
-   mResourcesList.destroyAll();
-   mChangesList.destroyAll();
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceList::deleteResourceAt mUserPart = '%s', at = %d",
+                 mUserPart.data(), (int) at);
+
+   // Remove the ResourceReference from mResourcesList.
+   ResourceReference* resource =
+      dynamic_cast <ResourceReference*> (mResourcesList.removeAt(at));
+   if (resource)
+   {
+      // Remove the URI from mChangesList.
+      UtlString uri(*(resource->getUri()));
+      mChangesList.destroy(&uri);
+
+      // Delete the ResourceReference.
+      resource_deleted = getResourceListSet()->getResourceCache().
+                            destroyResourceReference(resource);
+
+      // Publish the change.
+      setToBePublished();
+   }
+
+   return resource_deleted;
 }
 
 // Create and add a resource to the resource list.
-bool ResourceList::addResource(const char* uri,
+void ResourceList::addResource(const char* uri,
                                const char* nameXml,
-                               const char* display_name)
+                               const char* display_name,
+                               bool& resource_added,
+                               bool& resource_cached_created,
+                               ssize_t no_check_start,
+                               ssize_t no_check_end)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceList::addResource mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s'",
-                 mUserPart.data(), uri, nameXml, display_name);
+                 "ResourceList::addResource mUserPart = '%s', uri = '%s', nameXml = '%s', display_name = '%s', no_check_start = %d, no_check_end = %d",
+                 mUserPart.data(), uri, nameXml, display_name,
+                 (int) no_check_start, (int) no_check_end);
 
    // See if 'uri' is already in the list of ResourceReference's.
-   bool ret;
+   ssize_t location;
    {
       UtlSListIterator itor(mResourcesList);
       ResourceReference* r;
       // Exit this loop if 'itor' runs out of elements, or if the resource
-      // URI of an element string-equals 'uri'.
-      while ((r = dynamic_cast <ResourceReference*> (itor())) &&
-             r->getUri()->compareTo(uri) != 0)
+      // URI of an element (that is not excluded) string-equals 'uri'.
+      for (location = 0;
+           (r = dynamic_cast <ResourceReference*> (itor())) != NULL;
+           location++)
       {
-         /* null */
+         if (// If this element is not excluded from comparison and ...
+             !(no_check_start <= location && location <= location) &&
+             // ... it has the same URI value as the new element ...
+             r->getUri()->compareTo(uri) == 0)
+         {
+            // ... exit the loop and return an error.
+            break;
+         }
       }
-      // At this point, r == NULL if no ResourceReference in mResourcesList has
+      // At this point, r != NULL if some ResourceReference in mResourcesList
+      // that is not between no_check_start and no_check_end has
       // getUri() string-equal to 'uri'.
-      ret = !r;
+      resource_added = r == NULL;
    }
 
-   if (ret)
+   resource_cached_created = false;
+   if (resource_added)
    {
-      mResourcesList.append(new ResourceReference(this, uri, nameXml,
-                                                  display_name));
+      ResourceReference* rr;
+      getResourceListSet()->getResourceCache().
+         createResourceReference(this,
+                                 uri, nameXml, display_name,
+                                 rr, resource_cached_created);
+      mResourcesList.append(rr);
+
+      // Publish the change.
+      setToBePublished();
    }
    else
    {
       OsSysLog::add(FAC_RLS, PRI_WARNING,
-                    "ResourceList::addResource Resource URI '%s' is already in resource list '%s'",
-                    uri, mUserPart.data());
+                    "ResourceList::addResource Resource URI '%s' is already in resource list '%s' at location %d",
+                    uri, mUserPart.data(), (int) location);
    }
 
-   return ret;
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceList::addResource "
+                 "resource_added = %d, resource_cached_created = %d",
+                 resource_added,
+                 resource_cached_created);
+}
+
+//! Get the information from resource in a resource list specified
+//  by its position in the list.
+void ResourceList::getResourceInfoAt(size_t at,
+                                     UtlString& uri,
+                                     UtlString& nameXml,
+                                     UtlString& display_name)
+{
+   uri.remove(0);
+   nameXml.remove(0);
+   display_name.remove(0);
+
+   ResourceReference* resource =
+      dynamic_cast <ResourceReference*> (mResourcesList.at(at));
+   if (resource)
+   {
+      uri = *resource->getUri();
+      nameXml = *resource->getNameXml();
+      display_name = *resource->getDisplayName();
+   }
 }
 
 // Declare that the contents have changed and need to be published.
@@ -210,8 +275,11 @@ void ResourceList::publish()
 }
 
 // Incrementally remove and delete one component of the ResourceList.
-UtlBoolean ResourceList::shrink()
+void ResourceList::shrink(bool& listEmpty,
+                          bool& resourceDeleted)
 {
+   resourceDeleted = false;
+
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceList::shrink mUserPart = '%s'",
                  mUserPart.data());
@@ -227,12 +295,16 @@ UtlBoolean ResourceList::shrink()
       // A ResourceReference can be deleted outright because it contains
       // no lists.
       // It may cause deletion of the ResourceCached that it points to.
-      delete rr;
+      resourceDeleted = getResourceListSet()->getResourceCache().
+                           destroyResourceReference(rr);
+
+      // Publish the change.
+      setToBePublished();
    }
 
    // mChangesList is not handled here, as it is just a list of UtlStrings.
 
-   return rr == NULL;
+   listEmpty = rr == NULL;
 }
 
 /* ============================ ACCESSORS ================================= */
@@ -337,7 +409,7 @@ HttpBody* ResourceList::generateRlmiBody(UtlBoolean consolidated,
 }
 
 // Dump the object's internal state.
-void ResourceList::dumpState()
+void ResourceList::dumpState() const
 {
    // indented 4
 

@@ -303,7 +303,7 @@ void ResourceCached::purgeTerminated()
 /* ============================ INQUIRY =================================== */
 
 // Dump the object's internal state.
-void ResourceCached::dumpState()
+void ResourceCached::dumpState() const
 {
    // indented 6
 

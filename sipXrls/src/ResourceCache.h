@@ -53,25 +53,50 @@ class ResourceCache : public UtlContainableAtomic
 
    virtual ~ResourceCache();
 
-   //! Get the parent ResourceListSet.
-   ResourceListSet* getResourceListSet() const;
-   //! Get the ancestor ResourceListServer.
-   ResourceListServer* getResourceListServer() const;
+   //! Construct a ResourceReference and tell whether it caused a ResourceCached
+   // to be created.
+   void createResourceReference(/// containing ResourceList
+                                ResourceList* resourceList,
+                                /// URI
+                                const char* uri,
+                                /// XML for <name> elements
+                                const char* nameXml,
+                                /// Display name for consolidated events.
+                                const char* display_name,
+                                /// Returned ResourceReference*
+                                ResourceReference*& rr,
+                                /// Returned true if ResourceCached created
+                                bool& resourceCreated);
 
    //! Get a pointer to the ResourceCached for a URI, creating it if necessary.
-   ResourceCached* addReferenceToResource(/// The requesting ResourceReference
-                                          ResourceReference* resourceReference,
-                                          /// The URI of the reference
-                                          const char* uri);
+   void addReferenceToResource(/// The requesting ResourceReference
+                               ResourceReference* resourceReference,
+                               /// The URI of the reference
+                               const char* uri,
+                               /// Returned ResourceCached*
+                               ResourceCached*& rc,
+                               /// Returned true if ResourceCached was created
+                               bool& resourceCreated);
+
+   //! Destroy a ResourceReference and tell whether or not the ResourceCached was
+   // deleted.
+   bool destroyResourceReference(/// The ResourceReference*
+                                 ResourceReference* rr);
 
    /** Delete a ResourceReference for a ResourceCached, and delete the
     *  ResourceCached if it has no more references.
+    *  Return true if this caused the ResourceCached to be deleted.
     */
-   void deleteReferenceToResource(
+   bool deleteReferenceToResource(
       /// The ResourceReference being deleted
       ResourceReference* resourceReference,
       /// The ResourceCached that is no longer referenced
       ResourceCached* resourceCached);
+
+   //! Get the parent ResourceListSet.
+   ResourceListSet* getResourceListSet() const;
+   //! Get the ancestor ResourceListServer.
+   ResourceListServer* getResourceListServer() const;
 
    //! Remove dialogs in terminated state and terminated resource instances.
    //  To be called immediately after publishing all changed resource lists.

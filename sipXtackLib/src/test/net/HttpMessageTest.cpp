@@ -29,6 +29,7 @@ class HttpMessageTest : public CppUnit::TestCase
     CPPUNIT_TEST(testMd5Digest);
     CPPUNIT_TEST(testEscape);
     CPPUNIT_TEST(testGetAuthenticateField);
+    CPPUNIT_TEST(testGetAcceptField);
     CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -603,6 +604,58 @@ public:
          CPPUNIT_ASSERT(!proxyRspMixed.getAuthenticateField(1,HttpMessage::PROXY,value));
          CPPUNIT_ASSERT(value.isNull());
 
+      }
+
+   void testGetAcceptField()
+      {
+         UtlString v;
+
+         HttpMessage m0(
+            "SUBSCRIBE sip:1234@example.com SIP/2.0\r\n"
+            "From: <sip:9496722379@example.com>;tag=1c1198308561\r\n"
+            "To: <sip:9499291387@example.com;user=phone>\r\n"
+            "Call-Id: 119830821391200002619@10.139.33.244\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Via: SIP/2.0/UDP 10.139.4.84;branch=z9hG4bK-de2c934952294f774ee0acbc133e9b1d\r\n"
+            "Via: SIP/2.0/UDP 10.139.33.244;branch=z9hG4bKac1198312375\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+                                 );
+
+         CPPUNIT_ASSERT(!m0.getAcceptField(v));
+
+         HttpMessage m1(
+            "SUBSCRIBE sip:1234@example.com SIP/2.0\r\n"
+            "From: <sip:9496722379@example.com>;tag=1c1198308561\r\n"
+            "To: <sip:9499291387@example.com;user=phone>\r\n"
+            "Call-Id: 119830821391200002619@10.139.33.244\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Via: SIP/2.0/UDP 10.139.4.84;branch=z9hG4bK-de2c934952294f774ee0acbc133e9b1d\r\n"
+            "Via: SIP/2.0/UDP 10.139.33.244;branch=z9hG4bKac1198312375\r\n"
+            "Accept: foo, bar\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+                                 );
+
+         CPPUNIT_ASSERT(m1.getAcceptField(v));
+         ASSERT_STR_EQUAL("foo, bar", v.data());
+
+         HttpMessage m2(
+            "SUBSCRIBE sip:1234@example.com SIP/2.0\r\n"
+            "From: <sip:9496722379@example.com>;tag=1c1198308561\r\n"
+            "To: <sip:9499291387@example.com;user=phone>\r\n"
+            "Call-Id: 119830821391200002619@10.139.33.244\r\n"
+            "Cseq: 1 INVITE\r\n"
+            "Via: SIP/2.0/UDP 10.139.4.84;branch=z9hG4bK-de2c934952294f774ee0acbc133e9b1d\r\n"
+            "Via: SIP/2.0/UDP 10.139.33.244;branch=z9hG4bKac1198312375\r\n"
+            "Accept: foo, bar\r\n"
+            "Accept: baz\r\n"
+            "Content-Length: 0\r\n"
+            "\r\n"
+                                 );
+
+         CPPUNIT_ASSERT(m2.getAcceptField(v));
+         ASSERT_STR_EQUAL("foo, bar,baz", v.data());
       }
 
 };

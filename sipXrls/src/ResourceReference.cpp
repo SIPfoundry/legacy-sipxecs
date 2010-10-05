@@ -48,39 +48,11 @@ ResourceReference::ResourceReference(ResourceList* resourceList,
    mNameXml(nameXml),
    mDisplayName(display_name)
 {
-   // If the name XML is not empty and does not end with LF, add CR-LF.
-   if (!mNameXml.isNull() && mNameXml(mNameXml.length() - 1) != '\n')
-   {
-      mNameXml += "\r\n";
-   }
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceReference:: this = %p, resourceList = %p, mUri = '%s', mNameXml = '%s', mDisplayName = '%s'",
-                 this, mResourceList, uri, mNameXml.data(),
-                 mDisplayName.data());
-
-   // Pass the request to the ResourceCache and save the (ResourceCached*)
-   // that it returns.
-   mResourceCached = getResourceListSet()->getResourceCache().
-      addReferenceToResource(this, uri);
-
-   // Publish the change to our containing ResourceList.
-   resourceList->setToBePublished();
 }
 
 // Destructor
 ResourceReference::~ResourceReference()
 {
-   OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceReference::~ this = %p, URI = '%s'",
-                 this, mResourceCached->getUri()->data());
-
-   // Tell the ResourceCache that we no longer have a reference to the
-   // ResourceCached.
-   getResourceListSet()->getResourceCache().
-      deleteReferenceToResource(this, mResourceCached);
-
-   // Publish the change to our containing ResourceList.
-   getResourceList()->setToBePublished();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -102,7 +74,7 @@ void ResourceReference::generateBody(UtlString& rlmi,
 /* ============================ INQUIRY =================================== */
 
 // Dump the object's internal state.
-void ResourceReference::dumpState()
+void ResourceReference::dumpState() const
 {
    // indented 6
 

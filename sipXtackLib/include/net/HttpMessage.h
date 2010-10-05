@@ -564,6 +564,7 @@ public:
     void setAcceptField(const char* acceptFieldValue);
 
     // Returns TRUE if the Accept header was present.
+    // Concatenates (with commas) multiple header values.
     UtlBoolean getAcceptField(UtlString& acceptValue) const;
 
     void setLocationField(const char* locationField);

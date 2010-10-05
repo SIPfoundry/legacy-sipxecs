@@ -122,7 +122,7 @@ class ResourceCached : public UtlString
    const UtlString* getUri() const;
 
    //! Dump the object's internal state.
-   void dumpState();
+   void dumpState() const;
 
    /**
     * Get the ContainableType for a UtlContainable-derived class.

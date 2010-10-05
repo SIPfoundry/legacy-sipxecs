@@ -60,53 +60,100 @@ ResourceCache::~ResourceCache()
 
 /* ============================ MANIPULATORS ============================== */
 
+// Construct a ResourceReference and tell whether it caused a ResourceCached
+// to be created.
+void ResourceCache::createResourceReference(ResourceList* resourceList,
+                                            const char* uri,
+                                            const char* nameXml,
+                                            const char* display_name,
+                                            ResourceReference*& rr,
+                                            bool& resourceCreated)
+{
+   // Create the ResourceReference.
+   rr = new ResourceReference(resourceList, uri, nameXml, display_name);
+
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceCache::createResourceReference "
+                 "rr = %p, resourceList = %p, uri = '%s', nameXml = '%s', display_name = '%s'",
+                 rr, resourceList, uri, nameXml, display_name);
+
+   // Get a ResourceCached for it.
+   ResourceCached* rc;
+   addReferenceToResource(rr,
+                          uri,
+                          rc,
+                          resourceCreated);
+   // Point ResourceReference to ResourceCached.
+   rr->setResourceCached(rc);
+}
+
 // Get a pointer to the ResourceCached for a URI, creating it if necessary.
-ResourceCached* ResourceCache::addReferenceToResource(
-   /// The requesting ResourceReference
-   ResourceReference* resourceReference,
-   /// The URI of the reference
-   const char* uri)
+void ResourceCache::addReferenceToResource(ResourceReference* rr,
+                                           const char* uri,
+                                           ResourceCached*& rc,
+                                           bool& resourceCreated)
 {
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
-                 "ResourceCache::addReferenceToResource this = %p, resourceReference = %p, uri = '%s'",
-                 this, resourceReference, uri);
+                 "ResourceCache::addReferenceToResource this = %p, rr = %p, uri = '%s'",
+                 this, rr, uri);
 
    // See if there is already a ResourceCached for the URI.
    UtlString uri_s(uri);
-   ResourceCached* r = dynamic_cast <ResourceCached*> (mResources.find(&uri_s));
+   rc = dynamic_cast <ResourceCached*> (mResources.find(&uri_s));
    // If not, create one.
-   if (!r)
+   resourceCreated = rc == NULL;
+   if (resourceCreated)
    {
-      r = new ResourceCached(this, uri);
-      mResources.insert(r);
+      rc = new ResourceCached(this, uri);
+      mResources.insert(rc);
    }
    OsSysLog::add(FAC_RLS, PRI_DEBUG,
                  "ResourceCache::addReferenceToResource this = %p, uri = '%s', ResourceCached = %p",
-                 this, uri, r);
+                 this, uri, rc);
 
-   // Now add the ResourceReference to the ResourceCahced's set.
-   r->addReference(resourceReference);
+   // Now add the ResourceReference to the ResourceCached's set.
+   rc->addReference(rr);
+}
 
-   return r;
+// Destroy a ResourceReference and tell whether or not the ResourceCached was
+// deleted.
+bool ResourceCache::destroyResourceReference(ResourceReference* rr)
+{
+   OsSysLog::add(FAC_RLS, PRI_DEBUG,
+                 "ResourceCache::destroyResourceReference "
+                 "rr = %p, rr->getUri() = '%s'",
+                 rr, rr->getUri()->data());
+
+   // Tell the ResourceCache that we no longer have a reference to the
+   // ResourceCached.
+   ResourceCached* rc = rr->getResourceCached();
+   bool ret = deleteReferenceToResource(rr, rc);
+   
+   // Destroy the ResourceReference.
+   delete rr;
+
+   return ret;
 }
 
 /** Delete a ResourceReference for a ResourceCached, and delete the
  *  ResourceCached if it has no more references.
  */
-void ResourceCache::deleteReferenceToResource(
-   /// The ResourceReference being deleted
-   ResourceReference* resourceReference,
-   /// The ResourceCached that is no longer referenced
-   ResourceCached* resourceCached)
+bool ResourceCache::deleteReferenceToResource(ResourceReference* resourceReference,
+                                              ResourceCached* resourceCached)
 {
+   // Remove pointer from ResourceReference to ResourceCached.
+   resourceReference->setResourceCached(NULL);
+
    // Remove the ResourceReference from the ResourceCached's set.
    resourceCached->deleteReference(resourceReference);
-   // If the ResourceCahced has no ResourceReference's, delete it.
-   if (!resourceCached->hasReferences())
+   // If the ResourceCached has no ResourceReference's, delete it.
+   bool ret = !resourceCached->hasReferences();
+   if (ret)
    {
       mResources.removeReference(resourceCached);
       delete resourceCached;
    }
+   return ret;
 }
 
 // Remove dialogs in terminated state and terminated resource instances.

@@ -111,7 +111,7 @@ class ResourceInstance : public UtlContainableAtomic,
                      const UtlString& displayName) const;
 
    //! Dump the object's internal state.
-   void dumpState();
+   void dumpState() const;
 
    /**
     * Get the ContainableType for a UtlContainable-derived class.

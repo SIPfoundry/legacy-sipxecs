@@ -57,17 +57,41 @@ class ResourceList : public UtlContainableAtomic
    //! Get the ancestor ResourceListServer.
    ResourceListServer* getResourceListServer() const;
 
-   //! Delete all Resource's in the resource list.
-   void deleteAllResources();
+   //! Delete a resource identified by position.
+   //  Returns true if a ResourceCached was deleted, and so a delay is needed.
+   bool deleteResourceAt(/// Location of the resource to delete
+                         size_t at);
 
    //! Create and add a resource to the resource list.
-   //  Returns true if resource 'URI' was added, returns false if resource
-   //  was not added.
    //  Adding can fail because 'URI' duplicates (is string-equal to)
    //  the name of an existing resource.
-   bool addResource(const char* uri,
+   //  Existing entries in the resource list whose 0-based locations are
+   //  from no_check_start to no_check_end (inclusive) are not compared
+   //  to 'uri' because the caller promises to delete them in the near future.
+   //  The default values of no_check_* ensure that all existing
+   //  members are compared to 'uri'.
+   //  resource_added returns true if the resource was added to the list.
+   //  resource_cached_created returns true if a ResourceCached was created
+   //  and so the caller must delay.
+   void addResource(const char* uri,
                     const char* nameXml,
-                    const char* display_name);
+                    const char* display_name,
+                    bool& resource_added,
+                    bool& resource_cached_created,
+                    ssize_t no_check_start = -1,
+                    ssize_t no_check_end = -1);
+
+   //! Get the information from resource in a resource list specified
+   //  by its position in the list.
+   void getResourceInfoAt(/// The location (0-base)
+                          //  If 'at' > number of entries, return UtlStrings are null.
+                          size_t at,
+                          /// The resource URI.
+                          UtlString& uri,
+                          /// The XML for the name of the resource.
+                          UtlString& nameXml,
+                          /// The display name for consolidated event notices
+                          UtlString& display_name);
 
    //! Declare that the contents have changed and need to be published.
    //  Does not start the publishing timer.
@@ -84,18 +108,22 @@ class ResourceList : public UtlContainableAtomic
    const UtlString* getUserPart() const;
 
    //! Get the resource list URI.
-   const UtlString* getResourceListUri();
+   const UtlString* getResourceListUri() const;
 
    //! Get the resource list consolidated URI.
-   const UtlString* getResourceListUriCons();
+   const UtlString* getResourceListUriCons() const;
+
+   //! Get the number of resources in the resource list.
+   size_t entries() const;
 
    //! Dump the object's internal state.
-   void dumpState();
+   void dumpState() const;
 
    //! Incrementally remove and delete one component of the ResourceList.
-   // Returns TRUE if the ResourceList is empty, that is, if its deletion
-   // will be quick.
-   UtlBoolean shrink();
+   void shrink(/// returned true if the list is now empty
+               bool& listEmpty,
+               /// returned true if a ResourceCached was deleted
+               bool& resourceDeleted);
 
    /**
     * Get the ContainableType for a UtlContainable-derived class.
@@ -197,15 +225,21 @@ inline const UtlString* ResourceList::getUserPart() const
 }
 
 // Get the resource list URI.
-inline const UtlString* ResourceList::getResourceListUri()
+inline const UtlString* ResourceList::getResourceListUri() const
 {
    return &mResourceListUri;
 }
 
 // Get the resource list consolidated URI.
-inline const UtlString* ResourceList::getResourceListUriCons()
+inline const UtlString* ResourceList::getResourceListUriCons() const
 {
    return &mResourceListUriCons;
+}
+
+// Get the number of resources in the resource list.
+inline size_t ResourceList::entries() const
+{
+   return mResourcesList.entries();
 }
 
 #endif  // _ResourceList_h_

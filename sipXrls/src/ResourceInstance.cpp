@@ -467,7 +467,7 @@ void ResourceInstance::generateBody(UtlString& rlmi,
 /* ============================ INQUIRY =================================== */
 
 // Dump the object's internal state.
-void ResourceInstance::dumpState()
+void ResourceInstance::dumpState() const
 {
    // indented 12
 

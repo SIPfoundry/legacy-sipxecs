@@ -77,8 +77,8 @@ class ResourceListSet : public UtlContainableAtomic
    //! Flag to indicate publish on timeout.
    UtlBoolean publishOnTimeout();
 
-   //! Set the gap timeout.
-   void setGapTimeout();
+   //! Start the gap timeout.
+   void startGapTimeout();
 
    /** Delete all ResourceList's and stop the publishing timer, so it
     *  is safe to destroy the other permanent components of ResourceListServer.
@@ -103,16 +103,34 @@ class ResourceListSet : public UtlContainableAtomic
                         /// The XML for the name of the resource list.
                         const char* nameXml);
 
+   //! Get the number of resources in a resource list.
+   //  May be called externally.
+   size_t getResourceListEntries(/// The user-part of the resource list URI.
+                                 const char* user);
+
    //! Delete all resource lists.
    //  May be called externally.
-   void deleteAllResourceLists();
+   //  May cause delay.
+   //  If abortOnShutdown is true, abort processing if shutting down.
+   void deleteAllResourceLists(bool abortOnShutdown);
 
-   //! Delete all resources from a resource list.
+   //! Delete a resource list.
    //  May be called externally.
-   void deleteAllResources(/// The user-part of the resource list URI.
+   //  May cause delay.
+   //  Aborts processing if shutting down.
+   void deleteResourceList(/// The user-part of the resource list URI.
                            const char* user);
 
-   //! Get a list of the user-parts of all resource lists.
+   //! Delete a resource identified by position from a resource list.
+   //  May be called externally.
+   //  May cause delay.
+   void deleteResourceAt(/// The user-part of the resource list URI.
+                         const char* user,
+                         /// Location of the resource to delete
+                         size_t at);
+
+   //! Get a list of UtlStrings that are the 'user' values of all the
+   //  resource lists.
    //  May be called externally.
    //  The UtlString's added to 'list' are owned by 'list'.
    void getAllResourceLists(/// The list to add the user-parts to.
@@ -126,15 +144,39 @@ class ResourceListSet : public UtlContainableAtomic
    //  the name of an existing resource.  (Duplicating resource URIs
    //  is forbidden because it makes it impossible to unambiguously
    //  process partial-state updates.)
+   //  Existing entries in the resource list whose 0-based locations are
+   //  from no_check_start to no_check_end (inclusive) are not compared
+   //  to 'uri' because the caller promises to delete them in the near future.
+   //  The default values of no_check_* ensure that all existing
+   //  members are compared to 'uri'.
    //  May be called externally.
+   //  May cause delay.
    bool addResource(/// The user-part of the resource list URI.
                     const char* user,
                     /// The resource URI.
-                    const char* URI,
+                    const char* uri,
                     /// The XML for the name of the resource.
                     const char* nameXml,
-                    /// The display name for consolidated event notices
-                    const char* display_name);
+                    /// The display name for consolidated event notices.
+                    const char* display_name,
+                    /// The range of locations to not check for duplicate URIs.
+                    ssize_t no_check_start = -1,
+                    ssize_t no_check_end = -1);
+
+   //! Get the information from a resource in a resource list specified
+   //  by its position in the list.
+   //  May be called externally.
+   void getResourceInfoAt(/// The user-part of the resource list URI.
+                          const char* user,
+                          /// The location (0-base)
+                          //  If 'at' > number of entries, return UtlStrings are null.
+                          size_t at,
+                          /// The resource URI.
+                          UtlString& uri,
+                          /// The XML for the name of the resource.
+                          UtlString& nameXml,
+                          /// The display name for consolidated event notices
+                          UtlString& display_name);
 
    //! Callback routine for subscription state events.
    //  May be called externally.
@@ -473,6 +515,10 @@ class ResourceListSet : public UtlContainableAtomic
 
    //! version number for consolidated RLMI
    mutable int mVersion;
+
+   //! sGapTimeout is an OsTime for the minimum interval between publishing
+   //  events.
+   static const OsTime sGapTimeout;
 
    //! Disabled copy constructor
    ResourceListSet(const ResourceListSet& rResourceListSet);
