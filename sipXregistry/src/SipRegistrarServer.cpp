@@ -578,10 +578,11 @@ SipRegistrarServer::applyRegisterToDirectory( const Url& toUrl
                             // The preceding three items may not be uniquely parsable in theory,
                             // but they are in practice.
                             UtlString hash;
-                            encoder.appendBase64Sig(hash);
-                            /* Use 8 bytes, to avoid collisions
+                            encoder.appendBase64Sig(hash,
+                                                    NetBase64Codec::RFC4648UrlSafeAlphabet);
+                            /* Use >=64 bits (11 chars), to avoid collisions
                              * when there are less than 2^32 registrations. */
-                            hash.remove(16);
+                            hash.remove(11);
                             // Now construct the GRUU URI,
                             // "~~gr~XXXXXXXXXXXXXXXX@[principal SIP domain]".
                             // That is what we store in IMDB, so it can be
