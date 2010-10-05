@@ -16,14 +16,46 @@
           validators="validators:required"
           displayName="message:label.name"/>
       </label>
-      <span jwcid="@If" condition="ognl:newSipTrunk || itspSipTrunk">
+      <span jwcid="@If" condition="ognl:sipTrunk">
+      <tr jwcid="@common/FieldPanel" for="gateway:useSipXBridge" field="component:useSipXBridge"
+	      label="message:label.useSipXBridge">
+        <span jwcid="useSipXBridge@Checkbox"
+               id="gateway:useSipXBridge"
+               value="ognl:gateway.useSipXBridge"
+               onchange="javascript:this.form.submit();"
+         />
+      </tr>
+
+      <span jwcid="@If" condition="ognl:gateway.useSipXBridge && moreThanOneBrdigeSbcs">
         <label jwcid="@common/FieldPanel" for="gateway:route" field="ognl:null"
                label="message:label.route" description="message:description.route">
           <input jwcid="@common/SbcDeviceSelect"
                  selectedSbcDevice="ognl:selectedSbcDevice"/>
         </label>
       </span>
-      <span jwcid="@If" condition="ognl:itspSipTrunk && gateway.isNew()">
+      </span>
+         <span jwcid="@If" condition="ognl:sipTrunk && !gateway.useSipXBridge">
+        <label jwcid="@common/FieldPanel" for="gateway:outboundAddress"
+        field="component:outboundAddress"
+        label="message:label.outboundAddress"
+        description="message:description.outboundAddress">
+        <input jwcid="outboundAddress@TextField" id="gateway:outboundAddress" maxlength="255"
+          value="ognl:gateway.outboundAddress"
+          validators="spring-validators:validHostOrIp"
+          displayName="message:label.outboundAddress"/>
+        </label>
+        <label jwcid="@common/FieldPanel" for="gateway:outboundPort"
+          field="component:outboundPort"
+          label="message:label.outboundPort"
+          description="message:description.outboundPort">
+          <input jwcid="outboundPort@TextField" id="gateway:outboundPort" maxlength="255"
+            value="ognl:gateway.outboundPort"
+            validators="validators:required,min=0[%label.invalidformat],max=65534[%label.invalidformat]"
+            translator="translator:sipxnumber,omitZero=true"
+            displayName="message:label.outboundPort"/>
+        </label>
+      </span>
+      <span jwcid="@If" condition="ognl:sipTrunk && gateway.useSipXBridge">
         <label jwcid="@common/FieldPanel" for="gateway:template" field="component:template"
                label="message:label.template" description="message:description.template">
           <select jwcid="template@PropertySelection" id="gateway:template" value="ognl:template"
@@ -32,8 +64,7 @@
           </select>
         </label>
       </span>
-
-      <label jwcid="@common/FieldPanel" for="gateway:address"
+     <label jwcid="@common/FieldPanel" for="gateway:address"
         field="component:gatewayAddress"
         label="message:label.address"
         description="message:description.address">
@@ -42,12 +73,10 @@
           validators="spring-validators:required,validHostOrIp"
           displayName="message:label.address"/>
       </label>
-
       <div jwcid="@If" condition="ognl:advanced" renderTag="false">
         <label jwcid="@common/FieldPanel" for="gateway:addressPort"
           field="component:gatewayAddressPort"
-          label="message:label.addressPort"
-          description="message:description.addressPort">
+          label="message:label.addressPort">
           <input jwcid="gatewayAddressPort@TextField" id="gateway:addressPort" maxlength="255"
             value="ognl:gateway.addressPort"
             validators="validators:required,min=0[%label.invalidformat],max=65534[%label.invalidformat]"

@@ -9,6 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.config;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.createNiceMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -18,8 +24,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
-import org.sipfoundry.sipxconfig.service.SipxService;
 
 import org.apache.commons.io.IOUtils;
 import org.custommonkey.xmlunit.XMLTestCase;
@@ -39,25 +43,20 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcRoutes;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.device.DeviceDefaults;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxRegistrarService;
+import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxStatusService;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createNiceMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
 
 public class ForwardingRulesTest extends XMLTestCase {
     private SipxServiceManager m_sipxServiceManager;
@@ -153,7 +152,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org",
                 "*.example.net"), Arrays.asList("10.1.2.3/16"));
-
+        sbc.setAddress("10.1.2.3");
         SbcManager sbcManager = createNiceMock(SbcManager.class);
         sbcManager.loadDefaultSbc();
         expectLastCall().andReturn(sbc);
@@ -183,7 +182,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), new ArrayList<String>(),
                 new ArrayList<String>());
-
+        sbc.setAddress("10.1.2.3");
         SbcManager sbcManager = createNiceMock(SbcManager.class);
         sbcManager.loadDefaultSbc();
         expectLastCall().andReturn(sbc);
@@ -229,7 +228,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), new ArrayList<String>(),
                 new ArrayList<String>());
-
+        sbc.setAddress("10.1.2.3");
         SbcManager sbcManager = createNiceMock(SbcManager.class);
         sbcManager.loadDefaultSbc();
         expectLastCall().andReturn(sbc);
@@ -265,7 +264,10 @@ public class ForwardingRulesTest extends XMLTestCase {
                 "*.sipfoundry.net"), new ArrayList<String>());
         Sbc aux2 = configureSbc(new AuxSbc(), configureSbcDevice("sbc.example.org"), Arrays.asList("*.xxx",
                 "*.example.tm"), Arrays.asList("10.4.4.1/24"));
-
+        sbc.setAddress("10.1.2.3");
+        sbc.setPort(5070);
+        aux1.setAddress("10.1.2.4");
+        aux2.setAddress("sbc.example.org");
         SbcManager sbcManager = createNiceMock(SbcManager.class);
         sbcManager.loadDefaultSbc();
         expectLastCall().andReturn(sbc);
@@ -295,12 +297,15 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org",
                 "*.example.net"), Arrays.asList("10.1.2.3/16"));
+        sbc.setAddress("10.1.2.3");
         Sbc aux1 = configureSbc(new AuxSbc(), configureSbcDevice("10.1.2.4"), Arrays.asList("*.sipfoundry.org",
                 "*.sipfoundry.net"), new ArrayList<String>());
+        aux1.setAddress("10.1.2.4");
         aux1.setEnabled(false);
         Sbc aux2 = configureSbc(new AuxSbc(), configureSbcDevice("sbc.example.org"), Arrays.asList("*.xxx",
                 "*.example.tm"), Arrays.asList("10.4.4.1/24"));
         aux2.setEnabled(false);
+        aux2.setAddress("sbc.example.org");
 
         SbcManager sbcManager = createNiceMock(SbcManager.class);
         sbcManager.loadDefaultSbc();
@@ -359,6 +364,7 @@ public class ForwardingRulesTest extends XMLTestCase {
 
         Sbc sbc = configureSbc(new DefaultSbc(), configureSbcDevice("10.1.2.3"), Arrays.asList("*.example.org",
                 "*.example.net"), Arrays.asList("10.1.2.3/16"));
+        sbc.setAddress("10.1.2.3");
 
         SbcManager sbcManager = createNiceMock(SbcManager.class);
         sbcManager.loadDefaultSbc();

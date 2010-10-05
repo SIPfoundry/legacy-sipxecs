@@ -52,10 +52,6 @@ public abstract class InternetCalling extends SipxBasePage implements PageBeginR
         if (sbc == null) {
             sbc = getSbcManager().loadDefaultSbc();
             setSbc(sbc);
-            SbcDevice sbcDevice = sbc.getSbcDevice();
-            if (sbcDevice != null) {
-                setSelectedSbcDevice(sbcDevice);
-            }
         }
     }
 
@@ -70,10 +66,9 @@ public abstract class InternetCalling extends SipxBasePage implements PageBeginR
 
     private void saveValid() {
         Sbc sbc = getSbc();
-        if (getSelectedSbcDevice() == null && sbc.isEnabled()) {
+        if (sbc.isEnabled() && (sbc.getAddress() == null || sbc.getPort() == 0)) {
             throw new UserException(getMessages().getMessage("error.requiredSbc"));
         }
-        sbc.setSbcDevice(getSelectedSbcDevice());
         getSbcManager().saveSbc(sbc);
     }
 

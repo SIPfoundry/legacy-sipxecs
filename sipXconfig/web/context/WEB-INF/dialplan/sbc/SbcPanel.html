@@ -5,13 +5,24 @@
   </p>
   <table>
     <tbody>
-      <tr jwcid="@common/FieldPanel" for="sbcDevice"
-        field="ognl:null"
+      <tr jwcid="@common/FieldPanel" for="sbc:address"
+        field="component:address"
         label="message:label.address"
         description="message:description.address">
-        <span jwcid="sbcDevice@common/SbcDeviceSelect"
-          selectedSbcDevice="ognl:selectedSbcDevice"
-		  enforceInternetCallingSupport="ognl:enforceInternetCallingSupport" />
+        <input jwcid="address@TextField" id="sbc:address" maxlength="255"
+          value="ognl:sbc.address"
+          validators="spring-validators:validHostOrIp"
+          displayName="message:label.address"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="sbc:port"
+         field="component:port"
+         label="message:label.port"
+         description="message:description.port">
+         <input jwcid="port@TextField" id="sbc:port" maxlength="255"
+           value="ognl:sbc.port"
+           validators="validators:min=0[%label.invalidformat],max=65534[%label.invalidformat]"
+           translator="translator:sipxnumber,omitZero=true"
+           displayName="message:label.port"/>
       </tr>
     </tbody>
   </table>

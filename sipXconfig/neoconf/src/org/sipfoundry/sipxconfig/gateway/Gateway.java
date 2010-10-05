@@ -33,6 +33,10 @@ public class Gateway extends Device implements NamedObject {
 
     private int m_addressPort;
 
+    private String m_outboundAddress;
+
+    private int m_outboundPort = 5060;
+
     private AddressTransport m_addressTransport = AddressTransport.NONE;
 
     private String m_prefix;
@@ -54,6 +58,9 @@ public class Gateway extends Device implements NamedObject {
     private boolean m_enabled = true;
 
     private Branch m_branch;
+
+    private boolean m_useSipXBridge = true; // default enabled
+
 
     public Gateway() {
     }
@@ -128,6 +135,22 @@ public class Gateway extends Device implements NamedObject {
 
     public void setAddressPort(int port) {
         m_addressPort = port;
+    }
+
+    public String getOutboundAddress() {
+        return m_outboundAddress;
+    }
+
+    public void setOutboundAddress(String address) {
+        m_outboundAddress = address;
+    }
+
+    public int getoutboundPort() {
+        return m_outboundPort;
+    }
+
+    public void setOutboundPort(int port) {
+        m_outboundPort = port;
     }
 
     public String getDescription() {
@@ -222,6 +245,14 @@ public class Gateway extends Device implements NamedObject {
 
     public void setCallerAliasInfo(GatewayCallerAliasInfo callerAliasInfo) {
         m_callerAliasInfo = callerAliasInfo;
+    }
+
+    public boolean getUseSipXBridge() {
+        return m_useSipXBridge;
+    }
+
+    public void setUseSipXBridge(boolean useSipXbridge) {
+        m_useSipXBridge = useSipXbridge;
     }
 
     @Override

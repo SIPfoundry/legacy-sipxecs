@@ -76,7 +76,7 @@ public abstract class EditSbc extends PageWithCallback implements PageBeginRende
             return;
         }
         Sbc sbc = getSbc();
-        if (getSelectedSbcDevice() == null) {
+        if (sbc.isEnabled() && (sbc.getAddress() == null || sbc.getPort() == 0)) {
             throw new UserException(getMessages().getMessage("error.requiredSbc"));
         }
         if (sbc.getRoutes().isEmpty()) {

@@ -24,6 +24,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.translator.Translator;
 import org.apache.tapestry.form.validator.Validator;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.components.EnumPropertySelectionModel;
@@ -39,6 +40,7 @@ import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.gateway.SipTrunkModel;
+import org.sipfoundry.sipxconfig.setting.AbstractSetting;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -67,6 +69,9 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
 
     @InjectObject("spring:tapestry")
     public abstract TapestryContext getTapestry();
+
+    @InjectObject(value = "spring:sbcDeviceManager")
+    public abstract SbcDeviceManager getSbcDeviceManager();
 
     public List<Validator> getSerialNumberValidators() {
         return TapestryUtils.getSerialNumberValidators(getGateway().getModel());
@@ -123,6 +128,22 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
         if (getSiteModel() == null) {
             setSiteModel(createSiteModel());
         }
+
+        Gateway gateway = getGateway();
+        if (gateway instanceof SipTrunk) {
+
+            if (!gateway.getUseSipXBridge()) {
+                // This is Direct SIP Trunk
+                Setting itsp = gateway.getSettings().getSetting("itsp-account");
+                if (itsp != null) {
+                    ((AbstractSetting) itsp).setHidden(true);
+                }
+            }
+        }
+    }
+
+    public boolean isMoreThanOneBrdigeSbcs() {
+        return getSbcDeviceManager().getBridgeSbcs().size() > 1;
     }
 
     public boolean isSipTrunk() {
@@ -131,10 +152,6 @@ public abstract class GatewayForm extends BaseComponent implements PageBeginRend
 
     public boolean isNewSipTrunk() {
         return (isSipTrunk() && getGateway().isNew());
-    }
-
-    public boolean isItspSipTrunk() {
-        return (isSipTrunk() && (getSelectedSbcDevice() != null));
     }
 
     public SipTrunkModel getTemplate() {

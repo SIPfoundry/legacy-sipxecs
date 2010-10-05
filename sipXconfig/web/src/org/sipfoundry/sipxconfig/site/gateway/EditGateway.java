@@ -32,7 +32,6 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
-import org.sipfoundry.sipxconfig.setting.AbstractSetting;
 import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingSet;
 import org.sipfoundry.sipxconfig.site.gateway.port.PortSettings;
@@ -104,6 +103,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
 
     public abstract SbcDevice getSelectedSbcDevice();
 
+
     /**
      * Names of the tabs that are not in navigation components
      */
@@ -141,19 +141,6 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
         }
         setGateway(gateway);
         setSettingProperties(getCurrentSettingSetName());
-        if (gateway instanceof SipTrunk) {
-            SbcDevice sbcDevice = ((SipTrunk) gateway).getSbcDevice();
-            if (sbcDevice != null) {
-                // This is an ITSP SIP Trunk
-                setSelectedSbcDevice(sbcDevice);
-            } else {
-                // This is Direct SIP Trunk
-                Setting itsp = gateway.getSettings().getSetting("itsp-account");
-                if (itsp != null) {
-                    ((AbstractSetting) itsp).setHidden(true);
-                }
-            }
-        }
     }
 
     public void editNonSettings(String tabId) {

@@ -22,7 +22,6 @@
 					<li><a jwcid="@PageLink" id="menu.devices" page="phone/ManagePhones"><span key="menu.devices">Phones</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.deviceGroups" page="phone/PhoneGroups"><span key="menu.deviceGroups">Phone Groups</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.gateways" page="gateway/ListGateways"><span key="menu.gateways">Gateways</span></a></li>
-					<li><a jwcid="@PageLink" id="menu.sbcs" page="sbc/ListSbcDevices"><span key="menu.sbcs">SBCs</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.uploads" page="upload/ManageUploads"><span key="menu.uploads">Upload Firmware</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.configuredServices" page="service/ListConfiguredServices"><span key="menu.configuredServices"/></a></li>
 					<li><a jwcid="@PageLink" id="menu.timezone" page="device/TimeZonePage"><span key="menu.timezone">Timezone Settings</span></a></li>
@@ -97,7 +96,7 @@
 						<a jwcid="@PageLink" id="menu.acdHistory" page="acd/AcdHistoryPage"><span key="menu.acdHistory">ACD Calls</span></a>
 					</li>
 					<li jwcid="@If" condition="ognl:sbcDeviceManager.internalSbcEnabled">
-						<a jwcid="@PageLink" id="menu.sbcStats" page="sbc/BridgeSbcStatisticsPage"><span key="menu.sbcStats">Internal SBC Statistics</span></a>
+						<a jwcid="@PageLink" id="menu.sbcStats" page="sbc/BridgeSbcStatisticsPage"><span key="menu.sbcStats">SIP Trunk SBC Statistics</span></a>
 					</li>
 					<li><a jwcid="@PageLink" id="menu.jobs" page="admin/JobStatusPage"><span key="menu.jobs">Job Status</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.configdiag" page="admin/configdiag/ConfigurationDiagnosticPage"><span key="menu.configdiag">Configuration Tests</span></a></li>

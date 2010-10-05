@@ -367,6 +367,8 @@
 	<antcall target="drop_sbc_device_branch_column" />
 	<antcall target="remove_discovered_devices" />
   	<antcall target="add_addressbookentry_did_number" />
+    <antcall target="sbc-addressPort" />
+    <antcall target="migrate-sbcs" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1149,6 +1151,12 @@
   </target>
   <target name="add_addressbookentry_did_number" unless="add_addressbookentry_did_number">
     <db-patch patch="add_addressbookentry_did_number"/>
+  </target>
+  <target name="sbc-addressPort" unless="sbc-addressPort">
+    <db-patch patch="sbc-addressPort"/>
+  </target>
+  <target name="migrate-sbcs" depends="createlang-plpgsql" unless="migrate-sbcs">
+    <db-patch patch="migrate-sbcs"/>
   </target>
 
   <!--

@@ -26,6 +26,7 @@ import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDescriptor;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.sbc.bridge.BridgeSbc;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroupPropertySelectionRenderer;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
@@ -34,6 +35,8 @@ import org.sipfoundry.sipxconfig.site.sbc.EditSbcDevice;
 import org.sipfoundry.sipxconfig.site.setting.SbcDeviceAction;
 
 public abstract class SbcDeviceSelect extends BaseComponent {
+
+    public static final String SBC_SIPXBRIDGE = "sbcSipXbridge";
     @InjectObject(value = "spring:sbcDeviceManager")
     public abstract SbcDeviceManager getSbcDeviceManager();
 
@@ -63,18 +66,13 @@ public abstract class SbcDeviceSelect extends BaseComponent {
 
     public abstract boolean getEnforceInternetCallingSupport();
 
-    @Parameter(required = false)
-    public abstract void setExternalSBCOnly(boolean externalSBCOnly);
-
-    public abstract boolean getExternalSBCOnly();
-
 
     @Override
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         if (getSelectedSbcDevice() != null) {
             setSelectedAction(new AddExistingSbcDeviceAction(getSelectedSbcDevice()));
         } else {
-            setSelectedAction(null);
+            setSelectedAction(new AddExistingSbcDeviceAction(getDefaultSipXbridge()));
         }
 
         super.renderComponent(writer, cycle);
@@ -122,21 +120,22 @@ public abstract class SbcDeviceSelect extends BaseComponent {
         SbcDeviceManager deviceManager = getSbcDeviceManager();
         Collection<OptionAdapter> actions = new ArrayList<OptionAdapter>();
 
-        Collection<SbcDevice> sbcDevices = deviceManager.getSbcDevices();
-        if (!sbcDevices.isEmpty()) {
-            for (SbcDevice sbcDevice : sbcDevices) {
-                if (checkIfAllowedToAddAction(sbcDevice.getModel())) {
-                    AddExistingSbcDeviceAction action = new AddExistingSbcDeviceAction(sbcDevice);
-                    if (!(getExternalSBCOnly() && (sbcDevice.getBeanId().equals("sbcSipXbridge")))) {
-                        actions.add(action);
-                    }
-                }
+        Collection<BridgeSbc> bridgeSbcs = deviceManager.getBridgeSbcs();
+        if (!bridgeSbcs.isEmpty()) {
+            for (BridgeSbc bridgeSbc : bridgeSbcs) {
+                AddExistingSbcDeviceAction action = new AddExistingSbcDeviceAction(bridgeSbc);
+                actions.add(action);
             }
         }
 
         AdaptedSelectionModel model = new AdaptedSelectionModel();
         model.setCollection(actions);
         return model;
+    }
+
+    private SbcDevice getDefaultSipXbridge() {
+        // Return the first one in the list as the default.
+        return getSbcDeviceManager().getBridgeSbcs().get(0);
     }
 
     private class AddNewSbcDeviceAction extends SbcDeviceAction {

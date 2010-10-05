@@ -251,7 +251,7 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
             m_defaults = defaults;
             m_device = device;
             m_location = location;
-            m_natLocation = location.getNat();
+            m_natLocation = (location != null) ? location.getNat() : null;
         }
 
         @SettingEntry(paths = {

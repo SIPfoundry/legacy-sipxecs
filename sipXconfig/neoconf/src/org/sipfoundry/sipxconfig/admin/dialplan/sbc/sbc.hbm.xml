@@ -11,6 +11,8 @@
     </id>
     <discriminator column="sbc_type" type="character" />
     <property name="enabled" />
+    <property name="address" column="address_actual"/>
+    <property name="port" />
     <many-to-one name="sbcDevice" class="SbcDevice" column="sbc_device_id" unique="true"/>
     <component name="routes" class="SbcRoutes">
       <list name="domains" table="sbc_route_domain">

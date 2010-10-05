@@ -51,6 +51,8 @@ public class SipTrunkMigrationContextImpl extends SipxHibernateDaoSupport implem
                 sipTrunk.setValueStorage(null);
 
                 sipTrunk.setSbcDevice(m_sbcDeviceManager.getSbcDevice(sbcDeviceId));
+                sipTrunk.setOutboundAddress(sipTrunk.getSbcDevice().getAddress());
+                sipTrunk.setOutboundPort(sipTrunk.getSbcDevice().getPort());
                 m_gatewayContext.storeGateway(sipTrunk);
                 getHibernateTemplate().flush();
             } catch (UserException e) {

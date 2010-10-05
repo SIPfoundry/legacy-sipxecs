@@ -17,19 +17,31 @@
         <input jwcid="@Checkbox" value="ognl:sbc.enabled" id="sbc:enabled"/>
         <label for="sbc:enabled"><span key="label.enableInternetCalling"/></label>
       </p>
-      <table>
-        <tbody>
-          <tr jwcid="@common/FieldPanel" for="sbcDevice"
-            field="ognl:null"
-            label="message:label.address"
-            description="message:description.address">
-            <span jwcid="sbcDevice@common/SbcDeviceSelect"
-              externalSBCOnly="ognl:true"
-              selectedSbcDevice="ognl:selectedSbcDevice"
-			  enforceInternetCallingSupport="ognl:true" />
-          </tr>
-        </tbody>
-      </table>
+      <span>
+        <table>
+          <tbody>
+            <tr jwcid="@common/FieldPanel" for="sbc:address"
+              field="component:outboundAddress"
+              label="message:label.outboundAddress"
+              description="message:description.outboundAddress">
+              <input jwcid="outboundAddress@TextField" id="sbc:address" maxlength="255"
+                value="ognl:sbc.address"
+                validators="spring-validators:validHostOrIp"
+                displayName="message:label.address"/>
+            </tr>
+            <tr jwcid="@common/FieldPanel" for="sbc:port"
+               field="component:outboundPort"
+               label="message:label.outboundPort"
+               description="message:description.outboundPort">
+              <input jwcid="outboundPort@TextField" id="sbc:port" maxlength="255"
+                value="ognl:sbc.port"
+                validators="validators:min=0[%label.invalidformat],max=65534[%label.invalidformat]"
+                translator="translator:sipxnumber,omitZero=true"
+                displayName="message:label.outboundPort"/>
+             </tr>
+          </tbody>
+        </table>
+      </span>
     </fieldset>
     <fieldset jwcid="@common/ListPanel"
       label="message:label.domains"

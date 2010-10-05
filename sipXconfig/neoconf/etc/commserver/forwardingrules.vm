@@ -70,7 +70,7 @@
 #if($auxSbc.enabled)
   <route mappingType='auxiliary SBC'>
     <description>
-      Subnets and domains routed to ${auxSbc.sbcDevice.address}
+      Subnets and domains routed to ${auxSbc.address}
     </description>
 
 #foreach($subnet in ${auxSbc.routes.subnets})
@@ -81,7 +81,7 @@
     <routeDnsWildcard>$domain</routeDnsWildcard>
 #end
 
-    <routeTo authRequired="true">${auxSbc.sbcDevice.route}</routeTo>
+    <routeTo authRequired="true">${auxSbc.route}</routeTo>
   </route>
 #end
 #end
@@ -92,7 +92,7 @@
     <routeDnsWildcard>*</routeDnsWildcard>
     <routeIPv4subnet>0/0</routeIPv4subnet>
 
-    <routeTo authRequired="true">${sbc.sbcDevice.route}</routeTo>
+    <routeTo authRequired="true">${sbc.route}</routeTo>
   </route>
 #end
 

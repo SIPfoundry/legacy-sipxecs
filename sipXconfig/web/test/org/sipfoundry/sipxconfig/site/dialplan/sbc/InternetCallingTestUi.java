@@ -24,6 +24,7 @@ public class InternetCallingTestUi extends WebTestCase {
     public InternetCallingTestUi() {
     }
 
+    @Override
     public void setUp() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
@@ -47,7 +48,8 @@ public class InternetCallingTestUi extends WebTestCase {
         clickLink("setting:toggle");
 
         assertLinkPresent("sbc:add");
-        assertElementPresent("sbc:list");
+        assertElementPresent("sbc:address");
+        assertElementPresent("sbc:port");
         clickButton("internetCalling:apply");
         SiteTestHelper.assertNoUserError(tester);
 

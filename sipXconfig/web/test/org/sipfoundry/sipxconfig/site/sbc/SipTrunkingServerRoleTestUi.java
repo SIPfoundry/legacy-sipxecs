@@ -34,21 +34,11 @@ public class SipTrunkingServerRoleTestUi extends WebTestCase {
 		checkCheckbox("MultiplePropertySelection", "1");
 		clickButton("form:ok");
 		SiteTestHelper.assertNoUserError(tester);
-
-		clickLink("menu.sbcs");
-		SiteTestHelper.assertNoException(tester);
-		assertFormPresent();
-		assertEquals(2, SiteTestHelper.getRowCount(tester, "list:sbc"));
 	}
 
 	public void testDisableSipTrunkingServerRole() {
 		uncheckCheckbox("MultiplePropertySelection", "1");
 		clickButton("form:ok");
 		SiteTestHelper.assertNoUserError(tester);
-
-		clickLink("menu.sbcs");
-		SiteTestHelper.assertNoException(tester);
-		assertFormPresent();
-		assertEquals(1, SiteTestHelper.getRowCount(tester, "list:sbc"));
 	}
 }
