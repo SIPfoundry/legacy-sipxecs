@@ -64,7 +64,7 @@ public class PhoneConfiguration extends ProfileContext {
         ArrayList linesSettings = new ArrayList(lineCount);
 
         for (Line line : lines) {
-            if (!line.getUser().hasPermission(PermissionName.VOICEMAIL)) {
+            if (line.getUser() != null && !line.getUser().hasPermission(PermissionName.VOICEMAIL)) {
                 line.setSettingValue(MWI_SUBSCRIBE_SETTING, BLANK_STRING);
             }
             linesSettings.add(line.getSettings());

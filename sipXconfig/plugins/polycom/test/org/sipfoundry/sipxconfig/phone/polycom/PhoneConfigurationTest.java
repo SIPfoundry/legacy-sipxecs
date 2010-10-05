@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phone.Line;
+import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
 
@@ -249,5 +250,36 @@ public class PhoneConfigurationTest extends PolycomXmlTestCase {
         m_pg.generate(m_location, cfg, null, "profile");
 
         assertPolycomXmlEquals(getClass().getResourceAsStream("expected-without-voicemail-permission-phone.cfg.xml"), m_location.getReader());
+    }
+
+    public void testGenerateSipxPhoneWithExternalLine() throws Exception {
+        PolycomModel model = new PolycomModel();
+        model.setMaxLineCount(6);
+        phone.setModel(model);
+
+        List<User> users = new ArrayList<User>();
+
+        PermissionManagerImpl pManager = new PermissionManagerImpl();
+        pManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
+
+        m_testDriver = PhoneTestDriver.supplyTestData(phone, new ArrayList<User>());
+
+        LineInfo li = new LineInfo();
+        li.setDisplayName("dddd");
+        li.setUserId("jon");
+        li.setRegistrationServer("sipfoundry.org");
+        li.setPassword("1234");
+        li.setVoiceMail("");
+
+        Line externalLine = phone.createLine();
+        phone.addLine(externalLine);
+        externalLine.setLineInfo(li);
+
+        phone.beforeProfileGeneration();
+        PhoneConfiguration cfg = new PhoneConfiguration(phone);
+
+        m_pg.generate(m_location, cfg, null, "profile");
+
+        assertPolycomXmlEquals(getClass().getResourceAsStream("expected-external-line-sipx-phone.cfg.xml"), m_location.getReader());
     }
 }
