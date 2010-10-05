@@ -1,16 +1,17 @@
 /*
- * 
- * 
- * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
+ *
+ *
+ * Copyright (C) 2009 Pingtel Corp., certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- * 
+ *
  */
 package org.sipfoundry.voicemail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -27,19 +28,20 @@ import org.sipfoundry.sipxivr.MailboxPreferences;
 
 /**
  * A RESTful interface to the mailbox messages
- * 
+ *
  * three services at the moment:
  *    Mark a message read
  *    Update the MWI status
  *    Get the FS channel UID for the current call answering session for the mailbox
  *    Get/Set a user's active greeting type
- *    
+ *
  * Prefix is /mailbox/*
  * Paths are
  * /{mailbox}/
  *      /mwi   PUT (no data) updates the MWI for this mailbox (i.e. tells the status server to update the MWI status of devices
  *             GET returns the MWI status for this mailbox
- *      /uuid  GET returns the FS channel UUID for a current call answering session for the mailbox       
+ *      /uuid  GET returns the FS channel UUID for a current call answering session for the mailbox
+ *      /messages GET returns all voicemail messages
  *      /messages/
  *          /{messageId}
  *              /heard   PUT (no data) Marks the message heard (and updates MWI)
@@ -86,16 +88,16 @@ public class MailboxServlet extends HttpServlet {
             response.sendError(404);    // path not found
             return;
         }
-        
+
         // The first element is empty (the leading slash)
         // The second element is the mailbox
         String mailboxString = subDirs[1];
         // The third element is the "context" (either mwi, message)
         String context = subDirs[2];
 
-        
-        // Load the list of valid users 
-        // (it is static, so don't worry about sucking it in each time, it'll only 
+
+        // Load the list of valid users
+        // (it is static, so don't worry about sucking it in each time, it'll only
         // be re-read if it has changed on disk)
         ValidUsersXML validUsers = null;
         try {
@@ -133,7 +135,7 @@ public class MailboxServlet extends HttpServlet {
                                 }
                             }
                         }
-                        
+
                         if (action.equals("delete")) {
                             if(method.equals(METHOD_PUT)) {
                                 VmMessage msg = messages.getMessage(messageId);
@@ -144,7 +146,7 @@ public class MailboxServlet extends HttpServlet {
                                 }
                             }
                         }
-                        
+
                     } else {
                         response.sendError(400, "messageId missing");
                     }
@@ -167,7 +169,17 @@ public class MailboxServlet extends HttpServlet {
                         pw.format("<uuid>%s</uuid>\n", uuid);
                     }
 
-                } else {
+                } else if (context.equals("messages")) {
+                    if (method.equals(METHOD_GET)) {
+                        response.setContentType("text/xml");
+                        listMessages(messages.getInbox(), "inbox", pw);
+                        listMessages(messages.getSaved(), "saved", pw);
+                        listMessages(messages.getDeleted(), "deleted", pw);
+                    } else {
+                        response.sendError(405);
+                    }
+                }
+                else {
                     response.sendError(400, "context not understood");
                 }
             }
@@ -178,6 +190,14 @@ public class MailboxServlet extends HttpServlet {
             LOG.info(String.format("MailboxServlet::doIt %s not found", mailboxString));
         }
 
+    }
+
+    private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {
+        for (VmMessage message : messages) {
+            pw.format("<message id=%s heard=%s urgent=%s folder=%s duration=%s received=%s/>\n",
+                    message.getMessageId(), !message.isUnHeard(), message.isUrgent(),
+                    folder, message.getDuration(), message.getTimestamp());
+        }
     }
 
 }
