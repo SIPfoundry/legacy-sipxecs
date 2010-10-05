@@ -391,6 +391,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{reportsdir}/*
 
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/upload
+%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/backup
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/configserver/web-cert
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{devicefilesdir}
 
