@@ -96,5 +96,11 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
 
         AliasMapping am1 = (AliasMapping) aliasMappings.get(1);
         assertEquals(am1, am);
+
+        // 1 alias for conference with same name as extension
+        m_conf.setName("1111");
+        m_conf.setExtension("1111");
+        aliasMappings = m_conf.generateAliases("sipfoundry.org");
+        assertEquals(1, aliasMappings.size());
     }
 }

@@ -264,7 +264,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
             return Collections.EMPTY_LIST;
         }
         ArrayList aliases = new ArrayList();
-        if (StringUtils.isNotBlank(m_extension)) {
+        if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
             // add extension mapping
             String extensionUri = AliasMapping.createUri(m_extension, domainName);
             String identityUri = SipUri.format(m_name, domainName, false);
