@@ -51,12 +51,14 @@ import org.apache.lucene.document.Field;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.Term;
 import org.apache.lucene.queryParser.ParseException;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Searcher;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.RAMDirectory;
+import org.apache.lucene.util.Version;
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.classic.Session;
@@ -427,7 +429,8 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
 
         Map<String, PhonebookEntry> usersToEntries = new HashMap<String, PhonebookEntry>();
         try {
-            IndexWriter indexWriter = new IndexWriter(index, new StandardAnalyzer(new HashSet<String>()), true);
+            IndexWriter indexWriter = new IndexWriter(index, new StandardAnalyzer(Version.LUCENE_30,
+                    new HashSet<String>()), true, IndexWriter.MaxFieldLength.LIMITED);
             for (PhonebookEntry entry : phonebookEntries) {
                 Document doc = null;
                 User user = getUserForEntry(entry);
@@ -469,10 +472,13 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     private List<Document> doSearch(Searcher searcher, String queryString) throws IOException, ParseException {
         Term searchTerm = new Term(FIELD_CONTENT, queryString.toLowerCase());
         Query query = new PrefixQuery(searchTerm);
-        Hits hits = searcher.search(query);
+        // max number of returned docs set to 20000
+        TopDocs topDocs = searcher.search(query, 20000);
+        ScoreDoc[] scoreDocs = topDocs.scoreDocs;
         List<Document> docs = new ArrayList<Document>();
-        for (int i = 0; i < hits.length(); i++) {
-            docs.add(hits.doc(i));
+        for (int i = 0; i < scoreDocs.length; i++) {
+            int docId = scoreDocs[i].doc;
+            docs.add(searcher.doc(docId));
         }
 
         return docs;
@@ -500,12 +506,12 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     private void addIdToDoc(Document doc, String id) {
-        doc.add(new Field(FIELD_ID, id, Field.Store.YES, Field.Index.UN_TOKENIZED));
+        doc.add(new Field(FIELD_ID, id, Field.Store.YES, Field.Index.NOT_ANALYZED));
     }
 
     private void addTextFieldToDocument(Document doc, String value) {
         if (value != null) {
-            doc.add(new Field(FIELD_CONTENT, value, Field.Store.NO, Field.Index.TOKENIZED));
+            doc.add(new Field(FIELD_CONTENT, value, Field.Store.NO, Field.Index.ANALYZED));
         }
     }
 

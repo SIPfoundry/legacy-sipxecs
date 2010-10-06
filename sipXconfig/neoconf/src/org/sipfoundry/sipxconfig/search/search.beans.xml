@@ -3,7 +3,12 @@
 <beans>
   <bean id="beanAdaptor" class="org.sipfoundry.sipxconfig.search.DefaultBeanAdaptor"/>
 
-  <bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer"/>
+  <bean id="analyzer" class="org.apache.lucene.analysis.standard.StandardAnalyzer">
+    <constructor-arg>
+      <bean id="org.apache.lucene.util.Version.LUCENE_30"
+         class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean" />
+    </constructor-arg>
+  </bean>
 
   <bean id="indexSource" class="org.sipfoundry.sipxconfig.search.SimpleIndexSource">
     <property name="indexDirectoryName" value="${sysdir.tmp}/index"/>

@@ -40,7 +40,7 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xmlrpc-2.0.jar" sourcepath="LIB_SRC/xmlrpc/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/antlr-2.7.6.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/c3p0-0.9.1.1.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/lucene-core-2.0.0.jar" sourcepath="/LIB_SRC/lucene/lucene-2.0.0-src.zip"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/lucene-core-3.0.2.jar" sourcepath="/LIB_SRC/lucene/lucene-3.0.2-src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/acegi-security-1.0.7.jar" sourcepath="/LIBSRC/acegi-security-1.0.7-sources.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/junitperf-1.9.1.jar" sourcepath="LIB_SRC/junitperf/1.9/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_BUILD_TOP/sipXconfig/neoconf/dist/agent-bindings.jar"/>

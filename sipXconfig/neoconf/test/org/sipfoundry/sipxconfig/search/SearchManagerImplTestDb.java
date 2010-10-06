@@ -17,6 +17,7 @@ import junit.framework.TestCase;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
+import org.apache.lucene.util.Version;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -243,7 +244,7 @@ public class SearchManagerImplTestDb extends TestCase {
 
     public void testParseQuery() throws Exception {
         SearchManagerImpl impl = new SearchManagerImpl();
-        impl.setAnalyzer(new StandardAnalyzer());
+        impl.setAnalyzer(new StandardAnalyzer(Version.LUCENE_30));
 
         Query query = impl.parseUserQuery("kuku");
         assertTrue(query instanceof PrefixQuery);

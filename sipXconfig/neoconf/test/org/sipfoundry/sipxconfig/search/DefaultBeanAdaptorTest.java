@@ -31,7 +31,7 @@ public class DefaultBeanAdaptorTest extends TestCase {
         // cannot mock documents
         Document doc = new Document();
         doc.add(new Field("id", "org.sipfoundry.sipxconfig.common.User:36", Field.Store.YES,
-                Field.Index.UN_TOKENIZED));
+                Field.Index.NOT_ANALYZED));
 
         Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertSame(User.class, beanIdentity.getBeanClass());
@@ -42,7 +42,7 @@ public class DefaultBeanAdaptorTest extends TestCase {
         // cannot mock documents
         Document doc = new Document();
         doc.add(new Field("id", "org.sipfoundry.sipxconfig.common.Xyz:36", Field.Store.YES,
-                Field.Index.UN_TOKENIZED));
+                Field.Index.NOT_ANALYZED));
 
         Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertNull(beanIdentity);
@@ -52,7 +52,7 @@ public class DefaultBeanAdaptorTest extends TestCase {
         // cannot mock documents
         Document doc = new Document();
         doc.add(new Field("id", "org.sipfoundry.sipxconfig.common.User:aaa", Field.Store.YES,
-                Field.Index.UN_TOKENIZED));
+                Field.Index.NOT_ANALYZED));
 
         Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertNull(beanIdentity);
@@ -88,12 +88,12 @@ public class DefaultBeanAdaptorTest extends TestCase {
 
     public void test() {
         Document doc = new Document();
-        doc.add(new Field("name", "abc", Field.Store.YES, Field.Index.TOKENIZED));
-        doc.add(new Field("extension", "1234", Field.Store.YES, Field.Index.TOKENIZED));
-        doc.add(new Field("description", "bongo", Field.Store.YES, Field.Index.TOKENIZED));
+        doc.add(new Field("name", "abc", Field.Store.YES, Field.Index.ANALYZED));
+        doc.add(new Field("extension", "1234", Field.Store.YES, Field.Index.ANALYZED));
+        doc.add(new Field("description", "bongo", Field.Store.YES, Field.Index.ANALYZED));
 
         doc.add(new Field("id", "org.sipfoundry.sipxconfig.common.User:36", Field.Store.YES,
-                Field.Index.UN_TOKENIZED));
+                Field.Index.NOT_ANALYZED));
 
         Identity beanIdentity = m_adaptor.getBeanIdentity(doc);
         assertEquals("bongo", beanIdentity.getDescription());

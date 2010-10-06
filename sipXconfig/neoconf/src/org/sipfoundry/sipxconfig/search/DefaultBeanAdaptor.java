@@ -113,7 +113,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
             return false;
         }
         document.add(new Field(BeanWithId.ID_PROPERTY, getKeyword(bean, id), Field.Store.YES,
-                Field.Index.UN_TOKENIZED));
+                Field.Index.NOT_ANALYZED));
         for (int i = 0; i < fieldNames.length; i++) {
             Object value = state[i];
             if (value != null) {
@@ -126,22 +126,22 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
     private boolean indexField(Document document, Object state, String fieldName, Type type) {
         if (Arrays.binarySearch(FIELDS, fieldName) >= 0) {
             // index all fields we know about
-            document.add(new Field(fieldName, (String) state, Field.Store.YES, Field.Index.TOKENIZED));
-            document.add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO, Field.Index.TOKENIZED));
+            document.add(new Field(fieldName, (String) state, Field.Store.YES, Field.Index.ANALYZED));
+            document.add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO, Field.Index.ANALYZED));
             return true;
         } else if (type instanceof StringType) {
             // index all strings with the exception of the fields explicitly listed as sensitive
             if (Arrays.binarySearch(SENSITIVE_FIELDS, fieldName) < 0) {
                 document
-                        .add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO, Field.Index.TOKENIZED));
+                        .add(new Field(Indexer.DEFAULT_FIELD, (String) state, Field.Store.NO, Field.Index.ANALYZED));
             }
             return true;
         } else if (fieldName.equals("aliases")) {
             Set aliases = (Set) state;
             for (Iterator a = aliases.iterator(); a.hasNext();) {
                 String alias = (String) a.next();
-                document.add(new Field("alias", alias, Field.Store.NO, Field.Index.TOKENIZED));
-                document.add(new Field(Indexer.DEFAULT_FIELD, alias, Field.Store.NO, Field.Index.TOKENIZED));
+                document.add(new Field("alias", alias, Field.Store.NO, Field.Index.ANALYZED));
+                document.add(new Field(Indexer.DEFAULT_FIELD, alias, Field.Store.NO, Field.Index.ANALYZED));
             }
             return true;
         }
@@ -152,7 +152,7 @@ public class DefaultBeanAdaptor implements BeanAdaptor {
         for (int i = 0; i < m_indexedClasses.length; i++) {
             Class klass = m_indexedClasses[i];
             if (klass.isAssignableFrom(beanClass)) {
-                doc.add(new Field(Indexer.CLASS_FIELD, klass.getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+                doc.add(new Field(Indexer.CLASS_FIELD, klass.getName(), Field.Store.YES, Field.Index.NOT_ANALYZED));
                 return true;
             }
         }

@@ -39,7 +39,7 @@ public class SimpleIndexSource implements IndexSource {
 
     private Directory getDirectory() {
         try {
-            Directory directory = createDirectory(m_indexDirectory, m_createDirectory);
+            Directory directory = createDirectory(m_indexDirectory);
             m_createDirectory = false;
             return directory;
         } catch (IOException e) {
@@ -52,8 +52,8 @@ public class SimpleIndexSource implements IndexSource {
      *
      * @throws IOException
      */
-    protected Directory createDirectory(File file, boolean createDirectory) throws IOException {
-        return FSDirectory.getDirectory(file, createDirectory);
+    protected Directory createDirectory(File file) throws IOException {
+        return FSDirectory.open(file);
     }
 
     public void setIndexDirectoryName(String indexDirectoryName) {
@@ -76,12 +76,12 @@ public class SimpleIndexSource implements IndexSource {
 
     public IndexReader getReader() throws IOException {
         ensureIndexExists();
-        return IndexReader.open(getDirectory());
+        return IndexReader.open(getDirectory(), false);
     }
 
     public IndexWriter getWriter(boolean createNew) throws IOException {
         IndexWriter writer = new IndexWriter(getDirectory(), m_analyzer, createNew
-                || m_createIndex);
+                || m_createIndex, IndexWriter.MaxFieldLength.LIMITED);
         writer.setMaxFieldLength(m_maxFieldLength);
         writer.setMaxBufferedDocs(m_minMergeDocs);
         m_createIndex = false;

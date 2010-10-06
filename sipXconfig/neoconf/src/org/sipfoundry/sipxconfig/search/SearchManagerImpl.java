@@ -24,17 +24,22 @@ import org.apache.lucene.queryParser.ParseException;
 import org.apache.lucene.queryParser.QueryParser;
 import org.apache.lucene.search.BooleanClause;
 import org.apache.lucene.search.BooleanQuery;
-import org.apache.lucene.search.Hits;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.PrefixQuery;
 import org.apache.lucene.search.Query;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.SortField;
 import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.TopFieldCollector;
+import org.apache.lucene.util.Version;
 import org.sipfoundry.sipxconfig.search.BeanAdaptor.Identity;
 
 public class SearchManagerImpl implements SearchManager {
     private static final Log LOG = LogFactory.getLog(SearchManagerImpl.class);
+
+    // number of max results to be returned by a query
+    private static final int TOP_HITS = 20000;
 
     private IndexSource m_indexSource;
 
@@ -75,10 +80,17 @@ public class SearchManagerImpl implements SearchManager {
     private List search(Query query, int firstItem, int pageSize, Sort sort,
             Transformer transformer) {
         IndexSearcher searcher = null;
+        TopDocs docs = null;
         try {
             searcher = m_indexSource.getSearcher();
-            Hits hits = searcher.search(query, sort);
-            List found = hits2beans(hits, transformer, firstItem, pageSize);
+            if (sort == null) {
+                docs = searcher.search(query, TOP_HITS);
+            } else {
+                TopFieldCollector collector = TopFieldCollector.create(sort, TOP_HITS, true, false, false, true);
+                searcher.search(query, collector);
+                docs = collector.topDocs();
+            }
+            List found = hits2beans(docs, transformer, firstItem, pageSize);
             return found;
         } catch (IOException e) {
             LOG.error("search by user query error", e);
@@ -88,9 +100,9 @@ public class SearchManagerImpl implements SearchManager {
         return Collections.EMPTY_LIST;
     }
 
-    private List hits2beans(Hits hits, Transformer transformer, int firstItem, int pageSize)
+    private List hits2beans(TopDocs docs, Transformer transformer, int firstItem, int pageSize)
         throws IOException {
-        final int hitCount = hits.length();
+        final int hitCount = docs.scoreDocs.length;
         List results = new ArrayList(hitCount);
         // if (transformer != null) {
         // results = ListUtils.predicatedList(results, NotNullPredicate.INSTANCE);
@@ -100,7 +112,7 @@ public class SearchManagerImpl implements SearchManager {
         int from = firstItem < 0 ? 0 : firstItem;
         int to = pageSize < 0 ? hitCount : Math.min(hitCount, firstItem + pageSize);
         for (int i = from; i < to; i++) {
-            Document document = hits.doc(i);
+            Document document = m_indexSource.getSearcher().doc(docs.scoreDocs[i].doc);
             Identity identity = m_beanAdaptor.getBeanIdentity(document);
             if (identity == null) {
                 continue;
@@ -125,7 +137,7 @@ public class SearchManagerImpl implements SearchManager {
      * @return newly created query object
      */
     Query parseUserQuery(String queryText) throws ParseException {
-        QueryParser parser = new QueryParser(Indexer.DEFAULT_FIELD, m_analyzer);
+        QueryParser parser = new QueryParser(Version.LUCENE_30, Indexer.DEFAULT_FIELD, m_analyzer);
         Query query = parser.parse(queryText);
         if (query instanceof TermQuery) {
             TermQuery termQuery = (TermQuery) query;
