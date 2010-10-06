@@ -22,6 +22,8 @@ void
 free_rr(rrp)
         s_rr    *rrp;
 {
+  if (!rrp)
+    return;
                 /*
                  *  Free generic RR memory
                  */
@@ -132,6 +134,9 @@ void
 free_response(resp)
         res_response    *resp;
 {
+  if (!resp)
+    return;
+  
         int     i, n;
 
         /*
@@ -209,6 +214,9 @@ void
 res_free(resp)
         res_response    *resp;
 {
+  if (!resp)
+    return;
+  
         free_response( resp );
         free( resp );
 }
