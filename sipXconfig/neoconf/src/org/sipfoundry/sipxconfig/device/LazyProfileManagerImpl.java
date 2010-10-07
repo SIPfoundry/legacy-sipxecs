@@ -39,14 +39,14 @@ public class LazyProfileManagerImpl implements ProfileManager {
 
     public synchronized void generateProfiles(Collection<Integer> phoneIds, boolean restart, Date restartTime) {
         for (Integer id : phoneIds) {
-            updateRestart(id, restart ? TaskInfo.GENERATE : TaskInfo.GENERATE_RESTART, restartTime);
+            updateRestart(id, restart ? TaskInfo.GENERATE_RESTART : TaskInfo.GENERATE, restartTime);
         }
         m_worker.workScheduled();
         notify();
     }
 
     public synchronized void generateProfile(Integer phoneId, boolean restart, Date restartTime) {
-        updateRestart(phoneId, restart ? TaskInfo.GENERATE : TaskInfo.GENERATE_RESTART, restartTime);
+        updateRestart(phoneId, restart ? TaskInfo.GENERATE_RESTART : TaskInfo.GENERATE, restartTime);
         m_worker.workScheduled();
         notify();
     }
