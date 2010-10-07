@@ -123,5 +123,14 @@ public class LocationsPageTestUi extends WebTestCase {
         setTextField("publicPort", "20abc");
         clickButton("form:ok");
         SiteTestHelper.assertUserError(tester);
+        setTextField("publicPort", "65536");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        setTextField("publicPort", "1023");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
+        setTextField("publicPort", "abc");
+        clickButton("form:ok");
+        SiteTestHelper.assertUserError(tester);
     }
 }

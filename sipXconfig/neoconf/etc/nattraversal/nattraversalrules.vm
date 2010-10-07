@@ -19,8 +19,10 @@
 #else
     <useSTUN>false</useSTUN>
 #end
-    <publicport>${natlocation.publicPort}</publicport>
-    <proxyhostport>${location.address}:${proxyService.sipPort}</proxyhostport>
+    <publicunsecureport>${natlocation.publicPort}</publicunsecureport>
+    <proxyunsecurehostport>${location.address}:${proxyService.sipPort}</proxyunsecurehostport>
+    <publicsecureport>${natlocation.publicTlsPort}</publicsecureport>
+    <proxysecurehostport>${location.address}:${proxyService.secureSipPort}</proxysecurehostport>
     <mediarelayxml-rpc-port>${service.xmlRpcPort}</mediarelayxml-rpc-port>
     <relayaggressiveness>${nat.getSetting('media-relay-temperament').Value}</relayaggressiveness>
     <mediarelaynativeaddress>${location.address}</mediarelaynativeaddress>

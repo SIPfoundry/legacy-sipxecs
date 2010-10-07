@@ -79,6 +79,8 @@ public class EditLocationPageTestUi extends WebTestCase {
 
         assertElementPresent("publicPort");
         assertTextFieldEquals("publicPort", "5060");
+        assertElementPresent("publicTlsPort");
+        assertTextFieldEquals("publicTlsPort", "5061");
         assertElementNotPresent("startRtpPort");
         assertElementNotPresent("stopRtpPort");
         clickLink("setting:toggle"); // advanced

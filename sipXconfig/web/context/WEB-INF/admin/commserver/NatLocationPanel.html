@@ -25,6 +25,15 @@
 		    validators="validators:required,min=1024,max=65535"
 		    displayName="message:public.port"/>
 	  </tr>
+	  <tr jwcid="@common/FieldPanel"
+		  field="component:publicTlsPort"
+		  label="message:public.tlsPort">
+	    <td jwcid="publicTlsPort@TextField"
+		    value="ognl:natLocation.publicTlsPort"
+		    translator="translator:integer,omitZero=true"
+		    validators="validators:required,min=1024,max=65535"
+		    displayName="message:public.tlsPort"/>
+	  </tr>
 	  <div jwcid="@If" condition="ognl:advanced" renderTag="false">
 	    <tr jwcid="@common/FieldPanel"
 		    field="component:startRtpPort"

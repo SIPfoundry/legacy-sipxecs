@@ -2,9 +2,9 @@
 <!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 <dataset>
   <location location_id="1001" fqdn="primary.exampl.com" ip_address="10.1.1.1" name="Primary"
-    primary_location="true" use_stun="false" public_port="5060" registered="true" start_rtp_port="30000"
-    stop_rtp_port="31000" stun_interval="60" />
+    primary_location="true" use_stun="false" public_port="5060" public_tls_port="5161" registered="true"
+    start_rtp_port="30000" stop_rtp_port="31000" stun_interval="60" />
   <location location_id="1002" fqdn="remote.exampl.com" ip_address="10.1.1.1" name="Secondary"
-    primary_location="false" use_stun="false" public_port="5060" registered="true" start_rtp_port="30000"
-    stop_rtp_port="31000" stun_interval="60" />
+    primary_location="false" use_stun="false" public_port="5060" public_tls_port="5161" registered="true"
+    start_rtp_port="30000" stop_rtp_port="31000" stun_interval="60" />
 </dataset>

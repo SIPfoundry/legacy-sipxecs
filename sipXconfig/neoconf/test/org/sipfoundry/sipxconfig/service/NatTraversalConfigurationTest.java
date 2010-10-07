@@ -67,6 +67,7 @@ public class NatTraversalConfigurationTest extends TestCase {
         sipxProxyService.setModelName("sipxproxy.xml");
         sipxProxyService.setModelFilesContext(TestHelper.getModelFilesContext());
         sipxProxyService.setSipPort("5060");
+        sipxProxyService.setSecureSipPort("5061");
 
         m_sipxRelayService = new SipxRelayService();
         m_sipxRelayService.setBeanName(SipxRelayService.BEAN_ID);

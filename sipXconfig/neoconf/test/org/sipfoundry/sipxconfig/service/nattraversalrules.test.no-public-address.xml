@@ -8,8 +8,10 @@
     <useSTUN>true</useSTUN>
     <stun-server-address>stun01.sipphone.com</stun-server-address>
     <rediscovery-time>60</rediscovery-time>
-    <publicport>5060</publicport>
-    <proxyhostport>192.168.1.1:5060</proxyhostport>
+    <publicunsecureport>5060</publicunsecureport>
+    <proxyunsecurehostport>192.168.1.1:5060</proxyunsecurehostport>
+    <publicsecureport>5061</publicsecureport>
+    <proxysecurehostport>192.168.1.1:5061</proxysecurehostport>
     <mediarelayxml-rpc-port>9090</mediarelayxml-rpc-port>
     <relayaggressiveness>Aggressive</relayaggressiveness>
     <mediarelaynativeaddress>192.168.1.1</mediarelaynativeaddress>

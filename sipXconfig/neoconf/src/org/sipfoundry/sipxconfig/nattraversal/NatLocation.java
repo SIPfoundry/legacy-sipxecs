@@ -22,6 +22,8 @@ public class NatLocation {
 
     private int m_publicPort = 5060;
 
+    private int m_publicTlsPort = 5061;
+
     private int m_startRtpPort = 30000;
 
     private int m_stopRtpPort = 31000;
@@ -50,6 +52,14 @@ public class NatLocation {
 
     public void setPublicPort(int publicPort) {
         m_publicPort = publicPort;
+    }
+
+    public int getPublicTlsPort() {
+        return m_publicTlsPort;
+    }
+
+    public void setPublicTlsPort(int publicTlsPort) {
+        m_publicTlsPort = publicTlsPort;
     }
 
     public int getStartRtpPort() {

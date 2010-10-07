@@ -51,6 +51,10 @@ public class SipxProxyService extends SipxService implements LoggingEntity {
         return getSettingValue(SIP_SECURE_PORT_SETTING);
     }
 
+    public void setSecureSipPort(String secureSipPort) {
+        setSettingValue(SIP_SECURE_PORT_SETTING, secureSipPort);
+    }
+
     public String getSipTCPPort() {
         return getSipPort();
     }

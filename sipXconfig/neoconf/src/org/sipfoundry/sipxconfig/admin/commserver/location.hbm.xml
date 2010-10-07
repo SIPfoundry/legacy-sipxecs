@@ -29,6 +29,7 @@
       <property name="stunInterval" />
       <property name="publicAddress" />
       <property name="publicPort" />
+      <property name="publicTlsPort" />
       <property name="startRtpPort" />
       <property name="stopRtpPort" />
     </component>

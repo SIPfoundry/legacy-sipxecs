@@ -254,7 +254,8 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         NatLocation nat = new NatLocation();
         nat.setStunAddress("stun.com");
         nat.setStunInterval(30);
-        nat.setPublicPort(5161);
+        nat.setPublicPort(5160);
+        nat.setPublicTlsPort(5161);
         nat.setStartRtpPort(30000);
         nat.setStopRtpPort(30100);
 
@@ -265,7 +266,8 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertNotNull(natDB);
         assertEquals("stun.com", natDB.getStunAddress());
         assertEquals(30, natDB.getStunInterval());
-        assertEquals(5161, natDB.getPublicPort());
+        assertEquals(5160, natDB.getPublicPort());
+        assertEquals(5161, natDB.getPublicTlsPort());
         assertEquals(30000, natDB.getStartRtpPort());
         assertEquals(30100, natDB.getStopRtpPort());
     }
@@ -277,6 +279,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         assertEquals("stun01.sipphone.com", natLocation.getStunAddress());
         assertEquals(60, natLocation.getStunInterval());
         assertEquals(5060, natLocation.getPublicPort());
+        assertEquals(5061, natLocation.getPublicTlsPort());
         assertEquals(30000, natLocation.getStartRtpPort());
         assertEquals(31000, natLocation.getStopRtpPort());
     }

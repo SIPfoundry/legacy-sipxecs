@@ -44,13 +44,15 @@
         <element ref='dmp:stun-server-address' minOccurs='0' maxOccurs='1'/>
         <element ref='dmp:rediscovery-time' minOccurs='0' maxOccurs='1'/>        
         <element ref='dmp:publicaddress' minOccurs='0' maxOccurs='1'/>
-        <element ref='dmp:proxyhostport' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:proxyunsecurehostport' minOccurs='1' maxOccurs='1'/>
+        <element ref='dmp:proxysecurehostport' minOccurs='1' maxOccurs='1'/>
         <element ref='dmp:relayaggressiveness' minOccurs='1' maxOccurs='1'/>        
         <element ref='dmp:concurrentrelays' minOccurs='1' maxOccurs='1'/>        
         <element ref='dmp:mediarelayexternaladdress' minOccurs='0' maxOccurs='1'/>        
         <element ref='dmp:mediarelaynativeaddress' minOccurs='0' maxOccurs='1'/>        
         <element ref='dmp:mediarelayxml-rpc-port' minOccurs='1' maxOccurs='1'/>        
-        <element ref='dmp:publicport' minOccurs='0' maxOccurs='1'/>        
+        <element ref='dmp:publicunsecureport' minOccurs='0' maxOccurs='1'/>
+        <element ref='dmp:publicsecureport' minOccurs='0' maxOccurs='1'/>
         <element ref='dmp:port-range' minOccurs='1' maxOccurs='1'/>        
         <element ref='dmp:log-level' minOccurs='0' maxOccurs='1'/>        
         <element ref='dmp:log-directory' minOccurs='0' maxOccurs='1'/>           
@@ -163,10 +165,10 @@
     </simpleType>
   </element>
   
-  <element name='proxyhostport'>
+  <element name='proxyunsecurehostport'>
     <annotation>
       <documentation>
-        Address and port of the sipXproxy
+        Address and SIP port of the sipXproxy
       </documentation>
     </annotation>
     <simpleType>
@@ -175,7 +177,20 @@
       </restriction>
     </simpleType>
   </element>
- 
+
+  <element name='proxysecurehostport'>
+    <annotation>
+      <documentation>
+        Address and TLS SIP port of the sipXproxy
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base="normalizedString">
+        <pattern value="[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}:[0-9]{4,5}" />
+      </restriction>
+    </simpleType>
+  </element>
+
   <element name='mediarelayexternaladdress'>
     <annotation>
       <documentation>
@@ -217,11 +232,27 @@
     </simpleType>
   </element>
   
-  <element name='publicport'>
+  <element name='publicunsecureport'>
     <annotation>
       <documentation>
         Port of sipXecs as it appears on the public side of the NAT that 
         sipXecs is behind.  This parameter can be omitted if 'behindnat' element
+        is false.
+      </documentation>
+    </annotation>
+    <simpleType>
+      <restriction base='integer'>
+        <minInclusive value='1024'/>
+        <maxInclusive value='65535'/>
+      </restriction>
+    </simpleType>
+  </element>
+
+  <element name='publicsecureport'>
+    <annotation>
+      <documentation>
+        TLS SIP port of sipXecs as it appears on the public side of the NAT that
+        sipXecs is behind. This parameter can be omitted if 'behindnat' element
         is false.
       </documentation>
     </annotation>
