@@ -1,10 +1,10 @@
-VERSION = 1.0.5
-RELEASE = 1
-SVN_RELEASE = 17188
+VERSION = 1.0.7
+GIT_RELEASE = 89d99a9
+RELEASE = $(GIT_RELEASE)
 
 SRC_DIR = $(srcdir)/src
-SVN_URL = http://svn.freeswitch.org/svn/freeswitch/trunk
-SRC_TARBALL = sipx-freeswitch-$(VERSION)-$(SVN_RELEASE).tar.gz
+GIT_URL = git://git.freeswitch.org/freeswitch.git
+SRC_TARBALL = sipx-freeswitch-$(VERSION)-$(GIT_RELEASE).tar.bz2
 SPEC_FILE = sipx-freeswitch.spec
 
 RPM = $(DEST_RPM)/sipx-freeswitch-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
@@ -12,18 +12,23 @@ SRPM = $(DEST_RPM)/sipx-freeswitch-$(VERSION)-$(RELEASE).src.rpm
 DEVEL_RPM = $(DEST_RPM)/sipx-freeswitch-devel-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 DEBUG_RPM = $(DEST_RPM)/sipx-freeswitch-debuginfo-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 AMR_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-amr-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+AMRWB_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-amrwb-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 G723_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-g723_1-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
 G729_RPM = $(DEST_RPM)/sipx-freeswitch-codec-passthru-g729-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
-
-RPMS = $(RPM) $(DEVEL_RPM) $(AMR_RPM) $(G723_RPM) $(G729_RPM)
+EN_RPM = $(DEST_RPM)/sipx-freeswitch-lang-en-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+DE_RPM = $(DEST_RPM)/sipx-freeswitch-lang-de-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+LUA_RPM = $(DEST_RPM)/sipx-freeswitch-lua-$(VERSION)-$(RELEASE).@RPM_TARGET_ARCH@.rpm
+RPMS = $(RPM) $(DEVEL_RPM) $(AMR_RPM) $(AMRWB_RPM) $(G723_RPM) $(G729_RPM) $(EN_RPM) $(DE_RPM) $(LUA_RPM)
 
 all : PRINT_HEADER $(RPMS) PRINT_FOOTER
 
 .PHONY: build-rpms
 build-rpms:
 	pushd @RPMBUILD_TOPDIR@/SOURCES ; \
-	svn export -q -r $(SVN_RELEASE) $(SVN_URL) sipx-freeswitch-$(VERSION) ; \
-	tar czf $(SRC_TARBALL) sipx-freeswitch-$(VERSION) ; \
+	git  clone $(GIT_URL) sipx-freeswitch-$(VERSION) ; \
+	cd sipx-freeswitch-$(VERSION) ; \
+	git archive --format tar --prefix sipx-freeswitch-$(VERSION)/ $(GIT_RELEASE)| bzip2 > ../$(SRC_TARBALL) ; \
+	cd .. ; \
 	rm -rf sipx-freeswitch-$(VERSION) ; \
 	popd
 	cp $(srcdir)/$(SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS/

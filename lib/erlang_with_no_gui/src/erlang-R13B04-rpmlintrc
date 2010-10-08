@@ -1,0 +1,1 @@
+addFilter("erlang.* devel-file-in-non-devel-package")

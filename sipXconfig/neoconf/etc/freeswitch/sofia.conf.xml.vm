@@ -20,6 +20,7 @@
     <param name="codec-prefs" value="$settings.getSetting('FREESWITCH_CODECS').Value.replace('|',',')"/>
     <param name="hold-music" value="$${hold_music}"/>
     <param name="rtp-timer-name" value="soft"/>
+    <param name="inbound-late-negotiation" value="true"/>
     <!--<param name="enable-100rel" value="true"/>-->
     <!-- This could be set to "passive" -->
     <param name="local-network-acl" value="localnet.auto"/>

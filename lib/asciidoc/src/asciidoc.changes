@@ -1,0 +1,232 @@
+-------------------------------------------------------------------
+Mon Jul 20 12:24:33 CEST 2009 - tiwai@suse.de
+
+- updated to version 8.4.5:
+ * multiple manpage names are now handled correctly when generating
+   DocBook output
+ * The article and book document header can now include a revision
+   remark
+ * French, German, Hungarian and Russian language file
+   contributions
+ * See details in
+   http://www.methods.co.nz/asciidoc/CHANGELOG.html
+
+-------------------------------------------------------------------
+Thu May  7 12:14:48 CEST 2009 - tiwai@suse.de
+
+- updated to version 8.4.4:
+  See http://www.methods.co.nz/asciidoc/CHANGELOG.html for details
+
+-------------------------------------------------------------------
+Fri Jan 30 08:19:54 CET 2009 - tiwai@suse.de
+
+- Additional error message about missing package in a2x
+
+-------------------------------------------------------------------
+Wed Jan 21 14:56:14 CET 2009 - tiwai@suse.de
+
+- Don't require fop and libxslt but use recommends as asciidoc
+  itself can work without these packages.  They are needed only
+  for a2x for some file types like PDF.
+
+  This may break the build of some packages; in such a case, just
+  add either fop or dblatex to buildrequires.
+
+-------------------------------------------------------------------
+Thu Jan  8 14:18:28 CET 2009 - bbrunner@suse.de
+
+- updated to version 8.3.3
+ * The broken and confusing numeration and numeration2 numbered list
+   attributes have been dropped, use the style attribute instead.
+ * SidebarBlock element can be rendered with an abstract style.
+ * (see CHANGELOG)
+
+-------------------------------------------------------------------
+Sun Nov  2 15:36:41 CET 2008 - bwalle@suse.de
+
+- Call Python with -Wignore::DeprecationWarning to hide deprecation
+  warnings from the user.
+
+-------------------------------------------------------------------
+Mon Jul 28 16:34:33 CEST 2008 - tiwai@suse.de
+
+- add requirement of xsltproc binary (bnc#410692)
+
+-------------------------------------------------------------------
+Tue Jul 22 09:35:01 CEST 2008 - bwalle@suse.de
+
+- Suppression of manpage references list now works again.
+  (http://hg.sharesource.org/asciidoc/rev/eb3a27e2a482)
+
+-------------------------------------------------------------------
+Tue Jul  8 15:46:51 CEST 2008 - bwalle@suse.de
+
+- install dblatex files
+
+-------------------------------------------------------------------
+Fri Jul  4 16:11:15 CEST 2008 - bwalle@suse.de
+
+- updated to version 8.2.7
+  * Added dvi, ps and tex output format options to a2x(1).
+  * Added —dblatex option to a2x(1) so dblatex(1) can be used to
+    generate PDFs.
+  * Added custom dblatex(1) configuration files (in distribution
+    ./dblatex directory) which are used by a2x(1).
+  * dblatex(1) is now used to generate the distributed PDF version
+    of the AsciiDoc User Guide.
+  * If you don't need a customized the link caption you can enter
+    the http, https, ftp, file URLs and email addresses without
+    any special macro syntax.
+  * Highlighted source code paragraphs have been implemented.
+  * The source highlighter and music filter syntax has changed
+  * QuoteBlocks now have a verse style
+  * It is no up to the DocBook processor to highlight source code
+    syntax
+  * scaledwidth and align attributes have been added to the image
+    macro
+  * Added a2x(1) —fop-opts=FOP_OPTS option
+  * Added a2x(1) —dblatex-opts=DBLATEX_OPTS
+  * Added Mikhail Yakshin's FOP 0.95 patch
+  * The User Guide has been updated
+  * Fixed stylesheets/xhtml11-manpage.css not being included when
+    linkcss attribute was used
+  * Configuration file *-style attributes are now dumped correctly
+  * Fixed FAILED: malformed section entry LaTeX backend error
+
+-------------------------------------------------------------------
+Tue Jun 10 16:08:46 CEST 2008 - tiwai@suse.de
+
+- updated to version 8.2.6:
+  * Bug fixes since the last release plus a code cleanup and a
+    few minor additions and changes.
+
+-------------------------------------------------------------------
+Mon May  5 17:57:46 CEST 2008 - tiwai@suse.de
+
+- added missing requires to docbook-xsl-stylesheets (bnc#386512)
+
+-------------------------------------------------------------------
+Wed Jan 30 18:01:42 CET 2008 - tiwai@suse.de
+
+- fix fop.extensions in a2x pdf creation (bnc#353527)
+
+-------------------------------------------------------------------
+Fri Jan 25 11:26:49 CET 2008 - tiwai@suse.de
+
+- fix a build error about vim directory
+
+-------------------------------------------------------------------
+Thu Jan 24 17:40:00 CET 2008 - tiwai@suse.de
+
+- install vim files (#353528)
+
+-------------------------------------------------------------------
+Mon Jan 14 15:16:18 CET 2008 - tiwai@suse.de
+
+- add requirement to fop, fix the fop command name in a2x
+  (#353527)
+
+-------------------------------------------------------------------
+Tue Jan  8 13:04:06 CET 2008 - tiwai@suse.de
+
+- updated to version 8.2.5:
+  * fixes couple of bugs in 8.2.4, no new features
+
+-------------------------------------------------------------------
+Thu Nov 15 17:54:59 CET 2007 - tiwai@suse.de
+
+- updated to version 8.2.2-8.2.4:
+    * improvements on lang attribute handling
+    * fixed spurious warning in Python 2.6
+    * auto-generated section IDs
+    * changed format of {localdate} attribute to ISO 8601 (%Y-%m-%d).
+    * added abc2ly —beams=None option
+    * XHTML level 2 section headings are now styled with an
+      underlining border
+    * XHTML links to AsciiDoc title elements are now implemented
+      with title ID attributes
+    * multi-word first, middle and last names can be entered in
+      the header author line
+    * the nested inline macros restriction has now been lifted
+    * help topic names can be shortened
+    * added {two_colons} and {two_semicolons} attributes
+    * LaTeXMathML capability has been added
+    * added an —attribute=ATTRIBUTE option to a2x(1)
+    * image block and inline macros prepend optional
+      {imagesdir} attribute to image link targets
+- split doc and examples to separate sub-package to make rpmlint
+  happy
+
+-------------------------------------------------------------------
+Tue May 22 16:57:58 CEST 2007 - tiwai@suse.de
+
+- updated to version 8.2.1:
+  * VIM syntax highlighter
+  * Labeled list definitions have been tightened
+  * Added toclevel attribute (1..4)
+  * Added a listindex attribute
+  * The single line titles syntax now accepts trailing suffixes
+  * An end of line backslash performs line continuation for
+    horizontal labeled list items.
+  * The Revision line now accommodates Subversion $Id markers
+  * a2x(1) option —skip-asciidoc
+  * Defaults to appropriate format if -format isn't given.
+
+-------------------------------------------------------------------
+Mon Apr  2 18:16:56 CEST 2007 - tiwai@suse.de
+
+- updated to version 8.1.0:
+  * AsciiDoc generated XHTML documents now display as table of
+    contents if the toc attribute is defined.
+  * A music filter is included.
+  * Conditionally redefined subscript and superscripting so they
+    use the old replacements mechanism when asciidoc7compatible
+    is defined rather than the asciidoc 8 default unconstrained
+    quoting.
+  * Added {verbose} intrinsic attribute.
+  * Added {outdir} intrinsic attribute.
+  * Renamed {docdir} intrinsic attribute to unambiguous`{indir}
+  * If asciidoc(1) outputs to stdout then instrinsic attribute
+     {docname} is extracted from the input file name.
+
+-------------------------------------------------------------------
+Thu Nov 23 12:26:32 CET 2006 - tiwai@suse.de
+
+- Add missing a2x and other config files (#223299).
+
+-------------------------------------------------------------------
+Thu Oct 12 17:18:12 CEST 2006 - tiwai@suse.de
+
+- updated to version 8.0.0:
+  * An experimental LaTeX backend
+  * Unconstrained quoting allows quoting to appear anywhere in inline text
+  * a2x toolchain wrapper script can generate Open Document text files
+  * More on CHANGELOG
+
+-------------------------------------------------------------------
+Mon May 15 12:56:22 CEST 2006 - tiwai@suse.de
+
+- updated to version 7.1.2.
+  * a2x toolchain wrapper
+  * ASCIIMathML support
+
+-------------------------------------------------------------------
+Wed Jan 25 21:45:47 CET 2006 - mls@suse.de
+
+- converted neededforbuild to BuildRequires
+
+-------------------------------------------------------------------
+Wed Jan 11 16:44:11 CET 2006 - tiwai@suse.de
+
+- updated to version 7.0.4.
+
+-------------------------------------------------------------------
+Fri Jul  1 12:31:09 CEST 2005 - tiwai@suse.de
+
+- fixed norootforbuild.
+
+-------------------------------------------------------------------
+Fri Jun 24 15:37:08 CEST 2005 - tiwai@suse.de
+
+- initial version: 7.0.1.
+

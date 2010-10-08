@@ -1,0 +1,12 @@
+---
+ asciidoc.py |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/asciidoc.py
++++ b/asciidoc.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/python -Wignore::DeprecationWarning
+ """
+ asciidoc - converts an AsciiDoc text file to DocBook, HTML or LinuxDoc
+ 

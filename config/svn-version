@@ -24,12 +24,10 @@ then
     if git diff --quiet && git diff --cached --quiet 
     then
         # there are no changes
-        git log \
-        | perl -n -e 'm/^\s+git-svn-id: [^@]+@(\d+)/ && do {printf("%06d",$1); exit; };'
+        git log --format="%h %ci" -1 HEAD | head -1 | sed -e 's|:|-|g'|cut -d\  -f 1
     else
-        git log \
-        | perl -n -e 'm/^\s+git-svn-id: [^@]+@(\d+)/ && do {printf("%06d",$1); exit; };' \
-        | perl -p -e "s/\$/.${SIPX_BUILD_LABEL}/g;"
+        git log --format="%h %ci" -1 HEAD | head -1 | sed -e 's|:|-|g'|cut -d\  -f 1 
+        # | perl -p -e "s/\$/${SIPX_BUILD_LABEL}/g;"
     fi
 else
     dir=$topdir

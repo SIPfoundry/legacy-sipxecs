@@ -169,6 +169,7 @@ Summary: Configures/enables MRTG monitoring for %{name}
 Requires: sipxcommserverlib
 Requires: ruby
 Requires: rubygems
+Requires: rubygem-file-tail
 
 %if %{_vendor} == redhat
 # irb is for file-tail gem
@@ -526,7 +527,7 @@ fi
 %files agent
 %defattr(644,root,root,755)
 %{sipxpbxvarlib}/sipXconfig-agent-*.gem
-%{sipxpbxvarlib}/file-tail-*.gem
+# %{sipxpbxvarlib}/file-tail-*.gem
 
 %attr(755,root,root) %{_bindir}/sipxconfig-agent
 
@@ -535,7 +536,7 @@ fi
 
 %post agent
 gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-agent-*.gem >/dev/null
-gem install --no-rdoc --local %{sipxpbxvarlib}/file-tail-*.gem >/dev/null
+#gem install --no-rdoc --local %{sipxpbxvarlib}/file-tail-*.gem >/dev/null
 
 %if %{_vendor} == redhat
 # change default yum update daemon repo query to once every 24 hours

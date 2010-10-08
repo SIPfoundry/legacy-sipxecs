@@ -1,0 +1,67 @@
+Index: a2x
+===================================================================
+--- a2x.orig
++++ a2x
+@@ -143,8 +143,14 @@ function is_executable()
+ # Return 127 if $1 is not in search path else return 0.
+ function require()
+ {
++    local pkg
+     if ! is_executable "$1"; then
+-        quit "cannot find required program: $1" 127
++	if [ -n "$2" ]; then
++	    pkg="$2"
++	else
++	    pkg="$1"
++	fi
++        quit "cannot find required program: $1; install the missing package '$pkg'" 127
+     fi
+ }
+ 
+@@ -479,7 +485,7 @@ function to_docbook()
+ 
+ function to_xhtml()
+ {
+-    require "xsltproc"
++    require "xsltproc" "libxslt"
+     local xsl xml html
+     xsl=$(conf_file docbook-xsl/xhtml.xsl)
+     if [ ! -r "$xsl" ]; then
+@@ -497,7 +503,7 @@ function to_xhtml()
+ 
+ function to_chunked()
+ {
+-    require "xsltproc"
++    require "xsltproc" "libxslt"
+     local chunkdir xsl xml hhp chm
+     case "$FORMAT" in
+         chunked)
+@@ -534,7 +540,7 @@ function to_chunked()
+ 
+ function to_manpage()
+ {
+-    require "xsltproc"
++    require "xsltproc" "libxslt"
+     local xsl xml
+     xsl=$(conf_file docbook-xsl/manpage.xsl)
+     if [ ! -r "$xsl" ]; then
+@@ -564,8 +570,8 @@ function run_fop()
+     local xsl xml fo pdf
+     xml="$SRC_DIR/$SRC_NAME.xml"
+     pdf="$DESTINATION_DIR/$SRC_NAME.pdf"
+-    require "xsltproc"
+-    require "$FOP_COMMAND"
++    require "xsltproc" "libxslt"
++    require "$FOP_COMMAND" "fop"
+     xsl=$(conf_file docbook-xsl/fo.xsl)
+     if [ ! -r "$xsl" ]; then
+         quit "file not found: $xsl"
+@@ -613,7 +619,7 @@ function to_text()
+             -o - \"$SRC_FILE\" | lynx -dump -stdin >\"$text\""
+     else
+         require "w3m"
+-        require "xsltproc"
++        require "xsltproc" "libxslt"
+         xsl=$(conf_file docbook-xsl/text.xsl)
+         execute_command_2 "asciidoc $ASCIIDOC_OPTS -f \"$conf\" -b docbook \
+             -o - \"$SRC_FILE\" \

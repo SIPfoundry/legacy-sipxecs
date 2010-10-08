@@ -20,7 +20,7 @@ build-nsis-rpm: $(SRC_DIR)/$(SRC_TARBALL) $(SRC_DIR)/$(PATCH)
 	cp $(SRC_DIR)/$(SRC_TARBALL) @RPMBUILD_TOPDIR@/SOURCES
 	cp $(SRC_DIR)/$(PATCH) @RPMBUILD_TOPDIR@/SOURCES
 	cp $(SRC_DIR)/$(SRC_SPEC_FILE) @RPMBUILD_TOPDIR@/SPECS/
-	rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SRC_SPEC_FILE)
+	QA_RPATHS="\$\[ 0x0001|0x0010 ]" rpmbuild -ba --target @RPM_TARGET_ARCH@-none-linux @RPMBUILD_TOPDIR@/SPECS/$(SRC_SPEC_FILE)
 
 .PHONY: build-nsis-data-rpm
 build-nsis-data-rpm: $(SRC_DIR)/$(DATA_TARBALL)
