@@ -1,3 +1,6 @@
+#!BuildIgnore: post-build-checks
+%define release_prefix @GIT_SHORT_REF@.
+%define debug_package %{nil}
 ###############################################################################################################################
 ###############################################################################################################################
 #
@@ -40,7 +43,7 @@ Name:         	sipx-freeswitch
 Summary:      	FreeSWITCH open source telephony platform (sipXecs integration)
 License:      	MPL
 Group:        	Productivity/Telephony/Servers
-Version:      	%{VERSION}
+Version:      	@VERSION@
 Release:      	%{RELEASE}
 URL:          	http://www.freeswitch.org/
 Packager:     	Michal Bielicki
@@ -51,7 +54,7 @@ Vendor:       	http://www.freeswitch.org/
 #							Source files and where to get them
 #
 ###############################################################################################################################
-Source0:      	%{SOURCE}
+Source0:      	%name-%version.tar.gz
 #Source1:		http://files.freeswitch.org/downloads/libs/celt-0.7.0.tar.gz
 #Source2:		http://files.freeswitch.org/downloads/libs/flite-1.3.99-latest.tar.gz
 #Source3:		http://files.freeswitch.org/downloads/libs/lame-3.97.tar.gz
@@ -82,7 +85,11 @@ BuildRequires: autoconf
 BuildRequires: automake
 BuildRequires: curl-devel
 BuildRequires: gcc-c++
+%if 0%{?suse_version} >= 1100
+BuildRequires: libgnutls-devel
+%else
 BuildRequires: gnutls-devel
+%endif
 BuildRequires: libtool >= 1.5.17
 BuildRequires: ncurses-devel
 BuildRequires: openssl-devel
@@ -91,7 +98,11 @@ BuildRequires: pkgconfig
 BuildRequires: termcap
 BuildRequires: unixODBC-devel
 BuildRequires: gdbm-devel
+%if 0%{?suse_version} > 100
+BuildRequires: db43-devel
+%else
 BuildRequires: db4-devel
+%endif
 BuildRequires: python-devel
 BuildRequires: libogg-devel
 BuildRequires: libvorbis-devel
@@ -503,9 +514,8 @@ fi
 %{?run_ldconfig:%run_ldconfig}
 # Make FHS2.0 happy
 %{__mkdir} -p /etc/opt
-%{__ln_s} -f %{prefix}/conf /etc%{prefix}
-chkconfig --add freeswitch
-
+# ERROR: parent directory of /etc%{prefix} doesnt exist and probably not what was intended
+#%{__ln_s} -f %{prefix}/conf /etc%{prefix}
 
 
 %postun
