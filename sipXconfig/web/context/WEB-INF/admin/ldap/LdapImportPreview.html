@@ -23,9 +23,22 @@
         <tr jwcid="emailPanel" for="user:email">
           <input jwcid="email" id="user:emailAddress" type="text" />
         </tr>
-        <tr jwcid="sipPasswordPanel" for="user:sipPassword">
-          <input jwcid="sipPassword" id="user:sipPassword" type="text" />
-        </tr>
+		<tr jwcid="sipPasswordPanel@common/FieldPanel"
+		    field="component:sipPassword"
+		    label="message:label.sipPassword">
+		  <span jwcid="@If" condition="ognl:user.sipPassword != null">
+	        <td jwcid="sipPassword@TextField"
+		      value="ognl:user.sipPassword"
+		      disabled="true"
+		      displayName="message:label.sipPassword"/>
+		  </span>
+          <span jwcid="@Else">
+	        <td jwcid="sipPasswordHidden@TextField"
+		      value="******"
+		      disabled="true"
+		      displayName="message:label.sipPassword"/>
+          </span>
+		</tr>
         <tr jwcid="groupsPanel" for="user:groups">
           <span jwcid="groups" id="user:groups" type="text" />
         </tr>

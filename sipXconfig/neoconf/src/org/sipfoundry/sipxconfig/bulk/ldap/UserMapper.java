@@ -221,6 +221,10 @@ public class UserMapper implements NameClassPairMapper {
         return userName;
     }
 
+    public String getSipPassword(Attributes attrs) throws NamingException {
+        return getValue(attrs, Index.SIP_PASSWORD);
+    }
+
     /**
      * Not meant to be set from spring, but rather pulled from LdapManager after spring instantiated.
      */

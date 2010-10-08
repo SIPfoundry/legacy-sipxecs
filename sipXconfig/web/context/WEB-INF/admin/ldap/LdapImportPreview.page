@@ -88,16 +88,6 @@
     <binding name="displayName" value="message:label.userId" />
   </component>
 
-  <component id="sipPasswordPanel" type="common/FieldPanel">
-    <binding name="field" value="components.sipPassword" />
-    <binding name="label" value="message:label.sipPassword" />
-  </component>
-  <component id="sipPassword" type="TextField">
-    <binding name="value" value="user.sipPassword" />
-    <binding name="disabled" value="true" />
-    <binding name="displayName" value="message:label.sipPassword" />
-  </component>
-
   <component id="groupsPanel" type="common/FieldPanel">
     <binding name="field" value="components.groups" />
     <binding name="label" value="message:label.groups" />

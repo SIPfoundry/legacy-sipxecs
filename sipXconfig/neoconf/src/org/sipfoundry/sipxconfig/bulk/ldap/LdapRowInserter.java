@@ -17,6 +17,7 @@ import javax.naming.NamingException;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -84,6 +85,11 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
             String pin = m_userMapper.getPin(attrs, newUser);
             if (pin != null) {
                 user.setPin(pin, m_coreContext.getAuthorizationRealm());
+            }
+
+            String sipPassword = m_userMapper.getSipPassword(attrs);
+            if (sipPassword == null && newUser) {
+                user.setSipPassword(RandomStringUtils.randomAlphanumeric(8));
             }
 
             Collection<String> groupNames = m_userMapper.getGroupNames(searchResult);
