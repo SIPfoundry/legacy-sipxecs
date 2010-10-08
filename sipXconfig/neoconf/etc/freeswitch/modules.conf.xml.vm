@@ -65,7 +65,7 @@
     <!-- <load module="mod_dialplan_asterisk"/> -->
 
     <!-- Codec Interfaces -->
-    <!-- <load module="mod_voipcodecs"/> -->
+    <load module="mod_voipcodecs"/>
     <load module="mod_g723_1"/>
 #if(${codecG729})
     <load module="mod_com_g729"/>
