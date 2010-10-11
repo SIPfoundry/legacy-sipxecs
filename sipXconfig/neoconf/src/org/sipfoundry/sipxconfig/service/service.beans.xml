@@ -708,7 +708,6 @@
     <property name="bundles">
       <set>
         <ref bean="primarySipRouterBundle" />
-        <ref bean="redundantSipRouterBundle" />
       </set>
     </property>
     <property name="configurations">
