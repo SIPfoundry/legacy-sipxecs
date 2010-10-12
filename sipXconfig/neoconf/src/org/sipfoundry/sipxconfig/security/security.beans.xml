@@ -131,7 +131,7 @@
     <property name="key" value="sipXconfig" />
   </bean>
 
-  <bean id="authenticationProcessingFilter" class="org.acegisecurity.ui.webapp.AuthenticationProcessingFilter">
+  <bean id="authenticationProcessingFilter" class="org.sipfoundry.sipxconfig.security.SipxAuthenticationProcessingFilter">
     <property name="authenticationManager" ref="authenticationManager" />
     <property name="authenticationFailureUrl" value="/LoginPage.html?error=badCredentials" />
     <property name="defaultTargetUrl" value="/Home.html" />
