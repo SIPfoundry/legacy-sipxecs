@@ -129,6 +129,7 @@ AC_CONFIG_FILES([
     plugins/polycom/Makefile
     plugins/snom/Makefile
     plugins/unidata/Makefile
+    plugins/isphone/Makefile
 ])
 
 AC_OUTPUT

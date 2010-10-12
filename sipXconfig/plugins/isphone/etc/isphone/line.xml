@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+
+  <group name="Account">
+    <setting name="name">
+      <label>Name</label>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="authentication_username">
+      <label>Authentication username</label>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="authentication_password">
+      <label>Authentication password</label>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="display_name">
+      <label>Display name</label>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+    <setting name="domain">
+      <label>Domain</label>
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="sipId">
+      <label>Sip Id</label>
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="proxy">
+      <label>Proxy</label>
+      <type>
+        <string required="yes" />
+      </type>
+      <value />
+    </setting>
+    <setting name="voice_mail_access_code">
+      <label>Voicemail access code</label>
+      <type>
+        <string />
+      </type>
+      <value />
+    </setting>
+  </group>
+
+ </model>

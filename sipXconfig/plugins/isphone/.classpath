@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="test"/>
+	<classpathentry kind="lib" path="lib/sipxconfig.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipXconfig-neoconf"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/velocity-1.5.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

@@ -17,7 +17,8 @@ SUBDIRS = \
         openfire \
         polycom \
         snom \
-        unidata
+        unidata \
+        isphone
 
 EXTRA_DIST = \
 	$(SUBDIRS) \

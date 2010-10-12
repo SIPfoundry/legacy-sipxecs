@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+  <bean id="isphoneModel" parent="abstractPhoneModel">
+    <property name="beanId" value="isphone" />
+    <property name="label" value="is-phone (all models)" />
+	<property name="maxLineCount" value="6"/>
+    <property name="defaultProfileLocation" ref="httpProfileLocation" />
+    <property name="profileTemplate" value="isphone/isphone.vm" />
+    <property name="vendor" value="is-coord AG" />
+    <property name="serialNumberPattern" value="[a-zA-Z0-9]+"/>
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="isphone" class="org.sipfoundry.sipxconfig.phone.isphone.IsphonePhone" parent="abstractPhone" scope="prototype">
+  </bean>
+</beans>

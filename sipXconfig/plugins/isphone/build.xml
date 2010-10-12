@@ -1,0 +1,9 @@
+<project name="isphone" default="default">
+
+  <property name="project.dir" value="plugins/isphone" />
+  <property name="plugin.models.dir" value="etc/isphone" />
+  <property name="plugin.name" value="isphone-phones" />
+
+  <import file="../plugins.build.xml" />
+
+</project>
