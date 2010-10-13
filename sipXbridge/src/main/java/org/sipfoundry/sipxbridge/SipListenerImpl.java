@@ -422,12 +422,8 @@ public class SipListenerImpl implements SipListenerExt {
             if ( provider == Gateway.getLanProvider() ) {
                 itspAccount = Gateway.getAccountManager().getAccount(request);              
             } else {
-                 String viaHost = SipUtilities.getViaHost(request);
-                 int viaPort = SipUtilities.getViaPort(request);
-                 if ( viaPort == -1 ) {
-                     viaPort = 5060;
-                 }
-                 itspAccount = Gateway.getAccountManager().getItspAccount(viaHost, viaPort);
+				Iterator inboundVias = request.getHeaders(ViaHeader.NAME);
+				itspAccount = Gateway.getAccountManager().getItspAccount(inboundVias);
             }
             
             if ( !request.getMethod().equals(Request.ACK) && itspAccount != null && ! itspAccount.isEnabled() ) {
@@ -560,10 +556,15 @@ public class SipListenerImpl implements SipListenerExt {
                         DialogContext context = DialogContext.get(sipDialog);
                         Request request = context.getRequest();
                         DialogContext newContext = DialogContext.attach(b2bua, dialog,context.getDialogCreatingTransaction() , request);
-                        String host = SipUtilities.getViaHost(response);
-                        int port = SipUtilities.getViaPort(response);
-                        ItspAccountInfo itspInfo = Gateway.getAccountManager().getItspAccount(host, port);
-                        newContext.setItspInfo(itspInfo);
+                        
+						//String host = SipUtilities.getViaHost(response);
+						            //int port = SipUtilities.getViaPort(response);
+						            //ItspAccountInfo itspInfo = Gateway.getAccountManager().getItspAccount(host, port);
+						            
+						Iterator inboundVias = response.getHeaders(ViaHeader.NAME);
+						ItspAccountInfo itspInfo = Gateway.getAccountManager().getItspAccount(inboundVias);
+
+						newContext.setItspInfo(itspInfo);
                         newContext.setRtpSession(context.getRtpSession());
                         /*
                          * At this point we only do one half of the association

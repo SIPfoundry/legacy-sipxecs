@@ -189,6 +189,11 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          {
             UtlString hostport = pChildNode->FirstChild()->Value();
             Url url( hostport, TRUE );
+
+						UtlString address;
+            url.getHostAddress( address );
+            int port = url.getHostPort();
+	          OsSysLog::add(FAC_NAT, PRI_ERR, "JOEGEN:  Proxy address = %s port is %d", address.data(), port);
             mProxyTransport.fromUrl( url );
          }
          else

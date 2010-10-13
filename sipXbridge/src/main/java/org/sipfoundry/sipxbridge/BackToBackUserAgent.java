@@ -1156,15 +1156,8 @@ public class BackToBackUserAgent implements Comparable {
              * Add the dialog context to our table of managed dialogs.
              */
             this.addDialog(DialogContext.get(inboundDialog));
-            ViaHeader inboundVia = ((ViaHeader) request.getHeader(ViaHeader.NAME));
-
-            String host = inboundVia.getReceived() != null ? inboundVia.getReceived()
-                    : inboundVia.getHost();
-            // do some ITSPs need the rport?  For TLS it is not correct...
-            int port = inboundVia.getPort();
-
-            ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getItspAccount(host,
-                    port);
+	    Iterator inboundVias = request.getHeaders(ViaHeader.NAME);
+	    ItspAccountInfo itspAccountInfo = Gateway.getAccountManager().getItspAccount(inboundVias);
 
             SipURI uri = null;
             if (!Gateway.isInboundCallsRoutedToAutoAttendant()) {

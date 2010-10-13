@@ -31,6 +31,8 @@
 #include "ForwardRules.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
+#include "SipBridgeRouter.h"
+
 // DEFINES
 //#define TEST_PRINT 1
 
@@ -48,6 +50,8 @@ const char* AuthPlugin::Prefix  = "SIPX_PROXY";
 // FORWARD DECLARATIONS
 
 /* //////////////////////////// PUBLIC //////////////////////////////////// */
+
+static SipBridgeRouter* _pBridgeRouter = 0;
 
 /* ============================ CREATORS ================================== */
 
@@ -164,7 +168,17 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                                       NULL,    // SipSession* pSession,
                                       NULL     // observerData
                                       );
-   
+   if (_pBridgeRouter)
+    delete _pBridgeRouter;
+   _pBridgeRouter = new SipBridgeRouter(this);
+   if (!_pBridgeRouter->initialize())
+   {
+     OsSysLog::add(FAC_SIP, PRI_ERR, "SipRouter::SipRouter "
+                    "Unable to initialize SipBridgeRouter.");
+      delete _pBridgeRouter;
+      _pBridgeRouter = 0;
+   }
+
    // All is in readiness... Let the proxying begin...
    mpSipUserAgent->start();
 }
@@ -305,31 +319,73 @@ SipRouter::handleMessage( OsMsg& eventMessage )
              }
              else
              {
-                SipMessage sipResponse;
-                switch (proxyMessage(*sipRequest, sipResponse))
-                {
-                case SendRequest:
-                   // sipRequest may have been rewritten entirely by proxyMessage().
-                   // clear timestamps, protocol, and port information
-                   // so send will recalculate it
-                   sipRequest->resetTransport();
-                   mpSipUserAgent->send(*sipRequest);
-                   break;
+								bool isBridgeRelay = false;
+								if (_pBridgeRouter)
+								{
+									SipMessage bridgeResponse;
+									switch (_pBridgeRouter->proxyMessage(*sipRequest, bridgeResponse))
+									{
+										case SipBridgeRouter::DoneSending:
+											//
+											// The bridge router relayed the message internally.
+											// One use case is the relay of stateless acks
+											//
+											isBridgeRelay = true;
+											break;
+										case SipBridgeRouter::SendRequest:
+											// sipRequest may have been rewritten entirely by proxyMessage().
+											// clear timestamps, protocol, and port information
+											// so send will recalculate it
+											isBridgeRelay = true;
+											sipRequest->resetTransport();
+											mpSipUserAgent->send(*sipRequest);
+											break;
 
-                case SendResponse:
-                   sipResponse.resetTransport();
-                   mpSipUserAgent->send(sipResponse);
-                   break;
+										case SipBridgeRouter::SendResponse:
+											isBridgeRelay = true;
+											bridgeResponse.resetTransport();
+											mpSipUserAgent->send(bridgeResponse);
+											break;
 
-                case DoNothing:
-                   // this message is just ignored
-                   break;
+										case SipBridgeRouter::DoNothing:
+											// this message is just ignored
+											break;
 
-                default:
-                   OsSysLog::add(FAC_SIP, PRI_CRIT,
-                                 "SipRouter::proxyMessage returned invalid action");
-                   assert(false);
-                }
+										default:
+											OsSysLog::add(FAC_SIP, PRI_CRIT,
+												"SipBridgeRouter::proxyMessage returned invalid action");
+											assert(false);
+									}
+								}
+
+								if (!isBridgeRelay)
+								{
+		              SipMessage sipResponse;
+		              switch (proxyMessage(*sipRequest, sipResponse))
+		              {
+		              case SendRequest:
+		                 // sipRequest may have been rewritten entirely by proxyMessage().
+		                 // clear timestamps, protocol, and port information
+		                 // so send will recalculate it
+		                 sipRequest->resetTransport();
+		                 mpSipUserAgent->send(*sipRequest);
+		                 break;
+
+		              case SendResponse:
+		                 sipResponse.resetTransport();
+		                 mpSipUserAgent->send(sipResponse);
+		                 break;
+
+		              case DoNothing:
+		                 // this message is just ignored
+		                 break;
+
+		              default:
+		                 OsSysLog::add(FAC_SIP, PRI_CRIT,
+		                               "SipRouter::proxyMessage returned invalid action");
+		                 assert(false);
+		              }
+								}
              }
          }
          else 

@@ -46,6 +46,19 @@
 #define MAX_MEDIA_RELAY_INIT_ATTEMPTS        (3)
 #define NAT_RULES_FILENAME_CONFIG_PARAM      ("NATRULES")
 
+#include <sstream>
+#include <iostream>
+#define LOG_ANY(log, priority) \
+{ \
+  std::ostringstream strm; \
+  strm << log; \
+  OsSysLog::add(FAC_SUPERVISOR, priority, strm.str().c_str()); \
+}
+#define LOG_DEBUG(log) LOG_ANY(log, PRI_DEBUG)
+#define LOG_INFO(log) LOG_ANY(log, PRI_INFO)
+#define LOG_ERROR(log) LOG_ANY(log, PRI_ERR)
+#define LOG_CRITICAL(log) LOG_ANY(log, PRI_CRIT)
+
 // CONSTANTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
@@ -578,6 +591,9 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
    bool bDestInsideLocalPrivateNetwork = mNatTraversalRules.isPartOfLocalTopology( address, true, true );
    UtlString tmpRecordRoute;
 
+	 LOG_INFO("JOEGEN: bDestInsideLocalPrivateNetwork=" << bDestInsideLocalPrivateNetwork);
+
+
    UtlString replacementAddress;
    int       replacementPort = 0;
 
@@ -592,8 +608,11 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
       replacementPort    = mNatTraversalRules.getPublicTransportInfo().getPort();
    }
 
+		LOG_INFO("JOEGEN: replacementAddress=" << replacementAddress.data());
+
    if( !message.isResponse() )
    {
+LOG_INFO("JOEGEN: " << message.getFirstHeaderLine() << " is a request");
       if( message.getRecordRouteUri( 0, &tmpRecordRoute ) )
       {
          Url tmpRecordRouteUrl( tmpRecordRoute );
@@ -620,6 +639,7 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
    }
    else  // we are dealing with a response
    {
+LOG_INFO("JOEGEN: " << message.getFirstHeaderLine() << " is a response");
       // Check if we are the intended destination of the response.  This can happen when
       // a request has spiraled through the system before being sent to the request target.
       // There is no point in analyzing the RecordRoute on every pass inside the spiral -
@@ -628,6 +648,7 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
       if( address != mNatTraversalRules.getProxyTransportInfo().getAddress() ||
           port    != mNatTraversalRules.getProxyTransportInfo().getPort() )
       {
+LOG_INFO("JOEGEN: address does not point to our local address and port");
          // SipMessage's interface allows us to get a specific RecordRoute entry within a recordRoute field
          // but does not provide any methods to allow for its modification.  The logic here
          // reads all the RecordRoute entries and re-adds them as single RecordRoute fields.
@@ -658,6 +679,8 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
             tmpRecordRouteUrl.getHostAddress( tmpRecordRouteHost );
             int tmpRecordRoutePort = tmpRecordRouteUrl.getHostPort();
 
+LOG_INFO( "JOEGEN:  Current record route is " << tmpRecordRouteHost << ":" << tmpRecordRoutePort << std::endl <<
+"Proxy address is " << mNatTraversalRules.getProxyTransportInfo().getAddress() << ":" << mNatTraversalRules.getProxyTransportInfo().getPort());
             if( !bRecordRouteAdjusted &&
                 ( ( tmpRecordRouteHost == mNatTraversalRules.getProxyTransportInfo().getAddress() &&
                     tmpRecordRoutePort == mNatTraversalRules.getProxyTransportInfo().getPort() )
@@ -667,11 +690,13 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
                 )
               )
             {
+							LOG_INFO("JOEGEN: we found a Record-Route to us");
                // we found a Record-Route to us - check if it has already been adjusted and if not,
                // adjust it.
                UtlString dummyValue;
                if( !tmpRecordRouteUrl.getUrlParameter( SIPX_DONE_URI_PARAM, dummyValue ) )
                {
+LOG_INFO("JOEGEN: adhusting RR to " << replacementAddress);
                   tmpRecordRouteUrl.setHostAddress( replacementAddress );
                   tmpRecordRouteUrl.setHostPort( replacementPort );
                   tmpRecordRouteUrl.setUrlParameter( SIPX_DONE_URI_PARAM, NULL );

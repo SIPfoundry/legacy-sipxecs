@@ -6,6 +6,8 @@
  */
 package org.sipfoundry.sipxbridge;
 
+import java.util.Iterator;
+
 import gov.nist.javax.sip.SipStackExt;
 import gov.nist.javax.sip.TransactionExt;
 import gov.nist.javax.sip.clientauthutils.UserCredentials;
@@ -30,6 +32,7 @@ import javax.sip.address.Hop;
 import javax.sip.address.SipURI;
 import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
+import javax.sip.header.ViaHeader;
 
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
@@ -266,6 +269,37 @@ public class AccountManagerImpl implements gov.nist.javax.sip.clientauthutils.Ac
         return null;
     }
     
+    /**
+     * Get an ITSP account based on the the via list of the inbound request. Look up the ITSP
+     * account based on all the present via header of the inbound request. Should we reject the
+     * request if it is not from a known ITSP?
+     *
+     * @param host
+     * @param port
+     * @return
+     */
+    ItspAccountInfo getItspAccount(Iterator vias)
+    {
+      ItspAccountInfo itspAccountInfo = null;
+      String host = null;
+      int port = 0;
+      if (vias != null) 
+      {
+	ViaHeader nextInboundVia = null;
+	while(vias.hasNext())
+	{
+	  nextInboundVia = (ViaHeader) vias.next();
+	  host = nextInboundVia.getReceived() != null ? nextInboundVia.getReceived()
+	  : nextInboundVia.getHost();
+	  // do some ITSPs need the rport?  For TLS it is not correct...
+	  port = nextInboundVia.getPort();
+	  itspAccountInfo = getItspAccount(host, port);
+	  if (itspAccountInfo != null)
+	    return itspAccountInfo;
+	}
+      }
+      return null;
+    }
 
     // //////////////////////////////////////////////////////////////////
     // Public methods.

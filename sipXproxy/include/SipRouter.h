@@ -189,7 +189,9 @@ class SipRouter : public OsServerTask
    // There is no assignment operator.
    SipRouter& operator=(const SipRouter& rhs);
 
-   // @endcond     
+   // @endcond 
+
+	 friend class SipBridgeRouter;    
 };
 
 /* ============================ INLINE METHODS ============================ */

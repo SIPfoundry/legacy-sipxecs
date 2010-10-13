@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Random;
 import java.util.Set;
 import java.util.TimerTask;
+import java.util.Iterator;
 
 import javax.sdp.SessionDescription;
 import javax.sip.ClientTransaction;
@@ -58,6 +59,7 @@ import javax.sip.header.ToHeader;
 import javax.sip.header.WarningHeader;
 import javax.sip.message.Request;
 import javax.sip.message.Response;
+import javax.sip.header.ViaHeader;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.sipxrelay.KeepaliveMethod;
@@ -513,12 +515,8 @@ class CallControlManager implements SymmitronResetHandler {
             if ( provider == Gateway.getLanProvider() ) {
                 itspAccount = Gateway.getAccountManager().getAccount(request);
             } else {
-                 String viaHost = SipUtilities.getViaHost(request);
-                 int viaPort = SipUtilities.getViaPort(request);
-                 if ( viaPort == -1 ) {
-                     viaPort = 5060;
-                 }
-                 itspAccount = Gateway.getAccountManager().getItspAccount(viaHost, viaPort);
+				Iterator inboundVias = request.getHeaders(ViaHeader.NAME);
+				itspAccount = Gateway.getAccountManager().getItspAccount(inboundVias);
             }
 
             /*

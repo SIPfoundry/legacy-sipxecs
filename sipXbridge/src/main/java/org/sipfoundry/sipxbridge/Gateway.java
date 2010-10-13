@@ -777,6 +777,7 @@ public class Gateway {
         /*
          * Check for mandatory fields.
          */
+				
         boolean invalidAccountDetected = false;
         HashSet<ItspAccountInfo> invalidItspAccounts = new HashSet<ItspAccountInfo>();
         for (ItspAccountInfo accountInfo : Gateway.accountManager
@@ -807,18 +808,21 @@ public class Gateway {
          */
         for (ItspAccountInfo badAccount : invalidItspAccounts) {
             Gateway.accountManager.getItspAccounts().remove(badAccount);
+logger.info("FOUND BAD ACCOUNT");
         }
 
-
+				
         try {
             Gateway.accountManager.startAuthenticationFailureTimers();
-
+						boolean foundAccount = false;
+						logger.info("PROCESSING ITSP ACCOUNTS");
             for (ItspAccountInfo itspAccount : Gateway.accountManager
                     .getItspAccounts()) {
 
                 if (itspAccount.isRegisterOnInitialization()
                         && itspAccount.getState() != AccountState.INVALID && itspAccount.isEnabled()) {
                     try {
+												logger.info("SENDING REGISTER");
                         Gateway.registrationManager.sendRegister(itspAccount,null,1L);
                     } catch (SipException ex) {
                         logger.error("Exception sending REGISTER to "

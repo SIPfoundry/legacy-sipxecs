@@ -135,12 +135,8 @@ public class BackToBackUserAgentFactory {
 				 * proxy. If we know where the request is coming from, we can
 				 * set up various response fields accordingly.
 				 */
-				ViaHeader viaHeader = (ViaHeader) request
-						.getHeader(ViaHeader.NAME);
-				String host = viaHeader.getHost();
-				int port = viaHeader.getPort();
-				accountInfo = Gateway.getAccountManager().getItspAccount(host,
-						port);
+				Iterator inboundVias = request.getHeaders(ViaHeader.NAME);
+				accountInfo = Gateway.getAccountManager().getItspAccount(inboundVias);
 			}
 
 			/*

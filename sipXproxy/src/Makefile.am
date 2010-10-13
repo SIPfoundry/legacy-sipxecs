@@ -48,6 +48,8 @@ libsipXproxy_la_LDFLAGS = \
     -version-info ${version_Current}:${version_Revision}:${version_Age}
 
 libsipXproxy_la_SOURCES = \
+	SipBridgeRouter.cpp \
+	SipBridgeRouter.h \
 	SipRouter.cpp \
 	ForwardRules.cpp \
 	ForwardRules.h \
