@@ -95,7 +95,6 @@ BuildRequires: ncurses-devel
 BuildRequires: openssl-devel
 BuildRequires: perl
 BuildRequires: pkgconfig
-BuildRequires: termcap
 BuildRequires: unixODBC-devel
 BuildRequires: gdbm-devel
 %if 0%{?suse_version} > 100
