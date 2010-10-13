@@ -20,6 +20,7 @@
     <param name="codec-prefs" value="G722,PCMU@20i,PCMA@20i,speex,L16"/>
     <param name="hold-music" value="$${hold_music}"/>
     <param name="rtp-timer-name" value="soft"/>
+    <param name="inbound-late-negotiation" value="true"/>
     <!--<param name="enable-100rel" value="true"/>-->
     <!-- This could be set to "passive" -->
     <param name="local-network-acl" value="localnet.auto"/>

@@ -10,7 +10,7 @@
 
     <!-- Multi-Faceted -->
     <!-- mod_enum is a dialplan interface, an application interface and an api command interface -->
-    <load module="mod_enum"/>
+    <!-- <load module="mod_enum"/> -->
 
     <!-- XML Interfaces -->
     <load module="mod_xml_rpc"/> 
@@ -44,9 +44,10 @@
     <load module="mod_dptools"/>
     <load module="mod_expr"/>
     <load module="mod_fifo"/>
-    <load module="mod_voicemail"/>
+    <!-- <load module="mod_voicemail"/> -->
     <!-- <load module="mod_directory"/> -->
-    <load module="mod_fax"/>
+    <!-- <load module="mod_fax"/> -->
+    <load module="mod_spandsp"/>
     <!-- <load module="mod_lcr"/> -->
     <load module="mod_limit"/>
     <load module="mod_esf"/>
@@ -61,13 +62,14 @@
     <!-- Dialplan Interfaces -->
     <!-- <load module="mod_dialplan_directory"/> -->
     <load module="mod_dialplan_xml"/>
-    <load module="mod_dialplan_asterisk"/>
+    <!-- <load module="mod_dialplan_asterisk"/> -->
 
     <!-- Codec Interfaces -->
     <load module="mod_voipcodecs"/>
     <load module="mod_g723_1"/>
     <load module="mod_g729"/>
     <load module="mod_amr"/>
+    <load module="mod_amrwb"/>
     <load module="mod_ilbc"/>
     <load module="mod_speex"/>
     <load module="mod_h26x"/>
@@ -103,7 +105,7 @@
     
     <!-- Say -->
     <load module="mod_say_en"/>
-    <!-- <load module="mod_say_zh"/> -->
+    <load module="mod_say_de"/>
 
     <!-- Third party modules -->
     <!--<load module="mod_nibblebill"/>-->

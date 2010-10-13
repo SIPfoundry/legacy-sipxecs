@@ -6,4 +6,13 @@
 
   <import file="../plugins.build.xml" />
 
+  <target name="test-models">
+    <echo>empty phone.xml - won't be tested</echo>
+      <xmlvalidate description="validate setting description files">
+        <fileset dir="${plugin.models.dir}" includes="**/*.xml" excludes="**/phone.xml">
+        </fileset>
+        <dtd publicid="-//SIPFoundry//sipXconfig//Model specification 2.0//EN" location="etc/setting.dtd" />
+      </xmlvalidate>
+  </target>
+
 </project>
