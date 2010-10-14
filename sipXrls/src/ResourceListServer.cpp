@@ -191,8 +191,10 @@ ResourceListServer::~ResourceListServer()
    // Final stage of closing down the call processing objects.
 
    // Stop the SipUserAgent's.
-   mServerUserAgent.shutdown(TRUE);
-   mClientUserAgent.shutdown(TRUE);
+   if (!mServerUserAgent.isShutdownDone())
+      mServerUserAgent.shutdown(TRUE);
+   if (!mClientUserAgent.isShutdownDone())
+      mClientUserAgent.shutdown(TRUE);
 }
 
 /* ============================ MANIPULATORS ============================== */

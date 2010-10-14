@@ -339,19 +339,21 @@ int main(int argc, char* argv[])
    UtlString pathName = SipXecsService::Path(SipXecsService::VarDirType,
                                              sPersistentFileName.data());
 
-   // Create the Sip Presence Monitor, which handles all of the processing.
-   SipPresenceMonitor presenceMonitor(userAgent,
-                                      &subscriptionMgr,
-                                      domainName,
-                                      TcpPort,
-                                      &configDb,
-                                      true,
-                                      pathName.data());
-
-   // Loop forever until signaled to shut down
-   while (!gShutdownFlag)
    {
-      OsTask::delay(2000);
+      // Create the Sip Presence Monitor, which handles all of the processing.
+      SipPresenceMonitor presenceMonitor(userAgent,
+					  &subscriptionMgr,
+					  domainName,
+					  TcpPort,
+					  &configDb,
+					  true,
+					  pathName.data());
+
+      // Loop forever until signaled to shut down
+      while (!gShutdownFlag)
+      {
+	  OsTask::delay(2000);
+      }
    }
 
    // Shut down the sipUserAgent

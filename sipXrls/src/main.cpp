@@ -503,12 +503,22 @@ int main(int argc, char* argv[])
       rls.shutdown();
    }
 
-   // Flush the log file
-   OsSysLog::flush();
-
+   lineMgr->requestShutdown();
+   
+   while (!lineMgr->isShutDown())
+   {
+      OsTask::delay(100);
+   }
+   
    // Delete the LineMgr Object
    delete lineMgr;
 
+   
+   // Flush the log file
+   OsSysLog::flush();
+   
+   
+		    
    // Say goodnight Gracie...
    return 0;
 }
