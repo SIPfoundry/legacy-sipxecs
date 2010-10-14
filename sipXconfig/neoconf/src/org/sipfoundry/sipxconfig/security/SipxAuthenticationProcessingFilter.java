@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.security;
 import javax.servlet.http.HttpServletRequest;
 
 import org.acegisecurity.ui.webapp.AuthenticationProcessingFilter;
+import org.apache.commons.lang.StringUtils;
 
 public class SipxAuthenticationProcessingFilter extends AuthenticationProcessingFilter {
 
@@ -34,12 +35,15 @@ public class SipxAuthenticationProcessingFilter extends AuthenticationProcessing
         if (targetUrl == null) {
             String referer = (String) request.getSession().getAttribute(ORIGINAL_REFERER);
 
-            // if no original http referer saved on session that use current one
+            // if no original http referer saved on session then use current one
             if (referer == null) {
                 referer = request.getHeader("Referer");
             }
 
-            targetUrl = referer;
+            // redirect to referer only if not first user or login page
+            if (!StringUtils.contains(referer, "FirstUser") && !StringUtils.contains(referer, "LoginPage")) {
+                targetUrl = referer;
+            }
             request.getSession().removeAttribute(ORIGINAL_REFERER);
         }
 
