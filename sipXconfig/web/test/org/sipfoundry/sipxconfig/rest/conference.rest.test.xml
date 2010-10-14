@@ -1,0 +1,8 @@
+<conferences>
+  <conference>
+    <enabled>true</enabled>
+    <name>myConf</name>
+    <description>description</description>
+    <extension>22123</extension>
+  </conference>
+</conferences>

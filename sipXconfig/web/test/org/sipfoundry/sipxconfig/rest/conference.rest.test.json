@@ -1,0 +1,8 @@
+{"conferences": [
+  {
+    "enabled": true,
+    "name": "myConf",
+    "description": "description",
+    "extension": "22123"
+  }
+]}

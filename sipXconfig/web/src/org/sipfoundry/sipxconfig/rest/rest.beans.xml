@@ -192,4 +192,13 @@
   </bean>
   <alias name="mailboxPrefsPutResource" alias="/my/mailbox/{user}/preferences/activegreeting/{greeting}" />
 
+  <bean id="conferenceResource" class="org.sipfoundry.sipxconfig.rest.UserConferenceResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
+    <property name="available" value="true" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="conferenceResource" alias="/my/conferences" />
+
 </beans>
