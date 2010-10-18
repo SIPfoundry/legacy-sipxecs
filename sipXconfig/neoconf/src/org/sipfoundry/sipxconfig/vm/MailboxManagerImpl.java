@@ -318,6 +318,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         @Override
         protected void onUserDelete(User user) {
             removePersonalAttendantForUser(user);
+            deleteMailbox(user.getUserName());
         }
     }
 
@@ -337,4 +338,5 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     public void setMailboxPreferencesWriter(MailboxPreferencesWriter mailboxWriter) {
         m_mailboxPreferencesWriter = mailboxWriter;
     }
+
 }

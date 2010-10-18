@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.vm;
 
+import java.io.File;
+
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
@@ -57,6 +59,30 @@ public class MailboxManagerTestIntegration extends IntegrationTestCase {
         flush();
         pa = m_mailboxManager.loadPersonalAttendantForUser(newUser);
         assertEquals("operator", pa.getOperator());
+    }
+
+    public void testDeleteUserMailbox() throws Exception {
+        loadDataSetXml("admin/dialplan/sbc/domain.xml");
+
+        User newUser = m_coreContext.newUser();
+        newUser.setUserName("200");
+        m_coreContext.saveUser(newUser);
+
+        File mailstore = MailboxManagerTest.createTestMailStore();
+        m_mailboxManager.setMailstoreDirectory(mailstore.getAbsolutePath());
+        Mailbox mbox = m_mailboxManager.getMailbox("200");
+        assertTrue(mbox.getUserDirectory().exists());
+
+        PersonalAttendant pa = m_mailboxManager.loadPersonalAttendantForUser(newUser);
+        flush();
+        pa.setOperator("150");
+        m_mailboxManager.storePersonalAttendant(pa);
+        flush();
+
+        m_coreContext.deleteUser(newUser);
+
+        flush();
+        assertFalse(mbox.getUserDirectory().exists());
     }
 
     public void setMailboxManager(MailboxManager mailboxManager) {

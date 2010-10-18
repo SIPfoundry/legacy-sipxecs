@@ -24,6 +24,9 @@ public interface MailboxManager {
 
     String getMailstoreDirectory();
 
+    // for tests only
+    void setMailstoreDirectory(String directory);
+
     String getStdpromptDirectory();
 
     Mailbox getMailbox(String userId);

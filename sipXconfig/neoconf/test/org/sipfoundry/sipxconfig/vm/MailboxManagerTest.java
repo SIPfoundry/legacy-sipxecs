@@ -167,4 +167,5 @@ public class MailboxManagerTest extends TestCase {
         assertEquals(1, deleted.size());
         assertEquals("00000002", deleted.get(0).getMessageId());
     }
+
 }

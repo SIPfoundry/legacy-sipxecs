@@ -208,5 +208,8 @@ public class PersonalAttendantSettingListenerTest extends TestCase {
 
         public void writePreferencesFile(User user) {
         }
+
+        public void setMailstoreDirectory(String directory) {
+        }
     }
 }
