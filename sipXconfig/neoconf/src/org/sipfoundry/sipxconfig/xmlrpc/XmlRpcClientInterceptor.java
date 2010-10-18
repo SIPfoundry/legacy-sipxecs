@@ -44,7 +44,8 @@ public class XmlRpcClientInterceptor extends UrlBasedRemoteAccessor implements M
 
     private XmlRpcMarshaller m_marshaller = new DefaultMarshaller(null);
 
-    private long m_timeout = 5000;
+    // was 5000 (5s) but around 8K users on fast hard, was experiencing timeouts. Bumped to 1m
+    private long m_timeout = 60000;
 
     private final ExecutorService m_service = Executors.newSingleThreadExecutor();
 
