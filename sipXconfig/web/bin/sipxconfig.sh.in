@@ -203,6 +203,8 @@ onWebUi() {
     echo $$ > ${PidFile}
 
     exec $JavaCmd \
+       -XX:MaxPermSize=128M \
+       -Xmx1024m \
        $SystemProps \
        $JavaOpts \
        $TrustStoreOpts \
