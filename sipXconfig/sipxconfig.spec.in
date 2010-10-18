@@ -59,7 +59,7 @@ Requires: sipxcommons >= %version
 Requires: sipxtacklib >= %version
 Requires: sipxcommserverlib >= %version
 Requires: sipxpbx >= %version
-Requires: postgresql-server
+Requires: postgresql-server >= 8.4
 Requires: ruby
 Requires: rubygems
 Obsoletes: sipx-jasperreports-deps
