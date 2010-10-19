@@ -13,6 +13,7 @@ SFAC_AUTOMAKE_VERSION([1.6])
 
 AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
+AC_PROG_LN_S
 
 # Checks for programs.
 AC_PATH_PROG([BASH], [bash])
