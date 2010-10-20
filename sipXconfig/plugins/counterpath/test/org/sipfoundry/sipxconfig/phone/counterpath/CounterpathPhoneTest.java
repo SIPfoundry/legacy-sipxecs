@@ -34,6 +34,7 @@ import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathL
 import org.sipfoundry.sipxconfig.phone.counterpath.CounterpathPhone.CounterpathPhoneDefaults;
 import org.sipfoundry.sipxconfig.speeddial.Button;
 import org.sipfoundry.sipxconfig.speeddial.SpeedDial;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class CounterpathPhoneTest extends TestCase {
     private Line m_line;
@@ -49,7 +50,7 @@ public class CounterpathPhoneTest extends TestCase {
         m_phone = new CounterpathPhone();
         m_phone.setModel(counterpathModel);
         m_phone.setDefaults(new DeviceDefaults());
-
+        m_phone.setSyswwwdir(TestUtil.getTestSourceDirectory(getClass()));
         m_permissionManager = new PermissionManagerImpl();
         m_permissionManager.setModelFilesContext(TestHelper.getModelFilesContext(getModelDirectory("neoconf")));
     }
@@ -77,7 +78,8 @@ public class CounterpathPhoneTest extends TestCase {
         secondUser.setPermissionManager(m_permissionManager);
         secondUser.setImId("sharedUser_id");
         secondUser.setImDisplayName("Shared User Id");
-        m_phone.getLines().get(1).getSettings().getSetting("presence/workgroup/allow_dialog_subscriptions").setValue("0");
+        m_phone.getLines().get(1).getSettings().getSetting("presence/workgroup/allow_dialog_subscriptions")
+                .setValue("0");
 
         Location locationMock = new LocationMock();
         LocationsManager locationsManagerMock = EasyMock.createMock(LocationsManager.class);
@@ -95,8 +97,6 @@ public class CounterpathPhoneTest extends TestCase {
         System.out.println("((((" + location.toString(m_phone.getPhoneFilename()) + "))))");
 
         assertEquals(expected, location.toString(m_phone.getPhoneFilename()));
-
-
 
         expected = IOUtils.toString(getClass().getResourceAsStream("contactlist.xml"));
 
@@ -233,8 +233,12 @@ public class CounterpathPhoneTest extends TestCase {
 
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(m_phone);
         m_phone.generateProfiles(location);
-        String expected = IOUtils.toString(getClass().getResourceAsStream("cmc-enterprise-without-voicemail-permission.ini"));
+        String expected = IOUtils.toString(getClass().getResourceAsStream(
+                "cmc-enterprise-without-voicemail-permission.ini"));
 
         assertEquals(expected, location.toString(m_phone.getPhoneFilename()));
+
+        String expectedWebdav = IOUtils.toString(getClass().getResourceAsStream("webdav/webdav.users.passwd"));
+        assertEquals(expectedWebdav, "juser:WebDAV:668c2a41de49636ba7b3d40715ccb57e\n");
     }
 }
