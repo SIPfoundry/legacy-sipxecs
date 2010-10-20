@@ -31,7 +31,7 @@
 #define XML_TAG_STATE                 "state"
 #define XML_TAG_PUBLIC_ADDRESS        "publicaddress"
 #define XML_TAG_PUBLIC_PORT           "publicport"
-#define XML_TAG_PROXY_HOST_PORT       "proxyhostport"
+#define XML_TAG_PROXY_HOST_PORT       "proxyunsecurehostport"
 #define XML_TAG_LOCAL_TOPOLOGY        "localtopology"
 #define XML_TAG_IPV4SUBNET            "ipV4subnet"
 #define XML_TAG_DNSWILDCARD           "dnsWildcard"
