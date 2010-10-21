@@ -180,6 +180,10 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
             SbcDevice sbcDevice = getSelectedSbcDevice();
             if (sbcDevice != null) {
                 gateway.setSbcDevice(sbcDevice);
+            } else {
+                if (gateway.getUseSipXBridge()) {
+                    gateway.setSbcDevice(getSbcDeviceManager().getBridgeSbcs().get(0));
+                }
             }
         }
         gatewayContext.storeGateway(gateway);
