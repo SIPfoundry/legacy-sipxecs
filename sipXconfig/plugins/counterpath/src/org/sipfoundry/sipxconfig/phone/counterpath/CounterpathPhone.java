@@ -9,14 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
-import static java.lang.String.format;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
+
+import static java.lang.String.format;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ArrayUtils;
@@ -47,10 +47,11 @@ public class CounterpathPhone extends Phone {
     private static final String REG_PASSWORD = "registration/password";
     private static final String REG_DOMAIN = "registration/domain";
     private static final String SUBSCRIPTION_AOR = "presence/workgroup/workgroup_subscription_aor";
-    private static final String RESOURCE_LISTS_PATH = "system/resources/system:contact_list_storage:resource_lists_path";
-    private static final String RESOURCE_LISTS_FILENAME = "system/resources/system:contact_list_storage:contacts_server_filename";
-    private static final String RESOURCE_LISTS_USER_NAME = "system/resources/system:contact_list_storage:resource_lists_user_name";
-    private static final String RESOURCE_LISTS_PASSWORD = "system/resources/system:contact_list_storage:resource_lists_password";
+    private static final String CONTACT_LIST_STORAGE = "system/resources/system:contact_list_storage:";
+    private static final String RESOURCE_LISTS_PATH = CONTACT_LIST_STORAGE + "resource_lists_path";
+    private static final String RESOURCE_LISTS_FILENAME = CONTACT_LIST_STORAGE + "contacts_server_filename";
+    private static final String RESOURCE_LISTS_USER_NAME = CONTACT_LIST_STORAGE + "resource_lists_user_name";
+    private static final String RESOURCE_LISTS_PASSWORD = CONTACT_LIST_STORAGE + "resource_lists_password";
     private static final String VOICEMAIL_URL = "voicemail/voicemail_url";
     private static final String WEBDAV_REALM = ":WebDAV:";
     private static final String AUTH_FILE_NAME = "webdav.users.passwd";
@@ -251,9 +252,7 @@ public class CounterpathPhone extends Phone {
             return m_imAccount.getImPassword();
         }
 
-        @SettingEntry(paths = {
-            REG_DOMAIN, "xmpp-config/domain"
-        })
+        @SettingEntry(paths = { REG_DOMAIN, "xmpp-config/domain" })
         public String getDomain() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
