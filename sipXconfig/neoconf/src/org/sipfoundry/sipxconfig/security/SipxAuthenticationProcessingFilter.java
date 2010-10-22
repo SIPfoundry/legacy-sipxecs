@@ -40,8 +40,8 @@ public class SipxAuthenticationProcessingFilter extends AuthenticationProcessing
                 referer = request.getHeader("Referer");
             }
 
-            // redirect to referer only if not first user or login page
-            if (!StringUtils.contains(referer, "FirstUser") && !StringUtils.contains(referer, "LoginPage")) {
+            // redirect to referer only if mailbox page encoder
+            if (StringUtils.contains(referer, "mailbox")) {
                 targetUrl = referer;
             }
             request.getSession().removeAttribute(ORIGINAL_REFERER);
