@@ -42,6 +42,8 @@ NatTraversalRules::NatTraversalRules()
    OsSocket::getHostIp( &hostIpAddress );
    mPublicTransport.setAddress( hostIpAddress );
    mPublicTransport.setPort( DEFAULT_PUBLIC_PORT );
+   mSecurePublicTransport.setAddress( hostIpAddress );
+   mSecurePublicTransport.setPort( DEFAULT_PUBLIC_PORT );
 }
 
 // Destructor
@@ -159,6 +161,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             UtlString hostIpAddress;
             hostIpAddress = pChildNode->FirstChild()->Value();
             mPublicTransport.setAddress( hostIpAddress );
+            mSecurePublicTransport.setAddress( hostIpAddress );
          }
          else
          {
@@ -167,6 +170,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             OsSocket::getHostIp( &hostIpAddress );
             Url url( hostIpAddress, TRUE );
             mPublicTransport.setAddress( hostIpAddress );
+            mSecurePublicTransport.setAddress( hostIpAddress );
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using host IP: '%s'", XML_TAG_PUBLIC_ADDRESS, mPublicTransport.getAddress().data() );
          }
 
@@ -184,22 +188,43 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using default port %d", XML_TAG_PUBLIC_PORT, mPublicTransport.getPort() );
          }
 
+        // get the 'TLS publicport' node
+        if( ( pChildNode = pNode->FirstChild( XML_TAG_PUBLIC_SECURE_PORT ) ) && pChildNode->FirstChild() )
+        {
+            UtlString tempPublicPortString;
+            tempPublicPortString = pChildNode->FirstChild()->Value();
+            mSecurePublicTransport.setPort( atoi( tempPublicPortString.data() ) );
+        }
+        else
+        {
+            // No public port present in the rules file - initialize to default value
+            mSecurePublicTransport.setPort( DEFAULT_SECURE_PUBLIC_PORT );
+            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using default port %d", XML_TAG_PUBLIC_SECURE_PORT, mSecurePublicTransport.getPort() );
+        }
+
          // get the 'proxyhostport' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_PROXY_HOST_PORT ) ) && pChildNode->FirstChild() )
          {
             UtlString hostport = pChildNode->FirstChild()->Value();
             Url url( hostport, TRUE );
-
-						UtlString address;
-            url.getHostAddress( address );
-            int port = url.getHostPort();
-	          OsSysLog::add(FAC_NAT, PRI_ERR, "JOEGEN:  Proxy address = %s port is %d", address.data(), port);
             mProxyTransport.fromUrl( url );
          }
          else
          {
             OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_PUBLIC_ADDRESS );
          }
+
+        // get the 'TLS proxyhostport' node
+        if( ( pChildNode = pNode->FirstChild( XML_TAG_PROXY_SECURE_HOST_PORT ) ) && pChildNode->FirstChild() )
+        {
+            UtlString hostport = pChildNode->FirstChild()->Value();
+            Url url( hostport, TRUE );
+            mSecureProxyTransport.fromUrl( url );
+        }
+        else
+        {
+            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_PROXY_SECURE_HOST_PORT );
+        }
 
          // get the 'mediarelaypublicaddress' node
          if( ( pChildNode = pNode->FirstChild( XML_TAG_MR_PUBLIC_ADDRESS ) ) && pChildNode->FirstChild() )
@@ -448,9 +473,19 @@ TransportData NatTraversalRules::getPublicTransportInfo( void ) const
    return mPublicTransport;
 }
 
+const TransportData& NatTraversalRules::getSecurePublicTransportInfo( void ) const
+{
+    return mSecurePublicTransport;
+}
+
 TransportData NatTraversalRules::getProxyTransportInfo( void ) const
 {
    return mProxyTransport;
+}
+
+const TransportData& NatTraversalRules::getSecureProxyTransportInfo( void ) const
+{
+    return mSecureProxyTransport;
 }
 
 UtlString NatTraversalRules::getMediaRelayPublicAddress( void ) const

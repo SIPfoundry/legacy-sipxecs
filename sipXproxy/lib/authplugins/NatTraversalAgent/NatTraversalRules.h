@@ -30,8 +30,10 @@
 #define XML_TAG_INFO                  "info"
 #define XML_TAG_STATE                 "state"
 #define XML_TAG_PUBLIC_ADDRESS        "publicaddress"
-#define XML_TAG_PUBLIC_PORT           "publicport"
+#define XML_TAG_PUBLIC_PORT           "publicunsecureportport"
+#define XML_TAG_PUBLIC_SECURE_PORT    "publicsecureportport"
 #define XML_TAG_PROXY_HOST_PORT       "proxyunsecurehostport"
+#define XML_TAG_PROXY_SECURE_HOST_PORT  "proxysecurehostport"
 #define XML_TAG_LOCAL_TOPOLOGY        "localtopology"
 #define XML_TAG_IPV4SUBNET            "ipV4subnet"
 #define XML_TAG_DNSWILDCARD           "dnsWildcard"
@@ -56,6 +58,7 @@
 //DEFAULTS
 #define DEFAULT_MAX_MEDIA_RELAY_SESSIONS (50)
 #define DEFAULT_PUBLIC_PORT              (5060)
+#define DEFAULT_SECURE_PUBLIC_PORT       (5061)
 #define DEFAULT_MR_XMLRPC_PORT           (9090)
 
 // OTHER
@@ -106,8 +109,9 @@ public:
    bool isBehindNat( void ) const;
 
    TransportData getPublicTransportInfo( void ) const;
-
+   const TransportData& getSecurePublicTransportInfo( void ) const;
    TransportData getProxyTransportInfo( void ) const;
+   const TransportData& getSecureProxyTransportInfo( void ) const;
 
    UtlString     getMediaRelayPublicAddress( void ) const;
 
@@ -171,7 +175,9 @@ private:
    UtlSList       mlocalIpV4Subnets;
    UtlSList       mlocalDnsWildcards;
    TransportData  mPublicTransport;
+   TransportData  mSecurePublicTransport;
    TransportData  mProxyTransport;
+   TransportData  mSecureProxyTransport;
    UtlString      mMediaRelayPublicAddress;
    bool           mbMediaRelayPublicAddressProvidedInConfig;
    UtlString      mMediaRelayNativeAddress;
