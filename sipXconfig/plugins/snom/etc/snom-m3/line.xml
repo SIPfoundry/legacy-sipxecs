@@ -1,0 +1,103 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+	<group name="Identity">
+		<setting name="_SIP_UA_DATA_SERVER_IS_LOCAL">
+			<profileName>SRV_</profileName>
+			<type refid="yes-no" />
+			<value>1</value>
+		</setting>
+		<setting name="_UA_DATA_DISP_NAME">
+			<profileName>SUBSCR_</profileName>
+			<type>
+				<string maxLen="20" />
+			</type>
+		</setting>
+		<setting name="_SIP_UA_DATA_SIP_NAME">
+			<profileName>SUBSCR_</profileName>
+			<type>
+				<string maxLen="36" />
+			</type>
+		</setting>
+		<setting name="_UA_DATA_AUTH_PASS">
+			<profileName>SUBSCR_</profileName>
+			<type>
+				<string maxLen="36" />
+			</type>
+		</setting>
+		<setting name="_SIP_UA_DATA_SIP_NAME_ALIAS" advanced="yes">
+			<profileName>SUBSCR_</profileName>
+			<type>
+				<string maxLen="13" />
+			</type>
+		</setting>
+		<setting name="_SIP_UA_DATA_VOICE_MAILBOX_NAME">
+			<profileName>SUBSCR_</profileName>
+			<type>
+				<string maxLen="40" />
+			</type>
+		</setting>
+		<setting name="_SIP_UA_DATA_VOICE_MAILBOX_NUMBER">
+			<profileName>SUBSCR_</profileName>
+			<type>
+				<string maxLen="22" />
+			</type>
+		</setting>
+		<setting name="_SIP_UA_DATA_DOMAIN">
+			<profileName>SRV_</profileName>
+			<type>
+				<hostname maxLen="32" />
+			</type>
+		</setting>
+		<setting name="_SIP_UA_DATA_PROXY_ADDR" advanced="yes">
+			<profileName>SRV_</profileName>
+			<type>
+				<hostname maxLen="32" />
+			</type>
+		</setting>
+		<setting name="_UA_DATA_AUTH_NAME">
+			<profileName>SUBSCR_</profileName>
+			<type>
+				<string maxLen="36" />
+			</type>
+		</setting>
+		<setting name="_SIP_UA_DATA_SERVER_PORT" advanced="yes">
+			<profileName>SRV_</profileName>
+			<type>
+				<integer min="0" max="65535" />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="_SIP_UA_DATA_PROXY_PORT" advanced="yes">
+			<profileName>SRV_</profileName>
+			<type>
+				<integer min="0" max="65535" />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="_SIP_UA_DATA_REREG_TIME" advanced="yes">
+			<profileName>SRV_</profileName>
+			<type>
+				<integer min="0" max="65535" />
+			</type>
+			<value>3600</value>
+		</setting>
+		<setting name="_SIP_URI_DOMAIN_CONFIG"  advanced="yes">
+			<profileName>SRV_</profileName>
+			<type refid="uri-domain-config" />
+			<value>0</value>
+		</setting>		
+		<setting name="_DTMF_SIGNALLING"  advanced="yes">
+			<profileName>SRV_</profileName>
+			<type refid="dtmf-signalling" />
+			<value>2</value>
+		</setting>
+	</group>
+
+
+
+</model>

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-  "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
   <bean id="snomModel" abstract="true" parent="abstractPhoneModel">
     <property name="beanId" value="snom" />
     <property name="defaultProfileLocation" ref="httpProfileLocation" />
@@ -48,7 +47,28 @@
       </set>
     </property>
   </bean>
-  <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" singleton="false" parent="abstractPhone">
+  <bean id="snom" class="org.sipfoundry.sipxconfig.phone.snom.SnomPhone" scope="prototype" parent="abstractPhone">
     <property name="speedDialManager" ref="speedDialManager" />
   </bean>
+
+   <bean id="snomM3Model" abstract="true" parent="abstractPhoneModel">
+    <property name="beanId" value="snomM3Phone" />
+    <property name="modelDir" value="snom-m3" />
+    <property name="profileTemplate" value="snom-m3/snom_m3.vm" />
+    <property name="vendor" value="SNOM" />
+    <property name="restartSupported" value="true" />
+  </bean>
+
+  <bean id="snomM3" parent="snomM3Model">
+    <property name="label" value="Snom m3" />
+    <property name="maxLineCount" value="8" />
+    <property name="supportedFeatures">
+      <set>
+      </set>
+    </property>
+  </bean>
+
+  <bean id="snomM3Phone" class="org.sipfoundry.sipxconfig.phone.snom.SnomM3Phone" scope="prototype" parent="abstractPhone">
+  </bean>
+
 </beans>

@@ -324,6 +324,8 @@ rm -rf $RPM_BUILD_ROOT
 %{sipxpbxconf}/polycom/*
 %dir %{sipxpbxconf}/snom
 %{sipxpbxconf}/snom/*
+%dir %{sipxpbxconf}/snom-m3
+%{sipxpbxconf}/snom-m3/*
 %dir %{sipxpbxconf}/counterpath
 %config(noreplace) %{sipxpbxconf}/counterpath/*
 %config(noreplace) %{sipxpbxconf}/mitel/*

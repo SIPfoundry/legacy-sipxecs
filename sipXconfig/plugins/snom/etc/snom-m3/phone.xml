@@ -1,0 +1,174 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+  <!ENTITY types SYSTEM "types.xml">
+  ]>
+<model>
+  &types;
+	<group name="advanced">
+		<group name="network">
+			<setting name="NETWORK_WAN_SETTINGS_DHCP" hidden="yes">
+				<type refid="enabled-disabled" />
+				<value>1</value>
+			</setting>
+			<setting name="NETWORK_WAN_SETTINGS_IP" hidden="yes">
+				<type>
+					<ipaddr />
+				</type>
+			</setting>
+			<setting name="NETWORK_WAN_SETTINGS_SUBNET_MASK" hidden="yes">
+				<type>
+					<ipaddr />
+				</type>
+			</setting>
+			<setting name="NETWORK_WAN_SETTINGS_GATEWAY" hidden="yes">
+				<type>
+					<ipaddr />
+				</type>
+			</setting>
+			<setting name="NETWORK_WAN_SETTINGS_DNS1" hidden="yes">
+				<type>
+					<ipaddr />
+				</type>
+			</setting>
+			<setting name="NETWORK_WAN_SETTINGS_DNS2" hidden="yes">
+				<type>
+					<ipaddr />
+				</type>
+			</setting>
+		</group>
+		<group name="dhcp">
+			<setting name="NETWORK_DHCP_CLIENT_BOOT_SERVER">
+				<type refid="boot-server" />
+				<value>1</value>
+			</setting>
+			<setting name="NETWORK_DHCP_CLIENT_BOOT_SERVER_OPTION">
+				<type>
+					<integer min="128" max="254" />
+				</type>
+				<value>160</value>
+			</setting>
+			<setting name="NETWORK_DHCP_CLIENT_BOOT_SERVER_OPTION_DATATYPE">
+				<type refid="boot-server-opt-type" />
+				<value>1</value>
+			</setting>
+		</group>
+		<group name="vlan">
+			<setting name="NETWORK_VLAN_ID">
+				<type>
+					<integer min="0" max="4094" />
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="NETWORK_VLAN_USER_PRIORITY">
+				<type>
+					<integer min="0" max="7" />
+				</type>
+				<value>0</value>
+			</setting>
+		</group>
+		<group name="nat">
+			<setting name="SIP_KEEP_ALIVE_ENABLE" advanced="yes">
+				<type refid="enabled-disabled" />
+				<value>0</value>
+			</setting>
+			<setting name="SIP_STUN_KEEP_ALIVE_TIME" advanced="yes">
+				<type>
+					<integer min="0" max="65535" />
+				</type>
+				<value>90</value>
+			</setting>
+			<setting name="NETWORK_STUN_SERVER">
+				<type>
+					<hostname maxLen="32" />
+				</type>
+			</setting>
+			<setting name="SIP_STUN_BINDTIME_GUARD" advanced="yes">
+				<type>
+					<integer min="0" max="65535" />
+				</type>
+				<value>80</value>
+			</setting>
+			<setting name="SIP_STUN_BINDTIME_DETERMINE" advanced="yes">
+				<type refid="enabled-disabled" />
+				<value>0</value>
+			</setting>
+			<setting name="SIP_STUN_ENABLE">
+				<type refid="enabled-disabled" />
+				<value>0</value>
+			</setting>
+			<setting name="SIP_RPORT_ENABLE" advanced="yes">
+				<type refid="enabled-disabled" />
+				<value>0</value>
+			</setting>
+		</group>
+
+		<group name="sip-rtp">
+			<setting name="SIP_RTP_PORT_RANGE">
+				<type>
+					<integer min="3" max="20" />
+				</type>
+				<value>20</value>
+			</setting>
+			<setting name="SIP_RTP_PORT">
+				<type>
+					<integer min="0" max="65535" />
+				</type>
+				<value>5004</value>
+			</setting>
+			<setting name="SIP_SIP_PORT">
+				<type>
+					<integer min="0" max="65535" />
+				</type>
+				<value>5060</value>
+			</setting>
+			<setting name="SIP_RTP_PRIORITY">
+				<type>
+					<integer min="0" max="254" />
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="SIP_SIP_PRIORITY">
+				<type>
+					<integer min="0" max="254" />
+				</type>
+				<value>0</value>
+			</setting>
+		</group>
+		<group name="management">
+			<setting name="MANAGEMENT_TRANSFER_PROTOCOL">
+				<type refid="transfer-protocol" />
+				<value>0</value>
+			</setting>
+		</group>
+		<group name="time">
+			<setting name="NETWORK_SNTP_SERVER">
+				<type>
+					<hostname maxLen="32" />
+				</type>
+				<value></value>
+			</setting>
+			<setting name="NETWORK_SNTP_SERVER_UPDATE_TIME" advanced="yes">
+				<type>
+					<integer min="0" max="255" />
+				</type>
+				<value>255</value>
+			</setting>
+		</group>
+
+		<group name="tone_scheme">
+			<setting name="COUNTRY_VARIANT_ID">
+				<type refid="country" />
+				<value>18</value>
+			</setting>
+		</group>
+
+	</group>
+
+
+
+
+
+
+
+</model>
