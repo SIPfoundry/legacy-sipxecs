@@ -728,7 +728,7 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
             int tmpRecordRoutePort = tmpRecordRouteUrl.getHostPort();
 
             if( !bRecordRouteAdjusted &&
-                (( tmpRecordRouteHost == mNatTraversalRules.getProxyTransportInfo().getAddress() &&
+                ((( tmpRecordRouteHost == mNatTraversalRules.getProxyTransportInfo().getAddress() &&
                     tmpRecordRoutePort == mNatTraversalRules.getProxyTransportInfo().getPort() )
                   ||
                   ( tmpRecordRouteHost == mNatTraversalRules.getPublicTransportInfo().getAddress() &&
@@ -737,7 +737,7 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
                 tmpRecordRoutePort == mNatTraversalRules.getSecureProxyTransportInfo().getPort() )
                 ||
                 ( tmpRecordRouteHost == mNatTraversalRules.getSecurePublicTransportInfo().getAddress() &&
-                tmpRecordRoutePort == mNatTraversalRules.getSecurePublicTransportInfo().getPort() ))
+                tmpRecordRoutePort == mNatTraversalRules.getSecurePublicTransportInfo().getPort() )))
               )
             {
                // we found a Record-Route to us - check if it has already been adjusted and if not,
