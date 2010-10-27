@@ -36,6 +36,7 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.FaxReceive;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Localization;
+import org.sipfoundry.commons.freeswitch.Set;
 import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
@@ -200,7 +201,8 @@ public class FaxRx {
         
         try {
             faxPathName = File.createTempFile("fax_", ".tiff");
-            
+            new Set(m_fses, "fax_enable_t38_request","true").go();
+            new Set(m_fses, "fax_enable_t38","true").go();
             faxReceive = new FaxReceive(m_fses, faxPathName.getAbsolutePath());            
             faxReceive.go();
                       
