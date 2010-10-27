@@ -17,6 +17,7 @@ import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.velocity.tools.generic.EscapeTool;
 import org.sipfoundry.sipxconfig.device.ProfileContext;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.speeddial.Button;
@@ -42,6 +43,7 @@ public class SnomProfileContext extends ProfileContext<SnomPhone> {
         Map<String, Object> context = super.getContext();
         context.put("speedDial", getNumbers());
         context.put("phoneBook", m_phoneBook);
+        context.put("esc", new EscapeTool());
         return context;
     }
 

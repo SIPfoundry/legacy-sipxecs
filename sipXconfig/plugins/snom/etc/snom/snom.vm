@@ -43,7 +43,7 @@ perm="R"#end
 #set ($fullName = "$!{entry.FirstName} $!{entry.LastName}")
 #set ($fullName = $fullName.trim())
 		<item context="active" type="none" index="${i}">
-			<name>$!fullName</name>
+			<name>$esc.xml($!fullName)</name>
 			<number>$!{entry.Number}</number>
 			<search></search>
 		</item>

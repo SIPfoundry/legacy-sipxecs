@@ -180,8 +180,11 @@ public class SnomTest extends TestCase {
         model.setModelDir("snom");
         model.setProfileTemplate("snom/snom.vm");
 
+        PhonebookEntry entryWithSpecialChars = new PhonebookEntry();
+        entryWithSpecialChars.setFirstName("&first");
+        entryWithSpecialChars.setLastName("<last>");
         List< ? extends PhonebookEntry> phonebook = Arrays.asList(new DummyEntry("1"), new DummyEntry("3"),
-                new DummyEntry("5"));
+                new DummyEntry("5"), entryWithSpecialChars);
 
         phone.setModel(model);
 
@@ -208,6 +211,7 @@ public class SnomTest extends TestCase {
                 .contains("<item context=\"active\" type=\"none\" index=\"1\">\n			<name>first3 last3</name>\n			<number>number3</number>\n			<search></search>\n		</item>"));
         assertTrue(profile
                 .contains("<item context=\"active\" type=\"none\" index=\"2\">\n			<name>first5 last5</name>\n			<number>number5</number>\n			<search></search>\n		</item>"));
+        assertTrue(profile.contains("<name>&amp;first &lt;last&gt;</name>"));
 
         phoneContextControl.verify();
     }
