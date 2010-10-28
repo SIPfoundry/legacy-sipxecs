@@ -208,6 +208,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/retrieve-error-log.cgi
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/doc/aa_vxml
 %dir %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/stdprompts_en
+%{_datadir}/www/doc/stdprompts_en/*
 %config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/stdprompts
 %config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/doc/vm_vxml
 
@@ -223,12 +224,6 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/doc/sipxecs/%name
 
 %pre
-# move default prompts to stdprompts_en
-%define old_stdpromptsdir %{_datadir}/www/doc/stdprompts
-%define new_stdpromptsdir %{_datadir}/www/doc/stdprompts_en
-if [ ! -L %{old_stdpromptsdir} ] && [ -d %{old_stdpromptsdir} ]; then
-   mv %{old_stdpromptsdir} %{new_stdpromptsdir}
-fi
 
 %post
 rm -f %{_bindir}/backup-mailstore.sh
@@ -263,6 +258,13 @@ sipx-sendmail-configure %{buildno}
 
 # If this is an upgrade from 3.10, need to setup the SSL db correctly
 %{_bindir}/ssl-cert/upgrade-cert.sh >> %{_localstatedir}/log/sipxpbx/upgrade-cert.log 2>&1
+
+# stdprompts should be a symlink now. move aside existing prompts link to stdprompts_en
+%define stdpromptsdir %{_datadir}/www/doc/stdprompts
+if [ -L %{stdpromptsdir}.rpmnew ] && [ -d %{stdpromptsdir} ]; then
+   mv %{stdpromptsdir} %{stdpromptsdir}.old
+   mv %{stdpromptsdir}.rpmnew %{stdpromptsdir}
+fi
 
 %preun
 # see http://fedoraproject.org/wiki/Packaging/ScriptletSnippets
