@@ -31,6 +31,7 @@ import org.sipfoundry.voicemail.ExtMailStore;
 import org.sipfoundry.voicemail.MailboxServlet;
 import org.sipfoundry.voicemail.Mwistatus;
 import org.sipfoundry.voicemail.VoiceMail;
+import org.sipfoundry.bridge.Bridge;
 
 public class SipXivr implements Runnable {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
@@ -137,34 +138,41 @@ public class SipXivr implements Runnable {
 		                m_fses.getVariable("variable_sip_from_uri"),
 		                m_fses.getVariable("variable_sip_req_uri")));
 		        
-		        m_fses.invoke(new Answer(m_fses));
+		        
 		
 		        String action = parameters.get("action");
-		        if (action == null) {
-		            LOG.warn("Cannot determine which application to run as the action parameter is missing.");
-		        } else if (action.contentEquals("autoattendant")) {
-		            // Run the Auto Attendant.
-		            Attendant app = new Attendant(s_config, m_fses, parameters);
-		            app.run();
-		        } else if (action.equals("deposit") || action.equals("retrieve")) {
-		                parseDiversionHeader(parameters);
-		        	// Run VoiceMail
-		        	VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
-		        	app.run();
-                        } else if (action.equals("faxrx")) {
-                            // Run fax receive application
-                            FaxRx app = new FaxRx(s_config, m_fses, parameters);
-                            app.run() ;
-		        } else if (action.equals("moh")) {
-		            // Run Music On Hold
-		            Moh app = new Moh(s_config, m_fses, parameters);
-		            app.run() ;
-		        } else {
-		            // Nothing else to run...
-		            LOG.warn("Cannot determine which application to run from action="+ action);
-		        }
-		
-		        m_fses.invoke(new Hangup(m_fses));
+                String uuid = parameters.get("uuid");
+                if (uuid != null) {
+                    m_fses.invoke(new Answer(m_fses));
+                    if (action == null) {
+                        LOG.warn("Cannot determine which application to run as the action parameter is missing.");
+                    } else if (action.contentEquals("autoattendant")) {
+                        // Run the Auto Attendant.
+                        Attendant app = new Attendant(s_config, m_fses, parameters);
+                        app.run();
+                    } else if (action.equals("deposit") || action.equals("retrieve")) {
+                            parseDiversionHeader(parameters);
+                        // Run VoiceMail
+                        VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
+                        app.run();
+                            } else if (action.equals("faxrx")) {
+                                // Run fax receive application
+                                FaxRx app = new FaxRx(s_config, m_fses, parameters);
+                                app.run() ;
+                    } else if (action.equals("moh")) {
+                        // Run Music On Hold
+                        Moh app = new Moh(s_config, m_fses, parameters);
+                        app.run() ;
+                    } else {
+                        // Nothing else to run...
+                        LOG.warn("Cannot determine which application to run from action="+ action);
+                    }
+                    m_fses.invoke(new Hangup(m_fses));
+                } else {
+                    LOG.info("SipXivr::run Bridging the call");
+                    Bridge app = new Bridge(s_config, m_fses);
+                    app.run();
+                }
             }
         } catch (DisconnectException e) {
             LOG.info("SipXivr::run Far end hungup.");

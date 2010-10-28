@@ -15,6 +15,7 @@ public class CallCommand extends FreeSwitchEventHandler {
     protected final Logger LOG;
     protected FreeSwitchEventSocketInterface m_fses;
     protected String m_command = "CallCommand";
+    protected boolean m_sendAsApi = false;
 
     public CallCommand(FreeSwitchEventSocketInterface fses) {
         this.m_fses = fses;
@@ -24,7 +25,10 @@ public class CallCommand extends FreeSwitchEventHandler {
     public boolean start() {
         m_finished = false;
         // Send the command to the socket
-        m_fses.cmd("sendmsg " + m_fses.getSessionUUID() + "\ncall-command: execute\nexecute-app-name: " + m_command);
+        if (!m_sendAsApi)
+            m_fses.cmd("sendmsg " + m_fses.getSessionUUID() + "\ncall-command: execute\nexecute-app-name: " + m_command);
+        else
+            m_fses.cmd("api " + m_command);
         return false;
     }
 

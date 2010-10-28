@@ -48,6 +48,7 @@ public class Attendant {
     private FreeSwitchEventSocketInterface m_fses;
     private String m_aaId;
     private String m_scheduleId;
+    private String m_uuid;
     private AttendantConfig m_config;
     private Configuration m_attendantConfig;
     private Schedule m_schedule;
@@ -74,7 +75,7 @@ public class Attendant {
         this.m_fses = fses;
         this.m_aaId = parameters.get("attendant_id");
         this.m_scheduleId = parameters.get("schedule_id");
-
+        this.m_uuid = parameters.get("uuid");
         // Look for "locale" parameter
         m_localeString = parameters.get("locale");
         if (m_localeString == null) {
@@ -273,7 +274,7 @@ public class Attendant {
                 User user = m_validUsers.getUser(digits);
                 if (user != null) {
                     String uri = user.getUri();
-                    LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s)", digits, uri));
+                    LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s) uuid=%s", digits, uri, m_uuid));
                     // It's valid, transfer the call there.
                     transfer(uri);
                     break;
@@ -316,7 +317,10 @@ public class Attendant {
             // Transfer to the voicemailUrl
             dest = item.getParameter();
             LOG.info("Attendant::doAction Voicemail Access.  Transfer to " + dest);
-            xfer = new Transfer(m_fses, dest);
+            if (m_uuid != null)
+                xfer = new Transfer(m_fses, m_uuid, dest);
+            else
+                xfer = new Transfer(m_fses, dest);
             xfer.go();
             return NextAction.exit;
         
@@ -330,7 +334,10 @@ public class Attendant {
                 // Use the internal ~~vm~xxxx user to do this.
                 dest = extensionToUrl("~~vm~"+u.getUserName());
                 LOG.info("Attendant::doAction Voicemail Deposit.  Transfer to " + dest);
-                xfer = new Transfer(m_fses, dest);
+                if (m_uuid != null)
+                    xfer = new Transfer(m_fses, m_uuid, dest);
+                else
+                    xfer = new Transfer(m_fses, dest);
                 xfer.go();
             } else {
                 LOG.error("Attendant::doAction Voicemail Deposit cannot find user for extension "+extension);
@@ -350,7 +357,7 @@ public class Attendant {
                 goodbye();
                 return NextAction.exit;
             }
-            LOG.info(String.format("Attendant::doAction Transfer to extension %s (%s)", u.get(0).getUserName(), u.get(0).getUri()));
+            LOG.info(String.format("Attendant::doAction Transfer to extension %s (%s) uuid=%s", u.get(0).getUserName(), u.get(0).getUri(), m_uuid));
             transfer(u.get(0).getUri());
             return NextAction.repeat;
         
@@ -398,7 +405,11 @@ public class Attendant {
      */
     void transfer(String uri) {
         m_loc.play("please_hold", "");
-        Transfer xfer = new Transfer(m_fses, uri);
+        Transfer xfer;
+        if (m_uuid != null)
+            xfer = new Transfer(m_fses, m_uuid, uri);
+        else
+            xfer = new Transfer(m_fses, uri);
         xfer.go();
     }
 
@@ -458,9 +469,13 @@ public class Attendant {
                 User user = m_validUsers.getUser(userpart);
                 if (user != null) {
                     String uri = user.getUri();
-                    LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s)", dest, uri));
+                    LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s) uuid=%s", dest, uri, m_uuid));
                     // It's valid, transfer the call there.
-                    Transfer xfer = new Transfer(m_fses, dest);
+                    Transfer xfer;
+                    if (m_uuid != null)
+                        xfer = new Transfer(m_fses, m_uuid, dest);
+                    else
+                        xfer = new Transfer(m_fses, dest);
                     xfer.go();
                 } 
                 else {
@@ -470,7 +485,11 @@ public class Attendant {
                 }
             } else
             {
-                Transfer xfer = new Transfer(m_fses, dest);
+                Transfer xfer;
+                if (m_uuid != null)
+                    xfer = new Transfer(m_fses, m_uuid, dest);
+                else
+                    xfer = new Transfer(m_fses, dest);
                 xfer.go();
             }
         }

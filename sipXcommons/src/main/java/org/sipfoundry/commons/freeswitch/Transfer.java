@@ -21,4 +21,11 @@ public class Transfer extends CallCommand {
             m_command += "sip:" + sipURI;
         }
     }
+
+    public Transfer(FreeSwitchEventSocketInterface fses, String uuid, String sipURI) {
+        super(fses);
+        m_sendAsApi = true;
+        // Send a REFER using a particular uuid
+        m_command = "uuid_deflect " + uuid + " " + sipURI;
+    }
 }
