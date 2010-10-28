@@ -944,7 +944,7 @@
         <setting name="Profile_Rule" hidden="yes" advanced="no">
             <label>Profile Rule</label>
             <profileName>Configuration_Profile</profileName>
-            <value>/spa$MA.cfg</value>
+            <value>/spa$MAU.cfg</value>
         </setting>
         <setting name="Profile_Rule_B" advanced="no">
             <label>Profile Rule B</label>
