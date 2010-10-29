@@ -264,6 +264,8 @@ sipx-sendmail-configure %{buildno}
 if [ -L %{stdpromptsdir}.rpmnew ] && [ -d %{stdpromptsdir} ]; then
    mv %{stdpromptsdir} %{stdpromptsdir}.old
    mv %{stdpromptsdir}.rpmnew %{stdpromptsdir}
+   # rpm only installs new files into _en, so move over all the old ones
+   mv -u %{stdpromptsdir}.old/* %{stdpromptsdir}_en/
 fi
 
 %preun
