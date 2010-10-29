@@ -31,6 +31,7 @@ import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.service.LoggingEntity;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
@@ -123,7 +124,7 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
 
     @Override
     public void initialize() {
-        addDefaultBeanSettingHandler(new Defaults(getDefaults(), this, getLocation()));
+        addDefaultBeanSettingHandler(new Defaults(getDefaults(), this, getLocation(), m_sipxServiceManager));
     }
 
     @Override
@@ -246,17 +247,18 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
         private final SbcDevice m_device;
         private final Location m_location;
         private final NatLocation m_natLocation;
+        private final SipxServiceManager m_sipxServiceManager;
 
-        Defaults(DeviceDefaults defaults, SbcDevice device, Location location) {
+        Defaults(DeviceDefaults defaults, SbcDevice device, Location location, SipxServiceManager manager) {
             m_defaults = defaults;
             m_device = device;
             m_location = location;
             m_natLocation = (location != null) ? location.getNat() : null;
+            m_sipxServiceManager = manager;
         }
 
-        @SettingEntry(paths = {
-                "bridge-configuration/local-address", "bridge-configuration/external-address"
-                })
+        @SettingEntry(paths = { "bridge-configuration/local-address",
+                "bridge-configuration/external-address" })
         public String getExternalAddress() {
             return m_location.getAddress();
         }
@@ -294,6 +296,13 @@ public class BridgeSbc extends SbcDevice implements LoggingEntity {
         @SettingEntry(path = "bridge-configuration/sipx-supervisor-xml-rpc-port")
         public int getSipxSupervisorXmlRpcPort() {
             return Location.PROCESS_MONITOR_PORT;
+        }
+
+        @SettingEntry(path = "bridge-configuration/enable-bridge-proxy-relay")
+        public boolean getEnableBridgeProxyRelay() {
+            SipxProxyService proxyService = (SipxProxyService) m_sipxServiceManager
+                    .getServiceByBeanId(SipxProxyService.BEAN_ID);
+            return (Boolean) proxyService.isEnabledBridgeProxyRelay();
         }
     }
 

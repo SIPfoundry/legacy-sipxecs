@@ -58,7 +58,7 @@ public class BridgeConfiguration {
     private int sipxSupervisorXmlRpcPort;
     private int callLimit = -1;
     private boolean strictProtocolEnforcement = true;
-    
+    private boolean enableBridgeProxyRelay = false;
     private static Logger logger = Logger.getLogger(BridgeConfiguration.class);
 
     public BridgeConfiguration() {
@@ -546,6 +546,14 @@ public class BridgeConfiguration {
     
     public void setStrictProtocolEnforcement(String flagString) {
         this.strictProtocolEnforcement = Boolean.parseBoolean(flagString);
+    }
+
+    public boolean isEnableBridgeProxyRelay() {
+        return this.enableBridgeProxyRelay;
+    }
+
+    public void setEnableBridgeProxyRelay(boolean enabled) {
+        this.enableBridgeProxyRelay = enabled;
     }
 
   

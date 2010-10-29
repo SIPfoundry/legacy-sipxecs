@@ -24,11 +24,24 @@ import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class BridgeSbcConfigurationFileTest extends SipxServiceTestBase {
+
+    private SipxServiceManager m_sipxServiceManager;
+
     public void testWrite() throws Exception {
+        SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setModelDir("sipxproxy");
+        proxyService.setModelName("sipxproxy.xml");
+        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
+        proxyService.setBeanName(SipxProxyService.BEAN_ID);
+        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(true, proxyService);
+
         ModelFilesContext modelFilesContext = TestHelper.getModelFilesContext();
         DeviceDefaults deviceDefaults = PhoneTestDriver.getDeviceDefaults();
         Location location = createDefaultLocation();
@@ -49,6 +62,7 @@ public class BridgeSbcConfigurationFileTest extends SipxServiceTestBase {
         sbc.setDefaults(deviceDefaults);
         sbc.setModelFilesContext(modelFilesContext);
         sbc.setPort(5090);
+        sbc.setSipxServiceManager(m_sipxServiceManager);
         TestHelper.setVelocityProfileGenerator(sbc);
 
         BridgeSbcConfigurationFile out = new BridgeSbcConfigurationFile();

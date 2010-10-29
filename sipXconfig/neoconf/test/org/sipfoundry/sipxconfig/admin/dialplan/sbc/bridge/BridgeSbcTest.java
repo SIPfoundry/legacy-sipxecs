@@ -28,7 +28,10 @@ import org.sipfoundry.sipxconfig.gateway.SipTrunk;
 import org.sipfoundry.sipxconfig.gateway.Gateway.AddressTransport;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
 import org.sipfoundry.sipxconfig.phone.PhoneTestDriver;
+import org.sipfoundry.sipxconfig.service.SipxProxyService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.ModelFilesContext;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -40,6 +43,7 @@ public class BridgeSbcTest {
     private BridgeSbc m_sbc;
     private SipTrunk m_sipTrunk;
     private MemoryProfileLocation m_location;
+    private SipxServiceManager m_sipxServiceManager;
 
     public static junit.framework.Test suite() {
         return new JUnit4TestAdapter(BridgeSbcTest.class);
@@ -47,6 +51,13 @@ public class BridgeSbcTest {
 
     @Before
     public void setUp() throws Exception {
+        SipxProxyService proxyService = new SipxProxyService();
+        proxyService.setModelDir("sipxproxy");
+        proxyService.setModelName("sipxproxy.xml");
+        proxyService.setModelFilesContext(TestHelper.getModelFilesContext());
+        proxyService.setBeanName(SipxProxyService.BEAN_ID);
+        m_sipxServiceManager = TestUtil.getMockSipxServiceManager(true, proxyService);
+
         ModelFilesContext modelFilesContext = TestHelper.getModelFilesContext();
         DeviceDefaults deviceDefaults = PhoneTestDriver.getDeviceDefaults();
 
@@ -70,6 +81,7 @@ public class BridgeSbcTest {
         m_sbc.setLocation(location);
         m_sbc.setDefaults(deviceDefaults);
         m_sbc.setModelFilesContext(modelFilesContext);
+        m_sbc.setSipxServiceManager(m_sipxServiceManager);
 
         m_sbc.setSerialNumber("001122334455");
 

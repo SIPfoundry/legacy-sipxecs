@@ -137,6 +137,9 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-proxy-port"),
                 "setSipxProxyPort", 0);
 
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,"enable-bridge-proxy-relay"),
+                "setEnableBridgeProxyRelay",0, new Class[] { Boolean.class });
+
         /*
          * ITSP configuration support parameters.
          */
@@ -290,7 +293,6 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s",ITSP_CONFIG,"always-relay-media"), "setAlwaysRelayMedia",0, new Class[] {
             Boolean.class
         });
-
     }
 
     /**

@@ -349,13 +349,16 @@ class SipUtilities {
 				ListeningPoint lp = provider.getListeningPoint(transport);
 				String ipAddress = lp.getIPAddress();				
 				//				
-				// EXPERIMENTAL.  Point contact address to the proxy port				
-				// int port = lp.getPort();
-				int port = Gateway.getBridgeConfiguration().getSipxProxyPort();
+				// EXPERIMENTAL.  Point contact address to the proxy port
+                int port = lp.getPort();
+                if (Gateway.getBridgeConfiguration().isEnableBridgeProxyRelay())
+                    port = Gateway.getBridgeConfiguration().getSipxProxyPort();
 				//
 				SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
 						user, ipAddress);
-				sipUri.setPort(port);
+
+                if (port > 0)
+                    sipUri.setPort(port);
 				sipUri.setTransportParam(transport);
 				Address address = ProtocolObjects.addressFactory
 						.createAddress(sipUri);
@@ -397,10 +400,12 @@ class SipUtilities {
 
 				//				
 				// EXPERIMENTAL.  Point contact address to the proxy port				
-				// int port = Gateway.getGlobalPort(transport);
-				int port = Gateway.getBridgeConfiguration().getSipxProxyPort();
+				int port = Gateway.getGlobalPort(transport);
+                if (Gateway.getBridgeConfiguration().isEnableBridgeProxyRelay())
+                    port = Gateway.getBridgeConfiguration().getSipxProxyPort();
 				//
-				sipUri.setPort(port);
+                if (port > 0)
+                    sipUri.setPort(port);
 				sipUri.setTransportParam(transport);
 				Address address = ProtocolObjects.addressFactory
 						.createAddress(sipUri);
@@ -461,7 +466,7 @@ class SipUtilities {
 		}
 
 
-		if (itspAccount.getHopToRegistrar() == null)
+		if (itspAccount.getHopToRegistrar() == null && Gateway.getBridgeConfiguration().isEnableBridgeProxyRelay())
 		{
 			//
 			//	!!EXPERIMENTAL!!
@@ -897,12 +902,14 @@ class SipUtilities {
 			}
 
 			/*EXPERIMENTAL: Our first hop for invite is always the proxy */
-			HopImpl sipXHop = new HopImpl(Gateway.getLocalAddress(),
-						Gateway.getBridgeConfiguration().getSipxProxyPort(),
-						"tcp");
-			RouteHeader sipXProxyRoute = SipUtilities.createRouteHeader(sipXHop);
-			request.setHeader(sipXProxyRoute);
-
+            if (Gateway.getBridgeConfiguration().isEnableBridgeProxyRelay())
+            {
+                HopImpl sipXHop = new HopImpl(Gateway.getLocalAddress(),
+                            Gateway.getBridgeConfiguration().getSipxProxyPort(),
+                            "tcp");
+                RouteHeader sipXProxyRoute = SipUtilities.createRouteHeader(sipXHop);
+                request.setHeader(sipXProxyRoute);
+            }
 
 			/*
 			 * By default the UAC always refreshes the session.

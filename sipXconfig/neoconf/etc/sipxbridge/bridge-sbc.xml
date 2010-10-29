@@ -59,6 +59,19 @@
       <value>5090</value>
       <description>The sipXecs proxy facing port. The sipXecs proxy will send signaling here.</description>
     </setting>
+    <setting name="enable-bridge-proxy-relay" hidden="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
     <setting name="sipx-proxy-domain" hidden="yes">
       <description>The sipXecs proxy domain.</description>
     </setting>

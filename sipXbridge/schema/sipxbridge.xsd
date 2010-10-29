@@ -92,6 +92,14 @@
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
+			<xs:element name="enable-bridge-proxy-relay" type="xs:boolean"
+				maxOccurs="1" minOccurs="0" default="false">
+				<xs:annotation>
+					<xs:documentation xml:lang="en">
+						Whether or not bridge to proxy relay is enabled.
+					</xs:documentation>
+				</xs:annotation>
+			</xs:element>
 			<xs:element name="sipx-proxy-domain" type="xs:string"
 				minOccurs="1" maxOccurs="1">
 				<xs:annotation>

@@ -90,7 +90,8 @@ class SipBridgeRouter
     const std::string& getLocalDomain() const;
     
     void setLocalDomain(const std::string& localDomain);
-    
+
+    bool isEnabled() const;
     //
     // Utility functions
     //
@@ -141,6 +142,7 @@ class SipBridgeRouter
     std::vector<std::string> _itspProxyAddresses;
     FilePath _bridgeConfigFilePath;
     std::string _localDomain;
+    bool _enabled;
 };
 
 
@@ -232,6 +234,12 @@ inline void SipBridgeRouter::setLocalDomain(const std::string& localDomain)
 {
   _localDomain = localDomain;
 }
+
+inline bool SipBridgeRouter::isEnabled() const
+{
+    return _enabled;
+}
+
 
 
 #endif //SIPBRIDGEROUTER_H_INCLUDED

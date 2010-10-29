@@ -150,6 +150,9 @@
         <ref bean="redundantSipRouterBundle" />
       </set>
     </property>
+    <property name="sipxProcessContext" ref="sipxProcessContext" />
+    <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
+    <property name="sbcSipXbridgeConfiguration" ref="sbcSipXbridgeConfiguration"/>
   </bean>
 
   <bean id="sipxProxyConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProxyConfiguration" scope="prototype"

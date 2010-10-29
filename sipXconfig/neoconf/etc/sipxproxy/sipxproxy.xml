@@ -72,5 +72,18 @@
       </type>
       <value>5061</value>
     </setting>
+    <setting name="ENABLE_BRIDGE_PROXY_RELAY" advanced="yes">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
   </group>
 </model>

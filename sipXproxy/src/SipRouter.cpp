@@ -320,7 +320,7 @@ SipRouter::handleMessage( OsMsg& eventMessage )
              else
              {
 								bool isBridgeRelay = false;
-								if (_pBridgeRouter)
+								if (_pBridgeRouter && _pBridgeRouter->isEnabled())
 								{
 									SipMessage bridgeResponse;
 									switch (_pBridgeRouter->proxyMessage(*sipRequest, bridgeResponse))

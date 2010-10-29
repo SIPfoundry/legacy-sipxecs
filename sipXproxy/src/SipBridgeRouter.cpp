@@ -195,7 +195,8 @@ bool SipBridgeRouter::retargetUri(SipMessage& sipRequest, const std::string& hos
 //
 SipBridgeRouter::SipBridgeRouter(SipRouter* pRouter) : 
   _pRouter(pRouter),
-  _bridgeWanPort(5080)
+  _bridgeWanPort(5080),
+  _enabled(false)
 {
   _bridgeConfigFilePath = SipXecsService::Path(SipXecsService::ConfigurationDirType,
                                                  BRIDGE_CONFIG_SETTINGS_FILE);
@@ -275,6 +276,13 @@ bool SipBridgeRouter::initialize()
   
   if (!_pRouter->mDomainName.isNull())
     _localDomain = _pRouter->mDomainName.data();
+
+  TiXmlElement* enableBridgeProxyRelay = bridgeConfig->FirstChildElement("enable-bridge-proxy-relay");
+  if (enableBridgeProxyRelay && enableBridgeProxyRelay->FirstChild())
+  {
+      std::string enabled = enableBridgeProxyRelay->FirstChild()->Value();
+      _enabled = (enabled == "true");
+  }
   
   return true;
 }
