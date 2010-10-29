@@ -18,6 +18,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.FreeSwitchConfigurationInterface;
+import org.sipfoundry.commons.util.DomainConfiguration;
 
 /**
  * Holds the configuration data needed for sipXimbot.
@@ -148,32 +149,8 @@ public class ImbotConfiguration implements FreeSwitchConfigurationInterface {
 
     public static String getSharedSecret() {
         if(s_sharedSecret == null) {
-            // get the shared secret password from the domain-config file
-            BufferedReader input = null;
-            File file = new File(System.getProperty("conf.dir") + "/domain-config");
-            try {
-                input =  new BufferedReader(new FileReader(file));
-
-                String line = null;
-
-                while (( line = input.readLine()) != null){
-                    if(line.startsWith("SHARED_SECRET : ")) {
-                       s_sharedSecret = line.substring("SHARED_SECRET : ".length());
-                    }
-                }
-
-            } catch (Exception e) {
-                e.printStackTrace(System.err);
-            }
-
-            finally {
-                try {
-                    input.close();
-                } catch (IOException e) {
-
-                }
-            }
-
+            DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir") + "/domain-config");
+            s_sharedSecret = config.getSharedSecret();
         }
         return s_sharedSecret;
     }

@@ -36,4 +36,5 @@ smackx.jar=${sipxcommons.dir}/smackx.jar
 sipxopenfire.dir=@SIPX_JAVADIR@/sipXopenfire
 sipxopenfireplugin.jar=${sipxopenfire.dir}/plugins/sipx-openfire-presence-plugin.jar
 xmlrpc-common.jar=${sipxcommons.dir}/xmlrpc-common.jar
+commons-httpclient.jar=${sipxcommons.dir}/commons-httpclient.jar
 

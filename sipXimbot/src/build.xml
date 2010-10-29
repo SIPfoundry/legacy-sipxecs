@@ -24,6 +24,7 @@
     <pathelement location="${xmlrpc-common.jar}"/>
     <pathelement location="${smack.jar}"/>
     <pathelement location="${smackx.jar}"/>
+    <pathelement location="${commons-httpclient.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 

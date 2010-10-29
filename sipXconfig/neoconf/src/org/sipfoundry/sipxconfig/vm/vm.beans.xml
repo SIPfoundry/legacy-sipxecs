@@ -25,6 +25,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="locationsManager" ref="locationsManager"/>
+    <property name="domainManager" ref="domainManager"/>
   </bean>
 
   <bean id="mailboxManager" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

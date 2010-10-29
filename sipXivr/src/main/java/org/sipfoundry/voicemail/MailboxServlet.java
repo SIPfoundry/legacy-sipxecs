@@ -75,13 +75,6 @@ public class MailboxServlet extends HttpServlet {
     public void doIt(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String method = request.getMethod().toUpperCase();
 
-        // For (minimal) security, check the request is arriving from THIS machine
-        // TODO (change this once using https and authentication of remote party)
-        if (!request.getLocalAddr().equals(request.getRemoteAddr())) {
-            response.sendError(403); // Send 403 Forbidden
-            return;
-        }
-
         String pathInfo = request.getPathInfo();
         String[] subDirs = pathInfo.split("/");
         if (subDirs.length < 3) {
@@ -107,6 +100,13 @@ public class MailboxServlet extends HttpServlet {
             return;
         }
         User user = validUsers.getUser(mailboxString);
+        // only superadmin and mailbox owner can access this service
+        // TODO allow all admin user to access it
+        String authenticatedUserName = request.getUserPrincipal().getName();
+        if (!authenticatedUserName.equals(user.getUserName())) {
+            response.sendError(403); // Send 403 Forbidden
+            return;
+        }
         if (user != null) {
             PrintWriter pw = response.getWriter();
             LOG.info(String.format("MailboxServlet::doIt %s %s", method, pathInfo));

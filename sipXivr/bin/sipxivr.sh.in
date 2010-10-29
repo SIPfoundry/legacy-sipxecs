@@ -9,6 +9,31 @@ Action=RUN
 Status=0
 Args=""
 
+SslDir=@SIPX_CONFDIR@/ssl
+AuthoritiesDir=$SslDir/authorities
+KeyStorePassword=changeit
+TrustStorePassword=changeit
+KeyStoreOpts="\
+      -Djavax.net.ssl.keyStore=$SslDir/ssl.keystore \
+      -Djavax.net.ssl.keyStorePassword=$KeyStorePassword"
+
+
+setTruststoreOpts() {
+    # List of authorities accepted system-wide
+    if [ -d $AuthoritiesDir ]
+    then
+      TrustStore=$SslDir/authorities.jks
+      TrustStoreOpts="\
+	-Djavax.net.ssl.trustStore=$TrustStore \
+	-Djavax.net.ssl.trustStoreType=JKS \
+        -Djavax.net.ssl.trustStorePassword=$TrustStorePassword"
+    else
+      # make empty as extra measure to ensure doesn't come from env. var
+      # this is when Java's CA database has required certs
+      TrustStoreOpts=""
+    fi
+}
+
 . @SIPX_LIBEXECDIR@/sipx-utils.sh
 
 while [ $# -ne 0 ]
@@ -38,6 +63,8 @@ CONFIG_FILES="\
 
 pidfile=@SIPX_RUNDIR@/sipxivr.pid
 
+setTruststoreOpts
+
 case ${Action} in
    RUN)
      echo $$ > ${pidfile}
@@ -45,7 +72,15 @@ case ${Action} in
      JavaCmd=`@SIPX_BINDIR@/sipx-config --java`
      LibPath=`perl -e 'print join(":", @ARGV);' @SIPX_JAVADIR@/sipXivr/*.jar @SIPX_JAVADIR@/sipXcommons/*.jar @SIPX_JAVADIR@/sipXopenfire/plugins/*.jar`
      ClassPath=$LibPath:@SIPX_CONFDIR@/sipxivr
+     X509Algorithm=`$JavaCmd \
+       -classpath "$ClassPath" \
+       org.sipfoundry.commons.x509selector.X509Selector`
      exec $JavaCmd -Dconf.dir=@SIPX_CONFDIR@ -Dvar.dir=@SIPX_VARDIR@\
+	 $TrustStoreOpts 				\
+	 $KeyStoreOpts					\
+	 -Djetty.x509.algorithm=$X509Algorithm		\
+	 -Djetty.ssl.password=$TrustStorePassword	\
+	 -Djetty.ssl.keypassword=$KeyStorePassword	\
          -cp $ClassPath org.sipfoundry.sipxivr.SipXivr \
          $Args
      ;;

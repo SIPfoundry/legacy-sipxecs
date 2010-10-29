@@ -22,6 +22,7 @@
     <pathelement location="${javamail.jar}"/>
     <pathelement location="${sipxopenfireplugin.jar}"/>
     <pathelement location="${xmlrpc-common.jar}"/>
+    <pathelement location="${commons-httpclient.jar}"/>
   </path>
   <property name="classpath" refid="base.path" />
 

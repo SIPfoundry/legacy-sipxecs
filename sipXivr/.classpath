@@ -3,7 +3,6 @@
 	<classpathentry kind="src" path="src/main/java"/>
 	<classpathentry kind="src" path="src/test/java"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/log4j.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/3"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/dom4j.jar" sourcepath="LIB_SRC/dom4j/1.6.1/src.zip"/>
@@ -20,5 +19,6 @@
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar" sourcepath="SIPX_SRC_TOP/sipXopenfire"/>
 	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar" sourcepath="/SIPX_SRC_TOP/sipXcommons/src/main/java"/>
 	<classpathentry kind="src" path="/sipxcommons"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/log4j.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

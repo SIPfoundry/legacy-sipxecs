@@ -6,13 +6,23 @@ import java.net.Socket;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.List;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthPolicy;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.Chat;
 import org.jivesoftware.smack.MessageListener;
@@ -617,19 +627,22 @@ public class IMUser {
         }
         
         private String getUUID(FullUser user) {
-            
             String uuid = null;
-            HttpURLConnection urlConn;
-            
-            RestfulRequest rr = new RestfulRequest(ImbotConfiguration.get().getVoicemailRootUrl());                 
-            
+            HttpClient httpClient = new HttpClient();
+            List<String> authPrefs = new ArrayList<String>(1);
+            // call ivr API with digest auth policy
+            authPrefs.add(AuthPolicy.DIGEST);
+            httpClient.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
+            Credentials credentials = new UsernamePasswordCredentials(m_user.getUserName(), ImbotConfiguration.getSharedSecret());
+            httpClient.getState().setCredentials(new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT, AuthScope.ANY_REALM),
+                    credentials);
+            GetMethod getUUID = new GetMethod(ImbotConfiguration.get().getVoicemailRootUrl() + "/mailbox/" + m_user.getUserName() + "/uuid");
             try {
-                urlConn = rr.getConnection("mailbox/" + m_user.getUserName() 
-                                           + "/uuid");
-              
-                if (rr.get(urlConn)) {
-                   InputStream in = urlConn.getInputStream();                    
-                    
+                   int statusCode = httpClient.executeMethod(getUUID);
+                   if (statusCode != 200) {
+                       throw new Exception("failed to retrieve UUID");
+                   }
+                   InputStream in = getUUID.getResponseBodyAsStream();
                    DocumentBuilderFactory factory = DocumentBuilderFactory
                             .newInstance();
                    DocumentBuilder builder = factory.newDocumentBuilder();
@@ -645,13 +658,12 @@ public class IMUser {
                        }
                    }        
                     
-                }
      
             } catch (Exception e) {
                 LOG.error("exception in getVoicemailRootUrl " + e.getMessage());
             } 
             
-            return(uuid);
+            return uuid;
         }
         
         private String doListen() {

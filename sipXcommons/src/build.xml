@@ -214,6 +214,7 @@
       <fileset file="${src.dir}/lib/com.noelios.restlet.jar" />
       <fileset file="${src.dir}/lib/org.restlet.jar" />
       <fileset file="${src.dir}/lib/rocksaw.dll"/>
+      <fileset file="${src.dir}/lib/commons-httpclient.jar"/>
     </copy>
   </target>
 

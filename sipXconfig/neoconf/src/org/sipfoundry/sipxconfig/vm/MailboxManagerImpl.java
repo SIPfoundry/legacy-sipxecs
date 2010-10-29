@@ -18,8 +18,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthPolicy;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.PutMethod;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
@@ -29,6 +33,8 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.UserDeleteListener;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.service.SipxIvrService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -54,6 +60,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     private CoreContext m_coreContext;
     private SipxServiceManager m_sipxServiceManager;
     private LocationsManager m_locationsManager;
+    private DomainManager m_domainManager;
 
     public boolean isEnabled() {
         return m_mailstoreDirectory != null && m_mailstoreDirectory.exists();
@@ -97,7 +104,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     }
 
     private String getMailboxServerUrl(String fqdn, int port) {
-        return String.format("http://%s:%d", fqdn, port);
+        return String.format("https://%s:%d", fqdn, port);
     }
 
     /**
@@ -106,7 +113,7 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
     public void markRead(Mailbox mailbox, Voicemail voicemail) {
         StringBuilder sb = new StringBuilder(PATH_MAILBOX).append(mailbox.getUserDirectory().getName()).append(
                 PATH_MESSAGE).append(voicemail.getMessageId()).append("/heard");
-        invokeWebservice(sb.toString());
+        invokeWebservice(sb.toString(), mailbox.getUserId());
     }
 
     public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
@@ -116,18 +123,19 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
         }
 
         // ask voicemail to update the MWI ..
-        StringBuilder sb = new StringBuilder(PATH_MAILBOX).append(mailbox.getUserDirectory().getName()).append("/mwi");
-        invokeWebservice(sb.toString());
+        StringBuilder sb = new StringBuilder(PATH_MAILBOX).append(mailbox.getUserDirectory().getName()).append(
+                "/mwi");
+        invokeWebservice(sb.toString(), mailbox.getUserId());
 
     }
 
     public void delete(Mailbox mailbox, Voicemail voicemail) {
         StringBuilder sb = new StringBuilder(PATH_MAILBOX).append(mailbox.getUserDirectory().getName()).append(
                 PATH_MESSAGE).append(voicemail.getMessageId()).append("/delete");
-        invokeWebservice(sb.toString());
+        invokeWebservice(sb.toString(), mailbox.getUserId());
     }
 
-    private void invokeWebservice(String uri) {
+    private void invokeWebservice(String uri, String username) {
         PutMethod httpPut = null;
         String host = null;
         String port = null;
@@ -141,6 +149,15 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
             HttpClient client = new HttpClient();
             host = ivrLocation.getFqdn();
             port = ivrService.getHttpsPort();
+            List<String> authPrefs = new ArrayList<String>(1);
+            // call ivr API with digest auth policy
+            authPrefs.add(AuthPolicy.DIGEST);
+            client.getParams().setParameter(AuthPolicy.AUTH_SCHEME_PRIORITY, authPrefs);
+            // authenticate using shared secret
+            Domain domain = m_domainManager.getDomain();
+            Credentials credentials = new UsernamePasswordCredentials(username, domain.getSharedSecret());
+            client.getState().setCredentials(new AuthScope(host, Integer.parseInt(port), AuthScope.ANY_REALM),
+                    credentials);
             httpPut = new PutMethod(getMailboxServerUrl(host, Integer.parseInt(port)) + uri);
             int statusCode = client.executeMethod(httpPut);
             if (statusCode != 200) {
@@ -197,6 +214,10 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
 
     public void setMailstoreDirectory(String mailstoreDirectory) {
         m_mailstoreDirectory = new File(mailstoreDirectory);
+    }
+
+    public void setDomainManager(DomainManager manager) {
+        m_domainManager = manager;
     }
 
     public String getStdpromptDirectory() {

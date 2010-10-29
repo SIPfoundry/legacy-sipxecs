@@ -35,7 +35,7 @@ public class SipXimbot {
         Properties props = new Properties();
         props.setProperty("log4j.rootLogger", "warn, file");
         props.setProperty("log4j.logger.org.sipfoundry.sipximbot", SipFoundryLayout
-                .mapSipFoundry2log4j(s_config.getLogLevel()).toString());
+                                .mapSipFoundry2log4j(s_config.getLogLevel()).toString());
         props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender");
         props.setProperty("log4j.appender.file.File", s_config.getLogFile());
         props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
