@@ -51,7 +51,7 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/com.noelios.restlet.ext.servlet_2.5.jar" sourcepath="/LIB_SRC/restlet/1.0.1/src.zip"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/jwebunit-htmlunit-plugin-2.2.jar" sourcepath="/LIB_SRC/jwebunit/1.4.1/src/jwebunit-htmlunit-plugin-1.4.1-sources.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/regexp-1.3.jar"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-httpclient-3.0.1.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-httpclient.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/nekohtml-1.9.12.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/backport-util-concurrent-3.1.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/cssparser-0.9.5.jar"/>
