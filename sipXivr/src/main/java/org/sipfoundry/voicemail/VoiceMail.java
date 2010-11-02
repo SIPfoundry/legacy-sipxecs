@@ -61,6 +61,7 @@ public class VoiceMail {
     private String m_action; // "deposit" or "retrieve"
 
     private Mailbox m_mailbox ;
+    private String m_uuid;
     
     enum NextAction {
         repeat, exit, nextAttendant;
@@ -71,13 +72,15 @@ public class VoiceMail {
      * 
      * @param ivrConfig top level configuration stuff
      * @param fses The FreeSwitchEventSocket with the call already answered
+     * @param uuid The UUID to deflect answer to
      * @param parameters The parameters from the sip URI (to determine locale and which action
      *        to run)
      */
-    public VoiceMail(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses,
+    public VoiceMail(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses, String uuid,
             Hashtable<String, String> parameters) {
         this.m_ivrConfig = ivrConfig;
         this.m_fses = fses;
+        this.m_uuid = uuid;
         this.m_parameters = parameters;
         
         // Look for "locale" parameter
@@ -351,7 +354,12 @@ public class VoiceMail {
      */
     public void transfer(String uri) {
         m_locCurr.play("please_hold", "");
-        Transfer xfer = new Transfer(m_fses, uri);
+        Transfer xfer = null;
+        if (m_uuid != null) {
+            xfer = new Transfer(m_fses, m_uuid, uri);
+        } else {
+            xfer = new Transfer(m_fses, uri);
+        }
         xfer.go();
         throw new DisconnectException();
     }
