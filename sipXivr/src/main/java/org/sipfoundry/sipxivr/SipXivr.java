@@ -156,7 +156,7 @@ public class SipXivr implements Runnable {
                     } else if (action.equals("deposit") || action.equals("retrieve")) {
                             parseDiversionHeader(parameters);
                         // Run VoiceMail
-                        VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
+                        VoiceMail app = new VoiceMail(s_config, m_fses, uuid, parameters);
                         app.run();
                             } else if (action.equals("faxrx")) {
                                 // Run fax receive application
