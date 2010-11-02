@@ -13,7 +13,6 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/velocity-1.5.jar" sourcepath="/LIB_SRC/velocity/1.5/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-beanutils-1.7.0.jar" sourcepath="LIB_SRC/commons-beanutils/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/dom4j-1.6.1.jar" sourcepath="LIB_SRC/dom4j/1.6.1/src.zip"/>
-	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/spring-2.0.4.jar" sourcepath="/LIB_SRC/spring/2.0.4/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/hibernate-3.2.7.jar" sourcepath="/LIB_SRC/hibernate/3.2.7/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-collections-3.2.jar" sourcepath="/LIB_SRC/commons-collections/3.2/src.zip"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/commons-digester-1.8.jar" sourcepath="/LIB_SRC/commons-digester/src.zip"/>
@@ -78,5 +77,17 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/org.restlet.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/com.noelios.restlet.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.aop-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.asm-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.beans-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.context-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.context.support-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.core-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.expression-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.jdbc-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.orm-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.transaction-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.web-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.web.servlet-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

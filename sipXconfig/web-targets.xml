@@ -18,7 +18,18 @@
   </path>
 
   <path id="spring.runtime.dependencies">
-      <fileset file="${spring.jar}" />
+    <fileset file="${spring-aop.jar}" />
+    <fileset file="${spring-asm.jar}" />
+    <fileset file="${spring-beans.jar}" />
+    <fileset file="${spring-context.jar}" />
+    <fileset file="${spring-context.support.jar}" />
+    <fileset file="${spring-core.jar}" />
+    <fileset file="${spring-expression.jar}" />
+    <fileset file="${spring-jdbc.jar}" />
+    <fileset file="${spring-orm.jar}" />
+    <fileset file="${spring-transaction.jar}" />
+    <fileset file="${spring-web.jar}" />
+    <fileset file="${spring-web.servlet.jar}" />
   </path>
 
   <path id="web.runtime.dependencies">

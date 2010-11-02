@@ -148,7 +148,7 @@ public class SipxHibernateDaoSupport<T> extends HibernateDaoSupport implements D
      */
     protected Object getOriginalValue(PrimaryKeySource obj, String propertyName) {
         HibernateCallback callback = new GetOriginalValueCallback(obj, propertyName);
-        Object originalValue = getHibernateTemplate().execute(callback, true);
+        Object originalValue = getHibernateTemplate().executeWithNativeSession(callback);
         return originalValue;
     }
 
