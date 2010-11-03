@@ -298,35 +298,4 @@ public class ValidatorsTest extends TestCase {
         }
     }
 
-    public void testValidDidNumber() throws ValidatorException {
-        Pattern p = (Pattern) m_context.getBean("validDidNumber");
-        p.validate(m_field, m_validationMessages, "");
-        p.validate(m_field, m_validationMessages, "+0123");
-        p.validate(m_field, m_validationMessages, "0123");
-        try {
-            p.validate(m_field, m_validationMessages, "7+1");
-            fail("Should throw a ValidatorException");
-        } catch (ValidatorException expected) {
-            assertTrue(true);
-        }
-        try {
-            p.validate(m_field, m_validationMessages, "-7");
-            fail("Should throw a ValidatorException");
-        } catch (ValidatorException expected) {
-            assertTrue(true);
-        }
-        try {
-            p.validate(m_field, m_validationMessages, "!7");
-            fail("Should throw a ValidatorException");
-        } catch (ValidatorException expected) {
-            assertTrue(true);
-        }
-        try {
-            p.validate(m_field, m_validationMessages, "+");
-            fail("Should throw a ValidatorException");
-        } catch (ValidatorException expected) {
-            assertTrue(true);
-        }
-
-    }
 }

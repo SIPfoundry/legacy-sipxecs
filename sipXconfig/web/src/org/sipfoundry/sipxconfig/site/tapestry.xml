@@ -115,16 +115,6 @@
     </property>
   </bean>
 
-  <bean name="validDidNumber" class="org.apache.tapestry.form.validator.Pattern">
-    <property name="pattern">
-      <value>(\+[0-9]+)*|([0-9]+)</value>
-    </property>
-    <property name="message">
-      <value>Only a limited set of characters is valid in SIP URLs. Spaces and some special characters are not allowed. For
-        example: 321, joedoe, joe!?~*222</value>
-    </property>
-  </bean>
-
   <bean name="validImId" class="org.apache.tapestry.form.validator.Pattern" parent="validSipUserId">
     <property name="message">
       <value>Only a limited set of characters is valid for IM ID or IM DisplayName. Spaces and some special characters are not allowed. For
