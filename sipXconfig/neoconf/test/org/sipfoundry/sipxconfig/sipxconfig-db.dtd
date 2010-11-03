@@ -23,6 +23,7 @@
     value_storage_id CDATA #IMPLIED
     acd_server_id CDATA #REQUIRED
     extension CDATA #IMPLIED
+    did CDATA #IMPLIED
 >
 
 <!ELEMENT acd_line_queue EMPTY>
@@ -98,6 +99,7 @@
     attendant_dialing_rule_id CDATA #REQUIRED
     attendant_aliases CDATA #IMPLIED
     extension CDATA #IMPLIED
+    did CDATA #IMPLIED
     after_hours_attendant_id CDATA #IMPLIED
     after_hours_attendant_enabled CDATA #REQUIRED
     holiday_attendant_id CDATA #IMPLIED
@@ -520,6 +522,7 @@
     name CDATA #REQUIRED
     description CDATA #IMPLIED
     extension CDATA #IMPLIED
+    did CDATA #IMPLIED
     value_storage_id CDATA #IMPLIED
     meetme_bridge_id CDATA #REQUIRED
     owner_id CDATA #IMPLIED

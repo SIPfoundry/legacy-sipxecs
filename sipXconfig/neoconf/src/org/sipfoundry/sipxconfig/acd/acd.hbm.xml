@@ -37,6 +37,7 @@
     <property name="name"/>
     <property name="description"/>
     <property name="extension"/>
+    <property name="did"/>
 		<many-to-one cascade="all" name="valueStorage" column="value_storage_id"
 			class="org.sipfoundry.sipxconfig.setting.ValueStorage"/>
 		<many-to-one name="acdServer" column="acd_server_id" class="AcdServer" not-null="true"/>
@@ -130,6 +131,6 @@
   </query>
 
   <query name="acdLineIdsWithAlias">
-    <![CDATA[select line.id from AcdLine line where line.name = :value or line.extension = :value]]>
+    <![CDATA[select line.id from AcdLine line where line.name = :value or line.extension = :value or line.did = :value]]>
   </query>
 </hibernate-mapping>

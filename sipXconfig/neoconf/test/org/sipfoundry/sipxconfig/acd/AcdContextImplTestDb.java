@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.velocity.runtime.directive.Foreach;
 import org.dbunit.Assertion;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
@@ -26,13 +27,13 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
-
 
 public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     private final static Integer SERVER_ID = new Integer(1001);
@@ -43,10 +44,8 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
 
     @Override
     protected void setUp() throws Exception {
-        m_context = (AcdContext) TestHelper.getApplicationContext().getBean(
-                AcdContext.CONTEXT_BEAN_NAME);
-        m_coreContext = (CoreContext) TestHelper.getApplicationContext().getBean(
-                CoreContext.CONTEXT_BEAN_NAME);
+        m_context = (AcdContext) TestHelper.getApplicationContext().getBean(AcdContext.CONTEXT_BEAN_NAME);
+        m_coreContext = (CoreContext) TestHelper.getApplicationContext().getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_locationsManager = (LocationsManager) TestHelper.getApplicationContext().getBean(
                 LocationsManager.CONTEXT_BEAN_NAME);
 
@@ -147,7 +146,8 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         m_locationsManager.storeLocation(location);
         acdServer.setLocation(location);
 
-        SipxPresenceService presenceService = org.easymock.classextension.EasyMock.createMock(SipxPresenceService.class);
+        SipxPresenceService presenceService = org.easymock.classextension.EasyMock
+                .createMock(SipxPresenceService.class);
         presenceService.getPresenceServerPort();
         EasyMock.expectLastCall().andReturn(5130).atLeastOnce();
         presenceService.getPresenceApiPort();
@@ -423,8 +423,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(testUser1.getId(), agentTable.getValue(0, "user_id"));
         assertEquals(SERVER_ID, agentTable.getValue(0, "acd_server_id"));
 
-        ITable queues2agentsTable = TestHelper.getConnection().createDataSet().getTable(
-                "acd_queue_agent");
+        ITable queues2agentsTable = TestHelper.getConnection().createDataSet().getTable("acd_queue_agent");
         assertEquals(3, queues2agentsTable.getRowCount());
         assertEquals(queueId, queues2agentsTable.getValue(0, "acd_queue_id"));
 
@@ -435,8 +434,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals(3, agentTable.getRowCount());
         assertEquals(testUser1.getId(), agentTable.getValue(0, "user_id"));
 
-        queues2agentsTable = TestHelper.getConnection().createDataSet().getTable(
-                "acd_queue_agent");
+        queues2agentsTable = TestHelper.getConnection().createDataSet().getTable("acd_queue_agent");
         assertEquals(3, queues2agentsTable.getRowCount());
         assertEquals(queueId, queues2agentsTable.getValue(0, "acd_queue_id"));
 
@@ -556,5 +554,17 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         AcdServer server = m_context.loadServer(1001);
         Collection empty = m_context.getQueuesForUsers(server, new ArrayList());
         assertTrue(empty.isEmpty());
+    }
+
+    public void testAliases() throws Exception {
+        TestHelper.insertFlat("acd/lines.db.xml");
+        assertTrue(m_context.isAliasInUse("101"));
+        assertTrue(m_context.isAliasInUse("123456789"));
+    }
+
+    public void testGenerateAliases() throws Exception {
+        TestHelper.insertFlat("acd/lines.db.xml");
+        Collection<AliasMapping> aliases = m_context.getAliasMappings();
+        assertEquals(5, aliases.size());
     }
 }

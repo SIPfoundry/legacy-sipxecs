@@ -26,13 +26,6 @@
     <binding name="delegate" value="bean:validator" />
   </component>
 
-  <component id="commonFieldset" type="common/ItemCommon">
-    <binding name="item" value="acdLine" />
-    <binding name="useEnabled" value="false" />
-    <binding name="useExtension" value="true" />
-    <binding name="nameValidator" value="spring-validators:validSipUserId,required"/>
-  </component>
-
   <component id="queueSelectionPanel" type="common/FieldPanel">
     <binding name="field" value="components.queueSelection" />
     <binding name="label" value="message:label.queue" />

@@ -27,12 +27,14 @@ public class AcdLine extends AcdComponent {
     static final String LINE_NAME = "acd-line/name";
     static final String EXTENSION = "acd-line/extension";
     static final String ACD_QUEUE = "acd-line/acd-queue";
+    static final String ACD_RELATION = "acd";
 
     private AcdQueue m_queue;
 
     private AcdServer m_acdServer;
 
     private String m_extension;
+    private String m_did;
 
     public AcdLine() {
         super("sipxacd-line.xml", OBJECT_CLASS);
@@ -108,8 +110,7 @@ public class AcdLine extends AcdComponent {
 
         @SettingEntry(path = LINE_NAME)
         public String getName() {
-            String name = (String) ObjectUtils.defaultIfNull(m_line.getDescription(), m_line
-                    .getName());
+            String name = (String) ObjectUtils.defaultIfNull(m_line.getDescription(), m_line.getName());
             return name;
         }
 
@@ -130,17 +131,22 @@ public class AcdLine extends AcdComponent {
 
     public void appendAliases(List aliases) {
         String extension = getExtension();
+        String did = getDid();
         if (StringUtils.isBlank(extension)) {
             return;
         }
         // TODO: remove localhost trick when we have real host information
         String domainName = getCoreContext().getDomainName();
-        String identity = AliasMapping.createUri(extension, domainName);
+        String identityExtension = AliasMapping.createUri(extension, domainName);
 
         String server = StringUtils.defaultIfEmpty(m_acdServer.getLocation().getFqdn(), "localhost");
         String contact = SipUri.format(getName(), server, m_acdServer.getSipPort());
 
-        aliases.add(new AliasMapping(identity, contact, "acd"));
+        aliases.add(new AliasMapping(identityExtension, contact, ACD_RELATION));
+        if (!StringUtils.isEmpty(did) && !did.equals(extension)) {
+            String identityDid = AliasMapping.createUri(did, domainName);
+            aliases.add(new AliasMapping(identityDid, contact, ACD_RELATION));
+        }
     }
 
     public Serializable getAcdServerId() {
@@ -150,5 +156,13 @@ public class AcdLine extends AcdComponent {
     @Override
     public void initialize() {
         addDefaultBeanSettingHandler(new AcdLineDefaults(this));
+    }
+
+    public String getDid() {
+        return m_did;
+    }
+
+    public void setDid(String did) {
+        m_did = did;
     }
 }

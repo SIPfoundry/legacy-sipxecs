@@ -6,7 +6,13 @@
 	<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
     <span jwcid="@common/ErrorMsg"/>
     <form jwcid="form" id="line:form">
-        <fieldset jwcid="commonFieldset"/>
+        <fieldset jwcid="itemCommon@common/ItemCommon"
+                  nameValidator="spring-validators:required,validSipUserId"
+                  item="ognl:acdLine"
+                  useExtension="ognl:true"
+                  useEnabled="ognl:false"
+                  useDid="ognl:true"
+                  didDescription="message:description.did"/>
         <fieldset>
 			<table>
                 <tbody>
