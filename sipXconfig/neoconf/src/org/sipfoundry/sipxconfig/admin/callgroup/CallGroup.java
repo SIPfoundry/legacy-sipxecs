@@ -31,6 +31,7 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     private boolean m_enabled;
     private String m_name;
     private String m_extension;
+    private String m_did;
     private String m_description;
     private String m_fallbackDestination;
     private boolean m_voicemailFallback = true;
@@ -189,6 +190,14 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
                                  ALIAS_RELATION);
             aliases.add(extensionAlias);
         }
+        if (StringUtils.isNotBlank(m_did) && !m_did.equals(m_name)) {
+            AliasMapping didAlias =
+                new AliasMapping(AliasMapping.createUri(m_did, domainName),
+                                 myIdentity,
+                                 ALIAS_RELATION);
+            aliases.add(didAlias);
+        }
+
         return aliases;
     }
 
@@ -209,5 +218,13 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
         }
         m_sipPassword = RandomStringUtils.randomAlphanumeric(SIP_PASSWORD_LEN);
         return true;
+    }
+
+    public String getDid() {
+        return m_did;
+    }
+
+    public void setDid(String did) {
+        m_did = did;
     }
 }
