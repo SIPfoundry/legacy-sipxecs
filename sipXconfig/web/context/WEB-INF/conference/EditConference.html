@@ -23,7 +23,13 @@
       delegate="bean:validator"
       listener="listener:formSubmit">
       <span jwcid="@If" condition="ognl:userSession.isAdmin()">
-         <fieldset jwcid="itemCommon" nameValidator="spring-validators:required,validSipUserId" />
+         <fieldset jwcid="itemCommon@common/ItemCommon"
+                   nameValidator="spring-validators:required,validSipUserId"
+                   item="ognl:conference"
+                   useExtension="ognl:true"
+                   useEnabled="ognl:true"
+                   useDid="ognl:true"
+                   didDescription="message:description.did"/>
          <fieldset jwcid="@conference/ConferenceOwnerPanel" conference="ognl:conference" />
          <span jwcid="@If" condition="ognl:conference.isNew() && bridgeId == null">
          <table>

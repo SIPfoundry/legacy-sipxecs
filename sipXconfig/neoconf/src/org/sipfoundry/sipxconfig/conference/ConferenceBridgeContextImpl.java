@@ -115,6 +115,9 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         if (!m_aliasManager.canObjectUseAlias(conference, extension)) {
             throw new ExtensionInUseException(CONFERENCE, extension);
         }
+        if (!m_aliasManager.canObjectUseAlias(conference, conference.getDid())) {
+            throw new ExtensionInUseException(CONFERENCE, conference.getDid());
+        }
     }
 
     public Bridge newBridge() {
