@@ -63,6 +63,7 @@
       <key column="internal_dialing_rule_id" />
       <property name="localExtensionLen" />
       <property name="voiceMail" /><!-- voicemail extension -->
+      <property name="did" />
       <property name="voiceMailPrefix" />
       <property name="mediaServerType" />
       <property name="mediaServerHostname" />
@@ -95,6 +96,7 @@
         foreign-key="fk_attendant_dialing_rule_dialing_rule" />
       <property name="attendantAliases" />
       <property name="extension" />
+      <property name="did" />
       <component name="afterHoursAttendant"
         class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ScheduledAttendant">
         <many-to-one name="attendant" column="after_hours_attendant_id" class="AutoAttendant"
@@ -162,11 +164,11 @@
   </query>
 
   <query name="internalRuleIdsWithVoiceMailExtension">
-    <![CDATA[select ir.id from InternalRule ir where ir.voiceMail = :value]]>
+    <![CDATA[select ir.id from InternalRule ir where ir.voiceMail = :value or ir.did = :value]]>
   </query>
 
-  <query name="attendantRuleIdsWithExtension">
-    <![CDATA[select r.id from AttendantRule r where r.extension = :value]]>
+  <query name="attendantRuleIdsWithExtensionOrDid">
+    <![CDATA[select r.id from AttendantRule r where r.extension = :value or r.did = :value ]]>
   </query>
 
   <query name="aaAliases">

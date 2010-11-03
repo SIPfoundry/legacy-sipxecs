@@ -53,6 +53,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
     private static final String VALUE = "value";
     private static final String DIALING_RULE = "dialing rule";
     private static final String DIAL_PLAN = "Dial-plan: ";
+    private static final String VOICEMAIL = "voicemail";
 
     private AliasManager m_aliasManager;
 
@@ -138,15 +139,23 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
 
     private void checkAliasCollisionsForInternalRule(InternalRule rule) {
         String voiceMailExtension = rule.getVoiceMail();
+        String voiceMailDid = rule.getDid();
         if (!m_aliasManager.canObjectUseAlias(rule, voiceMailExtension)) {
-            throw new ExtensionInUseException("voicemail", voiceMailExtension);
+            throw new ExtensionInUseException(VOICEMAIL, voiceMailExtension);
+        }
+        if (!m_aliasManager.canObjectUseAlias(rule, voiceMailDid)) {
+            throw new ExtensionInUseException(VOICEMAIL, voiceMailDid);
         }
     }
 
     private void checkAliasCollisionsForAttendantRule(AttendantRule ar) {
         String attendantExtension = ar.getExtension();
+        String attendantDid = ar.getDid();
         if (!m_aliasManager.canObjectUseAlias(ar, attendantExtension)) {
             throw new ExtensionInUseException(DIALING_RULE, attendantExtension);
+        }
+        if (!m_aliasManager.canObjectUseAlias(ar, attendantDid)) {
+            throw new ExtensionInUseException(DIALING_RULE, attendantDid);
         }
 
         String aa = ar.getAttendantAliases();
@@ -358,8 +367,8 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
                 // see http://list.sipfoundry.org/archive/sipx-dev/msg09644.html
                 if (StringUtils.isBlank(candidate.getRoute())) {
                     int port = candidate.getAddressPort();
-                    return new EmergencyInfo(candidate.getAddress(), port == 0 ? null : port, rule
-                            .getEmergencyNumber());
+                    return new EmergencyInfo(candidate.getAddress(), port == 0 ? null : port,
+                            rule.getEmergencyNumber());
                 }
             }
         }
@@ -383,7 +392,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         if (getInternalRulesWithVoiceMailExtension(alias).size() > 0) {
             return true;
         }
-        if (getAttendantRulesWithExtension(alias).size() > 0) {
+        if (getAttendantRulesWithExtensionOrDid(alias).size() > 0) {
             return true;
         }
         return isAutoAttendantAliasInUse(alias);
@@ -410,7 +419,7 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         Collection internalRules = getInternalRulesWithVoiceMailExtension(alias);
         bids.addAll(BeanId.createBeanIdCollection(internalRules, InternalRule.class));
 
-        Collection attendantRules = getAttendantRulesWithExtension(alias);
+        Collection attendantRules = getAttendantRulesWithExtensionOrDid(alias);
         bids.addAll(BeanId.createBeanIdCollection(attendantRules, AttendantRule.class));
 
         bids.addAll(getBeanIdsOfRulesWithAutoAttendantAlias(alias));
@@ -437,8 +446,8 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
                 extension);
     }
 
-    private Collection getAttendantRulesWithExtension(String extension) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("attendantRuleIdsWithExtension", VALUE,
+    private Collection getAttendantRulesWithExtensionOrDid(String extension) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("attendantRuleIdsWithExtensionOrDid", VALUE,
                 extension);
     }
 

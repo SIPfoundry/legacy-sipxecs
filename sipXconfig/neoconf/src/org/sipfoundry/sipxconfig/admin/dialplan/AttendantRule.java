@@ -27,6 +27,7 @@ public class AttendantRule extends DialingRule {
     private WorkingTime m_workingTimeAttendant = new WorkingTime();
     private String m_attendantAliases;
     private String m_extension;
+    private String m_did;
 
     private MediaServer m_mediaServer;
 
@@ -36,6 +37,7 @@ public class AttendantRule extends DialingRule {
             return;
         }
         String[] aliases = AttendantRule.getAttendantAliasesAsArray(m_attendantAliases);
+        ArrayUtils.add(aliases, m_did);
         DialingRule attendantRule = new MappingRule.Operator(getName(), getDescription(), getSystemName(),
                 m_extension, aliases, m_mediaServer);
         rules.add(attendantRule);
@@ -144,5 +146,13 @@ public class AttendantRule extends DialingRule {
             return ArrayUtils.EMPTY_STRING_ARRAY;
         }
         return StringUtils.split(aliasesString);
+    }
+
+    public String getDid() {
+        return m_did;
+    }
+
+    public void setDid(String did) {
+        m_did = did;
     }
 }

@@ -8,6 +8,15 @@
         <tr for="rule:autoAttendantAliases" jwcid="autoAttendantAliasesPanel">
           <input jwcid="autoAttendantAliases" id="rule:autoAttendantAliases" type="text" />
         </tr>
+        <tr jwcid="@common/FieldPanel"
+            field="component:did"
+            label="message:title.did"
+            description="message:description.did" >
+          <input jwcid="did@TextField"
+                 value="ognl:rule.did"
+                 displayName="message:title.did"
+                 validators="spring-validators:validSipUserId"/>
+        </tr>
         <!-- after hours attendant -->
         <tr for="rule:afterHoursAttendant" jwcid="afterHoursAttendantPanel">
           <input jwcid="afterHoursAttendant" id="rule:afterHoursAttendant" type="text" />

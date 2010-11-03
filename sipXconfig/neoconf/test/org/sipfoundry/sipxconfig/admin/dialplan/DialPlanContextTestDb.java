@@ -195,34 +195,39 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
     public void testIsAliasInUse() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        assertTrue(m_context.isAliasInUse("100")); // voicemail extension
-        assertFalse(m_context.isAliasInUse("200")); // a random extension that should not be in
-        // use
+        // voicemail extension
+        assertTrue(m_context.isAliasInUse("100"));
+        assertTrue(m_context.isAliasInUse("123456789"));
+        // a random extension that should not be in use
+        assertFalse(m_context.isAliasInUse("200"));
     }
 
     public void testIsAliasInUseAttendant() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
         assertTrue(m_context.isAliasInUse("333")); // auto attendant extension
+        assertTrue(m_context.isAliasInUse("123456789")); // auto attendant extension
         assertTrue(m_context.isAliasInUse("operator")); // auto attendant alias
         assertTrue(m_context.isAliasInUse("0")); // auto attendant alias
     }
 
     public void testGetBeanIdsOfObjectsWithAlias() throws Exception {
         TestHelper.cleanInsert("admin/dialplan/seedDialPlanWithAttendant.xml");
-        // voicemail extension
+        // voicemail extension and did
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("100").size() == 1);
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("123456789").size() == 1);
         // a random extension that should not be in use
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("200").size() == 0);
     }
 
     public void testGetBeanIdsOfObjectsWithAliasAttendant() throws Exception {
         TestHelper.cleanInsertFlat("admin/dialplan/attendant_rule.db.xml");
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("333").size() == 1); // auto attendant
-        // extension
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("operator").size() == 1); // auto
-        // attendant
-        // alias
-        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("0").size() == 1); // auto
+        // auto attendant extension and did
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("333").size() == 1);
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("123456789").size() == 1);
+        // auto attendant alias
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("operator").size() == 1);
+
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("0").size() == 1);
     }
 
     public void testLoadAttendantRule() throws Exception {

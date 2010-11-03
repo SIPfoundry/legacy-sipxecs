@@ -28,11 +28,13 @@
     <column>internal_dialing_rule_id</column>
     <column>local_extension_len</column>
     <column>voice_mail</column>
+    <column>did</column>
     <column>voice_mail_prefix</column>
     <row>
       <value>1000</value>
       <value>3</value>
       <value>100</value>
+      <value>123456789</value>
       <value>8</value>
     </row>
   </table>
