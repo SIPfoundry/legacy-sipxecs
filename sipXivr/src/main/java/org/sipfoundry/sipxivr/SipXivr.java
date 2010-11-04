@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.sipfoundry.attendant.Attendant;
 import org.sipfoundry.commons.freeswitch.Answer;
+import org.sipfoundry.commons.freeswitch.ConfBasicThread;
 import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
@@ -26,6 +27,7 @@ import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.conference.ConfRecordStatus;
 import org.sipfoundry.moh.Moh;
 import org.sipfoundry.faxrx.FaxRx;
+import org.sipfoundry.voicemail.ConferenceServlet;
 import org.sipfoundry.voicemail.Emailer;
 import org.sipfoundry.voicemail.ExtMailStore;
 import org.sipfoundry.voicemail.MailboxServlet;
@@ -38,19 +40,20 @@ public class SipXivr implements Runnable {
     private static IvrConfiguration s_config;
 
     private Socket m_clientSocket;
-    private FreeSwitchEventSocketInterface m_fses;
+    private static FreeSwitchEventSocketInterface m_fses;
 
     public SipXivr(Socket client) {
         m_clientSocket = client;
     }
+
     /*
      * diversion header looks like:
      * variable_sip_h_diversion=<tel:3948809>;reason=no-answer;counter=1;screen=no;privacy=off
      */
     private void parseDiversionHeader(Hashtable<String, String> parameters) {
-        
+
         String divHeader = m_fses.getVariable("variable_sip_h_diversion");
-               
+
         if(divHeader != null) {
             LOG.debug("SipXivr::parseDiversionHeader header=" + divHeader);
             divHeader = divHeader.toLowerCase();
@@ -87,7 +90,7 @@ public class SipXivr implements Runnable {
                 LOG.debug("SipXivr::parseDiversionHeader OCN=" + ocn);
                 parameters.put("action", "deposit");
                 parameters.put("origCalledNumber", ocn);
-                    
+
                 // now look for call forward reason
                 for (String param : subParms) {
                     if(param.startsWith("reason=")) {
@@ -103,7 +106,7 @@ public class SipXivr implements Runnable {
 
     /**
      * Determine what to do based on the SIP request.
-     * 
+     *
      * Run the autoattendant if action=autoattendant
      * Otherwise, hang up.
      */
@@ -113,12 +116,12 @@ public class SipXivr implements Runnable {
         try {
             m_fses = new FreeSwitchEventSocket(s_config);
             if (m_fses.connect(m_clientSocket, null)) {
-		
-		
+
+
 		        String sipReqParams = m_fses.getVariable("variable_sip_req_params");
 		        // Create a table of parameters to pass in
 		        Hashtable<String, String> parameters = new Hashtable<String, String>();
-		
+
 		        if (sipReqParams != null) {
 		            // Split parameter fields (separated by semicolons)
 		            String[] params = sipReqParams.split(";");
@@ -132,14 +135,14 @@ public class SipXivr implements Runnable {
 		                }
 		            }
 		        }
-		        
-		        LOG.info(String.format("SipXivr::run Accepting call-id %s from %s to %s", 
+
+		        LOG.info(String.format("SipXivr::run Accepting call-id %s from %s to %s",
 		                m_fses.getVariable("variable_sip_call_id"),
 		                m_fses.getVariable("variable_sip_from_uri"),
 		                m_fses.getVariable("variable_sip_req_uri")));
-		        
-		        
-		
+
+
+
 		        String action = parameters.get("action");
                 String uuid = parameters.get("uuid");
                 if (uuid != null) {
@@ -189,45 +192,52 @@ public class SipXivr implements Runnable {
         LOG.debug("SipXivr::run Ending SipXivr thread with client " + m_clientSocket);
     }
 
-    
+
     /**
      * Load the configuration from the sipxivr.properties file.
      * Wait for FreeSWITCH to make a TCP connection to s_eventSocketPort.
      * Spawn off a thread to handle each connection.
-     * 
+     *
      * @throws Throwable
      */
     static void init() throws Throwable {
         int eventSocketPort;
-        
+
         // Load the configuration
         s_config = IvrConfiguration.get();
 
         // Configure log4j
         Properties props = new Properties();
         props.setProperty("log4j.rootLogger", "warn, file");
-        //props.setProperty("log4j.logger.org.sipfoundry.sipxivr", "all");
+        props.setProperty("log4j.logger.org.sipfoundry.sipxivr", "all");
+        props.setProperty("log4j.logger.org.sipfoundry.commons", "all");
         //props.setProperty("log4j.logger.org.mortbay", "debug");
         props.setProperty("log4j.appender.file", "org.sipfoundry.commons.log4j.SipFoundryAppender");
         props.setProperty("log4j.appender.file.File", s_config.getLogFile());
         props.setProperty("log4j.appender.file.layout", "org.sipfoundry.commons.log4j.SipFoundryLayout");
         props.setProperty("log4j.appender.file.layout.facility", "sipXivr");
         PropertyConfigurator.configure(props);
-        
+
+        //Start conference thread to listen to conferences
+        ConfBasicThread confThread = new ConfBasicThread();
+        confThread.setConfConfiguration(s_config);
+        confThread.start();
+
         // Create Web Server
         WebServer webServer = new WebServer(s_config);
         // add MWI servlet on /mwi
         webServer.addServlet("mwistatus", "/mwi", Mwistatus.class.getName());
         webServer.addServlet("mailbox", "/mailbox/*", MailboxServlet.class.getName());
         webServer.addServlet("recording", "/recording/*", ConfRecordStatus.class.getName());
+        webServer.addServlet("conference", "/conference/*", ConferenceServlet.class.getName());
         // Start it up
         webServer.start();
 
         ExtMailStore.Initialize();
-        
+
         // Set up emailer background threads
         Emailer.init(s_config);
- 
+
         eventSocketPort = s_config.getEventSocketPort();
         LOG.info("Starting SipXivr listening on port " + eventSocketPort);
         ServerSocket serverSocket = new ServerSocket(eventSocketPort);

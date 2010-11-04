@@ -7,15 +7,16 @@ import java.io.IOException;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
+import org.sipfoundry.commons.freeswitch.CallCommandLocalizer;
 
-public class Localizer
+public class Localizer implements CallCommandLocalizer
 {
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
-    
+
     private Properties localizationTable;
 
     Localizer() {
-        
+
         String localizationFile = System.getProperty("localization.file",  System.getProperty("conf.dir", "/etc/sipxpbx") + "/imbot/sipximbot-prompts.properties");
         Properties props = new Properties();
         try {
@@ -25,11 +26,11 @@ public class Localizer
         } catch (IOException e) {
             LOG.error("Localizer caught " + e );
         }
-        
+
         localizationTable = props;
     }
 
-    String localize(String promptToLocalize ){
+    public String localize(String promptToLocalize ){
         return localizationTable.getProperty( promptToLocalize + ".prompt", "<<error - not localized>>");
     }
 

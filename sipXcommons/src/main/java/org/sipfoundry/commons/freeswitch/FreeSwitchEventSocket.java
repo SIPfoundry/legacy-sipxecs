@@ -43,11 +43,11 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
     public boolean connect(Socket socket) throws IOException {
         return connect(socket, null);
     }
-    
+
     /**
      * Given the socket from a FreeSwitch "outbound" call, do the "connect" dance to collect all
      * the variables FreeSwitch reports.
-     * 
+     *
      * Enable FreeSwitch to report async events of interest.
      */
     public boolean connect(Socket socket, String authPassword) throws IOException {
@@ -66,20 +66,20 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
         }
 
         LOG.debug(event.getResponse());
-        setVariables(FreeSwitchEvent.parseHeaders(event.getResponse()));      
-        
+        setVariables(FreeSwitchEvent.parseHeaders(event.getResponse()));
+
         String UUID = getVariable("caller-unique-id");
         setSessionUUID(UUID);
-        
+
         // Enable reporting of interesting events
-         
+
         if(UUID != null) {
             cmdResponse("event plain all");
             cmdResponse("filter Unique-ID " + UUID);
         } else {
-            cmdResponse("myevents");   
+            cmdResponse("myevents");
         }
-         
+
         return true;
     }
 
@@ -169,7 +169,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
                     break;
                 }
                 response.add(line);
- //               LOG.debug("::awaitLiveEvent event: " + line);
+                LOG.debug("::awaitLiveEvent event: " + line);
                 if (line.startsWith("Content-Length:")) {
                     contentLength = line;
                 }
@@ -197,7 +197,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
         event = new FreeSwitchEvent(response, content);
         LOG.debug(String.format("FSES::awaitEvent live response (%s) Event-Name (%s) Application (%s)",
                 event.getContentType(), event.getEventValue("Event-Name", "(null)"), event.getEventValue("Application", "(null)")));
-        
+
         // Look for a "uuid_bridge" operation which indicates that this FS session
         // is a consultative transfer target.
         if (event.getContentType().contentEquals("text/event-plain")
