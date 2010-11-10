@@ -1,0 +1,33 @@
+help.sipx.autoreconf=Run autoreconf on each project
+$(foreach T,$(sipx),$(T).autoreconf) : 
+	@echo $@
+	cd $(SRC)/$(PROJDIR); \
+	  autoreconf -if
+
+help.sipx=Build all sipx components including autoreconf, configure, all and install targets
+build sipx :
+	$(MAKE) $(foreach P,$(sipx),$(P))
+
+$(foreach T,$(sipx),$(T)) : % : %.autoreconf %.configure %.all-install ;
+
+help.sipx.all-install=Run "make all install" in each target
+$(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
+
+help.configure = Run configure on each project
+$(foreach T,$(sipx),$(T).configure) : 
+	test -d $(PROJDIR) || mkdir $(PROJDIR)
+	cd $(PROJDIR); \
+	  $(SRC)/$(PROJDIR)/configure @CONFIGURE_OPTIONS@
+
+MAKE_COMMANDS = check install clean dist rpm uninstall-rpm
+$(foreach C,$(MAKE_COMMANDS) all,$(eval help.sipx.$(C)=Run make $(C) on each project))
+$(foreach C,$(MAKE_COMMANDS),$(foreach T,$(sipx),$(T).$(C))) :
+	$(MAKE) -C $(PROJDIR) $(patsubst $(PROJ).%,%,$@)
+
+# shortcuts, support "make clean" and a shortcut for "make sipx.clean"
+$(foreach C,$(MAKE_COMMANDS) all,$(eval $(C) : sipx.$(C);))
+
+# projects do not all have an "all" target, they probably should, until then, use
+# no-target default
+$(foreach C,all,$(foreach T,$(sipx),$(T).all)) :
+	$(MAKE) -C $(PROJDIR)

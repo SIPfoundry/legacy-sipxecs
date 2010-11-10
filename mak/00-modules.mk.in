@@ -1,0 +1,70 @@
+# order is import for some of these as afar as building dependencies first
+# consult spec files for authority on dependencies before changing the order
+sipx = \
+  sipxportlib \
+  sipxtacklib \
+  sipxmedialib \
+  sipxmediaadapterlib \
+  sipxcalllib \
+  sipxcommserverlib \
+  sipxcommons \
+  sipxacd \
+  sipxacccode \
+  sipxrelay \
+  sipxbridge \
+  sipxrest \
+  sipxcallcontroller \
+  sipxcdrlog \
+  sipxconfig \
+  sipxfreeswitch \
+  sipxopenfire \
+  sipximbot \
+  sipxivr \
+  sipxpage \
+  sipxpark \
+  sipxpresence \
+  sipxprovision \
+  sipxproxy \
+  sipxpublisher \
+  sipxrecording \
+  sipxregistry \
+  sipxrls \
+  sipxsaa \
+  sipxsupervisor \
+  sipxtools \
+  sipxpbx \
+  sipxecs
+
+lib_common = \
+  rubygem-file-tail \
+  sipx-freeswitch \
+  sipx-jasperreports-deps \
+  sipx-kraken \
+  sipx-openfire
+
+lib_Fedora_11 = \
+  $(lib_common) \
+  ruby-dbi \
+  ruby-postgres
+
+lib_Fedora_12 = \
+  $(lib_Fedora_11)
+
+lib_CentOS_5 = \
+  $(lib_common) \
+  erlang_with_no_gui \
+  rsyslog \
+  ruby-dbi \
+  ruby-postgres \
+  cppunit \
+  java-1.6.0-sun \
+  nsis \
+  nsis-data \
+  rrdtool \
+  rubygem-rake \
+  rubygems \
+  scons \
+  xerces-c \
+  stunnel
+
+lib = $(lib_$(TARGET_PLATFORM))

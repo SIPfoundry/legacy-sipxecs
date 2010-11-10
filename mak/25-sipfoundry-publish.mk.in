@@ -1,0 +1,40 @@
+SF_REMOTE_DIR = /vol/download/pub/sipXecs
+SF_SSH_DOWNLOAD = download@download.sipfoundry.org
+
+help.sipfoundry-publish = Push repo for $(TARGET_PLATFORM) version @PACKAGE_VERSION@ to sipfoundry download directory
+sipfoundry-publish : check-repo $(TARGET_PLATFORM)-sipfoundry-publish
+
+%.rpmlist :
+	! test -f $@.tmp || rm $@.tmp
+	@for f in $(shell find repo/$(TARGET_PLATFORM) -name '*.rpm'); do \
+	  echo -n `dirname $$f`/ >> $@.tmp; \
+	  rpm -qi -p $$f 2>/dev/null | head -1 | awk '{print $$3}' >>$@.tmp; \
+	done
+	sort $@.tmp > $@
+	rm $@.tmp
+
+# Compare the list that was first uploaded from this machine with the new list you're uploading. If there are
+# any differences to the packages that are uploaded, complain and abort
+check-repo : repo/$(TARGET_PLATFORM).expected.rpmlist
+	$(MAKE) -B repo/$(TARGET_PLATFORM).actual.rpmlist
+	@if ! diff -u repo/$(TARGET_PLATFORM).expected.rpmlist repo/$(TARGET_PLATFORM).actual.rpmlist; then \
+	  echo "differences in expected rpms. Please check"; exit 1; \
+	else \
+	  echo "no differences found"; \
+	fi
+
+sipfoundry-iso :
+	ssh iso@download.sipfoundry.org "cd release; make all-$(PACKAGE_VER)"
+
+create-destination-dir :
+	ssh $(SF_SSH_DOWNLOAD) "test -d $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM) || mkdir -p $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)"
+
+CentOS_5-sipfoundry-publish : create-destination-dir
+	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ root@download.sipfoundry.org:$(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/
+	ssh $(SF_SSH_DOWNLOAD) "cd $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM); createrepo ."
+
+# Assumes this machine is Fedora 11 or 12 and that Fedora 11/12 repo metadata is forwards and/or backwards compatible
+Fedora_12-sipfoundry-publish Fedora_11-sipfoundry-publish : create-destination-dir
+	createrepo repo/$(TARGET_PLATFORM)     
+	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ root@download.sipfoundry.org:$(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/
+

@@ -1,0 +1,86 @@
+DISTDIR = $(abspath ./dist)
+
+POSSIBLE_ARCH = \
+  i386 \
+  i586 \
+  i686 \
+  x86_64 \
+  noarch \
+  nosrc
+#
+#  O B S  (OpenSuse Build Service)
+#
+help-var.TARGET_ARCH = OBS architectiures, default $(TARGET_ARCH)
+TARGET_ARCH ?= i586 x86_64
+
+help-var.TARGET_PLATFORM = OBS platform, default $(TARGET_PLATFORM)
+TARGET_PLATFORM ?= CentOS_5
+
+
+%.obs : %.autoreconf %.obs-tar %.obs-spec ;
+
+obs-clean :
+	rm -rf BUILD.tar
+
+help.sipx.obs-tar = Build tar for each projects and copy to OBS directory ready for running sipx.obs-commit.
+$(foreach T,$(sipx),$(T).obs-tar) :
+	test -d $(PROJDIR) || mkdir $(PROJDIR)
+	cd $(PROJDIR); \
+		$(SRC)/$(PROJDIR)/configure --with-distdir=$(DISTDIR) SIPX_BUILD_LABEL=open
+	make -C $(PROJDIR) dist
+	cp $(DISTDIR)/SRC/$(PROJ)-@PACKAGE_VERSION@.tar.gz @OBS_DIR@/$(PROJ)/
+
+help.sipx.obs-clean-get = Get brand new copy of project binaries for TARGET_ARCH and TARGET_PLATFORM
+%.obs-clean-get : %.obs-clean %.obs-get;
+
+$(foreach T,$(lib) $(sipx),$(T).obs-get) : %.obs-get : @OBS_DIR@/%/$(TARGET_PLATFORM);
+
+$(foreach T,$(lib) $(sipx),$(T).obs-clean) : 
+	test ! -d @OBS_DIR@/$(PROJ)/$(TARGET_PLATFORM) || rm -rf @OBS_DIR@/$(PROJ)/$(TARGET_PLATFORM)
+
+@OBS_DIR@:
+	osc co @OBS_PROJECT@ $@.tmp
+	mv $@.tmp $@
+
+@OBS_DIR@/%/$(TARGET_PLATFORM):
+	cd @OBS_DIR@/$*; \
+	  $(foreach ARCH,$(TARGET_ARCH),osc getbinaries  -d $(TARGET_PLATFORM).tmp $(TARGET_PLATFORM) $(ARCH);)
+	mv @OBS_DIR@/$*/$(TARGET_PLATFORM).tmp @OBS_DIR@/$*/$(TARGET_PLATFORM)
+
+ObsStatus = $(shell curl -n -s https://api.opensuse.org/build/@OBS_PROJECT@/$(strip $(1))/$(strip $(2))/$(strip $(3))/_status | \
+	xsltproc $(SRC)/mak/obs/api.xslt /dev/stdin | tr -d '[:space:]')
+
+$(foreach X,lib sipx,$(eval help.$(X).obs-status=Find the status of the build for TARGET_PLATFORM and TARGET_ARCH))
+$(foreach T,$(lib) $(sipx),$(T).obs-status) :
+	@$(foreach ARCH,$(TARGET_ARCH), \
+	  echo -n "$(PROJ)-$(TARGET_PLATFORM)-$(ARCH): "; \
+	  echo $(call ObsStatus, $(TARGET_PLATFORM), $(ARCH), $(PROJ)); \
+	)
+
+# Puts last svn rev into rpm file name
+$(foreach T,$(sipx),$(T).obs-spec) : 
+	X=$(REV); cd @OBS_DIR@/$(PROJ); \
+	  tar -xvzf $(PROJ)-@PACKAGE_VERSION@.tar.gz --wildcards '$(PROJ)-*/$(PROJ).spec' --strip-components=1; \
+	  sed -i -e "1i%define release_prefix .$$X" $(PROJ).spec
+
+$(foreach X,lib sipx,$(eval help.$(X).obs-commit=Commit changes to OBS))
+$(foreach T,$(lib) $(sipx),$(T).obs-commit) : 
+	cd @OBS_DIR@/$(PROJ); osc commit -m 'recent changes' -f
+
+help.sipx.obs-update-version=If you have updated the version number and built new tarballs, run this to update OBS, You still need to run sipx.obs-commit
+$(foreach T,$(sipx),$(T).obs-update-version) :
+	find @OBS_DIR@/$(PROJ) -maxdepth 1 -not -name '*@PACKAGE_VERSION@.tar.gz' -a -name '*.tar.gz' -exec osc rm {} \;
+	find @OBS_DIR@/$(PROJ) -maxdepth 1 -name '*@PACKAGE_VERSION@.tar.gz' -exec osc add {} \;
+
+
+.PHONY : repo
+repo : repo-clean  $(foreach T,$(sipx) $(lib),$(T).obs-get)
+	test -d repo/$(TARGET_PLATFORM) || mkdir -p repo/$(TARGET_PLATFORM)
+	for arch in $(POSSIBLE_ARCH); do \
+	  test -d repo/$(TARGET_PLATFORM)/$$arch || mkdir -p repo/$(TARGET_PLATFORM)/$$arch; \
+	  find $(foreach D,$(sipx) $(lib),@OBS_DIR@/$(D)/$(TARGET_PLATFORM)) -name *.$$arch.rpm \
+	    -exec cp {} repo/$(TARGET_PLATFORM)/$$arch/ \; ;\
+	done
+
+repo-clean :
+	rm -rf repo/$(TARGET_PLATFORM)
