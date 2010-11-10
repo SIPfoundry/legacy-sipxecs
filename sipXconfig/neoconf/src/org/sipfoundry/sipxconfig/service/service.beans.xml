@@ -810,4 +810,16 @@
       </list>
     </property>
   </bean>
+
+  <bean id="sipxOpenAcdService" class="org.sipfoundry.sipxconfig.service.SipxOpenAcdService" scope="prototype" parent="sipxService">
+    <property name="processName" value="OpenACDServer" />
+    <property name="modelName" value="sipxopenacd.xml" />
+    <property name="modelDir" value="openacd" />
+	<property name="editable" value="true" />
+    <property name="bundles">
+      <set>
+        <ref bean="openAcdBundle" />
+      </set>
+    </property>
+  </bean>
 </beans>

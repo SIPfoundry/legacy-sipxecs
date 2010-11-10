@@ -54,4 +54,9 @@
     <property name="max" value="1" />
   </bean>
 
+  <bean id="openAcdBundle" parent="abstractBundle">
+    <constructor-arg value="openAcd" />
+    <property name="autoEnable" value="false" />
+    <property name="resetAffectLocation" value="true" />
+  </bean>
 </beans>
