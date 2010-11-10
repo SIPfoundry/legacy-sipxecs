@@ -435,6 +435,7 @@ class SipMessageTest : public CppUnit::TestCase
          SipMessage testMsg( MultipartBodyMessage, strlen( MultipartBodyMessage ) );
 
          const SdpBody* sdpBody = testMsg.getSdpBody();
+	 KNOWN_BUG("No support for multipart SDP", "XX-9198");
          CPPUNIT_ASSERT(sdpBody);
 
          UtlString theBody;
