@@ -4,8 +4,11 @@
  * Licensed to the User under the LGPL license.
  */
 package org.sipfoundry.openfire.client;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 import org.sipfoundry.openfire.client.OpenfireXmlRpcChatRoomManagementClient;
 import org.sipfoundry.openfire.client.OpenfireXmlRpcPresenceClient;
@@ -20,27 +23,30 @@ public class OpenfireXmlRpcChatRoomManagementTest extends TestCase {
     String sipDomain = "sipxpbx.example.local";
     private OpenfireXmlRpcChatRoomManagementClient client;
     private WatcherConfig watcherConfig;
-  
+
     // HARD CODED -- please change as needed.
     private String configDir = "/usr/local/sipx/etc/sipxpbx";
-    
+
     // NOTE - you MUST BE LOGGED IN AS ADMIN from your XMPP CLIENT
-    
-    
+
+
     public void setUp() throws Exception {
         ConfigurationParser configParser = new ConfigurationParser();
         watcherConfig = configParser.parse("file://" + configDir + "/sipxopenfire.xml");
+        Properties props = new Properties();
+        File domainConfig = new File(configDir + "/domain-config");
+        props.load(new FileInputStream(domainConfig));
         this.domain = watcherConfig.getOpenfireHost();
         System.out.println("domain  = " + this.domain);
         this.sipDomain = watcherConfig.getProxyDomain();
-        this.client = new OpenfireXmlRpcChatRoomManagementClient(domain,watcherConfig.getOpenfireXmlRpcPort());
+        this.client = new OpenfireXmlRpcChatRoomManagementClient(domain,watcherConfig.getOpenfireXmlRpcPort(), props.getProperty("SHARED_SECRET"));
     }
     public void testGetChatRoomInfo() throws Exception {
-      
+
         String[] members = client.getMembers("subdomain", "mychat");
         assertTrue("Must be zero members ", members.length == 0 );
-       
-     
-        
+
+
+
     }
 }

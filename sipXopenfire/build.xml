@@ -52,6 +52,7 @@
 			    <pathelement location="${servlet-jar}" />
 			    <pathelement location="${jainsip}" />
 			    <pathelement location="${dnsjava}" />
+				<pathelement location="${commons-codec.jar}"/>
 			    <pathelement location="${log4j}" />
 			    <pathelement location="${dnsjava}" />
 			    <pathelement location="${sipxcommons}" />

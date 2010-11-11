@@ -20,21 +20,22 @@ import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 import org.apache.xmlrpc.client.XmlRpcClient;
 import org.apache.xmlrpc.client.XmlRpcClientConfigImpl;
+import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcProvider;
 
 
 public abstract class OpenfireXmlRpcClient {
     private static Logger logger = Logger.getLogger (OpenfireXmlRpcClient.class);
     private boolean isSecure;
-   
+
     private String server;
 
     private XmlRpcClient client = new XmlRpcClient();
-    
+
     /**
-     * 
+     *
      * This method must be called before SSL connection is initialized.
-     * @throws OpenfireClientException 
+     * @throws OpenfireClientException
      */
     static {
          try {
@@ -56,36 +57,37 @@ public abstract class OpenfireXmlRpcClient {
     protected OpenfireXmlRpcClient()
     {
     }
-    
-    protected OpenfireXmlRpcClient(String server, String service, String serverAddress, int port  ) throws Exception {
+
+    protected OpenfireXmlRpcClient(String server, String service, String serverAddress, int port, String sharedSecret) throws Exception {
         XmlRpcClientConfigImpl config = new XmlRpcClientConfigImpl();
+        config.setBasicUserName("SUPERADMIN");
+        config.setBasicPassword(sharedSecret);
         config.setEnabledForExceptions(true);
         config.setEnabledForExtensions(true);
+
         String url = (isSecure ? "https" : "http") + "://" + serverAddress + ":" + port + service;
-        config.setServerURL(new URL(url));     
+        config.setServerURL(new URL(url));
         this.client.setConfig(config);
         this.server = server;
     }
-    
-    
-    
+
     protected Map execute(String method, Object[] args) throws XmlRpcException {
-        
+
         Map retval = (Map) client.execute(server + "." + method,args);
         if ( retval.get(XmlRpcProvider.STATUS_CODE).equals(XmlRpcProvider.ERROR)) {
             throw new XmlRpcException("Processing Error " + retval.get(XmlRpcProvider.ERROR_INFO));
         }
         return retval;
-        
+
     }
 
     protected Boolean executeBoolean(String method, Object[] args) throws XmlRpcException {
-        
+
         return (Boolean) client.execute(server + "." + method,args);
     }
 
     protected String executeString(String method, Object[] args) throws XmlRpcException {
-        
+
         return (String) client.execute(server + "." + method,args);
     }
 

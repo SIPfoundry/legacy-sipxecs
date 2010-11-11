@@ -5,7 +5,10 @@
  */
 package org.sipfoundry.openfire.client;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.Map;
+import java.util.Properties;
 
 import junit.framework.TestCase;
 
@@ -21,24 +24,27 @@ public class OpenfireXmlRpcPresenceClientTest extends TestCase {
     private WatcherConfig watcherConfig;
     // HARD CODED -- please change as needed.
     private String configDir = "/usr/local/sipx/etc/sipxpbx";
-    
+
     // NOTE - you MUST BE LOGGED IN AS ADMIN from your XMPP CLIENT
-    
+
     public void setUp() throws Exception {
         ConfigurationParser configParser = new ConfigurationParser();
         watcherConfig = configParser.parse("file://" + configDir + "/sipxopenfire.xml");
         this.domain = watcherConfig.getOpenfireHost();
         this.sipDomain = watcherConfig.getProxyDomain();
-        this.presenceClient = new OpenfireXmlRpcPresenceClient(domain,watcherConfig.getOpenfireXmlRpcPort());
+        Properties props = new Properties();
+        File domainConfig = new File(configDir + "/domain-config");
+        props.load(new FileInputStream(domainConfig));
+        this.presenceClient = new OpenfireXmlRpcPresenceClient(domain, watcherConfig.getOpenfireXmlRpcPort(), props.getProperty("SHARED_SECRET"));
     }
-    
+
     /*
      * You must sign in to the presence server as admin to run these tests.
      */
     public void testPresence() throws Exception {
         String presenceInfo = presenceClient.getXmppPresenceState("admin");
         System.out.println("presenceInfo = " + presenceInfo);
-        presenceClient.setXmppPresenceState("admin", UnifiedPresence.XmppPresence.AVAILABLE.toString());    
+        presenceClient.setXmppPresenceState("admin", UnifiedPresence.XmppPresence.AVAILABLE.toString());
         String presenceState = presenceClient.getXmppPresenceState("admin");
         assertEquals( UnifiedPresence.XmppPresence.AVAILABLE.toString(), presenceState);
         presenceClient.setXmppPresenceState("admin", UnifiedPresence.XmppPresence.BUSY.toString());
@@ -50,6 +56,6 @@ public class OpenfireXmlRpcPresenceClientTest extends TestCase {
         assertEquals(status,"Hacking");
         Map unifiedPresence = presenceClient.getUnifiedPresenceInfo("user1@" + this.domain);
         System.out.println("Unified Presence = " + unifiedPresence);
-        
+
     }
 }

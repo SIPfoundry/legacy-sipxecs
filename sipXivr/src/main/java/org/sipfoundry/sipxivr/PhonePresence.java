@@ -14,6 +14,7 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.apache.xmlrpc.XmlRpcException;
 
+import org.sipfoundry.commons.util.DomainConfiguration;
 import org.sipfoundry.openfire.client.OpenfireClientException;
 import org.sipfoundry.openfire.client.OpenfireXmlRpcPresenceClient;
 import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
@@ -25,8 +26,9 @@ public class PhonePresence {
     private OpenfireXmlRpcPresenceClient presenceClient;
 
     public PhonePresence() throws Exception {
+        DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
         this.presenceClient = new OpenfireXmlRpcPresenceClient(IvrConfiguration.get().getOpenfireHost(),
-                IvrConfiguration.get().getOpenfireXmlRpcPort());
+                IvrConfiguration.get().getOpenfireXmlRpcPort(), config.getSharedSecret());
     }
 
     public Boolean isUserOnThePhone(String userId) throws Exception {
