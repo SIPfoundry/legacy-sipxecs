@@ -15,6 +15,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.site.admin.commserver.ReloadNeededServicesPage;
 import org.sipfoundry.sipxconfig.site.admin.commserver.RestartNeededServicesPage;
 import org.sipfoundry.sipxconfig.site.admin.softwareupdates.SoftwareUpdatesPage;
 
@@ -59,5 +60,16 @@ public abstract class StatusWarning extends BaseComponent {
         return getPackageUpdateManager().getState() == PackageUpdateManager.UpdaterState.UPDATES_AVAILABLE
                 && !SoftwareUpdatesPage.PAGE.equals(getPage().getPageName());
 
+    }
+
+    /**
+     * Show only if there is least a service mark for reload AND we are NOT on
+     * ReloadNeededServicesPage page
+     *
+     * @return true if warning should be shown
+     */
+    public boolean showReloadWarning() {
+        return getSipxProcessContext().needsReload()
+                && !ReloadNeededServicesPage.PAGE.equals(getPage().getPageName());
     }
 }

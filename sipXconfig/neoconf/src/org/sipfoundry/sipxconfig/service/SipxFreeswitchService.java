@@ -137,6 +137,11 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
         }
     }
 
+    @Override
+    public void onReload() {
+        afterReplication(null);
+    }
+
     private void reloadXml(Location location) {
         if (!isRunning(location)) {
             // no need to reloadXml if the service is not running at the moment

@@ -88,10 +88,12 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     public void store(Conference conference) {
         validate(conference);
-        getHibernateTemplate().saveOrUpdate(conference);
         if (conference.isNew()) {
+            getHibernateTemplate().saveOrUpdate(conference.getBridge());
             // need to make sure that ID is set
             getHibernateTemplate().flush();
+        } else {
+            getHibernateTemplate().saveOrUpdate(conference);
         }
         m_daoEventPublisher.publishSave(conference);
         m_provisioning.deploy(conference.getBridge());
@@ -134,9 +136,12 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
             Bridge bridge = conference.getBridge();
             bridge.removeConference(conference);
             bridges.add(bridge);
-            m_provisioning.deploy(bridge);
         }
         getHibernateTemplate().saveOrUpdateAll(bridges);
+        getHibernateTemplate().flush();
+        for (Bridge bridgeToDeploy : bridges) {
+            m_provisioning.deploy(bridgeToDeploy);
+        }
     }
 
     public Bridge loadBridge(Serializable id) {

@@ -42,6 +42,7 @@ public class SipxProcessContextImpl implements SipxProcessContext {
     private DialPlanActivationManager m_dialPlanActivationManager;
     private AuditLogContext m_auditLogContext;
     private RestartNeededState m_servicesToRestart = new RestartNeededState();
+    private ReloadNeededState m_servicesToReload = new ReloadNeededState();
 
     /** list of services that should trigger dial plan replication if restarted */
     private final Set<String> m_replicateDialPlanBeforeRestartServices = new HashSet<String>();
@@ -77,6 +78,14 @@ public class SipxProcessContextImpl implements SipxProcessContext {
 
     public boolean needsRestart() {
         return !m_servicesToRestart.isEmpty();
+    }
+
+    public boolean needsReload(Location location, SipxService service) {
+        return m_servicesToReload.isMarked(location, service);
+    }
+
+    public boolean needsReload() {
+        return !m_servicesToReload.isEmpty();
     }
 
     public void replicateDialPlanBeforeRestart(String serviceBeanId) {
@@ -152,7 +161,9 @@ public class SipxProcessContextImpl implements SipxProcessContext {
             }
 
             boolean needsRestart = needsRestart(location, service);
-            ServiceStatus status = new ServiceStatus(service.getBeanId(), entry.getValue(), needsRestart);
+            boolean needsReload = needsReload(location, service);
+            ServiceStatus status = new ServiceStatus(service.getBeanId(), entry.getValue(), needsRestart,
+                    needsReload);
             serviceStatusList.add(status);
         }
 
@@ -190,8 +201,8 @@ public class SipxProcessContextImpl implements SipxProcessContext {
         SipxService configService = m_sipxServiceManager.getServiceByBeanId(SipxConfigService.BEAN_ID);
         for (Location location : servicesMap.keySet()) {
             List<SipxService> restartServices = servicesMap.get(location);
-            //remember only the first location where configuration service is found
-            //anyway, config service runs only on one location
+            // remember only the first location where configuration service is found
+            // anyway, config service runs only on one location
             if (!restartServices.contains(configService) || configLocation != null) {
                 manageServices(location, restartServices, command);
             } else {
@@ -199,7 +210,7 @@ public class SipxProcessContextImpl implements SipxProcessContext {
                 restartServicesLast = restartServices;
             }
         }
-        //restart services from config location last
+        // restart services from config location last
         if (configLocation != null && restartServicesLast != null) {
             manageServices(configLocation, restartServicesLast, command);
         }
@@ -222,8 +233,12 @@ public class SipxProcessContextImpl implements SipxProcessContext {
         if (!location.isRegistered()) {
             return;
         }
-        // any command: start, stop, restart effectively triggers a dial plan replication (if needed).
-        replicateDialPlanBeforeRestart(processes);
+        // any command: start, stop, restart effectively triggers a dial plan replication (if
+        // needed).
+        if (!command.equals(Command.RELOAD)) {
+            replicateDialPlanBeforeRestart(processes);
+        }
+
         try {
             String[] processNames = new String[processes.size()];
             int i = 0;
@@ -240,6 +255,7 @@ public class SipxProcessContextImpl implements SipxProcessContext {
                 for (SipxService process : processes) {
                     process.onRestart();
                 }
+                m_servicesToRestart.unmark(location, processes);
 
                 break;
             case START:
@@ -249,6 +265,7 @@ public class SipxProcessContextImpl implements SipxProcessContext {
                 for (SipxService process : processes) {
                     process.onStart();
                 }
+                m_servicesToRestart.unmark(location, processes);
 
                 break;
             case STOP:
@@ -258,13 +275,22 @@ public class SipxProcessContextImpl implements SipxProcessContext {
                 for (SipxService process : processes) {
                     process.onStop();
                 }
+                m_servicesToRestart.unmark(location, processes);
+
+                break;
+            case RELOAD:
+                logProcessStateChange(processNames, location, PROCESS_STATE_CHANGE.RELOADED);
+
+                for (SipxService process : processes) {
+                    process.onReload();
+                }
 
                 break;
             default:
                 break;
             }
-            // any command: start, stop, restart effectively clears need for restart..
-            m_servicesToRestart.unmark(location, processes);
+            // any command: start, stop, restart effectively clears need for reload..
+            m_servicesToReload.unmark(location, processes);
         } catch (XmlRpcRemoteException e) {
             throw new UserException("&xml.rpc.error.operation", location.getFqdn());
         }
@@ -322,6 +348,7 @@ public class SipxProcessContextImpl implements SipxProcessContext {
 
     public void clear() {
         m_servicesToRestart = new RestartNeededState();
+        m_servicesToReload = new ReloadNeededState();
         m_replicateDialPlanBeforeRestartServices.clear();
     }
 
@@ -336,5 +363,43 @@ public class SipxProcessContextImpl implements SipxProcessContext {
 
     public void unmarkServicesToRestart(Collection<RestartNeededService> services) {
         m_servicesToRestart.unmark(services);
+    }
+
+    public void markServicesForReload(Collection< ? extends SipxService> processes) {
+        for (Location location : m_locationsManager.getLocations()) {
+            markServicesForReload(location, processes);
+        }
+    }
+
+    private void markServicesForReload(Location location, Collection< ? extends SipxService> processes) {
+        for (SipxService service : processes) {
+            if (location.isServiceInstalled(service) && location.isRegistered()) {
+                m_servicesToReload.mark(location, service);
+            }
+        }
+    }
+
+    @Override
+    public Collection<ReloadNeededService> getReloadNeededServices() {
+        return m_servicesToReload.getAffected();
+    }
+
+    @Override
+    public void reloadMarkedServices(Location location) {
+        Collection<String> beanIds = m_servicesToReload.getServices(location);
+        if (beanIds.isEmpty()) {
+            return;
+        }
+        List<SipxService> services = new ArrayList<SipxService>(beanIds.size());
+        for (String beanId : beanIds) {
+            SipxService service = m_sipxServiceManager.getServiceByBeanId(beanId);
+            services.add(service);
+        }
+        manageServices(location, services, Command.RELOAD);
+    }
+
+    @Override
+    public void unmarkServicesToReload(Collection<ReloadNeededService> services) {
+        m_servicesToReload.unmark(services);
     }
 }

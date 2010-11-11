@@ -700,6 +700,15 @@ public abstract class TestPage extends SipxBasePage {
         getSipxProcessContext().markServicesForRestart(Arrays.asList(service));
     }
 
+    public void markForReload() {
+        Location location = getLocationsManager().getPrimaryLocation();
+        SipxService service = getSipxServiceManager().getServiceDefinitions().iterator().next();
+        location.addService(service);
+        getLocationsManager().storeLocation(location);
+
+        getSipxProcessContext().markServicesForReload(Arrays.asList(service));
+    }
+
     public void clearRestartNeeded() {
         getSipxProcessContext().clear();
     }

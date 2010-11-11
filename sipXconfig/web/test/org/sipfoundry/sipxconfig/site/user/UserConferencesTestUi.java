@@ -85,7 +85,7 @@ public class UserConferencesTestUi extends WebTestCase {
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         setWorkingForm("refreshForm");
-        SiteTestHelper.clickSubmitLink(tester, "conference:add");
+        clickLink("conference:add");
         clickButton("assign");
         setTextField("userSearch:query", TestPage.TEST_USER_ALIAS1);
         clickButton("user:search");

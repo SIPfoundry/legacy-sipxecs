@@ -9,7 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.conference;
 
+import static java.util.Collections.singleton;
+
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
@@ -26,14 +29,21 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
     private SipxReplicationContext m_replicationContext;
     private ServiceConfigurator m_serviceConfigurator;
     private SipxServiceManager m_serviceManager;
+    private SipxProcessContext m_processContext;
 
     public void deploy(Bridge bridge) {
+
+        // bridge to deploy should always have service associated
+        if (bridge.getService() == null) {
+            return;
+        }
         m_replicationContext.generate(DataSet.ALIAS);
 
         // only need to replicate files that do not require restart
         Location location = bridge.getLocation();
         SipxFreeswitchService freeswitchService = bridge.getFreeswitchService();
-        m_serviceConfigurator.replicateServiceConfig(location, freeswitchService, true);
+        m_serviceConfigurator.replicateServiceConfig(location, freeswitchService, true, false);
+        m_processContext.markServicesForReload(singleton(freeswitchService));
         if (m_serviceManager.isServiceInstalled(SipxIvrService.BEAN_ID)) {
             SipxService ivrService = m_serviceManager.getServiceByBeanId(SipxIvrService.BEAN_ID);
             m_serviceConfigurator.replicateServiceConfig(ivrService, true);
@@ -61,5 +71,10 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
     @Required
     public void setSipxServiceManager(SipxServiceManager serviceManager) {
         m_serviceManager = serviceManager;
+    }
+
+    @Required
+    public void setSipxProcessContext(SipxProcessContext context) {
+        m_processContext = context;
     }
 }

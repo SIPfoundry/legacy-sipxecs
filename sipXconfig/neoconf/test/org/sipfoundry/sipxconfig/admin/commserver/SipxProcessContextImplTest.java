@@ -168,6 +168,7 @@ public class SipxProcessContextImplTest extends TestCase {
         // mark services for restart
         m_processContextImpl.markServicesForRestart(Arrays.asList(m_registrarService, m_parkService,
                 m_presenceService));
+        m_processContextImpl.markServicesForReload(Arrays.asList(m_registrarService));
         replay(provider, api, serviceManager);
 
         ServiceStatus[] resultServiceStatus = m_processContextImpl.getStatus(location, false);
@@ -176,6 +177,7 @@ public class SipxProcessContextImplTest extends TestCase {
         assertEquals(Starting, resultServiceStatus[0].getStatus());
         assertEquals(SipxRegistrarService.BEAN_ID, resultServiceStatus[0].getServiceBeanId());
         assertTrue(resultServiceStatus[0].isNeedsRestart());
+        assertTrue(resultServiceStatus[0].isNeedsReload());
 
         assertEquals(Running, resultServiceStatus[1].getStatus());
         assertEquals(SipxParkService.BEAN_ID, resultServiceStatus[1].getServiceBeanId());
@@ -407,6 +409,33 @@ public class SipxProcessContextImplTest extends TestCase {
         m_processContextImpl.restartMarkedServices(m_locationsManager.getLocations()[1]);
         // this is is only call that should result in restarting services
         m_processContextImpl.restartMarkedServices(location);
+
+        verify(provider, api);
+    }
+
+    public void testReloadMarked() {
+        Location location = m_locationsManager.getLocations()[0];
+        SipxServiceManager serviceManager = getMockSipxServiceManager(true, m_registrarService, m_parkService,
+                m_presenceService, m_proxyService);
+
+        ProcessManagerApi api = createMock(ProcessManagerApi.class);
+
+        ApiProvider provider = createMock(ApiProvider.class);
+        provider.getApi(location.getProcessMonitorUrl());
+        expectLastCall().andReturn(api).atLeastOnce();
+
+        replay(provider, api);
+
+        m_processContextImpl.setProcessManagerApiProvider(provider);
+        m_processContextImpl.setSipxServiceManager(serviceManager);
+
+        // no service marked
+        m_processContextImpl.reloadMarkedServices(location);
+        m_processContextImpl.markServicesForReload(Arrays.asList(m_proxyService, m_parkService));
+        // different location
+        m_processContextImpl.reloadMarkedServices(m_locationsManager.getLocations()[1]);
+        // this is is only call that should result in reloading services
+        m_processContextImpl.reloadMarkedServices(location);
 
         verify(provider, api);
     }

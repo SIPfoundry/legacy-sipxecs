@@ -40,7 +40,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         tester.setWorkingForm("refreshForm");
-        SiteTestHelper.clickSubmitLink(tester, "conference:add");
+        clickLink("conference:add");
         checkCheckbox("item:enabled");
         setTextField("item:name", "OwnerTestConf");
         setTextField("item:extension", "9999");
@@ -72,7 +72,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLinkWithText("testuser");
         clickLink("userConferencesLink");
         tester.setWorkingForm("refreshForm");
-        SiteTestHelper.clickSubmitLink(tester, "conference:add");
+        clickLink("conference:add");
         assertElementPresent("bridgeSelect");
         assertTextPresent("testuser");
         assertTextNotPresent("(none)");
@@ -88,7 +88,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         tester.setWorkingForm("refreshForm");
-        SiteTestHelper.clickSubmitLink(tester, "conference:add");
+        clickLink("conference:add");
         assertElementNotPresent("bridgeSelect");
         assertTextPresent("(none)");
     }
@@ -99,7 +99,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         tester.setWorkingForm("refreshForm");
-        SiteTestHelper.clickSubmitLink(tester, "conference:add");
+        clickLink("conference:add");
 
         // Test empty fields
         submit("form:ok");
@@ -140,7 +140,7 @@ public class EditConferenceTestUi extends WebTestCase {
         clickLinkWithText(TestPage.TEST_LOCATION_FQDN);
         clickLink("link:conferences");
         tester.setWorkingForm("refreshForm");
-        SiteTestHelper.clickSubmitLink(tester, "conference:add");
+        clickLink("conference:add");
         setTextField("item:name", "dimdimConference");
         setTextField("item:extension", "123456");
         setTextField("setting:participant-code","1122");
@@ -178,7 +178,7 @@ public class EditConferenceTestUi extends WebTestCase {
        clickLinkWithText("testuser");
        clickLink("userConferencesLink");
        tester.setWorkingForm("refreshForm");
-       SiteTestHelper.clickSubmitLink(tester, "conference:add");
+       clickLink("conference:add");
        setTextField("item:name", "test101");
        setTextField("item:extension", "1101");
        checkCheckbox("item:enabled");

@@ -1,6 +1,6 @@
 <!DOCTYPE dataset SYSTEM "../sipxconfig-db.dtd">
 <dataset>
-  <location location_id="1000" name="b1 server" fqdn="host.example.com" primary_location="false" use_stun="false"
+  <location location_id="1000" name="b1 server" fqdn="host.example.com" primary_location="true" use_stun="false"
     public_port="5060" public_tls_port="5061" registered="true" start_rtp_port="30000" stop_rtp_port="31000" stun_interval="60" />
   <location location_id="1001" name="b2 server" fqdn="host2.example.com" primary_location="false" use_stun="false"
     public_port="5060" public_tls_port="5061" registered="true" start_rtp_port="30000" stop_rtp_port="31000" stun_interval="60" />

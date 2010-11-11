@@ -1,0 +1,33 @@
+<div jwcid="@common/Border" useDojo="ognl:true"  borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg" />
+  <div jwcid="@common/QuickLinks">
+    <ul>
+      <li>
+        <a jwcid="@PageLink" page="admin/commserver/LocationsPage" href="#"><span key="link.location">Servers</span></a>
+	  </li>
+	</ul>
+  </div>
+  <span jwcid="@common/QuickHelp" value="message:quick.help"/>
+  <form jwcid="@Form">
+    <table jwcid="reloadNeededServices@common/Table" id="reloadNeededServices:list"
+      source="ognl:reloadNeededServices"
+      columns="* server,serviceName"
+      row="ognl:currentRow"
+      selections="bean:selections">
+      <span jwcid="serverColumnValue@Block">
+        <img jwcid="@Image" image="asset:serverIcon" align="absmiddle" />
+        <span jwcid="@Insert" value="ognl:currentRow.location"/>
+      </span>
+      <span jwcid="serviceNameColumnValue@Block">
+		<img jwcid="@Image" image="asset:restartIcon"/>
+		<span jwcid="@Insert" value="ognl:serviceLabel" />
+      </span>
+    </table>
+    <ul class="component-submit">
+      <li>
+        <input jwcid="reload@Submit" id="services:reload" listener="listener:reload" value="message:button.reload" />
+        <input jwcid="ignore@Submit" id="services:ignore" listener="listener:ignore" value="message:button.ignore" />
+      </li>
+    </ul>
+  </form>
+</div>

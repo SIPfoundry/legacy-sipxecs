@@ -34,7 +34,7 @@
     <property name="domainManager" ref="domainManager" />
     <property name="daoEventPublisher" ref="daoEventPublisher"/>
     <property name="provisioning">
-      <ref local="conferenceBridgeProvisioning" />
+      <ref local="eagerConferenceBridgeProvisioning" />
     </property>
     <property name="conferenceBundle" ref="conferenceBundle" />
     <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
@@ -88,6 +88,7 @@
         <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
         <property name="replicationContext" ref="sipxReplicationContextDao" />
         <property name="sipxServiceManager" ref="sipxServiceManager" />
+        <property name="sipxProcessContext" ref="sipxProcessContext" />
       </bean>
     </property>
   </bean>

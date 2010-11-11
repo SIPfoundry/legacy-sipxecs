@@ -23,7 +23,7 @@ public interface AuditLogContext {
     }
 
     enum PROCESS_STATE_CHANGE {
-        STOPPED, STARTED, RESTARTED;
+        STOPPED, STARTED, RESTARTED, RELOADED;
 
         @Override
         public String toString() {

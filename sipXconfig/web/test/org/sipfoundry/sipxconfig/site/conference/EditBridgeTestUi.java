@@ -29,7 +29,7 @@ public class EditBridgeTestUi extends ListWebTestCase {
         setPager(true);
         setHasDuplicate(false);
         setExactCheck(false);
-        setAddLinkSubmit(true);
+        setAddLinkSubmit(false);
         setFormName("refreshForm");
     }
 
