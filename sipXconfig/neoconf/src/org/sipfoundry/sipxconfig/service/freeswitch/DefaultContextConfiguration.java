@@ -14,6 +14,7 @@ import org.sipfoundry.sipxconfig.acccode.AccCodeContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.conference.Bridge;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionCollector;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceConfiguration;
 import org.springframework.beans.factory.annotation.Required;
@@ -25,6 +26,7 @@ public class DefaultContextConfiguration extends SipxServiceConfiguration {
 
     private ConferenceBridgeContext m_conferenceContext;
     private AccCodeContext m_acccodeContext;
+    private FreeswitchExtensionCollector m_freeswitchExtensionCollector;
 
     @Override
     protected VelocityContext setupContext(Location location) {
@@ -38,6 +40,7 @@ public class DefaultContextConfiguration extends SipxServiceConfiguration {
             boolean acccodeActive = true;
             context.put("acccode", acccodeActive);
         }
+        context.put("freeswitchExtensions", m_freeswitchExtensionCollector.getExtensions());
         return context;
     }
 
@@ -49,6 +52,11 @@ public class DefaultContextConfiguration extends SipxServiceConfiguration {
     @Required
     public void setAccCodeContext(AccCodeContext accCodeContext) {
         m_acccodeContext = accCodeContext;
+    }
+
+    @Required
+    public void setFreeswitchExtensionCollector(FreeswitchExtensionCollector collector) {
+        m_freeswitchExtensionCollector = collector;
     }
 
     @Override

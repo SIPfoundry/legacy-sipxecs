@@ -622,6 +622,7 @@
     <property name="directory" value="${sysdir.etc}/freeswitch/conf/dialplan" />
     <property name="conferenceContext" ref="conferenceBridgeContext" />
     <property name="accCodeContext" ref="accCodeContext" />
+    <property name="freeswitchExtensionCollector" ref="freeswitchExtensionCollector" />
   </bean>
 
   <bean id="sofiaConfiguration" parent="serviceConfigurationFile" class="org.sipfoundry.sipxconfig.service.freeswitch.SofiaConfiguration"

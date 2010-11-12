@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="org.sipfoundry.sipxconfig.openacd" default-lazy="false">
+
+  <subclass name="OpenAcdExtension" extends="org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension" discriminator-value="O">
+  </subclass>
+
+  <query name="openAcdIdsWithAlias">
+    <![CDATA[select oa.id from OpenAcdExtension oa where oa.name = :value]]>
+  </query>
+
+  <query name="openAcdExtensionWithName">
+    <![CDATA[from OpenAcdExtension ext where ext.name = :value]]>
+  </query>
+
+</hibernate-mapping>

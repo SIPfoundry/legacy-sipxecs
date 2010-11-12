@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl">
+    <property name="sessionFactory" ref="sessionFactory" />
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+    <property name="domainManager" ref="domainManager" />
+    <property name="aliasManager" ref="aliasManager" />
+  </bean>
+
+  <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
+    <property name="proxyInterfaces" value="org.sipfoundry.sipxconfig.openacd.OpenAcdContext" />
+    <property name="target">
+      <ref local="openAcdContextImpl" />
+    </property>
+  </bean>
+</beans>

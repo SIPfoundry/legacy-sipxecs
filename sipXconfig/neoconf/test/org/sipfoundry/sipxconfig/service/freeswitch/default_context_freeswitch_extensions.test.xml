@@ -1,0 +1,19 @@
+<context name="default">
+  <extension name="IVR">
+    <condition field="destination_number" expression="^IVR$">
+      <action application="socket" data="192.168.1.1:8084 async full"/>
+    </condition>
+  </extension>
+  <extension name="sales">
+    <condition field="destination_number" expression="^300$">
+      <action application="answer" data=""/>
+      <action application="set" data="domain_name=$${domain}"/>
+      <action application="set" data="brand=1"/>
+      <action application="set" data="queue=Sales"/>
+      <action application="set" data="allow_voicemail=true"/>
+      <action application="erlang_sendmsg" data="freeswitch_media_manager testme@192.168.1.1 inivr ${uuid}"/>
+      <action application="playback" data="/usr/share/www/doc/stdprompts/welcome.wav"/>
+      <action application="erlang" data="freeswitch_media_manager:! testme@192.168.1.1"/>
+    </condition>
+  </extension>
+</context>

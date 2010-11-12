@@ -39,12 +39,14 @@
       classpath:/org/sipfoundry/sipxconfig/common/common.beans.xml
       classpath:/org/sipfoundry/sipxconfig/device/device.beans.xml
       classpath:/org/sipfoundry/sipxconfig/domain/domain.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/freeswitch/freeswitch.beans.xml
       classpath:/org/sipfoundry/sipxconfig/jasperreports/reporting.beans.xml
       classpath:/org/sipfoundry/sipxconfig/job/job.beans.xml
       classpath:/org/sipfoundry/sipxconfig/gateway/gateway.beans.xml
       classpath:/org/sipfoundry/sipxconfig/gateway/itspTemplates.beans.xml
       classpath:/org/sipfoundry/sipxconfig/login/login.beans.xml
       classpath:/org/sipfoundry/sipxconfig/nattraversal/nattraversal.beans.xml
+      classpath:/org/sipfoundry/sipxconfig/openacd/openacd.beans.xml
       classpath:/org/sipfoundry/sipxconfig/paging/paging.beans.xml
       classpath:/org/sipfoundry/sipxconfig/permission/permission.beans.xml
       classpath:/org/sipfoundry/sipxconfig/phone/phone.beans.xml

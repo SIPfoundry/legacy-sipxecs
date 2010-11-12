@@ -25,4 +25,15 @@
     </condition>
   </extension>
 #end
+#foreach($extension in $freeswitchExtensions)
+  <extension name="${extension.name}">
+#foreach($condition in $extension.conditions)
+    <condition field="${condition.field}" expression="${condition.expression}">
+#foreach($action in $condition.actions)
+      <action application="${action.application}"#if( $action.data ) data="${action.data}"#end/>
+#end
+    </condition>
+#end
+  </extension>
+#end
 </context>

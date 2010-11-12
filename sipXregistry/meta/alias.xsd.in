@@ -140,6 +140,13 @@
           </documentation>
         </annotation>
       </enumeration>
+      <enumeration value='openacd'>
+        <annotation>
+          <documentation>
+            Open ACD provisioning.
+          </documentation>
+        </annotation>
+      </enumeration>
     </restriction>
   </simpleType>
 
