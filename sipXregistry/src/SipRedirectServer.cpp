@@ -216,6 +216,23 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
    ErrorDescriptor errorDescriptor;
 
    // Extract the request URI.
+
+   // This code is not strictly correct, as the request could have:
+   //    Route: <registrar [added by proxy]>,
+   //           sip:[user]@[domain],
+   //           [more]
+   // due to an element Record-Routing with its AOR, but no element seems
+   // to do that.
+   // If we desire to handle that case, we have to correct the code here
+   // to remove/skip any top routes that refer to the Registrar, then examine
+   // the topmost remaining route (if any).
+   // It would also require changing the code for routing ACKs that we forward
+   // to modify the topmost route if present, instead of the request-URI.
+   // There may be further complications due to strict routing.
+   // All of this would be much like the Proxy forwarding requests.
+   // Currently, we trust that all Route values refer to the registrar
+   // and blindly remove them from any ACK that we must forward directly.
+
    UtlString stringUri;
    pMessage->getRequestUri(&stringUri);
    // The requestUri is an addr-spec, not a name-addr.
@@ -383,20 +400,45 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
                              "Forwarding ACK for URI '%s': ",
                              stringUri.data());
 
-               UtlString contactUri;
+               UtlString contactNameAddr;
                UtlString routeEntries;
                int maxForwards;
 
-               contactList.get(0, contactUri);
+               // Get the (single) contact.
+               contactList.get(0, contactNameAddr);
+               // Convert from name-addr format (which is what is in
+               // contactList) to addr-spec (which is what is needed
+               // for a request-URI.
+               Url contactUri(contactNameAddr, Url::NameAddr);
+               UtlString contactAddrSpec;
+               contactUri.getUri(contactAddrSpec);
 
                // create the message to forward -
                // change reqUri to located value, add route for debugging info, decrement max-forwards
                // leave last via since we are circling back, not responding
-               SipMessage ackCopy(*pMessage);    // "clone" original ACK
-               ackCopy.setRequestFirstHeaderLine(SIP_ACK_METHOD, contactUri, SIP_PROTOCOL_VERSION);
-               routeEntries.insert(0, mAckRouteToProxy);        // put route proxy in first position for informational purposes
-               ackCopy.setRouteField(routeEntries.data());      // into forwarded ack
-               if(!ackCopy.getMaxForwards(maxForwards))
+               SipMessage ackCopy(*pMessage);    // copy original ACK
+               ackCopy.setRequestFirstHeaderLine(SIP_ACK_METHOD,
+                                                 contactAddrSpec,
+                                                 SIP_PROTOCOL_VERSION);
+
+               // Remove any existing Route headers.
+               // See the comment at the top of this method ("Extract
+               // the request URI") for discussion.
+               while (ackCopy.removeHeader(SIP_ROUTE_FIELD, 0))
+               {
+                  // empty
+               }
+
+               // Process header parameters in the request URI,
+               // especially moving any Route parameters to Route headers.
+               ackCopy.applyTargetUriHeaderParams();
+
+               // Put Route to proxy in the first position, so the proxy
+               // can see the ACK.
+               ackCopy.addRouteUri(mAckRouteToProxy.data());
+
+               // Update or create the Max-Forwards header.
+               if (!ackCopy.getMaxForwards(maxForwards))
                {
                    maxForwards = SIP_DEFAULT_MAX_FORWARDS;
                }
@@ -415,12 +457,14 @@ void SipRedirectServer::processRedirect(const SipMessage* pMessage,
 
                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                              "SipRedirectServer::processRedirect "
-                             "sending ACK to '%s':%d using '%s'"
-                             "location service returned '%s'",
+                             "sending ACK to '%s':%d using '%s' "
+                             "location service returned '%s', "
+                             "converted into '%s'",
                              lastViaAddress.data(),
                              lastViaPort,
                              lastViaProtocol.data(),
-                             contactUri.data());
+                             contactNameAddr.data(),
+                             contactAddrSpec.data());
 
                // This ACK has no matching INVITE, special case
                mpSipUserAgent->sendStatelessAck(ackCopy,            // this will add via
