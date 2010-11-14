@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+# Copyright (C) 2010 eZuce Inc.
+# Licensed by SIPfoundry under the LGPL license.
+#
+Action="START"
+
+start() {
+        echo -n "Starting OpenACD "
+}
+
+stop() {
+	echo -n "Shutting down OpenACD "
+}
+
+restart() {
+	stop
+	sleep 10 # give it a few moments to shut down
+	start
+}
+
+while [ $# -ne 0 ]
+do
+    case ${1} in
+        --stop)
+            Action=STOP
+            ;;
+
+        --restart)
+            Action=RESTART
+            ;;
+
+        *)
+            Args="$1"
+            ;;
+    esac
+
+    shift # always consume 1
+done
+
+case "$Action" in
+	START)
+		start
+		;;
+	STOP)
+		stop
+		;;
+	RESTART)
+		restart
+		;;
+esac

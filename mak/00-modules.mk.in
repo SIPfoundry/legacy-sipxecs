@@ -33,6 +33,7 @@ sipx = \
   sipxsupervisor \
   sipxtools \
   sipxpbx \
+  sipxopenacd \
   sipxecs
 
 lib_common = \
