@@ -1,88 +1,72 @@
+/*
+ * Copyright (c) 2010 eZuce, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
 package org.sipfoundry.voicemail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Collection;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.ConfBasicThread;
-import org.sipfoundry.commons.freeswitch.ConfCommand;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
+import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.timeout.Result;
 import org.sipfoundry.commons.timeout.SipxExecutor;
 import org.sipfoundry.commons.timeout.Timeout;
 
 public class ConferenceServlet extends HttpServlet {
-    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
-    public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter pw = response.getWriter();
-        String [] subDirs = request.getPathInfo().split("/");
+        String pathInfo = request.getPathInfo();
+        String commandStr = "conference"+pathInfo.replace('/', ' ');
 
         response.setContentType("text/xml");
 
-        executeCommand(getConferenceName(subDirs), getCommand(subDirs), new IvrLocalizer(), pw);
+        executeCommand(commandStr.trim(), new IvrLocalizer(), pw);
 
         pw.close();
     }
 
-    private String getCommand(String[] subDirs) {
-        if (subDirs.length == 2) {
-            return subDirs[1];
-        } else if (subDirs.length == 3) {
-            return subDirs[2];
-        } else {
-            return "";
-        }
-    }
+    private synchronized void executeCommand(String cmd, IvrLocalizer localizer, PrintWriter pw) {
 
-    private String getConferenceName(String[] subDirs) {
-        if (subDirs.length == 2) {
-            return "";
-        } else if (subDirs.length == 3) {
-            return subDirs[1];
-        } else {
-            return "";
-        }
-    }
-
-    private synchronized void executeCommand(String confName, String cmd, IvrLocalizer localizer, PrintWriter pw) {
-
-
-        ConfCommand confcmd = new ConfCommand(ConfBasicThread.getCmdSocket(), confName, cmd, localizer);
+        FreeSwitchEventSocket socket = ConfBasicThread.getCmdSocket();
         Result result = null;
         try {
-            result = SipxExecutor.execute(new TimeoutCommand(confcmd), 60);
-            pw.format("<command-executed>%s</command-executed>\n", result.isSuccesfull());
-            pw.format("<command-response>%s</command-response>\n", confcmd.getResponse());
+            result = SipxExecutor.execute(new TimeoutCommand(socket, cmd), 60);
+            pw.format("<command-response>%s</command-response>\n", result.getResult());
         } catch(Exception ex) {
-            pw.format("<command-exception>%s</command-exception>\n", ex.getClass().getName()+" "+ex.getMessage());
-        }
-        if (confcmd.isSucessful()) {
-            LOG.debug("Conf command SUCCESS " + cmd + " " + confcmd.getResponse());
-            pw.format("<command-response>%s</command-response>\n", confcmd.getResponse());
-        } else {
-            LOG.debug("Conf command FAILED " + cmd + " " + confcmd.GetErrString());
-            pw.format("<command-error>%s</command-error>\n", confcmd.GetErrString());
+            pw.format("<command-exception>%s</command-exception>\n", ex.getMessage());
         }
     }
 
     private class TimeoutCommand implements Timeout {
-        ConfCommand m_command;
+        FreeSwitchEventSocket m_socket;
+        String m_command;
 
-        public TimeoutCommand(ConfCommand command) {
+        public TimeoutCommand(FreeSwitchEventSocket socket, String command) {
+            m_socket = socket;
             m_command = command;
         }
         @Override
         public Result timeoutMethod() {
-            m_command.go();
-            return new Result(true, null);
+            FreeSwitchEvent event = m_socket.apiCmdResponse(m_command);
+            return new Result(true, event.getContent());
         }
-
     }
 
 }

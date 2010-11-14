@@ -13,9 +13,7 @@ public class ConfCommand extends CallCommand {
    public  boolean start() {
        m_finished = false;
        // Send the command to the socket
-       String commandStr = StringUtils.isEmpty(m_confName) ?
-               "api conference " + m_command : "api conference " + m_confName + " " + m_command;
-       m_fses.cmd(commandStr);
+       m_fses.cmd("api conference " + m_confName + " " + m_command);
        return false;
    }
 

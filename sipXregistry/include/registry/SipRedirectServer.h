@@ -305,7 +305,7 @@ class SipRedirectServer : public OsServerTask
    // will be removed, or PORT_NONE
    int mProxyNormalPort;
    // The Route header address and parameter value(lr) to use to
-   // "forward" redirected ACKs "back" to the proxy.
+   // forward redirected ACKs back to the proxy.
    UtlString mAckRouteToProxy;
 
    // functions

@@ -46,8 +46,15 @@ public class GatewaysTestUi extends WebTestCase {
         getTestContext().setBaseUrl(getBaseUrl());
         home(tester);
         SiteTestHelper.setScriptingEnabled(tester, false);
+        clickLink("link:seedBridgeSbc");
         clickLink("resetDialPlans");
         clickLink("resetBranches");
+    }
+
+    @Override
+    public void tearDown() {
+        SiteTestHelper.home(tester);
+        clickLink("link:deleteBridgeSbc");
     }
 
     public void testLinks() {
@@ -144,12 +151,14 @@ public class GatewaysTestUi extends WebTestCase {
 
         for (String gatewayType : nonRouteGateways) {
             selectOption("selectGatewayModel", gatewayType);
-            assertElementNotPresent("sbcDeviceSelect");
+            assertElementNotPresent("gateway:useSipXBridge");
             clickButton("form:cancel");
         }
 
         selectOption("selectGatewayModel", "SIP trunk");
         setTextField("gateway:name", "SipTrunkRouteInit");
+        assertElementPresent("gateway:useSipXBridge");
+        assertCheckboxSelected("gateway:useSipXBridge");
         assertElementNotPresent("gateway:outboundAddress");
         assertElementNotPresent("gateway:outboundPort");
         setTextField("gateway:address", "1.2.3.4");
@@ -167,8 +176,6 @@ public class GatewaysTestUi extends WebTestCase {
         assertElementPresent("gateway:useSipXBridge");
         uncheckCheckbox("gateway:useSipXBridge");
 
-        // // FIXME: apply should not be necessary see: XCF-2444
-        clickButton("form:apply");
         assertElementPresent("gateway:useSipXBridge");
         assertElementPresent("gateway:outboundAddress");
         assertElementPresent("gateway:outboundPort");

@@ -22,42 +22,42 @@ import org.sipfoundry.openfire.plugin.presence.XmlRpcPresenceProvider;
 
 
 public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
-    
+
     private static Logger logger = Logger.getLogger(OpenfireXmlRpcPresenceClient.class);
-    
+
     static {
         logger.addAppender(new ConsoleAppender(new SimpleLayout()));
     }
-    
-    
 
-    public OpenfireXmlRpcPresenceClient(String serverAddress, int port) throws Exception {
-        super(XmlRpcPresenceProvider.SERVER,XmlRpcPresenceProvider.SERVICE_PATH,serverAddress,port);
+
+
+    public OpenfireXmlRpcPresenceClient(String serverAddress, int port, String sharedSecret) throws Exception {
+        super(XmlRpcPresenceProvider.SERVER, XmlRpcPresenceProvider.SERVICE_PATH, serverAddress, port, sharedSecret);
      }
-    
+
     public String getXmppPresenceState(String userName) throws OpenfireClientException {
-        
+
         Object[] args = new Object[1];
         args[0] = userName;
-      
+
         Map retval;
         try {
-            retval = (Map) execute("getPresenceState", args);
+            retval = execute("getPresenceState", args);
         } catch (XmlRpcException e) {
             throw new OpenfireClientException(e);
         }
-        
-        return (String) retval.get(XmlRpcPresenceProvider.XMPP_PRESENCE);   
-        
+
+        return (String) retval.get(XmlRpcPresenceProvider.XMPP_PRESENCE);
+
     }
-    
+
     public void setXmppPresenceState(String userName, String state) throws OpenfireClientException {
         Object[] args = new Object[2];
         args[0] = userName;
         args[1] = state;
         Map retval ;
         try {
-            retval = (Map)execute("setPresenceState", args);
+            retval = execute("setPresenceState", args);
         }catch (XmlRpcException e) {
             throw new OpenfireClientException(e);
         }
@@ -66,8 +66,8 @@ public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
                     + retval.get(XmlRpcPresenceProvider.ERROR_INFO));
         }
     }
-    
-    
+
+
     public void setXmppCustomPresenceMessage(String userName, String statusMessage) throws OpenfireClientException {
         Object[] args = new Object[2];
         args[0] = userName;
@@ -83,9 +83,9 @@ public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
                     + retval.get(XmlRpcPresenceProvider.ERROR_INFO));
         }
     }
-    
-    
-    
+
+
+
     public String getXmppCustomPresenceMessage(String userName) throws OpenfireClientException {
         Object[] args = new Object[1];
         args[0] = userName ;
@@ -101,10 +101,10 @@ public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
         }
         return (String) retval.get(XmlRpcPresenceProvider.CUSTOM_PRESENCE_MESSAGE);
     }
-    
+
     /**
      * Method name:  "sipXopenfire.getUnifiedPresenceInfo"
-     * 
+     *
      * @param  SIP identity for which presence info is requested
      *
      *@return a Map containing the following information:
@@ -136,8 +136,8 @@ public class OpenfireXmlRpcPresenceClient  extends OpenfireXmlRpcClient {
             throw new OpenfireClientException(ex);
         }
         return retval;
-        
+
     }
-    
+
 
 }

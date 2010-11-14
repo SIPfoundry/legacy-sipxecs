@@ -101,22 +101,21 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         boolean isNew = gateway.isNew();
         // Store the updated gateway
         hibernate.saveOrUpdate(gateway);
-        if (gateway.isNew()) {
+        hibernate.flush();
+
+        if (isNew) {
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.ADDED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
         } else {
             m_auditLogContext.logConfigChange(CONFIG_CHANGE_TYPE.MODIFIED, AUDIT_LOG_CONFIG_TYPE, gateway.getName());
-        }
-        // Replicate occurs only for update gateway
-        if (!isNew) {
+            // Replicate occurs only for update gateway
             m_dialPlanActivationManager.replicateDialPlan(true);
-
-            SbcDevice sbc = gateway.getSbcDevice();
-            if (sbc != null) {
-                sbc.generateProfiles(sbc.getProfileLocation());
-                sbc.restart();
-            }
         }
 
+        SbcDevice sbc = gateway.getSbcDevice();
+        if (sbc != null) {
+            sbc.generateProfiles(sbc.getProfileLocation());
+            sbc.restart();
+        }
         m_replicationContext.generate(DataSet.CALLER_ALIAS);
     }
 

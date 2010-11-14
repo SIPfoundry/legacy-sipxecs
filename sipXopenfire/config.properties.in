@@ -33,6 +33,7 @@ log4j.jarname=log4j.jar
 log4j=${sipxcommons.dir}/${log4j.jarname}
 dnsjava.jarname=dnsjava.jar
 dnsjava=${sipxcommons.dir}/${dnsjava.jarname}
+commons-codec.jar=${sipxcommons.dir}/commons-codec.jar
 stun4j.jarname=Stun4J.jar
 stun4j=${src.dir}/lib/${stun4j.jarname}
 jetty.jarname=jetty.jar
