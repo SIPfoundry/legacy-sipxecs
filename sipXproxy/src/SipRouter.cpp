@@ -256,11 +256,20 @@ void SipRouter::readConfig(OsConfigDb& configDb, const Url& defaultUri)
                  "SipRouter::readConfig "
                  "SIPX_PROXY_HOSTPORT : %s", mRouteHostPort.data());
       
+   UtlString hostIpAddr;
+   int proxyTlsPort;
+   configDb.get("SIPX_PROXY_BIND_IP", hostIpAddr);
+   proxyTlsPort = configDb.getPort("SIPX_PROXY_TLS_PORT") ;
+   mRouteHostSecurePort.append(hostIpAddr);
+   mRouteHostSecurePort.append(":");
+   mRouteHostSecurePort.appendNumber(proxyTlsPort);
+
    // these should really be redundant with the existing aliases,
    // but it's better to be safe and add them to ensure that they are
    // properly recognized (the alias db prunes duplicates anyway)
    mpSipUserAgent->setHostAliases( hostname );
    mpSipUserAgent->setHostAliases( mRouteHostPort );
+   mpSipUserAgent->setHostAliases( mRouteHostSecurePort );
 
    // Load, instantiate and configure all authorization plugins
    mAuthPlugins.readConfig(configDb);
@@ -837,9 +846,22 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
             // Generate the Record-Route string to be used by proxy to Record-Route requests 
             // based on the route name
             UtlString recordRoute;
-            Url route(mRouteHostPort);
+            //Url route(mRouteHostPort);
 
+            Url route;
+
+            if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
+            {
+            	route = Url(mRouteHostSecurePort);
+            }
+
+            else
+            	route = Url(mRouteHostPort.data());
             route.setUrlParameter("lr",NULL);
+
+            if( sipRequest.getSendProtocol() == OsSocket::SSL_SOCKET )
+            	route.setUrlParameter("transport=tls",NULL);
+
             route.toString(recordRoute);
             sipRequest.addRecordRouteUri(recordRoute);
          }

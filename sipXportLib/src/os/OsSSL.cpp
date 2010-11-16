@@ -24,10 +24,11 @@
 // EXTERNAL VARIABLES
 // CONSTANTS
 #define TEST_DEBUG
-const char* defaultPublicCertificateFile = SIPX_CONFDIR "/ssl/ssl.crt";
-const char* defaultPrivateKeyFile        = SIPX_CONFDIR "/ssl/ssl.key";
-
-const char* defaultAuthorityPath         = SIPX_CONFDIR "/ssl/authorities";
+static UtlString defaultPublicCertificateFile = SIPX_CONFDIR "/ssl/ssl.crt";
+static UtlString defaultPrivateKeyFile        = SIPX_CONFDIR "/ssl/ssl.key";
+static UtlString defaultAuthorityPath         = SIPX_CONFDIR "/ssl/authorities";
+static UtlString defaultCAFile                = SIPX_CONFDIR "/ssl/ca.crt";
+static bool isCertificateAuthorityEnabled        = false;
 
 bool OsSSL::sInitialized = false;
 OsMutex* OsSSL::spOpenSSL_locks[];
@@ -42,7 +43,8 @@ OsMutex* OsSSL::spOpenSSL_locks[];
 
 OsSSL::OsSSL(const char* authorityPath,
              const char* publicCertificateFile,
-             const char* privateKeyPath
+             const char* privateKeyPath,
+             const char* certificateAuthority
              )
 {
    if (!sInitialized)
@@ -78,27 +80,41 @@ OsSSL::OsSSL(const char* authorityPath,
       sInitialized = true;
    }
 
-   mCTX = SSL_CTX_new(SSLv23_method());
+   SSL_METHOD* meth = (SSL_METHOD*)SSLv23_server_method();
+    if (!meth)
+        meth = (SSL_METHOD*)TLSv1_server_method();
+    if (!meth)
+        meth = (SSL_METHOD*)SSLv3_server_method();
+    if (!meth)
+        meth = (SSL_METHOD*)SSLv2_server_method();
+
+   mCTX = SSL_CTX_new(meth);
 
    if (mCTX)
    {
+     UtlString caFile;
+     if (certificateAuthority != NULL && isCertificateAuthorityEnabled)
+       caFile = certificateAuthority;
+     if (caFile.isNull() && isCertificateAuthorityEnabled)
+       caFile = defaultCAFile;
+
       if (SSL_CTX_load_verify_locations(mCTX,
-                                        NULL, // we do not support using a bundled CA file
-                                        authorityPath ? authorityPath : defaultAuthorityPath)
+                                        caFile.isNull() ? NULL : caFile.data(), // we do not support using a bundled CA file
+                                        authorityPath ? authorityPath : defaultAuthorityPath.data())
           > 0)
       {
 
          if (SSL_CTX_use_certificate_file(mCTX,
                                           publicCertificateFile
                                           ? publicCertificateFile
-                                          : defaultPublicCertificateFile,
+                                          : defaultPublicCertificateFile.data(),
                                           SSL_FILETYPE_PEM)
              > 0)
          {
             if (SSL_CTX_use_PrivateKey_file(mCTX,
                                             privateKeyPath
                                             ? privateKeyPath
-                                            : defaultPrivateKeyFile,
+                                            : defaultPrivateKeyFile.data(),
                                             SSL_FILETYPE_PEM)
                 > 0)
             {
@@ -111,10 +127,10 @@ OsSSL::OsSSL(const char* authorityPath,
                                 ,this, mCTX,
                                 publicCertificateFile
                                 ? publicCertificateFile
-                                : defaultPublicCertificateFile,
+                                : defaultPublicCertificateFile.data(),
                                 privateKeyPath
                                 ? privateKeyPath
-                                : defaultPrivateKeyFile
+                                : defaultPrivateKeyFile.data()
                                 );
 
                   // TODO: log our own certificate data
@@ -135,10 +151,10 @@ OsSSL::OsSSL(const char* authorityPath,
                                 "OsSSL::_ Private key '%s' does not match certificate '%s'",
                                 privateKeyPath
                                 ? privateKeyPath
-                                : defaultPrivateKeyFile,
+                                : defaultPrivateKeyFile.data(),
                                 publicCertificateFile
                                 ? publicCertificateFile
-                                : defaultPublicCertificateFile
+                                : defaultPublicCertificateFile.data()
                                 );
                }
             }
@@ -148,7 +164,7 @@ OsSSL::OsSSL(const char* authorityPath,
                              "OsSSL::_ Private key '%s' could not be initialized.",
                              privateKeyPath
                              ? privateKeyPath
-                             : defaultPrivateKeyFile
+                             : defaultPrivateKeyFile.data()
                              );
             }
          }
@@ -158,7 +174,7 @@ OsSSL::OsSSL(const char* authorityPath,
                           "OsSSL::_ Public key '%s' could not be initialized.",
                           publicCertificateFile
                           ? publicCertificateFile
-                          : defaultPublicCertificateFile
+                          : defaultPublicCertificateFile.data()
                           );
          }
 
@@ -168,7 +184,7 @@ OsSSL::OsSSL(const char* authorityPath,
          OsSysLog::add(FAC_KERNEL, PRI_ERR,
                        "OsSSL::_ SSL_CTX_load_verify_locations failed\n"
                        "    authorityDir:  '%s'",
-                       authorityPath ? authorityPath : defaultAuthorityPath);
+                       authorityPath ? authorityPath : defaultAuthorityPath.data());
       }
    }
    else
@@ -196,6 +212,30 @@ OsSSL::~OsSSL()
 
 /* ============================ MANIPULATORS ============================== */
 
+void OsSSL::setDefaultPublicCertificateFile(const char * certFile)
+{
+  defaultPublicCertificateFile = certFile;
+}
+
+void OsSSL::setDefaultPrivateKeyFile(const char* privateKeyFile)
+{
+  defaultPrivateKeyFile = privateKeyFile;
+}
+
+void OsSSL::setDefaultAuthorityPath(const char*authorityPath)
+{
+  defaultAuthorityPath = authorityPath;
+}
+
+void OsSSL::setDefaultCertificateAuthority(const char* caFile)
+{
+  defaultCAFile = caFile;
+}
+
+void OsSSL::enableCertificateAuthority(bool enable)
+{
+  isCertificateAuthorityEnabled = enable;
+}
 void OsSSL::OpenSSL_thread_setup()
 {
    if (sInitialized)

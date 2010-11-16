@@ -3787,7 +3787,7 @@ UtlBoolean SipTransaction::doResend(SipMessage& resendMessage,
     {
         if (numTries < SIP_TCP_RESEND_TIMES)
         {
-            bool r;
+            bool r = false;
             // Try sending again.
             if (protocol == OsSocket::TCP)
             {

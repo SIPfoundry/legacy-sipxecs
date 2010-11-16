@@ -51,7 +51,7 @@ public:
    OsSSLConnectionSocket(int connectedSocketDescriptor,
                          long timeoutInSecs = 0);
 
-   OsSSLConnectionSocket(SSL *s, int connectedSocketDescriptor);
+   OsSSLConnectionSocket(SSL *s, int connectedSocketDescriptor, const char* localIp);
 
   virtual
    ~OsSSLConnectionSocket();

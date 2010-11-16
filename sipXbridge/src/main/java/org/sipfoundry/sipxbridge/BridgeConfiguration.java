@@ -357,7 +357,10 @@ public class BridgeConfiguration {
      * @return the globalAddress
      */
     public String getGlobalAddress() {
-        return globalAddress;
+        if (this.enableBridgeProxyRelay)
+            return this.externalAddress;
+        else
+            return this.globalAddress;
     }
 
     /**
@@ -375,7 +378,10 @@ public class BridgeConfiguration {
      * @return the globalPort
      */
     public int getGlobalPort() {
-        return globalPort;
+        if (this.enableBridgeProxyRelay)
+            return externalPort;
+        else
+            return globalPort;
     }
 
     public void setSymmitronHost(String symmitronAddress) {

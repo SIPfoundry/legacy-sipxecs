@@ -447,6 +447,7 @@ void NatTraversalRules::announceStunResolvedPublicIpAddress( const UtlString& di
    if( mbDiscoverPublicIpAddressViaStun )
    {
       mPublicTransport.setAddress( discoveredPublicIpAddress );
+      mSecurePublicTransport.setAddress( discoveredPublicIpAddress );
 
       if( !mbMediaRelayPublicAddressProvidedInConfig )
       {

@@ -157,6 +157,8 @@ protected:
    // List of client (sending) SipClient's.
    UtlSList mClientList;
 
+   bool mIsSecureTransport;
+
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
 private:
 

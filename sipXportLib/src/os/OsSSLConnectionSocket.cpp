@@ -82,8 +82,8 @@ OsSSLConnectionSocket::OsSSLConnectionSocket(int connectedSocketDescriptor,
    }
 }
 
-OsSSLConnectionSocket::OsSSLConnectionSocket(SSL *s, int connectedSocketDescriptor) :
-   OsConnectionSocket(NULL, connectedSocketDescriptor),
+OsSSLConnectionSocket::OsSSLConnectionSocket(SSL *s, int connectedSocketDescriptor, const char* localIp) :
+   OsConnectionSocket(localIp, connectedSocketDescriptor),
    mSSL(s),
    mPeerIdentity(NOT_IDENTIFIED)
 {
