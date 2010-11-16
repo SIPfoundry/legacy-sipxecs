@@ -1,4 +1,4 @@
-help.reconf=Re-run configure script with same arguments as before. Useful when you update mak/*.mk.in files
+help.reconf=Re-run original configure script with same arguments as before.
 reconf :
 	$(SRC)/configure @CONFIGURE_OPTIONS@
 
@@ -21,7 +21,7 @@ help.configure = Run configure on each project
 $(foreach T,$(sipx),$(T).configure) : 
 	test -d $(PROJDIR) || mkdir $(PROJDIR)
 	cd $(PROJDIR); \
-	  $(SRC)/$(PROJDIR)/configure @CONFIGURE_OPTIONS@
+	  $(SRC)/$(PROJDIR)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 
 MAKE_COMMANDS = check install clean dist rpm uninstall-rpm
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.sipx.$(C)=Run make $(C) on each project))
