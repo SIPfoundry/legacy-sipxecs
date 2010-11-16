@@ -1,3 +1,7 @@
+help.reconf=Re-run original configure script with same arguments as before.
+reconf :
+	$(SRC)/configure @CONFIGURE_OPTIONS@
+
 help.sipx.autoreconf=Run autoreconf on each project
 $(foreach T,$(sipx),$(T).autoreconf) : 
 	@echo $@
@@ -17,7 +21,7 @@ help.configure = Run configure on each project
 $(foreach T,$(sipx),$(T).configure) : 
 	test -d $(PROJDIR) || mkdir $(PROJDIR)
 	cd $(PROJDIR); \
-	  $(SRC)/$(PROJDIR)/configure @CONFIGURE_OPTIONS@
+	  $(SRC)/$(PROJDIR)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 
 MAKE_COMMANDS = check install clean dist rpm uninstall-rpm
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.sipx.$(C)=Run make $(C) on each project))
@@ -31,3 +35,8 @@ $(foreach C,$(MAKE_COMMANDS) all,$(eval $(C) : sipx.$(C);))
 # no-target default
 $(foreach C,all,$(foreach T,$(sipx),$(T).all)) :
 	$(MAKE) -C $(PROJDIR)
+
+help.sipx.update-version = Update all sipx components to the current version.
+$(foreach T,$(sipx),$(T).update-version) :
+	sed -i -e 's/\(AC_INIT(.*, \)[0-9.]\+\(.*\)/\1@PACKAGE_VERSION@\2/g' $(SRC)/$(PROJDIR)/configure.ac
+

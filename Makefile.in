@@ -1,6 +1,6 @@
 SRC = $(abspath @srcdir@)
 
-all : help;
+default-first-target : help;
 
 include $(sort $(wildcard mak/*.mk))
 

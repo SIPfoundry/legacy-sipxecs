@@ -1,8 +1,15 @@
 SF_REMOTE_DIR = /vol/download/pub/sipXecs
 SF_SSH_DOWNLOAD = download@download.sipfoundry.org
 
+TARGET_DISTRO = $(firstwork $(subst _, ,$(TARGET_PLATFORM)))
+lowercase = $(echo $(1) | tr [A-Z] [a-z])
+
+BASE_ARCH = \
+	i386 \
+	x86_64
+
 help.sipfoundry-publish = Push repo for $(TARGET_PLATFORM) version @PACKAGE_VERSION@ to sipfoundry download directory
-sipfoundry-publish : check-repo $(TARGET_PLATFORM)-sipfoundry-publish
+sipfoundry-publish : check-repo $(TARGET_PLATFORM)-sipfoundry-publish $(TARGET_DISTRO)-repofile
 
 %.rpmlist :
 	! test -f $@.tmp || rm $@.tmp
@@ -23,18 +30,28 @@ check-repo : repo/$(TARGET_PLATFORM).expected.rpmlist
 	  echo "no differences found"; \
 	fi
 
-sipfoundry-iso :
-	ssh iso@download.sipfoundry.org "cd release; make all-$(PACKAGE_VER)"
-
 create-destination-dir :
 	ssh $(SF_SSH_DOWNLOAD) "test -d $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM) || mkdir -p $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)"
 
 CentOS_5-sipfoundry-publish : create-destination-dir
-	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ root@download.sipfoundry.org:$(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/
-	ssh $(SF_SSH_DOWNLOAD) "cd $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM); createrepo ."
+	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ $(SF_SSH_DOWNLOAD):$(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/
+	$(foreach ARCH,$(BASE_ARCH), \
+	  ssh $(SF_SSH_DOWNLOAD) "cd $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/$(ARCH); createrepo .";)
 
 # Assumes this machine is Fedora 11 or 12 and that Fedora 11/12 repo metadata is forwards and/or backwards compatible
 Fedora_12-sipfoundry-publish Fedora_11-sipfoundry-publish : create-destination-dir
-	createrepo repo/$(TARGET_PLATFORM)     
-	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ root@download.sipfoundry.org:$(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/
+	$(foreach ARCH,$(BASE_ARCH), \
+	  createrepo repo/$(TARGET_PLATFORM)/$(ARCH);)
+	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ $(SF_SSH_DOWNLOAD):$(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/
 
+Fedora-repofile CentOS-repofile :
+	echo "$$repofile" | ssh $(SF_SSH_DOWNLOAD) \
+	  'cat > $(SF_REMOTE_DIR)/test-sipxecs-@PACKAGE_VERSION@-$(call lowercase,$(TARGET_DISTRO)).repo'
+
+define repofile =
+[sipXecs]
+name=sipXecs software for $(TARGET_DISTRO) $$releasever - $$basearch
+baseurl=http://download.sipfoundry.org/pub/sipXecs/@PACKAGE_VERSION@/$(TARGET_DISTRO)_$$releasever/$$basearch
+gpgcheck=0
+endef
+export repofile

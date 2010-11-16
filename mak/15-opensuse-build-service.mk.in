@@ -1,21 +1,15 @@
-DISTDIR = $(abspath ./dist)
-
-POSSIBLE_ARCH = \
-  i386 \
-  i586 \
-  i686 \
-  x86_64 \
-  noarch \
-  nosrc
 #
 #  O B S  (OpenSuse Build Service)
 #
+DISTDIR = $(abspath ./dist)
+
 help-var.TARGET_ARCH = OBS architectiures, default $(TARGET_ARCH)
 TARGET_ARCH ?= i586 x86_64
 
 help-var.TARGET_PLATFORM = OBS platform, default $(TARGET_PLATFORM)
 TARGET_PLATFORM ?= CentOS_5
 
+BaseArch = $(subst i586,i386,$1)
 
 %.obs : %.autoreconf %.obs-tar %.obs-spec ;
 
@@ -38,13 +32,18 @@ $(foreach T,$(lib) $(sipx),$(T).obs-get) : %.obs-get : @OBS_DIR@/%/$(TARGET_PLAT
 $(foreach T,$(lib) $(sipx),$(T).obs-clean) : 
 	test ! -d @OBS_DIR@/$(PROJ)/$(TARGET_PLATFORM) || rm -rf @OBS_DIR@/$(PROJ)/$(TARGET_PLATFORM)
 
+help.obs-project = Download OBS project from build.opensuse.org
+obs-project : @OBS_DIR@;
+
 @OBS_DIR@:
-	osc co @OBS_PROJECT@ $@.tmp
-	mv $@.tmp $@
+	osc co @OBS_PROJECT@
+	mv '@OBS_PROJECT@' $@
 
 @OBS_DIR@/%/$(TARGET_PLATFORM):
 	cd @OBS_DIR@/$*; \
-	  $(foreach ARCH,$(TARGET_ARCH),osc getbinaries  -d $(TARGET_PLATFORM).tmp $(TARGET_PLATFORM) $(ARCH);)
+	  $(foreach ARCH,$(TARGET_ARCH), \
+	  mkdir -p $(TARGET_PLATFORM).tmp/$(ARCH); \
+	  osc getbinaries  -d $(TARGET_PLATFORM).tmp/$(ARCH) $(TARGET_PLATFORM) $(ARCH);)
 	mv @OBS_DIR@/$*/$(TARGET_PLATFORM).tmp @OBS_DIR@/$*/$(TARGET_PLATFORM)
 
 ObsStatus = $(shell curl -n -s https://api.opensuse.org/build/@OBS_PROJECT@/$(strip $(1))/$(strip $(2))/$(strip $(3))/_status | \
@@ -67,6 +66,8 @@ $(foreach X,lib sipx,$(eval help.$(X).obs-commit=Commit changes to OBS))
 $(foreach T,$(lib) $(sipx),$(T).obs-commit) : 
 	cd @OBS_DIR@/$(PROJ); osc commit -m 'recent changes' -f
 
+
+
 help.sipx.obs-update-version=If you have updated the version number and built new tarballs, run this to update OBS, You still need to run sipx.obs-commit
 $(foreach T,$(sipx),$(T).obs-update-version) :
 	find @OBS_DIR@/$(PROJ) -maxdepth 1 -not -name '*@PACKAGE_VERSION@.tar.gz' -a -name '*.tar.gz' -exec osc rm {} \;
@@ -75,12 +76,11 @@ $(foreach T,$(sipx),$(T).obs-update-version) :
 
 .PHONY : repo
 repo : repo-clean  $(foreach T,$(sipx) $(lib),$(T).obs-get)
-	test -d repo/$(TARGET_PLATFORM) || mkdir -p repo/$(TARGET_PLATFORM)
-	for arch in $(POSSIBLE_ARCH); do \
-	  test -d repo/$(TARGET_PLATFORM)/$$arch || mkdir -p repo/$(TARGET_PLATFORM)/$$arch; \
-	  find $(foreach D,$(sipx) $(lib),@OBS_DIR@/$(D)/$(TARGET_PLATFORM)) -name *.$$arch.rpm \
-	    -exec cp {} repo/$(TARGET_PLATFORM)/$$arch/ \; ;\
-	done
+	$(foreach ARCH,$(TARGET_ARCH), \
+	  x=repo/$(TARGET_PLATFORM)/$(call BaseArch,$(ARCH)); \
+	  test -d $$x || mkdir -p $$x; \
+	  $(foreach D,$(sipx) $(lib), \
+	    cp -r @OBS_DIR@/$(D)/$(TARGET_PLATFORM)/$(ARCH)/*.rpm $$x;))
 
 repo-clean :
 	rm -rf repo/$(TARGET_PLATFORM)
