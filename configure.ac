@@ -7,6 +7,7 @@ AC_INIT(sipX, 0.4.4, sipx-dev@list.sipfoundry.org)
 AC_SUBST(CONFIGURE_OPTIONS, $@)
 
 m4_include([mak/opensuse-build-service.m4])
+m4_include([mak/centos-iso.m4])
 
 AC_ARG_ENABLE(sipfoundry-publish, [Enable publishing of RPMs to SIPfoundry],
 [
