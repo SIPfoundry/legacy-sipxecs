@@ -1,0 +1,364 @@
+#
+# Copyright (c) 2010 eZuce, Inc. All rights reserved.
+#
+# This library is free software; you can redistribute it and/or modify it under
+# the terms of the GNU Lesser General Public License as published by the Free
+# Software Foundation; either version 2.1 of the License, or (at your option)
+# any later version.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
+#
+include @OEM_MAK@ mak/centos-iso/iso.mak
+%-32 : BITS = 32
+%-32 : ARCH = i386
+%-64 : BITS = 64
+%-64 : ARCH = x86_64
+%-32 %-64 : DISC = disc-$(BITS)
+%-32 %-64 : ISO ?= $(ISO_LABEL)-@PACKAGE_VERSION@-$(ISO_REV)-$(ARCH).iso
+RPMS_32_SELECTION = -name '*.i386.rpm' -o -name '*.i586.rpm' -o -name '*.i686.rpm'
+RPMS_64_SELECTION = -name '*.x86_64.rpm'
+DOWNLOAD_URL = http://centos.aol.com/5.5
+M4_OPTS = \
+	@OEM_M4_OPTS@ \
+	-D PACKAGE_VERSION=@PACKAGE_VERSION@
+
+# very initial boot menu and graphics
+ISOLINUX_FILES = \
+	$(SPLASH_FILE) \
+	src/isolinux.cfg \
+	src/param.msg \
+	src/options.msg \
+	src/boot.msg
+
+# default target, build both 32 and 64 bit cds
+all: all-32 all-64
+
+clean: clean-32 clean-64
+
+clean-all: clean-32 clean-download-32 clean-64 clean-download-64
+
+# tasks for 32 and 64 iso creation
+all-% : disc-% \
+	rm-rpms-% \
+	cp-download-rpms-% \
+	cp-sipx-rpms-% \
+	update-repo-% \
+	update-files-% \
+	iso-% \
+	md5-%;
+
+clean-download-% :
+	! test -d download-$* || rm -rf download-$*
+
+# force a rebuild of entire cd
+clean-% :
+	! test -d $(DISC) || rm -rf $(DISC)
+
+# remove all rpms off disc that are not needed for operation
+rm-rpms-% : disc-%
+	-rm $(foreach P,$(REMOVE_LIST),$(DISC)/CentOS/$(P)) 2>/dev/null || true
+
+# need to make a copy of entire disc so we can modify
+disc-% :
+	test -d cd || mkdir cd
+	! test -d cd.tmp || rm -rf cd.tmp
+	sudo mount -o loop $(wildcard @ISO_DIR@/CentOS-*-$(ARCH)-bin-1of*.iso) cd
+	@echo "copying contents of disc..."
+	cp -ar cd cd.tmp
+	sudo umount cd
+	mv cd.tmp $@
+
+# add in downloaded rpms
+cp-download-rpms-% : download-%
+	cp download-$*/*.rpm $(DISC)/CentOS
+
+# add sipx and custom dependencies needed for sipx operation, not sipx devel
+cp-sipx-rpms-% : disc-%
+	find $(realpath @REPO_DIR@)/$(ARCH) \
+	\(-name '*.rpm'\) \
+	-and -not \( \
+	  -name '*debug*' \
+	  -o -name '*devel*' \
+	  -o -name '*xerces-c-doc*' \
+	  -o -name '*cppunit*' \
+	  -o -name '*nsis*' \
+	  -o -name '*rrdtool-doc*' \
+	  -o -name '*rubygem-rake*' \
+	  -o -name '*scons*' \
+	  -o -name '*sun-alsa*' \
+	  -o -name '*sun-demo*' \
+	  -o -name '*sun-jdbc*' \
+	  -o -name '*sun-plugin*' \
+	  -o -name '*sun-src*' \
+        \) \
+	-exec cp {}  $(DISC)/CentOS \;
+
+# rebuild yum repo after all rpms have been added and removed
+update-repo-% : disc-%
+	MEDIA_ID=$(shell head -1 $(DISC)/.discinfo); \
+	  cd $(DISC); \
+	  @CREATEREPO@ --baseurl="media://$$MEDIA_ID" \
+	    -g ./repodata/comps.xml .
+
+# add modifications to disc to make it operate
+update-files-% :
+	m4 $(M4_OPTS) src/ks.m4 > $(DISC)/ks.cfg
+	m4 $(M4_OPTS) -D manual-partition src/ks.m4 > $(DISC)/ks-manual-format.cfg
+	for f in $(ISOLINUX_FILES); do \
+	  cp -f $$f $(DISC)/isolinux/`basename $$f`; \
+	done
+
+# assemble iso file
+iso-% :
+	chmod u+w $(DISC)/isolinux/isolinux.bin
+	mkisofs -R -J -T -no-emul-boot -boot-load-size 4 -boot-info-table \
+	  -V $(VOLUME_LABEL) \
+	  -A $(APPLICATION_LABEL) \
+	  -P $(PUBLISHER_ID) \
+	  -p $(PREPARERER_ID) \
+	  -b "isolinux/isolinux.bin" \
+	  -c "isolinux/boot.cat" \
+	  -x "lost+found" \
+	  -o $@.tmp $(DISC)
+	mv $@.tmp @DIST_DIR@/$(ISO)
+
+md5-% :
+	md5sum @DIST_DIR@/$(ISO) > @DIST_DIR@/$(ISO:%.iso=%.md5)
+
+# Down rpms that are not on disc 1
+download-% :
+	! test -d $@.tmp || rm -rf $@.tmp
+	mkdir $@.tmp
+	cd $@.tmp; \
+	  for site in extras/$(ARCH)/RPMS/ os/$(ARCH)/CentOS; do \
+	    wget -r -nc -nv -nH -nd -l1 --no-parent \
+	      -A "$(foreach P,$(ADD_LIST),$(P),) bogus" \
+	      -R "*devel*, *debug*" \
+	      $(DOWNLOAD_URL)/$$site; \
+	  done
+	mv $@.tmp $@
+
+# Remove these pacakges to make room for sipx rpms. The list grows as sipx does
+# each addition has to be tested to ensure it's not critical to system operation
+REMOVE_LIST = \
+  GConf2-* \
+  NetworkManager-* \
+  ORBit2-* \
+  PyQt-* \
+  PyXML-* \
+  SDL-* \
+  aspell-* \
+  atk-* \
+  audiofile-* \
+  avahi-* \
+  bitstream-vera-fonts-* \
+  bluez-* \
+  brlapi-* \
+  cadaver-* \
+  cdda2wav-* \
+  cdparanoia-* \
+  cdrdao-* \
+  cdrecord-* \
+  centos-release-notes* \
+  comps-extras-* \
+  coolkey-* \
+  cpp-* \
+  cyrus-sasl-md5-* \
+  dbus-x11-* \
+  dcraw-* \
+  desktop-backgrounds-basic-* \
+  desktop-file-utils-* \
+  dmraid-events-* \
+  dnsmasq-* \
+  dvd+rw-tools-* \
+  ecryptfs-utils-* \
+  elinks-* \
+  enscript-* \
+  esound-* \
+  festival-* \
+  fetchmail-* \
+  flac-* \
+  glx-utils-* \
+  gnome-* \
+  gnupg-* \
+  gphoto2-* \
+  gstreamer-* \
+  gtk2-* \
+  hicolor-icon-theme-* \
+  hmaccalc-* \
+  hpijs-* \
+  htmlview-* \
+  hwdata-* \
+  ibmasm-* \
+  ifd-egate-* \
+  iscsi-initiator-utils-* \
+  iso-codes-* \
+  jwhois-* \
+  kernel-PAE-* \
+  kernel-debug-* \
+  kernel-devel-* \
+  kernel-doc-* \
+  kernel-headers-* \
+  kernel-xen-* \
+  lftp-* \
+  libIDL-* \
+  libXScrnSaver-* \
+  libXTrap-* \
+  libXaw-* \
+  libXcursor-* \
+  libXdamage-* \
+  libXevie-* \
+  libXfixes-* \
+  libXfontcache-* \
+  libXinerama-* \
+  libXmu-* \
+  libXrandr-* \
+  libXres-* \
+  libXtst-* \
+  libXv-* \
+  libXxf86dga-* \
+  libXxf86misc-* \
+  libao-* \
+  libavc1394-* \
+  libbonobo-* \
+  libcroco-* \
+  libdaemon-* \
+  libdmx-* \
+  libdv-* \
+  libexif-* \
+  libgtop2-* \
+  libiec61883-* \
+  libieee1284-* \
+  libmng-* \
+  libmusicbrainz-* \
+  libnotify-* \
+  libogg-* \
+  liboil-* \
+  libraw1394-* \
+  libsilc-* \
+  libsoup-* \
+  libtheora-* \
+  libvorbis-* \
+  libwnck-* \
+  libxkbfile-* \
+  libxklavier-* \
+  lockdev-* \
+  meanwhile-* \
+  mesa-libGLU-* \
+  mkisofs-* \
+  mlocate-* \
+  module-init-tools-* \
+  mutt-* \
+  neon-* \
+  netpbm-* \
+  notification-daemon-* \
+  nscd-* \
+  nss-tools-* \
+  nss_ldap-* \
+  opal-* \
+  pam_pkcs11-* \
+  pcsc-lite-libs-* \
+  perl-String-CRC32-* \
+  pilot-link-* \
+  pinfo-* \
+  psutils-* \
+  pwlib-* \
+  pycairo-* \
+  pyorbit-* \
+  python-ldap-* \
+  python-numeric-* \
+  pyxf86config-* \
+  qt-* \
+  quota-* \
+  redhat-menus-6* \
+  rsh-* \
+  samba-common-* \
+  pkinit-nss-* \
+  sgpio-* \
+  shadow-utils-* \
+  shared-mime-info-* \
+  sip-* \
+  slrn-* \
+  smartmontools-* \
+  sox-* \
+  specspo-* \
+  speex-* \
+  startup-notification-* \
+  tk-* \
+  trousers-* \
+  udftools-* \
+  vim-enhanced-* \
+  vim-common-* \
+  vorbis-tools-* \
+  words-* \
+  wpa_supplicant-* \
+  xkeyboard-config-* \
+  xorg-x11-server-utils-* \
+  xorg-x11-twm-* \
+  xorg-x11-utils-* \
+  xorg-x11-xauth-* \
+  xorg-x11-xinit-* \
+  xorg-x11-xkb-utils-* \
+  scons-* \
+  nsis-* \
+  lcms-* \
+  ksh-* \
+  cups-* \
+  stunnel-* \
+  rsyslog-*
+
+# rpms that are not on disc 1 of 32 or 64 bit cds
+#
+# Note, this list controls 32 and 64 bit lists so if 32 bit does not need
+# to download but 64 bit does, it will be in this list and 32 bit download will simply
+# be redundant.
+ADD_LIST = \
+  alsa-utils-* \
+  apr-util-* \
+  beecrypt-4* \
+  binutils-* \
+  bind-9* \
+  caching-nameserver-* \
+  chkfontpath-* \
+  dhcp-* \
+  distcache-* \
+  gdb-* \
+  httpd-2* \
+  hwdata-* \
+  jpackage-utils-* \
+  lm_sensors-* \
+  mlocate-* \
+  mod_ssl-* \
+  module-init-tools-* \
+  mrtg-* \
+  net-snmp-5* \
+  net-snmp-libs* \
+  net-snmp-utils* \
+  ntp-* \
+  perl-IO-Socket-INET6-* \
+  perl-Socket6-* \
+  postgresql-8* \
+  postgresql-odbc-* \
+  postgresql-libs-* \
+  postgresql-server-* \
+  quota-* \
+  rcs-* \
+  rsh-0* \
+  ruby-1.8.5-* \
+  ruby-irb-* \
+  ruby-libs-* \
+  ruby-rdoc-* \
+  shadow-utils-* \
+  strace-* \
+  sysstat-* \
+  tftp-server-* \
+  unixODBC-2* \
+  vsftpd-* \
+  w3c-libwww-* \
+  xinetd-* \
+  xorg-x11-xfs-1* \
+  yum-basearchonly-* \
+  yum-downloadonly-*
