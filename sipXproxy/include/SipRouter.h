@@ -173,6 +173,7 @@ class SipRouter : public OsServerTask
    UtlString     mDomainName;            ///< for determining authority for addresses
    UtlString     mDomainAliases;         ///< for determining authority for addresses
    UtlString     mRouteHostPort;         ///< for writing Record-Route headers
+   UtlString     mRouteHostSecurePort;
    SharedSecret* mSharedSecret;          ///< secret value to include in authentication hashes
    ForwardRules* mpForwardingRules;      ///< Holds to forwarding rules instructions
    PluginHooks   mAuthPlugins;           ///< decision making modules from configuration 

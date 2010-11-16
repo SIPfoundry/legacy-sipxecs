@@ -50,7 +50,8 @@
 // Constructor
 OsSSLServerSocket::OsSSLServerSocket(int connectionQueueSize, int serverPort,
       const char* szBindAddr)
-   : OsServerSocket(connectionQueueSize,serverPort,szBindAddr)
+   : OsServerSocket(connectionQueueSize,serverPort,szBindAddr),
+      mVerifyPeer(true)
 {
    OsSysLog::add(FAC_KERNEL, PRI_DEBUG, "OsSSLServerSocket::_ %p", this );
 }
@@ -115,7 +116,7 @@ OsConnectionSocket* OsSSLServerSocket::accept()
          {
             SSL_set_fd (pSSL, clientSocket);
 
-            newSocket = new OsSSLConnectionSocket(pSSL, clientSocket);
+            newSocket = new OsSSLConnectionSocket(pSSL, clientSocket, mLocalIp);
             if (newSocket)
             {
                int result = SSL_accept(pSSL);
@@ -130,7 +131,8 @@ OsConnectionSocket* OsSSLServerSocket::accept()
                                 this
                                 );
                   // test and cache the peer identity
-                  newSocket->peerIdentity(NULL, NULL);
+                  if (mVerifyPeer)
+                    newSocket->peerIdentity(NULL, NULL);
                }
                else
                {

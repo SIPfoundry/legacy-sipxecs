@@ -892,7 +892,7 @@ void SipSrvLookup::res_query_and_parse(const char* in_name,
 
       // We must do another lookup.
       // Start by freeing 'response' if we need to.
-      if (response != in_response)
+      if (response != NULL && response != in_response)
       {
          res_free(response);
       }

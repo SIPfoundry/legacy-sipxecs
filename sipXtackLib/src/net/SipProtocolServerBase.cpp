@@ -44,7 +44,8 @@ SipProtocolServerBase::SipProtocolServerBase(SipUserAgent* userAgent,
    mProtocolString(protocolString),
    mDefaultPort(SIP_PORT),
    mSipUserAgent(userAgent),
-   mClientLock(OsBSem::Q_FIFO, OsBSem::FULL)
+   mClientLock(OsBSem::Q_FIFO, OsBSem::FULL),
+  mIsSecureTransport(false)
 {
 }
 

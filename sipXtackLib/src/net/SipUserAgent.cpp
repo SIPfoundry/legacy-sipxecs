@@ -151,7 +151,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
 
     mHandleOptionsRequests = howTohandleOptionsRequest;
 
-   // Create and start the SIP TLS, TCP and UDP Servers
+    // Create and start the SIP TLS, TCP and UDP Servers
 #ifdef SIP_TLS
     if (mTlsPort != PORT_NONE)
     {
@@ -1530,7 +1530,7 @@ UtlBoolean SipUserAgent::sendTls(SipMessage* message,
 
 #ifdef SIP_TLS
    int sendSucceeded = FALSE;
-   int len;
+   ssize_t len;
    UtlString msgBytes;
    UtlString messageStatusString = "SipUserAgent::sendTls ";
 
@@ -3806,6 +3806,11 @@ UtlBoolean SipUserAgent::isMyHostAlias(const Url& route) const
 
     if(port == PORT_NONE)
     {
+      UtlString scheme;
+      route.getUrlType(scheme);
+      if (scheme == "sips")
+        hostAlias.append(":5061");
+      else
         hostAlias.append(":5060");
     }
     else

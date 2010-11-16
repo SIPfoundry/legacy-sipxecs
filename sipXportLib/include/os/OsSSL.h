@@ -43,11 +43,12 @@ class OsSSL
                                               * If NULL, compiled-in default is used */
          const char* publicCertificatePath = NULL, /**< Path to certificate file;
                                                     * If NULL, compiled-in default is used */
-         const char* privateKeyPath = NULL  /**< Path to private key file;
+         const char* privateKeyPath = NULL,  /**< Path to private key file;
                                              * If NULL, compiled-in default is used.
                                              * @note: If publicCertificatePath is NULL, this
                                              *        must also be NULL.
                                              */
+         const char* certificateAuthority = NULL  /**< Path to the certificate authority*/
          );
 
    ~OsSSL();
@@ -57,6 +58,21 @@ class OsSSL
 /* ============================ MANIPULATORS ============================== */
 
 /* ============================ ACCESSORS ================================= */
+
+   /// Set the default public certificate file
+   static void setDefaultPublicCertificateFile(const char * certFile);
+
+   /// Set the default private key file
+   static void setDefaultPrivateKeyFile(const char* privateKeyFile);
+
+   /// Set the default CA file
+   static void setDefaultCertificateAuthority(const char* caFile);
+
+   /// Set the default authority path
+   static void setDefaultAuthorityPath(const char*authorityPath);
+
+   /// Enable CA processing.  The default is false;
+   static void enableCertificateAuthority(bool enable = true);
 
    /// Get an SSL server connection handle
    SSL* getServerConnection();
