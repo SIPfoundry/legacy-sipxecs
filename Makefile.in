@@ -1,3 +1,7 @@
+ifndef OVERRIDE
+  $(error This is a dead branch and you probably want to use master-4.2 branch.  If you do want this branch, pass OVERRIDE=1 to each make command)
+endif
+
 .PHONY: build
 build:
 	$(MAKE) recurse TARGETS="all check install"
