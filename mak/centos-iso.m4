@@ -43,5 +43,8 @@ AC_ARG_ENABLE(centos-iso, [Build sipXecs or custom CD],
     AC_MSG_ERROR(createrepo needs to be installed)
   fi
 
-  AC_CONFIG_FILES([mak/centos-iso.mk $OEM_MAK])
+  AC_CONFIG_FILES([
+     mak/35-centos-iso.mk 
+     mak/centos-iso/iso.mk 
+     $OEM_MAK])
 ])

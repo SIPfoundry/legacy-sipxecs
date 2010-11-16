@@ -11,58 +11,60 @@
 # FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
 # details.
 #
-include @OEM_MAK@ mak/centos-iso/iso.mak
+include @OEM_MAK@ mak/centos-iso/iso.mk
+ISO_SRC = $(SRC)/mak/centos-iso
 %-32 : BITS = 32
 %-32 : ARCH = i386
 %-64 : BITS = 64
 %-64 : ARCH = x86_64
-%-32 %-64 : DISC = disc-$(BITS)
+%-32 %-64 : ISO_DISC = iso-disc-$(BITS)
 %-32 %-64 : ISO ?= $(ISO_LABEL)-@PACKAGE_VERSION@-$(ISO_REV)-$(ARCH).iso
-RPMS_32_SELECTION = -name '*.i386.rpm' -o -name '*.i586.rpm' -o -name '*.i686.rpm'
-RPMS_64_SELECTION = -name '*.x86_64.rpm'
-DOWNLOAD_URL = http://centos.aol.com/5.5
-M4_OPTS = \
+ISO_RPM_DOWNLOAD_URL = http://centos.aol.com/5.5
+ISO_M4_OPTS = \
 	@OEM_M4_OPTS@ \
 	-D PACKAGE_VERSION=@PACKAGE_VERSION@
 
 # very initial boot menu and graphics
 ISOLINUX_FILES = \
 	$(SPLASH_FILE) \
-	src/isolinux.cfg \
-	src/param.msg \
-	src/options.msg \
-	src/boot.msg
+	$(ISO_SRC)/isolinux.cfg \
+	$(ISO_SRC)/param.msg \
+	$(ISO_SRC)/options.msg \
+	$(ISO_SRC)/boot.msg
 
 # default target, build both 32 and 64 bit cds
-all: all-32 all-64
+help.iso = Build 32 and 64 versions of ISO from base CentOS ISO found in @ISO_DIR@
+iso: iso-32 iso-64;
 
-clean: clean-32 clean-64
+help.iso-clean = Delete intermediate files, but do not re-download RPMs from $(ISO_RPM_DOWNLOAD_URL)
+iso-clean: iso-clean-32 iso-clean-64;
 
-clean-all: clean-32 clean-download-32 clean-64 clean-download-64
+help.iso-clean-all = Delete intermediate files, including files from downloaded from $(ISO_RPM_DOWNLOAD_URL) that will be downloaded again
+iso-clean-all: iso-clean-32 iso-clean-download-32 iso-clean-64 iso-clean-download-64;
 
-# tasks for 32 and 64 iso creation
-all-% : disc-% \
-	rm-rpms-% \
-	cp-download-rpms-% \
-	cp-sipx-rpms-% \
-	update-repo-% \
-	update-files-% \
-	iso-% \
-	md5-%;
+$(foreach B,32 64,$(eval help.iso-$(B) = Build sipXecs $(B)-bit only ISO from base CentOS ISO found in @ISO_DIR@))
+iso-% : iso-disc-% \
+	iso-rm-rpms-% \
+	iso-cp-download-rpms-% \
+	iso-cp-sipx-rpms-% \
+	iso-update-repo-% \
+	iso-update-files-% \
+	iso-assemble-% \
+	iso-md5-%;
 
-clean-download-% :
-	! test -d download-$* || rm -rf download-$*
+iso-clean-download-% :
+	! test -d iso-download-$* || rm -rf iso-download-$*
 
 # force a rebuild of entire cd
-clean-% :
-	! test -d $(DISC) || rm -rf $(DISC)
+iso-clean-% :
+	! test -d $(ISO_DISC) || rm -rf $(ISO_DISC)
 
 # remove all rpms off disc that are not needed for operation
-rm-rpms-% : disc-%
-	-rm $(foreach P,$(REMOVE_LIST),$(DISC)/CentOS/$(P)) 2>/dev/null || true
+iso-rm-rpms-% :
+	-rm $(foreach P,$(ISO_REMOVE_LIST),$(ISO_DISC)/CentOS/$(P)) 2>/dev/null || true
 
 # need to make a copy of entire disc so we can modify
-disc-% :
+iso-disc-% :
 	test -d cd || mkdir cd
 	! test -d cd.tmp || rm -rf cd.tmp
 	sudo mount -o loop $(wildcard @ISO_DIR@/CentOS-*-$(ARCH)-bin-1of*.iso) cd
@@ -72,13 +74,13 @@ disc-% :
 	mv cd.tmp $@
 
 # add in downloaded rpms
-cp-download-rpms-% : download-%
-	cp download-$*/*.rpm $(DISC)/CentOS
+iso-cp-download-rpms-% : iso-download-%
+	cp iso-download-$*/*.rpm $(ISO_DISC)/CentOS
 
 # add sipx and custom dependencies needed for sipx operation, not sipx devel
-cp-sipx-rpms-% : disc-%
+iso-cp-sipx-rpms-% : iso-disc-%
 	find $(realpath @REPO_DIR@)/$(ARCH) \
-	\(-name '*.rpm'\) \
+	\( -name '*.rpm' \) \
 	-and -not \( \
 	  -name '*debug*' \
 	  -o -name '*devel*' \
@@ -94,26 +96,26 @@ cp-sipx-rpms-% : disc-%
 	  -o -name '*sun-plugin*' \
 	  -o -name '*sun-src*' \
         \) \
-	-exec cp {}  $(DISC)/CentOS \;
+	-exec cp {}  $(ISO_DISC)/CentOS \;
 
 # rebuild yum repo after all rpms have been added and removed
-update-repo-% : disc-%
-	MEDIA_ID=$(shell head -1 $(DISC)/.discinfo); \
-	  cd $(DISC); \
+iso-update-repo-% : iso-disc-%
+	MEDIA_ID=$(shell head -1 $(ISO_DISC)/.discinfo); \
+	  cd $(ISO_DISC); \
 	  @CREATEREPO@ --baseurl="media://$$MEDIA_ID" \
 	    -g ./repodata/comps.xml .
 
 # add modifications to disc to make it operate
-update-files-% :
-	m4 $(M4_OPTS) src/ks.m4 > $(DISC)/ks.cfg
-	m4 $(M4_OPTS) -D manual-partition src/ks.m4 > $(DISC)/ks-manual-format.cfg
+iso-update-files-% :
+	m4 $(ISO_M4_OPTS) $(ISO_SRC)/ks.m4 > $(ISO_DISC)/ks.cfg
+	m4 $(ISO_M4_OPTS) -D manual-partition $(ISO_SRC)/ks.m4 > $(ISO_DISC)/ks-manual-format.cfg
 	for f in $(ISOLINUX_FILES); do \
-	  cp -f $$f $(DISC)/isolinux/`basename $$f`; \
+	  cp -f $$f $(ISO_DISC)/isolinux/`basename $$f`; \
 	done
 
 # assemble iso file
-iso-% :
-	chmod u+w $(DISC)/isolinux/isolinux.bin
+iso-assemble-% :
+	chmod u+w $(ISO_DISC)/isolinux/isolinux.bin
 	mkisofs -R -J -T -no-emul-boot -boot-load-size 4 -boot-info-table \
 	  -V $(VOLUME_LABEL) \
 	  -A $(APPLICATION_LABEL) \
@@ -122,28 +124,28 @@ iso-% :
 	  -b "isolinux/isolinux.bin" \
 	  -c "isolinux/boot.cat" \
 	  -x "lost+found" \
-	  -o $@.tmp $(DISC)
+	  -o $@.tmp $(ISO_DISC)
 	mv $@.tmp @DIST_DIR@/$(ISO)
 
-md5-% :
+iso-md5-% :
 	md5sum @DIST_DIR@/$(ISO) > @DIST_DIR@/$(ISO:%.iso=%.md5)
 
 # Down rpms that are not on disc 1
-download-% :
+iso-download-% :
 	! test -d $@.tmp || rm -rf $@.tmp
 	mkdir $@.tmp
 	cd $@.tmp; \
 	  for site in extras/$(ARCH)/RPMS/ os/$(ARCH)/CentOS; do \
 	    wget -r -nc -nv -nH -nd -l1 --no-parent \
-	      -A "$(foreach P,$(ADD_LIST),$(P),) bogus" \
+	      -A "$(foreach P,$(ISO_ADD_LIST),$(P),) bogus" \
 	      -R "*devel*, *debug*" \
-	      $(DOWNLOAD_URL)/$$site; \
+	      $(ISO_RPM_DOWNLOAD_URL)/$$site; \
 	  done
 	mv $@.tmp $@
 
 # Remove these pacakges to make room for sipx rpms. The list grows as sipx does
 # each addition has to be tested to ensure it's not critical to system operation
-REMOVE_LIST = \
+ISO_REMOVE_LIST = \
   GConf2-* \
   NetworkManager-* \
   ORBit2-* \
@@ -315,7 +317,7 @@ REMOVE_LIST = \
 # Note, this list controls 32 and 64 bit lists so if 32 bit does not need
 # to download but 64 bit does, it will be in this list and 32 bit download will simply
 # be redundant.
-ADD_LIST = \
+ISO_ADD_LIST = \
   alsa-utils-* \
   apr-util-* \
   beecrypt-4* \
