@@ -385,6 +385,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxrest/*
 %dir %{sipxpbxconf}/sipxprovision
 %config(noreplace) %{sipxpbxconf}/sipxprovision/*
+%dir %{sipxpbxconf}/openacd
+%config(noreplace) %{sipxpbxconf}/openacd/*
 
 %define audiocodesdir %{_localstatedir}/sipxdata/audiocodes
 %dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{audiocodesdir}
