@@ -1,15 +1,21 @@
+#
+# Publishes rpms and ISOs to download.sipfoundry.org. 
+#
 SF_REMOTE_DIR = /vol/download/pub/sipXecs
-SF_SSH_DOWNLOAD = download@download.sipfoundry.org
-
-TARGET_DISTRO = $(firstwork $(subst _, ,$(TARGET_PLATFORM)))
+SF_SSH_DOWNLOAD = download@localhost
+SF_TARGET_DIR = $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)
+SfCommand = ssh $(SF_SSH_DOWNLOAD) '$(1)'
+SF_RSYNC_TARGET=$(SF_SSH_DOWNLOAD):
+TARGET_DISTRO = $(firstword $(subst _, ,$(TARGET_PLATFORM)))
 lowercase = $(echo $(1) | tr [A-Z] [a-z])
+BASE_ARCH = i386 x86_64
+S3_BUCKET = s3://sipXecs-pub
 
-BASE_ARCH = \
-	i386 \
-	x86_64
+##################
+# R P M
 
-help.sipfoundry-publish = Push repo for $(TARGET_PLATFORM) version @PACKAGE_VERSION@ to sipfoundry download directory
-sipfoundry-publish : check-repo $(TARGET_PLATFORM)-sipfoundry-publish $(TARGET_DISTRO)-repofile
+help.publish-rpms = Push repo for $(TARGET_PLATFORM) version @PACKAGE_VERSION@ to sipfoundry download directory
+publish-rpms : publish-check-repo publish-$(TARGET_PLATFORM) publish-repofile-$(TARGET_DISTRO)
 
 %.rpmlist :
 	! test -f $@.tmp || rm $@.tmp
@@ -22,7 +28,7 @@ sipfoundry-publish : check-repo $(TARGET_PLATFORM)-sipfoundry-publish $(TARGET_D
 
 # Compare the list that was first uploaded from this machine with the new list you're uploading. If there are
 # any differences to the packages that are uploaded, complain and abort
-check-repo : repo/$(TARGET_PLATFORM).expected.rpmlist
+publish-check-repo : repo/$(TARGET_PLATFORM).expected.rpmlist
 	$(MAKE) -B repo/$(TARGET_PLATFORM).actual.rpmlist
 	@if ! diff -u repo/$(TARGET_PLATFORM).expected.rpmlist repo/$(TARGET_PLATFORM).actual.rpmlist; then \
 	  echo "differences in expected rpms. Please check"; exit 1; \
@@ -30,28 +36,73 @@ check-repo : repo/$(TARGET_PLATFORM).expected.rpmlist
 	  echo "no differences found"; \
 	fi
 
-create-destination-dir :
-	ssh $(SF_SSH_DOWNLOAD) "test -d $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM) || mkdir -p $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)"
+publish-create-destination-dir :
+	$(call SfCommand, test -d $(SF_TARGET_DIR) || mkdir -p $(SF_TARGET_DIR))
 
-CentOS_5-sipfoundry-publish : create-destination-dir
-	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ $(SF_SSH_DOWNLOAD):$(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/
-	$(foreach ARCH,$(BASE_ARCH), \
-	  ssh $(SF_SSH_DOWNLOAD) "cd $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/$(ARCH); createrepo .";)
+publish-CentOS_5 : publish-create-destination-dir
+	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ $(SF_RSYNC_TARGET)$(SF_TARGET_DIR)/
+	$(foreach ARCH,$(BASE_ARCH), $(call SfCommand, cd $(SF_TARGET_DIR)/$(ARCH); createrepo .);)
 
 # Assumes this machine is Fedora 11 or 12 and that Fedora 11/12 repo metadata is forwards and/or backwards compatible
-Fedora_12-sipfoundry-publish Fedora_11-sipfoundry-publish : create-destination-dir
-	$(foreach ARCH,$(BASE_ARCH), \
-	  createrepo repo/$(TARGET_PLATFORM)/$(ARCH);)
-	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ $(SF_SSH_DOWNLOAD):$(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)/
+publish-Fedora_% : publish-create-destination-dir
+	$(foreach ARCH,$(BASE_ARCH), createrepo repo/$(TARGET_PLATFORM)/$(ARCH);)
+	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ $(SF_RSYNC_TARGET)$(SF_TARGET_DIR)/
 
-Fedora-repofile CentOS-repofile :
-	echo "$$repofile" | ssh $(SF_SSH_DOWNLOAD) \
-	  'cat > $(SF_REMOTE_DIR)/test-sipxecs-@PACKAGE_VERSION@-$(call lowercase,$(TARGET_DISTRO)).repo'
+publish-repofile :
+	echo "$$repofile" | $(call SfCommand, \
+	  cat > $(SF_REMOTE_DIR)/test-sipxecs-@PACKAGE_VERSION@-$(call lowercase,$(TARGET_DISTRO)).repo)
 
-define repofile =
+define repofile
 [sipXecs]
 name=sipXecs software for $(TARGET_DISTRO) $$releasever - $$basearch
 baseurl=http://download.sipfoundry.org/pub/sipXecs/@PACKAGE_VERSION@/$(TARGET_DISTRO)_$$releasever/$$basearch
 gpgcheck=0
 endef
 export repofile
+
+##############
+# I S O
+
+help.publish-iso = Push ISO and md5 of ISO to SIPfoundry''s Amazon S3 account for download and rebuild webpage index
+publish-iso : publish-iso-clean publish-iso-upload publish-update-downloads;
+
+# Be very careful with this recipe, could delete entire s3 bucket if s3cmd del glob is wrong
+publish-iso-clean :
+	s3cmd del $(S3_BUCKET)/sipxecs-@PACKAGE_VERSION@*
+
+publish-iso-upload :
+	find -maxdepth 1 -name '*.iso' -o -name '*.md5' -exec s3cmd put -P {} $(S3_BUCKET) \;
+
+publish-update-downloads : torrent.index publish-iso-index;
+
+publish-iso-index:
+	echo $$PublishIsoIndexHtml | \
+	  $(call SfCommand, m4 --include=$(SF_REMOTE_DIR)/.inc > $(SF_REMOTE_DIR)/ISO/index.html)
+
+torrent.index:
+	@s3cmd ls $(S3_BUCKET) | awk '{print $$4}' | \
+	  sed 's,s3://\(.*\)/\(.*\),<a href="http://s3.amazonaws.com/\1/\2\?torrent">\2</a>,g' | \
+	  $(call SfCommand, cat > $(SF_REMOTE_DIR)/.inc/torrent.index)
+	@s3cmd ls $(S3_BUCKET) | awk '{print $$4}' | \
+	  sed 's,s3://\(.*\)/\(.*\),<a href="http://s3.amazonaws.com/\1/\2\">\2</a>,g' | \
+	  $(call SfCommand, cat > $(SF_REMOTE_DIR)/.inc/iso.index)
+
+define PublishIsoIndexHtml
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
+<html>
+ <head>
+  <title>sipXecs ISO downloads</title>
+ </head>
+ <body>
+include(`header.html')
+<h2>Torrents</h2>
+<pre><img src="/icons/back.gif" alt="[DIR]" width="16" height="16"><a href="/pub/sipXecs">Parent Directory</a></pre>
+<pre>include(`torrent.index')</pre>
+<h2>Alternative to torrents</h2>
+If you are having trouble using torrents you can use these downloads
+<pre>include(`iso.index')
+</pre>
+include(`footer.html')
+</body></html>
+endef
+export PublishIsoIndexHtml
