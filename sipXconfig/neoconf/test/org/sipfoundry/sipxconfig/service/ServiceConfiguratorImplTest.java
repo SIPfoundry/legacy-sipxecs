@@ -151,6 +151,34 @@ public class ServiceConfiguratorImplTest extends TestCase {
         assertEquals("replicatedOnLocation", service.getTestString());
     }
 
+    public void testReplicateConfigOnlyNoRestartNotify() {
+        Location location = new Location();
+        location.setUniqueId();
+
+        DummySipxService service = new DummySipxService();
+
+        ConfigurationFile a = new DummyConfig("a", true);
+        ConfigurationFile b = new DummyConfig("b", false);
+        ConfigurationFile c = new DummyConfig("c", true);
+
+        service.setConfigurations(asList(a, b, c));
+
+        ServiceConfiguratorImpl sc = new ServiceConfiguratorImpl();
+        SipxProcessContext pc = createMock(SipxProcessContext.class);
+        SipxReplicationContext rc = createMock(SipxReplicationContext.class);
+        rc.replicate(same(location), same(b));
+
+        replay(pc, rc);
+
+        sc.setSipxProcessContext(pc);
+        sc.setSipxReplicationContext(rc);
+
+        sc.replicateServiceConfig(location, service, true, false);
+
+        verify(pc, rc);
+        assertEquals("test", service.getTestString());
+    }
+
     public void testReplicateServiceConfigLocationSipxServiceAll() {
         Location location = new Location();
         location.setUniqueId();

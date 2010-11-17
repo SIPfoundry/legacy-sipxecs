@@ -17,7 +17,7 @@ import org.sipfoundry.sipxconfig.service.SipxService;
 
 public interface SipxProcessContext {
     enum Command {
-        START, STOP, RESTART;
+        START, STOP, RESTART, RELOAD;
     }
 
     /**
@@ -71,6 +71,8 @@ public interface SipxProcessContext {
 
     void markServicesForRestart(Collection< ? extends SipxService> processes);
 
+    void markServicesForReload(Collection< ? extends SipxService> processes);
+
     /**
      * Restart the services that are marked for restart on a specified location.
      */
@@ -98,4 +100,14 @@ public interface SipxProcessContext {
     void markDialPlanRelatedServicesForRestart(String... serviceBeansIds);
 
     void unmarkServicesToRestart(Collection<RestartNeededService> services);
+
+    void reloadMarkedServices(Location location);
+
+    boolean needsReload();
+
+    boolean needsReload(Location location, SipxService service);
+
+    Collection<ReloadNeededService> getReloadNeededServices();
+
+    void unmarkServicesToReload(Collection<ReloadNeededService> services);
 }

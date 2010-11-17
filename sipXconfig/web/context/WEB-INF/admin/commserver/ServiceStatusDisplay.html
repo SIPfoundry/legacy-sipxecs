@@ -10,6 +10,10 @@
       [<span jwcid="restart@Insert" class="service-error"
         value="ognl:messages.getMessage('status.restart')" />]
     </span>
+    <span jwcid="@If" condition="ognl:status.needsReload">
+      [<span jwcid="reload@Insert" class="service-error"
+        value="ognl:messages.getMessage('status.reload')" />]
+    </span>
 
 	<span jwcid="@If" condition="ognl:status.showDetails" renderTag="false">
 	   <span jwcid="@Any" id="ognl:'detailsSection-' + rowId">

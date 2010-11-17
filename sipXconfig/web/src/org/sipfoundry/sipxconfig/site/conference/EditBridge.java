@@ -89,7 +89,6 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
     public abstract EditConference getEditConferencePage();
 
     public IPage addConference() {
-        apply();
         return activateEditConferencePage(null, null);
     }
 

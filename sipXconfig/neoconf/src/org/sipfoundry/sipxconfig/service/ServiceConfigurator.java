@@ -34,6 +34,9 @@ public interface ServiceConfigurator {
 
     void replicateServiceConfig(Location location, SipxService sipxService, boolean noRestartOnly);
 
+    void replicateServiceConfig(Location location, SipxService sipxService, boolean noRestartOnly,
+            boolean notifyService);
+
     void replicateServiceConfig(Collection<SipxService> services);
 
     /**

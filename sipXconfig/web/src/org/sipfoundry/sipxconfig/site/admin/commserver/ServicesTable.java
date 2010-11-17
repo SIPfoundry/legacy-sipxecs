@@ -178,6 +178,10 @@ public abstract class ServicesTable extends BaseComponent {
         return getCurrentRow().isNeedsRestart();
     }
 
+    public boolean isNeedsReload() {
+        return getCurrentRow().isNeedsReload();
+    }
+
     public Object[] getServiceStatus() {
         initializeDefaultEditServices();
         Object[] serviceStatus = getServiceStatusCached();
@@ -204,8 +208,8 @@ public abstract class ServicesTable extends BaseComponent {
                 String serviceName = service.getProcessName();
                 if (serviceName != null) {
                     boolean needsRestart = getSipxProcessContext().needsRestart(location, service);
-
-                    ServiceStatus status = new ServiceStatus(service.getBeanId(), Undefined, needsRestart);
+                    boolean needsReload = getSipxProcessContext().needsReload(location, service);
+                    ServiceStatus status = new ServiceStatus(service.getBeanId(), Undefined, needsRestart, needsReload);
                     serviceStatusList.add(status);
                 }
             }
@@ -266,6 +270,10 @@ public abstract class ServicesTable extends BaseComponent {
 
     public IPage restart() {
         return manageServices(SipxProcessContext.Command.RESTART);
+    }
+
+    public IPage reload() {
+        return manageServices(SipxProcessContext.Command.RELOAD);
     }
 
     private IPage manageServices(SipxProcessContext.Command operation) {

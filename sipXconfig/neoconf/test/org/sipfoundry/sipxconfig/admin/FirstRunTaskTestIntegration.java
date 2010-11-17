@@ -17,6 +17,9 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcManagerImpl;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.conference.Bridge;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContextImpl;
+import org.sipfoundry.sipxconfig.conference.ConferenceBridgeProvisioning;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.LocationSpecificService;
@@ -63,6 +66,14 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
 
     public void setSbcManagerImpl(SbcManagerImpl sbcManagerImpl) {
         m_sbcManagerImpl = sbcManagerImpl;
+    }
+
+    public void setConferenceBridgeContextImpl(ConferenceBridgeContextImpl bridgeContext) {
+        bridgeContext.setProvisioning(new ConferenceBridgeProvisioning() {
+            public void deploy(Bridge bridge) {
+
+            }
+        });
     }
 
     @Override

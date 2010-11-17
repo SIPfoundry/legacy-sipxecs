@@ -2,6 +2,12 @@
   <span key="prompt.explain">One of the background jobs failed. For details click:</span>
   <a jwcid="@PageLink" page="admin/JobStatusPage"><span key="prompt.here">here</span></a>
 </div>
+<div jwcid="@If" condition="ognl:showReloadWarning" class="user-warning">
+  <span key="prompt.reload">At least one service needs Reload. For details click:</span>
+  <a jwcid="reloadNeededLink@PageLink" page="admin/commserver/ReloadNeededServicesPage">
+    <span key="prompt.here">here</span>
+  </a>
+</div>
 <div jwcid="@If" condition="ognl:showRestartWarning" class="user-warning">
   <span key="prompt.services">At least one service needs Restart. For details click:</span>
   <a jwcid="restartNeededLink@PageLink" page="admin/commserver/RestartNeededServicesPage">

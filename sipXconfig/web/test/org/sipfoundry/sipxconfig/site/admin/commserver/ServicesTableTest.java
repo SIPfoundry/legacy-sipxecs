@@ -76,6 +76,12 @@ public class ServicesTableTest extends TestCase {
         EasyMock.verify(m_sipxProcessContext);
     }
 
+    public void testReload() {
+        configureSipxProcessContext(Command.RELOAD);
+        m_out.reload();
+        EasyMock.verify(m_sipxProcessContext);
+    }
+
     public void testRemoveService() {
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
         locationsManager.storeLocation(m_location);

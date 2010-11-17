@@ -81,11 +81,11 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     }
 
     public void replicateServiceConfig(SipxService service) {
-        //Want to replicate only config files which don't
-        //require restart?
+        // Want to replicate only config files which don't
+        // require restart?
         // Nope, we want to replicate all config files.
         // Therefore, set the noRestartOnly
-        //boolean to "false"
+        // boolean to "false"
         replicateServiceConfig(service, false);
     }
 
@@ -99,12 +99,19 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     }
 
     public void replicateServiceConfig(Location location, SipxService service, boolean noRestartOnly) {
+        replicateServiceConfig(location, service, noRestartOnly, true);
+    }
+
+    public void replicateServiceConfig(Location location, SipxService service, boolean noRestartOnly,
+            boolean notifyService) {
         List< ? extends ConfigurationFile> configurations = service.getConfigurations(noRestartOnly);
         boolean restartRequired = replicateConfigurations(location, configurations);
         if (restartRequired) {
             m_sipxProcessContext.markServicesForRestart(singleton(service));
         }
-        service.afterReplication(location);
+        if (notifyService) {
+            service.afterReplication(location);
+        }
     }
 
     public void replicateLocation(Location location) {
@@ -133,9 +140,8 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         for (ConfigurationFile configuration : configurations) {
             m_replicationContext.replicate(configuration);
             if (configuration.isRestartRequired()) {
-                LOG.info("replicate service " + service.getBeanId()
-                    + " config " + configuration.getName()
-                    + " Restart required:" + configuration.isRestartRequired());
+                LOG.info("replicate service " + service.getBeanId() + " config " + configuration.getName()
+                        + " Restart required:" + configuration.isRestartRequired());
                 serviceRequiresRestart = true;
             }
         }

@@ -23,6 +23,7 @@ public class ServiceStatus implements PrimaryKeySource {
     private final String m_serviceBeanId;
     private final Status m_status;
     private final boolean m_needsRestart;
+    private final boolean m_needsReload;
 
     private final List<String> m_messages = new ArrayList<String>();
 
@@ -49,18 +50,19 @@ public class ServiceStatus implements PrimaryKeySource {
         }
     }
 
-    public ServiceStatus(String serviceBeanId, Status status, boolean needsRestart) {
+    public ServiceStatus(String serviceBeanId, Status status, boolean needsRestart, boolean needsReload) {
         m_serviceBeanId = serviceBeanId;
         m_status = status;
         m_needsRestart = needsRestart;
+        m_needsReload = needsReload;
     }
 
-    public ServiceStatus(String serviceBeanId, String statusStr, boolean needsRestart) {
-        this(serviceBeanId, Status.fromString(statusStr), needsRestart);
+    public ServiceStatus(String serviceBeanId, String statusStr, boolean needsRestart, boolean needsReload) {
+        this(serviceBeanId, Status.fromString(statusStr), needsRestart, needsReload);
     }
 
     public ServiceStatus(String serviceBeanId) {
-        this(serviceBeanId, Status.Undefined, false);
+        this(serviceBeanId, Status.Undefined, false, false);
     }
 
     public boolean getShowDetails() {
@@ -89,5 +91,9 @@ public class ServiceStatus implements PrimaryKeySource {
 
     public boolean isNeedsRestart() {
         return m_needsRestart;
+    }
+
+    public boolean isNeedsReload() {
+        return m_needsReload;
     }
 }

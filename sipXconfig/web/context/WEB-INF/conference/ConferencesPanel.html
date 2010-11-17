@@ -1,9 +1,8 @@
     <span jwcid="@If" condition="ognl:enableAdd">
     <ul class="component-links">
         <li>
-            <a jwcid="addLink@LinkSubmit"  id="conference:add"
-                selected="ognl:action"
-                tag="ognl:addListener">
+            <a jwcid="addLink@DirectLink"  id="conference:add"
+                listener="ognl:addListener">
                 <span key="add_link">Add New Conference</span>
             </a>
         </li>

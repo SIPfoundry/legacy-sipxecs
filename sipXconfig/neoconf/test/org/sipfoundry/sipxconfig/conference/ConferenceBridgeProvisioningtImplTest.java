@@ -16,6 +16,7 @@ import static org.easymock.classextension.EasyMock.replay;
 import static org.easymock.classextension.EasyMock.verify;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 
@@ -23,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.service.LocationSpecificService;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.ServiceConfiguratorImpl;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
@@ -42,6 +44,8 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         service.getBeanId();
         expectLastCall().andReturn(SipxFreeswitchService.BEAN_ID);
 
+        final LocationSpecificService locationService = createNiceMock(LocationSpecificService.class);
+
         SipxService ivrService = new SipxIvrService();
         ivrService.setBeanId(SipxIvrService.BEAN_ID);
 
@@ -50,6 +54,9 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
 
         SipxService imBotService = new SipxImbotService();
         imBotService.setBeanId(SipxImbotService.BEAN_ID);
+
+        SipxProcessContext processContext = createNiceMock(SipxProcessContext.class);
+        processContext.markServicesForReload(Collections.singleton(service));
 
         Bridge bridge = new Bridge() {
             @Override
@@ -61,10 +68,16 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
             public SipxFreeswitchService getFreeswitchService() {
                 return service;
             }
+
+            @Override
+            public LocationSpecificService getService() {
+                return locationService;
+            }
         };
 
         ServiceConfigurator sc = createMock(ServiceConfigurator.class);
-        sc.replicateServiceConfig(location, service, true);
+        sc.replicateServiceConfig(location, service, true, false);
+        processContext.markServicesForReload(Collections.singleton(service));
         sc.replicateServiceConfig(ivrService, true);
         sc.replicateServiceConfig(location, recordingService, true);
         sc.replicateServiceConfig(location, imBotService, true);
@@ -72,13 +85,14 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         SipxReplicationContext rc = createMock(SipxReplicationContext.class);
         rc.generate(DataSet.ALIAS);
 
-        replay(rc, sc, service);
+        replay(rc, sc, service, processContext);
         SipxServiceManager sm = TestUtil.getMockSipxServiceManager(true, service, ivrService, recordingService, imBotService);
 
         ConferenceBridgeProvisioningImpl impl = new ConferenceBridgeProvisioningImpl();
         impl.setReplicationContext(rc);
         impl.setServiceConfigurator(sc);
         impl.setSipxServiceManager(sm);
+        impl.setSipxProcessContext(processContext);
 
         impl.deploy(bridge);
 
