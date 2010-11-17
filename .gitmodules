@@ -1,0 +1,3 @@
+[submodule "lib/openacd"]
+	path = lib/openacd
+	url = git://github.com/Vagabond/OpenACD.git
