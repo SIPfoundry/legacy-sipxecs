@@ -23,13 +23,18 @@ $(foreach T,$(sipx),$(T).configure) :
 	cd $(PROJDIR); \
 	  $(SRC)/$(PROJDIR)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 
-MAKE_COMMANDS = check install clean dist rpm uninstall-rpm
+MAKE_COMMANDS = check install clean dist uninstall-rpm
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.sipx.$(C)=Run make $(C) on each project))
+
 $(foreach C,$(MAKE_COMMANDS),$(foreach T,$(sipx),$(T).$(C))) :
 	$(MAKE) -C $(PROJDIR) $(patsubst $(PROJ).%,%,$@)
 
+help.sipx.rpm = Make rpm on each project, this will also install the RPM w/o executing RPM install scripts. Call make uninstall-rpm to remove after a successful build.  Eventually this should use the mock utility for building rpms in an isolated way.
+$(foreach T,$(sipx),$(T).rpm) :
+	$(MAKE) -C $(PROJDIR) rpm install-rpm
+
 # shortcuts, support "make clean" and a shortcut for "make sipx.clean"
-$(foreach C,$(MAKE_COMMANDS) all,$(eval $(C) : sipx.$(C);))
+$(foreach C,$(MAKE_COMMANDS) all rpm,$(eval $(C) : sipx.$(C);))
 
 # projects do not all have an "all" target, they probably should, until then, use
 # no-target default
