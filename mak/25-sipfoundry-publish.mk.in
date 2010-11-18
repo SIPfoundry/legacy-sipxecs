@@ -7,7 +7,7 @@ SF_TARGET_DIR = $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)
 SfCommand = ssh $(SF_SSH_DOWNLOAD) '$(1)'
 SF_RSYNC_TARGET=$(SF_SSH_DOWNLOAD):
 TARGET_DISTRO = $(firstword $(subst _, ,$(TARGET_PLATFORM)))
-lowercase = $(echo $(1) | tr [A-Z] [a-z])
+lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 BASE_ARCH = i386 x86_64
 S3_BUCKET = s3://sipXecs-pub
 
@@ -15,7 +15,7 @@ S3_BUCKET = s3://sipXecs-pub
 # R P M
 
 help.publish-rpms = Push repo for $(TARGET_PLATFORM) version @PACKAGE_VERSION@ to sipfoundry download directory
-publish-rpms : publish-check-repo publish-$(TARGET_PLATFORM) publish-repofile-$(TARGET_DISTRO)
+publish-rpms : publish-check-repo publish-$(TARGET_PLATFORM) publish-repofile
 
 %.rpmlist :
 	! test -f $@.tmp || rm $@.tmp
@@ -50,7 +50,7 @@ publish-Fedora_% : publish-create-destination-dir
 
 publish-repofile :
 	echo "$$repofile" | $(call SfCommand, \
-	  cat > $(SF_REMOTE_DIR)/test-sipxecs-@PACKAGE_VERSION@-$(call lowercase,$(TARGET_DISTRO)).repo)
+	  cat > $(SF_REMOTE_DIR)/sipxecs-@PACKAGE_VERSION@-$(call lowercase,$(TARGET_DISTRO)).repo)
 
 define repofile
 [sipXecs]
@@ -71,7 +71,7 @@ publish-iso-clean :
 	s3cmd del $(S3_BUCKET)/sipxecs-@PACKAGE_VERSION@*
 
 publish-iso-upload :
-	find -maxdepth 1 -name '*.iso' -o -name '*.md5' -exec s3cmd put -P {} $(S3_BUCKET) \;
+	find -maxdepth 1 \( -name '*.iso' -o -name '*.md5' \) -exec s3cmd put -P {} $(S3_BUCKET) \;
 
 publish-update-downloads : torrent.index publish-iso-index;
 
