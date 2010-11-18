@@ -15,7 +15,7 @@
 		<setting name="Phone_Number">
 			<label>Phone Number</label>
 			<type>
-				<string maxLen="30" />
+				<string maxLen="32" />
 			</type>
 			<value />
 			<description>User info part of the SIP URI</description>
@@ -23,20 +23,34 @@
 		<setting name="User_ID">
 			<label>User ID</label>
 			<type>
-				<string maxLen="30" />
+				<string maxLen="32" />
 			</type>
-			<value ></value>
+			<value />
 			<description>User ID to authenticate against the SIP server</description>
 		</setting>
 		<setting name="User_Password" hidden="yes">
 			<label>Password</label>
 			<type>
-				<string password="yes" maxLen="30"></string>
+				<string password="yes" maxLen="32" />
 			</type>
 			<value />
-			<description>
-				Paswword to authenticate to the SIP server
-			</description>
+			<description>Paswword to authenticate to the SIP server</description>
+		</setting>
+		<setting name="URL_Scheme">
+			<label>URL Scheme</label>
+			<type>
+				<enum>
+					<option>
+						<label>SIP</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Tel</label>
+						<value>1</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
 		</setting>
 	</group>
 </model>
