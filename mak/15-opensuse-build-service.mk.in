@@ -9,7 +9,9 @@ TARGET_ARCH ?= i586 x86_64
 help-var.TARGET_PLATFORM = OBS platform, default $(TARGET_PLATFORM)
 TARGET_PLATFORM ?= CentOS_5
 
-BaseArch = $(subst i586,i386,$1)
+# OBS calls i586 a base arch
+BaseArchFromObs = $(subst i586,i386,$1)
+ObsArchFromBase = $(subst i386,i586,$1)
 
 %.obs : %.autoreconf %.obs-tar %.obs-spec ;
 
@@ -39,11 +41,14 @@ obs-project : @OBS_DIR@;
 	osc co @OBS_PROJECT@
 	mv '@OBS_PROJECT@' $@
 
+# For now stick to downloading source to just CentOS. Should build on Fedora too.
+# Should not have to download srcrpms for each arch though
+@OBS_DIR@/%/CentOS_5 : OBS_INCLUDE_SOURCES = --sources
 @OBS_DIR@/%/$(TARGET_PLATFORM):
 	cd @OBS_DIR@/$*; \
 	  $(foreach ARCH,$(TARGET_ARCH), \
-	  mkdir -p $(TARGET_PLATFORM).tmp/$(ARCH); \
-	  osc getbinaries  -d $(TARGET_PLATFORM).tmp/$(ARCH) $(TARGET_PLATFORM) $(ARCH);)
+	    mkdir -p $(TARGET_PLATFORM).tmp/$(ARCH); \
+	    osc getbinaries $(OBS_INCLUDE_SOURCES) -d $(TARGET_PLATFORM).tmp/$(ARCH) $(TARGET_PLATFORM) $(ARCH);)
 	mv @OBS_DIR@/$*/$(TARGET_PLATFORM).tmp @OBS_DIR@/$*/$(TARGET_PLATFORM)
 
 ObsStatus = $(shell curl -n -s https://api.opensuse.org/build/@OBS_PROJECT@/$(strip $(1))/$(strip $(2))/$(strip $(3))/_status | \
@@ -73,14 +78,21 @@ $(foreach T,$(sipx),$(T).obs-update-version) :
 	find @OBS_DIR@/$(PROJ) -maxdepth 1 -not -name '*@PACKAGE_VERSION@.tar.gz' -a -name '*.tar.gz' -exec osc rm {} \;
 	find @OBS_DIR@/$(PROJ) -maxdepth 1 -name '*@PACKAGE_VERSION@.tar.gz' -exec osc add {} \;
 
-
+# re:phony - force build fresh repo as it's releatively a cheap operation
 .PHONY : repo
 repo : repo-clean  $(foreach T,$(sipx) $(lib),$(T).obs-get)
-	$(foreach ARCH,$(TARGET_ARCH), \
-	  x=repo/$(TARGET_PLATFORM)/$(call BaseArch,$(ARCH)); \
-	  test -d $$x || mkdir -p $$x; \
-	  $(foreach D,$(sipx) $(lib), \
-	    cp -r @OBS_DIR@/$(D)/$(TARGET_PLATFORM)/$(ARCH)/*.rpm $$x;))
+	$(MAKE) $(foreach ARCH,$(TARGET_ARCH),repo/$(TARGET_PLATFORM)/$(call BaseArchFromObs,$(ARCH)))
+	$(MAKE) repo/$(TARGET_PLATFORM)/src
+
+repo/$(TARGET_PLATFORM)/% :
+	mkdir -p $@
+	find $(foreach D,$(sipx) $(lib),@OBS_DIR@/$(D)/$(TARGET_PLATFORM)/$(call ObsArchFromBase,$*)) \
+	  -name '*.rpm' -a -not -name '*.src.rpm' -exec cp {} $@ \;
+
+repo/$(TARGET_PLATFORM)/src :
+	  mkdir -p $@
+	find $(foreach D,$(sipx) $(lib),@OBS_DIR@/$(D)/$(TARGET_PLATFORM)/$(call ObsArchFromBase,$*)) \
+	  -name '*.src.rpm' -exec cp {} $@ \;
 
 repo-clean :
 	rm -rf repo/$(TARGET_PLATFORM)
