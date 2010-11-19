@@ -1,4 +1,0 @@
-help.sipx.update-version = Update all sipx components to the current version.
-$(foreach T,$(sipx),$(T).update-version) :
-	sed -i -e 's/\(AC_INIT(.*, \)[0-9.]\+\(.*\)/\1@PACKAGE_VERSION@\2/g' $(SRC)/$(PROJDIR)/configure.ac
-
