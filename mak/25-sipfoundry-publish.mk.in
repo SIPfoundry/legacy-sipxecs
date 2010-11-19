@@ -31,7 +31,7 @@ publish-rpms : publish-check-repo publish-$(TARGET_PLATFORM) publish-repofile
 publish-check-repo : repo/$(TARGET_PLATFORM).expected.rpmlist
 	$(MAKE) -B repo/$(TARGET_PLATFORM).actual.rpmlist
 	@if ! diff -u repo/$(TARGET_PLATFORM).expected.rpmlist repo/$(TARGET_PLATFORM).actual.rpmlist; then \
-	  echo "differences in expected rpms. Please check"; exit 1; \
+	  echo "\nDifferences in expected rpms. Please review then type 'rm repo/$(TARGET_PLATFORM).expected.rpmlist' to override"; exit 1; \
 	else \
 	  echo "no differences found"; \
 	fi
