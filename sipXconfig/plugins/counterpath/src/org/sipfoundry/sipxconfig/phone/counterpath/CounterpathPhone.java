@@ -156,7 +156,7 @@ public class CounterpathPhone extends Phone {
 
         @SettingEntry(path = RESOURCE_LISTS_PATH)
         public String geResourceListsPath() {
-            return "http://" +  getLocationsManager().getPrimaryLocation().getFqdn() + "/webdav";
+            return "http://" + getLocationsManager().getPrimaryLocation().getFqdn() + "/webdav";
         }
 
         @SettingEntry(path = RESOURCE_LISTS_FILENAME)
@@ -255,7 +255,9 @@ public class CounterpathPhone extends Phone {
             return m_imAccount.getImPassword();
         }
 
-        @SettingEntry(paths = { REG_DOMAIN, "xmpp-config/domain" })
+        @SettingEntry(paths = {
+            REG_DOMAIN, "xmpp-config/domain"
+        })
         public String getDomain() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
@@ -320,16 +322,19 @@ public class CounterpathPhone extends Phone {
                 String md5text = DigestUtils.md5Hex(user.getUserName() + WEBDAV_REALM + user.getSipPassword());
 
                 if (passwordFile.exists()) {
-                    Boolean updated = false;
+                    Boolean notExist = true;
                     Map<String, String> authDB = new HashMap<String, String>();
                     BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(passwordFile)));
                     String strLine;
                     String[] tokens = new String[3];
                     while ((strLine = br.readLine()) != null) {
                         tokens = strLine.split(":");
-                        if ((tokens[0].equals(user.getUserName())) && (!tokens[2].equals(md5text))) {
-                            tokens[2] = md5text;
-                            updated = true;
+                        if ((tokens[0].equals(user.getUserName()))) {
+                            notExist = false;
+                            if ((!tokens[2].equals(md5text))) {
+                                tokens[2] = md5text;
+                            }
+
                         }
                         authDB.put(tokens[0], tokens[2]);
                     }
@@ -341,7 +346,8 @@ public class CounterpathPhone extends Phone {
                     for (Map.Entry<String, String> entry : authDB.entrySet()) {
                         bw.write(entry.getKey() + WEBDAV_REALM + entry.getValue() + NEW_LINE);
                     }
-                    if (!updated) {
+                    if (notExist) {
+
                         bw.write(user.getUserName() + WEBDAV_REALM + md5text + NEW_LINE);
                     }
                     bw.close();
