@@ -49,16 +49,9 @@ publish-Fedora_% : publish-create-destination-dir
 	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ $(SF_RSYNC_TARGET)$(SF_TARGET_DIR)/
 
 publish-repofile :
-	echo "$$repofile" | $(call SfCommand, \
+	echo "$$repofile_contents" | $(call SfCommand, \
 	  cat > $(SF_REMOTE_DIR)/sipxecs-@PACKAGE_VERSION@-$(call lowercase,$(TARGET_DISTRO)).repo)
 
-define repofile
-[sipXecs]
-name=sipXecs software for $(TARGET_DISTRO) $$releasever - $$basearch
-baseurl=http://download.sipfoundry.org/pub/sipXecs/@PACKAGE_VERSION@/$(TARGET_DISTRO)_$$releasever/$$basearch
-gpgcheck=0
-endef
-export repofile
 
 ##############
 # I S O

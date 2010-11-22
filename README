@@ -1,0 +1,28 @@
+To install from source
+=======================
+
+Step 1. Build makefile.
+
+ autoreconf -if
+ ./configure --prefix=/usr/local/sipx SIPXPBXUSER=$USER
+
+Step 2. Add yum repository for dependencies
+There are libraries that are not available in common repositories that you'll need to to install. There's a file you can
+add to your system that will allow it to pull dependecies from the sipfoundry 
+
+  sudo 'make repofile > /etc/yum.repos.d/sipxecs.repo'
+
+Step 3. Install missing dependencies
+
+ make sipx.list-missings-deps | xargs sudo yum install
+
+Step 4. Build and install. Make sure you have permission to directory listed in --prefix=
+
+ sudo mkdir -p /usr/local/sipx
+ sudo chown $USER:$USER /usr/local/sipx
+ make all-install
+
+Step 5. To run. NOTE: This will run as the user you are currently looged-in as, even though you are starting w/root permissions
+
+ sudo /usr/local/sipx/bin/sipxecs-setup
+ sudo /usr/local/sipx/etc/init.d/sipxecs start
