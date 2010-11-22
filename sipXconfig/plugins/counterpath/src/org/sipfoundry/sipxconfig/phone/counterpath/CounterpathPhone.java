@@ -9,15 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.phone.counterpath;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.util.Collection;
-
+import java.util.HashMap;
+import java.util.Map;
 import static java.lang.String.format;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -153,7 +156,7 @@ public class CounterpathPhone extends Phone {
 
         @SettingEntry(path = RESOURCE_LISTS_PATH)
         public String geResourceListsPath() {
-            return "http://" + getLocationsManager().getPrimaryLocation().getFqdn() + "/webdav";
+            return "http://" +  getLocationsManager().getPrimaryLocation().getFqdn() + "/webdav";
         }
 
         @SettingEntry(path = RESOURCE_LISTS_FILENAME)
@@ -317,11 +320,37 @@ public class CounterpathPhone extends Phone {
                 String md5text = DigestUtils.md5Hex(user.getUserName() + WEBDAV_REALM + user.getSipPassword());
 
                 if (passwordFile.exists()) {
+                    Boolean updated = false;
+                    Map<String, String> authDB = new HashMap<String, String>();
+                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(passwordFile)));
+                    String strLine;
+                    String[] tokens = new String[3];
+                    while ((strLine = br.readLine()) != null) {
+                        tokens = strLine.split(":");
+                        if ((tokens[0].equals(user.getUserName())) && (!tokens[2].equals(md5text))) {
+                            tokens[2] = md5text;
+                            updated = true;
+                        }
+                        authDB.put(tokens[0], tokens[2]);
+                    }
+                    br.close();
+
                     passwordFile.delete();
+                    BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(
+                            passwordFileNamePath)));
+                    for (Map.Entry<String, String> entry : authDB.entrySet()) {
+                        bw.write(entry.getKey() + WEBDAV_REALM + entry.getValue() + NEW_LINE);
+                    }
+                    if (!updated) {
+                        bw.write(user.getUserName() + WEBDAV_REALM + md5text + NEW_LINE);
+                    }
+                    bw.close();
+                } else {
+                    BufferedWriter bw = new BufferedWriter(
+                            new OutputStreamWriter(new FileOutputStream(passwordFile)));
+                    bw.write(user.getUserName() + WEBDAV_REALM + md5text + NEW_LINE);
+                    bw.close();
                 }
-                BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(passwordFile)));
-                bw.write(user.getUserName() + WEBDAV_REALM + md5text + NEW_LINE);
-                bw.close();
             }
         } catch (IOException ex) {
             ex.printStackTrace();
