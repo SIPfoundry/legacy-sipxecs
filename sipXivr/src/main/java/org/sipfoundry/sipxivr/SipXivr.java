@@ -22,6 +22,7 @@ import org.sipfoundry.commons.freeswitch.DisconnectException;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
+import org.sipfoundry.commons.freeswitch.Set;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.conference.ConfRecordStatus;
@@ -173,6 +174,10 @@ public class SipXivr implements Runnable {
                     m_fses.invoke(new Hangup(m_fses));
                 } else {
                     LOG.info("SipXivr::run Bridging the call");
+                    //setting proxy media for fax application
+                    if (action.equals("faxrx")){
+                        new Set(m_fses, "proxy_media","true").go();
+                    }
                     Bridge app = new Bridge(s_config, m_fses);
                     app.run();
                 }
