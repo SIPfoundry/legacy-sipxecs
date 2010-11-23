@@ -1,1 +1,38 @@
+Name: @PACKAGE@
+Version: @PACKAGE_VERSION@
+Release: %{?buildno:buildno}%{!?buildno:unknown}
 
+Summary: OpenACD sipXecs integration
+License: LGPL
+Group:    Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Packager: SIPfoundry <sipx-dev@sipfoundry.org>
+Url: http://www.sipfoundry.org/
+
+BuildRequires: automake
+
+Source: %name-%version.tar.gz
+
+Requires: sipxcommserverlib >= %version
+Requires: openacd
+
+%description
+OpenACD integration for sipXecs
+
+%prep
+%setup -q
+
+%build
+%configure SIPX_USER=sipxchange
+make all
+
+%install
+rm -rf $RPM_BUILD_ROOT
+make DESTDIR=$RPM_BUILD_ROOT install
+
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+%files
+%{_datadir}/sipxecs/process.d/sipxopenacd-process.xml
+%attr(755,root,root) %{_bindir}/sipxopenacd
