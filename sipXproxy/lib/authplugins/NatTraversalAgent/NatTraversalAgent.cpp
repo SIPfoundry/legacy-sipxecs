@@ -646,6 +646,7 @@ void NatTraversalAgent::adjustRecordRouteForNatTraversal( SipMessage& message, c
        }
    }
 
+
    if( !message.isResponse() )
    {
       if( message.getRecordRouteUri( 0, &tmpRecordRoute ) )
