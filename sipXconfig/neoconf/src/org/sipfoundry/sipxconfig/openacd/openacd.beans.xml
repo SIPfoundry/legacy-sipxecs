@@ -8,6 +8,7 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="domainManager" ref="domainManager" />
     <property name="aliasManager" ref="aliasManager" />
+    <property name="provisioningContext" ref="openAcdProvisioningContext" />
   </bean>
 
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
@@ -15,5 +16,9 @@
     <property name="target">
       <ref local="openAcdContextImpl" />
     </property>
+  </bean>
+
+  <bean id="openAcdProvisioningContext" class="org.sipfoundry.sipxconfig.openacd.OpenAcdProvisioningContextImpl">
+	<property name="openAcdContext" ref="openAcdContext"/>
   </bean>
 </beans>

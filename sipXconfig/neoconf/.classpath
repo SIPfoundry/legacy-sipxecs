@@ -89,5 +89,6 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.transaction-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.web-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.web.servlet-3.0.5.RELEASE.jar"/>
+	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/mongo-2.3.jar"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

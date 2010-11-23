@@ -108,3 +108,21 @@
     <span jwcid="@user_portal/MyAssistantComponent" user="ognl:user"/>
   </form>
 </div>
+<div jwcid="openAcdTab@Block">
+  <form jwcid="openAcdForm@Form" delegate="bean:validator">
+    <fieldset>
+	    <table>
+	      <tr jwcid="openAcdPin@user/ConfirmPassword"
+	          password="ognl:openAcdPin"
+	          passwordDisplayName="message:label.openAcd.pin"
+	          confirmPasswordDisplayName="message:label.openAcd.pin2"
+	          passwordMismatchMessage="message:error.pinMismatch">
+	      </tr>
+	    </table>
+	  </fieldset>
+	  <input id="saveOpenAcdPin"
+        jwcid="saveOpenAcdPin@Submit"
+        listener="listener:saveOpenAcdPin"
+        value="message:label.saveOpenAcdPin" />
+  </form>
+</div>

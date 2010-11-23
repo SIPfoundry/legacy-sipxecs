@@ -34,12 +34,15 @@ import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.service.ConfigFileActivationManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 
-public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext, DaoEventListener {
+public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
+        DaoEventListener, ApplicationContextAware {
 
     public static final String ADMIN_GROUP_NAME = "administrators";
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
@@ -59,6 +62,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private DaoEventPublisher m_daoEventPublisher;
     private AliasManager m_aliasManager;
     private ConfigFileActivationManager m_configFileManager;
+    private ApplicationContext m_applicationContext;
     private boolean m_debug;
 
     /** limit number of users */
@@ -110,6 +114,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         m_configFileManager = configFileManager;
     }
 
+    public void setApplicationContext(ApplicationContext applicationContext) {
+        m_applicationContext = applicationContext;
+    }
+
     public boolean saveUser(User user) {
         boolean newUserName = user.isNew();
         String dup = checkForDuplicateNameOrAlias(user);
@@ -120,9 +128,9 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         checkImIdUnique(user);
         checkMaxUsers(user, m_maxUserCount);
         checkBranch(user);
-
+        String origUserName = null;
         if (!user.isNew()) {
-            String origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
+            origUserName = (String) getOriginalValue(user, USERNAME_PROP_NAME);
             if (!origUserName.equals(user.getUserName())) {
                 if (origUserName.equals(User.SUPERADMIN)) {
                     throw new UserException("&msg.error.renameAdminUser");
@@ -148,7 +156,14 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
             user.getAddressBookEntry().setUseBranchAddress(false);
             user.getAddressBookEntry().setBranchAddress(null);
         }
-        getHibernateTemplate().saveOrUpdate(user);
+        if (origUserName != null) {
+            UserChangeEvent userChangeEvent = new UserChangeEvent(this, user.getId(),
+                    origUserName, user.getUserName(), user.getFirstName(), user.getLastName());
+            getHibernateTemplate().update(user);
+            m_applicationContext.publishEvent(userChangeEvent);
+        } else {
+            getHibernateTemplate().saveOrUpdate(user);
+        }
 
         m_configFileManager.activateConfigFiles();
 
@@ -712,7 +727,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     public User getSpecialUser(SpecialUserType specialUserType) {
         List<SpecialUser> specialUsersOfType = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 "specialUserByType", "specialUserType", specialUserType.name());
-        SpecialUser specialUser = (SpecialUser) DataAccessUtils.singleResult(specialUsersOfType);
+        SpecialUser specialUser = DataAccessUtils.singleResult(specialUsersOfType);
         if (specialUser == null) {
             return null;
         }

@@ -816,7 +816,6 @@
     <property name="processName" value="OpenACDServer" />
     <property name="modelName" value="sipxopenacd.xml" />
     <property name="modelDir" value="openacd" />
-	<property name="editable" value="true" />
     <property name="bundles">
       <set>
         <ref bean="openAcdBundle" />

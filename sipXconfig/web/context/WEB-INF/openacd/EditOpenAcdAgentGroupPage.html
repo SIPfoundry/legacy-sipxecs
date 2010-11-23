@@ -1,0 +1,63 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"></span>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="name" field="component:name"
+				label="message:label.name">
+            <span jwcid="name@TextField" id="name"
+				value="ognl:agentGroup.name"
+				displayName="message:label.name"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="description" field="component:description"
+				label="message:label.description">
+            <span jwcid="description@TextArea" id="description"
+				value="ognl:agentGroup.description"
+				cols="45" rows="5"
+				validators="spring-validators:validFieldSize"/>
+          </tr>
+        </tbody>
+      </table>
+      <ul class="component-links">
+        <li>
+          <a jwcid="addAgent@LinkSubmit" listener="listener:addAgent">
+			<span key="link.addAgent" />
+          </a>
+        </li>
+      </ul>
+	  <table jwcid="@common/Table" id="agents:list"
+			columns="* agentId,!agentAliases,agentSecurity"
+			source="ognl:agentGroup.agents"
+			row="ognl:currentRow"
+			selections="bean:selections">
+		<tr jwcid="agentIdColumnValue@Block">
+		  <td jwcid="editRowLink@DirectLink"
+			  listener="listener:editAgent"
+			  parameters="ognl:currentRow.id">
+			<span jwcid="@Insert" value="ognl:currentRow.user.userName"/>
+		  </td>
+		</tr>
+		<tr jwcid="agentAliasesColumnValue@Block">
+		  <td jwcid="@Insert" value="ognl:currentRow.user.aliasesString"/>
+		</tr>
+		<tr jwcid="agentSecurityColumnValue@Block">
+		  <td jwcid="@Insert" value="ognl:currentRow.security"/>
+		</tr>
+	  </table>
+	  <ul class="component-submit">
+		<li>
+			<input jwcid="delete@Submit" id="agentGroups:delete"
+				listener="listener:delete"
+				selected="ognl:selectedRows"
+				tag="ognl:allSelected"
+				value="message:button.delete" />
+			<span jwcid="@common/Confirm"
+				component="component:delete"
+				prompt="message:confirm.delete"/>
+		</li>
+	  </ul>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
+  </form>
+</div>

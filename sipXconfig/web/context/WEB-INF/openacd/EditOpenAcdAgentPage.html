@@ -1,0 +1,44 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"></span>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="agentId" field="component:agentId"
+				label="message:label.agentId">
+            <span jwcid="agentId@TextField" id="agentId"
+				value="ognl:agent.user.userName"
+				disabled="true"
+				displayName="message:label.agentId"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="agentFirstName" field="component:agentFirstName"
+				label="message:label.agentFirstName">
+            <span jwcid="agentFirstName@TextField" id="agentFirstName"
+				value="ognl:agent.user.firstName"
+				disabled="true"
+				displayName="message:label.agentFirstName"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="agentLastName" field="component:agentLastName"
+				label="message:label.agentLastName">
+            <span jwcid="agentLastName@TextField" id="agentLastName"
+				value="ognl:agent.user.lastName"
+				disabled="true"
+				displayName="message:label.agentLastName"/>
+          </tr>
+		  <tr jwcid="@user/ConfirmPassword"
+				password="ognl:agent.pin"
+				passwordDisplayName="message:label.agentPassword"
+				confirmPasswordDisplayName="message:label.confirm.agentPassword"
+				passwordValidator="ognl:{}" />
+		  <tr jwcid="@common/FieldPanel" for="agentSecurity" field="component:agentSecurity"
+				label="message:label.agentSecurity">
+			<span jwcid="agentSecurity@PropertySelection" id="agentSecurity"
+				model="ognl:agentSecurityModel"
+				value="ognl:agent.security" />
+		  </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
+  </form>
+</div>

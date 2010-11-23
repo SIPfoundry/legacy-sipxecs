@@ -2,6 +2,33 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.openacd" default-lazy="false">
+  <class name="OpenAcdAgentGroup" table="openacd_agent_group">
+    <id name="id" column="openacd_agent_group_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_agent_group_seq</param>
+      </generator>
+    </id>
+    <property name="name" />
+    <property name="description" />
+    <set name="agents" table="openacd_agent" inverse="true" cascade="all,delete-orphan" order-by="openacd_agent_id">
+      <key column="openacd_agent_group_id" />
+      <one-to-many class="OpenAcdAgent" />
+    </set>
+  </class>
+
+  <class name="OpenAcdAgent" table="openacd_agent">
+    <id name="id" column="openacd_agent_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_agent_seq</param>
+      </generator>
+	</id>
+    <property name="pin"/>
+    <property name="security"/>
+    <many-to-one name="group" class="OpenAcdAgentGroup" column="openacd_agent_group_id" not-null="true" lazy="proxy"
+      foreign-key="fk_openacd_agent_group" />
+	<many-to-one name="user" class="org.sipfoundry.sipxconfig.common.User" column="user_id" not-null="true" lazy="proxy"
+	  foreign-key="fk_user_id" />
+  </class>
 
   <subclass name="OpenAcdExtension" extends="org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension" discriminator-value="O">
   </subclass>
@@ -12,6 +39,14 @@
 
   <query name="openAcdExtensionWithName">
     <![CDATA[from OpenAcdExtension ext where ext.name = :value]]>
+  </query>
+
+  <query name="openAcdAgentGroupWithName">
+    <![CDATA[from OpenAcdAgentGroup group where group.name = :value]]>
+  </query>
+
+  <query name="openAcdAgentByUserId">
+    <![CDATA[from OpenAcdAgent a where a.user.id = :value]]>
   </query>
 
 </hibernate-mapping>

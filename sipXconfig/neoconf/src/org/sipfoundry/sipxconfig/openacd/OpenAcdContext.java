@@ -15,10 +15,12 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
 
 public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvider, AliasOwner {
@@ -30,4 +32,32 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
     OpenAcdExtension getExtensionById(Integer extensionId);
 
     OpenAcdExtension getExtensionByName(String extensionName);
+
+    List<OpenAcdAgentGroup> getAgentGroups();
+
+    OpenAcdAgentGroup getAgentGroupById(Integer agentGroupId);
+
+    OpenAcdAgentGroup getAgentGroupByName(String agentGroupName);
+
+    void saveAgentGroup(OpenAcdAgentGroup agentGroup);
+
+    boolean removeAgentGroups(Collection<Integer> agentGroupIds);
+
+    List<OpenAcdAgent> addAgentsToGroup(OpenAcdAgentGroup agentGroup, Collection<OpenAcdAgent> agents);
+
+    List<OpenAcdAgent> getAgents();
+
+    OpenAcdAgent getAgentById(Integer agentId);
+
+    OpenAcdAgent getAgentByUserId(Integer userId);
+
+    void saveAgent(OpenAcdAgentGroup agentGroup, OpenAcdAgent agent);
+
+    void deleteAgents(Integer groupId, Collection<Integer> agentIds);
+
+    void saveAgent(OpenAcdAgent agent);
+
+    OpenAcdAgent getAgentByUser(User user);
+
+    boolean isOpenAcdAgent(User user);
 }

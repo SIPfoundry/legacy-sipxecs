@@ -65,6 +65,7 @@
     <pathelement location="${restlet.jar}"/>
     <pathelement location="${restlet-impl.jar}"/>
     <pathelement location="${restlet-spring.jar}"/>
+    <pathelement location="${mongo.jar}"/>
   </path>
 
   <!-- 
@@ -306,6 +307,7 @@
       <fileset file="${restlet.jar}"/>
       <fileset file="${restlet-impl.jar}"/>
       <fileset file="${restlet-spring.jar}"/>
+      <fileset file="${mongo.jar}"/>
     </copy>
 
     <mkdir dir="${dest.dir}${sipxconfig.phone.dir}/profile/docroot" />

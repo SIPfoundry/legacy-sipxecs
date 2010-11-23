@@ -48,4 +48,10 @@ public abstract class AdminNavigation extends BaseComponent {
         // it uses the service name defined in openfire plugin
         return getSipxServiceManager().isServiceInstalled("sipxOpenfireService");
     }
+
+    public boolean isOpenAcdEnabled() {
+        // TODO: get real info here
+        return true;
+    }
+
 }

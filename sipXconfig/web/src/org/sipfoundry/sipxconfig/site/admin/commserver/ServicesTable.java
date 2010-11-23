@@ -50,6 +50,7 @@ import org.sipfoundry.sipxconfig.service.SipxAcdService;
 import org.sipfoundry.sipxconfig.service.SipxBridgeService;
 import org.sipfoundry.sipxconfig.service.SipxCallResolverService;
 import org.sipfoundry.sipxconfig.service.SipxConfigService;
+import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle;
@@ -57,6 +58,7 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.site.acd.AcdServerPage;
 import org.sipfoundry.sipxconfig.site.admin.WaitingPage;
 import org.sipfoundry.sipxconfig.site.common.BreadCrumb;
+import org.sipfoundry.sipxconfig.site.openacd.OpenAcdServerPage;
 import org.sipfoundry.sipxconfig.site.sbc.EditSbcDevice;
 import org.sipfoundry.sipxconfig.site.service.EditCallResolverService;
 import org.sipfoundry.sipxconfig.site.service.EditPresenceService;
@@ -73,11 +75,12 @@ public abstract class ServicesTable extends BaseComponent {
         SERVICE_MAP.put(SipxCallResolverService.BEAN_ID, EditCallResolverService.PAGE);
         SERVICE_MAP.put(SipxBridgeService.BEAN_ID, EditSbcDevice.PAGE);
         SERVICE_MAP.put(SipxAcdService.BEAN_ID, AcdServerPage.PAGE);
-        //There is currently no service related editable parameters for acc code
-        //other than the extension (in Authorization Code screen).
-        //When more service related editable parameters are added, uncomment below
-        //or set editable property in service.xml
-        //SERVICE_MAP.put(SipxAccCodeService.BEAN_ID, EditAccCodeService.PAGE);
+        SERVICE_MAP.put(SipxOpenAcdService.BEAN_ID, OpenAcdServerPage.PAGE);
+        // There is currently no service related editable parameters for acc code
+        // other than the extension (in Authorization Code screen).
+        // When more service related editable parameters are added, uncomment below
+        // or set editable property in service.xml
+        // SERVICE_MAP.put(SipxAccCodeService.BEAN_ID, EditAccCodeService.PAGE);
     }
 
     @InjectObject("service:tapestry.ognl.ExpressionEvaluator")
@@ -236,6 +239,9 @@ public abstract class ServicesTable extends BaseComponent {
             if (acdServer != null) {
                 ((AcdServerPage) page).setAcdServerId(acdServer.getId());
             }
+        }
+        if (page instanceof OpenAcdServerPage) {
+            ((OpenAcdServerPage) page).setLocationId(locationId);
         } else if (page instanceof EditSipxService) {
             EditSipxService servicePage = (EditSipxService) page;
             servicePage.setBeanId(serviceBeanId);

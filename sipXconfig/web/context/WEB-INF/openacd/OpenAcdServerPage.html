@@ -1,0 +1,17 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/TabNavigation"
+    tabNames="ognl:{'lines','agents'}"
+    selectedTab="ognl:tab"/>
+  <div id="settings-content">
+    <span jwcid="@common/ErrorMsg"/>
+    <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
+  </div>
+  <span jwcid="linesTab@Block">
+    <form jwcid="@Form">
+      <span jwcid="@openacd/OpenAcdDialPlanPanel"/>
+    </form>
+  </span>
+  <span jwcid="agentsTab@Block">
+	<span jwcid="@openacd/OpenAcdAgentGroupsPanel" />
+  </span>
+</div>

@@ -51,6 +51,9 @@
 					<li jwcid="@If" condition="ognl:openFireEnabled">
 						<a jwcid="@PageLink" id="menu.instantMessaging" page="admin/InstantMessaging"><span key="menu.instantMessaging">Instant Messaging</span></a>
 					</li>
+					<li jwcid="@If" condition="ognl:openAcdEnabled">
+						<a jwcid="@PageLink" id="menu.openAcd" page="openacd/ListOpenAcdServers"><span key="menu.openAcd">OpenACD</span></a>
+					</li>
 				</ul>
 			</div>
 		</li>

@@ -1,0 +1,14 @@
+<table jwcid="@common/Table"
+ source="ognl:locations"
+ columns="literal:* fqdn"
+ row="ognl:currentRow"
+ selections="ognl:selections">
+    <span jwcid="fqdnColumnValue@Block">
+      <span jwcid="editRowLink@DirectLink"
+            parameters="ognl:currentRow.id"
+            listener="listener:editOpenAcdServer">
+            <span jwcid="nameText@Insert"
+		          value="ognl:currentRow.fqdn"/>
+	  </span>
+    </span>
+</table>

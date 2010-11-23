@@ -1,0 +1,37 @@
+<form jwcid="agentGroups@Form" id="agentGroupsForm" delegate="bean:validator">
+  <ul class="component-links">
+	<li>
+	  <a jwcid="addAgentGroup@DirectLink"  id="link.addAgentGroup" listener="listener:addAgentGroup">
+		<span key="link.addAgentGroup">Add New Agent Group</span>
+	  </a>
+	</li>
+  </ul>
+  <table jwcid="@common/Table" id="agentGroups:list"
+		columns="* name,!agentCount,description"
+		source="ognl:agentGroups"
+		row="ognl:currentRow"
+		selections="bean:selections">
+	<tr jwcid="nameColumnValue@Block">
+	  <td jwcid="editRowLink@DirectLink"
+		  listener="listener:editAgentGroup"
+		  parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="ognl:currentRow.name"/>
+	  </td>
+	</tr>
+	<tr jwcid="agentCountColumnValue@Block">
+	  <td jwcid="@Insert" value="ognl:currentRow.agents.size()"/>
+	</tr>
+  </table>
+  <ul class="component-submit">
+	<li>
+	  <input jwcid="delete@Submit" id="agentGroups:delete"
+			listener="listener:delete"
+			selected="ognl:selectedRows"
+			tag="ognl:allSelected"
+			value="message:button.delete" />
+		<span jwcid="@common/Confirm"
+		  component="component:delete"
+		  prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+</form>

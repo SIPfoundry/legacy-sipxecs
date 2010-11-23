@@ -372,6 +372,7 @@
     <antcall target="location-add-tls-port" />
     <antcall target="add_did_numbers" />
     <antcall target="freeswitch-dial-plans" />
+	<antcall target="openacd" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1169,6 +1170,9 @@
   </target>
   <target name="add_did_numbers" unless="add_did_numbers">
     <db-patch patch="add_did_numbers"/>
+  </target>
+  <target name="openacd" unless="openacd">
+	<db-patch patch="openacd"/>
   </target>
 
   <!--
