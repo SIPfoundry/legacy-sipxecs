@@ -45,27 +45,35 @@ help.sipx.update-version = Update all sipx components to the current version.
 $(foreach T,$(sipx),$(T).update-version) :
 	sed -i -e 's/\(AC_INIT(.*, \)[0-9.]\+\(.*\)/\1@PACKAGE_VERSION@\2/g' $(SRC)/$(PROJDIR)/configure.ac
 
-# don't list other sipx projects
-BUILD_DEPS_ = \
+REWRITE_BUILD_DEPS_CentOS_5 = \
 	$(foreach P,$(sipx),-e '/$(P)/d') \
-	-e 's/java-1_6_0-sun-devel/java-devel/'
+	-e 's/java-1_6_0-sun-devel/java-devel/' \
+	-e '/docbook-xsl-stylesheets/d' \
+	-e '/pwdutils/d' \
+	-e '/apache2-devel/d' \
+	-e '/libapr1-devel/d' \
+	-e '/cron/d'
 
-BUILD_DEPS_CentOS_5 = \
-	$(LOCALIZE) \
-	-e '/docbook-xsl-stylesheets/d'
+REWRITE_BUILD_DEPS_SUSE = \
+	$(foreach P,$(sipx),-e '/$(P)/d') \
+	-e 's/java-1_6_0-sun-devel/java-devel/' \
+	-e '/docbook-style-xsl/d' \
+	-e '/httpd-devel/d' \
+	-e '/apr-devel/d' \
+	-e '/vixiecron/d'
 
-$(foreach T,10 11 12 13 14 15 16 17 18 19 20,$(eval BUILD_DEPS_Fedora_$(T) = $(CentOS_5)))
+$(foreach T,10 11 12 13 14 15 16 17 18 19 20,$(eval BUILD_DEPS_Fedora_$(T) = $(REWRITE_BUILD_DEPS_CentOS_5)))
 
-sipx.list-deps sipx.list-missing-deps : sipx.% :
-	@$(MAKE) --no-print-directory $(foreach T,$(sipx),$(strip $(T)).$*) | sort -u
+list-deps list-missing-deps :
+	@$(MAKE) --no-print-directory $(foreach T,$(sipx),$(T).$@) | sort -u
 
-help.sipx.list-deps = List all dependencies to build package(s) that are not currently installed on this system.
+help.list-missing-deps = List all dependencies to build package(s) that are not currently installed on this system.
 $(foreach T,$(sipx),$(T).list-missing-deps) :
 	@rpm -q rpm `$(MAKE) --no-print-directory $(PROJ).list-deps` | grep 'is not installed' | awk '{print $$2}'
 
-help.sipx.list-deps = List all dependencies to build package(s).
+help.list-deps = List all dependencies to build package(s).
 $(foreach T,$(sipx),$(T).list-deps) :
-	@grep BuildRequires: $(PROJDIR)/$(PROJ).spec.in | awk '{print $$2}' | sed $(LOCALIZE_$(TARGET_PLATFORM)) | sort -u
+	@grep BuildRequires: $(PROJDIR)/$(PROJ).spec.in | awk '{print $$2}' | sed $(REWRITE_BUILD_DEPS_$(TARGET_PLATFORM)) | sort -u
 
 repofile :
 	@echo "$$repofile_contents"
