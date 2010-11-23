@@ -31,6 +31,7 @@ public class InternalRule extends DialingRule {
     private String m_mediaServerType;
     private MediaServerFactory m_mediaServerFactory;
     private String m_mediaServerHostname;
+    private String m_did;
 
     @Override
     public String[] getPatterns() {
@@ -115,8 +116,8 @@ public class InternalRule extends DialingRule {
         }
         rules.add(voicemail);
         if (StringUtils.isNotBlank(m_voiceMailPrefix)) {
-            MappingRule transfer = new MappingRule.VoicemailTransfer(m_voiceMailPrefix,
-                    m_localExtensionLen, mediaServer);
+            MappingRule transfer = new MappingRule.VoicemailTransfer(m_voiceMailPrefix, m_localExtensionLen,
+                    mediaServer);
             transfer.setDescription(getDescription());
             if (getSchedule() != null) {
                 transfer.setSchedule(getSchedule());
@@ -145,4 +146,13 @@ public class InternalRule extends DialingRule {
     public boolean isGatewayAware() {
         return false;
     }
+
+    public String getDid() {
+        return m_did;
+    }
+
+    public void setDid(String did) {
+        m_did = did;
+    }
+
 }

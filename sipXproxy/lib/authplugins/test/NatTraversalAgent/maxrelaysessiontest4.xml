@@ -7,7 +7,7 @@
     <state>enabled</state>
     <behindnat>true</behindnat>
     <publicaddress>47.135.162.140</publicaddress>
-    <proxyhostport>192.168.0.2:5060</proxyhostport>
+    <proxyunsecurehostport>192.168.0.2:5060</proxyunsecurehostport>
     <mediarelayexternaladdress>47.135.162.140</mediarelayexternaladdress>
     <mediarelaynativeaddress>192.168.0.2</mediarelaynativeaddress>
     <mediarelayxml-rpc-port>8088</mediarelayxml-rpc-port>

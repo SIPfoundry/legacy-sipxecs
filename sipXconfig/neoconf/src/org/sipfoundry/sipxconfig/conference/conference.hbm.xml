@@ -31,6 +31,7 @@
     <property name="name" />
     <property name="description" />
     <property name="extension" />
+    <property name="did" />
 
     <many-to-one cascade="all" name="valueStorage" column="value_storage_id"
       class="org.sipfoundry.sipxconfig.setting.ValueStorage" foreign-key="fk_meetme_conference_value_storage" />
@@ -43,7 +44,7 @@
   </class>
 
   <query name="conferenceIdsWithAlias">
-    <![CDATA[select conf.id from Conference conf where conf.name = :value or conf.extension = :value]]>
+    <![CDATA[select conf.id from Conference conf where conf.name = :value or conf.extension = :value or conf.did = :value]]>
   </query>
 
   <query name="conferenceByName">
@@ -66,6 +67,7 @@
     <![CDATA[from Conference conf left join conf.owner owner
     where lower(conf.name) like lower(:name)
     or conf.extension = :ext
+    or conf.did = :ext
     or lower(conf.description) like lower(:description)
     or owner.userName = :ownerUName
     or lower(owner.firstName) like lower(:ownerName)

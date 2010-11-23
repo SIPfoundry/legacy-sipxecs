@@ -352,7 +352,10 @@ class SipUtilities {
 				// EXPERIMENTAL.  Point contact address to the proxy port
                 int port = lp.getPort();
                 if (Gateway.getBridgeConfiguration().isEnableBridgeProxyRelay())
+                {
+                    transport = "tcp";
                     port = Gateway.getBridgeConfiguration().getSipxProxyPort();
+                }
 				//
 				SipURI sipUri = ProtocolObjects.addressFactory.createSipURI(
 						user, ipAddress);
@@ -402,7 +405,10 @@ class SipUtilities {
 				// EXPERIMENTAL.  Point contact address to the proxy port				
 				int port = Gateway.getGlobalPort(transport);
                 if (Gateway.getBridgeConfiguration().isEnableBridgeProxyRelay())
+                {
+                    transport = "tcp";
                     port = Gateway.getBridgeConfiguration().getSipxProxyPort();
+                }
 				//
                 if (port > 0)
                     sipUri.setPort(port);

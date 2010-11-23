@@ -173,6 +173,9 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.isAliasInUse("1700"));
         assertTrue(m_context.isAliasInUse("1701"));
 
+        // conference did are aliases
+        assertTrue(m_context.isAliasInUse("123456789"));
+
         // we're not using this extension
         assertFalse(m_context.isAliasInUse("1702"));
     }
@@ -190,6 +193,9 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1699").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1700").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1701").size() == 1);
+
+        // conference did are aliases
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("123456789").size() == 1);
 
         // we're not using this extension
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("1702").size() == 0);

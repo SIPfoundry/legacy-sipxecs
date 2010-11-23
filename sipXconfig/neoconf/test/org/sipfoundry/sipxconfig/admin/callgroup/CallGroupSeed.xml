@@ -5,6 +5,7 @@
     <column>enabled</column>
     <column>name</column>
     <column>extension</column>
+    <column>did</column>
     <column>description</column>
     <column>fallback_destination</column>
     <column>voicemail_fallback</column>
@@ -14,6 +15,7 @@
       <value>true</value>
       <value>sales</value>
       <value>401</value>
+      <value>123456781</value>
       <value>something, something, something</value>
       <value>sip:default@pingtel.com</value>
       <value>false</value>
@@ -24,6 +26,7 @@
       <value>false</value>
       <value>eng</value>
       <value>402</value>
+      <value>123456782</value>
       <value>something else</value>
       <value></value>
       <value>true</value>

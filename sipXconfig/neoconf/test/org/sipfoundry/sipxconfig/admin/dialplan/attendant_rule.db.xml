@@ -12,7 +12,7 @@
   <attendant_dialing_rule attendant_dialing_rule_id="2002" working_time_attendant_id="1000"
     working_time_attendant_enabled="false" holiday_attendant_id="1001"
     holiday_attendant_enabled="true" after_hours_attendant_id="1002"
-    after_hours_attendant_enabled="true" extension="333" attendant_aliases="operator 0"/>
+    after_hours_attendant_enabled="true" extension="333" did="123456789" attendant_aliases="operator 0"/>
   
   <attendant_working_hours index="0" attendant_dialing_rule_id="2002" day="Monday" enabled="true"
     start="2005-01-01 00:05:00.0" stop="2005-01-01 00:19:25.0"/>

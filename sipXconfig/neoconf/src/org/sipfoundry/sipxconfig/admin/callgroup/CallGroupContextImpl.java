@@ -75,7 +75,9 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         if (!m_aliasManager.canObjectUseAlias(callGroup, extension)) {
             throw new ExtensionInUseException(huntGroupTypeName, extension);
         }
-
+        if (!m_aliasManager.canObjectUseAlias(callGroup, callGroup.getDid())) {
+            throw new ExtensionInUseException(huntGroupTypeName, callGroup.getDid());
+        }
         getHibernateTemplate().saveOrUpdate(callGroup);
         // activate call groups every time the call group is saved
         activateCallGroups();
@@ -144,6 +146,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
             // Extensions should be unique, so don't copy the extension from the
             // source call group. The admin must fill it in explicitly.
             groupDup.setExtension(null);
+            groupDup.setDid(null);
 
             groupDup.setEnabled(false);
             storeCallGroup(groupDup);

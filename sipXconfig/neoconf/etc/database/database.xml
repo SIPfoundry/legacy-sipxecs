@@ -370,6 +370,7 @@
     <antcall target="sbc-addressPort" />
     <antcall target="migrate-sbcs" />
     <antcall target="location-add-tls-port" />
+    <antcall target="add_did_numbers" />
     <antcall target="freeswitch-dial-plans" />
   </target>
 
@@ -1164,7 +1165,10 @@
     <db-patch patch="location-add-tls-port"/>
   </target>
   <target name="freeswitch-dial-plans" unless="freeswitch-dial-plans">
-	<db-patch patch="freeswitch-dial-plans"/>
+    <db-patch patch="freeswitch-dial-plans"/>
+  </target>
+  <target name="add_did_numbers" unless="add_did_numbers">
+    <db-patch patch="add_did_numbers"/>
   </target>
 
   <!--

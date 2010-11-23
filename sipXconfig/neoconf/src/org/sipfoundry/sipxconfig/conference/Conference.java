@@ -55,6 +55,8 @@ public class Conference extends BeanWithSettings implements NamedObject {
 
     private String m_extension;
 
+    private String m_did;
+
     private Bridge m_bridge;
 
     private User m_owner;
@@ -271,6 +273,13 @@ public class Conference extends BeanWithSettings implements NamedObject {
             AliasMapping extensionAlias = new AliasMapping(extensionUri, identityUri, ALIAS_RELATION);
             aliases.add(extensionAlias);
         }
+        if (StringUtils.isNotBlank(m_did) && !m_did.equals(m_name)) {
+            // add extension mapping
+            String didUri = AliasMapping.createUri(m_did, domainName);
+            String identityUri = SipUri.format(m_name, domainName, false);
+            AliasMapping didAlias = new AliasMapping(didUri, identityUri, ALIAS_RELATION);
+            aliases.add(didAlias);
+        }
         aliases.add(createFreeSwitchAlias(domainName));
         return aliases;
     }
@@ -279,5 +288,13 @@ public class Conference extends BeanWithSettings implements NamedObject {
         String freeswitchUri = getUri();
         String identity = AliasMapping.createUri(m_name, domainName);
         return new AliasMapping(identity, freeswitchUri, ALIAS_RELATION);
+    }
+
+    public String getDid() {
+        return m_did;
+    }
+
+    public void setDid(String did) {
+        m_did = did;
     }
 }

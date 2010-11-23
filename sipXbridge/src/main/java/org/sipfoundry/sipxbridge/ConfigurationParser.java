@@ -137,7 +137,7 @@ public class ConfigurationParser {
         digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "sipx-proxy-port"),
                 "setSipxProxyPort", 0);
 
-        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG,"enable-bridge-proxy-relay"),
+        digester.addCallMethod(String.format("%s/%s", BRIDGE_CONFIG, "enable-bridge-proxy-relay"),
                 "setEnableBridgeProxyRelay",0, new Class[] { Boolean.class });
 
         /*
@@ -329,10 +329,10 @@ public class ConfigurationParser {
         } catch (java.io.IOException ioe) {
             // Note that we do not have a debug file here so we need to print to stderr.
             ioe.printStackTrace(System.err);
-            throw new SipXbridgeException("Intiialzation exception", ioe);
+            throw new SipXbridgeException("Initialization exception", ioe);
         } catch (org.xml.sax.SAXException se) {
             se.printStackTrace(System.err);
-            throw new SipXbridgeException("Intiialzation exception", se);
+            throw new SipXbridgeException("Initialization exception", se);
         }
 
     }

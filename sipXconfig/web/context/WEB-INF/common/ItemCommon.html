@@ -27,6 +27,15 @@
           maxlength="15"/>
       </tr>
     </span>
+    <span jwcid="ifUseDid@If" condition="ognl:useDid">
+      <tr jwcid="@common/FieldPanel" for="item:did" field="component:did" label="message:did" description="ognl:didDescription">
+        <input jwcid="did@TextField" id="item:did"
+          value="ognl:#this.item.did"
+          validators="spring-validators:validSipUserId"
+          displayName="message:extension"
+          maxlength="15"/>
+      </tr>
+    </span>
     <tr jwcid="@common/FieldPanel" for="item:description"  field="component:description" label="message:description">
         <textarea jwcid="description@TextArea" id="item:description"
           value="ognl:#this.item.description"

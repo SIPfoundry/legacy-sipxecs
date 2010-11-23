@@ -177,14 +177,17 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         ITable tableUserRing = TestHelper.getConnection().createDataSet().getTable("user_ring");
         assertEquals(1, tableUserRing.getRowCount());
         assertEquals(testExpiration, tableUserRing.getValue(0, "expiration"));
-        assertEquals(AbstractRing.Type.IMMEDIATE.getName(), tableUserRing
-                .getValue(0, "ring_type"));
+        assertEquals(AbstractRing.Type.IMMEDIATE.getName(), tableUserRing.getValue(0, "ring_type"));
     }
 
     public void testGenerateAliases() throws Exception {
         Collection<AliasMapping> aliases = m_context.getAliasMappings();
         assertNotNull(aliases);
-        assertEquals(2, aliases.size());
+        for (AliasMapping aliasMapping : aliases) {
+            System.out.println(aliasMapping.getIdentity());
+
+        }
+        assertEquals(3, aliases.size());
 
         Iterator<AliasMapping> i = aliases.iterator();
         AliasMapping aliasMapping = i.next();
@@ -193,6 +196,10 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
 
         aliasMapping = i.next();
         assertTrue(aliasMapping.getIdentity().startsWith("401"));
+        assertTrue(aliasMapping.getContact().startsWith("sales"));
+
+        aliasMapping = i.next();
+        assertTrue(aliasMapping.getIdentity().startsWith("123456781"));
         assertTrue(aliasMapping.getContact().startsWith("sales"));
     }
 
@@ -236,6 +243,8 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.isAliasInUse("sales"));
         assertTrue(m_context.isAliasInUse("401"));
         assertTrue(m_context.isAliasInUse("402"));
+        assertTrue(m_context.isAliasInUse("123456781"));
+        assertTrue(m_context.isAliasInUse("123456782"));
         assertFalse(m_context.isAliasInUse("911"));
     }
 
@@ -243,6 +252,8 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("sales").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("401").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("402").size() == 1);
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("123456781").size() == 1);
+        assertTrue(m_context.getBeanIdsOfObjectsWithAlias("123456782").size() == 1);
         assertTrue(m_context.getBeanIdsOfObjectsWithAlias("911").size() == 0);
     }
 

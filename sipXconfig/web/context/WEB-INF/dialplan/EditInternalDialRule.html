@@ -22,6 +22,15 @@
               displayName="message:label.voiceMail"/>
         </tr>
         <tr jwcid="@common/FieldPanel"
+            field="component:did"
+            label="message:label.did"
+            description="message:description.did" >
+          <input jwcid="did@TextField"
+                 value="ognl:rule.did"
+                 displayName="message:label.did"
+                 validators="spring-validators:validSipUserId"/>
+        </tr>
+        <tr jwcid="@common/FieldPanel"
           field="component:voiceMailPrefix"
           label="message:label.voiceMailPrefix"
           description="message:description.voiceMailPrefix"

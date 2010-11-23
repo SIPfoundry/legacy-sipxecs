@@ -1266,6 +1266,8 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
 
             if (mSendAddress.isNull())
             {
+              if (remotePort == -1)
+                inSocket->getRemoteHostIp(&remoteHost, &remotePort);
                setSendAddress(remoteHost.data(), remotePort);
             }
          }

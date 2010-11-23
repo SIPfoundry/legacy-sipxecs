@@ -11,9 +11,9 @@
 
     <publicaddress>200.200.200.1</publicaddress>
 
-    <publicport>6666</publicport>
+    <publicunsecureport>6666</publicunsecureport>
 
-    <proxyhostport>10.10.10.1:5060</proxyhostport>
+    <proxyunsecurehostport>10.10.10.1:5060</proxyunsecurehostport>
 
     <secureXMLRPC>true</secureXMLRPC>
 

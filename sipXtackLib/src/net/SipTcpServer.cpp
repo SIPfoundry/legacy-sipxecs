@@ -14,6 +14,7 @@
 
 // APPLICATION INCLUDES
 #include <net/SipClientTcp.h>
+#include <net/SipClientTls.h>
 #include <net/SipTcpServer.h>
 #include <net/SipUserAgent.h>
 #include <os/OsDateTime.h>
@@ -284,8 +285,12 @@ UtlBoolean SipTcpServer::SipServerBrokerListener::handleMessage(OsMsg& eventMess
             OsConnectionSocket* clientSocket = reinterpret_cast<OsConnectionSocket*>(pPtrMsg->getPtr());
             assert(clientSocket);
 
-            SipClient* client =
-               new SipClientTcp(clientSocket, mpOwner, mpOwner->mSipUserAgent);
+            SipClient* client = 0;
+
+            if (!mpOwner->mIsSecureTransport)
+                client = new SipClientTcp(clientSocket, mpOwner, mpOwner->mSipUserAgent);
+            else
+                client = new SipClientTls(clientSocket, mpOwner, mpOwner->mSipUserAgent);
 
             UtlString hostAddress;
             int hostPort;

@@ -91,6 +91,8 @@ public:
    //!returns: 1 if one or call to accept() will not block <br>
    //!returns: 0 if no connections are ready (i.e. accept() will block).
 
+   void setVerifyPeer(bool verify);
+
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
 protected:
 
@@ -108,8 +110,14 @@ private:
    OsSSLServerSocket();
      //:Disable default constructor
 
+   bool mVerifyPeer;
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+inline void OsSSLServerSocket::setVerifyPeer(bool verify)
+{
+  mVerifyPeer = verify;
+}
 
 #endif  // _OsSSLServerSocket_h_

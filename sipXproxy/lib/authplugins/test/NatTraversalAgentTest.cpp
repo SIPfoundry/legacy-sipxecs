@@ -85,6 +85,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
             "a=fmtp:101 0-11\r\n"
             "a=sendrecv\r\n";
          SipMessage testMsg(message, strlen(message));
+         testMsg.setSendProtocol(OsSocket::UDP);
 
          UtlString rejectReason;
          UtlSList emptyList;
@@ -206,7 +207,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          "a=sendrecv\r\n"
          "a=x-sipx-ntap:192.168.0.2;1\r\n";
          SipMessage okResp( response, strlen(response) );
-
+         okResp.setSendProtocol(OsSocket::UDP);
+         
          pNatTraversalAgent->handleOutputMessage( okResp, "47.135.162.145", 14956 );
 
          // check that the record route still has our public IP address
@@ -276,7 +278,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
            "a=fmtp:101 0-11\r\n"
            "a=sendrecv\r\n";
          SipMessage testMsg(message, strlen(message));
-
+         testMsg.setSendProtocol(OsSocket::UDP);
+         
          UtlString rejectReason;
          UtlSList emptyList;
          RouteState routeState( message, emptyList, "192.168.0.2:5060" );
@@ -398,7 +401,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          "a=sendrecv\r\n"
          "a=x-sipx-ntap:192.168.0.2;3\r\n";
          SipMessage okResp( response, strlen(response) );
-
+         okResp.setSendProtocol(OsSocket::UDP);
+         
          pNatTraversalAgent->handleOutputMessage( okResp, "192.168.0.101", 5060 );
 
          // check that the record route  has our private IP address
@@ -471,7 +475,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
            "a=fmtp:101 0-11\r\n"
            "a=sendrecv\r\n";
          SipMessage testMsg(message, strlen(message));
-
+         testMsg.setSendProtocol(OsSocket::UDP);
+         
          UtlString rejectReason;
          UtlSList emptyList;
          RouteState routeState( message, emptyList, "192.168.0.2:5060" );
@@ -521,7 +526,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          "a=sendrecv\r\n"
          "a=x-sipx-ntap:192.168.0.2;3\r\n";
          SipMessage okResp( response, strlen(response) );
-
+         okResp.setSendProtocol(OsSocket::UDP);
+         
          pNatTraversalAgent->handleOutputMessage( okResp, "192.168.0.101", 5060 );
 
          // Mow simulalate the reception of the ACK
@@ -540,7 +546,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
             "Content-Length: 0\r\n"
             "\r\n";
             SipMessage ackRequest( ack, strlen(ack) );
-
+         ackRequest.setSendProtocol(OsSocket::UDP);
+         
          UtlSList routeList;
          UtlString poppedRoute("<sip:47.135.162.140:5060;lr;sipXecs-rs=%2Afrom%7EOTRiYjk0ODAtYzBhODAwNjUtMTNjNC01MDA0NS0yMGM1NWJkMy01MDA0NQ%60%60.ntap%2ACeT%7ENDcuMTM1LjE2Mi4xNDU6Mjk1NDQ7dHJhbnNwb3J0PXVkcA%60%60.ntap%2Aid%7EMTIzNC0y%21370cba24fde84e23f15b8e1dc8f3633a>");
          routeList.append( &poppedRoute );
@@ -611,7 +618,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
            "a=fmtp:101 0-11\r\n"
            "a=sendrecv\r\n";
          SipMessage testMsg(message, strlen(message));
-
+         testMsg.setSendProtocol(OsSocket::UDP);
+         
          UtlString rejectReason;
          UtlSList emptyList;
          RouteState routeState( message, emptyList, "192.168.0.2:5060" );
@@ -661,7 +669,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
          "a=sendrecv\r\n"
          "a=x-sipx-ntap:192.168.0.2;3\r\n";
          SipMessage okResp( response, strlen(response) );
-
+         okResp.setSendProtocol(OsSocket::UDP);
+         
          pNatTraversalAgent->handleOutputMessage( okResp, "192.168.0.101", 5060 );
 
          // Mow simulalate the reception of the ACK
@@ -680,7 +689,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
             "Content-Length: 0\r\n"
             "\r\n";
             SipMessage ackRequest( ack, strlen(ack) );
-
+         ackRequest.setSendProtocol(OsSocket::UDP);
+         
          UtlSList routeList;
          UtlString poppedRoute("<sip:47.135.162.140:5060;lr;sipXecs-rs=%2Afrom%7EOTRiYjk0ODAtYzBhODAwNjUtMTNjNC01MDA0NS0yMGM1NWJkMy01MDA0NQ%60%60.ntap%2ACeT%7ENDcuMTM1LjE2Mi4xNDU6Mjk1NDQ7dHJhbnNwb3J0PXVkcA%60%60.ntap%2Aid%7EMTIzNC0z%213d7b53562948991d1cf59dfe7fdaaf24>");
          routeList.append( &poppedRoute );
@@ -730,7 +740,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
            "Content-Length: 0\r\n"
            "\r\n";
          SipMessage testMsg1(message1, strlen(message1));
-
+         testMsg1.setSendProtocol(OsSocket::UDP);
+         
          pNatTraversalAgent->UndoChangesToRequestUri( testMsg1 );
          testMsg1.getRequestUri( &modifiedRuri );
          ASSERT_STR_EQUAL( "sip:601@192.168.1.11:5060", modifiedRuri.data() );
@@ -751,7 +762,8 @@ class NatTraversalAgentTest : public CppUnit::TestCase
            "Content-Length: 0\r\n"
            "\r\n";
          SipMessage testMsg2(message2, strlen(message2));
-
+         testMsg2.setSendProtocol(OsSocket::UDP);
+         
          pNatTraversalAgent->UndoChangesToRequestUri( testMsg2 );
          testMsg2.getRequestUri( &modifiedRuri );
          ASSERT_STR_EQUAL( "sip:601@47.135.162.145:29544", modifiedRuri.data() );
@@ -772,7 +784,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
            "Content-Length: 0\r\n"
            "\r\n";
          SipMessage testMsg3(message3, strlen(message3));
-
+         testMsg3.setSendProtocol(OsSocket::UDP);
          pNatTraversalAgent->UndoChangesToRequestUri( testMsg3 );
          testMsg3.getRequestUri( &modifiedRuri );
          ASSERT_STR_EQUAL( "sip:601@192.168.1.11:5060;someparam1=12112;someparam2=12222", modifiedRuri.data() );
@@ -793,7 +805,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
            "Content-Length: 0\r\n"
            "\r\n";
          SipMessage testMsg4(message4, strlen(message4));
-
+         testMsg4.setSendProtocol(OsSocket::UDP);
          pNatTraversalAgent->UndoChangesToRequestUri( testMsg4 );
          testMsg4.getRequestUri( &modifiedRuri );
          ASSERT_STR_EQUAL( "sip:601@192.168.1.11:5060;someparam1=12112;someparam2=12222", modifiedRuri.data() );
@@ -814,7 +826,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
            "Content-Length: 0\r\n"
            "\r\n";
          SipMessage testMsg5(message5, strlen(message5));
-
+         testMsg5.setSendProtocol(OsSocket::UDP);
          pNatTraversalAgent->UndoChangesToRequestUri( testMsg5 );
          testMsg5.getRequestUri( &modifiedRuri );
          ASSERT_STR_EQUAL( "sip:601@192.168.1.11:5060;someparam1=12112;someparam2=12222", modifiedRuri.data() );
@@ -835,7 +847,7 @@ class NatTraversalAgentTest : public CppUnit::TestCase
            "Content-Length: 0\r\n"
            "\r\n";
          SipMessage testMsg6(message6, strlen(message6));
-
+         testMsg6.setSendProtocol(OsSocket::UDP);
          pNatTraversalAgent->UndoChangesToRequestUri( testMsg6 );
          testMsg6.getRequestUri( &modifiedRuri );
          ASSERT_STR_EQUAL( "sip:601@47.135.162.145:29544;someparam1=12112;someparam2=12222", modifiedRuri.data() );

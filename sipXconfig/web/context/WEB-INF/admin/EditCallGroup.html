@@ -8,7 +8,10 @@
 <form jwcid="form@Form" delegate="bean:validator"
   listener="listener:formSubmit">
   <fieldset  jwcid="common@common/ItemCommon" item="ognl:callGroup"
-    useExtension="ognl:true" nameValidator="spring-validators:required,validSipUserId"/>
+    useExtension="ognl:true"
+    nameValidator="spring-validators:required,validSipUserId"
+    useDid="ognl:true"
+    didDescription="message:description.did"/>
   <fieldset jwcid="ringTable@admin/UserRingTable" rings="ognl:callGroup.rings"
     idConverter="ognl:idConverter"/>
   <fieldset>

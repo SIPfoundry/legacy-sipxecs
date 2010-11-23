@@ -15,7 +15,7 @@
   <meetme_bridge meetme_bridge_id="2006" location_specific_service_id="2" />
 
   <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3001" name="conf_name_3001"
-    description="conf_desc_3001" extension="1699" owner_id="1002" enabled="0" />
+    description="conf_desc_3001" extension="1699" did="123456789" owner_id="1002" enabled="0" />
   <meetme_conference meetme_bridge_id="2005" meetme_conference_id="3002" name="conf_name_3002"
     description="conf_desc_3002" extension="1700" owner_id="1002" enabled="0" />
   <meetme_conference meetme_bridge_id="2006" meetme_conference_id="3003" name="conf_name_3003"

@@ -29,6 +29,7 @@
     <property name="enabled" />
     <property name="name" />
     <property name="extension" />
+    <property name="did" />
     <property name="description" />
     <property name="fallbackDestination" />
     <property name="voicemailFallback" />
@@ -50,7 +51,7 @@
   </query>
 
   <query name="callGroupIdsWithAlias">
-    <![CDATA[select cg.id from CallGroup cg where cg.name = :value or cg.extension = :value]]>
+    <![CDATA[select cg.id from CallGroup cg where cg.name = :value or cg.extension = :value or cg.did = :value]]>
   </query>
 
 </hibernate-mapping>

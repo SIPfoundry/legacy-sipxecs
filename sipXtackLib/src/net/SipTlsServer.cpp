@@ -61,6 +61,7 @@ SipTlsServer::SipTlsServer(int port,
    // mServerPort is set to PORT_NONE by SipTcpServer::SipTcpServer.
    mServerPort = port;
    mpServerBrokerListener = new SipServerBrokerListener(this);
+   mIsSecureTransport = true;
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "SipTlsServer[%s]::_ port %d",
@@ -102,7 +103,7 @@ UtlBoolean SipTlsServer::createServerSocket(const char* szBindAddr,
 {
    UtlBoolean bSuccess = TRUE;
 
-   OsServerSocket* pSocket =
+   OsSSLServerSocket* pSocket =
       new OsSSLServerSocket(ACCEPT_QUEUE_SIZE, port, szBindAddr);
 
    // If the socket is busy or unbindable and the user requested using the
@@ -119,6 +120,7 @@ UtlBoolean SipTlsServer::createServerSocket(const char* szBindAddr,
    // If we opened the socket.
    if (pSocket->isOk())
    {
+      pSocket->setVerifyPeer(true);
       // Inform the SipUserAgent of the contact address.
       if (mSipUserAgent)
       {

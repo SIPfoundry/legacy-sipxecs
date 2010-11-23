@@ -13,11 +13,6 @@
      - B E A N S
      -->
   <bean name="validator" class="org.sipfoundry.sipxconfig.components.SipxValidationDelegate"/>
-  <component id="itemCommon" type="common/ItemCommon">
-    <binding name="item" value="conference" />
-    <binding name="useEnabled" value="true" />
-    <binding name="useExtension" value="true" />
-  </component>
   <component id="formActions" type="common/FormActions">
     <binding name="listener" value="listener:apply"/>
     <binding name="callback" value="callback"/>
