@@ -33,6 +33,10 @@ help.sipx.rpm = Make rpm on each project, this will also install the RPM w/o exe
 $(foreach T,$(sipx),$(T).rpm) :
 	$(MAKE) -C $(PROJDIR) rpm install-rpm
 
+help.sipx.rpm2 = Experimental call to build rpms
+$(foreach T,$(sipx),$(T).rpm2) :
+	rpmbuild -ta $(PROJDIR)/$(PROJ)-@PACKAGE_VERSION@.tar.gz
+
 # shortcuts, support "make clean" and a shortcut for "make sipx.clean"
 $(foreach C,$(MAKE_COMMANDS) all rpm,$(eval $(C) : sipx.$(C);))
 

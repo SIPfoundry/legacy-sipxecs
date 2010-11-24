@@ -1,50 +1,32 @@
-include $(top_srcdir)/config/project.am
-
-RPMS =  $(RPM)
-#	$(RPM)  \
-#	$(DEST_RPM)/@PACKAGE@-$(SIPX_VERSION).@RPM_TARGET_ARCH@.rpm
-
-SIPX_PROCESS_DEFS = \
-	openacd
-
-
-SUBDIRS = \
-	bin
-
-DISTCLEANFILES = openacd-process.xml
-
 EXTRA_DIST = \
 	README \
 	CONTRIBUTORS \
-	BUILDSTAMP \
-	SVN-VERSION \
 	LICENSE	\
-	config/sipX-config.in \
-	config/sipX-buildstamp.cpp.in \
-	config/sipX-buildstamp.h.in \
-	config/svn-version \
-	sipxopenacd.spec.in \
 	sipxopenacd.spec \
-	openacd-process.xml.in \
-	openacd-process.xml \
-	bin/openacd_setup.sh.in \
-	openacd_setup.sh	\
-	bin/openacd.sh.in \
-	openacd.sh
+	sipxopenacd-process.xml.in \
+	sipxopenacd.in
 
-sipxopenacd.spec : sipxopenacd.spec.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+LOCALIZE_VARS = \
+	$(filter SIPX%,$(.VARIABLES)) \
+	$(filter PACKAGE%,$(.VARIABLES))
 
-sipxopenacd-process : sipxopenacd-process.xml.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+LOCALIZE = \
+	$(foreach V,$(LOCALIZE_VARS), -e 's|@$(V)\@|$($(V))|g')
 
-openacd_setup.sh : bin/openacd_setup.sh.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+bin_SCRIPTS = \
+	sipxopenacd
 
-openacd.sh : bin/openacd.sh.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
+procdir = $(datadir)/sipxecs/process.d
 
+dist_proc_DATA = \
+	sipxopenacd-process.xml
+
+LOCALIZE_TARGETS = \
+	$(bin_SCRIPTS) \
+	$(dist_proc_DATA) \
+	sipxopenacd.spec
+
+# source files use many configuration variables that change, so always rebuild
+.PHONY: $(LOCALIZE_TARGETS)
+$(LOCALIZE_TARGETS) :
+	sed $(LOCALIZE) $(srcdir)/$(notdir $@).in > $@

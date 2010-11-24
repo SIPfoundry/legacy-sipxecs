@@ -1,6 +1,0 @@
-#!/bin/bash
-#
-# Copyright (C) 2010 eZuce Inc.
-# Licensed to SIPfoundry under the LGPL license.
-
-. @SIPX_LIBEXECDIR@/sipx-utils.sh
