@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  %{buildno}
+Release:  %{?buildno:%buildno}%{!?buildno:1}
 
 Summary:  SIP PBX
 License:  Pingtel Commercial License
@@ -118,7 +118,7 @@ Internal class documentation for the pbx classes
 %setup -q
 
 %build
-%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -191,32 +191,32 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-core-clean
 %attr(755,root,root) %{_sysconfdir}/cron.daily/sipx-cert-check
 
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/mime.types
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd.conf
-%config(noreplace) %attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd-dav.conf
-%dir %attr(755,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/httpd.conf.d
+%config(noreplace) %attr(644,root,sipxchange) %{_sysconfdir}/sipxpbx/mime.types
+%config(noreplace) %attr(644,root,sipxchange) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common-ssl.conf
+%config(noreplace) %attr(644,root,sipxchange) %{_sysconfdir}/sipxpbx/httpd-sipxchange-common.conf.in
+%config(noreplace) %attr(644,root,sipxchange) %{_sysconfdir}/sipxpbx/httpd.conf
+%config(noreplace) %attr(644,root,sipxchange) %{_sysconfdir}/sipxpbx/httpd-dav.conf
+%dir %attr(755,root,sipxchange) %{_sysconfdir}/sipxpbx/httpd.conf.d
 
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/logrotate.d/sipxchange
 
 %config(noreplace) %attr(644,root,root) %{_sysconfdir}/sipxpbx/phonelog.conf
 
-%dir %attr(775,@SIPXPBXUSER@,root) %{_datadir}/www/doc
-%config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/index.html
-%config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/retrieve-update-log.cgi
-%config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/retrieve-error-log.cgi
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/doc/aa_vxml
-%dir %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/stdprompts_en
+%dir %attr(775,sipxchange,root) %{_datadir}/www/doc
+%config(noreplace) %attr(755,root,sipxchange) %{_datadir}/www/doc/index.html
+%config(noreplace) %attr(755,root,sipxchange) %{_datadir}/www/doc/retrieve-update-log.cgi
+%config(noreplace) %attr(755,root,sipxchange) %{_datadir}/www/doc/retrieve-error-log.cgi
+%config(noreplace) %attr(755,sipxchange,sipxchange) %{_datadir}/www/doc/aa_vxml
+%dir %attr(755,root,sipxchange) %{_datadir}/www/doc/stdprompts_en
 %{_datadir}/www/doc/stdprompts_en/*
-%config(noreplace) %attr(755,root,@SIPXPBXGROUP@) %{_datadir}/www/doc/stdprompts
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/doc/vm_vxml
+%config(noreplace) %attr(755,root,sipxchange) %{_datadir}/www/doc/stdprompts
+%config(noreplace) %attr(755,sipxchange,sipxchange) %{_datadir}/www/doc/vm_vxml
 
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/mediaserver
+%config(noreplace) %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/mediaserver
 
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/log/sipxpbx/phone
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/webdav
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/www/var
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/log/sipxpbx/phone
+%dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/webdav
+%dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/var
 
 %files devel
 %defattr(644,root,root,755)
@@ -254,7 +254,7 @@ fi
 
 # Reconfigure sendmail (if that is the mail daemon chosen) to ensure
 # prompt delivery of voicemail notifications.
-sipx-sendmail-configure %{buildno}
+sipx-sendmail-configure %{?buildno:%buildno}%{!?buildno:1}
 
 # If this is an upgrade from 3.10, need to setup the SSL db correctly
 %{_bindir}/ssl-cert/upgrade-cert.sh >> %{_localstatedir}/log/sipxpbx/upgrade-cert.log 2>&1

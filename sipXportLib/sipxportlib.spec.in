@@ -2,7 +2,7 @@
 # see http://lizards.opensuse.org/2008/09/08/opensuse-build-service-build-checks/
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: OS Abstraction and OS Utilities library for sipX modules
 License: Pingtel Commercial License
@@ -95,7 +95,7 @@ helpful to build projects from the sipX library
 mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make all
 
@@ -161,7 +161,7 @@ rm -rf $RPM_BUILD_ROOT
 	%{_localstatedir}/sipxdata/mediaserver/data \
 	%{_datadir}/www/cgi-bin/replication \
      -nogroup |
-         xargs chgrp @SIPXPBXGROUP@
+         xargs chgrp sipxchange
   # Ensure a success exit value, as the preceding 'find' may have found
   # no files.
   true

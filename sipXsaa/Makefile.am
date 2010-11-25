@@ -2,7 +2,6 @@
 
 include config/project.am
 
-RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
 unconditional_SUBDIRS = . src bin meta etc
 
 include config/conditional_doc.am

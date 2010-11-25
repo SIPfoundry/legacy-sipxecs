@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  %{buildno}
+Release:  %{?buildno:%buildno}%{!?buildno:1}
 
 Summary:  SIP Presence Server
 License:  Pingtel Commercial License
@@ -65,7 +65,7 @@ Developer support for sipXpresence.
 %setup -q
 
 %build
-%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -88,7 +88,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/sipxecs
 %dir %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxpresence-process.xml
-%config(noreplace) %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipxpresence
+%config(noreplace) %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/sipxpresence
 
 %attr(755,root,root) %{_bindir}/sipxpresence.sh
 %attr(755,root,root) %{_bindir}/sipxpresence

@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: IVR using FreeSwitch for sipX
 License: LGPL
@@ -47,7 +47,7 @@ IVR subystem that uses FreeSWITCH as a media server.
 %setup -q
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make all
 
@@ -61,12 +61,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs/schema
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs/process.d
+%dir %attr(755,sipxchange,sipxchange) %{_datadir}/sipxecs
+%dir %attr(755,sipxchange,sipxchange) %{_datadir}/sipxecs/schema
+%dir %attr(755,sipxchange,sipxchange) %{_datadir}/sipxecs/process.d
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXivr
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxivr-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/schema/autoattendants.xsd
 %attr(644,root,root) %{_datadir}/sipxecs/schema/validusers.xsd
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxivr.sh
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxivr-config
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipxivr.sh
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipxivr-config

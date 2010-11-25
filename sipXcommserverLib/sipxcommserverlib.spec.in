@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: Common Code for sipX servers
 License: Pingtel Commercial License
@@ -91,17 +91,11 @@ helpful to build projects using the sipXcommserverLib library
 mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
 %install
-# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
-# libdir, bindir, etc just for make install. This not copesetic w/how
-# our makefiles are built, they'd rather preserve libdir, and use
-# DESTDIR when copying/moving/creating files.  The approach we're taking
-# is quite standard, so it's surprising RPM's makeinstall macro is
-# the way it is.
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -109,29 +103,12 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-# If needed, change open source daemon user name to @SIPXPBXUSER@.
-# The open source names that have been used are 'sipx' and 'sipxpbx'.
-for openname in sipx sipxpbx; do
-  if [ "@SIPXPBXUSER@" != "${openname}" ] &&
-     ! id -u "@SIPXPBXUSER@" > /dev/null 2>&1 &&
-     id -u ${openname} > /dev/null 2>&1
-  then
-     /usr/sbin/usermod -l @SIPXPBXUSER@ ${openname}
-  fi
-done
+if ! /usr/bin/id -g sipxchange &>/dev/null; then
+  /usr/sbin/groupadd -r sipxchange
+fi
 
-# If there is no daemon user, create it.
-# Red Hat's useradd command adds the group automatically,
-# but SUSE does not.
-# The -f option means to create the group only if it does not already exist.
-/usr/sbin/groupadd -f @SIPXPBXGROUP@
-if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
-   /usr/sbin/useradd \
-       -c "sipX service daemon" \
-       -d %{_sysconfdir}/sipxpbx \
-       -s /bin/bash \
-       -g @SIPXPBXGROUP@ \
-       @SIPXPBXUSER@ > /dev/null 2>&1
+if ! /usr/bin/id sipxchange &/dev/null; then
+  /usr/sbin/useradd -M -r -g sipxchange -d %{_sysconfdir}/sipxpbx -s /bin/false -c sipxchange sipxchange 2>&1
 fi
 
 %post
@@ -157,12 +134,12 @@ fi
 %attr(755,root,root) %{_libdir}/libsipXcommserver.la
 %attr(755,root,root) %{_libdir}/libsipXcommserver.so*
 %attr(755,root,root) %{_libexecdir}/sipXecs/sipx-utils.sh
-%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxpackage
-%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxswadmin
-%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxzoneadmin
-%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipx-sudo-timezone
-%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipx-sudo-time-manager
-%attr(4750,root,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/sipxcdrpostgres
+%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxpackage
+%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxswadmin
+%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxzoneadmin
+%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipx-sudo-timezone
+%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipx-sudo-time-manager
+%attr(4750,root,sipxchange) %{_libexecdir}/sipXecs/sipxcdrpostgres
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-time-manager-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipx-change-timezone-init
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxpackage-init
@@ -179,17 +156,17 @@ fi
 
 # These should match sipXlib.m4 or at least sent
 # to configure script
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ssl
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/ssl/authorities
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/log/sipxpbx
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/run/sipxpbx
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/tmp
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/sipdb
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_libexecdir}/sipXecs/setup.d
+%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx
+%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/ssl
+%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/ssl/authorities
+%dir %attr(755,sipxchange,sipxchange) %{_datadir}/sipxecs
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/log/sipxpbx
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/run/sipxpbx
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/tmp
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/sipdb
+%dir %attr(755,sipxchange,sipxchange) %{_libexecdir}/sipXecs
+%dir %attr(755,sipxchange,sipxchange) %{_libexecdir}/sipXecs/setup.d
 
 %files devel
 %defattr(644,root,root,755)

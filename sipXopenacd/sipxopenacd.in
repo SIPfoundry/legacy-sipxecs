@@ -4,20 +4,8 @@
 # Licensed by SIPfoundry under the LGPL license.
 #
 Action="START"
-
-start() {
-        echo -n "Starting OpenACD "
-}
-
-stop() {
-	echo -n "Shutting down OpenACD "
-}
-
-restart() {
-	stop
-	sleep 10 # give it a few moments to shut down
-	start
-}
+Status=0
+Args=""
 
 while [ $# -ne 0 ]
 do
@@ -26,8 +14,8 @@ do
             Action=STOP
             ;;
 
-        --restart)
-            Action=RESTART
+        --configtest)
+            Action=CONFIGTEST
             ;;
 
         *)
@@ -38,14 +26,23 @@ do
     shift # always consume 1
 done
 
+. @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
+
+pidfile = "@SIPX_RUNDIR@/openacd.pid"
+
 case "$Action" in
 	START)
-		start
+		echo $$ > ${pidfile}
+		exec @OPENACD_DIR@/boot.rb $Args
 		;;
+
 	STOP)
-		stop
+		sipx_stop ${pidfile}
 		;;
-	RESTART)
-		restart
+
+	CONFIGTEST)
+		# no checks yet
 		;;
 esac
+
+exit $Status

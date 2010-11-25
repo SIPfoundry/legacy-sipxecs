@@ -1,8 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 
-RPMS = $(RPM)
-
 include interop.am
 
 SUBDIRS = \

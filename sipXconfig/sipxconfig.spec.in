@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary:  Configuration Management for SIP
 License:  LGPL
@@ -215,7 +215,7 @@ mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
 
-%configure --enable-rpmbuild --enable-reports --enable-agent --enable-mrtg @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild --enable-reports --enable-agent --enable-mrtg @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -253,7 +253,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore-report
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-process.xml
-%attr(755,@SIPXPBXUSER@, @SIPXPBXGROUP@) %{_bindir}/sipx-time-manager
+%attr(755,sipxchange, sipxchange) %{_bindir}/sipx-time-manager
 
 # itspTemplates
 %dir %{sipxpbxconf}/itspTemplates
@@ -263,10 +263,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/java/sipXecs/sipXconfig
 
 # Because of generation of data and profiles
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}/profile
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}/profile/docroot
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{phonedir}/profile/tftproot
+%dir %attr(775,sipxchange,sipxchange) %{phonedir}
+%dir %attr(775,sipxchange,sipxchange) %{phonedir}/profile
+%dir %attr(775,sipxchange,sipxchange) %{phonedir}/profile/docroot
+%dir %attr(775,sipxchange,sipxchange) %{phonedir}/profile/tftproot
 %config(noreplace) %{phonedir}/profile/tftproot/*
 %config(noreplace) %{phonedir}/profile/docroot/*
 
@@ -275,7 +275,7 @@ rm -rf $RPM_BUILD_ROOT
 %{upgrade_archive_dir}/%{name}-previous.tgz
 
 # Install configserver config files, directory only is created by pbx
-%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%defattr(644,sipxchange,sipxchange,755)
 %config(noreplace) %{sipxpbxconf}/sipxconfig-jetty.xml
 %config(noreplace) %{sipxpbxconf}/log4j.properties
 %config(noreplace) %{sipxpbxconf}/sipxconfig.properties
@@ -389,17 +389,17 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/openacd/*
 
 %define audiocodesdir %{_localstatedir}/sipxdata/audiocodes
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{audiocodesdir}
+%dir %attr(775,sipxchange,sipxchange) %{audiocodesdir}
 %config(noreplace) %{audiocodesdir}/*
 
 %define reportsdir %{_localstatedir}/sipxdata/reports
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{reportsdir}
+%dir %attr(775,sipxchange,sipxchange) %{reportsdir}
 %config(noreplace) %{reportsdir}/*
 
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/upload
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/backup
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/configserver/web-cert
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{devicefilesdir}
+%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/upload
+%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/backup
+%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/configserver/web-cert
+%dir %attr(775,sipxchange,sipxchange) %{devicefilesdir}
 
 %pre
 
@@ -515,13 +515,13 @@ fi
 sipx-snmp-init > /dev/null
 
 %files mrtg
-%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
-%attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/sipx-mrtg-init
-%attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_bindir}/sipXmrtg.sh
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{sipxpbxconf}/mrtg
+%defattr(644,sipxchange,sipxchange,755)
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipx-mrtg-init
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipXmrtg.sh
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mrtg
 %config(noreplace) %{sipxpbxconf}/mrtg/*
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mrtg
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_localstatedir}/sipxdata/mrtg/thresh
+%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/mrtg
+%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/mrtg/thresh
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXmrtg-process.xml
 
 %preun mrtg
@@ -536,7 +536,7 @@ fi
 
 %attr(755,root,root) %{_bindir}/sipxconfig-agent
 
-%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%defattr(644,sipxchange,sipxchange,755)
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-agent-process.xml
 
 %post agent
@@ -567,7 +567,7 @@ fi
 
 %attr(755,root,root) %{_bindir}/sipxconfig-report
 
-%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%defattr(644,sipxchange,sipxchange,755)
 %config(noreplace) %{sipxpbxconf}/sipxconfig-report-config
 %config(noreplace) %{sipxpbxconf}/report/schema.sql
 %config(noreplace) %{sipxpbxconf}/report/enable_upgrades.sql
@@ -576,8 +576,8 @@ fi
 
 %post report
 gem install --no-rdoc --local %{sipxpbxvarlib}/sipXconfig-report-*.gem >/dev/null
-if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^@SIPXPBXUSER@$' /etc/cron.d/cron.allow > /dev/null ); then
-  echo @SIPXPBXUSER@ >> /etc/cron.d/cron.allow
+if ( ! test -f /etc/cron.d/cron.allow ) || ( ! grep '^sipxchange$' /etc/cron.d/cron.allow > /dev/null ); then
+  echo sipxchange >> /etc/cron.d/cron.allow
 fi
 
 %preun report

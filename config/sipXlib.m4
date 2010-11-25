@@ -61,33 +61,9 @@ AC_DEFUN([SFAC_INIT_FLAGS],
 # sipX-specific options that affect everything and so should be visible at the top level
 AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
 [
-    AC_REQUIRE([SFAC_SIPX_INSTALL_PREFIX])
+    m4_include([config/sipXlib2.m4])
 
-    AC_SUBST(SIPX_INCDIR, [${includedir}])
-    AC_SUBST(SIPX_LIBDIR, [${libdir}])
-    AC_SUBST(SIPX_LIBEXECDIR, [${libexecdir}/sipXecs])
-
-    ## NOTE: These are not expanded (e.g. contain $(prefix)) and are only
-    ## fit for Makefiles. You can however write a Makefile that transforms
-    ## *.in to * with the concrete values. 
-    ##
-    ##  See sipXconfig/Makefile.am for an example.   
-    ##  See autoconf manual 4.7.2 Installation Directory Variables for why it's restricted
-    ##
-    AC_SUBST(SIPX_BINDIR,  [${bindir}])
-    AC_SUBST(SIPX_CONFDIR, [${sysconfdir}/sipxpbx])
-    AC_SUBST(SIPX_DATADIR, [${datadir}/sipxecs])
-    AC_SUBST(SIPX_INTEROP, [${datadir}/sipxecs/interop])
-    AC_SUBST(SIPX_DOCDIR,  [${datadir}/doc/sipxecs])
-    AC_SUBST(SIPX_JAVADIR, [${datadir}/java/sipXecs])
-    AC_SUBST(SIPX_VARDIR,  [${localstatedir}/sipxdata])
-    AC_SUBST(SIPX_TMPDIR,  [${localstatedir}/sipxdata/tmp])
-    AC_SUBST(SIPX_DBDIR,   [${localstatedir}/sipxdata/sipdb])
-    AC_SUBST(SIPX_LOGDIR,  [${localstatedir}/log/sipxpbx])
-    AC_SUBST(SIPX_RUNDIR,  [${localstatedir}/run/sipxpbx])
-    AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
     AC_SUBST(SIPX_VXMLDATADIR,[${localstatedir}/sipxdata/mediaserver/data])
-
 
     ## Used in a number of different project and subjective where this should really go
     ## INSTALL instruction assume default, otherwise safe to change/override
@@ -158,8 +134,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     # Enable profiling via gprof
     ENABLE_PROFILE
 
-    SFAC_DIST_DIR
-
     SFAC_CONFIGURE_OPTIONS
 ])
 
@@ -183,11 +157,6 @@ AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
   done
 
   AC_SUBST(CONFIGURE_OPTIONS, $CleanedArgs)
-])
-
-AC_DEFUN([SFAC_SIPX_INSTALL_PREFIX],[
-   # set the install prefix
-   AC_PREFIX_DEFAULT(${SIPX_INSTALLDIR:-/usr/local/sipx})
 ])
 
 dnl If SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED is included in configure.ac,
@@ -790,50 +759,6 @@ AC_DEFUN([SFAC_FEATURE_SIP_TLS],
       CFLAGS="-DSIP_TLS $CFLAGS"
       CXXFLAGS="-DSIP_TLS $CXXFLAGS"
    fi
-])
-
-
-# Place to store RPM output files
-AC_DEFUN([SFAC_DIST_DIR],
-[
-  AC_ARG_WITH([distdir],
-    AC_HELP_STRING([--with-distdir=directory], 
-      [Directory to output distribution output files like tarballs, srpms and rpms, default is $(top_builddir)/dist]),
-    [DIST_DIR=${withval}],[DIST_DIR=dist])
-
-  mkdir -p "$DIST_DIR" 2>/dev/null
-  DIST_DIR=`cd "$DIST_DIR"; pwd`
-
-  # all distro tarballs
-  DEST_SRC="${DIST_DIR}/SRC"
-  mkdir "${DEST_SRC}"  2>/dev/null
-  AC_SUBST([DEST_SRC])
-
-  AC_ARG_VAR([LIBSRC], [Where downloaded files are kept between builds, default ~/libsrc])
-  test -z $LIBSRC && LIBSRC=~/libsrc
-
-  # RPM based distros
-  AC_PATH_PROG(RPM, rpm)
-  AM_CONDITIONAL(RPM_CAPABLE, [test "x$RPM" != "x"])
-  if test "x$RPM" != "x"
-  then
-    DEST_RPM="${DIST_DIR}/RPM"
-    mkdir "${DEST_RPM}" 2>/dev/null
-    AC_SUBST([DEST_RPM])
-
-    DEST_SRPM="${DIST_DIR}/SRPM"
-    mkdir "${DEST_SRPM}"  2>/dev/null
-    AC_SUBST([DEST_SRPM])
-
-    DEST_ISO="${DIST_DIR}/ISO"
-    mkdir "${DEST_ISO}"  2>/dev/null
-    AC_SUBST([DEST_ISO])
-    RPMBUILD_TOPDIR="\$(shell rpm --eval '%{_topdir}')"
-    AC_SUBST(RPMBUILD_TOPDIR)
-    RPM_TARGET_ARCH="\$(shell rpm --eval '%{_target_cpu}')"
-    AC_SUBST(RPM_TARGET_ARCH)
-  fi
-
 ])
 
 AC_DEFUN([SFAC_DOWNLOAD_DEPENDENCIES],

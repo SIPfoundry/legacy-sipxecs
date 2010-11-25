@@ -2,8 +2,6 @@
 
 include config/project.am
 
-RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
-
 include config/conditional_doc.am
 
 SUBDIRS = \

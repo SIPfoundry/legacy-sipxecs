@@ -4,8 +4,6 @@ include ant-targets.am
 
 bin_SCRIPTS = sipxrest.sh 
 
-RPMS=$(RPM)
-
 EXTRA_DIST = \
   README \
   config/sipX-config.in \

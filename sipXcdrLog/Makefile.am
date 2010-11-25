@@ -2,8 +2,6 @@
 include config/project.am
 include ant-targets.am
 
-RPMS=$(RPM)
-
 EXTRA_DIST = \
   README \
   config/sipX-config.in \

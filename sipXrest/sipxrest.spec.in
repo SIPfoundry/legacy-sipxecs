@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: REST Server for SipX.
 License: LGPL
@@ -44,7 +44,7 @@ SIPX REST service
 %setup -q
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make all
 
@@ -62,7 +62,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %dir %{_datadir}/sipxecs
 %dir %{_datadir}/sipxecs/process.d
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXrest
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXrest
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrest-process.xml
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxrest.sh
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipxrest.sh
 

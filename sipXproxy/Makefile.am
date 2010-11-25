@@ -1,9 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 
-RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM) \
-	$(DEST_RPM)/@PACKAGE@-cdr-$(SIPX_VERSION).$(RPM_TARGET_ARCH).rpm
-
 include config/conditional_doc.am
 
 SUBDIRS = \

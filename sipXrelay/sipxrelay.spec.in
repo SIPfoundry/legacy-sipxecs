@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: Native ITSP bridging solution for sipX
 License: LGPL
@@ -43,7 +43,7 @@ Native ITSP and media bridging solution for SIPX PBX.
 %setup -q
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make all
 
@@ -61,7 +61,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %dir %{_datadir}/sipxecs
 %dir %{_datadir}/sipxecs/process.d
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXbridge
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXbridge
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxrelay-process.xml
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxrelay.sh
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipxrelay.sh
 

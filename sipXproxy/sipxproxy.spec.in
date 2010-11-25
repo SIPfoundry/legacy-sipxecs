@@ -1,6 +1,6 @@
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  %{buildno}
+Release:  %{?buildno:%buildno}%{!?buildno:1}
 
 Summary:  SIP Proxy Server
 License:  Pingtel Commercial License
@@ -101,7 +101,7 @@ Internal class documentation for the proxy classes
 %setup -q
 
 %build
-%configure --enable-rpmbuild --enable-cdr @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild --enable-cdr @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -183,10 +183,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxcallresolver-setup
 
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/sipxcallresolver-agent-config
-%config(noreplace) %attr(644,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/cdr/*
+%config(noreplace) %attr(644,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/sipxcallresolver-agent-config
+%config(noreplace) %attr(644,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/cdr/*
 
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/cdr
+%dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/cdr
 
 %dir %attr(755,root,root) %{sipxpbxvarlib}
 %attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem

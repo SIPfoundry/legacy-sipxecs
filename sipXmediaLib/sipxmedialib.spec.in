@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: Media processing library
 License: Pingtel Commercial License
@@ -63,7 +63,7 @@ helpful to build projects from the sipX library
 mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 

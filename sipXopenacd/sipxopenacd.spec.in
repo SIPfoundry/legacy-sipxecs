@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @PACKAGE_VERSION@
-Release: %{?buildno:buildno}%{!?buildno:unknown}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: OpenACD sipXecs integration
 License: LGPL
@@ -23,7 +23,7 @@ OpenACD integration for sipXecs
 %setup -q
 
 %build
-%configure SIPX_USER=sipxchange
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 make all
 
 %install

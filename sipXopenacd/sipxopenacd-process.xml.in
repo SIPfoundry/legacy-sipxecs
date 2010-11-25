@@ -4,23 +4,21 @@
   <version>@PACKAGE_VERSION@</version>
   <commands>
     <configtest>
-      <execute>@SIPX_BIN_DIR@/sipxopenacd</execute>
+      <execute>@SIPX_BINDIR@/sipxopenacd</execute>
       <parameter>--configtest</parameter>
     </configtest>
     <start>
-      <execute>@SIPX_BIN_DIR@/sipxopenacd</execute>
+      <execute>@SIPX_BINDIR@/sipxopenacd</execute>
       <parameter>--start</parameter>
     </start>
     <stop>
-      <execute>@SIPX_BIN_DIR@/sipxopenacd</execute>
+      <execute>@SIPX_BINDIR@/sipxopenacd</execute>
       <parameter>--stop</parameter>
     </stop>
   </commands>
   <status>
-    <pid>@SIPX_RUN_DIR@/sipxopenacd.pid</pid>
-    <log>@SIPX_LOG_DIR@/sipxopenacd.log</log>
+    <pid>@SIPX_RUNDIR@/sipxopenacd.pid</pid>
+    <log>@SIPX_LOGDIR@/sipxopenacd.log</log>
   </status>
-  <resources>
-    <osconfig>@SIPX_CONF_DIR@/domain-config</osconfig>
-  </resources>
+  <resources/>
 </sipXecs-process>

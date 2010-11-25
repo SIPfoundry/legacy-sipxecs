@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: Authorization Code/DISA/Account using FreeSwitch for sipX
 License: LGPL
@@ -45,7 +45,7 @@ Authorization Code/DISA/Account Code subsystem that uses FreeSWITCH as a media s
 %setup -q
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make all
 
@@ -62,8 +62,8 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/sipxecs
 %dir %{_datadir}/sipxecs/process.d
 %dir %{_datadir}/sipxecs/schema
-%attr(755,@SIPXPBXUSER@,@SIPXPBXUSER@) %{_datadir}/java/sipXecs/sipXacccode
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXacccode
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxacccode-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/schema/authcodes.xsd
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxacccode.sh
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxacccode-config
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipxacccode.sh
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipxacccode-config

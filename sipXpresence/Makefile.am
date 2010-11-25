@@ -1,8 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 
-RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
-
 include $(top_srcdir)/config/conditional_doc.am
 
 unconditional_SUBDIRS = . src bin etc meta

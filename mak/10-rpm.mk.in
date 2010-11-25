@@ -1,0 +1,34 @@
+MOCK_TARGET_PLATFORM = fedora-12-x86_64
+MOCK_RESULTS_DIR = mock-results
+MOCK_DIST_DIR = dist
+BUILDNO = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1)
+
+help.sipx.srpm = Experimental call to build rpms
+$(foreach T,$(sipx),$(T).srpm) : %.srpm : $(MOCK_DIST_DIR)/%-@PACKAGE_VERSION@.tar.gz $(MOCK_DIST_DIR)/%-@PACKAGE_VERSION@-$(BUILDNO).src.rpm
+
+$(MOCK_DIST_DIR)/%.src.rpm :
+	rpmbuild -ts --define='buildno $(BUILDNO)' $(MOCK_DIST_DIR)/$(call Project,$*)-@PACKAGE_VERSION@.tar.gz
+	cp @RPMBUILD_TOPDIR@/SRPMS/$(notdir $@) $(MOCK_DIST_DIR)
+
+$(MOCK_DIST_DIR) :
+	mkdir -p $@
+
+$(MOCK_DIST_DIR)/%.tar.gz : $(MOCK_DIST_DIR)
+	$(MAKE) $(call Project,$*).dist
+	cp $(call ProjectDir, $(call Project, $*))/$(@F) $(MOCK_DIST_DIR)
+
+mock-clean :
+	rm -rf $(MOCK_DIST_DIR)
+	rm -rf $(MOCK_RESULTS_DIR)
+
+mock-init :
+	mock --init -r $(MOCK_TARGET_PLATFORM) --resultdir=$(MOCK_RESULTS_DIR)
+
+help.sipx.rpm = Experimental call to build rpms.
+$(foreach T,$(sipx),$(T).rpm) : %.rpm : %.srpm $(MOCK_RESULTS_DIR)
+	cd  $(MOCK_DIST_DIR); \
+	  thttpd -p 40100; \
+	  createrepo .
+	mock -r $(MOCK_TARGET_PLATFORM) --resultdir=$(MOCK_RESULTS_DIR) --rebuild $(MOCK_DIST_DIR)/$(PROJ)-@PACKAGE_VERSION@-$(BUILDNO).src.rpm
+	cp $(MOCK_RESULTS_DIR)/*.rpm  $(MOCK_DIST_DIR)
+	killall thttpd

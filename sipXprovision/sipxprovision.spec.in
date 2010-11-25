@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: Provisioning of phones for sipXecs.
 License: LGPL
@@ -45,7 +45,7 @@ Provisioning of phones for sipXecs.
 %setup -q
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make all
 
@@ -61,5 +61,5 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXprovision
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxprovision-process.xml
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxprovision.sh
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_bindir}/sipxprovision-config
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipxprovision.sh
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipxprovision-config

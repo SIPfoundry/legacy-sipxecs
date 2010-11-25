@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  %{buildno}
+Release:  %{?buildno:%buildno}%{!?buildno:1}
 
 Summary:  sipXecs process supervisor
 License:  Pingtel Commercial License
@@ -80,7 +80,7 @@ Internal class documentation for the sipXsupervisor classes
 %setup -q
 
 %build
-%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 
@@ -109,19 +109,19 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxsupervisor-process.xml
 
 %dir %{_sysconfdir}/sipxpbx/alarms
-%attr(644,root,@SIPXPBXGROUP@) %{_sysconfdir}/sipxpbx/alarms/sipXalarms-config.xml
+%attr(644,root,sipxchange) %{_sysconfdir}/sipxpbx/alarms/sipXalarms-config.xml
 %dir %{_datadir}/sipxecs/mibs
-%attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.mib
+%attr(644,root,sipxchange) %{_datadir}/sipxecs/mibs/SIPXECS-ALARM-NOTIFICATION-MIB.mib
 %dir %{_datadir}/sipxecs/alarms
-%attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/alarm-strings.xml
-%attr(644,root,@SIPXPBXGROUP@) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml
+%attr(644,root,sipxchange) %{_datadir}/sipxecs/alarms/alarm-strings.xml
+%attr(644,root,sipxchange) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml
 
 %attr(755,root,root) %{_datadir}/sipxecs/schema/sipXecs-process.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alarm.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alarm-group.xsd
 
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/process-state
-%dir %attr(775,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_localstatedir}/sipxdata/process-cfgver
+%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/process-state
+%dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/process-cfgver
 
 %files devel
 %defattr(644,root,root,755)

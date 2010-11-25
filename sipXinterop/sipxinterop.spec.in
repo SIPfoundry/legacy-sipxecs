@@ -1,6 +1,6 @@
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  %{buildno}
+Release:  %{?buildno:%buildno}%{!?buildno:1}
 
 Summary:  Interoperability test site installer
 License:  LGPL2
@@ -23,7 +23,7 @@ Reconfigures a sipXecs installation to create an instance specialized for phone 
 %setup -q
 
 %build
-%configure --enable-rpmbuild @CONFIGURE_OPTIONS@
+%configure --enable-rpmbuild @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make
 

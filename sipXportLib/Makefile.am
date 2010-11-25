@@ -14,8 +14,6 @@ EXTRA_DIST = \
     @PACKAGE@-rpmlintrc \
     sipxportlib.spec
 
-RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
-
 include config/conditional_doc.am
 
 SUBDIRS = \

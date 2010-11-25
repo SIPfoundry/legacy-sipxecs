@@ -13,8 +13,6 @@ EXTRA_DIST = \
     @PACKAGE@-rpmlintrc \
     sipxmedialib.spec
 
-RPMS = $(DEFAULT_RPMS) $(DEBUG_RPM)
-
 include config/conditional_doc.am
 
 SUBDIRS = \

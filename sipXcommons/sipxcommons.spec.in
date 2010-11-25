@@ -2,7 +2,7 @@
 # see http://lizards.opensuse.org/2008/09/08/opensuse-build-service-build-checks/
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: Common server side Java packages and supporting third-parth JAR's for sipX
 License: LGPL
@@ -64,12 +64,11 @@ Common server side Java packages and supporting third-parth JAR's for sipX
 mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make all
 
 %install
-
 export NO_BRP_CHECK_BYTECODE_VERSION=true
 
 rm -rf $RPM_BUILD_ROOT
@@ -79,40 +78,20 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-# If needed, change open source daemon user name to @SIPXPBXUSER@.
-# The open source names that have been used are 'sipx' and 'sipxpbx'.
-for openname in sipx sipxpbx; do
-  if [ "@SIPXPBXUSER@" != "${openname}" ] &&
-     ! id -u "@SIPXPBXUSER@" > /dev/null 2>&1 &&
-     id -u ${openname} > /dev/null 2>&1
-  then
-     /usr/sbin/usermod -l @SIPXPBXUSER@ ${openname}
-  fi
-done
+if ! /usr/bin/id -g sipxchange &>/dev/null; then
+  /usr/sbin/groupadd -r sipxchange
+fi
 
-# If there is no daemon user, create it.
-# Red Hat's useradd command adds the group automatically,
-# but SUSE does not.
-# The -f option means to create the group only if it does not already exist.
-%if %{_vendor} == suse
-%else
-/usr/sbin/groupadd -f sipxchange
-%endif
-if ! id -u @SIPXPBXUSER@ > /dev/null 2>&1 ; then
-   /usr/sbin/useradd \
-       -c "sipX service daemon" \
-       -d %{_sysconfdir}/sipxpbx \
-       -s /bin/bash \
-       -g @SIPXPBXGROUP@ \
-       @SIPXPBXUSER@ > /dev/null 2>&1
+if ! /usr/bin/id sipxchange &/dev/null; then
+  /usr/sbin/useradd -M -r -g sipxchange -d %{_sysconfdir}/sipxpbx -s /bin/false -c sipxchange sipxchange 2>&1
 fi
 
 %post
 
 %files
 %defattr(644,root,root,755)
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXcommons
+%dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXcommons
 
 %changelog
 

@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 # do not build a debuginfo package
 %define debug_package %{nil}
@@ -87,7 +87,7 @@ Internal class documentation for the pbx classes
 mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 make
 
 %install

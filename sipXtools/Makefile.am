@@ -18,8 +18,6 @@ EXTRA_DIST = \
     ChangeLog \
     sipxtools.spec
 
-RPMS = $(RPM)
-
 DISTCLEANFILES = \
 	$(CONFIG_DISTCLEANFILES) \
 	BUILDSTAMP \

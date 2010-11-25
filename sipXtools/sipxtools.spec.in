@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: Utilities for sipX
 License: LGPL
@@ -45,7 +45,7 @@ General utilities for sipXpbx system
 %setup -q
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make all
 
@@ -61,10 +61,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS LICENSE README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/*
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/preflight
-%dir %attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXviewer
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/java/sipXecs/sipXviewer/sipviewer.jar
-%attr(755,@SIPXPBXUSER@,@SIPXPBXGROUP@) %{_datadir}/sipxecs/sipviewer-install.jar
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/preflight
+%dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXviewer
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXviewer/sipviewer.jar
+%attr(755,sipxchange,sipxchange) %{_datadir}/sipxecs/sipviewer-install.jar
 %if %{_vendor} == redhat
 %{_mandir}/man1
 %endif

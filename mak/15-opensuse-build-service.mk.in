@@ -19,12 +19,8 @@ obs-clean :
 	rm -rf BUILD.tar
 
 help.sipx.obs-tar = Build tar for each projects and copy to OBS directory ready for running sipx.obs-commit.
-$(foreach T,$(sipx),$(T).obs-tar) :
-	test -d $(PROJDIR) || mkdir $(PROJDIR)
-	cd $(PROJDIR); \
-		$(SRC)/$(PROJDIR)/configure --with-distdir=$(DISTDIR) SIPX_BUILD_LABEL=open
-	make -C $(PROJDIR) dist
-	cp $(DISTDIR)/SRC/$(PROJ)-@PACKAGE_VERSION@.tar.gz @OBS_DIR@/$(PROJ)/
+$(foreach T,$(sipx),$(T).obs-tar) : %.obs-tar : %.dist
+	cp $(PROJDIR)/$(PROJ)-@PACKAGE_VERSION@.tar.gz @OBS_DIR@/$(PROJ)/
 
 help.sipx.obs-clean-get = Get brand new copy of project binaries for TARGET_ARCH and TARGET_PLATFORM
 %.obs-clean-get : %.obs-clean %.obs-get;
@@ -70,8 +66,6 @@ $(foreach T,$(sipx),$(T).obs-spec) :
 $(foreach X,lib sipx,$(eval help.$(X).obs-commit=Commit changes to OBS))
 $(foreach T,$(lib) $(sipx),$(T).obs-commit) : 
 	cd @OBS_DIR@/$(PROJ); osc commit -m 'recent changes' -f
-
-
 
 help.sipx.obs-update-version=If you have updated the version number and built new tarballs, run this to update OBS, You still need to run sipx.obs-commit
 $(foreach T,$(sipx),$(T).obs-update-version) :

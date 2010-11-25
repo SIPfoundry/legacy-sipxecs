@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{buildno}
+Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: FreeSWITCH startup scripts.
 Requires: sipx-freeswitch >= 1.0.5
@@ -35,7 +35,7 @@ FreeSWITCH startup scripts for sipx.
 %setup -q
 
 %build
-%configure @CONFIGURE_OPTIONS@
+%configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
 make all
 
@@ -48,7 +48,7 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %files
-%defattr(644,@SIPXPBXUSER@,@SIPXPBXUSER@,755)
+%defattr(644,sipxchange,sipxchange,755)
 %dir %{_datadir}/sipxecs
 %dir %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/freeswitch-process.xml

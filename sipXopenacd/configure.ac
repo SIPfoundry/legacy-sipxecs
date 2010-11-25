@@ -9,6 +9,9 @@ m4_include([config/sipXlib2.m4])
 
 AM_INIT_AUTOMAKE(foreign)
 
+AC_ARG_VAR(OPENACD_DIR, [Directory containing your OpenACD installation. Default /opt/openacd])
+test -n "$OPENACD_DIR" || OPENACD_DIR=/opt/openacd
+
 AC_CONFIG_FILES([
   Makefile
 ])

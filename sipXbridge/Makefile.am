@@ -1,8 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 include config/project.am
 
-RPMS=$(RPM)
-
 EXTRA_DIST = \
   README \
   config/sipX-config.in \
@@ -32,5 +30,3 @@ config.properties : config.properties.in Makefile
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $(srcdir)/config.properties.in > config.properties
 
-	
-	

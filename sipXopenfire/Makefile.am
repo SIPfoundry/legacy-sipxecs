@@ -11,8 +11,6 @@ INSTALL_ANT=install-ant
 
 bin_SCRIPTS = sipxopenfire.sh sipxopenfire-initdb.sql sipxopenfire-setup.sh
 
-RPMS=$(RPM)
-
 else
 
 BUILD_ANT=
@@ -75,5 +73,5 @@ sipxopenfire.sh : sipxopenfire.sh.in
 sipxopenfire.spec : sipxopenfire.spec.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
-	
+
 DISTCLEANFILES = config.properties sipxopenfire-setup.sh sipxopenfire.sh sipxopenfire.spec
