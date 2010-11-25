@@ -15,13 +15,29 @@
  */
 package org.sipfoundry.sipxconfig.freeswitch;
 
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
-public class FreeswitchAction extends BeanWithId {
+public class FreeswitchAction extends BeanWithId implements Serializable {
     private String m_application;
     private String m_data;
+
+    public static enum PredefinedAction {
+        answer, set, erlang_sendmsg, log, erlang, playback;
+
+        public static List<String> valuesAsStrings() {
+            List<String> actions = new ArrayList<String>();
+            for (PredefinedAction action : values()) {
+                actions.add(action.toString());
+            }
+            return actions;
+        }
+    }
 
     public String getApplication() {
         return m_application;
@@ -39,10 +55,12 @@ public class FreeswitchAction extends BeanWithId {
         m_data = data;
     }
 
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_application).append(m_data).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof FreeswitchAction)) {
             return false;
@@ -53,4 +71,5 @@ public class FreeswitchAction extends BeanWithId {
         FreeswitchAction bean = (FreeswitchAction) other;
         return new EqualsBuilder().append(m_application, bean.m_application).append(m_data, bean.m_data).isEquals();
     }
+
 }

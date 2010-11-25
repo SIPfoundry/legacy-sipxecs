@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.freeswitch;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
@@ -26,7 +27,7 @@ public class FreeswitchCondition extends BeanWithId {
 
     private String m_field;
     private String m_expression;
-    private Set<FreeswitchAction> m_actions;
+    private Set<FreeswitchAction> m_actions = new LinkedHashSet<FreeswitchAction>();
 
     public String getField() {
         return m_field;
@@ -53,16 +54,19 @@ public class FreeswitchCondition extends BeanWithId {
     }
 
     public void addAction(FreeswitchAction action) {
-        if (m_actions == null) {
-            m_actions = new LinkedHashSet<FreeswitchAction>();
-        }
         m_actions.add(action);
     }
 
+    public String getLineNumber() {
+        return StringUtils.removeEnd(StringUtils.removeStart(m_expression, "^"), "$");
+    }
+
+    @Override
     public int hashCode() {
         return new HashCodeBuilder().append(m_field).append(m_expression).toHashCode();
     }
 
+    @Override
     public boolean equals(Object other) {
         if (!(other instanceof FreeswitchCondition)) {
             return false;

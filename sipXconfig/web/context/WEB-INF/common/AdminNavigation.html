@@ -36,6 +36,9 @@
 					<li jwcid="@If" condition="ognl:acdContext.enabled">
 						<a jwcid="@PageLink" id="menu.acd" page="acd/ListAcdServers"><span key="menu.acd">ACD</span></a>
 					</li>
+					<li jwcid="@If" condition="ognl:openAcdEnabled">
+						<a jwcid="@PageLink" id="menu.openAcd" page="openacd/ListOpenAcdServers"><span key="menu.openAcd">OpenACD</span></a>
+					</li>
 					<!-- does not used "presenceServer.enabled" because AcdPresenceServer page requires ACD to be available as well -->
 					<li jwcid="@If" condition="ognl: acdContext.enabled">
 						<a jwcid="@PageLink" id="menu.acdPresence" page="acd/AcdPresenceServer"><span key="menu.acdPresence">ACD Presence</span></a>
@@ -50,9 +53,6 @@
 					<li><a jwcid="@PageLink" id="menu.phonebook" page="phonebook/ManagePhonebooks" ><span key="menu.phonebook">Phonebooks</span></a></li>
 					<li jwcid="@If" condition="ognl:openFireEnabled">
 						<a jwcid="@PageLink" id="menu.instantMessaging" page="admin/InstantMessaging"><span key="menu.instantMessaging">Instant Messaging</span></a>
-					</li>
-					<li jwcid="@If" condition="ognl:openAcdEnabled">
-						<a jwcid="@PageLink" id="menu.openAcd" page="openacd/ListOpenAcdServers"><span key="menu.openAcd">OpenACD</span></a>
 					</li>
 				</ul>
 			</div>

@@ -7,8 +7,11 @@
     <span jwcid="@RenderBlock" block="ognl:components.get(tab + 'Tab')" />
   </div>
   <span jwcid="linesTab@Block">
+    <span jwcid="@openacd/OpenAcdLines" sipxLocation="ognl:sipxLocation"/>
+  </span>
+  <span jwcid="queuesTab@Block">
     <form jwcid="@Form">
-      <span jwcid="@openacd/OpenAcdDialPlanPanel"/>
+      <!-- span jwcid="@openacd/OpenAcdQueuesPanel"/-->
     </form>
   </span>
   <span jwcid="agentsTab@Block">

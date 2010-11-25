@@ -18,13 +18,14 @@ package org.sipfoundry.sipxconfig.openacd;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -43,11 +44,16 @@ import org.springframework.dao.support.DataAccessUtils;
 public class OpenAcdContextTestIntegration extends IntegrationTestCase {
     private OpenAcdContextImpl m_openAcdContextImpl;
     private CoreContext m_coreContext;
+    private LocationsManager m_locationsManager;
 
     public void testOpenAcdExtensionCrud() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocations.xml");
+        Location location = m_locationsManager.getLocation(101);
+
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
         OpenAcdExtension extension = DefaultContextConfigurationTest.createOpenAcdExtension("example");
+        extension.setLocation(location);
         m_openAcdContextImpl.saveExtension(extension);
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
 
@@ -55,6 +61,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         try {
             OpenAcdExtension sameNameExtension = new OpenAcdExtension();
             sameNameExtension.setName("example");
+            sameNameExtension.setLocation(location);
             m_openAcdContextImpl.saveExtension(sameNameExtension);
             fail();
         } catch (NameInUseException ex) {
@@ -67,6 +74,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         // test modify extension without changing name
         try {
             m_openAcdContextImpl.saveExtension(savedExtension);
+            extension.setLocation(location);
         } catch (NameInUseException ex) {
             fail();
         }
@@ -108,38 +116,39 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
     }
 
-    public void testOpenAcdExtensionAliasProvider() throws Exception {
-        loadDataSetXml("domain/DomainSeed.xml");
+    public void _testOpenAcdExtensionAliasProvider() throws Exception {
+        TestHelper.cleanInsert("ClearDb.xml");
+        //loadDataSetXml("domain/DomainSeed.xml");
+        loadDataSetXml("admin/commserver/seedLocationsAndServices6.xml");
         SipxFreeswitchService service = new MockSipxFreeswitchService();
         service.setBeanId(SipxFreeswitchService.BEAN_ID);
-        IMocksControl mc = EasyMock.createControl();
-        LocationsManager locationsManager = mc.createMock(LocationsManager.class);
-        locationsManager.getLocationsForService(service);
-        Location location = new Location();
-        location.setAddress("example.org");
-        List<Location> locations = new ArrayList<Location>();
-        locations.add(location);
-        mc.andReturn(locations);
-        mc.replay();
-        service.setLocationsManager(locationsManager);
+        service.setLocationsManager(m_locationsManager);
 
         SipxServiceManager sm = TestUtil.getMockSipxServiceManager(true, service);
         m_openAcdContextImpl.setSipxServiceManager(sm);
 
-        OpenAcdExtension extension = DefaultContextConfigurationTest.createOpenAcdExtension("provider");
-        m_openAcdContextImpl.saveExtension(extension);
-        assertEquals(1, m_openAcdContextImpl.getBeanIdsOfObjectsWithAlias("provider").size());
+        OpenAcdExtension extension = DefaultContextConfigurationTest.createOpenAcdExtension("sales");
+        Location l = m_locationsManager.getLocation(101);
+        extension.setLocation(l);
 
+        m_openAcdContextImpl.saveExtension(extension);
+
+        assertEquals(1, m_openAcdContextImpl.getBeanIdsOfObjectsWithAlias("sales").size());
         assertFalse(m_openAcdContextImpl.isAliasInUse("test"));
-        assertTrue(m_openAcdContextImpl.isAliasInUse("provider"));
+        assertTrue(m_openAcdContextImpl.isAliasInUse("sales"));
+        assertTrue(m_openAcdContextImpl.isAliasInUse("300"));
 
         Collection<AliasMapping> mappings = m_openAcdContextImpl.getAliasMappings();
-        assertEquals(1, mappings.size());
-        for (AliasMapping mapping : mappings) {
-            assertEquals("openacd", mapping.getRelation());
-            assertEquals("provider@example.org", mapping.getIdentity());
-            assertEquals("sip:provider@example.org:50", mapping.getContact());
-        }
+        assertEquals(2, mappings.size());
+        Iterator<AliasMapping> iter = mappings.iterator();
+        AliasMapping mapping = iter.next();
+        assertEquals("openacd", mapping.getRelation());
+        assertEquals("sales@example.org", mapping.getIdentity());
+        assertEquals("sip:300@10.1.1.2", mapping.getContact());
+        mapping = iter.next();
+        assertEquals("openacd", mapping.getRelation());
+        assertEquals("300@example.org", mapping.getIdentity());
+        assertEquals("sip:300@10.1.1.2:50", mapping.getContact());
     }
 
     public void testOpenAcdAgentGroupCrud() throws Exception {
@@ -308,6 +317,10 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 
     private class MockSipxFreeswitchService extends SipxFreeswitchService {

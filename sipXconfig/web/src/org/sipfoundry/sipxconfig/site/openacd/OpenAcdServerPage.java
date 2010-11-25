@@ -18,21 +18,23 @@ package org.sipfoundry.sipxconfig.site.openacd;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
 import org.apache.tapestry.annotations.Persist;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
 public abstract class OpenAcdServerPage extends PageWithCallback {
     public static final String PAGE = "openacd/OpenAcdServerPage";
 
-    public abstract int getLocationId();
+    @Persist
+    public abstract Location getSipxLocation();
 
-    public abstract void setLocationId(int locationId);
+    public abstract void setSipxLocation(Location location);
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
     @Persist
-    @InitialValue("literal:dialPlan")
+    @InitialValue("literal:lines")
     public abstract String getTab();
 
     public abstract void setTab(String tab);

@@ -41,9 +41,9 @@ public abstract class OpenAcdServersPanel extends BaseComponent {
 
     public abstract void setCurrentRow(Location location);
 
-    public IPage editOpenAcdServer(Integer id) {
+    public IPage editOpenAcdServer(Location l) {
         OpenAcdServerPage page = (OpenAcdServerPage) getOpenAcdServerPage();
-        page.setLocationId(id);
+        page.setSipxLocation(l);
         return page;
     }
 }

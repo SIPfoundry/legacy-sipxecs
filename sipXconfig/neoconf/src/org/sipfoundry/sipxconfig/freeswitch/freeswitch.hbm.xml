@@ -11,10 +11,13 @@
     </id>
     <discriminator column="freeswitch_ext_type" type="character" />
     <property name="name" />
+    <property name="description" />
     <set name="conditions" table="freeswitch_condition" cascade="all,delete-orphan" order-by="freeswitch_condition_id">
       <key column="freeswitch_ext_id" not-null="true"/>
       <one-to-many class="FreeswitchCondition"/>
     </set>
+	<many-to-one name="location" column="location_id" unique="true"
+      class="org.sipfoundry.sipxconfig.admin.commserver.Location" />
   </class>
 
   <class name="FreeswitchCondition" table="freeswitch_condition">
@@ -25,7 +28,7 @@
 	</id>
     <property name="field"/>
     <property name="expression"/>
-	<set name="actions" table="freeswitch_action" cascade="all,delete-orphan" order-by="freeswitch_action_id">
+    <set name="actions" table="freeswitch_action" cascade="all,delete-orphan" order-by="freeswitch_action_id">
       <key column="freeswitch_condition_id" not-null="true"/>
       <one-to-many class="FreeswitchAction"/>
     </set>
