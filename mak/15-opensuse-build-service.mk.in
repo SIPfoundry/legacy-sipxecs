@@ -20,7 +20,7 @@ obs-clean :
 
 help.sipx.obs-tar = Build tar for each projects and copy to OBS directory ready for running sipx.obs-commit.
 $(foreach T,$(sipx),$(T).obs-tar) : %.obs-tar : %.dist
-	cp $(PROJDIR)/$(PROJ)-@PACKAGE_VERSION@.tar.gz @OBS_DIR@/$(PROJ)/
+	cp $(PROJ)/$(PROJ)-@PACKAGE_VERSION@.tar.gz @OBS_DIR@/$(PROJ)/
 
 help.sipx.obs-clean-get = Get brand new copy of project binaries for TARGET_ARCH and TARGET_PLATFORM
 %.obs-clean-get : %.obs-clean %.obs-get;

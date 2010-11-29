@@ -1,34 +1,49 @@
 MOCK_TARGET_PLATFORM = fedora-12-x86_64
-MOCK_RESULTS_DIR = mock-results
-MOCK_DIST_DIR = dist
+MOCK_RESULTS_DIR = rpm-results
 BUILDNO = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1)
+MOCK_OPTS = -r $(MOCK_TARGET_PLATFORM) --resultdir=$(MOCK_RESULTS_DIR)
+RPM_DIST = @RPM_DIST@
+
+# suspect make bug? cannot use $(call lowercase,$(P))
+$(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-$(BUILDNO).src.rpm))
+$(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@.tar.gz))
+
+$(foreach P,$(lib),$(eval include $(SRC)/$(P)/.sipxecs.mk))
+
+help.sipx.rpm = Experimental call to build rpms.
+$(foreach T,$(sipx) $(lib),$(T).rpm) : %.rpm : %.clean-full %.autoreconf %.configure %.dist %.srpm %.mock;
 
 help.sipx.srpm = Experimental call to build rpms
-$(foreach T,$(sipx),$(T).srpm) : %.srpm : $(MOCK_DIST_DIR)/%-@PACKAGE_VERSION@.tar.gz $(MOCK_DIST_DIR)/%-@PACKAGE_VERSION@-$(BUILDNO).src.rpm
-
-$(MOCK_DIST_DIR)/%.src.rpm :
-	rpmbuild -ts --define='buildno $(BUILDNO)' $(MOCK_DIST_DIR)/$(call Project,$*)-@PACKAGE_VERSION@.tar.gz
-	cp @RPMBUILD_TOPDIR@/SRPMS/$(notdir $@) $(MOCK_DIST_DIR)
-
-$(MOCK_DIST_DIR) :
-	mkdir -p $@
-
-$(MOCK_DIST_DIR)/%.tar.gz : $(MOCK_DIST_DIR)
-	$(MAKE) $(call Project,$*).dist
-	cp $(call ProjectDir, $(call Project, $*))/$(@F) $(MOCK_DIST_DIR)
+%.srpm :
+	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
+	if [ -n "$($(PROJ)_SPEC)" ]; then \
+	  $(foreach S,$($(PROJ)_SOURCES),$(call CopySourceFile,$(S),@RPMBUILD_TOPDIR@/SOURCES)) \
+	  rpmbuild -bs --define='buildno $(BUILDNO)' $($(PROJ)_SPEC); \
+	else \
+	  rpmbuild -ts --define='buildno $(BUILDNO)' $($(PROJ)_TAR); \
+	fi
+	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) .
 
 mock-clean :
-	rm -rf $(MOCK_DIST_DIR)
 	rm -rf $(MOCK_RESULTS_DIR)
 
 mock-init :
-	mock --init -r $(MOCK_TARGET_PLATFORM) --resultdir=$(MOCK_RESULTS_DIR)
+	mock $(MOCK_OPTS) --init
 
-help.sipx.rpm = Experimental call to build rpms.
-$(foreach T,$(sipx),$(T).rpm) : %.rpm : %.srpm $(MOCK_RESULTS_DIR)
-	cd  $(MOCK_DIST_DIR); \
-	  thttpd -p 40100; \
-	  createrepo .
-	mock -r $(MOCK_TARGET_PLATFORM) --resultdir=$(MOCK_RESULTS_DIR) --rebuild $(MOCK_DIST_DIR)/$(PROJ)-@PACKAGE_VERSION@-$(BUILDNO).src.rpm
-	cp $(MOCK_RESULTS_DIR)/*.rpm  $(MOCK_DIST_DIR)
+CopySourceFile = \
+	if [ -f $1 ]; then \
+	  cp $1 $2; \
+	else \
+	  if [ ! -f @DOWNLOAD_LIB_CACHE@/$(notdir $1) ]; then \
+	    curl -o @DOWNLOAD_LIB_CACHE@/$(notdir $1) @DOWNLOAD_LIB_URL@/$(notdir $1); \
+	  fi ;\
+	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \
+	fi; \
+
+# launch a webserver to share build of deps with chroot'ed system.
+%.mock :
+	thttpd -p 40100
+	createrepo .
+	mock $(MOCK_OPTS) --no-clean --no-cleanup-after --rebuild $($(PROJ)_SRPM)
+	cp $(MOCK_RESULTS_DIR)/*.rpm  .
 	killall thttpd

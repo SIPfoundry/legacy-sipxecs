@@ -7,7 +7,6 @@ SF_TARGET_DIR = $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)
 SfCommand = ssh $(SF_SSH_DOWNLOAD) '$(1)'
 SF_RSYNC_TARGET=$(SF_SSH_DOWNLOAD):
 TARGET_DISTRO = $(firstword $(subst _, ,$(TARGET_PLATFORM)))
-lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 BASE_ARCH = i386 x86_64
 S3_BUCKET = s3://sipXecs-pub
 

@@ -4,7 +4,7 @@ To install from source
 Step 1. Build makefile.
 
  autoreconf -if
- ./configure --prefix=/usr/local/sipx SIPXPBXUSER=$USER
+ ./configure
 
 Step 2. Add yum repository for dependencies
 There are libraries that are not available in common repositories that you'll need to to install. There's a file you can

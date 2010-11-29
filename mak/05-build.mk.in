@@ -3,9 +3,9 @@ reconf :
 	$(SRC)/configure @CONFIGURE_OPTIONS@
 
 help.sipx.autoreconf=Run autoreconf on each project
-$(foreach T,$(sipx),$(T).autoreconf) : 
+%.autoreconf : 
 	@echo $@
-	cd $(SRC)/$(PROJDIR); \
+	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
 help.sipx=Build all sipx components including autoreconf, configure, all and install targets
@@ -18,25 +18,29 @@ help.sipx.all-install=Run "make all install" in each target
 $(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
 
 help.configure = Run configure on each project
-$(foreach T,$(sipx),$(T).configure) : 
-	test -d $(PROJDIR) || mkdir $(PROJDIR)
-	cd $(PROJDIR); \
-	  $(SRC)/$(PROJDIR)/configure --disable-option-checking @CONFIGURE_OPTIONS@
+%.configure : 
+	test -d $(PROJ) || mkdir $(PROJ)
+	cd $(PROJ); \
+	  $(SRC)/$(PROJ)/configure --disable-option-checking @CONFIGURE_OPTIONS@
+
+help.configure = Remove build ouptut project
+$(foreach T,$(sipx) $(lib),$(T).clean-full) :
+	! test -d $(PROJ) || rm -rf $(PROJ)
 
 MAKE_COMMANDS = check install clean dist
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.sipx.$(C)=Run make $(C) on each project))
 
-$(foreach C,$(MAKE_COMMANDS),$(foreach T,$(sipx),$(T).$(C))) :
-	$(MAKE) -C $(PROJDIR) $(patsubst $(PROJ).%,%,$@)
+$(foreach C,$(MAKE_COMMANDS),%.$(C)) :
+	$(MAKE) -C $(PROJ) $(patsubst $(PROJ).%,%,$@)
 
 # projects do not all have an "all" target, they probably should, until then, use
 # no-target default
 $(foreach C,all,$(foreach T,$(sipx),$(T).all)) :
-	$(MAKE) -C $(PROJDIR)
+	$(MAKE) -C $(PROJ)
 
 help.sipx.update-version = Update all sipx components to the current version.
 $(foreach T,$(sipx),$(T).update-version) :
-	sed -i -e 's/\(AC_INIT(.*, \)[0-9.]\+\(.*\)/\1@PACKAGE_VERSION@\2/g' $(SRC)/$(PROJDIR)/configure.ac
+	sed -i -e 's/\(AC_INIT(.*, \)[0-9.]\+\(.*\)/\1@PACKAGE_VERSION@\2/g' $(SRC)/$(PROJ)/configure.ac
 
 REWRITE_BUILD_DEPS_CentOS_5 = \
 	$(foreach P,$(sipx),-e '/$(P)/d') \
@@ -66,7 +70,7 @@ $(foreach T,$(sipx),$(T).list-missing-deps) :
 
 help.list-deps = List all dependencies to build package(s).
 $(foreach T,$(sipx),$(T).list-deps) :
-	@grep BuildRequires: $(SRC)/$(PROJDIR)/$(PROJ).spec.in | awk '{print $$2}' | sed $(REWRITE_BUILD_DEPS_$(TARGET_PLATFORM)) | sort -u
+	@grep BuildRequires: $(SRC)/$(PROJ)/$(PROJ).spec.in | awk '{print $$2}' | sed $(REWRITE_BUILD_DEPS_$(TARGET_PLATFORM)) | sort -u
 
 repofile :
 	@echo "$$repofile_contents"

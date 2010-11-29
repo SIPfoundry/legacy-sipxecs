@@ -107,7 +107,7 @@ if ! /usr/bin/id -g sipxchange &>/dev/null; then
   /usr/sbin/groupadd -r sipxchange
 fi
 
-if ! /usr/bin/id sipxchange &/dev/null; then
+if ! /usr/bin/id sipxchange &>/dev/null; then
   /usr/sbin/useradd -M -r -g sipxchange -d %{_sysconfdir}/sipxpbx -s /bin/false -c sipxchange sipxchange 2>&1
 fi
 

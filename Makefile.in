@@ -7,36 +7,21 @@ include $(sort $(wildcard mak/*.mk))
 PLATFORM = $(shell cat /etc/issue | head -1 | awk '{print $$1}')
 PLATFORM_VER = $(shell cat /etc/issue | head -1 | awk '{print $$3}')
 
-# camel case a lowercase project name, e.g. changes sipxportlib to sipXportLib. 
-# NOTE: Instead of adding to this mapping, for new projects. Pick project names that conform to  sipXxxx there xxx is all lowercase.
-ProjectDir = \
-	$(subst sipx,sipX,\
-	$(subst lib,Lib,\
-	$(subst controller,Controller, \
-	$(subst adapter,Adapter, \
-	$(subst switch,Switch, \
-	$(subst log,Log,$1))))))
-
 LastRev = $(firstword $(shell cd $(SRC); git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1) 0)
 
+lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
+
 # for each sipx-% target, define a variable for the corresponding project directory
-Project =  $(firstword $(subst -, ,$(subst ., ,$1)))
+Project =  $(firstword $(subst ., ,$1))
 PROJ =  $(call Project, $@)
-PROJDIR = $(strip $(call ProjectDir, $(PROJ)))
+proj = $(call lowercase,$(PROJ))
+
 
 # lists all the items in the list inclusive after given item
 after = $(shell echo $2 | sed 's|\(.*\)\($1.*\)|\2|g')
 
 # for each sipx.% target, define a variable for the last svn rev from git rebase
-REV = $(call LastRev, $(PROJDIR))
-
-####################################################################
-#                         T A R G E T S                            #
-####################################################################
-
-# 
-#  C O M M O N
-#
+REV = $(call LastRev, $(PROJ))
 
 sipx.% :
 	$(MAKE) $(foreach P,$(sipx),$(P).$*)

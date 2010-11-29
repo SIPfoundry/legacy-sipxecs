@@ -1,0 +1,14 @@
+diff -Naupr js.orig/src/Makefile.ref js/src/Makefile.ref
+--- js.orig/src/Makefile.ref	2006-07-26 21:16:47.000000000 +0200
++++ js/src/Makefile.ref	2007-11-20 22:00:35.000000000 +0100
+@@ -335,8 +335,8 @@ ifdef USE_MSVC
+ $(PROGRAM): $(PROG_OBJS) $(LIBRARY)
+ 	link.exe -out:"$@" $(EXE_LINK_FLAGS) $^
+ else
+-$(PROGRAM): $(PROG_OBJS) $(LIBRARY)
+-	$(CC) -o $@ $(CFLAGS) $(PROG_OBJS) $(LIBRARY) $(LDFLAGS) $(OTHER_LIBS) \
++$(PROGRAM): $(PROG_OBJS) $(SHARED_LIBRARY)
++	$(CC) -o $@ $(CFLAGS) $(PROG_OBJS) -L$(OBJDIR) -ljs $(LDFLAGS) $(OTHER_LIBS) \
+ 	    $(PROG_LIBS)
+ endif
+ 

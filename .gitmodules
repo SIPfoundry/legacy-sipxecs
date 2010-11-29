@@ -1,3 +1,6 @@
-[submodule "lib/openacd"]
-	path = lib/openacd
-	url = git@github.com:dhubler/OpenACD.git
+[submodule "openacd"]
+	path = openacd
+	url = git://github.com/dhubler/OpenACD.git
+[submodule "freeswitch"]
+	path = freeswitch
+	url = git://github.com/dhubler/freeswitch.git
