@@ -63,6 +63,7 @@ public abstract class OpenAcdLines extends BaseComponent {
         page.setOpenAcdLineId(ext.getId());
         page.setSipxLocation(ext.getLocation());
         page.setActions(null);
+        page.setWelcomeMessage(null);
         page.setCallback(new PageCallback(this.getPage()));
         return page;
     }
@@ -72,6 +73,7 @@ public abstract class OpenAcdLines extends BaseComponent {
         page.setOpenAcdLineId(null);
         page.setSipxLocation(l);
         page.setActions(null);
+        page.setWelcomeMessage(null);
         page.setCallback(new PageCallback(this.getPage()));
         return page;
     }

@@ -33,6 +33,12 @@
      <tr jwcid="@common/FieldPanel" for="item:answersuper" label="message:label.answersuper">
        <input jwcid="answersuper@Checkbox" type="checkbox" id="item:answersuper" value="ognl:answerSupervision"/>
      </tr>
+     <tr>
+       <td><label for="welcome"><span key="label.welcome"/></label></td>
+       <td><span jwcid="welcome@common/AssetSelectorMultiple" asset="ognl:welcomeMessage" assetDir="ognl:sipxOpenAcdService.audioDir"
+              errorMsg="message:error.select" contentType="literal:audio/x-wav" />
+       </td>
+     </tr>
 </tbody>
 </table>
 <h3><span key="section.options">options</span></h3>

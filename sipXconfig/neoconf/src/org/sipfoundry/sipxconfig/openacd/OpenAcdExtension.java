@@ -118,4 +118,8 @@ public class OpenAcdExtension extends FreeswitchExtension {
         return createAction(FreeswitchAction.PredefinedAction.set.toString(), Q + queue);
     }
 
+    public static FreeswitchAction createPlaybackAction(String path) {
+        return createAction(FreeswitchAction.PredefinedAction.playback.toString(), path);
+    }
+
 }

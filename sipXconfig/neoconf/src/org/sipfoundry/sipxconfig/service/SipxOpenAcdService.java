@@ -17,4 +17,13 @@ package org.sipfoundry.sipxconfig.service;
 
 public class SipxOpenAcdService extends SipxService {
     public static final String BEAN_ID = "sipxOpenAcdService";
+    private String m_audioDirectory;
+
+    public String getAudioDir() {
+        return m_audioDirectory;
+    }
+
+    public void setAudioDir(String audioDirectory) {
+        m_audioDirectory = audioDirectory;
+    }
 }
