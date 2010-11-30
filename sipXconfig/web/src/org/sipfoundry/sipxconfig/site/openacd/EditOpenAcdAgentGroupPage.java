@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
@@ -27,6 +28,7 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.valid.IValidationDelegate;
 import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -35,9 +37,13 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
+import org.sipfoundry.sipxconfig.components.selection.OptGroup;
+import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
 import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
 
@@ -162,5 +168,64 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
         }
 
         getOpenAcdContext().saveAgentGroup(getAgentGroup());
+    }
+
+    public IPropertySelectionModel getActionModel() {
+        Collection<OptionAdapter> actions = new ArrayList<OptionAdapter>();
+        Collection<OpenAcdAgentGroup> groups = getOpenAcdContext().getAgentGroups();
+
+        if (!groups.isEmpty()) {
+            actions.add(new OptGroup(getMessages().getMessage("label.moveToAgentGroup")));
+
+            for (OpenAcdAgentGroup group : groups) {
+                actions.add(new AddToAgentGroupAction(group));
+            }
+        }
+
+        AdaptedSelectionModel model = new AdaptedSelectionModel();
+        model.setCollection(actions);
+
+        return model;
+    }
+
+    class AddToAgentGroupAction extends BulkGroupAction {
+
+        private final OpenAcdAgentGroup m_group;
+
+        AddToAgentGroupAction(OpenAcdAgentGroup group) {
+            super(null);
+            m_group = group;
+        }
+
+        @Override
+        public String getLabel(Object option, int index) {
+            return m_group.getName();
+        }
+
+        @Override
+        public Object getValue(Object option, int index) {
+            return m_group.getId();
+        }
+
+        @Override
+        public String squeezeOption(Object option, int index) {
+            return m_group.getId().toString();
+        }
+
+        public void actionTriggered(IComponent component, IRequestCycle cycle) {
+            Collection<Integer> ids = getSelections().getAllSelected();
+            if (ids.isEmpty()) {
+                return;
+            }
+            for (Integer id : ids) {
+                OpenAcdAgent agent = getOpenAcdContext().getAgentById(id);
+                agent.setGroup(m_group);
+                getOpenAcdContext().saveAgent(agent);
+            }
+            // reload agent group
+            if (getGroupId() != null) {
+                setAgentGroup(getOpenAcdContext().getAgentGroupById(getGroupId()));
+            }
+        }
     }
 }
