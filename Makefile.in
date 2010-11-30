@@ -26,16 +26,20 @@ REV = $(call LastRev, $(PROJ))
 sipx.% :
 	$(MAKE) $(foreach P,$(sipx),$(P).$*)
 
-help.sipx...=Do all the items in the list inclusive
+help.sipx...=Do all the items in the project list starting with the given package inclusive
 $(foreach T,$(sipx),$(T).%...) :
 	$(MAKE) $(foreach T,$(call after,$(PROJ),$(sipx)),$(T).$*)
+
+help.lib...=Do all the items in the library list starting with the given package inclusive
+$(foreach T,$(lib),$(T).%...) :
+	$(MAKE) $(foreach T,$(call after,$(PROJ),$(lib)),$(T).$*)
 
 lib.% :
 	$(MAKE) $(foreach P,$(lib),$(P).$*)
 
 help.sipx.list=list all sipx components
-sipx.list :
-	@echo $(sipx)
+lib.list sipx.list : %.list :
+	@echo $($*)
 
 help.help-var = List help on special variables
 .PHONY: help help-var

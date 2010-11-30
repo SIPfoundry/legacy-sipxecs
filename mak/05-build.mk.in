@@ -4,7 +4,6 @@ reconf :
 
 help.sipx.autoreconf=Run autoreconf on each project
 %.autoreconf : 
-	@echo $@
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
@@ -12,7 +11,7 @@ help.sipx=Build all sipx components including autoreconf, configure, all and ins
 build sipx :
 	$(MAKE) $(foreach P,$(sipx),$(P))
 
-$(foreach T,$(sipx),$(T)) : % : %.autoreconf %.configure %.all-install ;
+$(foreach T,$(all),$(T)) : % : %.autoreconf %.configure %.all-install ;
 
 help.sipx.all-install=Run "make all install" in each target
 $(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
@@ -24,7 +23,7 @@ help.configure = Run configure on each project
 	  $(SRC)/$(PROJ)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 
 help.clean-full = Remove build ouptut project
-$(foreach T,$(sipx) $(lib),$(T).clean-full) :
+%.clean-full :
 	! test -d $(PROJ) || rm -rf $(PROJ)
 
 MAKE_COMMANDS = check install clean dist
@@ -43,7 +42,7 @@ $(foreach T,$(sipx),$(T).update-version) :
 	sed -i -e 's/\(AC_INIT(.*, \)[0-9.]\+\(.*\)/\1@PACKAGE_VERSION@\2/g' $(SRC)/$(PROJ)/configure.ac
 
 REWRITE_BUILD_DEPS_CentOS_5 = \
-	$(foreach P,$(sipx),-e '/$(P)/d') \
+	$(foreach P,$(call lowercase,$(sipx)),-e '/$(P)/d') \
 	-e 's/java-1_6_0-sun-devel/java-devel/' \
 	-e '/docbook-xsl-stylesheets/d' \
 	-e '/pwdutils/d' \
@@ -52,7 +51,7 @@ REWRITE_BUILD_DEPS_CentOS_5 = \
 	-e '/cron/d'
 
 REWRITE_BUILD_DEPS_SUSE = \
-	$(foreach P,$(sipx),-e '/$(P)/d') \
+	$(foreach P,$(call lowercase,$(sipx)),-e '/$(P)/d') \
 	-e 's/java-1_6_0-sun-devel/java-devel/' \
 	-e '/docbook-style-xsl/d' \
 	-e '/httpd-devel/d' \
@@ -70,7 +69,7 @@ $(foreach T,$(sipx),$(T).list-missing-deps) :
 
 help.list-deps = List all dependencies to build package(s).
 $(foreach T,$(sipx),$(T).list-deps) :
-	@grep BuildRequires: $(SRC)/$(PROJ)/$(PROJ).spec.in | awk '{print $$2}' | sed $(REWRITE_BUILD_DEPS_$(TARGET_PLATFORM)) | sort -u
+	@grep BuildRequires: $(SRC)/$(PROJ)/$(call lowercase,$(PROJ)).spec.in | awk '{print $$2}' | sed $(REWRITE_BUILD_DEPS_$(TARGET_PLATFORM)) | sort -u
 
 repofile :
 	@echo "$$repofile_contents"
