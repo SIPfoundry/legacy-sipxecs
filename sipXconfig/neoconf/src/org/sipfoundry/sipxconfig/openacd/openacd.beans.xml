@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-	"http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
 
   <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl">
     <property name="sessionFactory" ref="sessionFactory" />
@@ -9,6 +8,10 @@
     <property name="domainManager" ref="domainManager" />
     <property name="aliasManager" ref="aliasManager" />
     <property name="provisioningContext" ref="openAcdProvisioningContext" />
+    <property name="locationsManager" ref="locationsManager" />
+    <property name="serviceConfigurator" ref="serviceConfigurator" />
+    <property name="processContext" ref="sipxProcessContext" />
+    <property name="replicationContext" ref="sipxReplicationContext" />
   </bean>
 
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">

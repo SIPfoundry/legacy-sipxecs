@@ -1,6 +1,19 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <form jwcid="@Form" id="server:form">
-    <span jwcid="@openacd/OpenAcdServersPanel" locations="ognl:openAcdLocations"/>
+    <table jwcid="@common/Table"
+           source="ognl:openAcdLocations"
+           columns="literal:* fqdn"
+           row="ognl:currentRow"
+           selections="ognl:selections">
+      <span jwcid="fqdnColumnValue@Block">
+		<span jwcid="editRowLink@DirectLink"
+          parameters="ognl:currentRow"
+          listener="listener:editOpenAcdServer">
+		<span jwcid="nameText@Insert"
+	      value="ognl:currentRow.fqdn"/>
+		</span>
+	  </span>
+	</table>
     <!-- ul class="component-submit">
       <li><input jwcid="@Submit" type="submit" id="server:activate" value="message:activate"/></li>
     </ul-->

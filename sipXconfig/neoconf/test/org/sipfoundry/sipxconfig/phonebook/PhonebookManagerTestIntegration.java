@@ -209,6 +209,7 @@ public class PhonebookManagerTestIntegration extends IntegrationTestCase {
     }
 
     public void testGetPrivatePhonebook() throws Exception {
+        loadDataSet("phonebook/PhonebookMembersAndConsumersSeed.db.xml");
         loadDataSet("phonebook/PhonebookSeed.db.xml");
         User portaluser = m_coreContext.loadUser(1002);
 

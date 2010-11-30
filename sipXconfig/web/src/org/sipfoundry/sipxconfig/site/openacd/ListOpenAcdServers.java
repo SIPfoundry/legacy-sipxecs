@@ -17,28 +17,46 @@ package org.sipfoundry.sipxconfig.site.openacd;
 
 import java.util.Collection;
 
+import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.InjectObject;
-import org.apache.tapestry.html.BasePage;
+import org.apache.tapestry.annotations.InjectPage;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.components.SipxBasePage;
 import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
-public abstract class ListOpenAcdServers extends BasePage {
+public abstract class ListOpenAcdServers extends SipxBasePage {
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
     @InjectObject("spring:sipxServiceManager")
     public abstract SipxServiceManager getSipxServiceManager();
 
-    public Collection<Location> getOpenAcdLocations() {
-        return getLocationsManager().getLocationsForService(
-                getSipxServiceManager().getServiceByBeanId(SipxOpenAcdService.BEAN_ID));
+    @InjectPage(OpenAcdServerPage.PAGE)
+    public abstract IPage getOpenAcdServerPage();
+
+    public abstract void setLocations(Collection<Location> locations);
+
+    public abstract Location getCurrentRow();
+
+    public abstract void setCurrentRow(Location location);
+
+    public IPage editOpenAcdServer(Location l) {
+        OpenAcdServerPage page = (OpenAcdServerPage) getOpenAcdServerPage();
+        page.setSipxLocation(l);
+        return page;
     }
 
     public boolean onFormSubmit(IRequestCycle cycle) {
         // TODO: implement activating ACD server
         return true;
     }
+
+    public Collection<Location> getOpenAcdLocations() {
+        return getLocationsManager().getLocationsForService(
+                getSipxServiceManager().getServiceByBeanId(SipxOpenAcdService.BEAN_ID));
+    }
+
 }

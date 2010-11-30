@@ -57,6 +57,7 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
 
     private String m_host = "localhost";
     private int m_port = 27017;
+    private Mongo m_mongoInstance;
 
     private OpenAcdContext m_openAcdContext;
 
@@ -102,8 +103,11 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
 
     private void storeCommand(BasicDBObject command) {
         try {
-            Mongo mongoInstance = new Mongo(m_host, m_port);
-            DB openAcdDb = mongoInstance.getDB("openacd");
+            if (m_mongoInstance == null) {
+                m_mongoInstance = new Mongo(m_host, m_port);
+            }
+            DB openAcdDb = m_mongoInstance.getDB("openacd");
+            openAcdDb.requestStart();
             DBCollection commandsCollection = openAcdDb.getCollection("commands");
             commandsCollection.insert(command);
         } catch (Exception ex) {

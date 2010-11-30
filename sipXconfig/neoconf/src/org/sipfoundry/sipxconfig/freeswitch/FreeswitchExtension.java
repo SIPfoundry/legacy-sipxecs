@@ -18,11 +18,14 @@ package org.sipfoundry.sipxconfig.freeswitch;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 
 public abstract class FreeswitchExtension extends BeanWithId {
     private String m_name;
+    private String m_description;
     private Set<FreeswitchCondition> m_conditions;
+    private Location m_location;
 
     public String getName() {
         return m_name;
@@ -38,6 +41,22 @@ public abstract class FreeswitchExtension extends BeanWithId {
 
     public void setConditions(Set<FreeswitchCondition> conditions) {
         m_conditions = conditions;
+    }
+
+    public Location getLocation() {
+        return m_location;
+    }
+
+    public void setLocation(Location location) {
+        m_location = location;
+    }
+
+    public String getDescription() {
+        return m_description;
+    }
+
+    public void setDescription(String description) {
+        m_description = description;
     }
 
     public void addCondition(FreeswitchCondition condition) {

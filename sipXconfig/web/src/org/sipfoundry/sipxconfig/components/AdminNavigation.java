@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
 import org.sipfoundry.sipxconfig.admin.update.PackageUpdateManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.presence.PresenceServer;
+import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -50,8 +51,7 @@ public abstract class AdminNavigation extends BaseComponent {
     }
 
     public boolean isOpenAcdEnabled() {
-        // TODO: get real info here
-        return true;
+        return getSipxServiceManager().isServiceInstalled(SipxOpenAcdService.BEAN_ID);
     }
 
 }

@@ -144,7 +144,7 @@ public class PhonebookManagerImpl extends SipxHibernateDaoSupport<Phonebook> imp
     }
 
     public PhonebookEntry getPhonebookEntry(Integer id) {
-        return (PhonebookEntry) getHibernateTemplate().load(PhonebookEntry.class, id);
+        return getHibernateTemplate().load(PhonebookEntry.class, id);
     }
 
     public void savePhonebookEntry(PhonebookEntry entry) {

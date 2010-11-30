@@ -9,8 +9,6 @@ package org.sipfoundry.sipxconfig.service.freeswitch;
 
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 

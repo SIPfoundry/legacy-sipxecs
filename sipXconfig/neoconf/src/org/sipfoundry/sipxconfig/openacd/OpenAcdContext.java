@@ -17,8 +17,10 @@ package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
@@ -27,11 +29,19 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
 
     void saveExtension(OpenAcdExtension extension);
 
-    void removeExtensions(List<Integer> extensionIds);
+    void removeExtensions(Collection<Integer> extensionIds);
 
     OpenAcdExtension getExtensionById(Integer extensionId);
 
     OpenAcdExtension getExtensionByName(String extensionName);
+
+    List<OpenAcdExtension> getFreeswitchExtensions();
+
+    List<OpenAcdExtension> getFreeswitchExtensions(Location l);
+
+    String[] getOpenAcdApplicationNames();
+
+    Set<OpenAcdExtension> getLines(Location l);
 
     List<OpenAcdAgentGroup> getAgentGroups();
 

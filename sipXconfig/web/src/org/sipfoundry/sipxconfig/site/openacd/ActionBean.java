@@ -13,17 +13,25 @@
  * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
  * details.
  */
-package org.sipfoundry.sipxconfig.service;
+package org.sipfoundry.sipxconfig.site.openacd;
 
-public class SipxOpenAcdService extends SipxService {
-    public static final String BEAN_ID = "sipxOpenAcdService";
-    private String m_audioDirectory;
+import java.io.Serializable;
 
-    public String getAudioDir() {
-        return m_audioDirectory;
+import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
+
+public class ActionBean implements Serializable {
+    private FreeswitchAction m_action;
+
+    public ActionBean(FreeswitchAction action) {
+        m_action = action;
     }
 
-    public void setAudioDir(String audioDirectory) {
-        m_audioDirectory = audioDirectory;
+    public FreeswitchAction getAction() {
+        return m_action;
     }
+
+    public void setAction(FreeswitchAction action) {
+        m_action = action;
+    }
+
 }
