@@ -18,12 +18,12 @@ help.sipx.all-install=Run "make all install" in each target
 $(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
 
 help.configure = Run configure on each project
-%.configure : 
+%.configure :
 	test -d $(PROJ) || mkdir $(PROJ)
 	cd $(PROJ); \
 	  $(SRC)/$(PROJ)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 
-help.configure = Remove build ouptut project
+help.clean-full = Remove build ouptut project
 $(foreach T,$(sipx) $(lib),$(T).clean-full) :
 	! test -d $(PROJ) || rm -rf $(PROJ)
 

@@ -38,8 +38,6 @@ sipx.list :
 	@echo $(sipx)
 
 help.help-var = List help on special variables
-help-var : $(sort $(filter help-var.%,$(.VARIABLES)));
-
-help : $(sort $(filter help.%,$(.VARIABLES)));
-help.% help-var.%:
-	@echo -e "- $*\t$($@)"
+.PHONY: help help-var
+help help-var:
+	@$(foreach H,$(sort $(filter $@.%,$(.VARIABLES))), echo -e " $(H:help.%=%)\t$($H)";)
