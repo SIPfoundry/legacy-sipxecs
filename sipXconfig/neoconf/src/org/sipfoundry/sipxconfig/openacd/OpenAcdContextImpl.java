@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -55,6 +56,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String ALIAS_RELATION = "openacd";
     private static final String OPEN_ACD_AGENT_BY_USERID = "openAcdAgentByUserId";
     private static final String GROUP_NAME_DEFAULT = "Default";
+    private static final String LINE_NAME = "line";
 
     private DomainManager m_domainManager;
     private SipxServiceManager m_serviceManager;
@@ -130,13 +132,14 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (extension.isOpenAcdLine() && extension.getLineNumber() == null) {
             throw new UserException("&null.extension");
         }
-        if (extension.isNew() || (!extension.isNew() && isNameChanged(extension))) {
+        if (extension.isNew() || (!extension.isNew() && isNameChanged(extension))
+                || (!extension.isNew() && isExtensionChanged(extension))) {
             if (!m_aliasManager.canObjectUseAlias(extension, extension.getName())) {
-                throw new NameInUseException(ALIAS_RELATION, extension.getName());
+                throw new NameInUseException(LINE_NAME, extension.getName());
             }
             if (extension.getLineNumber() != null
                     && !m_aliasManager.canObjectUseAlias(extension, extension.getLineNumber())) {
-                throw new NameInUseException(ALIAS_RELATION, extension.getLineNumber());
+                throw new ExtensionInUseException(LINE_NAME, extension.getLineNumber());
             }
         }
         removeNullActions(extension);
@@ -176,6 +179,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     private boolean isNameChanged(OpenAcdExtension extension) {
         return !getExtensionById(extension.getId()).getName().equals(extension.getName());
+    }
+
+    private boolean isExtensionChanged(OpenAcdExtension extension) {
+        return !getExtensionById(extension.getId()).getLineNumber().equals(extension.getLineNumber());
     }
 
     @Override
