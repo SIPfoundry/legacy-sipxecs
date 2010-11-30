@@ -116,9 +116,8 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
     }
 
-    public void _testOpenAcdExtensionAliasProvider() throws Exception {
+    public void testOpenAcdExtensionAliasProvider() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
-        //loadDataSetXml("domain/DomainSeed.xml");
         loadDataSetXml("admin/commserver/seedLocationsAndServices6.xml");
         SipxFreeswitchService service = new MockSipxFreeswitchService();
         service.setBeanId(SipxFreeswitchService.BEAN_ID);
