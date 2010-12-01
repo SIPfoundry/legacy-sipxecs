@@ -25,7 +25,7 @@ Buildrequires:                libicu-devel
 
 # CENTOS
 %if 0%{?centos_version}
-Buildrequires:                bzip2
+Buildrequires:                bzip2-devel
 Buildrequires:                libX11-devel
 %endif
   

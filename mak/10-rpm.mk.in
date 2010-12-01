@@ -1,6 +1,6 @@
 MOCK_RESULTS_DIR = rpm-results
 BUILDNO = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1)
-ifeq "@DISTRO@" "centos"
+ifdef OLD_MOCK
   # mock 0.6 or less
   MOCK_INIT = mock -r @MOCK_TARGET_PLATFORM@ init
   MOCK_REBUILD = mock -r @MOCK_TARGET_PLATFORM@ --no-clean --resultdir=$(MOCK_RESULTS_DIR) rebuild

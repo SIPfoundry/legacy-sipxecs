@@ -54,6 +54,8 @@ lib_centos_5 = \
   rubygem-rake \
   erlang \
   scons \
+  boost-jam \
+  boost \
   $(lib_common) \
   rsyslog \
   cppunit \
