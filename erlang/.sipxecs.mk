@@ -1,4 +1,4 @@
-erlang_SRPM = erlang-R13B04-1.1.src.rpm
+erlang_SRPM = erlang-R13B04-1.2.src.rpm
 erlang_SPEC = $(SRC)/$(PROJ)/erlang.spec
 erlang_SOURCES = \
   $(SRC)/$(PROJ)/erlang-R13B04-rpmlintrc \

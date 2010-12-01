@@ -2,7 +2,7 @@
 
 Name:           erlang
 Version:        R13B04
-Release:        1.1
+Release:        1.2
 %define pkg_version R13B04
 #
 Group:          Development/Languages/Erlang
@@ -149,7 +149,7 @@ find %{buildroot}%{_libdir}/erlang/man -type f -exec gzip {} +
 #done
 
 # cleanup unused sources
-find $RPM_BUILD_ROOT%{_libdir}/erlang/lib -maxdepth 2 -type d -name *src -exec rm -rf {} \;
+# find $RPM_BUILD_ROOT%{_libdir}/erlang/lib -maxdepth 2 -type d -name *src -exec rm -rf {} \;
 
 #make link to OtpErlang-*.jar in %{_javadir}
 mkdir -p $RPM_BUILD_ROOT%{_javadir}

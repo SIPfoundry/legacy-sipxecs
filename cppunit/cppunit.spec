@@ -10,6 +10,8 @@ Source: ftp://download.sourceforge.net/pub/sourceforge/cppunit/cppunit-%version.
 
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+BuildRequires: doxygen
+
 %description
 CppUnit is the C++ port of the famous JUnit framework for unit testing.
 Test output is in XML for automatic testing and GUI based for supervised tests.

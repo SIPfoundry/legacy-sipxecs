@@ -32,8 +32,8 @@ Obsoletes: openfire
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p -m 755 $RPM_BUILD_ROOT%{homedir}
-cp -r . $RPM_BUILD_ROOT%{prefix}
+mkdir -p -m 755 $RPM_BUILD_ROOT%{prefix}
+cp -r . $RPM_BUILD_ROOT%{homedir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
