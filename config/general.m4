@@ -1337,7 +1337,7 @@ AC_DEFUN([CHECK_FREESWITCH],
     AC_ARG_WITH(freeswitch,
                 [--with-freeswitch=PATH to FreeSWITCH install directory],
 		[freeswitch_path=$withval],
-		[freeswitch_path="/usr/local/freeswitch"]
+		[freeswitch_path="/opt/freeswitch"]
                 )
     for dir in $freeswitch_path ; do
         freeswitch_dir="$dir"
@@ -1351,7 +1351,7 @@ AC_DEFUN([CHECK_FREESWITCH],
         AC_MSG_RESULT([    FreeSWITCH installed in $freeswitch_dir])
     else
         AC_MSG_WARN([    'bin/freeswitch' not in any of: $freeswitch_path])
-        freeswitch_dir="/usr/local/freeswitch"
+        freeswitch_dir="/opt/freeswitch"
         AC_MSG_WARN([    assuming it will be in $freeswitch_dir])
     fi
     AC_SUBST(FREESWITCH_PREFIX, $freeswitch_dir)

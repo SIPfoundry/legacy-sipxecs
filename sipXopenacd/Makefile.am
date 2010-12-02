@@ -8,7 +8,8 @@ EXTRA_DIST = \
 
 LOCALIZE_VARS = \
 	$(filter SIPX%,$(.VARIABLES)) \
-	$(filter PACKAGE%,$(.VARIABLES))
+	$(filter PACKAGE%,$(.VARIABLES)) \
+	$(filter OPENACD%,$(.VARIABLES))
 
 LOCALIZE = \
 	$(foreach V,$(LOCALIZE_VARS), -e 's|@$(V)\@|$($(V))|g')

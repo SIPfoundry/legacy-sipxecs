@@ -10,7 +10,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 %if 0%{?suse_version} > 100
 BuildRequires: freetype2
 %else
-BuildRequires: freetype
+BuildRequires: freetype-devel
 %endif
 BuildRequires: gcc-c++, openssl-devel
 BuildRequires: libpng-devel, zlib-devel, libart_lgpl-devel >= 2.0

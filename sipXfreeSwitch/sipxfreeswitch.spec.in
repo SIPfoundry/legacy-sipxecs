@@ -3,8 +3,6 @@ Version: @VERSION@
 Release: %{?buildno:%buildno}%{!?buildno:1}
 
 Summary: FreeSWITCH startup scripts.
-Requires: sipx-freeswitch >= 1.0.5
-Requires: sipxcommserverlib >= %version
 License: LGPL
 Group:    Productivity/Telephony/SIP/Servers
 Url: http://www.sipfoundry.org
@@ -20,8 +18,10 @@ BuildRequires: docbook-xsl-stylesheets
 BuildRequires: docbook-style-xsl
 %endif
 
-Requires: sipx-freeswitch >= 1.0.4
+Requires: freeswitch >= 1.0.7
 Requires: sipxcommserverlib >= %version
+
+Obsoletes: sipx-freeswitch
 
 Source: %name-%version.tar.gz
 

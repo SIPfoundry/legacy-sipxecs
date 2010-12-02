@@ -44,7 +44,7 @@ help.sipx.update-version = Update all sipx components to the current version.
 $(foreach T,$(sipx),$(T).update-version) :
 	sed -i -e 's/\(AC_INIT(.*, \)[0-9.]\+\(.*\)/\1@PACKAGE_VERSION@\2/g' $(SRC)/$(PROJ)/configure.ac
 
-REWRITE_BUILD_DEPS_CentOS_5 = \
+REWRITE_BUILD_DEPS_centos_5 = \
 	$(foreach P,$(call lowercase,$(sipx)),-e '/$(P)/d') \
 	-e 's/java-1_6_0-sun-devel/java-devel/' \
 	-e '/docbook-xsl-stylesheets/d' \
@@ -53,7 +53,7 @@ REWRITE_BUILD_DEPS_CentOS_5 = \
 	-e '/libapr1-devel/d' \
 	-e '/cron/d'
 
-REWRITE_BUILD_DEPS_SUSE = \
+REWRITE_BUILD_DEPS_suse = \
 	$(foreach P,$(call lowercase,$(sipx)),-e '/$(P)/d') \
 	-e 's/java-1_6_0-sun-devel/java-devel/' \
 	-e '/docbook-style-xsl/d' \
@@ -61,7 +61,7 @@ REWRITE_BUILD_DEPS_SUSE = \
 	-e '/apr-devel/d' \
 	-e '/vixiecron/d'
 
-$(foreach T,10 11 12 13 14 15 16 17 18 19 20,$(eval BUILD_DEPS_Fedora_$(T) = $(REWRITE_BUILD_DEPS_CentOS_5)))
+$(foreach T,10 11 12 13 14 15 16 17 18 19 20,$(eval BUILD_DEPS_fedora_$(T) = $(REWRITE_BUILD_DEPS_centos_5)))
 
 list-deps list-missing-deps :
 	@$(MAKE) --no-print-directory $(foreach T,$(sipx),$(T).$@) | sort -u
@@ -72,7 +72,8 @@ $(foreach T,$(sipx),$(T).list-missing-deps) :
 
 help.list-deps = List all dependencies to build package(s).
 $(foreach T,$(sipx),$(T).list-deps) :
-	@grep BuildRequires: $(SRC)/$(PROJ)/$(call lowercase,$(PROJ)).spec.in | awk '{print $$2}' | sed $(REWRITE_BUILD_DEPS_$(TARGET_PLATFORM)) | sort -u
+	@grep BuildRequires: $(SRC)/$(PROJ)/$(call lowercase,$(PROJ)).spec.in | awk '{print $$2}' | \
+	  sed $(REWRITE_BUILD_DEPS_@DISTRO@_@DISTRO_VER@) | sort -u
 
 repofile :
 	@echo "$$repofile_contents"

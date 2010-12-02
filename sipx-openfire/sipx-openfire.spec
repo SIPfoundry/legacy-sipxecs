@@ -15,15 +15,15 @@ URL: http://www.igniterealtime.org/
 %define prefix /opt
 %define homedir %{prefix}/openfire
 
+Requires: java-devel
+Requires: shadow-utils
+Requires: sipxcommserverlib
+Obsoletes: openfire
+
 %description
 Openfire is a leading Open Source, cross-platform IM server based on the
 XMPP (Jabber) protocol. It has great performance, is easy to setup and use,
 and delivers an innovative feature set.
-
-Requires: unpack200
-Requires: shadow-utils
-Requires: sipxcommserverlib
-Obsoletes: openfire
 
 %prep
 %setup -qn openfire
@@ -32,8 +32,8 @@ Obsoletes: openfire
 
 %install
 rm -rf $RPM_BUILD_ROOT
-mkdir -p -m 755 $RPM_BUILD_ROOT%{homedir}
-cp -r . $RPM_BUILD_ROOT%{prefix}
+mkdir -p -m 755 $RPM_BUILD_ROOT%{prefix}
+cp -r . $RPM_BUILD_ROOT%{homedir}
 
 %clean
 rm -rf $RPM_BUILD_ROOT

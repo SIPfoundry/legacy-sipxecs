@@ -73,6 +73,7 @@ OsSSL::OsSSL(const char* authorityPath,
       // It is suggested by the OpenSSL group that embedded systems
       // only enable loading of error strings when debugging.
       // Perhaps this should be conditional?
+      SSL_library_init();
       SSL_load_error_strings();
 
       OpenSSL_thread_setup();
@@ -80,15 +81,8 @@ OsSSL::OsSSL(const char* authorityPath,
       sInitialized = true;
    }
 
-   SSL_METHOD* meth = (SSL_METHOD*)SSLv23_server_method();
-    if (!meth)
-        meth = (SSL_METHOD*)TLSv1_server_method();
-    if (!meth)
-        meth = (SSL_METHOD*)SSLv3_server_method();
-    if (!meth)
-        meth = (SSL_METHOD*)SSLv2_server_method();
-
-   mCTX = SSL_CTX_new(meth);
+   mCTX = SSL_CTX_new(SSLv23_method());
+  
 
    if (mCTX)
    {
@@ -97,6 +91,11 @@ OsSSL::OsSSL(const char* authorityPath,
        caFile = certificateAuthority;
      if (caFile.isNull() && isCertificateAuthorityEnabled)
        caFile = defaultCAFile;
+     
+     if (!caFile.isNull() )
+     {
+           OsSysLog::add(FAC_KERNEL, PRI_INFO ,"OsSSL::_ Enforcing Bundled Certificate: %s", caFile.data());
+     }
 
       if (SSL_CTX_load_verify_locations(mCTX,
                                         caFile.isNull() ? NULL : caFile.data(), // we do not support using a bundled CA file
@@ -137,7 +136,7 @@ OsSSL::OsSSL(const char* authorityPath,
 
                   // Establish verification rules
                   SSL_CTX_set_verify(mCTX,
-                                     SSL_VERIFY_PEER + SSL_VERIFY_CLIENT_ONCE,
+                                     SSL_VERIFY_PEER | SSL_VERIFY_CLIENT_ONCE,
                                      verifyCallback
                                      );
 
@@ -591,6 +590,15 @@ void OsSSL::logError(const OsSysLogFacility facility,
                  "%s:\n   SSL error: %d '%s'",
                  callerMsg, errCode, sslErrorString
                  );
+   int err;              
+   while ((err = ERR_get_error()) != 0) 
+   {
+      ERR_error_string_n(err, sslErrorString, sizeof(sslErrorString));
+      OsSysLog::add(facility, priority,
+                 "%s:\n   SSL error: %d '%s'",
+                 callerMsg, err, sslErrorString
+                 );
+   }
 }
 
 /********************************************************************************/

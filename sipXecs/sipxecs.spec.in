@@ -33,10 +33,10 @@ Requires: sipxconfig-mrtg >= %version
 Requires: sipxconfig-report >= %version
 Requires: sipxconfig-tftp >= %version
 Requires: sipxfreeswitch >= %version
-Requires: sipx-freeswitch >= 1.0 
-Requires: sipx-freeswitch-codec-passthru-amr 
-Requires: sipx-freeswitch-codec-passthru-g723_1 
-Requires: sipx-freeswitch-codec-passthru-g729 
+Requires: freeswitch >= 1.0.7
+Requires: freeswitch-codec-passthru-amr 
+Requires: freeswitch-codec-passthru-g723_1 
+Requires: freeswitch-codec-passthru-g729 
 Requires: sipximbot >= %version
 Requires: sipxivr >= %version
 Requires: sipxopenfire >= %version

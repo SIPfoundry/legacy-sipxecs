@@ -2,22 +2,18 @@
 # Licensed to the User under the LGPL license.
 # 
 MOCK_RESULTS_DIR = rpm-results
-BUILDNO = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1)
-ifeq "@DISTRO@" "centos"
-  # mock 0.6 or less
-  MOCK_INIT = mock -r @MOCK_TARGET_PLATFORM@ init
-  MOCK_REBUILD = mock -r @MOCK_TARGET_PLATFORM@ --no-clean --resultdir=$(MOCK_RESULTS_DIR) rebuild
-  MOCK_INSTALLDEPS = mock -r @MOCK_TARGET_PLATFORM@ --resultdir=$(MOCK_RESULTS_DIR) installdeps
-else
-  # mock 1.0 or greater
-  MOCK_INIT = mock -r @MOCK_TARGET_PLATFORM@ --init
-  MOCK_REBUILD = mock -r @MOCK_TARGET_PLATFORM@ --no-clean --no-cleanup-after --resultdir=$(MOCK_RESULTS_DIR) --rebuild
-  MOCK_INSTALLDEPS = mock -r @MOCK_TARGET_PLATFORM@ --resultdir=$(MOCK_RESULTS_DIR) --installdeps
-endif
+GIT_ID = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1)
+# TODO: Determine RELEASE_ID automatically
+RELEASE_ID = 1.$(GIT_ID)
+MOCK_INIT = mock -r @MOCK_TARGET_PLATFORM@ --init
+MOCK_REBUILD = mock -r @MOCK_TARGET_PLATFORM@ --no-clean --no-cleanup-after --resultdir=$(MOCK_RESULTS_DIR) --rebuild
+MOCK_INSTALLDEPS = mock -r @MOCK_TARGET_PLATFORM@ --resultdir=$(MOCK_RESULTS_DIR) --installdeps
+MOCK_CLEAR = mock -r @MOCK_TARGET_PLATFORM@ --resultdir=$(MOCK_RESULTS_DIR) --scrub=yum-cache
 RPM_DIST = @RPM_DIST@
+MOCK_CHROOT_REPO = /var/lib/mock/@MOCK_TARGET_PLATFORM@/root/fruit
 
-# suspect make bug? cannot use $(call lowercase,$(P))
-$(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-$(BUILDNO).src.rpm))
+# strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
+$(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-$(RELEASE_ID).src.rpm))
 $(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@.tar.gz))
 
 $(foreach P,$(lib),$(eval include $(SRC)/$(P)/.sipxecs.mk))
@@ -30,9 +26,9 @@ help.sipx.srpm = Experimental call to build rpms
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
 	  $(foreach S,$($(PROJ)_SOURCES),$(call CopySourceFile,$(S),@RPMBUILD_TOPDIR@/SOURCES)) \
-	  rpmbuild -bs --nodeps --define='buildno $(BUILDNO)' $($(PROJ)_SPEC); \
+	  rpmbuild -bs --nodeps --define='buildno $(RELEASE_ID)' $($(PROJ)_SPEC); \
 	else \
-	  rpmbuild -ts --nodeps --define='buildno $(BUILDNO)' $($(PROJ)_TAR); \
+	  rpmbuild -ts --nodeps --define='buildno $(RELEASE_ID)' $($(PROJ)_TAR); \
 	fi
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) .
 
@@ -52,11 +48,9 @@ CopySourceFile = \
 	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \
 	fi; \
 
+#	$(MOCK_CLEAR)	
+#	$(MOCK_INSTALLDEPS) $($(PROJ)_SRPM)
 # launch a webserver to share build of deps with chroot'ed system.
 %.mock :
-	/usr/sbin/thttpd -p 40100
-	createrepo .
-	$(MOCK_INSTALLDEPS) $($(PROJ)_SRPM)
-	$(MOCK_REBUILD) $($(PROJ)_SRPM)
-	cp $(MOCK_RESULTS_DIR)/*.rpm  .
-	-killall -u `whoami` thttpd
+	cd $(MOCK_RESULTS_DIR); createrepo .
+	$(MOCK_REBUILD) -D 'buildno $(RELEASE_ID)' $($(PROJ)_SRPM)

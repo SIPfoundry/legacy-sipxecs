@@ -22,15 +22,7 @@ Buildrequires:                python-devel
 Buildrequires:                zlib-devel
 Buildrequires:                libicu-devel
 
-
-# CENTOS
-%if 0%{?centos_version}
-Buildrequires:                bzip2
-Buildrequires:                libX11-devel
-%endif
-  
-# FEDORA
-%if 0%{?fedora_version}
+%if %{_vendor} == redhat
 Buildrequires:                bzip2-devel
 Buildrequires:                libX11-devel
 %endif
@@ -42,18 +34,6 @@ Buildrequires:                libbzip2-devel
 BuildRequires:                XFree86-devel
 %endif
   
-# RHEL
-%if 0%{?rhel_version} == 406
-Buildrequires:                bzip2
-Buildrequires:                XFree86-devel
-%endif
-
-%if 0%{?rhel_version} >= 501
-Buildrequires:                bzip2
-Buildrequires:                libX11-devel
-%endif
-
-
 %if 0%{?sles_version} == 9
 Buildrequires:                bzip2
 Buildrequires:                XFree86-devel
@@ -147,4 +127,27 @@ cp -r boost "$DESTDIR/%{_includedir}/"
   
 mkdir -p .backup  
 cp -r index.html .backup  
-cp -r doc .
+cp -r doc .backup
+cp -r more .backup  
+find .backup -type f -exec chmod u=rw,go=r "{}" \;  
+find .backup -type d -exec chmod u=rwx,go=rx "{}" \;  
+  
+%clean  
+rm -rf $RPM_BUILD_ROOT  
+  
+%post  
+/sbin/ldconfig  
+  
+%postun  
+/sbin/ldconfig  
+  
+%files -f filelist.lib  
+%defattr(-,root,root)  
+%doc LICENSE_1_0.txt  
+  
+%files devel -f filelist.devel  
+%defattr(-,root,root)  
+%{_includedir}/boost  
+%doc .backup/*  
+  
+%changelog

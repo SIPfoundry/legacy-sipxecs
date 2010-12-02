@@ -5,7 +5,7 @@
 #
 Action="START"
 Status=0
-Args=""
+Args="-q"
 
 while [ $# -ne 0 ]
 do
@@ -28,16 +28,18 @@ done
 
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
-pidfile = "@SIPX_RUNDIR@/openacd.pid"
+pidfile=@SIPX_RUNDIR@/openacd.pid
 
 case "$Action" in
 	START)
-		echo $$ > ${pidfile}
+		echo $$ > $pidfile
 		exec @OPENACD_DIR@/boot.rb $Args
+		exit 0
 		;;
 
 	STOP)
-		sipx_stop ${pidfile}
+		sipx_stop $pidfile
+		exit $?
 		;;
 
 	CONFIGTEST)

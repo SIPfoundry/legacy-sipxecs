@@ -24,6 +24,7 @@ LocalizeSipXconfig = sed \
 		  -e 's,@abs_srcdir\@,@abs_srcdir@,g' \
 		  -e 's,@abs_top_srcdir\@,@abs_top_srcdir@,g' \
 		  -e 's,@CONFIGURE_OPTIONS\@,@CONFIGURE_OPTIONS@,g' \
+		  -e 's,@SIPX_RPM_CONFIGURE_OPTIONS\@,@SIPX_RPM_CONFIGURE_OPTIONS@,g' \
 		  -e 's,@POSTGRESQL_INLCLUDE\@,@POSTGRESQL_INLCLUDE@,g' \
 		  -e 's,@PREFIX\@,$(prefix),g' \
 		  -e 's,@DAILYDIR\@,@DAILYDIR@,g' \

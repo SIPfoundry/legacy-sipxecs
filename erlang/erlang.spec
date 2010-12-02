@@ -2,7 +2,7 @@
 
 Name:           erlang
 Version:        R13B04
-Release:        1.1
+Release:        1.2
 %define pkg_version R13B04
 #
 Group:          Development/Languages/Erlang

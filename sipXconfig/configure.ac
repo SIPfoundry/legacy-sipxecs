@@ -11,7 +11,6 @@ m4_include([config/general.m4])
 m4_include([config/java.m4])
 m4_include([config/sipXlib.m4])
 
-SFAC_SIPX_INSTALL_PREFIX
 
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
