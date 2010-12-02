@@ -37,11 +37,10 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
 
     List<OpenAcdExtension> getFreeswitchExtensions();
 
-    List<OpenAcdExtension> getFreeswitchExtensions(Location l);
-
     String[] getOpenAcdApplicationNames();
 
-    Set<OpenAcdExtension> getLines(Location l);
+    Set<OpenAcdLine> getLines(Location l);
+    Set<OpenAcdCommand> getCommands(Location l);
 
     List<OpenAcdAgentGroup> getAgentGroups();
 

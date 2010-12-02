@@ -46,29 +46,33 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
     private CoreContext m_coreContext;
     private LocationsManager m_locationsManager;
 
-    public void testOpenAcdExtensionCrud() throws Exception {
+    public void testOpenAcdLineCrud() throws Exception {
         loadDataSetXml("admin/commserver/seedLocations.xml");
         Location location = m_locationsManager.getLocation(101);
 
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
-        OpenAcdExtension extension = DefaultContextConfigurationTest.createOpenAcdExtension("example");
+        OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("example");
         extension.setLocation(location);
         m_openAcdContextImpl.saveExtension(extension);
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
 
         // test save extension with same name
         try {
-            OpenAcdExtension sameNameExtension = new OpenAcdExtension();
+            OpenAcdLine sameNameExtension = new OpenAcdLine();
             sameNameExtension.setName("example");
             sameNameExtension.setLocation(location);
+            FreeswitchCondition condition = new FreeswitchCondition();
+            condition.setField("destination_number");
+            condition.setExpression("^301$");
+            sameNameExtension.addCondition(condition);
             m_openAcdContextImpl.saveExtension(sameNameExtension);
             fail();
         } catch (NameInUseException ex) {
         }
 
         // test get extension by name
-        OpenAcdExtension savedExtension = m_openAcdContextImpl.getExtensionByName("example");
+        OpenAcdLine savedExtension = (OpenAcdLine) m_openAcdContextImpl.getExtensionByName("example");
         assertNotNull(extension);
         assertEquals("example", savedExtension.getName());
         // test modify extension without changing name
@@ -81,7 +85,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
         // test get extension by id
         Integer id = savedExtension.getId();
-        OpenAcdExtension extensionById = m_openAcdContextImpl.getExtensionById(id);
+        OpenAcdLine extensionById = (OpenAcdLine) m_openAcdContextImpl.getExtensionById(id);
         assertNotNull(extensionById);
         assertEquals("example", extensionById.getName());
 
@@ -116,6 +120,78 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
     }
 
+    public void testOpenAcdCommandCrud() throws Exception {
+        loadDataSetXml("admin/commserver/seedLocations.xml");
+        Location location = m_locationsManager.getLocation(101);
+
+        // test save open acd extension
+        assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
+        OpenAcdCommand command = new OpenAcdCommand();
+        command.setName("login");
+        FreeswitchCondition fscondition = new FreeswitchCondition();
+        fscondition.setField("destination_number");
+        fscondition.setExpression("^*89$");
+        fscondition.getActions().addAll((OpenAcdCommand.getDefaultActions(location)));
+        command.addCondition(fscondition);
+        command.setLocation(location);
+        m_openAcdContextImpl.saveExtension(command);
+        assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
+
+        // test save extension with same name
+        try {
+            OpenAcdCommand sameNameExtension = new OpenAcdCommand();
+            sameNameExtension.setName("login");
+            sameNameExtension.setLocation(location);
+            FreeswitchCondition condition1 = new FreeswitchCondition();
+            condition1.setField("destination_number");
+            condition1.setExpression("^*90$");
+            sameNameExtension.addCondition(condition1);
+            m_openAcdContextImpl.saveExtension(sameNameExtension);
+            fail();
+        } catch (NameInUseException ex) {
+        }
+
+        // test get extension by name
+        OpenAcdCommand savedExtension = (OpenAcdCommand) m_openAcdContextImpl.getExtensionByName("login");
+        assertNotNull(command);
+        assertEquals("login", savedExtension.getName());
+        // test modify extension without changing name
+        try {
+            m_openAcdContextImpl.saveExtension(savedExtension);
+            command.setLocation(location);
+        } catch (NameInUseException ex) {
+            fail();
+        }
+
+        // test get extension by id
+        Integer id = savedExtension.getId();
+        OpenAcdCommand extensionById = (OpenAcdCommand) m_openAcdContextImpl.getExtensionById(id);
+        assertNotNull(extensionById);
+        assertEquals("login", extensionById.getName());
+
+        // test saved conditions and actions
+        Set<FreeswitchCondition> conditions = extensionById.getConditions();
+        assertEquals(1, conditions.size());
+        for (FreeswitchCondition condition : conditions) {
+            assertEquals(4, condition.getActions().size());
+            List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
+            actions.addAll(condition.getActions());
+            assertEquals("erlang_sendmsg", actions.get(0).getApplication());
+            assertEquals("agent_dialplan_listener  testme@localhost agent_login ${sip_from_user} pstn ${sip_from_uri}", actions.get(0).getData());
+            assertEquals("answer", actions.get(1).getApplication());
+            assertNull(actions.get(1).getData());
+            assertEquals("sleep", actions.get(2).getApplication());
+            assertEquals("2000", actions.get(2).getData());
+            assertEquals("hangup", actions.get(3).getApplication());
+            assertEquals("NORMAL_CLEARING", actions.get(3).getData());
+        }
+
+        // test remove extension
+        assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
+        m_openAcdContextImpl.removeExtensions(Collections.singletonList(id));
+        assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
+    }
+
     public void testOpenAcdExtensionAliasProvider() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         loadDataSetXml("admin/commserver/seedLocationsAndServices6.xml");
@@ -126,7 +202,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         SipxServiceManager sm = TestUtil.getMockSipxServiceManager(true, service);
         m_openAcdContextImpl.setSipxServiceManager(sm);
 
-        OpenAcdExtension extension = DefaultContextConfigurationTest.createOpenAcdExtension("sales");
+        OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("sales");
         Location l = m_locationsManager.getLocation(101);
         extension.setLocation(l);
 

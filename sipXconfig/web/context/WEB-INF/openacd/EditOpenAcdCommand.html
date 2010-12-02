@@ -1,0 +1,61 @@
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle">
+<span jwcid="@common/ErrorMsg"/>
+<span jwcid="@common/QuickHelp" value="message:quick.help"/>
+<form jwcid="@Form" delegate="bean:validator">
+  <fieldset>
+  <table>
+    <tbody>
+      <tr jwcid="@common/FieldPanel" for="item:name" label="message:label.name" field="component:name">
+        <input jwcid="name@TextField" id="item:name"
+          maxlength="40"
+          validators="spring-validators:required"
+          value="ognl:name"
+          displayName="message:label.name"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="item:description" label="message:label.description" field="component:description">
+        <input jwcid="description@TextArea" id="item:description"
+          value="ognl:description"
+          cols="45" rows="5"
+          validators="spring-validators:validFieldSize"/>
+      </tr>
+      <tr jwcid="@common/FieldPanel" for="item:extension" label="message:label.extension">
+        <input jwcid="extension@TextField" id="item:extension"
+          maxlength="40"
+          validators="spring-validators:required,validPhone"
+          value="ognl:lineNumber"
+          displayName="message:label.extension"/>
+      </tr>
+      <!-- tr jwcid="@common/FieldPanel" for="item:answersuper" label="message:label.answersuper">
+        <input jwcid="answersuper@Checkbox" type="checkbox" id="item:answersuper" value="ognl:answerSupervision"/>
+      </tr-->
+    </tbody>
+  </table>
+  <h3><span key="section.options">options</span></h3>
+  <div jwcid="@For"
+     source="ognl:actions"
+     value="ognl:actionBean"
+     index="ognl:index">
+    <b><span key="label.action"/></b>
+    <span key="label.application"/>
+    <input jwcid="@Suggest"
+	     value="ognl:actionBean.action.application"
+		 listSource="ognl:openAcdApplicationNames"
+		 id="ognl:'suggest_'+index"
+		 listener="listener:filterList"/>
+    <span key="label.data"/>
+    <input jwcid="@TextField"
+         id="ognl:'dialplan:data_'+index"
+         value="ognl:actionBean.action.data"
+         label="message:label.data"/>
+    <a jwcid="linkDelete@LinkSubmit"
+     selected="ognl:removeAction"
+     tag="ognl:actionBean">
+     <span key="button.delete">Delete</span>
+    </a>
+  </div>
+  <a jwcid="@LinkSubmit" listener="listener:addAction"><span key="label.addAction"/></a>
+  <br/>
+  <ul jwcid="@common/FormActions" listener="listener:saveCommand" callback="ognl:callback"/>
+  </fieldset>
+</form>
+</div>

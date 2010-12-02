@@ -1,19 +1,19 @@
 <form jwcid="@Form" id="linesForm">
   <ul class="component-links">
     <li>
-      <a jwcid="addLine@DirectLink" id="addLine" listener="listener:addLine" parameters="ognl:sipxLocation">
-        <span key="add">Add Line</span>
+      <a jwcid="addCommand@DirectLink" id="addCommand" listener="listener:addCommand" parameters="ognl:sipxLocation">
+        <span key="add">Add Command</span>
       </a>
     </li>
   </ul>
-  <table jwcid="tableView@common/Table" id="openacd:lines"
-		columns="literal:* name, extension, queue"
-		source="ognl:openAcdlines"
+  <table jwcid="tableView@common/Table" id="openacd:cmds"
+		columns="literal:* name, extension"
+		source="ognl:openAcdCommands"
 		row="ognl:currentRow"
 		selections="bean:selections">
 	<span jwcid="nameColumnValue@Block">
 	  <span jwcid="editRowLink@DirectLink"
-		  listener="listener:editLine"
+		  listener="listener:editCommand"
 		  parameters="ognl:currentRow.id">
 		  <span jwcid="nameText@Insert" value="ognl:currentRow.name"/>
 	  </span>
@@ -26,5 +26,5 @@
        selected="ognl:rowsToDelete"
        tag="ognl:selections.allSelected"
        value="message:button.delete"
-       listener="listener:deleteLines"/>
+       listener="listener:deleteCommands"/>
 </form>

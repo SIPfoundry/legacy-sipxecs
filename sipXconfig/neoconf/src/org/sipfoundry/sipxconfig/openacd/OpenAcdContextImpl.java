@@ -51,6 +51,7 @@ import org.springframework.dao.support.DataAccessUtils;
 public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext {
 
     private static final String VALUE = "value";
+    private static final String LOCATION = "location";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
     private static final String OPEN_ACD_AGENT_GROUP_WITH_NAME = "openAcdAgentGroupWithName";
     private static final String ALIAS_RELATION = "openacd";
@@ -75,7 +76,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public OpenAcdExtension getExtensionByName(String extensionName) {
-        List<OpenAcdExtension> extensions = getHibernateTemplate().findByNamedQueryAndNamedParam(
+        List<OpenAcdLine> extensions = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 OPEN_ACD_EXTENSION_WITH_NAME, VALUE, extensionName);
         return DataAccessUtils.singleResult(extensions);
     }
@@ -86,20 +87,28 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     @Override
-    public List<OpenAcdExtension> getFreeswitchExtensions(Location location) {
-        return getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "openAcdExtensionByLocationId", "location", location);
-    }
-
-    @Override
-    public Set<OpenAcdExtension> getLines(Location location) {
-        Set<OpenAcdExtension> lines = new HashSet<OpenAcdExtension>();
-        for (OpenAcdExtension ext : getFreeswitchExtensions(location)) {
-            if (ext.getLineNumber() != null) {
+    public Set<OpenAcdLine> getLines(Location location) {
+        List<OpenAcdLine> openacdLines = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "openAcdLinesByLocationId", LOCATION, location);
+        Set<OpenAcdLine> lines = new HashSet<OpenAcdLine>();
+        for (OpenAcdLine ext : openacdLines) {
+            if (ext.getExtension() != null) {
                 lines.add(ext);
             }
         }
         return lines;
+    }
+
+    public Set<OpenAcdCommand> getCommands(Location location) {
+        List<OpenAcdCommand> openacdCommands = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                "openAcdCommandsByLocationId", LOCATION, location);
+        Set<OpenAcdCommand> comms = new HashSet<OpenAcdCommand>();
+        for (OpenAcdCommand ext : openacdCommands) {
+            if (ext.getExtension() != null) {
+                comms.add(ext);
+            }
+        }
+        return comms;
     }
 
     @Override
@@ -124,22 +133,21 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         replicateConfig();
     }
 
-    @Override
     public void saveExtension(OpenAcdExtension extension) {
         if (extension.getName() == null) {
             throw new UserException("&null.name");
         }
-        if (extension.isOpenAcdLine() && extension.getLineNumber() == null) {
+        if (extension.getExtension() == null) {
             throw new UserException("&null.extension");
         }
-        if (extension.isNew() || (!extension.isNew() && isNameChanged(extension))
-                || (!extension.isNew() && isExtensionChanged(extension))) {
+        if (extension.isNew() || (!extension.isNew() && isNameChanged(extension))) {
             if (!m_aliasManager.canObjectUseAlias(extension, extension.getName())) {
                 throw new NameInUseException(LINE_NAME, extension.getName());
             }
-            if (extension.getLineNumber() != null
-                    && !m_aliasManager.canObjectUseAlias(extension, extension.getLineNumber())) {
-                throw new ExtensionInUseException(LINE_NAME, extension.getLineNumber());
+        } else if ((!extension.isNew() && isExtensionChanged(extension))) {
+            if (extension.getExtension() != null
+                    && !m_aliasManager.canObjectUseAlias(extension, extension.getExtension())) {
+                throw new ExtensionInUseException(LINE_NAME, extension.getExtension());
             }
         }
         removeNullActions(extension);
@@ -154,8 +162,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     private void replicateConfig() {
         m_replicationContext.generate(DataSet.ALIAS);
-        SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager.
-            getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+        SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
+                .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         for (Location location : m_locationsManager.getLocations()) {
             if (location.isServiceInstalled(freeswitchService)) {
                 m_serviceConfigurator.replicateServiceConfig(location, freeswitchService, true, false);
@@ -182,7 +190,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     private boolean isExtensionChanged(OpenAcdExtension extension) {
-        return !getExtensionById(extension.getId()).getLineNumber().equals(extension.getLineNumber());
+        return !getExtensionById(extension.getId()).getExtension().equals(extension.getExtension());
     }
 
     @Override
@@ -191,9 +199,9 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
         List<OpenAcdExtension> extensions = getFreeswitchExtensions();
         for (OpenAcdExtension openAcdExtension : extensions) {
-            if (openAcdExtension.isOpenAcdLine()
-                    && (openAcdExtension.getLineNumber().equals(alias) || openAcdExtension.getName().equals(alias))) {
-                bids.add(new BeanId(openAcdExtension.getId(), OpenAcdExtension.class));
+            if (openAcdExtension.getExtension() != null
+                    && (openAcdExtension.getExtension().equals(alias) || openAcdExtension.getName().equals(alias))) {
+                bids.add(new BeanId(openAcdExtension.getId(), OpenAcdLine.class));
             }
         }
         return bids;
@@ -203,8 +211,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     public boolean isAliasInUse(String alias) {
         List<OpenAcdExtension> extensions = getFreeswitchExtensions();
         for (OpenAcdExtension openAcdExtension : extensions) {
-            if (openAcdExtension.isOpenAcdLine()
-                    && (openAcdExtension.getLineNumber().equals(alias) || openAcdExtension.getName().equals(alias))) {
+            if (openAcdExtension.getExtension() != null
+                    && (openAcdExtension.getExtension().equals(alias) || openAcdExtension.getName().equals(alias))) {
                 return true;
             }
         }
@@ -217,7 +225,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         final ArrayList<AliasMapping> list = new ArrayList<AliasMapping>();
         String domainName = m_domainManager.getDomain().getName();
         for (OpenAcdExtension extension : extensions) {
-            if (extension.isOpenAcdLine()) {
+            if (extension.getExtension() != null) {
                 list.addAll(generateAlias(extension, domainName));
             }
         }
@@ -230,12 +238,12 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
                 .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         AliasMapping nameMapping = new AliasMapping();
         nameMapping.setIdentity(AliasMapping.createUri(extension.getName(), domainName));
-        nameMapping.setContact(SipUri.format(extension.getLineNumber(), freeswitchService.getAddress(), false));
+        nameMapping.setContact(SipUri.format(extension.getExtension(), freeswitchService.getAddress(), false));
         nameMapping.setRelation(ALIAS_RELATION);
         mappings.add(nameMapping);
         AliasMapping lineMapping = new AliasMapping();
-        lineMapping.setIdentity(AliasMapping.createUri(extension.getLineNumber(), domainName));
-        lineMapping.setContact(SipUri.format(extension.getLineNumber(), freeswitchService.getAddress(),
+        lineMapping.setIdentity(AliasMapping.createUri(extension.getExtension(), domainName));
+        lineMapping.setContact(SipUri.format(extension.getExtension(), freeswitchService.getAddress(),
                 freeswitchService.getFreeswitchSipPort()));
         lineMapping.setRelation(ALIAS_RELATION);
         mappings.add(lineMapping);

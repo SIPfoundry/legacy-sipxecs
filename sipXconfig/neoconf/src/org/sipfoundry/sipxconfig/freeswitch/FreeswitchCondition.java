@@ -57,8 +57,12 @@ public class FreeswitchCondition extends BeanWithId {
         m_actions.add(action);
     }
 
-    public String getLineNumber() {
+    public String getExtension() {
         return StringUtils.removeEnd(StringUtils.removeStart(m_expression, "^"), "$");
+    }
+
+    public String getEscapedExpression() {
+        return m_expression.replaceAll("[\\*]", "\\\\\\*");
     }
 
     @Override

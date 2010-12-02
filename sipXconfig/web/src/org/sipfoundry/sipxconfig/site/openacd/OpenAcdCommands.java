@@ -16,10 +16,8 @@
 package org.sipfoundry.sipxconfig.site.openacd;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.annotations.Bean;
@@ -29,17 +27,16 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.callback.PageCallback;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.components.SelectMap;
-import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdLine;
 
-public abstract class OpenAcdLines extends BaseComponent {
+public abstract class OpenAcdCommands extends BaseComponent {
     @InjectObject("spring:openAcdContext")
     public abstract OpenAcdContext getOpenAcdContext();
 
-    public abstract OpenAcdLine getCurrentRow();
+    public abstract OpenAcdCommand getCurrentRow();
 
-    public abstract void setCurrentRow(OpenAcdLine e);
+    public abstract void setCurrentRow(OpenAcdCommand e);
 
     @Parameter
     public abstract Location getSipxLocation();
@@ -48,51 +45,38 @@ public abstract class OpenAcdLines extends BaseComponent {
 
     public abstract Collection<Integer> getRowsToDelete();
 
-    @InjectPage(EditOpenAcdLine.PAGE)
-    public abstract EditOpenAcdLine getEditLinePage();
+    @InjectPage(EditOpenAcdCommand.PAGE)
+    public abstract EditOpenAcdCommand getEditCommandPage();
 
     @Bean
     public abstract SelectMap getSelections();
 
-    public Set<OpenAcdLine> getOpenAcdLines() {
-        return getOpenAcdContext().getLines(getSipxLocation());
+    public Set<OpenAcdCommand> getOpenAcdCommands() {
+        return getOpenAcdContext().getCommands(getSipxLocation());
     }
 
-    public abstract void setLines(Set<OpenAcdLine> l);
+    public abstract void setCommands(Set<OpenAcdCommand> l);
 
-    public String getQueue() {
-        List<FreeswitchAction> actions = getCurrentRow().getLineActions();
-        for (FreeswitchAction action : actions) {
-            String data = action.getData();
-            if (StringUtils.contains(data, OpenAcdLine.Q)) {
-                return StringUtils.removeStart(data, OpenAcdLine.Q);
-            }
-        }
-        return "";
-    }
-
-    public IPage editLine(int id) {
-        OpenAcdLine ext = (OpenAcdLine) getOpenAcdContext().getExtensionById(id);
-        EditOpenAcdLine page = getEditLinePage();
-        page.setOpenAcdLineId(ext.getId());
+    public IPage editCommand(int id) {
+        OpenAcdCommand ext = (OpenAcdCommand) getOpenAcdContext().getExtensionById(id);
+        EditOpenAcdCommand page = getEditCommandPage();
+        page.setOpenAcdCommandId(ext.getId());
         page.setSipxLocation(ext.getLocation());
         page.setActions(null);
-        page.setWelcomeMessage(null);
         page.setCallback(new PageCallback(this.getPage()));
         return page;
     }
 
-    public IPage addLine(Location l) {
-        EditOpenAcdLine page = getEditLinePage();
-        page.setOpenAcdLineId(null);
+    public IPage addCommand(Location l) {
+        EditOpenAcdCommand page = getEditCommandPage();
+        page.setOpenAcdCommandId(null);
         page.setSipxLocation(l);
         page.setActions(null);
-        page.setWelcomeMessage(null);
         page.setCallback(new PageCallback(this.getPage()));
         return page;
     }
 
-    public void deleteLines() {
+    public void deleteCommands() {
         getOpenAcdContext().removeExtensions(getRowsToDelete());
     }
 }

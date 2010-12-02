@@ -20,7 +20,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
@@ -33,13 +32,13 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdLine;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
 import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
 
-public abstract class EditOpenAcdLine extends PageWithCallback implements PageBeginRenderListener {
-    public static final String PAGE = "openacd/EditOpenAcdLine";
-    private static final String SLASH = "/";
+public abstract class EditOpenAcdCommand extends PageWithCallback implements PageBeginRenderListener {
+    public static final String PAGE = "openacd/EditOpenAcdCommand";
 
     @InjectObject("spring:openAcdContext")
     public abstract OpenAcdContext getOpenAcdContext();
@@ -62,23 +61,6 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
 
     public abstract void setLineNumber(String number);
 
-    public abstract String getQueue();
-
-    public abstract void setQueue(String queue);
-
-    @Persist
-    public abstract String getWelcomeMessage();
-
-    public abstract void setWelcomeMessage(String path);
-
-    public abstract boolean isAllowVoicemail();
-
-    public abstract void setAllowVoicemail(boolean allow);
-
-    public abstract boolean isAnswerSupervision();
-
-    public abstract void setAnswerSupervision(boolean answer);
-
     public abstract ActionBean getActionBean();
 
     public abstract void setActionBean(ActionBean a);
@@ -93,9 +75,9 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
     public abstract void setSipxLocation(Location locationId);
 
     @Persist
-    public abstract Integer getOpenAcdLineId();
+    public abstract Integer getOpenAcdCommandId();
 
-    public abstract void setOpenAcdLineId(Integer id);
+    public abstract void setOpenAcdCommandId(Integer id);
 
     public abstract String getFilter();
 
@@ -118,10 +100,10 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
         super.pageEndRender(event);
         List<FreeswitchAction> actions = null;
 
-        if (getOpenAcdLineId() == null) {
-            actions = OpenAcdLine.getDefaultActions(getSipxLocation());
+        if (getOpenAcdCommandId() == null) {
+            actions = OpenAcdCommand.getDefaultActions(getSipxLocation());
         } else {
-            OpenAcdLine line = (OpenAcdLine) getOpenAcdContext().getExtensionById(getOpenAcdLineId());
+            OpenAcdCommand line = (OpenAcdCommand) getOpenAcdContext().getExtensionById(getOpenAcdCommandId());
             actions = line.getLineActions();
             setName(line.getName());
             setDescription(line.getDescription());
@@ -131,20 +113,8 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
         List<ActionBean> actionBeans = new LinkedList<ActionBean>();
         for (FreeswitchAction action : actions) {
             String application = action.getApplication();
-            String data = action.getData();
             if (StringUtils.equals(application, FreeswitchAction.PredefinedAction.answer.toString())) {
-                setAnswerSupervision(true);
-            } else if (StringUtils.contains(data, OpenAcdLine.Q)) {
-                if (getQueue() == null) {
-                    setQueue(StringUtils.removeStart(data, OpenAcdLine.Q));
-                }
-            } else if (StringUtils.contains(data, OpenAcdLine.ALLOW_VOICEMAIL)) {
-                setAllowVoicemail(BooleanUtils.toBoolean(StringUtils.removeStart(data,
-                        OpenAcdLine.ALLOW_VOICEMAIL)));
-            } else if (StringUtils.equals(application, FreeswitchAction.PredefinedAction.playback.toString())) {
-                if (getWelcomeMessage() == null) {
-                    setWelcomeMessage(StringUtils.removeStart(data, getSipxOpenAcdService().getAudioDir() + SLASH));
-                }
+                continue;
             } else {
                 actionBeans.add(new ActionBean(action));
             }
@@ -182,40 +152,34 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
         setFilter(filter);
     }
 
-    public void saveLine() {
+    public void saveCommand() {
         // save the line and reload
         if (TapestryUtils.isValid(this)) {
-            OpenAcdLine line = null;
-            if (getOpenAcdLineId() != null) {
-                line = (OpenAcdLine) getOpenAcdContext().getExtensionById(getOpenAcdLineId());
+            OpenAcdCommand cmd = null;
+            if (getOpenAcdCommandId() != null) {
+                cmd = (OpenAcdCommand) getOpenAcdContext().getExtensionById(getOpenAcdCommandId());
             } else {
-                line = new OpenAcdLine();
-                line.addCondition(OpenAcdLine.createLineCondition());
+                cmd = new OpenAcdCommand();
+                cmd.addCondition(OpenAcdCommand.createLineCondition());
             }
 
-            line.setName(getName());
-            line.setDescription(getDescription());
-            line.setLocation(getSipxLocation());
+            cmd.setName(getName());
+            cmd.setDescription(getDescription());
+            cmd.setLocation(getSipxLocation());
 
             // add common actions
-            line.getNumberCondition().getActions().clear();
-            line.getNumberCondition().addAction(OpenAcdLine.createAnswerAction(isAnswerSupervision()));
-            line.getNumberCondition().addAction(OpenAcdLine.createVoicemailAction(isAllowVoicemail()));
-            line.getNumberCondition().addAction(OpenAcdLine.createQueueAction(getQueue()));
-            line.getNumberCondition().addAction(
-                    OpenAcdLine.createPlaybackAction(getSipxOpenAcdService().getAudioDir() + SLASH
-                            + getWelcomeMessage()));
+            cmd.getNumberCondition().getActions().clear();
+            cmd.getNumberCondition().addAction(OpenAcdCommand.createAnswerAction(true));
 
             for (ActionBean actionBean : getActions()) {
-                line.getNumberCondition().addAction((FreeswitchAction) actionBean.getAction().duplicate());
+                cmd.getNumberCondition().addAction((FreeswitchAction) actionBean.getAction().duplicate());
             }
 
-            line.getNumberCondition().setExpression(
-                    String.format(OpenAcdLine.DESTINATION_NUMBER_PATTERN, getLineNumber()));
-            getOpenAcdContext().saveExtension(line);
-            setOpenAcdLineId(line.getId());
+            cmd.getNumberCondition().setExpression(
+                    String.format(OpenAcdExtension.DESTINATION_NUMBER_PATTERN, getLineNumber()));
+            getOpenAcdContext().saveExtension(cmd);
+            setOpenAcdCommandId(cmd.getId());
             setActions(null);
-            setWelcomeMessage(null);
         }
     }
 

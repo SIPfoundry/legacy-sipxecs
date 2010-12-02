@@ -20,7 +20,7 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionCollector;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdExtension;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdLine;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceTestBase;
 
@@ -108,8 +108,8 @@ public class DefaultContextConfigurationTest extends SipxServiceTestBase {
         return bridge;
     }
 
-    public static OpenAcdExtension createOpenAcdExtension(String extensionName) {
-        OpenAcdExtension extension = new OpenAcdExtension();
+    public static OpenAcdLine createOpenAcdLine(String extensionName) {
+        OpenAcdLine extension = new OpenAcdLine();
         extension.setName(extensionName);
 
         FreeswitchCondition condition = new FreeswitchCondition();
@@ -153,7 +153,7 @@ public class DefaultContextConfigurationTest extends SipxServiceTestBase {
         initCommonAttributes(service);
 
         expect(m_freeswitchExtensionCollector.getExtensions()).andReturn(
-                Arrays.asList((FreeswitchExtension) createOpenAcdExtension("sales")));
+                Arrays.asList((FreeswitchExtension) createOpenAcdLine("sales")));
         replay(m_conferenceContext, m_accCodeContext, m_freeswitchExtensionCollector);
 
         assertCorrectFileGeneration(m_configuration, "default_context_freeswitch_extensions.test.xml");
