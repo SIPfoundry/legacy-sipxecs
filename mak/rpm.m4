@@ -1,3 +1,6 @@
+dnl Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
+dnl Licensed to the User under the LGPL license.
+dnl
 AC_CHECK_FILE(/bin/rpm, 
 [
   RPMBUILD_TOPDIR="\$(shell rpm --eval '%{_topdir}')"

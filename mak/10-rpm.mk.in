@@ -1,3 +1,6 @@
+# Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+# 
 MOCK_RESULTS_DIR = rpm-results
 BUILDNO = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1)
 ifeq "@DISTRO@" "centos"

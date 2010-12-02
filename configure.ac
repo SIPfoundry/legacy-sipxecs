@@ -1,3 +1,6 @@
+# Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+# 
 AC_PREREQ(2.57)
 
 # Run "make sipx.update-version" to update all the other sipx projects version strings

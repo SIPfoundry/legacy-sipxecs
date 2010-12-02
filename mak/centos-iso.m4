@@ -1,3 +1,6 @@
+dnl Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
+dnl Licensed to the User under the LGPL license.
+dnl
 AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
 [
   AC_ARG_VAR(ISO_DIR, [Directory containing your CentOS CD disk 1 ISO])

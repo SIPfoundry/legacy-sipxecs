@@ -1,3 +1,6 @@
+# Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+# 
 help.reconf=Re-run original configure script with same arguments as before.
 reconf :
 	$(SRC)/configure @CONFIGURE_OPTIONS@
