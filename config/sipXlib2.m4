@@ -16,7 +16,7 @@ AC_SUBST(SIPX_DBDIR,   [${localstatedir}/sipxdata/sipdb])
 AC_SUBST(SIPX_LOGDIR,  [${localstatedir}/log/sipxpbx])
 AC_SUBST(SIPX_RUNDIR,  [${localstatedir}/run/sipxpbx])
 AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
-AC_SUBST(SIPX_RPM_CONFIGURE_OPTIONS,  [SIPXPBXUSER=sipxchange])
+AC_SUBST(SIPX_RPM_CONFIGURE_OPTIONS,  [SIPXPBXUSER=sipxchange SIPXPBXGROUP=sipxchange])
 
 # Get the user to run sipX under.
 AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is ${USER}])

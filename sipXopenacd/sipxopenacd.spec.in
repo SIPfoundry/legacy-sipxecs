@@ -12,9 +12,12 @@ Url: http://www.sipfoundry.org/
 BuildRequires: automake
 
 Source: %name-%version.tar.gz
+Prefix: %_prefix
+BuildRoot: %{_tmppath}/%name-%version-root
 
 Requires: sipxcommserverlib >= %version
 Requires: openacd
+Requires: mongo-server
 
 %description
 OpenACD integration for sipXecs
