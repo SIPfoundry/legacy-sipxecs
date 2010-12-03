@@ -9,7 +9,7 @@
     </configtest>
     <start>
       <execute>@SIPX_BINDIR@/sipxopenacd</execute>
-      <parameter>--start</parameter>
+      <parameter>-x</parameter>
     </start>
     <stop>
       <execute>@SIPX_BINDIR@/sipxopenacd</execute>
