@@ -83,7 +83,8 @@ if ! /usr/bin/id -g sipxchange &>/dev/null; then
 fi
 
 if ! /usr/bin/id sipxchange &/dev/null; then
-  /usr/sbin/useradd -M -r -g sipxchange -d %{_sysconfdir}/sipxpbx -s /bin/false -c sipxchange sipxchange 2>&1
+  # hack: use "-s /bin/bash", some scripts need to be fixed to not require that
+  /usr/sbin/useradd -M -r -g sipxchange -d %{_sysconfdir}/sipxpbx -s /bin/bash -c sipxchange sipxchange 2>&1
 fi
 
 %post
