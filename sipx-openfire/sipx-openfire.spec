@@ -17,7 +17,6 @@ URL: http://www.igniterealtime.org/
 
 Requires: java-devel
 Requires: shadow-utils
-Requires: sipxcommserverlib
 Obsoletes: openfire
 
 %description
@@ -49,6 +48,6 @@ for packed_jar in /opt/openfire/lib/*.jar.pack; do \
 done;
 
 %files
-%attr(775,sipxchange,sipxchange) %dir %{homedir}
-%attr(-,sipxchange,sipxchange) %{homedir}/*
-%attr(-,sipxchange,sipxchange) %{homedir}/.install4j/*
+%attr(775,root,root) %dir %{homedir}
+%{homedir}/*
+%{homedir}/.install4j/*

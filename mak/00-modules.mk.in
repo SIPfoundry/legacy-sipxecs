@@ -53,6 +53,7 @@ $(foreach V,11 12 13 14 15 16 17 18 19 20,$(eval lib_fedora_$(V) = $(lib_common)
 
 # rsyslog is really for RHEL 5.3-ish, CentOS already has it
 lib_centos_5 = \
+  asciidoc \
   rubygems \
   rubygem-rake \
   erlang \
