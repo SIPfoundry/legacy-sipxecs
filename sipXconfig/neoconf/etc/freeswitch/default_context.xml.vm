@@ -28,7 +28,7 @@
 #foreach($extension in $freeswitchExtensions)
   <extension name="${extension.name}">
 #foreach($condition in $extension.conditions)
-    <condition field="${condition.field}" expression="${condition.expression}">
+    <condition field="${condition.field}" expression="${condition.escapedExpression}">
 #foreach($action in $condition.actions)
       <action application="${action.application}"#if( $action.data ) data="${action.data}"#end/>
 #end

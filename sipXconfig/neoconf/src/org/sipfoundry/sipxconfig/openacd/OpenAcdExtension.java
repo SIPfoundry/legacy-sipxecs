@@ -18,19 +18,20 @@ package org.sipfoundry.sipxconfig.openacd;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension;
 
 public class OpenAcdExtension extends FreeswitchExtension {
-    public static final String Q = "queue=";
     public static final String DESTINATION_NUMBER = "destination_number";
-    public static final String ALLOW_VOICEMAIL = "allow_voicemail=";
     public static final String DESTINATION_NUMBER_PATTERN = "^%s$";
     public static final String EMPTY_STRING = "";
 
-    public FreeswitchCondition getLineCondition() {
+    /**
+     * We call this condition the (first, because they can be many) condition that has
+     * destination_number as a field
+     */
+    public FreeswitchCondition getNumberCondition() {
         if (getConditions() == null) {
             return null;
         }
@@ -42,27 +43,14 @@ public class OpenAcdExtension extends FreeswitchExtension {
         return null;
     }
 
-    public boolean isOpenAcdLine() {
-        if (getConditions() == null) {
-            return false;
-        }
-        if (getLineCondition() == null) {
-            return false;
-        }
-        return true;
-    }
-
-    public String getLineNumber() {
-        if (isOpenAcdLine()) {
-            return getLineCondition().getLineNumber();
+    public String getExtension() {
+        if (getNumberCondition() != null) {
+            return getNumberCondition().getExtension();
         }
         return null;
     }
 
     public List<FreeswitchAction> getLineActions() {
-        if (!isOpenAcdLine()) {
-            return null;
-        }
         List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
         for (FreeswitchCondition condition : getConditions()) {
             if (condition.getField().equals(DESTINATION_NUMBER)) {
@@ -74,22 +62,7 @@ public class OpenAcdExtension extends FreeswitchExtension {
         return actions;
     }
 
-    public static List<FreeswitchAction> getDefaultActions(Location location) {
-        List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
-        actions.add(createAction(FreeswitchAction.PredefinedAction.answer.toString(), null));
-        actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), "domain_name=$${domain}"));
-        actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), "brand=1"));
-        actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), Q));
-        actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), "allow_voicemail=true"));
-        actions.add(createAction(FreeswitchAction.PredefinedAction.erlang_sendmsg.toString(),
-                "freeswitch_media_manager  testme@" + location.getHostname() + " inivr ${uuid}"));
-        actions.add(createAction(FreeswitchAction.PredefinedAction.playback.toString(), EMPTY_STRING));
-        actions.add(createAction(FreeswitchAction.PredefinedAction.erlang.toString(),
-                "freeswitch_media_manager:!  testme@" + location.getHostname()));
-        return actions;
-    }
-
-    private static FreeswitchAction createAction(String application, String data) {
+    protected static FreeswitchAction createAction(String application, String data) {
         FreeswitchAction action = new FreeswitchAction();
         action.setApplication(application);
         action.setData(data);
@@ -98,7 +71,7 @@ public class OpenAcdExtension extends FreeswitchExtension {
 
     public static FreeswitchCondition createLineCondition() {
         FreeswitchCondition condition = new FreeswitchCondition();
-        condition.setField(OpenAcdExtension.DESTINATION_NUMBER);
+        condition.setField(OpenAcdLine.DESTINATION_NUMBER);
         condition.setExpression(EMPTY_STRING);
         return condition;
     }
@@ -109,17 +82,4 @@ public class OpenAcdExtension extends FreeswitchExtension {
         }
         return createAction(FreeswitchAction.PredefinedAction.answer.toString(), null);
     }
-
-    public static FreeswitchAction createVoicemailAction(boolean allow) {
-        return createAction(FreeswitchAction.PredefinedAction.set.toString(), ALLOW_VOICEMAIL + allow);
-    }
-
-    public static FreeswitchAction createQueueAction(String queue) {
-        return createAction(FreeswitchAction.PredefinedAction.set.toString(), Q + queue);
-    }
-
-    public static FreeswitchAction createPlaybackAction(String path) {
-        return createAction(FreeswitchAction.PredefinedAction.playback.toString(), path);
-    }
-
 }

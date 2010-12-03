@@ -1,16 +1,12 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
 # 
-MOCK_RESULTS_DIR = rpm-results
+MOCK_RESULTS_DIR = ./
 GIT_ID = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1)
-# TODO: Determine RELEASE_ID automatically
+# TODO: Determine RELEASE_ID automatically based on a number that increments
 RELEASE_ID = 1.$(GIT_ID)
-MOCK_INIT = mock -r @MOCK_TARGET_PLATFORM@ --init
 MOCK_REBUILD = mock -r @MOCK_TARGET_PLATFORM@ --no-clean --no-cleanup-after --resultdir=$(MOCK_RESULTS_DIR) --rebuild
-MOCK_INSTALLDEPS = mock -r @MOCK_TARGET_PLATFORM@ --resultdir=$(MOCK_RESULTS_DIR) --installdeps
-MOCK_CLEAR = mock -r @MOCK_TARGET_PLATFORM@ --resultdir=$(MOCK_RESULTS_DIR) --scrub=yum-cache
 RPM_DIST = @RPM_DIST@
-MOCK_CHROOT_REPO = /var/lib/mock/@MOCK_TARGET_PLATFORM@/root/fruit
 
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
 $(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-$(RELEASE_ID).src.rpm))
@@ -19,7 +15,7 @@ $(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-@PACK
 $(foreach P,$(lib),$(eval include $(SRC)/$(P)/.sipxecs.mk))
 
 help.sipx.rpm = Experimental call to build rpms.
-$(foreach T,$(sipx) $(lib),$(T).rpm) : %.rpm : %.clean-full %.autoreconf %.configure %.dist %.srpm %.mock;
+$(foreach T,$(sipx) $(lib),$(T).rpm) : %.rpm : %.autoreconf %.configure %.dist %.srpm %.mock;
 
 help.sipx.srpm = Experimental call to build rpms
 %.srpm :
@@ -32,12 +28,6 @@ help.sipx.srpm = Experimental call to build rpms
 	fi
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) .
 
-mock-clean :
-	rm -rf $(MOCK_RESULTS_DIR)
-
-mock-init :
-	$(MOCK_INIT)
-
 CopySourceFile = \
 	if [ -f $1 ]; then \
 	  cp $1 $2; \
@@ -48,9 +38,8 @@ CopySourceFile = \
 	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \
 	fi; \
 
-#	$(MOCK_CLEAR)	
-#	$(MOCK_INSTALLDEPS) $($(PROJ)_SRPM)
-# launch a webserver to share build of deps with chroot'ed system.
+# TIP : you should have a webserver pointed at $(MOCK_RESULTS_DIR) to feed the results of build back into the chroot'ed system.
+# or explore mounting $(MOCK_RESULTS_DIR) from the chroot system.
 %.mock :
 	cd $(MOCK_RESULTS_DIR); createrepo .
 	$(MOCK_REBUILD) -D 'buildno $(RELEASE_ID)' $($(PROJ)_SRPM)

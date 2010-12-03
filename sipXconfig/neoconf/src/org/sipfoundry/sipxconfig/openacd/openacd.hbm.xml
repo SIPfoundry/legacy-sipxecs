@@ -33,8 +33,18 @@
   <subclass name="OpenAcdExtension" extends="org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension" discriminator-value="O">
   </subclass>
 
-  <query name="openAcdExtensionByLocationId">
-    <![CDATA[from OpenAcdExtension ext where ext.location = :location]]>
+  <subclass name="OpenAcdLine" extends="org.sipfoundry.sipxconfig.openacd.OpenAcdExtension" discriminator-value="L">
+  </subclass>
+
+  <subclass name="OpenAcdCommand" extends="org.sipfoundry.sipxconfig.openacd.OpenAcdExtension" discriminator-value="C">
+  </subclass>
+
+  <query name="openAcdLinesByLocationId">
+    <![CDATA[from OpenAcdLine ext where ext.location = :location]]>
+  </query>
+
+  <query name="openAcdCommandsByLocationId">
+    <![CDATA[from OpenAcdCommand ext where ext.location = :location]]>
   </query>
 
   <query name="openAcdExtensionWithName">

@@ -28,7 +28,7 @@ public class FreeswitchAction extends BeanWithId implements Serializable {
     private String m_data;
 
     public static enum PredefinedAction {
-        answer, set, erlang_sendmsg, log, erlang, playback;
+        answer, set, erlang_sendmsg, log, erlang, playback, sleep, hangup;
 
         public static List<String> valuesAsStrings() {
             List<String> actions = new ArrayList<String>();
