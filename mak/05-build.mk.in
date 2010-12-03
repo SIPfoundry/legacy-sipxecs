@@ -25,10 +25,6 @@ help.configure = Run configure on each project
 	cd $(PROJ); \
 	  $(SRC)/$(PROJ)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 
-help.clean-full = Remove build ouptut project
-%.clean-full :
-	! test -d $(PROJ) || rm -rf $(PROJ)
-
 MAKE_COMMANDS = check install clean dist
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.sipx.$(C)=Run make $(C) on each project))
 

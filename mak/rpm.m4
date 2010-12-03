@@ -29,13 +29,8 @@ AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
   AC_ARG_VAR(DOWNLOAD_LIB_URL, [When to cache source files that are downloaded, default download.sipfoundry.org])
   test -n "${DOWNLOAD_LIB_URL}" || DOWNLOAD_LIB_URL=http://download.sipfoundry.org/pub/sipXecs/libs
 
-  if test "$DISTRO" == "centos"; then
-    DEFAULT_MOCK_TARGET_PLATFORM="epel-${DISTRO_VER}-${TARGET_ARCH}"
-  else
-    DEFAULT_MOCK_TARGET_PLATFORM="${DISTRO}-${DISTRO_VER}-${TARGET_ARCH}"
-  fi
-  AC_ARG_VAR(MOCK_TARGET_PLATFORM, [Config template in /etc/mock to build for. default ${DEFAULT_MOCK_TARGET_PLATFORM}])
-  test -n "${MOCK_TARGET_PLATFORM}" || MOCK_TARGET_PLATFORM="${DEFAULT_MOCK_TARGET_PLATFORM}"
+  AC_ARG_VAR(MOCK_TARGET_PLATFORM, [Config template in /etc/mock to build for. default is 'default'])
+  test -n "${MOCK_TARGET_PLATFORM}" || MOCK_TARGET_PLATFORM="default"
 
   AC_CONFIG_FILES([mak/10-rpm.mk])
 ])
