@@ -1339,7 +1339,7 @@ AC_DEFUN([CHECK_FREESWITCH],
 		[freeswitch_path=$withval],
 		[freeswitch_path="/opt/freeswitch"]
                 )
-    for dir in $freeswitch_path ; do
+    for dir in $freeswitch_path /usr/local/freeswitch; do
         freeswitch_dir="$dir"
         if test -x "$dir/bin/freeswitch"; then
             found_freeswitch="yes";
