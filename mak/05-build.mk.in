@@ -28,8 +28,10 @@ help.configure = Run configure on each project
 MAKE_COMMANDS = check install clean dist
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.sipx.$(C)=Run make $(C) on each project))
 
-$(foreach T,$(all),$(foreach C,$(MAKE_COMMANDS),$(T).$(C))) :
-	$(MAKE) -C $(PROJ) $(patsubst $(PROJ).%,%,$@)
+%.dist :; $(MAKE) -C $(PROJ) dist
+%.install :; $(MAKE) -C $(PROJ) install
+%.clean :; $(MAKE) -C $(PROJ) clean
+%.check :; $(MAKE) -C $(PROJ) check
 
 # projects do not all have an "all" target, they probably should, until then, use
 # no-target default
