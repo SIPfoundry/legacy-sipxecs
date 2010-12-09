@@ -27,7 +27,6 @@ help.configure = Run configure on each project
 
 MAKE_COMMANDS = check install clean dist
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.sipx.$(C)=Run make $(C) on each project))
-
 %.dist :; $(MAKE) -C $(PROJ) dist
 %.install :; $(MAKE) -C $(PROJ) install
 %.clean :; $(MAKE) -C $(PROJ) clean
