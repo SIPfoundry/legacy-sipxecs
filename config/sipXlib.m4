@@ -19,9 +19,9 @@ AC_DEFUN([SFAC_INIT_FLAGS],
     ##   -fmessage-length=0       - ?
     ##
 
-    CFLAGS="-I${ac_default_prefix}/include $CFLAGS"
-    CXXFLAGS="-I${ac_default_prefix}/include $CXXFLAGS"
-    LDFLAGS="-L${ac_default_prefix}/lib ${LDFLAGS}"
+    CFLAGS="-I${sf_prefix}/include $CFLAGS"
+    CXXFLAGS="-I${sf_prefix}/include $CXXFLAGS"
+    LDFLAGS="-L${sf_prefix}/lib ${LDFLAGS}"
 
     if test x_"${ax_cv_c_compiler_vendor}" = x_gnu
     then
@@ -73,35 +73,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
     AC_ARG_VAR(OPENFIRE_HOME, [The home for openfire ])
     test -z "$OPENFIRE_HOME" && OPENFIRE_HOME=/opt/openfire
 
-    # Get the user to run sipX under.
-    AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is 'sipxchange'])
-    test -z "$SIPXPBXUSER" && SIPXPBXUSER=sipxchange
-
-    # Get the group to run sipX under.
-    AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is SIPXPBXUSER])
-    test -z "$SIPXPBXGROUP" && SIPXPBXGROUP=$SIPXPBXUSER
-
-    # Test the consistency of SIPXPBXUSER and SIPXPBXGROUP with the host's
-    # configuration.  Note that if they don't match, it is not an error,
-    # as these are not needed during build.  But developers building and
-    # running on the same host should be warned.
-    default_group_number=`grep "^$SIPXPBXUSER:" /etc/passwd |
-			  head -1 |
-			  cut -d: -f4`
-    if test -z "$default_group_number"
-    then
-        AC_MSG_NOTICE([No /etc/passwd entry for SIPXPBXUSER $SIPXPBXUSER (or it has empty default group)])
-    elif group_number=`grep "^$SIPXPBXGROUP:" /etc/group |
-		       head -1 |
-		       cut -d: -f3` ; \
-	 test -z "$group_number"
-    then
-        AC_MSG_NOTICE([No /etc/group entry for SIPXPBXGROUP $SIPXPBXGROUP (or it has empty group number)])
-    elif test "$default_group_number" != "$group_number"
-    then
-        AC_MSG_NOTICE([SIPXPBXGROUP $SIPXPBXGROUP is not the default group for SIPXPBXUSER $SIPXPBXUSER])
-    fi
-
     AC_ARG_ENABLE(rpmbuild, 
       AC_HELP_STRING([--enable-rpmbuild], [Build an rpm]),
       enable_rpmbuild=yes)
@@ -132,30 +103,6 @@ AC_DEFUN([SFAC_SIPX_GLOBAL_OPTS],
 
     # Enable profiling via gprof
     ENABLE_PROFILE
-
-    SFAC_CONFIGURE_OPTIONS
-])
-
-AC_DEFUN([SFAC_CONFIGURE_OPTIONS],
-[
-  ConfigureArgs=`sed \
-    -e '/^ *\$ .*\/configure/!d' \
-    -e 's/^ *\$ .*\/configure *//' \
-    config.log`
-
-  ## Strip out configure switches that cause issue in RPM spec file
-  ## configure switch. Does not support spaces in paths
-  for a in $ConfigureArgs; do
-    case ${a} in
-      --srcdir=*|--cache-file=*|--prefix=*)
-        ;;
-      *)
-        CleanedArgs="$CleanedArgs $a"
-        ;;
-    esac 
-  done
-
-  AC_SUBST(CONFIGURE_OPTIONS, $CleanedArgs)
 ])
 
 dnl If SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED is included in configure.ac,
@@ -218,8 +165,8 @@ AC_DEFUN([SFAC_LIB_PORT],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/include'])
-        foundpath=${ac_default_prefix}/include
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/include'])
+        foundpath=${sf_prefix}/include
     fi
     SIPXPORTINC=$foundpath
     AC_SUBST(SIPXPORTINC)
@@ -237,8 +184,8 @@ AC_DEFUN([SFAC_LIB_PORT],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/include'])
-        foundpath=${ac_default_prefix}/include
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/include'])
+        foundpath=${sf_prefix}/include
     fi
     SIPXUNITINC=$foundpath
     AC_SUBST(SIPXUNITINC)
@@ -256,8 +203,8 @@ AC_DEFUN([SFAC_LIB_PORT],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/lib'])
-        foundpath=${ac_default_prefix}/lib
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/lib'])
+        foundpath=${sf_prefix}/lib
     fi
     AC_SUBST(SIPXPORT_LIBS, "$foundpath/libsipXport.la")
  
@@ -272,8 +219,8 @@ AC_DEFUN([SFAC_LIB_PORT],
         AC_MSG_RESULT($foundpath)
         # sipXunit unitesting support
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/lib'])
-        foundpath=${ac_default_prefix}/lib
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/lib'])
+        foundpath=${sf_prefix}/lib
     fi
     AC_SUBST(SIPXUNIT_LIBS,    "$foundpath/libsipXunit.la")
 
@@ -300,8 +247,8 @@ AC_DEFUN([SFAC_LIB_STACK],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/include'])
-        foundpath=${ac_default_prefix}/include
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/include'])
+        foundpath=${sf_prefix}/include
     fi
     SIPXTACKINC=$foundpath
     AC_SUBST(SIPXTACKINC)
@@ -320,8 +267,8 @@ AC_DEFUN([SFAC_LIB_STACK],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/lib'])
-        foundpath=${ac_default_prefix}/lib
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/lib'])
+        foundpath=${sf_prefix}/lib
     fi 
 
     SIPXTACKLIB=$foundpath
@@ -350,8 +297,8 @@ AC_DEFUN([SFAC_LIB_MEDIA],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/include'])
-        foundpath=${ac_default_prefix}/include
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/include'])
+        foundpath=${sf_prefix}/include
     fi
     SIPXMEDIAINC=$foundpath
     AC_SUBST(SIPXMEDIAINC)
@@ -370,8 +317,8 @@ AC_DEFUN([SFAC_LIB_MEDIA],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/lib'])
-        foundpath=${ac_default_prefix}/lib
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/lib'])
+        foundpath=${sf_prefix}/lib
     fi
     SIPXMEDIALIB=$foundpath
 
@@ -399,8 +346,8 @@ AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/include'])
-        foundpath=${ac_default_prefix}/include
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/include'])
+        foundpath=${sf_prefix}/include
     fi
     SIPXMEDIAINTERFACEINC=$foundpath
     AC_SUBST(SIPXMEDIAINTERFACEINC)
@@ -419,8 +366,8 @@ AC_DEFUN([SFAC_LIB_MEDIAADAPTER],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/lib'])
-        foundpath=${ac_default_prefix}/lib
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/lib'])
+        foundpath=${sf_prefix}/lib
     fi
     SIPXMEDIAADAPTERLIB=$foundpath
 
@@ -591,8 +538,8 @@ AC_DEFUN([SFAC_LIB_CALL],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/include'])
-        foundpath=${ac_default_prefix}/include
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/include'])
+        foundpath=${sf_prefix}/include
     fi
     SIPXCALLINC=$foundpath
     AC_SUBST(SIPXCALLINC)
@@ -611,8 +558,8 @@ AC_DEFUN([SFAC_LIB_CALL],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/lib'])
-        foundpath=${ac_default_prefix}/lib
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/lib'])
+        foundpath=${sf_prefix}/lib
     fi
     SIPXCALLLIB=$foundpath
 
@@ -641,8 +588,8 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/include'])
-        foundpath=${ac_default_prefix}/include
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/include'])
+        foundpath=${sf_prefix}/include
     fi
     SIPXCOMMSERVERINC=$foundpath
     if test "$SIPXCOMMSERVERINC" != "$SIPXPORTINC"
@@ -660,8 +607,8 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
     if test x_$foundpath != x_; then
         AC_MSG_RESULT($foundpath)
     else
-        AC_MSG_WARN([    assuming it will be in '${ac_default_prefix}/lib'])
-        foundpath=${ac_default_prefix}/lib
+        AC_MSG_WARN([    assuming it will be in '${sf_prefix}/lib'])
+        foundpath=${sf_prefix}/lib
     fi
     SIPXCOMMSERVERLIB=$foundpath
 
@@ -686,7 +633,7 @@ AC_DEFUN([SFAC_ARG_WITH_INCLUDE],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ include_path=$withval ],
-        [ include_path="$includedir ${ac_default_prefix}/include /usr/include /usr/local/include" ]
+        [ include_path="$includedir ${sf_prefix}/include /usr/include /usr/local/include" ]
     )
     foundpath=""
     for dir in $include_path ; do
@@ -720,7 +667,7 @@ AC_DEFUN([SFAC_ARG_WITH_LIB],
     AC_ARG_WITH( [$2],
         [ [$3] ],
         [ lib_path=$withval ],
-        [ lib_path="$libdir ${ac_default_prefix}/lib /usr/lib /usr/local/lib"]
+        [ lib_path="$libdir ${sf_prefix}/lib /usr/lib /usr/local/lib"]
     )
     foundpath=""
     for dir in $lib_path ; do

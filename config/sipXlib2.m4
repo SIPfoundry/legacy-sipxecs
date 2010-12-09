@@ -1,5 +1,7 @@
 # common directories and variables used in sipxecs
 AC_PREFIX_DEFAULT([/usr/local/sipx])
+# ${prefix} need double bash resolution to be useful, resolve it once here
+eval sf_prefix="${prefix}"
 
 AC_SUBST(SIPX_INCDIR, [${includedir}])
 AC_SUBST(SIPX_LIBDIR, [${libdir}])
@@ -16,7 +18,8 @@ AC_SUBST(SIPX_DBDIR,   [${localstatedir}/sipxdata/sipdb])
 AC_SUBST(SIPX_LOGDIR,  [${localstatedir}/log/sipxpbx])
 AC_SUBST(SIPX_RUNDIR,  [${localstatedir}/run/sipxpbx])
 AC_SUBST(SIPX_VARLIB,  [${localstatedir}/lib/sipxpbx])
-AC_SUBST(SIPX_RPM_CONFIGURE_OPTIONS,  [SIPXPBXUSER=sipxchange SIPXPBXGROUP=sipxchange])
+# sipx RPMs should be hardcoded to use sipxchange user for their sipx user, not the buildbot user
+AC_SUBST(SIPX_RPM_CONFIGURE_OPTIONS,  [SIPXPBXUSER=sipxchange])
 
 # Get the user to run sipX under.
 AC_ARG_VAR(SIPXPBXUSER, [The sipX service daemon user name, default is ${USER}])
