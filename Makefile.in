@@ -28,21 +28,19 @@ sipx.% :
 lib.% :
 	$(MAKE) $(foreach P,$(lib),$(P).$*)
 
-help.sipx.list=list all sipx components
+help.{sipx,lib}.list=list all sipx components
 lib.list sipx.list : %.list :
 	@echo $($*)
 
 include $(sort $(wildcard mak/*.mk))
 
-help.sipx...=Do all the items in the project list starting with the given package inclusive
+help.*[.*]...=Do given target all the project after the given project, inclusive. e.g. 'make sipXconfig.check...' or 'make sipXconfig...'
 $(foreach T,$(sipx),$(T).%...) :
 	$(MAKE) $(foreach T,$(call after,$(PROJ),$(sipx)),$(T).$*)
-
-help.lib...=Do all the items in the library list starting with the given package inclusive
 $(foreach T,$(lib),$(T).%...) :
 	$(MAKE) $(foreach T,$(call after,$(PROJ),$(lib)),$(T).$*)
 
 help.help-var = List help on special variables
 .PHONY: help help-var
 help help-var:
-	@$(foreach H,$(sort $(filter $@.%,$(.VARIABLES))), echo -e " $(H:help.%=%)\t$($H)";)
+	@$(foreach H,$(filter $@.%,$(sort $(.VARIABLES))), echo '$(H:help.%=%):$($(H))' | awk -F : '{printf("%-15s - %s\n", $$1, $$2);}';)
