@@ -15,7 +15,13 @@
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMImplementationLS.hpp>
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
-#include <xercesc/dom/DOMBuilder.hpp>
+#ifdef XERCES_2_8
+  #include <xercesc/dom/DOMBuilder.hpp>
+#else
+  #include <xercesc/parsers/DOMLSParserImpl.hpp>
+  #include <xercesc/dom/DOMLSParser.hpp>
+  #include <xercesc/dom/DOMConfiguration.hpp>
+#endif
 #include <xercesc/dom/DOMException.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
 #include <xercesc/dom/DOMError.hpp>
@@ -191,11 +197,6 @@ int main(int argC, char* argV[])
     }
 
     const char*                xmlFile = 0;
-    AbstractDOMParser::ValSchemes valScheme = AbstractDOMParser::Val_Always;
-
-    bool                       doNamespaces       = true;
-    bool                       doSchema           = true;
-    bool                       schemaFullChecking = true;
     bool                       doList = false;
     bool                       errorOccurred = false;
     char                       localeStr[64];
@@ -370,39 +371,39 @@ int main(int argC, char* argV[])
     // Instantiate the DOM parser.
     static const XMLCh gLS[] = { chLatin_L, chLatin_S, chNull };
     DOMImplementation *impl = DOMImplementationRegistry::getDOMImplementation(gLS);
+    XSDValidErrorHandler errorHandler;
+#ifdef XERCES_2_8
     DOMBuilder        *parser = ((DOMImplementationLS*)impl)->createDOMBuilder(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+    parser->setFeature(XMLUni::fgDOMNamespaces, true);
+    parser->setFeature(XMLUni::fgXercesSchema, true);
+    parser->setFeature(XMLUni::fgXercesSchemaFullChecking, true); 
+    parser->setFeature(XMLUni::fgDOMValidation, true);
+    parser->setFeature(XMLUni::fgDOMDatatypeNormalization, true); 
 
-    parser->setFeature(XMLUni::fgDOMNamespaces, doNamespaces);
-    parser->setFeature(XMLUni::fgXercesSchema, doSchema);
-    parser->setFeature(XMLUni::fgXercesSchemaFullChecking, schemaFullChecking);
-
-    if (valScheme == AbstractDOMParser::Val_Auto)
+    parser->setErrorHandler(&errorHandler);
+ 
+    if (!schemaLocationPairs.isNull())
     {
-        parser->setFeature(XMLUni::fgDOMValidateIfSchema, true);
+       XMLCh* propertyValue = XMLString::transcode(schemaLocationPairs.data());
+       parser->setProperty(XMLUni::fgXercesSchemaExternalSchemaLocation, propertyValue);
     }
-    else if (valScheme == AbstractDOMParser::Val_Never)
-    {
-        parser->setFeature(XMLUni::fgDOMValidation, false);
-    }
-    else if (valScheme == AbstractDOMParser::Val_Always)
-    {
-        parser->setFeature(XMLUni::fgDOMValidation, true);
-    }
+#else
+    DOMLSParserImpl    *parser = (DOMLSParserImpl*)((DOMImplementationLS*)impl)->createLSParser(DOMImplementationLS::MODE_SYNCHRONOUS, 0);
+    parser->setValidationScheme(AbstractDOMParser::Val_Always);
+    parser->setDoNamespaces(true);
+    parser->setParameter(XMLUni::fgDOMNamespaces, true);
+    parser->setParameter(XMLUni::fgXercesSchema, true);
+    parser->setParameter(XMLUni::fgXercesSchemaFullChecking, true);
+    parser->setParameter(XMLUni::fgXercesValidationErrorAsFatal, true);
+    parser->setParameter(XMLUni::fgDOMDatatypeNormalization, true);
+    parser->setParameter(XMLUni::fgDOMErrorHandler, &errorHandler);
 
     if (!schemaLocationPairs.isNull())
     {
        XMLCh* propertyValue = XMLString::transcode(schemaLocationPairs.data());
-       parser->setProperty(XMLUni::fgXercesSchemaExternalSchemaLocation,
-                           propertyValue
-                           );
+       parser->setParameter(XMLUni::fgXercesSchemaExternalSchemaLocation, propertyValue);
     }
-
-    // enable datatype normalization - default is off
-    parser->setFeature(XMLUni::fgDOMDatatypeNormalization, true);
-
-    // And create our error handler and install it
-    XSDValidErrorHandler errorHandler;
-    parser->setErrorHandler(&errorHandler);
+#endif
 
     //
     //  Get the starting time and kick off the parse of the indicated
