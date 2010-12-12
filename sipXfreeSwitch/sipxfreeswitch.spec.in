@@ -62,3 +62,10 @@ rm -rf $RPM_BUILD_ROOT
 freeswitch.sh --config
 if test -e %{_sysconfdir}/logrotate.d/freeswitch; then rm -f %{_sysconfdir}/logrotate.d/freeswitch; fi
 
+%triggerin -- freeswitch
+%if %{_vendor} == redhat
+/sbin/chkconfig freeswitch off
+%endif
+# may not be running, so eat stderr
+/etc/init.d/freeswitch stop 1>/dev/null
+
