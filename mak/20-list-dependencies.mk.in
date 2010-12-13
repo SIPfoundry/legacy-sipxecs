@@ -1,0 +1,76 @@
+# Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+# 
+# Determine software dependencies for building source by analyzing spec files.  #This does not build 
+# the dependencies themselves, see *-build.mk* for that.
+#
+lib.deps-% : LIB_REWRITE_DEPS = $(foreach P,$(lib),-e '/$(P)/Id')
+
+#
+# grep pulls deps for all distros, here we remove irrellevant ones for each distro
+#
+REWRITE_DEPS = \
+	-e "/$${proj}/d" \
+	-e '/%{\?name}\?/d' \
+	-e '/java-ibm.*/d'
+
+REWRITE_DEPS_redhat = \
+	$(REWRITE_DEPS) \
+	-e 's/java-1_6_0-sun-devel/java-devel/g' \
+	-e '/docbook-xsl-stylesheets/d' \
+	-e '/pwdutils/d' \
+	-e '/apache2-.*/d' \
+	-e '/libapr1-devel/d' \
+	-e '/lzo-devel/d' \
+	-e '/rubygem-postgres/d' \
+	-e '/cron/d'
+
+REWRITE_DEPS_centos_5 = \
+	$(REWRITE_DEPS_redhat) \
+	-e '/perl-ExtUtils-Embed/d'
+
+REWRITE_DEPS_fedora = \
+	$(REWRITE_DEPS_redhat) \
+	-e '/termcap/d'
+
+REWRITE_DEPS_suse = \
+	$(REWRITE_DEPS) \
+	-e '/docbook-style-xsl/d' \
+	-e '/httpd-.*/d' \
+	-e '/apr-devel/d' \
+	-e '/ruby-postgres/d' \
+	-e '/openldap-devel/d' \
+	-e '/vixiecron/d'
+
+# All fedoras have same dependencies as eachother. Assume future versions do too until proven otherwise.
+$(foreach T,10 11 12 13 14 15 16 17 18 19 20,$(eval REWRITE_DEPS_fedora_$(T) = $(REWRITE_DEPS_fedora)))
+
+help.{sipx,lib,*}.deps-list = List all dependencies to run a package(s).
+help.{sipx,lib,*}.deps-build-list = List all dependencies to build package(s).
+help.{sipx,lib,*}.deps-missing = List all dependencies to run a package(s) that are not currently installed on this system.
+help.{sipx,lib,*}.deps-missing-build-list = List all dependencies to build a package(s) that are not currently installed on this system.
+
+sipx.deps-% lib.deps-% : DEPS_TARGET=$(lastword $(subst ., ,$@))
+sipx.deps-% lib.deps-% : DEPS_LIST=$(firstword $(subst ., ,$@))
+# when listing all together, remove interdependencies from the group, make sence when you think about it
+$(foreach T,sipx lib,$(T).deps-list $(T).deps-missing $(T).deps-missing-build-list $(T).deps-build-list) :
+	@$(MAKE) --no-print-directory $(foreach T,$($(DEPS_LIST)),$(T).$(DEPS_TARGET)) | \
+	  sed $(foreach P,$(sipx),-e '/$(P)/Id') $(LIB_REWRITE_DEPS) | \
+	  sort -u
+
+%.deps-missing-build-list : DEPS_LIST_TARGET = deps-build-list
+%.deps-missing : DEPS_LIST_TARGET = deps-list
+$(foreach T,$(all),$(T).deps-missing $(T).deps-missing-build-list):
+	@rpm -q rpm `$(MAKE) --no-print-directory $(PROJ).$(DEPS_LIST_TARGET)` | grep 'is not installed' | awk '{print $$2}'
+
+%.deps-build-list : REQUIRES_TAG = BuildRequires
+%.deps-list : REQUIRES_TAG = Requires
+$(foreach T,$(all),$(T).deps-list $(T).deps-build-list):
+	@proj=$(call lowercase,$(PROJ)); \
+	  grep '^$(REQUIRES_TAG):' $(SRC)/$(PROJ)/$$proj.spec* | \
+	    sed \
+	        -e 's/$(REQUIRES_TAG)://' \
+	        -e 's/,/\n/g' \
+	        $(REWRITE_DEPS_@DISTRO@_@DISTRO_VER@) | \
+	    awk '{print $$1}' | \
+	    sort -u

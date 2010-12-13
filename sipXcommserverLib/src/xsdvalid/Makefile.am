@@ -13,6 +13,10 @@ xsdvalid_LDADD = \
 	@SIPXPORT_LIBS@ \
 	@XERCES_LIBS@
 
+xsdvalid_CPPFLAGS = \
+	@XERCES_CXXFLAGS@ \
+	$(AM_CFLAGS)
+
 xsdvalid_SOURCES = \
 	 ../../config/sipxcommserverlib-buildstamp.h \
 	 ../../config/sipxcommserverlib-buildstamp.cpp \

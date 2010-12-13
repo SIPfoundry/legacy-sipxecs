@@ -22,6 +22,7 @@ AC_CONFIG_FILES([
 	Makefile
 	mak/00-modules.mk
 	mak/05-build.mk
+	mak/20-list-dependencies.mk
 ])
 
 AC_OUTPUT

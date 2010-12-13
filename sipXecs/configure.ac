@@ -7,8 +7,6 @@ AC_CONFIG_AUX_DIR(config)
 
 AM_INIT_AUTOMAKE(foreign)
 
-SFAC_CONFIGURE_OPTIONS
-
 AC_CONFIG_FILES([
     Makefile
 ])

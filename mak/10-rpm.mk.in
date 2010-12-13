@@ -6,18 +6,21 @@ GIT_ID = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\
 # TODO: Determine RELEASE_ID automatically based on a number that increments
 RELEASE_ID = 1.$(GIT_ID)
 MOCK_REBUILD = mock -r @MOCK_TARGET_PLATFORM@ --no-clean --no-cleanup-after --resultdir=$(MOCK_RESULTS_DIR) --rebuild
+# variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
 
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
 $(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-$(RELEASE_ID).src.rpm))
 $(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@.tar.gz))
 
-$(foreach P,$(lib),$(eval include $(SRC)/$(P)/.sipxecs.mk))
+# pull in dependency make fragments
+include $(SRC)/*/.sipxecs.mk
 
-help.sipx.rpm = Experimental call to build rpms.
+help.*.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
+  http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
 $(foreach T,$(sipx) $(lib),$(T).rpm) : %.rpm : %.autoreconf %.configure %.dist %.srpm %.mock;
 
-help.sipx.srpm = Experimental call to build rpms
+help.*.srpm = Called automatically as port of rpm process after srpm target. Uses rpmbuild command after dist target
 %.srpm :
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
@@ -38,11 +41,12 @@ CopySourceFile = \
 	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \
 	fi; \
 
-# TIP : you should have a webserver pointed at $(MOCK_RESULTS_DIR) to feed the results of build back into the chroot'ed system.
+# TIP : you should have a webserver like thttpd pointed at $(MOCK_RESULTS_DIR) to feed the results of build back into the chroot'ed system.
 # or explore mounting $(MOCK_RESULTS_DIR) from the chroot system.
+help.*.mock = Called automatically as port of rpm process after srpm target. Uses mock program to build rpm
 %.mock :
-	cd $(MOCK_RESULTS_DIR); createrepo .
 	$(MOCK_REBUILD) -D 'buildno $(RELEASE_ID)' $($(PROJ)_SRPM)
+	cd $(MOCK_RESULTS_DIR); createrepo .
 
 TARGET_PLATFORM = $(strip \
 	$(subst fedora,Fedora, \

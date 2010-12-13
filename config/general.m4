@@ -2,19 +2,6 @@
 ## AC macros for general packages like OpenSSL, Xerces, etc
 ##
 
-# ============= A U T O C O N F ===============
-AC_DEFUN([CHECK_AUTOCONF],
-[
-    AC_PATH_PROG([AUTOCONF], autoconf)
-    AutoConfVersion=`autoconf --version | head -n 1 | sed 's/^.*)//'`
-    AX_COMPARE_VERSION($AutoConfVersion, eq, [2.58], 
-    [
-      AC_MSG_WARN(["Autoconf 2.58 was found on system.  If you are a maintainer of this library it has known incompatilities.  If you are not a maintainer, 2.58 has serious bugs and you should consider upgrading autoconf"])
-    ], 
-    [:])
-])
-
-
 # ============ C L O V E R  =======================
 AC_DEFUN([CHECK_CLOVER],
 [
@@ -459,20 +446,26 @@ AC_DEFUN([CHECK_COREAUDIO],
 
 # ============ X E R C E S ==================
 AC_DEFUN([CHECK_XERCES],
-[   AC_MSG_CHECKING([for xerces])
+[
+   AC_MSG_CHECKING([for xerces])
     AC_ARG_WITH(xerces,
                 [  --with-xerces=PATH to xerces source directory],
                 [xerces_path=$withval],
                 [xerces_path="/usr/local/xercesc /usr/lib/xercesc /usr/xercesc /usr/pkg /usr/local /usr"]
                 )
+    # try older version 2.8 version first
     for dir in $xerces_path ; do
         xercesdir="$dir"
-        if test -f "$dir/include/xercesc/sax/Parser.hpp"; then
+        if test -f "$dir/include/xercesc/dom/DOMBuilder.hpp"; then
             found_xerces="yes";
-            XERCES_CFLAGS="-I$xercesdir/include/xercesc";
+            XERCES_CFLAGS="-I$xercesdir/include -DXERCES_2_8";
             break;
         fi
-        if test -f "$dir/include/sax/Parser.hpp"; then
+    done
+    # set or upgrade them if 3.0+ version if found
+    for dir in $xerces_path ; do
+        xercesdir="$dir"
+        if test -f "$dir/include/xercesc/dom/DOMLSParser.hpp"; then
             found_xerces="yes";
             XERCES_CFLAGS="-I$xercesdir/include";
             break;
@@ -480,19 +473,14 @@ AC_DEFUN([CHECK_XERCES],
     done
 
     if test x_$found_xerces != x_yes; then
-        AC_MSG_ERROR(Cannot find xerces - looked for include/sax/Parser.hpp or include/xercesc/sax/Parser.hpp in $xerces_path )
+        AC_MSG_ERROR([Cannot find xerces - looked for include/xercesc/dom/DOMBuilder.hpp or /include/xercesc/dom/DOMBuilder.hpp in $xerces_path])
     else
         AC_MSG_RESULT($xercesdirm)
-
         AC_SUBST(XERCES_CFLAGS,"$XERCES_CFLAGS")
         AC_SUBST(XERCES_CXXFLAGS,"$XERCES_CFLAGS")
-
         AC_SUBST(XERCES_LIBS,["-lxerces-c"])
         AC_SUBST(XERCES_LDFLAGS,["-L$xercesdir/lib"])
     fi
-],
-[
-    AC_MSG_RESULT(yes)
 ])
 
 # ============ A P A C H E 2 ==================
@@ -601,80 +589,6 @@ AC_DEFUN([CHECK_APACHE2],
    fi
 ])dnl
 
-
-# ============ L I B W W W ==================
-AC_DEFUN([CHECK_LIBWWW],
-[   AC_MSG_CHECKING([for libwww])
-    AC_ARG_WITH(libwww,
-                [--with-libwww=PATH to libwww source directory],
-		[libwww_path=$withval],
-		[libwww_path="/usr/local/w3c-libwww /usr/lib/w3c-libwww /usr/w3c-libwww /usr/pkg /usr/local /usr"]
-                )
-    for dir in $libwww_path ; do
-        lwwwdir="$dir"
-        if test -f "$dir/include/w3c-libwww/WWWLib.h"; then
-            found_www="yes";
-            LIBWWW_CFLAGS="-I$lwwwdir/include/w3c-libwww";
-            LIBWWW_CXXFLAGS="-I$lwwwdir/include/w3c-libwww";
-            break;
-        fi
-        if test -f "$dir/include/WWWLib.h"; then
-            found_www="yes";
-            LIBWWW_CFLAGS="-I$lwwwdir/include";
-            LIBWWW_CXXFLAGS="-I$lwwwdir/include ";
-            break;
-        fi
-    done
-
-    if test x_$found_www != x_yes; then
-        AC_MSG_ERROR(not found; 'include/w3c-libwww/WWWLib.h' and 'include/WWWLib.h' not in any of: $libwww_path)
-    fi
-
-    if test ! -e "$dir/lib/libwwwapp.so" -a  ! -e "$dir/lib/libwwwapp.a" -a ! -e "$dir/lib64/libwwwapp.so" ;then
-        AC_MSG_ERROR(not found; 'libwwwapp.so' not in: $dir/lib or $dir/lib64)
-    fi
-    if test ! -e "$dir/lib/libwwwssl.so" -a  ! -e "$dir/lib/libwwwssl.a" -a ! -e "$dir/lib64/libwwwssl.so";then
-        AC_MSG_ERROR(not found; 'libwwwssl.so' not in: $dir/lib or $dir/lib64)
-    fi
-    if test x_$found_www = x_yes; then
-        AC_MSG_RESULT($lwwwdir)
-
-        AC_SUBST(LIBWWW_CFLAGS)
-        AC_SUBST(LIBWWW_CXXFLAGS)
-
-	# Several libraries appear in this list twice.  That is because there
-	# are circular dependencies between the libraries.
-        LIBWWW_LIBS="-lwwwapp -lwwwfile -lwwwhttp -lwwwssl -lwwwcore";
-        LIBWWW_LIBS="$LIBWWW_LIBS -lwwwinit -lwwwapp -lwwwhttp -lwwwcache -lwwwcore";
-        LIBWWW_LIBS="$LIBWWW_LIBS -lwwwfile -lwwwutils -lwwwmime -lwwwstream -lmd5";
-        LIBWWW_LIBS="$LIBWWW_LIBS -lpics -lwwwnews -lwwwdir -lwwwtelnet -lwwwftp";
-        LIBWWW_LIBS="$LIBWWW_LIBS -lwwwmux -lwwwhtml -lwwwgopher -lwwwtrans -lwwwzip";
-        LIBWWW_LIBS="$LIBWWW_LIBS -lwwwssl -lwwwxml";
-        # These two have been moved into something else in FC5, so check to see if they are there
-        if test -f $lwwwdir/lib/libxmlparse.so -o -f $lwwwdir/lib/libxmlparse.a
-        then
-           LIBWWW_LIBS="$LIBWWW_LIBS -lxmlparse"
-        fi
-        if test -f $lwwwdir/lib/libxmltok.so -o -f $lwwwdir/lib/libxmltok.a
-        then
-           LIBWWW_LIBS="$LIBWWW_LIBS -lxmltok"
-        fi
-        # SUSE needs separate libexpat.so
-        if test -f $lwwwdir/lib64/libexpat.so
-        then
-           LIBWWW_LIBS="$LIBWWW_LIBS -lexpat"
-        fi
-
-        AC_SUBST(LIBWWW_LIBS)
-
-        LIBWWW_LDFLAGS="-L$lwwwdir/lib";
-        AC_SUBST(LIBWWW_LDFLAGS)
-    fi
-],
-[
-    AC_MSG_RESULT(yes)
-])dnl
-
 # ================ ZLIB ================
 AC_DEFUN([CHECK_ZLIB],
 [
@@ -720,7 +634,8 @@ AC_DEFUN([CHECK_ZLIB],
 
 # ============ P C R E ==================
 AC_DEFUN([CHECK_PCRE],
-[   AC_MSG_CHECKING([for pcre])
+[
+    AC_MSG_CHECKING([for pcre])
     # Process the --with-pcre argument which gives the pcre base directory.
     AC_ARG_WITH(pcre,
                 [  --with-pcre=PATH path to pcre install directory],
@@ -1333,13 +1248,14 @@ AC_DEFUN([CHECK_ODBC],
 
 # ============ F R E E S W I T C H ==================
 AC_DEFUN([CHECK_FREESWITCH],
-[   AC_MSG_CHECKING([for FreeSWITCH])
+[
+    AC_MSG_CHECKING([for FreeSWITCH])
     AC_ARG_WITH(freeswitch,
                 [--with-freeswitch=PATH to FreeSWITCH install directory],
 		[freeswitch_path=$withval],
 		[freeswitch_path="/opt/freeswitch"]
                 )
-    for dir in $freeswitch_path ; do
+    for dir in $freeswitch_path /usr/local/freeswitch; do
         freeswitch_dir="$dir"
         if test -x "$dir/bin/freeswitch"; then
             found_freeswitch="yes";
@@ -1355,9 +1271,6 @@ AC_DEFUN([CHECK_FREESWITCH],
         AC_MSG_WARN([    assuming it will be in $freeswitch_dir])
     fi
     AC_SUBST(FREESWITCH_PREFIX, $freeswitch_dir)
-],
-[
-    AC_MSG_RESULT(yes)
 ])dnl
 
 # ================== COMPILER VENDOR ====================================

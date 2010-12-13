@@ -39,3 +39,11 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %{_datadir}/sipxecs/process.d/sipxopenacd-process.xml
 %attr(755,root,root) %{_bindir}/sipxopenacd
+
+%triggerin -- openacd
+# TODO: fixme once we figure out how to package openacd to run from current working dir that is not /opt/openacd
+# this will emit an error on non-sipx systems or if installed before sipxcommserverlib
+chown sipxchange:sipxchange /opt/openacd
+
+%postun
+[ $1 = 0 ] && chown root:root /opt/openacd

@@ -44,7 +44,6 @@ rm -rf $RPM_BUILD_ROOT
 for packed_jar in /opt/openfire/lib/*.jar.pack; do \
 	jar=${packed_jar%.pack}; \
 	unpack200 -r $packed_jar $jar; \
-	chown sipxchange:sipxchange $jar; \
 done;
 
 %files
