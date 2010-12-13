@@ -43,3 +43,20 @@ CopySourceFile = \
 %.mock :
 	cd $(MOCK_RESULTS_DIR); createrepo .
 	$(MOCK_REBUILD) -D 'buildno $(RELEASE_ID)' $($(PROJ)_SRPM)
+
+TARGET_PLATFORM = $(strip \
+	$(subst fedora,Fedora, \
+	$(subst centos,CentOS,@DISTRO@))_@DISTRO_VER@)
+
+repo-clean :
+	rm -rf repo
+
+REPO_FILTER_src = -name '*.src.rpm'
+REPO_FILTER_i386 = -name '*.noarch.rpm' -o -name '*.i386.rpm'
+REPO_FILTER_x86_64 = -name '*.noarch.rpm' -o -name '*.x86_64.rpm'
+
+MkDir = test -d $1 || mkdir -p $1
+
+repo-x86_64 repo-i386 repo-src : repo-% :
+	$(call MkDir, repo/$(TARGET_PLATFORM)/$*)
+	find $(MOCK_RESULTS_DIR) -maxdepth 1 \( $(REPO_FILTER_$*) \) -exec cp {} repo/$(TARGET_PLATFORM)/$* \;

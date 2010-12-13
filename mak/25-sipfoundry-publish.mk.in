@@ -5,7 +5,7 @@
 # Publishes rpms and ISOs to download.sipfoundry.org. 
 #
 SF_REMOTE_DIR = /vol/download/pub/sipXecs
-SF_SSH_DOWNLOAD = download@localhost
+SF_SSH_DOWNLOAD = download@download.sipfoundry.org
 SF_TARGET_DIR = $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)
 SfCommand = ssh $(SF_SSH_DOWNLOAD) '$(1)'
 SF_RSYNC_TARGET=$(SF_SSH_DOWNLOAD):
