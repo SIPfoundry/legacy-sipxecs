@@ -30,7 +30,10 @@ AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
   test -n "${DOWNLOAD_LIB_URL}" || DOWNLOAD_LIB_URL=http://download.sipfoundry.org/pub/sipXecs/libs
 
   AC_ARG_VAR(MOCK_TARGET_PLATFORM, [Config template in /etc/mock to build for. default is 'default'])
-  test -n "${MOCK_TARGET_PLATFORM}" || MOCK_TARGET_PLATFORM="default"
+  test -n "${MOCK_TARGET_PLATFORM}" || MOCK_TARGET_PLATFORM=default
+
+  AC_ARG_VAR(RPM_DIST_DIR, [Where to assemble final set of RPMs and SRPMs in preparation for publishing to a download server.])
+  test -n "${RPM_DIST_DIR}" || RPM_DIST_DIR=repo
 
   AC_CONFIG_FILES([mak/10-rpm.mk])
 ])

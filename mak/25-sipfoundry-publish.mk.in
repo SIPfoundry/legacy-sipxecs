@@ -17,7 +17,7 @@ S3_BUCKET = s3://sipXecs-pub
 # R P M
 
 help.publish-rpms = Push repo for $(TARGET_PLATFORM) version @PACKAGE_VERSION@ to sipfoundry download directory
-publish-rpms : publish-check-repo publish-$(TARGET_PLATFORM) publish-repofile
+publish-rpms : publish-check-repo publish-$(TARGET_PLATFORM) publish-repofile;
 
 %.rpmlist :
 	! test -f $@.tmp || rm $@.tmp

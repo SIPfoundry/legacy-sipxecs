@@ -8,6 +8,7 @@ RELEASE_ID = 1.$(GIT_ID)
 MOCK_REBUILD = mock -r @MOCK_TARGET_PLATFORM@ --no-clean --no-cleanup-after --resultdir=$(MOCK_RESULTS_DIR) --rebuild
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
+REPO_DIR = repo
 
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
 $(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-$(RELEASE_ID).src.rpm))
@@ -52,15 +53,21 @@ TARGET_PLATFORM = $(strip \
 	$(subst fedora,Fedora, \
 	$(subst centos,CentOS,@DISTRO@))_@DISTRO_VER@)
 
-repo-clean :
-	rm -rf repo
-
 REPO_FILTER_src = -name '*.src.rpm'
 REPO_FILTER_i386 = -name '*.noarch.rpm' -o -name '*.i386.rpm'
 REPO_FILTER_x86_64 = -name '*.noarch.rpm' -o -name '*.x86_64.rpm'
 
-MkDir = test -d $1 || mkdir -p $1
+# Recursive delete of given directory if it exists. Then make a new directory.
+MakeFreshDirectory = test ! -d $1 || rm -rf $1; mkdir -p $1
+
+help.repo = Assemble all RPMs and SRPMs into @RPM_DIST_DIR@/$(TARGET_PLATFORM)/@TARGET_ARCH@ for publishing to a download server. Does not guarantee all RPMs have been built, it just assembles what it finds from the build output. The publish phase is currently responsible for checking the results before uploading.
+
+.PHONY: repo
+repo : repo-@TARGET_ARCH@;
 
 repo-x86_64 repo-i386 repo-src : repo-% :
-	$(call MkDir, repo/$(TARGET_PLATFORM)/$*)
-	find $(MOCK_RESULTS_DIR) -maxdepth 1 \( $(REPO_FILTER_$*) \) -exec cp {} repo/$(TARGET_PLATFORM)/$* \;
+	$(call MakeFreshDirectory, @RPM_DIST_DIR@/$(TARGET_PLATFORM)/$*)
+	find $(MOCK_RESULTS_DIR) -maxdepth 1 \( $(REPO_FILTER_$*) \) -exec cp {} @RPM_DIST_DIR@/$(TARGET_PLATFORM)/$* \;
+
+# FUTURE...
+# Use mock to verify all dependencies have been built and are available.
