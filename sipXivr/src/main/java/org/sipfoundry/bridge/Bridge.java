@@ -85,6 +85,7 @@ public class Bridge {
         sipReqUri += ";";
         sipReqUri += sipReqParams;
         m_fses.invoke(new Set(m_fses, "export_vars", "variable_sip_from_uri, Channel-Caller-ID-Number"));
+        m_fses.invoke(new Set(m_fses, "hangup_after_bridge", "true"));
         m_fses.invoke(new BridgeCommand(m_fses, sipReqUri, domain));
     }
  
