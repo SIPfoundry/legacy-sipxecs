@@ -76,11 +76,10 @@ public class VoiceMail {
      * @param parameters The parameters from the sip URI (to determine locale and which action
      *        to run)
      */
-    public VoiceMail(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses, String uuid,
+    public VoiceMail(IvrConfiguration ivrConfig, FreeSwitchEventSocketInterface fses,
             Hashtable<String, String> parameters) {
         this.m_ivrConfig = ivrConfig;
         this.m_fses = fses;
-        this.m_uuid = uuid;
         this.m_parameters = parameters;
         
         // Look for "locale" parameter
@@ -89,6 +88,9 @@ public class VoiceMail {
             // Okay, try "lang" instead
             localeString = m_parameters.get("lang");
         }
+        
+        // Set the UUID to be used for transfers
+        this.m_uuid = m_parameters.get("uuid");
                 
         try {
             m_locStd = new Localization("VoiceMail", localeString, 
@@ -392,8 +394,14 @@ public class VoiceMail {
                 dest = extensionToUrl(dest) ;
             }
 
-            LOG.info("Transfer on falure to " + dest);
-            new Transfer(m_fses, dest).go();
+            LOG.info("Transfer on failure to " + dest);
+            Transfer xfer = null;
+            if (m_uuid != null) {
+              xfer = new Transfer(m_fses, m_uuid, dest);
+            } else {
+              xfer = new Transfer(m_fses, dest);
+            }
+            xfer.go();
         }
 
         goodbye() ;
