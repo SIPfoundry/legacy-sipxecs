@@ -2,8 +2,10 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(sipXportLib, 0.0.4.5.1, sipx-dev@list.sipfoundry.org) 
-
+# generate version and build number from git
+AC_INIT(sipXportLib,
+  m4_esyscmd([config/git-version-gen .tarball-version]),
+  sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
@@ -11,7 +13,6 @@ m4_include([config/sipXlib.m4])
 
 AM_INIT_AUTOMAKE(foreign)
 SFAC_AUTOMAKE_VERSION([1.6])
-CHECK_AUTOCONF
 
 AC_CONFIG_SRCDIR([src/os/OsConfigDb.cpp])
 AM_CONFIG_HEADER([config.h])

@@ -35,3 +35,10 @@ DISTCLEANFILES = \
 	autom4te.cache/requests \
 	autom4te.cache/traces.0 \
 	autom4te.cache/traces.1
+
+BUILT_SOURCES = $(top_srcdir)/.version
+$(top_srcdir)/.version:
+	echo $(VERSION) > $@-t && mv $@-t $@
+
+dist-hook:
+	echo $(VERSION) > $(distdir)/.tarball-version
