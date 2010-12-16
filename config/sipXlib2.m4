@@ -1,7 +1,8 @@
 # common directories and variables used in sipxecs
 AC_PREFIX_DEFAULT([/usr/local/sipx])
-# ${prefix} need double bash resolution to be useful, resolve it once here
-eval sf_prefix="${prefix}"
+
+# This is a "common fix" to a "known issue" with using ${prefix} variable
+sf_prefix=`test "$prefix" = NONE && prefix=$ac_default_prefix; eval echo "${sysconfdir}"`
 
 AC_SUBST(SIPX_INCDIR, [${includedir}])
 AC_SUBST(SIPX_LIBDIR, [${libdir}])
