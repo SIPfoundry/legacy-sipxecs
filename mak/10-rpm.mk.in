@@ -2,12 +2,13 @@
 # Licensed to the User under the LGPL license.
 # 
 MOCK_RESULTS_DIR = ./
+MOCK_TARGET_PLATFORM = @MOCK_TARGET_PLATFORM@
 GIT_ID = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1)
 # TODO: Determine RELEASE_ID automatically based on a number that increments
 RELEASE_ID = 1.$(GIT_ID)
-MOCK_REBUILD = mock -r @MOCK_TARGET_PLATFORM@ --no-clean --no-cleanup-after --resultdir=$(MOCK_RESULTS_DIR) --rebuild
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
+RPM_DIST_DIR = @RPM_DIST_DIR@
 REPO_DIR = repo
 
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
@@ -42,16 +43,25 @@ CopySourceFile = \
 	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \
 	fi; \
 
-# TIP : you should have a webserver like thttpd pointed at $(MOCK_RESULTS_DIR) to feed the results of build back into the chroot'ed system.
+mock-init :
+	mock -r $(MOCK_TARGET_PLATFORM) --init
+
+# TIP : you should have a webserver pointed at $(MOCK_RESULTS_DIR) to feed the results of build back into the chroot'ed system.
 # or explore mounting $(MOCK_RESULTS_DIR) from the chroot system.
 help.*.mock = Called automatically as port of rpm process after srpm target. Uses mock program to build rpm
 %.mock :
-	$(MOCK_REBUILD) -D 'buildno $(RELEASE_ID)' $($(PROJ)_SRPM)
 	cd $(MOCK_RESULTS_DIR); createrepo .
+	mock -r $(MOCK_TARGET_PLATFORM) \
+	  --no-clean \
+	  --no-cleanup-after \
+	  --resultdir=$(MOCK_RESULTS_DIR) \
+	  --rebuild \
+	  -D 'buildno $(RELEASE_ID)' \
+	  $($(PROJ)_SRPM)
 
 TARGET_PLATFORM = $(strip \
 	$(subst fedora,Fedora, \
-	$(subst centos,CentOS,@DISTRO@))_@DISTRO_VER@)
+	$(subst centos,CentOS,$(DISTRO)))_$(DISTRO_VER))
 
 REPO_FILTER_src = -name '*.src.rpm'
 REPO_FILTER_i386 = -name '*.noarch.rpm' -o -name '*.i386.rpm'
@@ -60,14 +70,13 @@ REPO_FILTER_x86_64 = -name '*.noarch.rpm' -o -name '*.x86_64.rpm'
 # Recursive delete of given directory if it exists. Then make a new directory.
 MakeFreshDirectory = test ! -d $1 || rm -rf $1; mkdir -p $1
 
-help.repo = Assemble all RPMs and SRPMs into @RPM_DIST_DIR@/$(TARGET_PLATFORM)/@TARGET_ARCH@ for publishing to a download server. Does not guarantee all RPMs have been built, it just assembles what it finds from the build output. The publish phase is currently responsible for checking the results before uploading.
-
 .PHONY: repo
-repo : repo-@TARGET_ARCH@;
+help.repo = Assemble all RPMs and SRPMs into $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/$(DISTRO_ARCH) for publishing to a download server. Does not guarantee all RPMs have been built, it just assembles what it finds from the build output. The publish phase is currently responsible for checking the results before uploading.
+repo : repo-$(DISTRO_ARCH);
 
 repo-x86_64 repo-i386 repo-src : repo-% :
-	$(call MakeFreshDirectory, @RPM_DIST_DIR@/$(TARGET_PLATFORM)/$*)
-	find $(MOCK_RESULTS_DIR) -maxdepth 1 \( $(REPO_FILTER_$*) \) -exec cp {} @RPM_DIST_DIR@/$(TARGET_PLATFORM)/$* \;
+	$(call MakeFreshDirectory, $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/$*)
+	find $(MOCK_RESULTS_DIR) -maxdepth 1 \( $(REPO_FILTER_$*) \) -exec cp {} $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/$* \;
 
 # FUTURE...
 # Use mock to verify all dependencies have been built and are available.

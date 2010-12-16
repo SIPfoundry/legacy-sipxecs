@@ -18,7 +18,7 @@ $(foreach T,$(all),$(T)) : % : %.build;
 $(foreach T,$(all),$(T)...) : %... : %.build...;
 $(foreach T,$(all),$(T).build) : %.build : %.autoreconf %.configure %.all-install ;
 
-help.{sipx,sipX*}.all-install=Run "make all install" in each target
+help.{sipx,sipX*}.all-install=Run 'make all install' in each target
 $(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
 
 help.*.configure = Run configure on each project

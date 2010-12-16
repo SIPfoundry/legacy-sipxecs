@@ -1,0 +1,93 @@
+CI_MOCK_TARGETS = \
+	centos-5-i386 \
+	centos-5-x86_64 \
+	fedora-14-i386 \
+	fedora-14-x86_64
+
+CI_TARGETS = $(foreach B,$(CI_MOCK_TARGETS),ci.$(B))
+
+ci.% : CI_MOCK_TARGET = $(word 2,$(subst ., ,$@))
+ci.% : CI_DISTRO = $(firstword $(subst -, ,$(CI_MOCK_TARGET)))
+ci.% : CI_DISTRO_VER = $(word 2,$(subst -, ,$(CI_MOCK_TARGET)))
+ci.% : CI_DISTRO_ARCH = $(word 3,$(subst -, ,$(CI_MOCK_TARGET)))
+
+help.ci-list = List all available CI (continuous integration) targets
+ci-list :
+	@echo $(CI_TARGETS)
+
+help.ci-all = Build all targets CI targets $(CI_TARGETS)
+ci-all : $(CI_TARGETS);
+
+$(foreach T,$(CI_TARGETS),$(eval help.$(T)=Complete build for respective distribution, version and architecture))
+$(CI_TARGETS) : ci.% : ci-clean /etc/mock/sipx-%.cfg ci.%.init ci.%.lib ci.%.sipx ci.%.repo ci-publish
+
+ci.% : SUBMAKE_VARS=DISTRO=$(CI_DISTRO) DISTRO_VER=$(CI_DISTRO_VER) MOCK_TARGET_PLATFORM=sipx-$(CI_MOCK_TARGET) DISTRO_ARCH=$(CI_DISTRO_ARCH)
+
+help.ci-clean = Delete all RPMs 
+ci-clean :
+	find $(MOCK_RESULTS_DIR)  -maxdepth 1 -name '*.rpm' -exec rm {} \;
+
+ci-publish :
+
+help.ci.*.init = First part of CI build - initialize mock can repos
+ci.%.init :
+	killall thttpd
+	cd @MIRROR_DIR@; /usr/sbin/thttpd -p 40101
+	cd $(MOCK_RESULTS_DIR); /usr/sbin/thttpd -p 40100
+	cd $(MOCK_RESULTS_DIR); createrepo .
+	$(MAKE) mock-init $(SUBMAKE_VARS)
+
+help.ci.*.lib = Second part of CI build - the libs rpms
+ci.%.lib:
+	$(MAKE) lib.rpm $(SUBMAKE_VARS)
+
+help.ci.*.sipx = Third part of CI build - the sipXecs rpms
+ci.%.sipx:
+	$(MAKE) sipx.rpm $(SUBMAKE_VARS)
+
+help.ci.*.repo = Last part of CI build - add to the final repository @RPM_DIST_DIR@, ready for publishing. See repo help for more information
+ci.%.repo :
+	$(MAKE) repo $(SUBMAKE_VARS)
+
+# will need root for this
+help.ci.setup=Register mock templates. To be run once on a build machine by someone with r/w permissions to /etc/mock. Root is fine. Idempotent.
+ci-setup : $(foreach B,$(CI_MOCK_TARGETS),/etc/mock/sipx-$(B).cfg);
+
+# Will need proper permissions, not allowed by default, even when in mock user group. 
+/etc/mock/% : $(SRC)/mak/continuous-integration/%
+	cp $< $@
+
+# Mirrors of distros so builds are efficient.  Mirrors are not strictly nec, but doing so many builds on so many platforms
+# you really wouldn't want to download rpms more than nec.
+COMMON_RSYNC_EXCLUDE = \
+	'*.iso' \
+	'**/SRPMS/**' \
+	'**/source/**' \
+	'*.src.rpm' \
+	'*.drpm'
+
+CENTOS_MIRROR_RSYNC_URL = rsync://mirrors.rit.edu/centos
+CENTOS_RSYNC_EXCLUDE = $(foreach X, \
+	$(COMMON_RSYNC_EXCLUDE) \
+	,--exclude $(X))
+
+FEDORA_MIRROR_RSYNC_URL = rsync://mirrors.reflected.net/fedora/linux
+FEDORA_RSYNC_EXCLUDE =  $(foreach X,\
+	$(COMMON_RSYNC_EXCLUDE) \
+	'**/jigdo/**' \
+	'**/debug/**' \
+	'**/ppc/**' \
+	'**/ppc64/**' \
+	'**/Live/**' \
+	,--exclude $(X))
+
+ci-mirror : ci.centos-5.mirror ci.fedora-14.mirror;
+
+ci-mirror.centos-5 :
+	test -d @MIRROR_DIR@/centos/5.5 || mkdir -p @MIRROR_DIR@/centos/5.5
+	rsync -az --delete $(CENTOS_RSYNC_EXCLUDE) $(CENTOS_MIRROR_RSYNC_URL)/5.5/ @MIRROR_DIR@/centos/5.5/
+
+ci-mirror.fedora-% :
+	test -d @MIRROR_DIR@/fedora/releases/$*/ || mkdir -p @MIRROR_DIR@/fedora/releases/$*/
+	rsync -az --delete $(FEDORA_RSYNC_EXCLUDE) $(FEDORA_MIRROR_RSYNC_URL)/releases/$*/ @MIRROR_DIR@/fedora/releases/$*/
+	rsync -az --delete $(FEDORA_RSYNC_EXCLUDE) $(FEDORA_MIRROR_RSYNC_URL)/updates/$*/ @MIRROR_DIR@/fedora/updates/$*/

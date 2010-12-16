@@ -3,6 +3,7 @@
 # 
 # order is import for some of these as afar as building dependencies first
 # consult spec files for authority on dependencies before changing the order
+
 sipx = \
   sipXportLib \
   sipXtackLib \
@@ -69,6 +70,6 @@ lib_centos_5 = \
   xerces-c \
   stunnel
 
-lib = $(lib_@DISTRO@_@DISTRO_VER@)
+lib = $(lib_$(DISTRO)_$(DISTRO_VER))
 
 all =  $(lib) $(sipx)

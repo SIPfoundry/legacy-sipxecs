@@ -1,25 +1,33 @@
 dnl Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 dnl Licensed to the User under the LGPL license.
 dnl
+
+dnl NOTE: To support non-rpm based distos, write equivalent of this that defines DISTRO_* vars
 AC_CHECK_FILE(/bin/rpm, 
 [
   RPMBUILD_TOPDIR="\$(shell rpm --eval '%{_topdir}')"
   AC_SUBST(RPMBUILD_TOPDIR)
 
-  TARGET_ARCH=`rpm --eval '%{_target_cpu}'`
-  AC_SUBST(TARGET_ARCH)
-
   RPM_DIST=`rpm --eval '%{?dist}'`
   AC_SUBST(RPM_DIST)
 
-  dnl NOTE LIMITATION: doesn't account for distros besides centos, redhat and suse or redhat 6
-  DISTRO=`rpm --eval '%{?fedora:fedora}%{!?fedora:%{?suse_version:suse}%{!?suse_version:centos}}'`
-  AC_SUBST(DISTRO)
+  DistroArchDefault=`rpm --eval '%{_target_cpu}'`
 
-  dnl NOTE LIMITATION: doesn't account for distros besides centos, redhat and suse or redhat 6
-  DISTRO_VER=`rpm --eval '%{?fedora:%fedora}%{!?fedora:%{?suse_version:%suse_version}%{!?suse_version:5}}'`
-  AC_SUBST(DISTRO_VER)
+  dnl NOTE LIMITATION: default doesn't account for distros besides centos, redhat and suse or redhat 6
+  DistroDefault=`rpm --eval '%{?fedora:fedora}%{!?fedora:%{?suse_version:suse}%{!?suse_version:centos}}'`
+
+  dnl NOTE LIMITATION: default doesn't account for distros besides centos, redhat and suse or redhat 6
+  DistroVerDefault=`rpm --eval '%{?fedora:%fedora}%{!?fedora:%{?suse_version:%suse_version}%{!?suse_version:5}}'`
 ])
+
+AC_ARG_VAR(DISTRO_ARCH, [What CPU architecture you are compiling for. Default is ${DistroArchDefault}])
+test -n "${DISTRO_ARCH}" || DISTRO_ARCH="${DistroArchDefault:-unknown}"
+
+AC_ARG_VAR(DISTRO, [What operating system you are compiling for. Default is ${DistroDefault}])
+test -n "${DISTRO}" || DISTRO="${DistroDefault:-unknown}"
+
+AC_ARG_VAR(DISTRO_VER, [What operating system version you are compiling for. Default is ${DistroVerDefault}])
+test -n "${DISTRO_VER}" || DISTRO_VER="${DistroVerDefault:-unknown}"
 
 AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
 [

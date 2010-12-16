@@ -6,7 +6,7 @@
 #
 SF_REMOTE_DIR = /vol/download/pub/sipXecs
 SF_SSH_DOWNLOAD = download@download.sipfoundry.org
-SF_TARGET_DIR = $(SF_REMOTE_DIR)/@PACKAGE_VERSION@/$(TARGET_PLATFORM)
+SF_TARGET_DIR = $(SF_REMOTE_DIR)/@PACKAGE_VERSION@
 SfCommand = ssh $(SF_SSH_DOWNLOAD) '$(1)'
 SF_RSYNC_TARGET=$(SF_SSH_DOWNLOAD):
 TARGET_DISTRO = $(firstword $(subst _, ,$(TARGET_PLATFORM)))
@@ -17,11 +17,11 @@ S3_BUCKET = s3://sipXecs-pub
 # R P M
 
 help.publish-rpms = Push repo for $(TARGET_PLATFORM) version @PACKAGE_VERSION@ to sipfoundry download directory
-publish-rpms : publish-check-repo publish-$(TARGET_PLATFORM) publish-repofile;
+publish-rpms : publish-check-repo publish-$(TARGET_PLATFORM) publish-repofile-$(TARGET_DISTRO);
 
 %.rpmlist :
 	! test -f $@.tmp || rm $@.tmp
-	@for f in $(shell find repo/$(TARGET_PLATFORM) -name '*.rpm'); do \
+	@for f in $(shell find @RPM_DIST_DIR@/$(TARGET_PLATFORM) -name '*.rpm'); do \
 	  echo -n `dirname $$f`/ >> $@.tmp; \
 	  rpm -qi -p $$f 2>/dev/null | head -1 | awk '{print $$3}' >>$@.tmp; \
 	done
@@ -30,30 +30,27 @@ publish-rpms : publish-check-repo publish-$(TARGET_PLATFORM) publish-repofile;
 
 # Compare the list that was first uploaded from this machine with the new list you're uploading. If there are
 # any differences to the packages that are uploaded, complain and abort
-publish-check-repo : repo/$(TARGET_PLATFORM).expected.rpmlist
-	$(MAKE) -B repo/$(TARGET_PLATFORM).actual.rpmlist
-	@if ! diff -u repo/$(TARGET_PLATFORM).expected.rpmlist repo/$(TARGET_PLATFORM).actual.rpmlist; then \
-	  echo "\nDifferences in expected rpms. Please review then type 'rm repo/$(TARGET_PLATFORM).expected.rpmlist' to override"; exit 1; \
+publish-check-repo : @RPM_DIST_DIR@/$(TARGET_PLATFORM).expected.rpmlist
+	$(MAKE) -B @RPM_DIST_DIR@/$(TARGET_PLATFORM).actual.rpmlist
+	@if ! diff -u @RPM_DIST_DIR@/$(TARGET_PLATFORM).expected.rpmlist @RPM_DIST_DIR@/$(TARGET_PLATFORM).actual.rpmlist; then \
+	  echo "\nDifferences in expected rpms. Please review then type 'rm @RPM_DIST_DIR@/$(TARGET_PLATFORM).expected.rpmlist' to override"; exit 1; \
 	else \
 	  echo "no differences found"; \
 	fi
 
-publish-create-destination-dir :
-	$(call SfCommand, test -d $(SF_TARGET_DIR) || mkdir -p $(SF_TARGET_DIR))
-
-publish-CentOS_5 : publish-create-destination-dir
-	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ $(SF_RSYNC_TARGET)$(SF_TARGET_DIR)/
+publish-CentOS_5 :
+	$(call SfCommand, test -d $(SF_TARGET_DIR)/CentOS_5 || mkdir -p $(SF_TARGET_DIR)/CentOS_5)
+	rsync --delete --archive --no-owner --verbose @RPM_DIST_DIR@/CentOS_5/ $(SF_RSYNC_TARGET)$(SF_TARGET_DIR)/CentOS_5/
 	$(foreach ARCH,$(BASE_ARCH), $(call SfCommand, cd $(SF_TARGET_DIR)/$(ARCH); createrepo .);)
 
-# Assumes this machine is Fedora 11 or 12 and that Fedora 11/12 repo metadata is forwards and/or backwards compatible
 publish-Fedora_% : publish-create-destination-dir
-	$(foreach ARCH,$(BASE_ARCH), createrepo repo/$(TARGET_PLATFORM)/$(ARCH);)
-	rsync --delete --archive --no-owner --verbose repo/$(TARGET_PLATFORM)/ $(SF_RSYNC_TARGET)$(SF_TARGET_DIR)/
+	$(call SfCommand, test -d $(SF_TARGET_DIR)/Fedora_$* || mkdir -p $(SF_TARGET_DIR)/Fedora_$*)
+	$(foreach ARCH,$(BASE_ARCH), createrepo @RPM_DIST_DIR@/Fedora_$*/$(ARCH);)
+	rsync --delete --archive --no-owner --verbose @RPM_DIST_DIR@/Fedora_$*/ $(SF_RSYNC_TARGET)$(SF_TARGET_DIR)/Fedora_$*/
 
-publish-repofile :
+publish-repofile_% :
 	echo "$$repofile_contents" | $(call SfCommand, \
-	  cat > $(SF_REMOTE_DIR)/sipxecs-@PACKAGE_VERSION@-$(call lowercase,$(TARGET_DISTRO)).repo)
-
+	  cat > $(SF_REMOTE_DIR)/sipxecs-@PACKAGE_VERSION@-$(call lowercase,$*).repo)
 
 ##############
 # I S O

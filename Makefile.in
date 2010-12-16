@@ -3,8 +3,9 @@
 # 
 SRC = $(abspath @srcdir@)
 
-PLATFORM = $(shell cat /etc/issue | head -1 | awk '{print $$1}')
-PLATFORM_VER = $(shell cat /etc/issue | head -1 | awk '{print $$3}')
+DISTRO=@DISTRO@
+DISTRO_VER=@DISTRO_VER@
+DISTRO_ARCH=@DISTRO_ARCH@
 
 LastRev = $(firstword $(shell cd $(SRC); git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1) 0)
 
@@ -43,4 +44,17 @@ $(foreach T,$(lib),$(T).%...) :
 help.help-var = List help on special variables
 .PHONY: help help-var
 help help-var:
-	@$(foreach H,$(filter $@.%,$(sort $(.VARIABLES))), echo '$(H:help.%=%):$($(H))' | awk -F : '{printf("%-15s - %s\n", $$1, $$2);}';)
+	@$(foreach H,$(filter $@.%,$(sort $(.VARIABLES))), echo "$$format_help" | Label="$(H:help.%=%)" Text="$($(H))" bash;)
+
+define format_help
+MARGIN=18
+WIDTH=`tput cols`
+HELP_WIDTH=`echo $$[$${WIDTH} - $${MARGIN}]`
+export TEXT=`echo "$${Text}" | fold -s -w $${HELP_WIDTH} | sed -e "2,10s|^|                  |g"`
+export LABEL="$${Label}"
+echo | awk '{printf("%-15s - %s\n", ENVIRON["LABEL"], ENVIRON["TEXT"]);}'
+endef
+export format_help
+
+
+
