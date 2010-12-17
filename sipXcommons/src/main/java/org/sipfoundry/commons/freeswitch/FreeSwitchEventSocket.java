@@ -18,10 +18,10 @@ import java.util.Vector;
 /**
  * The nitty-gritty handling of data to and from the socket that came from a FreeSwitch "outbound"
  * call.
- * 
+ *
  * Deals with marshalling the data into FreeSwitchEvents, and blocks waiting for commands to
  * finish.
- * 
+ *
  */
 public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
     private Socket m_clientSocket;
@@ -36,7 +36,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
     /**
      * Given the socket from a FreeSwitch "outbound" call, do the "connect" dance to collect all
      * the variables FreeSwitch reports.
-     * 
+     *
      * Enable FreeSwitch to report async events of interest.
      */
     public boolean connect(Socket socket) throws IOException {
@@ -46,7 +46,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
     /**
      * Given the socket from a FreeSwitch "outbound" call, do the "connect" dance to collect all
      * the variables FreeSwitch reports.
-     * 
+     *
      * Enable FreeSwitch to report async events of interest.
      */
     public boolean connect(Socket socket, String authPassword) throws IOException {
@@ -95,9 +95,9 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
 
     /**
      * Send a command to FreeSwitch and await the response.
-     * 
+     *
      * Any events sent before the response arrives are queued on the eventQueue.
-     * 
+     *
      */
     public FreeSwitchEvent cmdResponse(String cmd) {
         LOG.debug("FSES::cmdResponse " + cmd);
@@ -125,9 +125,9 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
 
     /**
      * Send an api command to FreeSwitch and await the response.
-     * 
+     *
      * Any events sent before the response arrives are queued on the eventQueue.
-     * 
+     *
      */
     public FreeSwitchEvent apiCmdResponse(String cmd) {
         LOG.debug("FSES::apiCmdResponse " + cmd);
@@ -155,7 +155,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
 
     /**
      * Block waiting for an event to arrive on the socket.
-     * 
+     *
      */
     public FreeSwitchEvent awaitLiveEvent() {
         FreeSwitchEvent event = null;
@@ -218,7 +218,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
 
     /**
      * Close the connection to FreeSwitch (ends the call)
-     * 
+     *
      */
     public void close() throws IOException {
         m_clientSocket.close();
