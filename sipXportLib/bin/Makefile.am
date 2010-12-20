@@ -3,8 +3,7 @@ include $(top_srcdir)/config/subdir.am
 TESTS = sipx-upgrade-testsuite
 
 bin_SCRIPTS = \
-   ${PACKAGE}-config \
-   sipx-config \
+	sipx-config \
 	sipx-upgrade
 
 check_SCRIPTS = sipx-upgrade-testsuite
@@ -32,14 +31,4 @@ sipx-upgrade-testsuite: sipx-upgrade shell-unit $(srcdir)/sipx-upgrade-testsuite
 	@$(LocalizeSipXconfig) $(srcdir)/sipx-upgrade-testsuite.in > $@
 	chmod +x $@
 
-$(top_builddir)/BUILDSTAMP:
-	${MAKE} -C $(top_builddir) BUILDSTAMP
-
-${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
-	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
-	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
-	    $(top_srcdir)/config/sipX-config.in \
-	  > ${PACKAGE}-config
-	chmod +x ${PACKAGE}-config
-
-DISTCLEANFILES = Makefile.in sipxportlib-config config.h.in
+DISTCLEANFILES = Makefile.in config.h.in

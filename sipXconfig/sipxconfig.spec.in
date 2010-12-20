@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Release: @PACKAGE_REVISION@
 
 Summary:  Configuration Management for SIP
 License:  LGPL
@@ -32,12 +32,6 @@ BuildRequires: ruby-devel
 BuildRequires: rubygems
 BuildRequires: rubygem-rake
 BuildRequires: sipxcommons >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 %define sipxpbxlog %{_localstatedir}/log/sipxpbx
 %define sipxpbxrun %{_localstatedir}/run/sipxpbx
@@ -249,7 +243,6 @@ rm -rf $RPM_BUILD_ROOT
 %doc CONTRIBUTORS README NEWS NOTICE TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/sipxconfig.sh
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxconfig-setup
-%attr(755,root,root) %{_bindir}/sipxconfig-config
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore
 %attr(755,root,root) %{_bindir}/sipx-upgrade-3.6-mailstore-report
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxconfig-process.xml

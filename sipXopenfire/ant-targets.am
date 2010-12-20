@@ -17,7 +17,7 @@ clean :
 doc :
 	$(ANT_CMD) $(ANT_FLAGS) doc
 
-install-ant : all install-data-hook  dist install-binSCRIPTS 
+install-ant : all install-data-hook install-binSCRIPTS 
 	$(ANT_CMD) $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) -Ddata.dir=$(datadir) install
 
 check-ant :

@@ -1,26 +1,16 @@
-## Process this file with automake to produce Makefile.in
-include $(top_srcdir)/config/project.am
+include config/project.am
 include ant-targets.am
 
 bin_SCRIPTS = sipxrelay.sh
 
-EXTRA_DIST = \
+@PACKAGE@_EXTRA_DIST = \
   README \
-  config/sipX-config.in \
-  config/sipX-buildstamp.cpp.in \
-  config/sipX-buildstamp.h.in \
-  config/svn-version \
   ant-targets.xml \
   build.xml \
   config.properties.in \
-  sipxrelay.spec.in \
-  sipxrelay.spec \
   sipxrelay-process.xml.in \
   sipxrelay-process.xml \
   sipxrelay.sh.in \
-  CONTRIBUTORS \
-  BUILDSTAMP \
-  SVN-VERSION \
   LICENSE \
   ant-targets.xml \
   src 
@@ -36,10 +26,6 @@ config.properties : config.properties.in
 	@$(LocalizeSipXconfig) $< > $@
 
 sipxrelay.sh : sipxrelay.sh.in
-	@echo "Localize $< -> $@"
-	@$(LocalizeSipXconfig) $< > $@
-
-sipxrelay.spec : sipxrelay.spec.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 

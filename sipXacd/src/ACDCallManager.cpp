@@ -18,7 +18,6 @@
 #include <utl/UtlHashMap.h>
 #include <utl/UtlHashMapIterator.h>
 #include <cp/CallManager.h>
-#include "sipxacd-buildstamp.h"
 #include "ACDServer.h"
 #include "ACDCall.h"
 #include "ACDLine.h"
@@ -88,7 +87,7 @@ ACDCallManager::ACDCallManager(ACDServer* pAcdServer, const int udpPort,
    {
       UtlString agentName;
       agentName.append("sipXacd (");
-      agentName.append(SipXacdVersion);
+      agentName.append(PACKAGE_VERSION);
       agentName.append(")");
 
       rc = sipxConfigSetUserAgentName(mAcdCallManagerHandle,

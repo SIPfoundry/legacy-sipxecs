@@ -1,4 +1,0 @@
-TAGFILES              = \
-          @SIPX_DOCDIR@/sipxportlib/sipxportlib.tag=@SIPX_DOCDIR@/sipxportlib/ \
-          @SIPX_DOCDIR@/sipxtacklib/sipxtacklib.tag=@SIPX_DOCDIR@/sipxtacklib/
-INPUT                 = @top_srcdir@/include @top_srcdir@/src 

@@ -1,6 +1,6 @@
 Name: @PACKAGE@
-Version: @PACKAGE_VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Version: @VERSION@
+Release: @PACKAGE_REVISION@
 
 Summary: OpenACD sipXecs integration
 License: LGPL

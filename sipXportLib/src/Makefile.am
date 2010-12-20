@@ -39,8 +39,6 @@ libsipXport_la_CXXFLAGS = \
 	-fno-gcse -O0 -fno-implement-inlines -fno-default-inline
 
 libsipXport_la_SOURCES =  \
-    $(top_builddir)/config/sipxportlib-buildstamp.h \
-    $(top_builddir)/config/sipxportlib-buildstamp.cpp \
     utl/UtlBool.cpp \
     utl/UtlDateTime.cpp \
     utl/UtlLink.cpp \

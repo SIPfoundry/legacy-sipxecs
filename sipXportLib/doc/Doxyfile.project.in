@@ -1,2 +1,0 @@
-TAGFILES = 
-INPUT                 = @top_srcdir@/include @top_srcdir@/src 

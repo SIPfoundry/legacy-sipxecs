@@ -1,22 +1,10 @@
-## Process this file with automake to produce Makefile.in
 include config/project.am
 
-include config/conditional_doc.am
-
-unconditional_SUBDIRS = . src bin etc
-
-SUBDIRS = $(unconditional_SUBDIRS) $(doc_SUBDIRS)
-
-EXTRA_DIST = \
-    CONTRIBUTORS \
-    BUILDSTAMP \
-    SVN-VERSION \
-    config/sipX-config.in \
-    config/sipX-buildstamp.cpp.in \
-    config/sipX-buildstamp.h.in \
-    config/svn-version \
-    config/Doxyfile.in \
-    sipxpark.spec
+SUBDIRS = \
+	. \
+	src \
+	bin \
+	etc
 
 editscripts_IN = \
     bin/sipxpark.sh.in

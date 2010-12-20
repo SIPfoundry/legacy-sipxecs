@@ -1,18 +1,9 @@
-## Process this file with automake to produce Makefile.in
 include config/project.am
 
-EXTRA_DIST = \
-   config/sipX-config.in \
-   config/sipX-buildstamp.cpp.in \
-   config/sipX-buildstamp.h.in \
-   config/svn-version \
+@PACKAGE@_EXTRA_DIST = \
    config.properties.in \
-   sipxacccode.spec \
-   BUILDSTAMP \
-   SVN-VERSION \
    lib \
    src
-
 
 SUBDIRS = \
    . \

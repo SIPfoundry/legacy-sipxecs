@@ -1,6 +1,6 @@
 #!/bin/sh
 # Print a version string.
-scriptversion=2010-12-16.21; # UTC
+scriptversion=2010-12-17.06; # UTC
 
 # Copyright (C) 2007-2010 Free Software Foundation, Inc.
 #
@@ -69,7 +69,7 @@ scriptversion=2010-12-16.21; # UTC
 case $# in
     1|2) ;;
     *) echo 1>&2 "Usage: $0 \$srcdir/.tarball-version" \
-         '[TAG-NORMALIZATION-SED-SCRIPT] [dir where .git is located]'
+         '[TAG-NORMALIZATION-SED-SCRIPT]'
        exit 1;;
 esac
 

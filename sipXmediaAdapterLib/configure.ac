@@ -1,16 +1,14 @@
-#                                               -*- Autoconf -*-
-# Process this file with autoconf to produce a configure script.
-
 AC_PREREQ(2.57)
-AC_INIT(sipXmediaAdapterLib, 0.0.4.5.1, sipx-dev@list.sipfoundry.org) 
+AC_INIT(sipXmediaAdapterLib,
+  m4_esyscmd([config/git-version-gen .tarball-version | sed 's/\(.*\)\.\([0-9]\+\)-\([0-9a-z\-]\+\)/\1/g']),
+  sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 
-AM_INIT_AUTOMAKE(foreign)
+AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
-CHECK_AUTOCONF
 
 AC_CONFIG_SRCDIR([sipXmediaMediaProcessing/src/sipXmediaFactoryImpl.cpp])
 AM_CONFIG_HEADER([config.h])
@@ -47,11 +45,6 @@ CHECK_GIPSNEQ
 CHECK_GIPSVE
 CHECK_GIPSCE
 
-ENABLE_DOC
-ENABLE_DOXYGEN
-AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
-AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
-
 AC_CONFIG_FILES([
   Makefile
   interface/Makefile
@@ -64,7 +57,6 @@ AC_CONFIG_FILES([
   sipXmediaConferenceEngine/Makefile
   sipXmediaConferenceEngine/src/Makefile
   sipXmediaConferenceEngine/include/Makefile
-  doc/Makefile
 ])
 
 AC_OUTPUT

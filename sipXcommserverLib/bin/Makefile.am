@@ -13,7 +13,6 @@ bin_SCRIPTS = \
   $(LOCAL_SHELLSCRIPTS)
 
 dist_bin_SCRIPTS = \
-   ${PACKAGE}-config \
    pkg-upgrade \
    configmerge \
    configquery
@@ -59,16 +58,6 @@ sipregistrar_CXXFLAGS = \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
 	-DSIPX_TMPDIR=\"@SIPX_TMPDIR@\"
-
-$(top_builddir)/BUILDSTAMP:
-	${MAKE} -C $(top_builddir) BUILDSTAMP
-
-${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
-	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
-	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
-	    $(top_srcdir)/config/sipX-config.in \
-	  > ${PACKAGE}-config
-	chmod +x ${PACKAGE}-config
 
 $(setupbin_SCRIPTS) : $(setupbin_IN)
 	@echo "Localize $< -> $@"

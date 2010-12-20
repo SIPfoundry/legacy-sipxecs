@@ -1,9 +1,0 @@
-1. Remove sipXtapi.def from the sipXtapi.dll project
-2. Remove sipXtapi.def from link input of the sipXtapi.dll project
-3. Add preprocessor defines SIPXTAPI_VOICE_ENGINE_DLL to the sipxMediaVoiceEngine library project.
-4. Add preprocessor defines SIPXTAPI_USE_GIPS_TRANSPORT to the sipxMediaVoiceEngine library project,
-   if you want VOICE_ENGINE to handle RTP streaming, instead of sipXtapi handling it.
-5. Move the link of GIPSVoiceEngineLib.LIB from the sipxMediaVoiceEngine library project to the sipXtapi.DLL project
-6. Change the text "YOUR KEY GOES HERE" to your key. (In VoiceEngineMediaInterface.cpp and VoiceEngineFactoryImpl.cpp)
-7. Rebuild
-8. Copy the Voice Engine DLL to your runtime folder.

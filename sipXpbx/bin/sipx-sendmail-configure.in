@@ -9,9 +9,6 @@
 #    /etc/mail/sendmail.mc
 # The previous versions of the files are saved in *.pre-sipX.
 
-# The build number has to be input as an argument.
-BUILDNO=$1
-
 # Configure sendmail (if that is the mail daemon chosen) to never delay a
 # caller to validate the message, but also to deliver mail quickly (as users
 # may use e-mail as their primary way to access voicemail).
@@ -24,7 +21,7 @@ if [ -f $CONFIGFILE ]; then
   # Extract lines (including comments) mentioning DAEMON, if any.
   grep DAEMON <$CONFIGFILE >$CONFIGFILE.DAEMON
   (
-    echo "# Configured by sipX PBX: @PACKAGE@ @VERSION@ $BUILDNO"
+    echo "# Configured by sipX PBX: @PACKAGE@ @VERSION@ @PACKAGE_REVISION@
     echo '# Queue incoming messages immediately.'
     echo 'SENDMAIL_OPTARG=-odd'
     echo '# Process queued messages quickly (usually within 15 seconds).'
@@ -60,7 +57,7 @@ if [ -f $MCFILE ]; then
 
   cat <<EOF >$APPENDFILE
 #
-# Configured by sipX PBX: @PACKAGE@ @VERSION@ $BUILDNO
+# Configured by sipX PBX: @PACKAGE@ @VERSION@ @PACKAGE_REVISION@
 EOF
 
   while read PARAMETER VALUE

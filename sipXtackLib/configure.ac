@@ -2,13 +2,15 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.57)
-AC_INIT(sipXtackLib, 0.0.4.5.1, sipx-dev@list.sipfoundry.org) 
+AC_INIT(sipXtackLib,
+  m4_esyscmd([config/git-version-gen .tarball-version | sed 's/\(.*\)\.\([0-9]\+\)-\([0-9a-z\-]\+\)/\1/g']),
+  sipx-dev@list.sipfoundry.org)
 
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 
-AM_INIT_AUTOMAKE(foreign)
+AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
 
 AC_CONFIG_SRCDIR([src/net/SipMessage.cpp])
@@ -51,15 +53,9 @@ SFAC_STRICT_COMPILE_NO_WARNINGS_ALLOWED
 SFAC_INIT_FLAGS
 
 # sipX dependancies
-
 SFAC_LIB_PORT
 
 SFAC_FEATURE_SIP_TLS
-
-ENABLE_DOC
-ENABLE_DOXYGEN
-AM_CONDITIONAL(DOC, test x$enable_doc = xyes)
-AM_CONDITIONAL(GENERATE_DOXYGEN, test x$enable_doxygen = xyes)
 
 AC_ARG_ENABLE(stack-examples,
   [  --enable-stack-examples       Builds examples directory (disabled by default) ]
@@ -73,7 +69,6 @@ AC_CONFIG_FILES([
   Makefile
   include/Makefile
   src/Makefile
-  bin/Makefile
   meta/Makefile
   src/test/Makefile
   examples/Makefile
@@ -83,7 +78,6 @@ AC_CONFIG_FILES([
   siptest/src/Makefile
   siptest/include/Makefile
   siptest/src/siptest/Makefile
-  doc/Makefile
   dialogwatch/Makefile
 ])
 

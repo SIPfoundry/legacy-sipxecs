@@ -340,10 +340,6 @@
 		- J A R  &  M A N I F E S T
 		-->
 	<target name="manifest">
-		<exec executable="${top.build.dir}/bin/sipxconfig-config" outputproperty="version.build" os="Linux">
-			<arg value="--build"/>
-		</exec>
-		<!-- It only works on Linux, on Windows we need a different way of retrieving version.build -->		
 		<sipx-manifest/>
 	</target>	
 		

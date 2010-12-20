@@ -1,0 +1,221 @@
+GEN-SSL-KEYS(1)
+===============
+
+NAME
+----
+gen-ssl-keys - Generate SSL keys
+
+SYNOPSIS
+--------
+gen-ssl-keys [options]
+
+DESCRIPTION
+-----------
+    ====================================
+    SSL Key and Certificate Installation
+    ====================================
+
+  +--------------------------------------------------------+
+  |        T H I S   I S   N O T   O P T I O N A L         |
+  |                                                        |
+  |  Without SSL, sipX will not merely operate insecurely; |
+  |  it will not work at all.                              |
+  +--------------------------------------------------------+
+
+  sipX relies on SSL to secure communications between some of its
+  distributed components, and to protect parts of its web interfaces, so
+  your installation requires an SSL key and certificate.
+
+  Creating these files need only be done once, regardless of how many sipX
+  components you are using.  (The installation instructions for each of the
+  components that requires SSL direct you to these instructions.)  You can
+  create these files at any time before you attempt to start sipX (or
+  test Apache or any other secured component of sipX).
+
+  There are two ways to create your certificate file; either requires that
+  you create a local key for your server and a Certificate Signing Request
+  (CSR).  The instructions below will help with these steps.  The two
+  sources for a certificate are:
+
+    - Obtaining a certificate from a Certificate Authority
+      or
+    - "Self-Certifying" (acting as your own Certificate Authority).
+
+  Your company may have a source for certificates.  (If you have a secured
+  web site, you almost certainly do.)  If so, and you are planning to use
+  sipX in production, it is best to obtain a certificate from
+  your existing Certificate Authority.
+
+  If you do not have a relationship with a Certificate Authority, you can
+  act as your own Certificate Authority.  This provides significant
+  security to communications between the sipX components, but it is not as
+  secure as using a certificate obtained from a Certificate Authority.
+
+  This choice is not a permanent one - you can use self-certification as a
+  temporary measure and switch to using a certificate from a Certificate
+  Authority later.  To change the certificate, you must install new
+  certificate and key files into sipX in the same way you installed the
+  first set (which is described in some detail below).
+
+________________________________________________________________
+
+Obtaining a certificate from a Certificate Authority
+
+  This method is a little less quick and convenient for you to set up
+  initially, because you must generate a Certificate Request and send it to
+  the Certificate Authority to obtain your certificate.  However, it is
+  probably more secure and is easier for your users because the browsers
+  they use will probably already trust certificates issued this way.
+
+  Your Certificate Authority may have its own instructions for how to
+  generate a Certificate Request.  A sipX system can use a web
+  server certificate, so follow the instructions from your CA on how to
+  request a certificate to secure an Apache web server.
+
+  If your Certificate Authority has not given you instructions on how to
+  generate a request, you can create a Certificate Signing Request and key
+  by running the gen-ssl-keys.sh script.  (The details are listed below.)
+
+________________________________________________________________
+
+Self-Certifying
+
+  This method is quicker, but is slightly less secure because your
+  certificate signing key is not protected by a Certificate Authority.
+  Also, your users will see warning messages when they first access your
+  server because the certificate is not derived from a well-known
+  authority.  (They can choose to accept your certificate, which will
+  eliminate future warnings.)
+
+  To use this method, run the gen-ssl-keys.sh script and then follow the
+  instructions under Key and Certificate Installation below.
+
+________________________________________________________________
+
+Running gen-ssl-keys.sh
+
+  The gen-ssl-keys.sh script can be run in a few different ways depending
+  on how you want to manage your certificates:
+
+    - To generate a self-signed certificate for a single system:
+
+      @bindir@/ssl-cert/gen-ssl-keys.sh
+
+    - To generate a private key and certificate request for use
+      with a public or private certificate authority:
+
+      @bindir@/ssl-cert/gen-ssl-keys.sh --csr
+
+    - To generate a private self-signed authority certificate you can use
+      to sign certificates for multiple systems:
+
+      @bindir@/ssl-cert/gen-ssl-keys.sh --new-ca
+.
+    - To sign a certificate for your server using your own authority
+      certificate (as generated above):
+
+      @bindir@/ssl-cert/gen-ssl-keys.sh --sign <csr-file>
+                                        [ --ca <ca-name> ]
+                                        [ --ca-key <keyfile> ]
+
+  gen-ssl-keys.sh is "safe"; it does not modify any part of your sipX
+  configuration.  The actual installation of the certificates and key it
+  generates are described under Key and Certificate Installation below.
+
+  To use gen-ssl-keys.sh:
+
+  - Create a temporary directory and change into it.  For example:
+
+    mkdir $HOME/sslkeys
+    cd    $HOME/sslkeys
+
+  - Run the script:
+
+    It prompts you for the following information about your organization:
+
+      Country Name (2 letter code) [] :
+      State or Province Name (full name) [] :
+      Locality Name (eg, city) [] :
+      Organization Name (eg, company) [] :
+      Organization Unit Name (eg, section) [VoIP Services] :
+
+    Depending on which form you used (see above), it may also request:
+
+      CA Common Name (DNS name for CA) [] :
+
+        If you are self-certifying, provide the DNS domain name of your
+        organization with a unique host name _not_ the same as the name of
+        your sipX server.
+
+      Server Common Name (DNS name for Server) [] :
+
+        Provide the DNS name of the sipX server.
+
+      SIP Domain Name [] :
+
+        Like email, the domain part of your sip addresses may be different
+        from the DNS name of the server you use; this is where you specify
+        the domain part of the addresses for your server.
+
+      Email Contact Address for CA (name@example.org) [] :
+
+        If you are making a request to a Certificate Authority, provide
+        their e-mail contact address.  If you are self-certifying,
+        provide the e-mail contact address for someone responsible for
+        sipX.
+
+      Email Contact Address for Server (name@example.org) [] :
+
+        Provide the e-mail contact address for someone responsible for the
+        specific sipX server.
+
+________________________________________________________________
+
+Key and Certificate Installation
+
+  Well Known Certificate Authority method:
+
+  The gen-ssl-keys script produces
+
+     The server key (hostname.key):
+        This is your private key - it must be kept secret.
+
+     The server certificate request (hostname.csr):
+        To obtain your key from a Certificate Authority, send the CSR
+        file to your CA for signing.  The CA will give you a certificate
+        file; copy it to the directory with the hostname.key file;
+        name it 'hostname.crt', and then as root run:
+
+        @bindir@/ssl-cert/install-cert.sh <server-key-file>
+
+  If the installation fails, it may be because you need to install a
+  root certificate from the CA.  If the install script detects that
+  this is the problem, it will print the file name you need to copy
+  the root certificate to and rerun the install-cert.sh.
+  ____________________________________________________________________
+
+  Self-signed CA method:
+
+  There are some additional files used in this method:
+
+     CA key
+        The CA key file MUST be kept as secure as you can make it.  It is
+        the foundation of all the security provided by SSL.  You do not
+        need regular access to this file, so moving it to offline storage
+        would be an appropriate precaution.  If you do this, then when you
+        sign a new server key, you need to pass the location of this CA
+        key using 'gen-ssl-keys.sh --ca-key <ca-key-filename>'.
+
+     CA and Server certificates:
+        To install these certificates and the server key on this system,
+        run the following command as root in this directory.
+
+        @bindir@/ssl-cert/install-cert.sh
+
+ENVIRONMENT
+-----------
+NONE
+
+EXAMPLE
+-------
+NONE

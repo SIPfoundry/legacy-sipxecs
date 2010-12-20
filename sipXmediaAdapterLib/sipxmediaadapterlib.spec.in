@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Release: @PACKAGE_REVISION@
 
 Summary: OS Abstraction and OS Utilities library for sipX modules
 License: Pingtel Commercial License
@@ -12,18 +12,11 @@ Url: http://www.pingtel.com
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
-BuildRequires: doxygen
 BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxtacklib-devel  >= %version
 BuildRequires: sipxportlib-devel  >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
@@ -78,19 +71,10 @@ cp config.log %name.configlog
 make all
 
 %install
-
-# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
-# libdir, bindir, etc just for make install. This not copesetic w/how
-# our makefiles are built, they'd rather preserve libdir, and use
-# DESTDIR when copying/moving/creating files.  The approach we're taking
-# is quite standard, so it's surprising RPM's makeinstall macro is
-# the way it is.
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
 %clean
-# Do Not Clean - when we are building a set of sipX RPMs, we need the
-#                dependencies to be here.
 rm -rf $RPM_BUILD_ROOT
 
 %files
@@ -102,10 +86,6 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
-%docdir %{_datadir}/doc/sipxecs/%name
-%{_datadir}/doc/sipxecs/%name
-
-# %attr(755,root,root) %{_libdir}/debug/usr/lib/libsipXmediaProcessing.so*
 %{_libdir}/libsipXmediaProcessing.a
 %dir %attr(755,root,root) %{_includedir}/mi
 %{_includedir}/mi/*.h

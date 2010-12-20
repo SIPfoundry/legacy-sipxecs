@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Release: @PACKAGE_REVISION@
 
 Summary:  This project provides an RFC 3261, 3263 complient SIP stack
 License: Pingtel Commercial License
@@ -11,15 +11,8 @@ Url: http://www.pingtel.com
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
-BuildRequires: doxygen
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxportlib-devel >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 Requires: sipxportlib >= %version
 
 Source: %name-%version.tar.gz
@@ -72,7 +65,7 @@ mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 %build
 %configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
-make all doc
+make all
 
 %install
 
@@ -98,16 +91,12 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_bindir}/dialogwatch
 %attr(755,root,root) %{_bindir}/siptest
 %attr(755,root,root) %{_bindir}/subscribe-dialog-test
-%attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_libdir}/libsipXtack.la
 %attr(755,root,root) %{_libdir}/libsipXtack.so*
 %attr(644,root,root) %{_datadir}/sipxecs/schema/sip_types.xsd
 
 %files devel
 %defattr(644,root,root,755)
-%docdir %{_datadir}/doc/sipxecs/%name
-%{_datadir}/doc/sipxecs/%name
-
 %attr(755,root,root) %{_libdir}/libsipXtack.a
 %dir %attr(755,root,root) %{_includedir}/tapi
 %dir %attr(755,root,root) %{_includedir}/resparse

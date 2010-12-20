@@ -4,22 +4,11 @@
 # case this is relevant to some odd platform.
 INSTALL=@INSTALL@
 
-SIPX_VERSION:=@VERSION@-$(shell @abs_top_srcdir@/config/svn-version @abs_top_srcdir@)
-## SIPX_BUILDSTAMP records the subversion revision, date/time, which builder built
-## this, and the repository branch (if it is not main).
-defaultBuilder := $(shell (uname -n; id -un))
-BUILDER := $(defaultBuilder)
-BRANCH := $(shell svn info 2>/dev/null | \
-                  sed -e '/branches/!d' \
-                      -e 's%^.*/branches/%branches/%' \
-                      -e 's%/%:%g' )
-sipxBuildTime := $(shell date -u +%Y-%m-%dT%H:%M:%S)
-SIPX_BUILDSTAMP := $(sipxBuildTime) $(BUILDER) $(BRANCH)
-
 LocalizeSipXconfig = sed \
 		  -e 's,@PACKAGE\@,@PACKAGE@,g' \
+		  -e 's,@PACKAGE_REVISION\@,@PACKAGE_REVISION@,g' \
+		  -e 's,@PACKAGE_VERSION\@,@PACKAGE_VERSION@,g' \
 		  -e 's,@VERSION\@,@VERSION@,g' \
-		  -e 's,@SIPX_VERSION\@,$(SIPX_VERSION),g' \
 		  -e 's,@abs_builddir\@,@abs_builddir@,g' \
 		  -e 's,@abs_srcdir\@,@abs_srcdir@,g' \
 		  -e 's,@abs_top_srcdir\@,@abs_top_srcdir@,g' \

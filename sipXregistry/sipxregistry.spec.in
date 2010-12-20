@@ -1,6 +1,6 @@
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  %{?buildno:%buildno}%{!?buildno:1}
+Release:  @PACKAGE_REVISION@
 
 Summary:  SIP Registry/Redirect Server
 License:  Pingtel Commercial License
@@ -12,17 +12,10 @@ Url:      http://www.pingtel.com
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
-BuildRequires: doxygen
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
 BuildRequires: sipxtacklib-devel        >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 Source:   %name-%version.tar.gz
 
@@ -64,13 +57,6 @@ cp config.log %name.configlog
 make
 
 %install
-
-# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
-# libdir, bindir, etc just for make install. This not copesetic w/how
-# our makefiles are built, they'd rather preserve libdir, and use
-# DESTDIR when copying/moving/creating files.  The approach we're taking
-# is quite standard, so it's surprising RPM's makeinstall macro is
-# the way it is.
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -86,7 +72,6 @@ rm -rf $RPM_BUILD_ROOT
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXregistry-process.xml
 %attr(755,root,root) %{_bindir}/sipregistrar.sh
 %attr(755,root,root) %{_bindir}/sipregistrar
-%attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.la
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.a
 %attr(755,root,root) %{_libdir}/libRegistrarImpliedMWI.so*
@@ -125,9 +110,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files devel
 %defattr(644,root,root,755)
-%docdir %{_datadir}/doc/sipxecs
-%{_datadir}/doc/sipxecs
-
 %attr(644,root,root) %{_libdir}/libRedirectorAliasDB.a
 %attr(644,root,root) %{_libdir}/libRedirectorAuthRouter.a
 %attr(644,root,root) %{_libdir}/libRedirectorENUM.a

@@ -50,18 +50,11 @@ install-data-hook :
 precommit :
 	$(ANT_CMD) $(ANT_FLAGS) precommit
 
-EXTRA_DIST = \
-    config/sipX-config.in \
-    config/sipX-buildstamp.cpp.in \
-    config/sipX-buildstamp.h.in \
-    config/svn-version \
+@PACKAGE@_EXTRA_DIST = \
     ant-targets.xml \
     build.xml \
     dependencies.xml \
     subant-targets.xml \
-    CONTRIBUTORS \
-    BUILDSTAMP \
-    SVN-VERSION \
     LICENSE \
     NOTICE \
     build.properties.in \
@@ -69,7 +62,6 @@ EXTRA_DIST = \
     neoconf \
     gwt \
     @PACKAGE@-rpmlintrc \
-    sipxconfig.spec \
     doc \
     web \
     meta \
@@ -90,6 +82,3 @@ build.properties : build.properties.in Makefile _top.build.dir
 # target name is not a file to force this make everytime
 _top.build.dir :
 	echo "top.build.dir="`pwd` > $(top_srcdir)/top.build.dir
-
-DISTCLEANFILES = \
-	$(CONFIG_DISTCLEANFILES)

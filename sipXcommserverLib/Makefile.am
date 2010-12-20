@@ -1,19 +1,7 @@
-## Process this file with automake to produce Makefile.in
 include config/project.am
 
-EXTRA_DIST = \
-    config/sipX-config.in \
-    config/sipX-buildstamp.cpp.in \
-    config/sipX-buildstamp.h.in \
-    config/svn-version \
-    config/Doxyfile.in \
-    CONTRIBUTORS \
-    SVN-VERSION \
-    BUILDSTAMP \
-    @PACKAGE@-rpmlintrc \
-    sipxcommserverlib.spec
-
-include config/conditional_doc.am
+@PACKAGE@_EXTRA_DIST = \
+    @PACKAGE@-rpmlintrc
 
 SUBDIRS = \
 	. \
@@ -21,8 +9,7 @@ SUBDIRS = \
 	include \
 	etc \
 	meta \
-	bin \
-	$(doc_SUBDIRS)
+	bin
 
 # The final commands edit an existing subscription.xml file to add the
 # "component", "accept", and "version" columns, if they are not already
@@ -55,6 +42,3 @@ upgrade-subscription-db:
 	        perl -i -pe 's%<item>%<item><component>status</component><accept>application/simple-message-summary</accept><version>0</version>%' $$SUBSCRIPTION ; \
 	        rm -f $(DESTDIR)$(localstatedir)/sipxdata/tmp/imdb.* ; \
 	fi
-
-DISTCLEANFILES = \
-	$(CONFIG_DISTCLEANFILES)

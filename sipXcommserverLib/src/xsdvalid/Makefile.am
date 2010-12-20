@@ -18,8 +18,6 @@ xsdvalid_CPPFLAGS = \
 	$(AM_CFLAGS)
 
 xsdvalid_SOURCES = \
-	 ../../config/sipxcommserverlib-buildstamp.h \
-	 ../../config/sipxcommserverlib-buildstamp.cpp \
 	xsdvalid.cpp
 
 install-data-hook : install-schema

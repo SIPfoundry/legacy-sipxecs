@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Release: @PACKAGE_REVISION@
 
 Summary: Call processing library
 License: LGPL
@@ -12,7 +12,6 @@ Url: http://www.sipfoundry.org/sipXcallLib
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
-BuildRequires: doxygen
 BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: pcre-devel >= 4.5
 # why does src reference headers in mediaadapater but installation
@@ -20,12 +19,6 @@ BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxmediaadapterlib-devel >= %version
 BuildRequires: sipxmedialib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 Source: %name-%version.tar.gz
 
@@ -92,13 +85,6 @@ cp config.log %name.configlog
 make
 
 %install
-
-# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
-# libdir, bindir, etc just for make install. This not copesetic w/how
-# our makefiles are built, they'd rather preserve libdir, and use
-# DESTDIR when copying/moving/creating files.  The approach we're taking
-# is quite standard, so it's surprising RPM's makeinstall macro is
-# the way it is.
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -110,21 +96,15 @@ rm -rf $RPM_BUILD_ROOT
 %doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_libdir}/libsipXcall.la
 %attr(755,root,root) %{_libdir}/libsipXcall.so*
-%attr(755,root,root) %{_bindir}/%name-config
 
 %files devel
 %defattr(644,root,root,755)
-%docdir %{_datadir}/doc/sipxecs/%name
-%{_datadir}/doc/sipxecs/%name
-
 %{_libdir}/libsipXcall.a
-
 %dir %attr(755,root,root) %{_includedir}/cp
 %dir %attr(755,root,root) %{_includedir}/ps
 %dir %attr(755,root,root) %{_includedir}/ptapi
 %dir %attr(755,root,root) %{_includedir}/tao
 %dir %attr(755,root,root) %{_includedir}/tapi
-
 %{_includedir}/cp/*
 %{_includedir}/ps/*
 %{_includedir}/ptapi/*

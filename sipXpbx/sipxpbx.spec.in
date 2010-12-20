@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  %{?buildno:%buildno}%{!?buildno:1}
+Release:  @PACKAGE_REVISION@
 
 Summary:  SIP PBX
 License:  Pingtel Commercial License
@@ -32,15 +32,9 @@ BuildRequires: httpd-devel >= 2.0.46
 %if %{_vendor} == suse
 BuildRequires: apache2-devel
 %endif
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
-
 
 Source:   %name-%version.tar.gz
+Obsoletes: %name-devel
 
 Requires: alsa-utils
 Requires: expat >= 1.95
@@ -103,17 +97,6 @@ The sipXpbx project is a comprehensive small/medium scale Enterprise SIP PBX. It
 %debug_package
 %endif
 
-%package devel
-Requires: %name
-Group: Development/Libraries
-Vendor: SIPfoundry
-Summary: Internal documentation for %name
-Requires: sipxcommserverlib-devel >= %version
-Requires: sipxcalllib-devel >= %version
-
-%description devel
-Internal class documentation for the pbx classes
-
 %prep
 %setup -q
 
@@ -137,17 +120,13 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-
 %doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
-
 %attr(755,root,root) %{_bindir}/analyze_483s
 %attr(755,root,root) %{_bindir}/ipcclean.pl
 %attr(755,root,root) %{_bindir}/check-fqdn
 %attr(755,root,root) %{_bindir}/sipx-snapshot
-%attr(755,root,root) %{_bindir}/%name-config
 %attr(755,root,root) %{_bindir}/sipx-backup
 %attr(755,root,root) %{_bindir}/sipx-restore
-%attr(755,root,root) %{_bindir}/sipxecs-config
 %attr(755,root,root) %{_bindir}/sipxecs-setup
 %attr(755,root,root) %{_bindir}/sipxecs-upgrade
 %attr(755,root,root) %{_bindir}/sipxecs-setup-system
@@ -218,11 +197,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/webdav
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/var
 
-%files devel
-%defattr(644,root,root,755)
-%docdir %{_datadir}/doc/sipxecs/%name
-%{_datadir}/doc/sipxecs/%name
-
 %pre
 
 %post
@@ -254,7 +228,7 @@ fi
 
 # Reconfigure sendmail (if that is the mail daemon chosen) to ensure
 # prompt delivery of voicemail notifications.
-sipx-sendmail-configure %{?buildno:%buildno}%{!?buildno:1}
+sipx-sendmail-configure
 
 # If this is an upgrade from 3.10, need to setup the SSL db correctly
 %{_bindir}/ssl-cert/upgrade-cert.sh >> %{_localstatedir}/log/sipxpbx/upgrade-cert.log 2>&1

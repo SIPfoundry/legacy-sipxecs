@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Release: @PACKAGE_REVISION@
 
 Summary: Media processing library
 License: Pingtel Commercial License
@@ -12,17 +12,10 @@ Url: http://www.pingtel.com
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
-BuildRequires: doxygen
 BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 Source: %name-%version.tar.gz
 
@@ -86,13 +79,9 @@ rm -rf $RPM_BUILD_ROOT
 %doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
 %attr(755,root,root) %{_libdir}/libsipXmedia.la
 %attr(755,root,root) %{_libdir}/libsipXmedia.so*
-%attr(755,root,root) %{_bindir}/%name-config
 
 %files devel
 %defattr(644,root,root,755)
-%docdir %{_datadir}/doc/sipxecs/%name
-%{_datadir}/doc/sipxecs/%name
-
 %{_libdir}/libsipXmedia.a
 %dir %attr(755,root,root) %{_includedir}/mp
 %dir %attr(755,root,root) %{_includedir}/rtcp

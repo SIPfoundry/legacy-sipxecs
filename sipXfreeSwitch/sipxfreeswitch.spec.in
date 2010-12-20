@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Release: @PACKAGE_REVISION@
 
 Summary: FreeSWITCH startup scripts.
 License: LGPL
@@ -11,12 +11,6 @@ Vendor: SIPfoundry
 
 BuildRequires: automake
 BuildRequires: sipxcommserverlib-devel >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 Requires: freeswitch >= 1.0.7
 Requires: sipxcommserverlib >= %version
@@ -40,7 +34,6 @@ cp config.log %name.configlog
 make all
 
 %install
-
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -56,7 +49,6 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libexecdir}/sipXecs
 %dir %{_libexecdir}/sipXecs/setup.d
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/freeswitch_setup.sh
-%attr(755,root,root) %{_bindir}/%name-config
 
 %post
 freeswitch.sh --config

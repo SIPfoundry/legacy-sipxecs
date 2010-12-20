@@ -136,9 +136,9 @@ fi
 if [ $CHECK_VERSION = "yes" ]
 then
   # Get the current sipxconfig version
-  CURRENT_VERSION=$(@SIPX_BINDIR@/sipxpbx-config --version | awk -F'-' '{ print $1 ;}')
+  CURRENT_VERSION=@PACKAGE_VERSION@
   #Get the current MAJOR version. We will be able to backup-restore different post 4.0 versions.
-  CURRENT_VERSION_MAJOR=`expr substr $CURRENT_VERSION 1 1`;
+  CURRENT_VERSION_MAJOR=`expr substr @PACKAGE_VERSION@ 1 1`;
 
   # If a configuration backup is specified
   if [ -n "$CONFIGURATION_PATH" ]

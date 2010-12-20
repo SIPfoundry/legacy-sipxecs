@@ -19,7 +19,7 @@ clean :
 doc :
 	$(ANT_CMD) $(ANT_FLAGS) doc
 
-install : all install-data-hook  dist 
+install : all install-data-hook
 	$(ANT_CMD) $(ANT_FLAGS) -Ddest.dir=$(DESTDIR) -Ddata.dir=$(datadir) install
 
 check :

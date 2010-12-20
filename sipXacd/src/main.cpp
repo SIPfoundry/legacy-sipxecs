@@ -15,6 +15,7 @@
 #endif
 
 // APPLICATION INCLUDES
+#include "config.h"
 #include <net/NameValueTokenizer.h>
 #include <os/OsTask.h>
 #include <os/OsSysLog.h>
@@ -22,14 +23,8 @@
 #include "ACDServer.h"
 
 // DEFINES
-#ifndef SIPX_VERSION
-   #include "sipxacd-buildstamp.h"
-   #define SIPXCHANGE_VERSION          SipXacdVersion
-   #define SIPXCHANGE_VERSION_COMMENT  SipXacdBuildStamp
-#else
-   #define SIPXCHANGE_VERSION          SIPX_VERSION
-   #define SIPXCHANGE_VERSION_COMMENT  ""
-#endif
+#define SIPXCHANGE_VERSION          PACKAGE_VERSION
+#define SIPXCHANGE_VERSION_COMMENT  PACKAGE_REVISION
 
 // MACROS
 // EXTERNAL FUNCTIONS

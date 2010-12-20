@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Release: @PACKAGE_REVISION@
 
 Summary: Third party call controller for SipX.
 License: LGPL
@@ -17,12 +17,6 @@ BuildRequires: java-devel >= 1.6
 BuildRequires: zip
 BuildRequires: sipxcommons >= %version
 BuildRequires: sipxrest >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 Source: %name-%version.tar.gz
 
@@ -50,9 +44,7 @@ cp config.log %name.configlog
 make all
 
 %install
-
 export NO_BRP_CHECK_BYTECODE_VERSION=true
-
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -61,6 +53,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXrest/plugins
+%dir %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXrest/plugins
 %attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXrest/plugins/sipXcallController.jar
 

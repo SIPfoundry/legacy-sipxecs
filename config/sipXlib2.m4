@@ -2,7 +2,8 @@
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 
 # This is a "common fix" to a "known issue" with using ${prefix} variable
-sf_prefix=`test "$prefix" = NONE && prefix=$ac_default_prefix; eval echo "${sysconfdir}"`
+test "x$prefix" = xNONE && prefix=$ac_default_prefix
+test "x$exec_prefix" = xNONE && exec_prefix='${prefix}'
 
 AC_SUBST(SIPX_INCDIR, [${includedir}])
 AC_SUBST(SIPX_LIBDIR, [${libdir}])
@@ -29,3 +30,7 @@ test -n "$SIPXPBXUSER" || SIPXPBXUSER=$USER
 # Get the group to run sipX under.
 AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is value of SIPXPBXUSER])
 test -n "$SIPXPBXGROUP" || SIPXPBXGROUP=$SIPXPBXUSER
+
+PACKAGE_REVISION=m4_esyscmd([config/git-version-gen .tarball-version | sed 's/\(.*\)\.\([0-9]\+\)[-\.]\([0-9a-f]\+\)-\?\(dirty\)\?/\2.\3/g'])
+AC_SUBST(PACKAGE_REVISION)
+AC_DEFINE_UNQUOTED([PACKAGE_REVISION], "${PACKAGE_REVISION}", [Revion number including git SHA])

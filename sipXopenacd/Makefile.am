@@ -1,8 +1,8 @@
-EXTRA_DIST = \
+include config/project.am
+
+@PACKAGE@_EXTRA_DIST = \
 	README \
-	CONTRIBUTORS \
 	LICENSE	\
-	sipxopenacd.spec \
 	sipxopenacd-process.xml.in \
 	sipxopenacd.in
 
@@ -24,10 +24,9 @@ dist_proc_DATA = \
 
 LOCALIZE_TARGETS = \
 	$(bin_SCRIPTS) \
-	$(dist_proc_DATA) \
-	sipxopenacd.spec
+	$(dist_proc_DATA)
 
 # source files use many configuration variables that change, so always rebuild
 .PHONY: $(LOCALIZE_TARGETS)
 $(LOCALIZE_TARGETS) :
-	sed $(LOCALIZE) $(srcdir)/$(notdir $@).in > $@
+	@sed $(LOCALIZE) $(srcdir)/$(notdir $@).in > $@

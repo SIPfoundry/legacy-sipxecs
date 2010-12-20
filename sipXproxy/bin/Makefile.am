@@ -3,9 +3,6 @@ include $(top_srcdir)/config/subdir.am
 GEM_LIB_DIR=$(libdir)/ruby/gems/1.8/gems
 SIPX_SYSCONFDIR=$(sysconfdir)
 
-bin_SCRIPTS = \
-	${PACKAGE}-config
-
 setupbindir = @SIPX_LIBEXECDIR@/setup.d
 setupbin_SCRIPTS = \
     sipxcallresolver-setup
@@ -18,19 +15,7 @@ editscripts_IN = \
 
 EXTRA_DIST = \
    $(foreach file,$(editscripts_IN),$(file).in) \
-   $(setupbin_IN) \
-   $(bin_SCRIPTS)
-
-$(top_builddir)/BUILDSTAMP:
-	${MAKE} -C $(top_builddir) BUILDSTAMP
-
-${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
-	@echo "making ${PACKAGE}-config"
-	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
-	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
-	    $(top_srcdir)/config/sipX-config.in \
-	  > ${PACKAGE}-config
-	chmod +x ${PACKAGE}-config
+   $(setupbin_IN)
 
 install-exec-hook: $(foreach file,$(editscripts_IN),$(DESTDIR)$(bindir)/$(file))
 

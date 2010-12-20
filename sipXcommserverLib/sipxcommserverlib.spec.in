@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Release: @PACKAGE_REVISION@
 
 Summary: Common Code for sipX servers
 License: Pingtel Commercial License
@@ -12,7 +12,6 @@ Url: http://www.pingtel.com
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
-BuildRequires: doxygen
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: unixODBC-devel >= 2.2
 BuildRequires: sipxportlib-devel >= %version
@@ -118,7 +117,6 @@ fi
 %files
 %defattr(644,root,root,755)
 %doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
-%attr(755,root,root) %{_bindir}/%name-config
 %attr(4755,root,root) %{_bindir}/sipx-sudo-restore
 %attr(755,root,root) %{_bindir}/pkg-upgrade
 %attr(755,root,root) %{_bindir}/configmerge
@@ -174,8 +172,6 @@ fi
 %{_libdir}/libsipXcommserver.a
 %{_libdir}/libsipXcommserverTest.la
 %{_libdir}/libsipXcommserverTest.a
-%docdir %{_datadir}/doc/sipxecs/%name
-%{_datadir}/doc/sipxecs/%name
 %{_includedir}/configrpc/*
 %{_includedir}/digitmaps/*
 %{_includedir}/fastdb/*

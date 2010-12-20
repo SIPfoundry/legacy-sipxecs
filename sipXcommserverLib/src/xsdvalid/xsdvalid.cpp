@@ -31,7 +31,6 @@
 #include <xercesc/util/XMLString.hpp>
 
 #include "utl/UtlString.h"
-#include "sipxcommserverlib-buildstamp.h"
 
 #if defined(XERCES_NEW_IOSTREAMS)
 #include <iostream>
@@ -221,8 +220,7 @@ int main(int argC, char* argV[])
         if (!strcmp(argV[argInd], "--version"))
         {
            XERCES_STD_QUALIFIER cerr
-              << "xsdvalid version " << SipXcommserverlibVersion
-              << " build " << SipXcommserverlibBuildStamp
+              << "xsdvalid "
               << "\n  xerces-c library version " << gXercesVersionStr
               << "\n" << XERCES_STD_QUALIFIER endl;
 

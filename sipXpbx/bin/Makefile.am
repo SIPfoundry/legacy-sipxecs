@@ -1,8 +1,6 @@
 include $(top_srcdir)/config/subdir.am
 
 bin_SCRIPTS = \
-	 ${PACKAGE}-config \
-	 sipxecs-config \
 	 sipxecs-setup \
 	 sipxecs-upgrade \
 	 sipxecs-setup-system \
@@ -42,16 +40,6 @@ SipxLibexecScripts = \
 SipxLibexecPythonScripts = \
 	 sipxecs_setup_common.py
 
-$(top_builddir)/BUILDSTAMP:
-	${MAKE} -C $(top_builddir) BUILDSTAMP
-
-${PACKAGE}-config: $(top_srcdir)/config/sipX-config.in $(top_builddir)/BUILDSTAMP
-	@BuildStamp="$(shell cat $(top_builddir)/BUILDSTAMP)" \
-	; ${LocalizeSipXconfig} -e "s/@SIPX_BUILDSTAMP\@/$${BuildStamp}/" \
-		 $(top_srcdir)/config/sipX-config.in \
-	  > ${PACKAGE}-config
-	chmod +x ${PACKAGE}-config
-
 SCRIPT_TEMPLATES = \
 	sipx-snapshot.in \
 	sipx-test-dnsIp.in \
@@ -84,8 +72,6 @@ EXTRA_DIST = \
 	sipx-core-clean.in \
 	voicemail_clean.in \
 	sipx-chkspace.in \
-	${PACKAGE}-config \
-	sipxecs-config \
 	analyze_483s \
 	ipcclean.pl \
 	sipxecs_setup_common.py.in \
@@ -186,7 +172,3 @@ $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d/020_ibm_jvm_tmpdir: $(DESTDIR)@SIPX_LIBEXECD
 
 $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d:
 	$(INSTALL) -d $(DESTDIR)@SIPX_LIBEXECDIR@/setup.d
-
-# sipxecs-config is generated from sipxecs-config.in by the
-# top-level configure.ac, as it is the only one that knows the names
-# of all the components, and so can substitute "@subdirs@".

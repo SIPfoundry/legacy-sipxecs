@@ -111,14 +111,7 @@ VM_BACKUP_FILE=$ARCHIVE_DIR/voicemail.tar.gz
 VERSION_FILE_NAME=version
 
 # Initialize the version file
-SIPX_VERSION=$(@SIPX_BINDIR@/sipxpbx-config --version)
-if [ $? -eq 0 ]
-then
-  echo $SIPX_VERSION > $ARCHIVE_DIR/$VERSION_FILE_NAME
-else
-  # We couldn't get a the version, so we create an empty version file
-  touch $ARCHIVE_DIR/$VERSION_FILE_NAME
-fi
+echo @PACKAGE_VERSION@ > $ARCHIVE_DIR/$VERSION_FILE_NAME
 
 # *** BEGIN Configuration ***
 if [ "$CONFIGURATION" = "yes" ]

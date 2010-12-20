@@ -1,6 +1,6 @@
 Name: @PACKAGE@
 Version: @VERSION@
-Release: %{?buildno:%buildno}%{!?buildno:1}
+Release: @PACKAGE_REVISION@
 
 Summary: Openfire plugins for  sipX
 License: LGPL
@@ -18,13 +18,6 @@ BuildRequires: zip
 BuildRequires: sipxcommserverlib
 BuildRequires: sipxcommons
 BuildRequires: sipx-openfire
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
-
 
 Source: %name-%version.tar.gz
 
@@ -48,7 +41,6 @@ cp config.log %name.configlog
 make all
 
 %install
-
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 

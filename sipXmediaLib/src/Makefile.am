@@ -30,8 +30,6 @@ libsipXmedia_la_LIBADD = \
 	@SIPXTACK_LIBS@ @SIPXPORT_LIBS@ @CA_LIBS@ -lstdc++
 
 libsipXmedia_la_SOURCES =  \
-    $(top_builddir)/config/sipxmedialib-buildstamp.h \
-    $(top_builddir)/config/sipxmedialib-buildstamp.cpp \
     mp/dft.cpp \
     mp/dmaTaskPosix.cpp \
     mp/DSPlib.cpp \

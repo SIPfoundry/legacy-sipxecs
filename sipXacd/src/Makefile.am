@@ -18,6 +18,7 @@ sipxacd_LDADD = \
 
 sipxacd_CXXFLAGS = \
         -I$(top_builddir)/config \
+        -I$(top_builddir) \
         -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
         -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
         -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
@@ -25,8 +26,6 @@ sipxacd_CXXFLAGS = \
         -DSIPX_VARDIR=\"@SIPX_VARDIR@\"
 
 sipxacd_SOURCES =  \
-	$(top_builddir)/config/sipxacd-buildstamp.h \
-	$(top_builddir)/config/sipxacd-buildstamp.cpp \
 	main.cpp \
 	ACDAgent.cpp \
 	ACDAgentMsg.cpp \

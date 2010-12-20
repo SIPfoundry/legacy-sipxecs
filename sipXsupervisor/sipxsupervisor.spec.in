@@ -1,7 +1,7 @@
 #!BuildIgnore: post-build-checks
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  %{?buildno:%buildno}%{!?buildno:1}
+Release:  @PACKAGE_REVISION@
 
 Summary:  sipXecs process supervisor
 License:  Pingtel Commercial License
@@ -13,21 +13,15 @@ Url:      http://www.pingtel.com
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
-BuildRequires: doxygen
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: openssl-devel
 BuildRequires: unixODBC-devel
 BuildRequires: sipxcommserverlib-devel >= %version
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 Source:   %name-%version.tar.gz
+Obsoletes: %name-devel
 
 %if %{_vendor} == redhat
 Requires: chkconfig
@@ -65,17 +59,6 @@ for a remote management application.
 %debug_package
 %endif
 
-%package devel
-Requires: %name
-Requires: net-snmp-devel >= 5.3.1
-Group: Development/Libraries
-Vendor: SIPfoundry
-Summary: Internal documentation for %name
-Requires: sipxcommserverlib-devel >= %version
-
-%description devel
-Internal class documentation for the sipXsupervisor classes
-
 %prep
 %setup -q
 
@@ -85,12 +68,6 @@ cp config.log %name.configlog
 make
 
 %install
-# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
-# libdir, bindir, etc just for make install. This not copesetic w/how
-# our makefiles are built, they'd rather preserve libdir, and use
-# DESTDIR when copying/moving/creating files.  The approach we're taking
-# is quite standard, so it's surprising RPM's makeinstall macro is
-# the way it is.
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
 
@@ -99,15 +76,11 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-
 %doc CONTRIBUTORS README NEWS TODO ChangeLog %name.configlog
-
 %attr(755,root,root) %{_bindir}/sipxsupervisor
 %attr(755,root,root) %{_bindir}/sipxsupervisor.sh
-%attr(755,root,root) %{_bindir}/%name-config
 %dir %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxsupervisor-process.xml
-
 %dir %{_sysconfdir}/sipxpbx/alarms
 %attr(644,root,sipxchange) %{_sysconfdir}/sipxpbx/alarms/sipXalarms-config.xml
 %dir %{_datadir}/sipxecs/mibs
@@ -115,22 +88,14 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_datadir}/sipxecs/alarms
 %attr(644,root,sipxchange) %{_datadir}/sipxecs/alarms/alarm-strings.xml
 %attr(644,root,sipxchange) %{_datadir}/sipxecs/alarms/sipXalarms-strings.xml
-
 %attr(755,root,root) %{_datadir}/sipxecs/schema/sipXecs-process.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alarm.xsd
 %attr(755,root,root) %{_datadir}/sipxecs/schema/alarm-group.xsd
-
 %dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/process-state
 %dir %attr(775,sipxchange,sipxchange) %{_localstatedir}/sipxdata/process-cfgver
-
-%files devel
-%defattr(644,root,root,755)
-%docdir %{_datadir}/doc/sipxecs/%name
-%{_datadir}/doc/sipxecs/%name
 
 %pre
 
 %post
 rm -f %{_localstatedir}/sipxdata/tmp/processAlias.dat
 rm -f %{_localstatedir}/sipxdata/tmp/locked.lck
-

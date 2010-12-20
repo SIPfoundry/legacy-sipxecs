@@ -3,16 +3,13 @@
 # 
 MOCK_RESULTS_DIR = ./
 MOCK_TARGET_PLATFORM = @MOCK_TARGET_PLATFORM@
-GIT_ID = $(shell git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1)
-# TODO: Determine RELEASE_ID automatically based on a number that increments
-RELEASE_ID = 1.$(GIT_ID)
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
 RPM_DIST_DIR = @RPM_DIST_DIR@
 REPO_DIR = repo
 
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
-$(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-$(RELEASE_ID).src.rpm))
+$(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-@PACKAGE_REVISION@.src.rpm))
 $(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@.tar.gz))
 
 # pull in dependency make fragments
@@ -27,9 +24,9 @@ help.*.srpm = Called automatically as port of rpm process after srpm target. Use
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
 	  $(foreach S,$($(PROJ)_SOURCES),$(call CopySourceFile,$(S),@RPMBUILD_TOPDIR@/SOURCES)) \
-	  rpmbuild -bs --nodeps --define='buildno $(RELEASE_ID)' $($(PROJ)_SPEC); \
+	  rpmbuild -bs --nodeps $($(PROJ)_SPEC); \
 	else \
-	  rpmbuild -ts --nodeps --define='buildno $(RELEASE_ID)' $($(PROJ)_TAR); \
+	  rpmbuild -ts --nodeps $($(PROJ)_TAR); \
 	fi
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) .
 

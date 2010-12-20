@@ -1,6 +1,6 @@
 Name:     @PACKAGE@
 Version:  @VERSION@
-Release:  %{?buildno:%buildno}%{!?buildno:1}
+Release:  @PACKAGE_REVISION@
 
 Summary:  SIP Proxy Server
 License:  Pingtel Commercial License
@@ -28,12 +28,6 @@ BuildRequires: shadow-utils
 BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
 BuildRequires: sipxtacklib-devel        >= %version
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 Source:   %name-%version.tar.gz
 
@@ -106,27 +100,17 @@ cp config.log %name.configlog
 make
 
 %install
-
-# makeinstall RPM macro doesn't leverage DESTDIR but instead overrides
-# libdir, bindir, etc just for make install. This not copesetic w/how
-# our makefiles are built, they'd rather preserve libdir, and use
-# DESTDIR when copying/moving/creating files.  The approach we're taking
-# is quite standard, so it's surprising RPM's makeinstall macro is
-# the way it is.
 rm -rf $RPM_BUILD_ROOT
 make DESTDIR=$RPM_BUILD_ROOT install
-
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-
 %doc CONTRIBUTORS ChangeLog %name.configlog
 %attr(755,root,root) %{_bindir}/sipXproxy.sh
 %attr(755,root,root) %{_bindir}/sipXproxy
-%attr(755,root,root) %{_bindir}/%name-config
 %dir %attr(755,root,root) %{_datadir}/sipxecs/process.d
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipXproxy-process.xml
 %attr(644,root,root) %{_datadir}/sipxecs/process.d/sipxcallresolver-process.xml
@@ -135,27 +119,17 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_datadir}/sipxecs/schema/nattraversalrules.xsd
 %dir %attr(755,root,root) %{_libdir}/authplugins
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.so*
-
 %attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.so*
-
 %attr(755,root,root) %{_libdir}/authplugins/libCallerAlias.so*
-
 %attr(755,root,root) %{_libdir}/authplugins/libTransferControl.so*
-
 %attr(755,root,root) %{_libdir}/authplugins/libCallDestination.so*
-
 %attr(755,root,root) %{_libdir}/authplugins/libNatTraversalAgent.so*
-
 %attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.so*
-
 %attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.so*
-
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.so*
 
 %files devel
 %defattr(644,root,root,755)
-%docdir %{_datadir}/doc/sipxecs/%name
-%{_datadir}/doc/sipxecs/%name
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.la
 %attr(755,root,root) %{_libdir}/authplugins/libEnforceAuthRules.a
 %attr(755,root,root) %{_libdir}/authplugins/libRequestLinter.la
@@ -182,19 +156,15 @@ rm -rf $RPM_BUILD_ROOT
 %files cdr
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxcallresolver-setup
-
 %config(noreplace) %attr(644,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/sipxcallresolver-agent-config
 %config(noreplace) %attr(644,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/cdr/*
-
 %dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/cdr
-
 %dir %attr(755,root,root) %{sipxpbxvarlib}
 %attr(755,root,root) %{sipxpbxvarlib}/sipxcallresolver-2.0.0.gem
 %attr(755,root,root) %{_bindir}/sipxcallresolver.sh
 %attr(755,root,root) %{_bindir}/sipxcallresolver-agent.sh
 
 %post cdr
-
 %define gem_dir %(ruby -rrbconfig -e 'puts File::join(Config::CONFIG["libdir"],"/ruby/gems")')
 %define rb_ver %(ruby -rrbconfig -e 'puts Config::CONFIG["ruby_version"]')
 %define gem_home %{gem_dir}/%{rb_ver}
