@@ -160,9 +160,9 @@ public class SipXivr implements Runnable {
                         VoiceMail app = new VoiceMail(s_config, m_fses, parameters);
                         app.run();
                     } else if (action.equals("faxrx")) {
-			// Run fax receive application
-			FaxRx app = new FaxRx(s_config, m_fses, parameters);
-			app.run() ;
+                        // Run fax receive application
+                        FaxRx app = new FaxRx(s_config, m_fses, parameters);
+                        app.run() ;
                     } else if (action.equals("moh")) {
                         // Run Music On Hold
                         Moh app = new Moh(s_config, m_fses, parameters);
