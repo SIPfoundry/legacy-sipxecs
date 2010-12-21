@@ -671,7 +671,8 @@ activateConfigServerOnMaster () {
     ### NO OTHER PROCESS SHOULD BE ENABLED IN THIS WAY.
     ###
     local configServerVersion
-    configServerVersion=`@SIPX_BINDIR@/sipxconfig-config --version | sed 's/-.*//'`
+    # Disable config checking on configserver to eliminate overly complex system
+    configServerVersion=`@VERSION@`
 
     configVersionDirectory=@SIPX_VARDIR@/process-cfgver
     if [ ! -d ${configVersionDirectory} ]

@@ -102,11 +102,11 @@ make DESTDIR=$RPM_BUILD_ROOT install
 rm -rf $RPM_BUILD_ROOT
 
 %pre
-if ! /usr/bin/id -g sipxchange &>/dev/null; then
+if ! /usr/bin/id -g sipxchange >/dev/null 2>&1; then
   /usr/sbin/groupadd -r sipxchange
 fi
 
-if ! /usr/bin/id sipxchange &>/dev/null; then
+if ! /usr/bin/id sipxchange >/dev/null 2>&1; then
   # hack: use "-s /bin/bash", some scripts need to be fixed to not require that
   /usr/sbin/useradd -M -r -g sipxchange -d %{_sysconfdir}/sipxpbx -s /bin/bash -c sipxchange sipxchange 2>&1
 fi

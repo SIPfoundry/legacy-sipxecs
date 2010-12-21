@@ -12,8 +12,7 @@ LastRev = $(firstword $(shell cd $(SRC); git log -1 --format="%h %ci" -1 HEAD | 
 lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 
 # for each sipx-% target, define a variable for the corresponding project directory
-Project =  $(firstword $(subst ., ,$1))
-PROJ =  $(call Project, $@)
+PROJ =  $(filter $(all),$(subst ., ,$@))
 proj = $(call lowercase,$(PROJ))
 
 # lists all the items in the list inclusive after given item
@@ -35,9 +34,10 @@ lib.list sipx.list : %.list :
 
 include $(sort $(wildcard mak/*.mk))
 
-help.*[.*]...=Do given target all the project after the given project, inclusive. e.g. 'make sipXconfig.check...' or 'make sipXconfig...'
+help.*...=Do given target all the project after the given project, inclusive. e.g. 'make sipXconfig.check...' or 'make sipXconfig...'
 $(foreach T,$(sipx),$(T).%...) :
 	$(MAKE) $(foreach T,$(call after,$(PROJ),$(sipx)),$(T).$*)
+
 $(foreach T,$(lib),$(T).%...) :
 	$(MAKE) $(foreach T,$(call after,$(PROJ),$(lib)),$(T).$*)
 

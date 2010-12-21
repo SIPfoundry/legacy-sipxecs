@@ -19,31 +19,44 @@ help.ci-all = Build all targets CI targets $(CI_TARGETS)
 ci-all : $(CI_TARGETS);
 
 $(foreach T,$(CI_TARGETS),$(eval help.$(T)=Complete build for respective distribution, version and architecture))
-$(CI_TARGETS) : ci.% : ci-clean /etc/mock/sipx-%.cfg ci.%.init ci.%.lib ci.%.sipx ci.%.repo ci-publish
+$(CI_TARGETS) : ci.% : /etc/mock/sipx-%.cfg ci.%.clean ci.%.init ci.%.lib ci.%.sipx ci.%.repo ci.%.check
 
 ci.% : SUBMAKE_VARS=DISTRO=$(CI_DISTRO) DISTRO_VER=$(CI_DISTRO_VER) MOCK_TARGET_PLATFORM=sipx-$(CI_MOCK_TARGET) DISTRO_ARCH=$(CI_DISTRO_ARCH)
 
 help.ci-clean = Delete all RPMs 
-ci-clean :
-	find $(MOCK_RESULTS_DIR)  -maxdepth 1 -name '*.rpm' -exec rm {} \;
+ci.%.clean :
+	$(MAKE) mock-clean $(SUBMAKE_VARS)
 
-ci-publish :
+ci.web-server :
+	-killall thttpd
+	cd @MIRROR_DIR@; /usr/sbin/thttpd -p 40101
+	cd @RPM_DIST_DIR@; /usr/sbin/thttpd -p 40100
 
 help.ci.*.init = First part of CI build - initialize mock can repos
-ci.%.init :
-	killall thttpd
-	cd @MIRROR_DIR@; /usr/sbin/thttpd -p 40101
-	cd $(MOCK_RESULTS_DIR); /usr/sbin/thttpd -p 40100
-	cd $(MOCK_RESULTS_DIR); createrepo .
+ci.%.init : ci.web-server
 	$(MAKE) mock-init $(SUBMAKE_VARS)
 
 help.ci.*.lib = Second part of CI build - the libs rpms
-ci.%.lib:
+ci.%.lib: ci.web-server
 	$(MAKE) lib.rpm $(SUBMAKE_VARS)
 
 help.ci.*.sipx = Third part of CI build - the sipXecs rpms
-ci.%.sipx:
+ci.%.sipx: ci.web-server
 	$(MAKE) sipx.rpm $(SUBMAKE_VARS)
+
+debug:
+	echo foo
+
+help.ci.*.check = Check all rpms install ok
+ci.%.test: ci.web-server
+	echo hello
+	$(MAKE) mock-test $(SUBMAKE_VARS)
+
+$(foreach P,$(all),$(foreach T,$(CI_TARGETS),$(T).$(P))) : ci.web-server
+	$(MAKE) $(PROJ).rpm $(SUBMAKE_VARS)
+
+$(foreach T,$(CI_TARGETS),$(T).%...) : ci.web-server
+	$(MAKE) $(foreach T,$(call after,$(PROJ),$(all)),ci.$(CI_MOCK_TARGET).$(T))
 
 help.ci.*.repo = Last part of CI build - add to the final repository @RPM_DIST_DIR@, ready for publishing. See repo help for more information
 ci.%.repo :

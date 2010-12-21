@@ -43,5 +43,10 @@ AC_ARG_ENABLE(rpm, [--enable-rpm Using mock package to build rpms],
   AC_ARG_VAR(RPM_DIST_DIR, [Where to assemble final set of RPMs and SRPMs in preparation for publishing to a download server.])
   test -n "${RPM_DIST_DIR}" || RPM_DIST_DIR=repo
 
+  # Allows you to create centos repos on fedora
+  AS_VERSION_COMPARE('0.5.0', [`createrepo --version | awk '{print $NF}'`],
+   [BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS="--checksum=sha"],,)
+  AC_SUBST(BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS)
+
   AC_CONFIG_FILES([mak/10-rpm.mk])
 ])

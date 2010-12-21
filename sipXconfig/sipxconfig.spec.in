@@ -96,6 +96,7 @@ Requires: tftp-server
 %if %{_vendor} == suse
 Requires: tftp
 %endif
+Requires: %{name} >= %{version}
 
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
@@ -109,6 +110,7 @@ Summary: Configures/enables TFTP for devices controlled by %{name}
 %package ftp
 Requires: vsftpd
 Requires: sudo
+Requires: %{name} >= %{version}
 Group: Productivity/Telephony/SIP/Servers
 Vendor: SIPfoundry
 Summary: Configures/enables FTP for devices controlled by %{name}
@@ -126,7 +128,7 @@ Summary: Configures/enables FTP for devices controlled by %{name}
 
 %package snmp
 Requires: net-snmp
-
+Requires: %{name} >= %{version}
 %if %{_vendor} == redhat
 Requires: net-snmp-utils
 Requires: lm_sensors

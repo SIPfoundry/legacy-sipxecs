@@ -1,12 +1,16 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
 # 
-MOCK_RESULTS_DIR = ./
 MOCK_TARGET_PLATFORM = @MOCK_TARGET_PLATFORM@
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
-RPM_DIST_DIR = @RPM_DIST_DIR@
 REPO_DIR = repo
+# trick lets you create centos compatible repos from any other distro
+CREATEREPO_OPTS_centos = @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@
+TARGET_PLATFORM = $(strip \
+	$(subst fedora,Fedora, \
+	$(subst centos,CentOS,$(DISTRO)))_$(DISTRO_VER))
+MOCK_RESULTS_DIR = @RPM_DIST_DIR@/$(TARGET_PLATFORM)/$(DISTRO_ARCH)
 
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
 $(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-@PACKAGE_REVISION@.src.rpm))
@@ -41,13 +45,17 @@ CopySourceFile = \
 	fi; \
 
 mock-init :
+	mock -r $(MOCK_TARGET_PLATFORM) --scrub=all
+	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 	mock -r $(MOCK_TARGET_PLATFORM) --init
+
+mock-clean :
+	find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.rpm' -exec rm {} \;
 
 # TIP : you should have a webserver pointed at $(MOCK_RESULTS_DIR) to feed the results of build back into the chroot'ed system.
 # or explore mounting $(MOCK_RESULTS_DIR) from the chroot system.
 help.*.mock = Called automatically as port of rpm process after srpm target. Uses mock program to build rpm
 %.mock :
-	cd $(MOCK_RESULTS_DIR); createrepo .
 	mock -r $(MOCK_TARGET_PLATFORM) \
 	  --no-clean \
 	  --no-cleanup-after \
@@ -55,25 +63,19 @@ help.*.mock = Called automatically as port of rpm process after srpm target. Use
 	  --rebuild \
 	  -D 'buildno $(RELEASE_ID)' \
 	  $($(PROJ)_SRPM)
-
-TARGET_PLATFORM = $(strip \
-	$(subst fedora,Fedora, \
-	$(subst centos,CentOS,$(DISTRO)))_$(DISTRO_VER))
-
-REPO_FILTER_src = -name '*.src.rpm'
-REPO_FILTER_i386 = -name '*.noarch.rpm' -o -name '*.i386.rpm'
-REPO_FILTER_x86_64 = -name '*.noarch.rpm' -o -name '*.x86_64.rpm'
+# generate repo AFTER build because then it's usable as a repo to feed to next build or other systems.
+	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 
 # Recursive delete of given directory if it exists. Then make a new directory.
 MakeFreshDirectory = test ! -d $1 || rm -rf $1; mkdir -p $1
 
-.PHONY: repo
-help.repo = Assemble all RPMs and SRPMs into $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/$(DISTRO_ARCH) for publishing to a download server. Does not guarantee all RPMs have been built, it just assembles what it finds from the build output. The publish phase is currently responsible for checking the results before uploading.
-repo : repo-$(DISTRO_ARCH);
+help.repo-src = Assemble src.rpms into repo
+repo-src : 
+	$(call MakeFreshDirectory, $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/srpm)
+	find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.src.rpm' -exec cp {} $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/srpm \;
 
-repo-x86_64 repo-i386 repo-src : repo-% :
-	$(call MakeFreshDirectory, $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/$*)
-	find $(MOCK_RESULTS_DIR) -maxdepth 1 \( $(REPO_FILTER_$*) \) -exec cp {} $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/$* \;
+mock-test :
+	mock -r $(MOCK_TARGET_PLATFORM) --install sipxecs
 
 # FUTURE...
 # Use mock to verify all dependencies have been built and are available.
