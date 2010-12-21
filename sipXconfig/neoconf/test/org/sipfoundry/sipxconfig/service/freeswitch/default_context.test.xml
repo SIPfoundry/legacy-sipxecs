@@ -2,12 +2,14 @@
   <extension name="400">
     <condition field="destination_number" expression="^sales$">
       <action application="set" data="supplied_pin=${sip_h_X-ConfPin}"/>
+      <action application="export" data="supplied_pin=${sip_h_X-ConfPin}"/>
       <action application="bridge" data="loopback/app=conference:sales@400+400222"/>
     </condition>
   </extension>
   <extension name="500">
     <condition field="destination_number" expression="^marketing$">
       <action application="set" data="supplied_pin=${sip_h_X-ConfPin}"/>
+      <action application="export" data="supplied_pin=${sip_h_X-ConfPin}"/>
       <action application="bridge" data="loopback/app=conference:marketing@500+500222"/>
     </condition>
   </extension>

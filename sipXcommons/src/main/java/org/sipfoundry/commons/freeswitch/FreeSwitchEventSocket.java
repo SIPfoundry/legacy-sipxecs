@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Vector;
 
-
 /**
  * The nitty-gritty handling of data to and from the socket that came from a FreeSwitch "outbound"
  * call.
@@ -62,7 +61,7 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
         // Accept the connection from FreeSwitch, and get the variables for this call
         FreeSwitchEvent event = cmdResponse("connect");
         if (event.isEmpty()) {
-        	return false;
+            return false;
         }
 
         LOG.debug(event.getResponse());
@@ -73,11 +72,13 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
 
         // Enable reporting of interesting events
 
-        if(UUID != null) {
+        if (UUID != null) {
             cmdResponse("event plain all");
             cmdResponse("filter Unique-ID " + UUID);
+            cmdResponse("linger");
         } else {
             cmdResponse("myevents");
+            cmdResponse("linger");
         }
 
         return true;
@@ -109,10 +110,11 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
             FreeSwitchEvent event = awaitLiveEvent();
 
             if (event.isEmpty()) {
-            	// Hey! FS closed the socket on us!
-            	return event;
+                // Hey! FS closed the socket on us!
+                return event;
             } else if (event.getContentType().contentEquals("command/reply")) {
-                LOG.debug(String.format("FSES::cmdResponse cmd (%s) response (%s)", cmd, event.getHeader("Reply-Text", "(No Reply-Text)")));
+                LOG.debug(String.format("FSES::cmdResponse cmd (%s) response (%s)", cmd,
+                        event.getHeader("Reply-Text", "(No Reply-Text)")));
                 return event;
             } else {
                 // Push non reply event onto the queue for someone else to deal with.
@@ -138,11 +140,11 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
             FreeSwitchEvent event = awaitLiveEvent();
 
             if (event.isEmpty()) {
-            	// Hey! FS closed the socket on us!
-            	return event;
+                // Hey! FS closed the socket on us!
+                return event;
             } else if (event.getContentType().contentEquals("api/response")) {
-                LOG.debug(String.format("FSES::apiCmdResponse cmd (%s) response (%s)", cmd, event.getHeader(
-                        "Reply-Text", "(No Reply-Text)")));
+                LOG.debug(String.format("FSES::apiCmdResponse cmd (%s) response (%s)", cmd,
+                        event.getHeader("Reply-Text", "(No Reply-Text)")));
                 return event;
             } else {
                 // Push non reply event onto the queue for someone else to deal with.
@@ -196,7 +198,8 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
         }
         event = new FreeSwitchEvent(response, content);
         LOG.debug(String.format("FSES::awaitEvent live response (%s) Event-Name (%s) Application (%s)",
-                event.getContentType(), event.getEventValue("Event-Name", "(null)"), event.getEventValue("Application", "(null)")));
+                event.getContentType(), event.getEventValue("Event-Name", "(null)"),
+                event.getEventValue("Application", "(null)")));
 
         // Look for a "uuid_bridge" operation which indicates that this FS session
         // is a consultative transfer target.
