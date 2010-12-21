@@ -228,7 +228,7 @@ fi
 
 # Reconfigure sendmail (if that is the mail daemon chosen) to ensure
 # prompt delivery of voicemail notifications.
-sipx-sendmail-configure %{release}
+sipx-sendmail-configure @PACKAGE_REVISION@
 
 # If this is an upgrade from 3.10, need to setup the SSL db correctly
 %{_bindir}/ssl-cert/upgrade-cert.sh >> %{_localstatedir}/log/sipxpbx/upgrade-cert.log 2>&1
