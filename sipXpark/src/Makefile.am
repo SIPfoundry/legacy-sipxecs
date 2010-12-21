@@ -18,6 +18,7 @@ sipxpark_LDADD = \
 
 sipxpark_CXXFLAGS = \
         -I$(top_builddir)/config \
+        -I$(top_builddir) \
         -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
         -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
         -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
@@ -25,8 +26,6 @@ sipxpark_CXXFLAGS = \
         -DSIPX_VARDIR=\"@SIPX_VARDIR@\"
 
 sipxpark_SOURCES =  \
-	$(top_builddir)/config/sipxpark-buildstamp.h \
-	$(top_builddir)/config/sipxpark-buildstamp.cpp \
 	main.cpp \
 	OrbitListener.cpp \
 	ParkedCallObject.cpp

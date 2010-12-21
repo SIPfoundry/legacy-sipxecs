@@ -42,15 +42,7 @@
 #include "sipXecsService/SipXecsService.h"
 
 #include "OrbitListener.h"
-
-// DEFINES
-#ifndef SIPX_VERSION
-#  include "sipxpark-buildstamp.h"
-#  define SIPX_VERSION SipXparkVersion
-#  define SIPX_BUILD   SipXparkBuildStamp
-#else
-#  define SIPX_BUILD   ""
-#endif
+#include "config.h"
 
 #define CONFIG_SETTINGS_FILE          "sipxpark-config"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
@@ -171,7 +163,7 @@ void initSysLog(OsConfigDb* pConfig)
 
    OsSysLog::initialize(0, "sipxpark");
    OsSysLog::add(FAC_SIP, PRI_INFO, ">>>>>>>>>>>>>>>> Starting - version %s build %s",
-                 SIPX_VERSION, SIPX_BUILD
+                 VERSION, PACKAGE_REVISION
                  );
 
    //
@@ -315,7 +307,7 @@ int main(int argc, char* argv[])
         NameValueTokenizer::frontBackTrim(&argString, "\t ");
         if(argString.compareTo("-v") == 0)
         {
-            osPrintf("Version: %s (%s)\n", SIPX_VERSION, SIPX_BUILD);
+            osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
             return(1);
         } else
         {
