@@ -98,7 +98,6 @@ nobase_include_HEADERS =  \
     net/StateChangeNotifier.h \
     net/TapiMgr.h \
     net/Url.h \
-    net/version.h \
     net/XmlRpcBody.h \
     net/XmlRpcDispatch.h \
     net/XmlRpcMethod.h \
@@ -115,20 +114,3 @@ nobase_include_HEADERS =  \
     tapi/sipXtapi.h \
     tapi/sipXtapiEvents.h \
     tapi/sipXtapiInternal.h
-
-net/version.h: .FORCE
-	@test -d net || mkdir net
-	@echo '#ifndef SIP_STACK_VERSION'       > net/version_new.h
-	@echo -n '#define SIP_STACK_VERSION "' >> net/version_new.h
-	@echo -n @VERSION@                     >> net/version_new.h
-	@echo    '"'                           >> net/version_new.h
-	@echo '#endif'                         >> net/version_new.h
-	@if test ! -r net/version.h || ! diff net/version.h net/version_new.h > /dev/null  \
-	;then \
-	   echo sipXtack version is @VERSION@ \
-	;  mv net/version_new.h net/version.h \
-	;else \
-	   rm -f net/version_new.h \
-	;fi
-
-.FORCE:

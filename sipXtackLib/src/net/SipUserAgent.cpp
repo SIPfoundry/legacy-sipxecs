@@ -48,11 +48,7 @@
 #include <os/OsRWMutex.h>
 #include <os/OsReadLock.h>
 #include <os/OsWriteLock.h>
-#ifndef _WIN32
-// version.h is generated as part of the build by other platforms.  For
-// windows, the sip stack version is defined under the project settings.
-#include <net/version.h>
-#endif
+#include <config.h>
 #include <os/OsSysLog.h>
 #include <os/OsFS.h>
 #include <utl/UtlTokenizer.h>
@@ -439,7 +435,7 @@ SipUserAgent::SipUserAgent(int sipTcpPort,
     allowMethod(SIP_REFER_METHOD);
     allowMethod(SIP_OPTIONS_METHOD);
 
-    defaultUserAgentName.append(VENDOR "/" SIP_STACK_VERSION);
+    defaultUserAgentName.append(VENDOR "/" VERSION);
 
     OsMsgQ* incomingQ = getMessageQueue();
     mpTimer = new OsTimer(incomingQ, 0);
