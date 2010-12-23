@@ -24,8 +24,11 @@ MAN_PAGES = \
 	regtimes.1 \
 	sipxcar.1 \
 	sipxproc.1 \
-	polycom-config.1 \
-	sipdb-dump.1
+	polycom-config.1
+
+# Call me crazy, but this man page is causing occasional build failures, taking out for now
+# and this will go away when FreeDB goes away
+#	sipdb-dump.1
 
 EXTRA_DIST = \
 	$(subst .1,.txt2man,$(MAN_PAGES))
