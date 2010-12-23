@@ -19,7 +19,7 @@ help.ci-all = Build all targets CI targets $(CI_TARGETS)
 ci-all : $(CI_TARGETS);
 
 $(foreach T,$(CI_TARGETS),$(eval help.$(T)=Complete build for respective distribution, version and architecture))
-$(CI_TARGETS) : ci.% : /etc/mock/sipx-%.cfg ci.%.clean ci.%.init ci.%.lib ci.%.sipx ci.%.repo ci.%.check
+$(CI_TARGETS) : ci.% : /etc/mock/sipx-%.cfg ci.%.clean ci.%.init ci.%.lib ci.%.sipx ci.%.check
 
 ci.% : SUBMAKE_VARS=DISTRO=$(CI_DISTRO) DISTRO_VER=$(CI_DISTRO_VER) MOCK_TARGET_PLATFORM=sipx-$(CI_MOCK_TARGET) DISTRO_ARCH=$(CI_DISTRO_ARCH)
 
@@ -57,10 +57,6 @@ $(foreach P,$(all),$(foreach T,$(CI_TARGETS),$(T).$(P))) : ci.web-server
 
 $(foreach T,$(CI_TARGETS),$(T).%...) : ci.web-server
 	$(MAKE) $(foreach T,$(call after,$(PROJ),$(all)),ci.$(CI_MOCK_TARGET).$(T))
-
-help.ci.*.repo = Last part of CI build - add to the final repository @RPM_DIST_DIR@, ready for publishing. See repo help for more information
-ci.%.repo :
-	$(MAKE) repo $(SUBMAKE_VARS)
 
 # will need root for this
 help.ci.setup=Register mock templates. To be run once on a build machine by someone with r/w permissions to /etc/mock. Root is fine. Idempotent.
