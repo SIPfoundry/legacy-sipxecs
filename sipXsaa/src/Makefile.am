@@ -20,8 +20,6 @@ sipxsaa_CXXFLAGS = \
         -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 sipxsaa_SOURCES =  \
-	$(top_builddir)/config/sipxsaa-buildstamp.h \
-	$(top_builddir)/config/sipxsaa-buildstamp.cpp \
 	main.cpp \
 	AppAgentSubscribePolicy.cpp \
 	AppAgentTask.cpp \

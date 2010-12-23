@@ -1,3 +1,10 @@
+# Parallel build cause docbook to choke
+#   ../manpages/docbook.xsl sipdb-dump.xml
+#   ../dbpoolx.mod:3899: parser warning : PEReference: %tbl.frame.attval; not found
+#		frame		(%tbl.frame.attval;)	#IMPLIED
+# So disable them here for all targets in this file
+.NOTPARALLEL:
+
 if GENERATE_MANPAGES
 MAN_PAGES_OPT = $(MAN_PAGES)
 endif

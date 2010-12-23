@@ -13,15 +13,12 @@ sipxrls_LDADD = \
 	@GIPS_NEQ_OBJS@
 
 sipxrls_CXXFLAGS = \
-        -I$(top_builddir)/config \
         -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
         -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
         -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \
         -DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 sipxrls_SOURCES =  \
-	$(top_builddir)/config/sipxrls-buildstamp.h \
-	$(top_builddir)/config/sipxrls-buildstamp.cpp \
 	main.cpp \
 	ContactSet.cpp \
 	ResourceCache.cpp \

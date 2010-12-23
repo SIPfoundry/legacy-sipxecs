@@ -4,7 +4,7 @@ TESTS = testsuite
 
 check_PROGRAMS = testsuite sandbox
 
-INCLUDES = -I$(top_srcdir)/include
+INCLUDES = -I$(top_srcdir)/include -I../
 
 # Make TESTDIR an absolute path to the directory containing
 # SipSrvLookupTest.named.*

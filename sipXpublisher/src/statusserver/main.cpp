@@ -15,13 +15,7 @@
 #include <signal.h>
 
 // APPLICATION INCLUDES
-#ifndef SIPX_VERSION
-#  include "sipxpublisher-buildstamp.h"
-#  define SIPX_VERSION SipXpublisherVersion
-#  define SIPX_BUILD SipXpublisherBuildStamp
-#else
-#  define SIPX_BUILD ""
-#endif
+#include "config.h"
 #include "os/OsConfigDb.h"
 #include "os/OsFS.h"
 #include "os/OsTask.h"
@@ -225,7 +219,7 @@ main(int argc, char* argv[] )
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if(argString.compareTo("-v") == 0)
       {
-         OsSysLog::add(LOG_FACILITY, PRI_INFO, "Version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
+         OsSysLog::add(LOG_FACILITY, PRI_INFO, "Version: %s %s\n", VERSION, PACKAGE_REVISION);
          return(1);
       }
       else if( argString.compareTo("-i") == 0)

@@ -13,15 +13,7 @@
 #include <iostream>
 
 // APPLICATION INCLUDES
-#ifndef SIPX_VERSION
-#  include "sipxregistry-buildstamp.h"
-#  define SIPXCHANGE_VERSION SipXregistryVersion
-#  define SIPXCHANGE_VERSION_COMMENT SipXregistryBuildStamp
-#else
-#  define SIPXCHANGE_VERSION SIPX_VERSION
-#  define SIPXCHANGE_VERSION_COMMENT ""
-#endif
-
+#include "config.h"
 #include "os/OsConfigDb.h"
 #include "os/OsFS.h"
 #include "os/OsTime.h"
@@ -236,7 +228,7 @@ main(int argc, char* argv[] )
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if (argString.compareTo("-v") == 0)
       {
-         osPrintf("Version: %s (%s)\n", SIPXCHANGE_VERSION, SIPXCHANGE_VERSION_COMMENT);
+         osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
          return(1);
       }
       else if ( argString.compareTo("-i") == 0)

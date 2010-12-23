@@ -13,8 +13,6 @@ SUBDIRS = \
 
 EXTRA_DIST = \
     config/sipX-config.in \
-    config/sipX-buildstamp.cpp.in \
-    config/sipX-buildstamp.h.in \
     config/svn-version \
 	 sipxinterop.spec \
     BUILDSTAMP \

@@ -31,15 +31,7 @@
 #include <sipXecsService/SipXecsService.h>
 
 // DEFINES
-
-#ifndef SIPX_VERSION
-#  include "sipxrls-buildstamp.h"
-#  define SIPXCHANGE_VERSION          SipXrlsVersion
-#  define SIPXCHANGE_VERSION_COMMENT  SipXrlsBuildStamp
-#else
-#  define SIPXCHANGE_VERSION          SIPX_VERSION
-#  define SIPXCHANGE_VERSION_COMMENT  ""
-#endif
+#include "config.h"
 
 // SIPXRLS User ID
 #define RLSSERVER_ID_TOKEN            "~~id~sipXrls"
@@ -349,8 +341,7 @@ int main(int argc, char* argv[])
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if (argString.compareTo("-v") == 0)
       {
-         osPrintf("Version: %s (%s)\n", SIPXCHANGE_VERSION,
-                  SIPXCHANGE_VERSION_COMMENT);
+         osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
          return 1;
       }
       else

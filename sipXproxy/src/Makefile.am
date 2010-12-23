@@ -5,7 +5,6 @@ SUBDIRS = . cdr test
 ## Process this file with automake to produce Makefile.in
 
 SIPXPROXY_COMMON_CXX_FLAGS = \
-	-I$(top_builddir)/config \
 	-I$(top_srcdir)/include \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DPOSTGRESQL_USER=\"@POSTGRESQL_USER@\"
@@ -23,8 +22,6 @@ sipXproxy_LDADD = \
 	@SIPXCOMMSERVER_LIBS@
 
 sipXproxy_SOURCES =  \
-	$(top_builddir)/config/sipxproxy-buildstamp.h \
-	$(top_builddir)/config/sipxproxy-buildstamp.cpp \
 	sipXproxymain.cpp
 
 ## Libtool version info - update only immediately before a release

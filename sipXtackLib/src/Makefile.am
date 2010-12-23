@@ -9,8 +9,7 @@ EXTRA_DIST = \
     resparse/wnt/writev.c
 
 INCLUDES = \
-	-I$(top_srcdir)/include \
-	-I$(top_builddir)/include
+	-I$(top_srcdir)/include
 
 lib_LTLIBRARIES = libsipXtack.la
 

@@ -8,7 +8,7 @@ m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
 AC_CONFIG_SRCDIR([src/sipXproxymain.cpp])
-AM_CONFIG_HEADER([config.h])
+AM_CONFIG_HEADER([src/config.h])
 AC_PROG_LIBTOOL
 AC_PATH_PROG([BASH], [bash])
 AC_PROG_CXX

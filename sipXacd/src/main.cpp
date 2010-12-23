@@ -22,10 +22,6 @@
 #include <utl/UtlString.h>
 #include "ACDServer.h"
 
-// DEFINES
-#define SIPXCHANGE_VERSION          PACKAGE_VERSION
-#define SIPXCHANGE_VERSION_COMMENT  PACKAGE_REVISION
-
 // MACROS
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -142,7 +138,7 @@ int main(int argc, char* argv[])
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if (argString.compareTo("-v") == 0) {
          enableConsoleOutput(true);
-         osPrintf("Version: %s (%s)\n", SIPXCHANGE_VERSION, SIPXCHANGE_VERSION_COMMENT);
+         osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
          return(1);
       }
       else if (argString.compareTo("-c") == 0) {

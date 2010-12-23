@@ -19,8 +19,6 @@ sipxsupervisor_LDADD = \
 noinst_LTLIBRARIES = libsipXsupervisor.la libsipXalarms.la
 
 libsipXsupervisor_la_SOURCES =  \
-	$(top_builddir)/config/sipxsupervisor-buildstamp.h \
-	$(top_builddir)/config/sipxsupervisor-buildstamp.cpp \
 	sipXsupervisor.cpp \
 	ProcMgmtRpc.cpp \
 	AlarmRpc.cpp \

@@ -15,8 +15,6 @@ sipstatus_CXXFLAGS = \
 	-DSIPX_CONFDIR=\"@SIPX_CONFDIR@\"
 
 sipstatus_SOURCES =  \
-    $(top_builddir)/config/sipxpublisher-buildstamp.h \
-    $(top_builddir)/config/sipxpublisher-buildstamp.cpp \
     statusserver/main.cpp \
     statusserver/MwiPlugin.cpp \
     statusserver/Notifier.cpp \

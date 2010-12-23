@@ -35,14 +35,7 @@
 #include <ForwardRules.h>
 
 #include <SipXProxyCseObserver.h>
-
-#ifndef SIPX_VERSION
-#  include "sipxproxy-buildstamp.h"
-#  define SIPX_VERSION SipXproxyVersion
-#  define SIPX_BUILD   SipXproxyBuildStamp
-#else
-#  define SIPX_BUILD   ""
-#endif
+#include "config.h"
 
 //uncomment next line to enable bound checker checking with 'b' key
 //#define BOUNDS_CHECKER
@@ -278,7 +271,7 @@ proxy( int argc, char* argv[] )
        NameValueTokenizer::frontBackTrim(&argString, "\t ");
        if(argString.compareTo("-v") == 0)
        {
-           osPrintf("Version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
+           osPrintf("Version: %s %s\n", VERSION, PACKAGE_REVISION);
            return(1);
        } else if( argString.compareTo("-i") == 0)
        {

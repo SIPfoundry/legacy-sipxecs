@@ -11,7 +11,6 @@
 #include <signal.h>
 
 // APPLICATION INCLUDES
-#include "config/sipxsaa-buildstamp.h"
 #include "net/NameValueTokenizer.h"
 #include "net/SipLine.h"
 #include "net/SipLineMgr.h"
@@ -26,14 +25,7 @@
 #include "main.h"
 
 // DEFINES
-#ifndef SIPX_VERSION
-   #include "sipxsaa-buildstamp.h"
-   #define SIPXCHANGE_VERSION          SipXsaaVersion
-   #define SIPXCHANGE_VERSION_COMMENT  SipXsaaBuildStamp
-#else
-   #define SIPXCHANGE_VERSION          SIPX_VERSION
-   #define SIPXCHANGE_VERSION_COMMENT  ""
-#endif
+#include "config.h"
 
 // SIPXSAA User ID
 #define SAASERVER_ID_TOKEN            "~~id~sipXsaa"
@@ -339,8 +331,7 @@ int main(int argc, char* argv[])
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if (argString.compareTo("-v") == 0)
       {
-         osPrintf("Version: %s (%s)\n", SIPXCHANGE_VERSION,
-                  SIPXCHANGE_VERSION_COMMENT);
+         osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
          return 1;
       }
       else

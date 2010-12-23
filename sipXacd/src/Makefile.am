@@ -1,7 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
 INCLUDES = \
-	-I$(top_srcdir)/config \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/../sipXcallLib/include
 
@@ -17,8 +16,6 @@ sipxacd_LDADD = \
     @GIPS_NEQ_OBJS@
 
 sipxacd_CXXFLAGS = \
-        -I$(top_builddir)/config \
-        -I$(top_builddir) \
         -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
         -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
         -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \

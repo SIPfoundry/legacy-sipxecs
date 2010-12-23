@@ -17,8 +17,6 @@ sipxpark_LDADD = \
 	@GIPS_NEQ_OBJS@
 
 sipxpark_CXXFLAGS = \
-        -I$(top_builddir)/config \
-        -I$(top_builddir) \
         -DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
         -DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
         -DSIPX_TMPDIR=\"@SIPX_TMPDIR@\" \

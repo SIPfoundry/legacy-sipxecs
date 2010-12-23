@@ -30,13 +30,7 @@
 #include "statusserver/StatusServer.h"
 #include "statusserver/SubscribePersistThread.h"
 #include "statusserver/SubscribeServerThread.h"
-#ifndef SIPX_VERSION
-#  include "sipxpublisher-buildstamp.h"
-#  define SIPX_VERSION SipXpublisherVersion
-#  define SIPX_BUILD SipXpublisherBuildStamp
-#else
-#  define SIPX_BUILD ""
-#endif
+#include "config.h"
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -278,7 +272,7 @@ StatusServer::startStatusServer (
        exit(1);
     }
 
-    OsSysLog::add(LOG_FACILITY, PRI_INFO, "Starting - version: %s %s\n", SIPX_VERSION, SIPX_BUILD);
+    OsSysLog::add(LOG_FACILITY, PRI_INFO, "Starting - version: %s %s\n", VERSION, PACKAGE_REVISION);
 
     sConfigDb.get("SIP_STATUS_AUTHENTICATE_ALGORITHM", authAlgorithm);
     sConfigDb.get("SIP_STATUS_AUTHENTICATE_QOP", authQop);

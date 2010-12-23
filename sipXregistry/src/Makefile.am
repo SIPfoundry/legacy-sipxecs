@@ -5,7 +5,6 @@ SUBDIRS = test
 bin_PROGRAMS = sipregistrar
 
 sipregistrar_CXXFLAGS = \
-	-I$(top_builddir)/config \
 	-I$(top_srcdir)/include \
 	-DSIPX_LOGDIR=\"@SIPX_LOGDIR@\" \
 	-DSIPX_RUNDIR=\"@SIPX_RUNDIR@\" \
@@ -30,8 +29,6 @@ libsipXregistry_la_LIBADD = \
 	@SIPXCOMMSERVER_LIBS@
 
 libsipXregistry_la_SOURCES = \
-    $(top_builddir)/config/sipxregistry-buildstamp.h \
-    $(top_builddir)/config/sipxregistry-buildstamp.cpp \
     RedirectPlugin.cpp \
     RedirectResumeMsg.cpp \
     RedirectResumeMsg.h \

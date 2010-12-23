@@ -1,25 +1,25 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
 # 
-help.reconf=Re-run original configure script with same arguments as before.
-reconf :
-	$(SRC)/configure @CONFIGURE_OPTIONS@
-
-help.*.autoreconf=Run autoreconf on each project
-%.autoreconf : 
-	cd $(SRC)/$(PROJ); \
-	  autoreconf -if
-
 help.sipx=Build all sipx components including autoreconf, configure, all and install targets
 build sipx :
 	$(MAKE) $(foreach P,$(sipx),$(P))
 
-$(foreach T,$(all),$(T)) : % : %.build;
-$(foreach T,$(all),$(T)...) : %... : %.build...;
-$(foreach T,$(all),$(T).build) : %.build : %.autoreconf %.configure %.all-install ;
+$(foreach T,$(sipx),$(T)) : % : %.build;
+$(foreach T,$(sipx),$(T)...) : %... : %.build...;
+$(foreach T,$(sipx),$(T).build) : %.build : %.autoreconf %.configure %.all-install ;
 
 help.{sipx,sipX*}.all-install=Run 'make all install' in each target
 $(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
+
+# Targets for sipx and lib. Uses pattern %.xyz so libs can implement their own
+# implementation that will override the patterned one. i.e. freeswitch.autoreconf
+# This also means all targets in all other make files cannot create a target that
+# ends in autoreconf, configure or dist.
+help.*.autoreconf=Run autoreconf on each project
+%.autoreconf : 
+	cd $(SRC)/$(PROJ); \
+	  autoreconf -if
 
 help.*.configure = Run configure on each project
 %.configure :
@@ -27,21 +27,19 @@ help.*.configure = Run configure on each project
 	cd $(PROJ); \
 	  $(SRC)/$(PROJ)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 
+%.dist :; $(MAKE) -C $(PROJ) dist
+
+# Targets for sipx only. 
 MAKE_COMMANDS = check install clean dist
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.*.$(C)=Run make $(C) on each project))
-%.dist :; $(MAKE) -C $(PROJ) dist
-%.install :; $(MAKE) -C $(PROJ) install
-%.clean :; $(MAKE) -C $(PROJ) clean
-%.check :; $(MAKE) -C $(PROJ) check
+$(foreach P,$(sipx),$(P).install) :; $(MAKE) -C $(PROJ) install
+$(foreach P,$(sipx),$(P).clean) :; $(MAKE) -C $(PROJ) clean
+$(foreach P,$(sipx),$(P).check) :; $(MAKE) -C $(PROJ) check
 
 # projects do not all have an "all" target, they probably should, until then, use
 # no-target default
 $(foreach C,all,$(foreach T,$(sipx),$(T).all)) :
 	$(MAKE) -C $(PROJ)
-
-help.{sipx,sipX*}.update-version = Update all sipx components to the current version.
-$(foreach T,$(sipx),$(T).update-version) :
-	sed -i -e 's/\(AC_INIT(.*, \)[0-9.]\+\(.*\)/\1@PACKAGE_VERSION@\2/g' $(SRC)/$(PROJ)/configure.ac
 
 help.repofile = Print to stdout yum repository file you can copy to /etc/yum.repos.d that will point your system to download rpms from SIPfoundry
 repofile :

@@ -24,15 +24,7 @@
 #include <sipXecsService/SipXecsService.h>
 
 // DEFINES
-#ifndef SIPX_VERSION
-#  include "sipxpresence-buildstamp.h"
-#  define SIPXCHANGE_VERSION          SipXpresenceVersion
-#  define SIPXCHANGE_VERSION_COMMENT  SipXpresenceBuildStamp
-#else
-#  define SIPXCHANGE_VERSION          SIPX_VERSION
-#  define SIPXCHANGE_VERSION_COMMENT  ""
-#endif
-
+#include "config.h"
 #define CONFIG_SETTINGS_FILE          "sipxpresence-config"
 #define CONFIG_ETC_DIR                SIPX_CONFDIR
 
@@ -257,7 +249,7 @@ int main(int argc, char* argv[])
       NameValueTokenizer::frontBackTrim(&argString, "\t ");
       if(argString.compareTo("-v") == 0)
       {
-         osPrintf("Version: %s (%s)\n", SIPXCHANGE_VERSION, SIPXCHANGE_VERSION_COMMENT);
+         osPrintf("Version: %s (%s)\n", VERSION, PACKAGE_REVISION);
          return(1);
       }
       else

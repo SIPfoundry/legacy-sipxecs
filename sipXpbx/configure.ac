@@ -7,7 +7,6 @@ m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
-AM_CONFIG_HEADER([config.h])
 AC_PROG_LIBTOOL
 AC_PROG_LN_S
 AC_PATH_PROG([BASH], [bash])

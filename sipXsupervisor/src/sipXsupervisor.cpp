@@ -27,7 +27,7 @@
 #include "HttpFileAccess.h"
 #include "AlarmServer.h"
 #include "SipxProcessManager.h"
-#include "config/sipxsupervisor-buildstamp.h"
+#include "config.h"
 
 #define DEBUG
 
@@ -296,7 +296,7 @@ int main(int argc, char* argv[])
         }
         if (argString.compareTo("-v") == 0)
         {
-           osPrintf("sipxsupervisor %s\n\n", SipXsupervisorVersion);
+           osPrintf("sipxsupervisor %s\n\n", VERSION);
            return 0;
         }
         else
@@ -422,7 +422,7 @@ int supervisorMain(bool bOriginalSupervisor)
     }
     OsSysLog::add(FAC_SUPERVISOR, PRI_NOTICE,
                   ">>>>> Starting sipxsupervisor version %s",
-                  SipXsupervisorVersion);
+                  VERSION);
 
     // Now that the log file is initialized, stop sending osPrintf to the console.
     // All relevant log messages from this point on must use OsSysLog::add().
