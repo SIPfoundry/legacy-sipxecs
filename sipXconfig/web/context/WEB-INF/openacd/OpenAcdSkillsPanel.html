@@ -1,0 +1,34 @@
+<form jwcid="skills@Form" id="skillsForm" delegate="bean:validator">
+  <ul class="component-links">
+	<li>
+	  <a jwcid="addSkill@DirectLink"  id="link.addSkill" listener="listener:addSkill">
+		<span key="link.addSkill">Add new Skill</span>
+	  </a>
+	</li>
+  </ul>
+  <table jwcid="@common/Table" id="skills:list"
+		columns="* name,atom,groupName,description"
+		source="ognl:skills"
+		row="ognl:currentRow"
+		selections="bean:selections">
+	<tr jwcid="nameColumnValue@Block">
+	  <td jwcid="editRowLink@DirectLink"
+		  listener="listener:editSkill"
+		  parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="ognl:currentRow.name"/>
+	  </td>
+	</tr>
+  </table>
+  <ul class="component-submit">
+	<li>
+	  <input jwcid="delete@Submit" id="agentGroups:delete"
+			listener="listener:delete"
+			selected="ognl:selectedRows"
+			tag="ognl:allSelected"
+			value="message:button.delete" />
+		<span jwcid="@common/Confirm"
+		  component="component:delete"
+		  prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+</form>

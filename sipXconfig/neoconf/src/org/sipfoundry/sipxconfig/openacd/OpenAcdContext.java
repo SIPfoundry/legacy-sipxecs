@@ -69,4 +69,18 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
     OpenAcdAgent getAgentByUser(User user);
 
     boolean isOpenAcdAgent(User user);
+
+    List<OpenAcdSkill> getSkills();
+
+    List<OpenAcdSkill> getDefaultSkills();
+
+    OpenAcdSkill getSkillById(Integer skillId);
+
+    OpenAcdSkill getSkillByName(String skillName);
+
+    OpenAcdSkill getSkillByAtom(String atom);
+
+    void saveSkill(OpenAcdSkill skill);
+
+    boolean removeSkills(Collection<Integer> skillIds);
 }

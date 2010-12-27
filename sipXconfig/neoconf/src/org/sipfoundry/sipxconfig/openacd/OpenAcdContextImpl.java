@@ -54,9 +54,12 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String LOCATION = "location";
     private static final String OPEN_ACD_EXTENSION_WITH_NAME = "openAcdExtensionWithName";
     private static final String OPEN_ACD_AGENT_GROUP_WITH_NAME = "openAcdAgentGroupWithName";
+    private static final String OPEN_ACD_SKILL_WITH_NAME = "openAcdSkillWithName";
+    private static final String OPEN_ACD_SKILL_WITH_ATOM = "openAcdSkillWithAtom";
+    private static final String DEFAULT_OPEN_ACD_SKILLS = "defaultOpenAcdSkills";
     private static final String ALIAS_RELATION = "openacd";
     private static final String OPEN_ACD_AGENT_BY_USERID = "openAcdAgentByUserId";
-    private static final String GROUP_NAME_DEFAULT = "Default";
+    private static final String AGENT_GROUP_NAME_DEFAULT = "Default";
     private static final String LINE_NAME = "line";
 
     private DomainManager m_domainManager;
@@ -277,7 +280,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (!agentGroup.isNew()) {
             if (isNameChanged(agentGroup)) {
                 // don't rename the default group
-                OpenAcdAgentGroup defaultAgentGroup = getAgentGroupByName(GROUP_NAME_DEFAULT);
+                OpenAcdAgentGroup defaultAgentGroup = getAgentGroupByName(AGENT_GROUP_NAME_DEFAULT);
                 if (defaultAgentGroup != null && defaultAgentGroup.getId().equals(agentGroup.getId())) {
                     throw new UserException("&msg.err.defaultAgentGroupRename");
                 }
@@ -310,7 +313,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         List<OpenAcdAgent> agents = new LinkedList<OpenAcdAgent>();
         for (Integer id : agentGroupIds) {
             OpenAcdAgentGroup group = getAgentGroupById(id);
-            if (!group.getName().equals(GROUP_NAME_DEFAULT)) {
+            if (!group.getName().equals(AGENT_GROUP_NAME_DEFAULT)) {
                 agents.addAll(group.getAgents());
                 groups.add(group);
             } else {
@@ -403,6 +406,108 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<OpenAcdSkill> getSkills() {
+        return getHibernateTemplate().loadAll(OpenAcdSkill.class);
+    }
+
+    @Override
+    public List<OpenAcdSkill> getDefaultSkills() {
+        return getHibernateTemplate().findByNamedQuery(DEFAULT_OPEN_ACD_SKILLS);
+    }
+
+    @Override
+    public OpenAcdSkill getSkillById(Integer skillId) {
+        return getHibernateTemplate().load(OpenAcdSkill.class, skillId);
+    }
+
+    @Override
+    public OpenAcdSkill getSkillByName(String skillName) {
+        List<OpenAcdSkill> skills = getHibernateTemplate().findByNamedQueryAndNamedParam(OPEN_ACD_SKILL_WITH_NAME,
+                VALUE, skillName);
+        return DataAccessUtils.singleResult(skills);
+    }
+
+    @Override
+    public OpenAcdSkill getSkillByAtom(String atom) {
+        List<OpenAcdSkill> skills = getHibernateTemplate().findByNamedQueryAndNamedParam(OPEN_ACD_SKILL_WITH_ATOM,
+                VALUE, atom);
+        return DataAccessUtils.singleResult(skills);
+    }
+
+    @Override
+    public void saveSkill(OpenAcdSkill skill) {
+        // Check if skill name is empty
+        if (StringUtils.isBlank(skill.getName())) {
+            throw new UserException("&blank.skillName.error");
+        }
+        // Check if skill atom is empty
+        if (StringUtils.isBlank(skill.getAtom())) {
+            throw new UserException("&blank.skillAtom.error");
+        }
+        // Check if skill group name is empty
+        if (StringUtils.isBlank(skill.getGroupName())) {
+            throw new UserException("&blank.skillGroupName.error");
+        }
+        // Check for duplicate names before saving the skill
+        if (skill.isNew() || (!skill.isNew() && isNameChanged(skill))) {
+            checkForDuplicateName(skill);
+        }
+        // Check for duplicate atoms before saving the skill
+        if (skill.isNew() || (!skill.isNew() && isAtomChanged(skill))) {
+            checkForDuplicateAtom(skill);
+        }
+
+        if (!skill.isNew()) {
+            getHibernateTemplate().merge(skill);
+            m_provisioningContext.updateObjects(Collections.singletonList(skill));
+        } else {
+            getHibernateTemplate().save(skill);
+            m_provisioningContext.addObjects(Collections.singletonList(skill));
+        }
+    }
+
+    public boolean removeSkills(Collection<Integer> skillIds) {
+        boolean affectDefaultSkills = false;
+        List<OpenAcdSkill> skills = new LinkedList<OpenAcdSkill>();
+        for (Integer id : skillIds) {
+            OpenAcdSkill skill = getSkillById(id);
+            if (!skill.isDefaultSkill()) {
+                skills.add(skill);
+            } else {
+                affectDefaultSkills = true;
+            }
+        }
+        getHibernateTemplate().deleteAll(skills);
+        m_provisioningContext.deleteObjects(skills);
+
+        return affectDefaultSkills;
+    }
+
+    private boolean isNameChanged(OpenAcdSkill skill) {
+        return !getSkillById(skill.getId()).getName().equals(skill.getName());
+    }
+
+    private void checkForDuplicateName(OpenAcdSkill skill) {
+        String skillName = skill.getName();
+        OpenAcdSkill existingSkill = getSkillByName(skillName);
+        if (existingSkill != null) {
+            throw new UserException("&duplicate.skillName.error", existingSkill);
+        }
+    }
+
+    private boolean isAtomChanged(OpenAcdSkill skill) {
+        return !getSkillById(skill.getId()).getAtom().equals(skill.getAtom());
+    }
+
+    private void checkForDuplicateAtom(OpenAcdSkill skill) {
+        String atom = skill.getAtom();
+        OpenAcdSkill existingSkill = getSkillByAtom(atom);
+        if (existingSkill != null) {
+            throw new UserException("&duplicate.skillAtom.error", existingSkill);
+        }
     }
 
     public void setDomainManager(DomainManager manager) {

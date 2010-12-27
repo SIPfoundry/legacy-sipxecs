@@ -384,6 +384,77 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(1, m_openAcdContextImpl.getAgentGroups().size());
     }
 
+    public void testOpenAcdSkillCrud() throws Exception {
+        // test existing skills in 'Language' and 'Magic' skill groups
+        assertEquals(8, m_openAcdContextImpl.getSkills().size());
+
+        // test default skills existing in 'Magic' skill group
+        assertEquals(6, m_openAcdContextImpl.getDefaultSkills().size());
+
+        // test get skill by name
+        OpenAcdSkill englishSkill = m_openAcdContextImpl.getSkillByName("English");
+        assertNotNull(englishSkill);
+        assertEquals("English", englishSkill.getName());
+        assertEquals("Language", englishSkill.getGroupName());
+        assertFalse(englishSkill.isDefaultSkill());
+
+        OpenAcdSkill allSkill = m_openAcdContextImpl.getSkillByName("All");
+        assertNotNull(allSkill);
+        assertEquals("All", allSkill.getName());
+        assertEquals("Magic", allSkill.getGroupName());
+        assertTrue(allSkill.isDefaultSkill());
+
+        // test get skill by id
+        Integer id = allSkill.getId();
+        OpenAcdSkill skillById = m_openAcdContextImpl.getSkillById(id);
+        assertNotNull(skillById);
+        assertEquals("All", skillById.getName());
+        assertEquals("Magic", skillById.getGroupName());
+
+        // test get skill by atom
+        String atom = allSkill.getAtom();
+        OpenAcdSkill skillByAtom = m_openAcdContextImpl.getSkillByAtom(atom);
+        assertNotNull(skillByAtom);
+        assertEquals("_all", skillByAtom.getAtom());
+        assertEquals("All", skillByAtom.getName());
+        assertEquals("Magic", skillByAtom.getGroupName());
+
+        // test save skill without name
+        OpenAcdSkill newSkill = new OpenAcdSkill();
+        try {
+            m_openAcdContextImpl.saveSkill(newSkill);
+            fail();
+        } catch (UserException ex) {
+        }
+        // test save skill without atom
+        newSkill.setName("TestSkill");
+        try {
+            m_openAcdContextImpl.saveSkill(newSkill);
+            fail();
+        } catch (UserException ex) {
+        }
+        // test save skill without group
+        newSkill.setAtom("_atom");
+        try {
+            m_openAcdContextImpl.saveSkill(newSkill);
+            fail();
+        } catch (UserException ex) {
+        }
+        // test save skill
+        newSkill.setGroupName("Group");
+        assertEquals(8, m_openAcdContextImpl.getSkills().size());
+        m_openAcdContextImpl.saveSkill(newSkill);
+        assertEquals(9, m_openAcdContextImpl.getSkills().size());
+
+        // test remove agent groups but prevent default skills deletion
+        assertEquals(9, m_openAcdContextImpl.getSkills().size());
+        Collection<Integer> skillIds = new ArrayList<Integer>();
+        skillIds.add(allSkill.getId());
+        skillIds.add(newSkill.getId());
+        m_openAcdContextImpl.removeSkills(skillIds);
+        assertEquals(8, m_openAcdContextImpl.getSkills().size());
+    }
+
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {
         m_openAcdContextImpl = openAcdContext;
         OpenAcdProvisioningContext provisioning = EasyMock.createNiceMock(OpenAcdProvisioningContext.class);
