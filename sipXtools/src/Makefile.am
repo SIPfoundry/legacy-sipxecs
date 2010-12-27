@@ -34,7 +34,6 @@ dist_bin_SCRIPTS = \
 	sipx-log-cut \
 	sipx-logtrans \
 	sipx-response-correlator \
-	sipxcar \
 	sipdb-dump \
 	sipsend \
 	polycom-config

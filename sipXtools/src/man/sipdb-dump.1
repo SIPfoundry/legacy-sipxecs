@@ -1,0 +1,56 @@
+.TH "SIPDB-DUMP" "" "1" "Douglas Hubler" ""
+.SH "NAME"
+sipdb\-dump \- sipX In Memory Database (IMDB) data dumper
+.SH "SYNOPSIS"
+sipdb\-dump [options] [imdb\-xml\-files ...]
+.SH "DESCRIPTION"
+Many of the sipX services store information periodically to the disk in the form of XML files. These files can provide insight to the current state of the system. This tool displays the files in a format condusive to command line tools like awk, grep and sed for handy "real\-time" reports.
+
+In addition to the fields copied from the XML file, you may notice various calculated fields. For example there is a field called expired with values true or false false depending on the system clock time and the expiration time of the SIP registration or subscription time.
+.SH "OPTIONS"
+sipdb\-dump [options]
+
+ (none)            Dump files
+ \-h|\-\-help         This help text
+ \-v|\-\-verbose      Dump debugging output to screen. Each shell command
+                    will be printed to stdout.
+.SH "ENVIRONMENT"
+NONE
+.SH "EXAMPLE"
+All example are assumed to be run in this directory
+ $ cd /var/sipxdata/sipdb
+
+Also, in these examples, the awk field indexes may vary so adjust with the 
+version of this tool or version of the sipX services so please adjust
+accordingly in your commands.
+
+Find IP address of all phones with expired registrations
+  
+ $ sipdb\-dump registration.xml | awk \-F\\t '/expired=true/ {print $6}'
+    
+Find IP address of all phones with expired subscriptions
+  
+ $ sipdb\-dump subscription.xml | \
+               awk \-F\\t '/expired=true/ { print $10 }'
+
+Expired status of all phones grouped by status
+  
+ $ sipdb\-dump registration.xml | awk \-F\\t '{print $9 " " $6}' | sort
+    
+Find all permissions for user with id 160
+  
+ $ sipdb\-dump registration.xml | awk \-F\\t '/identity=160@/ {print}'
+
+Find all aliases for user with id 160
+  
+ $ sipdb\-dump alias.xml | awk \-F\\t '/contact=.*sip:160@/ {print}'
+    
+Find all unique aliases to other domains
+  
+ $ sipdb\-dump alias.xml | awk \-F\\t '{print $3}' | sort \-\-unique
+.SH "HINTS"
+Feed output to other tools to send SIP messages, hourly status checks or imports data to other systems.  awk has a printf function for a wide variety of formating needs.
+ 
+passing "\-F\\t" to awk is force tool to only split records on the tab character. Sometimes it's not needed but it's always recommended.
+.SH "BUGS"
+see http://tracker.sipfoundry.org

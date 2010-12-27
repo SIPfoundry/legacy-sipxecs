@@ -1,0 +1,25 @@
+.TH "SIPX-STATS" "" "1" "Scott Lawrence" ""
+.SH "NAME"
+sipx\-stats \- digests sipx log files to create message statistics
+.SH "SYNOPSIS"
+sipx\-stats < log > output
+.SH "DESCRIPTION"
+Given one or more log files on standard input (or file names on the command line), this prints statistics in tablular form on the standard  output.
+
+Do not combine logs from different components, or some messages will  be counted twice.
+
+The logs must be at INFO level or greater to get the required data;  detection of duplicate messages requires that the level be DEBUG.
+
+Log files may be in any order; results are sorted cronologically.
+.SH "OPTIONS"
+NONE
+.SH "ENVIRONMENT"
+NONE
+.SH "EXAMPLE"
+$ sipx\-stats < sipXproxy.log sipXproxy.log.1 > proxy_stats.txt
+
+$ zcat sipXproxy.log.2.gz \
+  | cat sipXproxy.log sipXproxy.log.1 \- \
+  | sipx\-stats > proxy_stats.txt
+.SH "BUGS"
+see http://tracker.sipfoundry.org

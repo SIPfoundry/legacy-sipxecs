@@ -7,24 +7,10 @@ SCRIPT_TEMPLATES = \
 	upgrade-cert.sh \
 	ca_rehash
 
-if GENERATE_MANPAGES
-MAN_PAGES_OPT = gen-ssl-keys.1
-endif
-
-man_MANS = $(MAN_PAGES_OPT)
-
-%.man : %.man.in
-	@$(LocalizeSipXconfig) $< > $@
-
-gen-ssl-keys.xml : %.xml : %.sh.man
-	$(ASCIIDOC) -d manpage -b docbook -o $@ $<
-
-%.1 : %.xml
-	$(XSLTPROC) $(DOCBOOK_2_MAN_XSL) $<
+man_MANS = gen-ssl-keys.1
 
 EXTRA_DIST = \
-	$(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript).in) \
-	gen-ssl-keys.sh.man.in
+	$(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript).in)
 
 all: localize-sipx-scripts
 

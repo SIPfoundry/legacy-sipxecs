@@ -46,11 +46,13 @@ CopySourceFile = \
 
 mock-init :
 	mock -r $(MOCK_TARGET_PLATFORM) --scrub=all
+	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 	mock -r $(MOCK_TARGET_PLATFORM) --init
 
 mock-clean :
-	find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.rpm' -exec rm {} \;
+	test ! -d $(MOCK_RESULTS_DIR) || \
+	  find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.rpm' -exec rm {} \;
 
 # TIP : you should have a webserver pointed at $(MOCK_RESULTS_DIR) to feed the results of build back into the chroot'ed system.
 # or explore mounting $(MOCK_RESULTS_DIR) from the chroot system.

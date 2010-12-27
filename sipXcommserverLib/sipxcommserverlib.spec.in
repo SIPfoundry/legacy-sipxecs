@@ -21,12 +21,6 @@ BuildRequires: httpd-devel
 BuildRequires: xerces-c-devel >= 2.6.0
 BuildRequires: shadow-utils
 %endif
-BuildRequires: asciidoc
-%if %{_vendor} == suse
-BuildRequires: docbook-xsl-stylesheets
-%else
-BuildRequires: docbook-style-xsl
-%endif
 
 Source: %name-%version.tar.gz
 
