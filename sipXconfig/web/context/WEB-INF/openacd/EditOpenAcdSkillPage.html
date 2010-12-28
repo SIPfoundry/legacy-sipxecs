@@ -1,0 +1,44 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"></span>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="name" field="component:name"
+				label="message:label.name">
+            <span jwcid="name@TextField" id="name"
+				value="ognl:skill.name"
+				disabled="ognl:skill.defaultSkill"
+				displayName="message:label.name"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="atom" field="component:atom"
+				label="message:label.atom">
+            <span jwcid="atom@TextField" id="atom"
+				value="ognl:skill.atom"
+				disabled="ognl:(skill.defaultSkill || !skill.isNew())"
+				displayName="message:label.atom"/>
+          </tr>
+		  <tr jwcid="@common/FieldPanel" for="group" field="component:group"
+				label="message:label.group"
+				description="message:description.group">
+            <input jwcid="group@Suggest"
+				value="ognl:skill.groupName"
+				disabled="ognl:skill.defaultSkill"
+				listSource="ognl:skillGroupNames"
+				id="ognl:'suggest_' + index"
+				listener="listener:filterList"/>
+		  </tr>
+          <tr jwcid="@common/FieldPanel" for="description" field="component:description"
+				label="message:label.description">
+            <span jwcid="description@TextArea" id="description"
+				value="ognl:skill.description"
+				disabled="ognl:skill.defaultSkill"
+				cols="45" rows="5"
+				validators="spring-validators:validFieldSize"/>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
+  </form>
+</div>

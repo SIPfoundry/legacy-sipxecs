@@ -672,7 +672,7 @@ activateConfigServerOnMaster () {
     ###
     local configServerVersion
     # Disable config checking on configserver to eliminate overly complex system
-    configServerVersion=`@VERSION@`
+    configServerVersion=@VERSION@
 
     configVersionDirectory=@SIPX_VARDIR@/process-cfgver
     if [ ! -d ${configVersionDirectory} ]

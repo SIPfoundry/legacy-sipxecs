@@ -373,6 +373,7 @@
     <antcall target="add_did_numbers" />
     <antcall target="freeswitch-dial-plans" />
 	<antcall target="openacd" />
+	<antcall target="openacd-skills" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1173,6 +1174,9 @@
   </target>
   <target name="openacd" unless="openacd">
 	<db-patch patch="openacd"/>
+  </target>
+  <target name="openacd-skills" unless="openacd-skills">
+    <db-patch patch="openacd-skills"/>
   </target>
 
   <!--

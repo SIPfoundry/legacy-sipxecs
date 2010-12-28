@@ -2,6 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="org.sipfoundry.sipxconfig.openacd" default-lazy="false">
+
   <class name="OpenAcdAgentGroup" table="openacd_agent_group">
     <id name="id" column="openacd_agent_group_id" type="int" unsaved-value="-1">
       <generator class="sequence">
@@ -28,6 +29,19 @@
       foreign-key="fk_openacd_agent_group" />
 	<many-to-one name="user" class="org.sipfoundry.sipxconfig.common.User" column="user_id" not-null="true" lazy="proxy"
 	  foreign-key="fk_user_id" />
+  </class>
+
+  <class name="OpenAcdSkill" table="openacd_skill">
+    <id name="id" column="openacd_skill_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_skill_seq</param>
+      </generator>
+	</id>
+    <property name="name"/>
+    <property name="atom"/>
+    <property name="description"/>
+	<property name="groupName"/>
+    <property name="defaultSkill" />
   </class>
 
   <subclass name="OpenAcdExtension" extends="org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension" discriminator-value="O">
@@ -57,6 +71,18 @@
 
   <query name="openAcdAgentByUserId">
     <![CDATA[from OpenAcdAgent a where a.user.id = :value]]>
+  </query>
+
+  <query name="openAcdSkillWithName">
+    <![CDATA[from OpenAcdSkill skill where skill.name = :value]]>
+  </query>
+
+  <query name="openAcdSkillWithAtom">
+    <![CDATA[from OpenAcdSkill skill where skill.atom = :value]]>
+  </query>
+
+  <query name="defaultOpenAcdSkills">
+    <![CDATA[from OpenAcdSkill skill where skill.defaultSkill = 't']]>
   </query>
 
 </hibernate-mapping>
