@@ -3,10 +3,7 @@
 # 
 AC_PREREQ(2.57)
 
-# Run "make sipx.update-version" to update all the other sipx projects version strings
-AC_INIT(sipX, 
-  m4_esyscmd([config/git-version-gen .tarball-version | sed 's/\(.*\)\.\([0-9]\+\)-\([0-9a-z\-]\+\)/\1/g']),
-  sipx-dev@list.sipfoundry.org)
+AC_INIT(sipX, 0.0.0, sipx-dev@list.sipfoundry.org)
 
 # Pass same ./configure switches all sub-projects. Crude but effective.
 AC_SUBST(CONFIGURE_OPTIONS, $@)

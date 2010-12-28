@@ -6,18 +6,18 @@
 #
 SF_REMOTE_DIR = /vol/download/pub/sipXecs
 SF_SSH_DOWNLOAD = download@download.sipfoundry.org
-SF_TARGET_DIR = $(SF_REMOTE_DIR)/@PACKAGE_VERSION@
+SF_TARGET_DIR = $(SF_REMOTE_DIR)/$(PACKAGE_VERSION)
 SfCommand = ssh $(SF_SSH_DOWNLOAD) '$(1)'
 SF_RSYNC_TARGET=$(SF_SSH_DOWNLOAD):
 S3_BUCKET = s3://sipXecs-pub
 REPO_FILES = \
-	sipx-@PACKAGE_VERSION@-centos.repo \
-	sipx-@PACKAGE_VERSION@-fedora.repo
+	sipx-$(PACKAGE_VERSION)-centos.repo \
+	sipx-$(PACKAGE_VERSION)-fedora.repo
 
 ##################
 # R P M
 
-help.publish-rpms = Push repo for $(TARGET_PLATFORM) version @PACKAGE_VERSION@ to sipfoundry download directory
+help.publish-rpms = Push repo for $(TARGET_PLATFORM) version $(PACKAGE_VERSION) to sipfoundry download directory
 publish-rpms : $(REPO_FILES) publish-files
 
 %.rpmlist :
@@ -56,7 +56,7 @@ publish-iso : publish-iso-clean publish-iso-upload publish-update-downloads;
 
 # Be very careful with this recipe, could delete entire s3 bucket if s3cmd del glob is wrong
 publish-iso-clean :
-	s3cmd del $(S3_BUCKET)/sipxecs-@PACKAGE_VERSION@*
+	s3cmd del $(S3_BUCKET)/sipxecs-$(PACKAGE_VERSION)*
 
 publish-iso-upload :
 	find -maxdepth 1 \( -name '*.iso' -o -name '*.md5' \) -exec s3cmd put -P {} $(S3_BUCKET) \;

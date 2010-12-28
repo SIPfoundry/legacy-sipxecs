@@ -23,7 +23,7 @@ obs-clean :
 
 help.sipx.obs-tar = Build tar for each projects and copy to OBS directory ready for running sipx.obs-commit.
 $(foreach T,$(sipx),$(T).obs-tar) : %.obs-tar : %.dist
-	cp $(PROJ)/$(PROJ)-@PACKAGE_VERSION@.tar.gz @OBS_DIR@/$(PROJ)/
+	cp $(PROJ)/$(PROJ)-$(PACKAGE_VERSION).tar.gz @OBS_DIR@/$(PROJ)/
 
 help.sipx.obs-clean-get = Get brand new copy of project binaries for TARGET_ARCH and TARGET_PLATFORM
 %.obs-clean-get : %.obs-clean %.obs-get;
@@ -63,7 +63,7 @@ $(foreach T,$(lib) $(sipx),$(T).obs-status) :
 # Puts last svn rev into rpm file name
 $(foreach T,$(sipx),$(T).obs-spec) : 
 	X=$(REV); cd @OBS_DIR@/$(PROJ); \
-	  tar -xvzf $(PROJ)-@PACKAGE_VERSION@.tar.gz --wildcards '$(PROJ)-*/$(PROJ).spec' --strip-components=1; \
+	  tar -xvzf $(PROJ)-$(PACKAGE_VERSION).tar.gz --wildcards '$(PROJ)-*/$(PROJ).spec' --strip-components=1; \
 	  sed -i -e "1i%define release_prefix .$$X" $(PROJ).spec
 
 $(foreach X,lib sipx,$(eval help.$(X).obs-commit=Commit changes to OBS))
@@ -72,8 +72,8 @@ $(foreach T,$(lib) $(sipx),$(T).obs-commit) :
 
 help.sipx.obs-update-version=If you have updated the version number and built new tarballs, run this to update OBS, You still need to run sipx.obs-commit
 $(foreach T,$(sipx),$(T).obs-update-version) :
-	find @OBS_DIR@/$(PROJ) -maxdepth 1 -not -name '*@PACKAGE_VERSION@.tar.gz' -a -name '*.tar.gz' -exec osc rm {} \;
-	find @OBS_DIR@/$(PROJ) -maxdepth 1 -name '*@PACKAGE_VERSION@.tar.gz' -exec osc add {} \;
+	find @OBS_DIR@/$(PROJ) -maxdepth 1 -not -name '*$(PACKAGE_VERSION).tar.gz' -a -name '*.tar.gz' -exec osc rm {} \;
+	find @OBS_DIR@/$(PROJ) -maxdepth 1 -name '*$(PACKAGE_VERSION).tar.gz' -exec osc add {} \;
 
 # re:phony - force build fresh repo as it's releatively a cheap operation
 .PHONY : repo

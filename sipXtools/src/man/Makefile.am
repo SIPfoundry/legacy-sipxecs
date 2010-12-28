@@ -1,6 +1,4 @@
-man_MANS = $(MAN_PAGES_OPT)
-
-MAN_PAGES = \
+dist_man1_MANS = \
 	sipx-stats.1 \
 	sipx-alias2dot.1 \
 	sipx-readroute.1 \

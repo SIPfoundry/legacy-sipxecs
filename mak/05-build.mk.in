@@ -48,7 +48,7 @@ repofile :
 define repofile_contents
 [sipXecs]
 name=sipXecs software for $(TARGET_DISTRO) $$releasever - $$basearch
-baseurl=http://download.sipfoundry.org/pub/sipXecs/@PACKAGE_VERSION@/$(TARGET_DISTRO)_$$releasever/$$basearch
+baseurl=http://download.sipfoundry.org/pub/sipXecs/$(PACKAGE_VERSION)/$(TARGET_DISTRO)_$$releasever/$$basearch
 gpgcheck=0
 endef
 export repofile_contents

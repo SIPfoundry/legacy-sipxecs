@@ -19,7 +19,7 @@ help.ci-all = Build all targets CI targets $(CI_TARGETS)
 ci-all : $(CI_TARGETS);
 
 $(foreach T,$(CI_TARGETS),$(eval help.$(T)=Complete build for respective distribution, version and architecture))
-$(CI_TARGETS) : ci.% : /etc/mock/sipx-%.cfg ci.%.clean ci.%.init ci.%.lib ci.%.sipx ci.%.check
+$(CI_TARGETS) : ci.% : /etc/mock/sipx-%.cfg ci.%.clean ci.%.init ci.%.lib ci.%.sipx
 
 ci.% : SUBMAKE_VARS=DISTRO=$(CI_DISTRO) DISTRO_VER=$(CI_DISTRO_VER) MOCK_TARGET_PLATFORM=sipx-$(CI_MOCK_TARGET) DISTRO_ARCH=$(CI_DISTRO_ARCH)
 
@@ -48,9 +48,8 @@ debug:
 	echo foo
 
 help.ci.*.check = Check all rpms install ok
-ci.%.test: ci.web-server
-	echo hello
-	$(MAKE) mock-test $(SUBMAKE_VARS)
+ci.%.check: ci.web-server
+	$(MAKE) mock-check $(SUBMAKE_VARS)
 
 $(foreach P,$(all),$(foreach T,$(CI_TARGETS),$(T).$(P))) : ci.web-server
 	$(MAKE) $(PROJ).rpm $(SUBMAKE_VARS)

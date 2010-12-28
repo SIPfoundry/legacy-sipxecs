@@ -3,6 +3,8 @@
 # 
 SRC = $(abspath @srcdir@)
 
+PACKAGE_VERSION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\(.*\)\.\([0-9]\+\)-\([0-9a-z\-]\+\)/\1/g')
+PACKAGE_REVISION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\(.*\)\.\([0-9]\+\)[-\.]\([0-9a-f]\+\)-\?\(dirty\)\?/\2.\3/g')
 DISTRO=@DISTRO@
 DISTRO_VER=@DISTRO_VER@
 DISTRO_ARCH=@DISTRO_ARCH@

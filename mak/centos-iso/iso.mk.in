@@ -1,7 +1,7 @@
 ISO_LABEL ?= sipxecs
 ISO_REV ?= $(shell date +%y%m%e)
 SPLASH_FILE ?= src/splash.lss
-VOLUME_LABEL ?= "CentOS sipX @PACKAGE_VERSION@"
-APPLICATION_LABEL ?= "CentOS sipX @PACKAGE_VERSION@"
+VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
+APPLICATION_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 PUBLISHER_ID ?= sipx-dev@list.sipfoundry.org
 PREPARERER_ID ?= sipx-dev@list.sipfoundry.org

@@ -13,8 +13,8 @@ TARGET_PLATFORM = $(strip \
 MOCK_RESULTS_DIR = @RPM_DIST_DIR@/$(TARGET_PLATFORM)/$(DISTRO_ARCH)
 
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
-$(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@-@PACKAGE_REVISION@.src.rpm))
-$(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-@PACKAGE_VERSION@.tar.gz))
+$(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION).src.rpm))
+$(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION).tar.gz))
 
 # pull in dependency make fragments
 include $(SRC)/*/.sipxecs.mk
@@ -76,7 +76,7 @@ repo-src :
 	$(call MakeFreshDirectory, $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/srpm)
 	find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.src.rpm' -exec cp {} $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/srpm \;
 
-mock-test :
+mock-check :
 	mock -r $(MOCK_TARGET_PLATFORM) --install sipxecs
 
 # use build time to remove rpms w/redundant package names

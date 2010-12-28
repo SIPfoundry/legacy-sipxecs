@@ -7,7 +7,7 @@ SCRIPT_TEMPLATES = \
 	upgrade-cert.sh \
 	ca_rehash
 
-man_MANS = gen-ssl-keys.1
+dist_man1_MANS = gen-ssl-keys.1
 
 EXTRA_DIST = \
 	$(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript).in)
