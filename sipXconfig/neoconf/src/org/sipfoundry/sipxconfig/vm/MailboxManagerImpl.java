@@ -118,6 +118,10 @@ public class MailboxManagerImpl extends HibernateDaoSupport implements MailboxMa
 
     public void move(Mailbox mailbox, Voicemail voicemail, String destinationFolderId) {
         File destination = new File(mailbox.getUserDirectory(), destinationFolderId);
+        // make sure destination directory exists
+        if (!destination.isDirectory()) {
+            destination.mkdir();
+        }
         for (File f : voicemail.getAllFiles()) {
             f.renameTo(new File(destination, f.getName()));
         }
