@@ -6,7 +6,8 @@ include $(top_srcdir)/config/subdir.am
 #  -Dtop.build.dir is required if you call ./configure from a different dir
 
 # Passing it everytime ensures it's a fresh value.
-ANT_FLAGS += -Dversion.buildno=$(SIPX_VERSION)
+BUILD_STAMP := $(shell date +%Y-%m-%d%Z%H:%M:%S && hostname -s && whoami)
+ANT_FLAGS += -Dversion.buildno=$(PACKAGE_REVISION) -Dversion.build="$(BUILD_STAMP)"
 
 all : all-ant
 
