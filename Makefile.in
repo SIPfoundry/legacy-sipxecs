@@ -5,8 +5,14 @@ SRC = $(abspath @srcdir@)
 
 PACKAGE_VERSION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\(.*\)\.\([0-9]\+\)-\([0-9a-z\-]\+\)/\1/g')
 PACKAGE_REVISION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\(.*\)\.\([0-9]\+\)[-\.]\([0-9a-f]\+\)-\?\(dirty\)\?/\2.\3/g')
+
+help-var.DISTRO=To run a command for a different target distro. Default: $(DISTRO). Examples: fedora centos suse
 DISTRO=@DISTRO@
+
+help-var.DISTRO_VER=To run a command for a different target version. Default: $(DISTRO_VER).
 DISTRO_VER=@DISTRO_VER@
+
+help-var.DISTRO_ARCH=To run a command for a different target version. Default: $(DISTRO_ARCH).
 DISTRO_ARCH=@DISTRO_ARCH@
 
 LastRev = $(firstword $(shell cd $(SRC); git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1) 0)
@@ -43,10 +49,31 @@ $(foreach T,$(sipx),$(T).%...) :
 $(foreach T,$(lib),$(T).%...) :
 	$(MAKE) $(foreach T,$(call after,$(PROJ),$(lib)),$(T).$*)
 
-help.help-var = List help on special variables
-.PHONY: help help-var
-help help-var:
-	@$(foreach H,$(filter $@.%,$(sort $(.VARIABLES))), echo "$$format_help" | Label="$(H:help.%=%)" Text="$($(H))" bash;)
+.PHONY: help
+help:
+	@echo "$$help_header"
+	@$(MAKE) --no-print-directory -s help.print
+	@echo "$$help_var_header"
+	@$(MAKE) --no-print-directory -s help-var.print
+
+help.print help-var.print: %.print :
+	@$(foreach H,$(filter $*.%,$(sort $(.VARIABLES))), \
+	  echo "$$format_help" | Label="$(H:$*.%=%)" Text="$($(H))" bash;)
+
+define help_header
+
+TARGETS
+=======
+endef
+export help_header
+
+define help_var_header
+
+VARIABLES
+===========
+endef
+export help_var_header
+
 
 define format_help
 MARGIN=18

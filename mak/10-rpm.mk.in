@@ -1,6 +1,7 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
 # 
+help-var.MOCK_TARGET_PLATFORM = Mock template. Default is $(MOCK_TARGET_PLATFORM)
 MOCK_TARGET_PLATFORM = @MOCK_TARGET_PLATFORM@
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
@@ -79,7 +80,7 @@ repo-src :
 mock-check :
 	mock -r $(MOCK_TARGET_PLATFORM) --install sipxecs
 
-# use build time to remove rpms w/redundant package names
+help.mock-remove-dups=If you have built RPMs multiple times between git updates, and therefore have older versions of a package, this will remove all older copies.
 mock-remove-dups:
 	for f in $(MOCK_RESULTS_DIR)/*.rpm; do \
 	  echo -n "$$f "; \
