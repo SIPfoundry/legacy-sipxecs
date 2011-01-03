@@ -16,9 +16,12 @@ package org.sipfoundry.commons.freeswitch;
 
 public class BridgeCommand extends CallCommand {
 
-    public BridgeCommand(FreeSwitchEventSocketInterface fses, String sipURI, String sipContext) {
+    private String m_uuid;
+
+    public BridgeCommand(FreeSwitchEventSocketInterface fses, String uuid, String sipURI, String sipContext) {
         super(fses);
         // Send a REFER
+        m_uuid = uuid;
         m_command = "bridge\nexecute-app-arg: sofia/";
         m_command += sipContext;
         m_command += "/";
@@ -30,5 +33,16 @@ public class BridgeCommand extends CallCommand {
         }
         m_command += "\n";
         m_command += "event-lock: true";
+    }
+
+    public boolean start() {
+        if(m_uuid == null) {
+            return super.start();
+        }
+        m_finished = false;
+        // Send the command to the socket
+        m_fses.cmd("sendmsg " + m_uuid +
+                "\ncall-command: execute\nexecute-app-name: " + m_command);
+        return false;
     }
 }
