@@ -67,7 +67,6 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
 
     public abstract void setGroupId(Integer groupId);
 
-    @Persist
     public abstract OpenAcdAgentGroup getAgentGroup();
 
     public abstract void setAgentGroup(OpenAcdAgentGroup agentGroup);
@@ -88,7 +87,6 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
 
     public void editAgentGroup(Integer groupId, String returnPage) {
         setGroupId(groupId);
-        setAgentGroup(getOpenAcdContext().getAgentGroupById(groupId));
         setReturnPage(returnPage);
     }
 
@@ -98,8 +96,10 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
             return;
         }
 
-        if (getAgentGroup() == null && getGroupId() == null) {
+        if (getGroupId() == null) {
             setAgentGroup(new OpenAcdAgentGroup());
+        } else {
+            setAgentGroup(getOpenAcdContext().getAgentGroupById(getGroupId()));
         }
 
         OpenAcdAgentGroup group = getAgentGroup();
@@ -159,7 +159,6 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
         }
         OpenAcdAgentGroup group = getAgentGroup();
         getOpenAcdContext().deleteAgents(group.getId(), ids);
-        setAgentGroup(getOpenAcdContext().getAgentGroupById(group.getId()));
     }
 
     public void commit() {
@@ -168,6 +167,7 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
         }
 
         getOpenAcdContext().saveAgentGroup(getAgentGroup());
+        setGroupId(getAgentGroup().getId());
     }
 
     public IPropertySelectionModel getActionModel() {
@@ -221,10 +221,6 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
                 OpenAcdAgent agent = getOpenAcdContext().getAgentById(id);
                 agent.setGroup(m_group);
                 getOpenAcdContext().saveAgent(agent);
-            }
-            // reload agent group
-            if (getGroupId() != null) {
-                setAgentGroup(getOpenAcdContext().getAgentGroupById(getGroupId()));
             }
         }
     }

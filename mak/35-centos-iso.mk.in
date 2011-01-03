@@ -1,15 +1,26 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
 # 
-include @OEM_MAK@ mak/centos-iso/iso.mk
-ISO_SRC = $(SRC)/mak/centos-iso
+
+include @OEM_MAK@
+
+## Common make variables you may want to override in OEM_MAK file
+ISO_SRC ?= $(SRC)/mak/centos-iso
+ISO_LABEL ?= sipxecs
+ISO_REV ?= $(PACKAGE_REVISION)
+SPLASH_FILE ?= $(ISO_SRC)/splash.lss
+VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
+APPLICATION_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
+PUBLISHER_ID ?= sipx-dev@list.sipfoundry.org
+PREPARERER_ID ?= sipx-dev@list.sipfoundry.org
+ISO_RPM_DOWNLOAD_URL ?= http://centos.aol.com/5.5
+
 %-32 : BITS = 32
 %-32 : ARCH = i386
 %-64 : BITS = 64
 %-64 : ARCH = x86_64
 %-32 %-64 : ISO_DISC = iso-disc-$(BITS)
 %-32 %-64 : ISO ?= $(ISO_LABEL)-$(PACKAGE_VERSION)-$(ISO_REV)-$(ARCH).iso
-ISO_RPM_DOWNLOAD_URL = http://centos.aol.com/5.5
 ISO_M4_OPTS = \
 	@OEM_M4_OPTS@ \
 	-D PACKAGE_VERSION=$(PACKAGE_VERSION)
@@ -69,7 +80,7 @@ iso-cp-download-rpms-% : iso-download-%
 
 # add sipx and custom dependencies needed for sipx operation, not sipx devel
 iso-cp-sipx-rpms-% : iso-disc-%
-	find $(realpath @REPO_DIR@)/$(ARCH) \
+	find $(realpath @RPM_DIST_DIR@)/CentOS_5/$(ARCH) \
 	\( -name '*.rpm' \) \
 	-and -not \( \
 	  -name '*debug*' \
@@ -80,11 +91,10 @@ iso-cp-sipx-rpms-% : iso-disc-%
 	  -o -name '*rrdtool-doc*' \
 	  -o -name '*rubygem-rake*' \
 	  -o -name '*scons*' \
-	  -o -name '*sun-alsa*' \
-	  -o -name '*sun-demo*' \
-	  -o -name '*sun-jdbc*' \
-	  -o -name '*sun-plugin*' \
-	  -o -name '*sun-src*' \
+	  -o -name '*boost*' \
+	  -o -name '*openacd*' \
+	  -o -name '*erlang*' \
+	  -o -name '*mongo*' \
         \) \
 	-exec cp {}  $(ISO_DISC)/CentOS \;
 
@@ -92,7 +102,9 @@ iso-cp-sipx-rpms-% : iso-disc-%
 iso-update-repo-% : iso-disc-%
 	MEDIA_ID=$(shell head -1 $(ISO_DISC)/.discinfo); \
 	  cd $(ISO_DISC); \
-	  @CREATEREPO@ --baseurl="media://$$MEDIA_ID" \
+	  @CREATEREPO@ \
+	    @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@ \
+	    --baseurl="media://$$MEDIA_ID" \
 	    -g ./repodata/comps.xml .
 
 # add modifications to disc to make it operate
@@ -124,11 +136,16 @@ iso-md5-% :
 iso-download-% :
 	! test -d $@.tmp || rm -rf $@.tmp
 	mkdir $@.tmp
+	## have to do devel and debug packages on CD in separate wget call
+	## because glob pattern cannot remove both removbe and include devel packages
 	cd $@.tmp; \
 	  for site in extras/$(ARCH)/RPMS/ os/$(ARCH)/CentOS; do \
 	    wget -r -nc -nv -nH -nd -l1 --no-parent \
 	      -A "$(foreach P,$(ISO_ADD_LIST),$(P),) bogus" \
-	      -R "*devel*, *debug*" \
+	      -R "*-devel-*, *-debug-*" \
+	      $(ISO_RPM_DOWNLOAD_URL)/$$site; \
+	    wget -r -nc -nv -nH -nd -l1 --no-parent \
+	      -A "$(foreach P,$(filter %-devel* %-debug*,$(ISO_ADD_LIST)),$(P),) bogus" \
 	      $(ISO_RPM_DOWNLOAD_URL)/$$site; \
 	  done
 	mv $@.tmp $@
@@ -353,4 +370,6 @@ ISO_ADD_LIST = \
   xinetd-* \
   xorg-x11-xfs-1* \
   yum-basearchonly-* \
-  yum-downloadonly-*
+  yum-downloadonly-* \
+  java-1.6.0-openjdk-1.6* \
+  java-1.6.0-openjdk-devel* \

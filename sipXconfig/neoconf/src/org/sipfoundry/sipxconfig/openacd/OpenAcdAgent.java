@@ -131,6 +131,7 @@ public class OpenAcdAgent extends OpenAcdConfigObject {
         props.add("firstName");
         props.add("lastName");
         props.add("oldName");
+        props.add("security");
         return props;
     }
 

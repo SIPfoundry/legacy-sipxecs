@@ -349,7 +349,7 @@
 			<attribute name="Specification-Version" value="${version}"/>
 			<attribute name="Specification-Vendor" value="SIPfoundry"/>
 			<attribute name="Implementation-Title" value="${project.dir}"/>
-			<attribute name="Implementation-Version" value="${version.buildno} ${version.build}"/>
+			<attribute name="Implementation-Version" value="${version}-${version.buildno} ${version.build}"/>
 			<attribute name="Implementation-Vendor" value="SIPfoundry"/>
 		</manifest>				
   </presetdef>	

@@ -9,16 +9,14 @@ caching-nameserver
 gdb
 strace
 yum-downloadonly
-java-1.6.0-sun
-java-1.6.0-sun-fonts
 sipxecs
 )
 
 define(`repo_filename',`sipxecs.repo')
 define(`repo_contents',
 [sipXecs]
-name=sipXecs build service for CentOS \$releasever - \$basearch
-baseurl=http://download.ezuce.com/sipfoundry/PACKAGE_VERSION()/CentOS_\$releasever/
+name=sipXecs build service for CentOS 5 - \$basearch
+baseurl=http://download.ezuce.com/sipfoundry/PACKAGE_VERSION()/CentOS_5/$basearch
 enabled=1
 gpgcheck=0
 )

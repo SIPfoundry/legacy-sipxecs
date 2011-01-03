@@ -12,12 +12,7 @@ AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
     AC_MSG_ERROR(Directory $ISO_DIR is missing)
   fi
   
-  AC_ARG_VAR(REPO_DIR, [Directory containing your sipx rpms])
-  if test "x$REPO_DIR" == "x"; then
-    REPO_DIR=./repo
-  fi
-
-  if [ ! test -d $REPO_DIR ]; then
+  if [ ! test -d $RPM_DIST_DIR ]; then
     AC_MSG_ERROR(Directory $REPO_DIR is missing)
   fi
 
@@ -35,11 +30,7 @@ AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
     [DIST_DIR=${withval}],
     [DIST_DIR=.]
   )
-
   AC_SUBST([DIST_DIR])
-  if [ ! grep -q CentOS /etc/redhat-release 2>/dev/null ] ; then
-    AC_MSG_ERROR(This needs to be run on CentOS machine only to generate proper repository metadata)
-  fi
 
   AC_PATH_PROG(CREATEREPO, createrepo)
   if test "x$CREATEREPO" == "x"; then
@@ -48,6 +39,5 @@ AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
 
   AC_CONFIG_FILES([
      mak/35-centos-iso.mk 
-     mak/centos-iso/iso.mk 
      $OEM_MAK])
 ])

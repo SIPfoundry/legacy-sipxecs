@@ -21,7 +21,11 @@ ci-all : $(CI_TARGETS);
 $(foreach T,$(CI_TARGETS),$(eval help.$(T)=Complete build for respective distribution, version and architecture))
 $(CI_TARGETS) : ci.% : /etc/mock/sipx-%.cfg ci.%.clean ci.%.init ci.%.lib ci.%.sipx
 
-ci.% : SUBMAKE_VARS=DISTRO=$(CI_DISTRO) DISTRO_VER=$(CI_DISTRO_VER) MOCK_TARGET_PLATFORM=sipx-$(CI_MOCK_TARGET) DISTRO_ARCH=$(CI_DISTRO_ARCH)
+ci.% : SUBMAKE_VARS=\
+	DISTRO=$(CI_DISTRO) \
+	DISTRO_VER=$(CI_DISTRO_VER) \
+	MOCK_TARGET_PLATFORM=sipx-$(CI_MOCK_TARGET) \
+	DISTRO_ARCH=$(CI_DISTRO_ARCH)
 
 help.ci-clean = Delete all RPMs 
 ci.%.clean :
@@ -43,9 +47,6 @@ ci.%.lib: ci.web-server
 help.ci.*.sipx = Third part of CI build - the sipXecs rpms
 ci.%.sipx: ci.web-server
 	$(MAKE) sipx.rpm $(SUBMAKE_VARS)
-
-debug:
-	echo foo
 
 help.ci.*.check = Check all rpms install ok
 ci.%.check: ci.web-server
