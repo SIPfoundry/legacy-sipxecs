@@ -87,6 +87,7 @@ public class XmlRpcPresenceProvider extends XmlRpcProvider {
             assertPlugInReady();
             Map retval = createSuccessMap();
             UnifiedPresence.XmppPresence xmppPresence = UnifiedPresence.XmppPresence.valueOf( xmppPresenceAsString );
+            PresenceUnifier.getInstance().setUnifiedPresence( xmppUsername, xmppPresence );
             getPlugin().setPresenceState(jid, xmppPresence);
             return retval;
         }
