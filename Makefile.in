@@ -3,8 +3,8 @@
 # 
 SRC = $(abspath @srcdir@)
 
-PACKAGE_VERSION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\(.*\)\.\([0-9]\+\)-\([0-9a-z\-]\+\)/\1/g')
-PACKAGE_REVISION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\(.*\)\.\([0-9]\+\)[-\.]\([0-9a-f]\+\)-\?\(dirty\)\?/\2.\3/g')
+PACKAGE_VERSION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\([0-9.]\+\)-\([0-9]\+\)-\([0-9a-f]\+\)/\1/g')
+PACKAGE_REVISION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\([0-9.]\+\)-\([0-9]\+\)-\([0-9a-f]\+\)/\2.\3/g')
 
 help-var.DISTRO=To run a command for a different target distro. Default: $(DISTRO). Examples: fedora centos suse
 DISTRO=@DISTRO@
@@ -15,8 +15,6 @@ DISTRO_VER=@DISTRO_VER@
 help-var.DISTRO_ARCH=To run a command for a different target version. Default: $(DISTRO_ARCH).
 DISTRO_ARCH=@DISTRO_ARCH@
 
-LastRev = $(firstword $(shell cd $(SRC); git log -1 --format="%h %ci" -1 HEAD | sed -e 's|:|-|g'|cut -d\  -f 1) 0)
-
 lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 
 # for each sipx-% target, define a variable for the corresponding project directory
@@ -25,9 +23,6 @@ proj = $(call lowercase,$(PROJ))
 
 # lists all the items in the list inclusive after given item
 after = $(shell echo $2 | sed 's|\(.*\)\($1.*\)|\2|g')
-
-# for each sipx.% target, define a variable for the last svn rev from git rebase
-REV = $(call LastRev, $(PROJ))
 
 default-first-target : help;
 
@@ -62,15 +57,15 @@ help.print help-var.print: %.print :
 
 define help_header
 
-TARGETS
-=======
+COMMON TARGETS
+===============
 endef
 export help_header
 
 define help_var_header
 
-VARIABLES
-===========
+SPECIAL VARIABLES
+==================
 endef
 export help_var_header
 
