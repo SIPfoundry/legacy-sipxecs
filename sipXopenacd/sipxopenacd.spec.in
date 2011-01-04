@@ -44,6 +44,7 @@ rm -rf $RPM_BUILD_ROOT
 # TODO: fixme once we figure out how to package openacd to run from current working dir that is not /opt/openacd
 # this will emit an error on non-sipx systems or if installed before sipxcommserverlib
 chown sipxchange:sipxchange /opt/openacd
+chown sipxchange:sipxchange /opt/openacd/key
 
 %postun
 [ $1 = 0 ] && chown root:root /opt/openacd
