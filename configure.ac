@@ -1,5 +1,6 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
+#
 # 
 AC_PREREQ(2.57)
 

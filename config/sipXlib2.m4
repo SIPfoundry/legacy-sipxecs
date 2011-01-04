@@ -31,6 +31,6 @@ test -n "$SIPXPBXUSER" || SIPXPBXUSER=$USER
 AC_ARG_VAR(SIPXPBXGROUP, [The sipX service daemon group name, default is value of SIPXPBXUSER])
 test -n "$SIPXPBXGROUP" || SIPXPBXGROUP=$SIPXPBXUSER
 
-PACKAGE_REVISION=m4_esyscmd([config/git-version-gen .tarball-version | sed 's/\(.*\)\.\([0-9]\+\)[-\.]\([0-9a-f]\+\)-\?\(dirty\)\?/\2.\3/g'])
+PACKAGE_REVISION=m4_esyscmd([config/git-version-gen .tarball-version | sed 's/\([0-9.]\+\)-\([0-9]\+\)-\([0-9a-f]\+\)/\2.\3/g'])
 AC_SUBST(PACKAGE_REVISION)
 AC_DEFINE_UNQUOTED([PACKAGE_REVISION], "${PACKAGE_REVISION}", [Revion number including git SHA])

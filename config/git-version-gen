@@ -1,6 +1,6 @@
 #!/bin/sh
 # Print a version string.
-scriptversion=2010-12-17.06; # UTC
+scriptversion=2011-01-04.02; # UTC
 
 # Copyright (C) 2007-2010 Free Software Foundation, Inc.
 #
@@ -124,11 +124,15 @@ then
 	    numcommits=`git rev-list "$vtag"..HEAD | wc -l`
 	    v=`echo "$v" | sed "s/\(.*\)-\(.*\)/\1-$numcommits-\2/"`;
 	    ;;
+	*) : git describe no revs
+	    sha=`git rev-parse --short HEAD`
+	    v=`echo "$v-0-$sha"`;
+	    ;;
     esac
 
     # Change the first '-' to a '.', so version-comparing tools work properly.
     # Remove the "g" in git describe's output string, to save a byte.
-    v=`echo "$v" | sed 's/-/./;s/\(.*\)-g/\1-/'`;
+    v=`echo "$v" | sed 's/\(.*\)-g/\1-/'`;
 else
     v=UNKNOWN
 fi
@@ -138,7 +142,8 @@ v=`echo "$v" |sed 's/^v//'`
 # Don't declare a version "dirty" merely because a time stamp has changed.
 git update-index --refresh > /dev/null 2>&1
 
-dirty=`sh -c 'git diff-index --name-only HEAD' 2>/dev/null` || dirty=
+# DISABLED dirty tracking
+dirty= #`sh -c 'git diff-index --name-only HEAD' 2>/dev/null` || dirty=
 case "$dirty" in
     '') ;;
     *) # Append the suffix only if there isn't one already.
