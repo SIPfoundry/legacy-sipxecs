@@ -86,8 +86,6 @@ public class Bridge {
         sipReqUri += sipReqParams;
         Set exportVars = new Set(m_fses, m_fses.getVariable("Unique-ID"), "export_vars", "variable_sip_from_uri, Channel-Caller-ID-Number");
         exportVars.start();
-        Set hangupAfterBridge = new Set(m_fses, m_fses.getVariable("Unique-ID"), "hangup_after_bridge", "true");
-        hangupAfterBridge.start();
         BridgeCommand bridge = new BridgeCommand(m_fses, m_fses.getVariable("Unique-ID"), sipReqUri, domain);
         bridge.start();
     }
