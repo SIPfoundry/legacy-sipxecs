@@ -72,6 +72,17 @@ public class PresenceUnifier implements PresenceEventListener
         }
         return unifiedPresence;
     }
+
+    public void setUnifiedPresence( String xmppUsername, UnifiedPresence.XmppPresence presence ) throws UserNotFoundException
+    {
+        UnifiedPresence unifiedPresence;
+        unifiedPresence = unifiedPresenceMap.get( xmppUsername );
+        if (unifiedPresence == null){
+            unifiedPresence = new UnifiedPresence( xmppUsername );
+            unifiedPresenceMap.put( xmppUsername,  unifiedPresence );
+        }
+        unifiedPresence.setXmppPresence(presence);
+    }
     
     // Notification that SIP state changed (idle, on-call, ...)
     public void sipStateChanged( String xmppUsername, SipResourceState newState, EndpointInfo remoteEndpoint )
