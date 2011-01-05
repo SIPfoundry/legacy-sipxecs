@@ -41,7 +41,7 @@ public class SipXivr implements Runnable {
     private static IvrConfiguration s_config;
 
     private Socket m_clientSocket;
-    private static FreeSwitchEventSocketInterface m_fses;
+    private FreeSwitchEventSocketInterface m_fses;
 
     public SipXivr(Socket client) {
         m_clientSocket = client;
