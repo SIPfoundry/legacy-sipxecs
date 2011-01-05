@@ -21,7 +21,7 @@ if [ -f $CONFIGFILE ]; then
   # Extract lines (including comments) mentioning DAEMON, if any.
   grep DAEMON <$CONFIGFILE >$CONFIGFILE.DAEMON
   (
-    echo "# Configured by sipX PBX: @PACKAGE@ @VERSION@ @PACKAGE_REVISION@
+    echo "# Configured by sipX PBX: @PACKAGE@ @VERSION@ @PACKAGE_REVISION@"
     echo '# Queue incoming messages immediately.'
     echo 'SENDMAIL_OPTARG=-odd'
     echo '# Process queued messages quickly (usually within 15 seconds).'

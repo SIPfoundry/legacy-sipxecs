@@ -27,6 +27,9 @@ ci.% : SUBMAKE_VARS=\
 	MOCK_TARGET_PLATFORM=sipx-$(CI_MOCK_TARGET) \
 	DISTRO_ARCH=$(CI_DISTRO_ARCH)
 
+help.ci.all.*=Run target for all distros. Examples: ci.all.sipXconfig  ci.all.sipx
+ci.all.% : $(foreach P,$(CI_MOCK_TARGETS),ci.$(P).%);
+
 help.ci-clean = Delete all RPMs 
 ci.%.clean :
 	$(MAKE) mock-clean $(SUBMAKE_VARS)

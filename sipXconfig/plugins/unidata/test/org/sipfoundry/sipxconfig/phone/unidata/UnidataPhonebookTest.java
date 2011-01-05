@@ -45,7 +45,6 @@ public class UnidataPhonebookTest extends TestCase {
         List<String> list = IOUtils.readLines(m_location.getReader());
         assertEquals(2, list.size());
         assertEquals("\"Joe \",,1234,", list.get(1));
-
     }
 
 }

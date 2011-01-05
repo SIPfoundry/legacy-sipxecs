@@ -21,12 +21,13 @@ import org.sipfoundry.sipxconfig.phone.LineInfo;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookEntry;
 import org.sipfoundry.sipxconfig.phonebook.PhonebookManager;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class UnidataPhone extends Phone {
     private static final String USER_ID_SETTING = "USER_ACCOUNT/User_ID";
     private static final String DISPLAY_NAME_SETTING = "USER_ACCOUNT/Displayname";
     private static final String PASSWORD_SETTING = "USER_ACCOUNT/User_Password";
-    private static final String REGISTRATION_SERVER_SETTING = "SERVER_SETTINGS/1st_Registrar";
+    private static final String REGISTRATION_SERVER_SETTING = "SERVER_SETTINGS/1st_Proxy";
 
     private String m_phonebookFilename = "{0}-phonebook.csv";
 
@@ -41,9 +42,10 @@ public class UnidataPhone extends Phone {
 
     @Override
     public void initialize() {
-        UnidataPhoneDefaults defaults = new UnidataPhoneDefaults(getPhoneContext()
-                .getPhoneDefaults());
+        UnidataPhoneDefaults defaults = new UnidataPhoneDefaults(getPhoneContext().getPhoneDefaults());
         addDefaultBeanSettingHandler(defaults);
+        UnidataPhonebookDefaults phonebookDefaults = new UnidataPhonebookDefaults();
+        addDefaultBeanSettingHandler(phonebookDefaults);
     }
 
     @Override
@@ -120,6 +122,13 @@ public class UnidataPhone extends Phone {
         line.setSettingValue(DISPLAY_NAME_SETTING, lineInfo.getDisplayName());
         line.setSettingValue(USER_ID_SETTING, lineInfo.getUserId());
         line.setSettingValue(PASSWORD_SETTING, lineInfo.getPassword());
-        setSettingValue(REGISTRATION_SERVER_SETTING, lineInfo.getRegistrationServer());
+        line.setSettingValue(REGISTRATION_SERVER_SETTING, lineInfo.getRegistrationServer());
+    }
+
+    public class UnidataPhonebookDefaults {
+        @SettingEntry(path = "PROVISION/Phonebook_Name")
+        public String getPhonebookName() {
+            return getPhonebookFilename();
+        }
     }
 }

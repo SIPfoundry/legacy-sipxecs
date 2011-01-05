@@ -4,7 +4,7 @@
 	"http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
 <model>
 	<group name="SYSTEM">
-		<label>Global System Settings</label>
+		<label>Global</label>
 		<setting name="Language">
 			<label>Display Language</label>
 			<type>
@@ -18,6 +18,10 @@
 						<value>1</value>
 					</option>
 					<option>
+						<label>Dutch</label>
+						<value>31</value>
+					</option>
+					<option>
 						<label>French</label>
 						<value>33</value>
 					</option>
@@ -26,12 +30,20 @@
 						<value>34</value>
 					</option>
 					<option>
+						<label>Italian</label>
+						<value>39</value>
+					</option>
+					<option>
 						<label>Swedish</label>
 						<value>46</value>
 					</option>
 					<option>
 						<label>German</label>
 						<value>49</value>
+					</option>
+					<option>
+						<label>Portuguese</label>
+						<value>351</value>
 					</option>
 				</enum>
 			</type>
@@ -126,24 +138,103 @@
 		<setting name="Admin_Password" advanced="yes">
 			<label>Administrator Password</label>
 			<type>
-				<string />
+				<string minLen="5" maxLen="7" password="yes" />
 			</type>
 			<value>000000</value>
 			<description>
 				The central administration password for this device
 			</description>
 		</setting>
+		<setting name="Use_DNS_SRV" advanced="yes">
+			<label>Use DNS SRV</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>
+				Whether or not to use SRV Record in DNS Query (Checked: Use, in time of failure, try A Record again. Unchecked: Attempt only with A Record.)
+			</description>
+		</setting>
+		<setting name="Watchdog_Timeout" advanced="yes">
+			<label>Watchdog Timeout</label>
+			<type>
+				<integer min="20" max="86400" />
+			</type>
+			<value>120</value>
+			<description>
+				Watchdog for reboot by timeout (0: Disable reboot. else: Set time.)
+			</description>
+		</setting>
+		<setting name="Use_CPU_PowerSave" advanced="yes">
+			<label>CPU power save</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Enable to use CPU power save</description>
+		</setting>
+		<group name="WEB_SERVER" advanced="yes">
+			<label>Web Server</label>
+			<setting name="Enable_WEB_Server">
+				<label>Enable PC-Sync</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+			</setting>
+			<setting name="User_Password">
+				<label>PC-Sync User Password</label>
+				<type>
+					<string maxLen="12" />
+				</type>
+				<value>000000</value>
+			</setting>
+		</group>
+		<group name="UNICODE" advanced="yes">
+			<label>Unicode</label>
+			<setting name="Use_Unicode_On_SMS">
+				<label>Character set for IM</label>
+				<type>
+					<enum>
+						<option>
+							<label>Local Character set</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>UTF-8</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Use_Unicode_On_Displayname">
+				<label>Character set for Displayname</label>
+				<type>
+					<enum>
+						<option>
+							<label>Local Character set</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>UTF-8</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+		</group>
 	</group>
 	<group name="SERVER_SETTINGS">
-		<label>SIP</label>
+		<label>Server</label>
 		<setting name="1st_Proxy">
 			<label>Primary SIP Proxy</label>
-			<value>kkk</value>
 		</setting>
-		<setting name="2nd_Proxy" advanced="yes">
+		<setting name="2nd_Proxy">
 			<label>Secondary SIP Proxy</label>
 		</setting>
-		<setting name="Domain_Realm" advanced="yes">
+		<setting name="Domain_Realm">
 			<label>Authentication Realm</label>
 		</setting>
 		<setting name="Register_Expire" advanced="yes">
@@ -157,1730 +248,1448 @@
 				after which reregistration should occur
 			</description>
 		</setting>
-	</group>
-	<group name="NETWORK1">
-		<label>Network 1</label>
-		<setting name="Name">
-			<label>Network Name</label>
+		<setting name="Register_Retry_Backoff_Interval" advanced="yes">
+			<label>Register Retry Backoff Interval</label>
 			<type>
-				<string required="yes" maxLen="20" />
+				<string maxLen="50" />
 			</type>
-			<value>Config1</value>
+			<value>60,120,240,480,960</value>
+			<description>
+				Set this timer for periodically retry when phone is not registered
+			</description>
 		</setting>
-		<setting name="SSID">
+		<group name="REDUNDANCY" advanced="yes">
+			<label>Reduncancy</label>
+			<setting name="Mode">
+				<label>Redundancy Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>Registration Status Oriented</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Master/Slave</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Request_Timeout">
+				<label>Request Timeout</label>
+				<type>
+					<integer min="0" max="32000" />
+				</type>
+				<value>4000</value>
+				<description> Timeout in ms</description>
+			</setting>
+			<setting name="Use_Fixed_Primary_Server">
+				<label>Use Fixed Primary Server</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Check to fix the primary server</description>
+			</setting>
+			<setting name="Use_DNS_Additional_Records">
+				<label>Use DNS Additional Records</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Check to use additional DNS records for redundancy</description>
+			</setting>
+		</group>
+		<group name="SYSLOG" advanced="yes">
+			<label>Syslog</label>
+			<setting name="Mode">
+				<label>Syslog Mode</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Set to enable SYSLOG</description>
+			</setting>
+			<setting name="Server_IP">
+				<label>Syslog Server Address</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value >0.0.0.0</value>
+				<description>Syslog server IP address</description>
+			</setting>
+			<setting name="Server_Port">
+				<label>Syslog Server Port</label>
+				<type>
+					<integer min="1" max="65535" />
+				</type>
+				<value>514</value>
+				<description>
+					Syslog server port number
+				</description>
+			</setting>
+			<setting name="Use_MACIP_Header">
+				<label>Use MAC and IP Header</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>
+					MAC and IP information attached to syslog message
+				</description>
+			</setting>
+		</group>
+		<group name="DHCP_OPTION" advanced="yes">
+			<label>DHCP Option</label>
+			<setting name="Use_Option_2">
+				<label>Use DNS Option 2</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>DNS Option 2: Time offset</description>
+			</setting>
+			<setting name="Use_Option_42">
+				<label>Use DNS Option 42</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>DNS Option 42: NTP handout</description>
+			</setting>
+			<setting name="Use_Option_66">
+				<label>Use DNS Option 66</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>DNS Option 66: TFTP server name</description>
+			</setting>
+		</group>
+	</group>
+	<group name="BASIC_CALL">
+		<label>Call</label>
+		<setting name="Use_Headset_Button" advanced="yes">
+			<label>Use Headset Button</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description></description>
+		</setting>
+		<setting name="Use_Call_Waiting" advanced="yes">
+			<label>Use Call Waiting</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description></description>
+		</setting>
+		<setting name="Busy_Tone_Count">
+			<label>Busy Tone Count</label>
+			<type>
+				<integer min ="1" max="60" />
+			</type>
+			<value>10</value>
+			<description>The number of busy tones after a call is ended</description>
+		</setting>
+		<setting name="Transfer_Busy_Tone_Count">
+			<label>Transfer Busy Tone Count</label>
+			<type>
+				<integer min ="1" max="60" />
+			</type>
+			<value>10</value>
+			<description>The number of busy tones after a call transfer failed</description>
+		</setting>
+		<setting name="Call_Waiting_Tone_Count">
+			<label>Call Waiting Tone Count</label>
+			<type>
+				<integer min ="-1" max="10" />
+			</type>
+			<value>1</value>
+			<description>The number of tones for a waiting call (-1:Infinite 0:Disable 1-10:Number</description>
+		</setting>
+		<setting name="Reject_Hold_Request_On_Hold" advanced="yes">
+			<label>Forbid on hold while on hold or on transfer</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Check to reject putting the call on hold while on hold or on transfer</description>
+		</setting>
+		<setting name="Reject_Hold_Request_On_2Calls" advanced="yes">
+			<label>Forbid on hold while having 2 calls</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Check to forbid putting the call on hold while having 2 calls</description>
+		</setting>
+		<setting name="Block_Request_Hold_On_Holded" advanced="yes">
+			<label>Forbid on hold while having another call on hold</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Check to block putting the call on hold while there is another call on hold</description>
+		</setting>
+		<setting name="Session_Expire" advanced="yes">
+			<label>Session Expire</label>
+			<type>
+				<integer min="90" max="3600" />
+			</type>
+			<value>1800</value>
+			<description>Set the session expire time. (Unit: seconds)</description>
+		</setting>
+		<setting name="Ringing_Timeout" advanced="yes">
+			<label>Ringing Timeout</label>
+			<type>
+				<integer min="6" max="3600" />
+			</type>
+			<value>180</value>
+			<description></description>
+		</setting>
+		<setting name="Update_RBT" advanced="yes">
+			<label>Update RBT</label>
+			<type>
+				<enum>
+					<option>
+						<label>Standard</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Allways update</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>New dialog</label>
+						<value>2</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="Dial_Sending_Timeout" advanced="yes">
+			<label>Dial Sending Timeout</label>
+			<type>
+				<integer min="500" max="32000" />
+			</type>
+			<value>30000</value>
+			<description>Invite expire time in ms</description>
+		</setting>
+		<setting name="Check_Alias_In_Call_List" advanced="yes">
+			<label>Check alias in call list</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Check if a certain alias is in the call list whose line is busy, if so don't make a new call</description>
+		</setting>
+		<setting name="Remove_DASH_On_Alias" advanced="yes">
+			<label>Remove DASH On Alias</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Delete "-" from phone numbers</description>
+		</setting>
+		<setting name="Use_Silent_Packet_On_Mute" advanced="yes">
+			<label>Use silent packet on Mute</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Whether or not to send a silent RTP packet when in Mute</description>
+		</setting>
+		<setting name="Echo_Canceller" advanced="yes">
+			<label>Echo Canceller</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description></description>
+		</setting>
+		<setting name="Reject_Invite_During_BT" advanced="yes">
+			<label>Reject invite during BT</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description></description>
+		</setting>
+		<setting name="Response_For_Decline_Incoming_Call" advanced="yes">
+			<label>Response for decline incoming call</label>
+			<type>
+				<enum>
+					<option>
+						<label>SIP 488</label>
+						<value>488</value>
+					</option>
+					<option>
+						<label>SIP 603</label>
+						<value>603</value>
+					</option>
+				</enum>
+			</type>
+			<value>603</value>
+		</setting>
+		<setting name="Call_Disconnect_TimeOut" advanced="yes">
+			<label>Call Disconnect Timeout</label>
+			<type>
+				<integer min="0" max="32000" />
+			</type>
+			<value>0</value>
+			<description>Timeout when the network is disconnected during Call busy or Ringing</description>
+		</setting>
+		<setting name="Use_Invite_Filtering" advanced="yes">
+			<label>Invite Filtering</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Use filtering for incoming Invite</description>
+		</setting>
+		<group name="TONE_TYPE" advanced="yes">
+			<label>Tone Type</label>
+			<setting name="Dial_Tone_Type_On_Hold">
+				<label>Dial Tone Type On Hold</label>
+				<type>
+					<enum>
+						<option>
+							<label>Silent</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>SDT</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Send_Dial_Tone_Type">
+				<label>Update Caller ID After Transfer</label>
+				<type>
+					<enum>
+						<option>
+							<label>Silent</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>SDT</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>HST</label>
+							<value>2</value>
+						</option>
+					</enum>
+				</type>
+				<value>1</value>
+			</setting>
+		</group>
+		<group name="CALLER_ID">
+			<label>Caller ID</label>
+			<setting name="Use_Caller_ID_OnOff">
+				<label>Use Caller ID</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description></description>
+			</setting>
+			<setting name="Enable_Caller_ID" advanced="yes">
+				<label>Send Caller ID after Enable</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description></description>
+			</setting>
+			<setting name="Anonymous_Displayname">
+				<label>Anonymous Displayname</label>
+				<type>
+					<string maxLen="30" />
+				</type>
+				<value>Anonymous</value>
+				<description>Name to be shown when the received call has no caller ID</description>
+			</setting>
+			<setting name="Use_Update_Caller_ID" advanced="yes">
+				<label>Update Caller ID when in call</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Enable to update Caller ID when it changes in the middle of a call</description>
+			</setting>
+			<setting name="Hide_Displayname" advanced="yes">
+				<label>Hide Displayname</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Check to hide the Caller ID</description>
+			</setting>
+			<setting name="Update_Caller_ID_After_Transfer" advanced="yes">
+				<label>Update Caller ID After Transfer</label>
+				<type>
+					<enum>
+						<option>
+							<label>Disable Caller ID Update</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Enable Caller ID Update</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>Update Display Only</label>
+							<value>2</value>
+						</option>
+					</enum>
+				</type>
+				<value>1</value>
+				<description>When selected Disable/Enable Caller ID Update this will also affect logs.</description>
+			</setting>
+		</group>
+		<group name="HOLD" advanced="yes">
+			<label>Hold</label>
+			<setting name="Mode">
+				<label>Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>Mixed</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Inband</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>RFC2543</label>
+							<value>2543</value>
+						</option>
+						<option>
+							<label>RFC3264</label>
+							<value>3264</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Use_Local_Hold_Tone">
+				<label>Local Hold Tone</label>
+				<type>
+					<enum>
+						<option>
+							<label>Disable</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Standard (Local Tone)</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>All mode (RFC3264 Local Tone)</label>
+							<value>2</value>
+						</option>
+					</enum>
+				</type>
+				<value>1</value>
+				<description>Whether or not to play Hold tone at the terminal at it's own style</description>
+			</setting>
+			<setting name="RTP_Hold_Multiframe">
+				<label>RTP Hold Multiframe</label>
+				<type>
+					<integer min="20" max="100" />
+				</type>
+				<value>40</value>
+				<description></description>
+			</setting>
+			<setting name="RTP_Hold_Play_Wait_Time">
+				<label>RTP Hold Play Wait Time</label>
+				<type>
+					<integer min="0" max="10000" />
+				</type>
+				<value>500</value>
+				<description>Wait time for playing hold melody</description>
+			</setting>
+			<setting name="Enable_Hold_With_Inactive">
+				<label>Hold With Inactive</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>When hold mode is mixed or RFC3264 send a=inactive</description>
+			</setting>
+			<setting name="Enable_RTP_Hold">
+				<label>RTP Hold</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>No RTP send and set hold tone when receiving "sendonly"</description>
+			</setting>
+		</group>
+		<group name="TRANSFER" advanced="yes">
+			<label>Transfer</label>
+			<setting name="Use_Transfer_Target_Hold">
+				<label>Transfer Target Hold</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Send hold request to transfer target before transferor sends REFER</description>
+			</setting>
+			<setting name="Use_Consultation_Transfer">
+				<label>Consultation Transfer</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description></description>
+			</setting>
+			<setting name="Use_Blind_Transfer">
+				<label>Blind Transfer</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Whether or not to use blind transfer (Unattended Transfer)</description>
+			</setting>
+			<setting name="Use_100_NOTIFY">
+				<label>Use 100 NOTIFY</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description></description>
+			</setting>
+			<setting name="Use_Attended_Transfer_On_Incomming_Call">
+				<label>Attended Transfer On Incomming Call</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description></description>
+			</setting>
+			<setting name="Use_Contact_For_Refer_To">
+				<label>Contact For Refer To</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Whether to make Refer-To header refering to Contact Header or to SIP URL of transfer target</description>
+			</setting>
+			<setting name="Use_Attended_Transfer_On_Call_Switch">
+				<label>Use Attended Transfer On Call Switch</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>In case of 2 calls, if 1st call is busy, do not connect to attended transfer</description>
+			</setting>
+			<setting name="Check_BYE_After_Refer">
+				<label>Check BYE After Refer</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>In case of receiving BYE before recieving NOTIFY after transferer sends refer, mark transfer failed</description>
+			</setting>
+			<setting name="Enable_Enterprise_Blind_Transfer">
+				<label>Enterprise Blind Transfer</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Set to minimalize the UI for transfer</description>
+			</setting>
+		</group>
+		<group name="FORWARD">
+			<label>Forward</label>
+			<setting name="Use_Forward">
+				<label>Use Forward</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Set to minimalize the UI for transfer</description>
+			</setting>
+			<setting name="Mode">
+				<label>Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>Disable Forward</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Forward All</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>Forward Busy</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>Forward No Answer</label>
+							<value>3</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>Whether or not to play Hold tone at the terminal at it's own style</description>
+			</setting>
+			<setting name="Phone_Number">
+				<label>Phone Number</label>
+				<type>
+					<string maxLen="30" />
+				</type>
+				<value></value>
+				<description>Set the Phone Number to forward to</description>
+			</setting>
+			<setting name="No_Answer_Timeout" advanced="yes">
+				<label>No Answer Timeout</label>
+				<type>
+					<integer min="2" max="3600" />
+				</type>
+				<value>10</value>
+				<description>The timeout for forwarding a call when No Answer in seconds</description>
+			</setting>
+			<setting name="Disable_Call_Waiting_On_Busy" advanced="yes">
+				<label>Disable Call Waiting On Busy</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>When mode is Forward Busy, a connected call is also Forward OK</description>
+			</setting>
+		</group>
+		<group name="MWI" advanced="yes">
+			<label>Message Waiting Indication</label>
+			<setting name="Use_MWI">
+				<label>Use Message Waiting Indication</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description></description>
+			</setting>
+			<setting name="Use_Subscribe">
+				<label>Use Subscribe for Message Waiting Indication</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description></description>
+			</setting>
+			<setting name="Subscribe_Server">
+				<label>Subscribe Server</label>
+				<type>
+					<string maxLen="50" />
+				</type>
+				<value></value>
+				<description>Server address to send MWI subscribe in case Use_Subscribe is checked, Empty: Use SIP Server</description>
+			</setting>
+			<setting name="Subscribe_Expire">
+				<label>Subscribe Expire</label>
+				<type>
+					<integer min="180" max="65535" />
+				</type>
+				<value>3600</value>
+				<description>MWI Subscribe expire value in seconds</description>
+			</setting>
+			<setting name="VMS_Alias">
+				<label>VMS Alias</label>
+				<type>
+					<string maxLen="40" />
+				</type>
+				<value></value>
+				<description>Message Waiting Indication extension number</description>
+			</setting>
+		</group>
+		<group name="DTMF" advanced="yes">
+			<label>DTMF</label>
+			<setting name="Mode">
+				<label>Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>In-Audio</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>SIP-INFO</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>RFC2833</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>In-Audio + SIP-INFO</label>
+							<value>3</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Duration">
+				<label>Duration</label>
+				<type>
+					<integer min="0" max="1000" />
+				</type>
+				<value>100</value>
+				<description>Duration of SIP INFO</description>
+			</setting>
+			<setting name="RFC2833_Volume">
+				<label>RFC2833 Volume</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>10</value>
+				<description>Volume of RFC2833 package</description>
+			</setting>
+			<setting name="RFC2833_Payload_Type">
+				<label>RFC2833 Payload Type</label>
+				<type>
+					<integer min="96" max="127" />
+				</type>
+				<value>101</value>
+				<description>Payload type of RFC2833 package</description>
+			</setting>
+			<setting name="RFC2833_Packet_Count">
+				<label>RFC2833 Packet Count</label>
+				<type>
+					<integer min="3" max="20" />
+				</type>
+				<value>10</value>
+				<description>DTMF packet count</description>
+			</setting>
+			<setting name="RFC2833_End_Count">
+				<label>RFC2833 End Packet Count</label>
+				<type>
+					<integer min="3" max="20" />
+				</type>
+				<value>9</value>
+				<description>DTMF end packet count</description>
+			</setting>
+			<setting name="Enable_Auto_DTMF_Mode">
+				<label>Enable Auto DTMF Mode</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Decision method of DTMF transmission system</description>
+			</setting>
+		</group>
+		<group name="INITIAL_BUSY_MODE" advanced="yes">
+			<label>Initial Busy Mode</label>
+			<setting name="Sendkey_Block_Timeout">
+				<label>Sendkey Block Timeout</label>
+				<type>
+					<integer min="0" max="5" />
+				</type>
+				<value>1</value>
+				<description>The timeout for Send Key after answering incoming call</description>
+			</setting>
+		</group>
+		<group name="CALL_BLOCK" advanced="yes">
+			<label>Call Block</label>
+			<setting name="Phone_Number_1">
+				<label>Phone Number 1</label>
+				<type>
+					<string maxLen="40" />
+				</type>
+				<value />
+				<description>Set to Call Block number</description>
+			</setting>
+			<setting name="Phone_Number_2">
+				<label>Phone Number 2</label>
+				<type>
+					<string maxLen="40" />
+				</type>
+				<value />
+				<description>Set to Call Block number</description>
+			</setting>
+			<setting name="Phone_Number_3">
+				<label>Phone Number 3</label>
+				<type>
+					<string maxLen="40" />
+				</type>
+				<value />
+				<description>Set to Call Block number</description>
+			</setting>
+			<setting name="SIP_Response_Code">
+				<label>SIP Response Code</label>
+				<type>
+					<integer min="180" max="999" />
+				</type>
+				<value />
+				<description>Set to SIP Response Code Block</description>
+			</setting>
+		</group>
+	</group>
+	<group name="SMS">
+		<label>SIMPLE Messaging</label>
+		<setting name="Message_Server">
+			<label>Message Server</label>
+			<type>
+				<string maxLen="50" />
+			</type>
+			<value />
+			<description>Message Server Address</description>
+		</setting>
+		<setting name="Message_Content_Type">
+			<label>Message Content Type</label>
+			<type>
+				<enum>
+					<option>
+						<label>Text/Plain</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Text/HTML</label>
+						<value>1</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="Use_Register">
+			<label>Register to IM Server</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="Register_Expire">
+			<label>IM Registration Expire</label>
+			<type>
+				<integer min="60" max="86400" />
+			</type>
+			<value>3600</value>
+			<description>Expire time of IM</description>
+		</setting>
+		<setting name="SMS_Prefix" advanced="yes">
+			<label>IM Prefix</label>
+			<type>
+				<string maxLen="12" />
+			</type>
+			<value />
+			<description>Set to IM Prefix</description>
+		</setting>
+		<setting name="Use_Spam_Control">
+			<label>Spam Control</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description></description>
+		</setting>
+		<setting name="Receive_Display">
+			<label>Display IM Received</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Enable indication for IM in the display when IM is received</description>
+		</setting>
+		<setting name="Inform_Interval" advanced="yes">
+			<label>Inform Interval</label>
+			<type>
+				<integer min="0" max="2" />
+			</type>
+			<value>1</value>
+			<description>IM indication interval</description>
+		</setting>
+		<setting name="Auto_Save">
+			<label>Auto Save IM</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Enable automatic saving of IM</description>
+		</setting>
+		<setting name="Spam_Num0" advanced="yes">
+			<label>Spam Number 0</label>
 			<type>
 				<string maxLen="32" />
 			</type>
 			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Num1" advanced="yes">
+			<label>Spam Number 1</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Num2" advanced="yes">
+			<label>Spam Number 2</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Num3" advanced="yes">
+			<label>Spam Number 3</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Num4" advanced="yes">
+			<label>Spam Number 4</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Num5" advanced="yes">
+			<label>Spam Number 5</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Num6" advanced="yes">
+			<label>Spam Number 6</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Num7" advanced="yes">
+			<label>Spam Number 7</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Num8" advanced="yes">
+			<label>Spam Number 8</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Num9" advanced="yes">
+			<label>Spam Number 9</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str0" advanced="yes">
+			<label>Spam String 0</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str1" advanced="yes">
+			<label>Spam String 1</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str2" advanced="yes">
+			<label>Spam String 2</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str3" advanced="yes">
+			<label>Spam String 3</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str4" advanced="yes">
+			<label>Spam String 4</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str5" advanced="yes">
+			<label>Spam String 5</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str6" advanced="yes">
+			<label>Spam String 6</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str7" advanced="yes">
+			<label>Spam String 7</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str8" advanced="yes">
+			<label>Spam String 8</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<setting name="Spam_Str9" advanced="yes">
+			<label>Spam String 9</label>
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description></description>
+		</setting>
+		<group name="INPUT" advanced="yes">
+			<label>Input</label>
+			<setting name="My_Word0">
+				<label>My Word 0</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+			<setting name="My_Word1">
+				<label>My Word 1</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+			<setting name="My_Word2">
+				<label>My Word 2</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+			<setting name="My_Word3">
+				<label>My Word 3</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+			<setting name="My_Word4">
+				<label>My Word 4</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+			<setting name="My_Word5">
+				<label>My Word 5</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+			<setting name="My_Word6">
+				<label>My Word 6</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+			<setting name="My_Word7">
+				<label>My Word 7</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+			<setting name="My_Word8">
+				<label>My Word 8</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+			<setting name="My_Word9">
+				<label>My Word 9</label>
+				<type>
+					<string maxLen="32" />
+				</type>
+				<value />
+				<description>Set to text on the display</description>
+			</setting>
+		</group>
+	</group>
+	<group name="TIME">
+		<label>Time</label>
+		<setting name="Enable_NTP">
+			<label>Enable NTP</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Enable the use of NTP</description>
+		</setting>
+		<setting name="Date_Format">
+			<label>Date Format</label>
+			<type>
+				<enum>
+					<option>
+						<label>YYYY/MM/DD Sun</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>YY/MM/DD Sun</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>MM/DD/YYYY Sun</label>
+						<value>2</value>
+					</option>
+					<option>
+						<label>MM/DD/YY Sun</label>
+						<value>3</value>
+					</option>
+					<option>
+						<label>DD Jan,YY (Sun)</label>
+						<value>4</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
 			<description>
-				WiFi SSID string for this network, if left empty, search
-				for a network. Note: SSIDs are case sensitive
+				Date display format
 			</description>
 		</setting>
-		<setting name="Enable">
-			<label>Use this Network</label>
+		<setting name="Time_Format">
+			<label>24h Time Format</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Enable to set time to 24h, Disable to set time to 12h</description>
+		</setting>
+		<setting name="Time_Zone_Index">
+			<label>Time Zone Index</label>
+			<type>
+				<enum>
+					<option>
+						<label>Azores</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Lisbon</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>Madrid</label>
+						<value>2</value>
+					</option>
+					<option>
+						<label>London</label>
+						<value>3</value>
+					</option>
+					<option>
+						<label>Paris</label>
+						<value>4</value>
+					</option>
+					<option>
+						<label>Amsterdam</label>
+						<value>5</value>
+					</option>
+					<option>
+						<label>Rome</label>
+						<value>6</value>
+					</option>
+					<option>
+						<label>Berlin</label>
+						<value>7</value>
+					</option>
+					<option>
+						<label>Vienna</label>
+						<value>8</value>
+					</option>
+					<option>
+						<label>Athens</label>
+						<value>9</value>
+					</option>
+					<option>
+						<label>Helsinki</label>
+						<value>10</value>
+					</option>
+					<option>
+						<label>Cairo</label>
+						<value>11</value>
+					</option>
+					<option>
+						<label>Beirut</label>
+						<value>12</value>
+					</option>
+					<option>
+						<label>Mosow</label>
+						<value>13</value>
+					</option>
+					<option>
+						<label>Jedda</label>
+						<value>14</value>
+					</option>
+					<option>
+						<label>Kuwait</label>
+						<value>15</value>
+					</option>
+					<option>
+						<label>Tehran</label>
+						<value>16</value>
+					</option>
+					<option>
+						<label>Abudhabi</label>
+						<value>17</value>
+					</option>
+					<option>
+						<label>Kabul</label>
+						<value>18</value>
+					</option>
+					<option>
+						<label>New Delhi</label>
+						<value>19</value>
+					</option>
+					<option>
+						<label>Bangalare</label>
+						<value>20</value>
+					</option>
+					<option>
+						<label>Colombo</label>
+						<value>21</value>
+					</option>
+					<option>
+						<label>Dhaka</label>
+						<value>22</value>
+					</option>
+					<option>
+						<label>Bangkok</label>
+						<value>23</value>
+					</option>
+					<option>
+						<label>Singapore</label>
+						<value>24</value>
+					</option>
+					<option>
+						<label>Hanoi</label>
+						<value>25</value>
+					</option>
+					<option>
+						<label>Jakarta</label>
+						<value>26</value>
+					</option>
+					<option>
+						<label>Hong Kong</label>
+						<value>27</value>
+					</option>
+					<option>
+						<label>Beijing</label>
+						<value>28</value>
+					</option>
+					<option>
+						<label>Manila</label>
+						<value>29</value>
+					</option>
+					<option>
+						<label>Taipei</label>
+						<value>30</value>
+					</option>
+					<option>
+						<label>Seoul</label>
+						<value>31</value>
+					</option>
+					<option>
+						<label>Tokyo</label>
+						<value>32</value>
+					</option>
+					<option>
+						<label>Guam</label>
+						<value>33</value>
+					</option>
+					<option>
+						<label>Sydney</label>
+						<value>34</value>
+					</option>
+					<option>
+						<label>Auckland</label>
+						<value>35</value>
+					</option>
+					<option>
+						<label>Honolulu</label>
+						<value>36</value>
+					</option>
+					<option>
+						<label>Anchorage</label>
+						<value>37</value>
+					</option>
+					<option>
+						<label>Seattle</label>
+						<value>38</value>
+					</option>
+					<option>
+						<label>Los Angeles</label>
+						<value>39</value>
+					</option>
+					<option>
+						<label>Arizona</label>
+						<value>40</value>
+					</option>
+					<option>
+						<label>Denver</label>
+						<value>41</value>
+					</option>
+					<option>
+						<label>Mexico City</label>
+						<value>42</value>
+					</option>
+					<option>
+						<label>Dallas</label>
+						<value>43</value>
+					</option>
+					<option>
+						<label>Chicago</label>
+						<value>44</value>
+					</option>
+					<option>
+						<label>Detroit</label>
+						<value>45</value>
+					</option>
+					<option>
+						<label>Washington D.C.</label>
+						<value>46</value>
+					</option>
+					<option>
+						<label>New York</label>
+						<value>47</value>
+					</option>
+					<option>
+						<label>Montreal</label>
+						<value>48</value>
+					</option>
+					<option>
+						<label>Boston</label>
+						<value>49</value>
+					</option>
+					<option>
+						<label>Caracas</label>
+						<value>50</value>
+					</option>
+					<option>
+						<label>Buenos Aires</label>
+						<value>51</value>
+					</option>
+					<option>
+						<label>Rio De Janeiro</label>
+						<value>52</value>
+					</option>
+				</enum>
+			</type>
+			<value>1</value>
+			<description></description>
+		</setting>
+		<setting name="Enable_Daylight_Saving_Time">
+			<label>Daylight Saving Time</label>
 			<type>
 				<boolean />
 			</type>
 			<value>1</value>
 		</setting>
-		<group name="NetworkSettings">
-			<label>Network Settings</label>
-			<setting name="Enable_DHCP">
-				<label>DHCP</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>
-					Use DHCP to configure IP address, netmask, dns and
-					gateway
-				</description>
-			</setting>
-			<setting name="Address" advanced="yes">
-				<label>IP Address (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Static IP Address of the phone (if not obtained via
-					DHCP)
-				</description>
-			</setting>
-			<setting name="Netmask" advanced="yes">
-				<label>Netmask (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Netmask (if not obtained via DHCP)
-				</description>
-			</setting>
-			<setting name="Gateway" advanced="yes">
-				<label>Default Gateway (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Default gateway (if not obtained via DHCP)
-				</description>
-			</setting>
-			<setting name="DNS1" advanced="yes">
-				<label>DNS Server 1 (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Primary DNS Server for this network (if not obtained
-					via DHCP)
-				</description>
-			</setting>
-			<setting name="DNS2" advanced="yes">
-				<label>DNS Server 2 (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Secondary DNS Server for this network (if not
-					obtained via DHCP)
-				</description>
-			</setting>
-		</group>
-		<group name="WifiSecurity" advanced="yes">
-			<label>WiFi Security Settings</label>
-			<setting name="Enable_WEP">
-				<label>Enable WEP</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable Wireless Encryption Protocol
-				</description>
-			</setting>
-			<setting name="Security">
-				<label>Security</label>
-				<type>
-					<enum>
-						<option>
-							<label>None</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>WEP</label>
-							<value>1</value>
-						</option>
-						<option>
-							<label>WPA-PSK</label>
-							<value>2</value>
-						</option>
-						<option>
-							<label>WPA2-PSK</label>
-							<value>3</value>
-						</option>
-						<option>
-							<label>WPA-EAP</label>
-							<value>4</value>
-						</option>
-						<option>
-							<label>WPA2-EAP</label>
-							<value>5</value>
-						</option>
-					</enum>
-				</type>
-				<value>2</value>
-				<description>
-					Set the kind of security used on the WiFi network
-				</description>
-			</setting>
-			<setting name="WPA_PSK_PassPhrase">
-				<label>WPA-PSK PassPhrase</label>
-				<type>
-					<string maxLen="63" />
-				</type>
-				<value />
-				<description>
-					Set the PassPhrase used for WPA-PSK encryption
-				</description>
-			</setting>
-			<setting name="WPA_PSK_Key">
-				<label>WPA PSK Key</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-				<description>
-					Enter the WPA PSK Key.
-				</description>
-			</setting>
-			<setting name="Use_WPA_PSK_Key_Hex_Mode">
-				<label>Use WPA PSK Key Hex Mode</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Use the WPA PSK Key in Hexadecimal mode.
-					Disable for ASCII, Enable for HEX
-				</description>
-			</setting>
-			<setting name="Proactive_Key_Caching">
-				<label>Proactive Key Caching</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable proactive key caching which is also known as 
-					opportunistic PMKSA caching for WPA2.
-				</description>
-			</setting>
-			<setting name="PMK_LifeTime">
-				<label>PMK LifeTime</label>
-				<type>
-					<integer min="100" max="86400" />
-				</type>
-				<value>43200</value>
-			</setting>
-			<setting name="PMK_Max_Count">
-				<label>PMK Max Count</label>
-				<type>
-					<integer min="1" max="100" />
-				</type>
-				<value>32</value>
-			</setting>
-			<setting name="WEP_Bits">
-				<label>WEP Keylength</label>
-				<type>
-					<enum>
-						<option>
-							<label>64bits</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>128bits</label>
-							<value>1</value>
-						</option>
-					</enum>
-				</type>
-				<value>0</value>
-				<description>
-					Keylength for the WEP encryption key
-				</description>
-			</setting>
-			<setting name="Default_WEP_Key">
-				<label>Default WEP Key</label>
-				<type>
-					<integer min="1" max="4" />
-				</type>
-				<value>1</value>
-			</setting>
-			<setting name="WEP_Key1">
-				<label>WEP Key 1</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-				<description>
-					Enter the WEP Key. Example: 128bit
-					00:00:00:00:00:00:00:00:00:00
-				</description>
-			</setting>
-			<setting name="WEP_Key2">
-				<label>WEP Key 2</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-			<setting name="WEP_Key3">
-				<label>WEP Key 3</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-			<setting name="WEP_Key4">
-				<label>WEP Key 4</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-		</group>
-		<group name="PostAuthentication" advanced="yes">
-			<label>Post Authentication</label>
-			<description>
-				The can authenticate to 802.1X
-				authentication systems as well as to web based hotspot
-				authentication pages via the User Authentication Module
-				(UAM) service in the phone
-			</description>
-			<setting name="Post_Authentication_Mode">
-				<label>Post Authentication Mode</label>
-				<type>
-					<enum>
-						<option>
-							<label>Auto</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>Open</label>
-							<value>1</value>
-						</option>
-						<option>
-							<label>Shared</label>
-							<value>2</value>
-						</option>
-					</enum>
-				</type>
-				<value>0</value>
-				<description>
-					Which type of Post Authentication to use.
-				</description>
-			</setting>
-			<setting name="8021X_Name">
-				<label>8021X Name</label>
-				<type>
-					<string maxLen="50" />
-				</type>
-				<value />
-				<description>
-					Name used for 8021X Authentication
-				</description>
-			</setting>
-			<setting name="8021X_Password">
-				<label>8021X Password</label>
-				<type>
-					<string maxLen="50" password="yes" />
-				</type>
-				<value />
-				<description>
-					Passwword for 8021X Authentication
-				</description>
-			</setting>
-		</group>
-		<group name="QoS" advanced="yes">
-			<setting name="DiffServ_Signal">
-				<label>Diffserv Signal</label>
-				<type>
-					<integer min="0" max="63" />
-				</type>
-				<value>46</value>
-				<description>SIP Message DSCP</description>
-			</setting>
-			<setting name="DiffServ_Media">
-				<label>Diffserv Media</label>
-				<type>
-					<integer min="0" max="63" />
-				</type>
-				<value>46</value>
-				<description>RTP DSCP</description>
-			</setting>
-			<setting name="WMM">
-				<label>Enable WMM</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>
-					Use WMM (Wireless MultiMedia) pioritization
-				</description>
-			</setting>
-		</group>
-		<group name="VoIP">
-		    <setting name="SIP_Outbound_Proxy">
-		      <label>SIP Outbound Proxy</label>
-		      <type>
-		        <string maxLen="32"/>
-		      </type>
-		      <value/>
-		      <description>URL of the SIP Outbound Proxy to use for this network</description>
-		    </setting>
-			<setting name="Jitter_Buffer_Size" advanced="yes">
-				<label>Jitter Buffer Size</label>
-				<type>
-					<integer min="20" max="200" />
-				</type>
-				<value>60</value>
-			</setting>
-			<setting name="Payload_Type" advanced="yes">
-				<label>Payload Type</label>
-				<type>
-					<enum>
-						<option>
-							<label>g729/g711a/g711u</label>
-							<value>18,8,0</value>
-						</option>
-						<option>
-							<label>g729/g711u/g711a</label>
-							<value>18,0,8</value>
-						</option>
-						<option>
-							<label>g711a/g711u/g729</label>
-							<value>8,0,18</value>
-						</option>
-						<option>
-							<label>g711a/g729/g711u</label>
-							<value>8,18,0</value>
-						</option>
-						<option>
-							<label>g711u/g711a/g729</label>
-							<value>0,8,18</value>
-						</option>
-						<option>
-							<label>g711u/g729/g711a</label>
-							<value>0,18,8</value>
-						</option>
-					</enum>
-				</type>
-				<value>8,18,0</value>
-				<description>
-					Set the payload (Codec) priorities.
-				</description>
-			</setting>
-			<setting name="Multiframe" advanced="yes">
-				<type>
-					<enum>
-						<option>
-							<label>20/20/20</label>
-							<value>2,2,2</value>
-						</option>
-						<option>
-							<label>20/20/10</label>
-							<value>2,2,1</value>
-						</option>
-						<option>
-							<label>20/10/20</label>
-							<value>2,1,2</value>
-						</option>
-						<option>
-							<label>20/10/10</label>
-							<value>2,1,1</value>
-						</option>
-						<option>
-							<label>10/10/10</label>
-							<value>1,1,1</value>
-						</option>
-						<option>
-							<label>10/20/10</label>
-							<value>1,2,1</value>
-						</option>
-						<option>
-							<label>10/20/20</label>
-							<value>1,2,2</value>
-						</option>
-					</enum>
-				</type>
-				<value>2,2,2</value>
-				<description>
-					Set the Multiframe size for each Coder using the
-					priorities set in Payload priorities
-				</description>
-			</setting>
-		</group>
-	</group>
-	<group name="NETWORK2">
-		<label>Network 2</label>
-		<setting name="Name">
-			<label>Network Name</label>
+		<setting name="DST_Start_Month">
+			<label>Daylight Saving Time Start Month</label>
 			<type>
-				<string required="yes" maxLen="20" />
+				<integer min="1" max="12" />
 			</type>
-			<value>Config2</value>
+			<value>3</value>
 		</setting>
-		<setting name="SSID">
+		<setting name="DST_Start_Day">
+			<label>Daylight Saving Time Start Day</label>
 			<type>
-				<string maxLen="32" />
+				<integer min="1" max="31" />
 			</type>
-			<value />
-			<description>
-				WiFi SSID string for this network, if left empty, search
-				for a network. Note: SSIDs are case sensitive
-			</description>
+			<value>28</value>
 		</setting>
-		<setting name="Enable">
-			<label>Use this Network</label>
+		<setting name="DST_End_Month">
+			<label>Daylight Saving Time End Month</label>
 			<type>
-				<boolean />
+				<integer min="1" max="12" />
 			</type>
-			<value>0</value>
+			<value>10</value>
 		</setting>
-		<group name="NetworkSettings">
-			<label>Network Settings</label>
-			<setting name="Enable_DHCP">
-				<label>DHCP</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>
-					Use DHCP to configure IP address, netmask, dns and
-					gateway
-				</description>
-			</setting>
-			<setting name="Address" advanced="yes">
-				<label>IP Address (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Static IP Address of the phone (if not obtained via
-					DHCP)
-				</description>
-			</setting>
-			<setting name="Netmask" advanced="yes">
-				<label>Netmask (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Netmask (if not obtained via DHCP)
-				</description>
-			</setting>
-			<setting name="Gateway" advanced="yes">
-				<label>Default Gateway (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Default gateway (if not obtained via DHCP)
-				</description>
-			</setting>
-			<setting name="DNS1" advanced="yes">
-				<label>DNS Server 1 (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Primary DNS Server for this network (if not obtained
-					via DHCP)
-				</description>
-			</setting>
-			<setting name="DNS2" advanced="yes">
-				<label>DNS Server 2 (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Secondary DNS Server for this network (if not
-					obtained via DHCP)
-				</description>
-			</setting>
-		</group>
-		<group name="WifiSecurity" advanced="yes">
-			<label>WiFi Security Settings</label>
-			<setting name="Enable_WEP">
-				<label>Enable WEP</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable Wireless Encryption Protocol
-				</description>
-			</setting>
-			<setting name="Security">
-				<label>Security</label>
-				<type>
-					<enum>
-						<option>
-							<label>None</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>WEP</label>
-							<value>1</value>
-						</option>
-						<option>
-							<label>WPA-PSK</label>
-							<value>2</value>
-						</option>
-						<option>
-							<label>WPA2-PSK</label>
-							<value>3</value>
-						</option>
-						<option>
-							<label>WPA-EAP</label>
-							<value>4</value>
-						</option>
-						<option>
-							<label>WPA2-EAP</label>
-							<value>5</value>
-						</option>
-					</enum>
-				</type>
-				<value>2</value>
-				<description>
-					Set the kind of security used on the WiFi network
-				</description>
-			</setting>
-			<setting name="WPA_PSK_PassPhrase">
-				<label>WPA-PSK PassPhrase</label>
-				<type>
-					<string maxLen="63" />
-				</type>
-				<value />
-				<description>
-					Set the PassPhrase used for WPA-PSK encryption
-				</description>
-			</setting>
-			<setting name="WPA_PSK_Key">
-				<label>WPA PSK Key</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-				<description>
-					Enter the WPA PSK Key.
-				</description>
-			</setting>
-			<setting name="Use_WPA_PSK_Key_Hex_Mode">
-				<label>Use WPA PSK Key Hex Mode</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Use the WPA PSK Key in Hexadecimal mode.
-					Disable for ASCII, Enable for HEX
-				</description>
-			</setting>
-			<setting name="Proactive_Key_Caching">
-				<label>Proactive Key Caching</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable proactive key caching which is also known as 
-					opportunistic PMKSA caching for WPA2.
-				</description>
-			</setting>
-			<setting name="PMK_LifeTime">
-				<label>PMK LifeTime</label>
-				<type>
-					<integer min="100" max="86400" />
-				</type>
-				<value>43200</value>
-			</setting>
-			<setting name="PMK_Max_Count">
-				<label>PMK Max Count</label>
-				<type>
-					<integer min="1" max="100" />
-				</type>
-				<value>32</value>
-			</setting>
-			<setting name="WEP_Bits">
-				<label>WEP Keylength</label>
-				<type>
-					<enum>
-						<option>
-							<label>64bits</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>128bits</label>
-							<value>1</value>
-						</option>
-					</enum>
-				</type>
-				<value>0</value>
-				<description>
-					Keylength for the WEP encryption key
-				</description>
-			</setting>
-			<setting name="Default_WEP_Key">
-				<label>Default WEP Key</label>
-				<type>
-					<integer min="1" max="4" />
-				</type>
-				<value>1</value>
-			</setting>
-			<setting name="WEP_Key1">
-				<label>WEP Key 1</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-				<description>
-					Enter the WEP Key. Example: 128bit
-					00:00:00:00:00:00:00:00:00:00
-				</description>
-			</setting>
-			<setting name="WEP_Key2">
-				<label>WEP Key 2</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-			<setting name="WEP_Key3">
-				<label>WEP Key 3</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-			<setting name="WEP_Key4">
-				<label>WEP Key 4</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-		</group>
-		<group name="PostAuthentication" advanced="yes">
-			<label>Post Authentication</label>
-			<description>
-				The can authenticate to 802.1X
-				authentication systems as well as to web based hotspot
-				authentication pages via the User Authentication Module
-				(UAM) service in the phone
-			</description>
-			<setting name="Post_Authentication_Mode">
-				<label>Post Authentication Mode</label>
-				<type>
-					<enum>
-						<option>
-							<label>Auto</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>Open</label>
-							<value>1</value>
-						</option>
-						<option>
-							<label>Shared</label>
-							<value>2</value>
-						</option>
-					</enum>
-				</type>
-				<value>0</value>
-				<description>
-					Which type of Post Authentication to use.
-				</description>
-			</setting>
-			<setting name="8021X_Name">
-				<label>8021X Name</label>
-				<type>
-					<string maxLen="50" />
-				</type>
-				<value />
-				<description>
-					Name used for 8021X Authentication
-				</description>
-			</setting>
-			<setting name="8021X_Password">
-				<label>8021X Password</label>
-				<type>
-					<string maxLen="50" password="yes" />
-				</type>
-				<value />
-				<description>
-					Passwword for 8021X Authentication
-				</description>
-			</setting>
-		</group>
-		<group name="QoS" advanced="yes">
-			<setting name="DiffServ_Signal">
-				<label>Diffserv Signal</label>
-				<type>
-					<integer min="0" max="63" />
-				</type>
-				<value>46</value>
-				<description>SIP Message DSCP</description>
-			</setting>
-			<setting name="DiffServ_Media">
-				<label>Diffserv Media</label>
-				<type>
-					<integer min="0" max="63" />
-				</type>
-				<value>46</value>
-				<description>RTP DSCP</description>
-			</setting>
-			<setting name="WMM">
-				<label>Enable WMM</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>
-					Use WMM (Wireless MultiMedia) pioritization
-				</description>
-			</setting>
-		</group>
-		<group name="VoIP">
-		    <setting name="SIP_Outbound_Proxy">
-		      <label>SIP Outbound Proxy</label>
-		      <type>
-		        <string maxLen="32"/>
-		      </type>
-		      <value/>
-		      <description>URL of the SIP Outbound Proxy to use for this network</description>
-		    </setting>
-			<setting name="Jitter_Buffer_Size" advanced="yes">
-				<label>Jitter Buffer Size</label>
-				<type>
-					<integer min="20" max="200" />
-				</type>
-				<value>60</value>
-			</setting>
-			<setting name="Payload_Type" advanced="yes">
-				<label>Payload Type</label>
-				<type>
-					<enum>
-						<option>
-							<label>g729/g711a/g711u</label>
-							<value>18,8,0</value>
-						</option>
-						<option>
-							<label>g729/g711u/g711a</label>
-							<value>18,0,8</value>
-						</option>
-						<option>
-							<label>g711a/g711u/g729</label>
-							<value>8,0,18</value>
-						</option>
-						<option>
-							<label>g711a/g729/g711u</label>
-							<value>8,18,0</value>
-						</option>
-						<option>
-							<label>g711u/g711a/g729</label>
-							<value>0,8,18</value>
-						</option>
-						<option>
-							<label>g711u/g729/g711a</label>
-							<value>0,18,8</value>
-						</option>
-					</enum>
-				</type>
-				<value>8,18,0</value>
-				<description>
-					Set the payload (Codec) priorities.
-				</description>
-			</setting>
-			<setting name="Multiframe" advanced="yes">
-				<type>
-					<enum>
-						<option>
-							<label>20/20/20</label>
-							<value>2,2,2</value>
-						</option>
-						<option>
-							<label>20/20/10</label>
-							<value>2,2,1</value>
-						</option>
-						<option>
-							<label>20/10/20</label>
-							<value>2,1,2</value>
-						</option>
-						<option>
-							<label>20/10/10</label>
-							<value>2,1,1</value>
-						</option>
-						<option>
-							<label>10/10/10</label>
-							<value>1,1,1</value>
-						</option>
-						<option>
-							<label>10/20/10</label>
-							<value>1,2,1</value>
-						</option>
-						<option>
-							<label>10/20/20</label>
-							<value>1,2,2</value>
-						</option>
-					</enum>
-				</type>
-				<value>2,2,2</value>
-				<description>
-					Set the Multiframe size for each Coder using the
-					priorities set in Payload priorities
-				</description>
-			</setting>
-		</group>
-	</group>
-	<group name="NETWORK3">
-		<label>Network 3</label>
-		<setting name="Name">
-			<label>Network Name</label>
+		<setting name="DST_End_Day">
+			<label>Daylight Saving Time End Day</label>
 			<type>
-				<string required="yes" maxLen="20" />
+				<integer min="1" max="31" />
 			</type>
-			<value>Config3</value>
+			<value>31</value>
 		</setting>
-		<setting name="SSID">
-			<type>
-				<string maxLen="32" />
-			</type>
-			<value />
-			<description>
-				WiFi SSID string for this network, if left empty, search
-				for a network. Note: SSIDs are case sensitive
-			</description>
-		</setting>
-		<setting name="Enable">
-			<label>Use this Network</label>
-			<type>
-				<boolean />
-			</type>
-			<value>0</value>
-		</setting>
-		<group name="NetworkSettings">
-			<label>Network Settings</label>
-			<setting name="Enable_DHCP">
-				<label>DHCP</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>
-					Use DHCP to configure IP address, netmask, dns and
-					gateway
-				</description>
-			</setting>
-			<setting name="Address" advanced="yes">
-				<label>IP Address (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Static IP Address of the phone (if not obtained via
-					DHCP)
-				</description>
-			</setting>
-			<setting name="Netmask" advanced="yes">
-				<label>Netmask (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Netmask (if not obtained via DHCP)
-				</description>
-			</setting>
-			<setting name="Gateway" advanced="yes">
-				<label>Default Gateway (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Default gateway (if not obtained via DHCP)
-				</description>
-			</setting>
-			<setting name="DNS1" advanced="yes">
-				<label>DNS Server 1 (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Primary DNS Server for this network (if not obtained
-					via DHCP)
-				</description>
-			</setting>
-			<setting name="DNS2" advanced="yes">
-				<label>DNS Server 2 (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Secondary DNS Server for this network (if not
-					obtained via DHCP)
-				</description>
-			</setting>
-		</group>
-		<group name="WifiSecurity" advanced="yes">
-			<label>WiFi Security Settings</label>
-			<setting name="Enable_WEP">
-				<label>Enable WEP</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable Wireless Encryption Protocol
-				</description>
-			</setting>
-			<setting name="Security">
-				<label>Security</label>
-				<type>
-					<enum>
-						<option>
-							<label>None</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>WEP</label>
-							<value>1</value>
-						</option>
-						<option>
-							<label>WPA-PSK</label>
-							<value>2</value>
-						</option>
-						<option>
-							<label>WPA2-PSK</label>
-							<value>3</value>
-						</option>
-						<option>
-							<label>WPA-EAP</label>
-							<value>4</value>
-						</option>
-						<option>
-							<label>WPA2-EAP</label>
-							<value>5</value>
-						</option>
-					</enum>
-				</type>
-				<value>2</value>
-				<description>
-					Set the kind of security used on the WiFi network
-				</description>
-			</setting>
-			<setting name="WPA_PSK_PassPhrase">
-				<label>WPA-PSK PassPhrase</label>
-				<type>
-					<string maxLen="63" />
-				</type>
-				<value />
-				<description>
-					Set the PassPhrase used for WPA-PSK encryption
-				</description>
-			</setting>
-			<setting name="WPA_PSK_Key">
-				<label>WPA PSK Key</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-				<description>
-					Enter the WPA PSK Key.
-				</description>
-			</setting>
-			<setting name="Use_WPA_PSK_Key_Hex_Mode">
-				<label>Use WPA PSK Key Hex Mode</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Use the WPA PSK Key in Hexadecimal mode.
-					Disable for ASCII, Enable for HEX
-				</description>
-			</setting>
-			<setting name="Proactive_Key_Caching">
-				<label>Proactive Key Caching</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable proactive key caching which is also known as 
-					opportunistic PMKSA caching for WPA2.
-				</description>
-			</setting>
-			<setting name="PMK_LifeTime">
-				<label>PMK LifeTime</label>
-				<type>
-					<integer min="100" max="86400" />
-				</type>
-				<value>43200</value>
-			</setting>
-			<setting name="PMK_Max_Count">
-				<label>PMK Max Count</label>
-				<type>
-					<integer min="1" max="100" />
-				</type>
-				<value>32</value>
-			</setting>
-			<setting name="WEP_Bits">
-				<label>WEP Keylength</label>
-				<type>
-					<enum>
-						<option>
-							<label>64bits</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>128bits</label>
-							<value>1</value>
-						</option>
-					</enum>
-				</type>
-				<value>0</value>
-				<description>
-					Keylength for the WEP encryption key
-				</description>
-			</setting>
-			<setting name="Default_WEP_Key">
-				<label>Default WEP Key</label>
-				<type>
-					<integer min="1" max="4" />
-				</type>
-				<value>1</value>
-			</setting>
-			<setting name="WEP_Key1">
-				<label>WEP Key 1</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-				<description>
-					Enter the WEP Key. Example: 128bit
-					00:00:00:00:00:00:00:00:00:00
-				</description>
-			</setting>
-			<setting name="WEP_Key2">
-				<label>WEP Key 2</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-			<setting name="WEP_Key3">
-				<label>WEP Key 3</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-			<setting name="WEP_Key4">
-				<label>WEP Key 4</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-		</group>
-		<group name="PostAuthentication" advanced="yes">
-			<label>Post Authentication</label>
-			<description>
-				The can authenticate to 802.1X
-				authentication systems as well as to web based hotspot
-				authentication pages via the User Authentication Module
-				(UAM) service in the phone
-			</description>
-			<setting name="Post_Authentication_Mode">
-				<label>Post Authentication Mode</label>
-				<type>
-					<enum>
-						<option>
-							<label>Auto</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>Open</label>
-							<value>1</value>
-						</option>
-						<option>
-							<label>Shared</label>
-							<value>2</value>
-						</option>
-					</enum>
-				</type>
-				<value>0</value>
-				<description>
-					Which type of Post Authentication to use.
-				</description>
-			</setting>
-			<setting name="8021X_Name">
-				<label>8021X Name</label>
-				<type>
-					<string maxLen="50" />
-				</type>
-				<value />
-				<description>
-					Name used for 8021X Authentication
-				</description>
-			</setting>
-			<setting name="8021X_Password">
-				<label>8021X Password</label>
-				<type>
-					<string maxLen="50" password="yes" />
-				</type>
-				<value />
-				<description>
-					Passwword for 8021X Authentication
-				</description>
-			</setting>
-		</group>
-		<group name="QoS" advanced="yes">
-			<setting name="DiffServ_Signal">
-				<label>Diffserv Signal</label>
-				<type>
-					<integer min="0" max="63" />
-				</type>
-				<value>46</value>
-				<description>SIP Message DSCP</description>
-			</setting>
-			<setting name="DiffServ_Media">
-				<label>Diffserv Media</label>
-				<type>
-					<integer min="0" max="63" />
-				</type>
-				<value>46</value>
-				<description>RTP DSCP</description>
-			</setting>
-			<setting name="WMM">
-				<label>Enable WMM</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>
-					Use WMM (Wireless MultiMedia) pioritization
-				</description>
-			</setting>
-		</group>
-		<group name="VoIP">
-		    <setting name="SIP_Outbound_Proxy">
-		      <label>SIP Outbound Proxy</label>
-		      <type>
-		        <string maxLen="32"/>
-		      </type>
-		      <value/>
-		      <description>URL of the SIP Outbound Proxy to use for this network</description>
-		    </setting>
-			<setting name="Jitter_Buffer_Size" advanced="yes">
-				<label>Jitter Buffer Size</label>
-				<type>
-					<integer min="20" max="200" />
-				</type>
-				<value>60</value>
-			</setting>
-			<setting name="Payload_Type" advanced="yes">
-				<label>Payload Type</label>
-				<type>
-					<enum>
-						<option>
-							<label>g729/g711a/g711u</label>
-							<value>18,8,0</value>
-						</option>
-						<option>
-							<label>g729/g711u/g711a</label>
-							<value>18,0,8</value>
-						</option>
-						<option>
-							<label>g711a/g711u/g729</label>
-							<value>8,0,18</value>
-						</option>
-						<option>
-							<label>g711a/g729/g711u</label>
-							<value>8,18,0</value>
-						</option>
-						<option>
-							<label>g711u/g711a/g729</label>
-							<value>0,8,18</value>
-						</option>
-						<option>
-							<label>g711u/g729/g711a</label>
-							<value>0,18,8</value>
-						</option>
-					</enum>
-				</type>
-				<value>8,18,0</value>
-				<description>
-					Set the payload (Codec) priorities.
-				</description>
-			</setting>
-			<setting name="Multiframe" advanced="yes">
-				<type>
-					<enum>
-						<option>
-							<label>20/20/20</label>
-							<value>2,2,2</value>
-						</option>
-						<option>
-							<label>20/20/10</label>
-							<value>2,2,1</value>
-						</option>
-						<option>
-							<label>20/10/20</label>
-							<value>2,1,2</value>
-						</option>
-						<option>
-							<label>20/10/10</label>
-							<value>2,1,1</value>
-						</option>
-						<option>
-							<label>10/10/10</label>
-							<value>1,1,1</value>
-						</option>
-						<option>
-							<label>10/20/10</label>
-							<value>1,2,1</value>
-						</option>
-						<option>
-							<label>10/20/20</label>
-							<value>1,2,2</value>
-						</option>
-					</enum>
-				</type>
-				<value>2,2,2</value>
-				<description>
-					Set the Multiframe size for each Coder using the
-					priorities set in Payload priorities
-				</description>
-			</setting>
-		</group>
-	</group>
-	<group name="NETWORK4">
-		<label>Network 4</label>
-		<setting name="Name">
-			<label>Network Name</label>
-			<type>
-				<string required="yes" maxLen="20" />
-			</type>
-			<value>Config4</value>
-		</setting>
-		<setting name="SSID">
-			<type>
-				<string maxLen="32" />
-			</type>
-			<value />
-			<description>
-				WiFi SSID string for this network, if left empty, search
-				for a network. Note: SSIDs are case sensitive
-			</description>
-		</setting>
-		<setting name="Enable">
-			<label>Use this Network</label>
-			<type>
-				<boolean />
-			</type>
-			<value>0</value>
-		</setting>
-		<group name="NetworkSettings">
-			<label>Network Settings</label>
-			<setting name="Enable_DHCP">
-				<label>DHCP</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>
-					Use DHCP to configure IP address, netmask, dns and
-					gateway
-				</description>
-			</setting>
-			<setting name="Address" advanced="yes">
-				<label>IP Address (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Static IP Address of the phone (if not obtained via
-					DHCP)
-				</description>
-			</setting>
-			<setting name="Netmask" advanced="yes">
-				<label>Netmask (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Netmask (if not obtained via DHCP)
-				</description>
-			</setting>
-			<setting name="Gateway" advanced="yes">
-				<label>Default Gateway (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Default gateway (if not obtained via DHCP)
-				</description>
-			</setting>
-			<setting name="DNS1" advanced="yes">
-				<label>DNS Server 1 (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Primary DNS Server for this network (if not obtained
-					via DHCP)
-				</description>
-			</setting>
-			<setting name="DNS2" advanced="yes">
-				<label>DNS Server 2 (no DHCP)</label>
-				<type>
-					<ipaddr />
-				</type>
-				<value >0.0.0.0</value>
-				<description>
-					Secondary DNS Server for this network (if not
-					obtained via DHCP)
-				</description>
-			</setting>
-		</group>
-		<group name="WifiSecurity" advanced="yes">
-			<label>WiFi Security Settings</label>
-			<setting name="Enable_WEP">
-				<label>Enable WEP</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable Wireless Encryption Protocol
-				</description>
-			</setting>
-			<setting name="Security">
-				<label>Security</label>
-				<type>
-					<enum>
-						<option>
-							<label>None</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>WEP</label>
-							<value>1</value>
-						</option>
-						<option>
-							<label>WPA-PSK</label>
-							<value>2</value>
-						</option>
-						<option>
-							<label>WPA2-PSK</label>
-							<value>3</value>
-						</option>
-						<option>
-							<label>WPA-EAP</label>
-							<value>4</value>
-						</option>
-						<option>
-							<label>WPA2-EAP</label>
-							<value>5</value>
-						</option>
-					</enum>
-				</type>
-				<value>2</value>
-				<description>
-					Set the kind of security used on the WiFi network
-				</description>
-			</setting>
-			<setting name="WPA_PSK_PassPhrase">
-				<label>WPA-PSK PassPhrase</label>
-				<type>
-					<string maxLen="63" />
-				</type>
-				<value />
-				<description>
-					Set the PassPhrase used for WPA-PSK encryption
-				</description>
-			</setting>
-			<setting name="WPA_PSK_Key">
-				<label>WPA PSK Key</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-				<description>
-					Enter the WPA PSK Key.
-				</description>
-			</setting>
-			<setting name="Use_WPA_PSK_Key_Hex_Mode">
-				<label>Use WPA PSK Key Hex Mode</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Use the WPA PSK Key in Hexadecimal mode.
-					Disable for ASCII, Enable for HEX
-				</description>
-			</setting>
-			<setting name="Proactive_Key_Caching">
-				<label>Proactive Key Caching</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable proactive key caching which is also known as 
-					opportunistic PMKSA caching for WPA2.
-				</description>
-			</setting>
-			<setting name="PMK_LifeTime">
-				<label>PMK LifeTime</label>
-				<type>
-					<integer min="100" max="86400" />
-				</type>
-				<value>43200</value>
-			</setting>
-			<setting name="PMK_Max_Count">
-				<label>PMK Max Count</label>
-				<type>
-					<integer min="1" max="100" />
-				</type>
-				<value>32</value>
-			</setting>
-			<setting name="WEP_Bits">
-				<label>WEP Keylength</label>
-				<type>
-					<enum>
-						<option>
-							<label>64bits</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>128bits</label>
-							<value>1</value>
-						</option>
-					</enum>
-				</type>
-				<value>0</value>
-				<description>
-					Keylength for the WEP encryption key
-				</description>
-			</setting>
-			<setting name="Default_WEP_Key">
-				<label>Default WEP Key</label>
-				<type>
-					<integer min="1" max="4" />
-				</type>
-				<value>1</value>
-			</setting>
-			<setting name="WEP_Key1">
-				<label>WEP Key 1</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-				<description>
-					Enter the WEP Key. Example: 128bit
-					00:00:00:00:00:00:00:00:00:00
-				</description>
-			</setting>
-			<setting name="WEP_Key2">
-				<label>WEP Key 2</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-			<setting name="WEP_Key3">
-				<label>WEP Key 3</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-			<setting name="WEP_Key4">
-				<label>WEP Key 4</label>
-				<type>
-					<string maxLen="87" />
-				</type>
-			</setting>
-		</group>
-		<group name="PostAuthentication" advanced="yes">
-			<label>Post Authentication</label>
-			<description>
-				The can authenticate to 802.1X
-				authentication systems as well as to web based hotspot
-				authentication pages via the User Authentication Module
-				(UAM) service in the phone
-			</description>
-			<setting name="Post_Authentication_Mode">
-				<label>Post Authentication Mode</label>
-				<type>
-					<enum>
-						<option>
-							<label>Auto</label>
-							<value>0</value>
-						</option>
-						<option>
-							<label>Open</label>
-							<value>1</value>
-						</option>
-						<option>
-							<label>Shared</label>
-							<value>2</value>
-						</option>
-					</enum>
-				</type>
-				<value>0</value>
-				<description>
-					Which type of Post Authentication to use.
-				</description>
-			</setting>
-			<setting name="8021X_Name">
-				<label>8021X Name</label>
-				<type>
-					<string maxLen="50" />
-				</type>
-				<value />
-				<description>
-					Name used for 8021X Authentication
-				</description>
-			</setting>
-			<setting name="8021X_Password">
-				<label>8021X Password</label>
-				<type>
-					<string maxLen="50" password="yes" />
-				</type>
-				<value />
-				<description>
-					Passwword for 8021X Authentication
-				</description>
-			</setting>
-		</group>
-		<group name="QoS" advanced="yes">
-			<setting name="DiffServ_Signal">
-				<label>Diffserv Signal</label>
-				<type>
-					<integer min="0" max="63" />
-				</type>
-				<value>46</value>
-				<description>SIP Message DSCP</description>
-			</setting>
-			<setting name="DiffServ_Media">
-				<label>Diffserv Media</label>
-				<type>
-					<integer min="0" max="63" />
-				</type>
-				<value>46</value>
-				<description>RTP DSCP</description>
-			</setting>
-			<setting name="WMM">
-				<label>Enable WMM</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>
-					Use WMM (Wireless MultiMedia) pioritization
-				</description>
-			</setting>
-		</group>
-		<group name="VoIP">
-		    <setting name="SIP_Outbound_Proxy">
-		      <label>SIP Outbound Proxy</label>
-		      <type>
-		        <string maxLen="32"/>
-		      </type>
-		      <value/>
-		      <description>URL of the SIP Outbound Proxy to use for this network</description>
-		    </setting>
-			<setting name="Jitter_Buffer_Size" advanced="yes">
-				<label>Jitter Buffer Size</label>
-				<type>
-					<integer min="20" max="200" />
-				</type>
-				<value>60</value>
-			</setting>
-			<setting name="Payload_Type" advanced="yes">
-				<label>Payload Type</label>
-				<type>
-					<enum>
-						<option>
-							<label>g729/g711a/g711u</label>
-							<value>18,8,0</value>
-						</option>
-						<option>
-							<label>g729/g711u/g711a</label>
-							<value>18,0,8</value>
-						</option>
-						<option>
-							<label>g711a/g711u/g729</label>
-							<value>8,0,18</value>
-						</option>
-						<option>
-							<label>g711a/g729/g711u</label>
-							<value>8,18,0</value>
-						</option>
-						<option>
-							<label>g711u/g711a/g729</label>
-							<value>0,8,18</value>
-						</option>
-						<option>
-							<label>g711u/g729/g711a</label>
-							<value>0,18,8</value>
-						</option>
-					</enum>
-				</type>
-				<value>8,18,0</value>
-				<description>
-					Set the payload (Codec) priorities.
-				</description>
-			</setting>
-			<setting name="Multiframe" advanced="yes">
-				<type>
-					<enum>
-						<option>
-							<label>20/20/20</label>
-							<value>2,2,2</value>
-						</option>
-						<option>
-							<label>20/20/10</label>
-							<value>2,2,1</value>
-						</option>
-						<option>
-							<label>20/10/20</label>
-							<value>2,1,2</value>
-						</option>
-						<option>
-							<label>20/10/10</label>
-							<value>2,1,1</value>
-						</option>
-						<option>
-							<label>10/10/10</label>
-							<value>1,1,1</value>
-						</option>
-						<option>
-							<label>10/20/10</label>
-							<value>1,2,1</value>
-						</option>
-						<option>
-							<label>10/20/20</label>
-							<value>1,2,2</value>
-						</option>
-					</enum>
-				</type>
-				<value>2,2,2</value>
-				<description>
-					Set the Multiframe size for each Coder using the
-					priorities set in Payload priorities
-				</description>
-			</setting>
-		</group>
-	</group>
-	<group name="SNTP">
-		<label>NTP</label>
 		<setting name="NTP_Refresh_Interval">
 			<label>NTP refresh Interval</label>
 			<type>
-				<integer min="60" max="3152600" />
+				<integer min="60" max="3153600" />
 			</type>
 			<value>7200</value>
-			<description>
-				Time in seconds between NTP re-syncs.
-			</description>
+			<description>Time in seconds between NTP re-syncs</description>
 		</setting>
 		<setting name="NTP_Server1">
 			<label>Primary NTP Server</label>
 			<type>
-				<ipaddr />
+				<string maxLen="60" />
 			</type>
-			<value/>
-			<description>
-				Address of the primary NTP server.
-			</description>
+			<value></value>
+			<description>Address of the primary NTP server</description>
 		</setting>
 		<setting name="NTP_Server2">
 			<label>Secondary NTP Server</label>
 			<type>
-				<ipaddr />
+				<string maxLen="60" />
 			</type>
-			<value>198.144.202.251</value>
-			<description>
-				Address of the secondary NTP server.
-			</description>
+			<value></value>
+			<description>Address of the secondary NTP server</description>
 		</setting>
 	</group>
 	<group name="SIP">
-		<label>Advanced SIP</label>
+		<label>SIP</label>
 		<setting name="Local_Port">
 			<label>Local Port</label>
 			<type>
@@ -1889,8 +1698,333 @@
 			<value>5060</value>
 			<description>Local port number used by SIP</description>
 		</setting>
+		<setting name="T1" advanced="yes">
+			<label>SIP T1 Timer</label>
+			<type>
+				<integer min="100" max="65535" />
+			</type>
+			<value>500</value>
+		</setting>
+		<setting name="T2" advanced="yes">
+			<label>SIP T2 Timer</label>
+			<type>
+				<integer min="100" max="65535" />
+			</type>
+			<value>4000</value>
+		</setting>
+		<setting name="T4" advanced="yes">
+			<label>SIP T4 Timer</label>
+			<type>
+				<integer min="100" max="65535" />
+			</type>
+			<value>5000</value>
+		</setting>
+		<setting name="Timer_B" advanced="yes">
+			<label>SIP Timer B</label>
+			<type>
+				<integer min="500" max="65535" />
+			</type>
+			<value>0</value>
+			<description>SIP INVITE Transaction timeout</description>
+		</setting>
+		<setting name="Timer_F" advanced="yes">
+			<label>SIP Timer F</label>
+			<type>
+				<integer min="500" max="65535" />
+			</type>
+			<value>0</value>
+			<description>SIP non-INVITE Transaction timeout</description>
+		</setting>
+		<setting name="Use_User_Agent" advanced="yes">
+			<label>Add User Agent-Header to SIP Message</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="User_Agent_Name" advanced="yes">
+			<label>User-Agent Name</label>
+			<type>
+				<string maxLen="60" />
+			</type>
+			<value>WPU-7700</value>
+		</setting>
+		<setting name="Use_Version_On_User_Agent" advanced="yes">
+			<label>Add Version in User-Agent Header</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="Use_Vendor_ID_On_User_Agent" advanced="yes">
+			<label>Add Servername in User-Agent Header</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="Use_MAC_On_User_Agent" advanced="yes">
+			<label>Add MAC address in User-AgentHeader</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="Max_Forwards" advanced="yes">
+			<label>Maximum Forwards</label>
+			<type>
+				<integer min="0" max="999" />
+			</type>
+			<value>70</value>
+			<description>Maximum forwards header value of SIP message</description>
+		</setting>
+		<setting name="Retry_Hold_On_491" advanced="yes">
+			<label>Retry Hold On 491</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Set to retry in case of recieving 491 for response of hold request</description>
+		</setting>
+		<setting name="Caller_ID_Mode" advanced="yes">
+			<label>Caller ID Mode</label>
+			<type>
+				<enum>
+					<option>
+						<label>Default</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>Privacy</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>RFC3325</label>
+						<value>3325</value>
+					</option>
+				</enum>
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="ICT_Transaction_Max_Count" advanced="yes">
+			<label>Maximum ICT Transaction</label>
+			<type>
+				<integer min="0" max="100" />
+			</type>
+			<value>10</value>
+			<description></description>
+		</setting>
+		<setting name="Use_rport" advanced="yes">
+			<label>Use rport</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Enable the use of rport</description>
+		</setting>
+		<setting name="Enable_STUN_OPTIONS" advanced="yes">
+			<label>STUN Options</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Enable the use of Stun Options</description>
+		</setting>
+		<setting name="Options_Expire" advanced="yes">
+			<label>Options Expire</label>
+			<type>
+				<integer min="0" max="86400" />
+			</type>
+			<value>20</value>
+			<description>RFC3581: in case received and rport in via Header of response different from local ip, send options periodically</description>
+		</setting>
+		<setting name="Request_REFER_Timeout" advanced="yes">
+			<label>Request REFER Timeout</label>
+			<type>
+				<integer min="200" max="32000" />
+			</type>
+			<value>200</value>
+			<description>Units in ms</description>
+		</setting>
+		<setting name="Wait_REFER_Response_Timeout" advanced="yes">
+			<label>Wait REFER Response Timeout</label>
+			<type>
+				<integer min="500" max="32000" />
+			</type>
+			<value>8000</value>
+			<description>Units in ms</description>
+		</setting>
+		<setting name="180_Retransmission_Interval" advanced="yes">
+			<label>180 Retransmission Interval</label>
+			<type>
+				<integer min="0" max="3600" />
+			</type>
+			<value>60</value>
+			<description>Units in seconds, 0 for disable</description>
+		</setting>
+		<setting name="Invite_Expire" advanced="yes">
+			<label>Invite Expire</label>
+			<type>
+				<integer min="0" max="86400" />
+			</type>
+			<value>180</value>
+			<description>
+				The INVITE expire time. Units in seconds, 0 for disable
+			</description>
+		</setting>
+		<setting name="Reuse_Auth_Header_Within_Dialog" advanced="yes">
+			<label>Reuse Authentication Header Within Dialog</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Reuse authentication header within the same dialog</description>
+		</setting>
+		<setting name="Reuse_Auth_Header_On_Register" advanced="yes">
+			<label>Reuse Authentication Header on register</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Reuse authentication header on REGISTER</description>
+		</setting>
+		<setting name="Register_Contact_Change" advanced="yes">
+			<label>Register Contact Change</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description></description>
+		</setting>
+		<setting name="Use_Remove_All_Contact" advanced="yes">
+			<label>Use Remove All Contact</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description></description>
+		</setting>
+		<setting name="Use_Random_Contact" advanced="yes">
+			<label>Use Random Contact</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description></description>
+		</setting>
+		<setting name="Retry_To_Redirect_Contact" advanced="yes">
+			<label>Retry to redirect contact</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Try to redirect if phone received 3xx messages</description>
+		</setting>
+		<setting name="Auth_Retry_Count" advanced="yes">
+			<label>Authentication retry count</label>
+			<type>
+				<integer min="1" max="10" />
+			</type>
+			<value>1</value>
+			<description>The number of retries after a server response 401/407</description>
+		</setting>
+		<setting name="Retry_Register_After_Auth_Fail" advanced="yes">
+			<label>Retry Register after Authentication Fails</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description></description>
+		</setting>
+		<setting name="Ignore_183_Without_SDP" advanced="yes">
+			<label>Ignore 183 without SDP</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Disregard 183 comes without SDP package</description>
+		</setting>
+		<setting name="Illegal_UserName_Check_At_Request_URI" advanced="yes">
+			<label>Illegal UserName Check At Request URI</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>When username and IP bring different information request-URI in time of an incomming call an 404 error occurs</description>
+		</setting>
+		<setting name="Remove_Register_On_Start" advanced="yes">
+			<label>Remove Register on Start</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>First send Unregister when starting after rebooting</description>
+		</setting>
+		<setting name="Check_Escape_Of_Call_Number" advanced="yes">
+			<label>Check Escape Of Call Number</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Check escape character in call number</description>
+		</setting>
+		<setting name="Transaction_Delete_Before_L3HANDOVER" advanced="yes">
+			<label>Transaction Delete Before L3HANDOVER</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description></description>
+		</setting>
+		<group name="SDP" advanced="yes">
+			<label>SDP</label>
+			<setting name="Use_Increase_session_id">
+				<label>Increase Session ID</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Whether or not to increase owners session id in case the content of SDP changes</description>
+			</setting>
+			<setting name="Use_Increase_version">
+				<label>Increase Version</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Whether or not to increase owners version in case the content of SDP changes</description>
+			</setting>
+			<setting name="Modified_Session_Detection">
+				<label>Modified Session Detection</label>
+				<type>
+					<enum>
+						<option>
+							<label>No detection</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>SDP version detection</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>SDP Session ID detection</label>
+							<value>2</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Session_Name">
+				<label>Session Name</label>
+				<type>
+					<string maxLen="30" />
+				</type>
+				<value>A_conversation</value>
+				<description>SDP Session name</description>
+			</setting>
+		</group>
 		<group name="RTP_RTCP" advanced="yes">
-		<label>RTP/RTCP</label>
+			<label>RTP/RTCP</label>
 			<setting name="Use_RTCP">
 				<label>Use RTCP</label>
 				<type>
@@ -1946,176 +2080,2379 @@
 					<integer min="0" max="65535" />
 				</type>
 				<value>0</value>
-				<description>
-					Set the RTP monitor function. If set to 0, disable
-					the RTP monitor. If performing RTP packet monitoring
-					and the RTP packets are not sent for XX seconds, BYE
-					is sent. (Unit: Seconds)
-				</description>
+				<description>0: Disable the RTP monitor. If the RTP packets are not sent for the set number of seconds, BYE is send.</description>
 			</setting>
 		</group>
 	</group>
-	<group name="CallSettings">
-		<label>Call Settings</label>
-		<group name="BASIC_CALL">
-			<label>Basic Call Settings</label>
-			<setting name="Session_Expire" advanced="yes">
-				<label>Session Expire</label>
-				<type>
-					<integer max="3600" />
-				</type>
-				<value>1800</value>
-				<description>
-					Set the session expire time. (Unit: seconds)
-				</description>
-			</setting>
-			<setting name="Remove_DASH_On_Alias">
-				<label>Remove DASH On Alias</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>Delete "-" from phone numbers</description>
-			</setting>
-			<setting name="Use_Call_Waiting">
-				<label>Use Call Waiting</label>
-				<type>
-					<boolean />
-				</type>
-				<value>1</value>
-				<description>Quess: be able to set calls in wait</description>
-			</setting>
-		</group>
-	</group>
-	<group name="WiFiSettings">
-		<label>WiFi Settings</label>
-		<group name="WIFI">
-			<setting name="Enable_Check_Server_Cert">
-				<label>Enable Check Server Certificate</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable to check certification of server
-				</description>
-			</setting>
-			<setting name="Force_Enable_Short_Preamble">
-				<label>Force Enable Short Preamble</label>
-				<type>
-					<boolean />
-				</type>
-				<value>0</value>
-				<description>
-					Enable to force Short Preamble
-				</description>
-			</setting>
-		</group>
+	<group name="WIFI">
+		<label>WiFi</label>
+		<setting name="RF_Tx_Power" advanced="yes">
+			<label>RF Tx Power</label>
+			<type>
+				<integer min="5" max="20" />
+			</type>
+			<value>15</value>
+			<description></description>
+		</setting>
+		<setting name="Data_Packet_TxRate">
+			<label>Data Packet Tx Rate</label>
+			<type>
+				<string maxLen="40" />
+			</type>
+			<value>1,2,5,6,9,11,12,18,24,36,48,54</value>
+			<description>The accepted transfer rates, default all b/g modes</description>
+		</setting>
+		<setting name="Default_Listen_Interval" advanced="yes">
+			<label>Default Listen Interval</label>
+			<type>
+				<integer min="0" max="255" />
+			</type>
+			<value>20</value>
+			<description>802.11 listen interval</description>
+		</setting>
+		<setting name="Use_PowerSave">
+			<label>Use Powersave</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="Use_WLAN_Watchdog" advanced="yes">
+			<label>Use WLAN Watchdog</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="Domain">
+			<label>802.11 Domain</label>
+			<type>
+				<enum>
+					<option>
+						<label>MKK1</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>MKK</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>FCC</label>
+						<value>2</value>
+					</option>
+					<option>
+						<label>IC</label>
+						<value>3</value>
+					</option>
+					<option>
+						<label>ETSI</label>
+						<value>4</value>
+					</option>
+					<option>
+						<label>Spain</label>
+						<value>5</value>
+					</option>
+					<option>
+						<label>France</label>
+						<value>6</value>
+					</option>
+				</enum>
+			</type>
+			<value>4</value>
+		</setting>
+		<setting name="Tx_Retry_Count" advanced="yes">
+			<label>Tx Retry Count</label>
+			<type>
+				<integer min="1" max="16" />
+			</type>
+			<value>4</value>
+			<description></description>
+		</setting>
+		<setting name="RTS_Threshold" advanced="yes">
+			<label>RTS Threshold</label>
+			<type>
+				<integer min="0" max="2347" />
+			</type>
+			<value>2347</value>
+			<description></description>
+		</setting>
+		<setting name="Null_Function_Tx_Period" advanced="yes">
+			<label>Null Function Tx Period</label>
+			<type>
+				<integer min="0" max="255" />
+			</type>
+			<value>50</value>
+			<description></description>
+		</setting>
+		<setting name="Use_PowerSave_Wakeup_On_Register" advanced="yes">
+			<label>Use PowerSave Wakeup On Register</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Wakeup from powersave before registering</description>
+		</setting>
+		<setting name="Use_802_11_Rogue_Ap_Management" advanced="yes">
+			<label>Use 802.11 Rogue AP Management</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>In case of receiving authentication fail for AP load balancing, whether or not to manage rogue AP</description>
+		</setting>
+		<setting name="Use_Adaptive_Data_Rate" advanced="yes">
+			<label>Use Adaptive Data Rate</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Adaptive data Rate on Driver</description>
+		</setting>
+		<setting name="Use_Enterprise_Auth_Mode" advanced="yes">
+			<label>Use Enterprise Authentication Mode</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Set to use enterprise mode in 802.1x</description>
+		</setting>
+		<setting name="Enable_Check_Server_Cert">
+			<label>Check Server Certificate</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Enable to use the certificate of the server, Disable to use the certificate of phone</description>
+		</setting>
+		<setting name="Force_Enable_Short_Preamble" advanced="yes">
+			<label>Force Enable Short Preamble</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Enable to force Short Preamble</description>
+		</setting>
 		<group name="WIFI_SCAN">
 			<label>WiFi Scan</label>
 			<setting name="Scan_Channel_List">
 				<label>Scan Channel List</label>
 				<type>
-					<string />
+					<string maxLen="40" />
 				</type>
 				<value>1,2,3,4,5,6,7,8,9,10,11,12,13,14</value>
 				<description>
-					Set the channels to be scanned. Seperated by comma.
+					Set the channels to be scanned, seperated by comma
 				</description>
 			</setting>
+			<setting name="Scan_Mode" advanced="yes">
+				<label>Scan Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>Active Scanning</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Passive Scanning</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
 		</group>
-		<group name="ROAMING">
+		<group name="ROAMING" advanced="yes">
 			<label>Roaming Settings</label>
+			<setting name="Roaming_Disable">
+				<label>Disable Roaming</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+			</setting>
 			<setting name="Try_Beacon_Signal_Level">
 				<label>Try Beacon Signal Level</label>
 				<type>
 					<integer min="-103" max="0" />
 				</type>
-				<value>-77</value>
-				<description>
-					Set the threshold of the electromagnetic wave
-					reception level the processes AP scans. Unit(dBm)
-				</description>
+				<value>-75</value>
+				<description>Preroaming Access Point signal detection level in dBm</description>
 			</setting>
 			<setting name="Try_Rx_Signal_Level">
 				<label>Try Rx Signal Level</label>
 				<type>
 					<integer min="-103" max="0" />
 				</type>
-				<value>-77</value>
-				<description>
-					Set the threshold of the electromagnetic wave
-					reception level that processes AP scans. Unit (dBm).
-					AP scan is processed when less than the Try_RxLevel
-					during call
-				</description>
+				<value>-75</value>
+				<description>The minimal signal level before roaming in dBm</description>
 			</setting>
 			<setting name="Try_Over_TxError_Count">
 				<label>Try Over TxError Count</label>
 				<type>
-					<integer min="0" max="255" />
+					<integer min="0" max="10000" />
 				</type>
 				<value>5</value>
-				<description>
-					Set the threshold for the number of transmission
-					error occurrences produced when the handover and
-					roaming operation is performed. If ACK in IEEE802.11
-					is not returned, the count is incremented and if the
-					count exceeds the threshold value, handover and
-					roaming are performed.
-				</description>
+				<description>When the Tx error count is over this threshold attempt roaming</description>
+			</setting>
+			<setting name="Beacon_Missed_Count">
+				<label>Beacon Missed Count</label>
+				<type>
+					<integer min="1" max="255" />
+				</type>
+				<value>5</value>
+				<description></description>
+			</setting>
+			<setting name="Scan_Period">
+				<label>Scan Period</label>
+				<type>
+					<string maxLen="50" />
+				</type>
+				<value>4, 8, 8, 8, 8</value>
+				<description>Roaming attempt interval</description>
+			</setting>
+			<setting name="Roaming_Disable_On_Calling">
+				<label>Disable Roaming during call</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Set to disable roaming when the line is in use</description>
+			</setting>
+			<setting name="Level_Diff_Higher_Than_Curr_Site">
+				<label>Level Difference Higher Than Current Site</label>
+				<type>
+					<integer min="0" max="255" />
+				</type>
+				<value>8</value>
+				<description>When roaming to a Site with higher Rx Level (RSSI) than current Site, the reference has to be higher</description>
+			</setting>
+			<setting name="Clear_Blacklist_Interval">
+				<label>Clear Blacklist Interval</label>
+				<type>
+					<integer min="60" max="255" />
+				</type>
+				<value>60</value>
+				<description>Clear the Black List of Access Points failing in connection after the interval time</description>
+			</setting>
+		</group>
+		<group name="DYNAMIC_NETWORK" advanced="yes">
+			<label>Dynamic Network</label>
+			<setting name="Backoff_Interval">
+				<label>Backoff Interval</label>
+				<type>
+					<string maxLen="50" />
+				</type>
+				<value>4,8,16,32,64</value>
+				<description>Dynamic network Backoff Interval</description>
+			</setting>
+			<setting name="L3_Detect">
+				<label>L3 Detect</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Enable L3 roaming detection (When enabled DHCP Verify is disabled automatically</description>
+			</setting>
+			<setting name="DHCP_Verify_Count">
+				<label>DHCP Verify Count after L3 roaming</label>
+				<type>
+					<integer min="0" max="10" />
+				</type>
+				<value>4</value>
+				<description>Number of DHCP binding checks after L3 Roaming</description>
+			</setting>
+			<setting name="DHCP_Verify_Interval">
+				<label>DHCP Verify Interval after L3 roaming</label>
+				<type>
+					<integer min="0" max="100" />
+				</type>
+				<value>2</value>
+				<description>Interval time in seconds of DHCP binding checks after L3 Roaming</description>
+			</setting>
+			<setting name="8021X_Bind_Timeout">
+				<label>802.1x Bind Timeout</label>
+				<type>
+					<integer min="0" max="3600" />
+				</type>
+				<value>10</value>
+				<description>802.1x Bind Timeout in seconds</description>
+			</setting>
+		</group>
+		<group name="TOS_WMM" advanced="yes">
+			<label>TOS WMM</label>
+			<setting name="Precedence_0">
+				<label>Priority ToS Precedence 0</label>
+				<type>
+					<integer min="0" max="7" />
+				</type>
+				<value>0</value>
+				<description>Set the priority of ToS Precedence 0</description>
+			</setting>
+			<setting name="Precedence_1">
+				<label>Priority ToS Precedence 1</label>
+				<type>
+					<integer min="0" max="7" />
+				</type>
+				<value>6</value>
+				<description>Set the priority of ToS Precedence 1</description>
+			</setting>
+			<setting name="Precedence_2">
+				<label>Priority ToS Precedence 2</label>
+				<type>
+					<integer min="0" max="7" />
+				</type>
+				<value>6</value>
+				<description>Set the priority of ToS Precedence 2</description>
+			</setting>
+			<setting name="Precedence_3">
+				<label>Priority ToS Precedence 3</label>
+				<type>
+					<integer min="0" max="7" />
+				</type>
+				<value>6</value>
+				<description>Set the priority of ToS Precedence 3</description>
+			</setting>
+			<setting name="Precedence_4">
+				<label>Priority ToS Precedence 4</label>
+				<type>
+					<integer min="0" max="7" />
+				</type>
+				<value>6</value>
+				<description>Set the priority of ToS Precedence 4</description>
+			</setting>
+			<setting name="Precedence_5">
+				<label>Priority ToS Precedence 5</label>
+				<type>
+					<integer min="0" max="7" />
+				</type>
+				<value>6</value>
+				<description>Set the priority of ToS Precedence 5</description>
+			</setting>
+			<setting name="Precedence_6">
+				<label>Priority ToS Precedence 6</label>
+				<type>
+					<integer min="0" max="7" />
+				</type>
+				<value>6</value>
+				<description>Set the priority of ToS Precedence 6</description>
+			</setting>
+			<setting name="Precedence_7">
+				<label>Priority ToS Precedence 7</label>
+				<type>
+					<integer min="0" max="7" />
+				</type>
+				<value>6</value>
+				<description>Set the priority of ToS Precedence 7</description>
 			</setting>
 		</group>
 	</group>
-	<group name="PROVISIONING">
-		<label>Provision and Upgrade</label>
-		<group name="PROVISION">
-			<label>Provision</label>
-			<setting name="Use_Provision">
-				<label>Use Provision</label>
+	<group name="NETWORK1">
+		<label>Network 1</label>
+		<setting name="SSID">
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description>
+				WiFi SSID string for this network, if left empty, search
+				for a network. Note: SSIDs are case sensitive
+			</description>
+		</setting>
+		<setting name="Enable">
+			<label>Use this Network</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+		</setting>
+		<setting name="SIP_Outbound_Proxy">
+			<label>SIP Outbound Proxy</label>
+			<type>
+				<string maxLen="32"/>
+			</type>
+			<value/>
+			<description>URL of the SIP Outbound Proxy to use for this network</description>
+		</setting>
+		<setting name="Join_Method" advanced="yes">
+			<label>Join Method</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Checked: Automatic. Unchecked: Manual</description>
+		</setting>
+		<group name="NetworkSettings">
+			<label>Network Settings</label>
+			<setting name="Enable_DHCP">
+				<label>DHCP</label>
 				<type>
 					<boolean />
 				</type>
 				<value>1</value>
-				<description>Enable Prosioning system</description>
+				<description>Use DHCP to configure IP address, netmask, dns and gateway</description>
 			</setting>
-			<setting name="Firmware_URL">
-				<label>Firmware URL</label>
+			<setting name="Address" advanced="yes">
+				<label>IP Address (no DHCP)</label>
 				<type>
-					<string maxLen="128" />
+					<ipaddr />
 				</type>
-				<value />
-				<description>
-					URL under which to find the firmware files
-				</description>
+				<value>0.0.0.0</value>
+				<description>Static IP Address of the phone (if not obtained via DHCP)</description>
 			</setting>
-			<setting name="Firmware_Name">
-				<label>Firmware Name</label>
+			<setting name="Netmask" advanced="yes">
+				<label>Netmask (no DHCP)</label>
 				<type>
-					<string maxLen="128" />
+					<ipaddr />
 				</type>
-				<value />
-				<description>
-					Name under which to find the firmware files
-				</description>
+				<value>255.255.255.0</value>
+				<description>Netmask (if not obtained via DHCP)</description>
 			</setting>
-			<setting name="Firmware_Version">
-				<label>Firmware Version</label>
+			<setting name="Gateway" advanced="yes">
+				<label>Default Gateway (no DHCP)</label>
 				<type>
-					<string maxLen="30" />
+					<ipaddr />
 				</type>
-				<value />
+				<value>0.0.0.0</value>
+				<description>Default gateway (if not obtained via DHCP)</description>
 			</setting>
-			<setting name="Phonebook_Name">
-				<label>Phonebook Name</label>
+			<setting name="DNS1" advanced="yes">
+				<label>DNS Server 1 (no DHCP)</label>
 				<type>
-					<string maxLen="128" />
+					<ipaddr />
 				</type>
-				<value />
-				<description>
-					Name under which to find the Phonebook files, leave blank for generated phonebook, fill in for alternative phonebook.
-				</description>
+				<value>0.0.0.0</value>
+				<description>Primary DNS Server for this network (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="DNS2" advanced="yes">
+				<label>DNS Server 2 (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Secondary DNS Server for this network (if not obtained via DHCP)</description>
 			</setting>
 		</group>
+		<group name="WifiSecurity" advanced="yes">
+			<label>WiFi Security Settings</label>
+			<setting name="Security">
+				<label>Security</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>WEP</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>WPA-PSK</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>WPA2-PSK</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>WPA-EAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>WPA2-EAP</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>2</value>
+				<description>Set the kind of security used on the WiFi network</description>
+			</setting>
+			<setting name="WEP_Bits">
+				<label>WEP Keylength</label>
+				<type>
+					<enum>
+						<option>
+							<label>64bits</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>128bits</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>Keylength for the WEP encryption key</description>
+			</setting>
+			<setting name="Default_WEP_Key">
+				<label>Default WEP Key</label>
+				<type>
+					<integer min="1" max="4" />
+				</type>
+				<value>1</value>
+			</setting>
+			<setting name="WEP_Key1">
+				<label>WEP Key 1</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+				<description>Enter the WEP Key. Example: 128bit 00:00:00:00:00:00:00:00:00:00</description>
+			</setting>
+			<setting name="WEP_Key2">
+				<label>WEP Key 2</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WEP_Key3">
+				<label>WEP Key 3</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WEP_Key4">
+				<label>WEP Key 4</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WPA_PSK_PassPhrase">
+				<label>WPA-PSK PassPhrase</label>
+				<type>
+					<string maxLen="63" />
+				</type>
+				<value />
+				<description>Set the PassPhrase used for WPA-PSK encryption</description>
+			</setting>
+			<setting name="WPA_PSK_Key">
+				<label>WPA PSK Key</label>
+				<type>
+					<string maxLen="64" />
+				</type>
+				<description>Enter the WPA PSK Key</description>
+			</setting>
+			<setting name="Use_WPA_PSK_Key_Hex_Mode">
+				<label>WPA PSK Key Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>ASCII</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>HEX</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Proactive_Key_Caching">
+				<label>Proactive Key Caching</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Enable proactive key caching which is also known as opportunistic PMKSA caching for WPA2</description>
+			</setting>
+			<setting name="PMK_LifeTime">
+				<label>PMK LifeTime</label>
+				<type>
+					<integer min="100" max="86400" />
+				</type>
+				<value>43200</value>
+			</setting>
+			<setting name="PMK_Max_Count">
+				<label>PMK Max Count</label>
+				<type>
+					<integer min="1" max="100" />
+				</type>
+				<value>32</value>
+			</setting>
+		</group>
+		<group name="PostAuthentication" advanced="yes">
+			<label>802.1x Authentication</label>
+			<setting name="Authentication_Algorithm">
+				<label>Authentication Algorithm</label>
+				<type>
+					<enum>
+						<option>
+							<label>Auto</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Open</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>Shared</label>
+							<value>2</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>Which type of 802.1x Authentication to use</description>
+			</setting>
+			<setting name="Post_Authentication_Mode">
+				<label>Post Authentication Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>WEB</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>802.1x-MD5</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>802.1x-TLS</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>802.1x-PEAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>802.1x-TTLS</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Post_Authentication_Inner_Mode">
+				<label>Post Authentication Inner Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>EAP-MD5</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>MSCHAPv2</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>MSCHAP</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>PAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>CHAP</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>2</value>
+			</setting>
+			<setting name="8021X_Name">
+				<label>802.1x Name</label>
+				<type>
+					<string maxLen="50" />
+				</type>
+				<value />
+				<description>Name used for 802.1x Authentication</description>
+			</setting>
+			<setting name="8021X_Password">
+				<label>802.1x Password</label>
+				<type>
+					<string maxLen="50" password="yes" />
+				</type>
+				<value />
+				<description>Password for 802.1x Authentication</description>
+			</setting>
+		</group>
+		<group name="QoS" advanced="yes">
+			<setting name="DiffServ_Signal">
+				<label>Diffserv Signal</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>46</value>
+				<description>SIP Message DSCP</description>
+			</setting>
+			<setting name="DiffServ_Media">
+				<label>Diffserv Media</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>46</value>
+				<description>RTP DSCP</description>
+			</setting>
+			<setting name="WMM">
+				<label>WMM</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Use Wireless MultiMedia prioritization</description>
+			</setting>
+		</group>
+		<group name="VoIP">
+			<setting name="Jitter_Buffer_Size" advanced="yes">
+				<label>Jitter Buffer Size</label>
+				<type>
+					<integer min="20" max="200" />
+				</type>
+				<value>60</value>
+			</setting>
+			<setting name="Payload_Type" advanced="yes">
+				<label>Payload Type</label>
+				<type>
+					<enum>
+						<option>
+							<label>g729/g711a/g711u</label>
+							<value>18,8,0</value>
+						</option>
+						<option>
+							<label>g729/g711u/g711a</label>
+							<value>18,0,8</value>
+						</option>
+						<option>
+							<label>g711a/g711u/g729</label>
+							<value>8,0,18</value>
+						</option>
+						<option>
+							<label>g711a/g729/g711u</label>
+							<value>8,18,0</value>
+						</option>
+						<option>
+							<label>g711u/g711a/g729</label>
+							<value>0,8,18</value>
+						</option>
+						<option>
+							<label>g711u/g729/g711a</label>
+							<value>0,18,8</value>
+						</option>
+					</enum>
+				</type>
+				<value>0,8,18</value>
+				<description>Set the payload (Codec) priorities</description>
+			</setting>
+			<setting name="Multiframe" advanced="yes">
+				<type>
+					<enum>
+						<option>
+							<label>20/20/20</label>
+							<value>2,2,2</value>
+						</option>
+						<option>
+							<label>20/20/10</label>
+							<value>2,2,1</value>
+						</option>
+						<option>
+							<label>20/10/20</label>
+							<value>2,1,2</value>
+						</option>
+						<option>
+							<label>20/10/10</label>
+							<value>2,1,1</value>
+						</option>
+						<option>
+							<label>10/10/10</label>
+							<value>1,1,1</value>
+						</option>
+						<option>
+							<label>10/20/10</label>
+							<value>1,2,1</value>
+						</option>
+						<option>
+							<label>10/20/20</label>
+							<value>1,2,2</value>
+						</option>
+					</enum>
+				</type>
+				<value>2,2,2</value>
+				<description>Set the Multiframe size for each Coder using the priorities set in Payload priorities</description>
+			</setting>
+		</group>
+		<group name="UAM" advanced="yes">
+			<label>Universal Access Method</label>
+			<setting name="UAM_Use_Manual">
+				<label>Manual UAM Login</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="UAM_Login_URL">
+				<label>UAM Manual Login URL</label>
+				<type>
+					<string maxLen="512"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_IDTag_Name">
+				<label>UAM Tag Username</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_PWTag_Name">
+				<label>UAM Tag Password</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_URL">
+				<label>UAM URL</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description></description>
+			</setting>
+			<setting name="UAM_ID">
+				<label>UAM Username</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_ID">
+				<label>UAM Password</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+		</group>
+	</group>
+	<group name="NETWORK2">
+		<label>Network 2</label>
+		<setting name="SSID">
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description>WiFi SSID string for this network, if left empty, search for a network. Note: SSIDs are case sensitive</description>
+		</setting>
+		<setting name="Enable">
+			<label>Use this Network</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="SIP_Outbound_Proxy">
+			<label>SIP Outbound Proxy</label>
+			<type>
+				<string maxLen="32"/>
+			</type>
+			<value/>
+			<description>URL of the SIP Outbound Proxy to use for this network</description>
+		</setting>
+		<setting name="Join_Method" advanced="yes">
+			<label>Join Method</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Checked: Automatic. Unchecked: Manual</description>
+		</setting>
+		<group name="NetworkSettings">
+			<label>Network Settings</label>
+			<setting name="Enable_DHCP">
+				<label>DHCP</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Use DHCP to configure IP address, netmask, dns and gateway</description>
+			</setting>
+			<setting name="Address" advanced="yes">
+				<label>IP Address (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Static IP Address of the phone (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="Netmask" advanced="yes">
+				<label>Netmask (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>255.255.255.0</value>
+				<description>Netmask (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="Gateway" advanced="yes">
+				<label>Default Gateway (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Default gateway (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="DNS1" advanced="yes">
+				<label>DNS Server 1 (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Primary DNS Server for this network (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="DNS2" advanced="yes">
+				<label>DNS Server 2 (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Secondary DNS Server for this network (if not obtained via DHCP)</description>
+			</setting>
+		</group>
+		<group name="WifiSecurity" advanced="yes">
+			<label>WiFi Security Settings</label>
+			<setting name="Security">
+				<label>Security</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>WEP</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>WPA-PSK</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>WPA2-PSK</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>WPA-EAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>WPA2-EAP</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>2</value>
+				<description>Set the kind of security used on the WiFi network</description>
+			</setting>
+			<setting name="WEP_Bits">
+				<label>WEP Keylength</label>
+				<type>
+					<enum>
+						<option>
+							<label>64bits</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>128bits</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>Keylength for the WEP encryption key</description>
+			</setting>
+			<setting name="Default_WEP_Key">
+				<label>Default WEP Key</label>
+				<type>
+					<integer min="1" max="4" />
+				</type>
+				<value>1</value>
+			</setting>
+			<setting name="WEP_Key1">
+				<label>WEP Key 1</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+				<description>Enter the WEP Key. Example: 128bit 00:00:00:00:00:00:00:00:00:00</description>
+			</setting>
+			<setting name="WEP_Key2">
+				<label>WEP Key 2</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WEP_Key3">
+				<label>WEP Key 3</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WEP_Key4">
+				<label>WEP Key 4</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WPA_PSK_PassPhrase">
+				<label>WPA-PSK PassPhrase</label>
+				<type>
+					<string maxLen="63" />
+				</type>
+				<value />
+				<description>Set the PassPhrase used for WPA-PSK encryption</description>
+			</setting>
+			<setting name="WPA_PSK_Key">
+				<label>WPA PSK Key</label>
+				<type>
+					<string maxLen="64" />
+				</type>
+				<description>Enter the WPA PSK Key</description>
+			</setting>
+			<setting name="Use_WPA_PSK_Key_Hex_Mode">
+				<label>WPA PSK Key Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>ASCII</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>HEX</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Proactive_Key_Caching">
+				<label>Proactive Key Caching</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Enable proactive key caching which is also known as opportunistic PMKSA caching for WPA2</description>
+			</setting>
+			<setting name="PMK_LifeTime">
+				<label>PMK LifeTime</label>
+				<type>
+					<integer min="100" max="86400" />
+				</type>
+				<value>43200</value>
+			</setting>
+			<setting name="PMK_Max_Count">
+				<label>PMK Max Count</label>
+				<type>
+					<integer min="1" max="100" />
+				</type>
+				<value>32</value>
+			</setting>
+		</group>
+		<group name="PostAuthentication" advanced="yes">
+			<label>Post Authentication</label>
+			<setting name="Authentication_Algorithm">
+				<label>Authentication Algorithm</label>
+				<type>
+					<enum>
+						<option>
+							<label>Auto</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Open</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>Shared</label>
+							<value>2</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>Which type of Post Authentication to use</description>
+			</setting>
+			<setting name="Post_Authentication_Mode">
+				<label>Post Authentication Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>WEB</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>802.1x-MD5</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>802.1x-TLS</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>802.1x-PEAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>802.1x-TTLS</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Post_Authentication_Inner_Mode">
+				<label>Post Authentication Inner Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>EAP-MD5</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>MSCHAPv2</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>MSCHAP</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>PAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>CHAP</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>2</value>
+			</setting>
+			<setting name="8021X_Name">
+				<label>802.1x Name</label>
+				<type>
+					<string maxLen="50" />
+				</type>
+				<value />
+				<description>Name used for 802.1x Authentication</description>
+			</setting>
+			<setting name="8021X_Password">
+				<label>802.1x Password</label>
+				<type>
+					<string maxLen="50" password="yes" />
+				</type>
+				<value />
+				<description>Password for 802.1x Authentication</description>
+			</setting>
+		</group>
+		<group name="QoS" advanced="yes">
+			<setting name="DiffServ_Signal">
+				<label>Diffserv Signal</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>46</value>
+				<description>SIP Message DSCP</description>
+			</setting>
+			<setting name="DiffServ_Media">
+				<label>Diffserv Media</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>46</value>
+				<description>RTP DSCP</description>
+			</setting>
+			<setting name="WMM">
+				<label>WMM</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Use Wireless MultiMedia prioritization</description>
+			</setting>
+		</group>
+		<group name="VoIP">
+			<setting name="Jitter_Buffer_Size" advanced="yes">
+				<label>Jitter Buffer Size</label>
+				<type>
+					<integer min="20" max="200" />
+				</type>
+				<value>60</value>
+			</setting>
+			<setting name="Payload_Type" advanced="yes">
+				<label>Payload Type</label>
+				<type>
+					<enum>
+						<option>
+							<label>g729/g711a/g711u</label>
+							<value>18,8,0</value>
+						</option>
+						<option>
+							<label>g729/g711u/g711a</label>
+							<value>18,0,8</value>
+						</option>
+						<option>
+							<label>g711a/g711u/g729</label>
+							<value>8,0,18</value>
+						</option>
+						<option>
+							<label>g711a/g729/g711u</label>
+							<value>8,18,0</value>
+						</option>
+						<option>
+							<label>g711u/g711a/g729</label>
+							<value>0,8,18</value>
+						</option>
+						<option>
+							<label>g711u/g729/g711a</label>
+							<value>0,18,8</value>
+						</option>
+					</enum>
+				</type>
+				<value>0,8,18</value>
+				<description>Set the payload (Codec) priorities</description>
+			</setting>
+			<setting name="Multiframe" advanced="yes">
+				<type>
+					<enum>
+						<option>
+							<label>20/20/20</label>
+							<value>2,2,2</value>
+						</option>
+						<option>
+							<label>20/20/10</label>
+							<value>2,2,1</value>
+						</option>
+						<option>
+							<label>20/10/20</label>
+							<value>2,1,2</value>
+						</option>
+						<option>
+							<label>20/10/10</label>
+							<value>2,1,1</value>
+						</option>
+						<option>
+							<label>10/10/10</label>
+							<value>1,1,1</value>
+						</option>
+						<option>
+							<label>10/20/10</label>
+							<value>1,2,1</value>
+						</option>
+						<option>
+							<label>10/20/20</label>
+							<value>1,2,2</value>
+						</option>
+					</enum>
+				</type>
+				<value>2,2,2</value>
+				<description>Set the Multiframe size for each Coder using the priorities set in Payload priorities</description>
+			</setting>
+		</group>
+		<group name="UAM" advanced="yes">
+			<label>Universal Access Method</label>
+			<setting name="UAM_Use_Manual">
+				<label>Manual UAM Login</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="UAM_Login_URL">
+				<label>UAM Manual Login URL</label>
+				<type>
+					<string maxLen="512"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_IDTag_Name">
+				<label>UAM Tag Username</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_PWTag_Name">
+				<label>UAM Tag Password</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_URL">
+				<label>UAM URL</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description></description>
+			</setting>
+			<setting name="UAM_ID">
+				<label>UAM Username</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_ID">
+				<label>UAM Password</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+		</group>
+	</group>
+	<group name="NETWORK3">
+		<label>Network 3</label>
+		<setting name="SSID">
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description>WiFi SSID string for this network, if left empty, search for a network. Note: SSIDs are case sensitive</description>
+		</setting>
+		<setting name="Enable">
+			<label>Use this Network</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="SIP_Outbound_Proxy">
+			<label>SIP Outbound Proxy</label>
+			<type>
+				<string maxLen="32"/>
+			</type>
+			<value/>
+			<description>URL of the SIP Outbound Proxy to use for this network</description>
+		</setting>
+		<setting name="Join_Method" advanced="yes">
+			<label>Join Method</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Checked: Automatic. Unchecked: Manual</description>
+		</setting>
+		<group name="NetworkSettings">
+			<label>Network Settings</label>
+			<setting name="Enable_DHCP">
+				<label>DHCP</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Use DHCP to configure IP address, netmask, dns and gateway</description>
+			</setting>
+			<setting name="Address" advanced="yes">
+				<label>IP Address (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Static IP Address of the phone (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="Netmask" advanced="yes">
+				<label>Netmask (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>255.255.255.0</value>
+				<description>Netmask (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="Gateway" advanced="yes">
+				<label>Default Gateway (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Default gateway (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="DNS1" advanced="yes">
+				<label>DNS Server 1 (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Primary DNS Server for this network (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="DNS2" advanced="yes">
+				<label>DNS Server 2 (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Secondary DNS Server for this network (if not obtained via DHCP)</description>
+			</setting>
+		</group>
+		<group name="WifiSecurity" advanced="yes">
+			<label>WiFi Security Settings</label>
+			<setting name="Security">
+				<label>Security</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>WEP</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>WPA-PSK</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>WPA2-PSK</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>WPA-EAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>WPA2-EAP</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>2</value>
+				<description>Set the kind of security used on the WiFi network</description>
+			</setting>
+			<setting name="WEP_Bits">
+				<label>WEP Keylength</label>
+				<type>
+					<enum>
+						<option>
+							<label>64bits</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>128bits</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>Keylength for the WEP encryption key</description>
+			</setting>
+			<setting name="Default_WEP_Key">
+				<label>Default WEP Key</label>
+				<type>
+					<integer min="1" max="4" />
+				</type>
+				<value>1</value>
+			</setting>
+			<setting name="WEP_Key1">
+				<label>WEP Key 1</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+				<description>Enter the WEP Key. Example: 128bit 00:00:00:00:00:00:00:00:00:00</description>
+			</setting>
+			<setting name="WEP_Key2">
+				<label>WEP Key 2</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WEP_Key3">
+				<label>WEP Key 3</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WEP_Key4">
+				<label>WEP Key 4</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WPA_PSK_PassPhrase">
+				<label>WPA-PSK PassPhrase</label>
+				<type>
+					<string maxLen="63" />
+				</type>
+				<value />
+				<description>Set the PassPhrase used for WPA-PSK encryption</description>
+			</setting>
+			<setting name="WPA_PSK_Key">
+				<label>WPA PSK Key</label>
+				<type>
+					<string maxLen="64" />
+				</type>
+				<description>Enter the WPA PSK Key</description>
+			</setting>
+			<setting name="Use_WPA_PSK_Key_Hex_Mode">
+				<label>WPA PSK Key Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>ASCII</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>HEX</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Proactive_Key_Caching">
+				<label>Proactive Key Caching</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Enable proactive key caching which is also known as opportunistic PMKSA caching for WPA2</description>
+			</setting>
+			<setting name="PMK_LifeTime">
+				<label>PMK LifeTime</label>
+				<type>
+					<integer min="100" max="86400" />
+				</type>
+				<value>43200</value>
+			</setting>
+			<setting name="PMK_Max_Count">
+				<label>PMK Max Count</label>
+				<type>
+					<integer min="1" max="100" />
+				</type>
+				<value>32</value>
+			</setting>
+		</group>
+		<group name="PostAuthentication" advanced="yes">
+			<label>Post Authentication</label>
+			<setting name="Authentication_Algorithm">
+				<label>Authentication Algorithm</label>
+				<type>
+					<enum>
+						<option>
+							<label>Auto</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Open</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>Shared</label>
+							<value>2</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>Which type of Post Authentication to use</description>
+			</setting>
+			<setting name="Post_Authentication_Mode">
+				<label>Post Authentication Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>WEB</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>802.1x-MD5</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>802.1x-TLS</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>802.1x-PEAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>802.1x-TTLS</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Post_Authentication_Inner_Mode">
+				<label>Post Authentication Inner Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>EAP-MD5</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>MSCHAPv2</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>MSCHAP</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>PAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>CHAP</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>2</value>
+			</setting>
+			<setting name="8021X_Name">
+				<label>802.1x Name</label>
+				<type>
+					<string maxLen="50" />
+				</type>
+				<value />
+				<description>Name used for 802.1x Authentication</description>
+			</setting>
+			<setting name="8021X_Password">
+				<label>802.1x Password</label>
+				<type>
+					<string maxLen="50" password="yes" />
+				</type>
+				<value />
+				<description>Password for 802.1x Authentication</description>
+			</setting>
+		</group>
+		<group name="QoS" advanced="yes">
+			<setting name="DiffServ_Signal">
+				<label>Diffserv Signal</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>46</value>
+				<description>SIP Message DSCP</description>
+			</setting>
+			<setting name="DiffServ_Media">
+				<label>Diffserv Media</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>46</value>
+				<description>RTP DSCP</description>
+			</setting>
+			<setting name="WMM">
+				<label>WMM</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Use Wireless MultiMedia prioritization</description>
+			</setting>
+		</group>
+		<group name="VoIP">
+			<setting name="Jitter_Buffer_Size" advanced="yes">
+				<label>Jitter Buffer Size</label>
+				<type>
+					<integer min="20" max="200" />
+				</type>
+				<value>60</value>
+			</setting>
+			<setting name="Payload_Type" advanced="yes">
+				<label>Payload Type</label>
+				<type>
+					<enum>
+						<option>
+							<label>g729/g711a/g711u</label>
+							<value>18,8,0</value>
+						</option>
+						<option>
+							<label>g729/g711u/g711a</label>
+							<value>18,0,8</value>
+						</option>
+						<option>
+							<label>g711a/g711u/g729</label>
+							<value>8,0,18</value>
+						</option>
+						<option>
+							<label>g711a/g729/g711u</label>
+							<value>8,18,0</value>
+						</option>
+						<option>
+							<label>g711u/g711a/g729</label>
+							<value>0,8,18</value>
+						</option>
+						<option>
+							<label>g711u/g729/g711a</label>
+							<value>0,18,8</value>
+						</option>
+					</enum>
+				</type>
+				<value>0,8,18</value>
+				<description>Set the payload (Codec) priorities</description>
+			</setting>
+			<setting name="Multiframe" advanced="yes">
+				<type>
+					<enum>
+						<option>
+							<label>20/20/20</label>
+							<value>2,2,2</value>
+						</option>
+						<option>
+							<label>20/20/10</label>
+							<value>2,2,1</value>
+						</option>
+						<option>
+							<label>20/10/20</label>
+							<value>2,1,2</value>
+						</option>
+						<option>
+							<label>20/10/10</label>
+							<value>2,1,1</value>
+						</option>
+						<option>
+							<label>10/10/10</label>
+							<value>1,1,1</value>
+						</option>
+						<option>
+							<label>10/20/10</label>
+							<value>1,2,1</value>
+						</option>
+						<option>
+							<label>10/20/20</label>
+							<value>1,2,2</value>
+						</option>
+					</enum>
+				</type>
+				<value>2,2,2</value>
+				<description>Set the Multiframe size for each Coder using the priorities set in Payload priorities</description>
+			</setting>
+		</group>
+		<group name="UAM" advanced="yes">
+			<label>Universal Access Method</label>
+			<setting name="UAM_Use_Manual">
+				<label>Manual UAM Login</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="UAM_Login_URL">
+				<label>UAM Manual Login URL</label>
+				<type>
+					<string maxLen="512"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_IDTag_Name">
+				<label>UAM Tag Username</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_PWTag_Name">
+				<label>UAM Tag Password</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_URL">
+				<label>UAM URL</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description></description>
+			</setting>
+			<setting name="UAM_ID">
+				<label>UAM Username</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_ID">
+				<label>UAM Password</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+		</group>
+	</group>
+	<group name="NETWORK4">
+		<label>Network 4</label>
+		<setting name="SSID">
+			<type>
+				<string maxLen="32" />
+			</type>
+			<value />
+			<description>WiFi SSID string for this network, if left empty, search for a network. Note: SSIDs are case sensitive</description>
+		</setting>
+		<setting name="Enable">
+			<label>Use this Network</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+		</setting>
+		<setting name="SIP_Outbound_Proxy">
+			<label>SIP Outbound Proxy</label>
+			<type>
+				<string maxLen="32"/>
+			</type>
+			<value/>
+			<description>URL of the SIP Outbound Proxy to use for this network</description>
+		</setting>
+		<setting name="Join_Method" advanced="yes">
+			<label>Join Method</label>
+			<type>
+				<boolean />
+			</type>
+			<value>0</value>
+			<description>Checked: Automatic. Unchecked: Manual</description>
+		</setting>
+		<group name="NetworkSettings">
+			<label>Network Settings</label>
+			<setting name="Enable_DHCP">
+				<label>DHCP</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Use DHCP to configure IP address, netmask, dns and gateway</description>
+			</setting>
+			<setting name="Address" advanced="yes">
+				<label>IP Address (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Static IP Address of the phone (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="Netmask" advanced="yes">
+				<label>Netmask (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>255.255.255.0</value>
+				<description>Netmask (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="Gateway" advanced="yes">
+				<label>Default Gateway (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Default gateway (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="DNS1" advanced="yes">
+				<label>DNS Server 1 (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Primary DNS Server for this network (if not obtained via DHCP)</description>
+			</setting>
+			<setting name="DNS2" advanced="yes">
+				<label>DNS Server 2 (no DHCP)</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description>Secondary DNS Server for this network (if not obtained via DHCP)</description>
+			</setting>
+		</group>
+		<group name="WifiSecurity" advanced="yes">
+			<label>WiFi Security Settings</label>
+			<setting name="Security">
+				<label>Security</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>WEP</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>WPA-PSK</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>WPA2-PSK</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>WPA-EAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>WPA2-EAP</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>2</value>
+				<description>Set the kind of security used on the WiFi network</description>
+			</setting>
+			<setting name="WEP_Bits">
+				<label>WEP Keylength</label>
+				<type>
+					<enum>
+						<option>
+							<label>64bits</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>128bits</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>Keylength for the WEP encryption key</description>
+			</setting>
+			<setting name="Default_WEP_Key">
+				<label>Default WEP Key</label>
+				<type>
+					<integer min="1" max="4" />
+				</type>
+				<value>1</value>
+			</setting>
+			<setting name="WEP_Key1">
+				<label>WEP Key 1</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+				<description>Enter the WEP Key. Example: 128bit 00:00:00:00:00:00:00:00:00:00</description>
+			</setting>
+			<setting name="WEP_Key2">
+				<label>WEP Key 2</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WEP_Key3">
+				<label>WEP Key 3</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WEP_Key4">
+				<label>WEP Key 4</label>
+				<type>
+					<string maxLen="87" />
+				</type>
+			</setting>
+			<setting name="WPA_PSK_PassPhrase">
+				<label>WPA-PSK PassPhrase</label>
+				<type>
+					<string maxLen="63" />
+				</type>
+				<value />
+				<description>Set the PassPhrase used for WPA-PSK encryption</description>
+			</setting>
+			<setting name="WPA_PSK_Key">
+				<label>WPA PSK Key</label>
+				<type>
+					<string maxLen="64" />
+				</type>
+				<description>Enter the WPA PSK Key</description>
+			</setting>
+			<setting name="Use_WPA_PSK_Key_Hex_Mode">
+				<label>WPA PSK Key Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>ASCII</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>HEX</label>
+							<value>1</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Proactive_Key_Caching">
+				<label>Proactive Key Caching</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+				<description>Enable proactive key caching which is also known as opportunistic PMKSA caching for WPA2</description>
+			</setting>
+			<setting name="PMK_LifeTime">
+				<label>PMK LifeTime</label>
+				<type>
+					<integer min="100" max="86400" />
+				</type>
+				<value>43200</value>
+			</setting>
+			<setting name="PMK_Max_Count">
+				<label>PMK Max Count</label>
+				<type>
+					<integer min="1" max="100" />
+				</type>
+				<value>32</value>
+			</setting>
+		</group>
+		<group name="PostAuthentication" advanced="yes">
+			<label>Post Authentication</label>
+			<setting name="Authentication_Algorithm">
+				<label>Authentication Algorithm</label>
+				<type>
+					<enum>
+						<option>
+							<label>Auto</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>Open</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>Shared</label>
+							<value>2</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+				<description>Which type of Post Authentication to use</description>
+			</setting>
+			<setting name="Post_Authentication_Mode">
+				<label>Post Authentication Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>WEB</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>802.1x-MD5</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>802.1x-TLS</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>802.1x-PEAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>802.1x-TTLS</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="Post_Authentication_Inner_Mode">
+				<label>Post Authentication Inner Mode</label>
+				<type>
+					<enum>
+						<option>
+							<label>None</label>
+							<value>0</value>
+						</option>
+						<option>
+							<label>EAP-MD5</label>
+							<value>1</value>
+						</option>
+						<option>
+							<label>MSCHAPv2</label>
+							<value>2</value>
+						</option>
+						<option>
+							<label>MSCHAP</label>
+							<value>3</value>
+						</option>
+						<option>
+							<label>PAP</label>
+							<value>4</value>
+						</option>
+						<option>
+							<label>CHAP</label>
+							<value>5</value>
+						</option>
+					</enum>
+				</type>
+				<value>2</value>
+			</setting>
+			<setting name="8021X_Name">
+				<label>802.1x Name</label>
+				<type>
+					<string maxLen="50" />
+				</type>
+				<value />
+				<description>Name used for 802.1x Authentication</description>
+			</setting>
+			<setting name="8021X_Password">
+				<label>802.1x Password</label>
+				<type>
+					<string maxLen="50" password="yes" />
+				</type>
+				<value />
+				<description>Password for 802.1x Authentication</description>
+			</setting>
+		</group>
+		<group name="QoS" advanced="yes">
+			<setting name="DiffServ_Signal">
+				<label>Diffserv Signal</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>46</value>
+				<description>SIP Message DSCP</description>
+			</setting>
+			<setting name="DiffServ_Media">
+				<label>Diffserv Media</label>
+				<type>
+					<integer min="0" max="63" />
+				</type>
+				<value>46</value>
+				<description>RTP DSCP</description>
+			</setting>
+			<setting name="WMM">
+				<label>WMM</label>
+				<type>
+					<boolean />
+				</type>
+				<value>1</value>
+				<description>Use Wireless MultiMedia prioritization</description>
+			</setting>
+		</group>
+		<group name="VoIP">
+			<setting name="Jitter_Buffer_Size" advanced="yes">
+				<label>Jitter Buffer Size</label>
+				<type>
+					<integer min="20" max="200" />
+				</type>
+				<value>60</value>
+			</setting>
+			<setting name="Payload_Type" advanced="yes">
+				<label>Payload Type</label>
+				<type>
+					<enum>
+						<option>
+							<label>g729/g711a/g711u</label>
+							<value>18,8,0</value>
+						</option>
+						<option>
+							<label>g729/g711u/g711a</label>
+							<value>18,0,8</value>
+						</option>
+						<option>
+							<label>g711a/g711u/g729</label>
+							<value>8,0,18</value>
+						</option>
+						<option>
+							<label>g711a/g729/g711u</label>
+							<value>8,18,0</value>
+						</option>
+						<option>
+							<label>g711u/g711a/g729</label>
+							<value>0,8,18</value>
+						</option>
+						<option>
+							<label>g711u/g729/g711a</label>
+							<value>0,18,8</value>
+						</option>
+					</enum>
+				</type>
+				<value>0,8,18</value>
+				<description>Set the payload (Codec) priorities</description>
+			</setting>
+			<setting name="Multiframe" advanced="yes">
+				<type>
+					<enum>
+						<option>
+							<label>20/20/20</label>
+							<value>2,2,2</value>
+						</option>
+						<option>
+							<label>20/20/10</label>
+							<value>2,2,1</value>
+						</option>
+						<option>
+							<label>20/10/20</label>
+							<value>2,1,2</value>
+						</option>
+						<option>
+							<label>20/10/10</label>
+							<value>2,1,1</value>
+						</option>
+						<option>
+							<label>10/10/10</label>
+							<value>1,1,1</value>
+						</option>
+						<option>
+							<label>10/20/10</label>
+							<value>1,2,1</value>
+						</option>
+						<option>
+							<label>10/20/20</label>
+							<value>1,2,2</value>
+						</option>
+					</enum>
+				</type>
+				<value>2,2,2</value>
+				<description>Set the Multiframe size for each Coder using the priorities set in Payload priorities</description>
+			</setting>
+		</group>
+		<group name="UAM" advanced="yes">
+			<label>Universal Access Method</label>
+			<setting name="UAM_Use_Manual">
+				<label>Manual UAM Login</label>
+				<type>
+					<boolean />
+				</type>
+				<value>0</value>
+			</setting>
+			<setting name="UAM_Login_URL">
+				<label>UAM Manual Login URL</label>
+				<type>
+					<string maxLen="512"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_IDTag_Name">
+				<label>UAM Tag Username</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_PWTag_Name">
+				<label>UAM Tag Password</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_URL">
+				<label>UAM URL</label>
+				<type>
+					<ipaddr />
+				</type>
+				<value>0.0.0.0</value>
+				<description></description>
+			</setting>
+			<setting name="UAM_ID">
+				<label>UAM Username</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+			<setting name="UAM_ID">
+				<label>UAM Password</label>
+				<type>
+					<string maxLen="50"/>
+				</type>
+				<value/>
+				<description></description>
+			</setting>
+		</group>
+	</group>
+	<group name="PROVISION">
+		<label>Provisioning and Upgrade</label>
+		<setting name="Use_Provision">
+			<label>Use Provision</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+			<description>Enable Provisioning system</description>
+		</setting>
+		<setting name="Request_Mode">
+			<label>Request Mode</label>
+			<type>
+				<enum>
+					<option>
+						<label>HTTP</label>
+						<value>0</value>
+					</option>
+					<option>
+						<label>HTTPS</label>
+						<value>1</value>
+					</option>
+					<option>
+						<label>TFTP</label>
+						<value>2</value>
+					</option>
+				</enum>
+			</type>
+			<value>2</value>
+		</setting>
+		<setting name="Firmware_URL">
+			<label>Firmware URL</label>
+			<type>
+				<string maxLen="30" />
+			</type>
+			<value />
+			<description>URL under which to find the firmware files</description>
+		</setting>
+		<setting name="Phonebook_Name">
+			<label>Phonebook Name</label>
+			<type>
+				<string maxLen="30" />
+			</type>
+			<value />
+			<description>Name under which to find the Phonebook file</description>
+		</setting>
+		<setting name="Enable_HTTP_Keep_Alive">
+			<label>Enable HTTP Keep Alive</label>
+			<type>
+				<boolean />
+			</type>
+			<value>1</value>
+		</setting>
 	</group>
 </model>

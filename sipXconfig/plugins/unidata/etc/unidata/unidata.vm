@@ -1,0 +1,46 @@
+#set($ps = $phone.Settings)
+#set($myphone = $phone.Model.modelId.trim())
+##
+[USER_ACCOUNT]
+#foreach ($line in $phone.lines)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+${setting.Name}=$!{setting.Value}
+#end
+#end
+#end
+#foreach ($group in $ps.Values)
+##Exclude the NETWORK groups, they are accounted for later
+#if ($group.Name != 'NETWORK1' && $group.Name != 'NETWORK2' && $group.Name != 'NETWORK3' && $group.Name != 'NETWORK4')
+
+[$group.Name]
+#foreach ($setting in $group.Values)
+##Exclude the subgroups
+#if ($setting.Name != 'WEB_SERVER' && $setting.Name != 'UNICODE' && $setting.Name != 'REDUNDANCY' && $setting.Name != 'SYSLOG' && $setting.Name != 'DHCP_OPTION' && $setting.Name != 'TONE_TYPE' && $setting.Name != 'CALLER_ID' && $setting.Name != 'HOLD' && $setting.Name != 'TRANSFER' && $setting.Name != 'FORWARD' && $setting.Name != 'MWI' && $setting.Name != 'DTMF' && $setting.Name != 'INITIAL_BUSY_MODE' && $setting.Name != 'CALL_BLOCK' && $setting.Name != 'INPUT' && $setting.Name != 'SDP' && $setting.Name != 'RTP_RTCP' && $setting.Name != 'WIFI_SCAN' && $setting.Name != 'ROAMING' && $setting.Name != 'DYNAMIC_NETWORK' && $setting.Name != 'TOS_WMM')
+${setting.Name}=$!{setting.Value}
+##The subgroups are written
+#else
+
+[$setting.Name]
+#foreach ($subsetting in $setting.Values)
+${subsetting.Name}=$!{subsetting.Value}
+#end
+#end
+#end
+##NETWORK groups are written
+#else
+
+[$group.Name]
+#foreach ($setting in $group.Values)
+##Exclude the NETWORK subgroups
+#if ($setting.Name != 'NetworkSettings' && $setting.Name != 'WifiSecurity' && $setting.Name != 'PostAuthentication' && $setting.Name != 'QoS' && $setting.Name != 'VoIP' && $setting.Name != 'UAM')
+${setting.Name}=$!{setting.Value}
+##The NETWORK subgroups are written
+#else
+#foreach ($subsetting in $setting.Values)
+${subsetting.Name}=$!{subsetting.Value}
+#end
+#end
+#end
+#end
+#end

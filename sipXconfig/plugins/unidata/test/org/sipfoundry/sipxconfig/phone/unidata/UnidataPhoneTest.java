@@ -27,19 +27,30 @@ public class UnidataPhoneTest extends TestCase {
         assertEquals("e1_001122334455.ini", phone.getProfileFilename());
     }
 
+    public void testRestart() throws Exception {
+        UnidataPhone phone = new UnidataPhone();
+        PhoneModel model = new PhoneModel("unidata");
+        model.setModelId("unidatawpu7700");
+        phone.setModel(model);
+
+        PhoneTestDriver testDriver = PhoneTestDriver.supplyTestData(phone,true,false,false,false);
+        phone.restart();
+
+        testDriver.sipControl.verify();
+    }
+
     public void testGenerateTypicalProfile() throws Exception {
     	UnidataPhone phone = new UnidataPhone();
         PhoneModel model = new PhoneModel("unidata");
         model.setModelId("unidatawpu7700");
         phone.setModel(model);
 
-        // call this to inject dummy data
         PhoneTestDriver.supplyTestData(phone);
         MemoryProfileLocation location = TestHelper.setVelocityProfileGenerator(phone);
 
-        ProfileContext context = new ProfileContext(phone, "unidata/config.vm");
+        ProfileContext context = new ProfileContext(phone, "unidata/unidata.vm");
         phone.getProfileGenerator().generate(location, context, null, "ignore");
-        
+
         InputStream expectedProfile = getClass().getResourceAsStream("test-e1_MAC.ini");
         assertNotNull(expectedProfile);
         String expected = IOUtils.toString(expectedProfile);
