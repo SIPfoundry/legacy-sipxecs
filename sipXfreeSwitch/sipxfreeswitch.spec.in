@@ -15,7 +15,11 @@ BuildRequires: sipxcommserverlib-devel >= %version
 Requires: freeswitch >= 1.0.7
 Requires: sipxcommserverlib >= %version
 
+# Now using standard FS, this is best place to pull off these RPMs on 4.2.1 or older systems by declaring them obsolete
 Obsoletes: sipx-freeswitch
+Obsoletes: sipx-freeswitch-codec-passthru-g723_1
+Obsoletes: sipx-freeswitch-codec-passthru-amr
+Obsoletes: sipx-freeswitch-codec-passthru-g729
 
 Source: %name-%version.tar.gz
 
