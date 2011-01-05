@@ -5,7 +5,6 @@ help-var.MOCK_TARGET_PLATFORM = Mock template. Default is $(MOCK_TARGET_PLATFORM
 MOCK_TARGET_PLATFORM = @MOCK_TARGET_PLATFORM@
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
-REPO_DIR = repo
 # trick lets you create centos compatible repos from any other distro
 CREATEREPO_OPTS_centos = @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@
 TARGET_PLATFORM = $(strip \
@@ -24,14 +23,14 @@ help.*.rpm = Build RPMs, you must have mock installed. See Experimental call to 
   http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
 $(foreach T,$(sipx) $(lib),$(T).rpm) : %.rpm : %.autoreconf %.configure %.dist %.srpm %.mock;
 
-help.*.srpm = Called automatically as port of rpm process after srpm target. Uses rpmbuild command after dist target
+help.*.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target
 %.srpm :
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
 	  $(foreach S,$($(PROJ)_SOURCES),$(call CopySourceFile,$(S),@RPMBUILD_TOPDIR@/SOURCES)) \
-	  rpmbuild -bs --nodeps $($(PROJ)_SPEC); \
+	  rpmbuild -bs $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_SPEC); \
 	else \
-	  rpmbuild -ts --nodeps $($(PROJ)_TAR); \
+	  rpmbuild -ts $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR); \
 	fi
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) .
 
@@ -57,14 +56,14 @@ mock-clean :
 
 # TIP : you should have a webserver pointed at $(MOCK_RESULTS_DIR) to feed the results of build back into the chroot'ed system.
 # or explore mounting $(MOCK_RESULTS_DIR) from the chroot system.
-help.*.mock = Called automatically as port of rpm process after srpm target. Uses mock program to build rpm
+help.*.mock = Called automatically as part of rpm process after srpm target. Uses mock program to build rpm
 %.mock :
 	mock -r $(MOCK_TARGET_PLATFORM) \
 	  --no-clean \
 	  --no-cleanup-after \
 	  --resultdir=$(MOCK_RESULTS_DIR) \
 	  --rebuild \
-	  -D 'buildno $(RELEASE_ID)' \
+	  $($(PROJ)_RPM_DEFS) \
 	  $($(PROJ)_SRPM)
 # generate repo AFTER build because then it's usable as a repo to feed to next build or other systems.
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
@@ -72,12 +71,13 @@ help.*.mock = Called automatically as port of rpm process after srpm target. Use
 # Recursive delete of given directory if it exists. Then make a new directory.
 MakeFreshDirectory = test ! -d $1 || rm -rf $1; mkdir -p $1
 
-help.repo-src = Assemble src.rpms into repo
+help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source
 repo-src : 
-	$(call MakeFreshDirectory, $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/srpm)
-	find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.src.rpm' -exec cp {} $(RPM_DIST_DIR)/$(TARGET_PLATFORM)/srpm \;
+	$(call MakeFreshDirectory, @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source)
+	find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.src.rpm' -exec mv {} @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source \;
+	cd  @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source; createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 
-mock-check :
+mock-check : mock-init
 	mock -r $(MOCK_TARGET_PLATFORM) --install sipxecs
 
 help.mock-remove-dups=If you have built RPMs multiple times between git updates, and therefore have older versions of a package, this will remove all older copies.
@@ -89,3 +89,10 @@ mock-remove-dups:
 	for f in `sort -r -n -k 3 pkglist | uniq -d -f 2 | awk '{print $$1}'`; do \
 	  rm -v $$f; \
 	done
+
+help.mock-make-repo = run createrepo on rpm list
+mock-make-repo:
+	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
+
+help.mock-finalize = Prepares repository for publishing or re-distributing in ISO by removing extra rpms and moving source rpms to separate directory.
+mock-finalize: repo-src mock-remove-dups mock-make-repo mock-check;
