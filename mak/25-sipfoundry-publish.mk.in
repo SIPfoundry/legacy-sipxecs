@@ -18,7 +18,7 @@ REPO_FILES = \
 # R P M
 
 help.publish-rpms = Push repo for $(TARGET_PLATFORM) version $(PACKAGE_VERSION) to sipfoundry download directory
-publish-rpms : $(REPO_FILES) publish-files
+publish-rpms : mock-finalize $(REPO_FILES) publish-files
 
 %.rpmlist :
 	for f in "find @RPM_DIST_DIR@ -name '*.rpm'"; do \

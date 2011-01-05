@@ -37,7 +37,7 @@ ci.web-server :
 	cd @RPM_DIST_DIR@; /usr/sbin/thttpd -p 40100
 
 help.ci.*.init = First part of CI build - initialize mock can repos
-ci.%.init : ci.web-server
+ci.%.init: ci.web-server
 	$(MAKE) mock-init $(SUBMAKE_VARS)
 
 help.ci.*.lib = Second part of CI build - the libs rpms
@@ -51,6 +51,10 @@ ci.%.sipx: ci.web-server
 help.ci.*.check = Check all rpms install ok
 ci.%.check: ci.web-server
 	$(MAKE) mock-check $(SUBMAKE_VARS)
+
+help.ci.*.finalize = Check all rpms install ok
+ci.%.finalize: ci.web-server
+	$(MAKE) mock-finalize $(SUBMAKE_VARS)
 
 $(foreach P,$(all),$(foreach T,$(CI_TARGETS),$(T).$(P))) : ci.web-server
 	$(MAKE) $(PROJ).rpm $(SUBMAKE_VARS)
