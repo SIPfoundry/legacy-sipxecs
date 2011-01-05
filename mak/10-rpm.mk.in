@@ -77,6 +77,7 @@ repo-src :
 	find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.src.rpm' -exec mv {} @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source \;
 	cd  @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source; createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 
+help.mock-check = Installs built sipXecs RPMs into fresh chroot to check for errors
 mock-check : mock-init
 	mock -r $(MOCK_TARGET_PLATFORM) --install sipxecs
 
@@ -95,4 +96,4 @@ mock-make-repo:
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 
 help.mock-finalize = Prepares repository for publishing or re-distributing in ISO by removing extra rpms and moving source rpms to separate directory.
-mock-finalize: repo-src mock-remove-dups mock-make-repo mock-check;
+mock-finalize: repo-src mock-remove-dups mock-make-repo;
