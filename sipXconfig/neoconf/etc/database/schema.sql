@@ -20,6 +20,7 @@ create table version_history(
  * For sipXconfig v3.11, the database version is 9.
  * For sipXconfig v4.0.2, the database version is 10.
  * For sipXconfig v4.1.8, the database version is 11.
+ * For sipXconfig v4.4.0, the database version is 12.
  */
 insert into version_history (version, applied) values (1, now());
 insert into version_history (version, applied) values (2, now());
@@ -32,6 +33,7 @@ insert into version_history (version, applied) values (8, now());
 insert into version_history (version, applied) values (9, now());
 insert into version_history (version, applied) values (10, now());
 insert into version_history (version, applied) values (11, now());
+insert into version_history (version, applied) values (12, now());
 
 create table patch(
   name varchar(32) not null primary key
@@ -157,6 +159,9 @@ create table gateway (
    shared boolean not null,
    branch_id int4,
    enabled boolean not null,
+   use_sipxbridge bool default true,
+   outbound_address varchar(255),
+   outbound_port integer default 5060,
    primary key (gateway_id)
 );
 
@@ -223,6 +228,7 @@ create table call_group (
    voicemail_fallback boolean not null default false,
    user_forward boolean not null default true,
    sip_password varchar(255),
+   did character varying(255),
    primary key (call_group_id)
 );
 create table phone_group (
@@ -295,6 +301,7 @@ create table internal_dialing_rule (
    aa_aliases varchar(255),
    media_server_type varchar(255),
    media_server_hostname varchar(255),
+   did character varying(255),
    primary key (internal_dialing_rule_id)
 );
 create table long_distance_dialing_rule (
@@ -338,6 +345,7 @@ create table meetme_conference (
     value_storage_id int4,
     meetme_bridge_id int4 not null,
     owner_id int4,
+    did character varying(255),
     primary key (meetme_conference_id)
 );
 create table meetme_bridge (
@@ -379,7 +387,8 @@ create table attendant_dialing_rule (
    
    working_time_attendant_id int4,
    working_time_attendant_enabled bool not null,
-   
+
+   did character varying(255),   
    primary key (attendant_dialing_rule_id)
 );
 
@@ -422,6 +431,7 @@ create table ldap_connection (
     principal varchar(255),
     secret varchar(255),
     cron_schedule_id int4,
+    use_tls boolean not null default false,
     primary key (ldap_connection_id)
 );
 
@@ -445,6 +455,14 @@ create table ldap_user_property_to_ldap_attr (
 create table ldap_selected_object_classes (
     ldap_attr_map_id int4 not null,
     object_class varchar(255)
+);
+
+create table ldap_settings (
+  ldap_settings_id integer not null,
+  authentication_options varchar(8) not null default 'noLDAP',
+  enable_openfire_configuration bool not null,
+  configured boolean not null default false,
+  constraint ldap_settings_pkey primary key (ldap_settings_id)
 );
 
 create table cron_schedule (
@@ -566,6 +584,7 @@ create table acd_line (
     value_storage_id int4,
     acd_server_id int4 not null,
     extension varchar(255),
+    did character varying(255),
     primary key (acd_line_id)
 );
 
@@ -634,6 +653,8 @@ create table sbc (
     address varchar(255),
     sbc_type char(1) not null,
     sbc_device_id int4,
+    address_actual varchar(255),
+    port integer default 5060,
     primary key (sbc_id)
 );
 
@@ -745,7 +766,6 @@ create table sbc_device (
    model_id varchar(64) not null,
    device_version_id varchar(32),
    port int4 not null default 5060,
-   branch_id int4,
    primary key (sbc_device_id)
 );
 
@@ -772,6 +792,7 @@ create table location (
   start_rtp_port integer not null default 30000,
   stop_rtp_port integer not null default 31000,
   branch_id int4,
+  public_tls_port integer not null default 5061,
   primary key (location_id)
 );
 
@@ -800,14 +821,6 @@ create table ftp_configuration (
   user_id varchar(255),
   "password" varchar(255),
   constraint ftp_configuration_pkey primary key(id)
-);
-
-create table discovered_devices (
-  mac_address varchar(255) not null,
-  ip_address varchar(255) not null,
-  vendor varchar(255) not null,
-  last_seen timestamp default now(),
-  primary key (mac_address)
 );
 
 create table alarm_server (
@@ -871,6 +884,7 @@ create table address_book_entry
   home_address_id integer,
   office_address_id integer,
   branch_address_id integer,
+  did_number character varying(255),
   constraint address_book_entry_pkey primary key (address_book_entry_id)
 );
 
@@ -987,6 +1001,84 @@ create table address
   city character varying(255),
   office_designation character varying(255),
   constraint address_pkey primary key (address_id)
+);
+
+create table auth_code 
+(
+  auth_code_id integer NOT NULL,
+  "code" character varying(255) NOT NULL,
+  "description" varchar(255),
+  internal_user_id integer,
+  constraint auth_code_pkey primary key (auth_code_id),
+  constraint fk_internal_user foreign key (internal_user_id)
+      references users (user_id) match simple
+      on update no action on delete no action
+);
+
+create table freeswitch_extension
+(
+  freeswitch_ext_id integer not null,
+  name character varying(255) not null,
+  description character varying(255),
+  freeswitch_ext_type char(1) not null,
+  location_id integer not null,
+  primary key (freeswitch_ext_id),
+  constraint fk_location foreign key (location_id)
+      references location (location_id) match full
+);
+
+create table freeswitch_condition
+(
+  freeswitch_condition_id integer not null,
+  field character varying(255) not null,
+  expression character varying(255) not null,
+  freeswitch_ext_id integer not null,
+  primary key (freeswitch_condition_id),
+  constraint fk_freeswitch_ext foreign key (freeswitch_ext_id)
+      references freeswitch_extension (freeswitch_ext_id) match simple
+);
+
+create table freeswitch_action
+(
+  freeswitch_action_id integer not null,
+  application character varying(255) not null,
+  data character varying(255),
+  freeswitch_condition_id integer not null,
+  primary key (freeswitch_action_id),
+  constraint fk_freeswitch_condition foreign key (freeswitch_condition_id)
+      references freeswitch_condition (freeswitch_condition_id) match simple
+);
+
+create table openacd_agent_group (
+	openacd_agent_group_id integer not null,
+	name character varying(255) not null unique,
+	description character varying(255),
+	primary key (openacd_agent_group_id)
+);
+
+create table openacd_agent (
+	openacd_agent_id integer not null,
+	openacd_agent_group_id integer not null,
+	user_id integer NOT NULL,
+	pin character varying(255) not null,
+	security character varying(255) not null,
+	primary key (openacd_agent_id),
+	constraint fk_openacd_agent_group foreign key (openacd_agent_group_id)
+      references openacd_agent_group (openacd_agent_group_id) match simple
+      on update no action on delete no action,
+	constraint fk_user_id foreign key (user_id)
+      references users (user_id) match SIMPLE
+      on update no action on delete no action
+);
+
+create table openacd_skill (
+	openacd_skill_id integer not null,
+	name character varying(255) not null unique,
+	atom character varying(255) not null unique,
+	group_name character varying(255) not null,
+	description character varying(255),
+	default_skill boolean not null default false,
+	primary key (openacd_skill_id)
 );
 
 /*
@@ -1318,11 +1410,6 @@ alter table location add constraint fk_location_branch
   references branch(branch_id) match full
   on delete set null;
 
-alter table sbc_device add constraint fk_sbc_device_branch
-  foreign key (branch_id)
-  references branch(branch_id) match full
-  on delete set null;
-
 alter table private_user_key add constraint fk_private_user_key_user
   foreign key (user_id)
   references users(user_id) match full
@@ -1407,6 +1494,14 @@ create sequence tls_peer_seq;
 create sequence google_domain_seq;
 create sequence general_phonebook_settings_seq;
 create sequence addr_seq;
+create sequence ldap_settings_seq;
+create sequence auth_code_seq;
+create sequence freeswitch_ext_seq;
+create sequence freeswitch_condition_seq;
+create sequence freeswitch_action_seq;
+create sequence openacd_agent_group_seq;
+create sequence openacd_agent_seq;
+create sequence openacd_skill_seq;
 
 -- used for native hibernate ids  
 create sequence hibernate_sequence;
@@ -1433,11 +1528,38 @@ insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_servic
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxRelayService');
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxMrtgService');
 insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxSaaService');
+insert into sipx_service (sipx_service_id, bean_id) values (nextval('sipx_service_seq'), 'sipxAccCodeService');
 
 -- insert default values
 insert into attendant_special_mode values (1, false, null);
 insert into alarm_group (alarm_group_id, name, description, enabled) values (nextval('alarm_group_seq'), 'default', 'Default alarm group', true);
 insert into google_domain values (nextval('google_domain_seq'), 'gmail.com');
+
+insert into openacd_agent_group (openacd_agent_group_id, name, description)
+	values (nextval('openacd_agent_group_seq'), 'Default', 'Default agent group');
+
+insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
+	values (nextval('openacd_skill_seq'), 'English', 'english', 'Language', 'English', false);
+insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
+	values (nextval('openacd_skill_seq'), 'German', 'german', 'Language', 'German', false);
+insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
+	values (nextval('openacd_skill_seq'), 'Brand', '_brand', 'Magic',
+			'Magic skill to expand to a client label (brand)', true);
+insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
+	values (nextval('openacd_skill_seq'), 'Agent Name', '_agent', 'Magic',
+			'Magic skill that is replaced by the agent name', true);
+insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
+	values (nextval('openacd_skill_seq'), 'Agent Profile', '_profile', 'Magic',
+			'Magic skill that is replaced by the agent profile name', true);
+insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
+	values (nextval('openacd_skill_seq'), 'Node', '_node', 'Magic',
+			'Magic skill that is replaced by the node identifier', true);
+insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
+	values (nextval('openacd_skill_seq'), 'Queue', '_queue', 'Magic',
+			'Magic skill replaced by a queue name', true);
+insert into openacd_skill (openacd_skill_id, name, atom, group_name, description, default_skill)
+	values (nextval('openacd_skill_seq'), 'All', '_all', 'Magic',
+			'Magic skill to denote an agent that can answer any call regardless of the other skills', true);
 
 /* will trigger app event to execute java code before next startup to insert default data */
 insert into initialization_task (name) values ('dial-plans');
@@ -1458,4 +1580,3 @@ insert into initialization_task (name) values ('phonebook_file_entry_task');
 insert into initialization_task (name) values ('mailbox_prefs_migration');
 insert into initialization_task (name) values ('legacy_park_server_migration');
 insert into initialization_task (name) values ('phonebook_entries_update_task');
-

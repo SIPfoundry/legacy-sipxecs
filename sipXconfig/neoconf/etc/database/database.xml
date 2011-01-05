@@ -358,8 +358,6 @@
   </target>
 
   <target name="version11" description="upgrade from version 10" unless="version12">
-    <!-- When freezing schema uncomment this line -->
-    <!-- sipx-version version="12" -->
     <antcall target="ldap_settings" />
     <antcall target="add_acccode_service" />
     <antcall target="auth_code" />
@@ -374,6 +372,12 @@
     <antcall target="freeswitch-dial-plans" />
 	<antcall target="openacd" />
 	<antcall target="openacd-skills" />
+    <sipx-version version="12"/>
+  </target>
+
+  <target name="version12" description="upgrade from version 11" unless="version13">
+    <!-- When freezing schema uncomment this line -->
+    <!-- sipx-version version="13" -->
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
