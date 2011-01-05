@@ -101,6 +101,9 @@ public class FaxRx {
 
     public void run() {
 
+        // run linger only for fax, otherwise we end up with hunged FS session
+        m_fses.cmdResponse("linger");
+
         if (m_loc == null) {
             loadConfig();
         }

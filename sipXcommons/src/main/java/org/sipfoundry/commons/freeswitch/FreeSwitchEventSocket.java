@@ -75,10 +75,8 @@ public class FreeSwitchEventSocket extends FreeSwitchEventSocketInterface {
         if (UUID != null) {
             cmdResponse("event plain all");
             cmdResponse("filter Unique-ID " + UUID);
-            cmdResponse("linger");
         } else {
             cmdResponse("myevents");
-            cmdResponse("linger");
         }
 
         return true;
