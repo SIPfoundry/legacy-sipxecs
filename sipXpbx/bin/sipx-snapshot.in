@@ -913,20 +913,6 @@ EOF
    done
    echo ======== END DNS LOOKUPS
 
-   # Get configuration information on sipX components
-   for component in `@SIPX_BINDIR@/sipxecs-config --components |
-		     tr A-Z a-z |
-		     sort `
-   do
-     echo ""
-     if test -x @bindir@/${component}-config
-     then
-	 @bindir@/${component}-config --all
-     else
-	 echo Missing: @SIPX_BINDIR@/${component}-config
-     fi
-   done
-
    # Get version info for key prerequisite packages
    for prereq in pcre glib
    do
