@@ -15,8 +15,8 @@ help.ci-list = List all available CI (continuous integration) targets
 ci-list :
 	@echo $(CI_TARGETS)
 
-help.ci-all = Build all targets CI targets $(CI_TARGETS)
-ci-all : $(CI_TARGETS);
+help.ci = Build all targets CI targets $(CI_TARGETS)
+ci : $(CI_TARGETS);
 
 $(foreach T,$(CI_TARGETS),$(eval help.$(T)=Complete build for respective distribution, version and architecture))
 $(CI_TARGETS) : ci.% : /etc/mock/sipx-%.cfg ci.%.clean ci.%.init ci.%.lib ci.%.sipx
@@ -27,11 +27,8 @@ ci.% : SUBMAKE_VARS=\
 	MOCK_TARGET_PLATFORM=sipx-$(CI_MOCK_TARGET) \
 	DISTRO_ARCH=$(CI_DISTRO_ARCH)
 
-help.ci.all.*=Run target for all distros. Examples: ci.all.sipXconfig  ci.all.sipx
-ci.all.% : $(foreach P,$(CI_MOCK_TARGETS),ci.$(P).%);
-
-help.ci-clean = Delete all RPMs 
-ci.%.clean :
+help.ci.*.clean = Delete all RPMs 
+$(foreach T,$(CI_MOCK_TARGETS),ci.$(T).clean) :
 	$(MAKE) mock-clean $(SUBMAKE_VARS)
 
 ci.web-server :
@@ -40,23 +37,23 @@ ci.web-server :
 	cd @RPM_DIST_DIR@; /usr/sbin/thttpd -p 40100
 
 help.ci.*.init = First part of CI build - initialize mock can repos
-ci.%.init: ci.web-server
+$(foreach T,$(CI_MOCK_TARGETS),ci.$(T).init) : ci.web-server
 	$(MAKE) mock-init $(SUBMAKE_VARS)
 
 help.ci.*.lib = Second part of CI build - the libs rpms
-ci.%.lib: ci.web-server
+$(foreach T,$(CI_MOCK_TARGETS),ci.$(T).lib) : ci.web-server
 	$(MAKE) lib.rpm $(SUBMAKE_VARS)
 
 help.ci.*.sipx = Third part of CI build - the sipXecs rpms
-ci.%.sipx: ci.web-server
+$(foreach T,$(CI_MOCK_TARGETS),ci.$(T).sipx) : ci.web-server
 	$(MAKE) sipx.rpm $(SUBMAKE_VARS)
 
 help.ci.*.check = Check all rpms install ok
-ci.%.check: ci.web-server
+$(foreach T,$(CI_MOCK_TARGETS),ci.$(T).check) : ci.web-server
 	$(MAKE) mock-check $(SUBMAKE_VARS)
 
 help.ci.*.finalize = Check all rpms install ok
-ci.%.finalize: ci.web-server
+$(foreach T,$(CI_MOCK_TARGETS),ci.$(T).finalize) : ci.web-server
 	$(MAKE) mock-finalize $(SUBMAKE_VARS)
 
 $(foreach P,$(all),$(foreach T,$(CI_TARGETS),$(T).$(P))) : ci.web-server
@@ -64,6 +61,10 @@ $(foreach P,$(all),$(foreach T,$(CI_TARGETS),$(T).$(P))) : ci.web-server
 
 $(foreach T,$(CI_TARGETS),$(T).%...) : ci.web-server
 	$(MAKE) $(foreach T,$(call after,$(PROJ),$(all)),ci.$(CI_MOCK_TARGET).$(T))
+
+help.ci.all.*=Run target for all distros. Examples: ci.all.sipXconfig  ci.all.sipx
+ci.all.% :
+	$(MAKE) $(foreach P,$(CI_MOCK_TARGETS),ci.$(P).$*)
 
 # will need root for this
 help.ci.setup=Register mock templates. To be run once on a build machine by someone with r/w permissions to /etc/mock. Root is fine. Idempotent.
