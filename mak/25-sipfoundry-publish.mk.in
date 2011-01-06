@@ -61,6 +61,8 @@ publish-iso-clean :
 publish-iso-upload :
 	find -maxdepth 1 \( -name '*.iso' -o -name '*.md5' \) -exec s3cmd put -P {} $(S3_BUCKET) \;
 
+help.publish-update-downloads = Normally called automatically as part of ISO uploads, but this regenerates ISO html download page. If you \
+  delete files manually in S3, you can safely rerun this as many times as you need to rebuild remote html page.
 publish-update-downloads : torrent.index publish-iso-index;
 
 publish-iso-index:
