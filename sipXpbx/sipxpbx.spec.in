@@ -238,11 +238,10 @@ sipx-sendmail-configure @PACKAGE_REVISION@
 if [ -L %{stdpromptsdir}.rpmnew ] && [ -d %{stdpromptsdir} ]; then
    mv %{stdpromptsdir} %{stdpromptsdir}.old
    mv %{stdpromptsdir}.rpmnew %{stdpromptsdir}
-   # rpm only installs new files into _en, so move over all the old ones that haven't
+   # rpm only installs new files into _en, so merge in all the old ones that haven't
    # been updated
-   for d in . conf music music/8000; do \
-     mv -u %{stdpromptsdir}.old/$d/*.wav %{stdpromptsdir}_en/$d; \
-   done
+   rsync -r %{stdpromptsdir}.old/ %{stdpromptsdir}_en/
+   rm -rf %{stdpromptsdir}.old
 fi
 
 %preun
