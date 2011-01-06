@@ -318,20 +318,27 @@ public class SipListenerImpl implements SipListenerExt {
      */
     public void processDialogTerminated(DialogTerminatedEvent dte) {
         DialogContext dialogContext = DialogContext.get(dte.getDialog());
+        logger.debug("processDialogTerminated:" + dte.getDialog());
         if ( dialogContext != null ) {
             if ( logger.isDebugEnabled() ) {
-                logger.debug("DialogTerminatedEvent:  dialog created at " + dialogContext.getCreationPointStackTrace());
-                logger.debug("DialogTerminatedEvent: dialog inserted at " + dialogContext.getInsertionPointStackTrace());
-                logger.debug("DialogCreated by request: " + dialogContext.getRequest());
+                logger.debug("processDialogTerminated: dialog created at " + dialogContext.getCreationPointStackTrace());
+                logger.debug("processDialogTerminated: dialog inserted at " + dialogContext.getInsertionPointStackTrace());
+                logger.debug("processDialogTerminated: Created by request: " + dialogContext.getRequest());
             }
-            DialogContext.removeDialogContext(dialogContext);         
-            dialogContext.cancelSessionTimer();
+            Dialog dialog = dte.getDialog();
+            if ( DialogContext.get(dialog) == dialog.getApplicationData() ) {
+                DialogContext.removeDialogContext(dialogContext);
+                dialogContext.cancelSessionTimer();
+            }
             BackToBackUserAgent b2bua = dialogContext.getBackToBackUserAgent();
             if (b2bua != null) {
                 b2bua.removeDialog(dte.getDialog());
+            } else {
+                logger.debug("processDialogTerminated: b2bua is null");
             }
+        } else {
+            logger.debug("processDialogTerminated: dialogContext is null");
         }
-
     }
 
     public void processIOException(IOExceptionEvent ioex) {
