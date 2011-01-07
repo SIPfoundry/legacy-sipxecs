@@ -162,8 +162,13 @@ public abstract class DialingRule extends BeanWithId implements NamedObject, IDi
     }
 
     public boolean addGateway(Gateway gateway) {
+        int index = m_gateways.lastIndexOf(gateway);
         boolean existed = !m_gateways.remove(gateway);
-        m_gateways.add(gateway);
+        if (index != -1) {
+            m_gateways.add(index, gateway);
+        } else {
+            m_gateways.add(gateway);
+        }
         return existed;
     }
 

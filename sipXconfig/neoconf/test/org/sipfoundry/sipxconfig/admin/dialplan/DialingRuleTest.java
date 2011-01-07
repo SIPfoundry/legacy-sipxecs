@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -119,6 +120,31 @@ public class DialingRuleTest extends TestCase {
         gateways = rule.getGateways();
         assertEquals(1, gateways.size());
         assertEquals(g, gateways.get(0));
+    }
+
+    public void testPreserveGatewayPosition() {
+        Gateway g1 = new Gateway();
+        g1.setUniqueId();
+        g1.setName("first");
+
+        Gateway g2 = new Gateway();
+        g2.setUniqueId();
+        g2.setName("second");
+
+        DialingRule rule = new CustomDialingRule();
+        assertTrue(rule.addGateway(g1));
+        assertTrue(rule.addGateway(g2));
+        List gateways = rule.getGateways();
+        assertEquals(2, gateways.size());
+        assertEquals(g1, gateways.get(0));
+        assertEquals(g2, gateways.get(1));
+
+        // add the same gateway again
+        rule.addGateway(g1);
+        gateways = rule.getGateways();
+        assertEquals(2, gateways.size());
+        assertEquals(g1, gateways.get(0));
+        assertEquals(g2, gateways.get(1));
     }
 
     public void testRemoveGateways() {
