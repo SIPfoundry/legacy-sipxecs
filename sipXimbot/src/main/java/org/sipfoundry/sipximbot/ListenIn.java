@@ -19,7 +19,7 @@ public class ListenIn extends CallCommand {
         super(fses);
         m_command = "originate sofia/" + sipDomain + "/"  + uri +  
                      " &eavesdrop(" + uuid + ")" + " XML default '" +
-                     "My Assistant" + "' '' ";
+                     "My Assistant" + "' MyAssistant";
     }  
     
     public boolean handleEvent(FreeSwitchEvent event) {
