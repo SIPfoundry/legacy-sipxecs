@@ -120,8 +120,11 @@ public abstract class AcdHistoryPage extends SipxBasePage implements PageBeginRe
     }
 
     public List<Map<String, Object>>getRows() {
-        Location location = 0 == getCurrentLocationId() ? getLocationsManager().getPrimaryLocation()
-                : getLocationsManager().getLocation(getCurrentLocationId());
+        int locationId = getCurrentLocationId();
+        if (locationId == 0) {
+            locationId = (Integer) getLocationSelectionModel().getOption(0);
+        }
+        Location location = getLocationsManager().getLocation(locationId);
         return getAcdHistoricalStats().getReport(getReportName(), getStartTime(), getEndTime(), location);
     }
 
