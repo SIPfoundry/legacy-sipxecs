@@ -128,7 +128,7 @@
   -->
   <target name="create" depends="createdb,schema" description="create database with schema" />
 
-  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11" />
+  <target name="upgrade-no-init" depends="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9,version10,version11,version12" />
 
   <target name="upgrade" description="applied all patches that need to be applied, and run initialization tasks" depends="upgrade-no-init,initialize" />
 
