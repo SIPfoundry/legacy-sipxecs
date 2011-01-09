@@ -409,7 +409,7 @@
 							<value>NO</value>
 						</option>
 						<option>
-							<value>USE_AUTOLOGIN_ID</value>
+							<value>YES</value>
 						</option>
 					</enum>
 				</type>
@@ -443,7 +443,7 @@
 	<group name='CONFIG_UPDATES'>
 		<setting name='AUTO_UPDATE'>
 			<type refid="yes-no" />
-			<value>NO</value>
+			<value>YES</value>
 			<description>
 				is a command to enable or disable the automatic updating of the IP
 				Phone 1140E with SIP Firmware configuration files from the Prov
@@ -2020,7 +2020,7 @@
 					<pattern>^([A-Za-z0-9-]*)$</pattern>
 				</string>
 			</type>
-			<value>123-1234</value>
+			<value>101</value>
 			<description>
 				is the voice mail address which can be the URI or the DN number of
 				the voice mail server. This command takes a string as a parameter.
