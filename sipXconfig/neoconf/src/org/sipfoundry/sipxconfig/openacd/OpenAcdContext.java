@@ -17,6 +17,7 @@ package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
@@ -40,6 +41,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
     String[] getOpenAcdApplicationNames();
 
     Set<OpenAcdLine> getLines(Location l);
+
     Set<OpenAcdCommand> getCommands(Location l);
 
     List<OpenAcdAgentGroup> getAgentGroups();
@@ -82,5 +84,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
 
     void saveSkill(OpenAcdSkill skill);
 
-    boolean removeSkills(Collection<Integer> skillIds);
+    List<String> removeSkills(Collection<Integer> skillIds);
+
+    Map<String, List<OpenAcdSkill>> getGroupedSkills();
 }

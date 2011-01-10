@@ -21,7 +21,9 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -469,21 +471,50 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         }
     }
 
-    public boolean removeSkills(Collection<Integer> skillIds) {
-        boolean affectDefaultSkills = false;
+    public List<String> removeSkills(Collection<Integer> skillIds) {
         List<OpenAcdSkill> skills = new LinkedList<OpenAcdSkill>();
+        List<String> usedSkills = new ArrayList<String>();
         for (Integer id : skillIds) {
             OpenAcdSkill skill = getSkillById(id);
-            if (!skill.isDefaultSkill()) {
-                skills.add(skill);
+            if (skill.isDefaultSkill() || isSkillInUse(skill)) {
+                usedSkills.add(skill.getName());
             } else {
-                affectDefaultSkills = true;
+                skills.add(skill);
             }
         }
         getHibernateTemplate().deleteAll(skills);
         m_provisioningContext.deleteObjects(skills);
 
-        return affectDefaultSkills;
+        return usedSkills;
+    }
+
+    private boolean isSkillInUse(OpenAcdSkill skill) {
+        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("countOpenAcdAgentGroupWithSkill",
+                new String[] {
+                    VALUE
+                }, new Object[] {
+                    skill.getId()
+                });
+
+        return DataAccessUtils.intResult(count) > 0;
+    }
+
+    public Map<String, List<OpenAcdSkill>> getGroupedSkills() {
+        Map<String, List<OpenAcdSkill>> groupedSkills = new TreeMap<String, List<OpenAcdSkill>>();
+        List<OpenAcdSkill> skills = getSkills();
+        if (!skills.isEmpty()) {
+            for (OpenAcdSkill skill : skills) {
+                String skillGroupName = skill.getGroupName();
+                if (groupedSkills.containsKey(skillGroupName)) {
+                    groupedSkills.get(skillGroupName).add(skill);
+                } else {
+                    LinkedList<OpenAcdSkill> groupNameSkills = new LinkedList<OpenAcdSkill>();
+                    groupNameSkills.add(skill);
+                    groupedSkills.put(skill.getGroupName(), groupNameSkills);
+                }
+            }
+        }
+        return groupedSkills;
     }
 
     private boolean isNameChanged(OpenAcdSkill skill) {

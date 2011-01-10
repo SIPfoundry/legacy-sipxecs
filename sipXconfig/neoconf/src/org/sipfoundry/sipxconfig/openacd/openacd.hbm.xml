@@ -15,6 +15,10 @@
       <key column="openacd_agent_group_id" />
       <one-to-many class="OpenAcdAgent" />
     </set>
+    <set name="skills" table="openacd_skill_agent_group">
+      <key column="openacd_agent_group_id" />
+      <many-to-many column="openacd_skill_id" class="OpenAcdSkill" />
+    </set>
   </class>
 
   <class name="OpenAcdAgent" table="openacd_agent">
@@ -67,6 +71,10 @@
 
   <query name="openAcdAgentGroupWithName">
     <![CDATA[from OpenAcdAgentGroup group where group.name = :value]]>
+  </query>
+
+  <query name="countOpenAcdAgentGroupWithSkill">
+    <![CDATA[select count(*) from OpenAcdAgentGroup as g join g.skills as s where s.id = :value]]>
   </query>
 
   <query name="openAcdAgentByUserId">

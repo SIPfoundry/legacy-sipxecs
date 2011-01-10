@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.site.openacd;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
@@ -77,10 +78,12 @@ public abstract class OpenAcdSkillsPanel extends BaseComponent implements PageBe
         if (ids.isEmpty()) {
             return;
         }
-        boolean errorMessage = getOpenAcdContext().removeSkills(ids);
-        if (errorMessage) {
+        List<String> skills = getOpenAcdContext().removeSkills(ids);
+        if (!skills.isEmpty()) {
+            String skillNames = StringUtils.join(skills.iterator(), ", ");
+            String errMessage = getMessages().format("msg.err.skillsDeletion", skillNames);
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-            validator.record(new ValidatorException(getMessages().getMessage("msg.err.defalutSkillsDeletion")));
+            validator.record(new ValidatorException(errMessage));
         }
     }
 }

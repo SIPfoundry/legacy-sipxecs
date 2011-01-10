@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -28,6 +29,7 @@ public class OpenAcdAgentGroup extends OpenAcdConfigObject {
     private String m_name;
     private String m_description;
     private Set<OpenAcdAgent> m_agents = new LinkedHashSet<OpenAcdAgent>();
+    private Set<OpenAcdSkill> m_skills = new LinkedHashSet<OpenAcdSkill>();
     private String m_oldName;
 
     public String getName() {
@@ -62,11 +64,20 @@ public class OpenAcdAgentGroup extends OpenAcdConfigObject {
         m_agents.remove(agent);
     }
 
-    // TODO add real skills when supported
-    public List<String> getSkills() {
-        List<String> skills = new ArrayList<String>();
-        skills.add("");
-        return skills;
+    public Set<OpenAcdSkill> getSkills() {
+        return m_skills;
+    }
+
+    public void setSkills(Set<OpenAcdSkill> skills) {
+        m_skills = skills;
+    }
+
+    public void addSkill(OpenAcdSkill skill) {
+        m_skills.add(skill);
+    }
+
+    public void removeSkill(OpenAcdSkill skill) {
+        m_skills.remove(skill);
     }
 
     public String getOldName() {
@@ -75,6 +86,14 @@ public class OpenAcdAgentGroup extends OpenAcdConfigObject {
 
     public void setOldName(String oldName) {
         m_oldName = oldName;
+    }
+
+    public String getSkillsAtoms() {
+        List<String> atoms = new ArrayList<String>();
+        for (OpenAcdSkill skill : m_skills) {
+            atoms.add(skill.getAtom());
+        }
+        return StringUtils.join(atoms.iterator(), ", ");
     }
 
     public int hashCode() {
@@ -96,7 +115,7 @@ public class OpenAcdAgentGroup extends OpenAcdConfigObject {
     public List<String> getProperties() {
         List<String> props = new LinkedList<String>();
         props.add("name");
-        props.add("skills");
+        props.add("skillsAtoms");
         props.add("oldName");
         return props;
     }

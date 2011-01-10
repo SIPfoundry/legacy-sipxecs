@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.easymock.EasyMock;
@@ -391,6 +392,12 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         // test default skills existing in 'Magic' skill group
         assertEquals(6, m_openAcdContextImpl.getDefaultSkills().size());
 
+        // test get skills ordered by group name
+        Map<String, List<OpenAcdSkill>> groupedSkills = m_openAcdContextImpl.getGroupedSkills();
+        assertTrue(groupedSkills.keySet().contains("Language"));
+        assertTrue(groupedSkills.keySet().contains("Magic"));
+        assertEquals(2, groupedSkills.get("Language").size());
+        assertEquals(6, groupedSkills.get("Magic").size());
         // test get skill by name
         OpenAcdSkill englishSkill = m_openAcdContextImpl.getSkillByName("English");
         assertNotNull(englishSkill);

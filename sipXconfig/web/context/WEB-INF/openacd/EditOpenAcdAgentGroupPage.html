@@ -17,6 +17,21 @@
 				cols="45" rows="5"
 				validators="spring-validators:validFieldSize"/>
           </tr>
+          <tr>
+            <td>
+              <label for="skills"><span key="label.skills"/></label></td>
+            <td>
+              <select jwcid="skills@Select" multiple="ognl:true" size="ognl:skillsSize">
+                <span jwcid="@For" source="ognl:groupedSkills.keySet" value="ognl:groupName">
+                  <optgroup jwcid="@Any" label="ognl:groupName">
+                    <span jwcid="@For" source="ognl:groupedSkills[groupName]" value="ognl:currentSkill">
+                      <option jwcid="@Option" selected="ognl:skillSelections[currentSkill]" label="ognl:currentSkill.name"/>
+                    </span>
+                  </optgroup>
+                </span>
+              </select>
+            </td>
+          </tr>
         </tbody>
       </table>
       <ul class="component-links">
