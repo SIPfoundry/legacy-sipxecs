@@ -182,10 +182,15 @@ public class MappingRule extends DialingRule {
     public static class Voicemail extends MappingRule {
         public static final String VM_PREFIX = "~~vm~";
 
-        public Voicemail(String voiceMail, MediaServer mediaServer) {
-            setPatterns(new String[] {
+        public Voicemail(String voiceMail, String did, MediaServer mediaServer) {
+            String[] patterns = new String[] {
                 voiceMail
-            });
+            };
+            if (!StringUtils.isEmpty(did)) {
+                patterns = (String[]) ArrayUtils.add(patterns, did);
+            }
+            setPatterns(patterns);
+
             setUrl(mediaServer.buildVoicemailRetrieveUrl());
         }
 

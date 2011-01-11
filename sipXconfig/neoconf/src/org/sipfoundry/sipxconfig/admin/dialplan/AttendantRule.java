@@ -37,7 +37,9 @@ public class AttendantRule extends DialingRule {
             return;
         }
         String[] aliases = AttendantRule.getAttendantAliasesAsArray(m_attendantAliases);
-        ArrayUtils.add(aliases, m_did);
+        if (!StringUtils.isEmpty(m_did)) {
+            aliases = (String[]) ArrayUtils.add(aliases, m_did);
+        }
         DialingRule attendantRule = new MappingRule.Operator(getName(), getDescription(), getSystemName(),
                 m_extension, aliases, m_mediaServer);
         rules.add(attendantRule);

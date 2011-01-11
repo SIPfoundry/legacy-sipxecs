@@ -109,7 +109,7 @@ public class InternalRule extends DialingRule {
         MediaServer mediaServer = m_mediaServerFactory.create(m_mediaServerType);
         mediaServer.setHostname(m_mediaServerHostname);
         mediaServer.setServerExtension(m_voiceMail);
-        MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail, mediaServer);
+        MappingRule voicemail = new MappingRule.Voicemail(m_voiceMail, m_did, mediaServer);
         voicemail.setDescription(getDescription());
         if (getSchedule() != null) {
             voicemail.setSchedule(getSchedule());
