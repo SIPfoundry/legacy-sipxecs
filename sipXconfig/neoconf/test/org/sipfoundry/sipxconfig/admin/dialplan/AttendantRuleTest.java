@@ -74,6 +74,7 @@ public class AttendantRuleTest extends TestCase {
         rule.setName("abc");
         rule.setExtension("100");
         rule.setAttendantAliases("0 operator");
+        rule.setDid("+123456789");
         rule.setEnabled(true);
 
         List<DialingRule> list = new ArrayList<DialingRule>();
@@ -86,10 +87,11 @@ public class AttendantRuleTest extends TestCase {
 
         DialingRule dr = (DialingRule) firstRule;
         String[] patterns = dr.getPatterns();
-        assertEquals(3, patterns.length);
+        assertEquals(4, patterns.length);
         assertEquals("100", patterns[0]);
         assertEquals("0", patterns[1]);
         assertEquals("operator", patterns[2]);
+        assertEquals("+123456789", patterns[3]);
 
         Transform[] transforms = dr.getTransforms();
         assertEquals(1, transforms.length);

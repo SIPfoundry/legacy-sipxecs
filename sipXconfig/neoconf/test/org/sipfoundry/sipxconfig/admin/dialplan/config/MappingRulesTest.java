@@ -311,8 +311,8 @@ public class MappingRulesTest extends XMLTestCase {
         rules.add(new MappingRule.Operator(aa, "100", new String[] {
             "operator", "0"
         }, mediaServer));
-        rules.add(new MappingRule.Voicemail("101", mediaServer));
-        rules.add(new MappingRule.Voicemail("102", exchangeMediaServer));
+        rules.add(new MappingRule.Voicemail("101", "+123456789", mediaServer));
+        rules.add(new MappingRule.Voicemail("102",null, exchangeMediaServer));
         rules.add(new MappingRule.VoicemailTransfer("2", extension, mediaServer));
         rules.add(new MappingRule.VoicemailTransfer("2", extension, exchangeMediaServer));
         rules.add(new MappingRule.VoicemailFallback(mediaServer));
