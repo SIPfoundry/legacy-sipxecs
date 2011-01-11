@@ -180,6 +180,10 @@ public class UserMapper implements NameClassPairMapper {
         if (value == null) {
             return null;
         }
+        // some values like userPassword are returned as byte[], see XX-9328
+        if (value instanceof byte[]) {
+            return new String((byte[]) value);
+        }
         return value.toString();
     }
 
