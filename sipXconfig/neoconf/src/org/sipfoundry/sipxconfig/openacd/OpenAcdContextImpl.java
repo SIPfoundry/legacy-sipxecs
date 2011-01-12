@@ -489,14 +489,22 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     private boolean isSkillInUse(OpenAcdSkill skill) {
-        List count = getHibernateTemplate().findByNamedQueryAndNamedParam("countOpenAcdAgentGroupWithSkill",
-                new String[] {
-                    VALUE
-                }, new Object[] {
-                    skill.getId()
-                });
+        if (countObjectWithSkillId(skill.getId(), "countOpenAcdAgentGroupWithSkill") > 0
+                || countObjectWithSkillId(skill.getId(), "countOpenAcdAgentWithSkill") > 0) {
+            return true;
+        }
+        return false;
 
-        return DataAccessUtils.intResult(count) > 0;
+    }
+
+    private int countObjectWithSkillId(Integer id, String queryName) {
+        List countAgentGroups = getHibernateTemplate().findByNamedQueryAndNamedParam(queryName, new String[] {
+            VALUE
+        }, new Object[] {
+            id
+        });
+
+        return DataAccessUtils.intResult(countAgentGroups);
     }
 
     public Map<String, List<OpenAcdSkill>> getGroupedSkills() {

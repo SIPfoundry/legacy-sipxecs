@@ -17,11 +17,7 @@ package org.sipfoundry.sipxconfig.site.openacd;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.IComponent;
@@ -47,7 +43,6 @@ import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
 import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 import org.sipfoundry.sipxconfig.site.user.SelectUsers;
 import org.sipfoundry.sipxconfig.site.user.SelectUsersCallback;
@@ -84,25 +79,6 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
 
     public abstract Collection getSelectedRows();
 
-    public abstract OpenAcdSkill getCurrentSkill();
-
-    // map to hold skill and boolean selected, true if skill associated with group
-    public abstract Map<OpenAcdSkill, Boolean> getSkillSelections();
-
-    public abstract void setSkillSelections(Map<OpenAcdSkill, Boolean> selections);
-
-    public abstract Map<String, List<OpenAcdSkill>> getGroupedSkills();
-
-    public abstract void setGroupedSkills(Map<String, List<OpenAcdSkill>> skills);
-
-    public abstract String getGroupName();
-
-    public abstract void setGroupName(String groupName);
-
-    public abstract int getSkillsSize();
-
-    public abstract void setSkillsSize(int size);
-
     public void addAgentGroup(String returnPage) {
         setGroupId(null);
         setAgentGroup(null);
@@ -120,32 +96,10 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
             return;
         }
 
-        if (getSkillSelections() == null) {
-            setSkillSelections(new HashMap<OpenAcdSkill, Boolean>());
-        }
-
-        setGroupedSkills(getOpenAcdContext().getGroupedSkills());
-
-        // initialize skills map, mark all skills as unselected
-        List<OpenAcdSkill> skills = getOpenAcdContext().getSkills();
-        for (OpenAcdSkill skill : skills) {
-            getSkillSelections().put(skill, false);
-        }
-
-        // set the number of options to show in skills select component
-        setSkillsSize(getGroupedSkills().keySet().size() + skills.size());
-
         if (getGroupId() == null) {
             setAgentGroup(new OpenAcdAgentGroup());
         } else {
-            OpenAcdAgentGroup agentGroup = getOpenAcdContext().getAgentGroupById(getGroupId());
-            if (agentGroup.getSkills().size() != 0) {
-                for (OpenAcdSkill skill : agentGroup.getSkills()) {
-                    // mark skills associated with this group as selected
-                    getSkillSelections().put(skill, true);
-                }
-            }
-            setAgentGroup(agentGroup);
+            setAgentGroup(getOpenAcdContext().getAgentGroupById(getGroupId()));
         }
 
         OpenAcdAgentGroup group = getAgentGroup();
@@ -212,16 +166,7 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
             return;
         }
 
-        OpenAcdAgentGroup group = getAgentGroup();
-        Set<OpenAcdSkill> skills = new LinkedHashSet<OpenAcdSkill>();
-        // walk through all skills and add only those marked as selected
-        for (OpenAcdSkill skill : getSkillSelections().keySet()) {
-            if (getSkillSelections().get(skill)) {
-                skills.add(skill);
-            }
-        }
-        group.setSkills(skills);
-        getOpenAcdContext().saveAgentGroup(group);
+        getOpenAcdContext().saveAgentGroup(getAgentGroup());
         setGroupId(getAgentGroup().getId());
     }
 

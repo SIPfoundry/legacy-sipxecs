@@ -33,6 +33,10 @@
       foreign-key="fk_openacd_agent_group" />
 	<many-to-one name="user" class="org.sipfoundry.sipxconfig.common.User" column="user_id" not-null="true" lazy="proxy"
 	  foreign-key="fk_user_id" />
+    <set name="skills" table="openacd_skill_agent">
+      <key column="openacd_agent_id" />
+      <many-to-many column="openacd_skill_id" class="OpenAcdSkill" />
+    </set>
   </class>
 
   <class name="OpenAcdSkill" table="openacd_skill">
@@ -79,6 +83,10 @@
 
   <query name="openAcdAgentByUserId">
     <![CDATA[from OpenAcdAgent a where a.user.id = :value]]>
+  </query>
+
+  <query name="countOpenAcdAgentWithSkill">
+    <![CDATA[select count(*) from OpenAcdAgent as a join a.skills as s where s.id = :value]]>
   </query>
 
   <query name="openAcdSkillWithName">

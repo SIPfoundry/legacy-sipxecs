@@ -16,8 +16,10 @@
 package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -51,6 +53,7 @@ public class OpenAcdAgent extends OpenAcdConfigObject {
     private String m_pin = RandomStringUtils.randomAlphanumeric(8);
     private String m_security = Security.AGENT.toString(); // default 'AGENT'
     private String m_oldName;
+    private Set<OpenAcdSkill> m_skills = new LinkedHashSet<OpenAcdSkill>();
 
     public OpenAcdAgentGroup getGroup() {
         return m_group;
@@ -84,10 +87,28 @@ public class OpenAcdAgent extends OpenAcdConfigObject {
         m_security = security;
     }
 
-    public List<String> getSkills() {
-        List<String> skills = new ArrayList<String>();
-        skills.add(EMPTY_STRING);
-        return skills;
+    public Set<OpenAcdSkill> getSkills() {
+        return m_skills;
+    }
+
+    public void setSkills(Set<OpenAcdSkill> skills) {
+        m_skills = skills;
+    }
+
+    public void addSkill(OpenAcdSkill skill) {
+        m_skills.add(skill);
+    }
+
+    public void removeSkill(OpenAcdSkill skill) {
+        m_skills.remove(skill);
+    }
+
+    public String getSkillsAtoms() {
+        List<String> atoms = new ArrayList<String>();
+        for (OpenAcdSkill skill : m_skills) {
+            atoms.add(skill.getAtom());
+        }
+        return StringUtils.join(atoms.iterator(), ", ");
     }
 
     public List<String> getQueues() {
@@ -126,7 +147,7 @@ public class OpenAcdAgent extends OpenAcdConfigObject {
         props.add("name");
         props.add("pin");
         props.add("agentGroup");
-        props.add("skills");
+        props.add("skillsAtoms");
         props.add("queues");
         props.add("firstName");
         props.add("lastName");

@@ -70,8 +70,7 @@ public abstract class EditOpenAcdAgentPage extends PageWithCallback implements P
 
     public IPropertySelectionModel getAgentSecurityModel() {
         return new StringPropertySelectionModel(new String[] {
-            OpenAcdAgent.Security.AGENT.toString(),
-            OpenAcdAgent.Security.SUPERVISOR.toString(),
+            OpenAcdAgent.Security.AGENT.toString(), OpenAcdAgent.Security.SUPERVISOR.toString(),
             OpenAcdAgent.Security.ADMIN.toString()
         });
     }
