@@ -41,10 +41,9 @@ import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.springframework.dao.DataAccessException;
 
 /**
- * Creates a rebuildable reference to Acegi's real LdapAuthenticationProvider as
- * settings change. We cannot use LdapAuthenticationProvider directly because
- * ldap settings are immutable and Spring keeps a more permanent reference list
- * of auth providers.
+ * Creates a rebuildable reference to Acegi's real LdapAuthenticationProvider as settings change.
+ * We cannot use LdapAuthenticationProvider directly because ldap settings are immutable and
+ * Spring keeps a more permanent reference list of auth providers.
  */
 public class ConfigurableLdapAuthenticationProvider implements AuthenticationProvider, DaoEventListener {
 
@@ -120,10 +119,12 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         InitialDirContextFactory dirFactory = getDirFactory(params);
         BindAuthenticator authenticator = new BindAuthenticator(dirFactory);
         authenticator.setUserSearch(getSearch(dirFactory)); // used for user login
-        authenticator.setUserDnPatterns(new String[] {
-            params.getPrincipal()  // used for binding
-        });
-
+        if (!StringUtils.isEmpty(params.getPrincipal())) {
+            authenticator.setUserDnPatterns(new String[] {
+                params.getPrincipal()
+            // used for binding
+            });
+        }
         LdapAuthenticationProvider provider = new SipxLdapAuthenticationProvider(authenticator);
 
         return provider;
@@ -132,8 +133,11 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
     InitialDirContextFactory getDirFactory(LdapConnectionParams params) {
         String bindUrl = params.getUrl();
         DefaultInitialDirContextFactory dirContextFactory = new DefaultInitialDirContextFactory(bindUrl);
-        dirContextFactory.setManagerDn(params.getPrincipal());
-        dirContextFactory.setManagerPassword(params.getSecret());
+        //allow anonymous access if so configured in LDAP server configuration page
+        if (!StringUtils.isEmpty(params.getPrincipal())) {
+            dirContextFactory.setManagerDn(params.getPrincipal());
+            dirContextFactory.setManagerPassword(params.getSecret());
+        }
         return dirContextFactory;
     }
 
@@ -152,9 +156,8 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
     }
 
     /**
-     * we need to construct UserDetailsImpl objects because that's what web
-     * layer expects, otherwise we wouldn't have have to extend
-     * LdapAuthenticationProvider
+     * we need to construct UserDetailsImpl objects because that's what web layer expects,
+     * otherwise we wouldn't have have to extend LdapAuthenticationProvider
      */
     class SipxLdapAuthenticationProvider extends LdapAuthenticationProvider {
 
@@ -182,14 +185,14 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
 
         @Override
         protected void additionalAuthenticationChecks(UserDetails userDetails,
-                                        UsernamePasswordAuthenticationToken authentication) {
+                UsernamePasswordAuthenticationToken authentication) {
             // passwords are checked in ldap layer
-            //make sure that LDAP bind password is rejected
+            // make sure that LDAP bind password is rejected
             LdapConnectionParams params = m_ldapManager.getConnectionParams();
             if (ObjectUtils.equals(authentication.getCredentials(), params.getSecret())) {
                 throw new BadCredentialsException(messages.getMessage(
-                        "AbstractUserDetailsAuthenticationProvider.badCredentials",
-                        "Bad credentials"), userDetails.getUsername());
+                        "AbstractUserDetailsAuthenticationProvider.badCredentials", "Bad credentials"),
+                        userDetails.getUsername());
             }
             return;
         }
@@ -209,7 +212,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         // any change to any ldap object, trigger lazy rebuild of authentication
         // objects
         if (entity instanceof LdapConnectionParams || entity instanceof AttrMap
-                                        || entity instanceof LdapSystemSettings) {
+                || entity instanceof LdapSystemSettings) {
             m_initialized = false;
         }
     }
