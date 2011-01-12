@@ -178,7 +178,9 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
             actions.addAll(condition.getActions());
             assertEquals("erlang_sendmsg", actions.get(0).getApplication());
-            assertEquals("agent_dialplan_listener  testme@localhost agent_login ${sip_from_user} pstn ${sip_from_uri}", actions.get(0).getData());
+            assertEquals(
+                    "agent_dialplan_listener  testme@localhost agent_login ${sip_from_user} pstn ${sip_from_uri}",
+                    actions.get(0).getData());
             assertEquals("answer", actions.get(1).getApplication());
             assertNull(actions.get(1).getData());
             assertEquals("sleep", actions.get(2).getApplication());
@@ -460,6 +462,99 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         skillIds.add(newSkill.getId());
         m_openAcdContextImpl.removeSkills(skillIds);
         assertEquals(8, m_openAcdContextImpl.getSkills().size());
+    }
+
+    public void testManageAgentGroupWithSkill() throws Exception {
+        OpenAcdSkill englishSkill = m_openAcdContextImpl.getSkillByName("English");
+        OpenAcdSkill germanSkill = m_openAcdContextImpl.getSkillByName("German");
+        OpenAcdAgentGroup group = new OpenAcdAgentGroup();
+        group.setName("Group");
+        group.addSkill(englishSkill);
+        m_openAcdContextImpl.saveAgentGroup(group);
+        assertTrue(m_openAcdContextImpl.getAgentGroupByName("Group").getSkills().contains(englishSkill));
+
+        // cannot delete assigned skill
+        List<Integer> ids = new ArrayList<Integer>();
+        ids.add(englishSkill.getId());
+        ids.add(germanSkill.getId());
+        assertEquals(8, m_openAcdContextImpl.getSkills().size());
+        List<String> skills = m_openAcdContextImpl.removeSkills(ids);
+        assertTrue(skills.contains("English"));
+        assertEquals(7, m_openAcdContextImpl.getSkills().size());
+    }
+
+    public void testManageAgentWithSkill() throws Exception {
+        loadDataSet("common/SampleUsersSeed.xml");
+        User charlie = m_coreContext.loadUser(1003);
+        OpenAcdSkill englishSkill = m_openAcdContextImpl.getSkillByName("English");
+        OpenAcdSkill germanSkill = m_openAcdContextImpl.getSkillByName("German");
+        OpenAcdAgentGroup group = new OpenAcdAgentGroup();
+        group.setName("Group");
+        m_openAcdContextImpl.saveAgentGroup(group);
+
+        OpenAcdAgent agent = new OpenAcdAgent();
+        agent.setGroup(group);
+        agent.setUser(charlie);
+        agent.setPin("123456");
+        agent.addSkill(englishSkill);
+        m_openAcdContextImpl.saveAgent(group, agent);
+        assertTrue(m_openAcdContextImpl.getAgentByUser(charlie).getSkills().contains(englishSkill));
+
+        // cannot delete assigned skill
+        List<Integer> ids = new ArrayList<Integer>();
+        ids.add(englishSkill.getId());
+        ids.add(germanSkill.getId());
+        assertEquals(8, m_openAcdContextImpl.getSkills().size());
+        // cannot delete assigned skill
+        List<String> skills = m_openAcdContextImpl.removeSkills(ids);
+        assertTrue(skills.contains("English"));
+        assertEquals(7, m_openAcdContextImpl.getSkills().size());
+    }
+
+    public void testGetSkillsAtoms() {
+        OpenAcdSkill skill1 = new OpenAcdSkill();
+        skill1.setName("Skill1");
+        skill1.setAtom("_skill1");
+        OpenAcdSkill skill2 = new OpenAcdSkill();
+        skill2.setName("Skill2");
+        skill2.setAtom("_skill2");
+        OpenAcdAgentGroup group = new OpenAcdAgentGroup();
+        group.addSkill(skill1);
+        group.addSkill(skill2);
+        OpenAcdAgent agent = new OpenAcdAgent();
+        agent.addSkill(skill1);
+        agent.addSkill(skill2);
+        assertEquals("_skill1, _skill2", group.getSkillsAtoms());
+        assertEquals("_skill1, _skill2", agent.getSkillsAtoms());
+    }
+
+    public void testGetGroupedSkills() {
+        OpenAcdSkill newSkill = new OpenAcdSkill();
+        newSkill.setName("NewSkill");
+        newSkill.setAtom("_new");
+        newSkill.setGroupName("NewGroup");
+        m_openAcdContextImpl.saveSkill(newSkill);
+
+        OpenAcdSkill anotherSkill = new OpenAcdSkill();
+        anotherSkill.setName("AnotherSkill");
+        anotherSkill.setAtom("_another");
+        anotherSkill.setGroupName("NewGroup");
+        m_openAcdContextImpl.saveSkill(anotherSkill);
+
+        OpenAcdSkill thirdSkill = new OpenAcdSkill();
+        thirdSkill.setName("ThirdSkill");
+        thirdSkill.setAtom("_third");
+        thirdSkill.setGroupName("ThirdGroup");
+        m_openAcdContextImpl.saveSkill(thirdSkill);
+
+        Map<String, List<OpenAcdSkill>> skills = m_openAcdContextImpl.getGroupedSkills();
+        assertEquals(2, skills.get("NewGroup").size());
+        assertTrue(skills.get("NewGroup").contains(m_openAcdContextImpl.getSkillByAtom("_new")));
+        assertTrue(skills.get("NewGroup").contains(m_openAcdContextImpl.getSkillByAtom("_another")));
+        assertEquals(1, skills.get("ThirdGroup").size());
+        assertTrue(skills.get("ThirdGroup").contains(m_openAcdContextImpl.getSkillByAtom("_third")));
+        assertEquals(2, skills.get("Language").size());
+        assertEquals(6, skills.get("Magic").size());
     }
 
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {

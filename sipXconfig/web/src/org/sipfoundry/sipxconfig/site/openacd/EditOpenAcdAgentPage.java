@@ -15,6 +15,10 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -27,6 +31,7 @@ import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
 
 public abstract class EditOpenAcdAgentPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "openacd/EditOpenAcdAgentPage";
@@ -47,6 +52,10 @@ public abstract class EditOpenAcdAgentPage extends PageWithCallback implements P
 
     public abstract void setAgent(OpenAcdAgent agent);
 
+    public abstract String getInheritedSkills();
+
+    public abstract void setInheritedSkills(String skills);
+
     public void editAgent(Integer groupId, String returnPage) {
         setAgentId(groupId);
         setAgent(getOpenAcdContext().getAgentById(groupId));
@@ -58,6 +67,11 @@ public abstract class EditOpenAcdAgentPage extends PageWithCallback implements P
         if (!TapestryUtils.isValid(this)) {
             return;
         }
+        List<String> skills = new ArrayList<String>();
+        for (OpenAcdSkill skill : getAgent().getGroup().getSkills()) {
+            skills.add(skill.getName());
+        }
+        setInheritedSkills(StringUtils.join(skills, ", "));
     }
 
     public void commit() {
