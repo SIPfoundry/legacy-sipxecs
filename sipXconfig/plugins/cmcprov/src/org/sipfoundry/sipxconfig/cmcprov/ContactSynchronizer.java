@@ -29,14 +29,17 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 public final class ContactSynchronizer {
     private static final String SIP_ADDRESS_ATTR_NAME = "sip_address";
     private static final String ENTRY_NAME = "entry";
+    private static final String VALUE = "value";
     private static Map<String, HashMap<String, ContactSynchronizer>> s_phoneBook =
         new HashMap<String, HashMap<String, ContactSynchronizer>>();
     private String m_userContactListFileName;
@@ -53,7 +56,7 @@ public final class ContactSynchronizer {
         ContactSynchronizer instance = null;
         HashMap<String, ContactSynchronizer> cmap = s_phoneBook.get(phonebookName);
         if (cmap != null) {
-            instance = (ContactSynchronizer) cmap.get(contactListName);
+            instance = cmap.get(contactListName);
             if (instance != null) {
                 return instance;
             } else {
@@ -144,7 +147,7 @@ public final class ContactSynchronizer {
             Node nNode = contactList.item(i);
             if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element eElement = (Element) nNode;
-                if (!isDuplicated(eElement, theList)) {
+                if (!isDuplicated(eElement, theList) && canMerge(nNode)) {
                     Node a = phoneBookDocument.importNode(nNode, true);
                     listElement.insertBefore(a, theList.item(contactList.getLength() - 1));
                 }
@@ -152,6 +155,27 @@ public final class ContactSynchronizer {
 
         }
 
+    }
+    /**
+     * Nodes that have category=Phonebook should not be merged because they are already present
+     * in the configuration file generated during Send Profiles. Only specific BRIA contacts should be merged
+     */
+    private boolean canMerge(Node node) {
+        Node childNode = null;
+        NodeList childNodes = node.getChildNodes();
+        NamedNodeMap attributes = null;
+        Node attributeNode = null;
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            childNode = childNodes.item(i);
+            attributes = childNode.getAttributes();
+            if (attributes != null) {
+                attributeNode = attributes.getNamedItem(VALUE);
+                if (attributeNode != null && StringUtils.equals(attributeNode.getNodeValue(), "Phonebook")) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     /**
@@ -198,7 +222,7 @@ public final class ContactSynchronizer {
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
                     Element propElement = (Element) nList.item(i);
                     String name = propElement.getAttribute("name");
-                    String value = propElement.getAttribute("value");
+                    String value = propElement.getAttribute(VALUE);
 
                     if ((name != null) && (name.equals(SIP_ADDRESS_ATTR_NAME))) {
                         return value;
