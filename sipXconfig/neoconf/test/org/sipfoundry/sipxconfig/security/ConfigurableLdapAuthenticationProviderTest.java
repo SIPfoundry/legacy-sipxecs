@@ -33,7 +33,7 @@ public class ConfigurableLdapAuthenticationProviderTest extends TestCase {
         p.setLdapManager(lm);
         LdapConnectionParams params = new LdapConnectionParams();
         params.setHost("ldap.example.com");
-        //default port 389 is going to be used
+        // default port 389 is going to be used
         params.setPrincipal("CN=Administrator,CN=Users,DC=corp,DC=exmaple,DC=com");
         params.setSecret("b1rdg33k");
         params.setUseTls(false);
@@ -47,4 +47,25 @@ public class ConfigurableLdapAuthenticationProviderTest extends TestCase {
         p.createProvider();
         verify(lm);
     }
+
+    public void testProviderForAnonymousAccess() {
+        LdapManager lm = createMock(LdapManager.class);
+        ConfigurableLdapAuthenticationProvider p = new ConfigurableLdapAuthenticationProvider();
+        p.setLdapManager(lm);
+        LdapConnectionParams params = new LdapConnectionParams();
+        params.setHost("ldap.example.com");
+        // default port 389 is going to be used
+        params.setPrincipal(null);
+        params.setUseTls(false);
+        AttrMap attr = new AttrMap();
+        lm.getAttrMap();
+        expectLastCall().andReturn(attr);
+        lm.getConnectionParams();
+        expectLastCall().andReturn(params);
+
+        replay(lm);
+        p.createProvider();
+        verify(lm);
+    }
+
 }
