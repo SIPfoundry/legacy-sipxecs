@@ -11,6 +11,7 @@ TARGET_PLATFORM = $(strip \
 	$(subst fedora,Fedora, \
 	$(subst centos,CentOS,$(DISTRO)))_$(DISTRO_VER))
 MOCK_RESULTS_DIR = @RPM_DIST_DIR@/$(TARGET_PLATFORM)/$(DISTRO_ARCH)
+MOCK_SRPM_DIR = @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source
 
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
 $(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION).src.rpm))
@@ -32,7 +33,8 @@ help.*.srpm = Called automatically as part of rpm process after srpm target. Use
 	else \
 	  rpmbuild -ts $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR); \
 	fi
-	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) .
+	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
+	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
 
 CopySourceFile = \
 	if [ -f $1 ]; then \
@@ -64,18 +66,27 @@ help.*.mock = Called automatically as part of rpm process after srpm target. Use
 	  --resultdir=$(MOCK_RESULTS_DIR) \
 	  --rebuild \
 	  $($(PROJ)_RPM_DEFS) \
-	  $($(PROJ)_SRPM)
+	  $(MOCK_SRPM_DIR)/$($(PROJ)_SRPM)
+	find $(MOCK_RESULTS_DIR) -name '*.src.rpm' -exec rm {} \;
 # generate repo AFTER build because then it's usable as a repo to feed to next build or other systems.
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 
 # Recursive delete of given directory if it exists. Then make a new directory.
 MakeFreshDirectory = test ! -d $1 || rm -rf $1; mkdir -p $1
 
+RemoveDuplicateRpms = \
+	for f in $1/*.rpm; do \
+	  echo -n "$$f "; \
+	  rpm -qp --queryformat '%{BUILDTIME} %{name}\n' $$f; \
+	done > pkglist; \
+	for f in `sort -n -k 3 pkglist | uniq -d -f 2 | awk '{print $$1}'`; do \
+	  rm -v $$f; \
+	done
+
 help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source
-repo-src : 
-	$(call MakeFreshDirectory, @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source)
-	find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.src.rpm' -exec mv {} @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source \;
-	cd  @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source; createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
+repo-src :
+	$(call RemoveDuplicateRpms, $(MOCK_SRPM_DIR))
+	cd $(MOCK_SRPM_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 
 help.mock-check = Installs built sipXecs RPMs into fresh chroot to check for errors
 mock-check : mock-init
@@ -83,13 +94,7 @@ mock-check : mock-init
 
 help.mock-remove-dups=If you have built RPMs multiple times between git updates, and therefore have older versions of a package, this will remove all older copies.
 mock-remove-dups:
-	for f in $(MOCK_RESULTS_DIR)/*.rpm; do \
-	  echo -n "$$f "; \
-	  rpm -qp --queryformat '%{BUILDTIME} %{name}\n' $$f; \
-	done > pkglist
-	for f in `sort -r -n -k 3 pkglist | uniq -d -f 2 | awk '{print $$1}'`; do \
-	  rm -v $$f; \
-	done
+	$(call RemoveDuplicateRpms, $(MOCK_RESULTS_DIR))
 
 help.mock-make-repo = run createrepo on rpm list
 mock-make-repo:

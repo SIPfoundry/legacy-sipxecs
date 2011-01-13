@@ -38,7 +38,8 @@ help.iso = Build 32 and 64 versions of ISO from base CentOS ISO found in @ISO_DI
 iso: iso-32 iso-64;
 
 help.iso-clean = Delete intermediate files, but do not re-download RPMs from $(ISO_RPM_DOWNLOAD_URL)
-iso-clean: iso-clean-32 iso-clean-64;
+iso-clean: iso-clean-32 iso-clean-64
+	find @DIST_DIR@ -maxdepth 1 \( -name '*.iso' -o -name '*.md5' \) -exec rm {} \;
 
 help.iso-clean-all = Delete intermediate files, including files from downloaded from $(ISO_RPM_DOWNLOAD_URL) that will be downloaded again
 iso-clean-all: iso-clean-32 iso-clean-download-32 iso-clean-64 iso-clean-download-64;
