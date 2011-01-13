@@ -359,7 +359,7 @@ public class Attendant {
             }
             LOG.info(String.format("Attendant::doAction Transfer to extension %s (%s) uuid=%s", u.get(0).getUserName(), u.get(0).getUri(), m_uuid));
             transfer(u.get(0).getUri());
-            return NextAction.repeat;
+            return NextAction.exit;
         
         case disconnect: 
             LOG.info("Attendant::doAction Disconnect");
