@@ -95,4 +95,24 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
     List<OpenAcdClient> getClients();
 
     OpenAcdClient getClientById(Integer clientId);
+
+    List<OpenAcdQueueGroup> getQueueGroups();
+
+    OpenAcdQueueGroup getQueueGroupById(Integer queueGroupId);
+
+    OpenAcdQueueGroup getQueueGroupByName(String queueGroupName);
+
+    void saveQueueGroup(OpenAcdQueueGroup queueGroup);
+
+    boolean removeQueueGroups(Collection<Integer> queueGroupIds);
+
+    List<OpenAcdQueue> getQueues();
+
+    OpenAcdQueue getQueueById(Integer queueId);
+
+    OpenAcdQueue getQueueByName(String queueName);
+
+    void saveQueue(OpenAcdQueue queue);
+
+    void removeQueues(Collection<Integer> queueIds);
 }

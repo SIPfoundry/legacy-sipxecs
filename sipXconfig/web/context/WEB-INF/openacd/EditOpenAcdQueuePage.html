@@ -1,0 +1,48 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"></span>
+  <span jwcid="@If" condition="ognl:(queueId != null && queue.group.skills.size() > 0)" renderTag="false">
+	<div class="help">
+	  <p><strong><span key="label.inherited.skills">Inherited skills:</span></strong>
+		<em><span jwcid="@Insert" value="ognl:inheritedSkills"/></em>
+	  </p>
+	</div>
+  </span>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="name" field="component:name"
+			  label="message:label.name">
+            <span jwcid="name@TextField" id="name"
+				value="ognl:queue.name"
+				displayName="message:label.name"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="description" field="component:description"
+			  label="message:label.description">
+            <span jwcid="description@TextArea" id="description"
+				value="ognl:queue.description"
+				cols="45" rows="5"
+				validators="spring-validators:validFieldSize"/>
+          </tr>
+		  <tr jwcid="@common/FieldPanel" for="queueGroup" field="ognl:null"
+			  label="message:label.queueGroup">
+            <span jwcid="queueGroup@openacd/OpenAcdQueueGroupSelect"
+				selectedQueueGroup="ognl:selectedQueueGroup"/>
+          </tr>
+		  <tr>
+			<span jwcid="@openacd/OpenAcdSkillsList" queue="ognl:queue"/>
+		  </tr>
+          <tr jwcid="@common/FieldPanel" for="weight" field="component:weight"
+				label="message:label.weight">
+            <span jwcid="weight@TextField" id="weight"
+				value="ognl:queue.weight"
+				translator="translator:integer" 
+				validators="spring-validators:required,min=0,max=1000"
+				displayName="message:label.weight"/>
+          </tr>		  
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
+  </form>
+</div>

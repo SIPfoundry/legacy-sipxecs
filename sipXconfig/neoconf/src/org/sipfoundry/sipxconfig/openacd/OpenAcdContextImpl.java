@@ -63,8 +63,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String DEFAULT_OPEN_ACD_SKILLS = "defaultOpenAcdSkills";
     private static final String ALIAS_RELATION = "openacd";
     private static final String OPEN_ACD_AGENT_BY_USERID = "openAcdAgentByUserId";
-    private static final String AGENT_GROUP_NAME_DEFAULT = "Default";
+    private static final String GROUP_NAME_DEFAULT = "Default";
     private static final String LINE_NAME = "line";
+    private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
+    private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
 
     private DomainManager m_domainManager;
     private SipxServiceManager m_serviceManager;
@@ -284,7 +286,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (!agentGroup.isNew()) {
             if (isNameChanged(agentGroup)) {
                 // don't rename the default group
-                OpenAcdAgentGroup defaultAgentGroup = getAgentGroupByName(AGENT_GROUP_NAME_DEFAULT);
+                OpenAcdAgentGroup defaultAgentGroup = getAgentGroupByName(GROUP_NAME_DEFAULT);
                 if (defaultAgentGroup != null && defaultAgentGroup.getId().equals(agentGroup.getId())) {
                     throw new UserException("&msg.err.defaultAgentGroupRename");
                 }
@@ -317,7 +319,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         List<OpenAcdAgent> agents = new LinkedList<OpenAcdAgent>();
         for (Integer id : agentGroupIds) {
             OpenAcdAgentGroup group = getAgentGroupById(id);
-            if (!group.getName().equals(AGENT_GROUP_NAME_DEFAULT)) {
+            if (!group.getName().equals(GROUP_NAME_DEFAULT)) {
                 agents.addAll(group.getAgents());
                 groups.add(group);
             } else {
@@ -625,6 +627,149 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         if (existingSkill != null) {
             throw new UserException("&duplicate.skillAtom.error", existingSkill);
         }
+    }
+
+    @Override
+    public List<OpenAcdQueueGroup> getQueueGroups() {
+        return getHibernateTemplate().loadAll(OpenAcdQueueGroup.class);
+    }
+
+    @Override
+    public OpenAcdQueueGroup getQueueGroupById(Integer queueGroupId) {
+        return getHibernateTemplate().load(OpenAcdQueueGroup.class, queueGroupId);
+    }
+
+    @Override
+    public OpenAcdQueueGroup getQueueGroupByName(String queueGroupName) {
+        List<OpenAcdQueueGroup> queueGroups = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                OPEN_ACD_QUEUE_GROUP_WITH_NAME, VALUE, queueGroupName);
+        return DataAccessUtils.singleResult(queueGroups);
+    }
+
+    @Override
+    public void saveQueueGroup(OpenAcdQueueGroup queueGroup) {
+        // check if queue group name is empty
+        if (StringUtils.isBlank(queueGroup.getName())) {
+            throw new UserException("&blank.queueGroupName.error");
+        }
+        // Check for duplicate names before saving the queue group
+        if (queueGroup.isNew() || (!queueGroup.isNew() && isNameChanged(queueGroup))) {
+            checkForDuplicateName(queueGroup);
+        }
+
+        if (!queueGroup.isNew()) {
+            if (isNameChanged(queueGroup)) {
+                // don't rename the default queue group
+                OpenAcdQueueGroup defaultQueueGroup = getQueueGroupByName(GROUP_NAME_DEFAULT);
+                if (defaultQueueGroup != null && defaultQueueGroup.getId().equals(queueGroup.getId())) {
+                    throw new UserException("&msg.err.defaultQueueGroupRename");
+                }
+            }
+            getHibernateTemplate().merge(queueGroup);
+            m_provisioningContext.updateObjects(Collections.singletonList(queueGroup));
+        } else {
+            getHibernateTemplate().save(queueGroup);
+            m_provisioningContext.addObjects(Collections.singletonList(queueGroup));
+        }
+    }
+
+    @Override
+    public boolean removeQueueGroups(Collection<Integer> queueGroupIds) {
+        boolean affectDefaultAgentGroup = false;
+        List<OpenAcdQueueGroup> groups = new LinkedList<OpenAcdQueueGroup>();
+        List<OpenAcdQueue> queues = new LinkedList<OpenAcdQueue>();
+        for (Integer id : queueGroupIds) {
+            OpenAcdQueueGroup group = getQueueGroupById(id);
+            if (!group.getName().equals(GROUP_NAME_DEFAULT)) {
+                queues.addAll(group.getQueues());
+                groups.add(group);
+            } else {
+                affectDefaultAgentGroup = true;
+            }
+        }
+        getHibernateTemplate().deleteAll(groups);
+        m_provisioningContext.deleteObjects(queues);
+        m_provisioningContext.deleteObjects(groups);
+
+        return affectDefaultAgentGroup;
+    }
+
+    private boolean isNameChanged(OpenAcdQueueGroup queueGroup) {
+        String oldName = getQueueGroupById(queueGroup.getId()).getName();
+        queueGroup.setOldName(oldName);
+        return !oldName.equals(queueGroup.getName());
+    }
+
+    private void checkForDuplicateName(OpenAcdQueueGroup queueGroup) {
+        String queueGroupName = queueGroup.getName();
+        OpenAcdQueueGroup existingQueueGroup = getQueueGroupByName(queueGroupName);
+        if (existingQueueGroup != null) {
+            throw new UserException("&duplicate.queueGroupName.error", queueGroupName);
+        }
+    }
+
+    public List<OpenAcdQueue> getQueues() {
+        return getHibernateTemplate().loadAll(OpenAcdQueue.class);
+    }
+
+    public OpenAcdQueue getQueueById(Integer queueId) {
+        return getHibernateTemplate().load(OpenAcdQueue.class, queueId);
+    }
+
+    public OpenAcdQueue getQueueByName(String queueName) {
+        List<OpenAcdQueue> queues = getHibernateTemplate().findByNamedQueryAndNamedParam(OPEN_ACD_QUEUE_WITH_NAME,
+                VALUE, queueName);
+        return DataAccessUtils.singleResult(queues);
+    }
+
+    @Override
+    public void saveQueue(OpenAcdQueue queue) {
+        // check if queue name is empty
+        if (StringUtils.isBlank(queue.getName())) {
+            throw new UserException("&blank.queueName.error");
+        }
+        // Check for duplicate names before saving the queue
+        if (queue.isNew() || (!queue.isNew() && isNameChanged(queue))) {
+            checkForDuplicateName(queue);
+        }
+
+        if (!queue.isNew()) {
+            getHibernateTemplate().merge(queue);
+            m_provisioningContext.updateObjects(Collections.singletonList(queue));
+        } else {
+            getHibernateTemplate().save(queue);
+            m_provisioningContext.addObjects(Collections.singletonList(queue));
+        }
+    }
+
+    private boolean isNameChanged(OpenAcdQueue queue) {
+        String oldName = getQueueById(queue.getId()).getName();
+        queue.setOldName(oldName);
+        return !oldName.equals(queue.getName());
+    }
+
+    private void checkForDuplicateName(OpenAcdQueue queue) {
+        String queueName = queue.getName();
+        OpenAcdQueue existingQueue = getQueueByName(queueName);
+        if (existingQueue != null) {
+            throw new UserException("&duplicate.queueName.error", queueName);
+        }
+    }
+
+    @Override
+    public void removeQueues(Collection<Integer> queueIds) {
+        List<OpenAcdQueue> queues = new LinkedList<OpenAcdQueue>();
+        List<OpenAcdQueueGroup> groups = new LinkedList<OpenAcdQueueGroup>();
+        for (Integer id : queueIds) {
+            OpenAcdQueue queue = getQueueById(id);
+            OpenAcdQueueGroup group = queue.getGroup();
+            group.removeQueue(queue);
+            getHibernateTemplate().saveOrUpdate(group);
+            queues.add(queue);
+            groups.add(group);
+        }
+        getHibernateTemplate().deleteAll(queues);
+        m_provisioningContext.deleteObjects(queues);
     }
 
     public void setDomainManager(DomainManager manager) {

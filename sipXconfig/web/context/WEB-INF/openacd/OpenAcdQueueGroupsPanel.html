@@ -1,0 +1,37 @@
+<form jwcid="queueGroups@Form" id="queueGroupsForm" delegate="bean:validator">
+  <ul class="component-links">
+	<li>
+	  <a jwcid="addQueueGroup@DirectLink"  id="link.addQueueGroup" listener="listener:addQueueGroup">
+		<span key="link.addQueueGroup">Add New Queue Group</span>
+	  </a>
+	</li>
+  </ul>
+  <table jwcid="@common/Table" id="queueGroups:list"
+		columns="* name,sort,!queueCount,description"
+		source="ognl:queueGroups"
+		row="ognl:currentRow"
+		selections="bean:selections">
+	<tr jwcid="nameColumnValue@Block">
+	  <td jwcid="editRowLink@DirectLink"
+		  listener="listener:editQueueGroup"
+		  parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="ognl:currentRow.name"/>
+	  </td>
+	</tr>
+	<tr jwcid="queueCountColumnValue@Block">
+	  <td jwcid="@Insert" value="ognl:currentRow.queues.size()"/>
+	</tr>
+  </table>
+  <ul class="component-submit">
+	<li>
+	  <input jwcid="delete@Submit" id="queueGroups:delete"
+			listener="listener:delete"
+			selected="ognl:selectedRows"
+			tag="ognl:allSelected"
+			value="message:button.delete" />
+		<span jwcid="@common/Confirm"
+		  component="component:delete"
+		  prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+</form>

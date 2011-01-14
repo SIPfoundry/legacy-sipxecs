@@ -1,0 +1,36 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"></span>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="name" field="component:name"
+				label="message:label.name">
+            <span jwcid="name@TextField" id="name"
+				value="ognl:queueGroup.name"
+				displayName="message:label.name"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="sort" field="component:sort"
+				label="message:label.sort">
+            <span jwcid="sort@TextField" id="sort"
+				value="ognl:queueGroup.sort"
+				translator="translator:integer" 
+				validators="spring-validators:required,min=0,max=1000"
+				displayName="message:label.sort"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="description" field="component:description"
+				label="message:label.description">
+            <span jwcid="description@TextArea" id="description"
+				value="ognl:queueGroup.description"
+				cols="45" rows="5"
+				validators="spring-validators:validFieldSize"/>
+          </tr>
+		  <tr>
+			<span jwcid="@openacd/OpenAcdSkillsList" queueGroup="ognl:queueGroup"/>
+		  </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
+  </form>
+</div>
