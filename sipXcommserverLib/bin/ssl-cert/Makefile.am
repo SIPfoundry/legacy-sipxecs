@@ -7,6 +7,9 @@ SCRIPT_TEMPLATES = \
 	upgrade-cert.sh \
 	ca_rehash
 
+authoritiesdir = @SIPX_CONFDIR@/ssl/authorities
+dist_authorities_DATA = verisignclass3ca.crt
+
 dist_man1_MANS = gen-ssl-keys.1
 
 EXTRA_DIST = \

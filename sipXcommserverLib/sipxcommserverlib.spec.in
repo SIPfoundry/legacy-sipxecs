@@ -152,6 +152,7 @@ fi
 %dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx
 %dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/ssl
 %dir %attr(755,sipxchange,sipxchange) %{_sysconfdir}/sipxpbx/ssl/authorities
+%{_sysconfdir}/sipxpbx/ssl/authorities/*
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/sipxecs
 %dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/log/sipxpbx
 %dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/run/sipxpbx
