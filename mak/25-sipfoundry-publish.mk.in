@@ -11,8 +11,8 @@ SfCommand = ssh $(SF_SSH_DOWNLOAD) '$(1)'
 SF_RSYNC_TARGET=$(SF_SSH_DOWNLOAD):
 S3_BUCKET = s3://sipXecs-pub
 REPO_FILES = \
-	sipx-$(PACKAGE_VERSION)-centos.repo \
-	sipx-$(PACKAGE_VERSION)-fedora.repo
+	sipxecs-$(PACKAGE_VERSION)-centos.repo \
+	sipxecs-$(PACKAGE_VERSION)-fedora.repo
 
 ##################
 # R P M
