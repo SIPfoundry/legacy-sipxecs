@@ -9,6 +9,7 @@ AC_INIT(sipX, 0.0.0, sipx-dev@list.sipfoundry.org)
 # Pass same ./configure switches all sub-projects. Crude but effective.
 AC_SUBST(CONFIGURE_OPTIONS, $@)
 
+m4_include([config/autoconf-2.66.m4])
 m4_include([config/sipXlib2.m4])
 m4_include([mak/opensuse-build-service.m4])
 m4_include([mak/centos-iso.m4])
