@@ -1,0 +1,34 @@
+<div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
+  <span jwcid="@common/ErrorMsg"></span>
+  <form jwcid="@Form" delegate="bean:validator">
+    <fieldset>
+      <table>
+        <tbody>
+          <tr jwcid="@common/FieldPanel" for="name" field="component:name"
+				label="message:label.name">
+            <span jwcid="name@TextField" id="name"
+				value="ognl:openAcdClient.name"
+				displayName="message:label.name"
+				validators="spring-validators:required"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="atom" field="component:identity"
+				label="message:label.identity">
+            <span jwcid="identity@TextField" id="identity"
+				value="ognl:openAcdClient.identity"
+				displayName="message:label.identity"
+				disabled="ognl:(!openAcdClient.isNew())"
+				validators="spring-validators:required"/>
+          </tr>
+          <tr jwcid="@common/FieldPanel" for="description" field="component:description"
+				label="message:label.description">
+            <span jwcid="description@TextArea" id="description"
+				value="ognl:openAcdClient.description"
+				cols="45" rows="5"
+				validators="spring-validators:validFieldSize"/>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
+    <ul jwcid="formActions@common/FormActions" listener="listener:commit" callback="ognl:callback"/>
+  </form>
+</div>

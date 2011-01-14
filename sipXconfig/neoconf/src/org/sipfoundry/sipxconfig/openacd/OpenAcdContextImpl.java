@@ -58,6 +58,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String OPEN_ACD_AGENT_GROUP_WITH_NAME = "openAcdAgentGroupWithName";
     private static final String OPEN_ACD_SKILL_WITH_NAME = "openAcdSkillWithName";
     private static final String OPEN_ACD_SKILL_WITH_ATOM = "openAcdSkillWithAtom";
+    private static final String OPEN_ACD_CLIENT_WITH_NAME = "openAcdClientWithName";
+    private static final String OPEN_ACD_CLIENT_WITH_IDENTITY = "openAcdClientWithIdentity";
     private static final String DEFAULT_OPEN_ACD_SKILLS = "defaultOpenAcdSkills";
     private static final String ALIAS_RELATION = "openacd";
     private static final String OPEN_ACD_AGENT_BY_USERID = "openAcdAgentByUserId";
@@ -523,6 +525,82 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             }
         }
         return groupedSkills;
+    }
+
+    @Override
+    public void saveClient(OpenAcdClient client) {
+        // Check for duplicate names before saving the skill
+        if (client.isNew() || (!client.isNew() && isNameChanged(client))) {
+            checkForDuplicateName(client);
+        }
+        // Check for duplicate atoms before saving the skill
+        if (client.isNew() || (!client.isNew() && isIdentityChanged(client))) {
+            checkForDuplicateIdentity(client);
+        }
+
+        if (client.isNew()) {
+            getHibernateTemplate().save(client);
+            m_provisioningContext.addObjects(Collections.singletonList(client));
+        } else {
+            getHibernateTemplate().merge(client);
+            m_provisioningContext.updateObjects(Collections.singletonList(client));
+        }
+    }
+
+    private boolean isNameChanged(OpenAcdClient client) {
+        return !getClientById(client.getId()).getName().equals(client.getName());
+    }
+
+    private boolean isIdentityChanged(OpenAcdClient client) {
+        return !getClientById(client.getId()).getIdentity().equals(client.getIdentity());
+    }
+
+    private void checkForDuplicateName(OpenAcdClient client) {
+        String clientName = client.getName();
+        OpenAcdClient existingClient = getClientByName(clientName);
+        if (existingClient != null) {
+            throw new UserException("&duplicate.clientName.error", existingClient);
+        }
+    }
+
+    private void checkForDuplicateIdentity(OpenAcdClient client) {
+        String identity = client.getIdentity();
+        OpenAcdClient existingClient = getClientByIdentity(identity);
+        if (existingClient != null) {
+            throw new UserException("&duplicate.clientIdentity.error", existingClient);
+        }
+    }
+
+    public OpenAcdClient getClientByName(String clientName) {
+        List<OpenAcdClient> clients = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                OPEN_ACD_CLIENT_WITH_NAME, VALUE, clientName);
+        return DataAccessUtils.singleResult(clients);
+    }
+
+    public OpenAcdClient getClientByIdentity(String identity) {
+        List<OpenAcdClient> clients = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                OPEN_ACD_CLIENT_WITH_IDENTITY, VALUE, identity);
+        return DataAccessUtils.singleResult(clients);
+    }
+
+    @Override
+    public void removeClients(Collection<Integer> clientsId) {
+        List<OpenAcdClient> clients = new ArrayList<OpenAcdClient>();
+        for (Integer id : clientsId) {
+            clients.add(getHibernateTemplate().get(OpenAcdClient.class, id));
+        }
+        getHibernateTemplate().deleteAll(clients);
+        m_provisioningContext.deleteObjects(clients);
+    }
+
+    @Override
+    public List<OpenAcdClient> getClients() {
+        return getHibernateTemplate().loadAll(OpenAcdClient.class);
+    }
+
+    @Override
+    public OpenAcdClient getClientById(Integer clientId) {
+        return getHibernateTemplate().load(OpenAcdClient.class, clientId);
     }
 
     private boolean isNameChanged(OpenAcdSkill skill) {

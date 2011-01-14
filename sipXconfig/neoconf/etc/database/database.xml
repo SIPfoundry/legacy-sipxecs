@@ -379,6 +379,7 @@
     <!-- When freezing schema uncomment this line -->
     <!-- sipx-version version="13" -->
 	<antcall target="openacd-add-skills-agent" />
+  	<antcall target="openacd-add-clients" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1185,6 +1186,9 @@
   </target>
   <target name="openacd-add-skills-agent" unless="openacd-add-skills-agent">
     <db-patch patch="openacd-add-skills-agent"/>
+  </target>
+  <target name="openacd-add-clients" unless="openacd-add-clients">
+    <db-patch patch="openacd-add-clients"/>
   </target>
 
   <!--

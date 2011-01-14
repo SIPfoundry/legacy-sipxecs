@@ -1,6 +1,6 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <span jwcid="@common/TabNavigation"
-    tabNames="ognl:{'lines','agents','skills','commands'}"
+    tabNames="ognl:{'lines','agents','skills','clients','commands'}"
     selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
@@ -14,6 +14,9 @@
   </span>
   <span jwcid="skillsTab@Block">
 	<span jwcid="@openacd/OpenAcdSkillsPanel" />
+  </span>
+  <span jwcid="clientsTab@Block">
+	<span jwcid="@openacd/OpenAcdClientsPanel"/>
   </span>
   <span jwcid="commandsTab@Block">
 	<span jwcid="@openacd/OpenAcdCommands" sipxLocation="ognl:sipxLocation"/>

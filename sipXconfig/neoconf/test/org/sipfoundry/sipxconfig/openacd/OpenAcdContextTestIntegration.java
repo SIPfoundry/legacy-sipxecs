@@ -557,6 +557,37 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(6, skills.get("Magic").size());
     }
 
+    public void testOpenAcdClient() {
+        OpenAcdClient client = new OpenAcdClient();
+        client.setName("client");
+        client.setIdentity("10101");
+        m_openAcdContextImpl.saveClient(client);
+        assertEquals(1, m_openAcdContextImpl.getClients().size());
+
+        OpenAcdClient anotherClient = new OpenAcdClient();
+        anotherClient.setName("client");
+        try {
+            m_openAcdContextImpl.saveClient(anotherClient);
+            fail();
+        } catch (UserException ex) {
+        }
+        anotherClient.setName("anotherClient");
+        anotherClient.setIdentity("10101");
+        try {
+            m_openAcdContextImpl.saveClient(anotherClient);
+            fail();
+        } catch (UserException ex) {
+        }
+        anotherClient.setIdentity("11111");
+        m_openAcdContextImpl.saveClient(anotherClient);
+        assertEquals(2, m_openAcdContextImpl.getClients().size());
+
+        m_openAcdContextImpl.removeClients(Collections.singleton(anotherClient.getId()));
+        assertEquals(1, m_openAcdContextImpl.getClients().size());
+
+        assertEquals("client", m_openAcdContextImpl.getClientById(client.getId()).getName());
+    }
+
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {
         m_openAcdContextImpl = openAcdContext;
         OpenAcdProvisioningContext provisioning = EasyMock.createNiceMock(OpenAcdProvisioningContext.class);

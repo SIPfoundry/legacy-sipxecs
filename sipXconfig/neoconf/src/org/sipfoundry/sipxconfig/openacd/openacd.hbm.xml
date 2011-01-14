@@ -52,6 +52,17 @@
     <property name="defaultSkill" />
   </class>
 
+  <class name="OpenAcdClient" table="openacd_client">
+    <id name="id" column="openacd_client_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_client_seq</param>
+      </generator>
+	</id>
+    <property name="name"/>
+    <property name="identity"/>
+    <property name="description"/>
+  </class>
+
   <subclass name="OpenAcdExtension" extends="org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtension" discriminator-value="O">
   </subclass>
 
@@ -99,6 +110,14 @@
 
   <query name="defaultOpenAcdSkills">
     <![CDATA[from OpenAcdSkill skill where skill.defaultSkill = 't']]>
+  </query>
+
+  <query name="openAcdClientWithName">
+    <![CDATA[from OpenAcdClient client where client.name = :value]]>
+  </query>
+
+  <query name="openAcdClientWithIdentity">
+    <![CDATA[from OpenAcdClient client where client.identity = :value]]>
   </query>
 
 </hibernate-mapping>

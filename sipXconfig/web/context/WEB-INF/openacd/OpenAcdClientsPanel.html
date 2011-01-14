@@ -1,0 +1,34 @@
+<form jwcid="clients@Form" id="clientsForm" delegate="bean:validator">
+  <ul class="component-links">
+	<li>
+	  <a jwcid="addClient@DirectLink"  id="link.addClient" listener="listener:addClient">
+		<span key="link.addClient">Add new Client</span>
+	  </a>
+	</li>
+  </ul>
+  <table jwcid="@common/Table" id="clients:list"
+		columns="* name,identity,description"
+		source="ognl:openAcdContext.clients"
+		row="ognl:currentRow"
+		selections="bean:selections">
+	<tr jwcid="nameColumnValue@Block">
+	  <td jwcid="editRowLink@DirectLink"
+		  listener="listener:editClient"
+		  parameters="ognl:currentRow.id">
+          <span jwcid="@Insert" value="ognl:currentRow.name"/>
+	  </td>
+	</tr>
+  </table>
+  <ul class="component-submit">
+	<li>
+	  <input jwcid="delete@Submit" id="clients:delete"
+			listener="listener:delete"
+			selected="ognl:selectedRows"
+			tag="ognl:allSelected"
+			value="message:button.delete" />
+		<span jwcid="@common/Confirm"
+		  component="component:delete"
+		  prompt="message:confirm.delete"/>
+      </li>
+    </ul>
+</form>

@@ -87,4 +87,12 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
     List<String> removeSkills(Collection<Integer> skillIds);
 
     Map<String, List<OpenAcdSkill>> getGroupedSkills();
+
+    void saveClient(OpenAcdClient client);
+
+    void removeClients(Collection<Integer> clientsId);
+
+    List<OpenAcdClient> getClients();
+
+    OpenAcdClient getClientById(Integer clientId);
 }
