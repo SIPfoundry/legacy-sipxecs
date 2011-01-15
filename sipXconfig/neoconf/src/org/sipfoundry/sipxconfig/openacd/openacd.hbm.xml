@@ -39,6 +39,42 @@
     </set>
   </class>
 
+  <class name="OpenAcdQueueGroup" table="openacd_queue_group">
+    <id name="id" column="openacd_queue_group_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_queue_group_seq</param>
+      </generator>
+    </id>
+    <property name="name"/>
+	<property name="sort" />
+    <property name="description"/>
+    <set name="queues" table="openacd_queue" inverse="true" cascade="all,delete-orphan" order-by="openacd_queue_id">
+      <key column="openacd_queue_group_id"/>
+      <one-to-many class="OpenAcdQueue"/>
+    </set>
+    <set name="skills" table="openacd_skill_queue_group">
+	   <key column="openacd_queue_group_id" />
+	   <many-to-many column="openacd_skill_id" class="OpenAcdSkill"/>
+    </set>
+  </class>
+
+  <class name="OpenAcdQueue" table="openacd_queue">
+    <id name="id" column="openacd_queue_id" type="int" unsaved-value="-1">
+      <generator class="sequence">
+        <param name="sequence">openacd_queue_seq</param>
+      </generator>
+	</id>
+	<property name="name"/>
+    <property name="description"/>
+    <many-to-one name="group" class="OpenAcdQueueGroup" column="openacd_queue_group_id" not-null="true" lazy="proxy"
+      foreign-key="fk_openacd_queue_group"/>
+    <set name="skills" table="openacd_skill_queue">
+	   <key column="openacd_queue_id" />
+	   <many-to-many column="openacd_skill_id" class="OpenAcdSkill" />
+    </set>
+    <property name="weight" />
+  </class>
+
   <class name="OpenAcdSkill" table="openacd_skill">
     <id name="id" column="openacd_skill_id" type="int" unsaved-value="-1">
       <generator class="sequence">
@@ -98,6 +134,14 @@
 
   <query name="countOpenAcdAgentWithSkill">
     <![CDATA[select count(*) from OpenAcdAgent as a join a.skills as s where s.id = :value]]>
+  </query>
+
+  <query name="openAcdQueueGroupWithName">
+    <![CDATA[from OpenAcdQueueGroup group where group.name = :value]]>
+  </query>
+
+  <query name="openAcdQueueWithName">
+    <![CDATA[from OpenAcdQueue queue where queue.name = :value]]>
   </query>
 
   <query name="openAcdSkillWithName">

@@ -380,6 +380,7 @@
     <!-- sipx-version version="13" -->
 	<antcall target="openacd-add-skills-agent" />
   	<antcall target="openacd-add-clients" />
+	<antcall target="openacd-queues" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1189,6 +1190,9 @@
   </target>
   <target name="openacd-add-clients" unless="openacd-add-clients">
     <db-patch patch="openacd-add-clients"/>
+  </target>
+  <target name="openacd-queues" unless="openacd-queues">
+	<db-patch patch="openacd-queues"/>
   </target>
 
   <!--

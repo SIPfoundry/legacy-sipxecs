@@ -1,10 +1,12 @@
 <div jwcid="@common/Border" useDojo="true" borderTitle="ognl:borderTitle">
   <span jwcid="@common/ErrorMsg"></span>
-  <div class="help">
-    <p><strong><span key="label.inherited.skills">Inherited skills:</span></strong>
-      <em><span jwcid="@Insert" value="ognl:inheritedSkills"/></em>
-    </p>
-  </div>
+  <span jwcid="@If" condition="ognl:agent.group.skills.size() > 0" renderTag="false">
+	<div class="help">
+	  <p><strong><span key="label.inherited.skills">Inherited skills:</span></strong>
+		<em><span jwcid="@Insert" value="ognl:inheritedSkills"/></em>
+	  </p>
+	</div>
+  </span>
   <form jwcid="@Form" delegate="bean:validator">
     <fieldset>
       <table>

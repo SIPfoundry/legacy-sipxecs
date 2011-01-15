@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -586,6 +587,129 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(1, m_openAcdContextImpl.getClients().size());
 
         assertEquals("client", m_openAcdContextImpl.getClientById(client.getId()).getName());
+    }
+
+    public void testOpenAcdQueueGroupCrud() throws Exception {
+        // 'Default' queue group
+        assertEquals(1, m_openAcdContextImpl.getQueueGroups().size());
+
+        // test get queue group by name
+        OpenAcdQueueGroup defaultQueueGroup = m_openAcdContextImpl.getQueueGroupByName("Default");
+        assertNotNull(defaultQueueGroup);
+        assertEquals("Default", defaultQueueGroup.getName());
+
+        // test save queue group without name
+        OpenAcdQueueGroup group = new OpenAcdQueueGroup();
+        try {
+            m_openAcdContextImpl.saveQueueGroup(group);
+            fail();
+        } catch (UserException ex) {
+        }
+
+        // test save queue group
+        group.setName("QueueGroup");
+        m_openAcdContextImpl.saveQueueGroup(group);
+        assertEquals(2, m_openAcdContextImpl.getQueueGroups().size());
+
+        // test get queue group by id
+        OpenAcdQueueGroup existingQueueGroup = m_openAcdContextImpl.getQueueGroupById(group.getId());
+        assertNotNull(existingQueueGroup);
+        assertEquals("QueueGroup", existingQueueGroup.getName());
+
+        // test save queue group with the same name
+        OpenAcdQueueGroup anotherGroup = new OpenAcdQueueGroup();
+        anotherGroup.setName("QueueGroup");
+        try {
+            m_openAcdContextImpl.saveQueueGroup(anotherGroup);
+            fail();
+        } catch (UserException ex) {
+        }
+
+        // test save queue group with skills
+        assertEquals(2, m_openAcdContextImpl.getQueueGroups().size());
+        Set<OpenAcdSkill> skills = new LinkedHashSet<OpenAcdSkill>();
+        OpenAcdSkill englishSkill = m_openAcdContextImpl.getSkillByName("English");
+        OpenAcdSkill germanSkill = m_openAcdContextImpl.getSkillByName("German");
+        skills.add(englishSkill);
+        skills.add(germanSkill);
+        OpenAcdQueueGroup groupWithSkills = new OpenAcdQueueGroup();
+        groupWithSkills.setName("QueueGroupWithSkills");
+        groupWithSkills.setSkills(skills);
+        m_openAcdContextImpl.saveQueueGroup(groupWithSkills);
+        assertEquals(3, m_openAcdContextImpl.getQueueGroups().size());
+
+        // test remove queue group but prevent 'Default' queue group deletion
+        Collection<Integer> queueGroupIds = new ArrayList<Integer>();
+        queueGroupIds.add(defaultQueueGroup.getId());
+        queueGroupIds.add(group.getId());
+        queueGroupIds.add(groupWithSkills.getId());
+        m_openAcdContextImpl.removeQueueGroups(queueGroupIds);
+        assertEquals(1, m_openAcdContextImpl.getQueueGroups().size());
+        assertNotNull(m_openAcdContextImpl.getQueueGroupByName("Default"));
+    }
+
+    public void testOpenAcdQueueCrud() throws Exception {
+        // get 'default_queue' queue
+        assertEquals(1, m_openAcdContextImpl.getQueues().size());
+
+        // test get queue by name
+        OpenAcdQueue defaultQueue = m_openAcdContextImpl.getQueueByName("default_queue");
+        assertNotNull(defaultQueue);
+        assertEquals("default_queue", defaultQueue.getName());
+        assertEquals("Default", defaultQueue.getGroup().getName());
+
+        // test save queue without name
+        OpenAcdQueue queue = new OpenAcdQueue();
+        try {
+            m_openAcdContextImpl.saveQueue(queue);
+            fail();
+        } catch (UserException ex) {
+        }
+
+        // test save queue
+        OpenAcdQueueGroup defaultQueueGroup = m_openAcdContextImpl.getQueueGroupByName("Default");
+        assertNotNull(defaultQueueGroup);
+        queue.setName("Queue1");
+        queue.setGroup(defaultQueueGroup);
+        m_openAcdContextImpl.saveQueue(queue);
+        assertEquals(2, m_openAcdContextImpl.getQueues().size());
+
+        // test get queue by id
+        OpenAcdQueue existingQueue = m_openAcdContextImpl.getQueueById(queue.getId());
+        assertNotNull(existingQueue);
+        assertEquals("Queue1", existingQueue.getName());
+        assertEquals("Default", existingQueue.getGroup().getName());
+
+        // test save queue group with the same name
+        OpenAcdQueue anotherQueue = new OpenAcdQueue();
+        anotherQueue.setName("Queue1");
+        try {
+            m_openAcdContextImpl.saveQueue(anotherQueue);
+            fail();
+        } catch (UserException ex) {
+        }
+
+        // test save queue with skills
+        assertEquals(2, m_openAcdContextImpl.getQueues().size());
+        Set<OpenAcdSkill> skills = new LinkedHashSet<OpenAcdSkill>();
+        OpenAcdSkill englishSkill = m_openAcdContextImpl.getSkillByName("English");
+        OpenAcdSkill germanSkill = m_openAcdContextImpl.getSkillByName("German");
+        skills.add(englishSkill);
+        skills.add(germanSkill);
+        OpenAcdQueue queueWithSkills = new OpenAcdQueue();
+        queueWithSkills.setName("QueueWithSkills");
+        queueWithSkills.setGroup(defaultQueueGroup);
+        queueWithSkills.setSkills(skills);
+        m_openAcdContextImpl.saveQueue(queueWithSkills);
+        assertEquals(3, m_openAcdContextImpl.getQueues().size());
+
+        // test remove all queues
+        Collection<Integer> queueIds = new ArrayList<Integer>();
+        queueIds.add(defaultQueue.getId());
+        queueIds.add(queue.getId());
+        queueIds.add(queueWithSkills.getId());
+        m_openAcdContextImpl.removeQueues(queueIds);
+        assertEquals(0, m_openAcdContextImpl.getQueues().size());
     }
 
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {

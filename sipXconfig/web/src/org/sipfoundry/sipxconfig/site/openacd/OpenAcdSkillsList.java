@@ -31,6 +31,8 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -44,6 +46,12 @@ public abstract class OpenAcdSkillsList extends BaseComponent {
 
     @Parameter
     public abstract OpenAcdAgent getAgent();
+
+    @Parameter
+    public abstract OpenAcdQueueGroup getQueueGroup();
+
+    @Parameter
+    public abstract OpenAcdQueue getQueue();
 
     public abstract OpenAcdSkill getCurrentSkill();
 
@@ -84,6 +92,10 @@ public abstract class OpenAcdSkillsList extends BaseComponent {
             assignedSkills = getAgentGroup().getSkills();
         } else if (getAgent() != null) {
             assignedSkills = getAgent().getSkills();
+        } else if (getQueueGroup() != null) {
+            assignedSkills = getQueueGroup().getSkills();
+        } else if (getQueue() != null) {
+            assignedSkills = getQueue().getSkills();
         }
         if (assignedSkills != null) {
             for (OpenAcdSkill skill : assignedSkills) {
@@ -112,6 +124,10 @@ public abstract class OpenAcdSkillsList extends BaseComponent {
             getAgentGroup().setSkills(skills);
         } else if (getAgent() != null) {
             getAgent().setSkills(skills);
+        } else if (getQueueGroup() != null) {
+            getQueueGroup().setSkills(skills);
+        } else if (getQueue() != null) {
+            getQueue().setSkills(skills);
         }
     }
 }
