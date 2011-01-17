@@ -4,8 +4,8 @@
 BUILDDIR = $(abspath @builddir@)
 SRC = $(abspath @srcdir@)
 
-PACKAGE_VERSION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\([0-9.]\+\)-\([0-9]\+\)-\([0-9a-f]\+\)/\1/g')
-PACKAGE_REVISION := $(shell $(SRC)/config/git-version-gen .version | sed 's/\([0-9.]\+\)-\([0-9]\+\)-\([0-9a-f]\+\)/\2.\3/g')
+PACKAGE_VERSION = @PACKAGE_VERSION@
+PACKAGE_REVISION := $(shell $(SRC)/config/revision-gen @PACKAGE_VERSION@)
 
 help-var.DISTRO=To run a command for a different target distro. Default: $(DISTRO). Examples: fedora centos suse
 DISTRO=@DISTRO@
