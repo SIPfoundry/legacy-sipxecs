@@ -512,17 +512,37 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     public Map<String, List<OpenAcdSkill>> getGroupedSkills() {
+        return getFilteredGroupedSkills(new ArrayList<String>());
+    }
+
+    public Map<String, List<OpenAcdSkill>> getAgentGroupedSkills() {
+        List<String> atomsToFilter = new ArrayList<String>();
+        atomsToFilter.add("_brand");
+        atomsToFilter.add("_queue");
+        return getFilteredGroupedSkills(atomsToFilter);
+    }
+
+    public Map<String, List<OpenAcdSkill>> getQueueGroupedSkills() {
+        List<String> atomsToFilter = new ArrayList<String>();
+        atomsToFilter.add("_agent");
+        atomsToFilter.add("_profile");
+        return getFilteredGroupedSkills(atomsToFilter);
+    }
+
+    private Map<String, List<OpenAcdSkill>> getFilteredGroupedSkills(List<String> atomsToFilter) {
         Map<String, List<OpenAcdSkill>> groupedSkills = new TreeMap<String, List<OpenAcdSkill>>();
         List<OpenAcdSkill> skills = getSkills();
         if (!skills.isEmpty()) {
             for (OpenAcdSkill skill : skills) {
-                String skillGroupName = skill.getGroupName();
-                if (groupedSkills.containsKey(skillGroupName)) {
-                    groupedSkills.get(skillGroupName).add(skill);
-                } else {
-                    LinkedList<OpenAcdSkill> groupNameSkills = new LinkedList<OpenAcdSkill>();
-                    groupNameSkills.add(skill);
-                    groupedSkills.put(skill.getGroupName(), groupNameSkills);
+                if (!atomsToFilter.contains(skill.getAtom())) {
+                    String skillGroupName = skill.getGroupName();
+                    if (groupedSkills.containsKey(skillGroupName)) {
+                        groupedSkills.get(skillGroupName).add(skill);
+                    } else {
+                        LinkedList<OpenAcdSkill> groupNameSkills = new LinkedList<OpenAcdSkill>();
+                        groupNameSkills.add(skill);
+                        groupedSkills.put(skill.getGroupName(), groupNameSkills);
+                    }
                 }
             }
         }

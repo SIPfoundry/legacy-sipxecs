@@ -19,6 +19,14 @@
       <key column="openacd_agent_group_id" />
       <many-to-many column="openacd_skill_id" class="OpenAcdSkill" />
     </set>
+    <set name="queues" table="openacd_queue_agent_group">
+      <key column="openacd_agent_group_id" />
+      <many-to-many column="openacd_queue_id" class="OpenAcdQueue" />
+    </set>
+    <set name="clients" table="openacd_client_agent_group">
+      <key column="openacd_agent_group_id" />
+      <many-to-many column="openacd_client_id" class="OpenAcdClient" />
+    </set>
   </class>
 
   <class name="OpenAcdAgent" table="openacd_agent">
@@ -36,6 +44,14 @@
     <set name="skills" table="openacd_skill_agent">
       <key column="openacd_agent_id" />
       <many-to-many column="openacd_skill_id" class="OpenAcdSkill" />
+    </set>
+    <set name="queues" table="openacd_queue_agent">
+      <key column="openacd_agent_id" />
+      <many-to-many column="openacd_queue_id" class="OpenAcdQueue" />
+    </set>
+    <set name="clients" table="openacd_client_agent">
+      <key column="openacd_agent_id" />
+      <many-to-many column="openacd_client_id" class="OpenAcdClient" />
     </set>
   </class>
 
@@ -56,6 +72,10 @@
 	   <key column="openacd_queue_group_id" />
 	   <many-to-many column="openacd_skill_id" class="OpenAcdSkill"/>
     </set>
+    <set name="agentGroups" table="openacd_agent_group_queue_group">
+	   <key column="openacd_queue_group_id" />
+	   <many-to-many column="openacd_agent_group_id" class="OpenAcdAgentGroup"/>
+    </set>
   </class>
 
   <class name="OpenAcdQueue" table="openacd_queue">
@@ -73,6 +93,10 @@
 	   <many-to-many column="openacd_skill_id" class="OpenAcdSkill" />
     </set>
     <property name="weight" />
+    <set name="agentGroups" table="openacd_agent_group_queue">
+	   <key column="openacd_queue_id" />
+	   <many-to-many column="openacd_agent_group_id" class="OpenAcdAgentGroup" />
+    </set>
   </class>
 
   <class name="OpenAcdSkill" table="openacd_skill">

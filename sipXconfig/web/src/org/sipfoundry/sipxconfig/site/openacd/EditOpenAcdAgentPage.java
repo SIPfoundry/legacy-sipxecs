@@ -30,7 +30,10 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdClient;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
 
 public abstract class EditOpenAcdAgentPage extends PageWithCallback implements PageBeginRenderListener {
@@ -67,9 +70,16 @@ public abstract class EditOpenAcdAgentPage extends PageWithCallback implements P
         if (!TapestryUtils.isValid(this)) {
             return;
         }
+        OpenAcdAgentGroup group = getAgent().getGroup();
         List<String> skills = new ArrayList<String>();
-        for (OpenAcdSkill skill : getAgent().getGroup().getSkills()) {
+        for (OpenAcdSkill skill : group.getSkills()) {
             skills.add(skill.getName());
+        }
+        for (OpenAcdQueue queue : group.getQueues()) {
+            skills.add(queue.getName());
+        }
+        for (OpenAcdClient client : group.getClients()) {
+            skills.add(client.getName());
         }
         setInheritedSkills(StringUtils.join(skills, ", "));
     }

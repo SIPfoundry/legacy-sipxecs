@@ -712,6 +712,29 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(0, m_openAcdContextImpl.getQueues().size());
     }
 
+    public void testGroupedSkills() throws Exception {
+        OpenAcdSkill brand = m_openAcdContextImpl.getSkillByAtom("_brand");
+        OpenAcdSkill agent = m_openAcdContextImpl.getSkillByAtom("_agent");
+        OpenAcdSkill profile = m_openAcdContextImpl.getSkillByAtom("_profile");
+        OpenAcdSkill node = m_openAcdContextImpl.getSkillByAtom("_node");
+        OpenAcdSkill queue = m_openAcdContextImpl.getSkillByAtom("_queue");
+        OpenAcdSkill all = m_openAcdContextImpl.getSkillByAtom("_all");
+        List<OpenAcdSkill> agentSkills = m_openAcdContextImpl.getAgentGroupedSkills().get("Magic");
+        assertFalse(agentSkills.contains(brand));
+        assertTrue(agentSkills.contains(agent));
+        assertTrue(agentSkills.contains(profile));
+        assertTrue(agentSkills.contains(node));
+        assertFalse(agentSkills.contains(queue));
+        assertTrue(agentSkills.contains(all));
+        List<OpenAcdSkill> queueSkills = m_openAcdContextImpl.getQueueGroupedSkills().get("Magic");
+        assertTrue(queueSkills.contains(brand));
+        assertFalse(queueSkills.contains(agent));
+        assertFalse(queueSkills.contains(profile));
+        assertTrue(queueSkills.contains(node));
+        assertTrue(queueSkills.contains(queue));
+        assertTrue(queueSkills.contains(all));
+    }
+
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {
         m_openAcdContextImpl = openAcdContext;
         OpenAcdProvisioningContext provisioning = EasyMock.createNiceMock(OpenAcdProvisioningContext.class);

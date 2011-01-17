@@ -101,7 +101,7 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
         m_port = port;
     }
 
-    private void storeCommand(BasicDBObject command) {
+    protected void storeCommand(BasicDBObject command) {
         try {
             if (m_mongoInstance == null) {
                 m_mongoInstance = new Mongo(m_host, m_port);
