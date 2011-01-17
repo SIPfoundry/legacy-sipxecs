@@ -1,7 +1,5 @@
 AC_PREREQ(2.57)
-AC_INIT(sipXrecording,
-  m4_esyscmd([config/git-version-gen .tarball-version | sed 's/\([0-9.]\+\)-\([0-9]\+\)-\([0-9a-f]\+\)/\1/g']),
-  sipx-dev@list.sipfoundry.org)
+AC_INIT(sipXrecording, 0.0.4.5.2, sipx-dev@list.sipfoundry.org)
 AC_CONFIG_AUX_DIR(config)
 m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
