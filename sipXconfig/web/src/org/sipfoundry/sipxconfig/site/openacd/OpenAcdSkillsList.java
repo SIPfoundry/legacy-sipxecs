@@ -30,6 +30,7 @@ import org.apache.tapestry.annotations.Parameter;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdClient;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
@@ -72,37 +73,117 @@ public abstract class OpenAcdSkillsList extends BaseComponent {
 
     public abstract void setSkillsSize(int size);
 
+    // map to hold queue and boolean selected, true if queue associated
+    public abstract Map<OpenAcdQueue, Boolean> getQueueSelections();
+
+    public abstract void setQueueSelections(Map<OpenAcdQueue, Boolean> selections);
+
+    public abstract OpenAcdQueue getCurrentQueue();
+
+    // map to hold client and boolean selected, true if queue associated
+    public abstract Map<OpenAcdClient, Boolean> getClientSelections();
+
+    public abstract void setClientSelections(Map<OpenAcdClient, Boolean> selections);
+
+    public abstract OpenAcdClient getCurrentClient();
+
+    // map to hold profiles and boolean selected, true if queue associated
+    public abstract Map<OpenAcdAgentGroup, Boolean> getProfileSelections();
+
+    public abstract void setProfileSelections(Map<OpenAcdAgentGroup, Boolean> selections);
+
+    public abstract OpenAcdAgentGroup getCurrentProfile();
+
     @Override
     protected void prepareForRender(IRequestCycle cycle) {
         super.prepareForRender(cycle);
-        if (getSkillSelections() == null) {
-            setSkillSelections(new HashMap<OpenAcdSkill, Boolean>());
-        }
 
-        setGroupedSkills(getOpenAcdContext().getGroupedSkills());
-        // initialize skills map, mark all skills as unselected
-        List<OpenAcdSkill> skills = getOpenAcdContext().getSkills();
-        for (OpenAcdSkill skill : skills) {
-            getSkillSelections().put(skill, false);
-        }
-        // set the number of options to show in skills select component
-        setSkillsSize(getGroupedSkills().keySet().size() + skills.size());
+        setSkillsSize(0);
         Set<OpenAcdSkill> assignedSkills = null;
         if (getAgentGroup() != null) {
             assignedSkills = getAgentGroup().getSkills();
+            initQueueSelections(getAgentGroup().getQueues());
+            initClientSelections(getAgentGroup().getClients());
+            setGroupedSkills(getOpenAcdContext().getAgentGroupedSkills());
         } else if (getAgent() != null) {
             assignedSkills = getAgent().getSkills();
+            initQueueSelections(getAgent().getQueues());
+            initClientSelections(getAgent().getClients());
+            setGroupedSkills(getOpenAcdContext().getAgentGroupedSkills());
         } else if (getQueueGroup() != null) {
             assignedSkills = getQueueGroup().getSkills();
+            initProfileSelections(getQueueGroup().getAgentGroups());
+            setGroupedSkills(getOpenAcdContext().getQueueGroupedSkills());
         } else if (getQueue() != null) {
             assignedSkills = getQueue().getSkills();
+            initProfileSelections(getQueue().getAgentGroups());
+            setGroupedSkills(getOpenAcdContext().getQueueGroupedSkills());
         }
-        if (assignedSkills != null) {
-            for (OpenAcdSkill skill : assignedSkills) {
-                // mark skills associated with this group as selected
-                getSkillSelections().put(skill, true);
+
+        initSkillsSelections(assignedSkills);
+
+    }
+
+    private void initQueueSelections(Set<OpenAcdQueue> selectedQueues) {
+        if (getQueueSelections() == null) {
+            setQueueSelections(new HashMap<OpenAcdQueue, Boolean>());
+        }
+        List<OpenAcdQueue> queues = getOpenAcdContext().getQueues();
+        for (OpenAcdQueue queue : queues) {
+            if (selectedQueues.contains(queue)) {
+                getQueueSelections().put(queue, true);
+            } else {
+                getQueueSelections().put(queue, false);
             }
         }
+        setSkillsSize(getSkillsSize() + 1 + queues.size());
+    }
+
+    private void initClientSelections(Set<OpenAcdClient> selectedClients) {
+        if (getClientSelections() == null) {
+            setClientSelections(new HashMap<OpenAcdClient, Boolean>());
+        }
+        List<OpenAcdClient> clients = getOpenAcdContext().getClients();
+        for (OpenAcdClient client : clients) {
+            if (selectedClients.contains(client)) {
+                getClientSelections().put(client, true);
+            } else {
+                getClientSelections().put(client, false);
+            }
+        }
+        if (clients.size() > 0) {
+            setSkillsSize(getSkillsSize() + 1 + clients.size());
+        }
+    }
+
+    private void initSkillsSelections(Set<OpenAcdSkill> selectedSkills) {
+        if (getSkillSelections() == null) {
+            setSkillSelections(new HashMap<OpenAcdSkill, Boolean>());
+        }
+        List<OpenAcdSkill> skills = getOpenAcdContext().getSkills();
+        for (OpenAcdSkill skill : skills) {
+            if (selectedSkills.contains(skill)) {
+                getSkillSelections().put(skill, true);
+            } else {
+                getSkillSelections().put(skill, false);
+            }
+        }
+        setSkillsSize(getSkillsSize() + getGroupedSkills().keySet().size() + skills.size());
+    }
+
+    private void initProfileSelections(Set<OpenAcdAgentGroup> selectedProfiles) {
+        if (getProfileSelections() == null) {
+            setProfileSelections(new HashMap<OpenAcdAgentGroup, Boolean>());
+        }
+        List<OpenAcdAgentGroup> profiles = getOpenAcdContext().getAgentGroups();
+        for (OpenAcdAgentGroup profile : profiles) {
+            if (selectedProfiles.contains(profile)) {
+                getProfileSelections().put(profile, true);
+            } else {
+                getProfileSelections().put(profile, false);
+            }
+        }
+        setSkillsSize(getSkillsSize() + 1 + profiles.size());
     }
 
     @Override
@@ -122,12 +203,48 @@ public abstract class OpenAcdSkillsList extends BaseComponent {
         }
         if (getAgentGroup() != null) {
             getAgentGroup().setSkills(skills);
+            getAgentGroup().setQueues(getSelectedQueues());
+            getAgentGroup().setClients(getSelectedClients());
         } else if (getAgent() != null) {
             getAgent().setSkills(skills);
+            getAgent().setQueues(getSelectedQueues());
+            getAgent().setClients(getSelectedClients());
         } else if (getQueueGroup() != null) {
             getQueueGroup().setSkills(skills);
+            getQueueGroup().setAgentGroups(getSelectedProfiles());
         } else if (getQueue() != null) {
             getQueue().setSkills(skills);
+            getQueue().setAgentGroups(getSelectedProfiles());
         }
+    }
+
+    private Set<OpenAcdQueue> getSelectedQueues() {
+        Set<OpenAcdQueue> queues = new LinkedHashSet<OpenAcdQueue>();
+        for (OpenAcdQueue queue : getQueueSelections().keySet()) {
+            if (getQueueSelections().get(queue)) {
+                queues.add(queue);
+            }
+        }
+        return queues;
+    }
+
+    private Set<OpenAcdClient> getSelectedClients() {
+        Set<OpenAcdClient> clients = new LinkedHashSet<OpenAcdClient>();
+        for (OpenAcdClient client : getClientSelections().keySet()) {
+            if (getClientSelections().get(client)) {
+                clients.add(client);
+            }
+        }
+        return clients;
+    }
+
+    private Set<OpenAcdAgentGroup> getSelectedProfiles() {
+        Set<OpenAcdAgentGroup> profiles = new LinkedHashSet<OpenAcdAgentGroup>();
+        for (OpenAcdAgentGroup profile : getProfileSelections().keySet()) {
+            if (getProfileSelections().get(profile)) {
+                profiles.add(profile);
+            }
+        }
+        return profiles;
     }
 }

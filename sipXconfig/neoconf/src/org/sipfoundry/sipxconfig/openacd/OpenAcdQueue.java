@@ -15,21 +15,16 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
-import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
-public class OpenAcdQueue extends OpenAcdConfigObject {
+public class OpenAcdQueue extends OpenAcdQueueWithSkills {
     private String m_name;
     private String m_description;
     private OpenAcdQueueGroup m_group;
-    private Set<OpenAcdSkill> m_skills = new LinkedHashSet<OpenAcdSkill>();
     private int m_weight = 1;
     private String m_oldName;
 
@@ -57,22 +52,6 @@ public class OpenAcdQueue extends OpenAcdConfigObject {
         m_group = group;
     }
 
-    public Set<OpenAcdSkill> getSkills() {
-        return m_skills;
-    }
-
-    public void setSkills(Set<OpenAcdSkill> skills) {
-        m_skills = skills;
-    }
-
-    public void addSkill(OpenAcdSkill skill) {
-        m_skills.add(skill);
-    }
-
-    public void removeSkill(OpenAcdSkill skill) {
-        m_skills.remove(skill);
-    }
-
     public int getWeight() {
         return m_weight;
     }
@@ -83,14 +62,6 @@ public class OpenAcdQueue extends OpenAcdConfigObject {
 
     public String getQueueGroup() {
         return m_group.getName();
-    }
-
-    public String getSkillsAtoms() {
-        List<String> atoms = new ArrayList<String>();
-        for (OpenAcdSkill skill : m_skills) {
-            atoms.add(skill.getAtom());
-        }
-        return StringUtils.join(atoms.iterator(), ", ");
     }
 
     public String getOldName() {
@@ -122,6 +93,7 @@ public class OpenAcdQueue extends OpenAcdConfigObject {
         props.add("name");
         props.add("queueGroup");
         props.add("skillsAtoms");
+        props.add("profiles");
         props.add("weight");
         props.add("oldName");
         return props;
