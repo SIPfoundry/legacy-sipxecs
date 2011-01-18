@@ -494,7 +494,9 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     private boolean isSkillInUse(OpenAcdSkill skill) {
         if (countObjectWithSkillId(skill.getId(), "countOpenAcdAgentGroupWithSkill") > 0
-                || countObjectWithSkillId(skill.getId(), "countOpenAcdAgentWithSkill") > 0) {
+                || countObjectWithSkillId(skill.getId(), "countOpenAcdAgentWithSkill") > 0
+                || countObjectWithSkillId(skill.getId(), "countOpenAcdQueueGroupWithSkill") > 0
+                || countObjectWithSkillId(skill.getId(), "countOpenAcdQueueWithSkill") > 0) {
             return true;
         }
         return false;

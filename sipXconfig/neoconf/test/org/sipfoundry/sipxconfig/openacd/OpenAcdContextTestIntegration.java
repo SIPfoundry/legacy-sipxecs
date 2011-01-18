@@ -395,6 +395,16 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         // test default skills existing in 'Magic' skill group
         assertEquals(6, m_openAcdContextImpl.getDefaultSkills().size());
 
+        // test default skills for 'default_queue' queue
+        OpenAcdQueue defaultQueue = m_openAcdContextImpl.getQueueByName("default_queue");
+        assertEquals(2, defaultQueue.getSkills().size());
+        List<String> skillNames = new ArrayList<String>();
+        for (OpenAcdSkill skill : defaultQueue.getSkills()) {
+            skillNames.add(skill.getName());
+        }
+        assertTrue(skillNames.contains("English"));
+        assertTrue(skillNames.contains("Node"));
+
         // test get skills ordered by group name
         Map<String, List<OpenAcdSkill>> groupedSkills = m_openAcdContextImpl.getGroupedSkills();
         assertTrue(groupedSkills.keySet().contains("Language"));
@@ -507,6 +517,47 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         ids.add(germanSkill.getId());
         assertEquals(8, m_openAcdContextImpl.getSkills().size());
         // cannot delete assigned skill
+        List<String> skills = m_openAcdContextImpl.removeSkills(ids);
+        assertTrue(skills.contains("English"));
+        assertEquals(7, m_openAcdContextImpl.getSkills().size());
+    }
+
+    public void testManageQueueGroupWithSkill() throws Exception {
+        OpenAcdSkill englishSkill = m_openAcdContextImpl.getSkillByName("English");
+        OpenAcdSkill germanSkill = m_openAcdContextImpl.getSkillByName("German");
+        OpenAcdQueueGroup queueGroup = new OpenAcdQueueGroup();
+        queueGroup.setName("QGroup");
+        queueGroup.addSkill(englishSkill);
+        m_openAcdContextImpl.saveQueueGroup(queueGroup);
+        assertTrue(m_openAcdContextImpl.getQueueGroupByName("QGroup").getSkills().contains(englishSkill));
+
+        // cannot delete assigned skill
+        List<Integer> ids = new ArrayList<Integer>();
+        ids.add(englishSkill.getId());
+        ids.add(germanSkill.getId());
+        assertEquals(8, m_openAcdContextImpl.getSkills().size());
+        List<String> skills = m_openAcdContextImpl.removeSkills(ids);
+        assertTrue(skills.contains("English"));
+        assertEquals(7, m_openAcdContextImpl.getSkills().size());
+    }
+
+    public void testManageQueueWithSkill() throws Exception {
+        OpenAcdSkill englishSkill = m_openAcdContextImpl.getSkillByName("English");
+        OpenAcdSkill germanSkill = m_openAcdContextImpl.getSkillByName("German");
+        OpenAcdQueueGroup defaultQueueGroup = m_openAcdContextImpl.getQueueGroupByName("Default");
+        assertNotNull(defaultQueueGroup);
+        OpenAcdQueue queue = new OpenAcdQueue();
+        queue.setName("Queue");
+        queue.setGroup(defaultQueueGroup);
+        queue.addSkill(englishSkill);
+        m_openAcdContextImpl.saveQueue(queue);
+        assertTrue(m_openAcdContextImpl.getQueueByName("Queue").getSkills().contains(englishSkill));
+
+        // cannot delete assigned skill
+        List<Integer> ids = new ArrayList<Integer>();
+        ids.add(englishSkill.getId());
+        ids.add(germanSkill.getId());
+        assertEquals(8, m_openAcdContextImpl.getSkills().size());
         List<String> skills = m_openAcdContextImpl.removeSkills(ids);
         assertTrue(skills.contains("English"));
         assertEquals(7, m_openAcdContextImpl.getSkills().size());
