@@ -6,6 +6,8 @@
 Action="START"
 Status=0
 Args=""
+# HOME is required for erlang apps and not set when run under sipXsupervisor
+export HOME=`cd ~;pwd`
 
 while [ $# -ne 0 ]
 do
