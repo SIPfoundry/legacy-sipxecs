@@ -74,12 +74,15 @@ help.*.mock = Called automatically as part of rpm process after srpm target. Use
 # Recursive delete of given directory if it exists. Then make a new directory.
 MakeFreshDirectory = test ! -d $1 || rm -rf $1; mkdir -p $1
 
+# creates a flat file database with format: {filename, package name, build date}, then sorts records by 
+# {package name,build date}. Once sorted, group by package name using uniq command. Once grouped, use filename, 
+# to delete duplicate packages with oldest build date.
 RemoveDuplicateRpms = \
 	for f in $1/*.rpm; do \
 	  echo -n "$$f "; \
 	  rpm -qp --queryformat '%{BUILDTIME} %{name}\n' $$f; \
 	done > pkglist; \
-	for f in `sort -n -k 3 pkglist | uniq -d -f 2 | awk '{print $$1}'`; do \
+	for f in `sort -n -r -k 3,2 pkglist | uniq -d -f 2 | awk '{print $$1}'`; do \
 	  rm -v $$f; \
 	done
 
