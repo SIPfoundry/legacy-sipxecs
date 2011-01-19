@@ -19,6 +19,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.sip.SipService;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
@@ -185,7 +186,7 @@ public class ActiveConferenceContextImpl implements ActiveConferenceContext {
                   dest, true);
         } else {
             LOG.warn("conference does not have owner -- cannot INVITE participant");
-            // TODO -- throw exception!
+            throw new UserException("&error.inviteParticipant");
         }
     }
 
