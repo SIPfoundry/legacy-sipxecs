@@ -160,6 +160,22 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         assertEquals("10", objects.get(0).get("sort"));
     }
 
+    public void testOpenAcdConfigureCommands() {
+        MockOpenAcdProvisioningContext provContext = new MockOpenAcdProvisioningContext();
+        FreeswitchMediaCommand command = new FreeswitchMediaCommand(true, "test@testme",
+                "{ignore_early_media=true}sofia/mydomain.com/$1");
+        provContext.configure(Collections.singletonList(command));
+        BasicDBObject addQueueGroupCommand = provContext.getCommands().get(0);
+        assertEquals("CONFIGURE", addQueueGroupCommand.get("command"));
+        assertEquals(1, addQueueGroupCommand.get("count"));
+        List<BasicDBObject> objects = (List<BasicDBObject>) addQueueGroupCommand.get("objects");
+        assertEquals(1, objects.size());
+        assertEquals("freeswitch_media_manager", objects.get(0).get("type"));
+        assertEquals("true", objects.get(0).get("enabled"));
+        assertEquals("test@testme", objects.get(0).get("node"));
+        assertEquals("{ignore_early_media=true}sofia/mydomain.com/$1", objects.get(0).get("dialString"));
+    }
+
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {
         m_openAcdContextImpl = openAcdContext;
     }

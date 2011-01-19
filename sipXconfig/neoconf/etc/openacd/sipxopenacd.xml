@@ -1,5 +1,32 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE model
-    PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
-    "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
-<model/>
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  <group name="freeswitch_media_manager">
+    <setting name="FREESWITCH_ENABLED">
+      <type>
+        <boolean>
+          <true>
+            <value>true</value>
+          </true>
+          <false>
+            <value>false</value>
+          </false>
+        </boolean>
+      </type>
+      <value>false</value>
+    </setting>
+    <setting name="C_NODE">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="DIAL_STRING">
+      <type>
+        <string />
+      </type>
+      <value></value>
+    </setting>
+  </group>
+</model>

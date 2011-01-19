@@ -24,4 +24,6 @@ public interface OpenAcdProvisioningContext {
     void deleteObjects(List< ? extends OpenAcdConfigObject> objects);
 
     void updateObjects(List< ? extends OpenAcdConfigObject> objects);
+
+    void configure(List< ? extends OpenAcdConfigObject> objects);
 }
