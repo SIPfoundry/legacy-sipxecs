@@ -259,4 +259,12 @@
     <bean name="sipxnumber" class="site.common.SipxconfigNumberTranslator" />
   </contribution>
 
+  <implementation service-id="tapestry.page.SpecificationResolverDelegate">
+    <invoke-factory model="threaded">
+      <construct class="site.common.PluginSpecificationResolver">
+        <set-object property="clazzFinder" value="infrastructure:classFinder"/>
+      </construct>
+    </invoke-factory>
+  </implementation>
+
 </module>

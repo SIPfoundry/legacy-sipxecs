@@ -29,6 +29,7 @@ import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
@@ -89,9 +90,13 @@ public abstract class EditOpenAcdQueuePage extends PageWithCallback implements P
             if (queueGroup != null) {
                 setSelectedQueueGroup(queueGroup);
             }
+            OpenAcdQueueGroup group = getQueue().getGroup();
             List<String> skills = new ArrayList<String>();
-            for (OpenAcdSkill skill : getQueue().getGroup().getSkills()) {
+            for (OpenAcdSkill skill : group.getSkills()) {
                 skills.add(skill.getName());
+            }
+            for (OpenAcdAgentGroup profile : group.getAgentGroups()) {
+                skills.add(profile.getName());
             }
             setInheritedSkills(StringUtils.join(skills, ", "));
         }

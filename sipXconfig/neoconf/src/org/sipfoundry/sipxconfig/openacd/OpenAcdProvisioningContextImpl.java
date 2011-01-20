@@ -52,6 +52,12 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
             public String toString() {
                 return "UPDATE";
             }
+        },
+
+        CONFIGURE {
+            public String toString() {
+                return "CONFIGURE";
+            }
         }
     }
 
@@ -93,6 +99,11 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
         storeCommand(createCommand(Command.UPDATE, openAcdObjects));
     }
 
+    @Override
+    public void configure(List< ? extends OpenAcdConfigObject> openAcdObjects) {
+        storeCommand(createCommand(Command.CONFIGURE, openAcdObjects));
+    }
+
     public void setHost(String host) {
         m_host = host;
     }
@@ -101,7 +112,7 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
         m_port = port;
     }
 
-    private void storeCommand(BasicDBObject command) {
+    protected void storeCommand(BasicDBObject command) {
         try {
             if (m_mongoInstance == null) {
                 m_mongoInstance = new Mongo(m_host, m_port);
