@@ -15,13 +15,16 @@ import static org.easymock.EasyMock.verify;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.ConfTask;
 import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.DataSetTask;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
+import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
 import org.springframework.context.ApplicationEvent;
 
@@ -44,22 +47,12 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
 
         SipxReplicationContext replication = createMock(SipxReplicationContext.class);
         replication.replicate(mr);
-        replication.generate(DataSet.ALIAS);
-        replication.generate(DataSet.CREDENTIAL);
-        replication.generate(DataSet.PERMISSION);
-        replication.generate(DataSet.CALLER_ALIAS);
-        replication.generate(DataSet.USER_LOCATION);
-        replication.generate(DataSet.USER_FORWARD);
-        replication.generate(DataSet.USER_STATIC);
+        replication.generate(new User());
+        replication.generate(new CallSequence());
         replication.publishEvent(event);
         replication.replicate(orbits);
-        replication.generate(DataSet.ALIAS);
-        replication.generate(DataSet.CREDENTIAL);
-        replication.generate(DataSet.PERMISSION);
-        replication.generate(DataSet.CALLER_ALIAS);
-        replication.generate(DataSet.USER_LOCATION);
-        replication.generate(DataSet.USER_FORWARD);
-        replication.generate(DataSet.USER_STATIC);
+        replication.generate(new CallGroup());
+        replication.generate(new Conference());
         replay(replication);
 
         int interval = 50;
@@ -70,8 +63,8 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
 
         lazy.replicate(mr);
         for (int i = 0; i < lazyIterations; i++) {
-            lazy.generate(DataSet.ALIAS);
-            lazy.generate(DataSet.PERMISSION);
+            lazy.generate(new User());
+            lazy.generate(new Conference());
             lazy.generateAll();
         }
         lazy.publishEvent(event);
@@ -80,8 +73,8 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
 
         lazy.replicate(orbits);
         for (int i = 0; i < lazyIterations; i++) {
-            lazy.generate(DataSet.ALIAS);
-            lazy.generate(DataSet.PERMISSION);
+            lazy.generate(new CallGroup());
+            lazy.generate(new Conference());
             lazy.generateAll();
         }
 
@@ -119,16 +112,18 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
     }
 
     public void testDataSetTaskUpdate() {
-        DataSetTask task1 = new DataSetTask(DataSet.CREDENTIAL);
-        DataSetTask task2 = new DataSetTask(DataSet.ALIAS);
-        DataSetTask task3 = new DataSetTask(DataSet.CREDENTIAL);
+        User u1 = new User();
+        User u2 = new User();
+        DataSetTask task1 = new DataSetTask(u1, false);
+        DataSetTask task2 = new DataSetTask(u2, false);
+        DataSetTask task3 = new DataSetTask(u1, false);
 
         assertTrue(task1.update(task3));
         assertFalse(task1.update(task2));
 
         SipxReplicationContext rc = createMock(SipxReplicationContext.class);
-        rc.generate(DataSet.CREDENTIAL);
-        rc.generate(DataSet.ALIAS);
+        rc.generate(u2);
+        rc.generate(u1);
         replay(rc);
 
         task1.replicate(rc);

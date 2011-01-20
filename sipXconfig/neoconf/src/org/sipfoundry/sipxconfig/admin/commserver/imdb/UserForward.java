@@ -9,18 +9,19 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.List;
-import java.util.Map;
+import com.mongodb.DBObject;
 
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.common.Closure;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class UserForward extends DataSetGenerator {
+    public static final String CFWDTIME = "cfwdtm";
     private ForwardingContext m_forwardingContext;
 
     @Override
@@ -28,28 +29,30 @@ public class UserForward extends DataSetGenerator {
         return DataSet.USER_FORWARD;
     }
 
+    @Required
+    public void setForwardingContext(ForwardingContext forwardingContext) {
+        m_forwardingContext = forwardingContext;
+    }
+
+    public void generate(Replicable entity) {
+        if (entity instanceof User) {
+            DBObject top = findOrCreate(entity);
+            User user = (User) entity;
+            CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
+            top.put(CFWDTIME, Integer.toString(cs.getCfwdTime()));
+            getDbCollection().save(top);
+        }
+    }
+
     @Override
-    protected void addItems(final List<Map<String, String>> items) {
-        final String domainName = getSipDomain();
+    public void generate() {
         Closure<User> closure = new Closure<User>() {
             @Override
             public void execute(User user) {
-                addUser(items, user, domainName);
+                generate(user);
             }
         };
         forAllUsersDo(getCoreContext(), closure);
     }
 
-    protected void addUser(List<Map<String, String>> items, User user, String domainName) {
-        Map<String, String> item = addItem(items);
-        String identity = user.getUserName() + "@" + domainName;
-        item.put("identity", identity);
-        CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
-        item.put("cfwdtime", Integer.toString(cs.getCfwdTime()));
-    }
-
-    @Required
-    public void setForwardingContext(ForwardingContext forwardingContext) {
-        m_forwardingContext = forwardingContext;
-    }
 }

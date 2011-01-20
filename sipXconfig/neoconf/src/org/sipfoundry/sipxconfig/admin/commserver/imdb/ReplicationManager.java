@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.common.Replicable;
 
 /**
  * Interface to replication.cgi
@@ -23,8 +24,6 @@ public interface ReplicationManager {
      * @param generator data set to be replicated
      * @return true if the replication has been successful, false otherwise
      */
-    boolean replicateData(Location[] locations, DataSetGenerator generator);
-
     /**
      * Replicates file content to remore locations
      *
@@ -34,4 +33,11 @@ public interface ReplicationManager {
      * @return true if the replication has been successful, false otherwise
      */
     boolean replicateFile(Location[] locations, ConfigurationFile file);
+
+    boolean replicateEntity(Replicable entity);
+    boolean removeEntity(Replicable entity);
+
+    void dropDb();
+
+    boolean replicateAllData();
 }

@@ -16,7 +16,7 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 
 public class AcdLineTest extends BeanWithSettingsTestCase {
@@ -91,13 +91,7 @@ public class AcdLineTest extends BeanWithSettingsTestCase {
         mc.verify();
     }
 
-    public void testAppendAliases() {
-        IMocksControl mc = EasyMock.createControl();
-        CoreContext coreContext = mc.createMock(CoreContext.class);
-        coreContext.getDomainName();
-        mc.andReturn("mydomain.org").atLeastOnce();
-        mc.replay();
-
+    public void testGetAliasMappings() {
         IMocksControl mcs = org.easymock.classextension.EasyMock.createControl();
         AcdServer server = mcs.createMock(AcdServer.class);
         Location location = new Location();
@@ -106,35 +100,17 @@ public class AcdLineTest extends BeanWithSettingsTestCase {
         mcs.andReturn(location);
         server.getSipPort();
         mcs.andReturn(100);
-        Location location2 = new Location();
-        location2.setFqdn("somehost.domain.org");
-        server.getLocation();
-        mcs.andReturn(location2);
-        server.getSipPort();
-        mcs.andReturn(101);
         mcs.replay();
 
-        m_line.setCoreContext(coreContext);
         m_line.setModelFilesContext(TestHelper.getModelFilesContext());
         m_line.setName("myline");
         m_line.setExtension("555");
         m_line.setAcdServer(server);
 
-        List aliases = new ArrayList();
-        m_line.appendAliases(aliases);
-        assertEquals(1, aliases.size());
-        AliasMapping alias = (AliasMapping) aliases.get(0);
-        assertEquals("555@mydomain.org", alias.getIdentity());
-        assertEquals("sip:myline@localhost:100", alias.getContact());
-
-        aliases.clear();
-        m_line.appendAliases(aliases);
-        assertEquals(1, aliases.size());
-        alias = (AliasMapping) aliases.get(0);
-        assertEquals("555@mydomain.org", alias.getIdentity());
-        assertEquals("sip:myline@somehost.domain.org:101", alias.getContact());
+        AliasMapping alias = m_line.getAliasMappings("mydomain.org").get(m_line).iterator().next();
+        assertEquals("555@mydomain.org", alias.get(AliasMapping.IDENTITY));
+        assertEquals("sip:myline@localhost:100", m_line.getIdentity("mydomain.org"));
 
         mcs.verify();
-        mc.verify();
     }
 }

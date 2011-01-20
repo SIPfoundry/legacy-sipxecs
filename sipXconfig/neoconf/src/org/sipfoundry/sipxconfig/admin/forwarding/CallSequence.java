@@ -10,16 +10,23 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
  * CallSequence
  */
-public class CallSequence extends AbstractCallSequence {
+public class CallSequence extends AbstractCallSequence implements Replicable {
     private static final String CALL_FWD_TIMER_SETTING = "callfwd/timer";
 
     private User m_user;
@@ -45,12 +52,6 @@ public class CallSequence extends AbstractCallSequence {
         ring.setCallSequence(this);
         insertRing(ring);
         return ring;
-    }
-
-    public List generateAliases(String domain) {
-        String identity = m_user.getUserName() + "@" + domain;
-        // pass true to never route this to voicemail
-        return generateAliases(identity, domain, true);
     }
 
     public User getUser() {
@@ -85,4 +86,41 @@ public class CallSequence extends AbstractCallSequence {
             ring.setCallSequence(this);
         }
     }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setName(String name) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        String identity = m_user.getUserName() + "@" + domain;
+        // pass true to never route this to voicemail
+        Collection<AliasMapping> mappings = generateAliases(identity, domain, true);
+        aliases.put(this, mappings);
+        return aliases;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.ALIAS);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+
 }

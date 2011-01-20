@@ -59,6 +59,14 @@ public abstract class DomainManagerImpl extends SipxHibernateDaoSupport<Domain> 
         return domain;
     }
 
+    /**
+     * convenience method. it helps reducing the number of mocks in tests
+     * @return
+     */
+    public String getDomainName() {
+        return getDomain().getName();
+    }
+
     public void saveDomain(Domain domain) {
         if (domain.isNew()) {
             Domain existing = getExistingDomain();

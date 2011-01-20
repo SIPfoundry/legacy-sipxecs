@@ -14,7 +14,6 @@ import static java.util.Collections.singleton;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxImbotService;
@@ -37,7 +36,10 @@ public class ConferenceBridgeProvisioningImpl extends HibernateDaoSupport implem
         if (bridge.getService() == null) {
             return;
         }
-        m_replicationContext.generate(DataSet.ALIAS);
+        // need to replicate all conferences that are on the bridge
+        for (Conference conf : bridge.getConferences()) {
+            m_replicationContext.generate(conf);
+        }
 
         // only need to replicate files that do not require restart
         Location location = bridge.getLocation();

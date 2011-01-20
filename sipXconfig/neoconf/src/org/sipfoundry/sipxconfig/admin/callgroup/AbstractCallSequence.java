@@ -16,8 +16,8 @@ import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing.Type;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
 
@@ -145,7 +145,7 @@ public class AbstractCallSequence extends BeanWithId {
                 ignoreVoiceMail = Type.IMMEDIATE.equals(r.getType());
             }
             String contact = r.calculateContact(domain, q, ignoreVoiceMail, userForward, null);
-            AliasMapping alias = new AliasMapping(identity, contact, "userforward");
+            AliasMapping alias = new AliasMapping(identity, contact);
             aliases.add(alias);
         }
         return aliases;
@@ -172,4 +172,5 @@ public class AbstractCallSequence extends BeanWithId {
     public void clear() {
         m_rings.clear();
     }
+
 }

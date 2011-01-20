@@ -31,11 +31,13 @@ import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -83,6 +85,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     private SipxServiceManager m_sipxServiceManager;
 
+    private CoreContext m_coreContext;
+
     private SipxServiceBundle m_acdBundle;
 
     private AcdServer getAcdServer(Integer id) {
@@ -109,8 +113,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     public List getUsersWithAgentsForLocation(Location location) {
         AcdServer acdServer = getAcdServerForLocationId(location.getId());
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("usersWithAgentsForServer",
-                SERVER_PARAM, acdServer);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("usersWithAgentsForServer", SERVER_PARAM,
+                acdServer);
     }
 
     public AcdServer loadServer(Serializable id) {
@@ -233,8 +237,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         Object[] values = {
             user, server
         };
-        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY,
-                params, values);
+        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY, params,
+                values);
         if (!agents.isEmpty()) {
             return (AcdAgent) agents.get(0);
         }
@@ -253,8 +257,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         Object[] values = {
             user, server
         };
-        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY,
-                params, values);
+        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY, params,
+                values);
         return !agents.isEmpty();
     }
 
@@ -306,19 +310,17 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
     }
 
-    public Collection getAliasMappings() {
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
         HibernateTemplate hibernate = getHibernateTemplate();
-        List acdLines = hibernate.loadAll(AcdLine.class);
-
-        List aliases = new ArrayList();
-        for (Iterator i = acdLines.iterator(); i.hasNext();) {
-            AcdLine acdLine = (AcdLine) i.next();
-            acdLine.appendAliases(aliases);
+        List<AcdLine> acdLines = hibernate.loadAll(AcdLine.class);
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        for (AcdLine acdLine : acdLines) {
+            aliases.putAll(acdLine.getAliasMappings(m_coreContext.getDomainName()));
         }
 
         List<AcdServer> servers = getServers();
         for (AcdServer server : servers) {
-            aliases.addAll(server.getAliasMappings());
+            aliases.putAll(server.getAliasMappings(m_coreContext.getDomainName()));
         }
 
         return aliases;
@@ -622,5 +624,9 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     @Required
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

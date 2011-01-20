@@ -10,12 +10,15 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
@@ -23,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.User;
  */
 public class CallSequenceTest extends TestCase {
     private User m_user;
+    private static final String MYDOMAIN = "mydomain.org";
 
     @Override
     protected void setUp() throws Exception {
@@ -43,15 +47,14 @@ public class CallSequenceTest extends TestCase {
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
         sequence.setRings(rings);
-
-        List aliases = sequence.generateAliases("sipfoundry.org");
-        assertEquals(N, aliases.size());
-        for (Iterator i = aliases.iterator(); i.hasNext();) {
-            AliasMapping a = (AliasMapping) i.next();
-            assertEquals("abc@sipfoundry.org", a.getIdentity());
-            String contact = a.getContact();
-            assertTrue(contact
-                    .matches("<sip:\\d+@sipfoundry.org;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
+        Map<Replicable, Collection<AliasMapping>> aliases = sequence.getAliasMappings(MYDOMAIN);
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(sequence);
+        assertEquals(N, mappings.size());
+        for (AliasMapping alias : mappings) {
+            assertEquals("abc@" + MYDOMAIN, alias.getIdentity());
+            String contact = alias.getContact();
+            assertTrue(contact.matches("<sip:\\d+@" + MYDOMAIN
+                    + ";sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
         }
     }
 
@@ -60,36 +63,37 @@ public class CallSequenceTest extends TestCase {
         List ringsDisabled = new ArrayList(N);
         List ringsMixed = new ArrayList(N);
         for (int i = 0; i < N; i++) {
-			boolean enabled = (i % 2) == 0;
+            boolean enabled = (i % 2) == 0;
             ringsMixed.add(new Ring("2" + i, i, Ring.Type.DELAYED, enabled));
             ringsDisabled.add(new Ring("2" + i, i, Ring.Type.DELAYED, false));
         }
 
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
-
         sequence.setRings(ringsDisabled);
-        List aliases = sequence.generateAliases("sipfoundry.org");
-        assertEquals(0, aliases.size());
+        Map<Replicable, Collection<AliasMapping>> aliases = sequence.getAliasMappings(MYDOMAIN);
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(sequence);
+        assertEquals(0, mappings.size());
 
         sequence.setRings(ringsMixed);
-        aliases = sequence.generateAliases("sipfoundry.org");
-        assertEquals(N/2, aliases.size());
+        aliases = sequence.getAliasMappings(MYDOMAIN);
+        mappings = (List<AliasMapping>) aliases.get(sequence);
+        assertEquals(N / 2, mappings.size());
 
-        for (Iterator i = aliases.iterator(); i.hasNext();) {
-            AliasMapping a = (AliasMapping) i.next();
-            assertEquals("abc@sipfoundry.org", a.getIdentity());
-            String contact = a.getContact();
-            assertTrue(contact
-                    .matches("<sip:\\d+@sipfoundry.org;sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
+        for (AliasMapping alias : mappings) {
+            assertEquals("abc@" + MYDOMAIN, alias.getIdentity());
+            String contact = alias.getContact();
+            assertTrue(contact.matches("<sip:\\d+@" + MYDOMAIN
+                    + ";sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
         }
     }
 
     public void testGenerateAliasesEmpty() {
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
-        List list = sequence.generateAliases("sipfoundry.org");
-        assertEquals(0, list.size());
+        Map<Replicable, Collection<AliasMapping>> aliases = sequence.getAliasMappings(MYDOMAIN);
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(sequence);
+        assertEquals(0, mappings.size());
     }
 
     public void testMove() {

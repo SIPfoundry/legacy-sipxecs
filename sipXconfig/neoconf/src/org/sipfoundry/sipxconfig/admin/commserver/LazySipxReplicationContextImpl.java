@@ -17,8 +17,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.LazyDaemon;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.springframework.context.ApplicationEvent;
 
@@ -47,16 +47,18 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         m_worker.start();
     }
 
-    public synchronized void generate(DataSet dataSet) {
-        m_tasks.add(new DataSetTask(dataSet));
+    public synchronized void generateAll() {
+        m_tasks.add(new DataSetTask());
         notifyWorker();
     }
 
-    public synchronized void generateAll() {
-        List<DataSet> dataSets = DataSet.getEnumList();
-        for (DataSet dataSet : dataSets) {
-            m_tasks.add(new DataSetTask(dataSet));
-        }
+    public synchronized void generate(Replicable entity) {
+        m_tasks.add(new DataSetTask(entity, false));
+        notifyWorker();
+    }
+
+    public synchronized void remove(Replicable entity) {
+        m_tasks.add(new DataSetTask(entity, false));
         notifyWorker();
     }
 
@@ -68,10 +70,6 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     public void replicate(Location location, ConfigurationFile conf) {
         m_tasks.add(new ConfTask(location, conf));
         notifyWorker();
-    }
-
-    public String getXml(DataSet dataSet) {
-        return m_target.getXml(dataSet);
     }
 
     public synchronized void publishEvent(ApplicationEvent event) {
@@ -165,24 +163,46 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     }
 
     static class DataSetTask extends ReplicationTask {
-        private final DataSet m_ds;
+        private Replicable m_entity;
+        private boolean m_delete;
 
-        DataSetTask(DataSet ds) {
-            m_ds = ds;
+        DataSetTask() {
+
+        }
+
+        DataSetTask(Replicable entity, boolean delete) {
+            m_entity = entity;
+            m_delete = delete;
         }
 
         @Override
         public void replicate(SipxReplicationContext replicationContext) {
-            replicationContext.generate(m_ds);
+            if (m_entity != null) {
+                if (m_delete) {
+                    replicationContext.remove(m_entity);
+                } else {
+                    replicationContext.generate(m_entity);
+                }
+            } else {
+                replicationContext.generateAll();
+            }
         }
 
         @Override
         public boolean update(ReplicationTask task) {
             if (task instanceof DataSetTask) {
                 DataSetTask dst = (DataSetTask) task;
-                return m_ds.equals(dst.m_ds);
+                return m_entity.equals(dst.m_entity);
             }
             return false;
+        }
+
+        public Replicable getEntity() {
+            return m_entity;
+        }
+
+        public boolean isDelete() {
+            return m_delete;
         }
     }
 
@@ -229,5 +249,9 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
             }
             return false;
         }
+    }
+
+    @Override
+    public void replicateWork(Replicable entity) {
     }
 }

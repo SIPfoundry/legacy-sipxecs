@@ -11,7 +11,12 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -19,15 +24,18 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.conference.FreeswitchApi;
 import org.sipfoundry.sipxconfig.job.JobContext;
+import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 
-public class SipxFreeswitchService extends SipxService implements LoggingEntity {
+public class SipxFreeswitchService extends SipxService implements LoggingEntity, Replicable {
     public static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     public static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
     public static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
@@ -64,6 +72,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     private ApiProvider<FreeswitchApi> m_freeswitchApiProvider;
     private SipxProcessContext m_sipxProcessContext;
     private SipxReplicationContext m_replicationContext;
+    private MusicOnHoldManager m_musicOnHoldManager;
 
     public int getXmlRpcPort() {
         return (Integer) getSettingTypedValue(FREESWITCH_XMLRPC_PORT);
@@ -78,9 +87,8 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     }
 
     /**
-     * No matter if the service is installed on more than one location,
-     * if at least one location has the G729 codec installed, sipXconfig will consider it
-     * available on all locations
+     * No matter if the service is installed on more than one location, if at least one location
+     * has the G729 codec installed, sipXconfig will consider it available on all locations
      */
     @Override
     public void onInit() {
@@ -88,9 +96,8 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     }
 
     /**
-     * No matter if the service is installed on more than one location,
-     * if at least one location has the G729 codec installed, sipXconfig will consider it
-     * available on all locations
+     * No matter if the service is installed on more than one location, if at least one location
+     * has the G729 codec installed, sipXconfig will consider it available on all locations
      */
     @Override
     public void onRestart() {
@@ -98,7 +105,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
     }
 
     private boolean isCodecG729Installed() {
-        List<Location> locations =  getLocationsManager().getLocationsForService(this);
+        List<Location> locations = getLocationsManager().getLocationsForService(this);
         String serviceUri = null;
         FreeswitchApi api = null;
         String result = null;
@@ -272,7 +279,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
 
     @Override
     public void onConfigChange() {
-        m_replicationContext.generate(DataSet.ALIAS);
+        m_replicationContext.generate(this);
     }
 
     @Override
@@ -307,5 +314,66 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity 
             }
             return returnList;
         }
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setName(String name) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        String contact = null;
+        String mohSetting = getSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE);
+
+        switch (SystemMohSetting.parseSetting(mohSetting)) {
+        case SOUNDCARD_SRC:
+            contact = m_musicOnHoldManager.getPortAudioMohUriMapping();
+            break;
+        case NONE:
+            contact = m_musicOnHoldManager.getNoneMohUriMapping();
+            break;
+        case FILES_SRC:
+        default:
+            contact = m_musicOnHoldManager.getLocalFilesMohUriMapping();
+            break;
+        }
+
+        List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(1);
+        aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getDefaultMohUri(), contact));
+
+        aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getLocalFilesMohUri(), m_musicOnHoldManager
+                .getLocalFilesMohUriMapping()));
+        aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getPortAudioMohUri(), m_musicOnHoldManager
+                .getPortAudioMohUriMapping()));
+        aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getNoneMohUri(), m_musicOnHoldManager
+                .getNoneMohUriMapping()));
+
+        aliases.put(this, aliasMappings);
+        return aliases;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.ALIAS);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        return null;
+    }
+
+    public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
+        m_musicOnHoldManager = musicOnHoldManager;
     }
 }

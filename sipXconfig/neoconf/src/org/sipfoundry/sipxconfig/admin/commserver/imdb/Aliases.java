@@ -10,14 +10,16 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 
+import com.mongodb.DBObject;
+
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.Replicable;
 
 public class Aliases extends DataSetGenerator {
-
+    public static final String FAX_EXTENSION_PREFIX = "~~ff~";
+    public static final String ALIASES = "als";
     private AliasProvider m_aliasProvider;
 
     public Aliases() {
@@ -27,20 +29,26 @@ public class Aliases extends DataSetGenerator {
         return DataSet.ALIAS;
     }
 
-    protected void addItems(List<Map<String, String>> items) {
-        addAliases(items, m_aliasProvider.getAliasMappings());
+    public void setAliasProvider(AliasProvider aliasProvider) {
+        m_aliasProvider = aliasProvider;
     }
 
-    void addAliases(List<Map<String, String>> items, Collection<AliasMapping> aliases) {
-        for (AliasMapping alias : aliases) {
-            Map<String, String> aliasItem = addItem(items);
-            aliasItem.put("identity", alias.getIdentity());
-            aliasItem.put("contact", alias.getContact());
-            aliasItem.put("relation", alias.getRelation());
+    @Override
+    public void generate() {
+
+        Map<Replicable, Collection<AliasMapping>> mappings = m_aliasProvider.getAliasMappings();
+        for (Replicable entity : mappings.keySet()) {
+            insertAliases(entity, mappings.get(entity));
         }
     }
 
-    public void setAliasProvider(AliasProvider aliasProvider) {
-        m_aliasProvider = aliasProvider;
+    public void generate(Replicable entity) {
+        insertAliases(entity, entity.getAliasMappings(getCoreContext().getDomainName()).get(entity));
+    }
+
+    private void insertAliases(Replicable entity, Collection<AliasMapping> mappings) {
+        DBObject top = findOrCreate(entity);
+        top.put(ALIASES, mappings);
+        getDbCollection().save(top);
     }
 }

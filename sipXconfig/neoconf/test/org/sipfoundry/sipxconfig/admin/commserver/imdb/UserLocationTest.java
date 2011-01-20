@@ -9,45 +9,32 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringReader;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
-import org.custommonkey.xmlunit.XMLTestCase;
-import org.custommonkey.xmlunit.XMLUnit;
-import org.dom4j.Document;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.XmlUnitHelper;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.sipfoundry.sipxconfig.test.TestUtil;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
-
-public class UserLocationTest extends XMLTestCase {
-    public UserLocationTest() {
-        XmlUnitHelper.setNamespaceAware(false);
-        XMLUnit.setIgnoreWhitespace(true);
-    }
+public class UserLocationTest extends MongoTestCase {
 
     private final String[][] USER_DATA = {
         {
-            "first1", "last1", "mir1", "boston"
+            "0", "first1", "last1", "mir1", "boston"
         }, {
-            "first2", ",last2", "mir2", "seattle"
+            "1", "first2", ",last2", "mir2", "seattle"
         }, {
-            "first3", ",last3", "mir3", null
+            "2", "first3", ",last3", "mir3", null
         },
     };
 
@@ -55,25 +42,29 @@ public class UserLocationTest extends XMLTestCase {
 
     @Override
     protected void setUp() throws Exception {
+        super.setUp();
         PermissionManagerImpl impl = new PermissionManagerImpl();
         impl.setModelFilesContext(TestHelper.getModelFilesContext());
-
+        DomainManager dm = getDomainManager();
+        replay(dm);
         m_users = new ArrayList<User>();
         for (String[] ud : USER_DATA) {
             User user = new User();
             user.setPermissionManager(impl);
 
-            user.setFirstName(ud[0]);
-            user.setLastName(ud[1]);
-            user.setUserName(ud[2]);
-            if (ud[3] != null) {
+            user.setUniqueId(new Integer(ud[0]));
+            user.setFirstName(ud[1]);
+            user.setLastName(ud[2]);
+            user.setUserName(ud[3]);
+            user.setDomainManager(dm);
+            if (ud[4] != null) {
                 Branch branch = new Branch();
                 branch.setUniqueId();
-                branch.setName(ud[3]);
+                branch.setName(ud[4]);
 
                 Group site = new Group();
                 site.setUniqueId();
-                site.setName("group" + ud[3]);
+                site.setName("group" + ud[4]);
                 site.setBranch(branch);
 
                 user.addGroup(site);
@@ -83,12 +74,7 @@ public class UserLocationTest extends XMLTestCase {
     }
 
     public void testGenerateEmpty() throws Exception {
-        UserLocation ul = new UserLocation() {
-            @Override
-            protected String getSipDomain() {
-                return "example.org";
-            }
-        };
+        UserLocation ul = new UserLocation();
 
         CoreContext coreContext = createMock(CoreContext.class);
         coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
@@ -98,34 +84,23 @@ public class UserLocationTest extends XMLTestCase {
 
         replay(coreContext);
 
-        List<Map<String, String>> document = ul.generate();
-        assertEquals(0, document.size());
-
-        verify(coreContext);
+        ul.generate();
+        assertCollectionCount(0);
     }
 
     public void testGenerate() throws Exception {
-        UserLocation ul = new UserLocation() {
-            @Override
-            protected String getSipDomain() {
-                return "example.org";
-            }
-        };
+        UserLocation ul = new UserLocation();
 
-        CoreContext coreContext = createMock(CoreContext.class);
+        CoreContext coreContext = getCoreContext();
         coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(m_users);
-
-        ul.setCoreContext(coreContext);
-
         replay(coreContext);
+        ul.setCoreContext(coreContext);
+        ul.setDbCollection(getCollection());
+        ul.generate();
 
-        Document document = ul.generateXml();
-        String ulXml = TestUtil.asString(document);
-
-        InputStream referenceXmlStream = UserLocationTest.class.getResourceAsStream("userlocation.test.xml");
-        assertXMLEqual(new InputStreamReader(referenceXmlStream), new StringReader(ulXml));
-
-        verify(coreContext);
+        assertObjectWithIdFieldValuePresent("User0", UserLocation.LOCATION, USER_DATA[0][4]);
+        assertObjectWithIdFieldValuePresent("User1", UserLocation.LOCATION, USER_DATA[1][4]);
+        assertObjectWithIdFieldValuePresent("User2", UserLocation.LOCATION, USER_DATA[2][4]);
     }
 }

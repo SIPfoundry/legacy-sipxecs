@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -17,18 +21,18 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.apache.commons.lang.StringUtils;
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.domain.Domain;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.Setting;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.createMock;
 
 public class UserTest extends TestCase {
 
@@ -158,7 +162,12 @@ public class UserTest extends TestCase {
             }
         };
         user.setUserName("username");
-
+        Domain domain = new Domain("sipfoundry.org");
+        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(domain).anyTimes();
+        EasyMock.replay(domainManager);
+        user.setDomainManager(domainManager);
         Set aliases = new LinkedHashSet(); // use LinkedHashSet for stable ordering
         aliases.add("mambo");
         aliases.add("tango");
@@ -169,34 +178,39 @@ public class UserTest extends TestCase {
         user.setAliases(new LinkedHashSet());
         user.setAliasesString("mambo tango");
         checkAliases(user);
+        user.setImId("imId");
 
-        List aliasMappings = user.getAliasMappings("sipfoundry.org", "imId");
-        assertEquals(5, aliasMappings.size());
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        user.setPermissionManager(pManager);
+
+        user.setSettingTypedValue("im/im-account", true);
+
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org").get(user);
+        assertEquals(6, aliasMappings.size());
 
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
-        assertEquals("mambo@sipfoundry.org", alias.getIdentity());
+        assertEquals("mambo", alias.getIdentity());
 
-        final String CONTACT = "sip:username@sipfoundry.org";
-        assertEquals(CONTACT, alias.getContact());
+        assertNull(alias.getContact());
         alias = (AliasMapping) aliasMappings.get(1);
-        assertEquals("tango@sipfoundry.org", alias.getIdentity());
-        assertEquals(CONTACT, alias.getContact());
+        assertEquals("tango", alias.getIdentity());
+        assertNull(alias.getContact());
 
         AliasMapping imIdAlias = (AliasMapping) aliasMappings.get(2);
-        assertEquals("imId@sipfoundry.org", imIdAlias.getIdentity());
+        assertEquals("imId", imIdAlias.getIdentity());
 
         AliasMapping faxAlias = (AliasMapping) aliasMappings.get(3);
-        assertEquals("321@sipfoundry.org", faxAlias.getIdentity());
+        assertEquals("321", faxAlias.getIdentity());
         assertEquals("sip:~~ff~" + user.getUserName() + "@sipfoundry.org", faxAlias.getContact());
-
-        List otherAliasMappings1 = user.getAliasMappings("sipfoundry.org", "mambo");
-        assertEquals(4, otherAliasMappings1.size());
 
         // Set the additional alias, imId, to user's userName, it should not be
         // added as an alias.
-        String imId = user.getUserName();
-        List otherAliasMappings2 = user.getAliasMappings("sipfoundry.org", imId);
-        assertEquals(4, otherAliasMappings2.size());
+        user.setImId(user.getUserName());
+        aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org").get(user);
+        assertEquals(5, aliasMappings.size());
     }
 
     private void checkAliases(User user) {
@@ -213,14 +227,31 @@ public class UserTest extends TestCase {
             public String getFaxExtension() {
                 return "";
             }
+
             @Override
             public String getFaxDid() {
                 return new String("");
             }
         };
         user.setUserName("username");
-        List aliasMappings = user.getAliasMappings("sipfoundry.org", "");
-        assertEquals(0, aliasMappings.size());
+        Domain domain = new Domain("sipfoundry.org");
+        DomainManager domainManager = EasyMock.createMock(DomainManager.class);
+        domainManager.getDomain();
+        EasyMock.expectLastCall().andReturn(domain).anyTimes();
+        EasyMock.replay(domainManager);
+        user.setDomainManager(domainManager);
+
+        PermissionManager pManager = createMock(PermissionManager.class);
+        pManager.getPermissionModel();
+        expectLastCall().andReturn(TestHelper.loadSettings("commserver/user-settings.xml")).anyTimes();
+        replay(pManager);
+        user.setPermissionManager(pManager);
+
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org").get(user);
+        // actually there is 1 alias that is the ~~vm~
+        assertEquals(1, aliasMappings.size());
+        AliasMapping alias = (AliasMapping) aliasMappings.get(0);
+        assertEquals("~~vm~", alias.getIdentity());
     }
 
     public void testHasPermission() {

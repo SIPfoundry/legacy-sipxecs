@@ -9,127 +9,130 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.ArrayList;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+
 import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-
-import org.sipfoundry.sipxconfig.common.DaoUtils;
-
-import junit.framework.TestCase;
+import java.util.Iterator;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
-import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
-public class CredentialsTest extends TestCase {
-    public void testGenerateEmpty() throws Exception {
-        CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.getDomainName();
-        expectLastCall().andReturn("host.company.com");
-        coreContext.getAuthorizationRealm();
-        expectLastCall().andReturn("company.com");
-        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        expectLastCall().andReturn(Collections.EMPTY_LIST);
+public class CredentialsTest extends MongoTestCase {
+    private Credentials m_credentials;
+
+
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        CoreContext coreContext = getCoreContext();
+        CallGroupContext m_callGroupContext;
+        m_credentials = new Credentials();
         coreContext.loadInternalUsers();
-        expectLastCall().andReturn(Collections.EMPTY_LIST);
+        expectLastCall().andReturn(Collections.EMPTY_LIST).anyTimes();
+        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
+        expectLastCall().andReturn(Collections.EMPTY_LIST).anyTimes();
 
-        User user = new User();
-        user.setSipPassword("test");
-        user.setUserName("user");
+        m_callGroupContext = createMock(CallGroupContext.class);
+        m_callGroupContext.getCallGroups();
+        expectLastCall().andReturn(Collections.EMPTY_LIST).anyTimes();
+
         for (SpecialUserType u : SpecialUserType.values()) {
-            coreContext.getSpecialUser(u);
-            expectLastCall().andReturn(user);
+            coreContext.getSpecialUserAsSpecialUser(u);
+            expectLastCall().andReturn(new SpecialUser(u));
         }
 
-        CallGroupContext callGroupContext = createMock(CallGroupContext.class);
-        callGroupContext.getCallGroups();
-        expectLastCall().andReturn(Collections.EMPTY_LIST);
+        replay(coreContext, m_callGroupContext);
 
-        replay(coreContext, callGroupContext);
+        m_credentials.setCoreContext(coreContext);
+        m_credentials.setCallGroupContext(m_callGroupContext);
+        m_credentials.setDbCollection(getCollection());
+    }
 
-        Credentials credentials = new Credentials();
-        credentials.setCoreContext(coreContext);
-        credentials.setCallGroupContext(callGroupContext);
+    public void testGenerateEmpty() throws Exception {
 
-        List<Map<String, String>> items = credentials.generate();
+        m_credentials.generate();
 
-        assertEquals(SpecialUserType.values().length, items.size());
-        assertEquals("sip:user@host.company.com", items.get(0).get("uri"));
-        assertEquals("sip:user@host.company.com", items.get(1).get("uri"));
-        assertEquals("sip:user@host.company.com", items.get(2).get("uri"));
-        assertEquals("sip:user@host.company.com", items.get(3).get("uri"));
+        assertEquals(SpecialUserType.values().length, getCollection().find().count());
+        DBCursor curr = getCollection().find();
 
-        verify(coreContext, callGroupContext);
+        Iterator<DBObject> iter = curr.iterator();
+        DBObject item = iter.next();
+        assertEquals(Credentials.DIGEST, item.get(Credentials.AUTHTYPE));
+        assertEquals("~~id~park", item.get("id"));
+        assertEquals(DOMAIN, item.get(Credentials.REALM));
+        for (SpecialUserType u : SpecialUserType.values()) {
+            assertObjectWithIdPresent(u.getUserName());
+        }
     }
 
     public void testAddCallgroup() throws Exception {
-        List<Map<String, String>> items = new ArrayList<Map<String, String>>();
-
         CallGroup cg = new CallGroup();
+        cg.setUniqueId(1);
         cg.setName("sales");
         cg.setSipPassword("pass4321");
 
-        Credentials credentials = new Credentials();
-        credentials.addCallGroup(items, cg, "sipx.sipfoundry.org", "sipfoundry.org");
+        m_credentials.generate(cg);
 
         // Md5Encoder.digestPassword("sales", "sipfoundry.org", "pass4321");
-        String digest = "282e44b75e1e04d379d3157c34e31814";
-        Map<String, String> item = items.get(0);
-        assertEquals("sip:sales@sipx.sipfoundry.org", item.get("uri"));
-        assertEquals(digest, item.get("pintoken"));
-        assertEquals("pass4321", item.get("passtoken"));
-        assertEquals("sipfoundry.org", item.get("realm"));
-        assertEquals("DIGEST", item.get("authtype"));
+        String digest = "8e5d70cc7173bca2802dd45113229c1b";
+
+        assertObjectWithIdPresent("CallGroup1");
+        assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.IDENTITY, "sip:sales@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.PASSTOKEN, "pass4321");
+        assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.PINTOKEN, digest);
     }
 
     public void testAddUser() throws Exception {
-        List<Map<String, String>> items = new ArrayList<Map<String, String>>();
+        DomainManager dm = getDomainManager();
+        replay(dm);
         User user = new User();
+        user.setUniqueId(1);
         user.setUserName("superadmin");
         final String PIN = "pin1234";
-        user.setPin(PIN, "sipfoundry.org");
+        user.setPin(PIN, DOMAIN);
         user.setSipPassword("pass4321");
+        user.setDomainManager(dm);
 
-        Credentials credentials = new Credentials();
-        credentials.addUser(items, user, "sipx.sipfoundry.org", "sipfoundry.org");
+        m_credentials.generate(user);
 
-        assertEquals(1, items.size());
-        Map<String, String> item = items.get(0);
-
-        assertEquals("sip:superadmin@sipx.sipfoundry.org", item.get("uri"));
-        assertEquals(Md5Encoder.digestPassword("superadmin", "sipfoundry.org", PIN), item.get("pintoken"));
-        assertEquals("pass4321", item.get("passtoken"));
-        assertEquals("sipfoundry.org", item.get("realm"));
-        assertEquals("DIGEST", item.get("authtype"));
+        assertObjectWithIdPresent("User1");
+        assertObjectWithIdFieldValuePresent("User1", Credentials.IDENTITY, "sip:superadmin@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("User1", Credentials.PASSTOKEN, "pass4321");
+        assertObjectWithIdFieldValuePresent("User1", Credentials.PINTOKEN,
+                Md5Encoder.digestPassword("superadmin", DOMAIN, PIN));
     }
 
     public void testAddUserEmptyPasswords() throws Exception {
-        List<Map<String, String>> items = new ArrayList<Map<String, String>>();
-
+        DomainManager dm = createMock(DomainManager.class);
+        dm.getDomainName();
+        expectLastCall().andReturn(DOMAIN).anyTimes();
+        replay(dm);
         User user = new User();
+        user.setUniqueId(1);
         user.setUserName("superadmin");
-        user.setPin("", "sipfoundry.org");
+        user.setPin("", DOMAIN);
+        user.setDomainManager(dm);
 
-        Credentials credentials = new Credentials();
-        credentials.addUser(items, user, "sipx.sipfoundry.org", "sipfoundry.org");
+        m_credentials.generate(user);
 
-        assertEquals(1, items.size());
-        Map<String, String> item = items.get(0);
-
-        assertEquals("sip:superadmin@sipx.sipfoundry.org", item.get("uri"));
-        String emptyHash = Md5Encoder.digestPassword("superadmin", "sipfoundry.org", "");
-        assertEquals(emptyHash, item.get("pintoken"));
-        assertEquals("", item.get("passtoken"));
-        assertEquals("sipfoundry.org", item.get("realm"));
-        assertEquals("DIGEST", item.get("authtype"));
+        assertObjectWithIdPresent("User1");
+        assertObjectWithIdFieldValuePresent("User1", Credentials.IDENTITY, "sip:superadmin@" + DOMAIN);
+        String emptyHash = Md5Encoder.digestPassword("superadmin", DOMAIN, "");
+        assertObjectWithIdFieldValuePresent("User1", Credentials.PASSTOKEN, "");
+        assertObjectWithIdFieldValuePresent("User1", Credentials.PINTOKEN, emptyHash);
+        assertObjectWithIdFieldValuePresent("User1", Credentials.REALM, DOMAIN);
     }
+
 }

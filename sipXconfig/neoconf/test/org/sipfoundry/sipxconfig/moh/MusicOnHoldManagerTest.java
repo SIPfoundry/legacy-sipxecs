@@ -9,6 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.moh;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,23 +22,20 @@ import java.util.Collection;
 import java.util.List;
 
 import junit.framework.TestCase;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration;
 import org.sipfoundry.sipxconfig.test.TestUtil;
-
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.classextension.EasyMock.createMock;
 
 public class MusicOnHoldManagerTest extends TestCase {
 
@@ -99,14 +101,14 @@ public class MusicOnHoldManagerTest extends TestCase {
         m_musicOnHoldManager.replicateMohConfiguration();
     }
 
-    public void testReplicateAliasData() {
+/*    public void testReplicateAliasData() {
         SipxReplicationContext replicationContext = createMock(SipxReplicationContext.class);
         replicationContext.generate(DataSet.ALIAS);
         expectLastCall().atLeastOnce();
         replay(replicationContext);
 
         m_musicOnHoldManager.setReplicationContext(replicationContext);
-    }
+    }*/
 
     public void testGetBeanIdsOfObjectsWithAlias() {
 
@@ -155,15 +157,21 @@ public class MusicOnHoldManagerTest extends TestCase {
         service.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.FILES_SRC.toString());
-
+        service.setMusicOnHoldManager(m_musicOnHoldManager);
+        
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         expectLastCall().andReturn(service).atLeastOnce();
-        replay(sipxServiceManager);
+
+        CoreContext coreContext = createMock(CoreContext.class);
+        coreContext.getDomainName();
+        expectLastCall().andReturn("blabla.com").anyTimes();
+        replay(sipxServiceManager, coreContext);
 
         m_musicOnHoldManager.setSipxServiceManager(sipxServiceManager);
+        m_musicOnHoldManager.setCoreContext(coreContext);
 
-        Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -172,7 +180,7 @@ public class MusicOnHoldManagerTest extends TestCase {
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.SOUNDCARD_SRC.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -181,7 +189,7 @@ public class MusicOnHoldManagerTest extends TestCase {
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.NONE.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -230,15 +238,19 @@ public class MusicOnHoldManagerTest extends TestCase {
         service.setSettings(TestHelper.loadSettings("freeswitch/freeswitch.xml"));
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.FILES_SRC.toString());
-
+        service.setMusicOnHoldManager(m_musicOnHoldManager);
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         expectLastCall().andReturn(service).atLeastOnce();
-        replay(sipxServiceManager);
+        CoreContext coreContext = createMock(CoreContext.class);
+        coreContext.getDomainName();
+        expectLastCall().andReturn("blabla.com").anyTimes();
+        replay(sipxServiceManager, coreContext);
 
         m_musicOnHoldManager.setSipxServiceManager(sipxServiceManager);
+        m_musicOnHoldManager.setCoreContext(coreContext);
 
-        Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -247,7 +259,7 @@ public class MusicOnHoldManagerTest extends TestCase {
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.SOUNDCARD_SRC.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -256,7 +268,7 @@ public class MusicOnHoldManagerTest extends TestCase {
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.NONE.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings();
+        aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {

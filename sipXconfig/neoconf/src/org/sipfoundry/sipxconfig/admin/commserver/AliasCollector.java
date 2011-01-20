@@ -13,10 +13,13 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -36,15 +39,14 @@ public class AliasCollector implements AliasProvider, BeanFactoryAware {
 
     private boolean m_includeProxies;
 
-    public Collection getAliasMappings() {
-        Collection aliasProviders = getAliasProviders();
-        Collection aliasMappings = new ArrayList();
-        for (Iterator i = aliasProviders.iterator(); i.hasNext();) {
-            AliasProvider provider = (AliasProvider) i.next();
-            aliasMappings.addAll(provider.getAliasMappings());
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        Collection<AliasProvider> aliasProviders = getAliasProviders();
+        for (AliasProvider provider : aliasProviders) {
+            aliases.putAll(provider.getAliasMappings());
         }
 
-        return aliasMappings;
+        return aliases;
     }
 
     /**

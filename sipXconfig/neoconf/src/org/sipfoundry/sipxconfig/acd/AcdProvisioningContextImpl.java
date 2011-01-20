@@ -14,7 +14,6 @@ import java.io.Serializable;
 import static java.util.Collections.singleton;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxAcdService;
@@ -23,7 +22,6 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcProxyFactoryBean;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
 
 public class AcdProvisioningContextImpl extends HibernateDaoSupport implements
         AcdProvisioningContext {
@@ -51,7 +49,7 @@ public class AcdProvisioningContextImpl extends HibernateDaoSupport implements
             XmlRpcSettings xmlRpc = new XmlRpcSettings(provisioning);
             server.deploy(xmlRpc);
             success = true;
-            m_sipxReplicationContext.generate(DataSet.ALIAS);
+            m_sipxReplicationContext.generate(server);
         } finally {
             //XML-RPC deploy operation doesn't automatically restart the acd service
             //Make sure that the acd service is marked for restart

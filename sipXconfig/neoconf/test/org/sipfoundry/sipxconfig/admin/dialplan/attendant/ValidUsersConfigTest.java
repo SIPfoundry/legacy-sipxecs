@@ -9,14 +9,17 @@ package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.Domain;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -87,11 +90,13 @@ public class ValidUsersConfigTest extends TestCase {
         expect(domainManager.getDomain()).andReturn(domain).anyTimes();
         expect(domainManager.getAuthorizationRealm()).andReturn("example").anyTimes();
 
-        AliasMapping am1 = new AliasMapping("500@example.com", "sip:500@example.com", "test");
-        AliasMapping am2 = new AliasMapping("501@example.com", "sip:501@example.com", "test");
+        AliasMapping am1 = new AliasMapping("500@example.com", "sip:500@example.com");
+        AliasMapping am2 = new AliasMapping("501@example.com", "sip:501@example.com");
 
+        Replicable entity = createMock(Replicable.class); 
+        
         AliasProvider aliasProvider = createMock(AliasProvider.class);
-        expect(aliasProvider.getAliasMappings()).andReturn(Arrays.asList(am1, am2)).anyTimes();
+        expect(aliasProvider.getAliasMappings()).andReturn(Collections.singletonMap(entity, (Collection<AliasMapping>)Arrays.asList(am1, am2))).anyTimes();
 
         replay(coreContext, domainManager, aliasProvider);
 

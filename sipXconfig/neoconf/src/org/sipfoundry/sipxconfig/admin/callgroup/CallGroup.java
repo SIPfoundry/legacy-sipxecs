@@ -11,22 +11,26 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.ForkQueueValue;
 import org.sipfoundry.sipxconfig.admin.dialplan.MappingRule;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
-import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 
-public class CallGroup extends AbstractCallSequence implements NamedObject {
+public class CallGroup extends AbstractCallSequence implements Replicable {
     private static final int SIP_PASSWORD_LEN = 10;
-    private static final String ALIAS_RELATION = "callgroup";
 
     private boolean m_enabled;
     private String m_name;
@@ -149,20 +153,20 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
 
     /**
      * Create list of aliases that descibe forwarding for this group. All aliases have the form
-     * group_name@domain => user_name@domain with the specific q value. In addtion alias extension =>
-     * group name is added to allow calling to extension
+     * group_name@domain => user_name@domain with the specific q value. In addtion alias extension
+     * => group name is added to allow calling to extension
      *
      * @return list of AliasMapping objects (identity => contact)
      */
-    public List<AliasMapping> generateAliases(String domainName) {
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
         if (!isEnabled()) {
-            return Collections.emptyList();
+            return Collections.EMPTY_MAP;
         }
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
         String myIdentity = AliasMapping.createUri(m_name, domainName);
 
         ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size() + 1);
-        List<AliasMapping> aliases = generateAliases(myIdentity, domainName, true, m_userForward,
-                forkQueueValue);
+        List<AliasMapping> mappings = generateAliases(myIdentity, domainName, true, m_userForward, forkQueueValue);
 
         if (m_voicemailFallback) {
             AbstractRing lastRing = getLastRing();
@@ -172,32 +176,27 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
                     // decrement q so that VM contact has lower q than the last contact
                     forkQueueValue.getSerial();
                 }
-                String vmailContact = lastRing.calculateContact(domainName, forkQueueValue,
-                        false, m_userForward, MappingRule.Voicemail.VM_PREFIX);
-                aliases.add(new AliasMapping(myIdentity, vmailContact, ALIAS_RELATION));
+                String vmailContact = lastRing.calculateContact(domainName, forkQueueValue, false, m_userForward,
+                        MappingRule.Voicemail.VM_PREFIX);
+                mappings.add(new AliasMapping(myIdentity, vmailContact));
             }
         } else if (StringUtils.isNotBlank(m_fallbackDestination)) {
             String falback = SipUri.fix(m_fallbackDestination, domainName);
-            String fallbackContact = String
-                    .format("<%s>;%s", falback, forkQueueValue.getSerial());
-            aliases.add(new AliasMapping(myIdentity, fallbackContact, ALIAS_RELATION));
+            String fallbackContact = String.format("<%s>;%s", falback, forkQueueValue.getSerial());
+            mappings.add(new AliasMapping(myIdentity, fallbackContact));
         }
 
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
-            AliasMapping extensionAlias =
-                new AliasMapping(AliasMapping.createUri(m_extension, domainName),
-                                 myIdentity,
-                                 ALIAS_RELATION);
-            aliases.add(extensionAlias);
+            AliasMapping extensionAlias = new AliasMapping(AliasMapping.createUri(m_extension, domainName),
+                    myIdentity);
+            mappings.add(extensionAlias);
         }
         if (StringUtils.isNotBlank(m_did) && !m_did.equals(m_name)) {
-            AliasMapping didAlias =
-                new AliasMapping(AliasMapping.createUri(m_did, domainName),
-                                 myIdentity,
-                                 ALIAS_RELATION);
-            aliases.add(didAlias);
+            AliasMapping didAlias = new AliasMapping(AliasMapping.createUri(m_did, domainName), myIdentity);
+            mappings.add(didAlias);
         }
 
+        aliases.put(this, mappings);
         return aliases;
     }
 
@@ -227,4 +226,18 @@ public class CallGroup extends AbstractCallSequence implements NamedObject {
     public void setDid(String did) {
         m_did = did;
     }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.ALIAS);
+        ds.add(DataSet.CREDENTIAL);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        return SipUri.format(null, getName(), domain);
+    }
+
 }

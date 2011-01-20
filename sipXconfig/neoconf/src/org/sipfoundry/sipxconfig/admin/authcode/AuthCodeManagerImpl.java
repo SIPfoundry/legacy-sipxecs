@@ -22,10 +22,11 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -279,35 +280,14 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
         return SipUri.format(ACC_CONTACT_NAME, getSipxFreeswitchAddressAndPort(), params);
     }
 
-    public Collection getAliasMappings() {
-        //first figure out how many aliases
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
         SipxAccCodeService service = (SipxAccCodeService)
             m_sipxServiceManager.getServiceByBeanId(SipxAccCodeService.BEAN_ID);
-        Set<String> aliasesSet = service.getAliasesAsSet();
-
-        // Add alias entry for each extension alias
-        // all entries points to the same auth code url
-        // sip:AUTH@47.135.162.72:15060;command=auth;
-        // see mappingrules.xml
-        List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(aliasesSet.size());
-        if (aliasesSet.size() == 0) {
-            return aliasMappings;
-        }
-
-        String contact = null;
-        String identity = null;
-        for (String alias : aliasesSet) {
-            //simple alias@bcm2072.com type of identity
-            identity = AliasMapping.createUri(alias, m_coreContext.getDomainName());
-            contact = getContactUri();
-            // direct mapping is for testing only
-            // contact = getDirectContactUri();
-            aliasMappings.add(new AliasMapping(identity, contact, "alias"));
-        }
-
-        LOG.info("RETURNING AuthCodeManagerImpl::getAliasMapping: " + aliasMappings);
-        return aliasMappings;
+        Map<Replicable, Collection<AliasMapping>> aliasMappings = service.getAliasMappings();
+        LOG.info("RETURNING AuthCodeManagerImpl::getAliasMapping: " + aliasMappings.get(service));
+        return service.getAliasMappings();
     }
+
     private String getSipxFreeswitchAddressAndPort() {
         SipxFreeswitchService service = getSipxFreeswitchService();
         String host;

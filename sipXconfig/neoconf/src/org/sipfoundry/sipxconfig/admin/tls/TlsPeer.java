@@ -9,9 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.admin.tls;
 
-import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-public class TlsPeer extends BeanWithUserPermissions {
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
+import org.sipfoundry.sipxconfig.common.Replicable;
+
+public class TlsPeer extends BeanWithUserPermissions implements Replicable {
     private String m_name;
 
     public String getName() {
@@ -20,6 +28,24 @@ public class TlsPeer extends BeanWithUserPermissions {
 
     public void setName(String name) {
         m_name = name;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.CREDENTIAL);
+        ds.add(DataSet.PERMISSION);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        return "~~tp~" + getName() + "@" + domainName;
+    }
+
+    @Override
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
+        return null;
     }
 
 }

@@ -386,6 +386,14 @@
     </antcall>
   </target>
 
+  <target name="single-test-integration"
+          depends="compile.test, reset-test-db"
+          description="run junit tests that interact with database that rollback transations and use spring injection">
+    <antcall target="tests-that-require-db">
+      <param name="test-pattern" value="test-integration.src"/>
+    </antcall>
+  </target>
+
   <target name="test-performance"
           depends="compile.test, reset-db"
           description="run junit tests that run performance tests">
@@ -396,6 +404,7 @@
 
   <target name="tests-that-require-db">
     <junit fork="yes" forkmode="perBatch" haltonfailure="no" printsummary="on" failureproperty="junit.failed">
+      <!--jvmarg line="-Xdebug -Xnoagent -Djava.compiler=NONE -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=4243"/-->
       <classpath refid="test.path" />
       <formatter type="plain" />
       <formatter type="xml" />
@@ -440,6 +449,17 @@
       <fileset dir="test" includes="**/*.db.xml" excludes="**/acd/** **/alarm/**">
       </fileset>
     </xmlvalidate>
+  </target>
+
+  <target name="reset-test-db"
+	  description="Resets the test database, but not the acd and cdr dbs. Only when running a cdr/acd related single integration test.">
+    <subant target="unittest-reset">
+      <!-- THIS PROPERTY VERY IMPORTANT -->
+      <property name="sipxconfig.db.name" value="SIPXCONFIG_TEST" />
+      <property name="sipxconfig.db.user" value="${sipxconfig.db.user}"/>
+      <property name="jdbc-driver.jar" value="${jdbc-driver.jar}" />
+      <filelist dir="etc/database" files="database.xml" />
+    </subant>
   </target>
 
   <target name="reset-db"

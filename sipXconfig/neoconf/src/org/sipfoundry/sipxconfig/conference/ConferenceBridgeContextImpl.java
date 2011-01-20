@@ -12,9 +12,11 @@ package org.sipfoundry.sipxconfig.conference;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -28,9 +30,11 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -95,7 +99,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         } else {
             getHibernateTemplate().saveOrUpdate(conference);
         }
-        m_daoEventPublisher.publishSave(conference);
+        m_replicationContext.generate(conference);
         m_provisioning.deploy(conference.getBridge());
     }
 
@@ -218,14 +222,13 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return bids;
     }
 
-    public Collection getAliasMappings() {
-        List conferences = getHibernateTemplate().loadAll(Conference.class);
-        final ArrayList list = new ArrayList();
-        for (Iterator i = conferences.iterator(); i.hasNext();) {
-            Conference conference = (Conference) i.next();
-            list.addAll(conference.generateAliases(m_coreContext.getDomainName()));
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        List<Conference> conferences = getHibernateTemplate().loadAll(Conference.class);
+        for (Conference conference : conferences) {
+            aliases.putAll(conference.getAliasMappings(m_coreContext.getDomainName()));
         }
-        return list;
+        return aliases;
     }
 
     public List<Conference> findConferencesByOwner(User owner) {

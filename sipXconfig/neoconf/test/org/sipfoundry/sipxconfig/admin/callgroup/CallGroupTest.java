@@ -9,15 +9,28 @@
  */
 package org.sipfoundry.sipxconfig.admin.callgroup;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import junit.framework.TestCase;
 
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class CallGroupTest extends TestCase {
+
+    private CallGroup m_callGroup;
+    private static final int m_numRings = 5;
+    private static final String ATMYDOMAIN = "@mydomain.org";
+    private static final String MYDOMAIN = "mydomain.org";
+
+    @Override
+    protected void setUp() throws Exception {
+        m_callGroup = createCallGroupWithUsers("401", "sales", m_numRings, false);
+    }
 
     public void testInsertRingUser() {
         User u = new User();
@@ -32,64 +45,62 @@ public class CallGroupTest extends TestCase {
     }
 
     public void testGenerateAliases() {
-        int numRings = 5;
-        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
+        Map<Replicable, Collection<AliasMapping>> aliases = m_callGroup.getAliasMappings(MYDOMAIN);
+        assertEquals(1, aliases.size());
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(m_callGroup);
 
-        List<AliasMapping> aliases = group.generateAliases("kuku");
-        group.setEnabled(true);
-        aliases = group.generateAliases("kuku");
-
-        assertEquals(numRings + 1, aliases.size());
-        for (int i = 0; i < numRings; i++) {
-            AliasMapping am = aliases.get(i);
-            assertEquals(am.getIdentity(), group.getName() + "@kuku");
-            assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
+        assertEquals(m_numRings + 1, mappings.size());
+        for (int i = 0; i < m_numRings; i++) {
+            AliasMapping am = mappings.get(i);
+            assertEquals(m_callGroup.getName() + "@mydomain.org", am.getIdentity().toString());
+            assertTrue(am.getContact().toString().startsWith("<sip:testUser" + i + ATMYDOMAIN));
             // all of the contacts should contain sipx-noroute=Voicemail
-            assertTrue(am.getContact().contains("sipx-noroute=Voicemail"));
+            assertTrue(am.getContact().toString().contains("sipx-noroute=Voicemail"));
         }
 
         // the last alias is an extension => identity
-        AliasMapping am = aliases.get(aliases.size() - 1);
-        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
-        assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
+        AliasMapping am = mappings.get(mappings.size() - 1);
+        assertEquals(am.getIdentity().toString(), m_callGroup.getExtension() + ATMYDOMAIN);
+        assertTrue(am.getContact().toString().startsWith(m_callGroup.getName() + ATMYDOMAIN));
     }
 
     public void testGenerateAliasesForDisabledGroup() {
-        int numRings = 5;
-        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
+        m_callGroup.setEnabled(false);
 
-        List<AliasMapping> aliases = group.generateAliases("kuku");
+        Map<Replicable, Collection<AliasMapping>> aliases = m_callGroup.getAliasMappings(MYDOMAIN);
+
         // disabled group should not generate aliases
         assertTrue(aliases.isEmpty());
 
         // not even when fallback is enabled
-        group.setVoicemailFallback(true);
+        m_callGroup.setVoicemailFallback(true);
+        aliases = m_callGroup.getAliasMappings(MYDOMAIN);
         assertTrue(aliases.isEmpty());
 
-        group.setFallbackDestination("fallback@kuku.com");
+        m_callGroup.setFallbackDestination("fallback@kuku.com");
+        aliases = m_callGroup.getAliasMappings(MYDOMAIN);
         assertTrue(aliases.isEmpty());
 
-        group.setUserForward(true);
+        m_callGroup.setUserForward(true);
+        aliases = m_callGroup.getAliasMappings(MYDOMAIN);
         assertTrue(aliases.isEmpty());
     }
 
     public void testGenerateAliasesWithVoicemailFallback() {
-        int numRings = 5;
-        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
-        group.setVoicemailFallback(true);
-        group.setEnabled(true);
-
+        m_callGroup.setVoicemailFallback(true);
+        Map<Replicable, Collection<AliasMapping>> aliases = m_callGroup.getAliasMappings(MYDOMAIN);
+        assertEquals(1, aliases.size());
         // assumption: the aliases list is ordered from highest q value to lowest,
         // with last element being the identity alias.
-        List<AliasMapping> aliases = group.generateAliases("kuku");
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(m_callGroup);
 
-        assertEquals(numRings + 2, aliases.size());
+        assertEquals(m_numRings + 2, mappings.size());
         double lastQ = 1;
-        for (int i = 0; i < numRings; i++) {
-            AliasMapping am = aliases.get(i);
-            assertEquals(am.getIdentity(), group.getName() + "@kuku");
+        for (int i = 0; i < m_numRings; i++) {
+            AliasMapping am = mappings.get(i);
+            assertEquals(am.getIdentity(), m_callGroup.getName() + ATMYDOMAIN);
             String contact = am.getContact();
-            assertTrue(contact.startsWith("<sip:testUser" + i + "@kuku"));
+            assertTrue(contact.startsWith("<sip:testUser" + i + ATMYDOMAIN));
             // all of the contacts should contain sipx-noroute=Voicemail
             assertTrue(contact.contains("sipx-noroute=Voicemail"));
             double q = parseQ(contact);
@@ -99,40 +110,38 @@ public class CallGroupTest extends TestCase {
         }
 
         // the second to last alias (lowest q value) should sent last user to voicemail
-        AliasMapping vmailMapping = aliases.get(aliases.size() - 2);
-        assertEquals(group.getName() + "@kuku", vmailMapping.getIdentity());
+        AliasMapping vmailMapping = mappings.get(mappings.size() - 2);
+        assertEquals(m_callGroup.getName() + ATMYDOMAIN, vmailMapping.getIdentity());
         String contact = vmailMapping.getContact();
-        assertTrue(contact.startsWith("<sip:~~vm~testUser4@kuku"));
+        assertTrue(contact.startsWith("<sip:~~vm~testUser4" + ATMYDOMAIN));
         double q = parseQ(contact);
         assertTrue(q < lastQ);
 
         // the last alias is an extension => identity
-        AliasMapping am = aliases.get(aliases.size() - 1);
-        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
-        assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
+        AliasMapping am = mappings.get(mappings.size() - 1);
+        assertEquals(m_callGroup.getExtension() + ATMYDOMAIN, am.getIdentity());
+        assertTrue(am.getContact().startsWith(m_callGroup.getName() + ATMYDOMAIN));
     }
 
     public void testGenerateAliasesWithVoicemailFallbackParallelGroup() {
-        int numRings = 3;
-        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
-        group.setVoicemailFallback(true);
-        group.setEnabled(true);
-        List<AbstractRing> rings = group.getRings();
+        m_callGroup.setVoicemailFallback(true);
+        List<AbstractRing> rings = m_callGroup.getRings();
         for (AbstractRing ring : rings) {
             ring.setType(AbstractRing.Type.IMMEDIATE);
         }
-
+        Map<Replicable, Collection<AliasMapping>> aliases = m_callGroup.getAliasMappings(MYDOMAIN);
+        assertEquals(1, aliases.size());
         // assumption: the aliases list is ordered from highest q value to lowest,
         // with last element being the identity alias.
-        List<AliasMapping> aliases = group.generateAliases("kuku");
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(m_callGroup);
 
-        assertEquals(numRings + 2, aliases.size());
+        assertEquals(m_numRings + 2, mappings.size());
         double lastQ = 0;
-        for (int i = 0; i < numRings; i++) {
-            AliasMapping am = aliases.get(i);
-            assertEquals(am.getIdentity(), group.getName() + "@kuku");
+        for (int i = 0; i < m_numRings; i++) {
+            AliasMapping am = mappings.get(i);
+            assertEquals(am.getIdentity(), m_callGroup.getName() + ATMYDOMAIN);
             String contact = am.getContact();
-            assertTrue(contact.startsWith("<sip:testUser" + i + "@kuku"));
+            assertTrue(contact.startsWith("<sip:testUser" + i + ATMYDOMAIN));
             // all of the contacts should contain sipx-noroute=Voicemail
             assertTrue(contact.contains("sipx-noroute=Voicemail"));
             double q = parseQ(contact);
@@ -143,34 +152,33 @@ public class CallGroupTest extends TestCase {
         }
 
         // the second to last alias (lowest q value) should sent last user to voicemail
-        AliasMapping vmailMapping = aliases.get(aliases.size() - 2);
-        assertEquals(group.getName() + "@kuku", vmailMapping.getIdentity());
+        AliasMapping vmailMapping = mappings.get(mappings.size() - 2);
+        assertEquals(m_callGroup.getName() + ATMYDOMAIN, vmailMapping.getIdentity());
         String contact = vmailMapping.getContact();
-        assertTrue(contact.startsWith("<sip:~~vm~testUser2@kuku"));
+        assertTrue(contact.startsWith("<sip:~~vm~testUser4" + ATMYDOMAIN));
         double q = parseQ(contact);
         assertTrue(q < lastQ);
 
         // the last alias is an extension => identity
-        AliasMapping am = aliases.get(aliases.size() - 1);
-        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
-        assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
+        AliasMapping am = mappings.get(mappings.size() - 1);
+        assertEquals(am.getIdentity(), m_callGroup.getExtension() + ATMYDOMAIN);
+        assertTrue(am.getContact().startsWith(m_callGroup.getName() + ATMYDOMAIN));
     }
 
     public void testGenerateAliasesWithUserForwardDisabled() {
-        int numRings = 5;
-        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
-        group.setUserForward(false);
-        group.setEnabled(true);
+        m_callGroup.setUserForward(false);
 
+        Map<Replicable, Collection<AliasMapping>> aliases = m_callGroup.getAliasMappings(MYDOMAIN);
+        assertEquals(1, aliases.size());
         // assumption: the aliases list is ordered from highest q value to lowest,
         // with last element being the identity alias.
-        List<AliasMapping> aliases = group.generateAliases("kuku");
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(m_callGroup);
 
-        assertEquals(numRings + 1, aliases.size());
-        for (int i = 0; i < numRings; i++) {
-            AliasMapping am = aliases.get(i);
-            assertEquals(am.getIdentity(), group.getName() + "@kuku");
-            assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
+        assertEquals(m_numRings + 1, mappings.size());
+        for (int i = 0; i < m_numRings; i++) {
+            AliasMapping am = mappings.get(i);
+            assertEquals(am.getIdentity(), m_callGroup.getName() + ATMYDOMAIN);
+            assertTrue(am.getContact().startsWith("<sip:testUser" + i + ATMYDOMAIN));
             // all of the contacts should contain sipx-noroute=Voicemail
             assertTrue(am.getContact().contains("sipx-userforward=false"));
         }
@@ -178,39 +186,39 @@ public class CallGroupTest extends TestCase {
     }
 
     public void testGenerateAliasesForEmptyGroupWithVoicemailFallback() {
-        CallGroup group = createCallGroupWithUsers("401", "sales", 0);
-        group.setVoicemailFallback(true);
+        CallGroup group = createCallGroupWithUsers("401", "sales", 0, true);
         group.setEnabled(true);
 
+        Map<Replicable, Collection<AliasMapping>> aliases = group.getAliasMappings(MYDOMAIN);
+        assertEquals(1, aliases.size());
         // assumption: the aliases list is ordered from highest q value to lowest,
         // with last element being the identity alias.
-        List<AliasMapping> aliases = group.generateAliases("kuku");
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(m_callGroup);
 
-        assertEquals(1, aliases.size());
+        assertEquals(1, mappings.size());
         // the last alias is an extension => identity
-        AliasMapping am = aliases.get(aliases.size() - 1);
-        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
-        assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
+        AliasMapping am = mappings.get(mappings.size() - 1);
+        assertEquals(am.getIdentity(), group.getExtension() + ATMYDOMAIN);
+        assertTrue(am.getContact().startsWith(group.getName() + ATMYDOMAIN));
     }
 
     public void testGenerateAliasesWithFallbackDestinationAsSipUri() {
-        int numRings = 5;
-        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
-        String fallbackDestination = "fallback@kuku.com";
-        group.setFallbackDestination(fallbackDestination);
-        group.setEnabled(true);
+        String fallbackDestination = "fallback" + ATMYDOMAIN;
+        m_callGroup.setFallbackDestination(fallbackDestination);
 
+        Map<Replicable, Collection<AliasMapping>> aliases = m_callGroup.getAliasMappings(MYDOMAIN);
+        assertEquals(1, aliases.size());
         // assumption: the aliases list is ordered from highest q value to lowest,
         // with last element being the identity alias.
-        List<AliasMapping> aliases = group.generateAliases("kuku");
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(m_callGroup);
 
-        assertEquals(numRings + 2, aliases.size());
+        assertEquals(m_numRings + 2, mappings.size());
         double lastQ = 1;
-        for (int i = 0; i < numRings; i++) {
-            AliasMapping am = aliases.get(i);
-            assertEquals(am.getIdentity(), group.getName() + "@kuku");
+        for (int i = 0; i < m_numRings; i++) {
+            AliasMapping am = mappings.get(i);
+            assertEquals(am.getIdentity(), m_callGroup.getName() + ATMYDOMAIN);
             String contact = am.getContact();
-            assertTrue(contact.startsWith("<sip:testUser" + i + "@kuku"));
+            assertTrue(contact.startsWith("<sip:testUser" + i + ATMYDOMAIN));
             // all of the contacts should contain sipx-noroute=Voicemail
             assertTrue(contact.contains("sipx-noroute=Voicemail"));
             double q = parseQ(contact);
@@ -220,72 +228,55 @@ public class CallGroupTest extends TestCase {
         }
 
         // the second to last alias (lowest q value) should be the default sip uri
-        AliasMapping defaultSipUriMapping = aliases.get(aliases.size() - 2);
-        assertEquals(group.getName() + "@kuku", defaultSipUriMapping.getIdentity());
+        AliasMapping defaultSipUriMapping = mappings.get(mappings.size() - 2);
+        assertEquals(m_callGroup.getName() + ATMYDOMAIN, defaultSipUriMapping.getIdentity());
         String contact = defaultSipUriMapping.getContact();
-        assertTrue(contact.contains("fallback@kuku.com"));
+        assertTrue(contact.contains("fallback" + ATMYDOMAIN));
         assertTrue(parseQ(contact) < lastQ);
 
         // the last alias is an extension => identity
-        AliasMapping am = aliases.get(aliases.size() - 1);
-        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
-        assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
+        AliasMapping am = mappings.get(mappings.size() - 1);
+        assertEquals(am.getIdentity(), m_callGroup.getExtension() + ATMYDOMAIN);
+        assertTrue(am.getContact().startsWith(m_callGroup.getName() + ATMYDOMAIN));
     }
 
     public void testGenerateAliasesWithFallbackDestinationAsExtension() {
-        int numRings = 5;
-        CallGroup group = createCallGroupWithUsers("401", "sales", numRings);
         String fallbackDestination = "1234";
-        group.setFallbackDestination(fallbackDestination);
-        group.setEnabled(true);
+        m_callGroup.setFallbackDestination(fallbackDestination);
 
+        Map<Replicable, Collection<AliasMapping>> aliases = m_callGroup.getAliasMappings(MYDOMAIN);
+        assertEquals(1, aliases.size());
         // assumption: the aliases list is ordered from highest q value to lowest,
         // with last element being the identity alias.
-        List<AliasMapping> aliases = group.generateAliases("kuku");
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(m_callGroup);
 
-        assertEquals(numRings + 2, aliases.size());
-        for (int i = 0; i < numRings; i++) {
-            AliasMapping am = aliases.get(i);
-            assertEquals(am.getIdentity(), group.getName() + "@kuku");
-            assertTrue(am.getContact().startsWith("<sip:testUser" + i + "@kuku"));
+        assertEquals(m_numRings + 2, mappings.size());
+        for (int i = 0; i < m_numRings; i++) {
+            AliasMapping am = mappings.get(i);
+            assertEquals(am.getIdentity(), m_callGroup.getName() + ATMYDOMAIN);
+            assertTrue(am.getContact().startsWith("<sip:testUser" + i + ATMYDOMAIN));
             // all of the contacts should contain sipx-noroute=Voicemail
             // (this is different from case without default sip uri)
             assertTrue(am.getContact().contains("sipx-noroute=Voicemail"));
         }
 
         // the second to last alias (lowest q value) should be the default sip uri
-        AliasMapping defaultSipUriMapping = aliases.get(aliases.size() - 2);
-        assertEquals(group.getName() + "@kuku", defaultSipUriMapping.getIdentity());
-        assertTrue(defaultSipUriMapping.getContact().contains("1234@kuku"));
+        AliasMapping defaultSipUriMapping = mappings.get(mappings.size() - 2);
+        assertEquals(m_callGroup.getName() + ATMYDOMAIN, defaultSipUriMapping.getIdentity());
+        assertTrue(defaultSipUriMapping.getContact().contains("1234" + ATMYDOMAIN));
 
         // the last alias is an extension => identity
-        AliasMapping am = aliases.get(aliases.size() - 1);
-        assertEquals(am.getIdentity(), group.getExtension() + "@kuku");
-        assertTrue(am.getContact().startsWith(group.getName() + "@kuku"));
-    }
-
-    private CallGroup createCallGroupWithUsers(String extension, String name, int numUsers) {
-        CallGroup group = new CallGroup();
-        group.setName(name);
-        group.setExtension(extension);
-        group.setVoicemailFallback(false);
-
-        for (int i = 0; i < numUsers; i++) {
-            User u = new User();
-            u.setUserName("testUser" + i);
-            group.insertRingForUser(u);
-        }
-
-        return group;
+        AliasMapping am = mappings.get(mappings.size() - 1);
+        assertEquals(am.getIdentity(), m_callGroup.getExtension() + ATMYDOMAIN);
+        assertTrue(am.getContact().startsWith(m_callGroup.getName() + ATMYDOMAIN));
     }
 
     public void testGenerateAliasesNameAndExtSame() {
-        CallGroup group = new CallGroup();
-        group.setName("402");
-        group.setExtension("402");
-        group.setEnabled(true);
-        List aliases = group.generateAliases("kiwi");
-        assertEquals(0, aliases.size());
+        CallGroup group = createCallGroupWithUsers("402", "402", 0, true);
+        Map<Replicable, Collection<AliasMapping>> aliases = group.getAliasMappings(MYDOMAIN);
+        assertEquals(1, aliases.size());
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(group);
+        assertEquals(0, mappings.size());
     }
 
     public void testClone() {
@@ -321,4 +312,22 @@ public class CallGroupTest extends TestCase {
         }
         return 0;
     }
+
+    private CallGroup createCallGroupWithUsers(String extension, String name, int numUsers, boolean vmFallback) {
+        CallGroup group = new CallGroup();
+
+        group.setEnabled(true);
+        group.setName(name);
+        group.setExtension(extension);
+        group.setVoicemailFallback(vmFallback);
+
+        for (int i = 0; i < numUsers; i++) {
+            User u = new User();
+            u.setUserName("testUser" + i);
+            group.insertRingForUser(u);
+        }
+
+        return group;
+    }
+
 }

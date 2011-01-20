@@ -9,10 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Collections;
 
 import junit.framework.TestCase;
 
@@ -21,23 +24,19 @@ import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-
-import static org.easymock.EasyMock.aryEq;
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import org.springframework.beans.factory.BeanFactory;
 
 public class ReplicationManagerImplTest extends TestCase {
 
     private static final Location[] LOCATIONS = new Location[] {
         new Location(), new Location()
     };
-
+    public final static String DOMAIN = "mydomain.org";
     private LocationsManager m_locationsManager;
     private ReplicationManagerImpl m_out;
 
@@ -78,42 +77,49 @@ public class ReplicationManagerImplTest extends TestCase {
     }
 
     public void testReplicateData() {
-        final Map<String, String> data[] = new Map[] {
-            new HashMap<String, String>() {
-            }
-        };
+        DomainManager dm = createMock(DomainManager.class);
+        dm.getDomainName();
+        expectLastCall().andReturn(DOMAIN).anyTimes();
 
-        final ImdbApi imdbApi = createMock(ImdbApi.class);
+        DataSetGenerator dsg = new Aliases();
 
-        imdbApi.replace(eq("sipx.example.org"), eq(DataSet.ALIAS.getName()), aryEq(data));
-        expectLastCall().andReturn(true).times(LOCATIONS.length);
-        replay(imdbApi);
+        BeanFactory factory = createMock(BeanFactory.class);
+        for (DataSet dataSet : DataSet.getEnumList()) {
+            String beanName = dataSet.getBeanName();
+            factory.getBean(beanName, DataSetGenerator.class);
+            expectLastCall().andReturn(dsg).anyTimes();
+        }
+        replay(dm, factory);
+        m_out.setDomainManager(dm);
+        m_out.setBeanFactory(factory);
+        m_out.replicateAllData();
 
-        ApiProvider<ImdbApi> provider = new ApiProvider<ImdbApi>() {
-            public ImdbApi getApi(String serviceUrl) {
-                return imdbApi;
-            }
-        };
+        verify(dm, factory);
+    }
 
-        m_out.setImdbApiProvider(provider);
+    public void testReplicateEntity() {
+        DomainManager dm = createMock(DomainManager.class);
+        dm.getDomainName();
+        expectLastCall().andReturn(DOMAIN).anyTimes();
 
-        DataSetGenerator file = new DataSetGenerator() {
+        Replicable entity = createMock(Replicable.class);
+        entity.getDataSets();
+        expectLastCall().andReturn(Collections.singleton(DataSet.ALIAS)).atLeastOnce();
+        entity.getName();// it actually will get into the error block
+        expectLastCall().andReturn("blahblah").atLeastOnce();
 
-            @Override
-            protected void addItems(List<Map<String, String>> items) {
-                items.add(data[0]);
-            }
+        DataSetGenerator dsg = new Aliases();
 
-            @Override
-            protected DataSet getType() {
-                return DataSet.ALIAS;
-            }
+        BeanFactory factory = createMock(BeanFactory.class);
+        String beanName = DataSet.ALIAS.getBeanName();
+        factory.getBean(beanName, DataSetGenerator.class);
+        expectLastCall().andReturn(dsg).anyTimes();
+        replay(dm, factory, entity);
+        m_out.setDomainManager(dm);
+        m_out.setBeanFactory(factory);
+        m_out.replicateEntity(entity);
 
-        };
-
-        m_out.replicateData(LOCATIONS, file);
-
-        verify(imdbApi);
+        verify(dm, factory, entity);
     }
 
     private String encode(String content) throws UnsupportedEncodingException {

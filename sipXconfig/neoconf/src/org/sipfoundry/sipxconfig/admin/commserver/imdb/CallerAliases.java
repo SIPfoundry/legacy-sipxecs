@@ -9,12 +9,16 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import com.mongodb.DBObject;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.Closure;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
@@ -22,44 +26,12 @@ import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
-
 public class CallerAliases extends DataSetGenerator {
+    public static final String CALLERALIASES = "cals";
+    public static final String LINEID = ";sipxecs-lineid=";
     private GatewayContext m_gatewayContext;
 
     private String m_anonymousAlias;
-
-    @Override
-    protected void addItems(final List<Map<String, String>> items) {
-        // FIXME: use only gateways that are used in dialplan...
-        List<Gateway> gateways = m_gatewayContext.getGateways();
-        final String sipDomain = getSipDomain();
-
-        for (Gateway gateway : gateways) {
-            final String gatewayAddr = gateway.getGatewayAddress();
-            final String gatewayAddrWithLineID = gatewayAddr + ";sipxecs-lineid=" + gateway.getId().toString();
-            // add default entry for the gateway
-            final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
-            String callerAliasUri = getGatewayCallerAliasUri(sipDomain, gatewayInfo);
-            addItem(items, gatewayAddrWithLineID, callerAliasUri);
-
-            // only add user aliases is overwrite is not set
-            if (gatewayInfo.isIgnoreUserInfo() || gatewayInfo.isEnableCallerId()) {
-                continue;
-            }
-
-            Closure<User> closure = new Closure<User>() {
-                @Override
-                public void execute(User user) {
-                    String userCallerAliasUri = getCallerAliasUri(gatewayInfo, user);
-                    String identity = AliasMapping.createUri(user.getUserName(), sipDomain);
-                    addItem(items, gatewayAddrWithLineID, userCallerAliasUri, identity);
-                }
-
-            };
-            forAllUsersDo(getCoreContext(), closure);
-        }
-    }
 
     private String getGatewayCallerAliasUri(String sipDomain, GatewayCallerAliasInfo gatewayInfo) {
         if (gatewayInfo.isAnonymous()) {
@@ -95,25 +67,6 @@ public class CallerAliases extends DataSetGenerator {
         return null;
     }
 
-    private Map<String, String> addItem(List<Map<String, String>> items, String domain, String alias, String identity) {
-        if (StringUtils.isEmpty(alias)) {
-            // nothing to add
-            return null;
-        }
-
-        Map<String, String> item = addItem(items);
-        if (identity != null) {
-            item.put("identity", identity);
-        }
-        item.put("domain", domain);
-        item.put("alias", alias);
-        return item;
-    }
-
-    private Map<String, String> addItem(List<Map<String, String>> items, String domain, String alias) {
-        return addItem(items, domain, alias, null);
-    }
-
     @Override
     protected DataSet getType() {
         return DataSet.CALLER_ALIAS;
@@ -126,4 +79,71 @@ public class CallerAliases extends DataSetGenerator {
     public void setAnonymousAlias(String anonymousAlias) {
         m_anonymousAlias = anonymousAlias;
     }
+
+    @Override
+    public void generate() {
+        Closure<User> closure = new Closure<User>() {
+            @Override
+            public void execute(User user) {
+                generate(user);
+            }
+
+        };
+        DaoUtils.forAllUsersDo(getCoreContext(), closure);
+        // gw
+        List<Gateway> gateways = m_gatewayContext.getGateways();
+        for (Gateway gateway : gateways) {
+            generate(gateway);
+        }
+    }
+
+    @Override
+    public void generate(Replicable entity) {
+        if (entity instanceof User) {
+            List<CallerAliasesMapping> mappings = new ArrayList<CallerAliasesMapping>();
+            User user = (User) entity;
+            // FIXME: use only gateways that are used in dialplan...
+            List<Gateway> gateways = m_gatewayContext.getGateways();
+            for (Gateway gateway : gateways) {
+                final String gatewayAddr = gateway.getGatewayAddress();
+                final String gatewayAddrWithLineID = gatewayAddr + LINEID + gateway.getId().toString();
+                final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
+                // only add user aliases is overwrite is not set
+                if (gatewayInfo.isIgnoreUserInfo() || gatewayInfo.isEnableCallerId()) {
+                    continue;
+                }
+                String userCallerAliasUri = getCallerAliasUri(gatewayInfo, user);
+                if (!StringUtils.isEmpty(userCallerAliasUri)) {
+                    mappings.add(new CallerAliasesMapping(gatewayAddrWithLineID, userCallerAliasUri));
+                }
+            }
+            insertCallerAliases(entity, mappings);
+        } else if (entity instanceof Gateway) {
+            Closure<User> closure = new Closure<User>() {
+                @Override
+                public void execute(User user) {
+                    generate(user);
+                }
+
+            };
+            DaoUtils.forAllUsersDo(getCoreContext(), closure);
+            Gateway gateway = (Gateway) entity;
+            final String gatewayAddr = gateway.getGatewayAddress();
+            final String gatewayAddrWithLineID = gatewayAddr + LINEID + gateway.getId().toString();
+            final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
+            String callerAliasUri = getGatewayCallerAliasUri(getSipDomain(), gatewayInfo);
+            if (!StringUtils.isEmpty(callerAliasUri)) {
+                insertCallerAliases(gateway,
+                        Collections.singletonList(new CallerAliasesMapping(gatewayAddrWithLineID, callerAliasUri)));
+            }
+        }
+
+    }
+
+    private void insertCallerAliases(Replicable entity, List<CallerAliasesMapping> mappings) {
+        DBObject top = findOrCreate(entity);
+        top.put(CALLERALIASES, mappings);
+        getDbCollection().save(top);
+    }
+
 }

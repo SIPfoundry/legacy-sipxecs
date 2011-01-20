@@ -7,21 +7,31 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
+import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.springframework.beans.factory.annotation.Required;
 
 import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.commons.lang.StringUtils.trim;
 
-public class SipxAccCodeService extends SipxService implements LoggingEntity {
+public class SipxAccCodeService extends SipxService implements LoggingEntity, Replicable, AliasProvider {
     public static final String BEAN_ID = "sipxAccCodeService";
     public static final String LOG_SETTING = "acccode/log.level";
     public static final String AUTH_CODE_PREFIX = "authcode/SIP_AUTH_CODE_PREFIX";
@@ -30,6 +40,8 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity {
     private static final String EXTENSION = "extension";
 
     private AliasManager m_aliasManager;
+    private SipxServiceManager m_sipxServiceManager;
+    private CoreContext m_coreContext;
 
     private SipxReplicationContext m_replicationContext;
 
@@ -67,10 +79,9 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity {
         m_aliasManager = aliasManager;
     }
 
-
-/**
- *      * Validates the data in this service and throws a UserException if there is a problem
- **/
+    /**
+     * * Validates the data in this service and throws a UserException if there is a problem
+     **/
     @Override
     public void validate() {
         String extension = this.getSettingValue(SipxAccCodeService.AUTH_CODE_PREFIX);
@@ -87,6 +98,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity {
             }
         }
     }
+
     /** get the aliases from a space-delimited string */
     public Set<String> getAliasesSet(String aliasesString) {
         LOG.info(String.format("SipxAccCodeService::getAliasesString(): input:%s:", aliasesString));
@@ -99,7 +111,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity {
                 aliasesSet.add(trim(alias));
             }
         }
-        LOG.info(String.format("SipxAccCodeService::getAliasesString(): retun set :%s:",  aliasesSet));
+        LOG.info(String.format("SipxAccCodeService::getAliasesString(): retun set :%s:", aliasesSet));
         return aliasesSet;
     }
 
@@ -130,7 +142,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity {
         LOG.info(String.format("SipxAccCodeService::onConfigChange(): set prefix", m_authcodeprefix));
         LOG.info(String.format("SipxAccCodeService::onConfigChange(): set aliases", m_aliases));
         LOG.info(String.format("SipxAccCodeService::onConfigChange(): replicate ", DataSet.ALIAS));
-        m_replicationContext.generate(DataSet.ALIAS);
+        m_replicationContext.generate(this);
 
     }
 
@@ -168,8 +180,66 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity {
                 aliasesSet.add(trim(alias));
             }
         }
-        LOG.info(String.format("SipxAccCodeService::getAliasesAsSet(): return set :%s:",  aliasesSet));
+        LOG.info(String.format("SipxAccCodeService::getAliasesAsSet(): return set :%s:", aliasesSet));
         return aliasesSet;
+    }
+
+    @Override
+    public String getName() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public void setName(String name) {
+        // TODO Auto-generated method stub
+    }
+
+    @Override
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
+        Set<String> aliasesSet = getAliasesAsSet();
+        Collection<AliasMapping> mappings = new ArrayList<AliasMapping>(aliasesSet.size());
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        String identity = null;
+        // Add alias entry for each extension alias
+        // all entries points to the same auth code url
+        // sip:AUTH@47.135.162.72:15060;command=auth;
+        // see mappingrules.xml
+        for (String alias : aliasesSet) {
+            // simple alias@bcm2072.com type of identity
+            identity = AliasMapping.createUri(alias, domain);
+            // contact = SipUri.format(getAuthCodePrefix(), getDomainName(), false);
+            // direct mapping is for testing only
+            // contact = getDirectContactUri();
+            mappings.add(new AliasMapping(identity));
+        }
+        aliases.put(this, mappings);
+        return aliases;
+    }
+
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
+        return getAliasMappings(m_coreContext.getDomainName());
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> dataSets = new HashSet<DataSet>();
+        dataSets.add(DataSet.ALIAS);
+        return dataSets;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        return SipUri.format(getAuthCodePrefix(), ((SipxFreeswitchService) m_sipxServiceManager
+                .getServiceByBeanId(SipxFreeswitchService.BEAN_ID)).getDomainName(), false);
+    }
+
+    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
+        m_sipxServiceManager = sipxServiceManager;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
 }

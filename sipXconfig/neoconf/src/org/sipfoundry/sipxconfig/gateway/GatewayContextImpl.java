@@ -20,7 +20,6 @@ import java.util.Set;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -116,7 +115,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             sbc.generateProfiles(sbc.getProfileLocation());
             sbc.restart();
         }
-        m_replicationContext.generate(DataSet.CALLER_ALIAS);
+        m_replicationContext.generate(gateway);
     }
 
     public void storePort(FxoPort port) {

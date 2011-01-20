@@ -22,7 +22,7 @@ public class DataSet extends Enum {
     public static final DataSet ALIAS = new DataSet("alias");
     public static final DataSet CREDENTIAL = new DataSet("credential");
     public static final DataSet PERMISSION = new DataSet("permission");
-    public static final DataSet CALLER_ALIAS = new DataSet("caller-alias");
+    public static final DataSet CALLER_ALIAS = new DataSet("calleralias");
     public static final DataSet USER_LOCATION = new DataSet("userlocation");
     public static final DataSet USER_FORWARD = new DataSet("userforward");
     public static final DataSet USER_STATIC = new DataSet("userstatic");
@@ -46,7 +46,7 @@ public class DataSet extends Enum {
         return getEnumMap(DataSet.class);
     }
 
-    public static List getEnumList() {
+    public static List<DataSet> getEnumList() {
         return getEnumList(DataSet.class);
     }
 

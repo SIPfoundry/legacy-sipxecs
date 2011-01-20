@@ -78,7 +78,7 @@
   <bean id="replicationManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl">
     <property name="fileApiProvider" ref="fileApiProvider"/>
-    <property name="imdbApiProvider" ref="imdbProvider"/>
+    <property name="domainManager" ref="domainManager"/>
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
   </bean>
@@ -86,10 +86,13 @@
   <bean id="sipxReplicationContextImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContextImpl">
     <property name="replicationManager" ref="replicationManagerImpl" />
-    <property name="jobContext" ref="jobContext" />
     <property name="locationsManager" ref="locationsManager" />
-    <property name="validUsersConfig" ref="validUsersConfig" />
+    <property name="jobContext" ref="jobContext" />
     <lookup-method name="getServiceConfigurator" bean="serviceConfigurator"/>
+  </bean>
+
+  <bean id="springHibernateInstantiator" class="org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator">
+    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
   </bean>
 
   <bean id="sipxReplicationContextDao"
@@ -166,7 +169,9 @@
 
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
   <bean id="externalAliases"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases" />
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases">
+     <property name="coreContext" ref="coreContext" />
+  </bean>
 
   <bean id="aliasCollector"
     class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
@@ -179,8 +184,7 @@
   </bean>
 
   <bean id="aliasDataSet" parent="dataSetGenerator"
-    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases"
-    dependency-check="objects">
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases">
     <property name="aliasProvider">
       <ref local="aliasCollector" />
     </property>
@@ -193,7 +197,7 @@
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions">
     <property name="callGroupContext" ref="callGroupContext" />
   </bean>
-  <bean id="caller-aliasDataSet" parent="dataSetGenerator"
+  <bean id="calleraliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
     <property name="gatewayContext" ref="gatewayContext" />
     <property name="anonymousAlias"
@@ -236,8 +240,8 @@
 
   <bean id="replicationTrigger"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
-    <property name="replicationContext" ref="sipxReplicationContext" />
-    <property name="settingDao" ref="settingDao" />
+    <property name="replicationContext" ref="sipxReplicationContextImpl" />
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="registrationContext"

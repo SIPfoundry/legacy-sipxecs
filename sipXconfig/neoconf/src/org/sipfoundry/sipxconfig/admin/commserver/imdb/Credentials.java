@@ -10,15 +10,16 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.util.List;
-import java.util.Map;
 
+import com.mongodb.DBObject;
+
+import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
-import org.sipfoundry.sipxconfig.common.AbstractUser;
 import org.sipfoundry.sipxconfig.common.Closure;
-import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
-import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 
@@ -26,6 +27,11 @@ import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class Credentials extends DataSetGenerator {
+    public static final String REALM = "rlm";
+    public static final String PASSTOKEN = "pstk";
+    public static final String PINTOKEN = "pntk";
+    public static final String AUTHTYPE = "authtp";
+    public static final String DIGEST = "DIGEST";
     private CallGroupContext m_callGroupContext;
 
     @Override
@@ -33,69 +39,65 @@ public class Credentials extends DataSetGenerator {
         return DataSet.CREDENTIAL;
     }
 
-    @Override
-    protected void addItems(final List<Map<String, String>> items) {
-        final String domainName = getSipDomain();
-        CoreContext coreContext = getCoreContext();
-        final String realm = coreContext.getAuthorizationRealm();
+    public void setCallGroupContext(CallGroupContext callGroupContext) {
+        m_callGroupContext = callGroupContext;
+    }
 
+    @Override
+    public void generate() {
         Closure<User> closure = new Closure<User>() {
             @Override
             public void execute(User user) {
-                addUser(items, user, domainName, realm);
+                generate(user);
             }
         };
         forAllUsersDo(getCoreContext(), closure);
 
         List<InternalUser> internalUsers = getCoreContext().loadInternalUsers();
         for (InternalUser user : internalUsers) {
-            addUser(items, user, domainName, realm);
+            generate(user);
         }
 
         for (SpecialUserType specialUserType : SpecialUserType.values()) {
-            addSpecialUser(items, specialUserType, domainName, realm);
+            SpecialUser user = getCoreContext().getSpecialUserAsSpecialUser(specialUserType);
+            if (user != null) {
+                generate(user);
+            }
         }
-
         List<CallGroup> callGroups = m_callGroupContext.getCallGroups();
         for (CallGroup callGroup : callGroups) {
             if (callGroup.isEnabled()) {
-                addCallGroup(items, callGroup, domainName, realm);
+                generate(callGroup);
             }
         }
     }
 
-    void addCallGroup(List<Map<String, String>> items, CallGroup callGroup, String domainName, String realm) {
-        String uri = SipUri.format(null, callGroup.getName(), domainName);
-        String sipPassword = callGroup.getSipPassword();
-        String sipPasswordHash = callGroup.getSipPasswordHash(realm);
-        addCredentialsItem(items, uri, callGroup.getName(), sipPassword, sipPasswordHash, realm);
-    }
-
-    private void addSpecialUser(List<Map<String, String>> items, SpecialUserType specialUserType, String domainName,
-            String realm) {
-        User user = getCoreContext().getSpecialUser(specialUserType);
-        if (user != null) {
-            addUser(items, user, domainName, realm);
+    @Override
+    public void generate(Replicable entity) {
+        DBObject top = findOrCreate(entity);
+        String realm = getCoreContext().getAuthorizationRealm();
+        if (entity instanceof User) {
+            User user = (User) entity;
+            insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
+        } else if (entity instanceof InternalUser) {
+            InternalUser user = (InternalUser) entity;
+            insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
+        } else if (entity instanceof CallGroup) {
+            CallGroup callGroup = (CallGroup) entity;
+            insertCredential(top, realm, callGroup.getSipPassword(), callGroup.getSipPasswordHash(realm), DIGEST);
+        } else if (entity instanceof SpecialUser) {
+            SpecialUser user = (SpecialUser) entity;
+            insertCredential(top, realm, defaultString(user.getSipPassword()), null, DIGEST);
         }
     }
 
-    protected void addUser(List<Map<String, String>> items, AbstractUser user, String domainName, String realm) {
-        String uri = user.getUri(domainName);
-        addCredentialsItem(items, uri, user.getUserName(), user.getSipPassword(), user.getPintoken(), realm);
-    }
-
-    private void addCredentialsItem(List<Map<String, String>> items, String uri, String name, String sipPassword,
-            String pintoken, String realm) {
-        Map<String, String> item = addItem(items);
-        item.put("uri", uri);
-        item.put("realm", realm);
-        item.put("userid", name);
-        item.put("passtoken", defaultString(sipPassword));
-        item.put("pintoken", pintoken);
-        item.put("authtype", "DIGEST");
-    }
-
-    public void setCallGroupContext(CallGroupContext callGroupContext) {
-        m_callGroupContext = callGroupContext;
+    private void insertCredential(DBObject top, String realm, String passtoken, String pintoken, String authtype) {
+        top.put(REALM, realm);
+        top.put(PASSTOKEN, passtoken);
+        if (!StringUtils.isEmpty(pintoken)) {
+            top.put(PINTOKEN, pintoken);
+        }
+        top.put(AUTHTYPE, authtype);
+        getDbCollection().save(top);
     }
 }

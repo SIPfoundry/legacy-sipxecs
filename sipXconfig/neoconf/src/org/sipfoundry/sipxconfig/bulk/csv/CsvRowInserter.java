@@ -165,7 +165,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
         User user = m_coreContext.loadUserByUserName(userName);
 
         if (user == null) {
-            user = new User();
+            user = m_coreContext.newUser();
             user.setUserName(userName);
         }
         String localRealm = m_domainManager.getAuthorizationRealm();
@@ -244,12 +244,16 @@ public class CsvRowInserter extends RowInserter<String[]> {
     private void insertData(User user, Collection<Group> userGroups, Phone phone,
             Collection<Group> phoneGroups) {
 
-        boolean newUser = false;
         if (user != null) {
             for (Group userGroup : userGroups) {
                 user.addGroup(userGroup);
             }
-            newUser = m_coreContext.saveUser(user);
+            // Execute the automatic assignments for the user.
+            //user.setPermissionManager(m_permissionManager);
+            GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
+                                                                  m_forwardingContext, m_mailboxManager);
+            //this method will call coreContext.saveUser
+            groupAutoAssign.assignUserData(user);
         }
 
         if (phoneGroups != null) {
@@ -263,15 +267,6 @@ public class CsvRowInserter extends RowInserter<String[]> {
             m_phoneContext.storePhone(phone);
         }
 
-        if (user != null) {
-            if (newUser) {
-                // Execute the automatic assignments for the user.
-                user.setPermissionManager(m_permissionManager);
-                GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
-                                                                      m_forwardingContext, m_mailboxManager);
-                groupAutoAssign.assignUserData(user);
-            }
-        }
     }
 
     void updateMailbox(User user, boolean newMailbox) {

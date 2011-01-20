@@ -24,15 +24,16 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.BeanId;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
-import org.sipfoundry.sipxconfig.service.SipxFreeswitchService.SystemMohSetting;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.LocalStreamConfiguration;
 import org.springframework.beans.factory.annotation.Required;
@@ -46,12 +47,12 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
     public static final Log LOG = LogFactory.getLog(MusicOnHoldManagerImpl.class);
 
     private static final String MOH = "moh";
-    private static final String ALIAS_RELATION = MOH;
 
     private SipxServiceManager m_sipxServiceManager;
     private String m_audioDirectory;
     private SipxReplicationContext m_replicationContext;
     private ServiceConfigurator m_serviceConfigurator;
+    private CoreContext m_coreContext;
 
     private String m_mohUser;
 
@@ -110,31 +111,8 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         return false;
     }
 
-    public Collection<AliasMapping> getAliasMappings() {
-        String contact = null;
-        String mohSetting = getSipxFreeswitchService().getSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE);
-
-        switch (SystemMohSetting.parseSetting(mohSetting)) {
-        case SOUNDCARD_SRC:
-            contact = getPortAudioMohUriMapping();
-            break;
-        case NONE:
-            contact = getNoneMohUriMapping();
-            break;
-        case FILES_SRC:
-        default:
-            contact = getLocalFilesMohUriMapping();
-            break;
-        }
-
-        List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(1);
-        aliasMappings.add(new AliasMapping(getDefaultMohUri(), contact, ALIAS_RELATION));
-
-        aliasMappings.add(new AliasMapping(getLocalFilesMohUri(), getLocalFilesMohUriMapping(), ALIAS_RELATION));
-        aliasMappings.add(new AliasMapping(getPortAudioMohUri(), getPortAudioMohUriMapping(), ALIAS_RELATION));
-        aliasMappings.add(new AliasMapping(getNoneMohUri(), getNoneMohUriMapping(), ALIAS_RELATION));
-
-        return aliasMappings;
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
+        return getSipxFreeswitchService().getAliasMappings(m_coreContext.getDomainName());
     }
 
     public void onDelete(Object entity) {
@@ -223,15 +201,15 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         }
     }
 
-    private String getPortAudioMohUriMapping() {
+    public String getPortAudioMohUriMapping() {
         return getMohUriMapping(PORT_AUDIO_SOURCE_SUFFIX);
     }
 
-    private String getLocalFilesMohUriMapping() {
+    public String getLocalFilesMohUriMapping() {
         return getMohUriMapping(LOCAL_FILES_SOURCE_SUFFIX);
     }
 
-    private String getNoneMohUriMapping() {
+    public String getNoneMohUriMapping() {
         return getMohUriMapping(NONE_SUFFIX);
     }
 
@@ -267,5 +245,9 @@ public class MusicOnHoldManagerImpl implements MusicOnHoldManager, DaoEventListe
         }
 
         return host + ":" + service.getFreeswitchSipPort();
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }

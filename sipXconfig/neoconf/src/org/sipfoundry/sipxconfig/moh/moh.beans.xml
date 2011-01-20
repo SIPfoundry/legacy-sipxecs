@@ -15,6 +15,7 @@
     <property name="audioDirectory" value="${sysdir.vxml.moh}" />
     <property name="serviceConfigurator" ref="serviceConfiguratorImpl" />
     <property name="replicationContext" ref="sipxReplicationContextDao" />
+    <property name="coreContext" ref="coreContext" />
     <!-- default music-on-hold user -->
     <property name="mohUser" value="~~mh~" />
   </bean>

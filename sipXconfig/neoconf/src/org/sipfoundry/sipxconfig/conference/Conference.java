@@ -10,13 +10,18 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -26,7 +31,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 
-public class Conference extends BeanWithSettings implements NamedObject {
+public class Conference extends BeanWithSettings implements Replicable {
     public static final String BEAN_NAME = "conferenceConference";
 
     /**
@@ -45,7 +50,6 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public static final String MOH = "fs-conf-conference/MOH";
     public static final String MOH_SOUNDCARD_SOURCE = "SOUNDCARD_SRC";
 
-    private static final String ALIAS_RELATION = "conference";
 
     private boolean m_enabled;
 
@@ -261,23 +265,23 @@ public class Conference extends BeanWithSettings implements NamedObject {
      *
      * @return list of aliase mappings, empty list if conference is disabled
      */
-    public List generateAliases(String domainName) {
+    private Collection<AliasMapping> generateAliases(String domainName) {
         if (!isEnabled()) {
             return Collections.EMPTY_LIST;
         }
-        ArrayList aliases = new ArrayList();
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
             // add extension mapping
             String extensionUri = AliasMapping.createUri(m_extension, domainName);
             String identityUri = SipUri.format(m_name, domainName, false);
-            AliasMapping extensionAlias = new AliasMapping(extensionUri, identityUri, ALIAS_RELATION);
+            AliasMapping extensionAlias = new AliasMapping(extensionUri, identityUri);
             aliases.add(extensionAlias);
         }
         if (StringUtils.isNotBlank(m_did) && !m_did.equals(m_name)) {
             // add extension mapping
             String didUri = AliasMapping.createUri(m_did, domainName);
             String identityUri = SipUri.format(m_name, domainName, false);
-            AliasMapping didAlias = new AliasMapping(didUri, identityUri, ALIAS_RELATION);
+            AliasMapping didAlias = new AliasMapping(didUri, identityUri);
             aliases.add(didAlias);
         }
         aliases.add(createFreeSwitchAlias(domainName));
@@ -287,7 +291,7 @@ public class Conference extends BeanWithSettings implements NamedObject {
     private AliasMapping createFreeSwitchAlias(String domainName) {
         String freeswitchUri = getUri();
         String identity = AliasMapping.createUri(m_name, domainName);
-        return new AliasMapping(identity, freeswitchUri, ALIAS_RELATION);
+        return new AliasMapping(identity, freeswitchUri);
     }
 
     public String getDid() {
@@ -297,4 +301,26 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public void setDid(String did) {
         m_did = did;
     }
+
+    @Override
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        Collection<AliasMapping> mappings = generateAliases(domain);
+        aliases.put(this, mappings);
+        return aliases;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.ALIAS);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

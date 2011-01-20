@@ -31,7 +31,7 @@ import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -217,15 +217,13 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertTrue(m_openAcdContextImpl.isAliasInUse("sales"));
         assertTrue(m_openAcdContextImpl.isAliasInUse("300"));
 
-        Collection<AliasMapping> mappings = m_openAcdContextImpl.getAliasMappings();
+        Collection<AliasMapping> mappings = (List<AliasMapping>) m_openAcdContextImpl.getAliasMappings().get(extension);
         assertEquals(2, mappings.size());
         Iterator<AliasMapping> iter = mappings.iterator();
         AliasMapping mapping = iter.next();
-        assertEquals("openacd", mapping.getRelation());
         assertEquals("sales@example.org", mapping.getIdentity());
         assertEquals("sip:300@10.1.1.2", mapping.getContact());
         mapping = iter.next();
-        assertEquals("openacd", mapping.getRelation());
         assertEquals("300@example.org", mapping.getIdentity());
         assertEquals("sip:300@10.1.1.2:50", mapping.getContact());
     }

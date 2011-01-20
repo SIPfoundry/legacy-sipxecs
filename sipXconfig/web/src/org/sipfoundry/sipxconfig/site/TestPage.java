@@ -40,7 +40,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
@@ -599,11 +598,6 @@ public abstract class TestPage extends SipxBasePage {
     private void login(User user, boolean isAdmin, boolean isSupervisor) {
         TestAuthenticationToken token = new TestAuthenticationToken(user, isAdmin, isSupervisor);
         SecurityContextHolder.getContext().setAuthentication(token.authenticateToken());
-    }
-
-    public void generateDataSet(String setName) {
-        SipxReplicationContext sipxReplicationContext = getSipxReplicationContext();
-        sipxReplicationContext.generate(DataSet.getEnum(setName));
     }
 
     public void throwException() {

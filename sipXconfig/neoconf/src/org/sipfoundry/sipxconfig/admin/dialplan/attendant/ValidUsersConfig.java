@@ -7,7 +7,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
-import java.util.List;
+import java.util.Collection;
+import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -15,10 +16,11 @@ import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.QName;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -76,11 +78,14 @@ public class ValidUsersConfig extends XmlFile {
         forAllUsersDo(m_coreContext, closure);
 
         // Load up the specified aliases
-        List<AliasMapping> aliasMappings = (List<AliasMapping>) m_aliasProvider.getAliasMappings();
+        Map<Replicable, Collection<AliasMapping>> aliasMappings =  m_aliasProvider.getAliasMappings();
         // Generate the aliases
-        for (AliasMapping am : aliasMappings) {
-            generateAlias(usersEl, am);
+        for (Collection<AliasMapping> aliases : aliasMappings.values()) {
+            for (AliasMapping am : aliases) {
+                generateAlias(usersEl, am);
+            }
         }
+
         return document;
     }
 
@@ -171,8 +176,8 @@ public class ValidUsersConfig extends XmlFile {
 
     private void generateAlias(Element usersEl, AliasMapping am) {
         Element userEl = usersEl.addElement(ELEMENT_NAME_USER);
-        String identity = am.getIdentity();
-        String contact = am.getContact();
+        String identity = am.getString(AliasMapping.IDENTITY);
+        String contact = am.getString(AliasMapping.CONTACT);
         userEl.addElement(ELEMENT_NAME_IDENTITY).setText(identity);
         userEl.addElement(ELEMENT_NAME_USERNAME).setText(identity.substring(0, identity.indexOf('@')));
         userEl.addElement(ELEMENT_NAME_CONTACT).setText(contact);

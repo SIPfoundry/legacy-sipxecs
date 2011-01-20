@@ -10,14 +10,20 @@
 package org.sipfoundry.sipxconfig.gateway;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.enums.Enum;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.EnumUserType;
-import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.device.Device;
 import org.sipfoundry.sipxconfig.device.ModelSource;
@@ -26,7 +32,7 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 /**
  * Gateway
  */
-public class Gateway extends Device implements NamedObject {
+public class Gateway extends Device implements Replicable {
     private String m_name;
 
     private String m_address;
@@ -330,5 +336,20 @@ public class Gateway extends Device implements NamedObject {
 
     public void setBranch(Branch branch) {
         m_branch = branch;
+    }
+
+    @Override
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
+        return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        return Collections.singleton(DataSet.CALLER_ALIAS);
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        return null;
     }
 }

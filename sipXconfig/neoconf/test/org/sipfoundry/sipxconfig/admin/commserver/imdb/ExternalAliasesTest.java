@@ -10,13 +10,9 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.net.URL;
-import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 import junit.framework.TestCase;
-
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 
 public class ExternalAliasesTest extends TestCase {
 
@@ -43,10 +39,10 @@ public class ExternalAliasesTest extends TestCase {
         ExternalAliases externalAliases = new ExternalAliases();
         URL other = getClass().getResource("alias.test.xml");
         externalAliases.setAliasAddins(other.getFile());
-        Collection aliasMappings = externalAliases.getAliasMappings();
-        assertEquals(5, aliasMappings.size());
-        for (Iterator i = aliasMappings.iterator(); i.hasNext();) {
-            AliasMapping alias = (AliasMapping) i.next();
+        List<AliasMapping> aliases = (List<AliasMapping>) externalAliases.getAliasMappings()
+                .get(new ExternalAlias());
+        assertEquals(5, aliases.size());
+        for (AliasMapping alias : aliases) {
             assertTrue(alias.getIdentity().startsWith("30"));
             assertTrue(alias.getContact().indexOf("example.org") > 0);
         }
@@ -56,11 +52,11 @@ public class ExternalAliasesTest extends TestCase {
         ExternalAliases externalAliases = new ExternalAliases();
         URL aliases1 = getClass().getResource("alias.test.xml");
         externalAliases.setAliasAddins(aliases1.getFile());
-        List aliasMappings = (List) externalAliases.getAliasMappings();
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) externalAliases.getAliasMappings().get(new ExternalAlias());
         assertEquals(5, aliasMappings.size());
         URL aliases2 = getClass().getResource("alias2.test.xml");
         externalAliases.setAliasAddins(aliases2.getFile());
-        aliasMappings = (List) externalAliases.getAliasMappings();
+        aliasMappings = (List<AliasMapping>) externalAliases.getAliasMappings().get(new ExternalAlias());
         assertEquals(2, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(1);
         assertTrue(alias.getIdentity().startsWith("extra"));

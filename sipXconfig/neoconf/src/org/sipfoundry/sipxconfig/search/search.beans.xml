@@ -39,6 +39,7 @@
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="indexer" ref="bulkIndexer"/>
     <property name="beanIndexHelper" ref="beanIndexHelper"/>
+    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl"/>
   </bean>
 
   <bean id="loadIndexingHibernateTemplate"

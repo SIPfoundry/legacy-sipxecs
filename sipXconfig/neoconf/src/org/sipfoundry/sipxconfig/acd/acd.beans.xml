@@ -35,6 +35,7 @@
 	<property name="sipxServiceManager" ref="sipxServiceManager"/>
 	<property name="acdBundle" ref="acdBundle"/>
 	<property name="aliasManager" ref="aliasManager"/>
+	<property name="coreContext" ref="coreContext"/>
   </bean>
 
   <bean id="acdContext" class="org.springframework.aop.framework.ProxyFactoryBean"

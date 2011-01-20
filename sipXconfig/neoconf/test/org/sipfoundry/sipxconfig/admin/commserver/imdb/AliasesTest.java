@@ -9,55 +9,60 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.classextension.EasyMock.createMock;
+
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.TestCase;
+import org.easymock.EasyMock;
+import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-
-public class AliasesTest extends TestCase {
-    private final static String[][] DATA = {
-        {
-            "301@example.org", "\"John Doe\"<sip:john.doe@example.org>", "test"
-        }, {
-            "302@example.org", "\"Jane Doe\"<sip:jane.doe@example.org>;q=0.5", "test"
-        }, {
-            "302@example.org", "\"Betty Boop\"<sip:betty.boop@example.org>;q=0.8", "test"
-        }, {
-            "302@example.org", "\"Bill Boop\"<sip:bill.boop@example.org>;q=0.8", "test"
-        }, {
-            "303@example.org", "\"John Doe\"<sip:john.doe@example.org>", "test"
-        }
-    };
+public class AliasesTest extends MongoTestCase {
+    private Map<Replicable, Collection<AliasMapping>> m_aliasMappings = new HashMap<Replicable, Collection<AliasMapping>>();
 
     private Aliases m_aliases;
+    private User m_user;
 
     protected void setUp() throws Exception {
+        super.setUp();
         m_aliases = new Aliases();
+
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
+        aliases.add(new AliasMapping("301@example.org", "\"John Doe\"<sip:john.doe@" + DOMAIN + ">"));
+        aliases.add(new AliasMapping("alias1@" + DOMAIN));
+
+        DomainManager dm = createMock(DomainManager.class);
+        dm.getDomainName();
+        expectLastCall().andReturn(DOMAIN).anyTimes();
+        replay(dm);
+
+        m_user = new User();
+        m_user.setUniqueId(1);
+        m_user.setDomainManager(dm);
+
+        m_aliasMappings.put(m_user, aliases);
+
+        AliasProvider aliasProvider = EasyMock.createMock(AliasProvider.class);
+        aliasProvider.getAliasMappings();
+        expectLastCall().andReturn(m_aliasMappings).anyTimes();
+        replay(aliasProvider, getCoreContext());
+        m_aliases.setAliasProvider(aliasProvider);
+        m_aliases.setDbCollection(getCollection());
+        m_aliases.setCoreContext(getCoreContext());
     }
 
-    public void testAddAliases() throws Exception {
-        List<AliasMapping> aliases = new ArrayList<AliasMapping>();
-        for (int i = 0; i < DATA.length; i++) {
-            String[] aliasRow = DATA[i];
-            AliasMapping mapping = new AliasMapping();
-            mapping.setIdentity(aliasRow[0]);
-            mapping.setContact(aliasRow[1]);
-	    mapping.setRelation(aliasRow[2]);
-            aliases.add(mapping);
-        }
+    public void testGenerate() {
+        m_aliases.generate();
 
-        List<Map<String, String>> result = new ArrayList<Map<String, String>>();
-        m_aliases.addAliases(result, aliases);
+        assertObjectWithIdPresent("User1");
 
-        assertEquals(DATA.length, result.size());
-        for (int i = 0; i < DATA.length; i++) {
-            String[] aliasRow = DATA[i];
-            assertEquals(aliasRow[0], result.get(i).get("identity"));
-            assertEquals(aliasRow[1], result.get(i).get("contact"));
-            assertEquals(aliasRow[2], result.get(i).get("relation"));
-        }
     }
+
 }

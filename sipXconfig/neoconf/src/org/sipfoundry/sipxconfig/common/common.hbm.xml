@@ -105,8 +105,18 @@
     <![CDATA[select u from User u join u.supervisorForGroups as sgroups where sgroups.id = :groupId]]>
   </query>
 
+  <!--query name="usersForBranch">
+    <![CDATA[select distinct u from User u, GroupStorage g, UserGroup ug 
+	where g.branchId = :branchId
+	  and g.groupId = ug.groupId
+	  and u.userId = ug.userId
+	  or  u.branchId = :branchId]]>
+  </query-->
+
   <query name="usersForBranch">
-    <![CDATA[from User u where u.branch = :branch]]>
+    <![CDATA[select distinct u from User u join u.groups as ug 
+    where ug.branch = :branch
+    or u.branch = :branch]]>
   </query>
 
   <query name="usersThatISupervise">

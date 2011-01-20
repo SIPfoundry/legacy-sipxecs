@@ -10,7 +10,11 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.Transformer;
@@ -21,6 +25,7 @@ import org.hibernate.EmptyInterceptor;
 import org.hibernate.EntityMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.metadata.ClassMetadata;
+import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
@@ -37,6 +42,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     private ListableBeanFactory m_beanFactory;
     private SessionFactory m_sessionFactory;
     private Map m_beanNamesCache;
+    private SipxReplicationContext m_sipxReplicationContext;
 
     /**
      * This implementation only supports BeanWithId objects with integer ids
@@ -68,8 +74,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         public Object transform(Object input) {
             Class clazz = (Class) input;
             String[] beanDefinitionNames = m_beanFactory.getBeanNamesForType(clazz);
-            LOG.debug(beanDefinitionNames.length + " beans registered for class: "
-                    + clazz.getName());
+            LOG.debug(beanDefinitionNames.length + " beans registered for class: " + clazz.getName());
             for (int i = 0; i < beanDefinitionNames.length; i++) {
                 Object bean = m_beanFactory.getBean(beanDefinitionNames[i]);
 
@@ -98,5 +103,26 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
 
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
+    }
+
+    @Override
+    public void postFlush(Iterator entities) {
+        // we need a synchronized collection here otherwise we'll get a ConcurrentModification.
+        List<Replicable> list = new ArrayList<Replicable>();
+        while (entities.hasNext()) {
+            Object o = entities.next();
+            if (o instanceof Replicable) {
+                list.add((Replicable) o);
+            }
+        }
+        for (Replicable o : Collections.synchronizedList(list)) {
+            if (o instanceof Replicable) {
+                m_sipxReplicationContext.replicateWork((Replicable) o);
+            }
+        }
+    }
+
+    public void setSipxReplicationContext(SipxReplicationContext sipxReplicationContext) {
+        m_sipxReplicationContext = sipxReplicationContext;
     }
 }

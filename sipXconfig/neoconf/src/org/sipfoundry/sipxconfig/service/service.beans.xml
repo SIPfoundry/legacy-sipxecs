@@ -475,6 +475,7 @@
       <property name="groupTitleEnabled" value="true" />
       <property name="aliasManager" ref="aliasManager" />
       <property name="replicationContext" ref="sipxReplicationContextDao" />
+      <property name="coreContext" ref="coreContext" />
       <property name="configurations">
         <list>
           <ref bean="sipxAccCodeConfiguration" />
@@ -604,6 +605,7 @@
       </set>
     </property>
     <property name="replicationContext" ref="sipxReplicationContextDao" />
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
   </bean>
 
   <bean id="freeswitchConfiguration" parent="serviceConfigurationFile"

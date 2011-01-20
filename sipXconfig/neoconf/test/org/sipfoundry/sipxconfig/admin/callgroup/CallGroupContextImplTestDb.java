@@ -14,12 +14,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.springframework.context.ApplicationContext;
@@ -181,26 +183,26 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGenerateAliases() throws Exception {
-        Collection<AliasMapping> aliases = m_context.getAliasMappings();
+        Map<Replicable, Collection<AliasMapping>> aliases = m_context.getAliasMappings();
         assertNotNull(aliases);
-        for (AliasMapping aliasMapping : aliases) {
-            System.out.println(aliasMapping.getIdentity());
+        assertEquals(1, aliases.size());
 
-        }
-        assertEquals(3, aliases.size());
+        Replicable callGroup = m_context.getCallGroups().get(0);
+        assertNotNull(callGroup);
+        Collection<AliasMapping> mappings = aliases.get(callGroup);
 
-        Iterator<AliasMapping> i = aliases.iterator();
+        Iterator<AliasMapping> i = mappings.iterator();
         AliasMapping aliasMapping = i.next();
-        assertTrue(aliasMapping.getIdentity().startsWith("sales"));
-        assertTrue(aliasMapping.getContact().startsWith("<sip:default@pingtel.com>;q="));
+        assertTrue(aliasMapping.get(AliasMapping.IDENTITY).toString().startsWith("sales"));
+        assertTrue(aliasMapping.get(AliasMapping.CONTACT).toString().startsWith("<sip:default@pingtel.com>;q="));
 
         aliasMapping = i.next();
-        assertTrue(aliasMapping.getIdentity().startsWith("401"));
-        assertTrue(aliasMapping.getContact().startsWith("sales"));
+        assertTrue(aliasMapping.get(AliasMapping.IDENTITY).toString().startsWith("401"));
+        assertTrue(aliasMapping.get(AliasMapping.CONTACT).toString().startsWith("sales"));
 
         aliasMapping = i.next();
-        assertTrue(aliasMapping.getIdentity().startsWith("123456781"));
-        assertTrue(aliasMapping.getContact().startsWith("sales"));
+        assertTrue(aliasMapping.get(AliasMapping.IDENTITY).toString().startsWith("123456781"));
+        assertTrue(aliasMapping.get(AliasMapping.CONTACT).toString().startsWith("sales"));
     }
 
     public void testRemoveUser() throws Exception {

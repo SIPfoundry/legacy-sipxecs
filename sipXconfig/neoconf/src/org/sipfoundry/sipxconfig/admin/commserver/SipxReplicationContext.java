@@ -10,12 +10,10 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.springframework.context.ApplicationEvent;
 
 public interface SipxReplicationContext {
-    void generate(DataSet dataSet);
-
     void generateAll();
 
     /**
@@ -33,8 +31,6 @@ public interface SipxReplicationContext {
      */
     void replicate(Location location, ConfigurationFile conf);
 
-    String getXml(DataSet dataSet);
-
     /**
      * This function will publish application event - in case the application is done lazily it
      * will publish the even only after everything has been replicated
@@ -42,4 +38,8 @@ public interface SipxReplicationContext {
      * @param event event to be published
      */
     void publishEvent(ApplicationEvent event);
+
+    void generate(Replicable entity);
+    void remove(Replicable entity);
+    void replicateWork(Replicable entity);
 }

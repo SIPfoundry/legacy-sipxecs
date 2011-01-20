@@ -9,9 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-import org.apache.commons.lang.RandomStringUtils;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-public class SpecialUser extends BeanWithId {
+import org.apache.commons.lang.RandomStringUtils;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+
+public class SpecialUser extends BeanWithId implements Replicable {
 
     public enum SpecialUserType {
         PARK_SERVER("~~id~park"), MEDIA_SERVER("~~id~media"), ACD_SERVER("~~id~acd"),
@@ -69,4 +77,33 @@ public class SpecialUser extends BeanWithId {
     public String getSipPassword() {
         return m_sipPassword;
     }
+
+    @Override
+    public String getName() {
+        return getUserName();
+    }
+
+    @Override
+    public void setName(String name) {
+    }
+
+    @Override
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
+        return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.PERMISSION);
+        ds.add(DataSet.CREDENTIAL);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

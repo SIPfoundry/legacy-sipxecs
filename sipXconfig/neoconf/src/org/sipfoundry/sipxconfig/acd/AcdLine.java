@@ -10,16 +10,24 @@
 package org.sipfoundry.sipxconfig.acd;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class AcdLine extends AcdComponent {
+public class AcdLine extends AcdComponent implements Replicable {
     public static final String BEAN_NAME = "acdLine";
     public static final String OBJECT_CLASS = "acd-line";
 
@@ -129,26 +137,6 @@ public class AcdLine extends AcdComponent {
         }
     }
 
-    public void appendAliases(List aliases) {
-        String extension = getExtension();
-        String did = getDid();
-        if (StringUtils.isBlank(extension)) {
-            return;
-        }
-        // TODO: remove localhost trick when we have real host information
-        String domainName = getCoreContext().getDomainName();
-        String identityExtension = AliasMapping.createUri(extension, domainName);
-
-        String server = StringUtils.defaultIfEmpty(m_acdServer.getLocation().getFqdn(), "localhost");
-        String contact = SipUri.format(getName(), server, m_acdServer.getSipPort());
-
-        aliases.add(new AliasMapping(identityExtension, contact, ACD_RELATION));
-        if (!StringUtils.isEmpty(did) && !did.equals(extension)) {
-            String identityDid = AliasMapping.createUri(did, domainName);
-            aliases.add(new AliasMapping(identityDid, contact, ACD_RELATION));
-        }
-    }
-
     public Serializable getAcdServerId() {
         return getAcdServer().getId();
     }
@@ -164,5 +152,39 @@ public class AcdLine extends AcdComponent {
 
     public void setDid(String did) {
         m_did = did;
+    }
+
+    @Override
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        Collection<AliasMapping> mappings = new ArrayList<AliasMapping>();
+        String extension = getExtension();
+        String did = getDid();
+        if (StringUtils.isBlank(extension)) {
+            return Collections.EMPTY_MAP;
+        }
+        // TODO: remove localhost trick when we have real host information
+        String identityExtension = AliasMapping.createUri(extension, domainName);
+
+        mappings.add(new AliasMapping(identityExtension));
+        if (!StringUtils.isEmpty(did) && !did.equals(extension)) {
+            String identityDid = AliasMapping.createUri(did, domainName);
+            mappings.add(new AliasMapping(identityDid));
+        }
+        aliases.put(this, mappings);
+        return aliases;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> dataSets = new HashSet<DataSet>();
+        dataSets.add(DataSet.ALIAS);
+        return dataSets;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        String server = StringUtils.defaultIfEmpty(m_acdServer.getLocation().getFqdn(), "localhost");
+        return SipUri.format(getName(), server, m_acdServer.getSipPort());
     }
 }

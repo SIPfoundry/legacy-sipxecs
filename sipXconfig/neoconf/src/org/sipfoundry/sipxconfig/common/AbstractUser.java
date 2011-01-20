@@ -25,8 +25,8 @@ import org.restlet.data.Protocol;
 import org.restlet.data.Request;
 import org.restlet.data.Response;
 import org.restlet.data.Status;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
 import org.sipfoundry.sipxconfig.branch.Branch;
+import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
 import org.sipfoundry.sipxconfig.permission.Permission;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
@@ -41,18 +41,16 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 import static org.apache.commons.lang.StringUtils.EMPTY;
 import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.apache.commons.lang.StringUtils.isBlank;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.apache.commons.lang.StringUtils.join;
 import static org.apache.commons.lang.StringUtils.split;
 import static org.apache.commons.lang.StringUtils.trim;
 import static org.apache.commons.lang.StringUtils.trimToNull;
-import static org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping.createUri;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
-public abstract class AbstractUser extends BeanWithGroups implements NamedObject {
+public abstract class AbstractUser extends BeanWithGroups implements Replicable {
     public static final String GROUP_RESOURCE_ID = "user";
 
     // property names
@@ -90,6 +88,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
     private static final Pattern PATTERN_NUMERIC = Pattern.compile("([1-9]\\d*)|(0\\d+)");
 
     private PermissionManager m_permissionManager;
+    private DomainManager m_domainManager;
 
     private SipxImbotService m_sipxImbotService;
 
@@ -208,6 +207,10 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
 
     public void setAliases(Set<String> aliases) {
         m_aliases = aliases;
+    }
+
+    public String getDomain() {
+        return m_domainManager.getDomainName();
     }
 
     public Branch getBranch() {
@@ -347,44 +350,7 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
         return null;
     }
 
-    public List getAliasMappings(String domainName, String additionalAlias) {
-        final String contact = getUri(domainName);
-        List mappings = new ArrayList();
-        for (String alias : getAliases()) {
-            mappings.add(getAliasMapping(alias, contact, domainName));
-        }
 
-        // add additional alias only if not blank and not in existing mappings
-        if (!isBlank(additionalAlias) && !getAliases().contains(additionalAlias)
-                && !additionalAlias.equals(getUserName())) {
-            mappings.add(getAliasMapping(additionalAlias, contact, domainName));
-        }
-
-        // add fax extension aliases
-        String faxExtension = getFaxExtension();
-        String faxDid = getFaxDid();
-        if (!faxExtension.isEmpty()) {
-            String faxContactUri = SipUri.format(getDisplayName(), FAX_EXTENSION_PREFIX + getUserName(), domainName);
-            mappings.add(getAliasMapping(faxExtension, faxContactUri, domainName, true));
-            if (!faxDid.isEmpty()) {
-                mappings.add(getAliasMapping(faxDid, faxContactUri, domainName, true));
-            }
-        }
-
-        return mappings;
-    }
-
-    private AliasMapping getAliasMapping(String alias, final String contact, String domainName) {
-        return getAliasMapping(alias, contact, domainName, false);
-    }
-
-    private AliasMapping getAliasMapping(String alias, final String contact, String domainName, boolean isFaxAlais) {
-        if (isBlank(alias)) {
-            throw new RuntimeException("Found an empty alias for user " + m_userName);
-        }
-        final String identity = createUri(alias, domainName);
-        return new AliasMapping(identity, contact, isFaxAlais ? "fax" : "alias");
-    }
 
     /**
      * Returns the names of all permissions assigned to the user
@@ -706,4 +672,9 @@ public abstract class AbstractUser extends BeanWithGroups implements NamedObject
             return m_permissionManager.getDefaultInitDelay();
         }
     }
+
+    public void setDomainManager(DomainManager domainManager) {
+        m_domainManager = domainManager;
+    }
+
 }

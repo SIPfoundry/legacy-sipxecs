@@ -9,17 +9,22 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.Hashtable;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
-import org.dom4j.Document;
-import org.dom4j.DocumentFactory;
-import org.dom4j.Element;
+import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SpecialUser;
+import org.sipfoundry.sipxconfig.common.User;
 
 public abstract class DataSetGenerator {
+    public static final String ID = "id";
+    public static final String IDENTITY = "ident";
+    public static final String CONTACT = "cnt";
+    private DBCollection m_dbCollection;
     private CoreContext m_coreContext;
 
     public void setCoreContext(CoreContext coreContext) {
@@ -37,50 +42,60 @@ public abstract class DataSetGenerator {
         return m_coreContext.getDomainName();
     }
 
-    public List<Map<String, String>> generate() {
-        List<Map<String, String>> items = new LinkedList<Map<String, String>>();
-        addItems(items);
-        return items;
-    }
+    public abstract void generate();
 
-    /**
-     * Creates empty item.
-     *
-     * XML/RPC client that we use insist on using Hashtable, but there is no reason to pollute the
-     * code everywhere.
-     *
-     * @return newly created empty item
-     */
-    protected final Map<String, String> addItem(List<Map<String, String>> items) {
-        Map<String, String> item = new Hashtable<String, String>();
-        items.add(item);
-        return item;
-    }
-
-    /**
-     * This is for testing only.
-     *
-     * @return XML representation of dataset
-     */
-    @Deprecated
-    public Document generateXml() {
-        List<Map<String, String>> items = generate();
-
-        DocumentFactory factory = DocumentFactory.getInstance();
-        Document document = factory.createDocument();
-        Element itemsEl = document.addElement("items");
-        itemsEl.addAttribute("type", getType().getName());
-
-        for (Map<String, String> item : items) {
-            Element itemEl = itemsEl.addElement("item");
-            for (Map.Entry<String, String> entry : item.entrySet()) {
-                itemEl.addElement(entry.getKey()).setText(entry.getValue());
-            }
-        }
-        return document;
-    }
+    public abstract void generate(Replicable entity);
 
     protected abstract DataSet getType();
 
-    protected abstract void addItems(List<Map<String, String>> items);
+    public DBCollection getDbCollection() {
+        return m_dbCollection;
+    }
+
+    public void setDbCollection(DBCollection dbCollection) {
+        m_dbCollection = dbCollection;
+    }
+
+    // We can safely assume that every replicable entity is a beanwithid
+    // We can treat special cases separately
+    protected DBObject findOrCreate(Replicable entity) {
+        DBCollection collection = getDbCollection();
+        String id = getEntityId(entity);
+
+        DBObject search = new BasicDBObject();
+        search.put(ID, id);
+        DBCursor cursor = collection.find(search);
+        DBObject top = new BasicDBObject();
+        if (!cursor.hasNext()) {
+            top.put(ID, id);
+        } else {
+            top = cursor.next();
+        }
+        if (entity.getIdentity(getSipDomain()) != null) {
+            top.put(IDENTITY, entity.getIdentity(getSipDomain()));
+        }
+        if (entity instanceof User) {
+            top.put(CONTACT, ((User) entity).getContactUri(getSipDomain()));
+        }
+        return top;
+    }
+
+    public static String getEntityId(Replicable entity) {
+        String id = "";
+        if (entity instanceof BeanWithId) {
+            id = entity.getClass().getSimpleName() + ((BeanWithId) entity).getId();
+        }
+        if (entity instanceof SpecialUser) {
+            id = ((SpecialUser) entity).getUserName();
+        } else if (entity instanceof User) {
+            User u = (User) entity;
+            if (u.isNew()) {
+                id = u.getUserName();
+            }
+        } else if (entity instanceof ExternalAlias) {
+            ExternalAlias alias = (ExternalAlias) entity;
+            id = alias.getName();
+        }
+        return id;
+    }
 }

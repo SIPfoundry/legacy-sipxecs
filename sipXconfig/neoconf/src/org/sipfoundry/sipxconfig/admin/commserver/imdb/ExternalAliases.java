@@ -14,15 +14,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.digester.Digester;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.xml.sax.SAXException;
 
 public class ExternalAliases implements AliasProvider {
@@ -32,7 +36,7 @@ public class ExternalAliases implements AliasProvider {
     private String m_aliasAddins;
 
     private String m_addinsDirectory = StringUtils.EMPTY;
-
+    private CoreContext m_coreContext;
 
     private List getFiles() {
         if (StringUtils.isBlank(m_aliasAddins)) {
@@ -57,17 +61,24 @@ public class ExternalAliases implements AliasProvider {
         return files;
     }
 
-    public Collection getAliasMappings() {
+    @SuppressWarnings("rawtypes")
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
         List files = getFiles();
-        List aliases = new ArrayList();
+        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         for (Iterator i = files.iterator(); i.hasNext();) {
             File file = (File) i.next();
-            List parsedAliases = parseAliases(file);
-            if (parsedAliases != null) {
-                aliases.addAll(parsedAliases);
+            List<AliasMapping> parsedAliases = parseAliases(file);
+            if (!CollectionUtils.isEmpty(parsedAliases)) {
+                mappings.addAll(parsedAliases);
             }
         }
-        return aliases;
+        if (!mappings.isEmpty()) {
+            aliases.put(new ExternalAlias(), mappings);
+
+            return aliases;
+        }
+        return Collections.EMPTY_MAP;
     }
 
     private List parseAliases(File file) {
@@ -89,5 +100,9 @@ public class ExternalAliases implements AliasProvider {
 
     public void setAddinsDirectory(String addinsDirectory) {
         m_addinsDirectory = addinsDirectory;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 }
