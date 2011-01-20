@@ -67,6 +67,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String LINE_NAME = "line";
     private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
+    private static final String DEFAULT_QUEUE = "default_queue";
 
     private DomainManager m_domainManager;
     private SipxServiceManager m_serviceManager;
@@ -756,6 +757,13 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         }
 
         if (!queue.isNew()) {
+            if (isNameChanged(queue)) {
+                // don't rename the default queue
+                OpenAcdQueue defaultQueue = getQueueByName(DEFAULT_QUEUE);
+                if (defaultQueue != null && defaultQueue.getId().equals(queue.getId())) {
+                    throw new UserException("&msg.err.defaultQueueRename");
+                }
+            }
             getHibernateTemplate().merge(queue);
             m_provisioningContext.updateObjects(Collections.singletonList(queue));
         } else {
@@ -779,19 +787,26 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     @Override
-    public void removeQueues(Collection<Integer> queueIds) {
+    public boolean removeQueues(Collection<Integer> queueIds) {
+        boolean affectDefaultQueue = false;
         List<OpenAcdQueue> queues = new LinkedList<OpenAcdQueue>();
         List<OpenAcdQueueGroup> groups = new LinkedList<OpenAcdQueueGroup>();
         for (Integer id : queueIds) {
             OpenAcdQueue queue = getQueueById(id);
-            OpenAcdQueueGroup group = queue.getGroup();
-            group.removeQueue(queue);
-            getHibernateTemplate().saveOrUpdate(group);
-            queues.add(queue);
-            groups.add(group);
+            if (!queue.getName().equals(DEFAULT_QUEUE)) {
+                OpenAcdQueueGroup group = queue.getGroup();
+                group.removeQueue(queue);
+                getHibernateTemplate().saveOrUpdate(group);
+                queues.add(queue);
+                groups.add(group);
+            } else {
+                affectDefaultQueue = true;
+            }
         }
         getHibernateTemplate().deleteAll(queues);
         m_provisioningContext.deleteObjects(queues);
+
+        return affectDefaultQueue;
     }
 
     public void setDomainManager(DomainManager manager) {

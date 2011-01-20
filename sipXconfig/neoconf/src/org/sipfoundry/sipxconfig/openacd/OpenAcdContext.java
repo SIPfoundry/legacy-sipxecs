@@ -118,5 +118,5 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
 
     void saveQueue(OpenAcdQueue queue);
 
-    void removeQueues(Collection<Integer> queueIds);
+    boolean removeQueues(Collection<Integer> queueIds);
 }

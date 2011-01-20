@@ -29,8 +29,11 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.apache.tapestry.valid.IValidationDelegate;
+import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
@@ -82,7 +85,11 @@ public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBe
         if (ids.isEmpty()) {
             return;
         }
-        getOpenAcdContext().removeQueues(ids);
+        boolean errorMessage = getOpenAcdContext().removeQueues(ids);
+        if (errorMessage) {
+            IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+            validator.record(new ValidatorException(getMessages().getMessage("msg.err.defalutQueueDeletion")));
+        }
     }
 
     public IPropertySelectionModel getActionModel() {
