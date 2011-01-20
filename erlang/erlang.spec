@@ -2,7 +2,7 @@
 
 Name:           erlang
 Version:        R13B04
-Release:        1.2
+Release:        1.3
 %define pkg_version R13B04
 #
 Group:          Development/Languages/Erlang
@@ -271,3 +271,5 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 19 2011 - dhubler (at) ezuce.com
+- include reltool in rpm, no need for it to be removed.
