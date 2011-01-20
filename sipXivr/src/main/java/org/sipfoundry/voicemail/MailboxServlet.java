@@ -10,21 +10,17 @@ package org.sipfoundry.voicemail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.commons.userdb.ValidUsersXML;
-import org.sipfoundry.sipxivr.ActiveGreeting;
+import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxivr.Mailbox;
-import org.sipfoundry.sipxivr.MailboxPreferences;
 
 /**
  * A RESTful interface to the mailbox messages
@@ -172,6 +168,7 @@ public class MailboxServlet extends HttpServlet {
                 } else if (context.equals("messages")) {
                     if (method.equals(METHOD_GET)) {
                         response.setContentType("text/xml");
+                        pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
                         listMessages(messages.getInbox(), "inbox", pw);
                         listMessages(messages.getSaved(), "saved", pw);
                         listMessages(messages.getDeleted(), "deleted", pw);
@@ -193,10 +190,12 @@ public class MailboxServlet extends HttpServlet {
     }
 
     private void listMessages(List<VmMessage> messages, String folder, PrintWriter pw) {
+        String author = null;
         for (VmMessage message : messages) {
-            pw.format("<message id=%s heard=%s urgent=%s folder=%s duration=%s received=%s/>\n",
-                    message.getMessageId(), !message.isUnHeard(), message.isUrgent(),
-                    folder, message.getDuration(), message.getTimestamp());
+            author =  SipUriUtil.extractUserName(message.getMessageDescriptor().getFromUri().replace('+', ' '));
+            pw.format("<message id=\"%s\" heard=\"%s\" urgent=\"%s\" folder=\"%s\" duration=\"%s\" received=\"%s\" author=\"%s\"/>\n",
+                    message.getMessageId(), !message.isUnHeard(), message.isUrgent(), folder, message.getDuration(),
+                    message.getTimestamp(), author);
         }
     }
 
