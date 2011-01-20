@@ -1,7 +1,7 @@
 include config/subdir.am
 
 EXTRA_DIST = \
-    config/git-version-gen \
+    config/revision-gen \
     CONTRIBUTORS \
     $(@PACKAGE@_EXTRA_DIST)
 
@@ -9,7 +9,7 @@ EXTRA_DIST = \
 %-dist-hook:;
 
 dist-hook: @PACKAGE@-dist-hook
-	echo $(VERSION).$(subst .,-,$(PACKAGE_REVISION)) > $(distdir)/.tarball-version
+	echo $(PACKAGE_REVISION) > $(distdir)/.tarball-revision
 	@$(LocalizeSipXconfig) $(srcdir)/@PACKAGE@.spec.in > $(distdir)/@PACKAGE@.spec
 
 # CONFIG_DISTCLEANFILES are files to be added to DISTCLEANFILES in any
