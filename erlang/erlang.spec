@@ -119,7 +119,6 @@ make DESTDIR=$RPM_BUILD_ROOT install
 # clean up gui related folders
 rm -rf $RPM_BUILD_ROOT%{_libdir}/erlang/lib/et-1.4
 rm -rf $RPM_BUILD_ROOT%{_libdir}/erlang/lib/gs-1.5.11
-rm -rf $RPM_BUILD_ROOT%{_libdir}/erlang/lib/reltool-0.5.3
 rm -rf $RPM_BUILD_ROOT%{_libdir}/erlang/lib/toolbar-1.4.1
 rm -rf $RPM_BUILD_ROOT%{_libdir}/erlang/lib/wx-0.98.5
 
@@ -233,6 +232,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/erlang/lib/percept-*/
 %{_libdir}/erlang/lib/pman-*/
 %{_libdir}/erlang/lib/public_key-*/
+%{_libdir}/erlang/lib/reltool-*/
 %{_libdir}/erlang/lib/runtime_tools-*/
 %{_libdir}/erlang/lib/sasl-*/
 %{_libdir}/erlang/lib/snmp-*/
