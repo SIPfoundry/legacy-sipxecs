@@ -18,6 +18,7 @@ package org.sipfoundry.sipxconfig.service;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.openacd.FreeswitchMediaCommand;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentConfigCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdProvisioningContext;
 
 public class SipxOpenAcdService extends SipxService {
@@ -44,5 +45,7 @@ public class SipxOpenAcdService extends SipxService {
         String dialString = getSettingValue("freeswitch_media_manager/DIAL_STRING");
         m_provisioningContext.configure(Collections.singletonList(new FreeswitchMediaCommand(enabled, cNode,
                 dialString)));
+        Boolean dialPlanListener = (Boolean) getSettingTypedValue("agent_configuration/DIALPLAN_LISTENER");
+        m_provisioningContext.configure(Collections.singletonList(new OpenAcdAgentConfigCommand(dialPlanListener)));
     }
 }
