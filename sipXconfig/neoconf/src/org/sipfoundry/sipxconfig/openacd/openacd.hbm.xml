@@ -164,8 +164,16 @@
     <![CDATA[from OpenAcdQueueGroup group where group.name = :value]]>
   </query>
 
+  <query name="countOpenAcdQueueGroupWithSkill">
+    <![CDATA[select count(*) from OpenAcdQueueGroup as g join g.skills as s where s.id = :value]]>
+  </query>
+
   <query name="openAcdQueueWithName">
     <![CDATA[from OpenAcdQueue queue where queue.name = :value]]>
+  </query>
+
+  <query name="countOpenAcdQueueWithSkill">
+    <![CDATA[select count(*) from OpenAcdQueue as q join q.skills as s where s.id = :value]]>
   </query>
 
   <query name="openAcdSkillWithName">

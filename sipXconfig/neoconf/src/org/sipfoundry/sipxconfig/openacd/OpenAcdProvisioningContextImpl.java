@@ -52,6 +52,12 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
             public String toString() {
                 return "UPDATE";
             }
+        },
+
+        CONFIGURE {
+            public String toString() {
+                return "CONFIGURE";
+            }
         }
     }
 
@@ -91,6 +97,11 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
     @Override
     public void updateObjects(List< ? extends OpenAcdConfigObject> openAcdObjects) {
         storeCommand(createCommand(Command.UPDATE, openAcdObjects));
+    }
+
+    @Override
+    public void configure(List< ? extends OpenAcdConfigObject> openAcdObjects) {
+        storeCommand(createCommand(Command.CONFIGURE, openAcdObjects));
     }
 
     public void setHost(String host) {

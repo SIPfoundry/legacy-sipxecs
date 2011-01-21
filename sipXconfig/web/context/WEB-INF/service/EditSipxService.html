@@ -3,6 +3,7 @@
     <span jwcid="@Insert" value="ognl:messages.getMessage(sipxService.warningKey)">Warning</span>
   </div>
   <div jwcid="@common/BreadCrumbNavigation" breadCrumbs="ognl:breadCrumbs"/>
+  <span jwcid="@common/ErrorMsg"></span>
   <form jwcid="form@Form" delegate="bean:validator">
     <fieldset jwcid="@setting/SettingsFieldset"
         settings="ognl:sipxService.settings"

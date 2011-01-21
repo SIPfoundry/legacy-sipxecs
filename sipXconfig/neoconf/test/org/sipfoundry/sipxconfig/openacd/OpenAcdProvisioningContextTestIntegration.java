@@ -160,6 +160,30 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         assertEquals("10", objects.get(0).get("sort"));
     }
 
+    public void testOpenAcdConfigureCommands() {
+        MockOpenAcdProvisioningContext provContext = new MockOpenAcdProvisioningContext();
+        FreeswitchMediaCommand command = new FreeswitchMediaCommand(true, "test@testme",
+                "{ignore_early_media=true}sofia/mydomain.com/$1");
+        provContext.configure(Collections.singletonList(command));
+        OpenAcdAgentConfigCommand agentCommand = new OpenAcdAgentConfigCommand(true);
+        provContext.configure(Collections.singletonList(agentCommand));
+        BasicDBObject addQueueGroupCommand = provContext.getCommands().get(0);
+        assertEquals("CONFIGURE", addQueueGroupCommand.get("command"));
+        assertEquals(1, addQueueGroupCommand.get("count"));
+        List<BasicDBObject> objects = (List<BasicDBObject>) addQueueGroupCommand.get("objects");
+        assertEquals(1, objects.size());
+        assertEquals("freeswitch_media_manager", objects.get(0).get("type"));
+        assertEquals("true", objects.get(0).get("enabled"));
+        assertEquals("test@testme", objects.get(0).get("node"));
+        assertEquals("{ignore_early_media=true}sofia/mydomain.com/$1", objects.get(0).get("dialString"));
+        BasicDBObject enableListenerCommand = provContext.getCommands().get(1);
+        assertEquals("CONFIGURE", enableListenerCommand.get("command"));
+        assertEquals(1, enableListenerCommand.get("count"));
+        objects = (List<BasicDBObject>) enableListenerCommand.get("objects");
+        assertEquals("agent_configuration", objects.get(0).get("type"));
+        assertEquals("true", objects.get(0).get("listenerEnabled"));
+    }
+
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {
         m_openAcdContextImpl = openAcdContext;
     }

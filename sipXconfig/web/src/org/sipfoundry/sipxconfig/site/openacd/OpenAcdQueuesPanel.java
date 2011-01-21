@@ -15,10 +15,12 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IPage;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.annotations.Bean;
@@ -26,10 +28,16 @@ import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
+import org.apache.tapestry.form.IPropertySelectionModel;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
+import org.sipfoundry.sipxconfig.components.selection.OptGroup;
+import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdQueueGroup;
+import org.sipfoundry.sipxconfig.site.setting.BulkGroupAction;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBeginRenderListener {
@@ -75,5 +83,60 @@ public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBe
             return;
         }
         getOpenAcdContext().removeQueues(ids);
+    }
+
+    public IPropertySelectionModel getActionModel() {
+        Collection<OptionAdapter> actions = new ArrayList<OptionAdapter>();
+        Collection<OpenAcdQueueGroup> groups = getOpenAcdContext().getQueueGroups();
+
+        if (!groups.isEmpty()) {
+            actions.add(new OptGroup(getMessages().getMessage("label.moveToQueueGroup")));
+
+            for (OpenAcdQueueGroup group : groups) {
+                actions.add(new AddToQueueGroupAction(group));
+            }
+        }
+
+        AdaptedSelectionModel model = new AdaptedSelectionModel();
+        model.setCollection(actions);
+
+        return model;
+    }
+
+    class AddToQueueGroupAction extends BulkGroupAction {
+
+        private final OpenAcdQueueGroup m_group;
+
+        AddToQueueGroupAction(OpenAcdQueueGroup group) {
+            super(null);
+            m_group = group;
+        }
+
+        @Override
+        public String getLabel(Object option, int index) {
+            return m_group.getName();
+        }
+
+        @Override
+        public Object getValue(Object option, int index) {
+            return m_group.getId();
+        }
+
+        @Override
+        public String squeezeOption(Object option, int index) {
+            return m_group.getId().toString();
+        }
+
+        public void actionTriggered(IComponent component, IRequestCycle cycle) {
+            Collection<Integer> ids = getSelections().getAllSelected();
+            if (ids.isEmpty()) {
+                return;
+            }
+            for (Integer id : ids) {
+                OpenAcdQueue queue = getOpenAcdContext().getQueueById(id);
+                queue.setGroup(m_group);
+                getOpenAcdContext().saveQueue(queue);
+            }
+        }
     }
 }

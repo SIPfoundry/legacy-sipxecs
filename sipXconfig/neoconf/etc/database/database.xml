@@ -382,6 +382,7 @@
 	<antcall target="openacd-add-clients" />
 	<antcall target="openacd-queues" />
 	<antcall target="openacd-add-additional-skills" />
+	<antcall target="openacd-set-default-skills" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1197,6 +1198,9 @@
   </target>
   <target name="openacd-add-additional-skills" unless="openacd-add-additional-skills">
     <db-patch patch="openacd-add-additional-skills"/>
+  </target>
+  <target name="openacd-set-default-skills" unless="openacd-set-default-skills">
+	<db-patch patch="openacd-set-default-skills"/>
   </target>
 
   <!--
