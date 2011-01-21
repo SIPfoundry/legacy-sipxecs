@@ -4,7 +4,7 @@
 # 
 AC_PREREQ(2.57)
 
-AC_INIT(sipX, 4.4.0, sipx-dev@list.sipfoundry.org)
+AC_INIT(sipX, 0.0.4.5.2, sipx-dev@list.sipfoundry.org)
 
 # Pass same ./configure switches all sub-projects. Crude but effective.
 AC_SUBST(CONFIGURE_OPTIONS, $@)
