@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IComponent;
 import org.apache.tapestry.IPage;
@@ -85,10 +86,12 @@ public abstract class OpenAcdQueuesPanel extends BaseComponent implements PageBe
         if (ids.isEmpty()) {
             return;
         }
-        boolean errorMessage = getOpenAcdContext().removeQueues(ids);
-        if (errorMessage) {
+        List<String> queues = getOpenAcdContext().removeQueues(ids);
+        if (!queues.isEmpty()) {
+            String queueNames = StringUtils.join(queues.iterator(), ", ");
+            String errMessage = getMessages().format("msg.err.queueDeletion", queueNames);
             IValidationDelegate validator = TapestryUtils.getValidator(getPage());
-            validator.record(new ValidatorException(getMessages().getMessage("msg.err.defalutQueueDeletion")));
+            validator.record(new ValidatorException(errMessage));
         }
     }
 

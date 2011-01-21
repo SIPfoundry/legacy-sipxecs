@@ -23,6 +23,7 @@ import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 
 public class OpenAcdLine extends OpenAcdExtension {
     public static final String Q = "queue=";
+    public static final String BRAND = "brand=";
     public static final String DESTINATION_NUMBER = "destination_number";
     public static final String ALLOW_VOICEMAIL = "allow_voicemail=";
     public static final String EMPTY_STRING = "";
@@ -31,7 +32,6 @@ public class OpenAcdLine extends OpenAcdExtension {
         List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
         actions.add(createAction(FreeswitchAction.PredefinedAction.answer.toString(), null));
         actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), "domain_name=$${domain}"));
-        actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), "brand=1"));
         actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), Q));
         actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), "allow_voicemail=true"));
         actions.add(createAction(FreeswitchAction.PredefinedAction.erlang_sendmsg.toString(),
@@ -48,6 +48,10 @@ public class OpenAcdLine extends OpenAcdExtension {
 
     public static FreeswitchAction createQueueAction(String queue) {
         return createAction(FreeswitchAction.PredefinedAction.set.toString(), Q + queue);
+    }
+
+    public static FreeswitchAction createClientAction(String client) {
+        return createAction(FreeswitchAction.PredefinedAction.set.toString(), BRAND + client);
     }
 
     public static FreeswitchAction createPlaybackAction(String path) {

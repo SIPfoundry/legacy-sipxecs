@@ -43,4 +43,8 @@
     <property name="application"/>
     <property name="data"/>
   </class>
+
+  <query name="freeswitchActionsWithData">
+    <![CDATA[from FreeswitchAction action where action.data = :value]]>
+  </query>
 </hibernate-mapping>

@@ -638,6 +638,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(1, m_openAcdContextImpl.getClients().size());
 
         assertEquals("client", m_openAcdContextImpl.getClientById(client.getId()).getName());
+        assertEquals("client", m_openAcdContextImpl.getClientByIdentity(client.getIdentity()).getName());
     }
 
     public void testOpenAcdQueueGroupCrud() throws Exception {
