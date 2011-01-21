@@ -169,9 +169,11 @@ public class MailboxServlet extends HttpServlet {
                     if (method.equals(METHOD_GET)) {
                         response.setContentType("text/xml");
                         pw.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+                        pw.write("<messages>\n");
                         listMessages(messages.getInbox(), "inbox", pw);
                         listMessages(messages.getSaved(), "saved", pw);
                         listMessages(messages.getDeleted(), "deleted", pw);
+                        pw.write("</messages>");
                     } else {
                         response.sendError(405);
                     }
