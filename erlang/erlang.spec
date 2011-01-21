@@ -12,7 +12,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  ncurses-devel openssl-devel unixODBC-devel tcl-devel tk-devel openssh
 BuildRequires:  gcc-c++ java-devel >= 1.5.0
 BuildRequires:  krb5-devel 
-%if 0%{?sles_ersion} != 0
+%if 0%{?sles_version} != 0
 BuildRequires:  Mesa-devel
 %else 
 BuildRequires:  mesa-libOSMesa-devel
