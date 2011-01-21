@@ -5,7 +5,6 @@
 #
 Action="START"
 Status=0
-Args=""
 # HOME is required for erlang apps and not set when run under sipXsupervisor
 export HOME=`cd ~;pwd`
 
@@ -21,7 +20,7 @@ do
             ;;
 
         *)
-            Args="$1"
+            echo "Warning, unknown args $1" 1>&2
             ;;
     esac
 
@@ -35,7 +34,10 @@ pidfile=@SIPX_RUNDIR@/openacd.pid
 case "$Action" in
 	START)
 		echo $$ > ${pidfile}
-		exec @OPENACD_DIR@/boot.rb $Args
+		OPENACD_LOG_DIR=/var/log/sipxpbx/openacd \
+		    OPENACD_RUN_DIR=/var/sipxdata/openacd \
+		    RUNNER_USER=sipxchange \
+		    exec @OPENACD_DIR@/bin/openacd console -noinput
 		exit 0
 		;;
 
@@ -47,11 +49,6 @@ case "$Action" in
 	CONFIGTEST)
 	        if /etc/init.d/mongod status 2>/dev/null | grep -q stopped; then 
 		    echo 'Mongo database appears to be stopped. Please start mongod service' >&2
-		    Status=1; 
-		fi
-		# using find to get uid of directory, fixme if there is there a better way?
-	        if [ `find @OPENACD_DIR@ -maxdepth 0 -type d -printf %u` != @SIPXPBXUSER@ ]; then
-		    echo 'OpenACDs root directory @OPENACD_DIR@ needs to be owned by @SIPXPBXUSER@' >&2
 		    Status=1; 
 		fi
 		;;
