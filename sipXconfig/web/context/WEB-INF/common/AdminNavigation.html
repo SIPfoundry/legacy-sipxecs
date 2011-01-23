@@ -6,11 +6,17 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.user">Users</span></a>
 				<ul>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('topUserMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('topUserMenu')">Menu items to be added on top of User main menu</span>
+					</span>
 					<li><a jwcid="@PageLink" id="menu.users" page="user/ManageUsers"><span key="menu.users">Users</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.userGroups" page="user/UserGroups"><span key="menu.userGroups">User Groups</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.extensions" page="admin/ExtensionPools"><span key="menu.extensions">User Extension Pool</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.tlspeers" page="admin/TlsPeers"><span key="menu.tlspeers">TLS Peers</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.authcodes" page="admin/AuthCodes"><span key="menu.authcodes">Authorization Codes</span></a></li>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('bottomUserMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('bottomUserMenu')">Menu items to be added at the end of User main menu</span>
+					</span>
 				</ul>
 			</div>
 		</li>
@@ -19,12 +25,18 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.devices">Devices</span></a>
 				<ul>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('topDevicesMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('topDevicesMenu')">Menu items to be added on top of Devices main menu</span>
+					</span>
 					<li><a jwcid="@PageLink" id="menu.devices" page="phone/ManagePhones"><span key="menu.devices">Phones</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.deviceGroups" page="phone/PhoneGroups"><span key="menu.deviceGroups">Phone Groups</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.gateways" page="gateway/ListGateways"><span key="menu.gateways">Gateways</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.uploads" page="upload/ManageUploads"><span key="menu.uploads">Upload Firmware</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.configuredServices" page="service/ListConfiguredServices"><span key="menu.configuredServices"/></a></li>
 					<li><a jwcid="@PageLink" id="menu.timezone" page="device/TimeZonePage"><span key="menu.timezone">Timezone Settings</span></a></li>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('bottomDevicesMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('bottomDevicesMenu')">Menu items to be added at the end of Devices main menu</span>
+					</span>
 				</ul>
 			</div>
 		</li>
@@ -33,6 +45,9 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.admin">Features</span></a>
 				<ul>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('topFeaturesMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('topFeaturesMenu')">Menu items to be added on top of Features main menu</span>
+					</span>
 					<li jwcid="@If" condition="ognl:acdContext.enabled">
 						<a jwcid="@PageLink" id="menu.acd" page="acd/ListAcdServers"><span key="menu.acd">ACD</span></a>
 					</li>
@@ -54,6 +69,9 @@
 					<li jwcid="@If" condition="ognl:openFireEnabled">
 						<a jwcid="@PageLink" id="menu.instantMessaging" page="admin/InstantMessaging"><span key="menu.instantMessaging">Instant Messaging</span></a>
 					</li>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('bottomFeaturesMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('bottomFeaturesMenu')">Menu items to be added at the end of Features main menu</span>
+					</span>
 				</ul>
 			</div>
 		</li>
@@ -62,6 +80,9 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.system">System</span></a>
 				<ul>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('topSystemMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('topSystemMenu')">Menu items to be added on top of System main menu</span>
+					</span>
 					<li><a jwcid="@PageLink" id="menu.locations" page="admin/commserver/LocationsPage"><span key="menu.locations">Locations (HA)</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.branches" page="branch/BranchesPage"><span key="menu.branches">Branches</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.domain" page="admin/ManageDomain"><span key="menu.domain">Domain</span></a></li>
@@ -79,6 +100,9 @@
 					</li>
 					<li><a jwcid="@PageLink" id="menu.timeSettings" page="admin/TimeSettingsPage"><span key="menu.timeSettings">Time Settings</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.loggingLevels" page="admin/ManageLoggingLevels"><span key="menu.loggingLevels">Logging Levels</span></a></li>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('bottomSystemMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('bottomSystemMenu')">Menu items to be added at the end of System main menu</span>
+					</span>
 				</ul>
 			</div>
 		</li>
@@ -87,6 +111,9 @@
 			<div class="roundedMainSectionBoxInside">
 				<a class="heading"><span key="menu.section.diag">Diagnostics</span></a>
 				<ul>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('topDiagnosticsMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('topDiagnosticsMenu')">Menu items to be added on top of Diagnostics main menu</span>
+					</span>
 					<li jwcid="@If" condition="ognl:coreContext.debug">
 							<a jwcid="@PageLink" id="menu.testpage" page="TestPage"><span key="menu.testpage">Tests</span></a>
 					</li>
@@ -108,8 +135,14 @@
 					<li><a jwcid="@PageLink" id="menu.alarms" page="admin/AlarmsPage"><span key="menu.alarms">Alarms</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.dnsTest" page="admin/DnsTestPage"><span key="menu.dnsTest">Dns Test</span></a></li>
 					<li><span jwcid="@admin/AboutDialog" id="menu.about" linkTitle="message:menu.about"/></li>
+					<span jwcid="@If" condition="ognl:isPluginMenuAvailable('bottomDiagnosticsMenu')">
+						<span jwcid="@RenderBlock" block="ognl:getPluginMenu('bottomDiagnosticsMenu')">Menu items to be added at the end of Diagnostics main menu</span>
+					</span>
 				</ul>
 			</div>
 		</li>
+		<span jwcid="@If" condition="ognl:isPluginMenuAvailable('pluginMainMenu')">
+			<span jwcid="@RenderBlock" block="ognl:getPluginMenu('pluginMainMenu')">Main menu added by plugin</span>
+		</span>
 	</ul>
 </div>

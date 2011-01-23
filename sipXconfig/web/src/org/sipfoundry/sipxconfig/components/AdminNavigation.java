@@ -10,8 +10,11 @@
 package org.sipfoundry.sipxconfig.components;
 
 import org.apache.tapestry.BaseComponent;
+import org.apache.tapestry.IPage;
+import org.apache.tapestry.PageNotFoundException;
 import org.apache.tapestry.annotations.ComponentClass;
 import org.apache.tapestry.annotations.InjectObject;
+import org.apache.tapestry.components.Block;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDeviceManager;
 import org.sipfoundry.sipxconfig.admin.monitoring.MonitoringContext;
@@ -23,6 +26,8 @@ import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
 public abstract class AdminNavigation extends BaseComponent {
+
+    private static final String PLUGIN_MENU = "plugin/PluginMenu";
 
     @InjectObject("spring:presenceServer")
     public abstract PresenceServer getPresenceServer();
@@ -52,6 +57,22 @@ public abstract class AdminNavigation extends BaseComponent {
 
     public boolean isOpenAcdEnabled() {
         return getSipxServiceManager().isServiceInstalled(SipxOpenAcdService.BEAN_ID);
+    }
+
+    public boolean isPluginMenuAvailable(String menu) {
+        try {
+            IPage pluginMenuPage = getPage().getRequestCycle().getPage(PLUGIN_MENU);
+            if (pluginMenuPage.getComponents().containsKey(menu)) {
+                return true;
+            }
+        } catch (PageNotFoundException ex) {
+            return false;
+        }
+        return false;
+    }
+
+    public Block getPluginMenu(String menu) {
+        return (Block) getPage().getRequestCycle().getPage(PLUGIN_MENU).getComponent(menu);
     }
 
 }
