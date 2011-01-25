@@ -81,7 +81,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     public void dropDb() {
         DB datasetDb = s_mongoInstance.getDB(DB_NAME);
-        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
+        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getAuthorizationRealm());
         datasetCollection.drop();
     }
 
