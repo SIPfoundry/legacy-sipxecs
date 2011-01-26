@@ -14,8 +14,12 @@ import java.util.List;
 import com.mongodb.DBObject;
 
 import org.apache.commons.lang.StringUtils;
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.InternalUser;
@@ -34,6 +38,8 @@ public class Credentials extends DataSetGenerator {
     public static final String AUTHTYPE = "authtp";
     public static final String DIGEST = "DIGEST";
     private CallGroupContext m_callGroupContext;
+    private TlsPeerManager m_tlsPeerManager;
+    private AuthCodeManager m_authCodeManager;
 
     @Override
     protected DataSet getType() {
@@ -54,9 +60,14 @@ public class Credentials extends DataSetGenerator {
         };
         forAllUsersDo(getCoreContext(), closure);
 
-        List<InternalUser> internalUsers = getCoreContext().loadInternalUsers();
-        for (InternalUser user : internalUsers) {
-            generate(user);
+        List<TlsPeer> tlsPeers = m_tlsPeerManager.getTlsPeers();
+        for (TlsPeer tlsPeer : tlsPeers) {
+            generate(tlsPeer);
+        }
+
+        List<AuthCode> authCodes = m_authCodeManager.getAuthCodes();
+        for (AuthCode authCode : authCodes) {
+            generate(authCode);
         }
 
         for (SpecialUserType specialUserType : SpecialUserType.values()) {
@@ -80,9 +91,6 @@ public class Credentials extends DataSetGenerator {
         if (entity instanceof User) {
             User user = (User) entity;
             insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
-        } else if (entity instanceof InternalUser) {
-            InternalUser user = (InternalUser) entity;
-            insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
         } else if (entity instanceof CallGroup) {
             CallGroup callGroup = (CallGroup) entity;
             insertCredential(top, realm, callGroup.getSipPassword(), callGroup.getSipPasswordHash(realm), DIGEST);
@@ -103,5 +111,13 @@ public class Credentials extends DataSetGenerator {
         }
         top.put(AUTHTYPE, authtype);
         getDbCollection().save(top);
+    }
+
+    public void setAuthCodeManager(AuthCodeManager authCodeManager) {
+        m_authCodeManager = authCodeManager;
+    }
+
+    public void setTlsPeerManager(TlsPeerManager tlsPeerManager) {
+        m_tlsPeerManager = tlsPeerManager;
     }
 }

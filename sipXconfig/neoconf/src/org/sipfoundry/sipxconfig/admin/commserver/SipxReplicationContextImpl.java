@@ -165,7 +165,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
             return m_delete;
         }
     }
-    
+
     @Required
     public void setReplicationManager(ReplicationManager replicationManager) {
         m_replicationManager = replicationManager;

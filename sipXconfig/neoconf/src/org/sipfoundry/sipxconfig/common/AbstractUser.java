@@ -50,7 +50,7 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
-public abstract class AbstractUser extends BeanWithGroups implements Replicable {
+public abstract class AbstractUser extends BeanWithGroups {
     public static final String GROUP_RESOURCE_ID = "user";
 
     // property names

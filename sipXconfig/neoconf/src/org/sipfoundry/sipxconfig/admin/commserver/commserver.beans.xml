@@ -192,10 +192,14 @@
   <bean id="credentialDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials">
     <property name="callGroupContext" ref="callGroupContext" />
+    <property name="tlsPeerManager" ref="tlsPeerManager" />
+    <property name="authCodeManager" ref="authCodeManager" />
   </bean>
   <bean id="permissionDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions">
     <property name="callGroupContext" ref="callGroupContext" />
+    <property name="tlsPeerManager" ref="tlsPeerManager" />
+    <property name="authCodeManager" ref="authCodeManager" />
   </bean>
   <bean id="calleraliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">

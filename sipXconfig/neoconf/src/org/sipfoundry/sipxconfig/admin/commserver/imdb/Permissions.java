@@ -14,9 +14,13 @@ import java.util.Collection;
 import java.util.List;
 
 import com.mongodb.DBObject;
+
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
-import org.sipfoundry.sipxconfig.common.AbstractUser;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.InternalUser;
@@ -34,8 +38,10 @@ import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 public class Permissions extends DataSetGenerator {
     public static final String PERMISSIONS = "prm";
     private CallGroupContext m_callGroupContext;
+    private TlsPeerManager m_tlsPeerManager;
+    private AuthCodeManager m_authCodeManager;
 
-    void addUser(List<DataSetRecord> records, AbstractUser user) {
+    void addUser(List<DataSetRecord> records, User user) {
         Setting permissions = user.getSettings().getSetting(Permission.CALL_PERMISSION_PATH);
         Setting voicemailPermissions = user.getSettings().getSetting(Permission.VOICEMAIL_SERVER_PATH);
         PermissionWriter writer = new PermissionWriter(user, records);
@@ -54,10 +60,10 @@ public class Permissions extends DataSetGenerator {
     }
 
     class PermissionWriter extends AbstractSettingVisitor {
-        private final AbstractUser m_user;
+        private final User m_user;
         private final List<DataSetRecord> m_records;
 
-        PermissionWriter(AbstractUser user, List<DataSetRecord> records) {
+        PermissionWriter(User user, List<DataSetRecord> records) {
             m_user = user;
             m_records = records;
         }
@@ -127,9 +133,14 @@ public class Permissions extends DataSetGenerator {
             }
         }
 
-        List<InternalUser> internalUsers = getCoreContext().loadInternalUsers();
-        for (InternalUser user : internalUsers) {
-            generate(user);
+        List<TlsPeer> tlsPeers = m_tlsPeerManager.getTlsPeers();
+        for (TlsPeer tlsPeer : tlsPeers) {
+            generate(tlsPeer);
+        }
+
+        List<AuthCode> authCodes = m_authCodeManager.getAuthCodes();
+        for (AuthCode authCode : authCodes) {
+            generate(authCode);
         }
 
         Closure<User> closure = new Closure<User>() {
@@ -151,4 +162,13 @@ public class Permissions extends DataSetGenerator {
         top.put(PERMISSIONS, prms);
         getDbCollection().save(top);
     }
+
+    public void setAuthCodeManager(AuthCodeManager authCodeManager) {
+        m_authCodeManager = authCodeManager;
+    }
+
+    public void setTlsPeerManager(TlsPeerManager tlsPeerManager) {
+        m_tlsPeerManager = tlsPeerManager;
+    }
+
 }

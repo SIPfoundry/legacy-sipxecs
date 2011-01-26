@@ -25,7 +25,7 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
-public class User extends AbstractUser {
+public class User extends AbstractUser implements Replicable {
     private String m_identity;
 
     /**
