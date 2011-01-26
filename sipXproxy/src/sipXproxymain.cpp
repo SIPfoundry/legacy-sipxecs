@@ -15,7 +15,7 @@
 #include <unistd.h>
 #endif
 #include <iostream>
-#include <SipRouter.h>
+
 // APPLICATION INCLUDES
 #include <os/OsFS.h>
 #include <os/OsConfigDb.h>
@@ -30,7 +30,8 @@
 #include <sipXecsService/SipXecsService.h>
 #include <sipXecsService/SharedSecret.h>
 #include <sipdb/SIPDBManager.h>
-
+#include <sipdb/UserForwardDB.h>
+#include <SipRouter.h>
 #include <ForwardRules.h>
 
 #include <SipXProxyCseObserver.h>

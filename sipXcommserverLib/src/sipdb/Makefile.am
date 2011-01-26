@@ -26,18 +26,11 @@ libsipdb_la_CXXFLAGS = \
 	-DSIPX_DBDIR=\"@SIPX_DBDIR@\"
 
 libsipdb_la_LIBADD = \
-	@SIPXTACK_LIBS@ \
-	-lmongoclient \
-	-lboost_system-mt
+	@SIPXTACK_LIBS@
 
 libsipdb_la_SOURCES =  \
-   MongoDB.cpp \
-   EntityDB.cpp \
-   EntityRecord.cpp \
-   RegBinding.cpp \
-   RegDB.cpp \
-   AliasDB.cpp \
-   CallerAliasDB.cpp \
+	AliasDB.cpp \
+	CallerAliasDB.cpp \
    CredentialDB.cpp \
    DialByNameDB.cpp \
    ExtensionDB.cpp \

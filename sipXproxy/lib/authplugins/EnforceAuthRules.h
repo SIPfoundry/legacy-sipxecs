@@ -9,7 +9,6 @@
 #define _ENFORCEAUTHRULES_H_
 
 // SYSTEM INCLUDES
-#include "sipdb/EntityDB.h"
 #include "os/OsRWMutex.h"
 
 // APPLICATION INCLUDES
@@ -88,15 +87,13 @@ class EnforceAuthRules : public AuthPlugin
   protected:
    friend class EnforceAuthRulesTest;
    
-
    /// @returns true iff at least one permission in grantedPermissions is in requiredPermissions
-   bool isAuthorized(const UtlString& identity,
-                     const ResultSet& requiredPermissions,
+   bool isAuthorized(const ResultSet& requiredPermissions,
+                     const ResultSet& grantedPermissions,
                      UtlString& matchedPermission,   ///< first required permission found
                      UtlString& unmatchedPermissions ///< requiredPermissions as a single string
                      );
 
-   virtual void announceAssociatedSipRouter( SipRouter* sipRouter );
   private:
    friend AuthPlugin* getAuthPlugin(const UtlString& name);
 
@@ -115,10 +112,6 @@ class EnforceAuthRules : public AuthPlugin
    /// There is no assignment operator.
    EnforceAuthRules& operator=(const EnforceAuthRules& noassignmentoperator);
 // @endcond INCLUDENOCOPY
-
-    SipRouter* mpSipRouter;
-   typedef MongoDB::Collection<EntityDB> Collection;
-   Collection*_pEntities;
 };
 
 #endif // _ENFORCEAUTHRULES_H_

@@ -1,1 +1,0 @@
-libsipXport_la-TiXmlIterator.lo: xmlparser/TiXmlIterator.cpp

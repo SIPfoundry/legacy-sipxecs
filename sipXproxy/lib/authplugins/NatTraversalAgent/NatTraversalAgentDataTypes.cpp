@@ -6,13 +6,13 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "SipRouter.h"
 #include "os/OsSysLog.h"
 #include "os/OsDateTime.h"
 // APPLICATION INCLUDES
 #include "NatTraversalAgentDataTypes.h"
 #include "NatTraversalRules.h"
 #include "MediaRelay.h"
+#include "SipRouter.h"
 #include "net/SdpBody.h"
 #include "sipdb/RegistrationDB.h"
 

@@ -8,8 +8,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "sipdb/EntityDB.h"
-#include "SipRouter.h"
 #include <assert.h>
 
 
@@ -27,7 +25,9 @@
 #include "net/SipXauthIdentity.h"
 #include "net/SipSrvLookup.h"
 #include "sipdb/ResultSet.h"
+#include "sipdb/CredentialDB.h"
 #include "AuthPlugin.h"
+#include "SipRouter.h"
 #include "ForwardRules.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
@@ -65,8 +65,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
    ,mAuthenticationEnabled(true)    
    ,mNonceExpiration(NONCE_EXPIRATION_PERIOD) // the period in seconds that nonces are valid
    ,mpForwardingRules(&forwardingRules)
-   ,mAuthPlugins(AuthPlugin::Factory, AuthPlugin::Prefix),
-    _pEntities(0)
+   ,mAuthPlugins(AuthPlugin::Factory, AuthPlugin::Prefix)
 {
    // Get Via info to use as defaults for route & realm
    UtlString dnsName;
@@ -145,11 +144,6 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                     "SIP_REALM not found: defaulted to domain name '%s'",
                     mRealm.data());
    }
-
-    UtlString canonical;
-    getDomain(canonical);
-    std::string domain = "imdb." + canonical.str();
-    _pEntities = new Collection(domain);
 
    // Get the secret to be used in the route recognition hash.
    // get the shared secret for generating signatures
@@ -299,7 +293,6 @@ SipRouter::~SipRouter()
       mpSipUserAgent->removeMessageObserver(*getMessageQueue());
    }
    delete mSharedSecret;
-   delete _pEntities;
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -509,11 +502,11 @@ SipRouter::ProxyAction SipRouter::proxyMessage(SipMessage& sipRequest, SipMessag
                // should be challenged for authentication and when authenticated
                // the PAI should be added by the proxy before passing it on to
                // other components.
-               if(getCredential(fromUrl,
-                                 mRealm,
-                                 userId,
-                                 passTokenDB,
-                                 authTypeDB))
+               if(CredentialDB::getInstance()->getCredential(fromUrl,
+                                                             mRealm,
+                                                             userId,
+                                                             passTokenDB,
+                                                             authTypeDB))
                {
                   UtlString authUser;
                   if (!isAuthenticated(sipRequest,authUser))
@@ -1196,7 +1189,7 @@ bool SipRouter::isAuthenticated(const SipMessage& sipRequest,
           UtlString passTokenDB;
 
           // then get the credentials for this user and realm
-          if(getCredential(requestUserBase,
+          if(CredentialDB::getInstance()->getCredential(requestUserBase,
                                                         mRealm,
                                                         userUrl,
                                                         passTokenDB,
@@ -1322,58 +1315,4 @@ bool SipRouter::isPAIdentityApplicable(const SipMessage& sipRequest)
    }
 
    return result;
-}
-
-
-/// Retrieve the SIP credential check values for a given identity and realm
-bool SipRouter::getCredential (
-   const Url& uri,
-   const UtlString& realm,
-   UtlString& userid,
-   UtlString& passtoken,
-   UtlString& authType) const
-{
-    UtlString identity;
-    uri.getIdentity(identity);
-
-    if (!_pEntities)
-        return false;
-
-    EntityRecord entity;
-    if (!_pEntities->collection().findByIdentity(identity.str(), entity))
-        return false;
-
-    if (entity.realm() != realm.str())
-        return false;
-    
-    userid = entity.userId();
-    passtoken = entity.password();
-    authType = entity.authType();
-
-    return true;
-}
-
-/// Retrieve the SIP credential check values for a given userid and realm
-bool SipRouter::getCredential (
-   const UtlString& userid,
-   const UtlString& realm,
-   Url& uri,
-   UtlString& passtoken,
-   UtlString& authType) const
-{
-    if (!_pEntities)
-        return false;
-
-    EntityRecord entity;
-    if (!_pEntities->collection().findByUserId(userid.str(), entity))
-        return false;
-
-    if (entity.realm() != realm.str())
-        return false;
-
-    uri = entity.identity().c_str();
-    passtoken = entity.password();
-    authType = entity.authType();
-
-    return true;
 }

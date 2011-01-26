@@ -10,11 +10,6 @@ nobase_include_HEADERS =  \
     sipXecsService/SharedSecret.h \
     sipXecsService/SipNonceDb.h \
     configrpc/ConfigRPC.h \
-    sipdb/MongoDB.h \
-    sipdb/EntityDB.h \
-    sipdb/EntityRecord.h \
-    sipdb/RegBinding.h \
-    sipdb/RegDB.h \
     sipdb/AliasDB.h \
     sipdb/AliasRow.h \
     sipdb/CallerAliasDB.h \

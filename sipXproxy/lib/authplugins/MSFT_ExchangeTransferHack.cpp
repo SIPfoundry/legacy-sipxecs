@@ -6,7 +6,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "SipRouter.h"
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
 #include "utl/UtlRegex.h"
@@ -14,7 +13,7 @@
 // APPLICATION INCLUDES
 #include "net/Url.h"
 #include "net/SipMessage.h"
-
+#include "SipRouter.h"
 #include "MSFT_ExchangeTransferHack.h"
 
 // DEFINES

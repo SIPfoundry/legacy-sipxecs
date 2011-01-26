@@ -11,7 +11,7 @@
 #define _SipRouter_h_
 
 // SYSTEM INCLUDES
-#include "sipdb/EntityDB.h"
+
 
 // APPLICATION INCLUDES
 #include <os/OsServerTask.h>
@@ -121,24 +121,6 @@ class SipRouter : public OsServerTask
    
    /// Get the domain shared secret for signing.
    const SharedSecret* authSecret();
-
-    /// Retrieve the SIP credential check values for a given identity and realm
-    bool getCredential (
-       const Url& uri,
-       const UtlString& realm,
-       UtlString& userid,
-       UtlString& passtoken,
-       UtlString& authType
-                              ) const;
-
-    /// Retrieve the SIP credential check values for a given userid and realm
-    bool getCredential (
-       const UtlString& userid,
-       const UtlString& realm,
-       Url& uri,
-       UtlString& passtoken,
-       UtlString& authType
-                              ) const;
    
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
@@ -210,10 +192,7 @@ class SipRouter : public OsServerTask
 
    // @endcond 
 
-	 friend class SipBridgeRouter;
-
-   typedef MongoDB::Collection<EntityDB> Collection;
-   Collection*_pEntities;
+	 friend class SipBridgeRouter;    
 };
 
 /* ============================ INLINE METHODS ============================ */

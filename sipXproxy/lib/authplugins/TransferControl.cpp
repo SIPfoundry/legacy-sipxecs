@@ -6,13 +6,13 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-#include "SipRouter.h"
 #include "os/OsSysLog.h"
 
 // APPLICATION INCLUDES
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "net/SipXauthIdentity.h"
+#include "SipRouter.h"
 #include "TransferControl.h"
 
 // DEFINES

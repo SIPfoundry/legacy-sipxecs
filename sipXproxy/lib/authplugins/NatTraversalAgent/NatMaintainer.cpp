@@ -7,7 +7,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // APPLICATION INCLUDES
-#include "SipRouter.h"
 #include "NatMaintainer.h"
 #include "os/OsLock.h"
 #include "os/OsDateTime.h"
@@ -16,6 +15,7 @@
 #include "net/CallId.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
+#include "SipRouter.h"
 #include "NatTraversalAgentDataTypes.h"
 
 // DEFINES
