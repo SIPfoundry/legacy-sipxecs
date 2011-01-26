@@ -93,7 +93,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         DataSet type = generator.getType();
         try {
             DB datasetDb = s_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
+            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getAuthorizationRealm());
             generator.setDbCollection(datasetCollection);
             generator.generate();
             m_auditLogContext.logReplication(type.getName(), m_locationsManager.getPrimaryLocation());
@@ -120,7 +120,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         boolean success = true;
         try {
             DB datasetDb = s_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
+            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getAuthorizationRealm());
 
             Set<DataSet> dataSets = entity.getDataSets();
             for (DataSet dataSet : dataSets) {
@@ -139,7 +139,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     public boolean removeEntity(Replicable entity) {
         DB datasetDb = s_mongoInstance.getDB(DB_NAME);
-        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
+        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getAuthorizationRealm());
         String id = DataSetGenerator.getEntityId(entity);
         DBObject search = new BasicDBObject();
         search.put(DataSetGenerator.ID, id);
