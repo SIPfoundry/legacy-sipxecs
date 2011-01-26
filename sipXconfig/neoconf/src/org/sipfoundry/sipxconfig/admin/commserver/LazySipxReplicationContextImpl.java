@@ -22,6 +22,13 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.ReplicationsFinishedEvent;
 import org.springframework.context.ApplicationEvent;
 
+/**
+ * This context deals with lazy replication of configuration files.
+ * Configuration files need to be lazily replicated, however entities do not
+ * Until mongo introduction it made sense for both IMDB and config files to be lazily replicated
+ * but now with IMDB change to mongo and with the focus shift from Dataset replication to 
+ * Replicable entity replication lazy does not make sense for entities. 
+ */
 public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     private static final Log LOG = LogFactory.getLog(LazySipxReplicationContextImpl.class);
     /**
@@ -47,19 +54,16 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         m_worker.start();
     }
 
-    public synchronized void generateAll() {
-        m_tasks.add(new DataSetTask());
-        notifyWorker();
+    public void generateAll() {
+        m_target.generateAll();
     }
 
-    public synchronized void generate(Replicable entity) {
-        m_tasks.add(new DataSetTask(entity, false));
-        notifyWorker();
+    public void generate(Replicable entity) {
+        m_target.generate(entity);
     }
 
-    public synchronized void remove(Replicable entity) {
-        m_tasks.add(new DataSetTask(entity, false));
-        notifyWorker();
+    public void remove(Replicable entity) {
+        m_target.remove(entity);
     }
 
     public synchronized void replicate(ConfigurationFile conf) {
@@ -160,50 +164,6 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
         public abstract void replicate(SipxReplicationContext replicationContext);
 
         public abstract boolean update(ReplicationTask task);
-    }
-
-    static class DataSetTask extends ReplicationTask {
-        private Replicable m_entity;
-        private boolean m_delete;
-
-        DataSetTask() {
-
-        }
-
-        DataSetTask(Replicable entity, boolean delete) {
-            m_entity = entity;
-            m_delete = delete;
-        }
-
-        @Override
-        public void replicate(SipxReplicationContext replicationContext) {
-            if (m_entity != null) {
-                if (m_delete) {
-                    replicationContext.remove(m_entity);
-                } else {
-                    replicationContext.generate(m_entity);
-                }
-            } else {
-                replicationContext.generateAll();
-            }
-        }
-
-        @Override
-        public boolean update(ReplicationTask task) {
-            if (task instanceof DataSetTask) {
-                DataSetTask dst = (DataSetTask) task;
-                return m_entity.equals(dst.m_entity);
-            }
-            return false;
-        }
-
-        public Replicable getEntity() {
-            return m_entity;
-        }
-
-        public boolean isDelete() {
-            return m_delete;
-        }
     }
 
     static class ConfTask extends ReplicationTask {

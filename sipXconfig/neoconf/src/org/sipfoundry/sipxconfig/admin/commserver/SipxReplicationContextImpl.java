@@ -17,7 +17,6 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.DataSetTask;
 import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.ReplicationTask;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
@@ -43,7 +42,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     protected abstract ServiceConfigurator getServiceConfigurator();
 
     public void generate(final Replicable entity) {
-        m_tasks.add(new LazySipxReplicationContextImpl.DataSetTask(entity, false));
+        m_tasks.add(new DataSetTask(entity, false));
     }
 
     public void generateAll() {
@@ -57,7 +56,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     }
 
     public void remove(final Replicable entity) {
-        m_tasks.add(new LazySipxReplicationContextImpl.DataSetTask(entity, true));
+        m_tasks.add(new DataSetTask(entity, true));
     }
 
     public void replicate(ConfigurationFile file) {
@@ -123,6 +122,50 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         boolean replicate();
     }
 
+    static class DataSetTask extends ReplicationTask {
+        private Replicable m_entity;
+        private boolean m_delete;
+
+        DataSetTask() {
+
+        }
+
+        DataSetTask(Replicable entity, boolean delete) {
+            m_entity = entity;
+            m_delete = delete;
+        }
+
+        @Override
+        public void replicate(SipxReplicationContext replicationContext) {
+            if (m_entity != null) {
+                if (m_delete) {
+                    replicationContext.remove(m_entity);
+                } else {
+                    replicationContext.generate(m_entity);
+                }
+            } else {
+                replicationContext.generateAll();
+            }
+        }
+
+        @Override
+        public boolean update(ReplicationTask task) {
+            if (task instanceof DataSetTask) {
+                DataSetTask dst = (DataSetTask) task;
+                return m_entity.equals(dst.m_entity);
+            }
+            return false;
+        }
+
+        public Replicable getEntity() {
+            return m_entity;
+        }
+
+        public boolean isDelete() {
+            return m_delete;
+        }
+    }
+    
     @Required
     public void setReplicationManager(ReplicationManager replicationManager) {
         m_replicationManager = replicationManager;

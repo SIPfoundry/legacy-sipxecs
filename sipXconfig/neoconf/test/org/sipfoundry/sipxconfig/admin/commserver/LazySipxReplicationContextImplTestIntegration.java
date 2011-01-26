@@ -15,16 +15,13 @@ import static org.easymock.EasyMock.verify;
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.ConfTask;
-import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.DataSetTask;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivatedEvent;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.MappingRules;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.Orbits;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.conference.Conference;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
 import org.springframework.context.ApplicationEvent;
 
@@ -48,11 +45,11 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
         SipxReplicationContext replication = createMock(SipxReplicationContext.class);
         replication.replicate(mr);
         replication.generate(new User());
+        replication.generate(new User());
         replication.generate(new CallSequence());
+        replication.generateAll();
         replication.publishEvent(event);
         replication.replicate(orbits);
-        replication.generate(new CallGroup());
-        replication.generate(new Conference());
         replay(replication);
 
         int interval = 50;
@@ -62,20 +59,16 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
         lazy.init();
 
         lazy.replicate(mr);
-        for (int i = 0; i < lazyIterations; i++) {
-            lazy.generate(new User());
-            lazy.generate(new Conference());
-            lazy.generateAll();
-        }
+        lazy.generate(new User());
+        lazy.generate(new User());
+        lazy.generate(new CallSequence());
+        lazy.generateAll();
         lazy.publishEvent(event);
 
         Thread.sleep(400);
 
-        lazy.replicate(orbits);
         for (int i = 0; i < lazyIterations; i++) {
-            lazy.generate(new CallGroup());
-            lazy.generate(new Conference());
-            lazy.generateAll();
+            lazy.replicate(orbits);
         }
 
         Thread.sleep(800);
@@ -111,24 +104,4 @@ public class LazySipxReplicationContextImplTestIntegration extends TestCase {
         verify(rc);
     }
 
-    public void testDataSetTaskUpdate() {
-        User u1 = new User();
-        User u2 = new User();
-        DataSetTask task1 = new DataSetTask(u1, false);
-        DataSetTask task2 = new DataSetTask(u2, false);
-        DataSetTask task3 = new DataSetTask(u1, false);
-
-        assertTrue(task1.update(task3));
-        assertFalse(task1.update(task2));
-
-        SipxReplicationContext rc = createMock(SipxReplicationContext.class);
-        rc.generate(u2);
-        rc.generate(u1);
-        replay(rc);
-
-        task1.replicate(rc);
-        task2.replicate(rc);
-
-        verify(rc);
-    }
 }
