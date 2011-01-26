@@ -16,6 +16,7 @@ import com.mongodb.DBObject;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -88,6 +89,9 @@ public class Credentials extends DataSetGenerator {
         } else if (entity instanceof SpecialUser) {
             SpecialUser user = (SpecialUser) entity;
             insertCredential(top, realm, defaultString(user.getSipPassword()), null, DIGEST);
+        } else if (entity instanceof BeanWithUserPermissions) {
+            InternalUser user = ((BeanWithUserPermissions) entity).getInternalUser();
+            insertCredential(top, realm, defaultString(user.getSipPassword()), user.getPintoken(), DIGEST);
         }
     }
 

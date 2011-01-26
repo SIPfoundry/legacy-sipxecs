@@ -155,7 +155,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     /**
      * Encodes payload using Base64 and returns encoded data as string
-     * 
+     *
      * @param payload
      * @return string representing encoded data
      */

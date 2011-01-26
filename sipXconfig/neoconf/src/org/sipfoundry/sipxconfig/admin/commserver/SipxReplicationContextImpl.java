@@ -21,7 +21,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl
 import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.ReplicationTask;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
-import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
@@ -44,11 +43,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     protected abstract ServiceConfigurator getServiceConfigurator();
 
     public void generate(final Replicable entity) {
-        /*
-         * ReplicateWork work = new ReplicateWork() { public boolean replicate() { return
-         * m_replicationManager.replicateEntity(entity); } }; doWithJob("Data replication: " +
-         * entity.getName(), work);
-         */
         m_tasks.add(new LazySipxReplicationContextImpl.DataSetTask(entity, false));
     }
 
@@ -63,11 +57,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     }
 
     public void remove(final Replicable entity) {
-        /*
-         * ReplicateWork work = new ReplicateWork() { public boolean replicate() { return
-         * m_replicationManager.removeEntity(entity); } }; doWithJob("Replication - remove: " +
-         * entity.getName(), work);
-         */
         m_tasks.add(new LazySipxReplicationContextImpl.DataSetTask(entity, true));
     }
 

@@ -115,10 +115,8 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
                 list.add((Replicable) o);
             }
         }
-        for (Replicable o : Collections.synchronizedList(list)) {
-            if (o instanceof Replicable) {
-                m_sipxReplicationContext.replicateWork((Replicable) o);
-            }
+        for (Replicable repl : Collections.synchronizedList(list)) {
+            m_sipxReplicationContext.replicateWork(repl);
         }
     }
 

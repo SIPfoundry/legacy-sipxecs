@@ -363,6 +363,6 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
 
     @Override
     public String getIdentity(String domain) {
-        return getName() + "@" + getLocation().getFqdn() + ":" + getPort();
+        return null;
     }
 }

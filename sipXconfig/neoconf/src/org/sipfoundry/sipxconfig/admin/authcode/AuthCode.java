@@ -9,9 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.admin.authcode;
 
-import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-public class AuthCode extends BeanWithUserPermissions {
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
+import org.sipfoundry.sipxconfig.common.Replicable;
+
+public class AuthCode extends BeanWithUserPermissions implements Replicable {
     private String m_code;
     private String m_description;
 
@@ -29,6 +37,33 @@ public class AuthCode extends BeanWithUserPermissions {
 
     public void setDescription(String description) {
         m_description = description;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.CREDENTIAL);
+        ds.add(DataSet.PERMISSION);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domainName) {
+        return "~~ac~" + getId() + "@" + domainName;
+    }
+
+    @Override
+    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
+        return null;
+    }
+
+    @Override
+    public String getName() {
+        return null;
+    }
+
+    @Override
+    public void setName(String name) {
     }
 
 }

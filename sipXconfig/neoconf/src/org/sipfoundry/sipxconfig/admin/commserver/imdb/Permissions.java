@@ -17,7 +17,9 @@ import com.mongodb.DBObject;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.common.AbstractUser;
+import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
 import org.sipfoundry.sipxconfig.common.Closure;
+import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
@@ -99,6 +101,11 @@ public class Permissions extends DataSetGenerator {
             User u = addSpecialUser(specialUser.getUserName(), records);
             u.setIdentity(null);
             insertDbObject(u, records);
+        } else if (entity instanceof BeanWithUserPermissions) {
+            InternalUser user = ((BeanWithUserPermissions) entity).getInternalUser();
+            User u = addSpecialUser(user.getUserName(), records);
+            u.setUserName(entity.getClass().getSimpleName() + ((BeanWithUserPermissions) entity).getId());
+            insertDbObject(u, records);
         }
     }
 
@@ -118,6 +125,11 @@ public class Permissions extends DataSetGenerator {
             if (callGroup.isEnabled()) {
                 generate(callGroup);
             }
+        }
+
+        List<InternalUser> internalUsers = getCoreContext().loadInternalUsers();
+        for (InternalUser user : internalUsers) {
+            generate(user);
         }
 
         Closure<User> closure = new Closure<User>() {
