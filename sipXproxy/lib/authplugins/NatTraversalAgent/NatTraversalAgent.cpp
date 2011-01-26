@@ -20,6 +20,7 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "SipRouter.h"
 #include "alarm/Alarm.h"
 #include "net/SipMessage.h"
 #include "os/OsReadLock.h"
@@ -31,7 +32,6 @@
 #include "utl/UtlHashMapIterator.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
-#include "SipRouter.h"
 #include <net/NameValueTokenizer.h>
 #include <net/Url.h>
 #include "NatTraversalAgent.h"

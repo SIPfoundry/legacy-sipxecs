@@ -1,0 +1,15 @@
+service = sipxcallresolver-agent
+pid     = /home/joegen/sipxecs-bin/var/run/sipxpbx/sipxcallresolver-agent.pid
+verify  = 2
+debug   = 5
+output  = /home/joegen/sipxecs-bin/var/log/sipxpbx/sipxcallresolver-agent.log
+CApath  = /home/joegen/sipxecs-bin/etc/sipxpbx/ssl/authorities
+cert    = /home/joegen/sipxecs-bin/etc/sipxpbx/ssl/ssl.crt
+key     = /home/joegen/sipxecs-bin/etc/sipxpbx/ssl/ssl.key
+client  = no
+foreground = yes
+fips = no
+
+[postgresql]
+accept  = 9300
+connect = 5432

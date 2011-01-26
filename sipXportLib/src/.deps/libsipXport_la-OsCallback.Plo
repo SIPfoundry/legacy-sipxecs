@@ -1,0 +1,31 @@
+libsipXport_la-OsCallback.lo: os/OsCallback.cpp /usr/include/assert.h \
+ /usr/include/features.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-32.h ../include/os/OsCallback.h \
+ ../include/os/OsNotification.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/wchar.h ../include/os/OsStatus.h
+
+/usr/include/assert.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-32.h:
+
+../include/os/OsCallback.h:
+
+../include/os/OsNotification.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdint.h:
+
+/usr/include/stdint.h:
+
+/usr/include/bits/wchar.h:
+
+../include/os/OsStatus.h:

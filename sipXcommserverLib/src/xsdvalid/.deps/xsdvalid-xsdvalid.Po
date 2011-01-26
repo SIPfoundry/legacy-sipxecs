@@ -1,0 +1,695 @@
+xsdvalid-xsdvalid.o: xsdvalid.cpp \
+ /usr/include/xercesc/util/PlatformUtils.hpp \
+ /usr/include/xercesc/util/XercesDefs.hpp \
+ /usr/include/xercesc/util/Xerces_autoconf_config.hpp \
+ /usr/include/bits/wordsize.h \
+ /usr/include/xercesc/util/Xerces_autoconf_config-32.hpp \
+ /usr/include/inttypes.h /usr/include/features.h /usr/include/sys/cdefs.h \
+ /usr/include/gnu/stubs.h /usr/include/gnu/stubs-32.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/wchar.h /usr/include/sys/types.h \
+ /usr/include/bits/types.h /usr/include/bits/typesizes.h \
+ /usr/include/time.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/stddef.h \
+ /usr/include/endian.h /usr/include/bits/endian.h \
+ /usr/include/bits/byteswap.h /usr/include/sys/select.h \
+ /usr/include/bits/select.h /usr/include/bits/sigset.h \
+ /usr/include/bits/time.h /usr/include/sys/sysmacros.h \
+ /usr/include/bits/pthreadtypes.h \
+ /usr/include/xercesc/util/XercesVersion.hpp \
+ /usr/include/xercesc/util/XMLException.hpp \
+ /usr/include/xercesc/util/XMemory.hpp /usr/include/stdlib.h \
+ /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
+ /usr/include/xlocale.h /usr/include/alloca.h \
+ /usr/include/xercesc/util/XMLExceptMsgs.hpp \
+ /usr/include/xercesc/dom/DOMError.hpp \
+ /usr/include/xercesc/util/XMLUni.hpp \
+ /usr/include/xercesc/framework/XMLErrorReporter.hpp \
+ /usr/include/xercesc/util/PanicHandler.hpp \
+ /usr/include/xercesc/util/XMLFileMgr.hpp \
+ /usr/include/xercesc/util/XMLMutexMgr.hpp \
+ /usr/include/xercesc/parsers/AbstractDOMParser.hpp \
+ /usr/include/xercesc/dom/DOMDocument.hpp \
+ /usr/include/xercesc/dom/DOMNode.hpp \
+ /usr/include/xercesc/dom/DOMDocumentRange.hpp \
+ /usr/include/xercesc/dom/DOMDocumentTraversal.hpp \
+ /usr/include/xercesc/dom/DOMNodeFilter.hpp \
+ /usr/include/xercesc/dom/DOMXPathEvaluator.hpp \
+ /usr/include/xercesc/dom/DOMXPathResult.hpp \
+ /usr/include/xercesc/framework/XMLDocumentHandler.hpp \
+ /usr/include/xercesc/util/RefVectorOf.hpp \
+ /usr/include/xercesc/util/BaseRefVectorOf.hpp \
+ /usr/include/xercesc/util/ArrayIndexOutOfBoundsException.hpp \
+ /usr/include/xercesc/util/XMLEnumerator.hpp \
+ /usr/include/xercesc/framework/MemoryManager.hpp \
+ /usr/include/xercesc/util/BaseRefVectorOf.c \
+ /usr/include/xercesc/util/RefVectorOf.c \
+ /usr/include/xercesc/framework/XMLAttr.hpp \
+ /usr/include/xercesc/util/QName.hpp \
+ /usr/include/xercesc/util/XMLString.hpp \
+ /usr/include/xercesc/framework/XMLBuffer.hpp /usr/include/string.h \
+ /usr/include/assert.h /usr/include/xercesc/util/XMLUniDefs.hpp \
+ /usr/include/xercesc/internal/XSerializable.hpp \
+ /usr/include/xercesc/internal/XSerializeEngine.hpp \
+ /usr/include/xercesc/util/RefHashTableOf.hpp \
+ /usr/include/xercesc/util/Hashers.hpp \
+ /usr/include/xercesc/util/IllegalArgumentException.hpp \
+ /usr/include/xercesc/util/NoSuchElementException.hpp \
+ /usr/include/xercesc/util/RuntimeException.hpp \
+ /usr/include/xercesc/util/RefHashTableOf.c \
+ /usr/include/xercesc/util/Janitor.hpp \
+ /usr/include/xercesc/util/Janitor.c \
+ /usr/include/xercesc/util/NullPointerException.hpp \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/new \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cstddef \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++config.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/os_defines.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/cpu_defines.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/exception \
+ /usr/include/xercesc/util/ValueVectorOf.hpp \
+ /usr/include/xercesc/util/ValueVectorOf.c \
+ /usr/include/xercesc/internal/XSerializationException.hpp \
+ /usr/include/xercesc/internal/XProtoType.hpp \
+ /usr/include/xercesc/framework/XMLAttDef.hpp \
+ /usr/include/xercesc/validators/datatype/DatatypeValidator.hpp \
+ /usr/include/xercesc/util/KVStringPair.hpp \
+ /usr/include/xercesc/util/regx/RegularExpression.hpp \
+ /usr/include/xercesc/util/RefArrayVectorOf.hpp \
+ /usr/include/xercesc/util/RefArrayVectorOf.c \
+ /usr/include/xercesc/util/regx/Op.hpp \
+ /usr/include/xercesc/util/regx/TokenFactory.hpp \
+ /usr/include/xercesc/util/regx/Token.hpp \
+ /usr/include/xercesc/util/Mutexes.hpp \
+ /usr/include/xercesc/util/regx/BMPattern.hpp \
+ /usr/include/xercesc/util/regx/OpFactory.hpp \
+ /usr/include/xercesc/util/regx/RegxUtil.hpp \
+ /usr/include/xercesc/validators/schema/SchemaSymbols.hpp \
+ /usr/include/xercesc/framework/psvi/XSSimpleTypeDefinition.hpp \
+ /usr/include/xercesc/framework/psvi/XSTypeDefinition.hpp \
+ /usr/include/xercesc/framework/psvi/XSObject.hpp \
+ /usr/include/xercesc/framework/psvi/XSConstants.hpp \
+ /usr/include/xercesc/framework/ValidationContext.hpp \
+ /usr/include/xercesc/util/NameIdPool.hpp \
+ /usr/include/xercesc/util/NameIdPool.c \
+ /usr/include/xercesc/framework/XMLEntityHandler.hpp \
+ /usr/include/xercesc/util/SecurityManager.hpp \
+ /usr/include/xercesc/util/ValueStackOf.hpp \
+ /usr/include/xercesc/util/EmptyStackException.hpp \
+ /usr/include/xercesc/util/ValueStackOf.c \
+ /usr/include/xercesc/validators/DTD/DocTypeHandler.hpp \
+ /usr/include/xercesc/framework/XMLNotationDecl.hpp \
+ /usr/include/xercesc/validators/DTD/DTDAttDef.hpp \
+ /usr/include/xercesc/validators/DTD/DTDElementDecl.hpp \
+ /usr/include/xercesc/framework/XMLElementDecl.hpp \
+ /usr/include/xercesc/framework/XMLAttDefList.hpp \
+ /usr/include/xercesc/framework/XMLContentModel.hpp \
+ /usr/include/xercesc/validators/DTD/DTDEntityDecl.hpp \
+ /usr/include/xercesc/framework/XMLEntityDecl.hpp \
+ /usr/include/xercesc/dom/DOMDocumentType.hpp \
+ /usr/include/xercesc/framework/XMLBufferMgr.hpp \
+ /usr/include/xercesc/framework/psvi/PSVIHandler.hpp \
+ /usr/include/xercesc/dom/DOMImplementation.hpp \
+ /usr/include/xercesc/dom/DOMImplementationLS.hpp \
+ /usr/include/xercesc/dom/DOMException.hpp \
+ /usr/include/xercesc/dom/DOMLSException.hpp \
+ /usr/include/xercesc/dom/DOMRangeException.hpp \
+ /usr/include/xercesc/dom/DOMImplementationRegistry.hpp \
+ /usr/include/xercesc/parsers/DOMLSParserImpl.hpp \
+ /usr/include/xercesc/dom/DOMLSParser.hpp \
+ /usr/include/xercesc/dom/DOMConfiguration.hpp \
+ /usr/include/xercesc/dom/DOMStringList.hpp \
+ /usr/include/xercesc/validators/common/Grammar.hpp \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/limits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
+ /usr/include/bits/stdio_lim.h /usr/include/xercesc/dom/DOMLSInput.hpp \
+ /usr/include/xercesc/dom/DOMLocator.hpp \
+ /usr/include/xercesc/dom/DOMErrorHandler.hpp \
+ /home/joegen/sipxecs-bin/include/utl/UtlString.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/string \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stringfwd.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/char_traits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_algobase.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/functexcept.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/exception_defines.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/cpp_type_traits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/type_traits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/numeric_traits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_pair.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/move.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/concept_check.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator_base_types.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator_base_funcs.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/debug/debug.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/postypes.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cwchar \
+ /usr/include/wchar.h /usr/include/stdio.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdarg.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/allocator.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++allocator.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/new_allocator.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/localefwd.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++locale.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/clocale \
+ /usr/include/locale.h /usr/include/bits/locale.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/iosfwd \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cctype \
+ /usr/include/ctype.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/ostream_insert.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cxxabi-forced.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_function.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/backward/binders.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_string.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/atomicity.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/gthr.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/gthr-default.h \
+ /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
+ /usr/include/bits/setjmp.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
+ /usr/include/bits/confname.h /usr/include/getopt.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/atomic_word.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/initializer_list \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_string.tcc \
+ /home/joegen/sipxecs-bin/include/os/OsDefs.h ../../src/config.h \
+ /home/joegen/sipxecs-bin/include/os/linux/OsLinuxDefs.h \
+ /usr/include/errno.h /usr/include/bits/errno.h \
+ /usr/include/linux/errno.h /usr/include/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+ /usr/include/libio.h /usr/include/_G_config.h \
+ /usr/include/bits/sys_errlist.h /usr/include/bits/stdio.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlDefs.h \
+ /home/joegen/sipxecs-bin/include/os/qsTypes.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlContainable.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/iostream \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ostream \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ios \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/ios_base.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/locale_classes.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/locale_classes.tcc \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/streambuf \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/streambuf.tcc \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_ios.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/locale_facets.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cwctype \
+ /usr/include/wctype.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/ctype_base.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/streambuf_iterator.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/ctype_inline.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/locale_facets.tcc \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_ios.tcc \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/ostream.tcc \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/istream \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/istream.tcc \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/fstream \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/codecvt.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cstdio \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/basic_file.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++io.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/fstream.tcc
+
+/usr/include/xercesc/util/PlatformUtils.hpp:
+
+/usr/include/xercesc/util/XercesDefs.hpp:
+
+/usr/include/xercesc/util/Xerces_autoconf_config.hpp:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/xercesc/util/Xerces_autoconf_config-32.hpp:
+
+/usr/include/inttypes.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-32.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdint.h:
+
+/usr/include/stdint.h:
+
+/usr/include/bits/wchar.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/time.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/stddef.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/bits/byteswap.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/xercesc/util/XercesVersion.hpp:
+
+/usr/include/xercesc/util/XMLException.hpp:
+
+/usr/include/xercesc/util/XMemory.hpp:
+
+/usr/include/stdlib.h:
+
+/usr/include/bits/waitflags.h:
+
+/usr/include/bits/waitstatus.h:
+
+/usr/include/xlocale.h:
+
+/usr/include/alloca.h:
+
+/usr/include/xercesc/util/XMLExceptMsgs.hpp:
+
+/usr/include/xercesc/dom/DOMError.hpp:
+
+/usr/include/xercesc/util/XMLUni.hpp:
+
+/usr/include/xercesc/framework/XMLErrorReporter.hpp:
+
+/usr/include/xercesc/util/PanicHandler.hpp:
+
+/usr/include/xercesc/util/XMLFileMgr.hpp:
+
+/usr/include/xercesc/util/XMLMutexMgr.hpp:
+
+/usr/include/xercesc/parsers/AbstractDOMParser.hpp:
+
+/usr/include/xercesc/dom/DOMDocument.hpp:
+
+/usr/include/xercesc/dom/DOMNode.hpp:
+
+/usr/include/xercesc/dom/DOMDocumentRange.hpp:
+
+/usr/include/xercesc/dom/DOMDocumentTraversal.hpp:
+
+/usr/include/xercesc/dom/DOMNodeFilter.hpp:
+
+/usr/include/xercesc/dom/DOMXPathEvaluator.hpp:
+
+/usr/include/xercesc/dom/DOMXPathResult.hpp:
+
+/usr/include/xercesc/framework/XMLDocumentHandler.hpp:
+
+/usr/include/xercesc/util/RefVectorOf.hpp:
+
+/usr/include/xercesc/util/BaseRefVectorOf.hpp:
+
+/usr/include/xercesc/util/ArrayIndexOutOfBoundsException.hpp:
+
+/usr/include/xercesc/util/XMLEnumerator.hpp:
+
+/usr/include/xercesc/framework/MemoryManager.hpp:
+
+/usr/include/xercesc/util/BaseRefVectorOf.c:
+
+/usr/include/xercesc/util/RefVectorOf.c:
+
+/usr/include/xercesc/framework/XMLAttr.hpp:
+
+/usr/include/xercesc/util/QName.hpp:
+
+/usr/include/xercesc/util/XMLString.hpp:
+
+/usr/include/xercesc/framework/XMLBuffer.hpp:
+
+/usr/include/string.h:
+
+/usr/include/assert.h:
+
+/usr/include/xercesc/util/XMLUniDefs.hpp:
+
+/usr/include/xercesc/internal/XSerializable.hpp:
+
+/usr/include/xercesc/internal/XSerializeEngine.hpp:
+
+/usr/include/xercesc/util/RefHashTableOf.hpp:
+
+/usr/include/xercesc/util/Hashers.hpp:
+
+/usr/include/xercesc/util/IllegalArgumentException.hpp:
+
+/usr/include/xercesc/util/NoSuchElementException.hpp:
+
+/usr/include/xercesc/util/RuntimeException.hpp:
+
+/usr/include/xercesc/util/RefHashTableOf.c:
+
+/usr/include/xercesc/util/Janitor.hpp:
+
+/usr/include/xercesc/util/Janitor.c:
+
+/usr/include/xercesc/util/NullPointerException.hpp:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/new:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cstddef:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++config.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/os_defines.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/cpu_defines.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/exception:
+
+/usr/include/xercesc/util/ValueVectorOf.hpp:
+
+/usr/include/xercesc/util/ValueVectorOf.c:
+
+/usr/include/xercesc/internal/XSerializationException.hpp:
+
+/usr/include/xercesc/internal/XProtoType.hpp:
+
+/usr/include/xercesc/framework/XMLAttDef.hpp:
+
+/usr/include/xercesc/validators/datatype/DatatypeValidator.hpp:
+
+/usr/include/xercesc/util/KVStringPair.hpp:
+
+/usr/include/xercesc/util/regx/RegularExpression.hpp:
+
+/usr/include/xercesc/util/RefArrayVectorOf.hpp:
+
+/usr/include/xercesc/util/RefArrayVectorOf.c:
+
+/usr/include/xercesc/util/regx/Op.hpp:
+
+/usr/include/xercesc/util/regx/TokenFactory.hpp:
+
+/usr/include/xercesc/util/regx/Token.hpp:
+
+/usr/include/xercesc/util/Mutexes.hpp:
+
+/usr/include/xercesc/util/regx/BMPattern.hpp:
+
+/usr/include/xercesc/util/regx/OpFactory.hpp:
+
+/usr/include/xercesc/util/regx/RegxUtil.hpp:
+
+/usr/include/xercesc/validators/schema/SchemaSymbols.hpp:
+
+/usr/include/xercesc/framework/psvi/XSSimpleTypeDefinition.hpp:
+
+/usr/include/xercesc/framework/psvi/XSTypeDefinition.hpp:
+
+/usr/include/xercesc/framework/psvi/XSObject.hpp:
+
+/usr/include/xercesc/framework/psvi/XSConstants.hpp:
+
+/usr/include/xercesc/framework/ValidationContext.hpp:
+
+/usr/include/xercesc/util/NameIdPool.hpp:
+
+/usr/include/xercesc/util/NameIdPool.c:
+
+/usr/include/xercesc/framework/XMLEntityHandler.hpp:
+
+/usr/include/xercesc/util/SecurityManager.hpp:
+
+/usr/include/xercesc/util/ValueStackOf.hpp:
+
+/usr/include/xercesc/util/EmptyStackException.hpp:
+
+/usr/include/xercesc/util/ValueStackOf.c:
+
+/usr/include/xercesc/validators/DTD/DocTypeHandler.hpp:
+
+/usr/include/xercesc/framework/XMLNotationDecl.hpp:
+
+/usr/include/xercesc/validators/DTD/DTDAttDef.hpp:
+
+/usr/include/xercesc/validators/DTD/DTDElementDecl.hpp:
+
+/usr/include/xercesc/framework/XMLElementDecl.hpp:
+
+/usr/include/xercesc/framework/XMLAttDefList.hpp:
+
+/usr/include/xercesc/framework/XMLContentModel.hpp:
+
+/usr/include/xercesc/validators/DTD/DTDEntityDecl.hpp:
+
+/usr/include/xercesc/framework/XMLEntityDecl.hpp:
+
+/usr/include/xercesc/dom/DOMDocumentType.hpp:
+
+/usr/include/xercesc/framework/XMLBufferMgr.hpp:
+
+/usr/include/xercesc/framework/psvi/PSVIHandler.hpp:
+
+/usr/include/xercesc/dom/DOMImplementation.hpp:
+
+/usr/include/xercesc/dom/DOMImplementationLS.hpp:
+
+/usr/include/xercesc/dom/DOMException.hpp:
+
+/usr/include/xercesc/dom/DOMLSException.hpp:
+
+/usr/include/xercesc/dom/DOMRangeException.hpp:
+
+/usr/include/xercesc/dom/DOMImplementationRegistry.hpp:
+
+/usr/include/xercesc/parsers/DOMLSParserImpl.hpp:
+
+/usr/include/xercesc/dom/DOMLSParser.hpp:
+
+/usr/include/xercesc/dom/DOMConfiguration.hpp:
+
+/usr/include/xercesc/dom/DOMStringList.hpp:
+
+/usr/include/xercesc/validators/common/Grammar.hpp:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/limits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/include/bits/xopen_lim.h:
+
+/usr/include/bits/stdio_lim.h:
+
+/usr/include/xercesc/dom/DOMLSInput.hpp:
+
+/usr/include/xercesc/dom/DOMLocator.hpp:
+
+/usr/include/xercesc/dom/DOMErrorHandler.hpp:
+
+/home/joegen/sipxecs-bin/include/utl/UtlString.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/string:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stringfwd.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/char_traits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_algobase.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/functexcept.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/exception_defines.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/cpp_type_traits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/type_traits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/numeric_traits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_pair.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/move.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/concept_check.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator_base_types.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator_base_funcs.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/debug/debug.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/postypes.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cwchar:
+
+/usr/include/wchar.h:
+
+/usr/include/stdio.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdarg.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/allocator.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++allocator.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/new_allocator.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/localefwd.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++locale.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/clocale:
+
+/usr/include/locale.h:
+
+/usr/include/bits/locale.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/iosfwd:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cctype:
+
+/usr/include/ctype.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/ostream_insert.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cxxabi-forced.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_function.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/backward/binders.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_string.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/atomicity.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/gthr.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/gthr-default.h:
+
+/usr/include/pthread.h:
+
+/usr/include/sched.h:
+
+/usr/include/bits/sched.h:
+
+/usr/include/bits/setjmp.h:
+
+/usr/include/unistd.h:
+
+/usr/include/bits/posix_opt.h:
+
+/usr/include/bits/environments.h:
+
+/usr/include/bits/confname.h:
+
+/usr/include/getopt.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/atomic_word.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/initializer_list:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_string.tcc:
+
+/home/joegen/sipxecs-bin/include/os/OsDefs.h:
+
+../../src/config.h:
+
+/home/joegen/sipxecs-bin/include/os/linux/OsLinuxDefs.h:
+
+/usr/include/errno.h:
+
+/usr/include/bits/errno.h:
+
+/usr/include/linux/errno.h:
+
+/usr/include/asm/errno.h:
+
+/usr/include/asm-generic/errno.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/libio.h:
+
+/usr/include/_G_config.h:
+
+/usr/include/bits/sys_errlist.h:
+
+/usr/include/bits/stdio.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlDefs.h:
+
+/home/joegen/sipxecs-bin/include/os/qsTypes.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlContainable.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/iostream:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ostream:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ios:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/ios_base.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/locale_classes.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/locale_classes.tcc:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/streambuf:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/streambuf.tcc:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_ios.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/locale_facets.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cwctype:
+
+/usr/include/wctype.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/ctype_base.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/streambuf_iterator.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/ctype_inline.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/locale_facets.tcc:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_ios.tcc:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/ostream.tcc:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/istream:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/istream.tcc:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/fstream:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/codecvt.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cstdio:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/basic_file.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++io.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/fstream.tcc:

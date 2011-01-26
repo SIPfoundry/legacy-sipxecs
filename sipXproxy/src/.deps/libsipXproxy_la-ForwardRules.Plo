@@ -1,0 +1,450 @@
+libsipXproxy_la-ForwardRules.lo: ForwardRules.cpp /usr/include/assert.h \
+ /usr/include/features.h /usr/include/sys/cdefs.h \
+ /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \
+ /usr/include/gnu/stubs-32.h /usr/include/stdlib.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/stddef.h \
+ /usr/include/bits/waitflags.h /usr/include/bits/waitstatus.h \
+ /usr/include/endian.h /usr/include/bits/endian.h \
+ /usr/include/bits/byteswap.h /usr/include/xlocale.h \
+ /usr/include/sys/types.h /usr/include/bits/types.h \
+ /usr/include/bits/typesizes.h /usr/include/time.h \
+ /usr/include/sys/select.h /usr/include/bits/select.h \
+ /usr/include/bits/sigset.h /usr/include/bits/time.h \
+ /usr/include/sys/sysmacros.h /usr/include/bits/pthreadtypes.h \
+ /usr/include/alloca.h /home/joegen/sipxecs-bin/include/os/OsSysLog.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdarg.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlDefs.h \
+ /home/joegen/sipxecs-bin/include/os/qsTypes.h \
+ /home/joegen/sipxecs-bin/include/os/OsDefs.h config.h \
+ /home/joegen/sipxecs-bin/include/os/linux/OsLinuxDefs.h \
+ /usr/include/errno.h /usr/include/bits/errno.h \
+ /usr/include/linux/errno.h /usr/include/asm/errno.h \
+ /usr/include/asm-generic/errno.h /usr/include/asm-generic/errno-base.h \
+ /usr/include/stdio.h /usr/include/libio.h /usr/include/_G_config.h \
+ /usr/include/wchar.h /usr/include/bits/stdio_lim.h \
+ /usr/include/bits/sys_errlist.h /usr/include/bits/stdio.h \
+ /usr/include/inttypes.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdint.h \
+ /usr/include/stdint.h /usr/include/bits/wchar.h /usr/include/string.h \
+ /home/joegen/sipxecs-bin/include/os/OsSysLogFacilities.h \
+ /home/joegen/sipxecs-bin/include/os/OsSocket.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlContainableAtomic.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlContainable.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlString.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/string \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++config.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/os_defines.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/cpu_defines.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stringfwd.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/char_traits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_algobase.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cstddef \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/functexcept.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/exception_defines.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/cpp_type_traits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/type_traits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/numeric_traits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_pair.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/move.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/concept_check.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator_base_types.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator_base_funcs.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/debug/debug.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/postypes.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cwchar \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/allocator.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++allocator.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/new_allocator.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/new \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/exception \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/localefwd.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++locale.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/clocale \
+ /usr/include/locale.h /usr/include/bits/locale.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/iosfwd \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cctype \
+ /usr/include/ctype.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/ostream_insert.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cxxabi-forced.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_function.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/backward/binders.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_string.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/atomicity.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/gthr.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/gthr-default.h \
+ /usr/include/pthread.h /usr/include/sched.h /usr/include/bits/sched.h \
+ /usr/include/bits/setjmp.h /usr/include/unistd.h \
+ /usr/include/bits/posix_opt.h /usr/include/bits/environments.h \
+ /usr/include/bits/confname.h /usr/include/getopt.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/atomic_word.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/initializer_list \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_string.tcc \
+ /home/joegen/sipxecs-bin/include/os/OsBSem.h \
+ /home/joegen/sipxecs-bin/include/os/OsSyncBase.h \
+ /home/joegen/sipxecs-bin/include/os/OsStatus.h \
+ /home/joegen/sipxecs-bin/include/os/OsTime.h \
+ /home/joegen/sipxecs-bin/include/os/linux/OsBSemLinux.h \
+ /home/joegen/sipxecs-bin/include/os/linux/pt_csem.h \
+ /home/joegen/sipxecs-bin/include/os/linux/AdapterInfo.h \
+ /home/joegen/sipxecs-bin/include/net/Url.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlRegex.h /usr/include/pcre.h \
+ /home/joegen/sipxecs-bin/include/net/SipMessage.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/limits.h \
+ /usr/lib/gcc/i686-redhat-linux/4.5.1/include/syslimits.h \
+ /usr/include/limits.h /usr/include/bits/posix1_lim.h \
+ /usr/include/bits/local_lim.h /usr/include/linux/limits.h \
+ /usr/include/bits/posix2_lim.h /usr/include/bits/xopen_lim.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlHashBag.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlContainer.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlLink.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlIterator.h \
+ /home/joegen/sipxecs-bin/include/net/HttpMessage.h \
+ /home/joegen/sipxecs-bin/include/net/HttpBody.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlSList.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlList.h \
+ /home/joegen/sipxecs-bin/include/os/OsLock.h \
+ /home/joegen/sipxecs-bin/include/os/OsSyncBase.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlDList.h \
+ /home/joegen/sipxecs-bin/include/net/NameValuePair.h \
+ /home/joegen/sipxecs-bin/include/os/OsMutex.h \
+ /home/joegen/sipxecs-bin/include/os/linux/OsMutexLinux.h \
+ /home/joegen/sipxecs-bin/include/os/linux/pt_mutex.h \
+ /home/joegen/sipxecs-bin/include/os/OsTimeLog.h \
+ /home/joegen/sipxecs-bin/include/os/OsMsgQ.h \
+ /home/joegen/sipxecs-bin/include/os/shared/OsMsgQShared.h \
+ /home/joegen/sipxecs-bin/include/os/OsCSem.h \
+ /home/joegen/sipxecs-bin/include/os/linux/OsCSemLinux.h \
+ /home/joegen/sipxecs-bin/include/os/OsMsg.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlHashMap.h \
+ /home/joegen/sipxecs-bin/include/net/SdpBody.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlSListIterator.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlListIterator.h \
+ /home/joegen/sipxecs-bin/include/net/SdpCodec.h \
+ /home/joegen/sipxecs-bin/include/utl/UtlInt.h \
+ /home/joegen/sipxecs-bin/include/digitmaps/Patterns.h ForwardRules.h \
+ /home/joegen/sipxecs-bin/include/xmlparser/tinyxml.h \
+ /home/joegen/sipxecs-bin/include/xmlparser/tinystr.h \
+ /home/joegen/sipxecs-bin/include/xmlparser/tinyxml.h
+
+/usr/include/assert.h:
+
+/usr/include/features.h:
+
+/usr/include/sys/cdefs.h:
+
+/usr/include/bits/wordsize.h:
+
+/usr/include/gnu/stubs.h:
+
+/usr/include/gnu/stubs-32.h:
+
+/usr/include/stdlib.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/stddef.h:
+
+/usr/include/bits/waitflags.h:
+
+/usr/include/bits/waitstatus.h:
+
+/usr/include/endian.h:
+
+/usr/include/bits/endian.h:
+
+/usr/include/bits/byteswap.h:
+
+/usr/include/xlocale.h:
+
+/usr/include/sys/types.h:
+
+/usr/include/bits/types.h:
+
+/usr/include/bits/typesizes.h:
+
+/usr/include/time.h:
+
+/usr/include/sys/select.h:
+
+/usr/include/bits/select.h:
+
+/usr/include/bits/sigset.h:
+
+/usr/include/bits/time.h:
+
+/usr/include/sys/sysmacros.h:
+
+/usr/include/bits/pthreadtypes.h:
+
+/usr/include/alloca.h:
+
+/home/joegen/sipxecs-bin/include/os/OsSysLog.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdarg.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlDefs.h:
+
+/home/joegen/sipxecs-bin/include/os/qsTypes.h:
+
+/home/joegen/sipxecs-bin/include/os/OsDefs.h:
+
+config.h:
+
+/home/joegen/sipxecs-bin/include/os/linux/OsLinuxDefs.h:
+
+/usr/include/errno.h:
+
+/usr/include/bits/errno.h:
+
+/usr/include/linux/errno.h:
+
+/usr/include/asm/errno.h:
+
+/usr/include/asm-generic/errno.h:
+
+/usr/include/asm-generic/errno-base.h:
+
+/usr/include/stdio.h:
+
+/usr/include/libio.h:
+
+/usr/include/_G_config.h:
+
+/usr/include/wchar.h:
+
+/usr/include/bits/stdio_lim.h:
+
+/usr/include/bits/sys_errlist.h:
+
+/usr/include/bits/stdio.h:
+
+/usr/include/inttypes.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/stdint.h:
+
+/usr/include/stdint.h:
+
+/usr/include/bits/wchar.h:
+
+/usr/include/string.h:
+
+/home/joegen/sipxecs-bin/include/os/OsSysLogFacilities.h:
+
+/home/joegen/sipxecs-bin/include/os/OsSocket.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlContainableAtomic.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlContainable.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlString.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/string:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++config.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/os_defines.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/cpu_defines.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stringfwd.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/char_traits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_algobase.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cstddef:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/functexcept.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/exception_defines.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/cpp_type_traits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/type_traits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/numeric_traits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_pair.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/move.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/concept_check.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator_base_types.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator_base_funcs.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_iterator.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/debug/debug.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/postypes.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cwchar:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/allocator.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++allocator.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/new_allocator.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/new:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/exception:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/localefwd.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/c++locale.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/clocale:
+
+/usr/include/locale.h:
+
+/usr/include/bits/locale.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/iosfwd:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cctype:
+
+/usr/include/ctype.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/ostream_insert.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/cxxabi-forced.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/stl_function.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/backward/binders.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_string.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/ext/atomicity.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/gthr.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/gthr-default.h:
+
+/usr/include/pthread.h:
+
+/usr/include/sched.h:
+
+/usr/include/bits/sched.h:
+
+/usr/include/bits/setjmp.h:
+
+/usr/include/unistd.h:
+
+/usr/include/bits/posix_opt.h:
+
+/usr/include/bits/environments.h:
+
+/usr/include/bits/confname.h:
+
+/usr/include/getopt.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/i686-redhat-linux/bits/atomic_word.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/initializer_list:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/../../../../include/c++/4.5.1/bits/basic_string.tcc:
+
+/home/joegen/sipxecs-bin/include/os/OsBSem.h:
+
+/home/joegen/sipxecs-bin/include/os/OsSyncBase.h:
+
+/home/joegen/sipxecs-bin/include/os/OsStatus.h:
+
+/home/joegen/sipxecs-bin/include/os/OsTime.h:
+
+/home/joegen/sipxecs-bin/include/os/linux/OsBSemLinux.h:
+
+/home/joegen/sipxecs-bin/include/os/linux/pt_csem.h:
+
+/home/joegen/sipxecs-bin/include/os/linux/AdapterInfo.h:
+
+/home/joegen/sipxecs-bin/include/net/Url.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlRegex.h:
+
+/usr/include/pcre.h:
+
+/home/joegen/sipxecs-bin/include/net/SipMessage.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/limits.h:
+
+/usr/lib/gcc/i686-redhat-linux/4.5.1/include/syslimits.h:
+
+/usr/include/limits.h:
+
+/usr/include/bits/posix1_lim.h:
+
+/usr/include/bits/local_lim.h:
+
+/usr/include/linux/limits.h:
+
+/usr/include/bits/posix2_lim.h:
+
+/usr/include/bits/xopen_lim.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlHashBag.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlContainer.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlLink.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlIterator.h:
+
+/home/joegen/sipxecs-bin/include/net/HttpMessage.h:
+
+/home/joegen/sipxecs-bin/include/net/HttpBody.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlSList.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlList.h:
+
+/home/joegen/sipxecs-bin/include/os/OsLock.h:
+
+/home/joegen/sipxecs-bin/include/os/OsSyncBase.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlDList.h:
+
+/home/joegen/sipxecs-bin/include/net/NameValuePair.h:
+
+/home/joegen/sipxecs-bin/include/os/OsMutex.h:
+
+/home/joegen/sipxecs-bin/include/os/linux/OsMutexLinux.h:
+
+/home/joegen/sipxecs-bin/include/os/linux/pt_mutex.h:
+
+/home/joegen/sipxecs-bin/include/os/OsTimeLog.h:
+
+/home/joegen/sipxecs-bin/include/os/OsMsgQ.h:
+
+/home/joegen/sipxecs-bin/include/os/shared/OsMsgQShared.h:
+
+/home/joegen/sipxecs-bin/include/os/OsCSem.h:
+
+/home/joegen/sipxecs-bin/include/os/linux/OsCSemLinux.h:
+
+/home/joegen/sipxecs-bin/include/os/OsMsg.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlHashMap.h:
+
+/home/joegen/sipxecs-bin/include/net/SdpBody.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlSListIterator.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlListIterator.h:
+
+/home/joegen/sipxecs-bin/include/net/SdpCodec.h:
+
+/home/joegen/sipxecs-bin/include/utl/UtlInt.h:
+
+/home/joegen/sipxecs-bin/include/digitmaps/Patterns.h:
+
+ForwardRules.h:
+
+/home/joegen/sipxecs-bin/include/xmlparser/tinyxml.h:
+
+/home/joegen/sipxecs-bin/include/xmlparser/tinystr.h:
+
+/home/joegen/sipxecs-bin/include/xmlparser/tinyxml.h:

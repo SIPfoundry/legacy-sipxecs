@@ -1,0 +1,25 @@
+#/bin/sh
+
+## Source function library.
+. /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-utils.sh || exit 1
+
+# Ensure that sipx-sudo-date is owned by root and
+# that the UID permission bit is set.
+if test -e /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-timezone
+then
+    is_file_owned_by_username /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-timezone "root"
+    if [ $? -ne 0 ]
+    then
+        chown root:joegen /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-timezone
+    fi
+
+    is_file_grouped_by_username /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-timezone joegen
+    if [ $? -ne 0 ]
+    then
+        chown root:joegen /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-timezone
+    fi
+    if test ! -x /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-timezone -o ! -u /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-timezone
+    then
+        chmod 4750 /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-timezone
+    fi
+fi

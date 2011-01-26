@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='iso-8859-1' standalone='yes'?>
+<sipXecs-process xmlns='http://www.sipfoundry.org/sipX/schema/xml/sipXecs-process-01-00'>
+  <name>CallResolver</name>
+  <version>0.0.4.5.2</version>
+  <commands>
+    <configtest>
+      <execute>/home/joegen/sipxecs-bin/bin/sipxcallresolver.sh</execute>
+      <parameter>--configtest</parameter>
+    </configtest>
+    <start>
+      <execute>/home/joegen/sipxecs-bin/bin/sipxcallresolver.sh</execute>
+      <parameter>--daemon</parameter>
+    </start>
+    <stop>
+      <execute>/home/joegen/sipxecs-bin/bin/sipxcallresolver.sh</execute>
+      <parameter>--stop</parameter>
+    </stop>
+  </commands>
+  <status>
+    <pid>/home/joegen/sipxecs-bin/var/run/sipxpbx/sipxcallresolver.pid</pid>
+    <log>/home/joegen/sipxecs-bin/var/log/sipxpbx/sipxcallresolver.log</log>
+  </status>
+  <resources>
+    <file>/home/joegen/sipxecs-bin/etc/sipxpbx/callresolver-config</file>
+    <file configAccess='read-only'>/home/joegen/sipxecs-bin/etc/sipxpbx/ssl/ssl.crt</file>
+    <file configAccess='no-access'>/home/joegen/sipxecs-bin/etc/sipxpbx/ssl/ssl.key</file>
+  </resources>
+</sipXecs-process>

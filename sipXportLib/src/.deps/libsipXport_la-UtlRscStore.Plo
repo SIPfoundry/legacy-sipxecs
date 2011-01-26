@@ -1,0 +1,4 @@
+libsipXport_la-UtlRscStore.lo: utl/UtlRscStore.cpp \
+ ../include/utl/UtlRscTrace.h
+
+../include/utl/UtlRscTrace.h:

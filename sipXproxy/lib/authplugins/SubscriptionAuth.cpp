@@ -6,6 +6,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include "SipRouter.h"
 #include "os/OsSysLog.h"
 #include "os/OsConfigDb.h"
 
@@ -13,7 +14,6 @@
 #include "net/Url.h"
 #include "net/SipMessage.h"
 #include "net/NameValueTokenizer.h"
-#include "SipRouter.h"
 #include "SubscriptionAuth.h"
 #include "utl/UtlRegex.h"
 

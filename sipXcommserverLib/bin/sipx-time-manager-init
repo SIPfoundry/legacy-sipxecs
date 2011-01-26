@@ -1,0 +1,25 @@
+#/bin/sh
+
+## Source function library.
+. /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-utils.sh || exit 1
+
+# Ensure that sipx-sudo-time-manager is owned by root and grouped by joegen and
+# that the UID permission bit is set.
+if test -e /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-time-manager
+then
+    is_file_owned_by_username /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-time-manager "root"
+    if [ $? -ne 0 ]
+    then
+        chown root:joegen /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-time-manager
+    fi
+
+    is_file_grouped_by_username /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-time-manager joegen
+    if [ $? -ne 0 ]
+    then
+        chown root:joegen /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-time-manager
+    fi
+    if test ! -x /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-time-manager -o ! -u /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-time-manager
+    then
+        chmod 4750 /home/joegen/sipxecs-bin/libexec/sipXecs/sipx-sudo-time-manager
+    fi
+fi
