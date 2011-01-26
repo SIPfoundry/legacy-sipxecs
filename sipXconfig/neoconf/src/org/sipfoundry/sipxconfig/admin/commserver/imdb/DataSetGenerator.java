@@ -9,6 +9,9 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.text.DateFormat;
+import java.util.Date;
+
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -77,6 +80,10 @@ public abstract class DataSetGenerator {
         if (entity instanceof User) {
             top.put(CONTACT, ((User) entity).getContactUri(getSipDomain()));
         }
+        //for debug only:
+        DateFormat dateFormat = DateFormat.getDateTimeInstance();
+        top.put("timestamp", dateFormat.format(new Date()));
+        //////////////////////////
         return top;
     }
 

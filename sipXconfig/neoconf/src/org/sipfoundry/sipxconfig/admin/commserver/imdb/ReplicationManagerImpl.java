@@ -81,7 +81,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     public void dropDb() {
         DB datasetDb = s_mongoInstance.getDB(DB_NAME);
-        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getAuthorizationRealm());
+        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
         datasetCollection.drop();
     }
 
@@ -93,7 +93,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         DataSet type = generator.getType();
         try {
             DB datasetDb = s_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getAuthorizationRealm());
+            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
             generator.setDbCollection(datasetCollection);
             generator.generate();
             m_auditLogContext.logReplication(type.getName(), m_locationsManager.getPrimaryLocation());
@@ -120,7 +120,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         boolean success = true;
         try {
             DB datasetDb = s_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getAuthorizationRealm());
+            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
 
             Set<DataSet> dataSets = entity.getDataSets();
             for (DataSet dataSet : dataSets) {
@@ -139,7 +139,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     public boolean removeEntity(Replicable entity) {
         DB datasetDb = s_mongoInstance.getDB(DB_NAME);
-        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getAuthorizationRealm());
+        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
         String id = DataSetGenerator.getEntityId(entity);
         DBObject search = new BasicDBObject();
         search.put(DataSetGenerator.ID, id);
@@ -155,7 +155,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     /**
      * Encodes payload using Base64 and returns encoded data as string
-     *
+     * 
      * @param payload
      * @return string representing encoded data
      */

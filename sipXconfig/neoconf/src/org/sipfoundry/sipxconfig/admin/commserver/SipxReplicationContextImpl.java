@@ -19,6 +19,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.DataSetTask;
 import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.ReplicationTask;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.common.BeanWithId;
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -182,11 +183,11 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     public void replicateWork(final Replicable entity) {
         ReplicationTask taskToRemove = new DataSetTask();
         for (ReplicationTask task : m_tasks) {
-            String taskid = ((DataSetTask) task).getEntity().getClass().getSimpleName()
-                    + ((BeanWithId) ((DataSetTask) task).getEntity()).getId();
-            String entityid = entity.getClass().getSimpleName() + ((BeanWithId) entity).getId();
+            DataSetTask dstask = (DataSetTask) task;
+            String taskid = DataSetGenerator.getEntityId(dstask.getEntity());
+            String entityid = DataSetGenerator.getEntityId(entity);
             if (taskid.equals(entityid)) {
-                if (((DataSetTask) task).isDelete()) {
+                if (dstask.isDelete()) {
                     m_replicationManager.removeEntity(entity);
                 } else {
                     m_replicationManager.replicateEntity(entity);
