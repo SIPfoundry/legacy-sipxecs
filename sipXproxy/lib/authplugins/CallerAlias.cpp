@@ -4,7 +4,8 @@
 // Licensed to the User under the LGPL license.
 // 
 //////////////////////////////////////////////////////////////////////////////
-
+#include "CallerAlias.h"
+#include "SipRouter.h"
 // SYSTEM INCLUDES
 #include "os/OsLock.h"
 #include "os/OsConfigDb.h"
@@ -12,12 +13,9 @@
 #include "os/OsFS.h"
 #include "net/Url.h"
 
-// APPLICATION INCLUDES
-#include "sipdb/CallerAliasDB.h"
-
 #include "RouteState.h"
-#include "SipRouter.h"
-#include "CallerAlias.h"
+
+
 
 // DEFINES
 // CONSTANTS
@@ -29,7 +27,7 @@ const char* CallerAlias::ALIAS_TAG_OFFSET_PARAM  = "ao";
 // TYPEDEFS
 OsMutex        CallerAlias::sSingletonLock(OsMutex::Q_FIFO);
 CallerAlias*   CallerAlias::spInstance;
-CallerAliasDB* CallerAlias::spCallerAliasDB;
+
 
 /// Factory used by PluginHooks to dynamically link the plugin instance
 extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
@@ -38,17 +36,7 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 
    if (!CallerAlias::spInstance)
    {
-      CallerAlias::spCallerAliasDB = CallerAliasDB::getInstance();
-      if (CallerAlias::spCallerAliasDB)
-      {
-         CallerAlias::spInstance = new CallerAlias(pluginName);
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_CRIT, "CallerAlias[%s] "
-                       "no CallerAliasDB found - aliases disabled",
-                       pluginName.data());
-      }
+        CallerAlias::spInstance = new CallerAlias(pluginName);
    }
    else
    {
@@ -65,8 +53,10 @@ extern "C" AuthPlugin* getAuthPlugin(const UtlString& pluginName)
 CallerAlias::CallerAlias(const UtlString& pluginName ///< the name for this instance
                          )
    : AuthPlugin(pluginName),
-     mpSipRouter( 0 )
+     mpSipRouter( 0 ),
+    _pEntities(0)
 {
+   
 };
 
 /// Nothing configurable outside the database right now
@@ -112,7 +102,6 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
    request.getCallIdField(&callId);
 
    if (   (priorResult != DENY) // no point in modifying a request that won't be sent
-       && (spCallerAliasDB)     // there is a caller alias database? (should always be true)
        )   
    {
       UtlString callerFrom;
@@ -222,9 +211,9 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
             UtlString callerAlias;
             UtlString nullId; // empty string for wildcard matches
 
-            if (spCallerAliasDB->getCallerAlias(callerIdentity, targetDomain, callerAlias)
+            if (getCallerAlias(callerIdentity, targetDomain, callerAlias)
                 || (   identityIsLocal
-                    && spCallerAliasDB->getCallerAlias(nullId, targetDomain, callerAlias)
+                    && getCallerAlias(nullId, targetDomain, callerAlias)
                     )
                 )
             {
@@ -348,12 +337,45 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
 
 void CallerAlias::announceAssociatedSipRouter( SipRouter* sipRouter )
 {
-   mpSipRouter = sipRouter;
+    mpSipRouter = sipRouter;
+    if (!_pEntities)
+    {
+        UtlString canonical;
+        mpSipRouter->getDomain(canonical);
+        std::string domain = "imdb." + canonical.str();
+        _pEntities = new Collection(domain);
+    }
 }
 
 /// destructor
 CallerAlias::~CallerAlias()
 {
-   spCallerAliasDB->releaseInstance();
-   spCallerAliasDB = NULL;
+   delete _pEntities;
+   _pEntities = 0;
+}
+
+
+
+bool CallerAlias::getCallerAlias (
+  const UtlString& identity,
+  const UtlString& domain,
+  UtlString& callerAlias
+) const
+{
+    if (!_pEntities)
+        return false;
+
+    EntityRecord entity;
+    if (!_pEntities->collection().findByIdentity(identity.str(), entity))
+        return false;
+    std::vector<EntityRecord::CallerAlias>& aliases = entity.callerAliases();
+    for (std::vector<EntityRecord::CallerAlias>::const_iterator iter = aliases.begin(); iter != aliases.end(); iter++)
+    {
+        if (iter->targetDomain == domain.str())
+        {
+            callerAlias = iter->alias;
+            return true;
+        }
+    }
+    return false;
 }

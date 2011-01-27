@@ -6,6 +6,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include "sipdb/EntityDB.h"
+#include "SipRouter.h"
 #include "os/OsReadLock.h"
 #include "os/OsWriteLock.h"
 #include "os/OsConfigDb.h"
@@ -16,8 +18,7 @@
 
 // APPLICATION INCLUDES
 #include "EnforceAuthRules.h"
-#include "sipdb/CredentialDB.h"
-#include "sipdb/PermissionDB.h"
+
 
 // DEFINES
 // CONSTANTS
@@ -41,9 +42,10 @@ EnforceAuthRules::EnforceAuthRules(const UtlString& pluginName ///< the name for
                                    )
    : AuthPlugin(pluginName)
    , mRulesLock(OsRWMutex::Q_FIFO)
-   , mpAuthorizationRules(NULL)
+   , mpAuthorizationRules(NULL),
+    mpSipRouter(0)
 {
-   OsSysLog::add(FAC_SIP,PRI_INFO,"EnforceAuthRules plugin instantiated '%s'",
+    OsSysLog::add(FAC_SIP,PRI_INFO,"EnforceAuthRules plugin instantiated '%s'",
                  mInstanceName.data());
 };
 
@@ -203,14 +205,15 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
          else
          {
             // some permission is required and caller is authenticated, so see if they have it
-            ResultSet grantedPermissions;
-            Url identity(id);
-            PermissionDB::getInstance()->getPermissions(identity, grantedPermissions);
+
+            Url urlIdentity(id);
+            UtlString identity;
+            urlIdentity.getIdentity(identity);
 
             UtlString unmatchedPermissions;
             UtlString matchedPermission;
 
-            if (isAuthorized(requiredPermissions, grantedPermissions,
+            if (isAuthorized(identity, requiredPermissions,
                              matchedPermission, unmatchedPermissions)
                 )
             {
@@ -254,85 +257,73 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
    return result;
 }
 
-bool EnforceAuthRules::isAuthorized(
-   const ResultSet& requiredPermissions,
-   const ResultSet& grantedPermissions,
-   UtlString& matchedPermission,
-   UtlString& unmatchedPermissions)
+/// @returns true iff at least one permission in grantedPermissions is in requiredPermissions
+bool EnforceAuthRules::isAuthorized(const UtlString& identity,
+     const ResultSet& requiredSet,
+     UtlString& matchedPermission,   ///< first required permission found
+     UtlString& unmatchedPermissions ///< requiredPermissions as a single string
+ )
 {
-   bool authorized = false;
-   UtlString identityKey("identity");
-   UtlString permissionKey("permission");
+    bool authorized = false;
+    matchedPermission.remove(0);
+    unmatchedPermissions.remove(0);
 
-   matchedPermission.remove(0);
-   unmatchedPermissions.remove(0);
+    EntityRecord entity;
+    if (!_pEntities->collection().findByIdentity(identity.str(), entity))
+        return false;
 
-   /*
-    * The ResultSet structure is inefficient to search repeatedly,
-    * so walk the grantedPermissions once, saving a pointer to each
-    * of the permissions in the temporary list 'thisUserPermissions'.
-    * NOTE: the UtlString is still 'owned' by the ResultSet, so do not
-    * destroy anything from thisUserPermissions
-    */
-   UtlSList thisUserPermissions;
-   UtlSListIterator grantedRecords(grantedPermissions);
-   UtlHashMap* grantedRecord;
-   while((grantedRecord = dynamic_cast<UtlHashMap*>(grantedRecords())))
-   {      
-      UtlString* grantedPermission
-         = dynamic_cast<UtlString*>(grantedRecord->findValue(&permissionKey));
-      if (grantedPermission)
-      {
-         thisUserPermissions.insert(grantedPermission);
-      }
-   }
-   
-   // thisUserPermissions now has an easily searched list of the permissions for this user.
-   
-   UtlSListIterator requiredRecords(requiredPermissions);
-   UtlHashMap* requiredRecord;
-   while((requiredRecord = dynamic_cast<UtlHashMap*>(requiredRecords())))
-   {
-      UtlString requiredPermission
-         = *dynamic_cast<UtlString*>(requiredRecord->findValue(&permissionKey));
+    std::set<std::string> grantedPermissions = entity.permissions();
+    std::set<std::string> requiredPermissions;
+    UtlSListIterator requiredRecs(requiredSet);
+    UtlHashMap* requiredRecord;
+    UtlString permissionKey("permission");
+    while((requiredRecord = dynamic_cast<UtlHashMap*>(requiredRecs())))
+    {
+      UtlString* reqPermission = dynamic_cast<UtlString*>(requiredRecord->findValue(&permissionKey));
+      if (reqPermission)
+         requiredPermissions.insert(reqPermission->data());
+    }
 
-      /*
-       * Special case - this routine is only called for authenticated users,
-       *                and all authenticated users have 'ValidUser' permission,
-       *                so this is a pass.
-       */
-      if (requiredPermission.compareTo("ValidUser", UtlString::ignoreCase) == 0)
-      {
-         authorized = true;
-         if (!matchedPermission.isNull())
-         {
-            matchedPermission.append("+");
-         }
-         matchedPermission.append(requiredPermission);
-      }
-      else
-      {
-         // normal check to see if the permission is granted to this user
-         if (thisUserPermissions.contains(&requiredPermission))
-         {
+    for (std::set<std::string>::const_iterator iter = requiredPermissions.begin();
+        iter != requiredPermissions.end(); iter++)
+    {
+        std::string permission = *iter;
+        boost::to_lower(permission);
+        if (permission == "validuser")
+        {
             authorized = true;
             if (!matchedPermission.isNull())
             {
                matchedPermission.append("+");
             }
-            matchedPermission.append(requiredPermission);
-         }
-         else
-         {
-            if (!unmatchedPermissions.isNull())
+            matchedPermission.append(iter->c_str());
+        }
+        else
+        {
+            std::set<std::string>::const_iterator grantedIter;
+            grantedIter = grantedPermissions.find(*iter);
+            if (grantedIter != grantedPermissions.end())
             {
-               unmatchedPermissions.append("|");
+                authorized = true;
+                if (!matchedPermission.isNull())
+                {
+                   matchedPermission.append("+");
+                }
+                matchedPermission.append(iter->c_str());
             }
-            unmatchedPermissions.append(requiredPermission);
-         }
-      }
-   }
-   return authorized;
+            else
+            {
+                if (!unmatchedPermissions.isNull())
+                {
+                   unmatchedPermissions.append("|");
+                }
+                unmatchedPermissions.append(iter->c_str());
+            }
+        }
+        
+    }
+
+    return false;
 }
 
 /// destructor
@@ -346,4 +337,19 @@ EnforceAuthRules::~EnforceAuthRules()
          mpAuthorizationRules = NULL;
       }
    }
+   delete _pEntities;
+   _pEntities = 0;
+}
+
+
+void EnforceAuthRules::announceAssociatedSipRouter(SipRouter* sipRouter)
+{
+    mpSipRouter = sipRouter;
+    if (!_pEntities)
+    {
+        UtlString canonical;
+        mpSipRouter->getDomain(canonical);
+        std::string domain = "imdb." + canonical.str();
+        _pEntities = new Collection(domain);
+    }
 }
