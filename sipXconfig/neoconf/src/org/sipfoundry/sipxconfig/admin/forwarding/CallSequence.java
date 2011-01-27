@@ -113,12 +113,12 @@ public class CallSequence extends AbstractCallSequence implements Replicable {
     public Set<DataSet> getDataSets() {
         Set<DataSet> ds = new HashSet<DataSet>();
         ds.add(DataSet.ALIAS);
+        ds.add(DataSet.USER_FORWARD);
         return ds;
     }
 
     @Override
     public String getIdentity(String domain) {
-        // TODO Auto-generated method stub
         return null;
     }
 

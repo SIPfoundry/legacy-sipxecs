@@ -35,13 +35,21 @@ public class UserForward extends DataSetGenerator {
     }
 
     public void generate(Replicable entity) {
-        if (entity instanceof User) {
-            DBObject top = findOrCreate(entity);
-            User user = (User) entity;
-            CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
-            top.put(CFWDTIME, Integer.toString(cs.getCfwdTime()));
-            getDbCollection().save(top);
+        if (entity instanceof CallSequence) {
+            CallSequence cs = (CallSequence) entity;
+            User user = cs.getUser();
+            generateUser(user);
         }
+        if (entity instanceof User) {
+            generateUser((User) entity);
+        }
+    }
+    
+    private void generateUser(User user) {
+        DBObject top = findOrCreate(user);
+        CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
+        top.put(CFWDTIME, Integer.toString(cs.getCfwdTime()));
+        getDbCollection().save(top);        
     }
 
     @Override

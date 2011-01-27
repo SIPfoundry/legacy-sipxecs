@@ -245,6 +245,10 @@
   <bean id="replicationTrigger"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationContext" ref="sipxReplicationContextImpl" />
+    <property name="lazyReplicationContext" ref="sipxReplicationContext" />
+    <property name="validUsersConfig">
+      <ref local="validUsersConfig"/>
+    </property>
     <property name="coreContext" ref="coreContext" />
   </bean>
 
