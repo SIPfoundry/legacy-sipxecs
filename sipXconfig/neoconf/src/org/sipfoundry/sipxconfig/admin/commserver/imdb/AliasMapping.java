@@ -36,10 +36,6 @@ public class AliasMapping extends DataSetRecord {
         put(CONTACT, contact);
     }
 
-    public AliasMapping(String identity) {
-        put(IDENTITY, identity);
-    }
-
     // convenience methods
     public String getIdentity() {
         return get(IDENTITY).toString();

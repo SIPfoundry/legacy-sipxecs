@@ -36,7 +36,6 @@ public class AliasesTest extends MongoTestCase {
 
         Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         aliases.add(new AliasMapping("301@example.org", "\"John Doe\"<sip:john.doe@" + DOMAIN + ">"));
-        aliases.add(new AliasMapping("alias1@" + DOMAIN));
 
         DomainManager dm = createMock(DomainManager.class);
         dm.getDomainName();

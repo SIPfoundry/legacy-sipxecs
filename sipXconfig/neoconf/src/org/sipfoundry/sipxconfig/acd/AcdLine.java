@@ -166,10 +166,10 @@ public class AcdLine extends AcdComponent implements Replicable {
         // TODO: remove localhost trick when we have real host information
         String identityExtension = AliasMapping.createUri(extension, domainName);
 
-        mappings.add(new AliasMapping(identityExtension));
+        mappings.add(new AliasMapping(identityExtension, getIdentity(domainName)));
         if (!StringUtils.isEmpty(did) && !did.equals(extension)) {
             String identityDid = AliasMapping.createUri(did, domainName);
-            mappings.add(new AliasMapping(identityDid));
+            mappings.add(new AliasMapping(identityDid, getIdentity(domainName)));
         }
         aliases.put(this, mappings);
         return aliases;

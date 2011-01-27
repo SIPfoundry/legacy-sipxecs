@@ -208,10 +208,10 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
         for (String alias : aliasesSet) {
             // simple alias@bcm2072.com type of identity
             identity = AliasMapping.createUri(alias, domain);
-            // contact = SipUri.format(getAuthCodePrefix(), getDomainName(), false);
+            String contact = SipUri.format(getAuthCodePrefix(), getDomainName(), false);
             // direct mapping is for testing only
             // contact = getDirectContactUri();
-            mappings.add(new AliasMapping(identity));
+            mappings.add(new AliasMapping(identity, contact));
         }
         aliases.put(this, mappings);
         return aliases;

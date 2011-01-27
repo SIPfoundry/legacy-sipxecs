@@ -67,15 +67,16 @@ public class User extends AbstractUser implements Replicable {
 
     public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
+        String contact = getUri(domainName);
         for (String alias : getAliases()) {
-            AliasMapping mapping = new AliasMapping(alias);
+            AliasMapping mapping = new AliasMapping(alias, contact);
             mappings.add(mapping);
         }
 
         ImAccount imAccount = new ImAccount(this);
         if (imAccount.isEnabled() && !StringUtils.isEmpty(imAccount.getImId())
                 && !imAccount.getImId().equals(getUserName())) {
-            AliasMapping mapping = new AliasMapping(imAccount.getImId());
+            AliasMapping mapping = new AliasMapping(imAccount.getImId(), contact);
             mappings.add(mapping);
         }
 
@@ -94,7 +95,7 @@ public class User extends AbstractUser implements Replicable {
 
         if (this.hasPermission(PermissionName.EXCHANGE_VOICEMAIL)
                 || this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
-            AliasMapping mapping = new AliasMapping("~~vm~");
+            AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), contact);
             mappings.add(mapping);
         }
 

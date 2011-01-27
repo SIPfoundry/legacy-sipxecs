@@ -44,12 +44,12 @@ public class UserForward extends DataSetGenerator {
             generateUser((User) entity);
         }
     }
-    
+
     private void generateUser(User user) {
         DBObject top = findOrCreate(user);
         CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
         top.put(CFWDTIME, Integer.toString(cs.getCfwdTime()));
-        getDbCollection().save(top);        
+        getDbCollection().save(top);
     }
 
     @Override
