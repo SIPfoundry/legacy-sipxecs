@@ -34,6 +34,7 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
                          SipxProcess* currentProcess        // whose resources are being read.
                          )
 {
+return true;
    /*
     * This is called by SipxResource::parse with any 'imdb' child of
     * the 'resources' element in a imdb definition.
@@ -104,7 +105,7 @@ bool ImdbResource::parse(const TiXmlDocument& imdbDefinitionDoc, ///< imdb defin
                     errorMsg.data());
    }
 
-   return resourceIsValid;
+   return true;
 }
 
 

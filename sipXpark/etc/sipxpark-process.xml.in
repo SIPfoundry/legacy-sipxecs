@@ -23,7 +23,6 @@
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <file>@SIPX_CONFDIR@/sipxpark-config</file>
     <file>@SIPX_CONFDIR@/orbits.xml</file>
-    <imdb>credential</imdb>
     <imdb configAccess='read-only'>subscription</imdb>
   </resources>
 </sipXecs-process>

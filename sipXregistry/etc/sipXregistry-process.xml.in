@@ -25,12 +25,7 @@
     <osconfig>@SIPX_CONFDIR@/presencerouting-prefs.xml</osconfig>
     <file>@SIPX_CONFDIR@/mappingrules.xml</file>
     <file>@SIPX_CONFDIR@/fallbackrules.xml</file>
-    <imdb>credential</imdb>
-    <imdb>permission</imdb>
-    <imdb>alias</imdb>
     <imdb configAccess='read-only'>registration</imdb>
     <imdb configAccess='read-only'>subscription</imdb>
-    <imdb>userlocation</imdb>
-    <imdb>userforward</imdb>
   </resources>
 </sipXecs-process>
