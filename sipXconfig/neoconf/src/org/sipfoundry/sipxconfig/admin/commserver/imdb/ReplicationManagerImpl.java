@@ -106,14 +106,20 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     @Override
     public boolean replicateAllData() {
-        dropDb();
-        for (DataSet dataSet : DataSet.getEnumList()) {
-            String beanName = dataSet.getBeanName();
-            final DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
-                    DataSetGenerator.class);
-            replicateData(generator);
+        boolean success = true;
+        try {
+            dropDb();
+            for (DataSet dataSet : DataSet.getEnumList()) {
+                String beanName = dataSet.getBeanName();
+                final DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
+                        DataSetGenerator.class);
+                replicateData(generator);
+            }
+        } catch (Exception e) {
+            success = false;
+            LOG.error("Regeneration of database failed", e);
         }
-        return false;
+        return success;
     }
 
     public boolean replicateEntity(Replicable entity) {
@@ -130,27 +136,37 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 generator.setDbCollection(datasetCollection);
                 generator.generate(entity);
             }
+            LOG.info("Replication: inserted/updated " + entity.getName());
         } catch (Exception e) {
             success = false;
-            LOG.error("Data update failed: " + entity.getName(), e);
+            LOG.error("Replication: insert/update failed - " + entity.getName(), e);
         }
         return success;
     }
 
     public boolean removeEntity(Replicable entity) {
-        DB datasetDb = s_mongoInstance.getDB(DB_NAME);
-        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
-        String id = DataSetGenerator.getEntityId(entity);
-        DBObject search = new BasicDBObject();
-        search.put(DataSetGenerator.ID, id);
-        DBCursor cursor = datasetCollection.find(search);
-        DBObject top = new BasicDBObject();
-        if (!cursor.hasNext()) {
-            top.put(DataSetGenerator.ID, id);
-        } else {
-            top = cursor.next();
+        boolean success = false;
+        try {
+            DB datasetDb = s_mongoInstance.getDB(DB_NAME);
+            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
+            String id = DataSetGenerator.getEntityId(entity);
+            DBObject search = new BasicDBObject();
+            search.put(DataSetGenerator.ID, id);
+            DBCursor cursor = datasetCollection.find(search);
+            DBObject top = new BasicDBObject();
+            if (!cursor.hasNext()) {
+                top.put(DataSetGenerator.ID, id);
+            } else {
+                top = cursor.next();
+            }
+            StringUtils.isEmpty(datasetCollection.remove(top).getError());
+            LOG.info("Replication: removed " + entity.getName());
+            success = true;
+        } catch (Exception e) {
+            success = false;
+            LOG.error("Replication: remove failed - " + entity.getName(), e);
         }
-        return StringUtils.isEmpty(datasetCollection.remove(top).getError());
+        return success;
     }
 
     /**
