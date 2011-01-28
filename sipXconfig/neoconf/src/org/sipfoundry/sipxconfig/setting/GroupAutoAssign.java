@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.setting;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
@@ -167,7 +168,12 @@ public class GroupAutoAssign {
             userConference.setName(user.getUserName() + "-conference");
             userConference.setOwner(user);
             userConference.setEnabled(true);
-            userConference.setDescription("Automatically created conference for " + user.getDisplayName());
+            String displayName = user.getDisplayName();
+            if (StringUtils.isEmpty(displayName)) {
+                displayName = user.getUserName();
+            }
+            userConference.setDescription("Automatically created conference for " + displayName);
+            userConference.setSettingValue(Conference.PARTICIPANT_CODE, StringUtils.EMPTY);
 
             LOG.debug(String.format("Creating conference \"%s\", extension %s, for user %s", userConference
                     .getName(), userConference.getExtension(), user.getDisplayName()));
