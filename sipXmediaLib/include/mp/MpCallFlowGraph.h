@@ -16,9 +16,9 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "mp/MpConnection.h"
 #include "mp/MpMisc.h"
 #include "mp/MpFlowGraphBase.h"
-#include "mp/MpConnection.h"
 #include "mp/StreamDefs.h"
 #include "mp/MpStreamMsg.h"
 #include "os/OsProtectEvent.h"

@@ -13,6 +13,8 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 
+#include "mp/NetInTask.h"
+
 #ifdef WIN32 /* [ */
 #include <winsock2.h>
 #endif /* WIN32 ] */
@@ -34,7 +36,6 @@
 #include "mp/MprDecode.h"
 #include "mp/MprDejitter.h"
 #include "mp/MpDecoderBase.h"
-#include "mp/NetInTask.h"
 #include "mp/dmaTask.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpCodecFactory.h"

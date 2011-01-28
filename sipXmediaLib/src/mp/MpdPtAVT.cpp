@@ -9,6 +9,7 @@
 
 
 // APPLICATION INCLUDES
+#include "mp/NetInTask.h"
 #ifdef __pingtel_on_posix__ /* [ */
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -16,7 +17,7 @@
 #include "mp/MpConnection.h"
 #include "mp/MpdPtAVT.h"
 #include "mp/MprDejitter.h"
-#include "mp/NetInTask.h"
+
 #include "mp/MprRecorder.h"
 #include "mp/JB/JB_API.h"
 #include "os/OsNotification.h"

@@ -6,6 +6,7 @@
 // $$
 ////////////////////////////////////////////////////////////////////////
 //////
+#include "mp/MprEncode.h"
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -26,7 +27,6 @@
 #include "os/OsDefs.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MprEncode.h"
 #include "mp/MprToNet.h"
 #include "mp/MpEncoderBase.h"
 #include "mp/dmaTask.h"

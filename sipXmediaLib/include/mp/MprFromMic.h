@@ -11,12 +11,14 @@
 #ifndef _MprFromMic_h_
 #define _MprFromMic_h_
 
+#include "mp/MpCodec.h"
+
+
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
 #include "mp/MpResource.h"
-#include "mp/MpCodec.h"
 
 // DEFINES
 // MACROS

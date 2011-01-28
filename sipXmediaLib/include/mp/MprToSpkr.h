@@ -18,12 +18,14 @@
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "mp/MpCodec.h"
+#include "mp/MpFlowGraphMsg.h"
 #include "os/OsStatus.h"
 #include "os/OsNotification.h"
 #include "mp/MpMisc.h"
 #include "mp/MpResource.h"
-#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpCodec.h"
+
+
 
 // DEFINES
 // MACROS

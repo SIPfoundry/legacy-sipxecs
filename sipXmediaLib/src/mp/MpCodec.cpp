@@ -183,7 +183,6 @@ OsStatus MpCodec_doProcessFrame() { return OS_SUCCESS;}
 #include <string.h>
 #include <assert.h>
 #include "os/OsUtil.h"
-#include "mp/dmaTask.h"
 #include "mp/MpCodec.h"
 
 /* Variable to save the gain level that has been set.

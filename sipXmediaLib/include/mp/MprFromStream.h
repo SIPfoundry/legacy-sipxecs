@@ -11,6 +11,7 @@
 #ifndef _MprFromStream_h_
 #define _MprFromStream_h_
 
+#include "mp/MpStreamFeeder.h"
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
@@ -19,7 +20,6 @@
 #include "mp/MpResource.h"
 #include "mp/StreamDefs.h"
 
-#include "mp/MpStreamFeeder.h"
 #include "os/OsLockingList.h"
 
 // DEFINES

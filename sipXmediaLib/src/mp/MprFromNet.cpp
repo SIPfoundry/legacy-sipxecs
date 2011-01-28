@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#include "mp/MprFromNet.h"
 
 #include "rtcp/RtcpConfig.h"
 
@@ -31,7 +32,7 @@
 #include "mp/MpBuf.h"
 #include "mp/MpConnection.h"
 // #include "mp/NetInTask.h"
-#include "mp/MprFromNet.h"
+
 #include "mp/MprDejitter.h"
 #include "mp/MpBufferMsg.h"
 #ifdef INCLUDE_RTCP /* [ */

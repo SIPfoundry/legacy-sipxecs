@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#include "mp/MprFromMic.h"
 
 #ifdef WIN32
 #define INSERT_SAWTOOTH
@@ -20,7 +21,6 @@
 // APPLICATION INCLUDES
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MprFromMic.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/dmaTask.h"
 #include "mp/DSP_type.h"

@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-
+#include "mp/NetInTask.h"
 #include "rtcp/RtcpConfig.h"
 
 #define LOGEM
@@ -45,7 +45,6 @@
 #include "os/OsServerSocket.h"
 #include "os/OsConnectionSocket.h"
 #include "os/OsEvent.h"
-#include "mp/NetInTask.h"
 #include "mp/MprFromNet.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/dmaTask.h"

@@ -19,10 +19,10 @@
 #endif
 
 //////////////////////////////////////////////////////////////////////////////
-
+#include "os/OsSysLog.h"
 #include "assert.h"
 #include "mp/MpCodecFactory.h"
-#include "os/OsSysLog.h"
+
 
 // all encoder child classes
 #include "mp/MpePtAVT.h"

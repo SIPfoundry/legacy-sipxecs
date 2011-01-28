@@ -6,7 +6,8 @@
 // $$
 ////////////////////////////////////////////////////////////////////////
 //////
-
+#include <fstream>
+#include "mp/MprFromStream.h"
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -21,7 +22,6 @@
 #include "os/OsDateTime.h"
 #include "os/OsEvent.h"
 #include "mp/MpBuf.h"
-#include "mp/MprFromStream.h"
 #include "mp/MpAudioAbstract.h"
 #include "mp/MpAudioFileOpen.h"
 #include "mp/MpAudioWaveFileRead.h"
@@ -30,7 +30,7 @@
 
 #include "mp/MpStreamFeeder.h"
 
-#include <os/fstream>
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

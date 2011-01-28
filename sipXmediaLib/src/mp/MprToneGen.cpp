@@ -6,7 +6,8 @@
 // $$
 ////////////////////////////////////////////////////////////////////////
 //////
-
+#include "mp/MpCallFlowGraph.h"
+#include "mp/MprToneGen.h"
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -18,8 +19,8 @@
 /* #include "pinger/Pinger.h" */
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MpCallFlowGraph.h"
-#include "mp/MprToneGen.h"
+
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

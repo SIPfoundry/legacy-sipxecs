@@ -6,7 +6,7 @@
 // $$
 ////////////////////////////////////////////////////////////////////////
 //////
-
+#include "mp/MprSplitter.h"
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -15,7 +15,7 @@
 #include "os/OsDefs.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MprSplitter.h"
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

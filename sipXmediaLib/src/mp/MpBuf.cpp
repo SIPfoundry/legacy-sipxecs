@@ -10,6 +10,7 @@
 
 // SYSTEM INCLUDES
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
@@ -18,13 +19,13 @@
 #include <limits>
 
 // APPLICATION INCLUDES
-
+#include "mp/NetInTask.h"
 #include "os/OsStatus.h"
 #include "os/OsMutex.h"
 #include "os/OsLock.h"
 #include "mp/MpBuf.h"
 #include "mp/MpMisc.h"
-#include "mp/NetInTask.h"
+
 
 #undef max
 

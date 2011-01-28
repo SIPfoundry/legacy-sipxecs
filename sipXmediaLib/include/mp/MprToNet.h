@@ -12,6 +12,7 @@
 #define _MprToNet_h_
 
 #include "rtcp/RtcpConfig.h"
+#include "mp/NetInTask.h"
 
 // Defining this option includes debug code for introducing sudden changes
 // to several fields of the outgoing RTP headers (SSRC, seq#, timestamp).
@@ -24,7 +25,6 @@
 #include "os/OsSocket.h"
 #include "mp/MpFlowGraphMsg.h"
 #include "mp/MpResource.h"
-#include "mp/NetInTask.h"
 #include "mp/MprFromNet.h"
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/ISetSenderStatistics.h"

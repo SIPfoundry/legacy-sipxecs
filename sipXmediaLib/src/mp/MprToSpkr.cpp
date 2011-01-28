@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
-
+#include "mp/MprToSpkr.h"
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -19,7 +19,6 @@
 #include <os/OsMsgPool.h>
 
 #include "mp/MpBuf.h"
-#include "mp/MprToSpkr.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/dsplib.h"
 #include "mp/MpMediaTask.h"
