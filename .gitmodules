@@ -4,3 +4,6 @@
 [submodule "OpenACD"]
 	path = OpenACD
 	url = git://github.com/dhubler/OpenACD.git
+[submodule "erlmongo"]
+	path = erlmongo
+	url = git://github.com/dhubler/erlmongo.git
