@@ -12,6 +12,8 @@ Url: http://www.sipfoundry.org/
 BuildRequires: automake
 BuildRequires: erlang
 BuildRequires: erlmongo
+BuildRequires: openacd
+%define plugindir /opt/OpenACD/plugin.d
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
@@ -43,3 +45,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %{_datadir}/sipxecs/process.d/sipxopenacd-process.xml
 %attr(755,root,root) %{_bindir}/sipxopenacd
+%{plugindir}/sipxplugin/ebin/sipxplugin.app
+%{plugindir}/sipxplugin/ebin/sipxplugin_app.beam
+%{plugindir}/sipxplugin/ebin/sipxplugin_poller.beam
+%{plugindir}/sipxplugin/ebin/sipxplugin_supervisor.beam
