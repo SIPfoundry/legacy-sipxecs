@@ -41,6 +41,7 @@ CopySourceFile = \
 	  cp $1 $2; \
 	else \
 	  if [ ! -f @DOWNLOAD_LIB_CACHE@/$(notdir $1) ]; then \
+	    echo "@DOWNLOAD_LIB_CACHE@/$(notdir $1) does not exist" > foo; \
 	    curl -o @DOWNLOAD_LIB_CACHE@/$(notdir $1) @DOWNLOAD_LIB_URL@/$(notdir $1); \
 	  fi ;\
 	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \

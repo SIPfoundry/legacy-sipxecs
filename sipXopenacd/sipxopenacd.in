@@ -30,13 +30,16 @@ done
 . @SIPX_LIBEXECDIR@/sipx-utils.sh || exit 1
 
 pidfile=@SIPX_RUNDIR@/openacd.pid
+# env var influences by openacd daemon script
+export OPENACD_LOG_DIR=@SIPX_LOGDIR@/openacd
+export OPENACD_RUN_DIR=@SIPX_VARDIR@/openacd
 
 case "$Action" in
 	START)
+	        test -d "$OPENACD_LOG_DIR" || mkdir -p "$OPENACD_LOG_DIR"
+	        test -d "$OPENACD_RUN_DIR" || mkdir -p "$OPENACD_RUN_DIR"
 		echo $$ > ${pidfile}
-		OPENACD_LOG_DIR=/var/log/sipxpbx/openacd \
-		    OPENACD_RUN_DIR=/var/sipxdata/openacd \
-		    RUNNER_USER=sipxchange \
+		    RUNNER_USER=@SIPXPBXUSER@ \
 		    exec @OPENACD_DIR@/bin/openacd console -noinput
 		exit 0
 		;;

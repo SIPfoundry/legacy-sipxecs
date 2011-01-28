@@ -46,6 +46,7 @@ lib_common = \
   js \
   mongo \
   OpenACD \
+  erlmongo \
   sipx-openfire \
   ruby-dbi \
   ruby-postgres
