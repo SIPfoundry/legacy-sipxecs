@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# Initial Version Copyright (C) 2011 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+#
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
+
+usage="Usage: $0 library-name\nErlang libraries can be located in a number of different places. It is the intention of this \
+script that it returns the first path to the libary in the order erlang would load it."
+
+if [ $# -eq 0 ] ; then
+ echo -e "Missing Argument\n" $usage 1>&2
+ exit 1
+fi
+
+target=$1
+
+for d in /usr/local/lib /usr/lib64 /usr/lib; do
+  candidate=`readlink -f $d/erlang/lib/$target-*`
+  if test -d $candidate/ebin; then
+    echo $candidate
+    exit 0
+  fi
+done
+echo "$target library not found" 1>&2
+exit 1

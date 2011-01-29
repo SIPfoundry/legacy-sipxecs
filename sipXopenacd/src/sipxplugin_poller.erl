@@ -1,8 +1,10 @@
-%% Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
+%% Initial Version Copyright (C) 2011 eZuce, Inc., All Rights Reserved.
 %% Licensed to the User under the LGPL license.
-%% 
-%% order is import for some of these as afar as building dependencies first
-%% consult spec files for authority on dependencies before changing the order
+%%
+%% This library is distributed in the hope that it will be useful, but WITHOUT
+%% ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+%% FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+%% details.
 
 -module(sipxplugin_poller).
 -author("eZuce").

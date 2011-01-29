@@ -45,6 +45,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %{_datadir}/sipxecs/process.d/sipxopenacd-process.xml
 %attr(755,root,root) %{_bindir}/sipxopenacd
+%attr(755,root,root) %{_bindir}/find-erlang-lib
 %{plugindir}/sipxplugin/ebin/sipxplugin.app
 %{plugindir}/sipxplugin/ebin/sipxplugin_app.beam
 %{plugindir}/sipxplugin/ebin/sipxplugin_poller.beam
