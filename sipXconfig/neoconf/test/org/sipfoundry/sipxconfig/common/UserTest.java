@@ -194,10 +194,10 @@ public class UserTest extends TestCase {
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
         assertEquals("mambo", alias.getIdentity());
 
-        assertNull(alias.getContact());
+        assertNotNull(alias.getContact());
         alias = (AliasMapping) aliasMappings.get(1);
         assertEquals("tango", alias.getIdentity());
-        assertNull(alias.getContact());
+        assertNotNull(alias.getContact());
 
         AliasMapping imIdAlias = (AliasMapping) aliasMappings.get(2);
         assertEquals("imId", imIdAlias.getIdentity());
@@ -251,7 +251,7 @@ public class UserTest extends TestCase {
         // actually there is 1 alias that is the ~~vm~
         assertEquals(1, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
-        assertEquals("~~vm~", alias.getIdentity());
+        assertEquals("~~vm~" + user.getUserName(), alias.getIdentity());
     }
 
     public void testHasPermission() {

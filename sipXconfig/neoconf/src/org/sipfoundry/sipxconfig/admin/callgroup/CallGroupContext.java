@@ -24,7 +24,7 @@ public interface CallGroupContext extends AliasOwner, AliasProvider {
 
     void storeCallGroup(CallGroup callGroup);
 
-    void removeCallGroups(Collection ids);
+    void removeCallGroups(Collection<Integer> ids);
 
     void duplicateCallGroups(Collection ids);
 

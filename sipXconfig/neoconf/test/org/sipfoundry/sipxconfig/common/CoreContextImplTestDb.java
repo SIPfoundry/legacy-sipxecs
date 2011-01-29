@@ -295,8 +295,8 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         userAliases = m_core.getAliasMappings();
-        Collection<AliasMapping> mappings = userAliases.get(m_core.loadUser(100));
-        assertEquals(1, mappings.size());
+        Collection<AliasMapping> mappings = userAliases.get(m_core.loadUser(1000));
+        assertEquals(2, mappings.size());
     }
 
     public void testClear() throws Exception {

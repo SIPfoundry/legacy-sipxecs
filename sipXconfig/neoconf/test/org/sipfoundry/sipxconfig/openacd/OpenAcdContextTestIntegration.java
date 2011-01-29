@@ -199,6 +199,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
     public void testOpenAcdExtensionAliasProvider() throws Exception {
         TestHelper.cleanInsert("ClearDb.xml");
         loadDataSetXml("admin/commserver/seedLocationsAndServices6.xml");
+        loadDataSetXml("domain/DomainSeed.xml");
         SipxFreeswitchService service = new MockSipxFreeswitchService();
         service.setBeanId(SipxFreeswitchService.BEAN_ID);
         service.setLocationsManager(m_locationsManager);
@@ -209,6 +210,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("sales");
         Location l = m_locationsManager.getLocation(101);
         extension.setLocation(l);
+        extension.setSipxServiceManager(sm);
 
         m_openAcdContextImpl.saveExtension(extension);
 
@@ -216,6 +218,8 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertFalse(m_openAcdContextImpl.isAliasInUse("test"));
         assertTrue(m_openAcdContextImpl.isAliasInUse("sales"));
         assertTrue(m_openAcdContextImpl.isAliasInUse("300"));
+        
+        m_openAcdContextImpl.setCoreContext(m_coreContext);
 
         Collection<AliasMapping> mappings = (List<AliasMapping>) m_openAcdContextImpl.getAliasMappings().get(extension);
         assertEquals(2, mappings.size());

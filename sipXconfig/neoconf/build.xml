@@ -370,13 +370,20 @@
   <target name="test-db"
           depends="compile.test, reset-db, test-datasets"
           description="run junit tests that interact with database">
-
     <antcall target="tests-that-require-db">
       <param name="test-pattern" value="test-db.src"/>
     </antcall>
     <antcall target="reset-db" />
   </target>
 
+  <target name="single-test-db"
+          depends="compile.test, reset-test-db, test-datasets"
+          description="run junit tests that interact with database">
+    <antcall target="tests-that-require-db">
+      <param name="test-pattern" value="test-db.src"/>
+    </antcall>
+  </target>
+	
   <target name="test-integration"
           depends="compile.test, reset-db"
           description="run junit tests that interact with database that rollback transations and use spring injection">

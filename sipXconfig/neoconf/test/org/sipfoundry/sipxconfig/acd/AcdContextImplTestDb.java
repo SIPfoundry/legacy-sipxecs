@@ -567,12 +567,13 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     public void testGenerateAliases() throws Exception {
         TestHelper.insertFlat("acd/lines.db.xml");
         Map<Replicable, Collection<AliasMapping>> aliases = m_context.getAliasMappings();
-        assertEquals(1, aliases.size());
+        assertEquals(3, aliases.size());
         Set<AcdLine> lines = m_context.getAcdServerForLocationId(101).getLines();
         int aliasesCount = 0;
         for (AcdLine line : lines) {
             aliasesCount += aliases.get(line).size();
         }
-        assertEquals(5, aliasesCount);
+        assertEquals(3, aliasesCount);
+        assertEquals(2, aliases.get(m_context.getAcdServerForLocationId(101)).size());
     }
 }

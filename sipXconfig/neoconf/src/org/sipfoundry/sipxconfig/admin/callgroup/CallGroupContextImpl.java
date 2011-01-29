@@ -86,16 +86,20 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         m_replicationContext.generate(callGroup);
     }
 
-    public void removeCallGroups(Collection ids) {
+    public void removeCallGroups(Collection<Integer> ids) {
         if (ids.isEmpty()) {
             return;
         }
-
+        Collection<CallGroup> cgs = new ArrayList<CallGroup>();
+        for (Integer id : ids) {
+            CallGroup cg = (CallGroup) load(CallGroup.class, id);
+            cgs.add(cg);
+        }
         m_acdContext.removeOverflowSettings(ids, AcdQueue.HUNTGROUP_TYPE);
         removeAll(CallGroup.class, ids);
 
         // activate call groups every time the call group is removed
-        activateCallGroups(ids);
+        deactivateCallGroups(cgs);
     }
 
     public UserDeleteListener createUserDeleteListener() {
@@ -170,10 +174,9 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     /**
      * Sends notification to profile generator to trigger alias generation
      */
-    public void activateCallGroups(Collection<Integer> ids) {
-        for (Integer id : ids) {
-            CallGroup cg = (CallGroup) load(CallGroup.class, id);
-            m_replicationContext.generate(cg);
+    public void deactivateCallGroups(Collection<CallGroup> cgs) {
+        for (CallGroup cg : cgs) {
+            m_replicationContext.remove(cg);
         }
     }
 

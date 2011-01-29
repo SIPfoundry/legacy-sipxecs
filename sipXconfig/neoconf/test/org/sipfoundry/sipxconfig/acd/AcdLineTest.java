@@ -97,9 +97,9 @@ public class AcdLineTest extends BeanWithSettingsTestCase {
         Location location = new Location();
         location.setFqdn("localhost");
         server.getLocation();
-        mcs.andReturn(location);
+        mcs.andReturn(location).anyTimes();
         server.getSipPort();
-        mcs.andReturn(100);
+        mcs.andReturn(100).anyTimes();
         mcs.replay();
 
         m_line.setModelFilesContext(TestHelper.getModelFilesContext());

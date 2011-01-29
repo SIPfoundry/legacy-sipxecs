@@ -16,10 +16,15 @@ import static org.easymock.EasyMock.replay;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.Md5Encoder;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
@@ -31,7 +36,6 @@ import com.mongodb.DBObject;
 
 public class CredentialsTest extends MongoTestCase {
     private Credentials m_credentials;
-
 
     @Override
     protected void setUp() throws Exception {
@@ -53,11 +57,28 @@ public class CredentialsTest extends MongoTestCase {
             expectLastCall().andReturn(new SpecialUser(u));
         }
 
-        replay(coreContext, m_callGroupContext);
+        TlsPeer peer = new TlsPeer();
+        InternalUser user = new InternalUser();
+        user.setSipPassword("123");
+        user.setPintoken("11");
+        peer.setInternalUser(user);
+        TlsPeerManager tlsPeerManager = createMock(TlsPeerManager.class);
+        tlsPeerManager.getTlsPeers();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+
+        AuthCode code = new AuthCode();
+        code.setInternalUser(user);
+        AuthCodeManager authCodeManager = createMock(AuthCodeManager.class);
+        authCodeManager.getAuthCodes();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+
+        replay(coreContext, m_callGroupContext, tlsPeerManager, authCodeManager);
 
         m_credentials.setCoreContext(coreContext);
         m_credentials.setCallGroupContext(m_callGroupContext);
         m_credentials.setDbCollection(getCollection());
+        m_credentials.setTlsPeerManager(tlsPeerManager);
+        m_credentials.setAuthCodeManager(authCodeManager);
     }
 
     public void testGenerateEmpty() throws Exception {

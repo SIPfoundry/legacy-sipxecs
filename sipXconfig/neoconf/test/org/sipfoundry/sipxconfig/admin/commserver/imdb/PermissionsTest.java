@@ -17,10 +17,15 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
+import org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
+import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
@@ -69,10 +74,27 @@ public class PermissionsTest extends MongoTestCase {
         callGroupContext.getCallGroups();
         expectLastCall().andReturn(Collections.EMPTY_LIST);
 
-        replay(coreContext, callGroupContext, dm);
+        TlsPeer peer = new TlsPeer();
+        InternalUser user = new InternalUser();
+        user.setSipPassword("123");
+        user.setPintoken("11");
+        peer.setInternalUser(user);
+        TlsPeerManager tlsPeerManager = createMock(TlsPeerManager.class);
+        tlsPeerManager.getTlsPeers();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+
+        AuthCode code = new AuthCode();
+        code.setInternalUser(user);
+        AuthCodeManager authCodeManager = createMock(AuthCodeManager.class);
+        authCodeManager.getAuthCodes();
+        expectLastCall().andReturn(Collections.EMPTY_LIST);
+        
+        replay(coreContext, callGroupContext, dm, authCodeManager, tlsPeerManager);
         m_permissions.setCoreContext(coreContext);
         m_permissions.setCallGroupContext(callGroupContext);
         m_permissions.setDbCollection(getCollection());
+        m_permissions.setAuthCodeManager(authCodeManager);
+        m_permissions.setTlsPeerManager(tlsPeerManager);
     }
 
     public void testGenerateEmpty() throws Exception {

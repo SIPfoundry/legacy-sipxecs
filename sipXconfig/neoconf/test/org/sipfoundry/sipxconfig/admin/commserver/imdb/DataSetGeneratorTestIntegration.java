@@ -22,11 +22,6 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
     public void testDataSetGeneratorBeans() {
         for (Iterator i = DataSet.iterator(); i.hasNext();) {
             DataSet set = (DataSet) i.next();
-            // need to fix this test.  caller-alias bean can not be injected
-            // automatically (setter method is commented out below)
-            if ("caller-alias".equals(set.getName())) {
-                continue;
-            }
             DataSetGenerator gen = m_dataSetGeneratorMap.get(set.getName());
             assertNotNull(set.getName(), gen);
             assertNotNull(set.getName(), gen.getCoreContext());
@@ -55,5 +50,9 @@ public class DataSetGeneratorTestIntegration extends IntegrationTestCase {
 
     public void setUserstaticDataSet(UserStatic userStatic) {
         m_dataSetGeneratorMap.put(DataSet.USER_STATIC.getName(), userStatic);
+    }
+
+    public void setCalleraliasDataSet(CallerAliases callerAliases) {
+        m_dataSetGeneratorMap.put(DataSet.CALLER_ALIAS.getName(), callerAliases);
     }
 }
