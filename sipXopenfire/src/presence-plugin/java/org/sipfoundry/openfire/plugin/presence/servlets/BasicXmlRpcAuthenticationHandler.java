@@ -24,6 +24,10 @@ public class BasicXmlRpcAuthenticationHandler implements AuthenticationHandler{
 
     private boolean isAuthenticated(String username, String password) {
         DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
+        if(username == null ||password == null) {
+            logger.warn("Could not authenticate since no username or password was provided");
+            return false;
+        }
         if(password.equals(config.getSharedSecret())) {
             return true;
         }

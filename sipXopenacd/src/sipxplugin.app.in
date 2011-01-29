@@ -1,0 +1,9 @@
+{application, @PACKAGE@,
+[{description, "OpenACD and sipXecs integration"},
+{vsn, "@VERSION@.@PACKAGE_REVISION@"},
+{modules, [sipxplugin_app, sipxplugin_poller, sipxplugin_supervisor]},
+{registered, [sipxplugin_poller, sipxplugin_supervisor]},
+{applications, [kernel, stdlib, erlmongo]},
+{mod, {sipxplugin_app, []}},
+{start_phases, []}
+]}.

@@ -25,6 +25,9 @@
     <option>
       <value>DNSnaptr</value>
     </option>
+    <option>
+      <value>TLS</value>
+    </option>
   </enum>
 </type>
 <type id="tone-pattern">

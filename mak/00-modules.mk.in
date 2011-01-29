@@ -45,7 +45,8 @@ lib_common = \
   freeswitch \
   js \
   mongo \
-  openacd \
+  OpenACD \
+  erlmongo \
   sipx-openfire \
   ruby-dbi \
   ruby-postgres

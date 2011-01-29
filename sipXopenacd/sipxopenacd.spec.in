@@ -10,6 +10,10 @@ Packager: SIPfoundry <sipx-dev@sipfoundry.org>
 Url: http://www.sipfoundry.org/
 
 BuildRequires: automake
+BuildRequires: erlang
+BuildRequires: erlmongo
+BuildRequires: openacd
+%define plugindir /opt/OpenACD/plugin.d
 
 Source: %name-%version.tar.gz
 Prefix: %_prefix
@@ -18,6 +22,8 @@ BuildRoot: %{_tmppath}/%name-%version-root
 Requires: sipxcommserverlib >= %version
 Requires: openacd
 Requires: mongo-server
+Requires: erlang
+Requires: erlmongo
 
 %description
 OpenACD integration for sipXecs
@@ -39,12 +45,11 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %{_datadir}/sipxecs/process.d/sipxopenacd-process.xml
 %attr(755,root,root) %{_bindir}/sipxopenacd
-
-%triggerin -- openacd
-# TODO: fixme once we figure out how to package openacd to run from current working dir that is not /opt/openacd
-# this will emit an error on non-sipx systems or if installed before sipxcommserverlib
-chown sipxchange:sipxchange /opt/openacd
-chown sipxchange:sipxchange /opt/openacd/key
-
-%postun
-[ $1 = 0 ] && chown root:root /opt/openacd
+%attr(755,root,root) %{_bindir}/find-erlang-lib
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxopenacd-setup
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/openacd
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/log/sipxpbx/openacd
+%{plugindir}/sipxplugin/ebin/sipxplugin.app
+%{plugindir}/sipxplugin/ebin/sipxplugin_app.beam
+%{plugindir}/sipxplugin/ebin/sipxplugin_poller.beam
+%{plugindir}/sipxplugin/ebin/sipxplugin_supervisor.beam

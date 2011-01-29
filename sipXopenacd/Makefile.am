@@ -1,10 +1,11 @@
 include config/project.am
 
+SUBDIRS = src bin
+
 @PACKAGE@_EXTRA_DIST = \
 	README \
 	LICENSE	\
-	sipxopenacd-process.xml.in \
-	sipxopenacd.in
+	sipxopenacd-process.xml.in
 
 LOCALIZE_VARS = \
 	$(filter SIPX%,$(.VARIABLES)) \
@@ -14,19 +15,18 @@ LOCALIZE_VARS = \
 LOCALIZE = \
 	$(foreach V,$(LOCALIZE_VARS), -e 's|@$(V)\@|$($(V))|g')
 
-bin_SCRIPTS = \
-	sipxopenacd
-
 procdir = $(datadir)/sipxecs/process.d
 
 dist_proc_DATA = \
 	sipxopenacd-process.xml
 
 LOCALIZE_TARGETS = \
-	$(bin_SCRIPTS) \
 	$(dist_proc_DATA)
 
 # source files use many configuration variables that change, so always rebuild
 .PHONY: $(LOCALIZE_TARGETS)
 $(LOCALIZE_TARGETS) :
 	@sed $(LOCALIZE) $(srcdir)/$(notdir $@).in > $@
+
+install-exec-hook:
+	$(INSTALL) -d -m 755 $(DESTDIR)@SIPX_LOGDIR@/openacd $(DESTDIR)@SIPX_VARDIR@/openacd

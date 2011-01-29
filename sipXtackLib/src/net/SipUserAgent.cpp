@@ -1080,7 +1080,7 @@ UtlBoolean SipUserAgent::send(SipMessage& message,
       else
       {
          //  All other messages just get sent.
-          OsSysLog::add(FAC_SIP, PRI_ERR,
+          OsSysLog::add(FAC_SIP, PRI_DEBUG,
                         "SipUserAgent::send "
                         "outgoing call 1");
          sendSucceeded = transaction->handleOutgoing(message,
@@ -2063,7 +2063,7 @@ void SipUserAgent::dispatch(SipMessage* message, int messageType)
             if(response)
             {
                // Send the error response
-                OsSysLog::add(FAC_SIP, PRI_ERR,
+                OsSysLog::add(FAC_SIP, PRI_DEBUG,
                               "SipUserAgent::send "
                               "outgoing call 2");
                transaction->handleOutgoing(*response,

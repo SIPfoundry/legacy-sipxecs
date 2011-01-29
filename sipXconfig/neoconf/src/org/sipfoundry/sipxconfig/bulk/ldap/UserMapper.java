@@ -103,7 +103,7 @@ public class UserMapper implements NameClassPairMapper {
 
         // group names in the current entry
         Attributes attrs = sr.getAttributes();
-        Set<String> entryGroups = getValues(attrs, Index.USER_GROUP);
+        Set<String> entryGroups = replaceWhitespace(getValues(attrs, Index.USER_GROUP));
         if (entryGroups != null) {
             groupNames.addAll(entryGroups);
         }
@@ -115,7 +115,7 @@ public class UserMapper implements NameClassPairMapper {
             List<Rdn> rdns = ldapName.getRdns();
             for (Rdn rdn : rdns) {
                 Attributes rdnsAttributes = rdn.toAttributes();
-                Set<String> rdnsGroups = getValues(rdnsAttributes, Index.USER_GROUP);
+                Set<String> rdnsGroups = replaceWhitespace(getValues(rdnsAttributes, Index.USER_GROUP));
                 if (rdnsGroups != null) {
                     groupNames.addAll(rdnsGroups);
                 }
@@ -123,6 +123,19 @@ public class UserMapper implements NameClassPairMapper {
             }
         }
         return groupNames;
+    }
+
+    private Set<String> replaceWhitespace(Set<String> values) {
+        if (values != null) {
+            Set<String> userGroupNames = new HashSet<String>();
+            for (String value : values) {
+                userGroupNames.add(StringUtils.replace(value.trim(), " ", "_"));
+            }
+
+            return userGroupNames;
+        }
+
+        return null;
     }
 
     private void setProperty(User user, Attributes attrs, Index index) throws NamingException {

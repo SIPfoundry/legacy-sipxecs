@@ -2,7 +2,7 @@
 
 Name:           erlang
 Version:        R13B04
-Release:        1.2
+Release:        1.3
 %define pkg_version R13B04
 #
 Group:          Development/Languages/Erlang
@@ -12,7 +12,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires:  ncurses-devel openssl-devel unixODBC-devel tcl-devel tk-devel openssh
 BuildRequires:  gcc-c++ java-devel >= 1.5.0
 BuildRequires:  krb5-devel 
-%if 0%{?sles_ersion} != 0
+%if 0%{?sles_version} != 0
 BuildRequires:  Mesa-devel
 %else 
 BuildRequires:  mesa-libOSMesa-devel
@@ -271,3 +271,5 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jan 19 2011 - dhubler (at) ezuce.com
+- include reltool in rpm, no need for it to be removed.
