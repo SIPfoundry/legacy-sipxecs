@@ -67,6 +67,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String LINE_NAME = "line";
     private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
+    private static final String DEFAULT_QUEUE = "default_queue";
+    private static final String FS_ACTIONS_WITH_DATA = "freeswitchActionsWithData";
 
     private DomainManager m_domainManager;
     private SipxServiceManager m_serviceManager;
@@ -200,6 +202,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     private boolean isExtensionChanged(OpenAcdExtension extension) {
         return !getExtensionById(extension.getId()).getExtension().equals(extension.getExtension());
+    }
+
+    private List<FreeswitchAction> getActionsByData(String actionData) {
+        return getHibernateTemplate().findByNamedQueryAndNamedParam(FS_ACTIONS_WITH_DATA, VALUE, actionData);
     }
 
     @Override
@@ -601,6 +607,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         return DataAccessUtils.singleResult(clients);
     }
 
+    @Override
     public OpenAcdClient getClientByIdentity(String identity) {
         List<OpenAcdClient> clients = getHibernateTemplate().findByNamedQueryAndNamedParam(
                 OPEN_ACD_CLIENT_WITH_IDENTITY, VALUE, identity);
@@ -608,13 +615,21 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     @Override
-    public void removeClients(Collection<Integer> clientsId) {
+    public List<String> removeClients(Collection<Integer> clientsId) {
         List<OpenAcdClient> clients = new ArrayList<OpenAcdClient>();
+        List<String> usedClients = new ArrayList<String>();
         for (Integer id : clientsId) {
-            clients.add(getHibernateTemplate().get(OpenAcdClient.class, id));
+            OpenAcdClient client = getClientById(id);
+            if (isUsedByLine(OpenAcdLine.BRAND + client.getIdentity())) {
+                usedClients.add(client.getName());
+            } else {
+                clients.add(client);
+            }
         }
         getHibernateTemplate().deleteAll(clients);
         m_provisioningContext.deleteObjects(clients);
+
+        return usedClients;
     }
 
     @Override
@@ -751,11 +766,24 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             throw new UserException("&blank.queueName.error");
         }
         // Check for duplicate names before saving the queue
-        if (queue.isNew() || (!queue.isNew() && isNameChanged(queue))) {
+        boolean nameChanged = !queue.isNew() && isNameChanged(queue);
+        if (queue.isNew() || nameChanged) {
             checkForDuplicateName(queue);
         }
 
+        // Check if the queue is associated with lines
+        if (nameChanged) {
+            checkLines(queue);
+        }
+
         if (!queue.isNew()) {
+            if (isNameChanged(queue)) {
+                // don't rename the default queue
+                OpenAcdQueue defaultQueue = getQueueByName(DEFAULT_QUEUE);
+                if (defaultQueue != null && defaultQueue.getId().equals(queue.getId())) {
+                    throw new UserException("&msg.err.defaultQueueRename");
+                }
+            }
             getHibernateTemplate().merge(queue);
             m_provisioningContext.updateObjects(Collections.singletonList(queue));
         } else {
@@ -778,20 +806,46 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         }
     }
 
+    private void checkLines(OpenAcdQueue queue) {
+        List<FreeswitchAction> actions = getActionsByData(OpenAcdLine.Q + queue.getOldName());
+        if (actions.size() > 0) {
+            for (FreeswitchAction action : actions) {
+                action.setData(OpenAcdLine.Q + queue.getName());
+                getHibernateTemplate().merge(action);
+            }
+            getHibernateTemplate().flush();
+            replicateConfig();
+        }
+    }
+
     @Override
-    public void removeQueues(Collection<Integer> queueIds) {
+    public List<String> removeQueues(Collection<Integer> queueIds) {
         List<OpenAcdQueue> queues = new LinkedList<OpenAcdQueue>();
         List<OpenAcdQueueGroup> groups = new LinkedList<OpenAcdQueueGroup>();
+        List<String> usedQueues = new ArrayList<String>();
         for (Integer id : queueIds) {
             OpenAcdQueue queue = getQueueById(id);
-            OpenAcdQueueGroup group = queue.getGroup();
-            group.removeQueue(queue);
-            getHibernateTemplate().saveOrUpdate(group);
-            queues.add(queue);
-            groups.add(group);
+            if (queue.getName().equals(DEFAULT_QUEUE) || isUsedByLine(OpenAcdLine.Q + queue.getName())) {
+                usedQueues.add(queue.getName());
+            } else {
+                OpenAcdQueueGroup group = queue.getGroup();
+                group.removeQueue(queue);
+                getHibernateTemplate().saveOrUpdate(group);
+                queues.add(queue);
+                groups.add(group);
+            }
         }
         getHibernateTemplate().deleteAll(queues);
         m_provisioningContext.deleteObjects(queues);
+
+        return usedQueues;
+    }
+
+    private boolean isUsedByLine(String data) {
+        if (getActionsByData(data).size() > 0) {
+            return true;
+        }
+        return false;
     }
 
     public void setDomainManager(DomainManager manager) {

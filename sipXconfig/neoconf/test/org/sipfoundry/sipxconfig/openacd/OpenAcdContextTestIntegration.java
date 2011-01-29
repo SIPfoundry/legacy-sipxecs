@@ -638,6 +638,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(1, m_openAcdContextImpl.getClients().size());
 
         assertEquals("client", m_openAcdContextImpl.getClientById(client.getId()).getName());
+        assertEquals("client", m_openAcdContextImpl.getClientByIdentity(client.getIdentity()).getName());
     }
 
     public void testOpenAcdQueueGroupCrud() throws Exception {
@@ -754,13 +755,13 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         m_openAcdContextImpl.saveQueue(queueWithSkills);
         assertEquals(3, m_openAcdContextImpl.getQueues().size());
 
-        // test remove all queues
+        // test remove all queues but prevent 'default_queue' deletion
         Collection<Integer> queueIds = new ArrayList<Integer>();
         queueIds.add(defaultQueue.getId());
         queueIds.add(queue.getId());
         queueIds.add(queueWithSkills.getId());
         m_openAcdContextImpl.removeQueues(queueIds);
-        assertEquals(0, m_openAcdContextImpl.getQueues().size());
+        assertEquals(1, m_openAcdContextImpl.getQueues().size());
     }
 
     public void testGroupedSkills() throws Exception {

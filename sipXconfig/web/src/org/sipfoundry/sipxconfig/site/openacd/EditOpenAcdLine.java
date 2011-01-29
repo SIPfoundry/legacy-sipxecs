@@ -29,12 +29,15 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdClient;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdLine;
+import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
 import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
 
 public abstract class EditOpenAcdLine extends PageWithCallback implements PageBeginRenderListener {
@@ -62,9 +65,13 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
 
     public abstract void setLineNumber(String number);
 
-    public abstract String getQueue();
+    public abstract OpenAcdQueue getSelectedQueue();
 
-    public abstract void setQueue(String queue);
+    public abstract void setSelectedQueue(OpenAcdQueue queue);
+
+    public abstract OpenAcdClient getSelectedClient();
+
+    public abstract void setSelectedClient(OpenAcdClient client);
 
     @Persist
     public abstract String getWelcomeMessage();
@@ -135,8 +142,16 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
             if (StringUtils.equals(application, FreeswitchAction.PredefinedAction.answer.toString())) {
                 setAnswerSupervision(true);
             } else if (StringUtils.contains(data, OpenAcdLine.Q)) {
-                if (getQueue() == null) {
-                    setQueue(StringUtils.removeStart(data, OpenAcdLine.Q));
+                if (getSelectedQueue() == null) {
+                    String queueName = StringUtils.removeStart(data, OpenAcdLine.Q);
+                    OpenAcdQueue queue = getOpenAcdContext().getQueueByName(queueName);
+                    setSelectedQueue(queue);
+                }
+            } else if (StringUtils.contains(data, OpenAcdLine.BRAND)) {
+                if (getSelectedClient() == null) {
+                    String clientIdentity = StringUtils.removeStart(data, OpenAcdLine.BRAND);
+                    OpenAcdClient client = getOpenAcdContext().getClientByIdentity(clientIdentity);
+                    setSelectedClient(client);
                 }
             } else if (StringUtils.contains(data, OpenAcdLine.ALLOW_VOICEMAIL)) {
                 setAllowVoicemail(BooleanUtils.toBoolean(StringUtils.removeStart(data,
@@ -201,7 +216,16 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
             line.getNumberCondition().getActions().clear();
             line.getNumberCondition().addAction(OpenAcdLine.createAnswerAction(isAnswerSupervision()));
             line.getNumberCondition().addAction(OpenAcdLine.createVoicemailAction(isAllowVoicemail()));
-            line.getNumberCondition().addAction(OpenAcdLine.createQueueAction(getQueue()));
+            if (getSelectedQueue() == null) {
+                throw new UserException(getMessages().getMessage("error.requiredQueue"));
+            } else {
+                line.getNumberCondition().addAction(OpenAcdLine.createQueueAction(getSelectedQueue().getName()));
+            }
+            if (getSelectedClient() == null) {
+                throw new UserException(getMessages().getMessage("error.requiredClient"));
+            } else {
+                line.getNumberCondition().addAction(OpenAcdLine.createClientAction(getSelectedClient().getIdentity()));
+            }
             line.getNumberCondition().addAction(
                     OpenAcdLine.createPlaybackAction(getSipxOpenAcdService().getAudioDir() + SLASH
                             + getWelcomeMessage()));
