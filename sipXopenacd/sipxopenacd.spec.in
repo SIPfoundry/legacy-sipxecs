@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_datadir}/sipxecs/process.d/sipxopenacd-process.xml
 %attr(755,root,root) %{_bindir}/sipxopenacd
 %attr(755,root,root) %{_bindir}/find-erlang-lib
+%attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/sipxopenacd-setup
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/sipxdata/openacd
+%dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/log/sipxpbx/openacd
 %{plugindir}/sipxplugin/ebin/sipxplugin.app
 %{plugindir}/sipxplugin/ebin/sipxplugin_app.beam
 %{plugindir}/sipxplugin/ebin/sipxplugin_poller.beam

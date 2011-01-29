@@ -27,3 +27,6 @@ LOCALIZE_TARGETS = \
 .PHONY: $(LOCALIZE_TARGETS)
 $(LOCALIZE_TARGETS) :
 	@sed $(LOCALIZE) $(srcdir)/$(notdir $@).in > $@
+
+install-exec-hook:
+	$(INSTALL) -d -m 755 $(DESTDIR)@SIPX_LOGDIR@/openacd $(DESTDIR)@SIPX_VARDIR@/openacd
