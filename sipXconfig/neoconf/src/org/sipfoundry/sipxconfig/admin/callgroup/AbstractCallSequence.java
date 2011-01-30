@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
  */
 public class AbstractCallSequence extends BeanWithId {
     public static final String RINGS_PROP = "rings";
+    static final String ALIAS_RELATION = "userforward";
 
     private List<AbstractRing> m_rings = new ArrayList<AbstractRing>();
 
@@ -145,7 +146,7 @@ public class AbstractCallSequence extends BeanWithId {
                 ignoreVoiceMail = Type.IMMEDIATE.equals(r.getType());
             }
             String contact = r.calculateContact(domain, q, ignoreVoiceMail, userForward, null);
-            AliasMapping alias = new AliasMapping(identity, contact);
+            AliasMapping alias = new AliasMapping(identity, contact, ALIAS_RELATION);
             aliases.add(alias);
         }
         return aliases;

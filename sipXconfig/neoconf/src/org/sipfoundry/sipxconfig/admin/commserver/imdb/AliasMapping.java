@@ -19,9 +19,7 @@ public class AliasMapping extends DataSetRecord {
 
     public static final String IDENTITY = "id";
     public static final String CONTACT = "cnt";
-
-    private String m_identity;
-    private String m_contact;
+    public static final String RELATION = "rln";
 
     public AliasMapping() {
         // empty default
@@ -31,9 +29,10 @@ public class AliasMapping extends DataSetRecord {
      * @param identity
      * @param contact
      */
-    public AliasMapping(String identity, String contact) {
+    public AliasMapping(String identity, String contact, String relation) {
         put(IDENTITY, identity);
         put(CONTACT, contact);
+        put(RELATION, relation);
     }
 
     // convenience methods

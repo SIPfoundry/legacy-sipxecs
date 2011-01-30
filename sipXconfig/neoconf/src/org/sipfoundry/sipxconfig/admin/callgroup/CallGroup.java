@@ -31,7 +31,7 @@ import org.sipfoundry.sipxconfig.common.User;
 
 public class CallGroup extends AbstractCallSequence implements Replicable {
     private static final int SIP_PASSWORD_LEN = 10;
-
+    private static final String ALIAS_RELATION = "callgroup";
     private boolean m_enabled;
     private String m_name;
     private String m_extension;
@@ -178,21 +178,22 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
                 }
                 String vmailContact = lastRing.calculateContact(domainName, forkQueueValue, false, m_userForward,
                         MappingRule.Voicemail.VM_PREFIX);
-                mappings.add(new AliasMapping(myIdentity, vmailContact));
+                mappings.add(new AliasMapping(myIdentity, vmailContact, ALIAS_RELATION));
             }
         } else if (StringUtils.isNotBlank(m_fallbackDestination)) {
             String falback = SipUri.fix(m_fallbackDestination, domainName);
             String fallbackContact = String.format("<%s>;%s", falback, forkQueueValue.getSerial());
-            mappings.add(new AliasMapping(myIdentity, fallbackContact));
+            mappings.add(new AliasMapping(myIdentity, fallbackContact, ALIAS_RELATION));
         }
 
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
             AliasMapping extensionAlias = new AliasMapping(AliasMapping.createUri(m_extension, domainName),
-                    myIdentity);
+                    myIdentity, ALIAS_RELATION);
             mappings.add(extensionAlias);
         }
         if (StringUtils.isNotBlank(m_did) && !m_did.equals(m_name)) {
-            AliasMapping didAlias = new AliasMapping(AliasMapping.createUri(m_did, domainName), myIdentity);
+            AliasMapping didAlias = new AliasMapping(AliasMapping.createUri(m_did, domainName), myIdentity,
+                    ALIAS_RELATION);
             mappings.add(didAlias);
         }
 

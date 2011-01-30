@@ -58,35 +58,21 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
         DaoEventListener {
     public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);
-
     private static final String NAME_PROPERTY = "name";
-
     private static final String SERVER_PARAM = "acdServer";
-
     private static final String USER_PARAM = "user";
-
     private static final String SQL = "alter table acd_server drop column host";
-
     private static final String ACD_LINE_IDS_WITH_ALIAS = "acdLineIdsWithAlias";
-
     private static final String VALUE = "value";
-
     private static final String LINE = "line";
-
     private static final String AGENT_FOR_USER_AND_SERVER_QUERY = "agentForUserAndServer";
 
     private AliasManager m_aliasManager;
-
     private BeanFactory m_beanFactory;
-
     private boolean m_enabled = true;
-
     private LocationsManager m_locationsManager;
-
     private SipxServiceManager m_sipxServiceManager;
-
     private CoreContext m_coreContext;
-
     private SipxServiceBundle m_acdBundle;
 
     private AcdServer getAcdServer(Integer id) {

@@ -26,6 +26,8 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
 public class User extends AbstractUser implements Replicable {
+    private static final String ALIAS_RELATION = "alias";
+    private static final String ALIAS_RELATION_FAX = "fax";
     private String m_identity;
 
     /**
@@ -69,14 +71,14 @@ public class User extends AbstractUser implements Replicable {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         String contact = getUri(domainName);
         for (String alias : getAliases()) {
-            AliasMapping mapping = new AliasMapping(alias, contact);
+            AliasMapping mapping = new AliasMapping(alias, contact, ALIAS_RELATION);
             mappings.add(mapping);
         }
 
         ImAccount imAccount = new ImAccount(this);
         if (imAccount.isEnabled() && !StringUtils.isEmpty(imAccount.getImId())
                 && !imAccount.getImId().equals(getUserName())) {
-            AliasMapping mapping = new AliasMapping(imAccount.getImId(), contact);
+            AliasMapping mapping = new AliasMapping(imAccount.getImId(), contact, ALIAS_RELATION);
             mappings.add(mapping);
         }
 
@@ -85,17 +87,17 @@ public class User extends AbstractUser implements Replicable {
         String faxDid = getFaxDid();
         if (!faxExtension.isEmpty()) {
             String faxContactUri = SipUri.format(getDisplayName(), FAX_EXTENSION_PREFIX + getUserName(), domainName);
-            AliasMapping mapping = new AliasMapping(faxExtension, faxContactUri);
+            AliasMapping mapping = new AliasMapping(faxExtension, faxContactUri, ALIAS_RELATION_FAX);
             mappings.add(mapping);
             if (!faxDid.isEmpty()) {
-                mapping = new AliasMapping(faxDid, faxContactUri);
+                mapping = new AliasMapping(faxDid, faxContactUri, ALIAS_RELATION_FAX);
                 mappings.add(mapping);
             }
         }
 
         if (this.hasPermission(PermissionName.EXCHANGE_VOICEMAIL)
                 || this.hasPermission(PermissionName.FREESWITH_VOICEMAIL)) {
-            AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), contact);
+            AliasMapping mapping = new AliasMapping("~~vm~" + getUserName(), contact, "vmprm");
             mappings.add(mapping);
         }
 

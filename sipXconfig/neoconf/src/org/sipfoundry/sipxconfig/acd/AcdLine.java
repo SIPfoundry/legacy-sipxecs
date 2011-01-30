@@ -35,7 +35,7 @@ public class AcdLine extends AcdComponent implements Replicable {
     static final String LINE_NAME = "acd-line/name";
     static final String EXTENSION = "acd-line/extension";
     static final String ACD_QUEUE = "acd-line/acd-queue";
-    static final String ACD_RELATION = "acd";
+    static final String ALIAS_RELATION = "acd";
 
     private AcdQueue m_queue;
 
@@ -166,10 +166,10 @@ public class AcdLine extends AcdComponent implements Replicable {
         // TODO: remove localhost trick when we have real host information
         String identityExtension = AliasMapping.createUri(extension, domainName);
 
-        mappings.add(new AliasMapping(identityExtension, getIdentity(domainName)));
+        mappings.add(new AliasMapping(identityExtension, getIdentity(domainName), ALIAS_RELATION));
         if (!StringUtils.isEmpty(did) && !did.equals(extension)) {
             String identityDid = AliasMapping.createUri(did, domainName);
-            mappings.add(new AliasMapping(identityDid, getIdentity(domainName)));
+            mappings.add(new AliasMapping(identityDid, getIdentity(domainName), ALIAS_RELATION));
         }
         aliases.put(this, mappings);
         return aliases;

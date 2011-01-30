@@ -38,6 +38,7 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     public static final String DESTINATION_NUMBER = "destination_number";
     public static final String DESTINATION_NUMBER_PATTERN = "^%s$";
     public static final String EMPTY_STRING = "";
+    static final String ALIAS_RELATION = "openacd";
     private SipxServiceManager m_serviceManager;
 
     /**
@@ -104,11 +105,11 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
                 .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
 
         AliasMapping nameMapping = new AliasMapping(AliasMapping.createUri(getName(), domainName), SipUri.format(
-                getExtension(), freeswitchService.getAddress(), false));
+                getExtension(), freeswitchService.getAddress(), false), ALIAS_RELATION);
         mappings.add(nameMapping);
         AliasMapping lineMapping = new AliasMapping(AliasMapping.createUri(getExtension(), domainName),
                 SipUri.format(getExtension(), freeswitchService.getAddress(),
-                        freeswitchService.getFreeswitchSipPort()));
+                        freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
         mappings.add(lineMapping);
         aliases.put(this, mappings);
         return aliases;

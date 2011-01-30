@@ -66,6 +66,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity,
     private static final String DEBUG = "DEBUG";
     private static final String INFO = "INFO";
     private static final String NON_DEBUG = "NON-DEBUG";
+    private static final String ALIAS_RELATION = "moh";
 
     private String m_docDir;
     private JobContext m_jobContext;
@@ -348,14 +349,14 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity,
         }
 
         List<AliasMapping> aliasMappings = new ArrayList<AliasMapping>(1);
-        aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getDefaultMohUri(), contact));
+        aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getDefaultMohUri(), contact, ALIAS_RELATION));
 
         aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getLocalFilesMohUri(), m_musicOnHoldManager
-                .getLocalFilesMohUriMapping()));
+                .getLocalFilesMohUriMapping(), ALIAS_RELATION));
         aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getPortAudioMohUri(), m_musicOnHoldManager
-                .getPortAudioMohUriMapping()));
+                .getPortAudioMohUriMapping(), ALIAS_RELATION));
         aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getNoneMohUri(), m_musicOnHoldManager
-                .getNoneMohUriMapping()));
+                .getNoneMohUriMapping(), ALIAS_RELATION));
 
         aliases.put(this, aliasMappings);
         return aliases;

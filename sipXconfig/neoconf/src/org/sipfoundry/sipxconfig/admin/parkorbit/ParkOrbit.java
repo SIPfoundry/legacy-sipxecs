@@ -43,10 +43,11 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject {
         m_extension = extension;
     }
 
+    @Deprecated
     public AliasMapping generateAlias(String dnsDomain, String orbitServer) {
         String identity = AliasMapping.createUri(m_extension, dnsDomain);
         String contact = AliasMapping.createUri(m_extension, orbitServer);
-        return new AliasMapping(identity, contact);
+        return new AliasMapping(identity, contact, "orbit");
     }
 
     @Override

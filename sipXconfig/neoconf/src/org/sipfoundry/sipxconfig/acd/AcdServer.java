@@ -36,48 +36,29 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 public class AcdServer extends AcdComponent implements LoggingEntity, Replicable {
     public static final Log LOG = LogFactory.getLog(AcdServer.class);
     public static final String OBJECT_CLASS = "acd-server";
-
     public static final String BEAN_NAME = "acdServer";
-
     public static final String LOG_SETTING = "acd-server/log-level";
-
     static final String ADMIN_STATE = "acd-server/administrative-state";
-
     static final String UDP_PORT = "acd-server/udp-port";
-
     static final String DOMAIN = "acd-server/domain";
-
     static final String FQDN = "acd-server/fqdn";
-
     static final String PRESENCE_SERVER_URI = "acd-server/presence-server-uri";
-
     static final String PRESENCE_SERVICE_URI = "acd-server/presence-service-uri";
-
     private static final String KEY_URI = "uri";
-
     private static final String KEY_NAME = "name";
-
     private static final String URI = "http://{0}:{1}/RPC2";
+    private static final String ALIAS_RELATION = "acd";
 
     // TODO: only needed to create AcdAudio - we may be able to remove this dependency
     private transient AcdContext m_acdContext;
-
     private transient SipxServiceManager m_sipxServiceManager;
-
     private SipxPresenceService m_presenceService;
-
     private int m_port;
-
     private int m_agentPort;
-
     private Location m_location;
-
     private Set m_lines = new HashSet();
-
     private Set m_queues = new HashSet();
-
     private Set m_agents = new HashSet();
-
     private LoggingManager m_loggingManager;
 
     public AcdServer() {
@@ -198,7 +179,7 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
 
     private AliasMapping createPresenceAliasMapping(String code, String domainName, int port) {
         AliasMapping mapping = new AliasMapping(AliasMapping.createUri(code, domainName), SipUri.format(code,
-                getLocation().getFqdn(), port));
+                getLocation().getFqdn(), port), ALIAS_RELATION);
         return mapping;
     }
 

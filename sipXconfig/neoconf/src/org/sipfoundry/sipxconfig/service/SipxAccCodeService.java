@@ -38,6 +38,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     public static final String AUTH_CODE_ALIASES = "authcode/SIP_AUTH_CODE_ALIASES";
     private static final Log LOG = LogFactory.getLog(SipxAccCodeService.class);
     private static final String EXTENSION = "extension";
+    private static final String ALIAS_RELATION = "alias";
 
     private AliasManager m_aliasManager;
     private SipxServiceManager m_sipxServiceManager;
@@ -94,7 +95,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
         for (String alias : getAliasesSet(aliases)) {
             if (!m_aliasManager.canObjectUseAlias(this, alias)) {
                 LOG.info("SipxAccCodeService::apply() failed alias check.  alias:" + alias);
-                throw new NameInUseException("alias", alias);
+                throw new NameInUseException("alias ", alias);
             }
         }
     }
@@ -211,7 +212,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
             String contact = SipUri.format(getAuthCodePrefix(), getDomainName(), false);
             // direct mapping is for testing only
             // contact = getDirectContactUri();
-            mappings.add(new AliasMapping(identity, contact));
+            mappings.add(new AliasMapping(identity, contact, ALIAS_RELATION));
         }
         aliases.put(this, mappings);
         return aliases;
