@@ -14,7 +14,6 @@
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/AliasDB.h"
 #include "SipRedirectorTimeOfDay.h"
 
 // DEFINES

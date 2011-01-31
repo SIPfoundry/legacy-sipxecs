@@ -6,6 +6,7 @@
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
+#include "SipRedirectorJoin.h"
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
@@ -15,8 +16,6 @@
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/CredentialDB.h"
-#include "SipRedirectorJoin.h"
 #include "os/OsProcess.h"
 #include "net/NetMd5Codec.h"
 #include "net/Url.h"
@@ -199,6 +198,7 @@ SipRedirectorJoin::initialize(OsConfigDb& configDb,
          bindIp = "0.0.0.0";
       }
 
+      
       // Authentication Realm Name
       UtlString realm;
       configDb.get("SIP_REGISTRAR_AUTHENTICATE_REALM", realm);
@@ -953,9 +953,7 @@ SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
    SipLineMgr* lineMgr = NULL;
    UtlString user;
 
-   CredentialDB* credentialDb;
-   if ((credentialDb = CredentialDB::getInstance()))
-   {
+
       Url identity;
 
       identity.setUserId(REGISTRAR_ID_TOKEN);
@@ -964,7 +962,7 @@ SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
       UtlString authtype;
       bool bSuccess = false;
 
-      if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
+      if (_dataStore.entityDB().getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
          if ((line = new SipLine( identity // user entered url
                                  ,identity // identity url
@@ -1035,9 +1033,8 @@ SipRedirectorJoin::addCredentials (UtlString domain, UtlString realm)
          delete lineMgr;
          lineMgr = NULL;
       }
-   }
 
-   credentialDb->releaseInstance();
 
    return lineMgr;
 }
+

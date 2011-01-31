@@ -6,6 +6,7 @@
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
+#include "SipRedirectorRegDB.h"
 
 // SYSTEM INCLUDES
 
@@ -16,9 +17,8 @@
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/RegistrationDB.h"
 #include "sipdb/UserForwardDB.h"
-#include "SipRedirectorRegDB.h"
+
 
 // DEFINES
 
@@ -80,7 +80,7 @@ SipRedirectorRegDB::lookUp(
    ErrorDescriptor& errorDescriptor)
 {
    unsigned long timeNow = OsDateTime::getSecsSinceEpoch();
-   ResultSet registrations;
+   
    // Local copy of requestUri
    Url requestUriCopy = requestUri;
 
@@ -103,8 +103,7 @@ SipRedirectorRegDB::lookUp(
                     temp.data());
    }
 
-   RegistrationDB* regDB =
-      RegistrationDB::getInstance(); // TODO - change to SipRegistrar::getRegistrationDB (see Scott Lawrence)
+   RegDB::Bindings registrations;
 
    // Give the ~~in~ URIs separate processing.
    UtlString user;
@@ -123,15 +122,19 @@ SipRedirectorRegDB::lookUp(
                   sizeof (URI_IN_PREFIX) - 1,
                   s - (sizeof (URI_IN_PREFIX) - 1));
          requestUriCopy.setUserId(u);
-         regDB->
-            getUnexpiredContactsUserInstrument(requestUriCopy, instrumentp, timeNow, registrations);
+
+         //regDB->
+         //   getUnexpiredContactsUserInstrument(requestUriCopy, instrumentp, timeNow, registrations);
+         UtlString identity;
+         requestUriCopy.getIdentity(identity);
+         _dataStore.regDB().getUnexpiredContactsUserInstrument(identity.str(), instrumentp, timeNow, registrations);
       }
       else
       {
          // This is a ~~in~[instrument] URI.
          const char* instrumentp = user.data() + sizeof (URI_IN_PREFIX) - 1;
-         regDB->
-            getUnexpiredContactsInstrument(instrumentp, timeNow, registrations);
+
+          _dataStore.regDB().getUnexpiredContactsInstrument(instrumentp, timeNow, registrations);
       }         
    }
    else
@@ -141,11 +144,14 @@ SipRedirectorRegDB::lookUp(
       // database.  The requestUri identity is matched against the
       // "identity" column of the database, which is the identity part of
       // the "uri" column which is stored in registration.xml.
-      regDB->
-         getUnexpiredContactsUser(requestUriCopy, timeNow, registrations);
+
+      UtlString identity;
+     requestUriCopy.getIdentity(identity);
+     _dataStore.regDB().getUnexpiredContactsUser(identity.str(), timeNow, registrations);
+
    }
 
-   int numUnexpiredContacts = registrations.getSize();
+   int numUnexpiredContacts = registrations.size();
 
    OsSysLog::add(FAC_SIP, PRI_DEBUG,
                  "%s::lookUp got %d unexpired contacts",
@@ -153,7 +159,7 @@ SipRedirectorRegDB::lookUp(
 
    // Check for a per-user call forward timer.
    // Don't set timer if we're not going to forward to voicemail.
-   UtlString userCfwdTimer;
+   std::ostringstream userCfwdTimer;
    bool foundUserCfwdTimer = false;
 
    if (method.compareTo(SIP_INVITE_METHOD) == 0)
@@ -167,31 +173,29 @@ SipRedirectorRegDB::lookUp(
       }
       else
       {
-          foundUserCfwdTimer = UserForwardDB::getInstance()->getCfwdTime(requestUriCopy, userCfwdTimer);
+          UtlString identity;
+          requestUriCopy.getIdentity(identity);
+          EntityRecord entity;
+
+          foundUserCfwdTimer = _dataStore.entityDB().findByIdentity(identity.str(), entity);
+          if (foundUserCfwdTimer)
+            userCfwdTimer << entity.callForwardTime();
       }
    }
 
-   for (int i = 0; i < numUnexpiredContacts; i++)
+   for (RegDB::Bindings::const_iterator iter = registrations.begin(); iter != registrations.end(); iter++)
    {
       // Query the Registration DB for the contact, expires and qvalue columns.
-      UtlHashMap record;
-      registrations.getIndex(i, record);
-      UtlString contactKey("contact");
-      UtlString expiresKey("expires");
-      UtlString qvalueKey("qvalue");
-      UtlString pathKey("path");
-      UtlString contact = *((UtlString*) record.findValue(&contactKey));
-      UtlString qvalue = *((UtlString*) record.findValue(&qvalueKey));
-      UtlString pathVector = *((UtlString*) record.findValue(&pathKey));
+
       OsSysLog::add(FAC_SIP, PRI_DEBUG,
                     "%s::lookUp contact = '%s', qvalue = '%s', path = '%s'",
-                    mLogName.data(), contact.data(), qvalue.data(), pathVector.data() );
-      Url contactUri(contact);
+                    mLogName.data(), iter->getContact().c_str(), iter->getQvalue().c_str(), iter->getPath().c_str() );
+      Url contactUri(iter->getContact().c_str());
 
       // If available set the per-user call forward timer.
       if (foundUserCfwdTimer)
       {
-          contactUri.setHeaderParameter("expires", userCfwdTimer);
+          contactUri.setHeaderParameter("expires", userCfwdTimer.str().c_str());
       }
 
       // If the contact URI is the same as the request URI, ignore it.
@@ -199,15 +203,14 @@ SipRedirectorRegDB::lookUp(
       {
          // Check if the q-value from the database is valid, and if so,
          // add it into contactUri.
-         if (!qvalue.isNull() &&
-             qvalue.compareTo(SPECIAL_IMDB_NULL_VALUE) != 0)
+         if (!iter->getQvalue().empty())
          {
             // :TODO: (XPL-3) need a RegEx copy constructor here
             // Check if q value is numeric and between the range 0.0 and 1.0.
             static RegEx qValueValid("^(0(\\.\\d{0,3})?|1(\\.0{0,3})?)$");
-            if (qValueValid.Search(qvalue.data()))
+            if (qValueValid.Search(iter->getQvalue().c_str()))
             {
-               contactUri.setFieldParameter(SIP_Q_FIELD, qvalue);
+               contactUri.setFieldParameter(SIP_Q_FIELD, iter->getQvalue().c_str());
             }
          }
 
@@ -221,18 +224,18 @@ SipRedirectorRegDB::lookUp(
          // Check if database contained a Path value.  If so, add a Route
          // header parameter to the contact with the Path vector taken from
          // the registration data.
-         if (!pathVector.isNull() &&
-              pathVector.compareTo(SPECIAL_IMDB_NULL_VALUE) != 0)
+         if (iter->getPath().empty())
          {
             UtlString existingRouteValue;
+            std::string pathVector = iter->getPath();
             if ( contactUri.getHeaderParameter(SIP_ROUTE_FIELD, existingRouteValue))
             {
                // there is already a Route header parameter in the contact; append it to the
                // Route derived from the Path vector.
-               pathVector.append(SIP_MULTIFIELD_SEPARATOR);
-               pathVector.append(existingRouteValue);
+                pathVector += SIP_MULTIFIELD_SEPARATOR;
+                pathVector += existingRouteValue.str();
             }
-            contactUri.setHeaderParameter(SIP_ROUTE_FIELD, pathVector);
+            contactUri.setHeaderParameter(SIP_ROUTE_FIELD, pathVector.c_str());
          }
 
          // Add the contact.

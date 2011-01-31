@@ -7,6 +7,8 @@
 // $$
 //////////////////////////////////////////////////////////////////////////////
 
+#include "SipRedirectorPickUp.h"
+
 // SYSTEM INCLUDES
 #include <stdlib.h>
 #include <limits.h>
@@ -15,8 +17,6 @@
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/CredentialDB.h"
-#include "SipRedirectorPickUp.h"
 #include "os/OsProcess.h"
 #include "net/NetMd5Codec.h"
 #include "net/Url.h"
@@ -377,6 +377,8 @@ SipRedirectorPickUp::finalize()
    }
 }
 
+
+
 RedirectPlugin::LookUpStatus
 SipRedirectorPickUp::lookUp(
    const SipMessage& message,
@@ -461,34 +463,14 @@ SipRedirectorPickUp::lookUp(
    else if (!mGlobalPickUpCode.isNull() &&
             userId.compareTo(ALL_CREDENTIALS_USER) == 0)
    {
+
       // Process the "~~sp~allcredentials" user for global call pick-up.
       if (method.compareTo("SUBSCRIBE", UtlString::ignoreCase) == 0)
       {
          // Only the SUBSCRIBE method is acceptable for
          // ~~sp~allcredentials, to prevent "INVITE ~~sp~allcredentials@..."
          // from ringing every phone!
-         ResultSet credentials;
-         CredentialDB::getInstance()->getAllRows(credentials);
-
-         // Loop through the result set, looking at each credentials
-         // entry in turn.
-         int numGlobalPickUpContacts = credentials.getSize();
-         for (int i = 0; i < numGlobalPickUpContacts; i++)
-         {
-            static UtlString uriKey("uri");
-
-            UtlHashMap record;
-            if (credentials.getIndex(i, record))
-            {
-               // Extract the "uri" element from the credential.
-               UtlString contactStr;
-               UtlString uri = *((UtlString*)record.findValue(&uriKey));
-               Url contactUri(uri);
-
-               // Add the contact to the contact list.
-               contactList.add( contactUri, *this );
-            }
-         }
+         _dataStore.getAllEntityUri(contactList, *this);
          return RedirectPlugin::SUCCESS;
       }
       else
@@ -1282,9 +1264,7 @@ SipRedirectorPickUp::addCredentials (UtlString domain, UtlString realm)
    SipLineMgr* lineMgr = NULL;
    UtlString user;
 
-   CredentialDB* credentialDb;
-   if ((credentialDb = CredentialDB::getInstance()))
-   {
+
       Url identity;
 
       identity.setUserId(REGISTRAR_ID_TOKEN);
@@ -1293,7 +1273,7 @@ SipRedirectorPickUp::addCredentials (UtlString domain, UtlString realm)
       UtlString authtype;
       bool bSuccess = false;
 
-      if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
+      if (_dataStore.entityDB().getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
          if ((line = new SipLine( identity // user entered url
                                  ,identity // identity url
@@ -1364,9 +1344,7 @@ SipRedirectorPickUp::addCredentials (UtlString domain, UtlString realm)
          delete lineMgr;
          lineMgr = NULL;
       }
-   }
 
-   credentialDb->releaseInstance();
 
    return lineMgr;
 }

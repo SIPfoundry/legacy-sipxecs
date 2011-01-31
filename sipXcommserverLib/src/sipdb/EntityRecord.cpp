@@ -20,10 +20,12 @@ const char* EntityRecord::callerAliasesAlias_fld(){ static std::string fld = "al
 const char* EntityRecord::aliases_fld(){ static std::string fld = "als"; return fld.c_str(); }
 const char* EntityRecord::aliasesId_fld(){ static std::string fld = "id"; return fld.c_str(); }
 const char* EntityRecord::aliasesContact_fld(){ static std::string fld = "cnt"; return fld.c_str(); }
+const char* EntityRecord::aliasesRelation_fld(){ static std::string fld = "rln"; return fld.c_str(); }
+const char* EntityRecord::callForwardTime_fld(){ static std::string fld = "cfwdtm"; return fld.c_str(); }
 
 EntityRecord::EntityRecord()
 {
-
+    _callForwardTime = 0;
 }
 
 EntityRecord::EntityRecord(const EntityRecord& entity)
@@ -38,6 +40,7 @@ EntityRecord::EntityRecord(const EntityRecord& entity)
     _permissions = entity._permissions;
     _callerAliases = entity._callerAliases;
     _aliases = entity._aliases;
+    _callForwardTime = entity._callForwardTime;
 }
 
 EntityRecord::~EntityRecord()
@@ -64,6 +67,7 @@ void EntityRecord::swap(EntityRecord& entity)
     std::swap(_permissions, entity._permissions);
     std::swap(_callerAliases, entity._callerAliases);
     std::swap(_aliases, entity._aliases);
+    std::swap(_callForwardTime, entity._callForwardTime);
 }
 
 EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
@@ -107,6 +111,11 @@ EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
             _location = bsonObj.getStringField(EntityRecord::location_fld());
         }
 
+        if (bsonObj.hasField(EntityRecord::callForwardTime_fld()))
+        {
+            _callForwardTime = bsonObj.getIntField(EntityRecord::callForwardTime_fld());
+        }
+
         if (bsonObj.hasField(EntityRecord::permission_fld()))
         {
             MongoDB::BSONElement obj = bsonObj[EntityRecord::permission_fld()];
@@ -137,6 +146,7 @@ EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
                         callerAlias.alias = innerObj.getStringField(EntityRecord::callerAliasesAlias_fld());
                     if (innerObj.hasField(EntityRecord::callerAliasesDomain_fld()))
                         callerAlias.targetDomain = innerObj.getStringField(EntityRecord::callerAliasesDomain_fld());
+
                     _callerAliases.push_back(callerAlias);
                 }
             }
@@ -157,6 +167,8 @@ EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
                         alias.id = innerObj.getStringField(EntityRecord::aliasesId_fld());
                     if (innerObj.hasField(EntityRecord::aliasesContact_fld()))
                         alias.contact = innerObj.getStringField(EntityRecord::aliasesContact_fld());
+                    if (innerObj.hasField(EntityRecord::aliasesRelation_fld()))
+                        alias.relation = innerObj.getStringField(EntityRecord::aliasesRelation_fld());
                     _aliases.push_back(alias);
                 }
             }

@@ -27,6 +27,7 @@ peer has been restored. On each pass through the loop, the thread does:
 */
 
 // SYSTEM INCLUDES
+#include "sipdb/RegDB.h"
 #include <memory>
 using std::auto_ptr;
 

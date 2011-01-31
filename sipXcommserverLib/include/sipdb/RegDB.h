@@ -9,6 +9,14 @@
 #include <vector>
 #include <map>
 
+#ifndef GRUU_PREFIX
+#define GRUU_PREFIX "~~gr~"
+#endif
+
+#ifndef SIP_GRUU_URI_PARAM
+#define SIP_GRUU_URI_PARAM "gr"
+#endif
+
 class RegDB : MongoDB::DBInterface
 {
 public:
@@ -17,7 +25,7 @@ public:
     typedef std::vector<RegBinding> Bindings;
     RegDB(
         MongoDB& db,
-        const std::string& ns = "registrar.bindings");
+        const std::string& ns = "imdb.registrar");
 
     ~RegDB();
 
@@ -46,11 +54,20 @@ public:
         int timeNow,
         Bindings& bindings) const;
 
-    bool getUnexpiredContactsInstrument(
+    bool getUnexpiredContactsUserInstrument(
         const std::string& identity,
         const std::string& instrument,
         int timeNow,
         Bindings& bindings) const;
+
+     bool getUnexpiredContactsInstrument(
+        const std::string& instrument,
+        int timeNow,
+        Bindings& bindings) const;
+
+     bool getAllOldBindings(int timeNow, Bindings& binding);
+
+    bool clean(int currentExpireTime);
 
 private:
     Mutex _mutex;

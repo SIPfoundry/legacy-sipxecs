@@ -6,6 +6,7 @@
 //
 // $$
 //////////////////////////////////////////////////////////////////////////////
+#include "registry/RedirectPlugin.h"
 
 // SYSTEM INCLUDES
 
@@ -15,7 +16,6 @@
 #include "os/OsDateTime.h"
 #include "os/OsFS.h"
 #include "sipdb/ResultSet.h"
-#include "registry/RedirectPlugin.h"
 #include "registry/SipRedirectServer.h"
 
 // DEFINES

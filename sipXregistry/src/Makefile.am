@@ -26,7 +26,9 @@ noinst_LTLIBRARIES = libsipXregistry.la
 libsipXregistry_la_CXXFLAGS = $(sipregistrar_CXXFLAGS)
 
 libsipXregistry_la_LIBADD = \
-	@SIPXCOMMSERVER_LIBS@
+	@SIPXCOMMSERVER_LIBS@ \
+        -lmongoclient \
+        -lboost_system-mt
 
 libsipXregistry_la_SOURCES = \
     RedirectPlugin.cpp \
@@ -35,19 +37,11 @@ libsipXregistry_la_SOURCES = \
     RedirectSuspend.cpp \
     RegisterEventServer.cpp \
     RegisterEventServer.h \
-    RegistrarInitialSync.cpp \
-    RegistrarInitialSync.h \
-    RegistrarPeer.cpp \
-    RegistrarPeer.h \
     RegistrarPersist.cpp \
     RegistrarPersist.h \
-    RegistrarSync.cpp \
-    RegistrarSync.h \
-    RegistrarTest.cpp \
-    RegistrarTest.h \
+    RegDataStore.cpp \
     SipRedirectServer.cpp \
     SipRegistrar.cpp \
     SipRegistrarServer.cpp \
-    SipRegistrarServer.h \
-    SyncRpc.cpp \
-    SyncRpc.h
+    SipRegistrarServer.h
+

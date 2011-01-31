@@ -14,7 +14,6 @@
 #include "os/OsDateTime.h"
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
-#include "sipdb/PermissionDB.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorMapping.h"
 
@@ -156,24 +155,19 @@ SipRedirectorMapping::lookUp(
              continue;
          }
 
-         // See if we can find a matching permission in the IMDB
-         ResultSet dbPermissions;
 
-         // check in permission database is user has permisssion for voicemail
-         PermissionDB::getInstance()->
-            getPermissions(requestUri, dbPermissions);
 
-         int numDBPermissions = dbPermissions.getSize();
-
+         EntityRecord entity;
+         std::set<std::string> permissions;
+         if (_dataStore.entityDB().findByIdentity(requestUri, entity))
+            permissions = entity.permissions();
+         size_t numDBPermissions = permissions.size();
+         
          UtlString permissionsFound;
-         for (int j=0; j<numDBPermissions; j++)
+         for (std::set<std::string>::const_iterator iter = permissions.begin();
+             iter != permissions.end(); iter++)
          {
-            UtlHashMap record;
-            dbPermissions.getIndex(j, record);
-            UtlString dbPermissionStr =
-               *((UtlString*)record.
-                 findValue(&permissionKey));
-
+            UtlString dbPermissionStr = iter->c_str();
             bool equal = dbPermissionStr.compareTo(urlMappingPermissionStr, UtlString::ignoreCase) == 0;
             if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
             {

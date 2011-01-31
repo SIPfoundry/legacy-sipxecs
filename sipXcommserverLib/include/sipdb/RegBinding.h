@@ -34,7 +34,7 @@ public:
     const std::string& getGruu() const;
     const std::string& getPath() const;
     unsigned int getCseq() const;
-    unsigned int getExpires() const;
+    unsigned int getExpirationTime() const;
     const std::string& getInstrument() const;
 
     void setIdentity(const std::string& identity);
@@ -46,7 +46,7 @@ public:
     void setGruu(const std::string& gruu);
     void setPath(const std::string& path);
     void setCseq(unsigned int cseq);
-    void setExpires(unsigned int expires);
+    void setExpirationTime(unsigned int expirationTime);
     void setInstrument(const std::string& intrument);
 
 private:
@@ -59,7 +59,7 @@ private:
     std::string _gruu;
     std::string _path;
     unsigned int _cseq;
-    unsigned int _expires;
+    unsigned int _expirationTime;
     std::string _instrument;
 };
 
@@ -113,9 +113,9 @@ inline unsigned int RegBinding::getCseq() const
   return _cseq;
 }
 
-inline unsigned int RegBinding::getExpires() const
+inline unsigned int RegBinding::getExpirationTime() const
 {
-  return _expires;
+  return _expirationTime;
 }
 
 inline const std::string& RegBinding::getInstrument() const
@@ -168,9 +168,9 @@ inline void RegBinding::setCseq(unsigned int cseq)
   _cseq = cseq;
 }
 
-inline void RegBinding::setExpires(unsigned int expires)
+inline void RegBinding::setExpirationTime(unsigned int expirationTime)
 {
-  _expires = expires;
+  _expirationTime = expirationTime;
 }
 
 inline void RegBinding::setInstrument(const std::string& instrument)

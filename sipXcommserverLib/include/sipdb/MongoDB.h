@@ -9,6 +9,7 @@
 #define	MONGODB_H
 
 #include <queue>
+#undef VERSION
 #include <mongo/client/dbclient.h>
 #include <mongo/db/jsobj.h>
 #include <boost/thread/mutex.hpp>
@@ -21,6 +22,7 @@
 #define BSON_LESS_THAN_EQUAL(val) BSON("$lte"<< val)
 #define BSON_GREATER_THAN(val) BSON("$gt" << val)
 #define BSON_GREATER_THAN_EQUAL(val) BSON("$gte" << val)
+#define BSON_ELEM_MATCH(val) BSON("$elemMatch" << val)
 
 class MongoDB : boost::noncopyable
 {
@@ -58,6 +60,7 @@ public:
             _collection(*_pDb, ns){}
         T& collection(){ return _collection; }
         MongoDB& db(){ return *_pDb; }
+
     private:
         MongoDB::Ptr _pDb;
         T _collection;
@@ -69,6 +72,15 @@ public:
         DBInterface(MongoDB& db, const std::string& ns) : _db(db), _ns(ns){}
         const std::string& getNameSpace() const { return _ns; };
         MongoDB& db() { return _db; }
+        MongoDB::Cursor items()
+        {
+            MongoDB::BSONObj query;
+            std::string error;
+            return db().find(
+                _ns,
+                query,
+                error);
+        }
     protected:
         MongoDB& _db;
         std::string _ns;

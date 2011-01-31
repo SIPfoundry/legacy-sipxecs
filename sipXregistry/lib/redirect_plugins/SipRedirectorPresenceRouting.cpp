@@ -23,7 +23,6 @@
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
-#include "sipdb/CredentialDB.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorPresenceRouting.h"
 #include "registry/SipRedirectServer.h"
@@ -337,10 +336,12 @@ SipRedirectorPresenceRouting::lookUp(
 
    // If the request URI can be found in the identity column of the credentials
    // database, then a request is to a local user, find out its presence state...
-   if( CredentialDB::getInstance()->isUriDefined( requestUri,
-                                                  realm,
-                                                  authType ) )
+   EntityRecord entity;
+   if (_dataStore.entityDB().findByIdentity(requestUri, entity))
    {
+       realm = entity.realm().c_str();
+       authType = entity.authType().c_str();
+       
       // If url param sipx-userforward = false, do not redirect...
       UtlString disableForwarding;
       requestUri.getUrlParameter("sipx-userforward", disableForwarding);

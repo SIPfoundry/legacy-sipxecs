@@ -1,12 +1,5 @@
 #include "sipdb/RegDB.h"
 
-#ifndef GRUU_PREFIX
-#define GRUU_PREFIX "~~gr~"
-#endif
-
-#ifndef SIP_GRUU_URI_PARAM
-#define SIP_GRUU_URI_PARAM "gr"
-#endif
 
 RegDB::RegDB(MongoDB& db, const std::string& ns) :
     MongoDB::DBInterface(db, ns)
@@ -35,7 +28,7 @@ void RegDB::updateBinding(const RegBinding::Ptr& pBinding)
         "gruu" << pBinding->getGruu() <<
         "path" << pBinding->getPath() <<
         "cseq" << pBinding->getCseq() <<
-        "expires" << pBinding->getExpires() <<
+        "expirationTime" << pBinding->getExpirationTime() <<
         "instrument" << pBinding->getInstrument()));
 
     std::string error;
@@ -61,10 +54,10 @@ void RegDB::expireOldBindings(
             "identity" << identity <<
             "callId"<< callId <<
             "cseq" << BSON_LESS_THAN(cseq) <<
-            "expires" << BSON_GREATER_THAN_EQUAL(expirationTime));
+            "expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
 
     MongoDB::BSONObj update = BSON("$set" << BSON(
-        "expires" << expirationTime <<
+        "expirationTime" << expirationTime <<
         "cseq" << cseq));
 
     std::string error;
@@ -87,10 +80,10 @@ void RegDB::expireAllBindings(
     unsigned int expirationTime = timeNow-1;
     MongoDB::BSONObj query = BSON(
             "identity" << identity <<
-            "expires" << BSON_GREATER_THAN_EQUAL(expirationTime));
+            "expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
 
     MongoDB::BSONObj update = BSON("$set" << BSON(
-        "expires" << expirationTime <<
+        "expirationTime" << expirationTime <<
         "callId" << callId <<
         "cseq" << cseq));
 
@@ -112,22 +105,18 @@ bool RegDB::isOutOfSequence(
 {
     MongoDB::BSONObj query = BSON(
             "identity" << identity <<
-            "callId" << callId <<
-            "cseq" << BSON_GREATER_THAN_EQUAL(cseq));
+            "callId" << callId);
 
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
     if (pCursor.get() && pCursor->more())
     {
-        return true;
-    }
-    else
-    {
-        //
-        // Log error here
-        //
-        std::cerr << error;
-        return true; /// return false here to indicate the error as out of sequence
+      while(pCursor->more())
+      {
+        RegBinding binding = pCursor->next();
+        if (binding.getCallId() == callId && binding.getCseq() >= cseq)
+          return true;
+      }
     }
 
     return false;
@@ -149,13 +138,13 @@ bool RegDB::getUnexpiredContactsUser (
         searchString += SIP_GRUU_URI_PARAM;
         query = BSON(
             "gruu" << searchString <<
-            "expires" << BSON_GREATER_THAN(timeNow));
+            "expirationTime" << BSON_GREATER_THAN(timeNow));
     }
     else
     {
         query = BSON(
             "identity" << identity <<
-            "expires" << BSON_GREATER_THAN(timeNow));
+            "expirationTime" << BSON_GREATER_THAN(timeNow));
     }
 
     std::string error;
@@ -170,7 +159,7 @@ bool RegDB::getUnexpiredContactsUser (
     return false;
 }
 
-bool RegDB::getUnexpiredContactsInstrument(
+bool RegDB::getUnexpiredContactsUserInstrument(
         const std::string& identity,
         const std::string& instrument,
         int timeNow,
@@ -182,7 +171,7 @@ bool RegDB::getUnexpiredContactsInstrument(
     MongoDB::BSONObj query = BSON(
         "identity" << identity <<
         "instrument" << instrument <<
-        "expires" << BSON_GREATER_THAN(timeNow));
+        "expirationTime" << BSON_GREATER_THAN(timeNow));
 
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
@@ -194,4 +183,54 @@ bool RegDB::getUnexpiredContactsInstrument(
     }
 
     return false;
+}
+
+bool RegDB::getUnexpiredContactsInstrument(
+        const std::string& instrument,
+        int timeNow,
+        Bindings& bindings) const
+{
+     MongoDB::BSONObj query = BSON(
+        "instrument" << instrument <<
+        "expirationTime" << BSON_GREATER_THAN(timeNow));
+
+    std::string error;
+    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+    if (pCursor.get() && pCursor->more())
+    {
+        while (pCursor->more())
+            bindings.push_back(RegBinding(pCursor->next()));
+        return true;
+    }
+
+    return false;
+}
+
+bool RegDB::getAllOldBindings(int timeNow, Bindings& bindings)
+{
+    MongoDB::BSONObj query = BSON(
+        "expirationTime" << BSON_LESS_THAN(timeNow));
+
+    std::string error;
+    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+    if (pCursor.get() && pCursor->more())
+    {
+        while (pCursor->more())
+        {
+            RegBinding binding(pCursor->next());
+            if (binding.getCallId() != "#")
+                bindings.push_back(binding);
+        }
+        return true;
+    }
+    return false;
+}
+
+
+bool RegDB::clean(int currentExpireTime)
+{
+    MongoDB::BSONObj query = BSON(
+        "expirationTime" << BSON_LESS_THAN(currentExpireTime));
+    std::string error;
+    return _db.remove(_ns, query, error);
 }

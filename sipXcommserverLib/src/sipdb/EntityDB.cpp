@@ -1,4 +1,5 @@
 #include "sipdb/EntityDB.h"
+#include "os/OsSysLog.h"
 
 EntityDB::EntityDB(
     MongoDB& db,
@@ -11,20 +12,23 @@ EntityDB::~EntityDB()
 {
 }
 
-bool EntityDB::findByIdentity(const std::string& identity, EntityRecord& entity)
+bool EntityDB::findByIdentity(const std::string& identity, EntityRecord& entity) const
 {
     MongoDB::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
+    SYSLOG_DEBUG("Finding entity record for " << identity << " from namespace " << _ns);
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
     if (pCursor->more())
     {
+      SYSLOG_DEBUG( identity << "is present in namespace " << _ns);
         entity = pCursor->next();
         return true;
     }
+    SYSLOG_DEBUG( identity << "is NOT present in namespace " << _ns);
     return false;
 }
 
-bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity)
+bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity) const
 {
     MongoDB::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
     std::string error;
@@ -35,4 +39,69 @@ bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity)
         return true;
     }
     return false;
+}
+
+/// Retrieve the SIP credential check values for a given identity and realm
+bool EntityDB::getCredential (
+   const Url& uri,
+   const UtlString& realm,
+   UtlString& userid,
+   UtlString& passtoken,
+   UtlString& authType) const
+{
+    UtlString identity;
+    uri.getIdentity(identity);
+
+
+    EntityRecord entity;
+    if (!findByIdentity(identity.str(), entity))
+        return false;
+
+    if (entity.realm() != realm.str())
+        return false;
+
+    userid = entity.userId();
+    passtoken = entity.password();
+    authType = entity.authType();
+
+    return true;
+}
+
+/// Retrieve the SIP credential check values for a given userid and realm
+bool EntityDB::getCredential (
+   const UtlString& userid,
+   const UtlString& realm,
+   Url& uri,
+   UtlString& passtoken,
+   UtlString& authType) const
+{
+    EntityRecord entity;
+    if (!findByUserId(userid.str(), entity))
+        return false;
+
+    if (entity.realm() != realm.str())
+        return false;
+
+    uri = entity.identity().c_str();
+    passtoken = entity.password();
+    authType = entity.authType();
+
+    return true;
+}
+
+
+void EntityDB::getAliasContacts (
+    const Url& aliasIdentity,
+    Aliases& aliases,
+    bool& isUserIdentity) const
+{
+    UtlString identity;
+    aliasIdentity.getIdentity(identity);
+
+     EntityRecord entity;
+     if (findByIdentity(identity.str(), entity))
+     {
+         aliases = entity.aliases();
+         isUserIdentity = !entity.realm().empty() && !entity.password().empty();
+     }
 }

@@ -29,6 +29,7 @@ public:
     {
         std::string id;
         std::string contact;
+        std::string relation;
     };
 
     EntityRecord();
@@ -91,6 +92,12 @@ public:
     std::string& location();
     static const char* location_fld();
 
+     //
+    // User Location
+    //
+    int& callForwardTime();
+    static const char* callForwardTime_fld();
+
     //
     // Permission array to which the user has access to
     //
@@ -112,6 +119,7 @@ public:
     static const char* aliases_fld();
     static const char* aliasesId_fld();
     static const char* aliasesContact_fld();
+    static const char* aliasesRelation_fld();
 private:
     std::string _oid;
     std::string _userId;
@@ -121,6 +129,7 @@ private:
     std::string _pin;
     std::string _authType;
     std::string _location;
+    int _callForwardTime;
     std::set<std::string> _permissions;
     std::vector<CallerAlias> _callerAliases;
     std::vector<Alias> _aliases;
@@ -169,6 +178,12 @@ inline std::string& EntityRecord::location()
 {
     return _location;
 }
+
+inline int& EntityRecord::callForwardTime()
+{
+    return _callForwardTime;
+}
+
 
 inline std::set<std::string>& EntityRecord::permissions()
 {

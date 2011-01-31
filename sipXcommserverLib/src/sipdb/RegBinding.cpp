@@ -1,6 +1,8 @@
 #include "sipdb/RegBinding.h"
 
-RegBinding::RegBinding()
+RegBinding::RegBinding() :
+    _cseq(0),
+    _expirationTime(0)
 {
 }
 
@@ -15,7 +17,7 @@ RegBinding::RegBinding(const RegBinding& binding)
     _gruu = binding._gruu;
     _path = binding._path;
     _cseq = binding._cseq;
-    _expires = binding._expires;
+    _expirationTime = binding._expirationTime;
     _instrument = binding._instrument;
 }
 
@@ -34,38 +36,81 @@ void RegBinding::swap(RegBinding& binding)
     std::swap(_gruu, binding._gruu);
     std::swap(_path, binding._path);
     std::swap(_cseq, binding._cseq);
-    std::swap(_expires, binding._expires);
+    std::swap(_expirationTime, binding._expirationTime);
     std::swap(_instrument, binding._instrument);
 }
 
 RegBinding::RegBinding(const MongoDB::BSONObj& bson)
 {
-    _identity = bson.getStringField("identity");
-    _uri = bson.getStringField("uri");
-    _callId = bson.getStringField("callId");
-    _contact = bson.getStringField("contact");
-    _qvalue = bson.getStringField("qvalue");
-    _instanceId = bson.getStringField("instanceId");
-    _gruu = bson.getStringField("gruu");
-    _path = bson.getStringField("path");
-    _cseq = bson.getIntField("cseq");
-    _expires = bson.getIntField("expires");
-    _instrument = bson.getStringField("instrument");
+    if (bson.hasField("identity"))
+      _identity = bson.getStringField("identity");
+
+    if (bson.hasField("uri"))
+      _uri = bson.getStringField("uri");
+
+    if (bson.hasField("callId"))
+      _callId = bson.getStringField("callId");
+
+    if (bson.hasField("contact"))
+      _contact = bson.getStringField("contact");
+
+    if (bson.hasField("qvalue"))
+      _qvalue = bson.getStringField("qvalue");
+
+    if (bson.hasField("instanceId"))
+      _instanceId = bson.getStringField("instanceId");
+
+    if (bson.hasField("gruu"))
+      _gruu = bson.getStringField("gruu");
+
+    if (bson.hasField("path"))
+      _path = bson.getStringField("path");
+
+    if (bson.hasField("cseq"))
+      _cseq = bson.getIntField("cseq");
+
+    if (bson.hasField("expirationTime"))
+      _expirationTime = bson.getIntField("expirationTime");
+
+    if (bson.hasField("instrument"))
+      _instrument = bson.getStringField("instrument");
 }
 
 RegBinding& RegBinding::operator=(const MongoDB::BSONObj& bson)
 {
-    _identity = bson.getStringField("identity");
-    _uri = bson.getStringField("uri");
-    _callId = bson.getStringField("callId");
-    _contact = bson.getStringField("contact");
-    _qvalue = bson.getStringField("qvalue");
-    _instanceId = bson.getStringField("instanceId");
-    _gruu = bson.getStringField("gruu");
-    _path = bson.getStringField("path");
-    _cseq = bson.getIntField("cseq");
-    _expires = bson.getIntField("expires");
-    _instrument = bson.getStringField("instrument");
+    if (bson.hasField("identity"))
+      _identity = bson.getStringField("identity");
+
+    if (bson.hasField("uri"))
+      _uri = bson.getStringField("uri");
+
+    if (bson.hasField("callId"))
+      _callId = bson.getStringField("callId");
+
+    if (bson.hasField("contact"))
+      _contact = bson.getStringField("contact");
+
+    if (bson.hasField("qvalue"))
+      _qvalue = bson.getStringField("qvalue");
+
+    if (bson.hasField("instanceId"))
+      _instanceId = bson.getStringField("instanceId");
+
+    if (bson.hasField("gruu"))
+      _gruu = bson.getStringField("gruu");
+
+    if (bson.hasField("path"))
+      _path = bson.getStringField("path");
+
+    if (bson.hasField("cseq"))
+      _cseq = bson.getIntField("cseq");
+
+    if (bson.hasField("expirationTime"))
+      _expirationTime = bson.getIntField("expirationTime");
+
+    if (bson.hasField("instrument"))
+      _instrument = bson.getStringField("instrument");
+
     return *this;
 }
 

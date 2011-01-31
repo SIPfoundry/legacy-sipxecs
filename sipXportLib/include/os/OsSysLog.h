@@ -12,6 +12,7 @@
 #define _OsSysLog_h_
 
 // SYSTEM INCLUDES
+#include <sstream>
 #include <stdarg.h>
 // APPLICATION INCLUDES
 #include "utl/UtlDefs.h"
@@ -462,6 +463,27 @@ private:
    static void initializePriorities() ;
 
 };
+
+//
+// Helper macros to support streams
+//
+
+
+
+#define SYSLOG_ANY(log, priority) \
+{ \
+  std::ostringstream strm; \
+  strm << log; \
+  OsSysLog::add(FAC_SIP, priority, strm.str().c_str()); \
+}
+#define SYSLOG_DEBUG(log) SYSLOG_ANY(log, PRI_DEBUG)
+#define SYSLOG_INFO(log) SYSLOG_ANY(log, PRI_INFO)
+#define SYSLOG_NOTICE(log) SYSLOG_ANY(log, PRI_NOTICE)
+#define SYSLOG_WARNING(log) SYSLOG_ANY(log, PRI_WARNING)
+#define SYSLOG_ERROR(log) SYSLOG_ANY(log, PRI_ERR)
+#define SYSLOG_CRITICAL(log) SYSLOG_ANY(log, PRI_CRIT)
+#define SYSLOG_ALERT(log) SYSLOG_ANY(log, PRI_ALERT)
+#define SYSLOG_EMERGENCY(log) SYSLOG_ANY(log, PRI_EMERG)
 
 /* ============================ INLINE METHODS ============================ */
 

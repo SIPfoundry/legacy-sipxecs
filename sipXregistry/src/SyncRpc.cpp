@@ -8,6 +8,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include "sipdb/RegDB.h"
+
 // APPLICATION INCLUDES
 #include "os/OsDateTime.h"
 #include "utl/UtlHashMap.h"

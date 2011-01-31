@@ -25,6 +25,11 @@
 // TYPEDEFS
 // FORWARD DECLARATIONS
 
+
+#ifndef ALIASDB_RELATION_USERFORWARD
+#define ALIASDB_RELATION_USERFORWARD "userforward"
+#endif
+
 /**
  * SipRedirectorAliasDB is singleton class whose object adds contacts that are
  * listed in the registration database.

@@ -14,7 +14,6 @@
 #include "os/OsDateTime.h"
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
-#include "sipdb/PermissionDB.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorMPT.h"
 #include "utl/UtlHashMapIterator.h"

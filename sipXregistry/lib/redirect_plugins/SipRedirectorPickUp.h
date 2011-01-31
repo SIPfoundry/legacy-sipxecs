@@ -178,6 +178,7 @@ class SipRedirectorPickUp : public RedirectPlugin
       State stateFilter);
 
    SipLineMgr* addCredentials(UtlString domain, UtlString realm);
+   
 };
 
 /**

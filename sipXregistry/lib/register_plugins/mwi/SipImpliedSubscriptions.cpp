@@ -21,7 +21,7 @@
  *   the User-Agent value in the REGISTER request.  When it matches, this module
  *   generates a SUBSCRIBE for message waiting indication on behalf of the phone.
  */
-
+#include "SipImpliedSubscriptions.h"
 
 // SYSTEM INCLUDES
 // :TODO: #include <stdlib.h>
@@ -34,8 +34,6 @@
 #include "utl/UtlString.h"
 #include "utl/UtlRegex.h"
 #include "net/NetMd5Codec.h"
-#include "sipdb/CredentialDB.h"
-#include "SipImpliedSubscriptions.h"
 #include <net/CallId.h>
 
 // DEFINES
@@ -425,7 +423,7 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
       UtlString passToken;
       UtlString authType;
 
-      if (CredentialDB::getInstance()->getCredential( userBase, realm, subscribeUser
+      if (dataStore().entityDB().getCredential( userBase, realm, subscribeUser
                                                      ,passToken, authType))
       {
          // Construct a nonce
@@ -507,3 +505,6 @@ void SipImpliedSubscriptions::addAuthorization( const SipMessage& registerMessag
                     );
    }
 }
+
+
+

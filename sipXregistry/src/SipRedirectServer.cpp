@@ -16,8 +16,6 @@
 #include "net/SipUserAgent.h"
 #include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/AliasDB.h"
-#include "sipdb/PermissionDB.h"
 #include "registry/SipRedirectServer.h"
 #include "RedirectResumeMsg.h"
 #include "registry/RedirectSuspend.h"

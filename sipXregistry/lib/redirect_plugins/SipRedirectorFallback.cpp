@@ -14,7 +14,6 @@
 #include "os/OsDateTime.h"
 #include "os/OsSysLog.h"
 #include "sipdb/SIPDBManager.h"
-#include "sipdb/PermissionDB.h"
 #include "sipdb/ResultSet.h"
 #include "sipdb/LocationDB.h"
 #include "sipdb/UserLocationDB.h"
@@ -297,28 +296,25 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
          {
             // we now have the autheticated identity of the caller.  Look up the user location
             // database to find out the location that is mapped to it.
-            ResultSet userLocationsResult;
+            //ResultSet userLocationsResult;
    
             // Check in User Location database if user has locations
-            mpUserLocationDbInstance->getLocations( authenticatedUserIdentity, userLocationsResult );
+            //mpUserLocationDbInstance->getLocations( authenticatedUserIdentity, userLocationsResult );
    
             // Get the caller's site location. Only the first returned location is used.
             // This is not a problem given that a user should only belong to one location.
-            if( userLocationsResult.getSize() > 0 )
+            
+             EntityRecord entity;
+             if (_dataStore.entityDB().findByIdentity(authenticatedUserIdentity.str(), entity))
             {
-               static UtlString locationKey( "location" );
-      
-               UtlHashMap record;
-               if( userLocationsResult.getIndex( 0, record ) )
-               {
-                  callerLocation = *((UtlString*)record.findValue( &locationKey ) );
+
+                  callerLocation = entity.location().c_str();
                   result = OS_SUCCESS;
                   OsSysLog::add(FAC_SIP, PRI_DEBUG,
                                 "%s::determineCallerLocationFromProvisionedUserLocation mapped user '%s' taken from header '%s' to location '%s' based on its provisioned location",
                                 mLogName.data(), authenticatedUserIdentity.data(),
-                                matchedIdentityHeader.data(),
-                                callerLocation.data() );
-               }
+                                authenticatedUserIdentity.data(),
+                                entity.location().c_str() );
             }
          }
       }
