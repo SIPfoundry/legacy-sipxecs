@@ -58,7 +58,7 @@ public class User extends AbstractUser implements Replicable {
 
     public String getIdentity(String domain) {
         if (m_identity == null) {
-            m_identity = SipUri.format(null, getUserName(), domain);
+            m_identity = SipUri.stripSipPrefix(SipUri.format(null, getUserName(), domain));
         }
         return m_identity;
     }
