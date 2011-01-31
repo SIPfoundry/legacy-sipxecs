@@ -60,7 +60,7 @@ get_new_config(LastPollTime) ->
 	%connect to openacd db and count objects in commands collection
 	Mong = mongoapi:new(def,<<"openacd">>),
 	CommandCount = Mong:count("commands"),
-	if CommandCount =:= 0 -> ?WARNING("No Command to execute", []);
+	if CommandCount =:= 0 -> ?DEBUG("No Command to execute", []);
 		true ->
 			%if command count > 0 retrieve all commands and process them
 			?WARNING("No of Commands to execute ~p", [CommandCount]),

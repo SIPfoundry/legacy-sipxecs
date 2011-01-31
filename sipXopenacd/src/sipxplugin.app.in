@@ -1,4 +1,4 @@
-{application, @PACKAGE@,
+{application, sipxplugin,
 [{description, "OpenACD and sipXecs integration"},
 {vsn, "@VERSION@.@PACKAGE_REVISION@"},
 {modules, [sipxplugin_app, sipxplugin_poller, sipxplugin_supervisor]},
