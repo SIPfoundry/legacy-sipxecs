@@ -21,6 +21,8 @@ import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener;
+import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
@@ -47,6 +49,7 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     private ContactInformationDaoListener m_contactInformationDaoListener;
     private TlsPeerManager m_tlsPeerManager;
     private PermissionManager m_permissionManager;
+    private ForwardingContext m_forwardingContext;
 
     public void setReplicationTrigger(ReplicationTrigger trigger) {
         m_trigger = trigger;
@@ -84,12 +87,15 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         Group g = m_dao.getGroup(new Integer(1000));
         User user = m_coreContext.loadUser(1001);
         user.setPermissionManager(m_permissionManager);
+        CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
+
         SortedSet<Group> groups = new TreeSet<Group>();
         groups.add(g);
         user.setGroups(groups);
-
+        
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
         replicationContext.generate(user);
+        replicationContext.generate(cs);
         replicationContext.generate(user);
         replay(replicationContext);
         m_trigger.setReplicationContext(replicationContext);
@@ -236,6 +242,10 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
+    }
+
+    public void setForwardingContext(ForwardingContext forwardingContext) {
+        m_forwardingContext = forwardingContext;
     }
 
 }

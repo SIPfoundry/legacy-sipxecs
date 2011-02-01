@@ -22,13 +22,11 @@ public interface ForwardingContext extends AliasProvider {
 
     CallSequence getCallSequenceForUser(User user);
 
-    void removeCallSequenceForUserId(Integer userId);
+    //void removeCallSequenceForUserId(Integer userId);
 
     CallSequence getCallSequenceForUserId(Integer userId);
 
     void saveCallSequence(CallSequence callSequence);
-
-    void flush();
 
     List<Schedule> getPersonalSchedulesForUserId(Integer userId);
 

@@ -12,10 +12,10 @@ package org.sipfoundry.sipxconfig.admin.forwarding;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -36,7 +36,6 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 /**
  * ForwardingContextImpl
- *
  */
 public class ForwardingContextImpl extends HibernateDaoSupport implements ForwardingContext, ApplicationListener {
 
@@ -46,8 +45,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
     private static final String PARAM_NAME = "name";
 
     private CoreContext m_coreContext;
-
-    private SipxReplicationContext m_replicationContext;
 
     private DaoEventPublisher m_daoEventPublisher;
 
@@ -66,25 +63,17 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return getCallSequenceForUserId(user.getId());
     }
 
-    public void notifyCommserver() {
-        // Notify commserver of ALIAS
-        //m_replicationContext.generate(DataSet.ALIAS);
-        //m_replicationContext.generate(DataSet.USER_FORWARD);
-        List<CallSequence> callSequences = loadAllCallSequences();
+    public void notifyCommserver(Collection<CallSequence> callSequences) {
+        // Load call sequences, because aliases have been changed
+        // TODO: replicate only call seq with those aliases
         for (CallSequence callSequence : callSequences) {
-            m_replicationContext.generate(callSequence);
+            m_daoEventPublisher.publishSave(callSequence);
         }
     }
 
     public void saveCallSequence(CallSequence callSequence) {
         getHibernateTemplate().update(callSequence);
         m_coreContext.saveUser(callSequence.getUser());
-        // Notify commserver of ALIAS
-        m_replicationContext.generate(callSequence);
-    }
-
-    public void flush() {
-        getHibernateTemplate().flush();
     }
 
     public CallSequence getCallSequenceForUserId(Integer userId) {
@@ -92,10 +81,11 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return (CallSequence) hibernate.load(CallSequence.class, userId);
     }
 
-    public void removeCallSequenceForUserId(Integer userId) {
+    private void removeCallSequenceForUserId(Integer userId) {
         CallSequence callSequence = getCallSequenceForUserId(userId);
         callSequence.clear();
-        saveCallSequence(callSequence);
+        getHibernateTemplate().update(callSequence);
+        m_daoEventPublisher.publishDelete(callSequence);
         getHibernateTemplate().flush();
     }
 
@@ -130,10 +120,6 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setReplicationContext(SipxReplicationContext replicationContext) {
-        m_replicationContext = replicationContext;
     }
 
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
@@ -178,12 +164,12 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
                 getHibernateTemplate().saveOrUpdateAll(ringsToModify);
                 getHibernateTemplate().deleteAll(schedules);
             }
-            //notifyCommserver();
+            notifyCommserver(getCallSequencesForGroup(group));
         }
 
         @Override
         protected void onUserGroupSave(Group group) {
-            //notifyCommserver();
+            notifyCommserver(getCallSequencesForGroup(group));
         }
     }
 
@@ -200,17 +186,27 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
                     getHibernateTemplate().saveOrUpdateAll(rules);
                 }
             } else {
+                Collection<CallSequence> css = new HashSet<CallSequence>();
                 // get all rings and set schedule to Always
                 List<Ring> rings = getRingsForScheduleId(schedule.getId());
                 if (rings != null) {
                     for (Ring ring : rings) {
                         ring.setSchedule(null);
+                        css.add(ring.getCallSequence());
                     }
                     getHibernateTemplate().saveOrUpdateAll(rings);
                 }
+                notifyCommserver(css);
             }
-            //notifyCommserver();
         }
+    }
+
+    private Collection<CallSequence> getCallSequencesForGroup(Group group) {
+        Collection<CallSequence> ids = new HashSet<CallSequence>();
+        for (User user : m_coreContext.getGroupMembers(group)) {
+            ids.add(getCallSequenceForUser(user));
+        }
+        return ids;
     }
 
     public List<Schedule> getPersonalSchedulesForUserId(Integer userId) {
@@ -219,13 +215,13 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return hibernate.findByNamedQueryAndNamedParam("userSchedulesForUserId", PARAM_USER_ID, userId);
     }
 
-    public List getRingsForScheduleId(Integer scheduleId) {
+    public List<Ring> getRingsForScheduleId(Integer scheduleId) {
         HibernateTemplate hibernate = getHibernateTemplate();
 
         return hibernate.findByNamedQueryAndNamedParam("ringsForScheduleId", PARAM_SCHEDULE_ID, scheduleId);
     }
 
-    private List getDialingRulesForScheduleId(Integer scheduleId) {
+    private List<DialingRule> getDialingRulesForScheduleId(Integer scheduleId) {
         HibernateTemplate hibernate = getHibernateTemplate();
 
         return hibernate.findByNamedQueryAndNamedParam("dialingRulesForScheduleId", PARAM_SCHEDULE_ID, scheduleId);
@@ -247,8 +243,14 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
             }
         }
         getHibernateTemplate().saveOrUpdate(schedule);
-        // Notify commserver of ALIAS
-        notifyCommserver();
+        List<Ring> rings = getRingsForScheduleId(schedule.getId());
+        Collection<CallSequence> css = new HashSet<CallSequence>();
+        if (rings != null) {
+            for (Ring ring : rings) {
+                css.add(ring.getCallSequence());
+            }
+        }
+        notifyCommserver(css);
     }
 
     private void checkForDuplicateNames(Schedule schedule) {
@@ -328,7 +330,9 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
 
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof DSTChangeEvent) {
-            notifyCommserver();
+            for (CallSequence callSequence : loadAllCallSequences()) {
+                m_daoEventPublisher.publishSave(callSequence);
+            }
         }
     }
 

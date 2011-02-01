@@ -129,7 +129,7 @@ public class CredentialsTest extends MongoTestCase {
         m_credentials.generate(user);
 
         assertObjectWithIdPresent("User1");
-        assertObjectWithIdFieldValuePresent("User1", Credentials.IDENTITY, "sip:superadmin@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("User1", Credentials.IDENTITY, "superadmin@" + DOMAIN);
         assertObjectWithIdFieldValuePresent("User1", Credentials.PASSTOKEN, "pass4321");
         assertObjectWithIdFieldValuePresent("User1", Credentials.PINTOKEN,
                 Md5Encoder.digestPassword("superadmin", DOMAIN, PIN));
@@ -149,7 +149,7 @@ public class CredentialsTest extends MongoTestCase {
         m_credentials.generate(user);
 
         assertObjectWithIdPresent("User1");
-        assertObjectWithIdFieldValuePresent("User1", Credentials.IDENTITY, "sip:superadmin@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("User1", Credentials.IDENTITY, "superadmin@" + DOMAIN);
         String emptyHash = Md5Encoder.digestPassword("superadmin", DOMAIN, "");
         assertObjectWithIdFieldValuePresent("User1", Credentials.PASSTOKEN, "");
         assertObjectWithIdFieldValuePresent("User1", Credentials.PINTOKEN, emptyHash);

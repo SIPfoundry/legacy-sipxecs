@@ -35,7 +35,6 @@ public class Aliases extends DataSetGenerator {
 
     @Override
     public void generate() {
-
         Map<Replicable, Collection<AliasMapping>> mappings = m_aliasProvider.getAliasMappings();
         for (Replicable entity : mappings.keySet()) {
             insertAliases(entity, mappings.get(entity));

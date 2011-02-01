@@ -137,7 +137,6 @@ public abstract class UserCallForwardingComponent extends BaseComponent implemen
         callSequence.insertRings(getRings());
         callSequence.setCfwdTime(getUserExpiration());
         getForwardingContext().saveCallSequence(callSequence);
-        getForwardingContext().flush();
     }
 
     public void deleteRing(int position) {
