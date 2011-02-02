@@ -110,7 +110,7 @@ public class CredentialsTest extends MongoTestCase {
         String digest = "8e5d70cc7173bca2802dd45113229c1b";
 
         assertObjectWithIdPresent("CallGroup1");
-        assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.IDENTITY, "sip:sales@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.IDENTITY, "sales@" + DOMAIN);
         assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.PASSTOKEN, "pass4321");
         assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.PINTOKEN, digest);
     }

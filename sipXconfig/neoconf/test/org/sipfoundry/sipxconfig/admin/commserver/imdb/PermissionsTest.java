@@ -135,8 +135,8 @@ public class PermissionsTest extends MongoTestCase {
         m_permissions.setCallGroupContext(callGroupContext);
         m_permissions.generate();
 
-        assertObjectWithIdFieldValuePresent("CallGroup1", DataSetGenerator.IDENTITY, "sip:sales@" + DOMAIN);
-        assertObjectWithIdFieldValuePresent("CallGroup2", DataSetGenerator.IDENTITY, "sip:marketing@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("CallGroup1", DataSetGenerator.IDENTITY, "sales@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("CallGroup2", DataSetGenerator.IDENTITY, "marketing@" + DOMAIN);
         assertObjectWithIdNotPresent("CallGroup3");
 
     }

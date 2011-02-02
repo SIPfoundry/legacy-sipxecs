@@ -109,7 +109,7 @@ public class AcdLineTest extends BeanWithSettingsTestCase {
 
         AliasMapping alias = m_line.getAliasMappings("mydomain.org").get(m_line).iterator().next();
         assertEquals("555@mydomain.org", alias.get(AliasMapping.IDENTITY));
-        assertEquals("sip:myline@localhost:100", m_line.getIdentity("mydomain.org"));
+        assertEquals("myline@localhost:100", m_line.getIdentity("mydomain.org"));
 
         mcs.verify();
     }

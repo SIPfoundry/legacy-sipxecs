@@ -185,6 +185,6 @@ public class AcdLine extends AcdComponent implements Replicable {
     @Override
     public String getIdentity(String domain) {
         String server = StringUtils.defaultIfEmpty(m_acdServer.getLocation().getFqdn(), "localhost");
-        return SipUri.format(getName(), server, m_acdServer.getSipPort());
+        return SipUri.stripSipPrefix(SipUri.format(getName(), server, m_acdServer.getSipPort()));
     }
 }
