@@ -21,8 +21,16 @@ CoreDumpDirectory @SIPX_LOGDIR@
 # Where hard and soft phones get their profile information
 Alias /phone/ "@SIPX_VARDIR@/configserver/phone/"
 Alias /recordings/ "@SIPX_VARDIR@/mediaserver/data/recordings/"
+Alias /authorities/ "@SIPX_CONFDIR@/ssl/authorities/"
 
 <Directory "@SIPX_VARDIR@/configserver/phone/">
+    Options -Indexes
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+</Directory>
+
+<Directory "@SIPX_CONFDIR@/ssl/authorities/">
     Options -Indexes
     AllowOverride None
     Order allow,deny
