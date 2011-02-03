@@ -6,7 +6,7 @@
   <bean id="attrMap" class="org.sipfoundry.sipxconfig.bulk.ldap.AttrMap" singleton="false">
     <property name="userToLdap">
       <map>
-        <entry key="userName" value="uid" />
+        <entry key="userName" value="ipPhone" />
         <entry key="pin">
           <null />
         </entry>
@@ -15,11 +15,23 @@
         </entry>
         <entry key="firstName" value="givenName" />
         <entry key="lastName" value="sn" />
-        <entry key="aliasesString" value="telephoneNumber" />
+        <entry key="aliasesString" value="sAMAccountName" />
+        <entry key="emailAddress" value="mail" />
         <entry key="userGroupName" value="ou" />
-        <entry key="imId">
-          <null />
-        </entry>
+        <entry key="imId" value="sAMAccountName" />
+        <entry key="createdAddressBookEntry.jobTitle" value="title" />
+        <entry key="createdAddressBookEntry.jobDept" value="department" />
+        <entry key="createdAddressBookEntry.companyName" value="company" />
+        <entry key="createdAddressBookEntry.assistantName" value="secretary" />
+        <entry key="createdAddressBookEntry.cellPhoneNumber" value="mobile" />
+        <entry key="createdAddressBookEntry.homePhoneNumber" value="homePhone" />
+        <entry key="createdAddressBookEntry.assistantPhoneNumber" value="telephoneAssistant" />
+        <entry key="createdAddressBookEntry.faxNumber" value="facsimileTelephoneNumber" />
+        <entry key="createdAddressBookEntry.officeAddress.street" value="streetAddress" />
+        <entry key="createdAddressBookEntry.officeAddress.city" value="l" />
+        <entry key="createdAddressBookEntry.officeAddress.state" value="st" />
+        <entry key="createdAddressBookEntry.officeAddress.country" value="co" />
+        <entry key="createdAddressBookEntry.officeAddress.zip" value="postalCode" />
       </map>
     </property>
     <property name="defaultGroupName" value="ldap_imports" />
@@ -27,14 +39,19 @@
     <property name="objectClass" value="person" />
     <property name="selectedObjectClasses">
       <set>
-        <value>person</value>
-        <value>inetOrgPerson</value>
-        <value>residentialPerson</value>
-        <value>organizationalPerson</value>
+		<value>account</value>
+		<value>contact</value>
+		<value>inetOrgPerson</value>
+		<value>organizationalPerson</value>
+		<value>person</value>
+		<value>residentialPerson</value>
+		<value>securityPrincipal</value>
+		<value>top</value>
+		<value>user</value>
       </set>
     </property>
   </bean>
-  
+
   <bean id="ldapSystemSettings" class="org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings" singleton="false">
   	<property name="configured" value="false"/>
   </bean>
