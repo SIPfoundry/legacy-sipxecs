@@ -47,7 +47,11 @@ extern OsSysLogPriority gACD_DEBUG;
 //
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort, const char* pPresenceServerUriString, const char* pPresenceServiceUriString)
+ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer,
+				 int presenceMonitorPort,
+				 int presenceMonitorTlsPort,
+				 const char* pPresenceServerUriString,
+				 const char* pPresenceServiceUriString)
 : ProvisioningClass(ACD_AGENT_TAG), mLock(OsMutex::Q_FIFO)
 {
    mpAcdServer = pAcdServer;
@@ -57,6 +61,7 @@ ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort,
    mPresenceServiceUrl = pPresenceServiceUriString;
 
    int bindPort = presenceMonitorPort;
+   int tlsPort = presenceMonitorTlsPort;
    UtlString domainName;
    Url remoteServerUri;
    Url presenceServerUri = pPresenceServerUriString;
@@ -67,6 +72,7 @@ ACDAgentManager::ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort,
 
    // Create the Sip Dialog Monitor
    mpLinePresenceMonitor = new LinePresenceMonitor(bindPort,
+						   tlsPort,
                                                    domainName,
                                                    groupName,
                                                    true,

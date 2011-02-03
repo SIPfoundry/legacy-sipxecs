@@ -173,7 +173,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
       if (mpAcdCallManager->getAcdCallManagerHandle() != SIPX_INST_NULL)
       {
          mpAcdLineManager  = new ACDLineManager(this);
-         mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString, mPresenceServiceUriString);
+         mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceMonitorPort, mPresenceServerUriString, mPresenceServiceUriString);
          mpAcdQueueManager = new ACDQueueManager(this);
          mpAcdAudioManager = new ACDAudioManager(this);
 
@@ -429,6 +429,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
       rRequestAttributes.validateAttribute(TCP_PORT_TAG,              ProvisioningAttrList::INT);
       rRequestAttributes.validateAttribute(RTP_PORT_TAG,              ProvisioningAttrList::INT);
       rRequestAttributes.validateAttribute(TLS_PORT_TAG,              ProvisioningAttrList::INT);
+      rRequestAttributes.validateAttribute(PRESENCE_MONITOR_TLS_PORT_TAG, ProvisioningAttrList::INT);
       rRequestAttributes.validateAttribute(PRESENCE_MONITOR_PORT_TAG, ProvisioningAttrList::INT);
       rRequestAttributes.validateAttribute(ADMINISTRATIVE_STATE_TAG,  ProvisioningAttrList::INT);
    }
@@ -540,6 +541,10 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
    rRequestAttributes.getAttribute(TLS_PORT_TAG, mTlsPort);
    setPSAttribute(pInstanceNode, TLS_PORT_TAG, mTlsPort);
 
+   // dialog-monitor-tls-port
+   rRequestAttributes.getAttribute(PRESENCE_MONITOR_TLS_PORT_TAG, mPresenceMonitorTlsPort);
+   setPSAttribute(pInstanceNode, PRESENCE_MONITOR_TLS_PORT_TAG, mPresenceMonitorTlsPort);
+
    // dialog-monitor-port
    rRequestAttributes.getAttribute(PRESENCE_MONITOR_PORT_TAG, mPresenceMonitorPort);
    setPSAttribute(pInstanceNode, PRESENCE_MONITOR_PORT_TAG, mPresenceMonitorPort);
@@ -592,7 +597,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
       // create the remainder of the server components
       mpAcdCallManager  = new ACDCallManager(this, mUdpPort, mTcpPort, mTlsPort, mRtpBase, mMaxAcdCallsAllowed);
       mpAcdLineManager  = new ACDLineManager(this);
-      mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString, mPresenceServiceUriString);
+      mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceMonitorPort, mPresenceServerUriString, mPresenceServiceUriString);
       mpAcdQueueManager = new ACDQueueManager(this);
       mpAcdAudioManager = new ACDAudioManager(this);
 
@@ -771,6 +776,7 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
       rRequestAttributes.validateAttributeType(TCP_PORT_TAG,                ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(RTP_PORT_TAG,                ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(TLS_PORT_TAG,                ProvisioningAttrList::INT);
+      rRequestAttributes.validateAttributeType(PRESENCE_MONITOR_TLS_PORT_TAG,   ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(PRESENCE_MONITOR_PORT_TAG,   ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(RPC_SERVER_PORT_TAG,         ProvisioningAttrList::INT);
       rRequestAttributes.validateAttributeType(ADMINISTRATIVE_STATE_TAG,    ProvisioningAttrList::INT);
@@ -831,6 +837,11 @@ ProvisioningAttrList* ACDServer::Set(ProvisioningAttrList& rRequestAttributes)
    // tls-port
    if (rRequestAttributes.getAttribute(TLS_PORT_TAG, mTlsPort)) {
       setPSAttribute(pInstanceNode, TLS_PORT_TAG, mTlsPort);
+   }
+
+   // dialog-monitor-port
+   if (rRequestAttributes.getAttribute(PRESENCE_MONITOR_TLS_PORT_TAG, mPresenceMonitorTlsPort)) {
+      setPSAttribute(pInstanceNode, PRESENCE_MONITOR_TLS_PORT_TAG, mPresenceMonitorTlsPort);
    }
 
    // dialog-monitor-port
@@ -1051,6 +1062,7 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
           rRequestAttributes.attributePresent(TCP_PORT_TAG) ||
           rRequestAttributes.attributePresent(RTP_PORT_TAG) ||
           rRequestAttributes.attributePresent(TLS_PORT_TAG) ||
+          rRequestAttributes.attributePresent(PRESENCE_MONITOR_TLS_PORT_TAG) ||
           rRequestAttributes.attributePresent(PRESENCE_MONITOR_PORT_TAG) ||
           rRequestAttributes.attributePresent(RPC_SERVER_PORT_TAG) ||
           rRequestAttributes.attributePresent(ADMINISTRATIVE_STATE_TAG)) {
@@ -1099,6 +1111,10 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
          // tls-port
          if (rRequestAttributes.attributePresent(TLS_PORT_TAG)) {
             pResponse->setAttribute(TLS_PORT_TAG, mTlsPort);
+         }
+         // dialog-monitor-port
+         if (rRequestAttributes.attributePresent(PRESENCE_MONITOR_TLS_PORT_TAG)) {
+	   pResponse->setAttribute(PRESENCE_MONITOR_TLS_PORT_TAG, mPresenceMonitorTlsPort);
          }
 
          // dialog-monitor-port
@@ -1176,6 +1192,9 @@ ProvisioningAttrList* ACDServer::Get(ProvisioningAttrList& rRequestAttributes)
 
          // tls-port
          pResponse->setAttribute(TLS_PORT_TAG, mTlsPort);
+
+         // dialog-monitor-tls-port
+         pResponse->setAttribute(PRESENCE_MONITOR_TLS_PORT_TAG, mPresenceMonitorTlsPort);
 
          // dialog-monitor-port
          pResponse->setAttribute(PRESENCE_MONITOR_PORT_TAG, mPresenceMonitorPort);
@@ -1328,6 +1347,7 @@ bool ACDServer::loadConfiguration(void)
    getPSAttribute(pInstanceNode, TCP_PORT_TAG,                mTcpPort);
    getPSAttribute(pInstanceNode, RTP_PORT_TAG,                mRtpBase);
    getPSAttribute(pInstanceNode, TLS_PORT_TAG,                mTlsPort);
+   getPSAttribute(pInstanceNode, PRESENCE_MONITOR_TLS_PORT_TAG,   mPresenceMonitorTlsPort);
    getPSAttribute(pInstanceNode, PRESENCE_MONITOR_PORT_TAG,   mPresenceMonitorPort);
    getPSAttribute(pInstanceNode, PRESENCE_SERVER_URI_TAG,     mPresenceServerUriString);
    getPSAttribute(pInstanceNode, PRESENCE_SERVICE_URI_TAG,    mPresenceServiceUriString);
