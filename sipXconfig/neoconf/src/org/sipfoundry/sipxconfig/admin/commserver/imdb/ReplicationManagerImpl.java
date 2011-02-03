@@ -45,7 +45,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String HOST = "localhost";
     private static final int PORT = 27017;
     private static final String DB_NAME = "imdb";
-    private static Mongo s_mongoInstance;
+    private Mongo m_mongoInstance;
 
     private boolean m_enabled = true;
 
@@ -55,10 +55,10 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private AuditLogContext m_auditLogContext;
     private BeanFactory m_beanFactory;
 
-    static {
-        if (s_mongoInstance == null) {
+    private void initMongo() {
+        if (m_mongoInstance == null) {
             try {
-                s_mongoInstance = new Mongo(HOST, PORT);
+                m_mongoInstance = new Mongo(HOST, PORT);
             } catch (Exception e) {
                 LOG.error("Unable to open mongo connection on: " + HOST + ":" + PORT);
             }
@@ -80,7 +80,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     }
 
     public void dropDb() {
-        DB datasetDb = s_mongoInstance.getDB(DB_NAME);
+        initMongo();
+        DB datasetDb = m_mongoInstance.getDB(DB_NAME);
         DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
         datasetCollection.drop();
     }
@@ -92,7 +93,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         boolean success = true;
         DataSet type = generator.getType();
         try {
-            DB datasetDb = s_mongoInstance.getDB(DB_NAME);
+            initMongo();
+            DB datasetDb = m_mongoInstance.getDB(DB_NAME);
             DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
             generator.setDbCollection(datasetCollection);
             generator.generate();
@@ -108,7 +110,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     public boolean replicateAllData() {
         boolean success = true;
         try {
-            dropDb();
+            dropDb(); //this calls initMongo()
             for (DataSet dataSet : DataSet.getEnumList()) {
                 String beanName = dataSet.getBeanName();
                 final DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
@@ -125,7 +127,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     public boolean replicateEntity(Replicable entity) {
         boolean success = true;
         try {
-            DB datasetDb = s_mongoInstance.getDB(DB_NAME);
+            initMongo();
+            DB datasetDb = m_mongoInstance.getDB(DB_NAME);
             DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
 
             Set<DataSet> dataSets = entity.getDataSets();
@@ -147,7 +150,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     public boolean removeEntity(Replicable entity) {
         boolean success = false;
         try {
-            DB datasetDb = s_mongoInstance.getDB(DB_NAME);
+            initMongo();
+            DB datasetDb = m_mongoInstance.getDB(DB_NAME);
             DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
             String id = DataSetGenerator.getEntityId(entity);
             DBObject search = new BasicDBObject();
