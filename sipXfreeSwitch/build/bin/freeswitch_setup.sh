@@ -6,30 +6,30 @@
 # Copyright (C) 2008 Pingtel Corp.
 # Licensed to SIPfoundry under a Contributor Agreement.
 
-. @SIPX_LIBEXECDIR@/sipx-utils.sh
+. /opt/sipx-0.0.4.5.2/libexec/sipXecs/sipx-utils.sh
 
-# Ensure that important FreeSWITCH files are writeable by @SIPXPBXUSER@
-FS_DBDIR=@SIPX_VARDIR@/tmp/freeswitch
+# Ensure that important FreeSWITCH files are writeable by dhubler
+FS_DBDIR=/opt/sipx-0.0.4.5.2/var/sipxdata/tmp/freeswitch
 
 if test ! -e $FS_DBDIR
 then
     mkdir $FS_DBDIR
-    chown -R @SIPXPBXUSER@ $FS_DBDIR
-    chgrp -R @SIPXPBXUSER@ $FS_DBDIR
+    chown -R dhubler $FS_DBDIR
+    chgrp -R dhubler $FS_DBDIR
     chmod -R u+rwX,ga+rX $FS_DBDIR
 fi
 
-# Ensure that the audio devices are owned by @SIPXPBXUSER@
+# Ensure that the audio devices are owned by dhubler
 # This is required for proper FreeSWITCH operation.
 for dev in /dev/adsp /dev/audio /dev/dsp /dev/mixer /dev/sequencer /dev/sequencer2 ; do
     if test -e $dev
     then
-        chown @SIPXPBXUSER@ $dev
+        chown dhubler $dev
     fi
 done
 if test -d /dev/snd
 then
-    chown @SIPXPBXUSER@ /dev/snd/*
+    chown dhubler /dev/snd/*
 fi
 
 # If alsa present configure the sound input source used for MOH to be 'Line'

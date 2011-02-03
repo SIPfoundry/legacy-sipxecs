@@ -42,6 +42,7 @@ pidfile=@SIPX_RUNDIR@/openacd.pid
 # env var influences by openacd daemon script
 export OPENACD_LOG_DIR=@SIPX_LOGDIR@/openacd
 export OPENACD_RUN_DIR=@SIPX_VARDIR@/openacd
+export OPENACD_ETC_DIR=@SIPX_CONFDIR@/openacd
 
 case "$Action" in
         ATTACH)

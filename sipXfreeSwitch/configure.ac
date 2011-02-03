@@ -15,6 +15,7 @@ SFAC_INIT_FLAGS
 CHECK_FREESWITCH
 AC_CONFIG_FILES([
   Makefile 
+  etc/Makefile
   bin/Makefile
 ])
 AC_OUTPUT
