@@ -28,6 +28,7 @@ import com.google.gdata.data.extensions.Where;
 import static org.apache.commons.beanutils.BeanUtils.getSimpleProperty;
 import static org.apache.commons.beanutils.PropertyUtils.getProperty;
 import static org.apache.commons.lang.StringUtils.EMPTY;
+import static org.apache.commons.lang.StringUtils.contains;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
@@ -213,9 +214,10 @@ public class PhonebookGoogleEntryHelper {
         List<String> homeEmails = new ArrayList<String>();
         List<String> otherEmails = new ArrayList<String>();
         for (Email email : emails) {
-            if (email.getRel().contains(WORK)) {
+            String emailRel = email.getRel();
+            if (contains(emailRel, WORK)) {
                 workEmails.add(email.getAddress());
-            } else if (email.getRel().contains(HOME)) {
+            } else if (contains(emailRel, HOME)) {
                 homeEmails.add(email.getAddress());
             } else {
                 otherEmails.add(email.getAddress());

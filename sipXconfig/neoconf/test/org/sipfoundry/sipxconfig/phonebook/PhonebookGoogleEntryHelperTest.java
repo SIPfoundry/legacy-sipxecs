@@ -261,5 +261,14 @@ public class PhonebookGoogleEntryHelperTest extends TestCase {
         abe = phoneBookEntry.getAddressBookEntry();
         assertEquals("kovalchuk@thrashers.com", abe.getEmailAddress());
         assertEquals("ilya.k@gmail.com", abe.getAlternateEmailAddress());
+
+        ce = new ContactEntry();
+        Email emailWithNullRel = new Email();
+        emailWithNullRel.setAddress("ilya.k@gmail.com");
+        ce.addEmailAddress(emailWithNullRel);
+        ce.addEmailAddress(email1);
+        phoneBookEntry = new PhonebookGoogleEntryHelper(ce, "me@gmail.com").getPhonebookEntry();
+        abe = phoneBookEntry.getAddressBookEntry();
+        assertEquals("ilya.k@gmail.com", abe.getAlternateEmailAddress());
     }
 }
