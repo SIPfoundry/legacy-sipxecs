@@ -20,7 +20,9 @@ import java.io.OutputStreamWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 import static java.lang.String.format;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -255,9 +257,7 @@ public class CounterpathPhone extends Phone {
             return m_imAccount.getImPassword();
         }
 
-        @SettingEntry(paths = {
-            REG_DOMAIN, "xmpp-config/domain"
-        })
+        @SettingEntry(paths = { REG_DOMAIN, "xmpp-config/domain" })
         public String getDomain() {
             DeviceDefaults defaults = m_line.getPhoneContext().getPhoneDefaults();
             return defaults.getDomainName();
