@@ -298,6 +298,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{sipxpbxconf}/commserver
 %{sipxpbxconf}/commserver/*
 %dir %{sipxpbxconf}/freeswitch
+%dir %{sipxpbxconf}/freeswitch/conf
+%dir %{sipxpbxconf}/freeswitch/conf/sip_profiles
+%dir %{sipxpbxconf}/freeswitch/conf/dialplan
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
 %config(noreplace) %{sipxpbxconf}/database/*
 %dir %{sipxpbxconf}/region_*

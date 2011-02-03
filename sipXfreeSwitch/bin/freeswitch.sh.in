@@ -50,7 +50,6 @@ FS_EXEC="@FREESWITCH_PREFIX@/bin/freeswitch \
    -log $FS_LOGDIR \
    -htdocs $FS_CONFDIR/htdocs"
 
-SIPXDIRS="$FS_DBDIR $FS_CONFDIR"
 pidFile=@SIPX_RUNDIR@/freeswitch.pid
 
 case ${Action} in
@@ -86,8 +85,6 @@ case ${Action} in
      if [ $iam = root ]
      then
         Status=0
-        echo -e "\n Installing FreeSWITCH folder \n"
-        rm -rf $SIPXDIRS
         @SIPX_LIBEXECDIR@/setup.d/freeswitch_setup.sh
      else
         Status=1
@@ -96,14 +93,14 @@ case ${Action} in
      ;;
 
    CONFIGTEST)
-     WRONGPERM=`find $SIPXDIRS -not -user $SIPX_USER -or -not -group $SIPX_USER 2> /dev/null | wc -l`
+     WRONGPERM=`find $FS_DBDIR -not -user $SIPX_USER -or -not -group $SIPX_USER 2> /dev/null | wc -l`
      if [ $WRONGPERM -gt 0 ] 
      then
         if [ $iam = root ]
         then
            Status=0
            echo -e "\n Fixing FreeSWITCH folder permissions \n"
-           rm -rf $SIPXDIRS
+           rm -rf $FS_DBDIR
            @SIPX_LIBEXECDIR@/setup.d/freeswitch_setup.sh
         else
            Status=1

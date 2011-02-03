@@ -230,6 +230,9 @@
         <replacefilter token="@sipxecs.name@" property="sipxecs.name" />
     </replace>
 
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}/freeswitch/conf/dialplan"/>
+    <mkdir dir="${dest.dir}${sipxpbx.conf.dir}/freeswitch/conf/sip_profiles"/>
+
     <!-- copy jars and war -->
     <mkdir dir="${dest.dir}${sipxecs.java.dir}/sipXconfig" />
     <copy todir="${dest.dir}${sipxecs.java.dir}/sipXconfig">

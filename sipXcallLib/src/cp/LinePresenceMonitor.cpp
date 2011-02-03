@@ -34,6 +34,7 @@
 
 // Constructor
 LinePresenceMonitor::LinePresenceMonitor(int userAgentPort,
+					 int userAgentTlsPort,
                                          UtlString& domainName,
                                          UtlString& groupName,
                                          bool local,
@@ -44,7 +45,7 @@ LinePresenceMonitor::LinePresenceMonitor(int userAgentPort,
      mLock(OsBSem::Q_PRIORITY, OsBSem::FULL)
 {
    // Create a SIP user agent using the specified port and start it up.
-   mpUserAgent = new SipUserAgent(userAgentPort, userAgentPort);
+  mpUserAgent = new SipUserAgent(userAgentPort, userAgentPort, userAgentTlsPort);
    mpUserAgent->start();
 
    mGroupName = groupName;
