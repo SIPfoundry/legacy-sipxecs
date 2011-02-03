@@ -78,6 +78,7 @@ public:
 
    /// Constructor
    LinePresenceMonitor(int userAgentPort,       ///< user agent port
+		       int userAgentTlsPort,    ///< user agent tls port
                        UtlString& domainName,   ///< sipX domain name
                        UtlString& groupName,    /**< name of the group to be monitored
                                                  *   (not implemented)
