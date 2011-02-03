@@ -90,7 +90,7 @@ public class UserMapper implements NameClassPairMapper {
 
         Set<String> aliases = getValues(attrs, Index.ALIAS);
         if (aliases != null) {
-            user.copyAliases(aliases);
+            user.copyAliases(deleteWhitespace(aliases));
         }
     }
 
@@ -123,6 +123,19 @@ public class UserMapper implements NameClassPairMapper {
             }
         }
         return groupNames;
+    }
+
+    private Set<String> deleteWhitespace(Set<String> values) {
+        if (values != null) {
+            Set<String> withoutWhitespaces = new HashSet<String>();
+            for (String value : values) {
+                withoutWhitespaces.add(StringUtils.deleteWhitespace(value));
+            }
+
+            return withoutWhitespaces;
+        }
+
+        return null;
     }
 
     private Set<String> replaceWhitespace(Set<String> values) {
