@@ -93,7 +93,7 @@ RemoveDuplicateRpms = \
 
 help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source
 repo-src :
-	$(call RemoveDuplicateRpms, $(MOCK_SRPM_DIR))
+	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_SRPM_DIR)); do rm $$f; done
 	cd $(MOCK_SRPM_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 
 help.mock-check = Installs built sipXecs RPMs into fresh chroot to check for errors
@@ -102,7 +102,7 @@ mock-check : mock-init
 
 help.mock-remove-dups=If you have built RPMs multiple times between git updates, and therefore have older versions of a package, this will remove all older copies.
 mock-remove-dups:
-	$(call RemoveDuplicateRpms, $(MOCK_RESULTS_DIR))
+	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_RESULTS_DIR)); do rm $$f; done
 
 help.mock-make-repo = run createrepo on rpm list
 mock-make-repo:

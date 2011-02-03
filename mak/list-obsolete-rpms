@@ -1,0 +1,50 @@
+#!/usr/bin/ruby
+
+# Initial Version Copyright (C) 2011 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+# 
+# This library is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+# details.
+
+
+# creates a flat file database with format: {filename, package name, build date}, then sorts records by 
+# {package name,build date}. Once sorted, group by package name using uniq command. Once grouped, use filename, 
+# to delete duplicate packages with oldest build date.
+
+
+usage = "Usage: $0 dir \nInpects the RPM meta data in a directory of RPMs and determines which RPMs are \
+for the same package but have different build times. Then prints these RPMs to stdout"
+
+if ARGV.length == 0
+ STDERR.puts "Missing Argument\n " + $usage
+ exit 1
+end
+
+$rpm_dir = ARGV[0]
+$keep = {}
+$remove = []
+
+Dir.glob("#{$rpm_dir}/*.rpm") {|f|
+  cmd = "rpm -qp --queryformat '%{name} %{BUILDTIME}' #{f}"
+  name, build = `#{cmd}`.split
+  unless $? == 0
+    STDERR.puts cmd
+    exit 1
+  end
+  existing = $keep[name]
+  if !existing.nil? && existing[:build] > build
+    # item is older than previous entry
+    $remove.push(f)
+  else
+    unless existing.nil?
+      # items is new, so remove previous 
+      $remove.push(existing[:file])
+    end
+    # new items or replacing previous
+    $keep[name] = {:build => build, :file => f}
+  end
+}
+
+$remove.each{|f| puts f}
