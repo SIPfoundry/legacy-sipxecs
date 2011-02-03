@@ -37,7 +37,5 @@ public interface ReplicationManager {
     boolean replicateEntity(Replicable entity);
     boolean removeEntity(Replicable entity);
 
-    void dropDb();
-
     boolean replicateAllData();
 }

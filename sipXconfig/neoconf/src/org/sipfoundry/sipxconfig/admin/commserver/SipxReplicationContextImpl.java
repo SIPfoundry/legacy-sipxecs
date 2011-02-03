@@ -31,6 +31,7 @@ import org.springframework.context.ApplicationEventPublisherAware;
 public abstract class SipxReplicationContextImpl implements ApplicationEventPublisherAware, SipxReplicationContext {
 
     private static final String IGNORE_REPLICATION_MESSAGE = "In initialization phase, ignoring request to replicate ";
+    private static final String DATA_REPLICATION_OF = "Data replication of ";
 
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
     private final List<ReplicationTask> m_tasks = new ArrayList<ReplicationTask>();
@@ -48,7 +49,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     public void generateAll() {
         ReplicateWork work = new ReplicateWork() {
             public boolean replicate() {
-                m_replicationManager.dropDb();
                 return m_replicationManager.replicateAllData();
             }
         };
@@ -220,11 +220,20 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
             String entityid = DataSetGenerator.getEntityId(entity);
             if (taskid.equals(entityid)) {
                 if (dstask.isDelete()) {
-                    m_replicationManager.removeEntity(entity);
+                    ReplicateWork work = new ReplicateWork() {
+                        public boolean replicate() {
+                            return m_replicationManager.removeEntity(entity);
+                        }
+                    };
+                    doWithJob(DATA_REPLICATION_OF + entity.getName(), work);
                 } else {
-                    m_replicationManager.replicateEntity(entity);
+                    ReplicateWork work = new ReplicateWork() {
+                        public boolean replicate() {
+                            return m_replicationManager.replicateEntity(entity);
+                        }
+                    };
+                    doWithJob(DATA_REPLICATION_OF + entity.getName(), work);
                 }
-
                 taskToRemove = task;
             }
         }

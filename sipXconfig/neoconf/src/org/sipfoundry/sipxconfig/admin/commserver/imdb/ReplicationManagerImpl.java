@@ -55,12 +55,13 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private AuditLogContext m_auditLogContext;
     private BeanFactory m_beanFactory;
 
-    private void initMongo() {
+    private void initMongo() throws Exception {
         if (m_mongoInstance == null) {
             try {
                 m_mongoInstance = new Mongo(HOST, PORT);
             } catch (Exception e) {
                 LOG.error("Unable to open mongo connection on: " + HOST + ":" + PORT);
+                throw(e);
             }
         }
     }
@@ -79,7 +80,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         m_auditLogContext = auditLogContext;
     }
 
-    public void dropDb() {
+    public void dropDb() throws Exception {
         initMongo();
         DB datasetDb = m_mongoInstance.getDB(DB_NAME);
         DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
