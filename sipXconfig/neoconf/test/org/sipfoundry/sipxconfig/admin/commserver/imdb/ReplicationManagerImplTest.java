@@ -26,7 +26,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.springframework.beans.factory.BeanFactory;
@@ -77,10 +76,6 @@ public class ReplicationManagerImplTest extends TestCase {
     }
 
     public void testReplicateData() {
-        DomainManager dm = createMock(DomainManager.class);
-        dm.getDomainName();
-        expectLastCall().andReturn(DOMAIN).anyTimes();
-
         DataSetGenerator dsg = new Aliases();
 
         BeanFactory factory = createMock(BeanFactory.class);
@@ -89,19 +84,14 @@ public class ReplicationManagerImplTest extends TestCase {
             factory.getBean(beanName, DataSetGenerator.class);
             expectLastCall().andReturn(dsg).anyTimes();
         }
-        replay(dm, factory);
-        m_out.setDomainManager(dm);
+        replay(factory);
         m_out.setBeanFactory(factory);
         m_out.replicateAllData();
 
-        verify(dm, factory);
+        verify(factory);
     }
 
     public void testReplicateEntity() {
-        DomainManager dm = createMock(DomainManager.class);
-        dm.getDomainName();
-        expectLastCall().andReturn(DOMAIN).anyTimes();
-
         Replicable entity = createMock(Replicable.class);
         entity.getDataSets();
         expectLastCall().andReturn(Collections.singleton(DataSet.ALIAS)).atLeastOnce();
@@ -114,12 +104,11 @@ public class ReplicationManagerImplTest extends TestCase {
         String beanName = DataSet.ALIAS.getBeanName();
         factory.getBean(beanName, DataSetGenerator.class);
         expectLastCall().andReturn(dsg).anyTimes();
-        replay(dm, factory, entity);
-        m_out.setDomainManager(dm);
+        replay(factory, entity);
         m_out.setBeanFactory(factory);
         m_out.replicateEntity(entity);
 
-        verify(dm, factory, entity);
+        verify(factory, entity);
     }
 
     private String encode(String content) throws UnsupportedEncodingException {

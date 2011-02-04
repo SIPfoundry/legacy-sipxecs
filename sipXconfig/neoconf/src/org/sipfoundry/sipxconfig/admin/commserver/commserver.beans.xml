@@ -78,7 +78,6 @@
   <bean id="replicationManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl">
     <property name="fileApiProvider" ref="fileApiProvider"/>
-    <property name="domainManager" ref="domainManager"/>
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
   </bean>

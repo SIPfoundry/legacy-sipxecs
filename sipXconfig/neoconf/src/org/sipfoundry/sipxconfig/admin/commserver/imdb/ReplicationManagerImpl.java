@@ -32,7 +32,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.BeanFactory;
@@ -45,13 +44,13 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String HOST = "localhost";
     private static final int PORT = 27017;
     private static final String DB_NAME = "imdb";
+    private static final String DB_COLLECTION_NAME = "entity";
     private Mongo m_mongoInstance;
 
     private boolean m_enabled = true;
 
     private ApiProvider<FileApi> m_fileApiProvider;
     private LocationsManager m_locationsManager;
-    private DomainManager m_domainManager;
     private AuditLogContext m_auditLogContext;
     private BeanFactory m_beanFactory;
 
@@ -83,7 +82,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     public void dropDb() throws Exception {
         initMongo();
         DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-        DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
+        DBCollection datasetCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
         datasetCollection.drop();
     }
 
@@ -96,7 +95,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         try {
             initMongo();
             DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
+            DBCollection datasetCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
             generator.setDbCollection(datasetCollection);
             generator.generate();
             m_auditLogContext.logReplication(type.getName(), m_locationsManager.getPrimaryLocation());
@@ -130,7 +129,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         try {
             initMongo();
             DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
+            DBCollection datasetCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
 
             Set<DataSet> dataSets = entity.getDataSets();
             for (DataSet dataSet : dataSets) {
@@ -153,7 +152,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         try {
             initMongo();
             DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(m_domainManager.getDomainName());
+            DBCollection datasetCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
             String id = DataSetGenerator.getEntityId(entity);
             DBObject search = new BasicDBObject();
             search.put(DataSetGenerator.ID, id);
@@ -236,10 +235,6 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     private String getHostname() {
         return m_locationsManager.getPrimaryLocation().getFqdn();
-    }
-
-    public void setDomainManager(DomainManager domainManager) {
-        m_domainManager = domainManager;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
