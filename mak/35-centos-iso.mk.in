@@ -335,6 +335,8 @@ ISO_ADD_LIST = \
   chkfontpath-* \
   dhcp-* \
   distcache-* \
+  fontconfig* \
+  freetype* \
   gdb-* \
   httpd-2* \
   hwdata-* \
@@ -373,4 +375,4 @@ ISO_ADD_LIST = \
   yum-basearchonly-* \
   yum-downloadonly-* \
   java-1.6.0-openjdk-1.6* \
-  java-1.6.0-openjdk-devel* \
+  java-1.6.0-openjdk-devel*

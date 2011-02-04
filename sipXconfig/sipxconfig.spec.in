@@ -71,6 +71,9 @@ Requires: java-fonts >= 1.6
 Requires: java-ibm-unrestricted
 %endif
 
+# jasperreports
+Requires: fontconfig
+
 %if %{_vendor} == redhat
 # only used to serve phone profiles under http devices
 Requires: httpd >= 2.0
