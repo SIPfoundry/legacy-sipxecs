@@ -6,7 +6,7 @@
 Action="START"
 Status=0
 # Required when controlled by supervisor or else openacd terminates if it doesn't detect "real" stdin
-NoInput="-noinput"
+NoInput=""
 # HOME is required for erlang apps and not set when run under sipXsupervisor
 export HOME=`cd ~;pwd`
 
@@ -17,11 +17,11 @@ do
             Action=STOP
             ;;
 
-	--console)
+	--noinput)
 	    # only useful if you want to start OpenACD from CLI and you want a console at the same time
 	    # to debug soemthing.  Ideally you should be able to attach but supervisor won't background
 	    # processes that are already backgrounded
-	    NoInput=""
+	    NoInput="-noinput"
 	    ;;
 
         --configtest)
@@ -45,12 +45,6 @@ export OPENACD_RUN_DIR=@SIPX_VARDIR@/openacd
 export OPENACD_ETC_DIR=@SIPX_CONFDIR@/openacd
 
 case "$Action" in
-        ATTACH)
-		RUNNER_USER=@SIPXPBXUSER@ \
-		  @OPENACD_DIR@/bin/openacd attach
-		exit 0
-		;;    
-
 	START)
 	        test -d "$OPENACD_LOG_DIR" || mkdir -p "$OPENACD_LOG_DIR"
 	        test -d "$OPENACD_RUN_DIR" || mkdir -p "$OPENACD_RUN_DIR"
