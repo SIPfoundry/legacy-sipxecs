@@ -114,7 +114,7 @@ public class CdrLogRestlet extends Restlet {
             cdrConnection = DriverManager.getConnection(cdrDBUrl, "postgres", "");
 
             String sqlPrepareString;
-            String userLike = '%' + userId + "@%";
+            String userLike = "%:" + userId + "@%";
             PreparedStatement qStatement;
 
             if (fromTimeMs != null) {
