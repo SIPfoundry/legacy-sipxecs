@@ -9,29 +9,30 @@ $(foreach T,$(sipx),$(T)) : % : %.build;
 $(foreach T,$(sipx),$(T)...) : %... : %.build...;
 $(foreach T,$(sipx),$(T).build) : %.build : %.autoreconf %.configure %.all-install ;
 
-help.{sipx,sipX*}.all-install=Run 'make all install' in each target
+help.{1}.all-install=Run 'make all install' in each target
 $(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
 
 # Targets for sipx and lib. Uses pattern %.xyz so libs can implement their own
 # implementation that will override the patterned one. i.e. freeswitch.autoreconf
 # This also means all targets in all other make files cannot create a target that
 # ends in autoreconf, configure or dist.
-help.*.autoreconf=Run autoreconf on each project
+help.{1|2}.autoreconf=Run autoreconf on each project
 %.autoreconf : 
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
-help.*.configure = Run configure on each project
+help.{1|2}.configure = Run configure on each project
 %.configure :
 	test -d $(PROJ) || mkdir $(PROJ)
 	cd $(PROJ); \
 	  $(SRC)/$(PROJ)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 
+help.{1|2}.dist = Build archive, typically compressed tar
 %.dist :; $(MAKE) -C $(PROJ) dist
 
 # Targets for sipx only. 
 MAKE_COMMANDS = check install clean dist
-$(foreach C,$(MAKE_COMMANDS) all,$(eval help.*.$(C)=Run make $(C) on each project))
+$(foreach C,$(MAKE_COMMANDS) all,$(eval help.{1}.$(C)=Run make $(C) on each project))
 $(foreach P,$(sipx),$(P).install) :; $(MAKE) -C $(PROJ) install
 $(foreach P,$(sipx),$(P).clean) :; $(MAKE) -C $(PROJ) clean
 $(foreach P,$(sipx),$(P).check) :; $(MAKE) -C $(PROJ) check
