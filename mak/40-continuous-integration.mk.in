@@ -11,14 +11,11 @@ ci.% : CI_DISTRO = $(firstword $(subst -, ,$(CI_MOCK_TARGET)))
 ci.% : CI_DISTRO_VER = $(word 2,$(subst -, ,$(CI_MOCK_TARGET)))
 ci.% : CI_DISTRO_ARCH = $(word 3,$(subst -, ,$(CI_MOCK_TARGET)))
 
-help.ci-list = List all available CI (continuous integration) targets
-ci-list :
-	@echo $(CI_TARGETS)
-
 help.ci = Build all targets CI targets $(CI_TARGETS)
 ci : $(CI_TARGETS);
 
-$(foreach T,$(CI_TARGETS),$(eval help.$(T)=Complete build for respective distribution, version and architecture))
+help-values.{3} = Targets distributes to cross compile line. For all platforms use 'all'. Complete list $(CI_MOCK_TARGETS).
+help.xc.{3} = Complete build for respective distribution, version and architecture.
 $(CI_TARGETS) : ci.% : /etc/mock/sipx-%.cfg ci.%.clean ci.%.init ci.%.lib ci.%.sipx
 
 ci.% : SUBMAKE_VARS=\
