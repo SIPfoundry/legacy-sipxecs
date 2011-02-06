@@ -164,7 +164,6 @@ ISO_REMOVE_LIST = \
   atk-* \
   audiofile-* \
   avahi-* \
-  bitstream-vera-fonts-* \
   bluez-* \
   brlapi-* \
   cadaver-* \
