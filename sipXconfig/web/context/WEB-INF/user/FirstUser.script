@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!DOCTYPE script PUBLIC
+	"-//Apache Software Foundation//Tapestry Script Specification 3.0//EN"
+	"http://jakarta.apache.org/tapestry/dtd/Script_3_0.dtd">
+<script>
+
+<input-symbol key="licensesNumber" class="java.lang.Integer" required="yes"/>
+
+<body>
+<![CDATA[
+	function setVisibility(id, visibility) {
+		document.getElementById(id).style.display = visibility;
+	}
+	function setPosVisibility(id, pos) {
+	    var i=0;
+		setVisibility(id+pos, 'inline');
+		for (i=0; i<${licensesNumber}; i++) {
+		  if (i!=pos) {
+			  setVisibility(id+i, 'none');
+			}		    
+		}
+	}
+
+]]>
+</body>
+<initialization>
+	setPosVisibility('lic', 0);
+</initialization>
+</script>

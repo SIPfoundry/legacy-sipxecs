@@ -33,6 +33,8 @@ public class TapestryContext {
     public static final String CONTEXT_BEAN_NAME = "tapestry";
 
     private static final int SECONDS_PER_MINUTE = 60;
+    private static final String BLANK = "";
+    private static final String UNDERSCORE = "_";
 
     private HivemindContext m_hivemindContext;
 
@@ -148,12 +150,31 @@ public class TapestryContext {
         return minutes * SECONDS_PER_MINUTE;
     }
 
+    public int getLicensesNumber() {
+        int i = 0;
+        String prefix = BLANK;
+        while (m_skinControl.getAsset(prefix + SkinControl.ASSET_LICENSE) != null) {
+            i++;
+            prefix = i + UNDERSCORE;
+        }
+        return i;
+    }
+
     /**
      * Retrieves text of the license usually provided by OEM plugin. Only works if
-     * isLicenseRequired returns true.
+     * isLicenseRequired returns true. The licenseNumber parameter is used only
+     * when we have more than one license to display. In this case the license key
+     * asset will be like that: license.txt, 1_license.txt, 2_license.txt etc
      */
-    public String getLicense() {
-        IAsset asset = m_skinControl.getAsset(SkinControl.ASSET_LICENSE);
+    public String getLicense(int licenseNumber) {
+        String prefix = BLANK;
+        if (licenseNumber > 0) {
+            prefix = licenseNumber + UNDERSCORE;
+        }
+        IAsset asset = m_skinControl.getAsset(prefix + SkinControl.ASSET_LICENSE);
+        if (asset == null) {
+            return null;
+        }
         InputStream licenseStream = asset.getResourceAsStream();
         try {
             return IOUtils.toString(licenseStream, "UTF-8");
@@ -162,5 +183,9 @@ public class TapestryContext {
         } finally {
             IOUtils.closeQuietly(licenseStream);
         }
+    }
+
+    public String getLicense() {
+        return getLicense(0);
     }
 }
