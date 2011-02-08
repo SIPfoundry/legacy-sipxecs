@@ -73,7 +73,12 @@ Requires: java-ibm-unrestricted
 
 # jasperreports
 Requires: fontconfig
+
+%if %{_vendor} == redhat && 0%{?fedora} <= 6
 Requires: bitstream-vera-fonts
+%else
+Requires: bitstream-vera-sans-fonts
+%endif
 
 %if %{_vendor} == redhat
 # only used to serve phone profiles under http devices
