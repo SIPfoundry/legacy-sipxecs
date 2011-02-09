@@ -51,11 +51,7 @@ public:
 /* ============================ CREATORS ================================== */
 
    // Default constructor
-   ACDAgentManager(ACDServer* pAcdServer,
-		   int presenceMonitorPort,
-		   int presenceMonitorTlsPort,
-		   const char* pPresenceServerUriString,
-		   const char* pPresenceServiceUriString);
+   ACDAgentManager(ACDServer* pAcdServer, int presenceMonitorPort, const char* pPresenceServerUriString, const char* pPresenceServiceUriString);
 
    // Destructor
    ~ACDAgentManager();
