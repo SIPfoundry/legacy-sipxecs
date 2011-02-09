@@ -91,10 +91,6 @@
       <type refid="port-number" />
       <value>5152</value>
     </setting>
-    <setting name="presence-monitor-tls-port" advanced="yes">
-      <type refid="port-number" />
-      <value>5153</value>
-    </setting>
     <setting name="presence-server-uri" hidden="yes">
       <value />
     </setting>
