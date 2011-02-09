@@ -15,16 +15,17 @@ gpgcheck=0
 assumeyes=1
 syslog_ident=mock
 syslog_device=
-
-# repos
+proxy=@DOWNLOAD_PROXY@
 
 [fedora]
 name=fedora
-baseurl=http://localhost:40101/fedora/releases/14/Everything/i386/os/
+@FEDORA_BASE_URL_ON@baseurl=@FEDORA_BASE_URL@/releases/14/Everything/i386/os/
+@FEDORA_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-14&arch=i386
 
 [updates]
 name=updates
-baseurl=http://localhost:40101/fedora/updates/14/i386/
+@FEDORA_BASE_URL_ON@baseurl=@FEDORA_BASE_URL@/updates/14/i386/
+@FEDORA_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f14&arch=i386
 
 [local]
 name=local

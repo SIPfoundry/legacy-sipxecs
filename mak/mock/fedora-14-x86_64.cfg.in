@@ -20,15 +20,17 @@ syslog_device=
 #exclude=[0-9A-Za-fh-z]*.i?86 g[0-9A-Za-km-z]*.i?86 gl[0-9A-Za-hj-z]*.i?86 gli[0-9A-Zac-z]*.i?86 glib[0-9A-Za-bd-z]*.i?86
 # The above is not needed anymore with yum multilib policy of "best" which is the default in Fedora.
 
-# repos
+proxy=@DOWNLOAD_PROXY@
 
 [fedora]
 name=fedora
-baseurl=http://localhost:40101/fedora/releases/14/Everything/x86_64/os/
+@FEDORA_BASE_URL_ON@baseurl=@FEDORA_BASE_URL@/releases/14/Everything/x86_64/os/
+@FEDORA_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=fedora-14&arch=x86_64
 
 [updates]
 name=updates
-baseurl=http://localhost:40101/fedora/updates/14/x86_64/
+@FEDORA_BASE_URL_ON@baseurl=@FEDORA_BASE_URL@/updates/14/x86_64/
+@FEDORA_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=updates-released-f14&arch=x86_64
 
 [local]
 name=local

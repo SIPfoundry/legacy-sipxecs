@@ -7,7 +7,7 @@ erlmongo_TARBALL = erlmongo-$(erlmongo_VER).tar.gz
 
 erlmongo.autoreconf erlmongo.configure erlmongo.dist:;
 
-help.erlmongo.update_dist = Called manually when you want to pull in new changes from erlmongo project
+# Helpful for package maintainer when you want to pull in new changes from erlmongo project
 erlmongo.update_dist :
 	git clone git://github.com/wpntv/erlmongo.git
 	cd erlmongo; \

@@ -14,15 +14,18 @@ retries=20
 obsoletes=1
 gpgcheck=0
 assumeyes=1
+proxy=@DOWNLOAD_PROXY@
 
 # repos
 [core]
 name=core
-baseurl=http://localhost:40101/centos/5.5/os/i386
+@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/5.5/os/i386
+@CENTOS_BASE_URL_OFF@mirrorlist=http://mirrorlist.centos.org/?release=5&arch=i386&repo=os
 
 [update]
 name=updates
-baseurl=http://localhost:40101/centos/5.5/updates/i386
+@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/5.5/updates/i386
+@CENTOS_BASE_URL_OFF@mirrorlist=http://mirrorlist.centos.org/?release=5&arch=i386&repo=updates
 
 [groups]
 name=groups
@@ -30,12 +33,8 @@ baseurl=http://buildsys.fedoraproject.org/buildgroups/rhel5/i386/
 
 [extras]
 name=epel
-baseurl=http://localhost:40101/centos/5.5/extras/i386
-
-[testing]
-name=epel-testing
-enabled=0
-mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=testing-epel5&arch=i386
+@CENTOS_BASE_URL_ON@baseurl=@CENTOS_BASE_URL@/5.5/extras/i386
+@CENTOS_BASE_URL_OFF@mirrorlist=http://mirrors.fedoraproject.org/mirrorlist?repo=epel-5&arch=i386
 
 [local]
 name=local
