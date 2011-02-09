@@ -19,6 +19,7 @@
 
 -include("log.hrl").
 -include("cpx.hrl").
+-include("queue.hrl").
 
 start() ->
 	gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
@@ -188,14 +189,18 @@ process_queue_group(QueueGroup, Command) ->
 	{_, Profiles} = lists:nth(4, QueueGroup),
 	{_, Sort} = lists:nth(5, QueueGroup),
 	SkillsList = lists:flatmap(fun(X)->[list_to_atom(X)] end, string:tokens((erlang:binary_to_list(Skills)), ", ")),
+	ProfilesList = lists:flatmap(fun(X)->[{'_profile',X}] end, string:tokens((erlang:binary_to_list(Profiles)), ", ")),
+	AllSkills = lists:merge(SkillsList, ProfilesList),
 	if Command =:= "ADD" ->
-		call_queue_config:new_queue_group(erlang:binary_to_list(Name), binary_to_number(Sort), []);
+		NewQgroup = #queue_group{name = erlang:binary_to_list(Name), sort = binary_to_number(Sort), recipe = [], skills = AllSkills},
+		call_queue_config:new_queue_group(NewQgroup);
 	Command =:= "DELETE" ->
 		call_queue_config:destroy_queue_group(erlang:binary_to_list(Name));
 	Command =:= "UPDATE" ->
 		{_, Oldname} = lists:nth(6, QueueGroup),
-		{_, [{_, _, OldRecipe, _, _, _}]} = call_queue_config:get_queue_group(erlang:binary_to_list(Oldname)),
-		call_queue_config:set_queue_group(erlang:binary_to_list(Oldname), erlang:binary_to_list(Name), binary_to_number(Sort), OldRecipe);
+		{_, [{_, _, OldRecipe, _, _, _, _}]} = call_queue_config:get_queue_group(erlang:binary_to_list(Oldname)),
+		Qgroup = #queue_group{name = erlang:binary_to_list(Name), sort = binary_to_number(Sort), recipe = OldRecipe, skills = AllSkills},
+		call_queue_config:set_queue_group(erlang:binary_to_list(Oldname), Qgroup);
 	true -> ?WARNING("Unrecognized command", [])
 	end.
 
