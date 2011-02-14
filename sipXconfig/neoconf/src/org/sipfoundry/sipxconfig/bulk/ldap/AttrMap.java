@@ -85,12 +85,16 @@ public class AttrMap extends BeanWithId {
         return m_user2ldap.get(propertyName);
     }
 
-    public void setDefaultPin(String defaultPin) {
-        m_defaultPin = defaultPin;
-    }
-
     public String getIdentityAttributeName() {
         return m_user2ldap.get(Index.USERNAME.getName());
+    }
+
+    public String getImAttributeName() {
+        return m_user2ldap.get(Index.IM_ID.getName());
+    }
+
+    public void setDefaultPin(String defaultPin) {
+        m_defaultPin = defaultPin;
     }
 
     public String getDefaultPin() {

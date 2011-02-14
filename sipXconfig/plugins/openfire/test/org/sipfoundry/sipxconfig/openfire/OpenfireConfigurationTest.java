@@ -61,6 +61,8 @@ public class OpenfireConfigurationTest extends TestCase {
         m_ldapConnectionParams.setSecret("secret");
 
         m_ldapAttrMap.setSearchBase("dc=example,dc=com");
+        m_ldapAttrMap.setObjectClass("person");
+        m_ldapAttrMap.setAttribute("imId", "uid");
 
         IMocksControl coreContextControl = EasyMock.createControl();
         m_ldapManager = coreContextControl.createMock(LdapManager.class);
