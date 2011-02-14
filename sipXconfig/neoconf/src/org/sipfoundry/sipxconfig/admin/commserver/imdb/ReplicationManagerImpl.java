@@ -145,7 +145,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         } catch (Exception e) {
             success = false;
             LOG.error("Replication: insert/update failed - " + entity.getName(), e);
-            throw new RuntimeException("Replication: insert/update failed - " + entity.getName(), e);
+            throw new UserException("Replication: insert/update failed - " + entity.getName(), e);
         }
         return success;
     }

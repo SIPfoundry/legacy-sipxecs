@@ -238,7 +238,7 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         m_tasks.remove(taskToRemove); //think clear is more appropriate
         if (!success) {
             m_tasks.clear();
-            throw new RuntimeException(exc);
+            throw new UserException(exc);
         }
     }
 
