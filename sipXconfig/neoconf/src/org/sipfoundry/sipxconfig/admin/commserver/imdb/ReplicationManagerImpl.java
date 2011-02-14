@@ -32,6 +32,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.BeanFactory;
@@ -101,7 +102,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             m_auditLogContext.logReplication(type.getName(), m_locationsManager.getPrimaryLocation());
         } catch (Exception e) {
             success = false;
-            LOG.error("Data replication failed: " + type.getName(), e);
+            //LOG.error("Data replication failed: " + type.getName(), e);
+            throw new UserException("Data replication failed: " + type.getName(), e);
         }
         return success;
     }
@@ -143,6 +145,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         } catch (Exception e) {
             success = false;
             LOG.error("Replication: insert/update failed - " + entity.getName(), e);
+            throw new RuntimeException("Replication: insert/update failed - " + entity.getName(), e);
         }
         return success;
     }

@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.springframework.beans.factory.annotation.Required;
@@ -212,32 +213,33 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         tasks.add(task);
     }
 
-    public void replicateWork(final Replicable entity) {
+    public void replicateWork(final Replicable entity){
+        boolean success = true;
+        Exception exc = new Exception();
         ReplicationTask taskToRemove = new DataSetTask();
         for (ReplicationTask task : m_tasks) {
             DataSetTask dstask = (DataSetTask) task;
             String taskid = DataSetGenerator.getEntityId(dstask.getEntity());
             String entityid = DataSetGenerator.getEntityId(entity);
             if (taskid.equals(entityid)) {
+                try {
                 if (dstask.isDelete()) {
-                    ReplicateWork work = new ReplicateWork() {
-                        public boolean replicate() {
-                            return m_replicationManager.removeEntity(entity);
-                        }
-                    };
-                    doWithJob(DATA_REPLICATION_OF + entity.getName(), work);
+                    m_replicationManager.removeEntity(entity);
                 } else {
-                    ReplicateWork work = new ReplicateWork() {
-                        public boolean replicate() {
-                            return m_replicationManager.replicateEntity(entity);
-                        }
-                    };
-                    doWithJob(DATA_REPLICATION_OF + entity.getName(), work);
+                    m_replicationManager.replicateEntity(entity);
+                }
+                }catch(Exception e) {
+                    exc = e;
+                    success = false;
                 }
                 taskToRemove = task;
             }
         }
-        m_tasks.remove(taskToRemove);
+        m_tasks.remove(taskToRemove); //think clear is more appropriate
+        if (!success) {
+            m_tasks.clear();
+            throw new RuntimeException(exc);
+        }
     }
 
 }
