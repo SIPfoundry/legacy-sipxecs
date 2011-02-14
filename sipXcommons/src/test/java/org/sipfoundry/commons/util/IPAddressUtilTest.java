@@ -68,4 +68,10 @@ public class IPAddressUtilTest extends TestCase {
        }
    }
 
+   public void testSubnetValidator() {
+       assertEquals(false, IPAddressUtil.isLiteralIPSubnetAddress("10.1.8.56"));
+       assertEquals(false, IPAddressUtil.isLiteralIPSubnetAddress("10.1.8.56/999"));
+       assertEquals(true, IPAddressUtil.isLiteralIPSubnetAddress("10.1.1.10/24"));
+   }
+
 }
