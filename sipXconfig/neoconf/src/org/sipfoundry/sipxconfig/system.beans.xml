@@ -202,7 +202,6 @@
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="indexer" ref="fastIndexer" />
     <property name="beanIndexHelper" ref="beanIndexHelper"/>
-    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl"/>
   </bean>
   <!--
     - Use this instead of 'hibernateInterceptor' when you want to

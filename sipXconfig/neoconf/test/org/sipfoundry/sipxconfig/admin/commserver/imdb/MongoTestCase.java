@@ -23,6 +23,7 @@ public class MongoTestCase extends TestCase {
     private Mongo m_mongoInstance;
     private static DBCollection m_collection;
     public final static String DBNAME = "imdb";
+    public final static String COLL_NAME = "entity";
     public final static String DOMAIN = "mydomain.org";
     private CoreContext m_coreContext;
     private DomainManager m_dm;
@@ -33,8 +34,9 @@ public class MongoTestCase extends TestCase {
         if (m_mongoInstance == null) {
             m_mongoInstance = new Mongo(m_host, m_port);
         }
+        m_mongoInstance.dropDatabase(DBNAME);
         DB datasetDb = m_mongoInstance.getDB(DBNAME);
-        m_collection = datasetDb.getCollection(DOMAIN);
+        m_collection = datasetDb.getCollection(COLL_NAME);
 
         m_coreContext = createMock(CoreContext.class);
         m_coreContext.getDomainName();
@@ -81,7 +83,7 @@ public class MongoTestCase extends TestCase {
         
     }
     
-    static void assertObjectWithIdFieldValuePresent(String id, String field, String value) {
+    static void assertObjectWithIdFieldValuePresent(String id, String field, Object value) {
         DBObject ref = new BasicDBObject();
         ref.put("id", id);
         ref.put(field, value);

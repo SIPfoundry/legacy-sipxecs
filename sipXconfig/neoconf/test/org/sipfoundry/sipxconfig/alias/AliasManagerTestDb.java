@@ -64,7 +64,7 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
         TestHelper.cleanInsertFlat("alias/AliasSeed.xml");
 
         // Test a new bean with no alias conflicts
-        User user = new User();
+        User user = m_coreContext.newUser();
         String alias = "harriet";
         user.setUserName(alias);
         assertTrue(m_aliasManager.canObjectUseAlias(user, alias));
@@ -74,7 +74,7 @@ public class AliasManagerTestDb extends SipxDatabaseTestCase {
         assertTrue(m_aliasManager.canObjectUseAlias(user, alias));
 
         // Test a new bean trying to use an alias that has already been claimed
-        user = new User();
+        user = m_coreContext.newUser();;
         alias = "alpha";
         user.setUserName(alias);
         assertFalse(m_aliasManager.canObjectUseAlias(user, alias));

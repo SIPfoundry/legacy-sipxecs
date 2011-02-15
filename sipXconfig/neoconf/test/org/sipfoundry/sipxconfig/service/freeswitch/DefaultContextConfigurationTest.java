@@ -159,4 +159,5 @@ public class DefaultContextConfigurationTest extends SipxServiceTestBase {
         assertCorrectFileGeneration(m_configuration, "default_context_freeswitch_extensions.test.xml");
         verify(m_freeswitchExtensionCollector);
     }
+   
 }

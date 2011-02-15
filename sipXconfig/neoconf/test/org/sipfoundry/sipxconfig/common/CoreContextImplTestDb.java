@@ -24,7 +24,9 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phonebook.Address;
@@ -39,12 +41,14 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
 
     private CoreContext m_core;
     private SettingDao m_settingDao;
+    private PermissionManager m_permissionManager;
 
     @Override
     protected void setUp() throws Exception {
         ApplicationContext app = TestHelper.getApplicationContext();
         m_core = (CoreContext) app.getBean(CoreContext.CONTEXT_BEAN_NAME);
         m_settingDao = (SettingDao) app.getBean(SettingDao.CONTEXT_NAME);
+        m_permissionManager = (PermissionManager) app.getBean(PermissionManager.CONTEXT_BEAN_NAME);
         TestHelper.cleanInsert("ClearDb.xml");
     }
 
@@ -113,7 +117,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
         final String UNIQUE_NAME = "uniqueNameThatDoesntExistInTheUniverseOrBeyond";
 
         // Check that a user with a unique name won't collide with any existing users
-        User user = new User();
+        User user = m_core.newUser();
         user.setUserName(UNIQUE_NAME);
         assertNull(m_core.checkForDuplicateNameOrAlias(user));
 
@@ -152,7 +156,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testSearchByUserName() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 
-        User template = new User();
+        User template = m_core.newUser();;
         template.setUserName("userseed");
         List users = m_core.loadUserByTemplateUser(template);
 
@@ -162,7 +166,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testSearchByAlias() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 
-        User template = new User();
+        User template = m_core.newUser();;
         template.setUserName("two");
         List users = m_core.loadUserByTemplateUser(template);
         assertEquals(1, users.size());
@@ -173,7 +177,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testSearchByFirstName() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 
-        User template = new User();
+        User template = m_core.newUser();;
         template.setFirstName("user4");
         List users = m_core.loadUserByTemplateUser(template);
         assertEquals(1, users.size());
@@ -184,7 +188,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testSearchByLastName() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 
-        User template = new User();
+        User template = m_core.newUser();;
         template.setLastName("seed5");
         List users = m_core.loadUserByTemplateUser(template);
         assertEquals(1, users.size());
@@ -198,7 +202,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testSearchByFirstAndLastName() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 
-        User template = new User();
+        User template = m_core.newUser();;
         template.setFirstName("user4");
         template.setLastName("seed5");
         List users = m_core.loadUserByTemplateUser(template);
@@ -208,7 +212,7 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testSearchFormBlank() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 
-        User template = new User();
+        User template = m_core.newUser();;
         template.setFirstName("");
         List users = m_core.loadUserByTemplateUser(template);
 
@@ -470,18 +474,18 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     public void testCheckForValidExtensions() throws Exception {
         TestHelper.insertFlat("common/UserSearchSeed.xml");
 
-        PermissionManagerImpl pm = new PermissionManagerImpl();
-        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+        //PermissionManagerImpl pm = new PermissionManagerImpl();
+        //m_permissionManager.setModelFilesContext(TestHelper.getModelFilesContext());
 
         User user = m_core.loadUserByAlias("2");
         assertNotNull(user);
-        user.setPermissionManager(pm);
+        user.setPermissionManager(m_permissionManager);
         user.setPermission(PermissionName.VOICEMAIL, false);
         m_core.saveUser(user);
 
         user = m_core.loadUserByAlias("3");
         assertNotNull(user);
-        user.setPermissionManager(pm);
+        user.setPermissionManager(m_permissionManager);
         user.setPermission(PermissionName.VOICEMAIL, true);
         m_core.saveUser(user);
 

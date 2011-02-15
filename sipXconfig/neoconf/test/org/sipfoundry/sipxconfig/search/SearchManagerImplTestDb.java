@@ -43,7 +43,7 @@ public class SearchManagerImplTestDb extends TestCase {
     }
 
     public void testSearch() throws Exception {
-        User user = new User();
+        User user = m_coreContext.newUser();
         user.setFirstName("fIrst");
         user.setLastName("last");
         user.setUserName("boNGo");
@@ -110,7 +110,7 @@ public class SearchManagerImplTestDb extends TestCase {
     }
 
     public void testSearchByClass() throws Exception {
-        User user = new User();
+        User user =  m_coreContext.newUser();
         user.setFirstName("first");
         user.setLastName("last");
         user.setUserName("bongo");
@@ -133,7 +133,7 @@ public class SearchManagerImplTestDb extends TestCase {
     }
 
     public void testSearchIdent() throws Exception {
-        User user = new User();
+        User user =  m_coreContext.newUser();
         user.setFirstName("first");
         user.setLastName("last");
         user.setUserName("bongo");
@@ -152,7 +152,7 @@ public class SearchManagerImplTestDb extends TestCase {
         };
 
         for (int i = 0; i < names.length; i++) {
-            User user = new User();
+            User user =  m_coreContext.newUser();
             user.setFirstName("first");
             user.setLastName("last");
             user.setUserName(names[i]);
@@ -216,7 +216,7 @@ public class SearchManagerImplTestDb extends TestCase {
         };
 
         for (int i = 0; i < names.length; i++) {
-            User user = new User();
+            User user = m_coreContext.newUser();
             user.setFirstName(firstNames[i]);
             user.setLastName(lastNames[i]);
             user.setUserName(names[i]);
@@ -260,7 +260,7 @@ public class SearchManagerImplTestDb extends TestCase {
     }
 
     public void testOutdatedIndex() throws Exception {
-        User user = new User();
+        User user =  m_coreContext.newUser();
         user.setFirstName("first");
         user.setLastName("last");
         user.setUserName("bongo");

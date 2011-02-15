@@ -27,7 +27,7 @@ import org.sipfoundry.sipxconfig.common.User;
  * CallSequence
  */
 public class CallSequence extends AbstractCallSequence implements Replicable {
-    private static final String CALL_FWD_TIMER_SETTING = "callfwd/timer";
+    public static final String CALL_FWD_TIMER_SETTING = "callfwd/timer";
 
     private User m_user;
     private boolean m_withVoicemail;

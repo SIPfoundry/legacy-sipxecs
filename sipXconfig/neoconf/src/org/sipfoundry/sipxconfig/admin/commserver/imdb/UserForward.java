@@ -12,26 +12,18 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import com.mongodb.DBObject;
 
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
-import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class UserForward extends DataSetGenerator {
     public static final String CFWDTIME = "cfwdtm";
-    private ForwardingContext m_forwardingContext;
 
     @Override
     protected DataSet getType() {
         return DataSet.USER_FORWARD;
-    }
-
-    @Required
-    public void setForwardingContext(ForwardingContext forwardingContext) {
-        m_forwardingContext = forwardingContext;
     }
 
     public void generate(Replicable entity) {
@@ -47,8 +39,7 @@ public class UserForward extends DataSetGenerator {
 
     private void generateUser(User user) {
         DBObject top = findOrCreate(user);
-        CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
-        top.put(CFWDTIME, Integer.toString(cs.getCfwdTime()));
+        top.put(CFWDTIME, user.getSettingTypedValue(CallSequence.CALL_FWD_TIMER_SETTING));
         getDbCollection().save(top);
     }
 

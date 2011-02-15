@@ -46,6 +46,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final int PORT = 27017;
     private static final String DB_NAME = "imdb";
     private static final String DB_COLLECTION_NAME = "entity";
+    private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
     private Mongo m_mongoInstance;
 
     private boolean m_enabled = true;
@@ -61,7 +62,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 m_mongoInstance = new Mongo(HOST, PORT);
             } catch (Exception e) {
                 LOG.error("Unable to open mongo connection on: " + HOST + ":" + PORT);
-                throw(e);
+                throw (e);
             }
         }
     }
@@ -87,11 +88,10 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         datasetCollection.drop();
     }
 
-    private boolean replicateData(DataSetGenerator generator) {
+    private void replicateData(DataSetGenerator generator) throws Exception {
         if (!m_enabled) {
-            return true;
+            return;
         }
-        boolean success = true;
         DataSet type = generator.getType();
         try {
             initMongo();
@@ -99,20 +99,18 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             DBCollection datasetCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
             generator.setDbCollection(datasetCollection);
             generator.generate();
-            m_auditLogContext.logReplication(type.getName(), m_locationsManager.getPrimaryLocation());
+            LOG.info("Data replication: " + type.getName());
         } catch (Exception e) {
-            success = false;
-            //LOG.error("Data replication failed: " + type.getName(), e);
-            throw new UserException("Data replication failed: " + type.getName(), e);
+            LOG.error("Data replication failed: " + type.getName(), e);
+            throw (e);
         }
-        return success;
     }
 
     @Override
     public boolean replicateAllData() {
         boolean success = true;
         try {
-            dropDb(); //this calls initMongo()
+            dropDb(); // this calls initMongo()
             for (DataSet dataSet : DataSet.getEnumList()) {
                 String beanName = dataSet.getBeanName();
                 final DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
@@ -122,6 +120,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         } catch (Exception e) {
             success = false;
             LOG.error("Regeneration of database failed", e);
+            throw new UserException(e);
         }
         return success;
     }
@@ -144,8 +143,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             LOG.info("Replication: inserted/updated " + entity.getName());
         } catch (Exception e) {
             success = false;
-            LOG.error("Replication: insert/update failed - " + entity.getName(), e);
-            throw new UserException("Replication: insert/update failed - " + entity.getName(), e);
+            LOG.error(REPLICATION_FAILED + entity.getName(), e);
+            throw new UserException(REPLICATION_FAILED + entity.getName(), e);
         }
         return success;
     }

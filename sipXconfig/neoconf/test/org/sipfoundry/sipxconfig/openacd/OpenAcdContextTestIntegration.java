@@ -37,6 +37,7 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
+import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfigurationTest;
@@ -50,11 +51,25 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
     public void testOpenAcdLineCrud() throws Exception {
         loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("domain/DomainSeed.xml");
         Location location = m_locationsManager.getLocation(101);
+        SipxFreeswitchService fs = org.easymock.classextension.EasyMock.createMock(SipxFreeswitchService.class);
+        fs.getAddress();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
+        fs.getFreeswitchSipPort();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
 
+        SipxServiceManager sm = EasyMock.createMock(SipxServiceManager.class);
+        sm.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(fs).anyTimes();
+        
+        EasyMock.replay(sm);
+        org.easymock.classextension.EasyMock.replay(fs);
+        
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
         OpenAcdLine extension = DefaultContextConfigurationTest.createOpenAcdLine("example");
+        extension.setSipxServiceManager(sm);
         extension.setLocation(location);
         m_openAcdContextImpl.saveExtension(extension);
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
@@ -124,7 +139,20 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
     public void testOpenAcdCommandCrud() throws Exception {
         loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("domain/DomainSeed.xml");
         Location location = m_locationsManager.getLocation(101);
+        SipxFreeswitchService fs = org.easymock.classextension.EasyMock.createMock(SipxFreeswitchService.class);
+        fs.getAddress();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn("1111111").anyTimes();
+        fs.getFreeswitchSipPort();
+        org.easymock.classextension.EasyMock.expectLastCall().andReturn(22).anyTimes();
+
+        SipxServiceManager sm = EasyMock.createMock(SipxServiceManager.class);
+        sm.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+        EasyMock.expectLastCall().andReturn(fs).anyTimes();
+        
+        EasyMock.replay(sm);
+        org.easymock.classextension.EasyMock.replay(fs);
 
         // test save open acd extension
         assertEquals(0, m_openAcdContextImpl.getFreeswitchExtensions().size());
@@ -136,6 +164,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         fscondition.getActions().addAll((OpenAcdCommand.getDefaultActions(location)));
         command.addCondition(fscondition);
         command.setLocation(location);
+        command.setSipxServiceManager(sm);
         m_openAcdContextImpl.saveExtension(command);
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
 
@@ -218,10 +247,11 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertFalse(m_openAcdContextImpl.isAliasInUse("test"));
         assertTrue(m_openAcdContextImpl.isAliasInUse("sales"));
         assertTrue(m_openAcdContextImpl.isAliasInUse("300"));
-        
+
         m_openAcdContextImpl.setCoreContext(m_coreContext);
 
-        Collection<AliasMapping> mappings = (List<AliasMapping>) m_openAcdContextImpl.getAliasMappings().get(extension);
+        Collection<AliasMapping> mappings = (List<AliasMapping>) m_openAcdContextImpl.getAliasMappings().get(
+                extension);
         assertEquals(2, mappings.size());
         Iterator<AliasMapping> iter = mappings.iterator();
         AliasMapping mapping = iter.next();
@@ -809,4 +839,5 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             return 50;
         }
     }
+
 }

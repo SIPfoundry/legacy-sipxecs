@@ -17,20 +17,20 @@ import static org.easymock.EasyMock.verify;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.codec.binary.Base64;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
+import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContextImpl;
+import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.device.InMemoryConfiguration;
 import org.sipfoundry.sipxconfig.test.TestUtil;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.springframework.beans.factory.BeanFactory;
 
-public class ReplicationManagerImplTest extends TestCase {
+public class ReplicationManagerImplTest extends MongoTestCase {
 
     private static final Location[] LOCATIONS = new Location[] {
         new Location(), new Location()
@@ -40,7 +40,8 @@ public class ReplicationManagerImplTest extends TestCase {
     private ReplicationManagerImpl m_out;
 
     @Override
-    public void setUp() {
+    public void setUp() throws Exception {
+        super.setUp();
         m_locationsManager = TestUtil.getMockLocationsManager();
 
         m_out = new ReplicationManagerImpl();
@@ -76,7 +77,11 @@ public class ReplicationManagerImplTest extends TestCase {
     }
 
     public void testReplicateData() {
-        DataSetGenerator dsg = new Aliases();
+        Aliases dsg = new Aliases();
+        AliasProvider prov = createMock(AliasProvider.class);
+        prov.getAliasMappings();
+        expectLastCall().andReturn(Collections.EMPTY_MAP).anyTimes();
+        dsg.setAliasProvider(prov);
 
         BeanFactory factory = createMock(BeanFactory.class);
         for (DataSet dataSet : DataSet.getEnumList()) {
@@ -84,7 +89,7 @@ public class ReplicationManagerImplTest extends TestCase {
             factory.getBean(beanName, DataSetGenerator.class);
             expectLastCall().andReturn(dsg).anyTimes();
         }
-        replay(factory);
+        replay(prov, factory);
         m_out.setBeanFactory(factory);
         m_out.replicateAllData();
 
@@ -97,14 +102,27 @@ public class ReplicationManagerImplTest extends TestCase {
         expectLastCall().andReturn(Collections.singleton(DataSet.ALIAS)).atLeastOnce();
         entity.getName();// it actually will get into the error block
         expectLastCall().andReturn("blahblah").atLeastOnce();
+        entity.getAliasMappings("domain.org");
+        expectLastCall().andReturn(Collections.EMPTY_MAP);
+        entity.getIdentity("domain.org");
+        expectLastCall().andReturn("User1").anyTimes();
 
-        DataSetGenerator dsg = new Aliases();
+        Aliases dsg = new Aliases();
+        AliasProvider prov = createMock(AliasProvider.class);
+        prov.getAliasMappings();
+        expectLastCall().andReturn(Collections.EMPTY_MAP).anyTimes();
+        dsg.setAliasProvider(prov);
+
+        CoreContext cc = createMock(CoreContext.class);
+        cc.getDomainName();
+        expectLastCall().andReturn("domain.org").anyTimes();
+        dsg.setCoreContext(cc);
 
         BeanFactory factory = createMock(BeanFactory.class);
         String beanName = DataSet.ALIAS.getBeanName();
         factory.getBean(beanName, DataSetGenerator.class);
         expectLastCall().andReturn(dsg).anyTimes();
-        replay(factory, entity);
+        replay(factory, entity, prov, cc);
         m_out.setBeanFactory(factory);
         m_out.replicateEntity(entity);
 

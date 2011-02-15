@@ -397,15 +397,15 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testAddUsersToQueue() throws Exception {
-        User testUser1 = new User();
+        User testUser1 = m_coreContext.newUser();
         testUser1.setUserName("testUser1");
         m_coreContext.saveUser(testUser1);
 
-        User testUser2 = new User();
+        User testUser2 = m_coreContext.newUser();
         testUser2.setUserName("testUser2");
         m_coreContext.saveUser(testUser2);
 
-        User testUser3 = new User();
+        User testUser3 = m_coreContext.newUser();
         testUser3.setUserName("testUser3");
         m_coreContext.saveUser(testUser3);
 

@@ -15,7 +15,6 @@ import java.util.List;
 
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
-import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
@@ -70,7 +69,7 @@ public class UserCallForwardTest extends MongoTestCase {
         replay(m_permManager, dm);
 
         m_users = new ArrayList<User>();
-        m_cs = new ArrayList<CallSequence>();
+        //m_cs = new ArrayList<CallSequence>();
         for (String[] ud : USER_DATA) {
             User user = new User();
             user.setPermissionManager(m_permManager);
@@ -78,14 +77,15 @@ public class UserCallForwardTest extends MongoTestCase {
             user.setFirstName(ud[1]);
             user.setLastName(ud[2]);
             user.setUserName(ud[3]);
+            user.setSettingTypedValue(CallSequence.CALL_FWD_TIMER_SETTING, ud[4]);
             user.setDomainManager(dm);
             m_users.add(user);
 
-            CallSequence cs = new CallSequence();
-            cs.setUser(user);
-            cs.setCfwdTime(Integer.valueOf(ud[4]));
+            //CallSequence cs = new CallSequence();
+            //cs.setUser(user);
+            //cs.setCfwdTime(Integer.valueOf(ud[4]));
 
-            m_cs.add(cs);
+            //m_cs.add(cs);
         }
         // add user with un-set value for cfwd timer - it is supposed to generate the default one
         // for this user(54)
@@ -93,9 +93,9 @@ public class UserCallForwardTest extends MongoTestCase {
         user.setDomainManager(dm);
         user.setUniqueId(4);
         m_users.add(user);
-        CallSequence cs = new CallSequence();
-        cs.setUser(user);
-        m_cs.add(cs);
+        //CallSequence cs = new CallSequence();
+        //cs.setUser(user);
+        //m_cs.add(cs);
 
     }
 
@@ -128,22 +128,16 @@ public class UserCallForwardTest extends MongoTestCase {
         CoreContext coreContext = getCoreContext();
         coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
         expectLastCall().andReturn(m_users);
-        ForwardingContext forwardingContext = createMock(ForwardingContext.class);
-        for (int i = 0; i < m_users.size(); i++) {
-            forwardingContext.getCallSequenceForUser(m_users.get(i));
-            expectLastCall().andReturn(m_cs.get(i));
-        }
 
         uf.setCoreContext(coreContext);
-        uf.setForwardingContext(forwardingContext);
         uf.setDbCollection(getCollection());
-        replay(coreContext, forwardingContext);
+        replay(coreContext);
         uf.generate();
         assertCollectionCount(4);
 
-        assertObjectWithIdFieldValuePresent("User1", UserForward.CFWDTIME, USER_DATA[0][4]);
-        assertObjectWithIdFieldValuePresent("User2", UserForward.CFWDTIME, USER_DATA[1][4]);
-        assertObjectWithIdFieldValuePresent("User3", UserForward.CFWDTIME, USER_DATA[2][4]);
-        assertObjectWithIdFieldValuePresent("User4", UserForward.CFWDTIME, "54");
+        assertObjectWithIdFieldValuePresent("User1", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[0][4]));
+        assertObjectWithIdFieldValuePresent("User2", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[1][4]));
+        assertObjectWithIdFieldValuePresent("User3", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[2][4]));
+        assertObjectWithIdFieldValuePresent("User4", UserForward.CFWDTIME, 54);
     }
 }

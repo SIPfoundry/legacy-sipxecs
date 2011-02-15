@@ -37,41 +37,41 @@ public class UserSearchManagerImplTestDb extends TestCase {
 
 
     public void testSearchEmpty() throws Exception {
-        User user = new User();
+        User user = m_coreContext.newUser();;
         user.setFirstName("first");
         user.setLastName("last");
         user.setUserName("bongo");
 
         m_coreContext.saveUser(user);
 
-        User template = new User();
+        User template =  m_coreContext.newUser();
         Collection collection = m_userSearch.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));
     }
 
     public void testSearchFirstName() throws Exception {
-        User user = new User();
+        User user = m_coreContext.newUser();;
         user.setFirstName("first");
         user.setLastName("last");
         user.setUserName("bongo");
 
         m_coreContext.saveUser(user);
 
-        User template = new User();
+        User template = m_coreContext.newUser();;
 
         template.setFirstName("first");
         Collection collection = m_userSearch.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));
 
-        template = new User();
+        template = m_coreContext.newUser();;
         template.setUserName("bon");
         collection = m_userSearch.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));
 
-        template = new User();
+        template = m_coreContext.newUser();;
         template.setUserName("bOn");
         collection = m_userSearch.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
@@ -86,7 +86,7 @@ public class UserSearchManagerImplTestDb extends TestCase {
     }
 
     public void testAliases() {
-        User user = new User();
+        User user = m_coreContext.newUser();;
         user.setFirstName("First");
         user.setLastName("Last");
         user.setUserName("bongo");
@@ -94,13 +94,13 @@ public class UserSearchManagerImplTestDb extends TestCase {
         user.setAliasesString("aaA, bcd");
         m_coreContext.saveUser(user);
 
-        User template = new User();
+        User template = m_coreContext.newUser();;
         template.setUserName("aaa");
         Collection collection = m_userSearch.search(template, 0, -1, m_identityToBean);
         assertEquals(1, collection.size());
         assertTrue(collection.contains(user));
 
-        template = new User();
+        template = m_coreContext.newUser();;
         template.setUserName("aaa");
         template.setLastName("kuku");
         collection = m_userSearch.search(template, 0, -1, m_identityToBean);

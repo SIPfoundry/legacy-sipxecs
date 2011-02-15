@@ -90,10 +90,6 @@
     <lookup-method name="getServiceConfigurator" bean="serviceConfigurator"/>
   </bean>
 
-  <bean id="springHibernateInstantiator" class="org.sipfoundry.sipxconfig.common.SpringHibernateInstantiator">
-    <property name="sipxReplicationContext" ref="sipxReplicationContextImpl" />
-  </bean>
-
   <bean id="sipxReplicationContextDao"
     class="org.springframework.aop.framework.ProxyFactoryBean">
     <property name="interceptorNames">
@@ -211,7 +207,6 @@
   </bean>
   <bean id="userforwardDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserForward">
-    <property name="forwardingContext" ref="forwardingContext" />
   </bean>
   <bean id="userstaticDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserStatic">

@@ -115,8 +115,10 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
         assertEquals(100, user.getInheritedBranch().getId().intValue());
     }
 
-    public void testTrimUserValues() {
-        User user = new User();
+    public void testTrimUserValues() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
+        User user = m_coreContext.newUser();
+        
         user.setFirstName("First  ");
         user.setLastName("  Last");
         user.setUserName(" username ");
@@ -137,4 +139,5 @@ public class CoreContextImplTestIntegration extends IntegrationTestCase {
     public void setBranchManager(BranchManager branchManager) {
         m_branchManager = branchManager;
     }
+
 }
