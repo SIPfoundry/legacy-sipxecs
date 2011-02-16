@@ -28,6 +28,8 @@
 	<baseDN>dc=example,dc=com</baseDN>
 	<adminDN>cn=Directory Manager</adminDN>
 	<adminPassword>secret</adminPassword>
+	<usernameField>uid</usernameField>
+	<searchFilter>(objectclass=person)</searchFilter>
   </ldap>
   <provider>
     <auth>

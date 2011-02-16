@@ -7,14 +7,15 @@ SRC = $(abspath @srcdir@)
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PACKAGE_REVISION := $(shell $(SRC)/config/revision-gen @PACKAGE_VERSION@)
 
-help-var.DISTRO=To run a command for a different target distro. Default: $(DISTRO). Examples: fedora centos suse
+help-var.DISTRO=To run a command for a different target distro. Default: $(DISTRO). Complete list of available values: @ALL_DISTROS@
 DISTRO=@DISTRO@
 
-help-var.DISTRO_VER=To run a command for a different target version. Default: $(DISTRO_VER).
-DISTRO_VER=@DISTRO_VER@
-
-help-var.DISTRO_ARCH=To run a command for a different target version. Default: $(DISTRO_ARCH).
-DISTRO_ARCH=@DISTRO_ARCH@
+DISTRO_OS = $(word 1,$(subst -, ,$(DISTRO)))
+DISTRO_VER = $(word 2,$(subst -, ,$(DISTRO)))
+DISTRO_ARCH = $(word 3,$(subst -, ,$(DISTRO)))
+DISTRO_RESULTS_DIR = $(strip \
+        $(subst fedora,Fedora, \
+        $(subst centos,CentOS,$(DISTRO_OS)))_$(DISTRO_VER))
 
 lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 
@@ -22,13 +23,22 @@ lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 PROJ =  $(filter $(all),$(subst ., ,$@))
 proj = $(call lowercase,$(PROJ))
 
-# lists all the items in the list inclusive after given item
+# find any matches of $(sipx) or $(lib) anywhere in a target string and expands it into multiple target that
+# would follow the given target.  
+# example:  foo.B.bar...  becomes  'foo.B.bar foo.C.bar'   when list is 'A B C'
 after = $(shell echo $2 | sed 's|\(.*\)\($1.*\)|\2|g')
+..._sipx_target = $(strip $(foreach Z,$(sipx),$(findstring $(Z), $@)))
+..._sipx_list = $(call after,$(..._sipx_target),$(sipx))
+..._sipx_expanded = $(foreach T,$(..._sipx_list),$(subst $(..._sipx_target),$(T),$*))
+..._lib_target = $(strip $(foreach Z,$(lib),$(findstring $(Z), $@)))
+..._lib_list = $(call after,$(..._lib_target),$(lib))
+..._lib_expanded = $(foreach T,$(..._lib_list),$(subst $(..._lib_target),$(T),$*))
 
 default-first-target : help;
 
 sipx.% :
 	$(MAKE) $(foreach P,$(sipx),$(P).$*)
+
 lib.% :
 	$(MAKE) $(foreach P,$(lib),$(P).$*)
 
@@ -38,38 +48,25 @@ lib.list sipx.list : %.list :
 
 include $(sort $(wildcard mak/*.mk))
 
-help.*...=Do given target all the project after the given project, inclusive. e.g. 'make sipXconfig.check...' or 'make sipXconfig...'
-$(foreach T,$(sipx),$(T).%...) :
-	$(MAKE) $(foreach T,$(call after,$(PROJ),$(sipx)),$(T).$*)
+help.*{1|2}*... = Perform all targets would normally follow the given target in addition to the target itself. Very useful when you want to pick-up the build where it last stopped. For example 'make sipXthree...' would expand to 'make sipXthree sipXfour sipXfive' but it would not include 'make sipXone sipXtwo'. You can use the ... pattern anywhere you a specify a package name. Examples: 'make sipXconfig.rpm...', 'make xc.centos-5-i386.OpenACD.rpm...'.  See 'make sipx.list lib.list' for what the natural order of packages.
+%... :
+	$(MAKE) $(..._sipx_expanded) $(..._lib_expanded)
 
-$(foreach T,$(lib),$(T).%...) :
-	$(MAKE) $(foreach T,$(call after,$(PROJ),$(lib)),$(T).$*)
+help-values.{1} = Any sipXecs package. For all sipXecs packages use 'sipx'. Complete list of sipXecs packages : $(sipx)
+help-values.{2} = Any dependency package. For all dependencies use 'lib'.  Complete list of dependencies : $(lib)
 
 .PHONY: help
 help:
-	@echo "$$help_header"
+	@echo -e "\nCOMMON TARGETS\n==================="
 	@$(MAKE) --no-print-directory -s help.print
-	@echo "$$help_var_header"
+	@echo -e "\nALLOWED VALUES\n==================="
+	@$(MAKE) --no-print-directory -s help-values.print
+	@echo -e "\nSPECIAL VARIABLES\n==================="
 	@$(MAKE) --no-print-directory -s help-var.print
 
-help.print help-var.print: %.print :
+help-values.print help.print help-var.print: %.print :
 	@$(foreach H,$(filter $*.%,$(sort $(.VARIABLES))), \
 	  echo "$$format_help" | Label="$(H:$*.%=%)" Text="$($(H))" bash;)
-
-define help_header
-
-COMMON TARGETS
-===============
-endef
-export help_header
-
-define help_var_header
-
-SPECIAL VARIABLES
-==================
-endef
-export help_var_header
-
 
 define format_help
 MARGIN=18

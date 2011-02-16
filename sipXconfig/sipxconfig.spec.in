@@ -71,6 +71,15 @@ Requires: java-fonts >= 1.6
 Requires: java-ibm-unrestricted
 %endif
 
+# jasperreports
+Requires: fontconfig
+
+%if %{_vendor} == redhat && 0%{?fedora} <= 6
+Requires: bitstream-vera-fonts
+%else
+Requires: bitstream-vera-sans-fonts
+%endif
+
 %if %{_vendor} == redhat
 # only used to serve phone profiles under http devices
 Requires: httpd >= 2.0
@@ -298,6 +307,9 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{sipxpbxconf}/commserver
 %{sipxpbxconf}/commserver/*
 %dir %{sipxpbxconf}/freeswitch
+%dir %{sipxpbxconf}/freeswitch/conf
+%dir %{sipxpbxconf}/freeswitch/conf/sip_profiles
+%dir %{sipxpbxconf}/freeswitch/conf/dialplan
 %config(noreplace) %{sipxpbxconf}/freeswitch/*
 %config(noreplace) %{sipxpbxconf}/database/*
 %dir %{sipxpbxconf}/region_*

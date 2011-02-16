@@ -53,6 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libexecdir}/sipXecs
 %dir %{_libexecdir}/sipXecs/setup.d
 %attr(755,root,root) %{_libexecdir}/sipXecs/setup.d/freeswitch_setup.sh
+%{_sysconfdir}/sipxpbx/freeswitch/conf
 
 %post
 freeswitch.sh --config

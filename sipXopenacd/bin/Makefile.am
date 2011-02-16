@@ -14,10 +14,14 @@ bin_SCRIPTS = \
 
 bin_SOURCE = \
 	sipxopenacd.in \
+	sipxopenacd-setup.in \
 	find-erlang-lib
 
-LOCALIZE_TARGETS = \
-	$(bin_SCRIPTS)
+sipxopenacd_setupdir = \
+	$(SIPX_LIBEXECDIR)/setup.d
 
-sipxopenacd :
+sipxopenacd_setup_SCRIPTS = \
+	sipxopenacd-setup
+
+sipxopenacd sipxopenacd-setup : % : %.in
 	@sed $(LOCALIZE) $(srcdir)/$@.in > $@

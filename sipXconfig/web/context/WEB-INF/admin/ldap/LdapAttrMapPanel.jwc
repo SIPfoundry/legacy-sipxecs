@@ -60,6 +60,7 @@
   <component id="firstNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.firstName" />
     <binding name="label" value="message:label.firstName" />
+    <binding name="description" value="message:description.firstName" />
   </component>
   <component id="firstName" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['firstName']" />
@@ -70,6 +71,7 @@
   <component id="lastNamePanel" type="common/FieldPanel">
     <binding name="field" value="components.lastName" />
     <binding name="label" value="message:label.lastName" />
+    <binding name="description" value="message:description.lastName" />
   </component>
   <component id="lastName" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['lastName']" />
@@ -91,7 +93,7 @@
   <component id="emailPanel" type="common/FieldPanel">
     <binding name="field" value="components.email" />
     <binding name="label" value="message:label.email" />
-    <binding name="description" value="message:description.alias" />
+    <binding name="description" value="message:description.email" />
   </component>
   <component id="email" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['emailAddress']" />
@@ -113,6 +115,7 @@
   <component id="pinPanel" type="common/FieldPanel">
     <binding name="field" value="components.pin" />
     <binding name="label" value="message:label.pin" />
+    <binding name="description" value="message:description.pin" />
   </component>
   <component id="pin" type="PropertySelection">
     <binding name="value" value="attrMap.attribute['pin']" />

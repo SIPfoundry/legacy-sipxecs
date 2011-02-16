@@ -36,8 +36,10 @@ import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycleImpl;
 import org.sipfoundry.sipxconfig.site.UserSession;
 import org.sipfoundry.sipxconfig.site.skin.SkinControl;
+import org.sipfoundry.sipxconfig.site.user.FirstUser;
 
 import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.expect;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
@@ -45,26 +47,44 @@ import static org.sipfoundry.sipxconfig.security.UserRole.Admin;
 import static org.sipfoundry.sipxconfig.security.UserRole.User;
 
 public class BorderTest extends TestCase {
+    IPage m_dummyPage;
+    IPage m_firstUserPage;
+    IRequestCycle m_requestCycle;
+
+    protected void setUp() throws Exception {
+        m_dummyPage = createMock(IPage.class);
+        m_firstUserPage = createMock(IPage.class);
+        m_requestCycle = createMock(IRequestCycle.class);
+
+        m_dummyPage.getRequestCycle();
+        expectLastCall().andReturn(m_requestCycle);
+        m_requestCycle.getPage(FirstUser.PAGE);
+        expectLastCall().andReturn(m_firstUserPage);
+        replay(m_dummyPage, m_requestCycle);
+    }
 
     public void testLogin() {
-        IPage dummyPage = EasyMock.createNiceControl().createMock(IPage.class);
         Border restricted = new MockBorder(true, true, new UserSession());
+        restricted.setPage(m_dummyPage);
+
         try {
-            restricted.pageValidate(new PageEvent(dummyPage, null));
+            restricted.pageValidate(new PageEvent(m_dummyPage, null));
             fail("should redirect");
         } catch (PageRedirectException e) {
             assertEquals("LoginPage", e.getTargetPageName());
         }
+
     }
 
     public void testLoginNotRequired() {
         Border nologin = new MockBorder(true, false, new UserSession());
+        nologin.setPage(m_dummyPage);
         nologin.pageValidate(null);
     }
 
     public void testRestricted() {
         Border restricted = new MockBorder(true, true, new MockUserSession(false));
-
+        restricted.setPage(m_dummyPage);
         try {
             restricted.pageValidate(null);
             fail("should redirect to login page");
@@ -75,7 +95,7 @@ public class BorderTest extends TestCase {
 
     public void testRestrictedAdmin() {
         Border restricted = new MockBorder(true, true, new MockUserSession(true));
-
+        restricted.setPage(m_dummyPage);
         try {
             restricted.pageValidate(null);
         } catch (PageRedirectException e) {
@@ -85,7 +105,7 @@ public class BorderTest extends TestCase {
 
     public void testUnrestricted() {
         Border unrestricted = new MockBorder(false, true, new MockUserSession(false));
-
+        unrestricted.setPage(m_dummyPage);
         try {
             unrestricted.pageValidate(null);
         } catch (PageRedirectException e) {
@@ -95,7 +115,7 @@ public class BorderTest extends TestCase {
 
     public void testUnrestrictedAdmin() {
         Border unrestricted = new MockBorder(false, true, new MockUserSession(true));
-
+        unrestricted.setPage(m_dummyPage);
         try {
             unrestricted.pageValidate(null);
         } catch (PageRedirectException e) {
@@ -298,6 +318,18 @@ public class BorderTest extends TestCase {
         @Override
         public void setInitialSessionId(String sessionId) {
             // TODO Auto-generated method stub
+        }
+
+        @Override
+        public boolean getHeaderDisplay() {
+            // TODO Auto-generated method stub
+            return false;
+        }
+
+        @Override
+        public boolean getFooterDisplay() {
+            // TODO Auto-generated method stub
+            return false;
         }
     }
 

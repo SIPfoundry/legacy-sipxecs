@@ -40,6 +40,7 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
 
     public abstract void setOpenAcdClientId(Integer id);
 
+    @Persist
     public abstract OpenAcdClient getOpenAcdClient();
 
     public abstract void setOpenAcdClient(OpenAcdClient client);
@@ -49,20 +50,24 @@ public abstract class EditOpenAcdClientPage extends PageWithCallback implements 
     public abstract void setIndex(int i);
 
     public void addClient(String returnPage) {
+        setOpenAcdClient(null);
         setOpenAcdClientId(null);
         setReturnPage(returnPage);
     }
 
     public void editClient(Integer clientId, String returnPage) {
         setOpenAcdClientId(clientId);
+        setOpenAcdClient(getOpenAcdContext().getClientById(getOpenAcdClientId()));
         setReturnPage(returnPage);
     }
 
     @Override
     public void pageBeginRender(PageEvent event) {
-        if (getOpenAcdClientId() != null) {
-            setOpenAcdClient(getOpenAcdContext().getClientById(getOpenAcdClientId()));
-        } else {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+
+        if (getOpenAcdClient() == null && getOpenAcdClientId() == null) {
             setOpenAcdClient(new OpenAcdClient());
         }
     }

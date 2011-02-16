@@ -1,18 +1,19 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
 # 
-help-var.MOCK_TARGET_PLATFORM = Mock template. Default is $(MOCK_TARGET_PLATFORM)
-MOCK_TARGET_PLATFORM = @MOCK_TARGET_PLATFORM@
+
+MOCK_CONFIG_DIR = mak/mock
+MOCK_TARGET_PLATFORM = $(DISTRO)
+
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
+
 # trick lets you create centos compatible repos from any other distro
 CREATEREPO_OPTS_centos = @BACKWARD_COMPATIBLE_CREATEREPO_OPTS_FOR_CENTOS@
-TARGET_PLATFORM = $(strip \
-	$(subst fedora,Fedora, \
-	$(subst centos,CentOS,$(DISTRO)))_$(DISTRO_VER))
-MOCK_RESULTS_DIR = @RPM_DIST_DIR@/$(TARGET_PLATFORM)/$(DISTRO_ARCH)
-MOCK_SRPM_DIR = @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source
+MOCK_RESULTS_DIR = @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/$(DISTRO_ARCH)
+MOCK_SRPM_DIR = @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
 
+# Define sipx SRPMS and tarball files. Cannot define RPM files however as they could be many
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
 $(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION).src.rpm))
 $(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION).tar.gz))
@@ -20,60 +21,33 @@ $(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-$(PAC
 # pull in dependency make fragments
 include $(SRC)/*/.sipxecs.mk
 
-help.*.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
-  http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
-$(foreach T,$(sipx) $(lib),$(T).rpm) : %.rpm : %.autoreconf %.configure %.dist %.srpm %.mock;
+# Allows to target other distros other than the default
+help-values.{3} = Any of the available distros identifiers. Complete list: all @ALL_DISTROS@
+help-values.{4} = Any rpm related target. Partial list : autoreconf dist rpm srpm rpm-check
+help-values.{5} = Any repo related target. Partial list : repo repo-clean repo-choot-init repo-check repo-create and more...
+help.distro.{3}.{1|2}.{4} = Build or operate on a package or set of packages for another distro other than $(DISTRO). 
+help.distro.{3}.{5} = Build or operate on repository for another distro other than $(DISTRO). 
+distro.% : SUB_DISTRO=$(word 2,$(subst ., ,$@))
+distro.% : SUBMAKE_VARS=DISTRO=$(SUB_DISTRO)
+distro.all.% :
+	$(foreach D,@ALL_DISTROS@,$(MAKE) distro.$(D).$*;)
 
-help.*.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target
-%.srpm :
-	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
-	if [ -n "$($(PROJ)_SPEC)" ]; then \
-	  $(foreach S,$($(PROJ)_SOURCES),$(call CopySourceFile,$(S),@RPMBUILD_TOPDIR@/SOURCES)) \
-	  rpmbuild -bs $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_SPEC); \
-	else \
-	  rpmbuild -ts $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR); \
-	fi
-	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
-	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
+$(foreach D,@ALL_DISTROS@,distro.$(D).%) :
+	$(MAKE) $* $(SUBMAKE_VARS)
+
+help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
+  http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
+$(foreach T,$(sipx) $(lib),$(T).rpm) : %.rpm : %.autoreconf %.configure %.dist %.srpm %.rpm-by-mock;
 
 CopySourceFile = \
 	if [ -f $1 ]; then \
 	  cp $1 $2; \
 	else \
 	  if [ ! -f @DOWNLOAD_LIB_CACHE@/$(notdir $1) ]; then \
-	    echo "@DOWNLOAD_LIB_CACHE@/$(notdir $1) does not exist" > foo; \
-	    curl -o @DOWNLOAD_LIB_CACHE@/$(notdir $1) @DOWNLOAD_LIB_URL@/$(notdir $1); \
+	    curl -f -o @DOWNLOAD_LIB_CACHE@/$(notdir $1) @DOWNLOAD_LIB_URL@/$(notdir $1); \
 	  fi ;\
 	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \
 	fi; \
-
-mock-init :
-	mock -r $(MOCK_TARGET_PLATFORM) --scrub=all
-	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
-	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
-	mock -r $(MOCK_TARGET_PLATFORM) --init
-
-mock-clean :
-	test ! -d $(MOCK_RESULTS_DIR) || \
-	  find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.rpm' -exec rm {} \;
-
-# TIP : you should have a webserver pointed at $(MOCK_RESULTS_DIR) to feed the results of build back into the chroot'ed system.
-# or explore mounting $(MOCK_RESULTS_DIR) from the chroot system.
-help.*.mock = Called automatically as part of rpm process after srpm target. Uses mock program to build rpm
-%.mock :
-	mock -r $(MOCK_TARGET_PLATFORM) \
-	  --no-clean \
-	  --no-cleanup-after \
-	  --resultdir=$(MOCK_RESULTS_DIR) \
-	  --rebuild \
-	  $($(PROJ)_RPM_DEFS) \
-	  $(MOCK_SRPM_DIR)/$($(PROJ)_SRPM)
-	find $(MOCK_RESULTS_DIR) -name '*.src.rpm' -exec rm {} \;
-# generate repo AFTER build because then it's usable as a repo to feed to next build or other systems.
-	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
-
-# Recursive delete of given directory if it exists. Then make a new directory.
-MakeFreshDirectory = test ! -d $1 || rm -rf $1; mkdir -p $1
 
 # creates a flat file database with format: {filename, package name, build date}, then sorts records by 
 # {package name,build date}. Once sorted, group by package name using uniq command. Once grouped, use filename, 
@@ -87,22 +61,71 @@ RemoveDuplicateRpms = \
 	  rm -v $$f; \
 	done
 
-help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(TARGET_PLATFORM)/source
-repo-src :
-	$(call RemoveDuplicateRpms, $(MOCK_SRPM_DIR))
-	cd $(MOCK_SRPM_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
+help.{1|2}.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target
+%.srpm :
+	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
+	if [ -n "$($(PROJ)_SPEC)" ]; then \
+	  $(foreach S,$($(PROJ)_SOURCES),$(call CopySourceFile,$(S),@RPMBUILD_TOPDIR@/SOURCES)) \
+	  rpmbuild -bs $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_SPEC); \
+	else \
+	  rpmbuild -ts $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR); \
+	fi
+	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
+	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)
 
-help.mock-check = Installs built sipXecs RPMs into fresh chroot to check for errors
-mock-check : mock-init
-	mock -r $(MOCK_TARGET_PLATFORM) --install sipxecs
-
-help.mock-remove-dups=If you have built RPMs multiple times between git updates, and therefore have older versions of a package, this will remove all older copies.
-mock-remove-dups:
-	$(call RemoveDuplicateRpms, $(MOCK_RESULTS_DIR))
-
-help.mock-make-repo = run createrepo on rpm list
-mock-make-repo:
+help.{1|2}.rpm-by-mock = Called automatically as part of rpm process after srpm target. Uses mock program to build rpm
+%.rpm-by-mock : repo-webserver
+	mock --configdir=$(MOCK_CONFIG_DIR) -r $(MOCK_TARGET_PLATFORM) \
+	  --no-clean \
+	  --no-cleanup-after \
+	  --resultdir=$(MOCK_RESULTS_DIR) \
+	  --rebuild \
+	  $($(PROJ)_RPM_DEFS) \
+	  $(MOCK_SRPM_DIR)/$($(PROJ)_SRPM)
+	find $(MOCK_RESULTS_DIR) -name '*.src.rpm' -exec rm {} \;
+# generate repo AFTER build because then it's usable as a repo to feed to next build or other systems.
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
 
-help.mock-finalize = Prepares repository for publishing or re-distributing in ISO by removing extra rpms and moving source rpms to separate directory.
-mock-finalize: repo-src mock-remove-dups mock-make-repo;
+help.repo-chroot-init = Clear mock chroot for $(DISTRO). Requied before first build and useful when you suspect caching is the result of a build error.
+repo-chroot-init : repo-webserver
+	mock --configdir=$(MOCK_CONFIG_DIR) -r $(MOCK_TARGET_PLATFORM) --scrub=all
+	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
+	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
+	mock --configdir=$(MOCK_CONFIG_DIR) -r $(MOCK_TARGET_PLATFORM) --init
+
+help.{1|2}.check-rpm = Install the project rpm in the mock environment to test install. This does not install all rpms generated by a project, just the main one.  You can install then pretty easily though with command 'mock -r $(MOCK_TARGET_PLATFORM) --install package-name'
+%.check-rpm : repo-webserver
+	mock --configdir=$(MOCK_CONFIG_DIR) -r $(MOCK_TARGET_PLATFORM) \
+	  --install $(proj)
+
+help.repo-clean = Delete all RPMs in $(MOCK_RESULTS_DIR) to ensure fresh build. Build knows how to delete previous build results but only if new RPM results exists. 
+repo-clean :
+	test ! -d $(MOCK_RESULTS_DIR) || \
+	  find $(MOCK_RESULTS_DIR) -maxdepth 1 -name '*.rpm' -exec rm {} \;
+
+# points a webserver at $(MOCK_RESULTS_DIR) with no caching headers to feed the results of build back into the 
+# chroot'ed system. future: explore mounting $(MOCK_RESULTS_DIR) from the chroot system. Possibly there is
+# a yum plugin 
+repo-webserver :
+	-killall thttpd
+	/usr/sbin/thttpd -d @RPM_DIST_DIR@ -p 40100 -M 0
+
+help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
+repo-src :
+	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_SRPM_DIR)); do rm $$f; done
+	cd $(MOCK_SRPM_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
+
+help.repo-check = Installs sipXecs in chroot. Tip, run repo-choot-init first for more thourugh test of all dependencies.
+repo-check : repo-webserver
+	mock -r $(MOCK_TARGET_PLATFORM) --install sipxecs
+
+help.repo-remove-dups=If you have built RPMs multiple times between git updates, and therefore have older versions of a package, this will remove all older copies.
+repo-remove-dups:
+	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_RESULTS_DIR)); do rm $$f; done
+
+help.repo-create = run createrepo in $(MOCK_RESULTS_DIR)
+repo-create:
+	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO)) .
+
+help.repo = Prepares repository for $(DISTRO) for publishing or re-distributing in ISO by removing extra rpms and moving source rpms to separate directory.
+repo: repo-src repo-remove-dups repo-create;

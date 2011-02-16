@@ -30,6 +30,8 @@
 	<baseDN>${attrMap.searchBase}</baseDN>
 	<adminDN>${ldapParams.principal}</adminDN>
 	<adminPassword>${ldapParams.secret}</adminPassword>
+	<usernameField>${attrMap.imAttributeName}</usernameField>
+	<searchFilter>${attrMap.searchFilter}</searchFilter>
   </ldap>
   <provider>
     <auth>
