@@ -25,6 +25,7 @@ LogStop=
 IncludeCallRecords="FALSE"
 IncludeProfiles="FALSE"
 GenerateCoreFiles=NO
+DumpMongo=NO
 Arguments=
 InvokedAs="$0"
 
@@ -201,6 +202,10 @@ do
 
         --generate-core-files)
             GenerateCoreFiles=YES
+            ;;
+
+        --mongo)
+            DumpMongo=YES
             ;;
 
         ##
@@ -1085,6 +1090,13 @@ EOF
 	 rmdir ${Work}${cutDir}
 	 rm -rf ${cutDir}
      fi
+   fi
+
+   #Dump the mongo database in bson format
+   #This script assumes mongo is running
+   if [ ${DumpMongo} = YES ]
+   then
+     mongoexport -d imdb -c entity -o ${Work}/mongo.imdb.entity.json
    fi
 }
 
