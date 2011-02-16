@@ -200,6 +200,11 @@
          <resolution>Please install a fresh certificate and delete this one.</resolution>
       </alarm>
 
+      <alarm id="CALL_RATE_THRESHOLD_REACHED">
+         <shorttitle>A call rate violation is reached.</shorttitle>
+         <description>A certain user agents is excessively sending packets to sipX.  </description>
+         <resolution>sipXecs has blocked a potential DoS attach.  Analyze logs and see if the offender is friendly.</resolution>
+      </alarm>
       <!-- Add new alarms above this line.
           Notes:
             'id='         must match definition in etc/sipXalarms-config.xml

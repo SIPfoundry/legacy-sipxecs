@@ -33,6 +33,8 @@
 #include <sipdb/UserForwardDB.h>
 #include <SipRouter.h>
 #include <ForwardRules.h>
+#include <net/SipClient.h>
+#include <alarm/Alarm.h>
 
 #include <SipXProxyCseObserver.h>
 #include "config.h"
@@ -259,6 +261,18 @@ public:
    }
 } ;
 
+
+ void onCallRateThresholdReached(
+    const boost::asio::ip::address& address,
+    unsigned long thresholdViolationRate)
+ {
+     OsSysLog::add( FAC_NAT, PRI_CRIT, "sipXproxymain::onCallRateThresholdReached() call rate violation detected - "
+                                        "offender IP = %s (rate = %u)",
+                                        address.to_string().c_str(),
+                                        (unsigned int)thresholdViolationRate );
+     Alarm::raiseAlarm("CALL_RATE_THRESHOLD_REACHED");
+ }
+
 int
 proxy( int argc, char* argv[] )
 {
@@ -319,6 +333,7 @@ proxy( int argc, char* argv[] )
     OsSysLog::add(FAC_SIP, PRI_INFO, "%s: %s", CONFIG_SETTING_BIND_IP, 
           bindIp.data());
     osPrintf("%s: %s", CONFIG_SETTING_BIND_IP, bindIp.data());    
+
 
     UtlString hostname;
     configDb.get("SIPX_PROXY_HOST_NAME", hostname);
@@ -654,7 +669,43 @@ proxy( int argc, char* argv[] )
                     routeStatus);
     }
 #endif // TEST_PRINT
+
+    UtlBoolean autoBan;
+    UtlString whiteList;
+    UtlString blackList;
+    int packetsPerSecondThreshold;
+    int thresholdViolationRate;
+    int banLifeTime;
     
+    autoBan = configDb.getBoolean("SIPX_PROXY_AUTOBAN_THRESHOLD_VIOLATORS", FALSE);
+
+    if (configDb.get("SIPX_PROXY_PACKETS_PER_SECOND_THRESHOLD", packetsPerSecondThreshold) == OS_SUCCESS)
+    {
+        if (configDb.get("SIPX_PROXY_THRESHOLD_VIOLATION_RATE", thresholdViolationRate) == OS_SUCCESS)
+        {
+            if (configDb.get("SIPX_PROXY_BAN_LIFETIME", banLifeTime) == OS_SUCCESS)
+            {
+                configDb.get("SIPX_PROXY_WHITE_LIST", whiteList);
+                configDb.get("SIPX_PROXY_BLACK_LIST", blackList);
+
+                SipClient::rateLimit().autoBanThresholdViolators() = (autoBan == TRUE);
+                SipClient::rateLimit().setPacketsPerSecondThreshold(packetsPerSecondThreshold);
+                SipClient::rateLimit().setThresholdViolationRate(thresholdViolationRate);
+                SipClient::rateLimit().setBanLifeTime(banLifeTime);
+                SipClient::rateLimit().enabled() = true;
+
+                if (!whiteList.isNull())
+                    SipClient::rateLimit().setPermanentWhiteList(whiteList.data());
+
+                if (!blackList.isNull())
+                    SipClient::rateLimit().setPermanentBlackList(blackList.data());
+
+                SipClient::rateLimit().threshHoldViolationCallBack() = boost::bind(onCallRateThresholdReached, _1, _2);
+            }
+        }
+    }
+
+
     // Start the sip stack
     SipUserAgent* pSipUserAgent = new SipUserAgent(
         proxyTcpPort,

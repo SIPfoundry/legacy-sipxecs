@@ -296,6 +296,14 @@
                  email="default"
                  />
       </alarm>
+      <alarm id="CALL_RATE_THRESHOLD_REACHED">
+         <code>SPX00045</code>
+         <severity>crit</severity>
+         <component>sipXproxy</component>
+         <action log="true"
+                 email="default"
+                 />
+      </alarm>
       <!-- Add new alarms above this line.
           Remember to add strings into meta/alarms/sipXalarms-strings.xml also.
           Notes:
