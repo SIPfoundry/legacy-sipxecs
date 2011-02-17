@@ -10,10 +10,10 @@
 #ifndef _MpTestConfig_h_
 #define _MpTestConfig_h_
 
+#include "net/SipUserAgent.h"
 #include "mp/MpMediaTask.h"
 #include "ps/PsPhoneTask.h"
 #include "mp/MpCallFlowGraph.h"
-#include "net/SipUserAgent.h"
 #include "cp/CallManager.h"
 
 // Base URL to find data sources for this test program.  This software expects
