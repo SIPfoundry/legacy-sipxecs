@@ -89,6 +89,7 @@ nobase_include_HEADERS =  \
     net/SipTlsServer.h \
     net/SipTransaction.h \
     net/SipTransactionList.h \
+    net/SipTransportRateLimitStrategy.h \
     net/SipUdpServer.h \
     net/SipUserAgentBase.h \
     net/SipUserAgent.h \

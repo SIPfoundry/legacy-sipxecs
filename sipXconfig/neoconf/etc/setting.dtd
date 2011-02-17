@@ -55,6 +55,7 @@
     required %flag; "no"
     minLen NMTOKEN #IMPLIED
     maxLen NMTOKEN #IMPLIED
+    multiLine %flag; "no"
     password %flag; "no">
 
 <!ELEMENT ipaddr EMPTY>

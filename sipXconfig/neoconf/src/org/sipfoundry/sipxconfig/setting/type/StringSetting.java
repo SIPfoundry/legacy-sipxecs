@@ -24,6 +24,8 @@ public class StringSetting extends AbstractSettingType {
 
     private boolean m_password;
 
+    private boolean m_multiLine;
+
     public int getMaxLen() {
         return m_maxLen;
     }
@@ -62,6 +64,14 @@ public class StringSetting extends AbstractSettingType {
 
     public void setPassword(boolean password) {
         m_password = password;
+    }
+
+    public boolean isMultiLine() {
+        return m_multiLine;
+    }
+
+    public void setMultiLine(boolean multiLine) {
+        m_multiLine = multiLine;
     }
 
     public String getName() {
