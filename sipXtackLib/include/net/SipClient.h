@@ -22,6 +22,7 @@
 #include <os/OsBSem.h>
 #include <net/SipMessage.h>
 #include <utl/UtlContainableAtomic.h>
+#include <net/SipTransportRateLimitStrategy.h>
 
 // DEFINES
 // MACROS
@@ -110,6 +111,8 @@ public:
     {
        return SipClient::TYPE;
     };
+
+    static SipTransportRateLimitStrategy& rateLimit();
 
     /** Class type used for runtime checking */
     static const UtlContainableType TYPE;
@@ -204,6 +207,8 @@ private:
 
     SipClient& operator=(const SipClient& rhs);
      //:disable Assignment operator
+
+    static SipTransportRateLimitStrategy _rateLimit;
 
 };
 

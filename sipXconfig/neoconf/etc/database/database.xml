@@ -383,6 +383,7 @@
 	<antcall target="openacd-queues" />
 	<antcall target="openacd-add-additional-skills" />
 	<antcall target="openacd-set-default-skills" />
+	<antcall target="call-rate-limit" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1201,6 +1202,9 @@
   </target>
   <target name="openacd-set-default-skills" unless="openacd-set-default-skills">
 	<db-patch patch="openacd-set-default-skills"/>
+  </target>
+  <target name="call-rate-limit" unless="call-rate-limit">
+	<db-patch patch="call-rate-limit"/>
   </target>
 
   <!--

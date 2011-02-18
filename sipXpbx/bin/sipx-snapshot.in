@@ -509,7 +509,7 @@ EOF
 
 	   # Place extract.log at the top level of the tar file.
 	   CommentFiles="${CommentFiles} ${cutDir}/extract.log"
-	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap*
+	   for base_log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap* @SIPX_LOGDIR@/openacd/*.log
 	   do
 	       # Start cutting at the base log.
 	       if cutIfTimestamps "${base_log}"
@@ -553,7 +553,7 @@ EOF
 	   done
 	   ;;
        current)
-	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap*
+	   for log in @SIPX_LOGDIR@/*log @SIPX_LOGDIR@/phone/*.log  $(openfireLogs) @SIPX_LOGDIR@/trace/*.pcap* @SIPX_LOGDIR@/openacd/*.log
 	   do
 	     echo $log >> $Work.copy-files
 	   done
@@ -563,6 +563,7 @@ EOF
 		@SIPX_LOGDIR@/*log.${Logs}{,.gz} \
 		@SIPX_LOGDIR@/phone/*.log.${Logs}{,.gz} \
 		$(openfireLogs) \
+                @SIPX_LOGDIR@/openacd/*.log.${Logs}{,.gz}
 		2>/dev/null \
 		| grep '.' \
 		>> $Work.copy-files
@@ -572,7 +573,7 @@ EOF
 	   fi
 	   ;;
        all)
-	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log @SIPX_LOGDIR@/trace/*.pcap*
+	   for log in @SIPX_LOGDIR@/*log  @SIPX_LOGDIR@/*log.* @SIPX_LOGDIR@/phone/*.log.* @SIPX_LOGDIR@/openfire/*.log @SIPX_LOGDIR@/trace/*.pcap* @SIPX_LOGDIR@/openacd/*.log
 	   do
 	     echo $log >> $Work.copy-files
 	   done
@@ -1083,6 +1084,12 @@ EOF
 	 rmdir ${Work}${cutDir}
 	 rm -rf ${cutDir}
      fi
+
+     #include OpenAcd configuration
+     OpenacdDir=${Work}/OpenACD
+     mkdir ${OpenacdDir}
+     cp -r /opt/OpenACD/etc ${OpenacdDir}
+     cp -r /opt/OpenACD/run ${OpenacdDir}
    fi
 
    #Dump the mongo database in bson format
