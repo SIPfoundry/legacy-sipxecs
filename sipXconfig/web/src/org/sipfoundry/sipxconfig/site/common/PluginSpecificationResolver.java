@@ -15,30 +15,29 @@
  */
 package org.sipfoundry.sipxconfig.site.common;
 
-import org.apache.hivemind.ClassResolver;
+import org.apache.commons.lang.StringUtils;
 import org.apache.hivemind.Location;
 import org.apache.hivemind.Resource;
-import org.apache.hivemind.impl.DefaultClassResolver;
 import org.apache.hivemind.impl.LocationImpl;
-import org.apache.hivemind.util.ClasspathResource;
 import org.apache.tapestry.INamespace;
 import org.apache.tapestry.IRequestCycle;
 import org.apache.tapestry.resolver.ISpecificationResolverDelegate;
 import org.apache.tapestry.services.ClassFinder;
+import org.apache.tapestry.services.ClasspathResourceFactory;
 import org.apache.tapestry.spec.ComponentSpecification;
 import org.apache.tapestry.spec.IComponentSpecification;
 
 public class PluginSpecificationResolver implements ISpecificationResolverDelegate {
 
     private ClassFinder m_clazzFinder;
-    private ClassResolver m_classResolver;
+    private ClasspathResourceFactory m_resourceFactory;
 
     public void setClazzFinder(ClassFinder clazzFinder) {
         this.m_clazzFinder = clazzFinder;
     }
 
-    public void setClassResolver(ClassResolver classResolver) {
-        m_classResolver = classResolver;
+    public void setClasspathResourceFactory(ClasspathResourceFactory resourceFactory) {
+        m_resourceFactory = resourceFactory;
     }
 
     public IComponentSpecification findPageSpecification(IRequestCycle cycle, INamespace namespace,
@@ -52,26 +51,18 @@ public class PluginSpecificationResolver implements ISpecificationResolverDelega
 
     private IComponentSpecification findPluginSpecification(INamespace namespace, String name, String type) {
         String packages = namespace.getPropertyValue("org.apache.tapestry.plugin-packages");
-        String className = name.replace('/', '.');
+        String className = StringUtils.removeStart(name, "plugin/").replace('/', '.');
         Class pageClass = m_clazzFinder.findClass(packages, className);
         if (pageClass == null) {
             return null;
         }
 
         IComponentSpecification spec = new ComponentSpecification();
-        Resource componentResource = null;
-        if (name.contains("TestPage")) {
-            componentResource = new ClasspathResource(new DefaultClassResolver(m_classResolver.getClassLoader()),
-                    "context/WEB-INF/TestPage.page");
-        } else {
-            componentResource = new ClasspathResource(new DefaultClassResolver(m_classResolver.getClassLoader()),
-                    "plugin" + "/" + name + type);
-        }
+        Resource componentResource = m_resourceFactory.newResource(name + type);
         Location location = new LocationImpl(componentResource);
         spec.setLocation(location);
         spec.setSpecificationLocation(componentResource);
         spec.setComponentClassName(pageClass.getName());
         return spec;
     }
-
 }

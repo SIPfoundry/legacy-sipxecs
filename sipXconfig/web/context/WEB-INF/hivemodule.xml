@@ -263,6 +263,7 @@
     <invoke-factory model="threaded">
       <construct class="site.common.PluginSpecificationResolver">
         <set-object property="clazzFinder" value="infrastructure:classFinder"/>
+        <set-service property="classpathResourceFactory" service-id="tapestry.ClasspathResourceFactory"/> 
       </construct>
     </invoke-factory>
   </implementation>
