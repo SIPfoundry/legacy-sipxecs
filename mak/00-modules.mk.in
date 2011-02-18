@@ -69,6 +69,6 @@ lib_centos_5 = \
   xerces-c \
   stunnel
 
-lib = $(lib_$(DISTRO)_$(DISTRO_VER))
+lib = $(lib_$(DISTRO_OS)_$(DISTRO_VER))
 
 all =  $(lib) $(sipx)
