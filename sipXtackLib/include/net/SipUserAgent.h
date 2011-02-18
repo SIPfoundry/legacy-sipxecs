@@ -245,7 +245,7 @@ public:
      */
     SipUserAgent(int sipTcpPort = SIP_PORT,
                 int sipUdpPort = SIP_PORT,
-                int sipTlsPort = SIP_PORT+1,
+                int sipTlsPort = PORT_NONE,
                 const char* publicAddress = NULL,
                 const char* defaultUser = NULL,
                 const char* defaultSipAddress = NULL,

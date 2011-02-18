@@ -1,0 +1,1 @@
+ALTER TABLE setting_value ALTER COLUMN "value" TYPE character varying(1000)

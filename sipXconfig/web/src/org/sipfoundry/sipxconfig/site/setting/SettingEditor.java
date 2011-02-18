@@ -219,6 +219,12 @@ public abstract class SettingEditor extends BaseComponent {
                 componentName += "Multiple";
             }
         }
+        if (type instanceof StringSetting) {
+            StringSetting stringType = (StringSetting) type;
+            if (stringType.isMultiLine()) {
+                componentName += "TextArea";
+            }
+        }
         IComponent component = getComponent(componentName + "Field");
         if (component instanceof IFormComponent) {
             return (IFormComponent) component;

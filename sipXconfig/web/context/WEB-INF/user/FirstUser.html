@@ -1,46 +1,66 @@
-<html jwcid="@Shell"
-  title="message:product.name"
-  stylesheets="ognl:stylesheets">
-<body jwcid="@Body">
-  <div id="banner">
-     <div id="banner-title"><span jwcid="@Insert" raw="true" value="message:banner.title"/></div>
+<span jwcid="@Script" scriptAsset="asset:firstUserScript" licensesNumber="ognl:licensesNumber.size()"/>
+<div jwcid="@common/Border" borderTitle="ognl:borderTitle" headerDisplay="false" footerDisplay="false">
+  <span jwcid="@common/ErrorMsg"/>  
+  
+  <div class="help">
+    <p><span key="help1">who's superadmin</span></p>
+    <p><span key="help2">PIN advice.</span></p>
   </div>
-  <span jwcid="@common/ErrorMsg"/>
-  <div jwcid="@If" condition="ognl:renderLicense">
-    <form jwcid="@Form" delegate="bean:validator" focus="false">
-      <fieldset>
-        <legend><span key="prompt.license"/></legend>
-        <textarea jwcid="@TextArea" value="ognl:license" rows="35" cols="100" readonly="true"/>
-      </fieldset>
-      <ul class="form-actions">
-      <li>
-        <input jwcid="@Submit"
-          tag="ognl:true"
-          selected="ognl:licenseAccepted"
-          value="message:button.agree"/>
-      </li>
-      </ul>
-    </form>
-  </div>
-  <div jwcid="@Else">
-    <div class="help">
-      <p><span key="help1">who's superadmin</span></p>
-      <p><span key="help2">PIN advice.</span></p>
-    </div>
-    <form jwcid="@Form" delegate="bean:validator">
-      <fieldset id="firstuser:form">
-        <legend><span key="prompt">Please choose a PIN for the "superadmin" user</span></legend>
-        <table>
+  <form jwcid="@Form" delegate="bean:validator" focus="false">
+  	<fieldset id="firstuser:form">     
+        <table align="center" cellpadding="0">
           <tbody jwcid="pin@user/ConfirmPassword"
             password="ognl:pin"
             passwordDisplayName="message:label.newPin"
             confirmPasswordDisplayName="message:label.confirmNewPin"
             passwordMismatchMessage="message:message.newPinMismatch"
             passwordValidator="spring-validators:validPin,required"/>
-        </table>
+          <div jwcid="@If" condition="ognl:!renderLicense">   
+          <tr>
+			<td align="left" jwcid="@Any">
+				<input jwcid="@Submit" tag="ognl:true" selected="ognl:licenseAccepted" value="message:button.agree" listener="listener:commit"/>      			
+			</td>
+		  </tr>
+		  </div>
+       </table><BR/>
+  	</fieldset>
+  <div jwcid="@If" condition="ognl:renderLicense">    
+      <fieldset>        
+        <table align="center" cellpadding="5">
+		<tr>
+			<td jwcid="@Any" colspan="ognl:licensesNumber.size()">
+		    	<B><span key="about.release"/></B><BR/>
+		    	<span key="product.name"/> <span jwcid="@Insert" raw="true" value="ognl:details"/>
+			</td>
+		</tr>
+		<tr jwcid="@If" condition="ognl:licensesNumber.size()>1">
+		    <td jwcid="@Any" colspan="ognl:licensesNumber.size()">
+				<span jwcid="@For" source="ognl:licensesNumber" value="ognl:pos">					    
+	    			<input jwcid="@Any" type="button" class="licensetab" name="ognl:'license'+pos" value="ognl:getLicenseTitle(pos)" onclick="ognl:'setPosVisibility(\'lic\','+pos+');'"/>	    		
+	    		</span>
+	    	</td>		        	    	
+    	</tr>
+    	<tr>
+        	<td jwcid="@Any" colspan="ognl:licensesNumber.size()">
+        		<span jwcid="@For" source="ognl:licensesNumber" value="ognl:pos">
+	        		<textarea jwcid="@Any" id="ognl:'lic'+pos" rows="28" cols="90">
+	        			<span jwcid="@Insert" raw="true" value="ognl:getLicense(pos)"/>
+	        		</textarea>
+	        	</span>	
+        	</td>
+    	</tr>
+		<tr>
+			<td jwcid="@Any" colspan="ognl:licensesNumber.size()">
+				<span key="product.copyright"/>
+			</td>
+		</tr>
+		<tr>
+			<td align="right" jwcid="@Any" colspan="ognl:licensesNumber.size()">
+				<span key="text.agree"/> <input jwcid="@Submit" tag="ognl:true" selected="ognl:licenseAccepted" value="message:button.agree" listener="listener:commit"/>      			
+			</td>
+		</tr>		
+	  	</table>	  	
       </fieldset>
-      <ul jwcid="@common/FormActions" listener="listener:commit"/>
-    </form>
+    </div>
+  </form>
   </div>
-</body>
-</html>

@@ -88,9 +88,6 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
         // save new connection params
         ldapManager.setConnectionParams(connectionParams);
         ldapManager.saveSystemSettings(getSettings());
-        // write openfire.xml file /  mark sipxopenfire service for restart
-        ldapManager.replicateOpenfireConfig();
-
         ldapManager.setAttrMap(attrMap);
 
         Schema schema = ldapManager.getSchema(attrMap.getSubschemaSubentry());
@@ -112,7 +109,10 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
         if (!TapestryUtils.isValid(this)) {
             return null;
         }
-        getLdapManager().setAttrMap(getAttrMap());
+        LdapManager ldapManager = getLdapManager();
+        ldapManager.setAttrMap(getAttrMap());
+        // write openfire.xml file /  mark sipxopenfire service for restart
+        ldapManager.replicateOpenfireConfig();
         // send us to import preview
         LdapImportPreview ldapImportPreview = (LdapImportPreview) cycle.getPage(LdapImportPreview.PAGE);
         ldapImportPreview.setExample(null);

@@ -66,6 +66,12 @@ const UtlContainableType SipClient::TYPE = "SipClient";
 
 const UtlContainableType SipClientSendMsg::TYPE = "SipClientSendMsg";
 
+SipTransportRateLimitStrategy SipClient::_rateLimit;
+SipTransportRateLimitStrategy& SipClient::rateLimit()
+{
+    return SipClient::_rateLimit;
+}
+
 // Methods for SipClientSendMsg.
 
 // Constructor
@@ -641,6 +647,26 @@ int SipClient::run(void* runArg)
          // Read message.
          // Must allocate a new message because SipUserAgent::dispatch will
          // take ownership of it.
+
+         UtlString remoteHostAddress;
+         UtlString localHostAddress;
+         mClientSocket->getRemoteHostIp(&remoteHostAddress);
+         mClientSocket->getLocalHostIp(&localHostAddress);
+         if (!mClientSocket->isSameHost(remoteHostAddress.data(), localHostAddress.data()))
+         {
+             boost::asio::ip::address remoteIp = boost::asio::ip::address::from_string(remoteHostAddress.data());
+             if (rateLimit().isBannedAddress(remoteIp))
+             {
+                char buff[1024];
+                while(mClientSocket->read(buff, 1024, 0) > 0);
+
+                continue;
+             }
+
+             rateLimit().logPacket(remoteIp, 0);
+         }
+
+
          SipMessage* msg = new SipMessage;
          int res = msg->read(mClientSocket,
                              HTTP_DEFAULT_SOCKET_BUFFER_SIZE,

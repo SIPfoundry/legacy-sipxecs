@@ -13,6 +13,7 @@ import java.text.DateFormat;
 import java.util.Collection;
 import java.util.Date;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.BaseComponent;
 import org.apache.tapestry.IAsset;
@@ -123,6 +124,12 @@ public abstract class Border extends BaseComponent implements PageValidateListen
     @Parameter(required = true)
     public abstract String getBorderTitle();
 
+    @Parameter(defaultValue = "true")
+    public abstract boolean getHeaderDisplay();
+
+    @Parameter(defaultValue = "true")
+    public abstract boolean getFooterDisplay();
+
     public void pageBeginRender(PageEvent event) {
         if (getBaseUrl() == null) {
             String baseUrl = getRequest().getContextPath();
@@ -164,11 +171,13 @@ public abstract class Border extends BaseComponent implements PageValidateListen
 
     public void pageValidate(PageEvent event) {
 
-        if (!isLoginRequired()) {
+        if (ObjectUtils.equals(getPage().getRequestCycle().getPage(FirstUser.PAGE), getPage())
+                || !isLoginRequired()) {
             return;
         }
 
-        // If there are no users, then we need to create the first user
+        // If there are no users, and we are not on the FirstUser page then we need to create the first user
+        // Move to the FIrstUser page
         if (getCoreContext().getUsersCount() == 0) {
             throw new PageRedirectException(FirstUser.PAGE);
         }

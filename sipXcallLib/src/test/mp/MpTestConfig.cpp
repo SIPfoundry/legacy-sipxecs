@@ -8,12 +8,12 @@
 ////////////////////////////////////////////////////////////////////////
 
 
+#include "net/SipUserAgent.h"
 #include "test/mp/MpTestConfig.h"
 #include "mp/MpMediaTask.h"
 #include "ps/PsPhoneTask.h"
 #include "ptapi/PtComponentGroup.h"
 #include "mp/MpCallFlowGraph.h"
-#include "net/SipUserAgent.h"
 #include "cp/CallManager.h"
 #include "net/SdpCodecFactory.h"
 #include "os/OsConfigDb.h"

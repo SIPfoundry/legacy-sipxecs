@@ -41,6 +41,14 @@ public class SipxProxyConfigurationTest extends SipxServiceTestBase {
         proxySettings.getSetting("SIP_PORT").setValue("5064");
         proxySettings.getSetting("TLS_SIP_PORT").setValue("5065");
 
+        Setting callRateLimit = proxyService.getSettings().getSetting("call-rate-limit");
+        callRateLimit.getSetting("SIPX_PROXY_AUTOBAN_THRESHOLD_VIOLATORS").setValue("true");
+        callRateLimit.getSetting("SIPX_PROXY_PACKETS_PER_SECOND_THRESHOLD").setValue("1001");
+        callRateLimit.getSetting("SIPX_PROXY_THRESHOLD_VIOLATION_RATE").setValue("435");
+        callRateLimit.getSetting("SIPX_PROXY_BAN_LIFETIME").setValue("5000000");
+        callRateLimit.getSetting("SIPX_PROXY_WHITE_LIST").setValue("10.1.1.1, 10.1.1.2");
+        callRateLimit.getSetting("SIPX_PROXY_BLACK_LIST").setValue("10.1.1.3, 10.1.1.4");
+
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxCallResolverService.BEAN_ID);
         expectLastCall().andReturn(callResolverService).atLeastOnce();

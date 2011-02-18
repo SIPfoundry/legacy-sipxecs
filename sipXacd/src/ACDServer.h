@@ -40,7 +40,6 @@
 #define MAX_CALLS_TAG                 "max-calls-allowed"
 #define RPC_SERVER_PORT_TAG           "rpc-server-port"
 #define PRESENCE_MONITOR_PORT_TAG     "presence-monitor-port"
-#define PRESENCE_MONITOR_TLS_PORT_TAG "presence-monitor-tls-port"
 #define PRESENCE_SERVER_URI_TAG       "presence-server-uri"
 #define PRESENCE_SERVICE_URI_TAG      "presence-service-uri"
 #define ADMINISTRATIVE_STATE_TAG      "administrative-state"
@@ -165,7 +164,6 @@ private:
    int                mRtpBase;                 ///< The starting RTP Port used by this server.
    int                mTlsPort;                 ///< The TLS Port used by this server.
    int                mPresenceMonitorPort;     ///< The Presence Monitor Port used by this server.
-   int                mPresenceMonitorTlsPort;     ///< The Presence Monitor tls Port used by this server.
    UtlString          mPresenceServerUriString; /**< The Uri of the Presence Server
                                                  *   used for TUI sign-in/out. */
    UtlString          mPresenceServiceUriString; /**< The Uri of the Presence Server
