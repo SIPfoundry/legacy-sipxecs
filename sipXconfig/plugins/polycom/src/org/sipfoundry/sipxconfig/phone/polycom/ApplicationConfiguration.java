@@ -16,6 +16,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import org.sipfoundry.sipxconfig.device.ProfileContext;
+import org.sipfoundry.sipxconfig.setting.Setting;
 
 /**
  * Velocity model for generating [MAC ADDRESS].cfg, pointer to all other config files. See page 11
@@ -49,6 +50,18 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
 
     public String getDeviceFilename() {
         return getDevice().getDeviceFilename();
+    }
+
+    public String getCustomConfigs() {
+	Setting custom = getDevice().getSettings().getSetting("feature/custom-configs");
+	return ApplicationConfiguration.nonBlankEndsInComma(custom.getValue());
+    }
+
+    /**
+     *   transform "abc" goes to "abc," if non-blank
+     */
+    private static String nonBlankEndsInComma(String s)  {
+	return StringUtils.isNotBlank(s) && !s.endsWith(",") ? s + ',' : s;
     }
 
    /**
