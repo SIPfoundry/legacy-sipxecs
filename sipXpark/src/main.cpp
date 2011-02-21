@@ -507,7 +507,7 @@ int main(int argc, char* argv[])
     // Bind the SIP user agent to a port and start it up
     SipUserAgent* userAgent = new SipUserAgent(TcpPort,
                                                UdpPort,
-                                               TcpPort+1,
+                                               PORT_NONE,
                                                NULL, // publicAddress
                                                user.isNull() ? NULL : user.data(), // default user
                                                bindIp,
