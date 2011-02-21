@@ -20,6 +20,13 @@
    #set( $optional_license_files = "" )
 #end
 
+## Polycom custom configs
+#if(${cfg.CustomConfigs})
+   #set( $custom_configs = "${cfg.CustomConfigs}, " )
+#else
+   #set( $custom_configs = "" )
+#end
+
 ## Used only by sipXprovision.
 #if(${cfg.RootUrlPath})
    #set( $optional_root_url_path = "${cfg.RootUrlPath}" )
@@ -29,7 +36,7 @@
 
 #macro( ModelSpecificAttributes $model $fw )
    APP_FILE_PATH${model}="sip${fw}.ld"
-   CONFIG_FILES${model}="${cfg.CustomConfigs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1${fw}.cfg, polycom_sip${fw}.cfg"
+   CONFIG_FILES${model}="${custom_configs}${optional_license_files}${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-sip.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-phone.cfg, ${optional_root_url_path}[PHONE_MAC_ADDRESS]-sipx-device.cfg, polycom_phone1${fw}.cfg, polycom_sip${fw}.cfg"
 #end
 
 #macro( ModelSpecificNode $model $fw )

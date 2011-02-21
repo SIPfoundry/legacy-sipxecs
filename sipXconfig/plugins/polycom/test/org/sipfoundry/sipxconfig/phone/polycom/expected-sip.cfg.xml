@@ -415,6 +415,8 @@
     feature.17.enabled="1"
     feature.18.name="enhanced-feature-keys"
     feature.18.enabled="0"
+    feature.19.name="custom-configs"
+    feature.19.enabled=""
   />
   <microbrowser
     mb.proxy=""

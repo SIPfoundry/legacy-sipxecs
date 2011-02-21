@@ -52,10 +52,10 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
     }
 
     public void testNonBlankEndsInComma() {
-	assertNull(ApplicaitonConfiguration.nonBlankEndsInComma(null));
-	assertEquals("", ApplicaitonConfiguration.nonBlankEndsInComma(""));
-	assertEquals("", ApplicaitonConfiguration.nonBlankEndsInComma(""));
-	assertEquals("goose,", ApplicaitonConfiguration.nonBlankEndsInComma("goose"));
-	assertEquals("goose,", ApplicaitonConfiguration.nonBlankEndsInComma("goose,"));
+        assertNull(ApplicationConfiguration.nonBlankEndsInComma(null));
+        assertEquals("", ApplicationConfiguration.nonBlankEndsInComma(""));
+        assertEquals("", ApplicationConfiguration.nonBlankEndsInComma(""));
+        assertEquals("goose,", ApplicationConfiguration.nonBlankEndsInComma("goose"));
+        assertEquals("goose,", ApplicationConfiguration.nonBlankEndsInComma("goose,"));
     }
 }

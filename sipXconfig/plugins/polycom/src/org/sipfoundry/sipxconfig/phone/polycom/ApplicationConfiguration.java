@@ -53,15 +53,15 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     }
 
     public String getCustomConfigs() {
-	Setting custom = getDevice().getSettings().getSetting("feature/custom-configs");
-	return ApplicationConfiguration.nonBlankEndsInComma(custom.getValue());
+        Setting custom = getDevice().getSettings().getSetting("feature/custom-configs");
+        return ApplicationConfiguration.nonBlankEndsInComma(custom.getValue());
     }
 
     /**
      *   transform "abc" goes to "abc," if non-blank
      */
-    private static String nonBlankEndsInComma(String s)  {
-	return StringUtils.isNotBlank(s) && !s.endsWith(",") ? s + ',' : s;
+    protected static String nonBlankEndsInComma(String s)  {
+        return StringUtils.isNotBlank(s) && !s.endsWith(",") ? s + ',' : s;
     }
 
    /**
