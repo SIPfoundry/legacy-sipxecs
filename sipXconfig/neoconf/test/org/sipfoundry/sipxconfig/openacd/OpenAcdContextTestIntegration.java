@@ -376,8 +376,11 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
         // test remove agents from group
         grp.removeAgent(agent1);
-        grp.removeAgent(agent2);
         m_openAcdContextImpl.saveAgentGroup(grp);
+        assertEquals(2, m_openAcdContextImpl.getAgents().size());
+
+        // remove agents
+        m_openAcdContextImpl.deleteAgents(Collections.singletonList(agent2.getId()));
         assertEquals(1, m_openAcdContextImpl.getAgents().size());
 
         // remove groups

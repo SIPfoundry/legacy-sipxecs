@@ -350,10 +350,12 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
                 existingAgents.add(agent);
             }
         }
-        // update the group
-        saveAgentGroup(agentGroup);
-        m_provisioningContext.addObjects(new LinkedList<OpenAcdConfigObject>(CollectionUtils.subtract(agents,
-                existingAgents)));
+        if (existingAgents.isEmpty()) {
+            // update the group
+            saveAgentGroup(agentGroup);
+            m_provisioningContext.addObjects(new LinkedList<OpenAcdConfigObject>(CollectionUtils.subtract(agents,
+                    existingAgents)));
+        }
 
         return existingAgents;
     }
@@ -396,15 +398,15 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     @Override
-    public void deleteAgents(Integer groupId, Collection<Integer> agentIds) {
-        OpenAcdAgentGroup group = getAgentGroupById(groupId);
+    public void deleteAgents(Collection<Integer> agentIds) {
         List<OpenAcdAgent> agents = new LinkedList<OpenAcdAgent>();
         for (Integer id : agentIds) {
             OpenAcdAgent agent = getAgentById(id);
-            group.removeAgent(agent);
             agents.add(agent);
+            OpenAcdAgentGroup group = agent.getGroup();
+            group.removeAgent(agent);
+            getHibernateTemplate().save(group);
         }
-        getHibernateTemplate().save(group);
         m_provisioningContext.deleteObjects(agents);
     }
 

@@ -17,15 +17,21 @@ package org.sipfoundry.sipxconfig.site.openacd;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 
-public abstract class OpenAcdServerPage extends PageWithCallback {
+public abstract class OpenAcdServerPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "openacd/OpenAcdServerPage";
 
-    @Persist
+    @InjectObject("spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
+
     public abstract Location getSipxLocation();
 
     public abstract void setSipxLocation(Location location);
@@ -34,8 +40,14 @@ public abstract class OpenAcdServerPage extends PageWithCallback {
     public abstract SipxValidationDelegate getValidator();
 
     @Persist
-    @InitialValue("literal:lines")
+    @InitialValue("literal:clients")
     public abstract String getTab();
 
     public abstract void setTab(String tab);
+
+    public void pageBeginRender(PageEvent event) {
+        if (getSipxLocation() == null) {
+            setSipxLocation(getLocationsManager().getPrimaryLocation());
+        }
+    }
 }

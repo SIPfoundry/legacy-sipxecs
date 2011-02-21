@@ -38,7 +38,7 @@ public abstract class OpenAcdCommands extends BaseComponent {
 
     public abstract void setCurrentRow(OpenAcdCommand e);
 
-    @Parameter
+    @Parameter(required = true)
     public abstract Location getSipxLocation();
 
     public abstract void setSipxLocation(Location location);

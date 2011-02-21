@@ -41,7 +41,7 @@ public abstract class OpenAcdLines extends BaseComponent {
 
     public abstract void setCurrentRow(OpenAcdLine e);
 
-    @Parameter
+    @Parameter(required = true)
     public abstract Location getSipxLocation();
 
     public abstract void setSipxLocation(Location location);
