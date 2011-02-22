@@ -1,6 +1,6 @@
 <div jwcid="@common/Border" borderTitle="ognl:borderTitle">
   <span jwcid="@common/TabNavigation"
-    tabNames="ognl:{'clients','lines','queueGroups','queues','agentGroups','agents','skills','commands'}"
+    tabNames="ognl:{'clients','lines','queueGroups','queues','agentGroups','agents','skills','commands', 'settings'}"
     selectedTab="ognl:tab"/>
   <div id="settings-content">
     <span jwcid="@common/ErrorMsg"/>
@@ -29,5 +29,14 @@
   </span>
   <span jwcid="commandsTab@Block">
 	<span jwcid="@openacd/OpenAcdCommands" sipxLocation="ognl:sipxLocation"/>
+  </span>
+  <span jwcid="settingsTab@Block">
+	<form jwcid="@Form" delegate="bean:validator">
+      <span jwcid="fs@service/ServiceSettingsPanel" service="ognl:service"
+        groupToDisplay="freeswitch_media_manager" renderGroupTitle="true"/>
+      <span jwcid="dialplanListener@service/ServiceSettingsPanel" service="ognl:service"
+        groupToDisplay="agent_configuration" renderGroupTitle="true"/>
+      <ul jwcid="@common/FormActions" listener="listener:saveService" callback="ognl:callback"/>
+    </form>
   </span>
 </div>

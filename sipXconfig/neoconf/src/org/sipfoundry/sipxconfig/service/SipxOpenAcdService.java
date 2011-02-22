@@ -17,12 +17,19 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.Collections;
 
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.openacd.FreeswitchMediaCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentConfigCommand;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdProvisioningContext;
+import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
 public class SipxOpenAcdService extends SipxService {
     public static final String BEAN_ID = "sipxOpenAcdService";
+    public static final String FS_ENABLED = "freeswitch_media_manager/FREESWITCH_ENABLED";
+    public static final String C_NODE = "freeswitch_media_manager/C_NODE";
+    public static final String DIAL_STRING = "freeswitch_media_manager/DIAL_STRING";
+    public static final String DIALPLAN_LISTENER = "agent_configuration/DIALPLAN_LISTENER";
+
     private String m_audioDirectory;
     private OpenAcdProvisioningContext m_provisioningContext;
 
@@ -39,13 +46,48 @@ public class SipxOpenAcdService extends SipxService {
     }
 
     @Override
+    public void initialize() {
+        addDefaultBeanSettingHandler(new DefaultSettings(getLocationsManager().getPrimaryLocation()));
+    }
+
+    @Override
+    public void onInit() {
+        saveOpenAcdSettings();
+    }
+
+    @Override
     public void onConfigChange() {
-        Boolean enabled = (Boolean) getSettingTypedValue("freeswitch_media_manager/FREESWITCH_ENABLED");
-        String cNode = getSettingValue("freeswitch_media_manager/C_NODE");
-        String dialString = getSettingValue("freeswitch_media_manager/DIAL_STRING");
+        saveOpenAcdSettings();
+    }
+
+    private void saveOpenAcdSettings() {
+        Boolean enabled = (Boolean) getSettingTypedValue(FS_ENABLED);
+        String cNode = getSettingValue(C_NODE);
+        String dialString = getSettingValue(DIAL_STRING);
         m_provisioningContext.configure(Collections.singletonList(new FreeswitchMediaCommand(enabled, cNode,
                 dialString)));
-        Boolean dialPlanListener = (Boolean) getSettingTypedValue("agent_configuration/DIALPLAN_LISTENER");
+        Boolean dialPlanListener = (Boolean) getSettingTypedValue(DIALPLAN_LISTENER);
         m_provisioningContext.configure(Collections.singletonList(new OpenAcdAgentConfigCommand(dialPlanListener)));
+    }
+
+    public static class DefaultSettings {
+
+        private Location m_location;
+
+        public DefaultSettings(Location location) {
+            m_location = location;
+        }
+
+        @SettingEntry(path = C_NODE)
+        public String getCNode() {
+            // change this when installing on different locations will be supported
+            return String.format("%s@127.0.0.1", m_location.getHostname());
+        }
+
+        @SettingEntry(path = DIAL_STRING)
+        public String getDialString() {
+            // change this when installing on different locations will be supported
+            return String.format("{ignore_early_media=true}sofia/%s/$1", m_location.getFqdn());
+        }
     }
 }

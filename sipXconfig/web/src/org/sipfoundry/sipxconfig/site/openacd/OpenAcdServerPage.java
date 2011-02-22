@@ -25,6 +25,11 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
 public abstract class OpenAcdServerPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "openacd/OpenAcdServerPage";
@@ -32,9 +37,19 @@ public abstract class OpenAcdServerPage extends PageWithCallback implements Page
     @InjectObject("spring:locationsManager")
     public abstract LocationsManager getLocationsManager();
 
+    @InjectObject("spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
+
+    @InjectObject("spring:serviceConfigurator")
+    public abstract ServiceConfigurator getServiceConfigurator();
+
     public abstract Location getSipxLocation();
 
     public abstract void setSipxLocation(Location location);
+
+    public abstract SipxService getService();
+
+    public abstract void setService(SipxService service);
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
@@ -49,5 +64,17 @@ public abstract class OpenAcdServerPage extends PageWithCallback implements Page
         if (getSipxLocation() == null) {
             setSipxLocation(getLocationsManager().getPrimaryLocation());
         }
+        SipxService sipxService = getSipxServiceManager().getServiceByBeanId(SipxOpenAcdService.BEAN_ID);
+        setService(sipxService);
     }
+
+    public void saveService() {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+        SipxService service = getService();
+        service.validate();
+        getSipxServiceManager().storeService(service);
+    }
+
 }
