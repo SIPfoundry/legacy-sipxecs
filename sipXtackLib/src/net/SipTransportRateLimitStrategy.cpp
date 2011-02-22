@@ -17,6 +17,7 @@
 
 #include "net/SipTransportRateLimitStrategy.h"
 
+
 template <typename T>
 T string_to_number(const char* str)
   /// Convert a string to a numeric value
@@ -51,23 +52,27 @@ void SipTransportRateLimitStrategy::logPacket(const boost::asio::ip::address& so
 
     std::map<boost::asio::ip::address, unsigned int>::iterator iter = _packetCounter.find(source);
     if (iter != _packetCounter.end())
+    {
         _packetCounter[source] = ++iter->second;
-    else
+    }else
+    {
         _packetCounter[source] = 1;
+    }
+
+    boost::posix_time::ptime now(boost::posix_time::microsec_clock::local_time());
+    boost::posix_time::time_duration timeDiff = now - _lastTime;
 
     if (++_currentIterationCount >= _packetsPerSecondThreshold)
     {
         _currentIterationCount = 0;
-        boost::posix_time::ptime now(boost::posix_time::microsec_clock::local_time());
-        boost::posix_time::time_duration timeDiff = now - _lastTime;
+        
+        
         if (timeDiff.total_milliseconds() <=  1000)
         {
 
             //
             // We got a ratelimit violation
             //
-
-
 
             unsigned long watermark = 0;
             boost::asio::ip::address suspect;
@@ -86,38 +91,47 @@ void SipTransportRateLimitStrategy::logPacket(const boost::asio::ip::address& so
                 if (_whiteList.find(source) == _whiteList.end())
                 {
                     if (_threshHoldViolationCallBack)
+                    {
                         _threshHoldViolationCallBack(source, watermark);
+                    }
                     _blackList[source] = now;
                 }
             }
         }
+
         //
         // Reset
         //
+
+
         _packetCounter.clear();
         _lastTime = now;
 
-        //
-        // Check for parole
-        //
-        if (_banLifeTime > 0)
-        {
-            std::vector<boost::asio::ip::address> parole;
-            for (std::map<boost::asio::ip::address, boost::posix_time::ptime>::iterator iter = _blackList.begin();
-                iter != _blackList.end(); iter++)
-            {
-                timeDiff = now - iter->second;
-                if (timeDiff.total_milliseconds() >  _banLifeTime * 1000)
-                parole.push_back(iter->first);
-            }
-
-            for (std::vector<boost::asio::ip::address>::iterator iter = parole.begin(); iter != parole.end(); iter++)
-                _blackList.erase(*iter);
-        }
+        
     }
 
+    //
+      // Check for parole
+      //
+      if (_banLifeTime > 0)
+      {
+          std::vector<boost::asio::ip::address> parole;
+          for (std::map<boost::asio::ip::address, boost::posix_time::ptime>::iterator iter = _blackList.begin();
+              iter != _blackList.end(); iter++)
+          {
+              timeDiff = now - iter->second;
+              if (timeDiff.total_milliseconds() >  _banLifeTime * 1000)
+              parole.push_back(iter->first);
+          }
+
+          for (std::vector<boost::asio::ip::address>::iterator iter = parole.begin(); iter != parole.end(); iter++)
+          {
+              _blackList.erase(*iter);
+          }
+      }
 
     _packetCounterMutex.unlock();
+
 }
 
 bool SipTransportRateLimitStrategy::cidr_verify(const boost::asio::ip::address_v4& ipv4, const std::string& cidr)
@@ -179,6 +193,7 @@ bool SipTransportRateLimitStrategy::isWhiteListedAddressRange(const boost::asio:
     }
 
     _packetCounterMutex.unlock();
+
     return isWhiteListed;
 }
 
@@ -204,13 +219,17 @@ bool SipTransportRateLimitStrategy::isBannedAddressRange(const boost::asio::ip::
 bool SipTransportRateLimitStrategy::isBannedAddress(const boost::asio::ip::address& source) const
 {
     if (!_enabled)
+    {
         return false;
+    }
 
     if (isWhiteListedAddressRange(source))
+    {
         return false;
-    else if (isBannedAddressRange(source))
+    }else if (isBannedAddressRange(source))
+    {
         return true;
-    else
+    }else
     {
         bool banned = false;
         _packetCounterMutex.lock();
@@ -221,6 +240,7 @@ bool SipTransportRateLimitStrategy::isBannedAddress(const boost::asio::ip::addre
         _packetCounterMutex.unlock();
         return banned;
     }
+
 }
 
 void SipTransportRateLimitStrategy::banAddress(const boost::asio::ip::address& source, bool permanently)
