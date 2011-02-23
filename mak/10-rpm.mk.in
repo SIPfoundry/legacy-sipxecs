@@ -15,8 +15,8 @@ MOCK_SRPM_DIR = @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
 
 # Define sipx SRPMS and tarball files. Cannot define RPM files however as they could be many
 # strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
-$(foreach P,$(sipx),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION).src.rpm))
-$(foreach P,$(sipx),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION).tar.gz))
+$(foreach P,$(sipx) $(lang),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION).src.rpm))
+$(foreach P,$(sipx) $(lang),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION).tar.gz))
 
 # pull in dependency make fragments
 include $(SRC)/*/.sipxecs.mk
@@ -37,7 +37,7 @@ $(foreach D,@ALL_DISTROS@,distro.$(D).%) :
 
 help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
   http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
-$(foreach T,$(sipx) $(lib),$(T).rpm) : %.rpm : %.autoreconf %.configure %.dist %.srpm %.rpm-by-mock;
+$(foreach T,$(all),$(T).rpm) : %.rpm : %.autoreconf %.configure %.dist %.srpm %.rpm-by-mock;
 
 CopySourceFile = \
 	if [ -f $1 ]; then \

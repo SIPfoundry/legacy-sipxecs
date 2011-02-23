@@ -20,7 +20,7 @@ DISTRO_RESULTS_DIR = $(strip \
 lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 
 # for each sipx-% target, define a variable for the corresponding project directory
-PROJ =  $(filter $(all),$(subst ., ,$@))
+PROJ = $(filter $(all),$(subst ., ,$@))
 proj = $(call lowercase,$(PROJ))
 
 # find any matches of $(sipx) or $(lib) anywhere in a target string and expands it into multiple target that

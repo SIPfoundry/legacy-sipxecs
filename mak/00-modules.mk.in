@@ -40,6 +40,12 @@ sipx = \
   sipXopenacd \
   sipXecs
 
+lang = \
+  sipXecs-lang-de \
+  sipXecs-lang-it \
+  sipXecs-lang-pt_BR \
+  sipXecs-lang-pl
+
 lib_common = \
   rubygem-file-tail \
   freeswitch \
@@ -72,4 +78,4 @@ lib_centos_5 = \
 
 lib = $(lib_$(DISTRO_OS)_$(DISTRO_VER))
 
-all =  $(lib) $(sipx)
+all =  $(lib) $(sipx) $(lang)
