@@ -608,7 +608,20 @@ nameserver %s\n\
                         log_printout("unpack '%s'" % configFile.name)
                         progressVal=progressVal+progressIncr
                         progress(progressVal, configFile.name)
-                        configTar.extract(configFile)
+                        try:
+                          configTar.extract(configFile)
+                        except (IOError, OSError):
+			    excType, excData, excTrace = sys.exc_info()
+                            errorMsg=format_string2_5(sipxecsGlobals()._("\
+Invalid configuration returned from\n\
+  %s\n\
+exception %s\n\
+  %s\n\
+headers\n\
+%s\n\
+"), (ConfigUrl, excType, excData, headers) )
+		            log_printout(errorMsg)
+		            pass
                         show_progress()
                     configTar.close()
                     gotConfig=True
