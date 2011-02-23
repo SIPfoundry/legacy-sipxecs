@@ -160,7 +160,7 @@ bool SipTransportRateLimitStrategy::cidr_verify(const boost::asio::ip::address_v
     {
       long double numHosts = pow((long double)2, (int)(32-bits)) - 1;
       unsigned long start_ip_ipv4ul = start_ip_ipv4.to_ulong();
-      unsigned long ceiling = start_ip_ipv4ul + numHosts;
+      unsigned long ceiling = start_ip_ipv4ul + (unsigned long)numHosts;
       return ipv4ul >= start_ip_ipv4ul && ipv4ul <= ceiling;
     }
 

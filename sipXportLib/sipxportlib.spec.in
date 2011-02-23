@@ -16,6 +16,7 @@ BuildRequires: cppunit-devel
 BuildRequires: openssl-devel >= 0.9.7a
 BuildRequires: pcre-devel >= 4.5
 BuildRequires: findutils
+BuildRequires: boost-devel >= 1.39
 
 # sipXphone would require 0.9.7c to decrypt profiles to get access to
 # certain new alg.  If this is still nec., this may need to be
@@ -25,6 +26,7 @@ BuildRequires: findutils
 # security package to a RH uncertified version.
 Requires: openssl >= 0.9.7a
 Requires: pcre >= 4.5
+Requires: boost >= 1.39
 
 Source: %name-%version.tar.gz
 
