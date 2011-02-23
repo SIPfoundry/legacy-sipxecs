@@ -381,11 +381,24 @@ public abstract class SipxService extends BeanWithSettings implements Model, Ser
      * SipxServiceManager object
      */
     protected void setLogLevel(String logLevel) {
+        setLogLevel(logLevel, true);
+    }
+
+    /**
+     * Sets the log level of this service to the specified log level. This method will only return
+     * the correct value if the concrete subclass provides an implementation of getLogSetting().
+     *
+     * Calling this method will cause this service object to be persisted to the
+     * SipxServiceManager object. Pass a false value for notifyConfigChanges param and
+     * service.onConfiguration method will not be triggered - this is used for services that has
+     * to perform custom logic on changing configuration but not also when changing log levels.
+     */
+    protected void setLogLevel(String logLevel, boolean notifyConfigChanges) {
         if (logLevel != null && getLogSetting() != null) {
             if (!logLevel.equals(this.getSettingValue(getLogSetting()))) {
                 m_loggingManager.getEntitiesToProcess().add((LoggingEntity) this);
                 setSettingValue(getLogSetting(), logLevel);
-                getSipxServiceManager().storeService(this);
+                getSipxServiceManager().storeService(this, notifyConfigChanges);
             }
         }
     }
