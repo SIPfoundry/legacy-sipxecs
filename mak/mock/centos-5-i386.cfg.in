@@ -14,7 +14,7 @@ retries=20
 obsoletes=1
 gpgcheck=0
 assumeyes=1
-proxy=@DOWNLOAD_PROXY@
+@DOWNLOAD_PROXY_CONFIG_LINE@
 
 # repos
 [core]

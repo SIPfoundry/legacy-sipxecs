@@ -18,7 +18,7 @@ assumeyes=1
 # .i?86 packages except these.
 exclude=[1-9A-Za-fh-z]*.i?86 g[0-9A-Za-km-z]*.i?86 gl[0-9A-Za-hj-z]*.i?86 gli[0-9A-Zac-z]*.i?86 glib[0-9A-Za-bd-z]*.i?86
 # repos
-proxy=@DOWNLOAD_PROXY@
+@DOWNLOAD_PROXY_CONFIG_LINE@
 
 # repos
 [core]
