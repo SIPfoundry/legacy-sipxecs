@@ -258,6 +258,10 @@ public class ServiceConfiguratorImplTest extends TestCase {
 
         rc.generateAll();
         expectLastCall().anyTimes();
+        rc.resyncSlave(location1);
+        expectLastCall().anyTimes();
+        rc.resyncSlave(location2);
+        expectLastCall().anyTimes();
 
         dm.replicateDialPlan(false);
         expectLastCall().times(1);

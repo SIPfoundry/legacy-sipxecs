@@ -28,6 +28,7 @@ import org.springframework.context.ApplicationEvent;
  * Until mongo introduction it made sense for both IMDB and config files to be lazily replicated
  * but now with IMDB change to mongo and with the focus shift from Dataset replication to
  * Replicable entity replication lazy does not make sense for entities.
+ * TODO: this will have to go away, and only eager replication to exist
  */
 public class LazySipxReplicationContextImpl implements SipxReplicationContext {
     private static final Log LOG = LogFactory.getLog(LazySipxReplicationContextImpl.class);
@@ -213,6 +214,11 @@ public class LazySipxReplicationContextImpl implements SipxReplicationContext {
 
     @Override
     public void replicateWork(Replicable entity) {
+    }
+
+    @Override
+    public void resyncSlave(Location location) {
+        m_target.resyncSlave(location);
     }
 
 }

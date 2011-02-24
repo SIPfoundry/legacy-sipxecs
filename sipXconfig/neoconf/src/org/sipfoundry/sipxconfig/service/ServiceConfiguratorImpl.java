@@ -121,6 +121,9 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         for (LocationSpecificService service : location.getServices()) {
             replicateServiceConfig(location, service.getSipxService());
         }
+        if (!location.isPrimary()) {
+            m_replicationContext.resyncSlave(location);
+        }
     }
 
     /**
@@ -223,21 +226,27 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
             return;
         }
         for (Location location : locations) {
-            if (!location.isRegistered()) {
-                continue;
-            }
-            m_domainManager.replicateDomainConfig(m_replicationContext, location);
-            // supervisor is always installed, never on the list of standard services
-            SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
-            replicateServiceConfig(location, supervisorService);
-
-            // replicate alarm server
-            SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
-            replicateServiceConfig(location, alarmService);
+            initLocation(location);
         }
 
-        generateDataSets();
         replicateDialPlans();
+    }
+
+    public void initLocation(Location location) {
+        if (!location.isRegistered()) {
+            return;
+        }
+        m_domainManager.replicateDomainConfig(m_replicationContext, location);
+        // supervisor is always installed, never on the list of standard services
+        SipxService supervisorService = m_sipxServiceManager.getServiceByBeanId(SipxSupervisorService.BEAN_ID);
+        replicateServiceConfig(location, supervisorService);
+
+        // replicate alarm server
+        SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
+        replicateServiceConfig(location, alarmService);
+        if (location.isPrimary()) {
+            generateDataSets();
+        }
     }
 
     /**

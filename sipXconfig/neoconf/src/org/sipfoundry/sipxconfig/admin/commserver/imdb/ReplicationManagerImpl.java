@@ -17,6 +17,7 @@ import java.io.Writer;
 import java.util.Set;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.CommandResult;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -47,6 +48,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String DB_NAME = "imdb";
     private static final String DB_COLLECTION_NAME = "entity";
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
+    private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
+    private static final String COLON = ":";
     private Mongo m_mongoInstance;
 
     private boolean m_enabled = true;
@@ -61,9 +64,19 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             try {
                 m_mongoInstance = new Mongo(HOST, PORT);
             } catch (Exception e) {
-                LOG.error("Unable to open mongo connection on: " + HOST + ":" + PORT);
+                LOG.error(UNABLE_OPEN_MONGO + HOST + COLON + PORT);
                 throw (e);
             }
+        }
+    }
+
+    private Mongo initMongo(Location location) throws Exception {
+        try {
+            Mongo mongoInstance = new Mongo(location.getAddress(), PORT);
+            return mongoInstance;
+        } catch (Exception e) {
+            LOG.error(UNABLE_OPEN_MONGO + HOST + COLON + PORT);
+            throw (e);
         }
     }
 
@@ -175,6 +188,24 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         return success;
     }
 
+    @Override
+    public void resyncSlave(Location location) {
+        try {
+            Mongo mongo = initMongo(location);
+            DB adminDb = mongo.getDB("admin");
+            CommandResult cr = adminDb.command("resync");
+            double ok = (Double) cr.get("ok");
+            if (ok == 0) {
+                LOG.error("Replication: resync - " + cr.get("errmsg"));
+            } else {
+                LOG.info("Replication: resync started - " + location.getAddress());
+            }
+        } catch (Exception e) {
+            LOG.error("Replication: resync failed - " + location.getAddress(), e);
+        }
+
+    }
+
     /**
      * Encodes payload using Base64 and returns encoded data as string
      *
@@ -242,4 +273,5 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     public void setBeanFactory(BeanFactory beanFactory) {
         m_beanFactory = beanFactory;
     }
+
 }

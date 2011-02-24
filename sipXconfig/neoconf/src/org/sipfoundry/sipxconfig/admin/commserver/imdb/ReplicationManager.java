@@ -38,4 +38,5 @@ public interface ReplicationManager {
     boolean removeEntity(Replicable entity);
 
     boolean replicateAllData();
+    void resyncSlave(Location location);
 }

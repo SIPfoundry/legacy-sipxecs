@@ -10,13 +10,10 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.LazySipxReplicationContextImpl.ReplicationTask;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.job.JobContext;
@@ -31,7 +28,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     private static final String IGNORE_REPLICATION_MESSAGE = "In initialization phase, ignoring request to replicate ";
 
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
-    private final List<ReplicationTask> m_tasks = new ArrayList<ReplicationTask>();
     private ApplicationEventPublisher m_applicationEventPublisher;
     private ReplicationManager m_replicationManager;
     private JobContext m_jobContext;
@@ -49,6 +45,11 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
 
     public void remove(final Replicable entity) {
         m_replicationManager.removeEntity(entity);
+    }
+
+    @Override
+    public void resyncSlave(Location location) {
+        m_replicationManager.resyncSlave(location);
     }
 
     public void replicate(ConfigurationFile file) {
