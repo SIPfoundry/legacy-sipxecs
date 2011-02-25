@@ -26,8 +26,7 @@ version_Age=0
 libsipXtack_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
 	@PCRE_LDFLAGS@ \
-	@SSL_LDFLAGS@ \
-    -lboost_system-mt -lboost_thread-mt
+	@SSL_LDFLAGS@
 
 libsipXtack_la_CXXFLAGS = \
 	@PCRE_CXXFLAGS@ \
@@ -47,7 +46,7 @@ libsipXtack_la_CFLAGS = \
 libsipXtack_la_LIBADD = \
 	@SIPXPORT_LIBS@ \
 	@SSL_LIBS@ \
-	-lstdc++ -lboost_system-mt -lboost_thread-mt
+	-lstdc++
 
 libsipXtack_la_SOURCES =  \
     net/BranchId.cpp \

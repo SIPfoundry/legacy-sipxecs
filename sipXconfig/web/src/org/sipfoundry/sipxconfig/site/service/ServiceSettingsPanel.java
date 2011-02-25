@@ -43,6 +43,11 @@ public abstract class ServiceSettingsPanel extends BaseComponent {
     @Parameter(required = false)
     public abstract String getSettingsToHide();
 
+    @Parameter(defaultValue = "true")
+    public abstract boolean getRenderGroupTitle();
+
+    public abstract void setRenderGroupTitle(boolean render);
+
     @Persist
     public abstract String getParentSettingName();
 

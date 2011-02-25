@@ -1089,7 +1089,7 @@ EOF
      OpenacdDir=${Work}/OpenACD
      mkdir ${OpenacdDir}
      cp -r /opt/OpenACD/etc ${OpenacdDir}
-     cp -r /opt/OpenACD/run ${OpenacdDir}
+     cp -r @SIPX_VARDIR@/openacd ${OpenacdDir}
    fi
 
    #Dump the mongo database in bson format

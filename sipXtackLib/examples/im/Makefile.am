@@ -4,6 +4,7 @@ INCLUDES = -I$(top_srcdir)/include
 
 noinst_PROGRAMS = basicImClient
 
-basicImClient_LDADD = $(top_builddir)/src/libsipXtack.la -lboost_system-mt -lboost_thread-mt
+basicImClient_LDADD = \
+	$(top_builddir)/src/libsipXtack.la
 
 basicImClient_SOURCES =  basicImClient.cpp

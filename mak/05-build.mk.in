@@ -23,7 +23,7 @@ help.{1|2}.autoreconf=Run autoreconf on each project
 
 help.{1|2}.configure = Run configure on each project
 %.configure :
-	test -d $(PROJ) || mkdir $(PROJ)
+	test -d $(PROJ) || mkdir -p $(PROJ)
 	cd $(PROJ); \
 	  $(SRC)/$(PROJ)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 

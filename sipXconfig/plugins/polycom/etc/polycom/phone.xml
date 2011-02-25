@@ -2089,6 +2089,12 @@
       </type>
       <value>0</value>
     </setting>
+    <setting name="custom-configs" advanced="yes">
+     <type>
+       <string/>
+     </type>
+     <value />
+    </setting>
   </group>
   <group name="mb">
     <setting name="proxy">

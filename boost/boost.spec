@@ -6,7 +6,7 @@
 
 Name:                         boost  
 Version:                      1.39.0  
-Release:                      1
+Release:                      2
 Summary:                      Boost C++ Libraries  
 License:                      BSD 3-Clause  
 Group:                        Development/Libraries/C and C++  
@@ -110,15 +110,18 @@ do
     nname="$(basename "$x")"      # libboost_regex-gcc42-mt-1_35.so.1.35.0  
     sname="${nname%%.%version}"   # libboost_regex-gcc42-mt-1_35.so  
     lname="${nname%%%%-*}.so"     # libboost_regex.so  
+    lnamemt="${nname%%%%-*}-mt.so"     # libboost_regex-mt.so  
   
-    #echo "$nname -> $sname -> $lname"  
+    echo "$nname -> $sname -> $lname, $lnamemt"  
   
     echo "%{_libdir}/$nname" >> filelist.lib  
     echo "%{_libdir}/$sname" >> filelist.devel  
     echo "%{_libdir}/$lname" >> filelist.devel  
+    echo "%{_libdir}/$lnamemt" >> filelist.devel  
   
-    ln -s "$nname" "$DESTDIR/%{_libdir}/$sname"  
-    ln -s "$nname" "$DESTDIR/%{_libdir}/$lname"  
+    ln -s "$nname" "$DESTDIR/%{_libdir}/$sname"
+    ln -s "$nname" "$DESTDIR/%{_libdir}/$lname"
+    ln -s "$nname" "$DESTDIR/%{_libdir}/$lnamemt"
 done  
   
   
@@ -151,3 +154,5 @@ rm -rf $RPM_BUILD_ROOT
 %doc .backup/*  
   
 %changelog
+* Thu Feb 23 2011 Douglas Hubler <douglas@hubler.us>
+- Make "-mt" links available to .so as well

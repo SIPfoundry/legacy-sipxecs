@@ -21,14 +21,16 @@ libsipXport_la_LDFLAGS = \
 	-version-info ${version_Current}:${version_Revision}:${version_Age} \
 	@PCRE_LDFLAGS@ \
 	@SSL_LDFLAGS@ \
-    -lboost_system-mt -lboost_thread-mt
+	@BOOST_LDFLAGS@
 
 libsipXport_la_LIBADD = \
 	@PCRE_LIBS@ \
 	@SSL_LIBS@ \
 	@RT_LIBS@ \
 	-lpthread  \
-	-lstdc++ -lboost_system-mt -lboost_thread-mt
+	-lstdc++ \
+	-lboost_system-mt \
+	-lboost_thread-mt
 
 # this is helpful if you're debugging something with lots of inlines (like the UtlLink code)
 # 		-fno-gcse -O0 -fno-implement-inlines -fno-default-inline

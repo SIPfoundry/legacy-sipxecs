@@ -509,7 +509,7 @@ int SipClient::run(void* runArg)
    do
    {
       assert(repeatedEOFs < 20);
-      // The file descriptor for the socket may change, as OsSocket's
+      // The file descriptor for the socket may changemsg->getSendAddress(&fromIpAddress, &fromPort);, as OsSocket's
       // can be re-opened.
       fds[1].fd = mClientSocket->getSocketDescriptor();
 
@@ -648,25 +648,6 @@ int SipClient::run(void* runArg)
          // Must allocate a new message because SipUserAgent::dispatch will
          // take ownership of it.
 
-         UtlString remoteHostAddress;
-         UtlString localHostAddress;
-         mClientSocket->getRemoteHostIp(&remoteHostAddress);
-         mClientSocket->getLocalHostIp(&localHostAddress);
-         if (!mClientSocket->isSameHost(remoteHostAddress.data(), localHostAddress.data()))
-         {
-             boost::asio::ip::address remoteIp = boost::asio::ip::address::from_string(remoteHostAddress.data());
-             if (rateLimit().isBannedAddress(remoteIp))
-             {
-                char buff[1024];
-                while(mClientSocket->read(buff, 1024, 0) > 0);
-
-                continue;
-             }
-
-             rateLimit().logPacket(remoteIp, 0);
-         }
-
-
          SipMessage* msg = new SipMessage;
          int res = msg->read(mClientSocket,
                              HTTP_DEFAULT_SOCKET_BUFFER_SIZE,
@@ -676,6 +657,35 @@ int SipClient::run(void* runArg)
          // Note that if a message was successfully parsed, readBuffer
          // still contains as its prefix the characters of that message.
          // We save them for logging purposes below and will delete them later.
+
+         UtlString remoteHostAddress;
+         int remoteHostPort;
+         msg->getSendAddress(&remoteHostAddress, &remoteHostPort);
+         if (!mClientSocket->isSameHost(remoteHostAddress.data(), mLocalHostAddress.data()))
+         {
+           try
+           {
+             if (!remoteHostAddress.isNull())
+             {
+               boost::asio::ip::address remoteIp = boost::asio::ip::address::from_string(remoteHostAddress.data());
+
+               if (rateLimit().isBannedAddress(remoteIp))
+               {
+                  delete msg;
+                  readBuffer.remove(0);
+                  continue;
+               }
+
+               rateLimit().logPacket(remoteIp, 0);
+             }
+           }
+           catch(const std::exception& e)
+           {
+             OsSysLog::add(FAC_SIP_INCOMING, PRI_CRIT, 
+               "SipClient[%s]::run rate limit exception: %s",  mName.data(), e.what());
+           }
+         }
+
 
          // Note that input was processed at this time.
          touch();

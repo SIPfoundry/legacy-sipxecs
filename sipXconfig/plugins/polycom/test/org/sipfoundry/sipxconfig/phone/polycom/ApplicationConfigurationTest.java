@@ -50,4 +50,12 @@ public class ApplicationConfigurationTest extends PolycomXmlTestCase {
         assertPolycomXmlEquals(expectedPhoneStream, m_location.getReader());
         expectedPhoneStream.close();
     }
+
+    public void testNonBlankEndsInComma() {
+        assertNull(ApplicationConfiguration.nonBlankEndsInComma(null));
+        assertEquals("", ApplicationConfiguration.nonBlankEndsInComma(""));
+        assertEquals("", ApplicationConfiguration.nonBlankEndsInComma(""));
+        assertEquals("goose,", ApplicationConfiguration.nonBlankEndsInComma("goose"));
+        assertEquals("goose,", ApplicationConfiguration.nonBlankEndsInComma("goose,"));
+    }
 }

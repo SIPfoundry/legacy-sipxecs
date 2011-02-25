@@ -101,4 +101,21 @@ public abstract class OpenAcdAgentWithSkills extends OpenAcdConfigObject {
         return StringUtils.join(clients, DELIM);
     }
 
+    public String getAllSkillsAsString() {
+        return StringUtils.join(getAllSkillNames(), DELIM);
+    }
+
+    public List<String> getAllSkillNames() {
+        List<String> skills = new ArrayList<String>();
+        for (OpenAcdSkill skill : getSkills()) {
+            skills.add(skill.getName());
+        }
+        for (OpenAcdQueue queue : getQueues()) {
+            skills.add(queue.getName());
+        }
+        for (OpenAcdClient client : getClients()) {
+            skills.add(client.getName());
+        }
+        return skills;
+    }
 }

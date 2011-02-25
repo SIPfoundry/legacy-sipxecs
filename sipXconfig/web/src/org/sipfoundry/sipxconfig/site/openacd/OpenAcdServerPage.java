@@ -17,25 +17,64 @@ package org.sipfoundry.sipxconfig.site.openacd;
 
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InitialValue;
+import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
+import org.apache.tapestry.event.PageBeginRenderListener;
+import org.apache.tapestry.event.PageEvent;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
+import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
+import org.sipfoundry.sipxconfig.service.SipxOpenAcdService;
+import org.sipfoundry.sipxconfig.service.SipxService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
-public abstract class OpenAcdServerPage extends PageWithCallback {
+public abstract class OpenAcdServerPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "openacd/OpenAcdServerPage";
 
-    @Persist
+    @InjectObject("spring:locationsManager")
+    public abstract LocationsManager getLocationsManager();
+
+    @InjectObject("spring:sipxServiceManager")
+    public abstract SipxServiceManager getSipxServiceManager();
+
+    @InjectObject("spring:serviceConfigurator")
+    public abstract ServiceConfigurator getServiceConfigurator();
+
     public abstract Location getSipxLocation();
 
     public abstract void setSipxLocation(Location location);
+
+    public abstract SipxService getService();
+
+    public abstract void setService(SipxService service);
 
     @Bean
     public abstract SipxValidationDelegate getValidator();
 
     @Persist
-    @InitialValue("literal:lines")
+    @InitialValue("literal:clients")
     public abstract String getTab();
 
     public abstract void setTab(String tab);
+
+    public void pageBeginRender(PageEvent event) {
+        if (getSipxLocation() == null) {
+            setSipxLocation(getLocationsManager().getPrimaryLocation());
+        }
+        SipxService sipxService = getSipxServiceManager().getServiceByBeanId(SipxOpenAcdService.BEAN_ID);
+        setService(sipxService);
+    }
+
+    public void saveService() {
+        if (!TapestryUtils.isValid(this)) {
+            return;
+        }
+        SipxService service = getService();
+        service.validate();
+        getSipxServiceManager().storeService(service);
+    }
+
 }
