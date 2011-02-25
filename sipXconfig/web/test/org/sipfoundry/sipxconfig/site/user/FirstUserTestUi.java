@@ -57,7 +57,7 @@ public class FirstUserTestUi extends WebTestCase {
         final String PIN = "ch33zeW1z";
         setTextField("cp:password", PIN);
         setTextField("cp:confirmPassword", PIN);
-        clickButton("form:apply");
+        clickButton("Submit");
         assertCopacetic();
 
         // We should land on the login page

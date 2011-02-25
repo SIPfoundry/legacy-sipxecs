@@ -14,17 +14,17 @@
           </false>
         </boolean>
       </type>
-      <value>false</value>
+      <value>true</value>
     </setting>
-    <setting name="C_NODE">
+    <setting name="C_NODE" advanced="yes">
       <type>
         <string />
       </type>
-      <value></value>
+      <value>openacd@127.0.0.1</value>
     </setting>
-    <setting name="DIAL_STRING">
+    <setting name="DIAL_STRING" advanced="yes">
       <type>
-        <string />
+        <string multiLine="yes" />
       </type>
       <value></value>
     </setting>
@@ -41,7 +41,7 @@
           </false>
         </boolean>
       </type>
-      <value>false</value>
+      <value>true</value>
     </setting>
   </group>
 </model>

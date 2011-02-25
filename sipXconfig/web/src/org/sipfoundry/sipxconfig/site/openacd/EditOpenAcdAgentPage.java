@@ -15,10 +15,8 @@
  */
 package org.sipfoundry.sipxconfig.site.openacd;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.tapestry.annotations.Bean;
 import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.annotations.Persist;
@@ -26,15 +24,13 @@ import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
 import org.apache.tapestry.form.StringPropertySelectionModel;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgent;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdAgentGroup;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdClient;
 import org.sipfoundry.sipxconfig.openacd.OpenAcdContext;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdQueue;
-import org.sipfoundry.sipxconfig.openacd.OpenAcdSkill;
 
 public abstract class EditOpenAcdAgentPage extends PageWithCallback implements PageBeginRenderListener {
     public static final String PAGE = "openacd/EditOpenAcdAgentPage";
@@ -55,9 +51,17 @@ public abstract class EditOpenAcdAgentPage extends PageWithCallback implements P
 
     public abstract void setAgent(OpenAcdAgent agent);
 
-    public abstract String getInheritedSkills();
+    public abstract void setSelectedAgentGroup(OpenAcdAgentGroup selectedAgentGroup);
 
-    public abstract void setInheritedSkills(String skills);
+    public abstract OpenAcdAgentGroup getSelectedAgentGroup();
+
+    public abstract List<String> getInheritedSkills();
+
+    public abstract void setInheritedSkills(List<String> skills);
+
+    public abstract String getSkill();
+
+    public abstract void setSkill(String skill);
 
     public void editAgent(Integer groupId, String returnPage) {
         setAgentId(groupId);
@@ -66,22 +70,15 @@ public abstract class EditOpenAcdAgentPage extends PageWithCallback implements P
     }
 
     @Override
-    public void pageBeginRender(PageEvent event_) {
+    public void pageBeginRender(PageEvent event) {
         if (!TapestryUtils.isValid(this)) {
             return;
         }
         OpenAcdAgentGroup group = getAgent().getGroup();
-        List<String> skills = new ArrayList<String>();
-        for (OpenAcdSkill skill : group.getSkills()) {
-            skills.add(skill.getName());
+        if (group != null) {
+            setSelectedAgentGroup(group);
+            setInheritedSkills(group.getAllSkillNames());
         }
-        for (OpenAcdQueue queue : group.getQueues()) {
-            skills.add(queue.getName());
-        }
-        for (OpenAcdClient client : group.getClients()) {
-            skills.add(client.getName());
-        }
-        setInheritedSkills(StringUtils.join(skills, ", "));
     }
 
     public void commit() {
@@ -89,7 +86,13 @@ public abstract class EditOpenAcdAgentPage extends PageWithCallback implements P
             return;
         }
 
-        getOpenAcdContext().saveAgent(getAgent());
+        OpenAcdAgentGroup agentGroup = getSelectedAgentGroup();
+        if (agentGroup == null) {
+            throw new UserException(getMessages().getMessage("error.agentGroup.error"));
+        }
+        OpenAcdAgent agent = getAgent();
+        agent.setGroup(agentGroup);
+        getOpenAcdContext().saveAgent(agent);
     }
 
     public IPropertySelectionModel getAgentSecurityModel() {

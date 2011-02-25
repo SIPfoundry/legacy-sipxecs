@@ -8,7 +8,7 @@
 
     <meta key="org.apache.tapestry.page-class-packages" value="org.sipfoundry.sipxconfig.site"/>
     <meta key="org.apache.tapestry.component-class-packages" value="org.sipfoundry.sipxconfig.site"/>
-    <meta key="org.apache.tapestry.plugin-packages" value="org.sipfoundry.sipxconfig.site"/>
+    <meta key="org.apache.tapestry.plugin-packages" value="org.sipfoundry.sipxconfig.web.plugin"/>
 
     <library id="contrib" specification-path="/org/apache/tapestry/contrib/Contrib.library"/>
 

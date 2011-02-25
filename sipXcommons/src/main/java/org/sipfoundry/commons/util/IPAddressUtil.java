@@ -5,6 +5,9 @@
  */
 package org.sipfoundry.commons.util;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 /**
  * @author Mardy Marshall
@@ -41,5 +44,20 @@ public class IPAddressUtil {
 		// All checks passed.
 		return true;
 	}
+
+	/**
+     * Test to see if the given address string represents a literal IPv4 subnet address.
+     *
+     * @param address
+     *           The address string to be tested.
+     *
+     * @return
+     *           True if literal IPv4 subnet address, False otherwise.
+     */
+    public static boolean isLiteralIPSubnetAddress(String address) {
+        Pattern subnetPattern = Pattern.compile("[0-9]{1,3}(\\.[0-9]{1,3}){0,3}/[0-9]{1,2}");
+        Matcher subnetMather = subnetPattern.matcher(address);
+        return subnetMather.matches();
+    }
 
 }

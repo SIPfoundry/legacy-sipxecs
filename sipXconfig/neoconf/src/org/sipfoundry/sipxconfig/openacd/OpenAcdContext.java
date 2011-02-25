@@ -64,7 +64,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
 
     void saveAgent(OpenAcdAgentGroup agentGroup, OpenAcdAgent agent);
 
-    void deleteAgents(Integer groupId, Collection<Integer> agentIds);
+    void deleteAgents(Collection<Integer> agentIds);
 
     void saveAgent(OpenAcdAgent agent);
 

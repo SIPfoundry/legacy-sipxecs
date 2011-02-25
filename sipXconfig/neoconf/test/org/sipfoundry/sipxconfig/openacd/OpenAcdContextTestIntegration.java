@@ -376,8 +376,11 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
         // test remove agents from group
         grp.removeAgent(agent1);
-        grp.removeAgent(agent2);
         m_openAcdContextImpl.saveAgentGroup(grp);
+        assertEquals(2, m_openAcdContextImpl.getAgents().size());
+
+        // remove agents
+        m_openAcdContextImpl.deleteAgents(Collections.singletonList(agent2.getId()));
         assertEquals(1, m_openAcdContextImpl.getAgents().size());
 
         // remove groups
@@ -610,12 +613,23 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testOpenAcdClient() {
+        // get 'Demo Client' client
+        assertEquals(1, m_openAcdContextImpl.getClients().size());
+
+        // test get client by name
+        OpenAcdClient defaultClient = m_openAcdContextImpl.getClientByName("Demo Client");
+        assertNotNull(defaultClient);
+        assertEquals("Demo Client", defaultClient.getName());
+        assertEquals("00990099", defaultClient.getIdentity());
+
+        // test save client
         OpenAcdClient client = new OpenAcdClient();
         client.setName("client");
         client.setIdentity("10101");
         m_openAcdContextImpl.saveClient(client);
-        assertEquals(1, m_openAcdContextImpl.getClients().size());
+        assertEquals(2, m_openAcdContextImpl.getClients().size());
 
+        // test save client with the same name
         OpenAcdClient anotherClient = new OpenAcdClient();
         anotherClient.setName("client");
         try {
@@ -623,6 +637,8 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             fail();
         } catch (UserException ex) {
         }
+
+        // test save client with the same identity
         anotherClient.setName("anotherClient");
         anotherClient.setIdentity("10101");
         try {
@@ -632,13 +648,18 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         }
         anotherClient.setIdentity("11111");
         m_openAcdContextImpl.saveClient(anotherClient);
-        assertEquals(2, m_openAcdContextImpl.getClients().size());
+        assertEquals(3, m_openAcdContextImpl.getClients().size());
 
-        m_openAcdContextImpl.removeClients(Collections.singleton(anotherClient.getId()));
+        // test remove clients but prevent 'Demo Client' deletion
+        Collection<Integer> clientIds = new ArrayList<Integer>();
+        clientIds.add(defaultClient.getId());
+        clientIds.add(client.getId());
+        clientIds.add(anotherClient.getId());
+        m_openAcdContextImpl.removeClients(clientIds);
         assertEquals(1, m_openAcdContextImpl.getClients().size());
-
-        assertEquals("client", m_openAcdContextImpl.getClientById(client.getId()).getName());
-        assertEquals("client", m_openAcdContextImpl.getClientByIdentity(client.getIdentity()).getName());
+        assertNotNull(m_openAcdContextImpl.getClientByName("Demo Client"));
+        assertEquals("Demo Client", m_openAcdContextImpl.getClientById(defaultClient.getId()).getName());
+        assertEquals("Demo Client", m_openAcdContextImpl.getClientByIdentity(defaultClient.getIdentity()).getName());
     }
 
     public void testOpenAcdQueueGroupCrud() throws Exception {

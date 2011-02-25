@@ -51,12 +51,12 @@
 					<li jwcid="@If" condition="ognl:acdContext.enabled">
 						<a jwcid="@PageLink" id="menu.acd" page="acd/ListAcdServers"><span key="menu.acd">ACD</span></a>
 					</li>
-					<li jwcid="@If" condition="ognl:openAcdEnabled">
-						<a jwcid="@PageLink" id="menu.openAcd" page="openacd/ListOpenAcdServers"><span key="menu.openAcd">OpenACD</span></a>
-					</li>
 					<!-- does not used "presenceServer.enabled" because AcdPresenceServer page requires ACD to be available as well -->
 					<li jwcid="@If" condition="ognl: acdContext.enabled">
 						<a jwcid="@PageLink" id="menu.acdPresence" page="acd/AcdPresenceServer"><span key="menu.acdPresence">ACD Presence</span></a>
+					</li>
+					<li jwcid="@If" condition="ognl:openAcdEnabled">
+						<a jwcid="@PageLink" id="menu.openAcd" page="openacd/OpenAcdServerPage"><span key="menu.openAcd">Call Center</span></a>
 					</li>
 					<li><a jwcid="@PageLink" id="menu.conferenceBridge" page="conference/ListBridges"><span key="menu.conferenceBridge">Conference Bridge</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.attendants" page="dialplan/ManageAttendants"><span key="menu.attendants">Auto Attendants</span></a></li>
@@ -89,6 +89,7 @@
 					<li><a jwcid="@PageLink" id="menu.dialPlans" page="dialplan/EditFlexibleDialPlan"><span key="menu.dialPlans">Dial Plans</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.internetCalling" page="dialplan/sbc/InternetCalling"><span key="menu.internetCalling">Internet Calling</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.permissions" page="permission/ListPermissions"><span key="menu.permissions">Permissions</span></a></li>
+					<li><a jwcid="@PageLink" id="menu.callRateLimit" page="admin/CallRateLimitPage"><span key="menu.callRateLimit">CallRateLimit</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.importCsv" page="admin/BulkImport"><span key="menu.importCsv">Import</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.ldap" page="admin/ldap/LdapPage"><span key="menu.ldap">LDAP</span></a></li>
 					<li><a jwcid="@PageLink" id="menu.backup" page="admin/BackupPage"><span key="menu.backup">Backup</span></a></li>

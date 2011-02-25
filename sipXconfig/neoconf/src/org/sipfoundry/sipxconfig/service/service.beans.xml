@@ -138,6 +138,7 @@
     <property name="modelName" value="sipxproxy.xml" />
     <property name="modelDir" value="sipxproxy" />
     <property name="editable" value="true" />
+    <property name="groupTitleEnabled" value="true" />
     <property name="configurations">
       <list>
         <ref bean="sipxProxyConfiguration" />
@@ -816,7 +817,6 @@
     <property name="processName" value="OpenACDServer" />
     <property name="modelName" value="sipxopenacd.xml" />
     <property name="modelDir" value="openacd" />
-    <property name="editable" value="true" />
     <property name="groupTitleEnabled" value="true" />
     <property name="bundles">
       <set>

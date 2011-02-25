@@ -118,6 +118,7 @@ libsipXtack_la_SOURCES =  \
     net/SipTlsServer.cpp \
     net/SipTransaction.cpp \
     net/SipTransactionList.cpp \
+    net/SipTransportRateLimitStrategy.cpp \
     net/SipUdpServer.cpp \
     net/SipUserAgentBase.cpp \
     net/SipUserAgent.cpp \

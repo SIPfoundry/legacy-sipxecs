@@ -68,6 +68,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private static final String OPEN_ACD_QUEUE_GROUP_WITH_NAME = "openAcdQueueGroupWithName";
     private static final String OPEN_ACD_QUEUE_WITH_NAME = "openAcdQueueWithName";
     private static final String DEFAULT_QUEUE = "default_queue";
+    private static final String DEFAULT_CLIENT = "Demo Client";
     private static final String FS_ACTIONS_WITH_DATA = "freeswitchActionsWithData";
 
     private DomainManager m_domainManager;
@@ -349,10 +350,12 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
                 existingAgents.add(agent);
             }
         }
-        // update the group
-        saveAgentGroup(agentGroup);
-        m_provisioningContext.addObjects(new LinkedList<OpenAcdConfigObject>(CollectionUtils.subtract(agents,
-                existingAgents)));
+        if (existingAgents.isEmpty()) {
+            // update the group
+            saveAgentGroup(agentGroup);
+            m_provisioningContext.addObjects(new LinkedList<OpenAcdConfigObject>(CollectionUtils.subtract(agents,
+                    existingAgents)));
+        }
 
         return existingAgents;
     }
@@ -395,15 +398,15 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     @Override
-    public void deleteAgents(Integer groupId, Collection<Integer> agentIds) {
-        OpenAcdAgentGroup group = getAgentGroupById(groupId);
+    public void deleteAgents(Collection<Integer> agentIds) {
         List<OpenAcdAgent> agents = new LinkedList<OpenAcdAgent>();
         for (Integer id : agentIds) {
             OpenAcdAgent agent = getAgentById(id);
-            group.removeAgent(agent);
             agents.add(agent);
+            OpenAcdAgentGroup group = agent.getGroup();
+            group.removeAgent(agent);
+            getHibernateTemplate().save(group);
         }
-        getHibernateTemplate().save(group);
         m_provisioningContext.deleteObjects(agents);
     }
 
@@ -572,6 +575,14 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
             getHibernateTemplate().save(client);
             m_provisioningContext.addObjects(Collections.singletonList(client));
         } else {
+            if (isNameChanged(client)) {
+                // don't rename the default client
+                OpenAcdClient defaultClient = getClientByName(DEFAULT_CLIENT);
+                if (defaultClient != null && defaultClient.getId().equals(client.getId())) {
+                    throw new UserException("&msg.err.defaultClientRename");
+                }
+            }
+
             getHibernateTemplate().merge(client);
             m_provisioningContext.updateObjects(Collections.singletonList(client));
         }
@@ -620,7 +631,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         List<String> usedClients = new ArrayList<String>();
         for (Integer id : clientsId) {
             OpenAcdClient client = getClientById(id);
-            if (isUsedByLine(OpenAcdLine.BRAND + client.getIdentity())) {
+            if (client.getName().equals(DEFAULT_CLIENT) || isUsedByLine(OpenAcdLine.BRAND + client.getIdentity())) {
                 usedClients.add(client.getName());
             } else {
                 clients.add(client);

@@ -42,3 +42,10 @@ SIPX_PROXY_HOOK_LIBRARY.990_emergnotif: @sipxpbx.lib.dir@/authplugins/libEmergen
 SIPX_PROXY.990_emergnotif.EMERGRULES  : @sipxpbx.conf.dir@/authrules.xml
 
 SIPX_PROXY_HOOK_LIBRARY.995_requestlinter: @sipxpbx.lib.dir@/authplugins/libRequestLinter.so
+
+SIPX_PROXY_AUTOBAN_THRESHOLD_VIOLATORS : $!{proxyService.autobanThresholdViolators}
+SIPX_PROXY_PACKETS_PER_SECOND_THRESHOLD : $!{proxyService.allowedPacketsPerSecond}
+SIPX_PROXY_THRESHOLD_VIOLATION_RATE : $!{proxyService.thresholdViolationRate}
+SIPX_PROXY_BAN_LIFETIME : $!{proxyService.banLifetime}
+SIPX_PROXY_WHITE_LIST : $!{proxyService.whiteList}
+SIPX_PROXY_BLACK_LIST : $!{proxyService.blackList}
