@@ -9,8 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.naming.NamingException;
@@ -31,6 +33,8 @@ import org.sipfoundry.sipxconfig.vm.MailboxManager;
  * Specialized version of row inserter for inserting users from LDAP searches LdapRowinserter
  */
 public class LdapRowInserter extends RowInserter<SearchResult> {
+    public static final String LDAP_SETTING = "ldap";
+
     private LdapManager m_ldapManager;
     private ConferenceBridgeContext m_conferenceBridgeContext;
     private CoreContext m_coreContext;
@@ -94,9 +98,19 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
 
             Collection<String> groupNames = m_userMapper.getGroupNames(searchResult);
 
+            //remove previous ldap groups
+            Set<Group> groups = user.getGroups();
+            List<Group> groupsToDelete = new ArrayList<Group>();
+            for (Group group : groups) {
+                if (new Boolean(group.getSettingValue(LDAP_SETTING))) {
+                    groupsToDelete.add(group);
+                }
+            }
+            user.getGroups().removeAll(groupsToDelete);
             // add all found groups
             for (String groupName : groupNames) {
                 Group userGroup = m_coreContext.getGroupByName(groupName, true);
+                userGroup.setSettingValue(LDAP_SETTING, "true");
                 user.addGroup(userGroup);
             }
             m_coreContext.saveUser(user);

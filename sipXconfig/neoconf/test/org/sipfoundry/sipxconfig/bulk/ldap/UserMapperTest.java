@@ -15,15 +15,25 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.Collection;
+
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
+import javax.naming.directory.BasicAttribute;
 import javax.naming.directory.BasicAttributes;
+import javax.naming.directory.SearchResult;
 
 import junit.framework.TestCase;
 
+import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.User;
 
 public class UserMapperTest extends TestCase {
+    private static final String LDAP_GROUP = "ldapGroup";
+    private static final String LDAP_1_GROUP = "ldap1Group";
+    private static final String LDAP_IMPORTS = "ldap_imports";
     private UserMapper m_userMapper;
     private User m_user;
 
@@ -63,5 +73,49 @@ public class UserMapperTest extends TestCase {
         } catch(NamingException ex) {
             fail();
         }
+    }
+
+    private Collection<String> getGroupNames(boolean existLdapGroup) throws Exception{
+        Attributes attrs = new BasicAttributes();
+        attrs.put(LDAP_GROUP, LDAP_1_GROUP);
+
+        UserMapper userMapper = new UserMapper();
+
+        IMocksControl control = org.easymock.classextension.EasyMock.createNiceControl();
+        AttrMap map = control.createMock(AttrMap.class);
+        SearchResult sr = control.createMock(SearchResult.class);
+
+        map.userProperty2ldapAttribute(Index.USER_GROUP.getName());
+        if (existLdapGroup) {
+            control.andReturn(LDAP_GROUP);
+        } else {
+            control.andReturn(null);
+            map.getDefaultGroupName();
+            control.andReturn(LDAP_IMPORTS);
+        }
+        sr.getAttributes();
+        control.andReturn(attrs);
+        sr.isRelative();
+        control.andReturn(false);
+        control.replay();
+
+        userMapper.setAttrMap(map);
+
+        Collection<String> groups = userMapper.getGroupNames(sr);
+
+        control.verify();
+        return groups;
+    }
+
+    public void testLdapGroup() throws Exception {
+        Collection<String> groups = getGroupNames(true);
+        assertEquals(1, groups.size());
+        assertEquals(LDAP_1_GROUP, groups.iterator().next());
+    }
+
+    public void testDefaultLdapGroup() throws Exception {
+        Collection<String> groups = getGroupNames(false);
+        assertEquals(1, groups.size());
+        assertEquals(LDAP_IMPORTS, groups.iterator().next());
     }
 }
