@@ -9,13 +9,18 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -24,6 +29,11 @@ import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.vm.MailboxManager;
 
 public class LdapRowInserterTest extends TestCase {
+    private static final String JOE = "joe";
+    private static final String SALES = "sales";
+    private static final String LDAP = "ldap";
+    private static final String NO_LDAP = "noldap";
+
     private LdapRowInserter m_rowInserter;
 
     protected void setUp() {
@@ -33,21 +43,25 @@ public class LdapRowInserterTest extends TestCase {
         m_rowInserter.setAttrMap(attrMap);
     }
 
-    public void testInsertRow() throws Exception {
+    private User insertRow(boolean existingUser) throws Exception {
         IMocksControl control = org.easymock.classextension.EasyMock.createNiceControl();
         UserMapper userMapper = control.createMock(UserMapper.class);
         SearchResult searchResult = control.createMock(SearchResult.class);
         Attributes attributes = control.createMock(Attributes.class);
 
         userMapper.getUserName(attributes);
-        control.andReturn("joe");
+        control.andReturn(JOE);
         userMapper.getGroupNames(searchResult);
-        control.andReturn(Collections.singleton("sales"));
+        control.andReturn(Collections.singleton(SALES));
         control.replay();
 
         User joe = new User();
         Group salesGroup = new Group();
+        salesGroup.setName(SALES);
+        salesGroup.setUniqueId();
         Group importGroup = new Group();
+        importGroup.setName("import");
+        importGroup.setUniqueId();
 
         AttrMap map = new AttrMap();
         map.setObjectClass("person");
@@ -59,16 +73,32 @@ public class LdapRowInserterTest extends TestCase {
         coreContextControl.andReturn(map);
         coreContext.getGroupByName("test-import", false);
         coreContextControl.andReturn(importGroup);
-        coreContext.loadUserByUserName("joe");
 
-        // another useful test would be to return an existing user
-        coreContextControl.andReturn(null);
+        coreContext.loadUserByUserName(JOE);
+        if (!existingUser) {
+            coreContextControl.andReturn(null);
+            coreContext.newUser();
+            coreContextControl.andReturn(joe);
+        } else {
+            Group ldapGroup = new Group();
+            ldapGroup.setName(LDAP);
+            ldapGroup.setUniqueId();
+            ldapGroup.setSettingValue(LdapRowInserter.LDAP_SETTING, "true");
+            Group noLdapGroup = new Group();
+            noLdapGroup.setUniqueId();
+            noLdapGroup.setName(NO_LDAP);
+            Set<Group> groups = new HashSet<Group>();
+            groups.add(salesGroup);
+            groups.add(ldapGroup);
+            groups.add(noLdapGroup);
+            joe.setGroups(groups);
+            coreContextControl.andReturn(joe);
+        }
 
         coreContext.getGroupMembersNames(importGroup);
         coreContextControl.andReturn(Collections.singleton("olderImportUser"));
-        coreContext.newUser();
-        coreContextControl.andReturn(joe);
-        coreContext.getGroupByName("sales", true);
+
+        coreContext.getGroupByName(SALES, true);
         coreContextControl.andReturn(salesGroup);
         coreContext.saveUser(joe);
         coreContextControl.andReturn(true).atLeastOnce();
@@ -79,7 +109,7 @@ public class LdapRowInserterTest extends TestCase {
         MailboxManager mailboxManager = mailboxManagerControl.createMock(MailboxManager.class);
         mailboxManager.isEnabled();
         mailboxManagerControl.andReturn(true);
-        mailboxManager.deleteMailbox("joe");
+        mailboxManager.deleteMailbox(JOE);
         mailboxManagerControl.replay();
 
         UserMapper rowInserterUserMapper = new UserMapper();
@@ -94,5 +124,30 @@ public class LdapRowInserterTest extends TestCase {
 
         coreContextControl.verify();
         control.verify();
+        return joe;
+    }
+
+    public void testInsertRowExistingUser() throws Exception {
+        User joe = insertRow(true);
+        assertEquals(2, joe.getGroups().size());
+        //existing ldap group have been deleted and replaced with new ldap group
+        for (Group group : joe.getGroups()) {
+            if (StringUtils.equals(group.getName(), SALES)) {
+                assertTrue(new Boolean(group.getSettingValue(LdapRowInserter.LDAP_SETTING)));
+            } else if (StringUtils.equals(group.getName(), NO_LDAP)) {
+                assertFalse(new Boolean(group.getSettingValue(LdapRowInserter.LDAP_SETTING)));
+            }
+        }
+    }
+
+    public void testInsertRowNewUser() throws Exception {
+        User joe = insertRow(false);
+        assertEquals(1, joe.getGroups().size());
+        //ldap group was saved
+        for (Group group : joe.getGroups()) {
+            if (StringUtils.equals(group.getName(), SALES)) {
+                assertTrue(new Boolean(group.getSettingValue(LdapRowInserter.LDAP_SETTING)));
+            }
+        }
     }
 }

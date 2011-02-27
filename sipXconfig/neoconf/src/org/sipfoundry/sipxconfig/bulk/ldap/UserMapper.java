@@ -96,11 +96,6 @@ public class UserMapper implements NameClassPairMapper {
 
     public Collection<String> getGroupNames(SearchResult sr) throws NamingException {
         Set<String> groupNames = new HashSet<String>();
-        String defaultGroupName = getAttrMap().getDefaultGroupName();
-        if (defaultGroupName != null) {
-            groupNames.add(defaultGroupName);
-        }
-
         // group names in the current entry
         Attributes attrs = sr.getAttributes();
         Set<String> entryGroups = replaceWhitespace(getValues(attrs, Index.USER_GROUP));
@@ -120,6 +115,13 @@ public class UserMapper implements NameClassPairMapper {
                     groupNames.addAll(rdnsGroups);
                 }
 
+            }
+        }
+        //only if there is no already defined group, add the default user group
+        if (groupNames.isEmpty()) {
+            String defaultGroupName = getAttrMap().getDefaultGroupName();
+            if (defaultGroupName != null) {
+                groupNames.add(defaultGroupName);
             }
         }
         return groupNames;
