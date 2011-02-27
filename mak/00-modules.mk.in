@@ -41,10 +41,20 @@ sipx = \
   sipXecs
 
 lang = \
+  sipXecs-lang-abitibi-fr_CA \
+  sipXecs-lang-ch \
   sipXecs-lang-de \
+  sipXecs-lang-en_BR \
+  sipXecs-lang-es \
+  sipXecs-lang-fr_CA \
+  sipXecs-lang-fr \
   sipXecs-lang-it \
+  sipXecs-lang-ja \
+  sipXecs-lang-mx \
+  sipXecs-lang-nl \
+  sipXecs-lang-pl \
   sipXecs-lang-pt_BR \
-  sipXecs-lang-pl
+  sipXecs-lang-zh
 
 lib_common = \
   rubygem-file-tail \

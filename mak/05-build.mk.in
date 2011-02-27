@@ -17,9 +17,16 @@ $(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
 # This also means all targets in all other make files cannot create a target that
 # ends in autoreconf, configure or dist.
 help.{1|2}.autoreconf=Run autoreconf on each project
-%.autoreconf : 
+%.autoreconf : %.download
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
+
+# Needs to support switching branches
+%.download :
+	if ! test -d $(SRC)/$*; then \
+	  git clone git://github.com/dhubler/$*.git $(SRC)/$*.clone; \
+	  mv $(SRC)/$*.clone $(SRC)/$*; \
+	fi
 
 help.{1|2}.configure = Run configure on each project
 %.configure :
