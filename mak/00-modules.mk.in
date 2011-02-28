@@ -43,14 +43,15 @@ sipx = \
 lang = \
   sipXecs-lang-abitibi-fr_CA \
   sipXecs-lang-ch \
+  sipXecs-lang-cs \
   sipXecs-lang-de \
-  sipXecs-lang-en_BR \
+  sipXecs-lang-en_GB \
   sipXecs-lang-es \
   sipXecs-lang-fr_CA \
   sipXecs-lang-fr \
   sipXecs-lang-it \
   sipXecs-lang-ja \
-  sipXecs-lang-mx \
+  sipXecs-lang-es_MX \
   sipXecs-lang-nl \
   sipXecs-lang-pl \
   sipXecs-lang-pt_BR \

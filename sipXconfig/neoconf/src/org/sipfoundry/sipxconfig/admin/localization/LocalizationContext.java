@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.localization;
 
-import java.io.InputStream;
-
 public interface LocalizationContext {
     static final String DEFAULT = "default";
     static final String PROMPTS_DEFAULT = "stdprompts";
@@ -21,17 +19,13 @@ public interface LocalizationContext {
 
     public String getCurrentLanguageDir();
 
-    public String[] getInstalledRegions();
-
     public String[] getInstalledLanguages();
 
     public String[] getInstalledLanguageDirectories();
 
     public Localization getLocalization();
 
-    public int updateRegion(String region);
+    public void updateRegion(String region);
 
     public int updateLanguage(String languageDirectory);
-
-    public void installLocalizationPackage(InputStream stream, String name);
 }

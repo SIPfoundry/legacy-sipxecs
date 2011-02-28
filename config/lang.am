@@ -1,0 +1,21 @@
+# use lowercase and hyphens to be backward compatible with previous sipxecs versions
+lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
+STDPROMPTS_LANG_ID = $(call lowercase,$(subst _,-,@LANG_ID@))
+
+promptsdir = $(datadir)/www/doc/stdprompts_$(STDPROMPTS_LANG_ID)
+confdir = @SIPX_JAVADIR@/sipXcommons
+
+sipxecs-%.jar :
+	jar -cf $@ -C $(srcdir)/sipxpbx .
+
+# work around INSTALL limitations
+# 1.  create directories before installing file 
+# 2.  install path1/file into path2/path1/file, not path2/file
+define Installer
+	for f in $${InstallFileList}; do
+	  ThisInstallDir=`dirname $${InstallDestDir}/$$f`
+	  $(INSTALL) -d $${ThisInstallDir}
+	  $(INSTALL) -t $${ThisInstallDir} $${InstallSourceDir}/$$f
+	done;
+endef
+export Installer
