@@ -53,4 +53,3 @@ rm -rf $RPM_BUILD_ROOT
 %{plugindir}/sipxplugin/ebin/sipxplugin_app.beam
 %{plugindir}/sipxplugin/ebin/sipxplugin_poller.beam
 %{plugindir}/sipxplugin/ebin/sipxplugin_supervisor.beam
-%config(noreplace) %{_sysconfdir}/sipxpbx/openacd/*
