@@ -5,41 +5,52 @@ help.sipx=Build all sipx components including autoreconf, configure, all and ins
 build sipx :
 	$(MAKE) $(foreach P,$(sipx),$(P))
 
-$(foreach T,$(sipx),$(T)) : % : %.build;
-$(foreach T,$(sipx),$(T)...) : %... : %.build...;
-$(foreach T,$(sipx),$(T).build) : %.build : %.autoreconf %.configure %.all-install ;
+help.lang=Build all language components including autoreconf, configure, all and install targets
+lang :
+	$(MAKE) $(foreach P,$(lang),$(P))
 
-help.{1}.all-install=Run 'make all install' in each target
-$(foreach T,$(sipx),$(T).all-install) : %.all-install : %.all %.install ;
+$(foreach T,$(sipx) $(lang),$(T)) : % : %.build;
+$(foreach T,$(sipx) $(lang),$(T)...) : %... : %.build...;
+$(foreach T,$(sipx) $(lang),$(T).build) : %.build : %.autoreconf %.configure %.all-install ;
+
+help.{1|6}.all-install=Run 'make all install' in each target
+$(foreach T,$(sipx) $(lang),$(T).all-install) : %.all-install : %.all %.install ;
 
 # Targets for sipx and lib. Uses pattern %.xyz so libs can implement their own
 # implementation that will override the patterned one. i.e. freeswitch.autoreconf
 # This also means all targets in all other make files cannot create a target that
 # ends in autoreconf, configure or dist.
-help.{1|2}.autoreconf=Run autoreconf on each project
-%.autoreconf : 
+help.{1|2|6}.autoreconf=Run autoreconf on each project
+%.autoreconf : %.download
 	cd $(SRC)/$(PROJ); \
 	  autoreconf -if
 
-help.{1|2}.configure = Run configure on each project
+# Needs to support switching branches
+%.download :
+	if ! test -d $(SRC)/$*; then \
+	  git clone git://github.com/dhubler/$*.git $(SRC)/$*.clone; \
+	  mv $(SRC)/$*.clone $(SRC)/$*; \
+	fi
+
+help.{1|2|6}.configure = Run configure on each project
 %.configure :
 	test -d $(PROJ) || mkdir -p $(PROJ)
 	cd $(PROJ); \
 	  $(SRC)/$(PROJ)/configure --disable-option-checking @CONFIGURE_OPTIONS@
 
-help.{1|2}.dist = Build archive, typically compressed tar
+help.{1|2|6}.dist = Build archive, typically compressed tar
 %.dist :; $(MAKE) -C $(PROJ) dist
 
 # Targets for sipx only. 
 MAKE_COMMANDS = check install clean dist
 $(foreach C,$(MAKE_COMMANDS) all,$(eval help.{1}.$(C)=Run make $(C) on each project))
-$(foreach P,$(sipx),$(P).install) :; $(MAKE) -C $(PROJ) install
-$(foreach P,$(sipx),$(P).clean) :; $(MAKE) -C $(PROJ) clean
-$(foreach P,$(sipx),$(P).check) :; $(MAKE) -C $(PROJ) check
+$(foreach P,$(sipx) $(lang),$(P).install) :; $(MAKE) -C $(PROJ) install
+$(foreach P,$(sipx) $(lang),$(P).clean) :; $(MAKE) -C $(PROJ) clean
+$(foreach P,$(sipx) $(lang),$(P).check) :; $(MAKE) -C $(PROJ) check
 
 # projects do not all have an "all" target, they probably should, until then, use
 # no-target default
-$(foreach C,all,$(foreach T,$(sipx),$(T).all)) :
+$(foreach C,all,$(foreach T,$(sipx) $(lang),$(T).all)) :
 	$(MAKE) -C $(PROJ)
 
 help.repofile = Print to stdout yum repository file you can copy to /etc/yum.repos.d that will point your system to download rpms from SIPfoundry

@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.localization;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
 import org.sipfoundry.sipxconfig.service.SipxImbotService;
 import org.sipfoundry.sipxconfig.service.SipxService;
@@ -34,9 +35,14 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
         replay(dpam);
         modifyContext(m_localizationContextImpl, "dialPlanActivationManager", m_origDialPlanActivationManager, dpam);
 
-        assertEquals(-1, m_out.updateRegion("xx"));
+	try {
+	    m_out.updateRegion("xx");
+	    fail("bad region error expected");
+	} catch (UserException expectedE) {
+	    assertTrue("Bad region correctly rejected", true);
+	}
 
-        assertEquals(1, m_out.updateRegion("pl"));
+        m_out.updateRegion("na");
         EasyMock.verify(dpam);
     }
 

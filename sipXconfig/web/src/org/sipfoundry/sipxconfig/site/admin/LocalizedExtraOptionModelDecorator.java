@@ -22,7 +22,5 @@ public class LocalizedExtraOptionModelDecorator extends ExtraOptionModelDecorato
         IPropertySelectionModel model = new StringPropertySelectionModel(options);
         LocalizedOptionModelDecorator localizedModel = new LocalizedOptionModelDecorator(model, messages, LABEL);
         setModel(localizedModel);
-        localizedModel.setMessages(messages);
-        localizedModel.setResourcePrefix(LABEL);
     }
 }

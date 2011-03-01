@@ -27,12 +27,15 @@ proj = $(call lowercase,$(PROJ))
 # would follow the given target.  
 # example:  foo.B.bar...  becomes  'foo.B.bar foo.C.bar'   when list is 'A B C'
 after = $(shell echo $2 | sed 's|\(.*\)\($1.*\)|\2|g')
-..._sipx_target = $(strip $(foreach Z,$(sipx),$(findstring $(Z), $@)))
+..._sipx_target = $(strip $(firstword $(foreach Z,$(sipx),$(findstring $(Z), $@))))
 ..._sipx_list = $(call after,$(..._sipx_target),$(sipx))
 ..._sipx_expanded = $(foreach T,$(..._sipx_list),$(subst $(..._sipx_target),$(T),$*))
-..._lib_target = $(strip $(foreach Z,$(lib),$(findstring $(Z), $@)))
+..._lib_target = $(strip $(firstword $(foreach Z,$(lib),$(findstring $(Z), $@))))
 ..._lib_list = $(call after,$(..._lib_target),$(lib))
 ..._lib_expanded = $(foreach T,$(..._lib_list),$(subst $(..._lib_target),$(T),$*))
+..._lang_target = $(strip $(firstword $(foreach Z,$(lang),$(findstring $(Z), $@))))
+..._lang_list = $(call after,$(..._lang_target),$(lang))
+..._lang_expanded = $(foreach T,$(..._lang_list),$(subst $(..._lang_target),$(T),$*))
 
 default-first-target : help;
 
@@ -42,18 +45,23 @@ sipx.% :
 lib.% :
 	$(MAKE) $(foreach P,$(lib),$(P).$*)
 
+lang.% :
+	$(MAKE) $(foreach P,$(lang),$(P).$*)
+
 help.{sipx,lib}.list=list all sipx components
-lib.list sipx.list : %.list :
+lang.list lib.list sipx.list : %.list :
 	@echo $($*)
 
 include $(sort $(wildcard mak/*.mk))
 
 help.*{1|2}*... = Perform all targets would normally follow the given target in addition to the target itself. Very useful when you want to pick-up the build where it last stopped. For example 'make sipXthree...' would expand to 'make sipXthree sipXfour sipXfive' but it would not include 'make sipXone sipXtwo'. You can use the ... pattern anywhere you a specify a package name. Examples: 'make sipXconfig.rpm...', 'make xc.centos-5-i386.OpenACD.rpm...'.  See 'make sipx.list lib.list' for what the natural order of packages.
 %... :
-	$(MAKE) $(..._sipx_expanded) $(..._lib_expanded)
+# hack: ...lang_expanded will always have first target doubled because ...sipx_expanded detect sipXecs-lang
+	$(MAKE) $(..._sipx_expanded) $(..._lib_expanded) $(..._lang_expanded)
 
 help-values.{1} = Any sipXecs package. For all sipXecs packages use 'sipx'. Complete list of sipXecs packages : $(sipx)
 help-values.{2} = Any dependency package. For all dependencies use 'lib'.  Complete list of dependencies : $(lib)
+help-values.{6} = Any language package. For all langages use 'lang'.  Complete list of languages : $(lang)
 
 .PHONY: help
 help:

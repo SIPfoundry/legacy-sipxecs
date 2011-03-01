@@ -31,18 +31,4 @@
 		</ul>
 	</fieldset>
   </form>
-  <form jwcid="installForm@Form">
-	<fieldset>
-	  <table>
-		<tr jwcid="@common/FieldPanel" field="component:localization" label="message:label.localizationPackage" description="message:localizationPackage.description">
-			<td jwcid="localization@Upload" file="ognl:uploadFile" />
-		</tr>
-	  </table>
-		<ul class="component-submit">
-		  <li>
-			<span jwcid="install@Submit" action="listener:uploadLocalizationPackage" value="message:button.install"/>
-		</li>
-	  </ul>
-	</fieldset>
-  </form>
 </div>

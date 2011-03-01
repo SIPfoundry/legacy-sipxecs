@@ -7,12 +7,8 @@
   -->
   <bean id="localizationContextImpl" class="org.sipfoundry.sipxconfig.admin.localization.LocalizationContextImpl">
     <property name="sessionFactory" ref="sessionFactory" />
-    <property name="regionDir" value="${sysdir.etc}"/>
     <property name="promptsDir" value="${sysdir.doc}"/>
-    <property name="binDir" value="${sysdir.bin}"/>
-    <property name="thirdPartyDir" value="${sysdir.thirdparty}"/>
-    <property name="javaDir" value="${sysdir.share}"/>
-    <property name="defaultRegion" value="region_na" />
+    <property name="defaultRegion" value="na.dialPlan" />
     <property name="defaultLanguage" value="en" />
     <property name="resetDialPlanTask" ref="resetDialPlanTask" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />

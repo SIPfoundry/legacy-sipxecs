@@ -2,7 +2,7 @@
 ## and of course require no setup
 TESTS = testsuite
 
-check_PROGRAMS = testsuite sandbox
+check_PROGRAMS = testsuite
 
 INCLUDES = -I$(top_srcdir)/include -I../
 
@@ -64,15 +64,3 @@ EXTRA_DIST = \
     net/SipSrvLookupTest.named.zone \
     net/SipXauthIdentityTest.cpp.in \
     net/refresh-hashes
-
-# [DEBUG ASSISTANT] List a single unit test here to isolate it for
-# debugging or when developing a new unittest.  The executable
-# 'sandbox' will then execute that one test.
-
-# As a courtesy, please remove all unit tests from sandbox_SOURCES
-# before checking checking in this file, although forgetting to has no
-# ill effects.
-
-sandbox_LDADD = $(testsuite_LDADD)
-sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
-sandbox_SOURCES =
