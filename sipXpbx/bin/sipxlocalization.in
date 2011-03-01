@@ -3,17 +3,16 @@
 
 # Check that the right number of arguments have been supplied.
 # Otherwise give the usage message.
-if [ $# -ne 5 ]; then
-    echo "Usage: $0 (localization package file) (voice prompt directory) (region directory) (third party directory) (sipxconfig java directory)" >&2
-    echo "E.g. : $0 LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx /usr/share/sipxpbx /share/java/sipXecs/sipXconfig/" >&2
+if [ $# -ne 4 ]; then
+    echo "Usage: $0 (localization package file) (voice prompt directory) (region directory) (sipxconfig java directory)" >&2
+    echo "E.g. : $0 LocalizationPackage_cs.tgz /usr/share/www/doc /etc/sipxpbx /share/java/sipXecs/sipXconfig/" >&2
     exit 1
 fi
 
 FILE=$1
 VOICE_PROMPT_DIR=$2
 REGION_DIR=$3
-SHARE_DIR=$4
-JAVA_DIR=$5
+JAVA_DIR=$4
 
 # Check the localization package file and specified directories for validity.
 if ! [ -d $VOICE_PROMPT_DIR -a -w $VOICE_PROMPT_DIR ]; then
@@ -22,10 +21,6 @@ if ! [ -d $VOICE_PROMPT_DIR -a -w $VOICE_PROMPT_DIR ]; then
 fi
 if ! [ -d $REGION_DIR -a -w $REGION_DIR ]; then
     echo "'$REGION_DIR' is not a writable directory." >&2
-    exit 1
-fi
-if ! [ -d $SHARE_DIR -a -w $SHARE_DIR ]; then
-    echo "'$SHARE_DIR' is not a writable directory." >&2
     exit 1
 fi
 if ! [ -f $FILE -a -r $FILE ]; then
@@ -61,10 +56,6 @@ fi
 if tar --wildcards -tf $FILE sipxpbx >/dev/null 2>&1 ; then
     # The file contains UI property files - extract them
     tar --wildcards -xf $FILE --directory=$REGION_DIR/.. 'sipxpbx/*'
-fi
-if tar --wildcards -tf $FILE third_party >/dev/null 2>&1 ; then
-    # The file contains third party files - extract them
-    tar --wildcards -xf $FILE --directory=$SHARE_DIR 'third_party/*'
 fi
 if tar --wildcards -tf $FILE sipXconfig >/dev/null 2>&1 ; then
     # The file contains java files - extract them
