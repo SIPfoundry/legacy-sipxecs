@@ -825,6 +825,30 @@
         <ref bean="openAcdBundle" />
       </set>
     </property>
+    <property name="configurations">
+      <list>
+        <ref bean="sipxOpenAcdAppConfiguration" />
+        <ref bean="sipxOpenAcdVmArgsConfiguration" />
+      </list>
+    </property>
     <property name="provisioningContext" ref="openAcdProvisioningContext" />
+    <property name="logDir" value="${sysdir.log}" />
+  </bean>
+
+  <bean id="sipxOpenAcdAppConfiguration" class="org.sipfoundry.sipxconfig.service.SipxOpenAcdAppConfiguration"
+    parent="serviceConfigurationFile">
+    <property name="name" value="app.config" />
+    <property name="template" value="openacd/app.config.vm" />
+    <property name="directory" value="${sysdir.etc}/openacd" />
+    <property name="restartRequired" value="false" />
+  </bean>
+
+  <bean id="sipxOpenAcdVmArgsConfiguration" class="org.sipfoundry.sipxconfig.service.SipxOpenAcdVmArgsConfiguration"
+    parent="serviceConfigurationFile">
+    <property name="name" value="vm.args" />
+    <property name="template" value="openacd/vm.args.vm" />
+    <property name="restartRequired" value="false" />
+    <property name="directory" value="${sysdir.etc}/openacd" />
+    <property name="etcDir" value="${sysdir.etc}" />
   </bean>
 </beans>

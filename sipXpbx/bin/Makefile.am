@@ -13,7 +13,6 @@ bin_SCRIPTS = \
 	 sipx-swadmin.py \
 	 sipx-zoneadmin.sh \
 	 sipx-sendmail-configure \
-	 sipxlocalization \
 	 check-fqdn \
 	 sipx-archive-common \
 	 ipcclean.pl \
@@ -53,7 +52,6 @@ SCRIPT_TEMPLATES = \
 	sipx-backup.in \
 	sipx-restore.in \
 	sipx-sendmail-configure.in \
-	sipxlocalization.in \
 	check-fqdn.in \
 	sipx-archive-common.in \
 	sipx-test-tmp.in \

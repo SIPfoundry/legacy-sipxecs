@@ -35,7 +35,6 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.dao.support.DataAccessUtils;
 
 /**
@@ -266,25 +265,10 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         getHibernateTemplate().flush();
 
         DialPlan newDialPlan = null;
-        // try loading region specific dialplan
         try {
             newDialPlan = (DialPlan) m_beanFactory.getBean(dialPlanBeanName);
         } catch (NoSuchBeanDefinitionException ex) {
-            LOG.info(DIAL_PLAN + dialPlanBeanName + " not found");
-        }
-        // region specific dial plan may be installed at runtime - we need to load its
-        // corresponding dialrules.beans.xml
-        if (newDialPlan == null) {
-            try {
-                String regionId = dialPlanBeanName.split("\\.")[0];
-                ClassPathXmlApplicationContext beanFactory = new ClassPathXmlApplicationContext(new String[] {
-                    "region_" + regionId + "/dialrules.beans.xml"
-                }, m_applicationContext);
-                newDialPlan = (DialPlan) beanFactory.getBean(dialPlanBeanName);
-                LOG.info(DIAL_PLAN + dialPlanBeanName + " is installed");
-            } catch (Exception ex) {
-                throw new RegionDialPlanException(ex);
-            }
+            throw new InvalidDialPlanException("&msg.dialplanNotFound", dialPlanBeanName);
         }
         newDialPlan.setOperator(operator);
 
@@ -297,9 +281,9 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
         return newDialPlan;
     }
 
-    public static class RegionDialPlanException extends UserException {
-        public RegionDialPlanException(Throwable cause) {
-            super(cause);
+    public static class InvalidDialPlanException extends UserException {
+        public InvalidDialPlanException(String msg, String beanName) {
+            super(msg, beanName);
         }
     }
 
@@ -307,7 +291,8 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
      * Reverts to default dial plan.
      */
     public String[] getDialPlanBeans() {
-        return m_beanFactory.getBeanNamesForType(DialPlan.class, true, false);
+        String[] beanIds = m_beanFactory.getBeanNamesForType(DialPlan.class);
+        return beanIds;
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {

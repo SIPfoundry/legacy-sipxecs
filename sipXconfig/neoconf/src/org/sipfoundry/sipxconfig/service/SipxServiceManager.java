@@ -30,6 +30,8 @@ public interface SipxServiceManager {
 
     void storeService(SipxService service);
 
+    void storeService(SipxService service, boolean notifyOnConfigChange);
+
     Map<SipxServiceBundle, List<SipxService>> getBundles();
 
     List<SipxService> getRestartable();

@@ -182,6 +182,18 @@ public class OpenAcdProvisioningContextTestIntegration extends IntegrationTestCa
         objects = (List<BasicDBObject>) enableListenerCommand.get("objects");
         assertEquals("agent_configuration", objects.get(0).get("type"));
         assertEquals("true", objects.get(0).get("listenerEnabled"));
+
+        provContext = new MockOpenAcdProvisioningContext();
+        OpenAcdLogConfigCommand logConfigCommand = new OpenAcdLogConfigCommand("warning", "/var/etc");
+        provContext.configure(Collections.singletonList(logConfigCommand));
+        BasicDBObject configCommand = provContext.getCommands().get(0);
+        assertEquals("CONFIGURE", configCommand.get("command"));
+        assertEquals(1, configCommand.get("count"));
+        objects = (List<BasicDBObject>) configCommand.get("objects");
+        assertEquals(1, objects.size());
+        assertEquals("log_configuration", objects.get(0).get("type"));
+        assertEquals("warning", objects.get(0).get("logLevel"));
+        assertEquals("/var/etc/openacd/", objects.get(0).get("logDir"));
     }
 
     public void setOpenAcdContextImpl(OpenAcdContextImpl openAcdContext) {

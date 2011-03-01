@@ -9,14 +9,20 @@
  */
 package org.sipfoundry.sipxconfig.service;
 
+import static java.util.Arrays.asList;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.verify;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
-
 import junit.framework.TestCase;
+
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -24,11 +30,8 @@ import org.sipfoundry.sipxconfig.device.Model;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle.TooFewBundles;
 import org.sipfoundry.sipxconfig.service.SipxServiceBundle.TooManyBundles;
-
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
+import org.sipfoundry.sipxconfig.setting.Storage;
 
 public class SipxServiceManagerImplTest extends TestCase {
     public void testVerifyBundleCardinality() {
@@ -205,6 +208,22 @@ public class SipxServiceManagerImplTest extends TestCase {
         assertNull(sm.getServiceParam("pp"));
     }
 
+    public void testStoreService() {
+        SipxServiceMock service = new SipxServiceMock();
+
+        SipxServiceManagerImpl sipxServiceManager = new SipxServiceManagerImpl() {
+            @Override
+            protected void saveBeanWithSettings(BeanWithSettings bean) {
+                
+            }
+        };
+
+        sipxServiceManager.storeService(service, false);
+        assertFalse(service.isConfigChanged());
+        sipxServiceManager.storeService(service);
+        assertTrue(service.isConfigChanged());
+    }
+
     abstract static class SimpleModelSource<T extends Model> implements ModelSource<T> {
         Map<String, T> m_map = new HashMap<String, T>();
 
@@ -250,6 +269,19 @@ public class SipxServiceManagerImplTest extends TestCase {
         @Override
         protected String getModelId(SipxService model) {
             return model.getProcessName();
+        }
+    }
+
+    private static class SipxServiceMock extends SipxService {
+        private boolean m_configChanged = false;
+
+        @Override
+        public void onConfigChange() {
+            m_configChanged = true;
+        }
+
+        public boolean isConfigChanged() {
+            return m_configChanged;
         }
     }
 }

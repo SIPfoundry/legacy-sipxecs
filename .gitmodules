@@ -4,15 +4,3 @@
 [submodule "OpenACD"]
 	path = OpenACD
 	url = git://github.com/dhubler/OpenACD.git
-[submodule "sipXecs-lang-de"]
-	path = sipXecs-lang-de
-	url = git://github.com/dhubler/sipXecs-lang-de.git
-[submodule "sipXecs-lang-it"]
-	path = sipXecs-lang-it
-	url = git://github.com/dhubler/sipXecs-lang-it.git
-[submodule "sipXecs-lang-pt_BR"]
-	path = sipXecs-lang-pt_BR
-	url = git://github.com/dhubler/sipXecs-lang-pt_BR.git
-[submodule "sipXecs-lang-pl"]
-	path = sipXecs-lang-pl
-	url = git://github.com/dhubler/sipXecs-lang-pl.git
