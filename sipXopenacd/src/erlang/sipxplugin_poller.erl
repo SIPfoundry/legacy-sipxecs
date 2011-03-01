@@ -15,6 +15,7 @@
 -import(call_queue_config).
 -import(queue_manager).
 -import(cpx_supervisor).
+-import(cpxlog).
 -export([start/0, stop/0, init/1, loop/2]).
 
 -include("log.hrl").
@@ -96,6 +97,8 @@ get_command_values(Data, Mong) ->
 					process_fs_media_manager(Object, erlang:binary_to_list(CmdValue));
 				Type =:= <<"agent_configuration">> ->
 					process_agent_configuration(Object, erlang:binary_to_list(CmdValue));
+				Type =:= <<"log_configuration">> ->
+					process_log_configuration(Object, erlang:binary_to_list(CmdValue));
 				true -> ?WARNING("Unrecognized type", [])
 				end
 			end, Objects),
@@ -247,6 +250,13 @@ process_agent_configuration(Config, Command) ->
         true -> ?WARNING("Unrecognized command", [])
         end.
 
+process_log_configuration(Config, Command) ->
+        {_, LogLevel} = lists:nth(2, Config),
+        {_, LogDir} = lists:nth(3, Config),
+	LogLevelAtom = list_to_atom(erlang:binary_to_list(LogLevel)),
+	?WARNING("SET NEW LOG LEVEL:~p", [list_to_atom(erlang:binary_to_list(LogLevel))]),
+	cpxlog:set_loglevel(lists:append(erlang:binary_to_list(LogDir), "full.log"), LogLevelAtom),
+	cpxlog:set_loglevel(lists:append(erlang:binary_to_list(LogDir), "console.log"), LogLevelAtom).
 
 binary_to_number(B) ->
     list_to_number(binary_to_list(B)).

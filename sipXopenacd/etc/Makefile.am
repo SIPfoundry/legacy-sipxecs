@@ -10,17 +10,12 @@ LOCALIZE_VARS = \
 LOCALIZE = \
 	$(foreach V,$(LOCALIZE_VARS), -e 's|@$(V)\@|$($(V))|g')
 
-openacd_etcdir = $(SIPX_CONFDIR)/openacd
-openacd_etc_DATA = \
-	vm.args \
-	app.config
-
 procdir = $(SIPX_DATADIR)/process.d
 
 proc_DATA = \
 	sipxopenacd-process.xml
 
-$(openacd_etc_DATA) $(proc_DATA) : % : %.in
+$(proc_DATA) : % : %.in
 	@sed $(LOCALIZE) $< > $@
 
 install-exec-hook:

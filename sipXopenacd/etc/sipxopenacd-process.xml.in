@@ -20,5 +20,8 @@
     <pid>@SIPX_RUNDIR@/sipxopenacd.pid</pid>
     <log>@SIPX_LOGDIR@/sipxopenacd.log</log>
   </status>
-  <resources/>
+  <resources>
+    <file>@SIPX_CONFDIR@/openacd/app.config</file>
+    <file>@SIPX_CONFDIR@/openacd/vm.args</file>
+  </resources>
 </sipXecs-process>

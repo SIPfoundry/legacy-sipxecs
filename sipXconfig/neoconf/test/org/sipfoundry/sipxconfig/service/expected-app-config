@@ -1,6 +1,6 @@
 [{'OpenACD', [
-	{console_loglevel, info},
-	{logfiles, [{"full.log", debug}, {"console.log", info}]},
+	{console_loglevel, critical},
+	{logfiles, [{"full.log", critical}, {"console.log", critical}]},
 	{plugin_dir, "plugin.d"}
 ]},
 {sasl, [

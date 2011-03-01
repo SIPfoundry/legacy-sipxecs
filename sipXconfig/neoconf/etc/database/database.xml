@@ -385,6 +385,7 @@
 	<antcall target="openacd-set-default-skills" />
 	<antcall target="call-rate-limit" />
 	<antcall target="openacd-add-default-client" />
+	<antcall target="migrate-regionid-to-beanid" />  
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1209,6 +1210,11 @@
   </target>
   <target name="openacd-add-default-client" unless="openacd-add-default-client">
 	<db-patch patch="openacd-add-default-client" />
+  </target>
+  <target name="migrate-regionid-to-beanid" unless="migrate-regionid-to-beanid">
+    <sipx-sql>
+      update localization set region = substring(region FROM 'region_(.*)') || '.dialPlan' where region like 'region_%';
+    </sipx-sql>
   </target>
 
   <!--

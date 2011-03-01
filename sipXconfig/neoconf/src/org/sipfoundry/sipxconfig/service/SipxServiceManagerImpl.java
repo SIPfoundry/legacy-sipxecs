@@ -142,8 +142,14 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
     }
 
     public void storeService(SipxService service) {
+        storeService(service, true);
+    }
+
+    public void storeService(SipxService service, boolean notifyOnConfigChange) {
         saveBeanWithSettings(service);
-        service.onConfigChange();
+        if (notifyOnConfigChange) {
+            service.onConfigChange();
+        }
     }
 
     public Collection<SipxService> getServiceDefinitions() {

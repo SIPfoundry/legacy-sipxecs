@@ -1,0 +1,8 @@
+[{'OpenACD', [
+	{console_loglevel, $log_level},
+	{logfiles, [{"full.log", $log_level}, {"console.log", $log_level}]},
+	{plugin_dir, "plugin.d"}
+]},
+{sasl, [
+	{errlog_type, error} % disable SASL progress reports
+]}].
