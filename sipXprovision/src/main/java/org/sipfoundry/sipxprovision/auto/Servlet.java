@@ -36,6 +36,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 import org.apache.velocity.Template;
@@ -293,11 +294,7 @@ public class Servlet extends HttpServlet {
         // an HTTP request to this servlet.
         try {
             File dir = new File(config.getTftpPath() + "/Nortel/config");
-            if (!dir.exists() && !dir.mkdirs()) {
-                LOG.error("Failed to create directory: " + dir);
-            }
-            else {
-
+            if (createTftpDirectory(dir)) {
                 File file = new File(dir + "/SIPdefault.xml");
 
                 FileOutputStream fos = new java.io.FileOutputStream(file);
@@ -308,11 +305,25 @@ public class Servlet extends HttpServlet {
                 fos.close();
 
                 LOG.info("Generated Nortel IP 12x0 SIPdefault.xml.");
+
+                file = new File(dir + "/DialPlan.txt");
+                File sourceFile = new File(System.getProperty("conf.dir") + "/nortel/DialPlan.txt");
+                FileUtils.copyFile(sourceFile, file);
             }
+            createTftpDirectory(new File(config.getTftpPath() + "/Nortel/firmware"));
+            createTftpDirectory(new File(config.getTftpPath() + "/Nortel/languages"));
         }
         catch(Exception e ) {
             LOG.error("Failed to generate Nortel IP 12x0 SIPdefault.xml: ", e);
         }
+    }
+
+    private static boolean createTftpDirectory(File dir) {
+        if (!dir.exists() && !dir.mkdirs()) {
+            LOG.error("Failed to create directory: " + dir);
+            return false;
+        }
+        return true;
     }
 
     private void logAndOut(String msg, PrintWriter out) {
@@ -724,7 +735,7 @@ public class Servlet extends HttpServlet {
         PHONE_MODEL_MAP.put("SPIP_670", new PhoneModel("polycom650", "SoundPoint IP 670"));
 
         PHONE_MODEL_MAP.put("SSIP_4000", new PhoneModel("polycom4000", "SoundStation IP 4000"));
-        
+
         PHONE_MODEL_MAP.put("SSIP_5000", new PhoneModel("polycom5000", "SoundStation IP 5000"));
 
         PHONE_MODEL_MAP.put("SSIP_6000", new PhoneModel("polycom6000", "SoundStation IP 6000"));
