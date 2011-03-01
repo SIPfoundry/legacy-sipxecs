@@ -171,7 +171,7 @@
     </setting>
   </group>
   <group name="voicemail">
-    <group name="fax">
+    <group name="fax" hidden="yes">
       <setting name="extension">
       <type refid="validPhone" />
       </setting>

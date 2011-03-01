@@ -383,7 +383,7 @@
     	</setting>
    	 	<setting name='AUDIO_CODEC4'>
       		<type refid="codecs" />
-      		<value>G729 729 codec</value>
+      		<value>G722 wideband codec</value>
     	</setting>
     	<setting name='AUDIO_CODEC5'>
       		<type refid="codecs" />
@@ -455,7 +455,7 @@
 			<type>
 				<integer min="0"/>
 			</type>
-			<value>0</value>
+			<value>2</value>
 			<description>
 				is the actual time in seconds, starting from midnight, before an
 				automatic update occurs. Each IP Phone 1140E adds random numbers
@@ -1066,7 +1066,7 @@
 		<group name="ALL_DOMAIN_SETTINGS">
 			<setting name="SIP_PING">
 				<type refid="yes-no"/>
-				<value>YES</value>
+				<value>NO</value>
 				<description>
 					The SIP_PING configuration value is used to maintain server
 					heartbeat detection and to keep a firewall pinhole open. When
@@ -1228,7 +1228,7 @@
 					</option>
 				</enum>
 			</type>
-			<value>MCS</value>
+			<value>STANDARD</value>
 			<description>
 				is used to configure the IP Phone 1140E to activate Nortel conference
 				server-assisted attended transfers, instead of the industry standard
@@ -1250,7 +1250,7 @@
 					</option>
 				</enum>
 			</type>
-			<value>MCS</value>
+			<value>rfc3261</value>
 			<description>
 				is a command  used to select different protocols for set redirection.
 				The default setting is MCS.
@@ -1264,7 +1264,7 @@
 				registrar using the existing proxy.
 			</description>
 		</setting>
-		<setting name='ENABLE_3WAY_CALL' if="3.2orLater">
+		<setting name='ENABLE_3WAY_CALL'>
 			<type refid="yes-no" />
 			<value>YES</value>
 			<description>
@@ -2687,7 +2687,7 @@
 	<group name='SERVICE_PACKAGE'>
 		<setting name='ENABLE_SERVICE_PACKAGE'>
 			<type refid="yes-no" />
-			<value>NO</value>
+			<value>YES</value>
 			<description>
 				YES - Phone will try to download service package,
 				NO - phone will not subscribe to service package. Default: YES
@@ -2841,7 +2841,7 @@
 		</setting>
 		<setting name='SNTP_ENABLE'>
 			<type refid="yes-no" />
-			<value>NO</value>
+			<value>YES</value>
 			<description>
 				allows the IP Phone 1140E to obtain the time and date from an NTP
 				server.	The default is NO. The IP Phone 1140E updates the time once
