@@ -42,7 +42,7 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
 	    assertTrue("Bad region correctly rejected", true);
 	}
 
-        m_out.updateRegion("na");
+        m_out.updateRegion("na.dialPlan");
         EasyMock.verify(dpam);
     }
 
@@ -74,7 +74,7 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testDefaults() {
-        assertEquals("na", m_out.getCurrentRegionId());
+        assertEquals("na.dialPlan", m_out.getCurrentRegionId());
         assertEquals("en", m_out.getCurrentLanguage());
     }
 
