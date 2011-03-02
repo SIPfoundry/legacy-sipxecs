@@ -379,7 +379,7 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
 
     public void testGet() {
         String[] dialPlanBeans = m_context.getDialPlanBeans();
-        assertTrue(dialPlanBeans.length > 1);
+        assertTrue(dialPlanBeans.length > 0);
         assertTrue(ArrayUtils.contains(dialPlanBeans, "na.dialPlan"));
     }
 }
