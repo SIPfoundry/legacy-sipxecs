@@ -154,7 +154,6 @@
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="sipxReplicationContext" ref="sipxReplicationContext"/>
     <property name="sbcSipXbridgeConfiguration" ref="sbcSipXbridgeConfiguration"/>
-    <property name="groupTitleEnabled" value="true" />
   </bean>
 
   <bean id="sipxProxyConfiguration" class="org.sipfoundry.sipxconfig.service.SipxProxyConfiguration" scope="prototype"

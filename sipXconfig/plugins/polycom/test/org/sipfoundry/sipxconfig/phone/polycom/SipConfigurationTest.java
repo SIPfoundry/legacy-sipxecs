@@ -10,6 +10,8 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.InputStream;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -79,6 +81,7 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
 
         InputStream expected = getClass().getResourceAsStream("expected-sip.cfg.xml");
 
+	dumpXml( m_location.getReader(), new PrintStream(new FileOutputStream("/tmp/t1")));
         assertPolycomXmlEquals(expected, m_location.getReader());
         expected.close();
     }
@@ -115,6 +118,7 @@ public class SipConfigurationTest extends PolycomXmlTestCase {
 
         InputStream expected = getClass().getResourceAsStream("expected-VVX1500-sip.cfg.xml");
 
+	dumpXml( m_location.getReader(),  new PrintStream(new FileOutputStream("/tmp/t2")));
         assertPolycomXmlEquals(expected, m_location.getReader());
 
         expected.close();
