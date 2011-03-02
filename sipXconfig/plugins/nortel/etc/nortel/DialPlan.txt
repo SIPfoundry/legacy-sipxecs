@@ -1,0 +1,33 @@
+/* ------------------------------------------- */
+/* A simple dial plan                          */
+/* ------------------------------------------- */
+$n="talk.ppdi.com"
+$t=1000
+$s=0
+
+%%
+
+/* DIGITMAP: On Net 1 + 7 digits */
+
+(1xxxxxxx)|(1xxxxxxx)#           && sip:$$@$n;user=phone          && 
+
+/* DIGITMAP: Public national call, access code 91 */
+
+(91x{10})|(91x{10})#           && sip:$$@$n;user=phone          && 
+
+/* DIGITMAP: Public local call, access code 9 */
+
+(9[2345678]x{6})|(9[2345678]x{6})   && sip:$$@$n;user=phone          && 
+
+/* DIGITMAP: Private intra-location call, no access code */
+
+([2345678]x{3})|([2345678]x{3})#   && sip:$$@$n;user=phone          && 
+
+
+/* DIGITMAP: Public national call, access code 91 */
+
+(91x{10})|(91x{10})#           && sip:$$@$n;user=phone          && 
+
+/* DIGITMAP: Public international call, access code 9011 */
+
+(9011x{7,15})|(9011x{7,15})#   && sip:$$@$n;user=phone          && t=8000

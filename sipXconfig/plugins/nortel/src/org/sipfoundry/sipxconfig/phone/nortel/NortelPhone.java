@@ -222,6 +222,8 @@ public class NortelPhone extends Phone {
         super.copyFiles(location);
         getProfileGenerator().copy(location, NORTEL_FORCE_CONFIG, "1120eSIP.cfg");
         getProfileGenerator().copy(location, NORTEL_FORCE_CONFIG, "1140eSIP.cfg");
+        getProfileGenerator().copy(location, "nortel/1120e.cfg", "1120e.cfg");
+        getProfileGenerator().copy(location, "nortel/1140e.cfg", "1140e.cfg");
     }
 
     public static class NortelPhoneDefaults {
