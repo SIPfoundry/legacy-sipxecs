@@ -25,6 +25,8 @@ import org.sipfoundry.sipxconfig.bulk.ldap.LdapImportManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.bulk.ldap.Schema;
+import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 
 @ComponentClass(allowBody = false, allowInformalParameters = false)
@@ -79,21 +81,27 @@ public abstract class LdapServer extends BaseComponent implements PageBeginRende
         if (!TapestryUtils.isValid(this)) {
             return;
         }
+        SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(getPage());
         LdapConnectionParams connectionParams = getConnectionParams();
         AttrMap attrMap = getAttrMap();
         LdapManager ldapManager = getLdapManager();
         // check if we can connect to LDAP - throws user exception if there are any problems
-        ldapManager.verify(connectionParams, attrMap);
+        // Cannot avoid try/catch here - the exception is displayed on a parent page for this tab
+        try {
+            ldapManager.verify(connectionParams, attrMap);
 
-        // save new connection params
-        ldapManager.setConnectionParams(connectionParams);
-        ldapManager.saveSystemSettings(getSettings());
-        ldapManager.setAttrMap(attrMap);
+            // save new connection params
+            ldapManager.setConnectionParams(connectionParams);
+            ldapManager.saveSystemSettings(getSettings());
+            ldapManager.setAttrMap(attrMap);
 
-        Schema schema = ldapManager.getSchema(attrMap.getSubschemaSubentry());
-        setSchema(schema);
+            Schema schema = ldapManager.getSchema(attrMap.getSubschemaSubentry());
+            setSchema(schema);
 
-        setStage("objectClasses");
+            setStage("objectClasses");
+        } catch (UserException e) {
+            validator.record(e, getMessages());
+        }
     }
 
     public void applyObjectClassesSelection() {

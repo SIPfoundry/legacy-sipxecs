@@ -127,6 +127,7 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libMSFT_ExchangeTransferHack.so*
 %attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.so*
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.so*
+%attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.so*
 
 %files devel
 %defattr(644,root,root,755)
@@ -148,6 +149,8 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/authplugins/libSubscriptionAuth.a
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.la
 %attr(755,root,root) %{_libdir}/authplugins/libEmergencyNotify.a
+%attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.la
+%attr(755,root,root) %{_libdir}/authplugins/libCallerAlertInfo.a
 
 %pre
 

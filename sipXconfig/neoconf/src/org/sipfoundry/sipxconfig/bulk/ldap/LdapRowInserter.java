@@ -24,6 +24,7 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.GroupAutoAssign;
@@ -136,8 +137,19 @@ public class LdapRowInserter extends RowInserter<SearchResult> {
     protected RowStatus checkRowData(SearchResult sr) {
         Attributes attrs = sr.getAttributes();
         String idAttrName = m_attrMap.getIdentityAttributeName();
-        return attrs.get(idAttrName) != null ? RowStatus.SUCCESS
-                : RowStatus.FAILURE;
+        if (attrs.get(idAttrName) == null) {
+            return RowStatus.FAILURE;
+        }
+        // check username
+        try {
+            String userName = m_userMapper.getUserName(attrs);
+            if (!UserValidationUtils.isValidUserName(userName)) {
+                return RowStatus.FAILURE;
+            }
+        } catch (NamingException e) {
+            return RowStatus.FAILURE;
+        }
+        return RowStatus.SUCCESS;
     }
 
     public void setAttrMap(AttrMap attrMap) {

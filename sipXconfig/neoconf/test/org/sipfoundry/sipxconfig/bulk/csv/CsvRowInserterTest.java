@@ -142,6 +142,11 @@ public class CsvRowInserterTest extends TestCase {
         row[Index.USERNAME.getValue()] = "kuku";
         assertEquals(RowInserter.RowStatus.SUCCESS, impl.checkRowData(row));
 
+        String[] rowWithInvalidUsername = {
+            "@200", "", "", "", "", "", "", "", "001122334466", "polycom300", "yellow phone", ""
+        };
+        assertEquals(RowInserter.RowStatus.FAILURE, impl.checkRowData(rowWithInvalidUsername));
+
         verify(domainManager);
     }
 
