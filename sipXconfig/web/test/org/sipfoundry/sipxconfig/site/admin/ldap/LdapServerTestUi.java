@@ -11,6 +11,8 @@ package org.sipfoundry.sipxconfig.site.admin.ldap;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
+import com.mchange.util.AssertException;
+
 import junit.framework.Test;
 import net.sourceforge.jwebunit.junit.WebTestCase;
 
@@ -41,5 +43,10 @@ public class LdapServerTestUi extends WebTestCase {
         // Set port to an unlikely ldap port, so that the test passes on systems running a
         // local ldap server.
         assertElementPresent("port");
+        //test ldap connection error display
+        assertElementPresent("applyConnectionParams");
+        clickButton("applyConnectionParams");
+        SiteTestHelper.assertUserError(getTester());
+        assertElementPresent("applyConnectionParams");
     }
 }
