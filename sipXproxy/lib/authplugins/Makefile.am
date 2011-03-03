@@ -22,6 +22,7 @@ AUTHPLUGIN_COMMON_LD_FLAGS = \
 
 nobase_lib_LTLIBRARIES = \
     authplugins/libCallerAlias.la \
+    authplugins/libCallerAlertInfo.la \
     authplugins/libTransferControl.la \
     authplugins/libEnforceAuthRules.la \
     authplugins/libEmergencyNotify.la \
@@ -42,6 +43,21 @@ authplugins_libCallerAlias_la_LDFLAGS = \
 
 authplugins_libCallerAlias_la_LIBADD = \
     @SIPXCOMMSERVER_LIBS@
+
+
+authplugins_libCallerAlertInfo_la_SOURCES = \
+    CallerAlertInfo.h \
+    CallerAlertInfo.cpp
+
+authplugins_libCallerAlertInfo_la_CXXFLAGS = \
+    $(AUTHPLUGIN_COMMON_CXX_FLAGS)
+
+authplugins_libCallerAlertInfo_la_LDFLAGS = \
+    $(AUTHPLUGIN_COMMON_LD_FLAGS)
+
+authplugins_libCallerAlertInfo_la_LIBADD = \
+    @SIPXCOMMSERVER_LIBS@
+
 
 authplugins_libEnforceAuthRules_la_SOURCES = \
     EnforceAuthRules.h \

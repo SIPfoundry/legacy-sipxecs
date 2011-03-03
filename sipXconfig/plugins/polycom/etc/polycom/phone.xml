@@ -266,6 +266,42 @@
           <value>1</value>
         </setting>
       </group>
+      <!--Settings for the external ringtone-->
+      <group name="RING_EXTERNAL">
+        <profileName>8</profileName>
+        <setting name="ringer">
+          <type refid="ringer-pattern" />
+          <value>4</value>
+        </setting>
+        <setting name="callWait">
+          <type refid="call_progress_pattern" />
+          <value>6</value>
+        </setting>
+        <setting name="mod" hidden="yes">
+          <type>
+            <boolean />
+          </type>
+          <value>1</value>
+        </setting>
+      </group>
+      <!--Settings for the internal ringtone-->
+      <group name="RING_INTERNAL">
+        <profileName>9</profileName>
+        <setting name="ringer">
+          <type refid="ringer-pattern" />
+          <value>3</value>
+        </setting>
+        <setting name="callWait">
+          <type refid="call_progress_pattern" />
+          <value>6</value>
+        </setting>
+        <setting name="mod" hidden="yes">
+          <type>
+            <boolean />
+          </type>
+          <value>1</value>
+        </setting>
+      </group>
     </group>
   </group>
   <group name="voice">
@@ -2336,19 +2372,45 @@
       </setting>
     </group>
     <group name="alertInfo">
+      <!--If an INVITE contains at least one Alert-Info field and the value in none of them is equal to 
+          <the-values-here>.* the phone will not ring audibly.
+          RFC 3261 requires that only the first value for Alert-Info is in angle brackets and that it is a
+          URL. Any following parameters must be in the form of parameter-name=parameter-value which this
+          phone will not parse properly. -->
       <group name="1">
         <setting name="value">
           <type>
             <!-- string to compare against the value of Alert-Info headers in INVITE requests -->
-            <string />
+            <string/>
           </type>
-          <value />
+          <!-- This checks the URL included in the Alert-Info field, if it isn't a bogus URL 
+               other phones (e.g. Snom) will refuse to work and it will violate RFC 3261-->
+          <value>http://external.call</value>
         </setting>
         <setting name="class">
           <type>
             <integer min="1" />
           </type>
-          <value />
+          <!--Must be one greater than the corresponding ring-type number-->
+          <value>9</value>
+        </setting>
+      </group>
+      <group name="3">
+        <setting name="value">
+          <type>
+            <!-- string to compare against the value of Alert-Info headers in INVITE requests -->
+            <string/>
+          </type>
+          <!-- This checks the URL included in the Alert-Info field, if it isn't a bogus URL 
+               other phones (e.g. Snom) will refuse to work and it will violate RFC 3261-->
+          <value>http://internal.call</value>
+        </setting>
+        <setting name="class">
+          <type>
+            <integer min="1" />
+          </type>
+          <!--Must be one greater than the corresponding ring-type number-->
+          <value>10</value>
         </setting>
       </group>
       <!-- reserved for sipXpage - call with this value of alert-info will be used for paging -->

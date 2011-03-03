@@ -32,11 +32,13 @@
         voIpProt.SIP.outboundProxy.port="5060"
         voIpProt.SIP.outboundProxy.transport="UDPonly"
       />
-      <alertInfo
-        voIpProt.SIP.alertInfo.1.value=""
-        voIpProt.SIP.alertInfo.1.class=""
-        voIpProt.SIP.alertInfo.2.value="sipXpage"
-        voIpProt.SIP.alertInfo.2.class="3"
+      <alertInfo            
+        voIpProt.SIP.alertInfo.1.class="9"            
+        voIpProt.SIP.alertInfo.1.value="http://external.call"            
+        voIpProt.SIP.alertInfo.2.class="3"            
+        voIpProt.SIP.alertInfo.2.value="sipXpage"            
+        voIpProt.SIP.alertInfo.3.class="10"            
+        voIpProt.SIP.alertInfo.3.value="http://internal.call"
       />
       <requestValidation
         voIpProt.SIP.requestValidation.1.request=""

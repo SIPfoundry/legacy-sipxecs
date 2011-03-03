@@ -1,22 +1,26 @@
 # Initial Version Copyright (C) 2010 eZuce, Inc., All Rights Reserved.
 # Licensed to the User under the LGPL license.
 # 
-# Determine software dependencies for building source by analyzing spec files.  #This does not build 
+# Determine software dependencies for building source by analyzing spec files. This does not build 
 # the dependencies themselves, see *-build.mk* for that.
 #
 lib.deps-% : LIB_REWRITE_DEPS = $(foreach P,$(lib),-e '/$(P)/Id')
 
-#
 # grep pulls deps for all distros, here we remove irrellevant ones for each distro
-#
+# some are deps for parts we do not build
 REWRITE_DEPS = \
 	-e "/$${proj}/d" \
 	-e '/%{\?name}\?/d' \
-	-e '/java-ibm.*/d'
+	-e '/java-ibm.*/d'\
+	-e '/libsng_isdn/d'\
+	-e '/libsng_ss7/d'\
+	-e '/sng-tc-linux/d'\
+	-e '/wanpipe/d'
 
 REWRITE_DEPS_redhat = \
 	$(REWRITE_DEPS) \
-	-e 's/java-1_6_0-sun-devel/java-devel/g' \
+	-e '/java-1_6_0-sun-devel/d' \
+	-e 's/java-devel/java-1.6.0-openjdk-devel/g' \
 	-e '/docbook-xsl-stylesheets/d' \
 	-e '/pwdutils/d' \
 	-e '/apache2-.*/d' \
@@ -31,7 +35,11 @@ REWRITE_DEPS_centos_5 = \
 
 REWRITE_DEPS_fedora = \
 	$(REWRITE_DEPS_redhat) \
-	-e '/termcap/d'
+	-e '/termcap/d' \
+	-e '/jpeg-devel/d' \
+	-e 's/libopenjpeg-devel/openjpeg-devel/g' \
+	-e 's/curl-devel/libcurl-devel/g' \
+	-e 's/jakarta-commons-beanutils/apache-commons-beanutils/g'
 
 REWRITE_DEPS_suse = \
 	$(REWRITE_DEPS) \
@@ -71,6 +79,6 @@ $(foreach T,$(all),$(T).deps-list $(T).deps-build-list):
 	    sed \
 	        -e 's/$(REQUIRES_TAG)://' \
 	        -e 's/,/\n/g' \
-	        $(REWRITE_DEPS_@DISTRO@_@DISTRO_VER@) | \
+	        $(REWRITE_DEPS_$(DISTRO_OS)_$(DISTRO_VER)) | \
 	    awk '{print $$1}' | \
 	    sort -u
