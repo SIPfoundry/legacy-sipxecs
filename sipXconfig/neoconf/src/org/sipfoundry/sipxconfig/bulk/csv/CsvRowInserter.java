@@ -18,6 +18,7 @@ import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.bulk.RowInserter;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
@@ -98,6 +99,10 @@ public class CsvRowInserter extends RowInserter<String[]> {
         }
 
         if (StringUtils.isNotBlank(userName)) {
+            // check for a valid user name
+            if (!UserValidationUtils.isValidUserName(userName)) {
+                return RowStatus.FAILURE;
+            }
             String pin = Index.PIN.get(row);
             String[] realmAndHash = StringUtils.split(pin, "#", 2);
             if (realmAndHash.length == 2) {
@@ -324,4 +329,5 @@ public class CsvRowInserter extends RowInserter<String[]> {
     public void setPermissionManager(PermissionManager permissionManager) {
         m_permissionManager = permissionManager;
     }
+
 }
