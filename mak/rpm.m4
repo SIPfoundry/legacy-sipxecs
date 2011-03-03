@@ -4,6 +4,7 @@ dnl
 
 AC_ARG_WITH(yum-proxy, [--with-yum-proxy send downloads thru caching proxy like squid to speed downloads], [
   AC_SUBST(DOWNLOAD_PROXY,$withval)
+  AC_SUBST(DOWNLOAD_PROXY_CONFIG_LINE,"proxy=$withval")
 
   # Using a BASEURL is instead of yum using mirrorlists to randomize download sites is important if you want
   # to get any use from your caching proxy.
