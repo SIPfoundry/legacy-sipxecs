@@ -152,6 +152,7 @@ public class ConfigurableLdapAuthenticationProvider implements AuthenticationPro
         String filter = String.format("(%s={0}%s)", attrMap.getIdentityAttributeName(), additionalFilter);
 
         FilterBasedLdapUserSearch search = new FilterBasedLdapUserSearch(sbase, filter, dirFactory);
+        search.setSearchSubtree(true);
         return search;
     }
 
