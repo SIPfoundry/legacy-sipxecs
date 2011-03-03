@@ -58,10 +58,6 @@ public class PermissionsTest extends MongoTestCase {
         m_permissions = new Permissions();
 
         coreContext = getCoreContext();
-        coreContext.loadInternalUsers();
-        expectLastCall().andReturn(Collections.EMPTY_LIST).anyTimes();
-        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        expectLastCall().andReturn(Collections.EMPTY_LIST).anyTimes();
         coreContext.newUser();
         expectLastCall().andReturn(m_testUser).anyTimes();
 
@@ -70,35 +66,24 @@ public class PermissionsTest extends MongoTestCase {
             expectLastCall().andReturn(new SpecialUser(u)).anyTimes();
         }
 
-        CallGroupContext callGroupContext = createMock(CallGroupContext.class);
-        callGroupContext.getCallGroups();
-        expectLastCall().andReturn(Collections.EMPTY_LIST);
-
         TlsPeer peer = new TlsPeer();
         InternalUser user = new InternalUser();
         user.setSipPassword("123");
         user.setPintoken("11");
         peer.setInternalUser(user);
-        TlsPeerManager tlsPeerManager = createMock(TlsPeerManager.class);
-        tlsPeerManager.getTlsPeers();
-        expectLastCall().andReturn(Collections.EMPTY_LIST);
 
         AuthCode code = new AuthCode();
         code.setInternalUser(user);
-        AuthCodeManager authCodeManager = createMock(AuthCodeManager.class);
-        authCodeManager.getAuthCodes();
-        expectLastCall().andReturn(Collections.EMPTY_LIST);
-        
-        replay(coreContext, callGroupContext, dm, authCodeManager, tlsPeerManager);
+
+        replay(coreContext, dm);
         m_permissions.setCoreContext(coreContext);
-        m_permissions.setCallGroupContext(callGroupContext);
         m_permissions.setDbCollection(getCollection());
-        m_permissions.setAuthCodeManager(authCodeManager);
-        m_permissions.setTlsPeerManager(tlsPeerManager);
     }
 
     public void testGenerateEmpty() throws Exception {
-        m_permissions.generate();
+        for (SpecialUserType u : SpecialUserType.values()) {
+            m_permissions.generate(getCoreContext().getSpecialUserAsSpecialUser(u));
+        }
 
         // As PHONE_PROVISION does NOT require any permissions, don't count it.
         assertCollectionCount(SPEC_COUNT - 1);
@@ -126,14 +111,9 @@ public class PermissionsTest extends MongoTestCase {
         callGroup3.setName("disabled");
         callGroup3.setUniqueId(3);
 
-        CallGroupContext callGroupContext = createMock(CallGroupContext.class);
-        callGroupContext.getCallGroups();
-        expectLastCall().andReturn(Arrays.asList(callGroup1, callGroup2, callGroup3));
-
-        replay(callGroupContext);
-
-        m_permissions.setCallGroupContext(callGroupContext);
-        m_permissions.generate();
+        m_permissions.generate(callGroup1);
+        m_permissions.generate(callGroup2);
+        m_permissions.generate(callGroup3);
 
         assertObjectWithIdFieldValuePresent("CallGroup1", DataSetGenerator.IDENTITY, "sales@" + DOMAIN);
         assertObjectWithIdFieldValuePresent("CallGroup2", DataSetGenerator.IDENTITY, "marketing@" + DOMAIN);

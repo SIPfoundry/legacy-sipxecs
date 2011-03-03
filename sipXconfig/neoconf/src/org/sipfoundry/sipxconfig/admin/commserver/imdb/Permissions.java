@@ -15,14 +15,8 @@ import java.util.List;
 
 import com.mongodb.DBObject;
 
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
-import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
@@ -33,13 +27,8 @@ import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.setting.AbstractSettingVisitor;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
-
 public class Permissions extends DataSetGenerator {
     public static final String PERMISSIONS = "prm";
-    private CallGroupContext m_callGroupContext;
-    private TlsPeerManager m_tlsPeerManager;
-    private AuthCodeManager m_authCodeManager;
 
     void addUser(List<DataSetRecord> records, User user) {
         Setting permissions = user.getSettings().getSetting(Permission.CALL_PERMISSION_PATH);
@@ -85,10 +74,6 @@ public class Permissions extends DataSetGenerator {
         return DataSet.PERMISSION;
     }
 
-    public void setCallGroupContext(CallGroupContext callGroupContext) {
-        m_callGroupContext = callGroupContext;
-    }
-
     @Override
     public void generate(Replicable entity) {
         List<DataSetRecord> records = new ArrayList<DataSetRecord>();
@@ -98,12 +83,18 @@ public class Permissions extends DataSetGenerator {
             insertDbObject(user, records);
         } else if (entity instanceof CallGroup) {
             CallGroup callGroup = (CallGroup) entity;
+            if (!callGroup.isEnabled()) {
+                return;
+            }
             // HACK: set the user name as what we'd like to have in the id field of mongo object
             User user = addSpecialUser(CallGroup.class.getSimpleName() + callGroup.getId(), records);
             user.setIdentity(callGroup.getIdentity(getSipDomain()));
             insertDbObject(user, records);
         } else if (entity instanceof SpecialUser) {
             SpecialUser specialUser = (SpecialUser) entity;
+            if (specialUser.getType().equals(SpecialUserType.PHONE_PROVISION.toString())) {
+                return;
+            }
             User u = addSpecialUser(specialUser.getUserName(), records);
             u.setIdentity(null);
             insertDbObject(u, records);
@@ -115,44 +106,6 @@ public class Permissions extends DataSetGenerator {
         }
     }
 
-    @Override
-    public void generate() {
-        for (SpecialUserType sut : SpecialUserType.values()) {
-
-            // As PHONE_PROVISION does NOT require any permissions, skip it.
-            if (!sut.equals(SpecialUserType.PHONE_PROVISION)) {
-                SpecialUser sp = getCoreContext().getSpecialUserAsSpecialUser(sut);
-                generate(sp);
-            }
-        }
-
-        List<CallGroup> callGroups = m_callGroupContext.getCallGroups();
-        for (CallGroup callGroup : callGroups) {
-            if (callGroup.isEnabled()) {
-                generate(callGroup);
-            }
-        }
-
-        List<TlsPeer> tlsPeers = m_tlsPeerManager.getTlsPeers();
-        for (TlsPeer tlsPeer : tlsPeers) {
-            generate(tlsPeer);
-        }
-
-        List<AuthCode> authCodes = m_authCodeManager.getAuthCodes();
-        for (AuthCode authCode : authCodes) {
-            generate(authCode);
-        }
-
-        Closure<User> closure = new Closure<User>() {
-            @Override
-            public void execute(User user) {
-                generate(user);
-            }
-        };
-        forAllUsersDo(getCoreContext(), closure);
-
-    }
-
     private void insertDbObject(Replicable entity, List<DataSetRecord> records) {
         DBObject top = findOrCreate(entity);
         Collection<String> prms = new ArrayList<String>();
@@ -161,14 +114,6 @@ public class Permissions extends DataSetGenerator {
         }
         top.put(PERMISSIONS, prms);
         getDbCollection().save(top);
-    }
-
-    public void setAuthCodeManager(AuthCodeManager authCodeManager) {
-        m_authCodeManager = authCodeManager;
-    }
-
-    public void setTlsPeerManager(TlsPeerManager tlsPeerManager) {
-        m_tlsPeerManager = tlsPeerManager;
     }
 
 }

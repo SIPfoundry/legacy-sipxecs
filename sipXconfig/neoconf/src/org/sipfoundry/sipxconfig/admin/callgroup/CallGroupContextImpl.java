@@ -26,6 +26,7 @@ import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -35,7 +36,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 /**
  * Hibernate implementation of the call group context
  */
-public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext {
+public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext, ReplicableProvider {
     private static final String VALUE = "value";
 
     private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";
@@ -228,5 +229,14 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         }
         // no need to trigger replication - do not use storeCallGroup
         getHibernateTemplate().saveOrUpdateAll(changed);
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (CallGroup cg : getCallGroups()) {
+            replicables.add(cg);
+        }
+        return replicables;
     }
 }

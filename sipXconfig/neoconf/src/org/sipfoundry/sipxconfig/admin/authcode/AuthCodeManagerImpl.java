@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -45,7 +46,7 @@ import org.springframework.beans.factory.annotation.Required;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.requireOneOrZero;
 
 public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
-        AuthCodeManager {
+        AuthCodeManager, ReplicableProvider {
 
     private static final Log LOG = LogFactory.getLog(AuthCodeManagerImpl.class);
     private static final String AUTH_CODE_CODE = "code";
@@ -300,5 +301,14 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
         }
 
         return host + ":" + service.getFreeswitchSipPort();
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (AuthCode code : getAuthCodes()) {
+            replicables.add(code);
+        }
+        return replicables;
     }
 }

@@ -27,6 +27,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.conference.FreeswitchApi;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.moh.MusicOnHoldManager;
@@ -35,7 +36,7 @@ import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 
-public class SipxFreeswitchService extends SipxService implements LoggingEntity, Replicable {
+public class SipxFreeswitchService extends SipxService implements LoggingEntity, Replicable, ReplicableProvider {
     public static final String FREESWITCH_XMLRPC_PORT = "freeswitch-config/FREESWITCH_XMLRPC_PORT";
     public static final String FREESWITCH_SIP_PORT = "freeswitch-config/FREESWITCH_SIP_PORT";
     public static final String FREESWITCH_MOH_SOURCE = "freeswitch-config/MOH_SOURCE";
@@ -376,5 +377,12 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity,
 
     public void setMusicOnHoldManager(MusicOnHoldManager musicOnHoldManager) {
         m_musicOnHoldManager = musicOnHoldManager;
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        replicables.add(this);
+        return replicables;
     }
 }

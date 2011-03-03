@@ -9,27 +9,17 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.List;
-
 import com.mongodb.DBObject;
 
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.common.BeanWithUserPermissions;
-import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
-import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class Credentials extends DataSetGenerator {
     public static final String REALM = "rlm";
@@ -37,51 +27,10 @@ public class Credentials extends DataSetGenerator {
     public static final String PINTOKEN = "pntk";
     public static final String AUTHTYPE = "authtp";
     public static final String DIGEST = "DIGEST";
-    private CallGroupContext m_callGroupContext;
-    private TlsPeerManager m_tlsPeerManager;
-    private AuthCodeManager m_authCodeManager;
 
     @Override
     protected DataSet getType() {
         return DataSet.CREDENTIAL;
-    }
-
-    public void setCallGroupContext(CallGroupContext callGroupContext) {
-        m_callGroupContext = callGroupContext;
-    }
-
-    @Override
-    public void generate() {
-        Closure<User> closure = new Closure<User>() {
-            @Override
-            public void execute(User user) {
-                generate(user);
-            }
-        };
-        forAllUsersDo(getCoreContext(), closure);
-
-        List<TlsPeer> tlsPeers = m_tlsPeerManager.getTlsPeers();
-        for (TlsPeer tlsPeer : tlsPeers) {
-            generate(tlsPeer);
-        }
-
-        List<AuthCode> authCodes = m_authCodeManager.getAuthCodes();
-        for (AuthCode authCode : authCodes) {
-            generate(authCode);
-        }
-
-        for (SpecialUserType specialUserType : SpecialUserType.values()) {
-            SpecialUser user = getCoreContext().getSpecialUserAsSpecialUser(specialUserType);
-            if (user != null) {
-                generate(user);
-            }
-        }
-        List<CallGroup> callGroups = m_callGroupContext.getCallGroups();
-        for (CallGroup callGroup : callGroups) {
-            if (callGroup.isEnabled()) {
-                generate(callGroup);
-            }
-        }
     }
 
     @Override
@@ -113,11 +62,4 @@ public class Credentials extends DataSetGenerator {
         getDbCollection().save(top);
     }
 
-    public void setAuthCodeManager(AuthCodeManager authCodeManager) {
-        m_authCodeManager = authCodeManager;
-    }
-
-    public void setTlsPeerManager(TlsPeerManager tlsPeerManager) {
-        m_tlsPeerManager = tlsPeerManager;
-    }
 }

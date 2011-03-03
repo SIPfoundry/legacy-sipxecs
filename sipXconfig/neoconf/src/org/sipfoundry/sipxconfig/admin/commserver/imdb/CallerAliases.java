@@ -81,23 +81,6 @@ public class CallerAliases extends DataSetGenerator {
     }
 
     @Override
-    public void generate() {
-        Closure<User> closure = new Closure<User>() {
-            @Override
-            public void execute(User user) {
-                generate(user);
-            }
-
-        };
-        DaoUtils.forAllUsersDo(getCoreContext(), closure);
-        // gw
-        List<Gateway> gateways = m_gatewayContext.getGateways();
-        for (Gateway gateway : gateways) {
-            generate(gateway);
-        }
-    }
-
-    @Override
     public void generate(Replicable entity) {
         if (entity instanceof User) {
             List<CallerAliasesMapping> mappings = new ArrayList<CallerAliasesMapping>();

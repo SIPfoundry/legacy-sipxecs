@@ -80,6 +80,7 @@
     <property name="fileApiProvider" ref="fileApiProvider"/>
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
+    <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="sipxReplicationContextImpl"
@@ -180,27 +181,18 @@
 
   <bean id="aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases">
-    <property name="aliasProvider">
-      <ref local="aliasCollector" />
-    </property>
   </bean>
   <bean id="credentialDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Credentials">
-    <property name="callGroupContext" ref="callGroupContext" />
-    <property name="tlsPeerManager" ref="tlsPeerManager" />
-    <property name="authCodeManager" ref="authCodeManager" />
   </bean>
   <bean id="permissionDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Permissions">
-    <property name="callGroupContext" ref="callGroupContext" />
-    <property name="tlsPeerManager" ref="tlsPeerManager" />
-    <property name="authCodeManager" ref="authCodeManager" />
   </bean>
   <bean id="calleraliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
-    <property name="gatewayContext" ref="gatewayContext" />
     <property name="anonymousAlias"
       value="sip:anonymous@anonymous.invalid" />
+    <property name="gatewayContext" ref="gatewayContext" />
   </bean>
   <bean id="userlocationDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserLocation">

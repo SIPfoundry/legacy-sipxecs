@@ -35,6 +35,7 @@ import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -56,7 +57,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
-        ConferenceBridgeContext, DaoEventListener {
+        ConferenceBridgeContext, DaoEventListener, ReplicableProvider {
     private static final String BUNDLE_CONFERENCE = "conference";
     private static final String CONFERENCE = BUNDLE_CONFERENCE;
     private static final String VALUE = "value";
@@ -416,5 +417,14 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     private SipxFreeswitchService getSipxFreeswitchService() {
         return (SipxFreeswitchService) m_sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (Conference conf : getAllConferences()) {
+            replicables.add(conf);
+        }
+        return replicables;
     }
 }

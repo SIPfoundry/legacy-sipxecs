@@ -848,6 +848,15 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         return false;
     }
 
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (OpenAcdExtension ext : getHibernateTemplate().loadAll(OpenAcdExtension.class)) {
+            replicables.add(ext);
+        }
+        return replicables;
+    }
+
     public void setSipxServiceManager(SipxServiceManager manager) {
         m_serviceManager = manager;
     }

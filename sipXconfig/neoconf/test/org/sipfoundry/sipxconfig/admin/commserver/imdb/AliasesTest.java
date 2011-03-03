@@ -46,19 +46,13 @@ public class AliasesTest extends MongoTestCase {
         m_user.setUniqueId(1);
         m_user.setDomainManager(dm);
 
-        m_aliasMappings.put(m_user, aliases);
-
-        AliasProvider aliasProvider = EasyMock.createMock(AliasProvider.class);
-        aliasProvider.getAliasMappings();
-        expectLastCall().andReturn(m_aliasMappings).anyTimes();
-        replay(aliasProvider, getCoreContext());
-        m_aliases.setAliasProvider(aliasProvider);
+        replay(getCoreContext());
         m_aliases.setDbCollection(getCollection());
         m_aliases.setCoreContext(getCoreContext());
     }
 
     public void testGenerate() {
-        m_aliases.generate();
+        m_aliases.generate(m_user);
 
         assertObjectWithIdPresent("User1");
 

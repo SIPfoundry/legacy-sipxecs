@@ -9,9 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -45,8 +42,6 @@ public abstract class DataSetGenerator {
     protected String getSipDomain() {
         return m_coreContext.getDomainName();
     }
-
-    public abstract void generate();
 
     public abstract void generate(Replicable entity);
 

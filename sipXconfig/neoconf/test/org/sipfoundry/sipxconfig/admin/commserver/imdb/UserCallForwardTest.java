@@ -36,7 +36,6 @@ public class UserCallForwardTest extends MongoTestCase {
     };
 
     private List<User> m_users;
-    private List<CallSequence> m_cs;
     private PermissionManager m_permManager;
 
     @Override
@@ -80,12 +79,6 @@ public class UserCallForwardTest extends MongoTestCase {
             user.setSettingTypedValue(CallSequence.CALL_FWD_TIMER_SETTING, ud[4]);
             user.setDomainManager(dm);
             m_users.add(user);
-
-            //CallSequence cs = new CallSequence();
-            //cs.setUser(user);
-            //cs.setCfwdTime(Integer.valueOf(ud[4]));
-
-            //m_cs.add(cs);
         }
         // add user with un-set value for cfwd timer - it is supposed to generate the default one
         // for this user(54)
@@ -93,10 +86,6 @@ public class UserCallForwardTest extends MongoTestCase {
         user.setDomainManager(dm);
         user.setUniqueId(4);
         m_users.add(user);
-        //CallSequence cs = new CallSequence();
-        //cs.setUser(user);
-        //m_cs.add(cs);
-
     }
 
     private User createDefaultCfwdUser() {
@@ -110,18 +99,6 @@ public class UserCallForwardTest extends MongoTestCase {
         return user;
     }
 
-    public void testGenerateEmpty() throws Exception {
-        UserForward uf = new UserForward();
-        CoreContext coreContext = getCoreContext();
-        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        expectLastCall().andReturn(Collections.EMPTY_LIST).anyTimes();
-        replay(coreContext);
-        uf.setCoreContext(getCoreContext());
-        uf.generate();
-        uf.setDbCollection(getCollection());
-        assertCollectionCount(0);
-    }
-
     public void testGenerate() throws Exception {
         UserForward uf = new UserForward();
 
@@ -132,7 +109,10 @@ public class UserCallForwardTest extends MongoTestCase {
         uf.setCoreContext(coreContext);
         uf.setDbCollection(getCollection());
         replay(coreContext);
-        uf.generate();
+        uf.generate(m_users.get(0));
+        uf.generate(m_users.get(1));
+        uf.generate(m_users.get(2));
+        uf.generate(m_users.get(3));
         assertCollectionCount(4);
 
         assertObjectWithIdFieldValuePresent("User1", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[0][4]));

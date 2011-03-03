@@ -27,6 +27,8 @@ import org.sipfoundry.sipxconfig.admin.dialplan.sbc.SbcDevice;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext.CONFIG_CHANGE_TYPE;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.SbcDeviceDeleteListener;
 import org.sipfoundry.sipxconfig.device.ProfileLocation;
@@ -36,7 +38,8 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
-public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext, BeanFactoryAware {
+public class GatewayContextImpl extends HibernateDaoSupport implements GatewayContext, BeanFactoryAware,
+        ReplicableProvider {
 
     private static final String QUERY_GATEWAY_ID_BY_SERIAL_NUMBER = "gatewayIdsWithSerialNumber";
 
@@ -92,8 +95,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         // Before storing the gateway, make sure that it has a unique name.
         // Throw an exception if it doesn't.
         HibernateTemplate hibernate = getHibernateTemplate();
-        DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "name", new DuplicateNameException(gateway
-                .getName()));
+        DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "name",
+                new DuplicateNameException(gateway.getName()));
         DaoUtils.checkDuplicates(hibernate, Gateway.class, gateway, "serialNumber",
                 new DuplicateSerialNumberException(gateway.getSerialNumber()));
         // Find if we are about to save a new gateway
@@ -263,5 +266,14 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
                 }
             }
         }
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (Gateway gw : getGateways()) {
+            replicables.add(gw);
+        }
+        return replicables;
     }
 }

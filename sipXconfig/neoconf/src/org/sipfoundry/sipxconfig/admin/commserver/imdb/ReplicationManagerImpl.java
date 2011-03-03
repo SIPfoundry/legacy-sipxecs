@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
+import java.util.Map;
 import java.util.Set;
 
 import com.mongodb.BasicDBObject;
@@ -32,12 +33,18 @@ import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
+import org.sipfoundry.sipxconfig.common.Closure;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
 import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
 public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAware {
@@ -57,7 +64,8 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private ApiProvider<FileApi> m_fileApiProvider;
     private LocationsManager m_locationsManager;
     private AuditLogContext m_auditLogContext;
-    private BeanFactory m_beanFactory;
+    private ListableBeanFactory m_beanFactory;
+    private CoreContext m_coreContext;
 
     private void initMongo() throws Exception {
         if (m_mongoInstance == null) {
@@ -101,34 +109,29 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         datasetCollection.drop();
     }
 
-    private void replicateData(DataSetGenerator generator) throws Exception {
-        if (!m_enabled) {
-            return;
-        }
-        DataSet type = generator.getType();
-        try {
-            initMongo();
-            DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
-            generator.setDbCollection(datasetCollection);
-            generator.generate();
-            LOG.info("Data replication: " + type.getName());
-        } catch (Exception e) {
-            LOG.error("Data replication failed: " + type.getName(), e);
-            throw (e);
-        }
-    }
-
+    /*
+     * Get all replicable entities and replicate them; this is far better than getting the
+     * DataSet.values and generating for each of them. Treat users differently since we have the
+     * DaoUtils.forAllUsersDo method that should be used.
+     */
     @Override
     public boolean replicateAllData() {
         boolean success = true;
         try {
             dropDb(); // this calls initMongo()
-            for (DataSet dataSet : DataSet.getEnumList()) {
-                String beanName = dataSet.getBeanName();
-                final DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
-                        DataSetGenerator.class);
-                replicateData(generator);
+            Closure<User> closure = new Closure<User>() {
+                @Override
+                public void execute(User user) {
+                    replicateEntity(user);
+                }
+
+            };
+            DaoUtils.forAllUsersDo(m_coreContext, closure);
+            Map<String, ReplicableProvider> beanMap = m_beanFactory.getBeansOfType(ReplicableProvider.class);
+            for (ReplicableProvider provider : beanMap.values()) {
+                for (Replicable entity : provider.getReplicables()) {
+                    replicateEntity(entity);
+                }
             }
         } catch (Exception e) {
             success = false;
@@ -271,7 +274,11 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     }
 
     public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
+        m_beanFactory = (ListableBeanFactory) beanFactory;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
 }

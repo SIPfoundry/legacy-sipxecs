@@ -9,14 +9,12 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+
 import com.mongodb.DBObject;
 
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
-import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
-
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class UserForward extends DataSetGenerator {
     public static final String CFWDTIME = "cfwdtm";
@@ -41,17 +39,6 @@ public class UserForward extends DataSetGenerator {
         DBObject top = findOrCreate(user);
         top.put(CFWDTIME, user.getSettingTypedValue(CallSequence.CALL_FWD_TIMER_SETTING));
         getDbCollection().save(top);
-    }
-
-    @Override
-    public void generate() {
-        Closure<User> closure = new Closure<User>() {
-            @Override
-            public void execute(User user) {
-                generate(user);
-            }
-        };
-        forAllUsersDo(getCoreContext(), closure);
     }
 
 }

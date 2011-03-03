@@ -19,6 +19,8 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.InternalUser;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -32,7 +34,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 import static org.sipfoundry.sipxconfig.common.DaoUtils.requireOneOrZero;
 
-public class TlsPeerManagerImpl extends HibernateDaoSupport implements TlsPeerManager {
+public class TlsPeerManagerImpl extends HibernateDaoSupport implements TlsPeerManager, ReplicableProvider {
 
     private static final String TLS_PEER_NAME = "name";
     private static final String INTERNAL_NAME = "~~tp~%s";
@@ -153,6 +155,15 @@ public class TlsPeerManagerImpl extends HibernateDaoSupport implements TlsPeerMa
     @Required
     public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
         m_daoEventPublisher = daoEventPublisher;
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (TlsPeer tp : getTlsPeers()) {
+            replicables.add(tp);
+        }
+        return replicables;
     }
 
 }

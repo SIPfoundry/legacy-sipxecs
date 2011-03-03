@@ -13,7 +13,6 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.easymock.EasyMock;
@@ -79,7 +78,7 @@ public class CallerAliasesTest extends MongoTestCase {
         m_gateways = new ArrayList<Gateway>();
         for (Object[] gd : GATEWAY_DATA) {
             Gateway gateway = new Gateway();
-            gateway.setUniqueId((Integer)gd[0]);
+            gateway.setUniqueId((Integer) gd[0]);
             gateway.setAddress((String) gd[1]);
             gateway.setAddressPort((Integer) gd[2]);
             GatewayCallerAliasInfo info = new GatewayCallerAliasInfo();
@@ -94,28 +93,6 @@ public class CallerAliasesTest extends MongoTestCase {
             gateway.setUniqueId(((Integer) gd[10]).intValue());
             m_gateways.add(gateway);
         }
-    }
-
-    public void testGenerateEmpty() throws Exception {
-        CallerAliases cas = new CallerAliases();
-
-        CoreContext coreContext = getCoreContext();
-        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        EasyMock.expectLastCall().andReturn(Collections.emptyList()).anyTimes();
-
-        GatewayContext gatewayContext = EasyMock.createMock(GatewayContext.class);
-        gatewayContext.getGateways();
-        EasyMock.expectLastCall().andReturn(Collections.emptyList());
-
-        cas.setCoreContext(coreContext);
-        cas.setGatewayContext(gatewayContext);
-        cas.setDbCollection(getCollection());
-
-        EasyMock.replay(coreContext, gatewayContext);
-
-        cas.generate();
-
-        assertCollectionCount(0);
     }
 
     public void testGenerate() throws Exception {
@@ -137,24 +114,46 @@ public class CallerAliasesTest extends MongoTestCase {
         cas.setGatewayContext(gatewayContext);
         cas.setDbCollection(getCollection());
 
-        cas.generate();
+        cas.generate(m_users.get(0));
+        cas.generate(m_users.get(1));
+        cas.generate(m_users.get(2));
+        cas.generate(m_gateways.get(0));
+        cas.generate(m_gateways.get(1));
+        cas.generate(m_gateways.get(2));
+        cas.generate(m_gateways.get(3));
+        
         assertCollectionCount(6);
-        assertObjectWithIdFieldValuePresent("Gateway1", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.DOMAIN, "example.org;sipxecs-lineid=1");
-        assertObjectWithIdFieldValuePresent("Gateway1", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.ALIAS, "sip:7832331111@"+DOMAIN);
+        assertObjectWithIdFieldValuePresent("Gateway1", CallerAliases.CALLERALIASES + "."
+                + CallerAliasesMapping.DOMAIN, "example.org;sipxecs-lineid=1");
+        assertObjectWithIdFieldValuePresent("Gateway1", CallerAliases.CALLERALIASES + "."
+                + CallerAliasesMapping.ALIAS, "sip:7832331111@" + DOMAIN);
         assertObjectWithIdNotPresent("Gateway2");
-        assertObjectWithIdFieldValuePresent("Gateway3", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
-        assertObjectWithIdFieldValuePresent("Gateway3", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.ALIAS, "sip:anonymous@anonymous.invalid");
-        assertObjectWithIdFieldValuePresent("Gateway4", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.DOMAIN, "1.2.3.4;sipxecs-lineid=4");
-        assertObjectWithIdFieldValuePresent("Gateway4", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.ALIAS, "sip:1234@"+DOMAIN);
-        //users
-        assertObjectWithIdFieldValuePresent("User1", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.DOMAIN, "bongo.com:5060;sipxecs-lineid=2");
-        assertObjectWithIdFieldValuePresent("User1", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.ALIAS, "\"first last\"<sip:1234@"+DOMAIN+">");
-        assertObjectWithIdFieldValuePresent("User1", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
-        assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.DOMAIN, "bongo.com:5060;sipxecs-lineid=2");
-        assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.ALIAS, "sip:4321@"+DOMAIN);
-        assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
-        assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.ALIAS, "sip:+21@"+DOMAIN);
-        assertObjectWithIdFieldValuePresent("User3", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
-        assertObjectWithIdFieldValuePresent("User3", CallerAliases.CALLERALIASES+"."+CallerAliasesMapping.ALIAS, "\"user without\"<sip:+45@"+DOMAIN+">");
+        assertObjectWithIdFieldValuePresent("Gateway3", CallerAliases.CALLERALIASES + "."
+                + CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
+        assertObjectWithIdFieldValuePresent("Gateway3", CallerAliases.CALLERALIASES + "."
+                + CallerAliasesMapping.ALIAS, "sip:anonymous@anonymous.invalid");
+        assertObjectWithIdFieldValuePresent("Gateway4", CallerAliases.CALLERALIASES + "."
+                + CallerAliasesMapping.DOMAIN, "1.2.3.4;sipxecs-lineid=4");
+        assertObjectWithIdFieldValuePresent("Gateway4", CallerAliases.CALLERALIASES + "."
+                + CallerAliasesMapping.ALIAS, "sip:1234@" + DOMAIN);
+        // users
+        assertObjectWithIdFieldValuePresent("User1",
+                CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "bongo.com:5060;sipxecs-lineid=2");
+        assertObjectWithIdFieldValuePresent("User1", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
+                "\"first last\"<sip:1234@" + DOMAIN + ">");
+        assertObjectWithIdFieldValuePresent("User1",
+                CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
+        assertObjectWithIdFieldValuePresent("User2",
+                CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "bongo.com:5060;sipxecs-lineid=2");
+        assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
+                "sip:4321@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("User2",
+                CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
+        assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
+                "sip:+21@" + DOMAIN);
+        assertObjectWithIdFieldValuePresent("User3",
+                CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
+        assertObjectWithIdFieldValuePresent("User3", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
+                "\"user without\"<sip:+45@" + DOMAIN + ">");
     }
 }
