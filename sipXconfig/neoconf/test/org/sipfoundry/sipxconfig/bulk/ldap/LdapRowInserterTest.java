@@ -9,12 +9,11 @@
  */
 package org.sipfoundry.sipxconfig.bulk.ldap;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import javax.naming.directory.SearchResult;
 
@@ -23,6 +22,8 @@ import junit.framework.TestCase;
 import org.apache.commons.lang.StringUtils;
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.sipxconfig.bulk.RowInserter;
+import org.sipfoundry.sipxconfig.bulk.csv.Index;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.Group;
@@ -40,6 +41,7 @@ public class LdapRowInserterTest extends TestCase {
         m_rowInserter = new LdapRowInserter();
         AttrMap attrMap = new AttrMap();
         attrMap.setDefaultGroupName("test-import");
+        attrMap.setAttribute(Index.USERNAME.getName(), "identity");
         m_rowInserter.setAttrMap(attrMap);
     }
 
@@ -149,5 +151,47 @@ public class LdapRowInserterTest extends TestCase {
                 assertTrue(new Boolean(group.getSettingValue(LdapRowInserter.LDAP_SETTING)));
             }
         }
+    }
+
+    public void testCheckRowData() throws Exception {
+        IMocksControl control = org.easymock.classextension.EasyMock.createNiceControl();
+        UserMapper userMapper = control.createMock(UserMapper.class);
+        SearchResult searchResult = control.createMock(SearchResult.class);
+        Attributes attributes = control.createMock(Attributes.class);
+        Attribute attribute = control.createMock(Attribute.class);
+
+        searchResult.getAttributes();
+        control.andReturn(attributes);
+        attributes.get("identity");
+        control.andReturn(null);
+        control.replay();
+        m_rowInserter.setUserMapper(userMapper);
+        assertEquals(RowInserter.RowStatus.FAILURE, m_rowInserter.checkRowData(searchResult));
+
+        control.reset();
+        searchResult.getAttributes();
+        control.andReturn(attributes);
+        attributes.get("identity");
+        control.andReturn(attribute);
+        userMapper.getUserName(attributes);
+        control.andReturn("@McQueen");
+        userMapper.getGroupNames(searchResult);
+        control.andReturn(Collections.singleton(SALES));
+        control.replay();
+        m_rowInserter.setUserMapper(userMapper);
+        assertEquals(RowInserter.RowStatus.FAILURE, m_rowInserter.checkRowData(searchResult));
+
+        control.reset();
+        searchResult.getAttributes();
+        control.andReturn(attributes);
+        attributes.get("identity");
+        control.andReturn(attribute);
+        userMapper.getUserName(attributes);
+        control.andReturn("McQueen");
+        userMapper.getGroupNames(searchResult);
+        control.andReturn(Collections.singleton(SALES));
+        control.replay();
+        m_rowInserter.setUserMapper(userMapper);
+        assertEquals(RowInserter.RowStatus.SUCCESS, m_rowInserter.checkRowData(searchResult));
     }
 }
