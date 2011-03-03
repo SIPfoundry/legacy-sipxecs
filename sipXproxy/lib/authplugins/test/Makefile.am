@@ -2,6 +2,7 @@
 ## and of course require no setup
 TESTS = \
 	calleraliastest \
+	calleralertinfotest \
 	calldestinationtest \
 	enforcerulestest \
 	emergencyrulestest \
@@ -15,6 +16,7 @@ TESTS = \
 
 check_PROGRAMS = \
 	calleraliastest \
+	calleralertinfotest \
 	calldestinationtest \
 	enforcerulestest \
 	emergencyrulestest \
@@ -79,6 +81,18 @@ calleraliastest_SOURCES = \
 
 calleraliastest_LDADD = \
 	$(COMMON_LIBS)
+
+
+calleralertinfotest_CXXFLAGS = \
+	$(COMMON_CXX_FLAGS)
+
+calleralertinfotest_SOURCES = \
+	$(top_srcdir)/lib/authplugins/CallerAlertInfo.cpp \
+	CallerAlertInfoTest.cpp
+
+calleralertinfotest_LDADD = \
+	$(COMMON_LIBS)
+
 
 calldestinationtest_CXXFLAGS = \
 	$(COMMON_CXX_FLAGS)

@@ -30,6 +30,13 @@ SIPX_PROXY.210_msftxchghack.USERAGENT : ^RTCC/
 
 SIPX_PROXY_HOOK_LIBRARY.300_calldestination: @sipxpbx.lib.dir@/authplugins/libCallDestination.so
 
+SIPX_PROXY_HOOK_LIBRARY.350_calleralertinfo: @sipxpbx.lib.dir@/authplugins/libCallerAlertInfo.so
+SIPX_PROXY.350_calleralertinfo.EXTERNAL: $!{settings.getSetting('alert-info/EXTERNAL').Value}
+SIPX_PROXY.350_calleralertinfo.EXTERNAL_ENABLED: $!{settings.getSetting('alert-info/EXTERNAL_ENABLED').Value}
+SIPX_PROXY.350_calleralertinfo.INTERNAL: $!{settings.getSetting('alert-info/INTERNAL').Value}
+SIPX_PROXY.350_calleralertinfo.INTERNAL_ENABLED: $!{settings.getSetting('alert-info/INTERNAL_ENABLED').Value}
+SIPX_PROXY.350_calleralertinfo.ON_EXISTING: $!{settings.getSetting('alert-info/ON_EXISTING').Value}
+
 SIPX_PROXY_HOOK_LIBRARY.400_authrules : @sipxpbx.lib.dir@/authplugins/libEnforceAuthRules.so
 SIPX_PROXY.400_authrules.RULES        : @sipxpbx.conf.dir@/authrules.xml
 SIPX_PROXY.400_authrules.IDENTITY_VALIDITY_SECONDS : 300
