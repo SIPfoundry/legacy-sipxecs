@@ -36,6 +36,9 @@ public:
     unsigned int getCseq() const;
     unsigned int getExpirationTime() const;
     const std::string& getInstrument() const;
+    const std::string& getLocalAddress()const;
+    int getTimestamp() const;
+    bool getExpired() const;
 
     void setIdentity(const std::string& identity);
     void setUri(const std::string& uri);
@@ -48,6 +51,9 @@ public:
     void setCseq(unsigned int cseq);
     void setExpirationTime(unsigned int expirationTime);
     void setInstrument(const std::string& intrument);
+    void setLocalAddress(const std::string& localAddress);
+    void setTimestamp(int timestamp);
+    void setExpired(bool expired);
 
 private:
     std::string _identity;
@@ -61,6 +67,9 @@ private:
     unsigned int _cseq;
     unsigned int _expirationTime;
     std::string _instrument;
+    std::string _localAddress;
+    int _timestamp;
+    bool _expired;
 };
 
 //
@@ -123,6 +132,21 @@ inline const std::string& RegBinding::getInstrument() const
   return _instrument;
 }
 
+inline const std::string& RegBinding::getLocalAddress()const
+{
+    return _localAddress;
+}
+
+inline int RegBinding::getTimestamp() const
+{
+    return _timestamp;
+}
+
+inline bool RegBinding::getExpired() const
+{
+    return _expired;
+}
+
 inline void RegBinding::setIdentity(const std::string& identity)
 {
   _identity = identity;
@@ -176,6 +200,21 @@ inline void RegBinding::setExpirationTime(unsigned int expirationTime)
 inline void RegBinding::setInstrument(const std::string& instrument)
 {
   _instrument = instrument;
+}
+
+inline void RegBinding::setLocalAddress(const std::string& localAddress)
+{
+    _localAddress = localAddress;
+}
+
+inline void RegBinding::setTimestamp(int timestamp)
+{
+    _timestamp = timestamp;
+}
+
+inline void RegBinding::setExpired(bool expired)
+{
+    _expired = expired;
 }
 
 #endif	/* RegBinding_H */

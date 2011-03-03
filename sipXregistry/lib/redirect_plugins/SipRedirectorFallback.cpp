@@ -13,10 +13,7 @@
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
 #include "os/OsSysLog.h"
-#include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/LocationDB.h"
-#include "sipdb/UserLocationDB.h"
 #include "net/SipXauthIdentity.h"
 #include "net/NameValueTokenizer.h"
 #include "SipRedirectorFallback.h"
@@ -47,24 +44,11 @@ SipRedirectorFallback::SipRedirectorFallback(const UtlString& instanceName) :
    mLogName.append(instanceName);
    mLogName.append("] SipRedirectorFallback");
 
-   mpLocationDbInstance     = LocationDB::getInstance();
-   mpUserLocationDbInstance = UserLocationDB::getInstance();
 }
 
 // Destructor
 SipRedirectorFallback::~SipRedirectorFallback()
 {
-   if( mpLocationDbInstance )
-   {
-      mpLocationDbInstance->releaseInstance();
-      mpLocationDbInstance = 0;
-   }
-
-   if( mpUserLocationDbInstance )
-   {
-      mpUserLocationDbInstance->releaseInstance();
-      mpUserLocationDbInstance = 0;
-   }
 }
 
 // Read config information.
@@ -207,65 +191,6 @@ SipRedirectorFallback::determineCallerLocationFromCallerIpAddress(
    UtlString& callerLocation )
 {
    OsStatus result = OS_FAILED;
-   callerLocation.remove( 0 );
-   
-   if( mpLocationDbInstance )
-   {
-      // Find out the public IP address of the caller and try to find a location topology
-      // that emcompasses it. 
-      
-      // Inspect the Via stack from top to bottom in search of a "received" tag.  If one 
-      // is found, the IP address it contains is considered the caller's "most public" 
-      // IP address and will be used to route the call based on location topology.  
-      // If the end of the Via stack is reached without finding a "received" tag, the 
-      // bottom Via's sent-by parameter is used instead to route the call based on location topology.
-      UtlString viaValue;
-      UtlString publicIpAddress;
-      int       viaIndex;
-      bool      bFound = false;
-      
-      // Walk to Via stack, searching for a "received' tag.
-      for( viaIndex = 0; !bFound && message.getViaFieldSubField( &viaValue, viaIndex ); viaIndex++ )
-      {
-         if( message.getViaTag( viaValue, "received", publicIpAddress ) )
-         {
-            bFound = true;
-         }
-      } 
-      
-      // No 'received' tag could be found, use the 'sent-by' parameter of the bottom via.
-      if( !bFound )
-      {
-         if( message.getViaFieldSubField( &viaValue, viaIndex - 1 ) )
-         {
-            UtlString sentByAndViaParams;
-            NameValueTokenizer::getSubField( viaValue, 1, SIP_SUBFIELD_SEPARATORS, &sentByAndViaParams );
-            Url viaAsUrl( sentByAndViaParams,TRUE );
-            viaAsUrl.getHostAddress( publicIpAddress );
-         }
-      }
-   
-      if( !publicIpAddress.isNull() )
-      {
-         // we found a public IP address for the caller.  Check to see if it is part of a 
-         // location's topology.
-         UtlHashMap locationInformation;
-         if( mpLocationDbInstance->getRowByIpAddress( publicIpAddress, locationInformation ) )
-         {
-            UtlString key( "name" );
-            UtlString* pTempString = dynamic_cast<UtlString*>( locationInformation.findValue( &key ) );
-            if( pTempString )
-            {
-               callerLocation = *pTempString;
-               OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                             "%s::determineCallerLocationFromCallerIpAddress mapped caller to location '%s' based on its public IP address: '%s'",
-                             mLogName.data(), callerLocation.data(), publicIpAddress.data() );
-               result = OS_SUCCESS;
-            }
-            locationInformation.destroyAll();
-         }
-      }
-   }
    return result;
 }
 
@@ -277,48 +202,46 @@ SipRedirectorFallback::determineCallerLocationFromProvisionedUserLocation(
    OsStatus result = OS_FAILED;
    callerLocation.remove( 0 );
 
-   if( mpUserLocationDbInstance )
-   {
-      // First, determine the identity of the caller.  This is done by looking for
-      // a properly signed P-Asserted identity in the request message.
-      // If the request contains a P-Asserted-Identity header and is not signed,
-      // we will not trust it the returned location will be blank.
-      UtlString matchedIdentityHeader;
-      SipXauthIdentity sipxIdentity( message, matchedIdentityHeader, false );
 
-      if( !matchedIdentityHeader.isNull() )
-      { 
-   
-         UtlString authenticatedUserIdentity;
-         bool bRequestIsAuthenticated;       
-         bRequestIsAuthenticated = sipxIdentity.getIdentity( authenticatedUserIdentity );
-         if( bRequestIsAuthenticated ) 
-         {
-            // we now have the autheticated identity of the caller.  Look up the user location
-            // database to find out the location that is mapped to it.
-            //ResultSet userLocationsResult;
-   
-            // Check in User Location database if user has locations
-            //mpUserLocationDbInstance->getLocations( authenticatedUserIdentity, userLocationsResult );
-   
-            // Get the caller's site location. Only the first returned location is used.
-            // This is not a problem given that a user should only belong to one location.
-            
-             EntityRecord entity;
-             if (_dataStore.entityDB().findByIdentity(authenticatedUserIdentity.str(), entity))
-            {
+  // First, determine the identity of the caller.  This is done by looking for
+  // a properly signed P-Asserted identity in the request message.
+  // If the request contains a P-Asserted-Identity header and is not signed,
+  // we will not trust it the returned location will be blank.
+  UtlString matchedIdentityHeader;
+  SipXauthIdentity sipxIdentity( message, matchedIdentityHeader, false );
 
-                  callerLocation = entity.location().c_str();
-                  result = OS_SUCCESS;
-                  OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                                "%s::determineCallerLocationFromProvisionedUserLocation mapped user '%s' taken from header '%s' to location '%s' based on its provisioned location",
-                                mLogName.data(), authenticatedUserIdentity.data(),
-                                authenticatedUserIdentity.data(),
-                                entity.location().c_str() );
-            }
-         }
-      }
-   }
+  if( !matchedIdentityHeader.isNull() )
+  {
+
+     UtlString authenticatedUserIdentity;
+     bool bRequestIsAuthenticated;
+     bRequestIsAuthenticated = sipxIdentity.getIdentity( authenticatedUserIdentity );
+     if( bRequestIsAuthenticated )
+     {
+        // we now have the autheticated identity of the caller.  Look up the user location
+        // database to find out the location that is mapped to it.
+        //ResultSet userLocationsResult;
+
+        // Check in User Location database if user has locations
+        //mpUserLocationDbInstance->getLocations( authenticatedUserIdentity, userLocationsResult );
+
+        // Get the caller's site location. Only the first returned location is used.
+        // This is not a problem given that a user should only belong to one location.
+
+         EntityRecord entity;
+         if (_dataStore.entityDB().findByIdentity(authenticatedUserIdentity.str(), entity))
+        {
+
+              callerLocation = entity.location().c_str();
+              result = OS_SUCCESS;
+              OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                            "%s::determineCallerLocationFromProvisionedUserLocation mapped user '%s' taken from header '%s' to location '%s' based on its provisioned location",
+                            mLogName.data(), authenticatedUserIdentity.data(),
+                            authenticatedUserIdentity.data(),
+                            entity.location().c_str() );
+        }
+     }
+  }
    return result;
 }
 

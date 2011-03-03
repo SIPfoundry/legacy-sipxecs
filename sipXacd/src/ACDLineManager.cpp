@@ -17,7 +17,7 @@
 #include <xmlparser/tinyxml.h>
 #include <net/Url.h>
 #include <net/ProvisioningAgent.h>
-#include <sipdb/CredentialDB.h>
+#include <sipdb/EntityDB.h>
 
 #include "ACDServer.h"
 #include "ACDLine.h"
@@ -60,7 +60,6 @@ ACDLineManager::ACDLineManager(ACDServer* pAcdServer)
    mpAcdCallManager = NULL;
    mhAcdCallManagerHandle = NULL;
    mpAcdQueueManager = NULL;
-   mCredentialDb = NULL;
 }
 
 
@@ -92,14 +91,6 @@ ACDLineManager::~ACDLineManager()
       OsSysLog::add(FAC_ACD, gACD_DEBUG, "ACDLineManager::~ACDLineManager - Line(%d): removed",
                     lineHandle);
    }
-
-   mLock.acquire();
-   if (mCredentialDb)
-   {
-      mCredentialDb->releaseInstance();
-      mCredentialDb = NULL;
-   }
-   mLock.release();
 }
 
 /* ============================ MANIPULATORS ============================== */
@@ -1095,18 +1086,7 @@ ACDLine* ACDLineManager::getAcdLineReferenceByExtension(UtlString& rLineExtensio
    return pLineRef;
 }
 
-/// Get a handle to the database where we look up line credentials.
-CredentialDB* ACDLineManager::getCredentialDb(void)
-{
-   mLock.acquire();
-   if (!mCredentialDb)
-   {
-      mCredentialDb = CredentialDB::getInstance();
-   }
-   mLock.release();
 
-   return mCredentialDb;
-}
 
 /* ============================ INQUIRY =================================== */
 

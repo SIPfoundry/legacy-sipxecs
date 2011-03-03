@@ -340,10 +340,7 @@ void CallerAlias::announceAssociatedSipRouter( SipRouter* sipRouter )
     mpSipRouter = sipRouter;
     if (!_pEntities)
     {
-        UtlString canonical;
-        mpSipRouter->getDomain(canonical);
-        std::string domain = "imdb." + canonical.str();
-        _pEntities = new Collection(domain);
+        _pEntities = new Collection(EntityDB::defaultNamespace());
     }
 }
 

@@ -2,8 +2,8 @@
 #include "registry/RegisterPlugin.h"
 #include "registry/RedirectPlugin.h"
 
-std::string RegDataStore::_bindingsNameSpace = "reg.cciuc.ciucccc.ro";
-std::string RegDataStore::_entitiesNameSpace = "imdb.cciuc.ciucccc.ro";
+std::string RegDataStore::_bindingsNameSpace = "imdb.registrar";
+std::string RegDataStore::_entitiesNameSpace = "imdb.entity";
 
 RegDataStore::RegDataStore()
 {

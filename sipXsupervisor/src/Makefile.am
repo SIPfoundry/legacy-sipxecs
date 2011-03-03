@@ -22,15 +22,12 @@ libsipXsupervisor_la_SOURCES =  \
 	sipXsupervisor.cpp \
 	ProcMgmtRpc.cpp \
 	AlarmRpc.cpp \
-	ImdbRpc.cpp \
 	FileRpc.cpp \
 	SwAdminRpc.cpp \
 	ZoneAdminRpc.cpp \
 	SipxProcessManager.cpp \
 	SipxProcessResourceManager.cpp \
 	SipxProcessResource.cpp \
-	ImdbResourceManager.cpp \
-	ImdbResource.cpp \
 	SqldbResourceManager.cpp \
 	SqldbResource.cpp \
 	SipxCommand.cpp \
@@ -50,7 +47,6 @@ libsipXsupervisor_la_SOURCES =  \
 noinst_HEADERS = \
 	ProcMgmtRpc.h \
 	AlarmRpc.h \
-	ImdbRpc.h \
 	FileRpc.h \
 	SwAdminRpc.h \
 	ZoneAdminRpc.h \
@@ -68,11 +64,8 @@ noinst_HEADERS = \
 	HttpFileAccess.h \
 	FileResourceManager.h \
 	DirectoryResourceManager.h \
-	ImdbResource.h \
-	ImdbResourceManager.h \
 	SqldbResource.h \
 	SqldbResourceManager.h \
-	ImdbResource.h \
 	SqldbResource.h \
 	SipxRpc.h
 

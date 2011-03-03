@@ -100,19 +100,6 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    // make sure that the unspecified domain name is also valid
    addValidDomain(mDefaultDomainHost, mDefaultDomainPort);
 
-   //
-   // Set the datastore namespace
-   //
-   std::ostringstream imdbns;
-   imdbns << "imdb." << mDefaultDomainHost.str();
-   std::ostringstream regns;
-   regns << "reg." << mDefaultDomainHost.str();
-   RegDataStore::setBindingsNameSpace(regns.str());
-   RegDataStore::setEntitiesNameSpace(imdbns.str());
-
-   SYSLOG_DEBUG("Setting registration namespace to " << regns);
-   SYSLOG_DEBUG("Setting entity namespace to " << imdbns);
-   
    // read the domain configuration
    OsConfigDb domainConfig;
    domainConfig.loadFromFile(SipXecsService::domainConfigPath());

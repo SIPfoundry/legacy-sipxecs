@@ -9,6 +9,7 @@
 #define	MONGODB_H
 
 #include <queue>
+#include <vector>
 #undef VERSION
 #include <mongo/client/dbclient.h>
 #include <mongo/db/jsobj.h>
@@ -17,13 +18,14 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/functional/hash.hpp>
 
+#include "os/OsSysLog.h"
 
 #define BSON_LESS_THAN(val) BSON("$lt"<< val)
 #define BSON_LESS_THAN_EQUAL(val) BSON("$lte"<< val)
 #define BSON_GREATER_THAN(val) BSON("$gt" << val)
 #define BSON_GREATER_THAN_EQUAL(val) BSON("$gte" << val)
 #define BSON_ELEM_MATCH(val) BSON("$elemMatch" << val)
-
+#define BSON_OR(val) BSON("$or" << val)
 class MongoDB : boost::noncopyable
 {
 public:
@@ -69,6 +71,7 @@ public:
     class DBInterface : boost::noncopyable
     {
     public:
+        typedef boost::shared_ptr<DBInterface> Ptr;
         DBInterface(MongoDB& db, const std::string& ns) : _db(db), _ns(ns){}
         const std::string& getNameSpace() const { return _ns; };
         MongoDB& db() { return _db; }
@@ -84,6 +87,32 @@ public:
     protected:
         MongoDB& _db;
         std::string _ns;
+    };
+
+    class DBInterfaceSet : public std::vector<DBInterface::Ptr>
+    {
+    public:
+        DBInterfaceSet(const std::string& ns) :
+            std::vector<DBInterface::Ptr>(),
+            _ns(ns)
+        {
+        }
+        ~DBInterfaceSet()
+        {
+        }
+
+        bool attachNode(const std::string& nodeAddress)
+        {
+            MongoDB::Ptr pNode = MongoDB::acquireServer(nodeAddress);
+            if (!pNode)
+                return false;
+            push_back(DBInterface::Ptr(new DBInterface(*(pNode.get()), _ns)));
+            _nodes.push_back(pNode);
+            return true;
+        }
+    protected:
+        std::string _ns;
+        std::vector<MongoDB::Ptr> _nodes;
     };
 
     MongoDB();

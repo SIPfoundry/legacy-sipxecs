@@ -35,7 +35,6 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class CredentialDB;
 class ACDServer;
 class ACDCallManager;
 class ACDQueueManager;
@@ -100,8 +99,6 @@ public:
 
    ACDLine* getAcdLineReferenceByExtension(UtlString& rLineExtensionString);
 
-   /// Get a handle to the database where we look up line credentials.
-   CredentialDB* getCredentialDb(void);
 
 /* ============================ INQUIRY =================================== */
 
@@ -119,7 +116,6 @@ protected:
    UtlHashMap       mAcdLineList;            ///< List of ACDLine objects
    UtlHashMap       mAcdLineNameList;        ///< List of ACDLine Name objects
    UtlHashMap       mAcdLineExtensionList;   ///< List of ACDLine Extension objects
-   CredentialDB*    mCredentialDb;           ///< Handle for database to find line credentials
 
 };
 

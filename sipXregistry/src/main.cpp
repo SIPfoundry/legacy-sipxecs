@@ -20,8 +20,6 @@
 #include "os/OsTask.h"
 
 #include "net/NameValueTokenizer.h"
-#include "sipdb/SIPDBManager.h"
-#include "sipdb/ExtensionDB.h"
 #include "sipXecsService/SipXecsService.h"
 #include "registry/SipRegistrar.h"
 
@@ -61,16 +59,6 @@ OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
  * Description:
  * closes any open connections to the IMDB safely using a mutex lock
  */
-void
-closeIMDBConnections ()
-{
-   // Critical Section here
-   OsLock lock( *gpLockMutex );
-   SIPDBManager* db = SIPDBManager::getInstance();
-   db->releaseAllDatabase();
-
-   delete db;
-}
 
 // Initialize the OsSysLog
 void
@@ -321,9 +309,6 @@ main(int argc, char* argv[] )
       delete pServerTask;
       pServerTask = NULL;
    }
-
-   // now deregister this process's database references from the IMDB
-   closeIMDBConnections();
 
    if ( configDb != NULL )
    {

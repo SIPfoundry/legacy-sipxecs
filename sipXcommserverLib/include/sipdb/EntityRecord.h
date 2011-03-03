@@ -32,6 +32,18 @@ public:
         std::string relation;
     };
 
+    //
+    // Static User Location
+    //
+    struct StaticUserLoc
+    {
+        std::string event;
+        std::string contact;
+        std::string fromUri;
+        std::string toUri;
+        std::string callId;
+    };
+
     EntityRecord();
 
     EntityRecord(const EntityRecord& entity);
@@ -120,6 +132,18 @@ public:
     static const char* aliasesId_fld();
     static const char* aliasesContact_fld();
     static const char* aliasesRelation_fld();
+
+    //
+    // Static user locations
+    //
+    std::vector<StaticUserLoc>& staticUserLoc();
+    static const char* staticUserLoc_fld();
+    static const char* staticUserLocEvent_fld();
+    static const char* staticUserLocContact_fld();
+    static const char* staticUserLocFromUri_fld();
+    static const char* staticUserLocToUri_fld();
+    static const char* staticUserLocCallId_fld();
+
 private:
     std::string _oid;
     std::string _userId;
@@ -133,6 +157,7 @@ private:
     std::set<std::string> _permissions;
     std::vector<CallerAlias> _callerAliases;
     std::vector<Alias> _aliases;
+    std::vector<StaticUserLoc> _staticUserLoc;
 };
 
 //
@@ -198,6 +223,11 @@ inline std::vector<EntityRecord::CallerAlias>& EntityRecord::callerAliases()
 inline std::vector<EntityRecord::Alias>& EntityRecord::aliases()
 {
     return _aliases;
+}
+
+inline std::vector<EntityRecord::StaticUserLoc>& EntityRecord::staticUserLoc()
+{
+    return _staticUserLoc;
 }
 
 #endif	/* ENTITYRECORD_H */

@@ -80,7 +80,6 @@ NatTraversalAgent::NatTraversalAgent(const UtlString& pluginName ) ///< the name
      mpMediaRelay( 0 ),
      mpNatMaintainer( 0 ),
      mCleanupTimer( *this ),
-     mpRegistrationDB( 0 ),
      mbConnectedToRegistrationDB( false ),
      mNextAvailableCallTrackerHandle( 0 )
 {
@@ -164,7 +163,10 @@ NatTraversalAgent::readConfig( OsConfigDb& configDb /**< a subhash of the indivi
          mbNatTraversalFeatureEnabled = true;
 
          // connect to regDB as we may need to consult it from time to time.
-         mpRegistrationDB = RegistrationDB::getInstance();
+         
+         std::string ns = RegDB::defaultNamespace();
+         _pRegDB = RegDB::Ptr(new RegDB::RegDBCollection(ns));
+
          mbConnectedToRegistrationDB = true;
 
          // start the timer that will be the heartbeat to delete stale session context objects
@@ -271,7 +273,7 @@ NatTraversalAgent::authorizeAndModify(const UtlString& id, /**< The authenticate
                // they contain will be needed to encode the endpoints' public transport in the
                // route state later
                pCaller = SessionContext::createCallerEndpointDescriptor( request, mNatTraversalRules );
-               pCallee = SessionContext::createCalleeEndpointDescriptor( request, mNatTraversalRules, mpRegistrationDB );
+               pCallee = SessionContext::createCalleeEndpointDescriptor( request, mNatTraversalRules, _pRegDB );
                // set flag that will cause caller and callee endpoint descriptors to be deleted
                // once this routine is done - for non-INVITE dialogs, endpoint descriptors are only
                // needed for the dialog-forming requests and never after.
@@ -856,7 +858,7 @@ CallTracker* NatTraversalAgent::createCallTrackerAndAddToMap( const UtlString& c
 {
    // Allocate new CallTracker object and its key and insert it into our mCallTrackersMap.
    UtlString*   pMapKey      = new UtlString( callId );
-   CallTracker* pCallTracker = new CallTracker( trackerHandle, &mNatTraversalRules, mpMediaRelay, mpRegistrationDB, mpNatMaintainer, mInstanceName );
+   CallTracker* pCallTracker = new CallTracker( trackerHandle, &mNatTraversalRules, mpMediaRelay, _pRegDB, mpNatMaintainer, mInstanceName );
    if( !pCallTracker ||  !mCallTrackersMap.insertKeyAndValue( pMapKey, pCallTracker ) )
    {
       delete pMapKey;
@@ -924,10 +926,6 @@ NatTraversalAgent::~NatTraversalAgent()
    }
    mCallTrackersMap.destroyAll();
 
-   if( mbConnectedToRegistrationDB )
-   {
-      mpRegistrationDB->releaseInstance();
-      mpRegistrationDB = 0;
-   }
+
    delete mpMediaRelay;
 }

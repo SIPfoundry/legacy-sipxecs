@@ -14,7 +14,6 @@
 
 // APPLICATION INCLUDES
 #include "os/OsSysLog.h"
-#include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
 #include "os/OsProcess.h"
 #include "net/NetMd5Codec.h"

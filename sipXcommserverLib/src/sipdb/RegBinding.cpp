@@ -2,7 +2,9 @@
 
 RegBinding::RegBinding() :
     _cseq(0),
-    _expirationTime(0)
+    _expirationTime(0),
+    _timestamp(0),
+    _expired(false)
 {
 }
 
@@ -19,6 +21,9 @@ RegBinding::RegBinding(const RegBinding& binding)
     _cseq = binding._cseq;
     _expirationTime = binding._expirationTime;
     _instrument = binding._instrument;
+    _localAddress = binding._localAddress;
+    _timestamp = binding._timestamp;
+    _expired = binding._expired;
 }
 
 RegBinding::~RegBinding()
@@ -38,6 +43,9 @@ void RegBinding::swap(RegBinding& binding)
     std::swap(_cseq, binding._cseq);
     std::swap(_expirationTime, binding._expirationTime);
     std::swap(_instrument, binding._instrument);
+    std::swap(_localAddress, binding._localAddress);
+    std::swap(_timestamp, binding._timestamp);
+    std::swap(_expired, binding._expired);
 }
 
 RegBinding::RegBinding(const MongoDB::BSONObj& bson)
@@ -74,6 +82,15 @@ RegBinding::RegBinding(const MongoDB::BSONObj& bson)
 
     if (bson.hasField("instrument"))
       _instrument = bson.getStringField("instrument");
+
+    if (bson.hasField("localAddress"))
+      _localAddress = bson.getStringField("localAddress");
+
+    if (bson.hasField("timestamp"))
+      _timestamp = bson.getIntField("timestamp");
+
+    if (bson.hasField("expired"))
+      _expired = bson.getBoolField("expired");
 }
 
 RegBinding& RegBinding::operator=(const MongoDB::BSONObj& bson)
@@ -111,6 +128,15 @@ RegBinding& RegBinding::operator=(const MongoDB::BSONObj& bson)
     if (bson.hasField("instrument"))
       _instrument = bson.getStringField("instrument");
 
+    if (bson.hasField("localAddress"))
+      _localAddress = bson.getStringField("localAddress");
+
+    if (bson.hasField("timestamp"))
+      _timestamp = bson.getIntField("timestamp");
+
+    if (bson.hasField("expired"))
+      _expired = bson.getBoolField("expired");
+    
     return *this;
 }
 

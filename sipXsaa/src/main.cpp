@@ -17,7 +17,7 @@
 #include "net/HttpMessage.h"
 #include "os/OsConfigDb.h"
 #include "os/OsSysLog.h"
-#include "sipdb/CredentialDB.h"
+#include "sipdb/EntityDB.h"
 #include "sipXecsService/SipXecsService.h"
 #include "utl/UtlString.h"
 #include "xmlparser/tinystr.h"
@@ -218,9 +218,7 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
    SipLineMgr* lineMgr = NULL;
    UtlString user;
 
-   CredentialDB* credentialDb;
-   if ((credentialDb = CredentialDB::getInstance()))
-   {
+
       Url identity;
 
       identity.setUserId(SAASERVER_ID_TOKEN);
@@ -229,7 +227,7 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
       UtlString authtype;
       bool bSuccess = false;
 
-      if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
+      if (EntityDB::defaultCollection().collection().getCredential(identity, realm, user, ha1_authenticator, authtype))
       {
          if ((line = new SipLine( identity // user entered url
                                  ,identity // identity url
@@ -298,9 +296,7 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
          delete lineMgr;
          lineMgr = NULL;
       }
-   }
 
-   credentialDb->releaseInstance();
 
    return lineMgr;
 }

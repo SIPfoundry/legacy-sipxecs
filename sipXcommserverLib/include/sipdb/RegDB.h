@@ -6,6 +6,7 @@
 #include "sipdb/RegBinding.h"
 #include "boost/noncopyable.hpp"
 #include <boost/thread/mutex.hpp>
+#include <boost/shared_ptr.hpp>
 #include <vector>
 #include <map>
 
@@ -23,13 +24,18 @@ public:
     typedef boost::recursive_mutex Mutex;
     typedef boost::lock_guard<Mutex> mutex_lock;
     typedef std::vector<RegBinding> Bindings;
+    typedef MongoDB::Collection<RegDB> RegDBCollection;
+    typedef boost::shared_ptr<RegDBCollection> Ptr;
+    
     RegDB(
         MongoDB& db,
-        const std::string& ns = "imdb.registrar");
+        const std::string& ns = RegDB::_defaultNamespace);
 
     ~RegDB();
 
     void updateBinding(const RegBinding::Ptr& pBinding);
+
+    void updateBinding(RegBinding& binding);
 
     void expireOldBindings(
         const std::string& identity,
@@ -54,6 +60,11 @@ public:
         int timeNow,
         Bindings& bindings) const;
 
+    bool getUnexpiredContactsUserContaining(
+        const std::string& matchIdentity,
+        int timeNow,
+        Bindings& bindings) const;
+
     bool getUnexpiredContactsUserInstrument(
         const std::string& identity,
         const std::string& instrument,
@@ -65,18 +76,51 @@ public:
         int timeNow,
         Bindings& bindings) const;
 
-     bool getAllOldBindings(int timeNow, Bindings& binding);
+    bool getAllOldBindings(int timeNow, Bindings& binding);
 
-    bool clean(int currentExpireTime);
+    bool cleanAndPersist(int currentExpireTime);
+
+    static std::string& defaultNamespace();
+
+    bool addReplicationNode(const std::string& nodeAddress);
+
+    void setLocalAddress(const std::string& localAddress);
+
+    const std::string& getLocalAddress() const;
+
+    static MongoDB::Collection<RegDB>& defaultCollection();
+protected:
+    void updateReplicationTimeStamp();
+    void replicate();
 
 private:
-    Mutex _mutex;
+    mutable Mutex _mutex;
+    MongoDB::DBInterfaceSet _replicationNodes;
+    std::string _localAddress;
+    std::map<std::string, int> _nodeTimeStamps;
+    bool _firstIncrement;
+    static std::string _defaultNamespace;
 };
 
 
 //
 // Inlines
 //
+
+inline void RegDB::setLocalAddress(const std::string& localAddress)
+{
+    _localAddress = localAddress;
+}
+
+inline const std::string& RegDB::getLocalAddress() const
+{
+    return _localAddress;
+}
+
+inline void RegDB::updateBinding(const RegBinding::Ptr& pBinding)
+{
+    updateBinding(*(pBinding.get()));
+}
 
 
 #endif	/* RegDB_H */

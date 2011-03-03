@@ -14,7 +14,6 @@
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
 #include "os/OsSysLog.h"
-#include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorAliasDB.h"
 #include "net/NetBase64Codec.h"

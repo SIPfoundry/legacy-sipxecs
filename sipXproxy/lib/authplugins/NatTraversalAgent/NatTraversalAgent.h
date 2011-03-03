@@ -15,7 +15,7 @@
 #include "os/OsNotification.h"
 #include "utl/UtlHashMap.h"
 #include "net/SipOutputProcessor.h"
-#include "sipdb/RegistrationDB.h"
+#include "sipdb/RegDB.h"
 #include "NatTraversalRules.h"
 
 // APPLICATION INCLUDES
@@ -34,7 +34,6 @@
 class NatTraversalRules;
 class NatMaintainer;
 class MediaRelay;
-class RegistrationDB;
 class CallTracker;
 
 extern "C" AuthPlugin* getAuthPlugin(const UtlString& name);
@@ -114,9 +113,10 @@ class NatTraversalAgent : public AuthPlugin, SipOutputProcessor, OsNotification
    MediaRelay*       mpMediaRelay;
    NatMaintainer*    mpNatMaintainer;
    OsTimer           mCleanupTimer;
-   RegistrationDB*   mpRegistrationDB;
    bool              mbConnectedToRegistrationDB;
    ssize_t           mNextAvailableCallTrackerHandle;
+
+   RegDB::Ptr _pRegDB;
 
    friend AuthPlugin* getAuthPlugin(const UtlString& name);
    friend class NatTraversalAgentTest;

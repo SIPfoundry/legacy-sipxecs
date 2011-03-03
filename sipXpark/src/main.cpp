@@ -38,7 +38,7 @@
 #include <cp/DialogEventPublisher.h>
 #include <ptapi/PtProvider.h>
 
-#include "sipdb/CredentialDB.h"
+#include "sipdb/EntityDB.h"
 #include "sipXecsService/SipXecsService.h"
 
 #include "OrbitListener.h"
@@ -387,9 +387,6 @@ int main(int argc, char* argv[])
 
        if (!domain.isNull() && !realm.isNull())
        {
-          CredentialDB* credentialDb;
-          if ((credentialDb = CredentialDB::getInstance()))
-          {
              Url identity;
 
              identity.setUserId(PARK_SERVER_ID_TOKEN);
@@ -398,7 +395,7 @@ int main(int argc, char* argv[])
              UtlString ha1_authenticator;
              UtlString authtype;
 
-             if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
+             if (EntityDB::defaultCollection().collection().getCredential(identity, realm, user, ha1_authenticator, authtype))
              {
                 if ((line = new SipLine( identity // user entered url
                                         ,identity // identity url
@@ -467,15 +464,7 @@ int main(int argc, char* argv[])
                               );
              }
 
-             credentialDb->releaseInstance();
-          }   // end credentialDB
-          else
-          {
-             OsSysLog::add(LOG_FACILITY, PRI_ERR,
-                           "Failed to open credentials database"
-                           "; transfer functions will not work"
-                           );
-          }
+
        }    // end have domain and realm
        else
        {

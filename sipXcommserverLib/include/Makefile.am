@@ -15,34 +15,9 @@ nobase_include_HEADERS =  \
     sipdb/EntityRecord.h \
     sipdb/RegBinding.h \
     sipdb/RegDB.h \
-    sipdb/AliasDB.h \
-    sipdb/AliasRow.h \
-    sipdb/CallerAliasDB.h \
-    sipdb/CallerAliasRow.h \
-    sipdb/CredentialDB.h \
-    sipdb/CredentialRow.h \
-    sipdb/DialByNameDB.h \
-    sipdb/DialByNameRow.h \
-    sipdb/ExtensionDB.h \
-    sipdb/ExtensionRow.h \
-    sipdb/LocationDB.h \
-    sipdb/LocationRow.h \
-    sipdb/PermissionDB.h \
-    sipdb/PermissionRow.h \
-    sipdb/RegistrationBinding.h \
-    sipdb/RegistrationDB.h \
-    sipdb/RegistrationRow.h \
+    sipdb/SubscribeDB.h \
+    sipdb/Subscription.h \
     sipdb/ResultSet.h \
-    sipdb/SIPDBManager.h \
-    sipdb/SIPXAuthHelper.h \
-    sipdb/SubscriptionDB.h \
-    sipdb/SubscriptionRow.h \
-    sipdb/UserLocationDB.h \
-    sipdb/UserLocationRow.h \
-    sipdb/UserForwardDB.h \
-    sipdb/UserForwardRow.h \
-    sipdb/UserStaticDB.h \
-    sipdb/UserStaticRow.h \
     alarm/Alarm.h \
     alarm/AlarmRequestTask.h \
     digitmaps/UrlMapping.h \

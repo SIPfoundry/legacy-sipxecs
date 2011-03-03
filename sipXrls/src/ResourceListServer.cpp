@@ -12,7 +12,6 @@
 #include <net/SipMessage.h>
 #include <os/OsSysLog.h>
 #include <os/OsDefs.h>
-#include <sipdb/SubscriptionDB.h>
 #include "ResourceListServer.h"
 
 // EXTERNAL FUNCTIONS

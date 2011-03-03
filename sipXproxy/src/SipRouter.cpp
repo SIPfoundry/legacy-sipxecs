@@ -146,10 +146,7 @@ SipRouter::SipRouter(SipUserAgent& sipUserAgent,
                     mRealm.data());
    }
 
-    UtlString canonical;
-    getDomain(canonical);
-    std::string domain = "imdb." + canonical.str();
-    _pEntities = new Collection(domain);
+    _pEntities = new Collection(EntityDB::defaultNamespace());
 
    // Get the secret to be used in the route recognition hash.
    // get the shared secret for generating signatures

@@ -13,7 +13,7 @@
 #include "os/OsSysLog.h"
 #include "net/SipMessage.h"
 #include "net/Url.h"
-#include "sipdb/CredentialDB.h"
+#include "sipdb/EntityDB.h"
 #include "AppAgentSubscribePolicy.h"
 
 // EXTERNAL FUNCTIONS
@@ -166,7 +166,7 @@ UtlBoolean AppAgentSubscribePolicy::isAuthenticated(const SipMessage & subscribe
          UtlString passTokenDB;
 
          // then get the credentials for this user & realm
-         if (CredentialDB::getInstance(mCredentialDbName)->getCredential( authUserBase
+         if (EntityDB::defaultCollection().collection().getCredential( authUserBase
                                                                           ,authRealm
                                                                           ,authIdentity
                                                                           ,passTokenDB

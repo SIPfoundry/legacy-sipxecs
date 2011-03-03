@@ -18,7 +18,6 @@
 #include <os/OsSysLog.h>
 #include <utl/XmlContent.h>
 #include <sipdb/ResultSet.h>
-#include <sipdb/SIPDBManager.h>
 #include <net/SipRegEvent.h>
 
 // DEFINES

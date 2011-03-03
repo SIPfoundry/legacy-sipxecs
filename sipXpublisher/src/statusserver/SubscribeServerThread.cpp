@@ -9,6 +9,7 @@
 
 // SYSTEM INCLUDES
 #include <stdlib.h>
+#include <set>
 
 
 // APPLICATION INCLUDES
@@ -19,9 +20,8 @@
 #include "net/SipUserAgent.h"
 #include "net/NetMd5Codec.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/CredentialDB.h"
-#include "sipdb/PermissionDB.h"
-#include "sipdb/SubscriptionDB.h"
+#include "sipdb/SubscribeDB.h"
+#include "sipdb/EntityDB.h"
 #include "statusserver/Notifier.h"
 #include "statusserver/PluginXmlParser.h"
 #include "statusserver/StatusServer.h"
@@ -171,10 +171,6 @@ void SubscribeServerThread::schedulePersist()
 // This is actually invoked from the thread SubscribePersistThread, which does the scheduling.
 void SubscribeServerThread::persist()
 {
-   // Critical Section here
-   OsLock mutex(mLock);
-
-   SubscriptionDB::getInstance()->store();
 }
 
 
@@ -200,7 +196,7 @@ UtlBoolean SubscribeServerThread::insertRow(
       OsLock mutex(mLock);
       // (We must supply a dummy XML version number.)
       OsSysLog::add(FAC_AUTH, PRI_DEBUG, "SubscribeServerThread::insertRow() calling SubscriptionDB::getInstance()->InsertRow()\n") ;
-      status = SubscriptionDB::getInstance()->insertRow(
+      status = SubscribeDB::defaultCollection().collection().insertRow(
          SUBSCRIPTION_COMPONENT_STATUS,
          uri, callid, contact, expires, subscribeCseq, eventTypeKey, eventType,
          id, to, from, key, recordRoute, notifyCseq,
@@ -220,9 +216,7 @@ void SubscribeServerThread::removeRow(
    const int& subscribeCseq )
 {
    {
-      // Critical Section here
-      OsLock mutex(mLock);
-      SubscriptionDB::getInstance()->removeRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid, subscribeCseq);
+      SubscribeDB::defaultCollection().collection().removeRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid, subscribeCseq);
    }
 
    schedulePersist();
@@ -236,9 +230,7 @@ void SubscribeServerThread::removeErrorRow (
    const UtlString& callid )
 {
    {
-      // Critical Section here
-      OsLock mutex(mLock);
-      SubscriptionDB::getInstance()->removeErrorRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid);
+      SubscribeDB::defaultCollection().collection().removeErrorRow(SUBSCRIPTION_COMPONENT_STATUS, to, from, callid);
    }
 
    schedulePersist();
@@ -543,11 +535,12 @@ SubscribeServerThread::isAuthorized (
         {
             // permission required. Check for required permission in permission IMDB
             // All required permissions should match
-            ResultSet dbPermissions;
 
-            PermissionDB::getInstance()->getPermissions( identityUrl, dbPermissions );
+            EntityRecord entity;
+            EntityDB::defaultCollection().collection().findByIdentity(identityUrl, entity);
+            std::set<std::string> permissions = entity.permissions();
 
-            int numDBPermissions = dbPermissions.getSize();
+            int numDBPermissions = permissions.size();
 
             if( numDBPermissions > 0 )
             {
@@ -564,15 +557,12 @@ SubscribeServerThread::isAuthorized (
                     //check againt all permissions in IMDB
                     nextPermissionMatched = FALSE;
                     UtlString identity, permission;
-                    for ( int dbIndex = 0; dbIndex < numDBPermissions; dbIndex++ )
+                    for ( std::set<std::string>::iterator iter = permissions.begin(); iter != permissions.end(); iter++ )
+
                     {
 
-                        UtlHashMap record;
-                        dbPermissions.getIndex( dbIndex, record );
-                        // note not interested in identity here
-                        UtlString permissionKey ("permission");
-                        UtlString permission = *((UtlString*)record.findValue(&permissionKey));
-                        if( permission.compareTo( *pluginPermission, UtlString::ignoreCase ) == 0)
+                        permission = iter->c_str();
+                        if (pluginPermission->compareTo(permission, UtlString::ignoreCase ) == 0)
                         {
                             nextPermissionMatched = TRUE;
                             break;
@@ -725,7 +715,7 @@ SubscribeServerThread::isAuthenticated (const SipMessage* message,
                 UtlString passTokenDB;
 
                 // then get the credentials for this realm
-                if (CredentialDB::getInstance()->getCredentialByUserid(mailboxUrl,
+                if (EntityDB::defaultCollection().collection().getCredential(mailboxUrl,
                                                                        mRealm,
                                                                        requestUserBase,
                                                                        passTokenDB,
@@ -988,7 +978,7 @@ SubscribeServerThread::SubscribeStatus SubscribeServerThread::addSubscription(
        // Critical Section here
        OsLock mutex(mLock);
 
-       bool exists = SubscriptionDB::getInstance()->subscriptionExists(
+       bool exists = SubscribeDB::defaultCollection().collection().subscriptionExists(
           SUBSCRIPTION_COMPONENT_STATUS,
           to, from, callId, OsDateTime::getSecsSinceEpoch());
 

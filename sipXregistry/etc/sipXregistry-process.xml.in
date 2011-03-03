@@ -25,7 +25,5 @@
     <osconfig>@SIPX_CONFDIR@/presencerouting-prefs.xml</osconfig>
     <file>@SIPX_CONFDIR@/mappingrules.xml</file>
     <file>@SIPX_CONFDIR@/fallbackrules.xml</file>
-    <imdb configAccess='read-only'>registration</imdb>
-    <imdb configAccess='read-only'>subscription</imdb>
   </resources>
 </sipXecs-process>

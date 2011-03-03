@@ -1,8 +1,22 @@
 #include "sipdb/RegDB.h"
+#include "os/OsDateTime.h"
 
+std::string RegDB::_defaultNamespace = "imdb.registrar";
+std::string& RegDB::defaultNamespace()
+{
+    return RegDB::_defaultNamespace;
+}
+
+MongoDB::Collection<RegDB>& RegDB::defaultCollection()
+{
+    static MongoDB::Collection<RegDB> collection(RegDB::_defaultNamespace);
+    return collection;
+}
 
 RegDB::RegDB(MongoDB& db, const std::string& ns) :
-    MongoDB::DBInterface(db, ns)
+    MongoDB::DBInterface(db, ns),
+    _replicationNodes(ns),
+    _firstIncrement(true)
 {
 }
 
@@ -10,26 +24,48 @@ RegDB::~RegDB()
 {
 }
 
-void RegDB::updateBinding(const RegBinding::Ptr& pBinding)
+void RegDB::updateBinding(RegBinding& binding)
 {
     mutex_lock lock(_mutex);
 
-    MongoDB::BSONObj query = BSON(
-        "identity" << pBinding->getIdentity() <<
-        "contact" << pBinding->getContact());
+    if (binding.getTimestamp() == 0)
+        binding.setTimestamp((int) OsDateTime::getSecsSinceEpoch());
 
-    MongoDB::BSONObj update = BSON("$set" << BSON(
-        "identity" << pBinding->getIdentity() <<
-        "uri" << pBinding->getUri() <<
-        "callId" << pBinding->getCallId() <<
-        "contact" << pBinding->getContact() <<
-        "qvalue" << pBinding->getQvalue() <<
-        "instanceId" << pBinding->getInstanceId() <<
-        "gruu" << pBinding->getGruu() <<
-        "path" << pBinding->getPath() <<
-        "cseq" << pBinding->getCseq() <<
-        "expirationTime" << pBinding->getExpirationTime() <<
-        "instrument" << pBinding->getInstrument()));
+    if (binding.getLocalAddress().empty())
+        binding.setLocalAddress(_localAddress);
+
+    MongoDB::BSONObj query = BSON(
+        "identity" << binding.getIdentity() <<
+        "contact" << binding.getContact());
+
+    MongoDB::BSONObj update;
+    if (binding.getExpirationTime() > 0)
+    {
+        update = BSON("$set" << BSON(
+            "timestamp" << binding.getTimestamp() <<
+            "localAddress" << binding.getLocalAddress() <<
+            "identity" << binding.getIdentity() <<
+            "uri" << binding.getUri() <<
+            "callId" << binding.getCallId() <<
+            "contact" << binding.getContact() <<
+            "qvalue" << binding.getQvalue() <<
+            "instanceId" << binding.getInstanceId() <<
+            "gruu" << binding.getGruu() <<
+            "path" << binding.getPath() <<
+            "cseq" << binding.getCseq() <<
+            "expirationTime" << binding.getExpirationTime() <<
+            "instrument" << binding.getInstrument() <<
+            "expired" << binding.getExpired() ));
+    }
+    else
+    {
+        //
+        // This is an unregister.  mark it as inactive
+        //
+        update = BSON("$set" << BSON(
+            "cseq" << binding.getCseq() <<
+            "expired" << true));
+    }
 
     std::string error;
     if (!_db.updateOrInsert(_ns, query, update, error))
@@ -48,7 +84,7 @@ void RegDB::expireOldBindings(
     unsigned int cseq,
     unsigned int timeNow)
 {
-
+    mutex_lock lock(_mutex);
     unsigned int expirationTime = timeNow-1;
     MongoDB::BSONObj query = BSON(
             "identity" << identity <<
@@ -57,7 +93,7 @@ void RegDB::expireOldBindings(
             "expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
 
     MongoDB::BSONObj update = BSON("$set" << BSON(
-        "expirationTime" << expirationTime <<
+        "expired" << true <<
         "cseq" << cseq));
 
     std::string error;
@@ -76,15 +112,14 @@ void RegDB::expireAllBindings(
     unsigned int cseq,
     unsigned int timeNow)
 {
-
+    mutex_lock lock(_mutex);
     unsigned int expirationTime = timeNow-1;
     MongoDB::BSONObj query = BSON(
             "identity" << identity <<
             "expirationTime" << BSON_GREATER_THAN_EQUAL(expirationTime));
 
     MongoDB::BSONObj update = BSON("$set" << BSON(
-        "expirationTime" << expirationTime <<
-        "callId" << callId <<
+        "expired" << true <<
         "cseq" << cseq));
 
     std::string error;
@@ -103,6 +138,7 @@ bool RegDB::isOutOfSequence(
     const std::string& callId,
     unsigned int cseq) const
 {
+    mutex_lock lock(_mutex);
     MongoDB::BSONObj query = BSON(
             "identity" << identity <<
             "callId" << callId);
@@ -114,7 +150,7 @@ bool RegDB::isOutOfSequence(
       while(pCursor->more())
       {
         RegBinding binding = pCursor->next();
-        if (binding.getCallId() == callId && binding.getCseq() >= cseq)
+        if (binding.getCseq() >= cseq)
           return true;
       }
     }
@@ -127,6 +163,7 @@ bool RegDB::getUnexpiredContactsUser (
     int timeNow,
     Bindings& bindings) const
 {
+    mutex_lock lock(_mutex);
     static std::string gruuPrefix = GRUU_PREFIX;
 
     bool isGruu = identity.substr(0, gruuPrefix.size()) == gruuPrefix;
@@ -138,13 +175,15 @@ bool RegDB::getUnexpiredContactsUser (
         searchString += SIP_GRUU_URI_PARAM;
         query = BSON(
             "gruu" << searchString <<
-            "expirationTime" << BSON_GREATER_THAN(timeNow));
+            "expirationTime" << BSON_GREATER_THAN(timeNow) <<
+            "expired" << false);
     }
     else
     {
         query = BSON(
             "identity" << identity <<
-            "expirationTime" << BSON_GREATER_THAN(timeNow));
+            "expirationTime" << BSON_GREATER_THAN(timeNow) <<
+            "expired" << false);
     }
 
     std::string error;
@@ -159,19 +198,44 @@ bool RegDB::getUnexpiredContactsUser (
     return false;
 }
 
+bool RegDB::getUnexpiredContactsUserContaining(
+        const std::string& matchIdentity,
+        int timeNow,
+        Bindings& bindings) const
+{
+    mutex_lock lock(_mutex);
+    MongoDB::BSONObj query = BSON("expirationTime" << BSON_GREATER_THAN(timeNow) <<
+        "expired" << false);
+
+    std::string error;
+    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+    if (pCursor.get() && pCursor->more())
+    {
+        while (pCursor->more())
+        {
+            RegBinding binding(pCursor->next());
+            if (binding.getIdentity().find(matchIdentity) != std::string::npos)
+                bindings.push_back(binding);
+        }
+        return bindings.size() > 0;
+    }
+
+    return false;
+}
+
 bool RegDB::getUnexpiredContactsUserInstrument(
         const std::string& identity,
         const std::string& instrument,
         int timeNow,
         Bindings& bindings) const
 {
-    //
-    //query="np_identity=",identity," and instrument=",instrument," and expires>",timeNow;
+    mutex_lock lock(_mutex);
 
     MongoDB::BSONObj query = BSON(
         "identity" << identity <<
         "instrument" << instrument <<
-        "expirationTime" << BSON_GREATER_THAN(timeNow));
+        "expirationTime" << BSON_GREATER_THAN(timeNow) <<
+        "expired" << false);
 
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
@@ -190,9 +254,11 @@ bool RegDB::getUnexpiredContactsInstrument(
         int timeNow,
         Bindings& bindings) const
 {
-     MongoDB::BSONObj query = BSON(
+    mutex_lock lock(_mutex);
+    MongoDB::BSONObj query = BSON(
         "instrument" << instrument <<
-        "expirationTime" << BSON_GREATER_THAN(timeNow));
+        "expirationTime" << BSON_GREATER_THAN(timeNow) <<
+        "expired" << false);
 
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
@@ -208,6 +274,7 @@ bool RegDB::getUnexpiredContactsInstrument(
 
 bool RegDB::getAllOldBindings(int timeNow, Bindings& bindings)
 {
+    mutex_lock lock(_mutex);
     MongoDB::BSONObj query = BSON(
         "expirationTime" << BSON_LESS_THAN(timeNow));
 
@@ -226,11 +293,96 @@ bool RegDB::getAllOldBindings(int timeNow, Bindings& bindings)
     return false;
 }
 
-
-bool RegDB::clean(int currentExpireTime)
+bool RegDB::addReplicationNode(const std::string& nodeAddress)
 {
-    MongoDB::BSONObj query = BSON(
-        "expirationTime" << BSON_LESS_THAN(currentExpireTime));
+    _nodeTimeStamps[nodeAddress] = 0;
+    return _replicationNodes.attachNode(nodeAddress);
+}
+
+void RegDB::updateReplicationTimeStamp()
+{
+    for (MongoDB::DBInterfaceSet::iterator iter = _replicationNodes.begin();
+        iter != _replicationNodes.end(); iter++)
+    {
+        MongoDB::DBInterface::Ptr pNode = *iter;
+        const std::string& server = pNode->db().getServer();
+        int timeStamp = _nodeTimeStamps[server];
+
+        MongoDB::BSONObj query = BSON(
+        "timestamp" << BSON_GREATER_THAN (timeStamp) <<
+        "localAddress" << server);
+
+        std::string error;
+        MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+        if (pCursor.get() && pCursor->more())
+        {
+            int maxTimeStamp = 0;
+            while (pCursor->more())
+            {
+                MongoDB::BSONObj bson = pCursor->next();
+                if (bson.hasField("timestamp"))
+                {
+                    int t = bson.getIntField("timestamp");
+                    if (t > maxTimeStamp)
+                        maxTimeStamp = t;
+                }
+            }
+            _nodeTimeStamps[server] = maxTimeStamp;
+        }
+    }
+}
+
+void RegDB::replicate()
+{
+    for (MongoDB::DBInterfaceSet::iterator iter = _replicationNodes.begin();
+        iter != _replicationNodes.end(); iter++)
+    {
+        MongoDB::DBInterface::Ptr pNode = *iter;
+        bool success = false;
+        for (MongoDB::DBInterfaceSet::iterator nodeIter = _replicationNodes.begin();
+            nodeIter != _replicationNodes.end(); nodeIter++)
+        {
+            const std::string& server = pNode->db().getServer();
+            int timeStamp = _nodeTimeStamps[server];
+
+            MongoDB::BSONObj query = BSON(
+            "timestamp" << BSON_GREATER_THAN (timeStamp) <<
+            "localAddress" << server);
+            std::string error;
+
+            MongoDB::Cursor pCursor = pNode->db().find(_ns, query, error);
+            if (!error.empty())
+                break;
+
+            while (pCursor->more())
+            {
+                if (!success)
+                    success = true;
+                RegBinding binding(pCursor->next());
+                updateBinding(binding);
+            }
+        }
+        if (success)
+            break;
+    }
+}
+
+bool RegDB::cleanAndPersist(int currentExpireTime)
+{
+    mutex_lock lock(_mutex);
+
+    if (!_firstIncrement)
+        updateReplicationTimeStamp();
+    _firstIncrement = false;
+
+    replicate();
+
+    MongoDB::BSONObj query = BSON("expirationTime" << BSON_LESS_THAN(currentExpireTime));
     std::string error;
     return _db.remove(_ns, query, error);
 }
+
+
+
+
+

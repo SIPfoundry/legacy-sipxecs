@@ -29,12 +29,7 @@
 #include <xmlparser/tinyxml.h>
 #include <sipXecsService/SipXecsService.h>
 #include <sipXecsService/SharedSecret.h>
-#include <sipdb/SIPDBManager.h>
-
 #include <ForwardRules.h>
-#include <net/SipClient.h>
-#include <alarm/Alarm.h>
-
 #include <SipXProxyCseObserver.h>
 #include "config.h"
 
@@ -117,23 +112,6 @@ OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
  * Description:
  * closes any open connections to the IMDB safely using a mutex lock
  */
-void
-closeIMDBConnections ()
-{
-    // Critical Section here
-    OsLock lock( *gpLockMutex );
-
-    // now deregister this process's database references from the IMDB
-    // and also ensure that we do not cause this code recursively
-    // specifically SIGABRT or SIGSEGV could cause problems here
-    if ( !gClosingIMDB )
-    {
-        gClosingIMDB = TRUE;
-        // if deleting this causes another problem in this process
-        // the gClosingIMDB flag above will protect us
-        delete SIPDBManager::getInstance();
-    }
-}
 
 // Initialize the OsSysLog
 void initSysLog(OsConfigDb* pConfig)
@@ -260,18 +238,6 @@ public:
    }
 } ;
 
-
- void onCallRateThresholdReached(
-    const boost::asio::ip::address& address,
-    unsigned long thresholdViolationRate)
- {
-     OsSysLog::add( FAC_NAT, PRI_CRIT, "sipXproxymain::onCallRateThresholdReached() call rate violation detected - "
-                                        "offender IP = %s (rate = %u)",
-                                        address.to_string().c_str(),
-                                        (unsigned int)thresholdViolationRate );
-     Alarm::raiseAlarm("CALL_RATE_THRESHOLD_REACHED");
- }
-
 int
 proxy( int argc, char* argv[] )
 {
@@ -332,7 +298,6 @@ proxy( int argc, char* argv[] )
     OsSysLog::add(FAC_SIP, PRI_INFO, "%s: %s", CONFIG_SETTING_BIND_IP, 
           bindIp.data());
     osPrintf("%s: %s", CONFIG_SETTING_BIND_IP, bindIp.data());    
-
 
     UtlString hostname;
     configDb.get("SIPX_PROXY_HOST_NAME", hostname);
@@ -668,43 +633,7 @@ proxy( int argc, char* argv[] )
                     routeStatus);
     }
 #endif // TEST_PRINT
-
-    UtlBoolean autoBan;
-    UtlString whiteList;
-    UtlString blackList;
-    int packetsPerSecondThreshold;
-    int thresholdViolationRate;
-    int banLifeTime;
     
-    autoBan = configDb.getBoolean("SIPX_PROXY_AUTOBAN_THRESHOLD_VIOLATORS", FALSE);
-
-    if (configDb.get("SIPX_PROXY_PACKETS_PER_SECOND_THRESHOLD", packetsPerSecondThreshold) == OS_SUCCESS)
-    {
-        if (configDb.get("SIPX_PROXY_THRESHOLD_VIOLATION_RATE", thresholdViolationRate) == OS_SUCCESS)
-        {
-            if (configDb.get("SIPX_PROXY_BAN_LIFETIME", banLifeTime) == OS_SUCCESS)
-            {
-                configDb.get("SIPX_PROXY_WHITE_LIST", whiteList);
-                configDb.get("SIPX_PROXY_BLACK_LIST", blackList);
-
-                SipClient::rateLimit().autoBanThresholdViolators() = (autoBan == TRUE);
-                SipClient::rateLimit().setPacketsPerSecondThreshold(packetsPerSecondThreshold);
-                SipClient::rateLimit().setThresholdViolationRate(thresholdViolationRate);
-                SipClient::rateLimit().setBanLifeTime(banLifeTime);
-                SipClient::rateLimit().enabled() = true;
-
-                if (!whiteList.isNull())
-                    SipClient::rateLimit().setPermanentWhiteList(whiteList.data());
-
-                if (!blackList.isNull())
-                    SipClient::rateLimit().setPermanentBlackList(blackList.data());
-
-                SipClient::rateLimit().threshHoldViolationCallBack() = boost::bind(onCallRateThresholdReached, _1, _2);
-            }
-        }
-    }
-
-
     // Start the sip stack
     SipUserAgent* pSipUserAgent = new SipUserAgent(
         proxyTcpPort,
@@ -885,9 +814,6 @@ main(int argc, char* argv[] )
    signalTask->start() ;
 
    proxy(argc, argv) ;
-
-   // now deregister this process's database references from the IMDB
-   closeIMDBConnections();
 
    // Flush the log file
    OsSysLog::add(FAC_SIP, PRI_NOTICE, "Exiting") ;

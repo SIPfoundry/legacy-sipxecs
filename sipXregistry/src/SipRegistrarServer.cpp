@@ -101,6 +101,12 @@ SipRegistrarServer::initialize(
 {
     mSipUserAgent = pSipUserAgent;
 
+    UtlString localAddress;
+    int localPort;
+    mSipUserAgent->getLocalAddress(&localAddress, &localPort);
+    if (!localAddress.isNull())
+        _dataStore.regDB().setLocalAddress(localAddress.data());
+
     // Initialize the normal (non-NATed) minimum and maximum expiry values
     UtlString tempExpiresString;
     pOsConfigDb->get("SIP_REGISTRAR_MIN_EXPIRES_NORMAL", tempExpiresString);
@@ -671,17 +677,8 @@ RegBinding::Ptr pRegBinding(new RegBinding());
                             {
                                 // Unbind this binding
                                 //
-                                // To cancel a contact, we expire it one second ago.
-                                // This allows it to stay in the database until the
-                                // explicit cleanAndPersist method cleans it out (which
-                                // will be when it is more than one maximum registration
-                                // time in the past).
-                                // This prevents the problem of an expired registration
-                                // being recreated by an old REGISTER request coming in
-                                // whose cseq is lower than the one that unregistered it,
-                                // which, if we had actually removed the entry would not
-                                // be there to compare the out-of-order message to.
-                                expirationTime = timeNow - 1;
+                             
+                                expirationTime = 0;
 
                                 OsSysLog::add( FAC_SIP, PRI_DEBUG,
                                               "SipRegistrarServer::applyRegisterToDirectory "
@@ -1404,7 +1401,7 @@ void SipRegistrarServer::cleanAndPersist()
       
    }
 
-   _dataStore.regDB().clean(oldestTimeToKeep);
+   _dataStore.regDB().cleanAndPersist(oldestTimeToKeep);
 
 }
 

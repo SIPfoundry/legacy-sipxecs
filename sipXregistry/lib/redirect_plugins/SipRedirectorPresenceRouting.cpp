@@ -22,7 +22,6 @@
 #include "os/OsDateTime.h"
 #include "os/OsLock.h"
 #include "os/OsSysLog.h"
-#include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
 #include "SipRedirectorPresenceRouting.h"
 #include "registry/SipRedirectServer.h"

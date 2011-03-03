@@ -36,19 +36,8 @@ libsipdb_la_SOURCES =  \
    EntityRecord.cpp \
    RegBinding.cpp \
    RegDB.cpp \
-   AliasDB.cpp \
-   CallerAliasDB.cpp \
-   CredentialDB.cpp \
-   DialByNameDB.cpp \
-   ExtensionDB.cpp \
-   LocationDB.cpp \
-   UserLocationDB.cpp \
-   UserForwardDB.cpp \
-   UserStaticDB.cpp \
-   RegistrationBinding.cpp \
-   PermissionDB.cpp \
-   RegistrationDB.cpp \
-   ResultSet.cpp \
-   SIPDBManager.cpp \
-   SIPXAuthHelper.cpp \
-   SubscriptionDB.cpp
+   Subscription.cpp \
+   SubscribeDB.cpp \
+   ResultSet.cpp
+
+

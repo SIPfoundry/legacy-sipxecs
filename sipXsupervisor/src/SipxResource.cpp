@@ -20,7 +20,6 @@
 #include "SipxProcessResource.h"
 #include "FileResource.h"
 #include "DirectoryResource.h"
-#include "ImdbResource.h"
 #include "SqldbResource.h"
 #include "SipxResource.h"
 
@@ -55,11 +54,6 @@ bool SipxResource::parse(const TiXmlDocument& processDefinitionDoc,
    {
       resourceElementIsValid =
          SipxProcessResource::parse(processDefinitionDoc, resourceElement, currentProcess);
-   }
-   else if (0==strcmp(resourceTypeName,ImdbResource::ImdbResourceTypeName))
-   {
-      resourceElementIsValid =
-         ImdbResource::parse(processDefinitionDoc, resourceElement, currentProcess);
    }
    else if (0==strcmp(resourceTypeName,SqldbResource::SqldbResourceTypeName))
    {

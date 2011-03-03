@@ -5,7 +5,7 @@
 #include "utl/UtlString.h"
 #include "net/Url.h"
 #include "sipdb/EntityRecord.h"
-
+#include <set>
 
 class EntityDB : public MongoDB::DBInterface
 {
@@ -13,11 +13,15 @@ public:
     typedef std::vector<EntityRecord> Entities;
     typedef std::map<std::string, EntityRecord> EntitiesByIdentity;
     typedef std::vector<EntityRecord::Alias> Aliases;
+    typedef std::set<std::string> Permissions;
+    
     EntityDB(
         MongoDB& db,
-        const std::string& ns);
+        const std::string& ns = EntityDB::_defaultNamespace);
 
     ~EntityDB();
+
+    static std::string& defaultNamespace();
 
     bool findByIdentity(const std::string& identity, EntityRecord& entity) const;
     bool findByIdentity(const Url& uri, EntityRecord& entity) const;
@@ -44,6 +48,10 @@ public:
         const Url& aliasIdentity,
         Aliases& aliases,
         bool& isUserIdentity) const;
+
+    static MongoDB::Collection<EntityDB>& defaultCollection();
+    static std::string _defaultNamespace;
+
 
 };
 

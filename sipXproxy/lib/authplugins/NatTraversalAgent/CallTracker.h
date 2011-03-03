@@ -16,6 +16,8 @@
 #include "utl/UtlContainable.h"
 #include "utl/UtlString.h"
 #include "os/OsProcess.h"
+#include "sipdb/RegDB.h"
+
 
 // DEFINES
 #define SESSION_CONTEXT_ID_PARAM          "id"
@@ -61,7 +63,7 @@ public:
    CallTracker( const ssize_t handle,
                 const NatTraversalRules* pNatRules,
                 MediaRelay* pMediaRelayToUse,
-                const RegistrationDB* pRegistrationDB,
+                RegDB::Ptr pRegDB,
                 NatMaintainer* pNatMaintainer,
                 UtlString instanceNameForRouteState );
 
@@ -299,7 +301,7 @@ private:
    /// Pointer to object that abstracts the Media Relay
    MediaRelay*              mpMediaRelayToUse;
    /// Pointer to registration DB used in some instances to resolve the location of certain endpoints
-   const RegistrationDB*    mpRegistrationDB;
+   RegDB::Ptr _pRegDB;
    /// Map that holds the SessionContext objects allocated by the CallTracker.  Map is indexed by SessionContextHandles
    UtlHashMap               mSessionContextsMap;
    /// Map that maps BranchIds to the handle of the SessionContext that can handle the request or response that bears the branchId

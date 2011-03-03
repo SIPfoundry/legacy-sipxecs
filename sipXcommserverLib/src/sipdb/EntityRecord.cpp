@@ -21,7 +21,13 @@ const char* EntityRecord::aliases_fld(){ static std::string fld = "als"; return 
 const char* EntityRecord::aliasesId_fld(){ static std::string fld = "id"; return fld.c_str(); }
 const char* EntityRecord::aliasesContact_fld(){ static std::string fld = "cnt"; return fld.c_str(); }
 const char* EntityRecord::aliasesRelation_fld(){ static std::string fld = "rln"; return fld.c_str(); }
-const char* EntityRecord::callForwardTime_fld(){ static std::string fld = "cfwdtm"; return fld.c_str(); }
+const char* EntityRecord::callForwardTime_fld(){ static std::string fld = "cfwdtm"; return fld.c_str(); }       
+const char* EntityRecord::staticUserLoc_fld(){ static std::string fld = "stc"; return fld.c_str(); }
+const char* EntityRecord::staticUserLocEvent_fld(){ static std::string fld = "evt"; return fld.c_str(); }
+const char* EntityRecord::staticUserLocContact_fld(){ static std::string fld = "cnt"; return fld.c_str(); }
+const char* EntityRecord::staticUserLocFromUri_fld(){ static std::string fld = "from"; return fld.c_str(); }
+const char* EntityRecord::staticUserLocToUri_fld(){ static std::string fld = "to"; return fld.c_str(); }
+const char* EntityRecord::staticUserLocCallId_fld(){ static std::string fld = "cid"; return fld.c_str(); }
 
 EntityRecord::EntityRecord()
 {
@@ -41,6 +47,7 @@ EntityRecord::EntityRecord(const EntityRecord& entity)
     _callerAliases = entity._callerAliases;
     _aliases = entity._aliases;
     _callForwardTime = entity._callForwardTime;
+    _staticUserLoc = entity._staticUserLoc;
 }
 
 EntityRecord::~EntityRecord()
@@ -68,6 +75,7 @@ void EntityRecord::swap(EntityRecord& entity)
     std::swap(_callerAliases, entity._callerAliases);
     std::swap(_aliases, entity._aliases);
     std::swap(_callForwardTime, entity._callForwardTime);
+    std::swap(_staticUserLoc, entity._staticUserLoc);
 }
 
 EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
@@ -173,10 +181,36 @@ EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
                 }
             }
         }
+
+        if (bsonObj.hasField(EntityRecord::staticUserLoc_fld()))
+        {
+            MongoDB::BSONElement obj = bsonObj[EntityRecord::staticUserLoc_fld()];
+            if ( obj.isABSONObj() &&  obj.type() == mongo::Array)
+            {
+                std::vector<MongoDB::BSONElement> userLocs = obj.Array();
+                for (std::vector<MongoDB::BSONElement>::iterator iter = userLocs.begin();
+                    iter != userLocs.end(); iter++)
+                {
+                    MongoDB::BSONObj innerObj = iter->Obj();
+                    StaticUserLoc userLoc;
+                    if (innerObj.hasField(EntityRecord::staticUserLocEvent_fld()))
+                        userLoc.event = innerObj.getStringField(EntityRecord::staticUserLocEvent_fld());
+                    if (innerObj.hasField(EntityRecord::staticUserLocContact_fld()))
+                        userLoc.contact = innerObj.getStringField(EntityRecord::staticUserLocContact_fld());
+                    if (innerObj.hasField(EntityRecord::staticUserLocFromUri_fld()))
+                        userLoc.fromUri = innerObj.getStringField(EntityRecord::staticUserLocFromUri_fld());
+                    if (innerObj.hasField(EntityRecord::staticUserLocToUri_fld()))
+                        userLoc.toUri = innerObj.getStringField(EntityRecord::staticUserLocToUri_fld());
+                    if (innerObj.hasField(EntityRecord::staticUserLocCallId_fld()))
+                        userLoc.callId = innerObj.getStringField(EntityRecord::staticUserLocCallId_fld());
+                    _staticUserLoc.push_back(userLoc);
+                }
+            }
+        }
     }
     catch(std::exception& e)
     {
-        // Log error here
+        SYSLOG_ERROR("MongoDB Exception: (EntityRecord::operator =(const MongoDB::BSONObj& bsonObj))" << e.what());
     }
 
     return *this;

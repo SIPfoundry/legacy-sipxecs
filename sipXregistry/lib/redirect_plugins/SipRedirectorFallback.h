@@ -36,8 +36,7 @@
 // STRUCTS
 // TYPEDEFS
 // FORWARD DECLARATIONS
-class LocationDB;
-class UserLocationDB;
+
 
 /**
  * SipRedirectorFallback is a class redirector plug-in that maps a
@@ -124,9 +123,7 @@ class SipRedirectorFallback : public RedirectPlugin
      determineCallerLocationFromProvisionedUserLocation( const SipMessage& message,
                                                          UtlString& callerLocation );
    
-     LocationDB*     mpLocationDbInstance;     ///< Pointer to database that holds every location's attributes such as its name and topology information 
-     UserLocationDB* mpUserLocationDbInstance; ///< Pointer to database that holds mappings between user identities and their location attribute
-     
+    
      friend class SipRedirectorFallbackTest;
 };
 

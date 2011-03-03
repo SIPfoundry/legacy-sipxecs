@@ -15,7 +15,6 @@
 // APPLICATION INCLUDES
 #include <net/SipSubscribeServerEventHandler.h>
 #include <sipXecsService/SipNonceDb.h>
-#include <sipdb/CredentialDB.h>
 
 // DEFINES
 // MACROS

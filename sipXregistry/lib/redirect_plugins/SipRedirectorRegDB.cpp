@@ -15,9 +15,7 @@
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
 #include "os/OsSysLog.h"
-#include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/UserForwardDB.h"
 
 
 // DEFINES

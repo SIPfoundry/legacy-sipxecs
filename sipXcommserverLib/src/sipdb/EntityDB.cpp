@@ -1,6 +1,18 @@
 #include "sipdb/EntityDB.h"
 #include "os/OsSysLog.h"
 
+std::string EntityDB::_defaultNamespace = "imdb.entity";
+std::string& EntityDB::defaultNamespace()
+{
+    return EntityDB::_defaultNamespace;
+}
+
+MongoDB::Collection<EntityDB>& EntityDB::defaultCollection()
+{
+    static MongoDB::Collection<EntityDB> collection(EntityDB::_defaultNamespace);
+    return collection;
+}
+
 EntityDB::EntityDB(
     MongoDB& db,
     const std::string& ns) :
@@ -20,11 +32,16 @@ bool EntityDB::findByIdentity(const std::string& identity, EntityRecord& entity)
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
     if (pCursor->more())
     {
-      SYSLOG_DEBUG( identity << "is present in namespace " << _ns);
+      SYSLOG_DEBUG( identity << " is present in namespace " << _ns);
         entity = pCursor->next();
         return true;
     }
-    SYSLOG_DEBUG( identity << "is NOT present in namespace " << _ns);
+    SYSLOG_DEBUG( identity << " is NOT present in namespace " << _ns);
+    if (!error.empty())
+    {
+        SYSLOG_ERROR("MongoDB Exception: (EntityDB::findByIdentity)" << error);
+    }
+
     return false;
 }
 
@@ -33,6 +50,10 @@ bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity) con
     MongoDB::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+    if (!error.empty())
+    {
+        SYSLOG_ERROR("MongoDB Exception: (EntityDB::findByIdentity)" << error);
+    }
     if (pCursor->more())
     {
         entity = pCursor->next();
