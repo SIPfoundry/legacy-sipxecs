@@ -24,7 +24,7 @@ include $(SRC)/*/.sipxecs.mk
 # Allows to target other distros other than the default
 help-values.{3} = Any of the available distros identifiers. Complete list: all @ALL_DISTROS@
 help-values.{4} = Any rpm related target. Partial list : autoreconf dist rpm srpm rpm-check
-help-values.{5} = Any repo related target. Partial list : repo repo-clean repo-choot-init repo-check repo-create and more...
+help-values.{5} = Any repo related target. Partial list : repo repo-clean repo-chroot-init repo-check repo-create and more...
 help.distro.{3}.{1|2}.{4} = Build or operate on a package or set of packages for another distro other than $(DISTRO). 
 help.distro.{3}.{5} = Build or operate on repository for another distro other than $(DISTRO). 
 distro.% : SUB_DISTRO=$(word 2,$(subst ., ,$@))
@@ -87,7 +87,7 @@ help.{1|2}.rpm-by-mock = Called automatically as part of rpm process after srpm 
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO_OS)) .
 
 help.repo-chroot-init = Clear mock chroot for $(DISTRO). Requied before first build and useful when you suspect caching is the result of a build error.
-repo-chroot-init : repo-webserver
+repo-chroot-init : repo-create repo-webserver
 	mock --configdir=$(MOCK_CONFIG_DIR) -r $(MOCK_TARGET_PLATFORM) --scrub=all
 	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO_OS)) .
@@ -115,7 +115,7 @@ repo-src :
 	for f in $(shell $(SRC)/mak/list-obsolete-rpms $(MOCK_SRPM_DIR)); do rm $$f; done
 	cd $(MOCK_SRPM_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO_OS)) .
 
-help.repo-check = Installs sipXecs in chroot. Tip, run repo-choot-init first for more thourugh test of all dependencies.
+help.repo-check = Installs sipXecs in chroot. Tip, run repo-chroot-init first for more thourugh test of all dependencies.
 repo-check : repo-webserver
 	mock -r $(MOCK_TARGET_PLATFORM) --install sipxecs
 
@@ -125,6 +125,7 @@ repo-remove-dups:
 
 help.repo-create = run createrepo in $(MOCK_RESULTS_DIR)
 repo-create:
+	test -d $(MOCK_RESULTS_DIR) || mkdir -p $(MOCK_RESULTS_DIR)
 	cd $(MOCK_RESULTS_DIR); createrepo $(CREATEREPO_OPTS_$(DISTRO_OS)) .
 
 help.repo = Prepares repository for $(DISTRO) for publishing or re-distributing in ISO by removing extra rpms and moving source rpms to separate directory.
