@@ -271,7 +271,7 @@ public class BorderTest extends TestCase {
         }
 
         @Override
-        public String getHelpLink(Integer[] versionIds) {
+        public String getHelpLink() {
             return null;
         }
 
@@ -283,11 +283,6 @@ public class BorderTest extends TestCase {
         @Override
         public boolean getUseDojo() {
             return false;
-        }
-
-        @Override
-        public VersionInfo getVersionInfo() {
-            return null;
         }
 
         @Override
