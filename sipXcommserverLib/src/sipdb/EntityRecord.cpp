@@ -6,7 +6,7 @@
 // Field names
 //
 const char* EntityRecord::oid_fld(){ static std::string fld = "_id"; return fld.c_str(); }
-const char* EntityRecord::userId_fld(){ static std::string fld = "id"; return fld.c_str(); }
+const char* EntityRecord::userId_fld(){ static std::string fld = "uid"; return fld.c_str(); }
 const char* EntityRecord::identity_fld(){ static std::string fld = "ident"; return fld.c_str(); }
 const char* EntityRecord::realm_fld(){ static std::string fld = "rlm"; return fld.c_str(); }
 const char* EntityRecord::password_fld(){ static std::string fld = "pstk"; return fld.c_str(); }

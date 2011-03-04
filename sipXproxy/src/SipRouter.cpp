@@ -1336,6 +1336,8 @@ bool SipRouter::getCredential (
     if (!_pEntities)
         return false;
 
+    SYSLOG_INFO("SipRouter::getCredential - EntityDB::findByIdentity");
+
     EntityRecord entity;
     if (!_pEntities->collection().findByIdentity(identity.str(), entity))
         return false;

@@ -363,6 +363,9 @@ bool CallerAlias::getCallerAlias (
         return false;
 
     EntityRecord entity;
+
+    SYSLOG_INFO("CallerAlias::getCallerAlias - EntityDB::findByIdentity");
+
     if (!_pEntities->collection().findByIdentity(identity.str(), entity))
         return false;
     std::vector<EntityRecord::CallerAlias>& aliases = entity.callerAliases();

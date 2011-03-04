@@ -27,7 +27,7 @@ EntityDB::~EntityDB()
 bool EntityDB::findByIdentity(const std::string& identity, EntityRecord& entity) const
 {
     MongoDB::BSONObj query = BSON(EntityRecord::identity_fld() << identity);
-    SYSLOG_DEBUG("Finding entity record for " << identity << " from namespace " << _ns);
+    SYSLOG_INFO("EntityDB::findByIdentity - Finding entity record for " << identity << " from namespace " << _ns);
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
     if (pCursor->more())
@@ -42,6 +42,7 @@ bool EntityDB::findByIdentity(const std::string& identity, EntityRecord& entity)
         SYSLOG_ERROR("MongoDB Exception: (EntityDB::findByIdentity)" << error);
     }
 
+    SYSLOG_INFO("EntityDB::findByIdentity - Unable to find entity record for " << identity << " from namespace " << _ns);
     return false;
 }
 
@@ -50,6 +51,9 @@ bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity) con
     MongoDB::BSONObj query = BSON(EntityRecord::userId_fld() << userId);
     std::string error;
     MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+
+    SYSLOG_INFO("EntityDB::findByUserId - Finding entity record for " << userId << " from namespace " << _ns);
+
     if (!error.empty())
     {
         SYSLOG_ERROR("MongoDB Exception: (EntityDB::findByIdentity)" << error);
@@ -59,6 +63,7 @@ bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity) con
         entity = pCursor->next();
         return true;
     }
+    SYSLOG_INFO("EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _ns);
     return false;
 }
 

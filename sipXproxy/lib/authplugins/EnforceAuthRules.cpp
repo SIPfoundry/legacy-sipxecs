@@ -268,6 +268,8 @@ bool EnforceAuthRules::isAuthorized(const UtlString& identity,
     matchedPermission.remove(0);
     unmatchedPermissions.remove(0);
 
+    SYSLOG_INFO("EnforceAuthRules::isAuthorized - EntityDB::findByIdentity");
+
     EntityRecord entity;
     if (!_pEntities->collection().findByIdentity(identity.str(), entity))
         return false;
