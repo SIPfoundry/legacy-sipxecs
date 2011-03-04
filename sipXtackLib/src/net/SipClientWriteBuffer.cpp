@@ -253,8 +253,7 @@ void SipClientWriteBuffer::writeMore()
          if (mClientSocket->isOk())
          {
             // Write what we can.
-            ret = mClientSocket->write(mWriteString.data() + mWritePointer,
-                                       length, 0L /* nonblocking */);
+            ret = mClientSocket->write(mWriteString.data() + mWritePointer, length);
             // Theoretically, ret > 0, since the socket is ready for writing,
             // but it appears that that ret can be 0.
          }
