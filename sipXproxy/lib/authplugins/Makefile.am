@@ -62,7 +62,6 @@ authplugins_libCallerAlertInfo_la_LIBADD = \
     @SIPXCOMMSERVER_LIBS@
 
 
->>>>>>> master-4.2
 authplugins_libEnforceAuthRules_la_SOURCES = \
     EnforceAuthRules.h \
     EnforceAuthRules.cpp

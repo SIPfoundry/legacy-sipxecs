@@ -27,6 +27,7 @@ public abstract class DataSetGenerator {
     public static final String ID = "id";
     public static final String IDENTITY = "ident";
     public static final String CONTACT = "cnt";
+    public static final String UID = "uid";
     private DBCollection m_dbCollection;
     private CoreContext m_coreContext;
 
@@ -79,11 +80,8 @@ public abstract class DataSetGenerator {
         }
         if (entity instanceof User) {
             top.put(CONTACT, ((User) entity).getContactUri(getSipDomain()));
+            top.put(UID, ((User) entity).getUserName());
         }
-        //for debug only:
-        DateFormat dateFormat = DateFormat.getDateTimeInstance();
-        top.put("timestamp", dateFormat.format(new Date()));
-        //////////////////////////
         return top;
     }
 
