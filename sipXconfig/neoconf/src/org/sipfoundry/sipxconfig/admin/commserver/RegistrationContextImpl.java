@@ -12,24 +12,41 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
+
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+import com.mongodb.Mongo;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbApi;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.RegistrationItem;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.xmlrpc.ApiProvider;
-import org.sipfoundry.sipxconfig.xmlrpc.XmlRpcRemoteException;
 import org.springframework.beans.factory.annotation.Required;
 
 public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
-
+    private static final String HOST = "localhost";
+    private static final int PORT = 27017;
+    private static final String DB_NAME = "imdb";
+    private static final String DB_COLLECTION_NAME = "registrar";
+    private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
+    private static final String COLON = ":";
     private LocationsManager m_locationsManager;
+    private Mongo m_mongoInstance;
 
-    private ApiProvider<ImdbApi> m_imdbApiProvider;
+    private void initMongo() throws Exception {
+        if (m_mongoInstance == null) {
+            try {
+                m_mongoInstance = new Mongo(HOST, PORT);
+            } catch (Exception e) {
+                LOG.error(UNABLE_OPEN_MONGO + HOST + COLON + PORT);
+                throw (e);
+            }
+        }
+    }
 
     /**
      * @see org.sipfoundry.sipxconfig.admin.commserver.RegistrationContext#getRegistrations()
@@ -41,16 +58,26 @@ public class RegistrationContextImpl implements RegistrationContext {
                 LOG.error("No primary proxy found.");
                 return Collections.emptyList();
             }
-            ImdbApi imdb = m_imdbApiProvider.getApi(primaryProxyLocation.getProcessMonitorUrl());
-
-            Location managementLocation = m_locationsManager.getLocationByBundle("managementBundle");
-            if (managementLocation == null) {
-                LOG.error("No management bundle found");
-                return Collections.emptyList();
+            initMongo();
+            DB datasetDb = m_mongoInstance.getDB(DB_NAME);
+            DBCollection registrarCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
+            DBCursor cursor = registrarCollection.find();
+            List<RegistrationItem> items = new ArrayList<RegistrationItem>(cursor.size());
+            while (cursor.hasNext()) {
+                DBObject registration = cursor.next();
+                if ((Boolean) registration.get("expired")) {
+                    continue;
+                }
+                RegistrationItem item = new RegistrationItem();
+                item.setContact((String) registration.get("contact"));
+                item.setPrimary((String) registration.get("primary"));
+                item.setExpires((Integer) registration.get("expirationTime"));
+                item.setUri((String) registration.get("uri"));
+                item.setInstrument((String) registration.get("instrument"));
+                items.add(item);
             }
-            List<Map<String, ? >> registrations = imdb.read(managementLocation.getFqdn(), "registration");
-            return getRegistrations(registrations);
-        } catch (XmlRpcRemoteException e) {
+            return items;
+        } catch (Exception e) {
             // we are handling this separately - server returns FileNotFound even if everything is
             // OK but we have no registrations present
             LOG.warn("Cannot retrieve registrations.", e);
@@ -60,20 +87,6 @@ public class RegistrationContextImpl implements RegistrationContext {
 
     public List<RegistrationItem> getRegistrationsByUser(User user) {
         return getRegistrationsByUser(getRegistrations(), user);
-    }
-
-    List<RegistrationItem> getRegistrations(List<Map<String, ? >> registrations) {
-        List<RegistrationItem> items = new ArrayList<RegistrationItem>(registrations.size());
-        for (Map<String, ? > r : registrations) {
-            RegistrationItem item = new RegistrationItem();
-            item.setContact((String) r.get("contact"));
-            item.setPrimary((String) r.get("primary"));
-            item.setExpires((Integer) r.get("expires"));
-            item.setUri((String) r.get("uri"));
-            item.setInstrument((String) r.get("instrument"));
-            items.add(item);
-        }
-        return items;
     }
 
     List<RegistrationItem> getRegistrationsByUser(List<RegistrationItem> registrations, User user) {
@@ -91,8 +104,4 @@ public class RegistrationContextImpl implements RegistrationContext {
         m_locationsManager = locationsManager;
     }
 
-    @Required
-    public void setImdbApiProvider(ApiProvider<ImdbApi> imdbApiProvider) {
-        m_imdbApiProvider = imdbApiProvider;
-    }
 }

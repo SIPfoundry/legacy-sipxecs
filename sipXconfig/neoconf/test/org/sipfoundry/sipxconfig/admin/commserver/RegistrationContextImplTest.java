@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +55,7 @@ public class RegistrationContextImplTest extends TestCase {
     }
 
     public void testGetRegistrations() throws Exception {
-        List registrations = m_builder.getRegistrations(m_data);
+        List registrations = m_builder.getRegistrations();
         assertEquals(2, registrations.size());
         for (int i = 0; i < 2; i++) {
             RegistrationItem ri = (RegistrationItem) registrations.get(i);
@@ -67,7 +66,7 @@ public class RegistrationContextImplTest extends TestCase {
     }
 
     public void testGetRegistrationsByUser() throws Exception {
-        List<RegistrationItem> registrations = m_builder.getRegistrations(m_data);
+        List<RegistrationItem> registrations = m_builder.getRegistrations();
         User user = new User();
         user.setUserName("3000");
         registrations = m_builder.getRegistrationsByUser(registrations, user);
@@ -79,7 +78,7 @@ public class RegistrationContextImplTest extends TestCase {
     }
 
     public void testGetRegistrationsEmpty() throws Exception {
-        List registrations = m_builder.getRegistrations(Collections.<Map<String, ?>>emptyList());
+        List registrations = m_builder.getRegistrations();
         assertTrue(registrations.isEmpty());
     }
 }

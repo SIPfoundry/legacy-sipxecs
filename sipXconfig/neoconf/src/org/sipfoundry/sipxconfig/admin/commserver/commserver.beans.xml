@@ -66,15 +66,6 @@
       value="org.sipfoundry.sipxconfig.admin.commserver.ContactInfoChangeApi" />
   </bean>
 
-  <bean id="imdbProvider"
-    class="org.sipfoundry.sipxconfig.xmlrpc.XmlRpcApiProvider">
-    <property name="methodNamePrefix" value="ImdbTable." />
-    <property name="secure" value="true" />
-    <property name="timeout" value="25000" />
-    <property name="serviceInterface"
-      value="org.sipfoundry.sipxconfig.admin.commserver.imdb.ImdbApi" />
-  </bean>
-
   <bean id="replicationManagerImpl"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManagerImpl">
     <property name="fileApiProvider" ref="fileApiProvider"/>
@@ -241,7 +232,6 @@
   <bean id="registrationContext"
     class="org.sipfoundry.sipxconfig.admin.commserver.RegistrationContextImpl">
     <property name="locationsManager" ref="locationsManager" />
-    <property name="imdbApiProvider" ref="imdbProvider" />
   </bean>
 
   <bean id="initialConfig"
