@@ -43,7 +43,6 @@ import org.apache.tapestry.web.WebRequest;
 import org.apache.tapestry.web.WebSession;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.common.VersionInfo;
 import org.sipfoundry.sipxconfig.site.ApplicationLifecycle;
 import org.sipfoundry.sipxconfig.site.Home;
 import org.sipfoundry.sipxconfig.site.LoginPage;
@@ -54,9 +53,6 @@ import org.sipfoundry.sipxconfig.site.vm.ManageVoicemail;
 
 @ComponentClass(allowInformalParameters = false)
 public abstract class Border extends BaseComponent implements PageValidateListener, PageBeginRenderListener {
-
-    @InjectObject(value = "spring:versionInfo")
-    public abstract VersionInfo getVersionInfo();
 
     @InjectObject(value = "spring:coreContext")
     public abstract CoreContext getCoreContext();
@@ -253,8 +249,8 @@ public abstract class Border extends BaseComponent implements PageValidateListen
         return "locale=" + getPage().getLocale().getLanguage();
     }
 
-    public String getHelpLink(Integer[] versionIds) {
-        return getMessages().format("help.link", versionIds);
+    public String getHelpLink() {
+        return getMessages().getMessage("help.link");
     }
 
     public String getUserName() {
