@@ -11,7 +11,7 @@
 #define SIPREDIRECTORPRESENCEROUTING_H
 
 // SYSTEM INCLUDES
-//#include <...>
+#include <string>
 
 // APPLICATION INCLUDES
 #include "filereader/RefreshingFileReader.h"
