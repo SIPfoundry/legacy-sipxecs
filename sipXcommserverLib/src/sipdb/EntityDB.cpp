@@ -67,6 +67,29 @@ bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity) con
     return false;
 }
 
+bool EntityDB::findByAliasUserId(const std::string& alias, EntityRecord& entity) const
+{
+    MongoDB::BSONObj query = BSON( EntityRecord::aliases_fld() <<
+        BSON_ELEM_MATCH( BSON(EntityRecord::aliasesId_fld() << alias) ) );
+
+    std::string error;
+    MongoDB::Cursor pCursor = _db.find(_ns, query, error);
+
+    SYSLOG_INFO("EntityDB::findByAliasUserId - Finding entity record for alias " << alias << " from namespace " << _ns);
+
+    if (!error.empty())
+    {
+        SYSLOG_ERROR("MongoDB Exception: (EntityDB::findByAliasUserId)" << error);
+    }
+    if (pCursor->more())
+    {
+        entity = pCursor->next();
+        return true;
+    }
+    SYSLOG_INFO("EntityDB::findByAliasUserId - Unable to find entity record for alias " << alias << " from namespace " << _ns);
+    return false;
+}
+
 /// Retrieve the SIP credential check values for a given identity and realm
 bool EntityDB::getCredential (
    const Url& uri,
@@ -121,13 +144,20 @@ void EntityDB::getAliasContacts (
     Aliases& aliases,
     bool& isUserIdentity) const
 {
-    UtlString identity;
-    aliasIdentity.getIdentity(identity);
+    UtlString alias;
+    aliasIdentity.getUserId(alias);
+    if (alias.isNull())
+        return;
 
      EntityRecord entity;
-     if (findByIdentity(identity.str(), entity))
+     if (findByAliasUserId(alias.str(), entity))
      {
-         aliases = entity.aliases();
+         Aliases result = entity.aliases();
+         for (Aliases::iterator iter = result.begin(); iter != result.end(); iter++)
+         {
+             if (iter->id == alias.data())
+                 aliases.push_back(*iter);
+         }
          isUserIdentity = !entity.realm().empty() && !entity.password().empty();
      }
 }

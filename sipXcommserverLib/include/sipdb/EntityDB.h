@@ -26,6 +26,7 @@ public:
     bool findByIdentity(const std::string& identity, EntityRecord& entity) const;
     bool findByIdentity(const Url& uri, EntityRecord& entity) const;
     bool findByUserId(const std::string& userId, EntityRecord& entity) const;
+    bool findByAliasUserId(const std::string& alias, EntityRecord& entity) const;
       /// Retrieve the SIP credential check values for a given identity and realm
     bool getCredential (
        const Url& uri,
