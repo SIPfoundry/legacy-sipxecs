@@ -38,6 +38,7 @@ class SipRedirectorPresenceRoutingTest : public CppUnit::TestCase,  public Dummy
    CPPUNIT_TEST(routeToSipUriMiddle2);
    CPPUNIT_TEST(routeToSipUriEnd);
    CPPUNIT_TEST(routeToInvalidSipUris);
+   CPPUNIT_TEST(testBasicAuth);
    CPPUNIT_TEST_SUITE_END();
 
 public:
@@ -74,6 +75,15 @@ public:
        pUp->setSipState("IDLE");
        pPresenceContainer->insert( new UtlString("dummy@example.com"), pUp );
        return pUp;
+   }
+
+   void testBasicAuth() 
+   {
+     std::string actual;
+     SipRedirectorPresenceRouting::basicAuthCreds(actual, "x", "y");
+     // Expected value was obtained running:
+     //   echo -n "x:y" | openssl enc -base64
+     ASSERT_STR_EQUAL("Basic eDp5", actual.c_str());
    }
 
    void removeVoicemailContactTop()

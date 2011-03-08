@@ -92,6 +92,10 @@ public:
     *
     */
 
+   /// Add or set a header value to the outgoing http message.
+   void setHeaderField(const char* name, const char* value);
+
+
    /// Add an atomic param to the XML-RPC request
    bool addParam(const UtlContainable* value); ///< value for the param
 

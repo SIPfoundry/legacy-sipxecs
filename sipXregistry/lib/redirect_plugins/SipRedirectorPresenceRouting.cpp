@@ -17,6 +17,7 @@
 #include "net/XmlRpcMethod.h"
 #include "net/XmlRpcDispatch.h"
 #include "net/XmlRpcResponse.h"
+#include "net/NetBase64Codec.h"
 #include "sipXecsService/SipXecsService.h"
 #include "sipXecsService/SharedSecret.h"
 #include "os/OsDateTime.h"
@@ -275,10 +276,28 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
     OsConfigDb domainConfiguration;
     domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
    // get the shared secret for generating signatures
-    SharedSecret secret(domainConfiguration);
+    UtlString sharedSecret = SharedSecret(domainConfiguration);
     // Set secret for signing SipXauthIdentity
-    SipXauthIdentity::setSecret(secret.data());
+    SipXauthIdentity::setSecret(sharedSecret.data());
+
+    // openfire incorrectly uses base64 encoded version of shared secret for validation, so send that here
+    UtlString base64SharedSecret;
+    domainConfiguration.get(SipXecsService::DomainDbKey::SHARED_SECRET, base64SharedSecret);
+    SipRedirectorPresenceRouting::basicAuthCreds(mXmlApcApiCreds, "nil", base64SharedSecret.data());
 }
+
+void
+SipRedirectorPresenceRouting::basicAuthCreds(std::string& creds, const char *user, const char *sharedSecret)
+{
+  std::string unencoded;
+  unencoded.append(user).append(":").append(sharedSecret);
+  int encodedSize = NetBase64Codec::encodedSize(unencoded.length());
+  char* encoded = new char[encodedSize];
+  NetBase64Codec::encode(unencoded.length(), unencoded.c_str(), encodedSize, encoded);
+  creds.append("Basic ").append(encoded, encodedSize);
+  delete encoded;
+}
+
 
 // Initialize
 OsStatus
@@ -487,6 +506,7 @@ OsStatus SipRedirectorPresenceRouting::registerPresenceMonitorServerWithOpenfire
     UtlString presenceMonitorUrlAsString = mLocalPresenceMonitorServerUrl.toString();
 
     XmlRpcRequest registerPresenceMonitorRequest( mOpenFirePresenceServerUrl, REGISTER_PRESENCE_MONITOR_METHOD );
+    registerPresenceMonitorRequest.setHeaderField("Authorization", mXmlApcApiCreds.c_str());
     UtlString protocol = XML_RPC_PROTOCOL;
     registerPresenceMonitorRequest.addParam( &protocol );
     registerPresenceMonitorRequest.addParam( &presenceMonitorUrlAsString );

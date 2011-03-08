@@ -152,6 +152,11 @@ bool XmlRpcRequest::execute(XmlRpcResponse& response)
 
 
 /* ============================ ACCESSORS ================================= */
+void XmlRpcRequest::setHeaderField(const char* name, const char* value)
+{
+   mpHttpRequest->setHeaderValue(name, value);
+}
+
 
 bool XmlRpcRequest::addParam(const UtlContainable* value)
 {
