@@ -123,6 +123,9 @@ class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
    virtual OsStatus signal(intptr_t eventData);
 
    static const UtlString& getLocalDomainName( void );
+
+   static void basicAuthCreds(std::string& creds, const char *user, const char *sharedSecret);
+
   protected:
 
    // String to use in place of class name in log messages:
@@ -136,6 +139,7 @@ class SipRedirectorPresenceRouting : public RedirectPlugin, OsNotification
    UtlHashMap mUnifiedPresences;
    OsTimer mPingTimer;
    bool mbRegisteredWithOpenfire;
+   std::string mXmlApcApiCreds;
 
   private:
    void addContactToContactList( const UtlString& target, const Url& requestUri, const SipMessage& message, ContactList& contactList );
