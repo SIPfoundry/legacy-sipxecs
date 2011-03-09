@@ -4,6 +4,8 @@
 
 MOCK_CONFIG_DIR = mak/mock
 MOCK_TARGET_PLATFORM = $(DISTRO)
+# avoids https://bugzilla.redhat.com/show_bug.cgi?id=490613 hit by *some* fedora 14 machines
+SRPM_DEFS = --define "_source_filedigest_algorithm md5"
 
 # variable not used here, but can be used in */.sipxecs files
 RPM_DIST = @RPM_DIST@
@@ -70,9 +72,9 @@ help.{1|2}.srpm = Called automatically as part of rpm process after srpm target.
 	test -d @DOWNLOAD_LIB_CACHE@ || mkdir -p @DOWNLOAD_LIB_CACHE@
 	if [ -n "$($(PROJ)_SPEC)" ]; then \
 	  $(foreach S,$($(PROJ)_SOURCES),$(call CopySourceFile,$(S),@RPMBUILD_TOPDIR@/SOURCES)) \
-	  rpmbuild -bs $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_SPEC); \
+	  rpmbuild -bs $(SRPM_DEFS) $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_SPEC); \
 	else \
-	  rpmbuild -ts $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR); \
+	  rpmbuild -ts $(SRPM_DEFS) $($(PROJ)_SRPM_DEFS) --nodeps $($(PROJ)_TAR); \
 	fi
 	test -d $(MOCK_SRPM_DIR) || mkdir -p $(MOCK_SRPM_DIR)
 	cp @RPMBUILD_TOPDIR@/SRPMS/$($(PROJ)_SRPM) $(MOCK_SRPM_DIR)

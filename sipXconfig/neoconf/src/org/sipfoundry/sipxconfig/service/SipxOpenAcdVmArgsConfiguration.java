@@ -17,20 +17,27 @@ package org.sipfoundry.sipxconfig.service;
 
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 
 public class SipxOpenAcdVmArgsConfiguration extends SipxServiceConfiguration {
 
     private String m_etcDir;
+    private LocationsManager m_locationsManager;
 
     @Override
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
         context.put("etc_dir", m_etcDir);
+        context.put("host", m_locationsManager.getPrimaryLocation().getHostname());
 
         return context;
     }
 
     public void setEtcDir(String path) {
         m_etcDir = path;
+    }
+
+    public void setLocationsManager(LocationsManager locationsManager) {
+        m_locationsManager = locationsManager;
     }
 }

@@ -126,7 +126,7 @@ public class SipxOpenAcdService extends SipxService implements LoggingEntity {
         @SettingEntry(path = C_NODE)
         public String getCNode() {
             // change this when installing on different locations will be supported
-            return String.format("%s@127.0.0.1", m_location.getHostname());
+            return String.format("%s@127.0.0.1", "freeswitch");
         }
 
         @SettingEntry(path = DIAL_STRING)
