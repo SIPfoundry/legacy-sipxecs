@@ -53,10 +53,16 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String HOST = "localhost";
     private static final int PORT = 27017;
     private static final String DB_NAME = "imdb";
-    private static final String DB_COLLECTION_NAME = "entity";
+    private static final String ENTITY_COLLECTION_NAME = "entity";
+    private static final String NODE_COLLECTION_NAME = "node";
     private static final String REPLICATION_FAILED = "Replication: insert/update failed - ";
+    private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
     private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
     private static final String COLON = ":";
+    private static final String ID = "id";
+    private static final String IP = "ip";
+    private static final String DESCRIPTION = "dsc";
+    private static final String MASTER = "mstr";
     private Mongo m_mongoInstance;
 
     private boolean m_enabled = true;
@@ -105,7 +111,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     public void dropDb() throws Exception {
         initMongo();
         DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-        DBCollection datasetCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
+        DBCollection datasetCollection = datasetDb.getCollection(ENTITY_COLLECTION_NAME);
         datasetCollection.drop();
     }
 
@@ -115,8 +121,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
      * DaoUtils.forAllUsersDo method that should be used.
      */
     @Override
-    public boolean replicateAllData() {
-        boolean success = true;
+    public void replicateAllData() {
         try {
             dropDb(); // this calls initMongo()
             Closure<User> closure = new Closure<User>() {
@@ -134,19 +139,16 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 }
             }
         } catch (Exception e) {
-            success = false;
             LOG.error("Regeneration of database failed", e);
             throw new UserException(e);
         }
-        return success;
     }
 
-    public boolean replicateEntity(Replicable entity) {
-        boolean success = true;
+    public void replicateEntity(Replicable entity) {
         try {
             initMongo();
             DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
+            DBCollection datasetCollection = datasetDb.getCollection(ENTITY_COLLECTION_NAME);
 
             Set<DataSet> dataSets = entity.getDataSets();
             for (DataSet dataSet : dataSets) {
@@ -158,19 +160,40 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             }
             LOG.info("Replication: inserted/updated " + entity.getName());
         } catch (Exception e) {
-            success = false;
             LOG.error(REPLICATION_FAILED + entity.getName(), e);
             throw new UserException(REPLICATION_FAILED + entity.getName(), e);
         }
-        return success;
     }
 
-    public boolean removeEntity(Replicable entity) {
-        boolean success = false;
+    public void replicateLocation(Location location) {
+        try {
+            if (location.isRegistered()) {
+                initMongo();
+                DB datasetDb = m_mongoInstance.getDB(DB_NAME);
+                DBCollection nodeCollection = datasetDb.getCollection(NODE_COLLECTION_NAME);
+                DBObject search = new BasicDBObject();
+                search.put(ID, location.getId());
+                DBCursor cursor = nodeCollection.find(search);
+                DBObject node = new BasicDBObject();
+                if (cursor.hasNext()) {
+                    node = cursor.next();
+                }
+                node.put(ID, location.getId());
+                node.put(IP, location.getAddress());
+                node.put(DESCRIPTION, location.getName());
+                node.put(MASTER, location.isPrimary());
+                nodeCollection.save(node);
+            }
+        } catch (Exception e) {
+            throw new UserException("Cannot register location in mongo db: " + e);
+        }
+    }
+
+    public void removeEntity(Replicable entity) {
         try {
             initMongo();
             DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
+            DBCollection datasetCollection = datasetDb.getCollection(ENTITY_COLLECTION_NAME);
             String id = DataSetGenerator.getEntityId(entity);
             DBObject search = new BasicDBObject();
             search.put(DataSetGenerator.ID, id);
@@ -183,12 +206,30 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             }
             StringUtils.isEmpty(datasetCollection.remove(top).getError());
             LOG.info("Replication: removed " + entity.getName());
-            success = true;
         } catch (Exception e) {
-            success = false;
-            LOG.error("Replication: remove failed - " + entity.getName(), e);
+            LOG.error(REPLICATION_FAILED_REMOVE + entity.getName(), e);
+            throw new UserException(REPLICATION_FAILED_REMOVE + entity.getName(), e);
         }
-        return success;
+    }
+
+    public void removeLocation(Location location) {
+        try {
+            if (location.isRegistered()) {
+                initMongo();
+                DB datasetDb = m_mongoInstance.getDB(DB_NAME);
+                DBCollection nodeCollection = datasetDb.getCollection(NODE_COLLECTION_NAME);
+                DBObject search = new BasicDBObject();
+                search.put(ID, location.getId());
+                DBCursor cursor = nodeCollection.find(search);
+                DBObject node = new BasicDBObject();
+                if (cursor.hasNext()) {
+                    node = cursor.next();
+                }
+                nodeCollection.remove(node);
+            }
+        } catch (Exception e) {
+            throw new UserException("Cannot unregister location in mongo db: " + e);
+        }
     }
 
     @Override
@@ -206,7 +247,6 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         } catch (Exception e) {
             LOG.error("Replication: resync failed - " + location.getAddress(), e);
         }
-
     }
 
     /**

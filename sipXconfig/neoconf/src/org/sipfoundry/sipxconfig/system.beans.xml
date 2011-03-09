@@ -211,7 +211,6 @@
     <property name="interceptorNames">
       <list>
         <value>hibernateInterceptor</value>
-         <value>methodCachePointCut</value>
         <value>onDeleteAdvisor</value>
         <value>onSaveAdvisor</value>
       </list>
@@ -312,17 +311,6 @@
       <ref local="methodCache" />
     </property>
   </bean>
-
-<bean id="methodCachePointCut" class="org.springframework.aop.support.RegexpMethodPointcutAdvisor">
-  <property name="advice">
-    <ref local="methodCacheInterceptor"/>
-  </property>
-  <property name="patterns">
-    <list>
-      <value>.*\.loadUsersByPage.*</value>
-    </list>
-  </property>
-</bean>
 
   <!-- Interceptor to be used for all background tasks -->
   <bean id="backgroundTaskInterceptor" class="org.sipfoundry.sipxconfig.common.BackgroundTaskInterceptor" />

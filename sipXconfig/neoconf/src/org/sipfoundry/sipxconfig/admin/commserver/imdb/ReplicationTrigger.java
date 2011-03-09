@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig;
 import org.sipfoundry.sipxconfig.branch.Branch;
@@ -21,25 +22,19 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.setting.Group;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
 
 public class ReplicationTrigger implements ApplicationListener, DaoEventListener {
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
 
-    private SipxReplicationContext m_replicationContext;
     private CoreContext m_coreContext;
     private SipxReplicationContext m_lazyReplicationContext;
     private ValidUsersConfig m_validUsersConfig;
+    private ReplicationManager m_replicationManager;
 
     /** no replication at start-up by default */
     private boolean m_replicateOnStartup;
-
-    @Required
-    public void setReplicationContext(SipxReplicationContext replicationContext) {
-        m_replicationContext = replicationContext;
-    }
 
     public boolean isReplicateOnStartup() {
         return m_replicateOnStartup;
@@ -51,7 +46,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     public void onSave(Object entity) {
         if (entity instanceof Replicable) {
-            m_replicationContext.generate((Replicable) entity);
+            m_replicationManager.replicateEntity((Replicable) entity);
             if (entity instanceof User) {
                 m_lazyReplicationContext.replicate(m_validUsersConfig);
             }
@@ -59,12 +54,14 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             generateGroup((Group) entity);
         } else if (entity instanceof Branch) {
             generateBranch((Branch) entity);
+        } else if (entity instanceof Location) {
+            m_replicationManager.replicateLocation((Location) entity);
         }
     }
 
     public void onDelete(Object entity) {
         if (entity instanceof Replicable) {
-            m_replicationContext.remove((Replicable) entity);
+            m_replicationManager.removeEntity((Replicable) entity);
         } else if (entity instanceof Group) {
             generateGroup((Group) entity);
             if (entity instanceof User) {
@@ -72,20 +69,22 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             }
         } else if (entity instanceof Branch) {
             generateBranch((Branch) entity);
+        } else if (entity instanceof Location) {
+            m_replicationManager.removeLocation((Location) entity);
         }
     }
 
     private void generateGroup(Group group) {
         if ("user".equals(group.getResource())) {
             for (User user : m_coreContext.getGroupMembers(group)) {
-                m_replicationContext.generate(user);
+                m_replicationManager.replicateEntity(user);
             }
         }
     }
 
     private void generateBranch(Branch branch) {
         for (User user : m_coreContext.getUsersForBranch(branch)) {
-            m_replicationContext.generate(user);
+            m_replicationManager.replicateEntity(user);
         }
     }
 
@@ -96,7 +95,7 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     public void onApplicationEvent(ApplicationEvent event) {
         if (event instanceof ApplicationInitializedEvent && isReplicateOnStartup()) {
             LOG.info("Replicating all data sets after application has initialized");
-            m_replicationContext.generateAll();
+            m_replicationManager.replicateAllData();
         } else if (event instanceof BranchesWithUsersDeletedEvent) {
             // m_replicationContext.generate(); 0 find all users in branch and replicate them
             LOG.debug("aaaaaA");
@@ -113,5 +112,9 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     public void setValidUsersConfig(ValidUsersConfig validUsersConfig) {
         m_validUsersConfig = validUsersConfig;
+    }
+
+    public void setReplicationManager(ReplicationManager replicationManager) {
+        m_replicationManager = replicationManager;
     }
 }

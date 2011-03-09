@@ -34,9 +34,12 @@ public interface ReplicationManager {
      */
     boolean replicateFile(Location[] locations, ConfigurationFile file);
 
-    boolean replicateEntity(Replicable entity);
-    boolean removeEntity(Replicable entity);
+    void replicateEntity(Replicable entity);
+    void removeEntity(Replicable entity);
 
-    boolean replicateAllData();
+    void replicateLocation(Location location);
+    void removeLocation(Location location);
+
+    void replicateAllData();
     void resyncSlave(Location location);
 }
