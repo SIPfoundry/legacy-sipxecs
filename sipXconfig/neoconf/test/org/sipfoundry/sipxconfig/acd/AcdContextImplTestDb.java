@@ -71,7 +71,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         location.setFqdn("localhost");
         location.setAddress("127.0.0.1");
         location.setName("localhost");
-        m_locationsManager.storeLocation(location);
+        m_locationsManager.saveLocation(location);
         acdServer.setLocation(location);
         assertNotNull(acdServer.getLines());
         assertEquals(0, acdServer.getLines().size());
@@ -129,7 +129,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         location.setFqdn("localhost");
         location.setAddress("127.0.0.1");
         location.setName("localhost");
-        m_locationsManager.storeLocation(location);
+        m_locationsManager.saveLocation(location);
         acdServer.setLocation(location);
         assertNotNull(acdServer.getQueues());
         assertEquals(0, acdServer.getQueues().size());
@@ -145,7 +145,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         location.setFqdn("localhost");
         location.setAddress("127.0.0.1");
         location.setName("localhost");
-        m_locationsManager.storeLocation(location);
+        m_locationsManager.saveLocation(location);
         acdServer.setLocation(location);
 
         SipxPresenceService presenceService = org.easymock.classextension.EasyMock

@@ -71,7 +71,7 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         LocationSpecificService service = new LocationSpecificService(freeswitchService);
         location.addService(service);
 
-        m_locationsManager.storeLocation(location);
+        m_locationsManager.saveLocation(location);
 
         Bridge bridge = new Bridge();
         bridge.setService(service);

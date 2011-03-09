@@ -30,7 +30,7 @@ public class RegistrationContextImpl implements RegistrationContext {
     public static final Log LOG = LogFactory.getLog(RegistrationContextImpl.class);
     private static final String HOST = "localhost";
     private static final int PORT = 27017;
-    private static final String DB_NAME = "imdb";
+    private static final String DB_NAME = "node";
     private static final String DB_COLLECTION_NAME = "registrar";
     private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
     private static final String COLON = ":";

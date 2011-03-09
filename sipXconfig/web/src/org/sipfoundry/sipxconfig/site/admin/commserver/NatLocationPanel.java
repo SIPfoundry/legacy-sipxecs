@@ -109,6 +109,6 @@ public abstract class NatLocationPanel extends BaseComponent implements PageBegi
         }
 
         Location location = getLocationBean();
-        getLocationsManager().storeNatLocation(location, natLocation);
+        getLocationsManager().saveNatLocation(location, natLocation);
     }
 }
