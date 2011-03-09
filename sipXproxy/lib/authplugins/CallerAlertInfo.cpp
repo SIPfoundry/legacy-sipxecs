@@ -1,7 +1,10 @@
-// 
-// Copyright (C) 2011 Pingtel Corp., certain elements licensed under a Contributor Agreement.  
-// Contributors retain copyright to elements licensed under a Contributor Agreement.
+// Initial Version Copyright (C) David Becker (IANT GmbH), All Rights Reserved.
 // Licensed to the User under the LGPL license.
+//
+// This library is distributed in the hope that it will be useful, but WITHOUT
+// ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+// FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+// details.
 // 
 //////////////////////////////////////////////////////////////////////////////
 

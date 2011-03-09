@@ -851,5 +851,6 @@
     <property name="restartRequired" value="false" />
     <property name="directory" value="${sysdir.etc}/openacd" />
     <property name="etcDir" value="${sysdir.etc}" />
+    <property name="locationsManager" ref="locationsManager" />
   </bean>
 </beans>

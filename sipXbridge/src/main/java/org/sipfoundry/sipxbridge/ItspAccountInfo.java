@@ -669,6 +669,10 @@ public class ItspAccountInfo  {
     public String getPreferredCallerId() {
         return this.preferredCallerId;
     }
+
+    public void setPreferredCallerId(String callerId) {
+        this.preferredCallerId = callerId;
+    }
     
     private String getDefaultCallerId() {
 	    if (this.getDefaultDomain() == null ) {
