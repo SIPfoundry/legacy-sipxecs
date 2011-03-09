@@ -1,7 +1,7 @@
 #include "sipdb/RegDB.h"
 #include "os/OsDateTime.h"
 
-std::string RegDB::_defaultNamespace = "imdb.registrar";
+std::string RegDB::_defaultNamespace = "node.registrar";
 std::string& RegDB::defaultNamespace()
 {
     return RegDB::_defaultNamespace;
@@ -373,6 +373,8 @@ bool RegDB::cleanAndPersist(int currentExpireTime)
 
     if (!_firstIncrement)
         updateReplicationTimeStamp();
+    else
+        fetchNodes();
     _firstIncrement = false;
 
     replicate();
@@ -382,7 +384,16 @@ bool RegDB::cleanAndPersist(int currentExpireTime)
     return _db.remove(_ns, query, error);
 }
 
-
+void RegDB::fetchNodes()
+{
+    NodeDB::defaultCollection().collection().localAddress() = _localAddress;
+    NodeDB::Nodes nodes;
+    if (NodeDB::defaultCollection().collection().getNodes(nodes, NodeDB::AlgoSweep))
+    {
+        for (NodeDB::Nodes::iterator iter = nodes.begin(); iter != nodes.end(); iter++)
+            addReplicationNode(iter->ipAddress());
+    }
+}
 
 
 

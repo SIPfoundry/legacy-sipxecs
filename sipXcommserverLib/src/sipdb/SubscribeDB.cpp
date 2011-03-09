@@ -3,7 +3,7 @@
 
 #include "sipdb/SubscribeDB.h"
 
-std::string SubscribeDB::_defaultNamespace = "imdb.subscription";
+std::string SubscribeDB::_defaultNamespace = "node.subscription";
 const std::string& SubscribeDB::defaultNamespace()
 {
     return SubscribeDB::_defaultNamespace;

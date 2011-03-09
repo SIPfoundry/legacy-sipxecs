@@ -39,6 +39,7 @@
 #include <ptapi/PtProvider.h>
 
 #include "sipdb/EntityDB.h"
+#include <sipdb/SubscribeDB.h>
 #include "sipXecsService/SipXecsService.h"
 
 #include "OrbitListener.h"
@@ -600,7 +601,7 @@ int main(int argc, char* argv[])
     SipPersistentSubscriptionMgr
        subscriptionMgr(SUBSCRIPTION_COMPONENT_PARK,
                        domain,
-                       "subscription"); // Component for holding the subscription data
+                       SubscribeDB::defaultNamespace().c_str()); // Component for holding the subscription data
     SipSubscribeServerEventHandler policyHolder; // Component for granting the subscription rights
     SipPublishContentMgr publisher; // Component for publishing the event contents
 

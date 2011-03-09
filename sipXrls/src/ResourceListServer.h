@@ -28,6 +28,7 @@
 #include "ResourceListTask.h"
 #include "ResourceListFileReader.h"
 #include "ResourceListSet.h"
+#include <sipdb/SubscribeDB.h>
 
 // DEFINES
 // MACROS
@@ -96,7 +97,7 @@ class ResourceListServer : public UtlContainableAtomic
                       /// Maximum expiration to grant incoming SUBSCRIBEs.
                       int serverMaxExpiration,
                       /// Name of the subscription DB to use (for testing purposes)
-                      const UtlString&  subscriptionDbName = "subscription",
+                      const UtlString&  subscriptionDbName = SubscribeDB::defaultNamespace().c_str(),
                       /// Name of the credentials DB to use (for testing purposes)
                       const UtlString&  credentialsDbName = "credential"
       );

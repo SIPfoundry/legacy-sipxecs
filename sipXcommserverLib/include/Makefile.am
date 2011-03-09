@@ -13,6 +13,8 @@ nobase_include_HEADERS =  \
     sipdb/MongoDB.h \
     sipdb/EntityDB.h \
     sipdb/EntityRecord.h \
+    sipdb/NodeDB.h \
+    sipdb/NodeRecord.h \
     sipdb/RegBinding.h \
     sipdb/RegDB.h \
     sipdb/SubscribeDB.h \

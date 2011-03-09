@@ -20,6 +20,7 @@
 
 #include "os/OsSysLog.h"
 
+#define BSON_NOT_EQUAL(val) BSON("$ne"<< val)
 #define BSON_LESS_THAN(val) BSON("$lt"<< val)
 #define BSON_LESS_THAN_EQUAL(val) BSON("$lte"<< val)
 #define BSON_GREATER_THAN(val) BSON("$gt" << val)

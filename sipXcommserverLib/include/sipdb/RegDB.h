@@ -4,7 +4,9 @@
 
 
 #include "sipdb/RegBinding.h"
+#include "sipdb/NodeDB.h"
 #include "boost/noncopyable.hpp"
+#include "NodeDB.h"
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -71,7 +73,7 @@ public:
         int timeNow,
         Bindings& bindings) const;
 
-     bool getUnexpiredContactsInstrument(
+    bool getUnexpiredContactsInstrument(
         const std::string& instrument,
         int timeNow,
         Bindings& bindings) const;
@@ -82,8 +84,6 @@ public:
 
     static std::string& defaultNamespace();
 
-    bool addReplicationNode(const std::string& nodeAddress);
-
     void setLocalAddress(const std::string& localAddress);
 
     const std::string& getLocalAddress() const;
@@ -92,7 +92,8 @@ public:
 protected:
     void updateReplicationTimeStamp();
     void replicate();
-
+    void fetchNodes();
+    bool addReplicationNode(const std::string& nodeAddress);
 private:
     mutable Mutex _mutex;
     MongoDB::DBInterfaceSet _replicationNodes;

@@ -97,7 +97,7 @@ public:
       /// the AOR domain name
       const UtlString& domain,
       /// the name of the IMDB file
-      const UtlString& fileName = "subscription");
+      const UtlString& fileName = SubscribeDB::defaultNamespace().c_str());
 
    //! Destructor
    virtual
