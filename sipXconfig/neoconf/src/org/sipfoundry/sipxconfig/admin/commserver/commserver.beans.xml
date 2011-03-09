@@ -71,6 +71,7 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="auditLogContext" ref="auditLogContext" />
     <property name="coreContext" ref="coreContext" />
+    <property name="forwardingContext" ref="forwardingContext" />
   </bean>
 
   <bean id="sipxReplicationContextImpl"

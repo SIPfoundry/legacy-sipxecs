@@ -32,6 +32,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.logging.AuditLogContext;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -72,6 +74,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private AuditLogContext m_auditLogContext;
     private ListableBeanFactory m_beanFactory;
     private CoreContext m_coreContext;
+    private ForwardingContext m_forwardingContext;
 
     private void initMongo() throws Exception {
         if (m_mongoInstance == null) {
@@ -128,6 +131,10 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                 @Override
                 public void execute(User user) {
                     replicateEntity(user);
+                    CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
+                    if (!cs.getRings().isEmpty()) {
+                        replicateEntity(cs);
+                    }
                 }
 
             };
@@ -319,6 +326,10 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
+    }
+
+    public void setForwardingContext(ForwardingContext forwardingContext) {
+        m_forwardingContext = forwardingContext;
     }
 
 }
