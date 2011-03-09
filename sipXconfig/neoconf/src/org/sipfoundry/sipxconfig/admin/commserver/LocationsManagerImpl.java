@@ -12,13 +12,6 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.DB;
-import com.mongodb.DBCollection;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import com.mongodb.Mongo;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.Criteria;
@@ -41,24 +34,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
     private static final String LOCATION_PROP_IP = "ipAddress";
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
-    private static final String HOST = "localhost";
-    private static final int PORT = 27017;
-    private static final String DB_NAME = "imdb";
-    private static final String DB_COLLECTION_NAME = "node";
-    private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
-    private static final String COLON = ":";
-    private Mongo m_mongoInstance;
-
-    private void initMongo() throws Exception {
-        if (m_mongoInstance == null) {
-            try {
-                m_mongoInstance = new Mongo(HOST, PORT);
-            } catch (Exception e) {
-                LOG.error(UNABLE_OPEN_MONGO + HOST + COLON + PORT);
-                throw (e);
-            }
-        }
-    }
 
     /** Return the replication URLs, retrieving them on demand */
     public Location[] getLocations() {
@@ -123,28 +98,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
                 throw new UserException(DUPLICATE_FQDN_OR_IP, location.getFqdn(), location.getAddress());
             }
             getHibernateTemplate().update(location);
-        }
-        // TODO: create a context for mongo
-        // TODO: move this code in replicationtrigger or similar;
-        try {
-            if (location.isRegistered()) {
-                initMongo();
-                DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-                DBCollection nodeCollection = datasetDb.getCollection(DB_COLLECTION_NAME);
-                DBObject search = new BasicDBObject();
-                search.put("id", location.getId());
-                DBCursor cursor = nodeCollection.find(search);
-                DBObject node = new BasicDBObject();
-                if (cursor.hasNext()) {
-                    node = cursor.next();
-                }
-                node.put("ip", location.getAddress());
-                node.put("dsc", location.getName());
-                node.put("mstr", location.isPrimary());
-                nodeCollection.save(node);
-            }
-        } catch (Exception e) {
-            throw new UserException("Cannot register location in mongo db: " + e);
         }
     }
 
