@@ -180,7 +180,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             actions.addAll(condition.getActions());
             assertEquals("erlang_sendmsg", actions.get(0).getApplication());
             assertEquals(
-                    "agent_dialplan_listener  testme@localhost agent_login ${sip_from_user} pstn ${sip_from_uri}",
+                    "agent_dialplan_listener  localhost@127.0.0.1 agent_login ${sip_from_user} pstn ${sip_from_uri}",
                     actions.get(0).getData());
             assertEquals("answer", actions.get(1).getApplication());
             assertNull(actions.get(1).getData());

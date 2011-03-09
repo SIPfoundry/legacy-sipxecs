@@ -20,8 +20,12 @@ import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 import static org.easymock.EasyMock.verify;
 
+import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.setting.Setting;
+import org.sipfoundry.sipxconfig.test.TestUtil;
 
 public class SipxOpenAcdVmArgsConfigurationTest extends SipxServiceTestBase {
 
@@ -31,13 +35,20 @@ public class SipxOpenAcdVmArgsConfigurationTest extends SipxServiceTestBase {
         Setting settings = TestHelper.loadSettings("openacd/sipxopenacd.xml");
         openAcdService.setSettings(settings);
 
+        LocationsManager locationsManager = createMock(LocationsManager.class);
+        Location primaryLocation = TestUtil.createDefaultLocation();
+        locationsManager.getPrimaryLocation();
+        expectLastCall().andReturn(primaryLocation).anyTimes();
+
         SipxServiceManager sipxServiceManager = createMock(SipxServiceManager.class);
         sipxServiceManager.getServiceByBeanId(SipxOpenAcdService.BEAN_ID);
         expectLastCall().andReturn(openAcdService).atLeastOnce();
-        replay(sipxServiceManager);
+
+        replay(locationsManager, sipxServiceManager);
 
         SipxOpenAcdVmArgsConfiguration out = new SipxOpenAcdVmArgsConfiguration();
         out.setEtcDir("/home/sipxecs/etc");
+        out.setLocationsManager(locationsManager);
         out.setSipxServiceManager(sipxServiceManager);
         out.setTemplate("openacd/vm.args.vm");
 

@@ -35,10 +35,10 @@ public class OpenAcdLine extends OpenAcdExtension {
         actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), Q));
         actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), "allow_voicemail=true"));
         actions.add(createAction(FreeswitchAction.PredefinedAction.erlang_sendmsg.toString(),
-                "freeswitch_media_manager  testme@" + location.getHostname() + " inivr ${uuid}"));
+                "freeswitch_media_manager  " + location.getHostname() + "@127.0.0.1 inivr ${uuid}"));
         actions.add(createAction(FreeswitchAction.PredefinedAction.playback.toString(), EMPTY_STRING));
         actions.add(createAction(FreeswitchAction.PredefinedAction.erlang.toString(),
-                "freeswitch_media_manager:!  testme@" + location.getHostname()));
+                "freeswitch_media_manager:!  " + location.getHostname() + "@127.0.0.1"));
         return actions;
     }
 

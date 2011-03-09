@@ -37,7 +37,7 @@
     </setting>
   </group>
   <group name="freeswitch_media_manager">
-    <setting name="FREESWITCH_ENABLED">
+    <setting name="FREESWITCH_ENABLED" hidden="yes">
       <type>
         <boolean>
           <true>
