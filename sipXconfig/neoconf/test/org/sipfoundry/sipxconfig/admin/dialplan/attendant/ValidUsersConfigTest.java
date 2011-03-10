@@ -9,8 +9,6 @@ package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
 import java.io.InputStream;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
 
 import junit.framework.TestCase;
 import org.apache.commons.io.IOUtils;
@@ -96,7 +94,7 @@ public class ValidUsersConfigTest extends TestCase {
         Replicable entity = createMock(Replicable.class); 
         
         AliasProvider aliasProvider = createMock(AliasProvider.class);
-        expect(aliasProvider.getAliasMappings()).andReturn(Collections.singletonMap(entity, (Collection<AliasMapping>)Arrays.asList(am1, am2))).anyTimes();
+        expect(aliasProvider.getAliasMappings()).andReturn(Arrays.asList(am1, am2)).anyTimes();
 
         replay(coreContext, domainManager, aliasProvider);
 

@@ -17,11 +17,9 @@ package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
@@ -98,8 +96,7 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
                 .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
@@ -111,8 +108,7 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
                 SipUri.format(getExtension(), freeswitchService.getAddress(),
                         freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
         mappings.add(lineMapping);
-        aliases.put(this, mappings);
-        return aliases;
+        return mappings;
     }
 
     @Override

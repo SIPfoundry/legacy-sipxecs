@@ -10,14 +10,12 @@
 package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.common.Replicable;
 
 public interface AliasProvider {
     /**
      * @return collection of AliasMapping objects
      */
-    Map<Replicable, Collection<AliasMapping>> getAliasMappings();
+    Collection<AliasMapping> getAliasMappings();
 }

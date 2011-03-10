@@ -37,7 +37,6 @@ import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
-import org.sipfoundry.sipxconfig.service.ServiceManager;
 import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.service.freeswitch.DefaultContextConfigurationTest;
@@ -250,8 +249,7 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
 
         m_openAcdContextImpl.setCoreContext(m_coreContext);
 
-        Collection<AliasMapping> mappings = (List<AliasMapping>) m_openAcdContextImpl.getAliasMappings().get(
-                extension);
+        Collection<AliasMapping> mappings = (List<AliasMapping>) m_openAcdContextImpl.getAliasMappings();
         assertEquals(2, mappings.size());
         Iterator<AliasMapping> iter = mappings.iterator();
         AliasMapping mapping = iter.next();

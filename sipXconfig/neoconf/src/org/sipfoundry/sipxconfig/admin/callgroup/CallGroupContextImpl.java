@@ -11,10 +11,8 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdQueue;
@@ -184,11 +182,11 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
     /**
      * Generate aliases for all call groups
      */
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings() {
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         Collection<CallGroup> callGroups = getCallGroups();
         for (CallGroup callGroup : callGroups) {
-            aliases.putAll(callGroup.getAliasMappings(m_coreContext.getDomainName()));
+            aliases.addAll(callGroup.getAliasMappings(m_coreContext.getDomainName()));
         }
 
         return aliases;

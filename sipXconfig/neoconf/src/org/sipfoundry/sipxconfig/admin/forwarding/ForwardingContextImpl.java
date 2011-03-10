@@ -11,16 +11,13 @@ package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DSTChangeEvent;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
@@ -99,11 +96,11 @@ public class ForwardingContextImpl extends HibernateDaoSupport implements Forwar
         return (Ring) hibernate.load(Ring.class, id);
     }
 
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings() {
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         List<CallSequence> sequences = loadAllCallSequences();
         for (CallSequence sequence : sequences) {
-            aliases.putAll(sequence.getAliasMappings(m_coreContext.getDomainName()));
+            aliases.addAll(sequence.getAliasMappings(m_coreContext.getDomainName()));
         }
         return aliases;
     }

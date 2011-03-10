@@ -18,7 +18,6 @@ package org.sipfoundry.sipxconfig.openacd;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -244,12 +243,12 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings() {
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         List<OpenAcdExtension> extensions = getHibernateTemplate().loadAll(OpenAcdExtension.class);
         for (OpenAcdExtension extension : extensions) {
             if (extension.getExtension() != null) {
-                aliases.putAll(extension.getAliasMappings(m_coreContext.getDomainName()));
+                aliases.addAll(extension.getAliasMappings(m_coreContext.getDomainName()));
             }
         }
         return aliases;

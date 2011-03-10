@@ -10,10 +10,8 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -570,12 +568,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return m_settingDao.getGroupByName(USER_GROUP_RESOURCE_ID, userGroupName);
     }
 
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
-        final Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings() {
+        final Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         Closure<User> closure = new Closure<User>() {
             @Override
             public void execute(User user) {
-                aliases.putAll(user.getAliasMappings(getDomainName()));
+                aliases.addAll(user.getAliasMappings(getDomainName()));
             }
         };
         DaoUtils.forAllUsersDo(this, closure);

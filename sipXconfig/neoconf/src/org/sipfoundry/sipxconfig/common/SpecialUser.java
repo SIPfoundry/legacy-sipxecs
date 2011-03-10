@@ -12,7 +12,6 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -88,8 +87,8 @@ public class SpecialUser extends BeanWithId implements Replicable {
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
-        return Collections.EMPTY_MAP;
+    public Collection<AliasMapping>getAliasMappings(String domain) {
+        return Collections.EMPTY_LIST;
     }
 
     @Override

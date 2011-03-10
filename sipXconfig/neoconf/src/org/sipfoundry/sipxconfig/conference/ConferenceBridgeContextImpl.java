@@ -12,11 +12,9 @@ package org.sipfoundry.sipxconfig.conference;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.hibernate.Criteria;
@@ -223,11 +221,11 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return bids;
     }
 
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings() {
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         List<Conference> conferences = getHibernateTemplate().loadAll(Conference.class);
         for (Conference conference : conferences) {
-            aliases.putAll(conference.getAliasMappings(m_coreContext.getDomainName()));
+            aliases.addAll(conference.getAliasMappings(m_coreContext.getDomainName()));
         }
         return aliases;
     }

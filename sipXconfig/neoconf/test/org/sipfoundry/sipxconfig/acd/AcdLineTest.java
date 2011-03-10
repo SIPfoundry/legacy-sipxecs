@@ -9,9 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.acd;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.TestHelper;
@@ -107,7 +104,7 @@ public class AcdLineTest extends BeanWithSettingsTestCase {
         m_line.setExtension("555");
         m_line.setAcdServer(server);
 
-        AliasMapping alias = m_line.getAliasMappings("mydomain.org").get(m_line).iterator().next();
+        AliasMapping alias = m_line.getAliasMappings("mydomain.org").iterator().next();
         assertEquals("555@mydomain.org", alias.get(AliasMapping.IDENTITY));
         assertEquals("myline@localhost:100", m_line.getIdentity("mydomain.org"));
 

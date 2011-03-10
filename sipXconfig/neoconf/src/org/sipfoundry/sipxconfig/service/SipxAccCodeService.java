@@ -9,11 +9,9 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -200,10 +198,9 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
+    public Collection<AliasMapping> getAliasMappings(String domain) {
         Set<String> aliasesSet = getAliasesAsSet();
         Collection<AliasMapping> mappings = new ArrayList<AliasMapping>(aliasesSet.size());
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
         String identity = null;
         // Add alias entry for each extension alias
         // all entries points to the same auth code url
@@ -217,11 +214,10 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
             // contact = getDirectContactUri();
             mappings.add(new AliasMapping(identity, contact, ALIAS_RELATION));
         }
-        aliases.put(this, mappings);
-        return aliases;
+        return mappings;
     }
 
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
+    public Collection<AliasMapping> getAliasMappings() {
         return getAliasMappings(m_coreContext.getDomainName());
     }
 

@@ -183,15 +183,13 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testGenerateAliases() throws Exception {
-        Map<Replicable, Collection<AliasMapping>> aliases = m_context.getAliasMappings();
+        Collection<AliasMapping> aliases = m_context.getAliasMappings();
         assertNotNull(aliases);
-        assertEquals(1, aliases.size());
 
         Replicable callGroup = m_context.getCallGroups().get(0);
         assertNotNull(callGroup);
-        Collection<AliasMapping> mappings = aliases.get(callGroup);
 
-        Iterator<AliasMapping> i = mappings.iterator();
+        Iterator<AliasMapping> i = aliases.iterator();
         AliasMapping aliasMapping = i.next();
         assertTrue(aliasMapping.get(AliasMapping.IDENTITY).toString().startsWith("sales"));
         assertTrue(aliasMapping.get(AliasMapping.CONTACT).toString().startsWith("<sip:default@pingtel.com>;q="));

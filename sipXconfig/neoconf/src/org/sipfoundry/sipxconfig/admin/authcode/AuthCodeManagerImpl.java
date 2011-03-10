@@ -281,11 +281,11 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
         return SipUri.format(ACC_CONTACT_NAME, getSipxFreeswitchAddressAndPort(), params);
     }
 
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
+    public Collection<AliasMapping> getAliasMappings() {
         SipxAccCodeService service = (SipxAccCodeService)
             m_sipxServiceManager.getServiceByBeanId(SipxAccCodeService.BEAN_ID);
-        Map<Replicable, Collection<AliasMapping>> aliasMappings = service.getAliasMappings();
-        LOG.info("RETURNING AuthCodeManagerImpl::getAliasMapping: " + aliasMappings.get(service));
+        Collection<AliasMapping> aliasMappings = service.getAliasMappings();
+        LOG.debug("RETURNING AuthCodeManagerImpl::getAliasMapping: " + aliasMappings);
         return service.getAliasMappings();
     }
 

@@ -188,7 +188,7 @@ public class UserTest extends TestCase {
 
         user.setSettingTypedValue("im/im-account", true);
 
-        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org").get(user);
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         assertEquals(6, aliasMappings.size());
 
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);
@@ -209,7 +209,7 @@ public class UserTest extends TestCase {
         // Set the additional alias, imId, to user's userName, it should not be
         // added as an alias.
         user.setImId(user.getUserName());
-        aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org").get(user);
+        aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         assertEquals(5, aliasMappings.size());
     }
 
@@ -247,7 +247,7 @@ public class UserTest extends TestCase {
         replay(pManager);
         user.setPermissionManager(pManager);
 
-        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org").get(user);
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) user.getAliasMappings("sipfoundry.org");
         // actually there is 1 alias that is the ~~vm~
         assertEquals(1, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(0);

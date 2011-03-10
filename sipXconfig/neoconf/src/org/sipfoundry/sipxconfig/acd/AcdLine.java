@@ -13,9 +13,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -155,13 +153,12 @@ public class AcdLine extends AcdComponent implements Replicable {
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
         Collection<AliasMapping> mappings = new ArrayList<AliasMapping>();
         String extension = getExtension();
         String did = getDid();
         if (StringUtils.isBlank(extension)) {
-            return Collections.EMPTY_MAP;
+            return Collections.EMPTY_LIST;
         }
         // TODO: remove localhost trick when we have real host information
         String identityExtension = AliasMapping.createUri(extension, domainName);
@@ -171,8 +168,8 @@ public class AcdLine extends AcdComponent implements Replicable {
             String identityDid = AliasMapping.createUri(did, domainName);
             mappings.add(new AliasMapping(identityDid, getIdentity(domainName), ALIAS_RELATION));
         }
-        aliases.put(this, mappings);
-        return aliases;
+
+        return mappings;
     }
 
     @Override

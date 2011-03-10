@@ -10,11 +10,9 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
@@ -100,13 +98,11 @@ public class CallSequence extends AbstractCallSequence implements Replicable {
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings(String domain) {
         String identity = m_user.getUserName() + "@" + domain;
         // pass true to never route this to voicemail
         Collection<AliasMapping> mappings = generateAliases(identity, domain, true);
-        aliases.put(this, mappings);
-        return aliases;
+        return mappings;
     }
 
     @Override

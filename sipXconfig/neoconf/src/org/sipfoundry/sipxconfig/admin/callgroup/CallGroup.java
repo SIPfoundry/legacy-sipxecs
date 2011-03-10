@@ -11,11 +11,9 @@ package org.sipfoundry.sipxconfig.admin.callgroup;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -158,11 +156,10 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
      *
      * @return list of AliasMapping objects (identity => contact)
      */
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
         if (!isEnabled()) {
-            return Collections.EMPTY_MAP;
+            return Collections.EMPTY_LIST;
         }
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
         String myIdentity = AliasMapping.createUri(m_name, domainName);
 
         ForkQueueValue forkQueueValue = new ForkQueueValue(getRings().size() + 1);
@@ -197,8 +194,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
             mappings.add(didAlias);
         }
 
-        aliases.put(this, mappings);
-        return aliases;
+        return mappings;
     }
 
     public String getSipPasswordHash(String realm) {

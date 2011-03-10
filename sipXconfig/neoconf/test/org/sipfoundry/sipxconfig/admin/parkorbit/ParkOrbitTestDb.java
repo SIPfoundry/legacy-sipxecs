@@ -13,13 +13,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.springframework.context.ApplicationContext;
 
 public class ParkOrbitTestDb extends SipxDatabaseTestCase {
@@ -85,9 +83,9 @@ public class ParkOrbitTestDb extends SipxDatabaseTestCase {
 
     public void testGenerateAliases() throws Exception {
         // park orbits do not generate any aliases
-        Map<Replicable, Collection<AliasMapping>> aliases = m_context.getAliasMappings();
+        Collection<AliasMapping> aliases = m_context.getAliasMappings();
         assertNotNull(aliases);
-        assertEquals(0, aliases.entrySet().size());
+        assertEquals(0, aliases.size());
     }
 
     public void testDefaultMusicOnHold() throws Exception {

@@ -71,15 +71,6 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_branchManager = branchManager;
     }
 
-    @Override
-    protected void onTearDownAfterTransaction() throws Exception {
-        // restore trigger state...
-        m_trigger.setReplicationContext(m_originalSipxReplicationContext);
-        m_contactInformationDaoListener.
-            setSipxReplicationContext(m_originalSipxReplicationContext);
-
-    }
-
     public void testUpdateUserGroup() throws Exception {
         loadDataSet("admin/commserver/imdb/UserGroupSeed2.db.xml");
         loadDataSetXml("domain/DomainSeed.xml");
@@ -93,12 +84,11 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         groups.add(g);
         user.setGroups(groups);
         
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generate(user);
-        replicationContext.generate(cs);
-        replicationContext.generate(user);
+        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
+        replicationContext.replicateEntity(user);
+        replicationContext.replicateEntity(cs);
+        replicationContext.replicateEntity(user);
         replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
 
         m_coreContext.saveUser(user);
         m_dao.saveGroup(g);
@@ -110,10 +100,9 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         TlsPeer peer = m_tlsPeerManager.newTlsPeer();
         peer.setName("test");
         
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generate(peer);
+        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
+        replicationContext.replicateEntity(peer);
         replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
 
         m_tlsPeerManager.saveTlsPeer(peer);
 
@@ -124,10 +113,10 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
      * Test that replication happens at app startup if the replicateOnStartup property is set
      */
     public void testReplicateOnStartup() throws Exception {
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generateAll();
+        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
+        replicationContext.replicateAllData();
         replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
+        m_trigger.setReplicationManager(replicationContext);
 
         m_trigger.setReplicateOnStartup(true);
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
@@ -140,9 +129,9 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
      * off
      */
     public void testNoReplicateOnStartup() throws Exception {
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
         replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
+        m_trigger.setReplicationManager(replicationContext);
 
         m_trigger.setReplicateOnStartup(false);
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));

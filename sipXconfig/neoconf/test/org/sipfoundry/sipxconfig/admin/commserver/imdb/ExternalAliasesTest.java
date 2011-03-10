@@ -39,8 +39,7 @@ public class ExternalAliasesTest extends TestCase {
         ExternalAliases externalAliases = new ExternalAliases();
         URL other = getClass().getResource("alias.test.xml");
         externalAliases.setAliasAddins(other.getFile());
-        List<AliasMapping> aliases = (List<AliasMapping>) externalAliases.getAliasMappings()
-                .get(new ExternalAlias());
+        List<AliasMapping> aliases = (List<AliasMapping>) externalAliases.getAliasMappings();
         assertEquals(5, aliases.size());
         for (AliasMapping alias : aliases) {
             assertTrue(alias.getIdentity().startsWith("30"));
@@ -52,11 +51,11 @@ public class ExternalAliasesTest extends TestCase {
         ExternalAliases externalAliases = new ExternalAliases();
         URL aliases1 = getClass().getResource("alias.test.xml");
         externalAliases.setAliasAddins(aliases1.getFile());
-        List<AliasMapping> aliasMappings = (List<AliasMapping>) externalAliases.getAliasMappings().get(new ExternalAlias());
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) externalAliases.getAliasMappings();
         assertEquals(5, aliasMappings.size());
         URL aliases2 = getClass().getResource("alias2.test.xml");
         externalAliases.setAliasAddins(aliases2.getFile());
-        aliasMappings = (List<AliasMapping>) externalAliases.getAliasMappings().get(new ExternalAlias());
+        aliasMappings = (List<AliasMapping>) externalAliases.getAliasMappings();
         assertEquals(2, aliasMappings.size());
         AliasMapping alias = (AliasMapping) aliasMappings.get(1);
         assertTrue(alias.getIdentity().startsWith("extra"));

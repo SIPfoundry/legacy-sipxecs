@@ -14,10 +14,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.digester.Digester;
@@ -26,7 +24,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.xml.sax.SAXException;
 
 public class ExternalAliases implements AliasProvider {
@@ -62,9 +59,8 @@ public class ExternalAliases implements AliasProvider {
     }
 
     @SuppressWarnings("rawtypes")
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
+    public Collection<AliasMapping> getAliasMappings() {
         List files = getFiles();
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         for (Iterator i = files.iterator(); i.hasNext();) {
             File file = (File) i.next();
@@ -74,11 +70,9 @@ public class ExternalAliases implements AliasProvider {
             }
         }
         if (!mappings.isEmpty()) {
-            aliases.put(new ExternalAlias(), mappings);
-
-            return aliases;
+            return mappings;
         }
-        return Collections.EMPTY_MAP;
+        return Collections.EMPTY_LIST;
     }
 
     private List parseAliases(File file) {

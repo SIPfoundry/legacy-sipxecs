@@ -297,17 +297,17 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
     }
 
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings() {
+    public Collection<AliasMapping> getAliasMappings() {
         HibernateTemplate hibernate = getHibernateTemplate();
         List<AcdLine> acdLines = hibernate.loadAll(AcdLine.class);
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         for (AcdLine acdLine : acdLines) {
-            aliases.putAll(acdLine.getAliasMappings(m_coreContext.getDomainName()));
+            aliases.addAll(acdLine.getAliasMappings(m_coreContext.getDomainName()));
         }
 
         List<AcdServer> servers = getServers();
         for (AcdServer server : servers) {
-            aliases.putAll(server.getAliasMappings(m_coreContext.getDomainName()));
+            aliases.addAll(server.getAliasMappings(m_coreContext.getDomainName()));
         }
 
         return aliases;

@@ -9,8 +9,6 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.Collection;
-
 import com.mongodb.DBObject;
 
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -27,12 +25,8 @@ public class Aliases extends DataSetGenerator {
     }
 
     public void generate(Replicable entity) {
-        insertAliases(entity, entity.getAliasMappings(getCoreContext().getDomainName()).get(entity));
-    }
-
-    private void insertAliases(Replicable entity, Collection<AliasMapping> mappings) {
         DBObject top = findOrCreate(entity);
-        top.put(ALIASES, mappings);
+        top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
         getDbCollection().save(top);
     }
 }

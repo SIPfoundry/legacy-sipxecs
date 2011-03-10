@@ -12,13 +12,11 @@ package org.sipfoundry.sipxconfig.admin.forwarding;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import junit.framework.TestCase;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractRing;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 
 /**
@@ -47,8 +45,8 @@ public class CallSequenceTest extends TestCase {
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
         sequence.setRings(rings);
-        Map<Replicable, Collection<AliasMapping>> aliases = sequence.getAliasMappings(MYDOMAIN);
-        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(sequence);
+        Collection<AliasMapping> aliases = sequence.getAliasMappings(MYDOMAIN);
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases;
         assertEquals(N, mappings.size());
         for (AliasMapping alias : mappings) {
             assertEquals("abc@" + MYDOMAIN, alias.getIdentity());
@@ -71,13 +69,13 @@ public class CallSequenceTest extends TestCase {
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
         sequence.setRings(ringsDisabled);
-        Map<Replicable, Collection<AliasMapping>> aliases = sequence.getAliasMappings(MYDOMAIN);
-        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(sequence);
+        Collection<AliasMapping> aliases = sequence.getAliasMappings(MYDOMAIN);
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases;
         assertEquals(0, mappings.size());
 
         sequence.setRings(ringsMixed);
         aliases = sequence.getAliasMappings(MYDOMAIN);
-        mappings = (List<AliasMapping>) aliases.get(sequence);
+        mappings = (List<AliasMapping>) aliases;
         assertEquals(N / 2, mappings.size());
 
         for (AliasMapping alias : mappings) {
@@ -91,8 +89,8 @@ public class CallSequenceTest extends TestCase {
     public void testGenerateAliasesEmpty() {
         CallSequence sequence = new CallSequence();
         sequence.setUser(m_user);
-        Map<Replicable, Collection<AliasMapping>> aliases = sequence.getAliasMappings(MYDOMAIN);
-        List<AliasMapping> mappings = (List<AliasMapping>) aliases.get(sequence);
+        Collection<AliasMapping> aliases = sequence.getAliasMappings(MYDOMAIN);
+        List<AliasMapping> mappings = (List<AliasMapping>) aliases;
         assertEquals(0, mappings.size());
     }
 

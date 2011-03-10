@@ -13,10 +13,8 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.enums.ValuedEnum;
@@ -160,8 +158,7 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
         }
     }
 
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
         Collection<AliasMapping> mappings = new ArrayList<AliasMapping>();
         int presencePort = m_presenceService.getPresenceServerPort();
         String signInCode = m_presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE);
@@ -173,8 +170,7 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
 
         mappings.add(createPresenceAliasMapping(signInCode.trim(), domainName, presencePort));
         mappings.add(createPresenceAliasMapping(signOutCode.trim(), domainName, presencePort));
-        aliases.put(this, mappings);
-        return aliases;
+        return mappings;
     }
 
     private AliasMapping createPresenceAliasMapping(String code, String domainName, int port) {

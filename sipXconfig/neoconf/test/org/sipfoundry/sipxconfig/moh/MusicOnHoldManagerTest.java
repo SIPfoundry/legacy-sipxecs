@@ -171,7 +171,7 @@ public class MusicOnHoldManagerTest extends TestCase {
         m_musicOnHoldManager.setSipxServiceManager(sipxServiceManager);
         m_musicOnHoldManager.setCoreContext(coreContext);
 
-        Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
+        Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings();
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -180,7 +180,7 @@ public class MusicOnHoldManagerTest extends TestCase {
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.SOUNDCARD_SRC.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
+        aliasMappings = m_musicOnHoldManager.getAliasMappings();
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -189,7 +189,7 @@ public class MusicOnHoldManagerTest extends TestCase {
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.NONE.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
+        aliasMappings = m_musicOnHoldManager.getAliasMappings();
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -250,7 +250,7 @@ public class MusicOnHoldManagerTest extends TestCase {
         m_musicOnHoldManager.setSipxServiceManager(sipxServiceManager);
         m_musicOnHoldManager.setCoreContext(coreContext);
 
-        Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
+        Collection<AliasMapping> aliasMappings = m_musicOnHoldManager.getAliasMappings();
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -259,7 +259,7 @@ public class MusicOnHoldManagerTest extends TestCase {
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.SOUNDCARD_SRC.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
+        aliasMappings = m_musicOnHoldManager.getAliasMappings();
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {
@@ -268,7 +268,7 @@ public class MusicOnHoldManagerTest extends TestCase {
 
         service.setSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE,
                 SipxFreeswitchService.SystemMohSetting.NONE.toString());
-        aliasMappings = m_musicOnHoldManager.getAliasMappings().get(service);
+        aliasMappings = m_musicOnHoldManager.getAliasMappings();
         assertTrue(aliasMappings.size() == 4);
 
         for (AliasMapping alias : aliasMappings) {

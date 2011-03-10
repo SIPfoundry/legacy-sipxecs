@@ -10,10 +10,8 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -67,7 +65,7 @@ public class User extends AbstractUser implements Replicable {
         m_identity = identity;
     }
 
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
         String contact = getUri(domainName);
         for (String alias : getAliases()) {
@@ -101,8 +99,6 @@ public class User extends AbstractUser implements Replicable {
             mappings.add(mapping);
         }
 
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
-        aliases.put(this, mappings);
-        return aliases;
+        return mappings;
     }
 }

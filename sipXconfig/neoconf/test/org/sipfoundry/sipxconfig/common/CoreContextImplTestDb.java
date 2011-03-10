@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.dbunit.Assertion;
@@ -24,10 +23,8 @@ import org.dbunit.dataset.ReplacementDataSet;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
-import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.permission.PermissionManager;
-import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
@@ -294,12 +291,12 @@ public class CoreContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testAliases() throws Exception {
-        Map<Replicable, Collection<AliasMapping>> userAliases = m_core.getAliasMappings();
+        Collection<AliasMapping> userAliases = m_core.getAliasMappings();
         assertEquals(0, userAliases.size());
 
         TestHelper.insertFlat("common/TestUserSeed.db.xml");
         userAliases = m_core.getAliasMappings();
-        Collection<AliasMapping> mappings = userAliases.get(m_core.loadUser(1000));
+        Collection<AliasMapping> mappings = userAliases;
         assertEquals(2, mappings.size());
     }
 

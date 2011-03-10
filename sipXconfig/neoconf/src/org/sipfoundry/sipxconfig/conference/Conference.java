@@ -12,9 +12,7 @@ package org.sipfoundry.sipxconfig.conference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -296,11 +294,9 @@ public class Conference extends BeanWithSettings implements Replicable {
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
+    public Collection<AliasMapping> getAliasMappings(String domain) {
         Collection<AliasMapping> mappings = generateAliases(domain);
-        aliases.put(this, mappings);
-        return aliases;
+        return mappings;
     }
 
     @Override

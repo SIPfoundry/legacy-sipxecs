@@ -331,7 +331,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity,
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
+    public Collection<AliasMapping> getAliasMappings(String domain) {
         Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
         String contact = null;
         String mohSetting = getSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE);
@@ -359,8 +359,7 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity,
         aliasMappings.add(new AliasMapping(m_musicOnHoldManager.getNoneMohUri(), m_musicOnHoldManager
                 .getNoneMohUriMapping(), ALIAS_RELATION));
 
-        aliases.put(this, aliasMappings);
-        return aliases;
+        return aliasMappings;
     }
 
     @Override

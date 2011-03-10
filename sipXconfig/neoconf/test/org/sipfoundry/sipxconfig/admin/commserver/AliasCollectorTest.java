@@ -12,10 +12,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 import junit.framework.TestCase;
 
@@ -23,7 +20,6 @@ import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.Replicable;
-import org.sipfoundry.sipxconfig.common.User;
 
 public class AliasCollectorTest extends TestCase {
 
@@ -53,11 +49,10 @@ public class AliasCollectorTest extends TestCase {
             }
         };
 
-        Map<Replicable, Collection<AliasMapping>> aliases = collector.getAliasMappings();
+        Collection<AliasMapping> aliases = collector.getAliasMappings();
         assertEquals(len, aliases.size());
         for (int i=0; i<10; i++ ) {
-            List<AliasMapping> aliasMappings = (List<AliasMapping>) aliases.get(entity[i]);
-            for (Iterator iter = aliasMappings.iterator(); iter.hasNext();) {
+            for (Iterator iter = aliases.iterator(); iter.hasNext();) {
                 assertSame(alias, iter.next());
             }    
         }

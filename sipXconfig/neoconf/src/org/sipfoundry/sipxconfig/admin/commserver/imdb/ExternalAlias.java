@@ -10,7 +10,6 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -30,7 +29,7 @@ public class ExternalAlias implements Replicable {
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domain) {
+    public Collection<AliasMapping> getAliasMappings(String domain) {
         // TODO Auto-generated method stub
         return null;
     }

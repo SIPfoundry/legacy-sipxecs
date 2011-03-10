@@ -8,7 +8,6 @@
 package org.sipfoundry.sipxconfig.admin.dialplan.attendant;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -20,7 +19,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.dialplan.config.XmlFile;
 import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
@@ -78,12 +76,10 @@ public class ValidUsersConfig extends XmlFile {
         forAllUsersDo(m_coreContext, closure);
 
         // Load up the specified aliases
-        Map<Replicable, Collection<AliasMapping>> aliasMappings =  m_aliasProvider.getAliasMappings();
+        Collection<AliasMapping> aliasMappings =  m_aliasProvider.getAliasMappings();
         // Generate the aliases
-        for (Collection<AliasMapping> aliases : aliasMappings.values()) {
-            for (AliasMapping am : aliases) {
-                generateAlias(usersEl, am);
-            }
+        for (AliasMapping am : aliasMappings) {
+            generateAlias(usersEl, am);
         }
 
         return document;

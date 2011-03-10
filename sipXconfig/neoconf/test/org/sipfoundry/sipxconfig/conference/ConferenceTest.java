@@ -72,13 +72,13 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
         m_bridge.addConference(m_conf);
         // empty for disabled conference
         m_conf.setName("conf1");
-        List<AliasMapping> aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org").get(m_conf);
+        List<AliasMapping> aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org");
 
         assertTrue(aliasMappings.isEmpty());
         
         // 1 alias for conference without extension
         m_conf.setEnabled(true);
-        aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org").get(m_conf);
+        aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org");
         assertEquals(1, aliasMappings.size());
 
         AliasMapping am = (AliasMapping) aliasMappings.get(0);
@@ -86,7 +86,7 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
 
         // 2 aliases for conference with extension
         m_conf.setExtension("1111");
-        aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org").get(m_conf);
+        aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org");
         assertEquals(2, aliasMappings.size());
 
         AliasMapping am0 = (AliasMapping) aliasMappings.get(0);
@@ -99,7 +99,7 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
         // 1 alias for conference with same name as extension
         m_conf.setName("1111");
         m_conf.setExtension("1111");
-        aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org").get(m_conf);
+        aliasMappings = (List<AliasMapping>) m_conf.getAliasMappings("sipfoundry.org");
         assertEquals(1, aliasMappings.size());
     }
 }

@@ -11,7 +11,6 @@ package org.sipfoundry.sipxconfig.admin.tls;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
@@ -44,7 +43,7 @@ public class TlsPeer extends BeanWithUserPermissions implements Replicable {
     }
 
     @Override
-    public Map<Replicable, Collection<AliasMapping>> getAliasMappings(String domainName) {
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
         return null;
     }
 
