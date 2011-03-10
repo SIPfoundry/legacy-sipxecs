@@ -14,6 +14,7 @@ require 'soap/server'
 require 'utils/cleaner'
 require 'utils/configure'
 require 'state'
+require 'rest/active_cdrs'
 
 
 # The CallResolver analyzes call state events (CSEs) and computes call detail
@@ -89,6 +90,11 @@ class CallResolver
 
     # create the SOAP server
     @server = CdrResolver::SOAP::Server.new(@state, @config)
+
+    @webrick = @server.server
+    @cdrService = @server.cdrService
+    @rest = ActiveCdrs.new(@cdrService, @log)
+    @webrick.mount('/activecdrs', @rest)
 
     Thread.new( @server ) do | server |
       server.start
