@@ -156,7 +156,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
      *
      * @return list of AliasMapping objects (identity => contact)
      */
-    public Collection<AliasMapping> getAliasMappings(String domainName) {
+    public List<AliasMapping> getAliasMappings(String domainName) {
         if (!isEnabled()) {
             return Collections.EMPTY_LIST;
         }

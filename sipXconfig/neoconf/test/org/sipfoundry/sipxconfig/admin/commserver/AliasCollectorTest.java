@@ -39,7 +39,7 @@ public class AliasCollectorTest extends TestCase {
             ap[i].getAliasMappings();
             apCtrl2[i] = EasyMock.createControl();
             entity[i] = apCtrl2[i].createMock(Replicable.class); 
-            apCtrl[i].andReturn(Collections.singletonMap(entity[i], Collections.singletonList(alias))).anyTimes();
+            apCtrl[i].andReturn(Collections.singletonList(alias)).anyTimes();
             apCtrl[i].replay();
         }
 
