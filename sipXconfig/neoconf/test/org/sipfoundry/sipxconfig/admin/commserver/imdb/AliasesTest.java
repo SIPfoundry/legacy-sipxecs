@@ -15,18 +15,13 @@ import static org.easymock.classextension.EasyMock.createMock;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
-import org.easymock.EasyMock;
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
-import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
+import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 
 public class AliasesTest extends MongoTestCase {
-    private Map<Replicable, Collection<AliasMapping>> m_aliasMappings = new HashMap<Replicable, Collection<AliasMapping>>();
-
     private Aliases m_aliases;
     private User m_user;
 
@@ -42,9 +37,13 @@ public class AliasesTest extends MongoTestCase {
         expectLastCall().andReturn(DOMAIN).anyTimes();
         replay(dm);
 
+        PermissionManagerImpl pm = new PermissionManagerImpl();
+        pm.setModelFilesContext(TestHelper.getModelFilesContext());
+
         m_user = new User();
         m_user.setUniqueId(1);
         m_user.setDomainManager(dm);
+        m_user.setPermissionManager(pm);
 
         replay(getCoreContext());
         m_aliases.setDbCollection(getCollection());
