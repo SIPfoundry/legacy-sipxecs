@@ -99,9 +99,13 @@ repo-clean :
 
 # points a webserver at $(MOCK_RESULTS_DIR) with no caching headers to feed the results of build back into the 
 # chroot'ed system. future: explore mounting $(MOCK_RESULTS_DIR) from the chroot system. Possibly there is
-# a yum plugin 
+# a yum plugin .  
+# Touching everyfile because squid download proxy will deliver cached files from localhost even when cache live time is zero
+# if it has a file time that is newer then the file system. When building rpms from 2 different locations on the sames system
+# this is problematic
 repo-webserver :
 	-killall thttpd
+	find $(MOCK_RESULTS_DIR) -type f -exec touch {} \;
 	/usr/sbin/thttpd -d @RPM_DIST_DIR@ -p 40100 -M 0
 
 help.repo-src = Assemble source rpms into @RPM_DIST_DIR@/$(DISTRO_RESULTS_DIR)/source
