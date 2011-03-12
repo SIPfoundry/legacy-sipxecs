@@ -35,7 +35,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
  * Utilities for Hibernate DAOs
  */
 public final class DaoUtils {
-    public static final int PAGE_SIZE = 250;
+    public static final int PAGE_SIZE = 3000;
     private static final String ID_PROPERTY_NAME = "id";
 
     private DaoUtils() {

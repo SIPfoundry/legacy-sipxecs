@@ -5,8 +5,7 @@ $sampleSize = 60;
 
 $Usage = <<HELP;
 
-expire-spread  [ --db <database.xml> ]
-                 [ { --real | -r } ]
+expire-spread  [ --db <registrar|subscription> ]
                  [ { --summary | -s } ]
                  [ --sample <seconds> ]
 
@@ -15,10 +14,6 @@ expire-spread  [ --db <database.xml> ]
    and the rate per second in each sample interval.
 
    If a specific database is given, only that database is displayed.
-
-   --real      use the actual current time to determine whether or not
-               a registration or subscription has expired.  If this is
-               not specified, the timestamp in the database is used.
 
    --summary   limit the report to the number active and the peak rate
                (in expirations/second), without showing data for each
@@ -30,7 +25,6 @@ HELP
 
 GetOptions( 'help|h' => \$Help,
             'db=s' => \$Db,
-            'real|r' => \$UseRealTime,
             'summary|s' => \$Summary,
             'sample=i' => \$sampleSize,
             )
@@ -41,6 +35,8 @@ if ( $Help )
     print STDERR $Usage;
     exit $Help ? 0 : 1;
 }
+#assume --real option
+$UseRealTime=1;
 
 if ($Db)
 {
@@ -48,8 +44,8 @@ if ($Db)
 }
 else
 {
-    push @Db, '@SIPX_DBDIR@/registration.xml';
-    push @Db, '@SIPX_DBDIR@/subscription.xml';
+    push @Db, "registrar";
+    push @Db, "subscription";
 }
 
 format SUMMARY_TOP =
@@ -100,13 +96,9 @@ format HISTO =
     ;
 
 $= = 100000;
-
 foreach $Db (@Db)
 {
-
-    ( $DbName = $Db ) =~ s|(.*/)?([^/]+)\.xml|$2|;
-    if ( open( DB, "<$Db" ) )
-    {
+        $DbName = $Db;
         $- = 0;
 
         %ExpirationsAt = ();
@@ -119,28 +111,15 @@ foreach $Db (@Db)
 
         $~ = STDOUT;
 
+        open (DB, "mongo imdb --eval \"db.".$Db.".find().forEach( function(u) { print('expires=' + u.expires +';primary='+u.primary+';'); } )\" |");
+
         while(<DB>)
         {
-            if ( m|timestamp="(\d+)"| )
-            {
-                $BaseTime = $1 unless $UseRealTime;
-            }
-
-            if ( m|<item>| )
-            {
-                $reg_exp=0;
-                $reg_at='';
-            }
-            elsif ( m|<expires>(\d+)</expires>| )
+            if ( m|expires=(\d+);primary=(.+);| )
             {
                 $reg_exp=$1;
-            }
-            elsif ( m|<primary>(.+)</primary>| )
-            {
-                $reg_at=$1;
-            }
-            if ( m|</item>| )
-            {
+                $reg_at=$2;
+            
                 if ( $reg_exp != 0 )
                 {
                     $delta = $reg_exp-$BaseTime;
@@ -219,11 +198,6 @@ foreach $Db (@Db)
                 write;
             }
         }
-    }
-    else
-    {
-        warn "open of '$Db' failed: $!\n";
-    }
 }
 
 sub asDate

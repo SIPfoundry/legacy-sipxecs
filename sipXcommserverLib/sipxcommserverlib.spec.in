@@ -16,6 +16,8 @@ BuildRequires: pcre-devel >= 4.5
 BuildRequires: unixODBC-devel >= 2.2
 BuildRequires: sipxportlib-devel >= %version
 BuildRequires: sipxtacklib-devel >= %version
+BuildRequires: mongodb-devel
+BuildRequires: glibc-headers
 %if %{_vendor} == redhat
 BuildRequires: httpd-devel
 BuildRequires: xerces-c-devel >= 2.6.0
@@ -41,6 +43,7 @@ Requires: sipxtacklib >= %version
 Requires: unixODBC >= 2.2
 Requires: ruby
 Requires: patch
+Requires: mongodb-server
 # bind-utils required for dig
 Requires: bind-utils
 Obsoletes: %{name}-doc
@@ -68,6 +71,7 @@ Requires: xerces-c-devel >= 2.6.0
 %endif
 Requires: sipxportlib-devel >= %version
 Requires: sipxtacklib-devel >= %version
+Requires: mongodb-devel
 Requires: unixODBC-devel >= 2.2
 
 Group: Development/Libraries
@@ -165,8 +169,6 @@ fi
 %files devel
 %defattr(644,root,root,755)
 %{_libdir}/libsipXcommserver.a
-%{_libdir}/libsipXcommserverTest.la
-%{_libdir}/libsipXcommserverTest.a
 %{_includedir}/configrpc/*
 %{_includedir}/digitmaps/*
 %{_includedir}/fastdb/*
@@ -176,6 +178,5 @@ fi
 %{_includedir}/sipdb/*
 %{_includedir}/alarm/*
 %{_includedir}/sipXecsService/*
-%{_includedir}/testlib/*
 
 %changelog

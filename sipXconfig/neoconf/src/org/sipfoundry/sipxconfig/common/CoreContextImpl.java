@@ -22,6 +22,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
@@ -42,7 +43,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 
 public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> implements CoreContext,
-        DaoEventListener, ApplicationContextAware {
+        DaoEventListener, ApplicationContextAware, ReplicableProvider {
 
     public static final String ADMIN_GROUP_NAME = "administrators";
     public static final String CONTEXT_BEAN_NAME = "coreContextImpl";
@@ -56,6 +57,8 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
     private static final String QUERY_PARAM_GROUP_ID = "groupId";
     private static final String QUERY_IM_ID = "imId";
     private static final String QUERY_USER_ID = "userId";
+    private static final String SPECIAL_USER_BY_TYPE = "specialUserByType";
+    private static final String SPECIAL_USER_TYPE = "specialUserType";
 
     private DomainManager m_domainManager;
     private SettingDao m_settingDao;
@@ -253,6 +256,10 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return load(User.class, id);
     }
 
+    public User getUser(Integer id) {
+        return getHibernateTemplate().get(User.class, id);
+    }
+
     public User loadUserByUserName(String userName) {
         return loadUserByUniqueProperty(USERNAME_PROP_NAME, userName);
     }
@@ -302,6 +309,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 && !StringUtils.equals(inheritedBranch.getName(), branch.getName())) {
             throw new UserException("&invalid.branch");
         }
+    }
+
+    public Collection<User> getUsersForBranch(Branch branch) {
+        Collection<User> users = getHibernateTemplate().findByNamedQueryAndNamedParam("usersForBranch",
+                "branch", branch);
+        return users;
     }
 
     /**
@@ -555,15 +568,12 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return m_settingDao.getGroupByName(USER_GROUP_RESOURCE_ID, userGroupName);
     }
 
-    public Collection getAliasMappings() {
-        final List aliases = new ArrayList();
+    public Collection<AliasMapping> getAliasMappings() {
+        final Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         Closure<User> closure = new Closure<User>() {
             @Override
             public void execute(User user) {
-                ImAccount imAccount = new ImAccount(user);
-                // add ImId as an alias only if account enabled
-                String imIdAlias = imAccount.isEnabled() ? imAccount.getImId() : StringUtils.EMPTY;
-                aliases.addAll(user.getAliasMappings(getDomainName(), imIdAlias));
+                aliases.addAll(user.getAliasMappings(getDomainName()));
             }
         };
         DaoUtils.forAllUsersDo(this, closure);
@@ -726,7 +736,7 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
 
     public User getSpecialUser(SpecialUserType specialUserType) {
         List<SpecialUser> specialUsersOfType = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                "specialUserByType", "specialUserType", specialUserType.name());
+                SPECIAL_USER_BY_TYPE, SPECIAL_USER_TYPE, specialUserType.name());
         SpecialUser specialUser = DataAccessUtils.singleResult(specialUsersOfType);
         if (specialUser == null) {
             return null;
@@ -738,6 +748,16 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
         return newUser;
     }
 
+    public SpecialUser getSpecialUserAsSpecialUser(SpecialUserType specialUserType) {
+        List<SpecialUser> specialUsersOfType = getHibernateTemplate().findByNamedQueryAndNamedParam(
+                SPECIAL_USER_BY_TYPE, SPECIAL_USER_TYPE, specialUserType.name());
+        SpecialUser specialUser = DataAccessUtils.singleResult(specialUsersOfType);
+        if (specialUser == null) {
+            return null;
+        }
+        return specialUser;
+    }
+
     public void initializeSpecialUsers() {
         for (SpecialUserType type : SpecialUserType.values()) {
             User specialUser = getSpecialUser(type);
@@ -746,5 +766,19 @@ public abstract class CoreContextImpl extends SipxHibernateDaoSupport<User> impl
                 getHibernateTemplate().saveOrUpdate(newSpecialUser);
             }
         }
+    }
+
+    /*
+     * Here take account only of the special users.
+     * In ReplicationManagerImpl.generateAll all usersare replicated separately
+     * @see org.sipfoundry.sipxconfig.common.ReplicableProvider#getReplicables()
+     */
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (SpecialUserType specialUserType : SpecialUserType.values()) {
+            SpecialUser user = getSpecialUserAsSpecialUser(specialUserType);
+            replicables.add(user);
+        }
+        return replicables;
     }
 }

@@ -14,10 +14,7 @@
 #include <utl/UtlRegex.h>
 #include "os/OsDateTime.h"
 #include "os/OsSysLog.h"
-#include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/AliasDB.h"
-#include "sipdb/CredentialDB.h"
 #include "SipRedirectorAliasDB.h"
 #include "net/NetBase64Codec.h"
 #include "net/SipXauthIdentity.h"
@@ -120,9 +117,15 @@ SipRedirectorAliasDB::lookUp(
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp identity '%s'",
                  mLogName.data(), requestIdentity.data());
 
-   ResultSet aliases;
-   AliasDB::getInstance()->getContacts(requestUri, aliases);
-   int numAliasContacts = aliases.getSize();
+   //ResultSet aliases;
+   //AliasDB::getInstance()->getContacts(requestUri, aliases);
+   //int numAliasContacts = aliases.getSize();
+
+   EntityDB::Aliases aliases;
+   bool isUserIdentity = false;
+   _dataStore.entityDB().getAliasContacts(requestUri, aliases, isUserIdentity);
+   int numAliasContacts = aliases.size();
+
    if (numAliasContacts > 0)
    {
       OsSysLog::add(FAC_SIP, PRI_DEBUG, "%s::lookUp "
@@ -132,26 +135,19 @@ SipRedirectorAliasDB::lookUp(
       // Check if the request identity is a real user/extension
       UtlString realm;
       UtlString authType;
-      bool isUserIdentity =
-         CredentialDB::getInstance()->isUriDefined(requestUri, realm, authType);
+      
+
       SipXauthIdentity authIdentity;
       authIdentity.setIdentity(requestIdentity);
 
-      for (int i = 0; i < numAliasContacts; i++)
+      for (EntityDB::Aliases::iterator iter = aliases.begin(); iter != aliases.end(); iter++)
       {
-         static UtlString contactKey("contact");
-         static UtlString relationKey("relation");
 
-         UtlHashMap record;
-         if (aliases.getIndex(i, record))
-         {
             // If disableForwarding and the relation value is "userforward",
             // do not record this contact.
-            if (!(disableForwarding &&
-                  ((UtlString*) record.findValue(&relationKey))->
-                     compareTo(ALIASDB_RELATION_USERFORWARD) == 0))
+            if (!(disableForwarding && iter->relation == ALIASDB_RELATION_USERFORWARD))
             {
-               UtlString contact = *((UtlString*) record.findValue(&contactKey));
+               UtlString contact = iter->contact.c_str();
                Url contactUri(contact);
 
                // if the request identity is a real user
@@ -165,7 +161,6 @@ SipRedirectorAliasDB::lookUp(
                // Add the contact.
                contactList.add( contactUri, *this );
             }
-         }
       }
    }
 

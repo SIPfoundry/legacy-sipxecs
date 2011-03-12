@@ -12,11 +12,17 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener;
+import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
+import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.branch.Branch;
@@ -24,6 +30,7 @@ import org.sipfoundry.sipxconfig.branch.BranchManager;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
+import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.sipfoundry.sipxconfig.setting.SettingDao;
 
@@ -41,6 +48,8 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     private ConfigurationFile m_contactInformationConfig;
     private ContactInformationDaoListener m_contactInformationDaoListener;
     private TlsPeerManager m_tlsPeerManager;
+    private PermissionManager m_permissionManager;
+    private ForwardingContext m_forwardingContext;
 
     public void setReplicationTrigger(ReplicationTrigger trigger) {
         m_trigger = trigger;
@@ -62,74 +71,39 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_branchManager = branchManager;
     }
 
-    @Override
-    protected void onTearDownAfterTransaction() throws Exception {
-        // restore trigger state...
-        m_trigger.setReplicationContext(m_originalSipxReplicationContext);
-        m_contactInformationDaoListener.
-            setSipxReplicationContext(m_originalSipxReplicationContext);
-
-    }
-
-    /**
-     * Test that saving a user group in db actually triggers a replication
-     */
-    public void testNewUserGroup() throws Exception {
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generate(DataSet.PERMISSION);
-        replicationContext.generate(DataSet.USER_LOCATION);
-        replicationContext.generate(DataSet.CALLER_ALIAS);
-        replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
-
-        Group g = new Group();
-        g.setName("replicationTriggerTest");
-        g.setResource(User.GROUP_RESOURCE_ID);
-        m_dao.saveGroup(g);
-
-        verify(replicationContext);
-    }
-
     public void testUpdateUserGroup() throws Exception {
-        loadDataSet("admin/commserver/imdb/UserGroupSeed.db.xml");
+        loadDataSet("admin/commserver/imdb/UserGroupSeed2.db.xml");
+        loadDataSetXml("domain/DomainSeed.xml");
 
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generate(DataSet.PERMISSION);
-        replicationContext.generate(DataSet.USER_LOCATION);
-        replicationContext.generate(DataSet.CALLER_ALIAS);
-        replay(replicationContext);
-
-        m_trigger.setReplicationContext(replicationContext);
         Group g = m_dao.getGroup(new Integer(1000));
-        m_dao.saveGroup(g);
+        User user = m_coreContext.loadUser(1001);
+        user.setPermissionManager(m_permissionManager);
+        CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
 
-        verify(replicationContext);
-    }
-
-    public void testReplicateSipxSaaConfig() throws Exception {
-        loadDataSet("common/UserGroupSeed.db.xml");
-
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generateAll();
+        SortedSet<Group> groups = new TreeSet<Group>();
+        groups.add(g);
+        user.setGroups(groups);
+        
+        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
+        replicationContext.replicateEntity(user);
+        replicationContext.replicateEntity(cs);
+        replicationContext.replicateEntity(user);
         replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
 
-        User testUser = m_coreContext.loadUser(1001);
-        testUser.setIsShared(true);
-        m_coreContext.saveUser(testUser);
+        m_coreContext.saveUser(user);
+        m_dao.saveGroup(g);
 
         verify(replicationContext);
     }
 
     public void testReplicateOnTlsPeerCreation() throws Exception {
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generate(DataSet.CREDENTIAL);
-        replicationContext.generate(DataSet.PERMISSION);
-        replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
-
         TlsPeer peer = m_tlsPeerManager.newTlsPeer();
         peer.setName("test");
+        
+        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
+        replicationContext.replicateEntity(peer);
+        replay(replicationContext);
+
         m_tlsPeerManager.saveTlsPeer(peer);
 
         verify(replicationContext);
@@ -139,10 +113,10 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
      * Test that replication happens at app startup if the replicateOnStartup property is set
      */
     public void testReplicateOnStartup() throws Exception {
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generateAll();
+        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
+        replicationContext.replicateAllData();
         replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
+        m_trigger.setReplicationManager(replicationContext);
 
         m_trigger.setReplicateOnStartup(true);
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
@@ -155,9 +129,9 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
      * off
      */
     public void testNoReplicateOnStartup() throws Exception {
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
         replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
+        m_trigger.setReplicationManager(replicationContext);
 
         m_trigger.setReplicateOnStartup(false);
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
@@ -168,7 +142,7 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     /**
      * Tests that replication is triggered when branch with users deleted
      */
-    public void testDeleteBranchWithUser() throws Exception {
+/*    public void testDeleteBranchWithUser() throws Exception {
         loadDataSet("branch/attached_branches.db.xml");
 
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
@@ -183,12 +157,12 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_branchManager.deleteBranches(allSelected);
 
         verify(replicationContext);
-    }
+    }*/
 
     /**
      * Tests that replication is triggered when branch with users is saved
      */
-    public void testSaveBranchWithUser() throws Exception {
+/*    public void testSaveBranchWithUser() throws Exception {
         loadDataSet("branch/attached_branches.db.xml");
 
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
@@ -203,12 +177,12 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_branchManager.saveBranch(branch);
 
         verify(replicationContext);
-    }
+    }*/
 
     /**
      * Tests that no replication when branch without users is deleted
      */
-    public void testDeleteBranchesWithoutUser() throws Exception {
+/*    public void testDeleteBranchesWithoutUser() throws Exception {
         loadDataSet("branch/branches.db.xml");
 
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
@@ -218,12 +192,12 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_branchManager.deleteBranches(Arrays.asList(1, 2, 3, 4, 5));
 
         verify(replicationContext);
-    }
+    }*/
 
     /**
      * Tests that no replication is done when branch without users is saved
      */
-    public void testSaveBranchesWithoutUser() throws Exception {
+    /*public void testSaveBranchesWithoutUser() throws Exception {
 
         SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
         replay(replicationContext);
@@ -241,7 +215,7 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         flush();
 
         verify(replicationContext);
-    }
+    }*/
 
     public void setContactInformationConfig(ConfigurationFile contactInformationConfig) {
         m_contactInformationConfig = contactInformationConfig;
@@ -253,6 +227,14 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
     public void setTlsPeerManager(TlsPeerManager peerManager) {
         m_tlsPeerManager = peerManager;
+    }
+
+    public void setPermissionManager(PermissionManager permissionManager) {
+        m_permissionManager = permissionManager;
+    }
+
+    public void setForwardingContext(ForwardingContext forwardingContext) {
+        m_forwardingContext = forwardingContext;
     }
 
 }

@@ -9,47 +9,46 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.List;
-import java.util.Map;
+import com.mongodb.DBObject;
 
 import org.sipfoundry.sipxconfig.common.Closure;
-import org.sipfoundry.sipxconfig.common.SipUri;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 
 import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class UserStatic extends DataSetGenerator {
     public static final String EXTERNAL_MWI = "voicemail/mailbox/external-mwi";
+    public static final String STATIC = "stc";
 
     @Override
     protected DataSet getType() {
         return DataSet.USER_STATIC;
     }
 
-    @Override
-    protected void addItems(final List<Map<String, String>> items) {
-        final String domainName = getSipDomain();
+    public void generate() {
         Closure<User> closure = new Closure<User>() {
             @Override
             public void execute(User user) {
-                addUser(items, user, domainName);
+                generate(user);
             }
         };
         forAllUsersDo(getCoreContext(), closure);
     }
 
-    protected void addUser(List<Map<String, String>> items, User user, String domainName) {
-        String externalMwi = user.getSettingValue(EXTERNAL_MWI);
-        if (externalMwi != null) {
-            Map<String, String> item = addItem(items);
-            String userName = user.getUserName();
-            String identity = userName + "@" + domainName;
-            item.put("identity", identity);
-            item.put("event", "message-summary");
-            item.put("contact", SipUri.format(externalMwi, domainName, false));
-            item.put("from_uri", SipUri.format("IVR", domainName, false));
-            item.put("to_uri", SipUri.format(userName, domainName, false));
-            item.put("callid", "static-mwi-" + identity);
+    public void generate(Replicable entity) {
+        if (entity instanceof User) {
+            DBObject top = findOrCreate(entity);
+            User user = (User) entity;
+            String domainName = getSipDomain();
+            String externalMwi = user.getSettingValue(EXTERNAL_MWI);
+            if (externalMwi != null) {
+                top.put(STATIC, new UserStaticMapping(domainName, user.getUserName(), externalMwi));
+            } else {
+                top.removeField(STATIC);
+            }
+            getDbCollection().save(top);
         }
     }
+
 }

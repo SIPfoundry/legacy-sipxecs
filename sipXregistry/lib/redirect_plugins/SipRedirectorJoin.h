@@ -146,6 +146,7 @@ class SipRedirectorJoin : public RedirectPlugin
       State stateFilter);
 
    SipLineMgr* addCredentials(UtlString domain, UtlString realm);
+
 };
 
 /**

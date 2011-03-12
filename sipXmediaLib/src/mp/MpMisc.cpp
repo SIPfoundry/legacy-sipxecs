@@ -35,6 +35,7 @@
 #endif /* ] ] */
 #endif /* _VXWORKS ] */
 
+#include "mp/NetInTask.h"
 #include "os/OsMsgQ.h"
 #include "os/OsConfigDb.h"
 #include "mp/MpTypes.h"
@@ -43,7 +44,6 @@
 #include "mp/MpBuf.h"
 #include "mp/MpBufferMsg.h"
 #include "mp/MpMisc.h"
-#include "mp/NetInTask.h"
 #include "mp/MprFromMic.h"
 #include "mp/MprToSpkr.h"
 #include "mp/MprDejitter.h"

@@ -71,6 +71,7 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="domainManager" ref="domainManager" />
+    <property name="validUsersConfig" ref="validUsersConfig"/>
   </bean>
 
   <bean id="serviceConfigurator" class="org.springframework.aop.framework.ProxyFactoryBean">
@@ -476,6 +477,7 @@
       <property name="groupTitleEnabled" value="true" />
       <property name="aliasManager" ref="aliasManager" />
       <property name="replicationContext" ref="sipxReplicationContextDao" />
+      <property name="coreContext" ref="coreContext" />
       <property name="configurations">
         <list>
           <ref bean="sipxAccCodeConfiguration" />
@@ -605,6 +607,7 @@
       </set>
     </property>
     <property name="replicationContext" ref="sipxReplicationContextDao" />
+    <property name="musicOnHoldManager" ref="musicOnHoldManager" />
   </bean>
 
   <bean id="freeswitchConfiguration" parent="serviceConfigurationFile"

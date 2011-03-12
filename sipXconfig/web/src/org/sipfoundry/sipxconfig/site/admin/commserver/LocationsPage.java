@@ -125,15 +125,13 @@ public abstract class LocationsPage extends SipxBasePage implements PageBeginRen
 
     public void generateProfiles() {
         Collection<Integer> selectedLocations = getSelections().getAllSelected();
-        if (!selectedLocations.isEmpty()) {
-            // HACK: push dataSets and files that are not the part of normal service replication
-            getServiceConfigurator().initLocations();
-        }
         for (Integer id : selectedLocations) {
             Location locationToActivate = getLocationsManager().getLocation(id);
             if (!locationToActivate.isRegistered()) {
                 continue;
             }
+            // HACK: push dataSets and files that are not the part of normal service replication
+            getServiceConfigurator().initLocation(locationToActivate);
 
             getServiceConfigurator().replicateLocation(locationToActivate);
             getServiceConfigurator().enforceRole(locationToActivate);

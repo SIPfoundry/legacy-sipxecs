@@ -19,10 +19,12 @@ import org.sipfoundry.sipxconfig.acd.AcdQueue;
 import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipxCollectionUtils;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -32,7 +34,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 /**
  * Hibernate implementation of the call group context
  */
-public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext {
+public class CallGroupContextImpl extends SipxHibernateDaoSupport implements CallGroupContext, ReplicableProvider {
     private static final String VALUE = "value";
 
     private static final String QUERY_CALL_GROUP_IDS_WITH_NAME = "callGroupIdsWithName";
@@ -80,19 +82,23 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         }
         getHibernateTemplate().saveOrUpdate(callGroup);
         // activate call groups every time the call group is saved
-        activateCallGroups();
+        m_replicationContext.generate(callGroup);
     }
 
-    public void removeCallGroups(Collection ids) {
+    public void removeCallGroups(Collection<Integer> ids) {
         if (ids.isEmpty()) {
             return;
         }
-
+        Collection<CallGroup> cgs = new ArrayList<CallGroup>();
+        for (Integer id : ids) {
+            CallGroup cg = (CallGroup) load(CallGroup.class, id);
+            cgs.add(cg);
+        }
         m_acdContext.removeOverflowSettings(ids, AcdQueue.HUNTGROUP_TYPE);
         removeAll(CallGroup.class, ids);
 
         // activate call groups every time the call group is removed
-        activateCallGroups();
+        deactivateCallGroups(cgs);
     }
 
     public UserDeleteListener createUserDeleteListener() {
@@ -122,8 +128,7 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
      */
     public void removeUser(Integer userId) {
         final HibernateTemplate hibernate = getHibernateTemplate();
-        Collection rings = hibernate.findByNamedQueryAndNamedParam("userRingsForUserId",
-                "userId", userId);
+        Collection rings = hibernate.findByNamedQueryAndNamedParam("userRingsForUserId", "userId", userId);
         for (Iterator i = rings.iterator(); i.hasNext();) {
             UserRing ring = (UserRing) i.next();
             CallGroup callGroup = ring.getCallGroup();
@@ -158,44 +163,46 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
      */
     public void clear() {
         HibernateTemplate template = getHibernateTemplate();
-        Collection callGroups = template.loadAll(CallGroup.class);
+        Collection<CallGroup> callGroups = template.loadAll(CallGroup.class);
         template.deleteAll(callGroups);
+        for (CallGroup cg : callGroups) {
+            m_replicationContext.generate(cg);
+        }
     }
 
     /**
      * Sends notification to profile generator to trigger alias generation
      */
-    public void activateCallGroups() {
-        m_replicationContext.generate(DataSet.ALIAS);
-        m_replicationContext.generate(DataSet.PERMISSION);
-        m_replicationContext.generate(DataSet.CREDENTIAL);
+    public void deactivateCallGroups(Collection<CallGroup> cgs) {
+        for (CallGroup cg : cgs) {
+            m_replicationContext.remove(cg);
+        }
     }
 
     /**
      * Generate aliases for all call groups
      */
-    public Collection getAliasMappings() {
-        final String dnsDomain = m_coreContext.getDomainName();
-        Collection callGroups = getCallGroups();
-        List allAliases = new ArrayList(callGroups.size());
-        for (Iterator i = callGroups.iterator(); i.hasNext();) {
-            CallGroup cg = (CallGroup) i.next();
-            allAliases.addAll(cg.generateAliases(dnsDomain));
+    public Collection<AliasMapping> getAliasMappings() {
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
+        Collection<CallGroup> callGroups = getCallGroups();
+        for (CallGroup callGroup : callGroups) {
+            aliases.addAll(callGroup.getAliasMappings(m_coreContext.getDomainName()));
         }
-        return allAliases;
+
+        return aliases;
     }
 
     public boolean isAliasInUse(String alias) {
         // Look for the ID of a call group with the specified alias as its name or extension.
         // If there is one, then the alias is in use.
-        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE, alias);
+        List objs = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE,
+                alias);
         return SipxCollectionUtils.safeSize(objs) > 0;
     }
 
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        List ids = getHibernateTemplate().findByNamedQueryAndNamedParam(
-                QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE, alias);
+        List ids = getHibernateTemplate().findByNamedQueryAndNamedParam(QUERY_CALL_GROUP_IDS_WITH_ALIAS, VALUE,
+                alias);
         Collection bids = BeanId.createBeanIdCollection(ids, CallGroup.class);
         return bids;
     }
@@ -220,5 +227,14 @@ public class CallGroupContextImpl extends SipxHibernateDaoSupport implements Cal
         }
         // no need to trigger replication - do not use storeCallGroup
         getHibernateTemplate().saveOrUpdateAll(changed);
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (CallGroup cg : getCallGroups()) {
+            replicables.add(cg);
+        }
+        return replicables;
     }
 }

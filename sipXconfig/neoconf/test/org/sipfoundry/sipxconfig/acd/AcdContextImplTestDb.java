@@ -17,7 +17,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.velocity.runtime.directive.Foreach;
 import org.dbunit.Assertion;
 import org.dbunit.database.IDatabaseConnection;
 import org.dbunit.dataset.IDataSet;
@@ -27,7 +26,7 @@ import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -69,7 +68,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         location.setFqdn("localhost");
         location.setAddress("127.0.0.1");
         location.setName("localhost");
-        m_locationsManager.storeLocation(location);
+        m_locationsManager.saveLocation(location);
         acdServer.setLocation(location);
         assertNotNull(acdServer.getLines());
         assertEquals(0, acdServer.getLines().size());
@@ -127,7 +126,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         location.setFqdn("localhost");
         location.setAddress("127.0.0.1");
         location.setName("localhost");
-        m_locationsManager.storeLocation(location);
+        m_locationsManager.saveLocation(location);
         acdServer.setLocation(location);
         assertNotNull(acdServer.getQueues());
         assertEquals(0, acdServer.getQueues().size());
@@ -143,7 +142,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         location.setFqdn("localhost");
         location.setAddress("127.0.0.1");
         location.setName("localhost");
-        m_locationsManager.storeLocation(location);
+        m_locationsManager.saveLocation(location);
         acdServer.setLocation(location);
 
         SipxPresenceService presenceService = org.easymock.classextension.EasyMock
@@ -395,15 +394,15 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     }
 
     public void testAddUsersToQueue() throws Exception {
-        User testUser1 = new User();
+        User testUser1 = m_coreContext.newUser();
         testUser1.setUserName("testUser1");
         m_coreContext.saveUser(testUser1);
 
-        User testUser2 = new User();
+        User testUser2 = m_coreContext.newUser();
         testUser2.setUserName("testUser2");
         m_coreContext.saveUser(testUser2);
 
-        User testUser3 = new User();
+        User testUser3 = m_coreContext.newUser();
         testUser3.setUserName("testUser3");
         m_coreContext.saveUser(testUser3);
 
@@ -565,6 +564,12 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
     public void testGenerateAliases() throws Exception {
         TestHelper.insertFlat("acd/lines.db.xml");
         Collection<AliasMapping> aliases = m_context.getAliasMappings();
-        assertEquals(5, aliases.size());
+        assertEquals(4, aliases.size());
+        Set<AcdLine> lines = m_context.getAcdServerForLocationId(101).getLines();
+        /*
+         * int aliasesCount = 0; for (AcdLine line : lines) { aliasesCount += aliases.size(); }
+         * assertEquals(3, aliasesCount); assertEquals(2,
+         * aliases.get(m_context.getAcdServerForLocationId(101)).size());
+         */
     }
 }

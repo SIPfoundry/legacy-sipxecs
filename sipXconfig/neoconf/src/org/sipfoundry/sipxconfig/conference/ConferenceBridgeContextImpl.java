@@ -28,9 +28,12 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.ServerRoleLocation;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -52,7 +55,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements BeanFactoryAware,
-        ConferenceBridgeContext, DaoEventListener {
+        ConferenceBridgeContext, DaoEventListener, ReplicableProvider {
     private static final String BUNDLE_CONFERENCE = "conference";
     private static final String CONFERENCE = BUNDLE_CONFERENCE;
     private static final String VALUE = "value";
@@ -95,7 +98,7 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         } else {
             getHibernateTemplate().saveOrUpdate(conference);
         }
-        m_daoEventPublisher.publishSave(conference);
+        m_replicationContext.generate(conference);
         m_provisioning.deploy(conference.getBridge());
     }
 
@@ -218,14 +221,13 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
         return bids;
     }
 
-    public Collection getAliasMappings() {
-        List conferences = getHibernateTemplate().loadAll(Conference.class);
-        final ArrayList list = new ArrayList();
-        for (Iterator i = conferences.iterator(); i.hasNext();) {
-            Conference conference = (Conference) i.next();
-            list.addAll(conference.generateAliases(m_coreContext.getDomainName()));
+    public Collection<AliasMapping> getAliasMappings() {
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
+        List<Conference> conferences = getHibernateTemplate().loadAll(Conference.class);
+        for (Conference conference : conferences) {
+            aliases.addAll(conference.getAliasMappings(m_coreContext.getDomainName()));
         }
-        return list;
+        return aliases;
     }
 
     public List<Conference> findConferencesByOwner(User owner) {
@@ -413,5 +415,14 @@ public class ConferenceBridgeContextImpl extends HibernateDaoSupport implements 
 
     private SipxFreeswitchService getSipxFreeswitchService() {
         return (SipxFreeswitchService) m_sipxServiceManager.getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        for (Conference conf : getAllConferences()) {
+            replicables.add(conf);
+        }
+        return replicables;
     }
 }

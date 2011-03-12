@@ -49,7 +49,7 @@ public class UserTestDb extends SipxDatabaseTestCase {
     }
 
     public void testSave() throws Exception {
-        User user = new User();
+        User user = m_core.newUser();
         user.setUserName("userid");
         user.setFirstName("FirstName");
         user.setLastName("LastName");

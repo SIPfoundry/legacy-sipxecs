@@ -9,13 +9,15 @@
 
 
 // SYSTEM INCLUDES
+#include "mp/MprBridge.h"
+
 #include <assert.h>
 
 // APPLICATION INCLUDES
 // #include "os/OsDefs.h"
 // #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MprBridge.h"
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

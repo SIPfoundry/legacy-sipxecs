@@ -84,7 +84,7 @@ public class ServicesTableTest extends TestCase {
 
     public void testRemoveService() {
         LocationsManager locationsManager = EasyMock.createMock(LocationsManager.class);
-        locationsManager.storeLocation(m_location);
+        locationsManager.saveLocation(m_location);
         EasyMock.expectLastCall();
         EasyMock.replay(locationsManager);
         PropertyUtils.write(m_out, "locationsManager", locationsManager);

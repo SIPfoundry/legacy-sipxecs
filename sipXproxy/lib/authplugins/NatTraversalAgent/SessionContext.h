@@ -17,6 +17,7 @@
 #include "MediaRelay.h"
 #include "utl/UtlContainable.h"
 #include "utl/UtlString.h"
+#include "sipdb/RegDB.h"
 
 // DEFINES
 #define MAX_TIMER_TICK_COUNTS_BEFORE_SESSION_CONTEXT_CLEAN_UP (6)
@@ -163,7 +164,7 @@ public:
                    const NatTraversalRules* pNatRules,
                    const UtlString& handle,
                    MediaRelay* pMediaRelayToUse,
-                   const RegistrationDB* pRegistrationDB,
+                   RegDB::Ptr pRegDB,
                    CallTrackerInterfaceForSessionContext* pOwningCallTracker );
 
    // destructor
@@ -248,7 +249,7 @@ public:
     */
    static EndpointDescriptor* createCalleeEndpointDescriptor( const SipMessage& sipRequest,
                                                               const NatTraversalRules& natTraversalRules,
-                                                              const RegistrationDB* pRegistrationDB );
+                                                              RegDB::Ptr regDB );
 
    static const UtlContainableType TYPE;    /** < Class type used for runtime checking */
 
@@ -291,7 +292,7 @@ private:
    UtlHashMap mDialogTrackersMap;
    CallTrackerInterfaceForSessionContext* mpOwningCallTracker;
    vector<UtlString> mListOfDialogTrackersReadyForDeletion;
-
+   RegDB::Ptr _pRegDB;
    friend class SessionContextTest;
 };
 

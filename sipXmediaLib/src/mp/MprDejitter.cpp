@@ -19,6 +19,7 @@
 
 // SYSTEM INCLUDES
 #include <assert.h>
+#include "mp/NetInTask.h"
 #if defined(_VXWORKS) || defined(__pingtel_on_posix__)
 #include <sys/types.h>
 #include <netinet/in.h>
@@ -34,7 +35,6 @@
 #include "mp/MpConnection.h"
 #include "mp/MprDejitter.h"
 #include "mp/MprFromNet.h"
-#include "mp/NetInTask.h"
 /* for dejitter handling purpose */
 #include "mp/dmaTask.h"
 #include "mp/MpMediaTask.h"

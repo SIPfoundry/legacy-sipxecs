@@ -11,15 +11,16 @@
 #ifndef _MprEncode_h_
 #define _MprEncode_h_
 
-#include "mp/MpMisc.h"
+
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
+#include "mp/MprToNet.h"
 #include "mp/MpResource.h"
 #include "net/SdpCodec.h"
 #include "mp/MpFlowGraphMsg.h"
-#include "mp/MprToNet.h"
+#include "mp/MpMisc.h"
 
 // DEFINES
 // MACROS

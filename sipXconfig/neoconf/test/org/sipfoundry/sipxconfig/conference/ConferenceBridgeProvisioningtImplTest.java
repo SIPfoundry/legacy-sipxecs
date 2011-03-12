@@ -17,6 +17,7 @@ import static org.easymock.classextension.EasyMock.verify;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Set;
 
 import junit.framework.TestCase;
 
@@ -58,6 +59,8 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         SipxProcessContext processContext = createNiceMock(SipxProcessContext.class);
         processContext.markServicesForReload(Collections.singleton(service));
 
+        final Conference conf = new Conference();
+        
         Bridge bridge = new Bridge() {
             @Override
             public Location getLocation() {
@@ -73,6 +76,10 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
             public LocationSpecificService getService() {
                 return locationService;
             }
+            
+            public Set<Conference> getConferences() {
+                return Collections.singleton(conf);
+            }
         };
 
         ServiceConfigurator sc = createMock(ServiceConfigurator.class);
@@ -83,7 +90,7 @@ public class ConferenceBridgeProvisioningtImplTest extends TestCase {
         sc.replicateServiceConfig(location, imBotService, true);
 
         SipxReplicationContext rc = createMock(SipxReplicationContext.class);
-        rc.generate(DataSet.ALIAS);
+        rc.generate(conf);
 
         replay(rc, sc, service, processContext);
         SipxServiceManager sm = TestUtil.getMockSipxServiceManager(true, service, ivrService, recordingService, imBotService);

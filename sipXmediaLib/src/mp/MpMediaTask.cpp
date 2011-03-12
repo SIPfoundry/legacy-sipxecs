@@ -12,14 +12,15 @@
 * took them out because we do the same thing on every OS. -Mike */
 #define PRINTF Zprintf
 
+#include "mp/MpCallFlowGraph.h"
+#include "mp/MpFlowGraphBase.h"
+
 // SYSTEM INCLUDES
 #include <assert.h>
 
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
 #include "os/OsMsgPool.h"
-#include "mp/MpFlowGraphBase.h"
-#include "mp/MpCallFlowGraph.h"
 #include "mp/MpMediaTask.h"
 #include "mp/MpMediaTaskMsg.h"
 #include "mp/MpBufferMsg.h"

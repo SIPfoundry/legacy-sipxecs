@@ -107,7 +107,6 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
 
         try {
             m_context.saveCallSequence(callSequence);
-            m_context.flush();
         } catch (DataAccessException e) {
             Throwable cause = e.getCause();
             System.err.println(((SQLException) cause).getNextException().getMessage());
@@ -140,7 +139,6 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         }
 
         m_context.saveCallSequence(callSequence);
-        m_context.flush();
 
         ITable expected = TestHelper.loadDataSetFlat("admin/forwarding/RingMoved.xml").getTable(
                 "ring");
@@ -156,7 +154,6 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         ring.setNumber("999999");
 
         m_context.saveCallSequence(callSequence);
-        m_context.flush();
 
         ITable actual = TestHelper.getConnection().createDataSet().getTable("ring");
         assertEquals("999999", actual.getValue(0, "Number"));
@@ -171,8 +168,7 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         assertFalse(callSequence.getRings().isEmpty());
 
         int remainingRingCount = ringTable.getRowCount() - callSequence.getRings().size();
-
-        m_context.removeCallSequenceForUserId(user.getId());
+        m_coreContext.deleteUser(user);
 
         ringTable = TestHelper.getConnection().createDataSet().getTable("ring");
         assertEquals(remainingRingCount, ringTable.getRowCount());
@@ -222,7 +218,6 @@ public class ForwardingContextImplTestDb extends SipxDatabaseTestCase {
         schedule.setDescription("Test Schedule");
 
         m_context.saveSchedule(schedule);
-        m_context.flush();
 
         ITable actualSchedules = TestHelper.getConnection().createDataSet().getTable("schedule");
         assertEquals(user.getId(), actualSchedules.getValue(0, "user_id"));

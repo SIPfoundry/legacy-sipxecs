@@ -15,8 +15,9 @@
 
 // APPLICATION INCLUDES
 //?#include "mp/MpFlowGraphMsg.h"
-#include "mp/MpResource.h"
 #include "mp/MpConnection.h"
+#include "mp/MpResource.h"
+
 
 // DEFINES
 // MACROS

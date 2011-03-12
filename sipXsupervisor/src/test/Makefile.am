@@ -9,7 +9,9 @@ INCLUDES = \
 ## and of course require no setup
 TESTS = testsuite alarm_testsuite
 
-check_PROGRAMS = testsuite alarm_testsuite sandbox
+# disabled for mongo port
+#check_PROGRAMS = testsuite alarm_testsuite
+check_PROGRAMS =
 
 testsuite_CXXFLAGS = @CPPUNIT_CFLAGS@ \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test/\" \
@@ -22,8 +24,8 @@ testsuite_LDADD = \
 
 testsuite_SOURCES = \
     SipxProcessDefinitionParserTest.cpp \
-	 SipxProcessStateTest.cpp \
 	 SipxProcessVersionsTest.cpp \
+	 SipxProcessStateTest.cpp \
 	 SipxCommandTest.cpp \
 	 SipxResourceUseTest.cpp \
 	 FileDirResourceTest.cpp
@@ -102,24 +104,6 @@ EXTRA_DATA = \
 
 EXTRA_DIST = \
     $(EXTRA_DATA)
-
-# [DEBUG ASSISTANT] List a single unit test to isolate a unit test for
-# debugging or when developing a new unit test. As courtesy remove all
-# unit tests before checking in, although forgetting to has no ill
-# effects. To build and run:
-#
-#   cd src/test
-#   make sandbox
-#   ./sandbox
-#
-#sandbox_LDFLAGS = $(alarm_testsuite_LDFLAGS)
-sandbox_LDADD = $(alarm_testsuite_LDADD)
-
-sandbox_CXXFLAGS = $(alarm_testsuite_CXXFLAGS) -pg
-sandbox_SOURCES = \
-    AlarmLocalizationTest.cpp \
-    AlarmServerTest.cpp
-
 
 clean: clean-workdir
 

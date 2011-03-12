@@ -18,15 +18,13 @@ import org.sipfoundry.sipxconfig.alias.AliasOwner;
 public interface CallGroupContext extends AliasOwner, AliasProvider {
     public static final String CONTEXT_BEAN_NAME = "callGroupContext";
 
-    void activateCallGroups();
-
     CallGroup loadCallGroup(Integer id);
 
     List<CallGroup> getCallGroups();
 
     void storeCallGroup(CallGroup callGroup);
 
-    void removeCallGroups(Collection ids);
+    void removeCallGroups(Collection<Integer> ids);
 
     void duplicateCallGroups(Collection ids);
 

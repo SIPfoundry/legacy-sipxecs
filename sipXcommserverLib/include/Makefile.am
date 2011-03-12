@@ -10,34 +10,16 @@ nobase_include_HEADERS =  \
     sipXecsService/SharedSecret.h \
     sipXecsService/SipNonceDb.h \
     configrpc/ConfigRPC.h \
-    sipdb/AliasDB.h \
-    sipdb/AliasRow.h \
-    sipdb/CallerAliasDB.h \
-    sipdb/CallerAliasRow.h \
-    sipdb/CredentialDB.h \
-    sipdb/CredentialRow.h \
-    sipdb/DialByNameDB.h \
-    sipdb/DialByNameRow.h \
-    sipdb/ExtensionDB.h \
-    sipdb/ExtensionRow.h \
-    sipdb/LocationDB.h \
-    sipdb/LocationRow.h \
-    sipdb/PermissionDB.h \
-    sipdb/PermissionRow.h \
-    sipdb/RegistrationBinding.h \
-    sipdb/RegistrationDB.h \
-    sipdb/RegistrationRow.h \
+    sipdb/MongoDB.h \
+    sipdb/EntityDB.h \
+    sipdb/EntityRecord.h \
+    sipdb/NodeDB.h \
+    sipdb/NodeRecord.h \
+    sipdb/RegBinding.h \
+    sipdb/RegDB.h \
+    sipdb/SubscribeDB.h \
+    sipdb/Subscription.h \
     sipdb/ResultSet.h \
-    sipdb/SIPDBManager.h \
-    sipdb/SIPXAuthHelper.h \
-    sipdb/SubscriptionDB.h \
-    sipdb/SubscriptionRow.h \
-    sipdb/UserLocationDB.h \
-    sipdb/UserLocationRow.h \
-    sipdb/UserForwardDB.h \
-    sipdb/UserForwardRow.h \
-    sipdb/UserStaticDB.h \
-    sipdb/UserStaticRow.h \
     alarm/Alarm.h \
     alarm/AlarmRequestTask.h \
     digitmaps/UrlMapping.h \
@@ -87,7 +69,4 @@ nobase_include_HEADERS =  \
     filereader/OrbitFileReader.h \
     filereader/RefreshingFileReader.h \
     odbc/OdbcWrapper.h \
-    persist/SipPersistentSubscriptionMgr.h \
-    testlib/RegistrationDbTestContext.h \
-    testlib/SipDbTestContext.h \
-    testlib/FileTestContext.h
+    persist/SipPersistentSubscriptionMgr.h

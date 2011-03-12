@@ -26,9 +26,9 @@
 #include "main.h"
 #include <net/SipLine.h>
 #include <net/SipLineMgr.h>
-#include <sipdb/CredentialDB.h>
 #include <net/HttpMessage.h>
 #include <sipXecsService/SipXecsService.h>
+#include <sipdb/EntityDB.h>
 
 // DEFINES
 #include "config.h"
@@ -226,91 +226,88 @@ SipLineMgr* addCredentials (UtlString domain, UtlString realm)
    SipLineMgr* lineMgr = NULL;
    UtlString user;
 
-   CredentialDB* credentialDb;
-   if ((credentialDb = CredentialDB::getInstance()))
-   {
-      Url identity;
+   MongoDB::Collection<EntityDB>& credentialDB = EntityDB::defaultCollection();
 
-      identity.setUserId(RLSSERVER_ID_TOKEN);
-      identity.setHostAddress(domain);
-      UtlString ha1_authenticator;
-      UtlString authtype;
-      bool bSuccess = false;
+  Url identity;
 
-      if (credentialDb->getCredential(identity, realm, user, ha1_authenticator, authtype))
-      {
-         if ((line = new SipLine( identity // user entered url
-                                 ,identity // identity url
-                                 ,user     // user
-                                 ,TRUE     // visible
-                                 ,SipLine::LINE_STATE_PROVISIONED
-                                 ,TRUE     // auto enable
-                                 ,FALSE    // use call handling
-                                 )))
-         {
-            if ((lineMgr = new SipLineMgr()))
-            {
-               if (lineMgr->addLine(*line))
-               {
-                  if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
-                                                    ,HTTP_DIGEST_AUTHENTICATION
-                                                    )
-                      )
-                  {
-                     lineMgr->setDefaultOutboundLine(identity);
-                     bSuccess = true;
+  identity.setUserId(RLSSERVER_ID_TOKEN);
+  identity.setHostAddress(domain);
+  UtlString ha1_authenticator;
+  UtlString authtype;
+  bool bSuccess = false;
 
-                     OsSysLog::add(LOG_FACILITY, PRI_INFO,
-                                   "Added identity '%s': user='%s' realm='%s'"
-                                   ,identity.toString().data(), user.data(), realm.data()
-                                   );
-                  }
-                  else
-                  {
-                     OsSysLog::add(LOG_FACILITY, PRI_CRIT,
-                                   "Error adding identity '%s': user='%s' realm='%s'\n",
-                                   identity.toString().data(), user.data(), realm.data()
-                                   );
-                  }
-               }
-               else
-               {
-                  OsSysLog::add(LOG_FACILITY, PRI_CRIT, "addLine failed" );
-               }
-            }
-            else
-            {
-               OsSysLog::add(LOG_FACILITY, PRI_CRIT,
-                             "Constructing SipLineMgr failed" );
-            }
-            // lineMgr does not take ownership of *line, so we have to delete it.
-            delete line;
-         }
-         else
-         {
-            OsSysLog::add(LOG_FACILITY, PRI_CRIT,
-                          "Constructing SipLine failed" );
-         }
-      }
-      else
-      {
-         OsSysLog::add(LOG_FACILITY, PRI_CRIT,
-                       "No credential found for '%s' in realm '%s'"
-                       ,identity.toString().data(), realm.data()
-                       );
-      }
+  if (credentialDB.collection().getCredential(identity, realm, user, ha1_authenticator, authtype))
+  {
+     if ((line = new SipLine( identity // user entered url
+                             ,identity // identity url
+                             ,user     // user
+                             ,TRUE     // visible
+                             ,SipLine::LINE_STATE_PROVISIONED
+                             ,TRUE     // auto enable
+                             ,FALSE    // use call handling
+                             )))
+     {
+        if ((lineMgr = new SipLineMgr()))
+        {
+           if (lineMgr->addLine(*line))
+           {
+              if (lineMgr->addCredentialForLine( identity, realm, user, ha1_authenticator
+                                                ,HTTP_DIGEST_AUTHENTICATION
+                                                )
+                  )
+              {
+                 lineMgr->setDefaultOutboundLine(identity);
+                 bSuccess = true;
 
-      if( !bSuccess )
-      {
-         delete line;
-         line = NULL;
+                 OsSysLog::add(LOG_FACILITY, PRI_INFO,
+                               "Added identity '%s': user='%s' realm='%s'"
+                               ,identity.toString().data(), user.data(), realm.data()
+                               );
+              }
+              else
+              {
+                 OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                               "Error adding identity '%s': user='%s' realm='%s'\n",
+                               identity.toString().data(), user.data(), realm.data()
+                               );
+              }
+           }
+           else
+           {
+              OsSysLog::add(LOG_FACILITY, PRI_CRIT, "addLine failed" );
+           }
+        }
+        else
+        {
+           OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                         "Constructing SipLineMgr failed" );
+        }
+        // lineMgr does not take ownership of *line, so we have to delete it.
+        delete line;
+     }
+     else
+     {
+        OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                      "Constructing SipLine failed" );
+     }
+  }
+  else
+  {
+     OsSysLog::add(LOG_FACILITY, PRI_CRIT,
+                   "No credential found for '%s' in realm '%s'"
+                   ,identity.toString().data(), realm.data()
+                   );
+  }
 
-         delete lineMgr;
-         lineMgr = NULL;
-      }
-   }
+  if( !bSuccess )
+  {
+     delete line;
+     line = NULL;
 
-   credentialDb->releaseInstance();
+     delete lineMgr;
+     lineMgr = NULL;
+  }
+
 
    return lineMgr;
 }

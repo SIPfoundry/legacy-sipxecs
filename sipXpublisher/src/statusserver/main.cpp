@@ -21,9 +21,7 @@
 #include "os/OsTask.h"
 
 #include "net/NameValueTokenizer.h"
-#include "sipXecsService/SipXecsService.h"
-
-#include "sipdb/SIPDBManager.h"
+#include "sipXecsService/SipXecsService.h"    // now deregister this process's database references from the IMDB
 #include "statusserver/StatusServer.h"
 
 // DEFINES
@@ -46,28 +44,6 @@ OsMutex*       gpLockMutex = new OsMutex(OsMutex::Q_FIFO);
 using namespace std;
 
 /* ============================ FUNCTIONS ================================= */
-
-/**
- * Description:
- * closes any open connections to the IMDB safely using a mutex lock
- */
-void
-closeIMDBConnections ()
-{
-    // Critical Section here
-    OsLock lock( *gpLockMutex );
-
-    // now deregister this process's database references from the IMDB
-    // and also ensure that we do not cause this code recursively
-    // specifically SIGABRT or SIGSEGV could cause problems here
-    if ( !gClosingIMDB )
-    {
-        gClosingIMDB = TRUE;
-        // if deleting this causes another problem in this process
-        // the gClosingIMDB flag above will protect us
-        delete SIPDBManager::getInstance();
-    }
-}
 
 
 class SignalTask : public OsTask
@@ -310,8 +286,6 @@ main(int argc, char* argv[] )
         pServerTask = NULL;
     }
 
-    // now deregister this process's database references from the IMDB
-    closeIMDBConnections();
 
     // Flush the log file
     OsSysLog::flush();

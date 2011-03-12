@@ -18,7 +18,7 @@
 #include "os/OsServerTask.h"
 #include "sipXecsService/SipNonceDb.h"
 #include "utl/PluginHooks.h"
-
+#include "registry/RegDataStore.h"
 // DEFINES
 // MACROS
 // EXTERNAL FUNCTIONS
@@ -71,30 +71,7 @@ public:
         REGISTER_QUERY                  ///< request is a valid query for current contacts
     };
 
-    /// Retrieve all updates for registrarName whose update number is greater than updateNumber
-    int pullUpdates(
-       const UtlString& registrarName,
-       Int64            updateNumber,
-       UtlSList&        updates);
-    /**<
-     * Retrieve all updates for registrarName whose update number is greater than updateNumber.
-     * Return the updates in the updates list.  Each update is an object of type
-     * RegistrationBinding.
-     * The order of updates in the list is not specified.
-     * Return the number of updates in the list.
-     */
-
-    /// Apply registry updates for a single registrar (local or peer) to the database
-    Int64 applyUpdatesToDirectory(
-       const UtlSList& updates,             ///< list of updates to apply
-       UtlString*      errorMsg = NULL);    ///< fill in the error message on failure (may be NULL)
-    /**<
-     * Return the maximum update number for that registrar after applying updates, or -1
-     * if there is an error.  An empty updates list is an error.
-     */
-
-    /// Get the largest update number in the local database for this registrar as primary
-    Int64 getDbUpdateNumber() const;
+    
 
     /// Schedule garbage collection and persistence of the registration database
     void scheduleCleanAndPersist();
@@ -106,18 +83,6 @@ public:
      * persistence is periodic instead of immediate, for efficiency.
      */
 
-    /// Reset the DbUpdateNumber so that the upper half is the epoch time.
-    void resetDbUpdateNumberEpoch();
-
-    /// Recover the DbUpdateNumber from the local database
-    void restoreDbUpdateNumber();
-
-    /// Return the max update number for primaryRegistrar, or zero if there are no such updates
-    Int64 getMaxUpdateNumberForRegistrar(const char* primaryName) const;
-
-    /// Return true if there is a new update to send to the peer registrar and fill in bindings
-    bool getNextUpdateToSend(RegistrarPeer *peer,       ///< peer to send the update to
-                             UtlSList&   bindings);     ///< fill in bindings of the update
 
 protected:
     struct RegistrationExpiryIntervals
@@ -142,15 +107,12 @@ protected:
 
     // The last update number assigned to a registration.  Equals zero if no
     // local registrations have been processed yet.
-    UtlLongLongInt mDbUpdateNumber;
 
     static OsMutex sLockMutex;
 
     /// An additional contact to be added to all success responses, if not null.
     UtlString mAdditionalContact;
 
-    /// Set the largest update number in the local database for this registrar as primary
-    void setDbUpdateNumber(Int64 dbUpdateNumber);
 
     /// Validate bindings, and if all are OK then apply them to the registry db
     RegisterStatus applyRegisterToDirectory(
@@ -162,18 +124,7 @@ protected:
         const SipMessage& registerMessage, ///< message containing bindings
         RegistrationExpiryIntervals*& expiryIntervalsUsed ); ///< returns the expiry interval used to bound the expiry of the registration
 
-    /// Update one binding for a peer registrar, or the local registrar (if peer is NULL)
-    Int64 updateOneBinding(RegistrationBinding* update,
-                           RegistrarPeer* peer,
-                           RegistrationDB* imdb);
-    /**<
-     * Applies update without testing CSeq -- the caller must have
-     * called RegistrationDB::isOutOfSequence and received a false
-     * return.
-     * Returns the max updateNumber for the registrar that is primary for this binding
-     * (after the update is applied).
-     * Update state variables for the primary registrar.
-     */
+
 
     // Process a single REGISTER request
     UtlBoolean handleMessage( OsMsg& eventMessage );
@@ -185,18 +136,18 @@ protected:
                             const SipMessage& message, ///< REGISTER message
                             SipMessage& responseMessage /// response for challenge
                             );
+
     /**<
      * @return
      * - true if request is authenticated as user for To address
      * - false if not (responseMessage is then set up as a challenge)
      */
 
-    /// If replication is configured, then name of this registrar as primary
-    const UtlString& primaryName() const;
 
     /// determine whether or not the registant is located behind a remote NAT.
     bool isRegistrantBehindNat( const SipMessage& registerRequest ) const;
 
+    RegDataStore _dataStore;
 };
 
 #endif // SIPREGISTRARSERVER_H

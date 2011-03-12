@@ -32,7 +32,7 @@ public interface LocationsManager {
      *
      * @param location server to save or update
      */
-    void storeLocation(Location location);
+    void saveLocation(Location location);
 
     /**
      * Update Nat settings for the corresponding location and publish nat event
@@ -41,7 +41,7 @@ public interface LocationsManager {
      * @param location
      * @param nat
      */
-    void storeNatLocation(Location location, NatLocation nat);
+    void saveNatLocation(Location location, NatLocation nat);
 
 
     /**
@@ -52,7 +52,7 @@ public interface LocationsManager {
      * @param role
      */
 
-    void storeServerRoleLocation(Location location, ServerRoleLocation role);
+    void saveServerRoleLocation(Location location, ServerRoleLocation role);
     /**
      * Saves new location in DB without publishing any events (used on location migration task)
      * (no publish)

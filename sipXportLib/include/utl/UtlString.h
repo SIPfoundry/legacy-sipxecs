@@ -13,6 +13,7 @@
 #define _UtlString_h_
 
 // SYSTEM INCLUDES
+#include <string>
 #include "os/OsDefs.h"
 
 // APPLICATION INCLUDES
@@ -244,6 +245,8 @@ public:
     UtlBoolean operator==(const UtlString&) const;
 
     UtlBoolean operator!=(const UtlString&) const;
+
+    
 
 ///@}
 // ================================================================
@@ -727,8 +730,32 @@ private:
     size_t mSize;       //: The number of bytes of data used.
     size_t mCapacity;   //: The allocated size of data.
     char   mBuiltIn[DEFAULT_UTLSTRING_CAPACITY];
+
+public:
+    //
+    // STL string compatibility layer
+    //
+    UtlString(const std::string& str);
+    UtlString operator=(const std::string& str);
+    std::string str() const;
 };
 
 /* ============================ INLINE METHODS ============================ */
+
+
+inline UtlString::UtlString(const std::string& str)
+{
+    operator=(str);
+}
+
+inline UtlString UtlString::operator=(const std::string& str)
+{
+    return UtlString::operator=(str.c_str());
+}
+
+inline std::string UtlString::str() const
+{
+    return std::string(this->data());
+}
 
 #endif    // _UtlString_h_

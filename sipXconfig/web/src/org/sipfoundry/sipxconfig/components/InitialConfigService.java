@@ -53,7 +53,7 @@ public class InitialConfigService implements IEngineService {
         // set location's status
         Location location = m_locationsManager.getLocationByFqdn(fqdn);
         location.setRegistered(true);
-        m_locationsManager.storeLocation(location);
+        m_locationsManager.saveLocation(location);
     }
 
     public ILink getLink(boolean post, Object parameter) {

@@ -9,6 +9,7 @@
 
 
 #ifndef HAVE_GIPS /* [ */
+#include "mp/NetInTask.h" // for definition of RTP packet
 
 #include "assert.h"
 #include "string.h"
@@ -16,7 +17,7 @@
 #include "mp/JB/JB_API.h"
 #include "mp/MpJitterBuffer.h"
 #include "mp/MpSipxDecoders.h"
-#include "mp/NetInTask.h" // for definition of RTP packet
+
 
 static int debugCount = 0;
 

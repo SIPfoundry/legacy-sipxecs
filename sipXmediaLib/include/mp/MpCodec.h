@@ -12,9 +12,10 @@
 
 #define TUNING_AUDIO_POP_DELAY
 #undef TUNING_AUDIO_POP_DELAY
-
-#include <mp/MpMisc.h>
 #include <os/OsStatus.h>
+#include "mp/dmaTask.h"
+#include <mp/MpMisc.h>
+
 /*************************************************************************/
 
 /* MCP/Codec interface: */

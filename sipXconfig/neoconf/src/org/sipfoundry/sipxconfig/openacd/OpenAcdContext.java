@@ -23,10 +23,11 @@ import java.util.Set;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.alias.AliasOwner;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchExtensionProvider;
 
-public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvider, AliasOwner {
+public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvider, AliasOwner, ReplicableProvider {
 
     void saveExtension(OpenAcdExtension extension);
 

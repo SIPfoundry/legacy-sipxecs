@@ -264,7 +264,7 @@ public abstract class ServicesTable extends BaseComponent {
         for (String beanId : selectedBeanIds) {
             getServiceLocation().removeServiceByBeanId(beanId);
         }
-        getLocationsManager().storeLocation(getServiceLocation());
+        getLocationsManager().saveLocation(getServiceLocation());
     }
 
     public void start() {

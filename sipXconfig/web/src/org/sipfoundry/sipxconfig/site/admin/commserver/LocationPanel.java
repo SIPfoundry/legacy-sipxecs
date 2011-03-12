@@ -33,6 +33,6 @@ public abstract class LocationPanel extends BaseComponent {
             return;
         }
         Location location = getLocationBean();
-        getLocationsManager().storeLocation(location);
+        getLocationsManager().saveLocation(location);
     }
 }

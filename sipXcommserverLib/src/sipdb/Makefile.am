@@ -26,22 +26,20 @@ libsipdb_la_CXXFLAGS = \
 	-DSIPX_DBDIR=\"@SIPX_DBDIR@\"
 
 libsipdb_la_LIBADD = \
-	@SIPXTACK_LIBS@
+	@SIPXTACK_LIBS@ \
+	-lmongoclient \
+	-lboost_system-mt
 
 libsipdb_la_SOURCES =  \
-	AliasDB.cpp \
-	CallerAliasDB.cpp \
-   CredentialDB.cpp \
-   DialByNameDB.cpp \
-   ExtensionDB.cpp \
-   LocationDB.cpp \
-   UserLocationDB.cpp \
-   UserForwardDB.cpp \
-   UserStaticDB.cpp \
-   RegistrationBinding.cpp \
-   PermissionDB.cpp \
-   RegistrationDB.cpp \
-   ResultSet.cpp \
-   SIPDBManager.cpp \
-   SIPXAuthHelper.cpp \
-   SubscriptionDB.cpp
+   MongoDB.cpp \
+   EntityDB.cpp \
+   EntityRecord.cpp \
+   NodeDB.cpp \
+   NodeRecord.cpp \
+   RegBinding.cpp \
+   RegDB.cpp \
+   Subscription.cpp \
+   SubscribeDB.cpp \
+   ResultSet.cpp
+
+

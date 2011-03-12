@@ -11,7 +11,7 @@ package org.sipfoundry.sipxconfig.admin.commserver;
 
 import java.util.Collection;
 
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 
 public interface AliasProvider {
     /**

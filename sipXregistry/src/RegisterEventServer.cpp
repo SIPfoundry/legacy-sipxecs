@@ -8,7 +8,6 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
-
 #include <stdlib.h>
 #include <limits.h>
 
@@ -18,8 +17,6 @@
 #include <os/OsSysLog.h>
 #include <utl/XmlContent.h>
 #include <sipdb/ResultSet.h>
-#include <sipdb/RegistrationDB.h>
-#include <sipdb/SIPDBManager.h>
 #include <net/SipRegEvent.h>
 
 // DEFINES
@@ -178,7 +175,6 @@ RegisterEventServer::RegisterEventServer(const UtlString& domainName,
                                          const UtlString& bindIp) :
    mDomainName(domainName),
    mEventType(REG_EVENT_TYPE),
-   mpRegistrationDBInstance(RegistrationDB::getInstance()),
    mUserAgent(
       tcpPort, // sipTcpPort
       udpPort, // sipUdpPort
@@ -258,8 +254,6 @@ RegisterEventServer::~RegisterEventServer()
       OsTask::delay(100);
    }
 
-   // Free the Registration DB instance.
-   RegistrationDB::releaseInstance();
 }
 
 // Generate and publish content for reg events for an AOR/instrument.
@@ -325,12 +319,15 @@ void RegisterEventServer::generateContentUser(const char* entity,
 
    // Use an expiraton time of 0 to get all the registrations for the
    // AOR, including the ones that have expired but not been purged.
-   ResultSet rs;
-   getRegistrationDBInstance()->getUnexpiredContactsUser(aorUri,
-                                                         0,
-                                                         rs);
-
-   generateContent(entity, rs, body);
+   //ResultSet rs;
+   //getRegistrationDBInstance()->getUnexpiredContactsUser(aorUri,
+   //                                                      0,
+   //                                                      rs);
+   UtlString identity;
+   aorUri.getIdentity(identity);
+   RegDB::Bindings bindings;
+  _dataStore.regDB().getUnexpiredContactsUser(identity.str(), 0, bindings);
+   generateContent(entity, bindings, body);
 }
 
 // Generate (but not publish) content for reg events for an instrument
@@ -344,12 +341,11 @@ void RegisterEventServer::generateContentInstrument(const char* entity,
 
    // Use an expiraton time of 0 to get all the registrations for the
    // AOR, including the ones that have expired but not been purged.
-   ResultSet rs;
-   getRegistrationDBInstance()->getUnexpiredContactsInstrument(instrument.data(),
-                                                               0,
-                                                               rs);
 
-   generateContent(entity, rs, body);
+   RegDB::Bindings bindings;
+  _dataStore.regDB().getUnexpiredContactsInstrument(instrument.str(), 0, bindings);
+   generateContent(entity, bindings, body);
+
 }
 
 // Generate (but not publish) content for reg events for an AOR and instrument
@@ -365,18 +361,16 @@ void RegisterEventServer::generateContentUserInstrument(const char* entity,
 
    // Use an expiraton time of 0 to get all the registrations for the
    // AOR, including the ones that have expired but not been purged.
-   ResultSet rs;
-   getRegistrationDBInstance()->getUnexpiredContactsUserInstrument(aorUri,
-                                                                   instrument.data(),
-                                                                   0,
-                                                                   rs);
-
-   generateContent(entity, rs, body);
+   UtlString identity;
+   aorUri.getIdentity(identity);
+   RegDB::Bindings bindings;
+  _dataStore.regDB().getUnexpiredContactsUserInstrument(identity.str(), instrument.str(), 0, bindings);
+   generateContent(entity, bindings, body);
 }
 
 // Generate (but not publish) content for reg events.
 void RegisterEventServer::generateContent(const char* entityString,
-                                          ResultSet& rs,
+                                          const RegDB::Bindings& bindings,
                                           HttpBody*& body)
 {
    unsigned long now = OsDateTime::getSecsSinceEpoch();
@@ -395,50 +389,37 @@ void RegisterEventServer::generateContent(const char* entityString,
    XmlEscape(content, entityString);
    // If there are no unexpired contacts, the state is "init", otherwise
    // "active".
-   UtlSListIterator rs_itor(rs);
-   UtlHashMap* rowp;
    UtlBoolean found = FALSE;
-   while (!found &&
-          (rowp = dynamic_cast <UtlHashMap*> (rs_itor())))
+   for (RegDB::Bindings::const_iterator iter = bindings.begin(); iter != bindings.end(); iter++)
    {
-      assert(rowp);
-      unsigned long expired =
-         (dynamic_cast <UtlInt*>
-          (rowp->findValue(&RegistrationDB::gExpiresKey)))->getValue();
-
-      if (expired >= now)
+      if (iter->getExpirationTime()  >= now)
       {
          found = TRUE;
+         break;
       }
    }
+
    content.append("\" state=\"");
    content.append(found ? "active" : "init");
    content.append("\">\r\n");
 
    // Iterate through the result set, generating <contact> elements
    // for each contact.
-   rs_itor.reset();
-   while ((rowp = dynamic_cast <UtlHashMap*> (rs_itor())))
+   for (RegDB::Bindings::const_iterator iter = bindings.begin(); iter != bindings.end(); iter++)
    {
-      assert(rowp);
-      UtlString* callid =
-         dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gCallidKey));
-      UtlString* contact_string =
-         dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gContactKey));
-      Url contact_nameaddr(*contact_string, FALSE);
-      UtlString* q =
-         dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gQvalueKey));
-      int cseq =
-         (dynamic_cast <UtlInt*>
-          (rowp->findValue(&RegistrationDB::gCseqKey)))->getValue();
-      unsigned long expired =
-         (dynamic_cast <UtlInt*>
-          (rowp->findValue(&RegistrationDB::gExpiresKey)))->getValue();
-      UtlString* pathVector = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gPathKey));
-      UtlString* gruu = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gGruuKey));
-      UtlString* instanceId = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gInstanceIdKey));
-      UtlString* instrument =
-         dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gInstrumentKey));
+      //assert(rowp);
+      //UtlString* callid =  dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gCallidKey));
+      //UtlString* contact_string = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gContactKey));
+      //
+      //UtlString* q = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gQvalueKey));
+      //int cseq = (dynamic_cast <UtlInt*>(rowp->findValue(&RegistrationDB::gCseqKey)))->getValue();
+      //unsigned long expired = (dynamic_cast <UtlInt*> (rowp->findValue(&RegistrationDB::gExpiresKey)))->getValue();
+      //UtlString* pathVector = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gPathKey));
+      //UtlString* gruu = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gGruuKey));
+      //UtlString* instanceId = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gInstanceIdKey));
+      //UtlString* instrument = dynamic_cast <UtlString*> (rowp->findValue(&RegistrationDB::gInstrumentKey));
+
+
 
       content.append("    <contact id=\"");
       // We key the registrations table on identity and contact URI, so
@@ -447,26 +428,27 @@ void RegisterEventServer::generateContent(const char* entityString,
       // if we wanted the id's to be smaller and opaque.
       XmlEscape(content, entityString);
       content.append("@@");
-      XmlEscape(content, *contact_string);
+      XmlEscape(content, iter->getContact().c_str());
       // If the contact has expired, it should be terminated/expired.
       // If it has not, it should be active/registered.
-      content.append(expired < now ?
+      content.append(iter->getExpirationTime() < now ?
                      "\" state=\"terminated\" event=\"expired\" q=\"" :
                      "\" state=\"active\" event=\"registered\" q=\"");
-      if (!(q->isNull() || q->compareTo(SPECIAL_IMDB_NULL_VALUE) == 0))
+      if (!iter->getQvalue().empty())
       {
-         XmlEscape(content, *q);
+         XmlEscape(content, iter->getQvalue().c_str());
       }
       else
       {
          content.append("1");
       }
       content.append("\" callid=\"");
-      XmlEscape(content, *callid);
+      XmlEscape(content, iter->getCallId().c_str());
       content.append("\" cseq=\"");
-      content.appendNumber(cseq);
+      content.appendNumber((int)iter->getCseq());
       content.append("\">\r\n");
 
+      Url contact_nameaddr(iter->getContact().c_str(), FALSE);
       UtlString contact_addrspec;
       contact_nameaddr.getUri(contact_addrspec);
       content.append("      <uri>");
@@ -484,41 +466,34 @@ void RegisterEventServer::generateContent(const char* entityString,
 
       // Add the path header, gruu and sip instance id info
 
-      if (NULL != pathVector &&
-          !pathVector->isNull() &&
-          0 != pathVector->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      if (!iter->getPath().empty())
       {
          content.append("      <unknown-param name=\"path\">");
-         XmlEscape(content, *pathVector);
+         XmlEscape(content, iter->getPath().c_str());
          content.append("</unknown-param>\r\n");
       }
-      if (NULL != instanceId &&
-          !instanceId->isNull() &&
-          0 != instanceId->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      if (!iter->getInstanceId().empty())
       {
          content.append("      <unknown-param name=\"+sip.instance\">");
-         XmlEscape(content, *instanceId);
+         XmlEscape(content, iter->getInstanceId().c_str());
          content.append("</unknown-param>\r\n");
       }
-      if (NULL != gruu &&
-          !gruu->isNull() &&
-          0 != gruu->compareTo(SPECIAL_IMDB_NULL_VALUE))
+      if (!iter->getGruu().empty())
       {
          content.append("      <gr:pub-gruu uri=\"");
          // It is a bit clunky to just prepend "sip:" onto the GRUU identity.
          // But if we were handling things properly as URIs, the gruu column
          // of the registration DB would contain the full GRUU URI already.
          UtlString tmp("sip:");
-         tmp.append(*gruu);
+         tmp.append(iter->getGruu().c_str());
          XmlEscape(content, tmp);
          content.append("\"/>\r\n");
       }
-      if(NULL != instrument &&
-         !instrument->isNull() &&
-         0 != instrument->compareTo(SPECIAL_IMDB_NULL_VALUE))
+
+      if(!iter->getInstrument().empty())
       {
          content.append("      <in:instrument>");
-         XmlEscape(content, *instrument);
+         XmlEscape(content, iter->getInstrument().c_str());
          content.append("</in:instrument>\r\n");
       }
 

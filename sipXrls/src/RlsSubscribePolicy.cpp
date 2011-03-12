@@ -17,6 +17,7 @@
 #include <net/SipPublishContentMgr.h>
 #include <net/SipMessage.h>
 #include <net/Url.h>
+#include <sipdb/EntityDB.h>
 #include "RlsSubscribePolicy.h"
 
 // EXTERNAL FUNCTIONS
@@ -159,7 +160,7 @@ UtlBoolean RlsSubscribePolicy::isAuthenticated(const SipMessage & subscribeReque
          UtlString passTokenDB;
 
          // then get the credentials for this user & realm
-         if (CredentialDB::getInstance(mCredentialDbName)->getCredential( authUserBase
+         if (EntityDB::defaultCollection().collection().getCredential( authUserBase
                                                          ,authRealm
                                                          ,authIdentity
                                                          ,passTokenDB

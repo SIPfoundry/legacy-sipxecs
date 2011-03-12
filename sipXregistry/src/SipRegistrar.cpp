@@ -8,6 +8,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include "registry/RegDataStore.h"
+
 #include <assert.h>
 #include <stdlib.h>
 
@@ -23,19 +25,14 @@
 #include "net/SipUserAgent.h"
 #include "net/NameValueTokenizer.h"
 #include "net/XmlRpcDispatch.h"
-#include "sipdb/RegistrationDB.h"
 #include "registry/SipRegistrar.h"
 #include "registry/RegisterPlugin.h"
 #include "registry/SipRedirectServer.h"
 #include "sipXecsService/SipXecsService.h"
 #include "RegisterEventServer.h"
-#include "RegistrarInitialSync.h"
-#include "RegistrarPeer.h"
 #include "RegistrarPersist.h"
-#include "RegistrarSync.h"
-#include "RegistrarTest.h"
 #include "SipRegistrarServer.h"
-#include "SyncRpc.h"
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES
@@ -65,10 +62,6 @@ OsBSem SipRegistrar::sLock(OsBSem::Q_PRIORITY, OsBSem::FULL);
 SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    OsServerTask("SipRegistrar", NULL, SIPUA_DEFAULT_SERVER_OSMSG_QUEUE_SIZE),
    mConfigDb(configDb),
-   mRegistrationDB(RegistrationDB::getInstance()), // implicitly loads database
-   mHttpServer(NULL),
-   mXmlRpcDispatch(NULL),
-   mReplicationConfigured(false),
    mSipUserAgent(NULL),
    mRedirectServer(NULL),
    mRedirectMsgQ(NULL),
@@ -76,32 +69,11 @@ SipRegistrar::SipRegistrar(OsConfigDb* configDb) :
    // but don't start the associated thread until the registrar is operational.
    mRegistrarServer(new SipRegistrarServer(*this)),
    mRegistrarMsgQ(NULL),
-   mRegistrarInitialSync(NULL),
-   mRegistrarSync(NULL),
    mRegisterEventServer(NULL),
-   mRegistrarTest(NULL),
    mRegistrarPersist(NULL)
 {
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::SipRegistrar constructed.");
 
-   mHttpPort = mConfigDb->getPort("SIP_REGISTRAR_XMLRPC_PORT");
-   if (PORT_NONE == mHttpPort)
-   {
-      OsSysLog::add(FAC_SIP, PRI_NOTICE,
-                    "SipRegistrar::SipRegistrar"
-                    " SIP_REGISTRAR_XMLRPC_PORT == PORT_NONE :"
-                    " peer synchronization disabled"
-                    );
-   }
-   else // HTTP/RPC port is configured
-   {
-      if (PORT_DEFAULT == mHttpPort)
-      {
-         mHttpPort = SIP_REGISTRAR_DEFAULT_XMLRPC_PORT;
-      }
-
-      configurePeers();
-   }
 
    // Some phones insist (incorrectly) on putting the proxy port number on urls;
    // we get it from the configuration so that we can ignore it.
@@ -175,7 +147,7 @@ int SipRegistrar::run(void* pArg)
    UtlBoolean bFatalError = false;
    int taskResult = 0;
 
-   startRpcServer(bFatalError);
+
    if (!bFatalError)
    {
       /*
@@ -211,40 +183,6 @@ void SipRegistrar::startupPhase()
    // Create and start the persist thread, before making any changes
    // to the registration DB.
    createAndStartPersist();
-
-   if (mReplicationConfigured)
-   {
-      // Create replication-related thread objects, because they own some
-      // the data that the RegistrarInitialSync thread needs,
-      // but don't start them yet.
-      createReplicationThreads();
-
-      // Begin the RegistrarInitialSync thread and then wait for it.
-      // The RegistrarInitialSync thread performs steps (1) to (4) of
-      // section 5.7.1 of sipXregistry/doc/SyncDesign.*.
-      OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                    "SipRegistrar::startupPhase starting initialSyncThread"
-                    );
-      mRegistrarInitialSync->start();
-      yield();
-      mRegistrarInitialSync->waitForCompletion();
-
-      // The initial sync thread has no further value, to the ash heap of history it goes
-      delete mRegistrarInitialSync;
-      mRegistrarInitialSync = NULL;
-   }
-   else
-   {
-      OsSysLog::add(FAC_SIP, PRI_INFO,
-                    "SipRegistrar::startupPhase no replication configured"
-                    );
-   }
-
-   // Reset the DbUpdateNumber so that the upper half is the epoch time.
-   // Step (5) in section 5.7.1 of sipXregistry/doc/SyncDesign.*.
-   // We perform this even if there are no peer registrars to ensure that
-   // update numbers are monotonic even if HA is enabled and then disabled.
-   getRegistrarServer().resetDbUpdateNumberEpoch();
 
    // Step (6) is not performed explicitly.  Instead, we allow the normal
    // operation of the RegistrarTest thread to do that processing.
@@ -326,18 +264,6 @@ UtlBoolean SipRegistrar::operationalPhase()
       mSipUserAgent->setUserAgentHeaderProperty("sipXecs/registry");
    }
 
-   if (mReplicationConfigured)
-   {
-      // Start the test and sync threads.  (We ran the init sync thread earlier.)
-      mRegistrarTest->start();
-      mRegistrarSync->start();
-
-      // Register the pushUpdates and reset methods.
-      // (We registered the pullUpdates method earlier because it only needs DB access.)
-      SyncRpcPushUpdates::registerSelf(*this);
-      SyncRpcReset::registerSelf(*this);
-   }
-
    mSipUserAgent->start();
    startRegistrarServer();
    startRedirectServer();
@@ -355,29 +281,13 @@ UtlBoolean SipRegistrar::operationalPhase()
    return mSipUserAgent->isOk();
 }
 
-/// Get the XML-RPC dispatcher
-XmlRpcDispatch* SipRegistrar::getXmlRpcDispatch()
-{
-   return mXmlRpcDispatch;
-}
-
 /// Get the RegistrarPersist thread object
 RegistrarPersist* SipRegistrar::getRegistrarPersist()
 {
    return mRegistrarPersist;
 }
 
-/// Get the RegistrarTest thread object
-RegistrarTest* SipRegistrar::getRegistrarTest()
-{
-   return mRegistrarTest;
-}
 
-/// Get the RegistrarSync thread object
-RegistrarSync* SipRegistrar::getRegistrarSync()
-{
-   return mRegistrarSync;
-}
 
 /// Get the RegisterEventServer thread object
 RegisterEventServer* SipRegistrar::getRegisterEventServer()
@@ -385,17 +295,6 @@ RegisterEventServer* SipRegistrar::getRegisterEventServer()
    return mRegisterEventServer;
 }
 
-/// Return true if replication is configured, false otherwise
-bool SipRegistrar::isReplicationConfigured()
-{
-   return mReplicationConfigured;
-}
-
-/// Get the RegistrationDB thread object
-RegistrationDB* SipRegistrar::getRegistrationDB()
-{
-   return mRegistrationDB;
-}
 
 /// Get the config DB
 OsConfigDb* SipRegistrar::getConfigDB()
@@ -430,16 +329,8 @@ SipRegistrar::~SipRegistrar()
    // all other threads have been shut down
    OsSysLog::add(FAC_SIP, PRI_DEBUG, "SipRegistrar::~ task shut down - complete destructor");
 
-   mPeers.destroyAll();
 
    mValidDomains.destroyAll();
-
-   // release the registration database instance
-   if (mRegistrationDB)
-   {
-      mRegistrationDB->releaseInstance();
-      mRegistrationDB = NULL;
-   }
 }
 
 /// Get the default domain name for this registrar
@@ -581,16 +472,6 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
 
        // Do an orderly shutdown of all the various threads.
 
-       // Deleting an OsServerTask is the only way of
-       // waiting for it to complete cleanly
-       if ( mRegistrarInitialSync )
-       {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipRegistrar::handleMessage shutting down RegistrarInitialSync");
-          mRegistrarInitialSync->requestShutdown();
-          delete mRegistrarInitialSync;
-          mRegistrarInitialSync = NULL;
-       }
 
        if ( mSipUserAgent )
        {
@@ -601,31 +482,6 @@ UtlBoolean SipRegistrar::handleMessage( OsMsg& eventMessage )
           mSipUserAgent = NULL ;
        }
 
-       if ( mHttpServer )
-       {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipRegistrar::handleMessage shutting down HttpServer");
-          mHttpServer->requestShutdown();
-          delete mHttpServer;
-          mHttpServer = NULL;
-       }
-
-       if ( mRegistrarTest )
-       {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipRegistrar::handleMessage shutting down RegistrarTest");
-          delete mRegistrarTest;
-          mRegistrarTest = NULL;
-       }
-
-       if ( mRegistrarSync )
-       {
-          OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                        "SipRegistrar::handleMessage shutting down RegistrarSync");
-          mRegistrarSync->requestShutdown();
-          delete mRegistrarSync;
-          mRegistrarSync = NULL;
-       }
 
        if ( mRegistrarPersist )
        {
@@ -704,125 +560,6 @@ SipRegistrar::getRegistrarServer()
    return *mRegistrarServer;
 }
 
-/// Read peer configuration and initialize peer state
-void SipRegistrar::configurePeers()
-{
-   // in case we can ever do this on the fly, clear out any old peer configuration
-   mReplicationConfigured = false;
-   mPeers.destroyAll();
-   mPrimaryName.remove(0);
-
-   UtlString peersMsg;
-
-   mConfigDb->get("SIP_REGISTRAR_NAME", mPrimaryName);
-
-   if (! mPrimaryName.isNull())
-   {
-      mPrimaryName.toLower();
-      OsSysLog::add(FAC_SIP, PRI_INFO, "SipRegistrar::configurePeers "
-                    "SIP_REGISTRAR_NAME : '%s'", mPrimaryName.data()
-                    );
-
-      UtlString peerNames;
-      mConfigDb->get("SIP_REGISTRAR_SYNC_WITH", peerNames);
-
-      if (!peerNames.isNull())
-      {
-         UtlString peerName;
-
-         for (int peerIndex = 0;
-              NameValueTokenizer::getSubField(peerNames.data(), peerIndex, ", \t", &peerName);
-              peerIndex++
-              )
-         {
-            if (peerName.compareTo(mPrimaryName, UtlString::ignoreCase)) // not myself
-            {
-               RegistrarPeer* thisPeer = new RegistrarPeer(this, peerName, mHttpPort);
-               assert(thisPeer);
-
-               mPeers.append(thisPeer);
-               if (!peersMsg.isNull())
-               {
-                  peersMsg.append(", ");
-               }
-               peersMsg.append(thisPeer->data());
-            }
-         }
-
-         if (mPeers.isEmpty())
-         {
-            OsSysLog::add(FAC_SIP, PRI_WARNING,
-                          "SipRegistrar::configurePeers - no peers configured"
-                          );
-         }
-         else
-         {
-            OsSysLog::add(FAC_SIP, PRI_INFO,
-                          "SipRegistrar::configurePeers: %s", peersMsg.data()
-                          );
-            mReplicationConfigured = true;
-         }
-      }
-      else
-      {
-         OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipRegistrar::configurePeers "
-                       "SIP_REGISTRAR_SYNC_WITH not set - replication disabled"
-                       );
-      }
-   }
-   else
-   {
-      OsSysLog::add(FAC_SIP, PRI_NOTICE, "SipRegistrar::configurePeers "
-                    "SIP_REGISTRAR_NAME not set - replication disabled"
-                    );
-   }
-}
-
-
-/// If replication is configured, then name of this registrar as primary
-const UtlString& SipRegistrar::primaryName() const
-{
-   return mPrimaryName;
-}
-
-
-/// Server for XML-RPC requests
-void SipRegistrar::startRpcServer(UtlBoolean& bFatalError)
-{
-    bFatalError = false; // disable is not a fatal error
-
-   // Begins operation of the HTTP/RPC service
-   // sets mHttpServer and mXmlRpcDispatcher
-   if (mReplicationConfigured)
-   {
-      // Initialize mHttpServer and mXmlRpcDispatch
-      mXmlRpcDispatch = new XmlRpcDispatch(mHttpPort, true /* use https */,
-                                           XmlRpcDispatch::DEFAULT_URL_PATH,
-                                           mBindIp);
-      mHttpServer = mXmlRpcDispatch->getHttpServer();
-      if (!mHttpServer->isSocketOk())
-      {
-         OsSysLog::add(FAC_SIP, PRI_ERR, "XmlRpc HttpServer failed to initialize listening socket");
-         bFatalError = true ;
-      }
-   }
-}
-
-/// Get an iterator over all peers.
-UtlSListIterator* SipRegistrar::getPeers()
-{
-   return (  ( ! mReplicationConfigured || mPeers.isEmpty() )
-           ? NULL : new UtlSListIterator(mPeers));
-}
-
-/// Get peer state object by name.
-RegistrarPeer* SipRegistrar::getPeer(const UtlString& peerName)
-{
-   return (  mReplicationConfigured
-           ? dynamic_cast<RegistrarPeer*>(mPeers.find(&peerName))
-           : NULL
-           );
-}
 
 void
 SipRegistrar::startRedirectServer()
@@ -883,13 +620,7 @@ SipRegistrar::sendToRegistrarServer(OsMsg& eventMessage)
     }
 }
 
-/// Create replication-related thread objects, but don't start them yet
-void SipRegistrar::createReplicationThreads()
-{
-   mRegistrarInitialSync = new RegistrarInitialSync(*this);
-   mRegistrarSync = new RegistrarSync(*this);
-   mRegistrarTest = new RegistrarTest(*this);
-}
+
 
 bool
 SipRegistrar::isValidDomain(const Url& uri) const

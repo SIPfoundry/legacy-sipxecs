@@ -17,6 +17,8 @@
 #include "registry/SipRegistrar.h"
 #include "SipRegistrarServer.h"
 
+#include <assert.h>
+
 // DEFINES
 // CONSTANTS
 // STATIC VARIABLE INITIALIZATIONS

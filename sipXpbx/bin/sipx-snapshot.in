@@ -25,6 +25,7 @@ LogStop=
 IncludeCallRecords="FALSE"
 IncludeProfiles="FALSE"
 GenerateCoreFiles=NO
+DumpMongo=YES
 Arguments=
 InvokedAs="$0"
 
@@ -201,6 +202,10 @@ do
 
         --generate-core-files)
             GenerateCoreFiles=YES
+            ;;
+
+        --nomongo)
+            DumpMongo=NO
             ;;
 
         ##
@@ -1054,13 +1059,6 @@ EOF
      # Remove the secret values from configuration unless told not to.
      if [ ${SaveSecrets} = NO ]
      then
-       for file in `find $Work -name credential.xml`
-       do
-	 perl -pi \
-	       -e 's|<passtoken>[^<]*</passtoken>|<passtoken>ELIDED</passtoken>|;' \
-	       -e 's|<pintoken>[^<]*</pintoken>|<pintoken>ELIDED</pintoken>|' \
-	      ${file}
-       done
        for file in `find $Work -name domain-config`
        do
 	 perl -pi \
@@ -1092,6 +1090,17 @@ EOF
      mkdir ${OpenacdDir}
      cp -r /opt/OpenACD/etc ${OpenacdDir}
      cp -r @SIPX_VARDIR@/openacd ${OpenacdDir}
+   fi
+
+   #Dump the mongo database in bson format
+   #This script assumes mongo is running
+   if [ ${DumpMongo} = YES ]
+   then
+     if [ ${SaveSecrets} = NO ]
+     then
+       mongoexport -d imdb -c entity | sed -e 's/"pstk" : ".*", "pntk" : ".\{32\}"/"pstk" : "ELIDED", "pntk" : "ELIDED"/g' -e 's/"pstk" : ".\{10\}",/"pstk" : "ELIDED",/g' > ${Work}/mongo.imdb.entity.json
+     else mongoexport -d imdb -c entity -o ${Work}/mongo.imdb.entity.json
+     fi
    fi
 }
 

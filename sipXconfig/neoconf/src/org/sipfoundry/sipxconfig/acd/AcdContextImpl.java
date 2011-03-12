@@ -31,11 +31,14 @@ import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.DataCollectionUtil;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.ReplicableProvider;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
@@ -54,35 +57,23 @@ import org.springframework.dao.support.DataAccessUtils;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 
 public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContext, BeanFactoryAware,
-        DaoEventListener {
+        DaoEventListener, ReplicableProvider {
     public static final Log LOG = LogFactory.getLog(AcdContextImpl.class);
-
     private static final String NAME_PROPERTY = "name";
-
     private static final String SERVER_PARAM = "acdServer";
-
     private static final String USER_PARAM = "user";
-
     private static final String SQL = "alter table acd_server drop column host";
-
     private static final String ACD_LINE_IDS_WITH_ALIAS = "acdLineIdsWithAlias";
-
     private static final String VALUE = "value";
-
     private static final String LINE = "line";
-
     private static final String AGENT_FOR_USER_AND_SERVER_QUERY = "agentForUserAndServer";
 
     private AliasManager m_aliasManager;
-
     private BeanFactory m_beanFactory;
-
     private boolean m_enabled = true;
-
     private LocationsManager m_locationsManager;
-
     private SipxServiceManager m_sipxServiceManager;
-
+    private CoreContext m_coreContext;
     private SipxServiceBundle m_acdBundle;
 
     private AcdServer getAcdServer(Integer id) {
@@ -109,8 +100,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
 
     public List getUsersWithAgentsForLocation(Location location) {
         AcdServer acdServer = getAcdServerForLocationId(location.getId());
-        return getHibernateTemplate().findByNamedQueryAndNamedParam("usersWithAgentsForServer",
-                SERVER_PARAM, acdServer);
+        return getHibernateTemplate().findByNamedQueryAndNamedParam("usersWithAgentsForServer", SERVER_PARAM,
+                acdServer);
     }
 
     public AcdServer loadServer(Serializable id) {
@@ -233,8 +224,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         Object[] values = {
             user, server
         };
-        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY,
-                params, values);
+        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY, params,
+                values);
         if (!agents.isEmpty()) {
             return (AcdAgent) agents.get(0);
         }
@@ -253,8 +244,8 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         Object[] values = {
             user, server
         };
-        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY,
-                params, values);
+        List agents = getHibernateTemplate().findByNamedQueryAndNamedParam(AGENT_FOR_USER_AND_SERVER_QUERY, params,
+                values);
         return !agents.isEmpty();
     }
 
@@ -306,19 +297,17 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         }
     }
 
-    public Collection getAliasMappings() {
+    public Collection<AliasMapping> getAliasMappings() {
         HibernateTemplate hibernate = getHibernateTemplate();
-        List acdLines = hibernate.loadAll(AcdLine.class);
-
-        List aliases = new ArrayList();
-        for (Iterator i = acdLines.iterator(); i.hasNext();) {
-            AcdLine acdLine = (AcdLine) i.next();
-            acdLine.appendAliases(aliases);
+        List<AcdLine> acdLines = hibernate.loadAll(AcdLine.class);
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
+        for (AcdLine acdLine : acdLines) {
+            aliases.addAll(acdLine.getAliasMappings(m_coreContext.getDomainName()));
         }
 
         List<AcdServer> servers = getServers();
         for (AcdServer server : servers) {
-            aliases.addAll(server.getAliasMappings());
+            aliases.addAll(server.getAliasMappings(m_coreContext.getDomainName()));
         }
 
         return aliases;
@@ -552,7 +541,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             SipxAcdService acdService = (SipxAcdService) m_sipxServiceManager
                     .getServiceByBeanId(SipxAcdService.BEAN_ID);
             location.addService(acdService);
-            m_locationsManager.storeLocation(location);
+            m_locationsManager.saveLocation(location);
             getHibernateTemplate().flush();
 
             acdServer.setLocation(location);
@@ -622,5 +611,23 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     @Required
     public void setAliasManager(AliasManager aliasManager) {
         m_aliasManager = aliasManager;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
+    }
+
+    @Override
+    public List<Replicable> getReplicables() {
+        List<Replicable> replicables = new ArrayList<Replicable>();
+        List<AcdLine> acdLines = getHibernateTemplate().loadAll(AcdLine.class);
+        List<AcdServer> servers = getServers();
+        for (AcdLine line : acdLines) {
+            replicables.add(line);
+        }
+        for (AcdServer server : servers) {
+            replicables.add(server);
+        }
+        return replicables;
     }
 }

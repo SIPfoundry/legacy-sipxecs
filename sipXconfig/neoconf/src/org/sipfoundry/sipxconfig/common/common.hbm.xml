@@ -106,7 +106,9 @@
   </query>
 
   <query name="usersForBranch">
-    <![CDATA[from User u where u.branch = :branch]]>
+    <![CDATA[select distinct u from User u join u.groups as ug 
+    where ug.branch = :branch
+    or u.branch = :branch]]>
   </query>
 
   <query name="usersThatISupervise">

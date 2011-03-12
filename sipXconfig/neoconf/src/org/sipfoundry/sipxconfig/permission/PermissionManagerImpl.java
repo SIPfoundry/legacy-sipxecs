@@ -19,7 +19,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.service.SipxProxyService;
@@ -45,12 +44,12 @@ public class PermissionManagerImpl extends SipxHibernateDaoSupport<Permission> i
         }
 
         getHibernateTemplate().saveOrUpdate(permission);
-        m_replicationContext.generate(DataSet.PERMISSION);
+        m_replicationContext.generateAll();
     }
 
     public void removeCallPermissions(Collection<Integer> permissionIds) {
         removeAll(Permission.class, permissionIds);
-        m_replicationContext.generate(DataSet.PERMISSION);
+        m_replicationContext.generateAll();
     }
 
     public Permission getCallPermission(Object id) {

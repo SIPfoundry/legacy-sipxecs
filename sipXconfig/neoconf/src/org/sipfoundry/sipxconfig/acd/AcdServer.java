@@ -22,69 +22,52 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.LoggingManager;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.service.LoggingEntity;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 
-public class AcdServer extends AcdComponent implements LoggingEntity {
+public class AcdServer extends AcdComponent implements LoggingEntity, Replicable {
     public static final Log LOG = LogFactory.getLog(AcdServer.class);
     public static final String OBJECT_CLASS = "acd-server";
-
     public static final String BEAN_NAME = "acdServer";
-
     public static final String LOG_SETTING = "acd-server/log-level";
-
     static final String ADMIN_STATE = "acd-server/administrative-state";
-
     static final String UDP_PORT = "acd-server/udp-port";
-
     static final String DOMAIN = "acd-server/domain";
-
     static final String FQDN = "acd-server/fqdn";
-
     static final String PRESENCE_SERVER_URI = "acd-server/presence-server-uri";
-
     static final String PRESENCE_SERVICE_URI = "acd-server/presence-service-uri";
-
     private static final String KEY_URI = "uri";
-
     private static final String KEY_NAME = "name";
-
     private static final String URI = "http://{0}:{1}/RPC2";
+    private static final String ALIAS_RELATION = "acd";
 
     // TODO: only needed to create AcdAudio - we may be able to remove this dependency
     private transient AcdContext m_acdContext;
-
     private transient SipxServiceManager m_sipxServiceManager;
-
     private SipxPresenceService m_presenceService;
-
     private int m_port;
-
     private int m_agentPort;
-
     private Location m_location;
-
     private Set m_lines = new HashSet();
-
     private Set m_queues = new HashSet();
-
     private Set m_agents = new HashSet();
-
     private LoggingManager m_loggingManager;
 
     public AcdServer() {
         super("sipxacd-server.xml", OBJECT_CLASS);
     }
 
-    public Set getLines() {
+    public Set<AcdLine> getLines() {
         return m_lines;
     }
 
-    public void setLines(Set lines) {
+    public void setLines(Set<AcdLine> lines) {
         m_lines = lines;
     }
 
@@ -175,9 +158,8 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
         }
     }
 
-    public Collection getAliasMappings() {
-        Collection aliases = new ArrayList();
-        String domainName = getCoreContext().getDomainName();
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        Collection<AliasMapping> mappings = new ArrayList<AliasMapping>();
         int presencePort = m_presenceService.getPresenceServerPort();
         String signInCode = m_presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE);
         String signOutCode = m_presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE);
@@ -186,17 +168,14 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
             signOutCode += String.valueOf(m_location.getId());
         }
 
-        aliases.add(createPresenceAliasMapping(signInCode.trim(), domainName, presencePort));
-        aliases.add(createPresenceAliasMapping(signOutCode.trim(), domainName, presencePort));
-
-        return aliases;
+        mappings.add(createPresenceAliasMapping(signInCode.trim(), domainName, presencePort));
+        mappings.add(createPresenceAliasMapping(signOutCode.trim(), domainName, presencePort));
+        return mappings;
     }
 
     private AliasMapping createPresenceAliasMapping(String code, String domainName, int port) {
-        AliasMapping mapping = new AliasMapping();
-        mapping.setIdentity(AliasMapping.createUri(code, domainName));
-        mapping.setContact(SipUri.format(code, getLocation().getFqdn(), port));
-        mapping.setRelation("acd");
+        AliasMapping mapping = new AliasMapping(AliasMapping.createUri(code, domainName), SipUri.format(code,
+                getLocation().getFqdn(), port), ALIAS_RELATION);
         return mapping;
     }
 
@@ -350,5 +329,17 @@ public class AcdServer extends AcdComponent implements LoggingEntity {
 
     public String getLabelKey() {
         return "label.sipxAcdService";
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> dataSets = new HashSet<DataSet>();
+        dataSets.add(DataSet.ALIAS);
+        return dataSets;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        return null;
     }
 }

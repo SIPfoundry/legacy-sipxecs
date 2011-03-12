@@ -5,7 +5,7 @@ m4_include([config/general.m4])
 m4_include([config/sipXlib.m4])
 AM_INIT_AUTOMAKE(foreign tar-ustar)
 SFAC_AUTOMAKE_VERSION([1.6])
-AC_CONFIG_SRCDIR([src/sipdb/SIPDBManager.cpp])
+AC_CONFIG_SRCDIR([src/sipdb/EntityDB.cpp])
 AM_CONFIG_HEADER([src/config.h])
 AC_PROG_LIBTOOL
 AC_PROG_CXX
@@ -43,7 +43,6 @@ AC_CONFIG_FILES([
   src/fastdb/Makefile
   src/xsdvalid/Makefile
   src/test/Makefile
-  src/test/testlib/Makefile
   meta/Makefile
   src/sipxrestorebinary/Makefile
   src/sipxpackage/Makefile

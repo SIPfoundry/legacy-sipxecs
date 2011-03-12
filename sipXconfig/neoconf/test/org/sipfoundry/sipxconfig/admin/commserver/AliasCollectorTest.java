@@ -18,7 +18,8 @@ import junit.framework.TestCase;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.common.Replicable;
 
 public class AliasCollectorTest extends TestCase {
 
@@ -26,14 +27,19 @@ public class AliasCollectorTest extends TestCase {
         final int len = 10;
         final IMocksControl[] apCtrl = new IMocksControl[len];
         final AliasProvider[] ap = new AliasProvider[len];
+        final IMocksControl[] apCtrl2 = new IMocksControl[len];
+        final Replicable[] entity = new Replicable[len];
+        
 
         AliasMapping alias = new AliasMapping();
-
+        
         for (int i = 0; i < len; i++) {
             apCtrl[i] = EasyMock.createControl();
             ap[i] = apCtrl[i].createMock(AliasProvider.class);
             ap[i].getAliasMappings();
-            apCtrl[i].andReturn(Collections.singleton(alias)).anyTimes();
+            apCtrl2[i] = EasyMock.createControl();
+            entity[i] = apCtrl2[i].createMock(Replicable.class); 
+            apCtrl[i].andReturn(Collections.singletonList(alias)).anyTimes();
             apCtrl[i].replay();
         }
 
@@ -43,11 +49,14 @@ public class AliasCollectorTest extends TestCase {
             }
         };
 
-        Collection aliasMappings = collector.getAliasMappings();
-        assertEquals(len, aliasMappings.size());
-        for (Iterator i = aliasMappings.iterator(); i.hasNext();) {
-            assertSame(alias, i.next());
+        Collection<AliasMapping> aliases = collector.getAliasMappings();
+        assertEquals(len, aliases.size());
+        for (int i=0; i<10; i++ ) {
+            for (Iterator iter = aliases.iterator(); iter.hasNext();) {
+                assertSame(alias, iter.next());
+            }    
         }
+        
 
         for (int i = 0; i < len; i++) {
             apCtrl[i].verify();

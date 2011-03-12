@@ -75,7 +75,7 @@ public class SbcDeviceManagerImplTestIntegration extends IntegrationTestCase {
         location.setAddress("10.1.2.6");
         location.setFqdn("location1");
         location.setInstalledBundles(asList("borderControllerBundle"));
-        m_locationsManager.storeLocation(location);
+        m_locationsManager.saveLocation(location);
 
         BridgeSbc bridgeSbc = m_sdm.getBridgeSbc(location);
         assertEquals("sipXbridge-" + location.getId().toString(), bridgeSbc.getName());

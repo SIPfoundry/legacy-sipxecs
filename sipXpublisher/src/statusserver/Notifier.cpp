@@ -14,10 +14,9 @@
 #include "os/OsStatus.h"
 #include "os/OsDateTime.h"
 #include "net/SipUserAgent.h"
-#include "sipdb/SIPDBManager.h"
 #include "sipdb/ResultSet.h"
-#include "sipdb/SubscriptionDB.h"
-#include "sipdb/UserStaticDB.h"
+#include "sipdb/SubscribeDB.h"
+#include "sipdb/EntityDB.h"
 #include "statusserver/Notifier.h"
 
 // DEFINES
@@ -51,7 +50,6 @@ UtlString Notifier::sNotifycseqKey ("notifycseq");
 Notifier::Notifier(SipUserAgent* sipUserAgent)
 {
     mpSipUserAgent = sipUserAgent;
-    mpSubscriptionDB = SubscriptionDB::getInstance();
     mpStaticSeq = 0;
 }
 
@@ -130,14 +128,14 @@ Notifier::sendNotifyForeachSubscription (
     SipMessage& notify,
     const SipMessage* subscribe)
 {
-    ResultSet subscriptions;
+    SubscribeDB::Subscriptions subscriptions;
 
     int timeNow = (int)OsDateTime::getSecsSinceEpoch();
 
     // Get all subscriptions associated with this identity
-    mpSubscriptionDB->
-        getUnexpiredSubscriptions(
+    SubscribeDB::defaultCollection().collection().getUnexpiredSubscriptions(
            SUBSCRIPTION_COMPONENT_STATUS, key, event, timeNow, subscriptions );
+
 
 
     // Add the static configured contacts.
@@ -147,22 +145,34 @@ Notifier::sendNotifyForeachSubscription (
     UtlString userFromUri;
     UtlString userToUri;
     UtlString userCallid;
-    if (UserStaticDB::getInstance()->getStaticContact(userUri, eventType, 
-                                                      userContact, userFromUri, userToUri, userCallid)) {
-         OsSysLog::add(FAC_SIP, PRI_DEBUG,
-                       "Notifier::sendNotifyForeachSubscription configured contact %s", userUri.data());
-         int notifycseq = 0;
-         userCallid.append("-");
-         userCallid.appendNumber((mpStaticSeq++ & 0xFFFF), "%04x");
-         UtlString id("");
-         UtlString subscriptionState("terminated");
-         UtlString recordroute("");
+    EntityRecord entity;
+    if (EntityDB::defaultCollection().collection().findByIdentity(std::string(key), entity))
+    {
+        std::vector<EntityRecord::StaticUserLoc> staticUserLoc = entity.staticUserLoc();
+        if (staticUserLoc.size() > 0)
+        {
+            //staticUserLoc[0].event.c_str();
+            userContact = staticUserLoc[0].contact.c_str();
+            userFromUri = staticUserLoc[0].fromUri.c_str();
+            userToUri = staticUserLoc[0].toUri.c_str();
+            userCallid = staticUserLoc[0].callId.c_str();
 
-         SendTheNotify(notify, mpSipUserAgent, userUri, userContact, userFromUri, userToUri, userCallid, notifycseq, 
-                       eventType, id, subscriptionState, recordroute);
+             OsSysLog::add(FAC_SIP, PRI_DEBUG,
+                           "Notifier::sendNotifyForeachSubscription configured contact %s", userUri.data());
+             int notifycseq = 0;
+             userCallid.append("-");
+             userCallid.appendNumber((mpStaticSeq++ & 0xFFFF), "%04x");
+             UtlString id("");
+             UtlString subscriptionState("terminated");
+             UtlString recordroute("");
+
+             SendTheNotify(notify, mpSipUserAgent, userUri, userContact, userFromUri, userToUri, userCallid, notifycseq,
+                           eventType, id, subscriptionState, recordroute);
+        }
     }
 
-    int numSubscriptions = subscriptions.getSize();
+
+    int numSubscriptions = subscriptions.size();
 
     if (  numSubscriptions > 0 )
     {
@@ -180,35 +190,33 @@ Notifier::sendNotifyForeachSubscription (
         // There may be any number of subscriptions
         // for the same identity and event type!
         // send a notify to each
-        for (int i = 0; i<numSubscriptions; i++ )
+        for (SubscribeDB::Subscriptions::iterator iter = subscriptions.begin(); iter != subscriptions.end(); iter++ )
         {
-            UtlHashMap record;
-            subscriptions.getIndex( i, record );
+            Subscription& record = *iter;
 
-            UtlString uri        = *((UtlString*)record.findValue(&sUriKey));
-            UtlString callid     = *((UtlString*)record.findValue(&sCallidKey));
-            UtlString contact    = *((UtlString*)record.findValue(&sContactKey));
-            int expires = ((UtlInt*)record.findValue(&sExpiresKey))->getValue();
-                                  ((UtlInt*)record.findValue(&sSubscribecseqKey))->getValue();
-            UtlString eventtype  = *((UtlString*)record.findValue(&sEventtypeKey));
-            UtlString id         = *((UtlString*)record.findValue(&sIdKey));
-            UtlString to         = *((UtlString*)record.findValue(&sToKey));
-            UtlString from       = *((UtlString*)record.findValue(&sFromKey));
+            UtlString uri        = record.uri().c_str();
+            UtlString callid     = record.callId().c_str();
+            UtlString contact    = record.contact().c_str();
+            int expires = record.expires();
+            UtlString eventtype  = record.eventType().c_str();
+            UtlString id         =  record.id().c_str();
+            UtlString to         = record.toUri().c_str();
+            UtlString from       = record.fromUri().c_str();
             if ( subscribe && subscribeCallid != callid  )
             {
                OsSysLog::add( FAC_SIP, PRI_DEBUG, "Notifier::sendNotifyForeachSubscription: "
                              " skipping '%s'; notify only '%s'", callid.data(), subscribeCallid.data() );
                continue;
             }
-            UtlString key        = *((UtlString*)record.findValue(&sKeyKey));
-            UtlString recordroute= *((UtlString*)record.findValue(&sRecordrouteKey));
-            int notifycseq      = ((UtlInt*)record.findValue(&sNotifycseqKey))->getValue();
+            UtlString key        = record.key().c_str();
+            UtlString recordroute= record.recordRoute().c_str();
+            int notifycseq      = record.notifyCseq();
 
             // the recordRoute column in the database is optional
             // and can be set to null, the IMDB does not support null columns
             // so look to see if the field is set to "%" a special single character
             // reserved value we use to null columns in the IMDB
-            if ( recordroute.compareTo(SPECIAL_IMDB_NULL_VALUE)==0 )
+            if ( record.recordRoute().empty() )
             {
                 recordroute.remove(0);
             }
@@ -241,7 +249,7 @@ Notifier::sendNotifyForeachSubscription (
 
             // Update the Notify sequence number (CSeq) in the IMDB
             // (We must supply a dummy XML version number.)
-            mpSubscriptionDB->updateNotifyUnexpiredSubscription (
+            SubscribeDB::defaultCollection().collection().updateNotifyUnexpiredSubscription (
                SUBSCRIPTION_COMPONENT_STATUS, to, from, callid,
                eventtype, id, timeNow, notifycseq, 0 );
         }

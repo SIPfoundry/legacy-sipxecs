@@ -10,7 +10,6 @@
   <bean id="forwardingContextImpl" class="org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContextImpl">
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="coreContext" ref="coreContextImpl" />
-    <property name="replicationContext" ref="sipxReplicationContext" />
     <property name="daoEventPublisher" ref="daoEventPublisher" />
   </bean>
 
@@ -27,4 +26,5 @@
       <ref local="forwardingContextImpl" />
     </property>
   </bean>
+
 </beans>

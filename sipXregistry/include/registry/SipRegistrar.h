@@ -18,7 +18,6 @@
 #include "os/OsBSem.h"
 #include "os/OsRWMutex.h"
 #include "os/OsServerTask.h"
-#include "sipdb/RegistrationDB.h"
 #include "utl/UtlHashMap.h"
 #include "utl/PluginHooks.h"
 
@@ -80,13 +79,6 @@ public:
     virtual UtlBoolean handleMessage(OsMsg& eventMessage);
     /**< Messages are dispatched to either the SipRegistrarServer or SipRedirectServer thread */
 
-    /// Server for XML-RPC requests
-    void startRpcServer(UtlBoolean& bFatalError);
-    /**<
-     * Begins operation of the HTTP/RPC service
-     * sets mHttpServer and mXmlRpcDispatch
-     */
-
     /// Launch all Startup Phase threads and wait until synchronization state is known
     void startupPhase();
     /**<
@@ -109,51 +101,18 @@ public:
      * code.)
      */
 
-    /// Read configuration for replication.
-    void configurePeers();
-    /**<
-     * Sets mReplicationConfigured=true if replication is configured.
-     */
 
-    /// If replication is configured, then name of this registrar as primary
-    const UtlString& primaryName() const;
 
-    /// Get an iterator over all peers.
-    UtlSListIterator* getPeers();
-    /**<
-     * @returns
-     * - NULL if replication is not configured
-     * - an iterator if replication is configured.
-     *   Caller must delete the iterator when finished with it.
-     */
-
-    /// Get peer state object by name.
-    RegistrarPeer* getPeer(const UtlString& peerName);
-    /**<
-     * @returns NULL if no peer is configured with peerName
-     */
-
-    /// Get the XML-RPC dispatcher
-    XmlRpcDispatch* getXmlRpcDispatch();
 
     /// Get the RegistrarPersist thread object
     RegistrarPersist* getRegistrarPersist();
 
-    /// Get the RegistrarTest thread object
-    RegistrarTest* getRegistrarTest();
-
-    /// Get the RegistrarSync thread object
-    RegistrarSync* getRegistrarSync();
 
     /// Get the RegisterEventServer thread object
     //  Returns NULL if the server is not active yet.
     RegisterEventServer* getRegisterEventServer();
 
-    /// Return true if replication is configured, false otherwise
-    bool isReplicationConfigured();
 
-    /// Get the RegistrationDB object
-    RegistrationDB* getRegistrationDB();
 
     /// Get the config DB
     OsConfigDb* getConfigDB();
@@ -193,15 +152,7 @@ private:
    // order is important - these two must be before everything below
    // so that they are initialized first.
    OsConfigDb* mConfigDb; ///< this is owned by the main routine - do not delete
-   RegistrationDB* mRegistrationDB;
 
-   int             mHttpPort;
-   HttpServer*     mHttpServer;
-   XmlRpcDispatch* mXmlRpcDispatch;
-
-   bool      mReplicationConfigured; /// master switch for replication
-   UtlString mPrimaryName;           ///< full name of this host as primary
-   UtlSList  mPeers;                 ///< list of RegisterPeer objects.
 
    SipUserAgent* mSipUserAgent;
 
@@ -211,10 +162,8 @@ private:
    SipRegistrarServer* mRegistrarServer;
    OsMsgQ* mRegistrarMsgQ;
 
-   RegistrarInitialSync* mRegistrarInitialSync;
-   RegistrarSync* mRegistrarSync;
+
    RegisterEventServer* mRegisterEventServer;
-   RegistrarTest* mRegistrarTest;
    RegistrarPersist* mRegistrarPersist;
 
    UtlString mDefaultDomain;
@@ -234,9 +183,6 @@ private:
    void startRedirectServer();
    void sendToRedirectServer(OsMsg& eventMessage);
 
-   /* ============================ REPLICATION================================== */
-   /// Create replication-related thread objects, but don't start them yet
-   void createReplicationThreads();
 
    /* ============================ REG EVENT SERVER ============================ */
    /// Create and start the server that handles "reg" events.

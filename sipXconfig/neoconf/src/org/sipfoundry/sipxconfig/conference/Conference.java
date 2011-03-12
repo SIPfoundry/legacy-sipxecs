@@ -10,13 +10,16 @@
 package org.sipfoundry.sipxconfig.conference;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
-import org.sipfoundry.sipxconfig.common.NamedObject;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.setting.BeanWithSettings;
@@ -26,7 +29,7 @@ import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
 
-public class Conference extends BeanWithSettings implements NamedObject {
+public class Conference extends BeanWithSettings implements Replicable {
     public static final String BEAN_NAME = "conferenceConference";
 
     /**
@@ -46,21 +49,13 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public static final String MOH_SOUNDCARD_SOURCE = "SOUNDCARD_SRC";
 
     private static final String ALIAS_RELATION = "conference";
-
     private boolean m_enabled;
-
     private String m_name;
-
     private String m_description;
-
     private String m_extension;
-
     private String m_did;
-
     private Bridge m_bridge;
-
     private User m_owner;
-
     private final ConferenceAorDefaults m_defaults;
 
     public Conference() {
@@ -261,11 +256,11 @@ public class Conference extends BeanWithSettings implements NamedObject {
      *
      * @return list of aliase mappings, empty list if conference is disabled
      */
-    public List generateAliases(String domainName) {
+    private Collection<AliasMapping> generateAliases(String domainName) {
         if (!isEnabled()) {
             return Collections.EMPTY_LIST;
         }
-        ArrayList aliases = new ArrayList();
+        Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
             // add extension mapping
             String extensionUri = AliasMapping.createUri(m_extension, domainName);
@@ -297,4 +292,24 @@ public class Conference extends BeanWithSettings implements NamedObject {
     public void setDid(String did) {
         m_did = did;
     }
+
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domain) {
+        Collection<AliasMapping> mappings = generateAliases(domain);
+        return mappings;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.ALIAS);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

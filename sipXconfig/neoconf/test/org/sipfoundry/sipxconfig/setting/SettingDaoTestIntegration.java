@@ -23,6 +23,7 @@ public class SettingDaoTestIntegration extends IntegrationTestCase {
     private SettingDao m_settingDao;
 
     public void testInvalidBranchGroup() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         Branch branch1 = new Branch();
         branch1.setName("branch1");
         Branch branch2 = new Branch();
@@ -33,7 +34,7 @@ public class SettingDaoTestIntegration extends IntegrationTestCase {
         Group group = new Group();
         group.setName("group1");
 
-        User user = new User();
+        User user = m_coreContext.newUser();
         user.setFirstName("First");
         user.setLastName("Last");
         user.setBranch(branch1);

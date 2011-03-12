@@ -116,27 +116,6 @@
   <component id="importLdap" type="DirectLink">
     <binding name="listener" value="listener:importLdap"/>
   </component>
-
-  <!-- generation of data sets -->
-  <property name="dataSet" />
-  <component id="generateLinks" type="For">
-    <binding name="source" value="@org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet@iterator()"/>
-    <binding name="value" value="dataSet"/>
-  </component>
-  <component id="generateLink" type="DirectLink">
-    <binding name="listener" value="listener:generateDataSet"/>
-    <binding name="parameters" value="dataSet.name"/>
-  </component>
-  <component id="generateLinkLabel" type="Insert">
-    <binding name="value" value="'Generate ' + dataSet.name + '.xml'"/>
-  </component>
-  <component id="generateFileLink" type="DirectLink">
-    <binding name="listener" value="listener:showDataSet"/>
-    <binding name="parameters" value="dataSet.name"/>
-  </component>
-  <component id="generateFileLinkLabel" type="Insert">
-    <binding name="value" value="'View ' + dataSet.name + '.xml'"/>
-  </component>
   <inject property="acdContext" object="spring:acdContext"/>
   <component id="resetAcdContext" type="DirectLink">
     <binding name="listener" value="listener:resetAcdContext" />

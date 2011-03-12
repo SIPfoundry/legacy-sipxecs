@@ -7,6 +7,7 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // APPLICATION INCLUDES
+#include "SipRouter.h"
 #include "NatMaintainer.h"
 #include "os/OsLock.h"
 #include "os/OsDateTime.h"
@@ -15,7 +16,6 @@
 #include "net/CallId.h"
 #include "net/Url.h"
 #include "net/SipMessage.h"
-#include "SipRouter.h"
 #include "NatTraversalAgentDataTypes.h"
 
 // DEFINES
@@ -30,8 +30,6 @@ using namespace std;
 
 NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
    mRefreshRoundNumber( 0 ),
-   mpRegistrationDB( RegistrationDB::getInstance() ),
-   mpSubscriptionDB( SubscriptionDB::getInstance() ),
    mNextSeqValue( 1 ),
    mTimerMutex( OsMutex::Q_FIFO ),
    mpSipRouter( sipRouter ),
@@ -40,6 +38,10 @@ NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
    mpKeepAliveMessage( 0 ),
    mExternalKeepAliveListMutex( OsMutex::Q_FIFO )
 {
+
+    _pRegDB = RegDB::Ptr(new RegDB::RegDBCollection(RegDB::defaultNamespace()));
+    _pSubscribeDB = SubscribeDB::Ptr(new SubscribeDB::Collection(SubscribeDB::defaultNamespace()));
+
    mTimerMutex.acquire();
 
    // Build SIP Options message that will be used to keep remote NATed NAT & firewall pinholes open.
@@ -69,17 +71,6 @@ NatMaintainer::NatMaintainer( SipRouter* sipRouter ) :
 NatMaintainer::~NatMaintainer()
 {
    waitUntilShutDown();
-   if( mpRegistrationDB )
-   {
-      mpRegistrationDB->releaseInstance();
-      mpRegistrationDB = 0;
-   }
-
-   if( mpSubscriptionDB )
-   {
-      mpSubscriptionDB->releaseInstance();
-      mpSubscriptionDB = 0;
-   }
    mExternalKeepAliveList.destroyAll();
    delete [] mpEndpointsKeptAliveList;
    delete mpKeepAliveMessage;
@@ -100,9 +91,7 @@ int NatMaintainer::run( void* runArg )
       {
          if( mpSipRouter )
          {
-            mRefreshRoundNumber++;
-            int timeNow = OsDateTime::getSecsSinceEpoch();
-            
+            mRefreshRoundNumber++;           
             // Increment CSeq so that the OPTIONS sent in this 
             // wave have incrementing Cseq as per spec
             mpKeepAliveMessage->setCSeqField( mNextSeqValue, "OPTIONS" );
@@ -114,15 +103,13 @@ int NatMaintainer::run( void* runArg )
 
             // start by sending keep-alives to non-expired contacts for far-end NATed phones
             // found in the subscription database
-            mpSubscriptionDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
             sendKeepAliveToContactList( resultList );
             resultList.destroyAll();
+            sendKeepAliveToSubscribeContactList(stringToMatch);
 
             // next, send keep-alives to non-expired contacts for far-end NATed phones
             // found in the registration database
-            mpRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
-            sendKeepAliveToContactList( resultList );
-            resultList.destroyAll();
+            sendKeepAliveToRegContactList(stringToMatch);
 
             // finally, send keep-alives to the endpoints that were inserted into our
             // external keep alive list by other components of the NAT traversal feature.
@@ -162,6 +149,52 @@ void NatMaintainer::sendKeepAliveToContactList( UtlSList& contactList )
       }
    }
 }
+
+void NatMaintainer::sendKeepAliveToRegContactList(const UtlString& identityToMatch)
+{
+    int timeNow = OsDateTime::getSecsSinceEpoch();
+    RegDB::Bindings bindings;
+    _pRegDB->collection().getUnexpiredContactsUserContaining(
+        identityToMatch.str(),
+        timeNow,
+        bindings);
+
+    for (RegDB::Bindings::iterator iter = bindings.begin();
+        iter != bindings.end(); iter++)
+    {
+         Url url(iter->getContact().c_str());
+          PublicTransportData publicTransport( url );
+
+          if( publicTransport.isInitialized() && publicTransport.getTransportProtocol().compareTo( "udp", UtlString::ignoreCase ) == 0 )
+          {
+             sendKeepAliveToEndpoint( publicTransport.getAddress(), publicTransport.getPort() );
+          }
+    }
+}
+
+
+void NatMaintainer::sendKeepAliveToSubscribeContactList(UtlString& identityToMatch)
+{
+    int timeNow = OsDateTime::getSecsSinceEpoch();
+    std::vector<std::string> bindings;
+    _pSubscribeDB->collection().getUnexpiredContactsFieldsContaining(
+        identityToMatch,
+        timeNow,
+        bindings);
+
+    for (std::vector<std::string>::iterator iter = bindings.begin();
+        iter != bindings.end(); iter++)
+    {
+         Url url(iter->c_str());
+          PublicTransportData publicTransport( url );
+
+          if( publicTransport.isInitialized() && publicTransport.getTransportProtocol().compareTo( "udp", UtlString::ignoreCase ) == 0 )
+          {
+             sendKeepAliveToEndpoint( publicTransport.getAddress(), publicTransport.getPort() );
+          }
+    }
+}
+
 void NatMaintainer::sendKeepAliveToExternalKeepAliveList( void )
 {
    OsLock lock( mExternalKeepAliveListMutex );

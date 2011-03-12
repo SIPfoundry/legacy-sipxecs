@@ -10,6 +10,8 @@
 #ifndef _REDIRECTPLUGIN_H_
 #define _REDIRECTPLUGIN_H_
 
+#include "registry/RegDataStore.h"
+
 // SYSTEM INCLUDES
 #include <vector>
 // APPLICATION INCLUDES
@@ -292,6 +294,9 @@ class RedirectPlugin : public Plugin
     * This call must not block.
     */
    virtual void cancel(RequestSeqNo request);
+
+   RegDataStore& dataStore();
+   RegDataStore _dataStore;
 
   protected:
 
@@ -701,6 +706,7 @@ public:
 
    ///@}
 
+  
 private:
    void setOptionalFieldValue( const UtlString& fieldName, const UtlString& fieldValue );
    bool getOptinalFieldValue ( const UtlString& fieldName,       UtlString& fieldValue ) const;
@@ -718,7 +724,17 @@ private:
    UtlHashMap mOptionalFieldsValues; /**< holds values for optional Retry-After,
                                       *   Require, Unsupported, Allow, Accept
                                       *   Accept-Encoding and Accept-Language fields */
+
+
 };
 
+//
+// Inlines
+//
+
+inline RegDataStore& RedirectPlugin::dataStore()
+{
+    return _dataStore;
+}
 
 #endif // _REDIRECTPLUGIN_H_

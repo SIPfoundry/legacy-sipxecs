@@ -25,7 +25,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
                                 const NatTraversalRules* pNatRules,
                                 const UtlString& handle,
                                 MediaRelay* pMediaRelayToUse,
-                                const RegistrationDB* pRegistrationDB,
+                                RegDB::Ptr pRegDB,
                                 CallTrackerInterfaceForSessionContext* pOwningCallTracker ) :
    mpReferenceDialogTracker( 0 ),
    mpCaller( 0 ),
@@ -35,6 +35,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
    mpMediaRelay( pMediaRelayToUse ),
    mpOwningCallTracker( pOwningCallTracker )
 {
+    _pRegDB = pRegDB;
    UtlString tmpString;
 
    // initialize the members of session context based on the content of the
@@ -50,7 +51,7 @@ SessionContext::SessionContext( const SipMessage& sipRequest,
 
    // Second, initialize the callee descriptor based on the Request URI header
    {
-      mpCallee = createCalleeEndpointDescriptor( sipRequest, *mpNatTraversalRules, pRegistrationDB );
+      mpCallee = createCalleeEndpointDescriptor( sipRequest, *mpNatTraversalRules, pRegDB );
       mpCallee->toString( tmpString );
       OsSysLog::add(FAC_NAT, PRI_DEBUG, "SessionContext[%s]::SessionContext: Callee transport info:'%s'",
                                         mHandle.data(), tmpString.data() );
@@ -77,11 +78,11 @@ SessionContext::createCallerEndpointDescriptor( const SipMessage& sipRequest, co
    UtlString tmpString;
    sipRequest.getContactEntry( 0, &tmpString );
    Url contactUri( tmpString );
-   return new EndpointDescriptor( contactUri, natTraversalRules );
+   return new EndpointDescriptor( contactUri, natTraversalRules, RegDB::Ptr() );
 }
 
 EndpointDescriptor*
-SessionContext::createCalleeEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules, const RegistrationDB* pRegistrationDB )
+SessionContext::createCalleeEndpointDescriptor( const SipMessage& sipRequest, const NatTraversalRules& natTraversalRules, RegDB::Ptr pRegDB )
 {
    // The Callee endpoint descriptor is initialized based on the information contained in the
    // Route if present or the Request URI.  The R-URI is where the NAT traversal feature encodes location
@@ -94,7 +95,7 @@ SessionContext::createCalleeEndpointDescriptor( const SipMessage& sipRequest, co
       sipRequest.getRequestUri( &tmpString );
    }
    Url requestUri( tmpString, bIsAddrSpec );
-   return new EndpointDescriptor( requestUri, natTraversalRules, pRegistrationDB );
+   return new EndpointDescriptor( requestUri, natTraversalRules, pRegDB );
 }
 
 SessionContext::~SessionContext()

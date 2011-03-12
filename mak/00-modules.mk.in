@@ -78,6 +78,7 @@ lib_centos_5 = \
   scons \
   boost-jam \
   boost \
+  unittest \
   $(lib_common) \
   rsyslog \
   cppunit \

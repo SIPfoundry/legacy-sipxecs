@@ -29,6 +29,8 @@
 #include "AppAgentTask.h"
 #include "AppearanceGroupFileReader.h"
 #include "AppearanceGroupSet.h"
+#include <sipdb/SubscribeDB.h>
+
 
 // DEFINES
 #define SLA_EVENT_TYPE    DIALOG_EVENT_TYPE ";sla"    // for draft-anil-sipping-bla-02
@@ -98,7 +100,7 @@ class AppearanceAgent : public UtlContainableAtomic
                       /// Maximum expiration to grant incoming SUBSCRIBEs.
                       int serverMaxExpiration,
                       /// Name of the subscription DB to use (for testing purposes)
-                      const UtlString&  subscriptionDbName = "subscription",
+                      const UtlString&  subscriptionDbName = SubscribeDB::defaultNamespace().c_str(),
                       /// Name of the credentials DB to use (for testing purposes)
                       const UtlString&  credentialsDbName = "credential"
       );

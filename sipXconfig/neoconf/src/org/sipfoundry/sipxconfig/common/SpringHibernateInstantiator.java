@@ -68,8 +68,7 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
         public Object transform(Object input) {
             Class clazz = (Class) input;
             String[] beanDefinitionNames = m_beanFactory.getBeanNamesForType(clazz);
-            LOG.debug(beanDefinitionNames.length + " beans registered for class: "
-                    + clazz.getName());
+            LOG.debug(beanDefinitionNames.length + " beans registered for class: " + clazz.getName());
             for (int i = 0; i < beanDefinitionNames.length; i++) {
                 Object bean = m_beanFactory.getBean(beanDefinitionNames[i]);
 
@@ -99,4 +98,5 @@ public class SpringHibernateInstantiator extends EmptyInterceptor implements Bea
     public void setSessionFactory(SessionFactory sessionFactory) {
         m_sessionFactory = sessionFactory;
     }
+
 }

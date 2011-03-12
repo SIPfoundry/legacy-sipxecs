@@ -43,6 +43,8 @@ public class CsvRowInserterTest extends TestCase {
         expectLastCall().andReturn(bongo);
         coreContext.loadUserByUserName("kuku");
         expectLastCall().andReturn(null);
+        coreContext.newUser();
+        expectLastCall().andReturn(new User());
 
         replay(domainManager, coreContext);
 

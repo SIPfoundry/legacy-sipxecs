@@ -84,7 +84,7 @@ public class FirstRunTask implements ApplicationListener {
             }
             location.initBundles(m_sipxServiceManager);
             location.resetBundles(m_sipxServiceManager);
-            m_locationsManager.storeLocation(location);
+            m_locationsManager.saveLocation(location);
             m_serviceConfigurator.enforceRole(location);
         }
     }

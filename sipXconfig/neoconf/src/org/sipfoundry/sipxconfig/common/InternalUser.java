@@ -8,9 +8,8 @@
  */
 package org.sipfoundry.sipxconfig.common;
 
-
 /**
- * Internal user, can be a TLS Peer
+ * Internal user, can be a TLS Peer or auth code
  */
 public class InternalUser extends AbstractUser {
 

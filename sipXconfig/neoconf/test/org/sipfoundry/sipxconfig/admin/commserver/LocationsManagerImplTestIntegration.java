@@ -117,7 +117,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         EasyMock.replay(daoEventPublisher);
         modifyContext(m_locationsManagerImpl, "daoEventPublisher", m_originalDaoEventPublisher, daoEventPublisher);
 
-        m_out.storeLocation(location);
+        m_out.saveLocation(location);
 
         Location[] dbLocations = m_out.getLocations();
         assertEquals(1, dbLocations.length);
@@ -128,13 +128,13 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         EasyMock.verify(daoEventPublisher);
     }
 
-    public void testStoreLocationWithDuplicateFqdnOrIp() throws Exception {
+    public void testsaveLocationWithDuplicateFqdnOrIp() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");
         Location location = new Location();
         location.setName("test location");
         location.setAddress("10.1.1.1");
         location.setFqdn("localhost");
-        m_out.storeLocation(location);
+        m_out.saveLocation(location);
 
         Location[] dbLocations = m_out.getLocations();
         assertEquals(1, dbLocations.length);
@@ -148,7 +148,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         // Same FQDN
         location.setFqdn("localhost");
         try {
-            m_out.storeLocation(location);
+            m_out.saveLocation(location);
             assertTrue(false);
         } catch (UserException ex) {
             assertTrue(true);
@@ -160,7 +160,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setAddress("10.1.1.1");
         location.setFqdn("localhost.localdomain");
         try {
-            m_out.storeLocation(location);
+            m_out.saveLocation(location);
             assertTrue(false);
         } catch (UserException ex) {
             assertTrue(true);
@@ -220,7 +220,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setAddress("192.168.1.2");
         location.setFqdn("location1");
         location.setInstalledBundles(asList("acdBundle"));
-        m_out.storeLocation(location);
+        m_out.saveLocation(location);
         assertEquals(1, m_acdContext.getServers().size());
         assertEquals(0, m_conferenceBridgeContext.getBridges().size());
 
@@ -229,17 +229,17 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         service.setLocation(location);
         location.addService(m_sipxFreeswitchService);
         location.setInstalledBundles(asList("acdBundle", "conferenceBundle"));
-        m_out.storeLocation(location);
+        m_out.saveLocation(location);
         assertEquals(1, m_acdContext.getServers().size());
         assertEquals(1, m_conferenceBridgeContext.getBridges().size());
 
         location.setInstalledBundles(asList("acdBundle"));
-        m_out.storeLocation(location);
+        m_out.saveLocation(location);
         assertEquals(1, m_acdContext.getServers().size());
         assertEquals(0, m_conferenceBridgeContext.getBridges().size());
 
         location.setInstalledBundles(Collections.<String> emptyList());
-        m_out.storeLocation(location);
+        m_out.saveLocation(location);
         assertEquals(0, m_acdContext.getServers().size());
         assertEquals(0, m_conferenceBridgeContext.getBridges().size());
     }
@@ -260,7 +260,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         nat.setStopRtpPort(30100);
 
         location.setNat(nat);
-        m_out.storeLocation(location);
+        m_out.saveLocation(location);
 
         natDB = m_out.getLocation(location.getId()).getNat();
         assertNotNull(natDB);
@@ -361,7 +361,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setInstalledBundles(asList("conferenceBundle"));
         ServerRoleLocation serverRole = new ServerRoleLocation();
         serverRole.setModifiedBundles(m_serviceManager.getBundlesForLocation(location));
-        m_out.storeServerRoleLocation(location, serverRole);
+        m_out.saveServerRoleLocation(location, serverRole);
         assertEquals(1,m_conferenceBridgeContext.getBridges().size());
     }
 

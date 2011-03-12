@@ -9,7 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.admin.parkorbit;
 
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.common.NamedObject;
 import org.sipfoundry.sipxconfig.setting.Setting;
 
@@ -43,10 +43,11 @@ public class ParkOrbit extends BackgroundMusic implements NamedObject {
         m_extension = extension;
     }
 
+    @Deprecated
     public AliasMapping generateAlias(String dnsDomain, String orbitServer) {
         String identity = AliasMapping.createUri(m_extension, dnsDomain);
         String contact = AliasMapping.createUri(m_extension, orbitServer);
-        return new AliasMapping(identity, contact, "parkorbit");
+        return new AliasMapping(identity, contact, "orbit");
     }
 
     @Override

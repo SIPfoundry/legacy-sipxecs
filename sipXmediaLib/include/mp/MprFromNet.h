@@ -11,6 +11,13 @@
 #ifndef _MprFromNet_h_
 #define _MprFromNet_h_
 
+// #include "os/OsMsgQ.h"
+#include "mp/NetInTask.h"
+#include "os/OsDefs.h"
+#include "os/OsSocket.h"
+#include "mp/MpResource.h"
+
+
 #include "rtcp/RtcpConfig.h"
 
 // SYSTEM INCLUDES
@@ -25,11 +32,8 @@
 class MprDejitter;
 class MpConnection;
 
-// #include "os/OsMsgQ.h"
-#include "os/OsDefs.h"
-#include "os/OsSocket.h"
-#include "mp/MpResource.h"
-#include "mp/NetInTask.h"
+
+
 #ifdef INCLUDE_RTCP /* [ */
 #include "rtcp/IRTPDispatch.h"
 #include "rtcp/INetDispatch.h"

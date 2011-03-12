@@ -17,7 +17,7 @@
 #include <os/OsDateTime.h>
 #include <net/SipUserAgent.h>
 #include <net/SipDialogEvent.h>
-#include <sipdb/CredentialDB.h>
+#include <sipdb/EntityDB.h>
 #include <cp/CallManager.h>
 #include "ACDCallManager.h"
 #include "ACDLineManager.h"
@@ -109,15 +109,12 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
                           mDialogPDULength);
    }
 
-   CredentialDB* credentialDb = mpAcdLineManager->getCredentialDb();
-   if (credentialDb)
-   {
       UtlString user;
       UtlString ha1_authenticator;
       UtlString authtype;
       UtlString realm(mpAcdLineManager->getAcdServer()->getRealm());
 
-      if (credentialDb->getCredential(mUri, realm, user, ha1_authenticator, authtype))
+      if (EntityDB::defaultCollection().collection().getCredential(mUri, realm, user, ha1_authenticator, authtype))
       {
          if (SIPX_RESULT_SUCCESS
              == sipxLineAddDigestCredential(lineHandle, user, ha1_authenticator, realm))
@@ -147,7 +144,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
          Url defaultAcdIdentity;
          mpAcdLineManager->getAcdServer()->getDefaultIdentity(defaultAcdIdentity);
 
-         if (credentialDb->getCredential(defaultAcdIdentity, realm,
+         if (EntityDB::defaultCollection().collection().getCredential(defaultAcdIdentity, realm,
                                          user, ha1_authenticator, authtype))
          {
             if (SIPX_RESULT_SUCCESS
@@ -177,13 +174,7 @@ ACDLine::ACDLine(ACDLineManager* pAcdLineManager,
                           );
          }
       }
-   }
-   else
-   {
-      OsSysLog::add(FAC_ACD, PRI_ERR,
-                    "ACDLine::ACDLine failed to open credentials database"
-                    "; transfer functions will not work");
-   }
+
 
    mLineBusy = false;
    mDialogId = 0;

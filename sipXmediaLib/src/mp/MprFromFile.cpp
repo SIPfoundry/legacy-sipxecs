@@ -7,6 +7,8 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#include <fstream>
+#include "mp/MpCallFlowGraph.h"
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -26,11 +28,10 @@
 #include "mp/MpAudioUtils.h"
 #include "mp/MpAudioWaveFileRead.h"
 #include "mp/mpau.h"
-#include "mp/MpCallFlowGraph.h"
 #include "os/OsSysLog.h"
 #include "os/OsProtectEventMgr.h"
 
-#include <os/fstream>
+
 
 // EXTERNAL FUNCTIONS
 // EXTERNAL VARIABLES

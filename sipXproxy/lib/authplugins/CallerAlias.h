@@ -8,11 +8,12 @@
 #define _CALLERALIAS_H_
 
 // SYSTEM INCLUDES
+#include "sipdb/EntityDB.h"
 #include "os/OsMutex.h"
 
 // APPLICATION INCLUDES
 #include "AuthPlugin.h"
-#include "sipdb/CallerAliasDB.h"
+
 
 // DEFINES
 // MACROS
@@ -109,6 +110,14 @@ class CallerAlias : public AuthPlugin
    ///< See class description.
 
    virtual void announceAssociatedSipRouter( SipRouter* sipRouter );
+
+   /// Get the caller alias for this combination of caller identity and target domain.
+   bool getCallerAlias (
+      const UtlString& identity, ///< identity of caller in 'user@domain' form (no scheme)
+      const UtlString& domain,   /**< domain and optional port for target
+                                  *  ( 'example.com' or 'example.com:5099' ) */
+      UtlString& callerAlias     /// returned alias
+                        ) const;
    
   protected:
    friend class CallerAliasTest;
@@ -116,7 +125,7 @@ class CallerAlias : public AuthPlugin
 
    static OsMutex        sSingletonLock;  ///< lock to protext the spInstance
    static CallerAlias*   spInstance;      ///< only one CallerAlias may be configured
-   static CallerAliasDB* spCallerAliasDB; ///< database instance handle
+
 
    static const char* CALLER_FROM_PARAM; ///< route parameter name for the original From header
    static const char* ALIAS_FROM_PARAM;  ///< route parameter name for the aliased From header
@@ -131,6 +140,8 @@ class CallerAlias : public AuthPlugin
               );
 
    SipRouter* mpSipRouter;
+   typedef MongoDB::Collection<EntityDB> Collection;
+   Collection*_pEntities;
 };
 
 #endif // _CALLERALIAS_H_

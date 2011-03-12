@@ -10,16 +10,17 @@
 
 #ifndef _INCLUDED_NETINTASK_H /* [ */
 #define _INCLUDED_NETINTASK_H
+#include "os/OsTask.h"
+#include "os/OsLock.h"
+#include "os/OsSocket.h"
+#include "os/OsMutex.h"
 
 #include "rtcp/RtcpConfig.h"
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
-#include "os/OsTask.h"
-#include "os/OsLock.h"
-#include "os/OsSocket.h"
-#include "os/OsMutex.h"
+
 #include "mp/MpTypes.h"
 #include "mp/MpBuf.h"
 #include "mp/MpMisc.h"

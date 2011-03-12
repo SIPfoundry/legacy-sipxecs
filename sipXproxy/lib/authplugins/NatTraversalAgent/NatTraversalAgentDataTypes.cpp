@@ -6,15 +6,14 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include "SipRouter.h"
 #include "os/OsSysLog.h"
 #include "os/OsDateTime.h"
 // APPLICATION INCLUDES
 #include "NatTraversalAgentDataTypes.h"
 #include "NatTraversalRules.h"
 #include "MediaRelay.h"
-#include "SipRouter.h"
 #include "net/SdpBody.h"
-#include "sipdb/RegistrationDB.h"
 
 // DEFINES
 // CONSTANTS
@@ -217,27 +216,27 @@ bool TransportData::isInitialized( void ) const
    return mAddress.compareTo( UNKNOWN_IP_ADDRESS_STRING );
 }
 
-EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules& natRules, const RegistrationDB* pRegistrationDB ) :
+EndpointDescriptor::EndpointDescriptor( const Url& url, const NatTraversalRules& natRules, RegDB::Ptr pRegDB ) :
    mNativeTransport( url ),
    mPublicTransport( url )
 {
-   mLocation = computeLocation( url, natRules, pRegistrationDB );
+    _pRegDB = pRegDB;
+    mLocation = computeLocation( url, natRules);
 }
 
 LocationCode EndpointDescriptor::computeLocation( const Url& url,
-                                                  const NatTraversalRules& natRules,
-                                                  const RegistrationDB* pRegistrationDB )
+                                                  const NatTraversalRules& natRules)
 {
    LocationCode computedLocation = computeLocationFromPublicAndNativeTransports( natRules );
    if( computedLocation == UNKNOWN )
    {
-      if( pRegistrationDB )
+      if( _pRegDB )
       {
          // we could not establish the location of the user based on public and 
          // native transport information alone, however we got supplied with
          // a pointer to the registration DB.  Look it up in search of an
          // entry that will give us the information we need to compute the location.
-         computedLocation = computeLocationFromRegDbData( url, natRules, pRegistrationDB );
+         computedLocation = computeLocationFromRegDbData( url, natRules);
       }
       if( computedLocation == UNKNOWN )
       {
@@ -311,11 +310,10 @@ LocationCode EndpointDescriptor::computeLocationFromPublicAndNativeTransports( c
 
 
 LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
-                                                               const NatTraversalRules& natRules,
-                                                               const RegistrationDB* pRegistrationDB )
+                                                               const NatTraversalRules& natRules)
 {
    LocationCode computedLocation = UNKNOWN;
-   if( pRegistrationDB )
+   if( _pRegDB )
    {
       //  Search the Registration DB looking for a
       // Contact entry matching the supplied URI's user@hostport hoping to find
@@ -326,18 +324,20 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
       url.getIdentity( stringToMatch );
       
       int timeNow = OsDateTime::getSecsSinceEpoch();
-      UtlSList resultList;
-      pRegistrationDB->getUnexpiredContactsFieldsContaining( stringToMatch, timeNow, resultList );
-      UtlString* pMatchingContact;
-      if( !resultList.isEmpty() )
+      RegDB::Bindings bindings;
+      _pRegDB->collection().getUnexpiredContactsUserContaining(
+        stringToMatch.str(), timeNow, bindings);
+
+      UtlString pMatchingContact;
+      if( !bindings.empty() )
       {
-         pMatchingContact = (UtlString*)resultList.first();
-         Url urlWithLocationInformation( *pMatchingContact );
+         pMatchingContact = bindings.begin()->getContact().c_str();
+         Url urlWithLocationInformation( pMatchingContact );
          mPublicTransport.fromUrl( urlWithLocationInformation );
          mNativeTransport.fromUrl( urlWithLocationInformation );
       
          OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[1]: Retrieved location info for UNKNOWN user from regDB:'%s'",
-               pMatchingContact->data() );
+               pMatchingContact.data() );
       
          //update location information based on new information
          computedLocation = computeLocationFromPublicAndNativeTransports( natRules );
@@ -363,13 +363,14 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
             tmpStringToMatch.appendNumber( port );
          }
       
-         pRegistrationDB->getUnexpiredContactsFieldsContaining( tmpStringToMatch, timeNow, resultList );
-         UtlSListIterator iter( resultList );
-         UtlContainable* pEntry;
-         while( ( pEntry = iter() ) != NULL )
+         _pRegDB->collection().getUnexpiredContactsUserContaining(
+            tmpStringToMatch.str(), timeNow, bindings);
+
+         for (RegDB::Bindings::iterator iter = bindings.begin();
+             iter != bindings.end(); iter++)
          {
-            pMatchingContact = (UtlString*)pEntry;
-            Url urlWithLocationInformation( *pMatchingContact );
+            pMatchingContact = iter->getContact().c_str();
+            Url urlWithLocationInformation( pMatchingContact );
             UtlString userId;
             urlWithLocationInformation.getUserId( userId );
             if( userId.compareTo( userIdToMatch ) == 0 )
@@ -378,7 +379,7 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
                mNativeTransport.fromUrl( urlWithLocationInformation );
       
                OsSysLog::add(FAC_NAT, PRI_INFO, "EndpointDescriptor::EndpointDescriptor[2]: Retrieved location info for UNKNOWN user from regDB:'%s'",
-                     pMatchingContact->data() );
+                     pMatchingContact.data() );
       
                // update location information based on new information
                computedLocation = computeLocationFromPublicAndNativeTransports( natRules );
@@ -386,7 +387,6 @@ LocationCode EndpointDescriptor::computeLocationFromRegDbData( const Url& url,
             }
          }
       }
-      resultList.destroyAll();
    }
    return computedLocation;
 }

@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#include "mp/MprMixer.h"
 
 // SYSTEM INCLUDES
 #include <assert.h>
@@ -15,7 +16,7 @@
 #include "os/OsDefs.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MprMixer.h"
+
 
 #ifndef ABS
 #define ABS(x) (max((x), -(x)))

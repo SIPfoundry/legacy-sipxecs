@@ -18,7 +18,7 @@
 #include <os/OsServerTask.h>
 #include <net/SipDialogMgr.h>
 #include <net/SipSubscriptionMgr.h>
-#include <sipdb/SubscriptionDB.h>
+#include <sipdb/SubscribeDB.h>
 
 // DEFINES
 // MACROS
@@ -41,9 +41,9 @@ class SipPersistentSubscriptionMgrTask : public OsServerTask
 public:
 
 /* ============================ CREATORS ================================== */
-
+   typedef boost::shared_ptr<MongoDB::Collection<SubscribeDB> > SubscribeDBPtr;
    //! Default constructor
-   SipPersistentSubscriptionMgrTask(SubscriptionDB* subscriptionDBInstance);
+   SipPersistentSubscriptionMgrTask(SubscribeDBPtr subscriptionDBInstance);
 
    //! Destructor
    virtual
@@ -65,7 +65,7 @@ protected:
 private:
 
    //! Pointer to the SubscriptionDB instance that handles persistence.
-   SubscriptionDB* mSubscriptionDBInstance;
+   SubscribeDBPtr _pSubscriptions;
 
    //! Copy constructor NOT ALLOWED
    SipPersistentSubscriptionMgrTask(const SipPersistentSubscriptionMgrTask& rSipPersistentSubscriptionMgrTask);
@@ -97,7 +97,7 @@ public:
       /// the AOR domain name
       const UtlString& domain,
       /// the name of the IMDB file
-      const UtlString& fileName = "subscription");
+      const UtlString& fileName = SubscribeDB::defaultNamespace().c_str());
 
    //! Destructor
    virtual
@@ -200,8 +200,9 @@ private:
    UtlString mDomain;
 
    //! Pointer to the SubscriptionDB instance that handles persistence.
-   SubscriptionDB* mSubscriptionDBInstance;
-
+   typedef boost::shared_ptr<MongoDB::Collection<SubscribeDB> > SubscribeDBPtr;
+   SubscribeDBPtr _pSubscriptions;
+   
    //! Timer for flushing changes to disk.
    /** When the IMDB table is dirty (changes have not been written to disk),
     *  this timer is running; when it is clean, this timer is stopped.

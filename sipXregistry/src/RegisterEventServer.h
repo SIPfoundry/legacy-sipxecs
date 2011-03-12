@@ -12,7 +12,6 @@
 
 // SYSTEM INCLUDES
 // APPLICATION INCLUDES
-
 #include <utl/UtlContainableAtomic.h>
 #include <utl/UtlString.h>
 #include <utl/UtlSList.h>
@@ -25,7 +24,7 @@
 #include <net/Url.h>
 #include <persist/SipPersistentSubscriptionMgr.h>
 #include <os/OsBSem.h>
-#include <sipdb/RegistrationDB.h>
+#include "registry/RegDataStore.h"
 
 // DEFINES
 // MACROS
@@ -106,15 +105,13 @@ class RegisterEventServer
    void generateContent(/// The entity URI string to incorporate into the body.
                         const char* entityString,
                         /// The ResultSet containing the registrations to show
-                        ResultSet& rs,
+                        const RegDB::Bindings& bindings,
                         /// Returned pointer to HttpBody to publish.
                         HttpBody*& body);
 
    //! Get the SIP domain name for the resources.
    const UtlString* getDomainName();
 
-   //! Get the Registration IMDB DB instance pointer.
-   RegistrationDB* getRegistrationDBInstance();
 
 /* //////////////////////////// PROTECTED ///////////////////////////////// */
   protected:
@@ -130,8 +127,6 @@ class RegisterEventServer
    UtlString mEventType;
    //! Outgoing address.
    UtlString mOutgoingAddress;
-   //! Pointer to the Registration DB instance.
-   RegistrationDB* mpRegistrationDBInstance;
 
    // The call processing objects.
 
@@ -158,6 +153,8 @@ class RegisterEventServer
    //! Disabled assignment operator
    RegisterEventServer& operator=(const RegisterEventServer& rhs);
 
+   RegDataStore _dataStore;
+
 };
 
 /* ============================ INLINE METHODS ============================ */
@@ -167,9 +164,6 @@ inline const UtlString* RegisterEventServer::getDomainName()
    return &mDomainName;
 }
 
-inline RegistrationDB* RegisterEventServer::getRegistrationDBInstance()
-{
-   return mpRegistrationDBInstance;
-}
+
 
 #endif  // _RegisterEventServer_h_

@@ -21,6 +21,7 @@ import org.sipfoundry.sipxconfig.admin.AbstractConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
+import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -137,6 +138,20 @@ public class SipxServiceTest extends TestCase {
 
     static class DummyConfig extends AbstractConfigurationFile {
         public DummyConfig(String name, boolean restartRequired) {
+            setName(name);
+            setRestartRequired(restartRequired);
+        }
+
+        public String getFileContent() {
+            return null;
+        }
+
+        public void write(Writer writer, Location location) throws IOException {
+        }
+    }
+    
+    static class DummyValidUsersConfig extends ValidUsersConfig {
+        public DummyValidUsersConfig(String name, boolean restartRequired) {
             setName(name);
             setRestartRequired(restartRequired);
         }

@@ -100,7 +100,7 @@ public abstract class ConfigureBundlesPanel extends BaseComponent {
 
         for (SipxServiceBundle bundle : modifiedBundles) {
             if (bundle.isResetAffectLocation()) {
-                getLocationsManager().storeLocation(location);
+                getLocationsManager().saveLocation(location);
                 break;
             }
         }
@@ -108,7 +108,7 @@ public abstract class ConfigureBundlesPanel extends BaseComponent {
         if (!modifiedBundles.isEmpty()) {
             ServerRoleLocation role = getServerRoleLocation();
             role.setModifiedBundles(modifiedBundles);
-            getLocationsManager().storeServerRoleLocation(location, role);
+            getLocationsManager().saveServerRoleLocation(location, role);
         }
 
     }

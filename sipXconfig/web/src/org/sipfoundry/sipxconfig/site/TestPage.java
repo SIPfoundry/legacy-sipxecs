@@ -40,7 +40,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.ServiceStatus;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContextImpl;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.dialplan.AutoAttendantManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.ResetDialPlanTask;
@@ -294,7 +293,7 @@ public abstract class TestPage extends SipxBasePage {
         if (service == null) {
             service = new LocationSpecificService(sipxService);
             location.addService(service);
-            getLocationsManager().storeLocation(location);
+            getLocationsManager().saveLocation(location);
         }
 
         // Check if the test bridge already exists
@@ -319,7 +318,7 @@ public abstract class TestPage extends SipxBasePage {
         primaryLocation.setPrimary(true);
         primaryLocation.initBundles(getSipxServiceManager());
         primaryLocation.setRegistered(true);
-        getLocationsManager().storeLocation(primaryLocation);
+        getLocationsManager().saveLocation(primaryLocation);
     }
 
     public void seedLocationsManager() {
@@ -337,7 +336,7 @@ public abstract class TestPage extends SipxBasePage {
             location.removeService(service);
         }
         location.addService(getSipxServiceManager().getServiceByBeanId(beanId));
-        getLocationsManager().storeLocation(location);
+        getLocationsManager().saveLocation(location);
     }
 
     public void seedAcdServer() {
@@ -347,7 +346,7 @@ public abstract class TestPage extends SipxBasePage {
         location.setName("Test Location");
         location.setFqdn("server.example.com");
         location.setAddress("10.1.1.1");
-        getLocationsManager().storeLocation(location);
+        getLocationsManager().saveLocation(location);
 
         AcdServer server = getAcdContext().newServer();
         server.setLocation(location);
@@ -601,11 +600,6 @@ public abstract class TestPage extends SipxBasePage {
         SecurityContextHolder.getContext().setAuthentication(token.authenticateToken());
     }
 
-    public void generateDataSet(String setName) {
-        SipxReplicationContext sipxReplicationContext = getSipxReplicationContext();
-        sipxReplicationContext.generate(DataSet.getEnum(setName));
-    }
-
     public void throwException() {
         throw new IllegalArgumentException("Just testing");
     }
@@ -695,7 +689,7 @@ public abstract class TestPage extends SipxBasePage {
         Location location = getLocationsManager().getPrimaryLocation();
         SipxService service = getSipxServiceManager().getServiceDefinitions().iterator().next();
         location.addService(service);
-        getLocationsManager().storeLocation(location);
+        getLocationsManager().saveLocation(location);
 
         getSipxProcessContext().markServicesForRestart(Arrays.asList(service));
     }
@@ -704,7 +698,7 @@ public abstract class TestPage extends SipxBasePage {
         Location location = getLocationsManager().getPrimaryLocation();
         SipxService service = getSipxServiceManager().getServiceDefinitions().iterator().next();
         location.addService(service);
-        getLocationsManager().storeLocation(location);
+        getLocationsManager().saveLocation(location);
 
         getSipxProcessContext().markServicesForReload(Arrays.asList(service));
     }

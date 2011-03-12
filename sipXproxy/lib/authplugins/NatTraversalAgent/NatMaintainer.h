@@ -15,10 +15,9 @@
 #include <os/OsTask.h>
 #include <net/SipMessage.h>
 #include <utl/UtlString.h>
-#include "sipdb/RegistrationDB.h"
-#include "sipdb/SubscriptionDB.h"
+#include "sipdb/SubscribeDB.h"
 #include "NatTraversalAgentDataTypes.h"
-
+#include "sipdb/RegDB.h"
 // DEFINES
 #define MAX_IP_ADDRESS_STRING_SIZE (15)
 // NAMESPACES
@@ -96,8 +95,8 @@ private:
    };
 
    uint32_t mRefreshRoundNumber;      ///< Counter of refresh rounds.
-   RegistrationDB* mpRegistrationDB;  ///< The registration DB.
-   SubscriptionDB* mpSubscriptionDB;  ///< The subscription DB.
+   RegDB::Ptr _pRegDB;  ///< The registration DB.
+   SubscribeDB::Ptr _pSubscribeDB;  ///< The subscription DB.
    int             mNextSeqValue;     ///< Sequence number to use in next OPTIONS wave 
    UtlString       mBaseCallId;       ///< Call-id from which all the others will be derived
    
@@ -115,6 +114,8 @@ private:
 
    /// Send keepalives to the list of URIs (as UtlString's) in contactList.
    void sendKeepAliveToContactList( UtlSList& contactList );
+   void sendKeepAliveToRegContactList(const UtlString& identityToMatch);
+   void sendKeepAliveToSubscribeContactList(UtlString& identityToMatch);
    /// Send keepalives to the endpoints in mExternalKeepAliveList.
    void sendKeepAliveToExternalKeepAliveList( void );
    /// Send a keepalive to the specified address/port.  (Transport is always UDP.)

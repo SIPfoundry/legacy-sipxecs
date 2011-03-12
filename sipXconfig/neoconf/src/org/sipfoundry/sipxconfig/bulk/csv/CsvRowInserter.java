@@ -22,7 +22,6 @@ import org.sipfoundry.sipxconfig.common.UserValidationUtils;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
-import org.sipfoundry.sipxconfig.permission.PermissionManager;
 import org.sipfoundry.sipxconfig.phone.Line;
 import org.sipfoundry.sipxconfig.phone.Phone;
 import org.sipfoundry.sipxconfig.phone.PhoneContext;
@@ -44,8 +43,6 @@ public class CsvRowInserter extends RowInserter<String[]> {
     private PhoneContext m_phoneContext;
 
     private SettingDao m_settingDao;
-
-    private PermissionManager m_permissionManager;
 
     private ModelSource<PhoneModel> m_modelSource;
 
@@ -170,7 +167,7 @@ public class CsvRowInserter extends RowInserter<String[]> {
         User user = m_coreContext.loadUserByUserName(userName);
 
         if (user == null) {
-            user = new User();
+            user = m_coreContext.newUser();
             user.setUserName(userName);
         }
         String localRealm = m_domainManager.getAuthorizationRealm();
@@ -249,12 +246,15 @@ public class CsvRowInserter extends RowInserter<String[]> {
     private void insertData(User user, Collection<Group> userGroups, Phone phone,
             Collection<Group> phoneGroups) {
 
-        boolean newUser = false;
         if (user != null) {
             for (Group userGroup : userGroups) {
                 user.addGroup(userGroup);
             }
-            newUser = m_coreContext.saveUser(user);
+            // Execute the automatic assignments for the user.
+            GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
+                                                                  m_forwardingContext, m_mailboxManager);
+            //this method will call coreContext.saveUser
+            groupAutoAssign.assignUserData(user);
         }
 
         if (phoneGroups != null) {
@@ -268,15 +268,6 @@ public class CsvRowInserter extends RowInserter<String[]> {
             m_phoneContext.storePhone(phone);
         }
 
-        if (user != null) {
-            if (newUser) {
-                // Execute the automatic assignments for the user.
-                user.setPermissionManager(m_permissionManager);
-                GroupAutoAssign groupAutoAssign = new GroupAutoAssign(m_conferenceBridgeContext, m_coreContext,
-                                                                      m_forwardingContext, m_mailboxManager);
-                groupAutoAssign.assignUserData(user);
-            }
-        }
     }
 
     void updateMailbox(User user, boolean newMailbox) {
@@ -324,10 +315,6 @@ public class CsvRowInserter extends RowInserter<String[]> {
 
     public void setSettingDao(SettingDao settingDao) {
         m_settingDao = settingDao;
-    }
-
-    public void setPermissionManager(PermissionManager permissionManager) {
-        m_permissionManager = permissionManager;
     }
 
 }

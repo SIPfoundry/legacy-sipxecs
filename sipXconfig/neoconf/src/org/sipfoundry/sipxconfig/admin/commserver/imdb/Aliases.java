@@ -9,16 +9,13 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import com.mongodb.DBObject;
 
-import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
-import org.sipfoundry.sipxconfig.admin.forwarding.AliasMapping;
+import org.sipfoundry.sipxconfig.common.Replicable;
 
 public class Aliases extends DataSetGenerator {
-
-    private AliasProvider m_aliasProvider;
+    public static final String FAX_EXTENSION_PREFIX = "~~ff~";
+    public static final String ALIASES = "als";
 
     public Aliases() {
     }
@@ -27,20 +24,9 @@ public class Aliases extends DataSetGenerator {
         return DataSet.ALIAS;
     }
 
-    protected void addItems(List<Map<String, String>> items) {
-        addAliases(items, m_aliasProvider.getAliasMappings());
-    }
-
-    void addAliases(List<Map<String, String>> items, Collection<AliasMapping> aliases) {
-        for (AliasMapping alias : aliases) {
-            Map<String, String> aliasItem = addItem(items);
-            aliasItem.put("identity", alias.getIdentity());
-            aliasItem.put("contact", alias.getContact());
-            aliasItem.put("relation", alias.getRelation());
-        }
-    }
-
-    public void setAliasProvider(AliasProvider aliasProvider) {
-        m_aliasProvider = aliasProvider;
+    public void generate(Replicable entity) {
+        DBObject top = findOrCreate(entity);
+        top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
+        getDbCollection().save(top);
     }
 }

@@ -10,9 +10,11 @@
 package org.sipfoundry.sipxconfig.site.admin.commserver;
 
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.components.PageWithCallback;
 
+/*
+ * this page is obsolete. MAYBE we can put here a page that shows all mongo database records.
+ */
 public abstract class ReplicationData extends PageWithCallback {
 
     public static final String PAGE = "admin/commserver/ReplicationData";
@@ -23,7 +25,4 @@ public abstract class ReplicationData extends PageWithCallback {
 
     public abstract void setDataSetName(String name);
 
-    public String getXml() {
-        return getSipxReplicationContext().getXml(DataSet.getEnum(getDataSetName()));
-    }
 }

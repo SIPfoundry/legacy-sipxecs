@@ -9,12 +9,13 @@
 
 #ifndef REDIRECTRESUMEMSG_H
 #define REDIRECTRESUMEMSG_H
+#include "registry/RedirectPlugin.h"
 
 // SYSTEM INCLUDES
 
 // APPLICATION INCLUDES
 #include "os/OsMsg.h"
-#include "registry/RedirectPlugin.h"
+
 
 // DEFINES
 // MACROS

@@ -32,12 +32,13 @@ public class IndexingInterceptor extends SpringHibernateInstantiator {
         m_beanIndexHelper.setupIndexProperties(beanIndexProperties, false);
         m_indexer.indexBean(entity, id, beanIndexProperties.getState(), beanIndexProperties.getPropertyNames(),
                 beanIndexProperties.getTypes(), true);
-        return false;
+        return super.onSave(entity, id, state, propertyNames, types);
     }
 
     public void onDelete(Object entity, Serializable id, Object[] state_,
             String[] propertyNames_, Type[] types_) {
         m_indexer.removeBean(entity, id);
+        super.onDelete(entity, id, state_, propertyNames_, types_);
     }
 
     public boolean onFlushDirty(Object entity, Serializable id, Object[] currentState,
@@ -47,6 +48,6 @@ public class IndexingInterceptor extends SpringHibernateInstantiator {
         m_beanIndexHelper.setupIndexProperties(beanIndexProperties, false);
         m_indexer.indexBean(entity, id, beanIndexProperties.getState(), beanIndexProperties.getPropertyNames(),
                 beanIndexProperties.getTypes(), false);
-        return false;
+        return super.onFlushDirty(entity, id, currentState, previousState_, propertyNames, types);
     }
 }

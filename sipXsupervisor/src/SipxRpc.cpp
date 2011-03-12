@@ -17,7 +17,6 @@
 #include "SipxRpc.h"
 #include "ProcMgmtRpc.h"
 #include "AlarmRpc.h"
-#include "ImdbRpc.h"
 #include "FileRpc.h"
 #include "SwAdminRpc.h"
 #include "ZoneAdminRpc.h"
@@ -60,11 +59,6 @@ SipxRpc::SipxRpc(XmlRpcDispatch* dispatcher, UtlSList& allowedPeers)
    ProcMgmtRpcSetConfigVersion::registerSelf(*this);
    ProcMgmtRpcRunConfigtest::registerSelf(*this);
    ProcMgmtRpcGetConfigtestMessages::registerSelf(*this);
-
-   ImdbRpcReplaceTable::registerSelf(*this);
-   ImdbRpcRetrieveTable::registerSelf(*this);
-   ImdbRpcAddTableRecords::registerSelf(*this);
-   ImdbRpcDeleteTableRecords::registerSelf(*this);
 
    FileRpcReplaceFile::registerSelf(*this);
 

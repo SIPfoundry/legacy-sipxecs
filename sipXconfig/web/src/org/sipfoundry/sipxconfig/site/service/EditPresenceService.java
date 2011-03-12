@@ -13,7 +13,6 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
 import org.sipfoundry.sipxconfig.acd.AcdServer;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.service.SipxPresenceService;
 
 import static org.sipfoundry.sipxconfig.components.LocalizationUtils.localizeString;
@@ -36,7 +35,9 @@ public abstract class EditPresenceService extends EditSipxService {
     @Override
     public void apply() {
         super.apply();
-        getSipxReplicationContext().generate(DataSet.ALIAS);
+        for (AcdServer acdServer : getAcdContext().getServers()) {
+            getSipxReplicationContext().generate(acdServer);
+        }
     }
 
     public String getHelpText() {

@@ -7,8 +7,10 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#include "mp/MprToNet.h"
 
 #include "rtcp/RtcpConfig.h"
+#include "mp/NetInTask.h"
 
 #undef WANT_RTCP_LOG_MESSAGES
 #undef DROP_SOME_PACKETS
@@ -35,8 +37,6 @@
 #include "os/OsDefs.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MprToNet.h"
-#include "mp/NetInTask.h"
 #include "mp/MprFromNet.h"
 #include "mp/dmaTask.h"
 

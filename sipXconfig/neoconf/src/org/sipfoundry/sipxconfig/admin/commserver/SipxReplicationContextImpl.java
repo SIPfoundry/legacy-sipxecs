@@ -9,70 +9,47 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringWriter;
-import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.dom4j.io.OutputFormat;
-import org.dom4j.io.XMLWriter;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
+import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.job.JobContext;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 
-public abstract class SipxReplicationContextImpl implements ApplicationEventPublisherAware, BeanFactoryAware,
-        SipxReplicationContext {
+public abstract class SipxReplicationContextImpl implements ApplicationEventPublisherAware, SipxReplicationContext {
 
     private static final String IGNORE_REPLICATION_MESSAGE = "In initialization phase, ignoring request to replicate ";
 
     private static final Log LOG = LogFactory.getLog(SipxReplicationContextImpl.class);
-
-    private BeanFactory m_beanFactory;
     private ApplicationEventPublisher m_applicationEventPublisher;
     private ReplicationManager m_replicationManager;
     private JobContext m_jobContext;
     private LocationsManager m_locationsManager;
-    // should be replicated every time aliases are replicated
-    private ConfigurationFile m_validUsersConfig;
 
     protected abstract ServiceConfigurator getServiceConfigurator();
 
-    public void generate(DataSet dataSet) {
-        if (inInitializationPhase()) {
-            LOG.debug(IGNORE_REPLICATION_MESSAGE + dataSet.getName());
-            return;
-        }
-        String beanName = dataSet.getBeanName();
-        final DataSetGenerator generator = (DataSetGenerator) m_beanFactory
-                .getBean(beanName, DataSetGenerator.class);
-        ReplicateWork work = new ReplicateWork() {
-            public boolean replicate() {
-                return m_replicationManager.replicateData(m_locationsManager.getLocations(), generator);
-            }
-        };
-        doWithJob("Data replication: " + dataSet.getName(), work);
-        // replication valid users when aliases are replicated
-        if (DataSet.ALIAS.equals(dataSet)) {
-            replicate(m_validUsersConfig);
-        }
+    public void generate(final Replicable entity) {
+        m_replicationManager.replicateEntity(entity);
     }
 
     public void generateAll() {
-        for (Iterator<DataSet> i = DataSet.iterator(); i.hasNext();) {
-            DataSet dataSet = i.next();
-            generate(dataSet);
-        }
+        m_replicationManager.replicateAllData();
+    }
+
+    public void remove(final Replicable entity) {
+        m_replicationManager.removeEntity(entity);
+    }
+
+    @Override
+    public void resyncSlave(Location location) {
+        m_replicationManager.resyncSlave(location);
     }
 
     public void replicate(ConfigurationFile file) {
@@ -95,19 +72,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
             location
         };
         replicateWorker(locations, file);
-    }
-
-    public String getXml(DataSet dataSet) {
-        String beanName = dataSet.getBeanName();
-        DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName, DataSetGenerator.class);
-        try {
-            StringWriter writer = new StringWriter();
-            XMLWriter xmlWriter = new XMLWriter(writer, OutputFormat.createPrettyPrint());
-            xmlWriter.write(generator.generateXml());
-            return writer.toString();
-        } catch (IOException e) {
-            return "";
-        }
     }
 
     private void replicateWorker(final Location[] locations, final ConfigurationFile file) {
@@ -151,10 +115,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
         boolean replicate();
     }
 
-    public void setBeanFactory(BeanFactory beanFactory) {
-        m_beanFactory = beanFactory;
-    }
-
     @Required
     public void setReplicationManager(ReplicationManager replicationManager) {
         m_replicationManager = replicationManager;
@@ -171,11 +131,6 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     }
 
     @Required
-    public void setValidUsersConfig(ConfigurationFile validUsersConfig) {
-        m_validUsersConfig = validUsersConfig;
-    }
-
-    @Required
     public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
         m_applicationEventPublisher = applicationEventPublisher;
     }
@@ -183,4 +138,5 @@ public abstract class SipxReplicationContextImpl implements ApplicationEventPubl
     public void publishEvent(ApplicationEvent event) {
         m_applicationEventPublisher.publishEvent(event);
     }
+
 }

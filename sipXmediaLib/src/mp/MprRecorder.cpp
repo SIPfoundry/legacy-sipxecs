@@ -7,6 +7,9 @@
 ////////////////////////////////////////////////////////////////////////
 //////
 
+#include "os/OsSysLog.h"
+#include "mp/MprRecorder.h"
+
 // SYSTEM INCLUDES
 #include <assert.h>
 #ifdef __pingtel_on_posix__
@@ -15,12 +18,10 @@
 
 // APPLICATION INCLUDES
 #include "os/OsDefs.h"
-#include "os/OsSysLog.h"
 #include "os/OsLock.h"
 #include "os/OsTask.h"
 #include "mp/MpMisc.h"
 #include "mp/MpBuf.h"
-#include "mp/MprRecorder.h"
 #include "mp/MpAudioUtils.h"
 #include "os/OsProtectEventMgr.h"
 

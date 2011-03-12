@@ -12,6 +12,7 @@
 #include "utl/UtlContainable.h"
 #include "utl/UtlString.h"
 #include "utl/UtlInt.h"
+#include "sipdb/RegDB.h"
 
 // APPLICATION INCLUDES
 #include "AuthPlugin.h"
@@ -28,7 +29,6 @@ typedef UtlInt tMediaRelayHandle;
 
 // FORWARD DECLARATIONS
 class MediaBridgePair;
-class RegistrationDB;
 struct PacketProcessingStatistics;
 
 typedef enum
@@ -150,7 +150,7 @@ public:
 class EndpointDescriptor
 {
 public:
-   EndpointDescriptor( const Url& url, const NatTraversalRules& natRules, const RegistrationDB* pRegistrationDB = NULL );
+   EndpointDescriptor( const Url& url, const NatTraversalRules& natRules, RegDB::Ptr pRegistrationDB);
 
    // GETTERS
    const TransportData& getNativeTransportAddress( void ) const;
@@ -167,13 +167,13 @@ private:
    Url                  mCurrentContact;
 
    LocationCode computeLocation( const Url& url,
-                                 const NatTraversalRules& natRules,
-                                 const RegistrationDB* pRegistrationDB );
+                                 const NatTraversalRules& natRules);
    LocationCode computeLocationFromPublicAndNativeTransports( const NatTraversalRules& natRules );
    LocationCode computeLocationFromRegDbData( const Url& url,
-                                              const NatTraversalRules& natRules,
-                                              const RegistrationDB* pRegistrationDB );
+                                              const NatTraversalRules& natRules);
    LocationCode computeLocationFromNetworkTopology( const NatTraversalRules& natRules );
+
+   RegDB::Ptr _pRegDB;
 };
 
 /// This class is an abstraction of a SIP endpoint involved in a media session.

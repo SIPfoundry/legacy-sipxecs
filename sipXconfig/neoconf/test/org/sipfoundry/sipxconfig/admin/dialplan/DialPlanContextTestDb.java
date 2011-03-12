@@ -88,7 +88,6 @@ public class DialPlanContextTestDb extends SipxDatabaseTestCase {
         wt.setEnabled(true);
         schedule.setWorkingTime(wt);
         m_fwdContext.saveSchedule(schedule);
-        m_fwdContext.flush();
         r1.setSchedule(schedule);
 
         CustomDialingRule r2 = new CustomDialingRule();
