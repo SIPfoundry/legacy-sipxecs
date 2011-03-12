@@ -580,7 +580,7 @@ AC_DEFUN([SFAC_LIB_COMMSERVER],
 [
     AC_REQUIRE([SFAC_LIB_STACK])
 
-    SFAC_ARG_WITH_INCLUDE([sipdb/SIPDBManager.h],
+    SFAC_ARG_WITH_INCLUDE([sipdb/EntityDB.h],
             [sipxcommserverinc],
             [ --with-sipxcommserverinc=<dir> call processing library include path ],
             [sipXcommserverLib])

@@ -25,6 +25,7 @@
 #include <net/SipDialog.h>
 #include <sipdb/ResultSet.h>
 
+#include <assert.h>
 
 // STATIC VARIABLES
 

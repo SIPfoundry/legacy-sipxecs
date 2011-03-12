@@ -6,6 +6,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include <assert.h>
+
 // APPLICATION INCLUDES
 #include "os/OsLock.h"
 #include "registry/SipRegistrar.h"
@@ -94,7 +96,8 @@ void RegistrarPeer::markUnReachable()
          break;
 
       default:
-         assert(false); // invalid mSyncState value
+	assert(false); // invalid mSyncState value
+	;
       }
    }  // release lock before signalling RegistrarTest thread
 
@@ -177,7 +180,7 @@ void RegistrarPeer::setState(SynchronizationState state)
       break;
 
    default:
-      assert(false);
+     assert(false);
       break;
    }
 }

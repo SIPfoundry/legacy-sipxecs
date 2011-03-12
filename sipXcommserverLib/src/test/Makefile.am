@@ -1,7 +1,5 @@
 INCLUDES = -I$(top_srcdir)/include
 
-SUBDIRS = testlib
-
 # Define values used in local database unit tests. This only
 # happens if configure was run with --enable-dbtests.
 if ENABLE_ODBC_TESTS
@@ -19,11 +17,14 @@ endif
 
 ## All tests under this GNU variable should run relatively quickly
 ## and of course require no setup
+
+#  Have to be ported to mongodb
+#	testsuite 
+
 TESTS = \
-	testsuite \
 	sipx_config_value_test
 
-check_PROGRAMS = testsuite sandbox
+check_PROGRAMS = testsuite
 
 testsuite_CXXFLAGS = \
     -DTEST_DATA_DIR=\"@abs_top_srcdir@/src/test\" \
@@ -39,7 +40,6 @@ testsuite_CXXFLAGS = \
     $(db_CXXFLAGS)
 
 testsuite_LDADD = \
-	testlib/libsipXcommserverTest.la \
    ../libsipXcommserver.la
 
 # FAILING - leaks semaphores and eventually buildserver will proceed to fail here
@@ -71,22 +71,6 @@ EXTRA_DIST = \
     mapdata/fallbackrules.xml \
 	regdbdata/getMaxUpdate.xml \
 	sipx_config_value/testdata
-
-# [DEBUG ASSISTANT] List a single unit test to isolate a unit test for
-# debugging or when developing a new unit test. As courtesy remove all
-# unit tests before checking in, although forgetting to has no ill
-# effects. To build and run:
-#
-#   cd src/test
-#   make sandbox
-#   ./sandbox
-#
-#sandbox_LDFLAGS = $(testsuite_LDFLAGS)
-sandbox_LDADD = $(testsuite_LDADD)
-
-sandbox_CXXFLAGS = $(testsuite_CXXFLAGS)
-sandbox_SOURCES = \
-    RegistryDbTest.cpp
 
 # Make sure database is set up if --enable-dbtests was specified
 all-local: $(db_deps)

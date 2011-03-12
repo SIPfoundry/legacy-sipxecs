@@ -33,6 +33,8 @@
 #include "registry/RegisterPlugin.h"
 #include "sipXecsService/SipXecsService.h"
 
+#include <assert.h>
+
 // DEFINES
 
 /*

@@ -69,7 +69,4 @@ nobase_include_HEADERS =  \
     filereader/OrbitFileReader.h \
     filereader/RefreshingFileReader.h \
     odbc/OdbcWrapper.h \
-    persist/SipPersistentSubscriptionMgr.h \
-    testlib/RegistrationDbTestContext.h \
-    testlib/SipDbTestContext.h \
-    testlib/FileTestContext.h
+    persist/SipPersistentSubscriptionMgr.h
