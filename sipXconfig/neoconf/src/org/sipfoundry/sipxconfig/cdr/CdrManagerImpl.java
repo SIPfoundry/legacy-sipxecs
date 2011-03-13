@@ -28,6 +28,11 @@ import java.util.TimeZone;
 
 import javax.xml.rpc.ServiceException;
 
+import com.thoughtworks.xstream.XStream;
+
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpStatus;
+import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
@@ -154,6 +159,48 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         } catch (RemoteException e) {
             throw new UserException(e);
         }
+    }
+
+    public List<Cdr> getActiveCallsREST(User user) throws IOException {
+        HttpClient client = new HttpClient();
+        GetMethod getMethod = new GetMethod(getActiveCdrsRestUrl(user));
+        int statusCode = HttpStatus.SC_OK;
+        ArrayList<Cdr> cdrs = new ArrayList<Cdr>();
+        Calendar c = Calendar.getInstance();
+        statusCode = client.executeMethod(getMethod);
+        if (statusCode == HttpStatus.SC_OK) {
+            String xml = getMethod.getResponseBodyAsString();
+            List<ActiveCallREST> list = mapActiveCalls(xml);
+            for (ActiveCallREST call : list) {
+                ActiveCallCdr cdr = new ActiveCallCdr();
+                cdr.setCallerAor(call.getFrom());
+                cdr.setCalleeAor(call.getTo());
+                cdr.setCalleeContact(call.getRecipient());
+                c.setTimeInMillis(call.getStartTime());
+                cdr.setStartTime(c.getTime());
+                cdr.setDuration(call.getDuration());
+                cdrs.add(cdr);
+            }
+        }
+        return cdrs;
+    }
+
+    private List<ActiveCallREST> mapActiveCalls(String xml) {
+        XStream xstream = new XStream();
+        xstream.alias("cdrs", List.class);
+        xstream.alias("cdr", ActiveCallREST.class);
+        xstream.aliasField("from", ActiveCallREST.class, "m_from");
+        xstream.aliasField("to", ActiveCallREST.class, "m_to");
+        xstream.aliasField("recipient", ActiveCallREST.class, "m_recipient");
+        xstream.aliasField(START_TIME, ActiveCallREST.class, "m_startTime");
+        xstream.aliasField("duration", ActiveCallREST.class, "m_duration");
+        List<ActiveCallREST> cdrs = (List<ActiveCallREST>) xstream.fromXML(xml);
+        return cdrs;
+    }
+
+    private String getActiveCdrsRestUrl(User user) {
+        return String.format("http://%s:%d/activecdrs?name=%s",
+                getCdrAgentAddress(), getCdrAgentPort(), user.getUserName());
     }
 
     public CdrService getCdrService() {
@@ -420,5 +467,44 @@ public class CdrManagerImpl extends JdbcDaoSupport implements CdrManager {
         public void setDateFormat(Format dateFormat) {
             m_dateFormat = dateFormat;
         }
+    }
+    /**
+     * Maps Active call retrieved from callresolver active calls REST service
+     */
+    static class ActiveCallREST {
+        private String m_from;
+        private String m_to;
+        private String m_recipient;
+        private long m_startTime;
+        private long m_duration;
+
+        public ActiveCallREST(String from, String to, String recipient, long startTime, long duration) {
+            m_from = from;
+            m_to = to;
+            m_recipient = recipient;
+            m_startTime = startTime;
+            m_duration = duration;
+        }
+
+        public String getFrom() {
+            return m_from;
+        }
+
+        public String getTo() {
+            return m_to;
+        }
+
+        public String getRecipient() {
+            return m_recipient;
+        }
+
+        public long getStartTime() {
+            return m_startTime;
+        }
+
+        public long getDuration() {
+            return m_duration;
+        }
+
     }
 }

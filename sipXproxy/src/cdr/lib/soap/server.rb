@@ -53,6 +53,8 @@ module CdrResolver
     end
     
     class Server < ::SOAP::RPC::StandaloneServer
+      attr_reader :cdrService
+
       def initialize(state, config)
         @cdrService = CdrService.new(state, config.log)
         
