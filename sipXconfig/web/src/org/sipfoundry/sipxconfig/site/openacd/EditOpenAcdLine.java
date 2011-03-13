@@ -154,8 +154,7 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
                     setSelectedClient(client);
                 }
             } else if (StringUtils.contains(data, OpenAcdLine.ALLOW_VOICEMAIL)) {
-                setAllowVoicemail(BooleanUtils.toBoolean(StringUtils.removeStart(data,
-                        OpenAcdLine.ALLOW_VOICEMAIL)));
+                setAllowVoicemail(BooleanUtils.toBoolean(StringUtils.removeStart(data, OpenAcdLine.ALLOW_VOICEMAIL)));
             } else if (StringUtils.equals(application, FreeswitchAction.PredefinedAction.playback.toString())) {
                 if (getWelcomeMessage() == null) {
                     setWelcomeMessage(StringUtils.removeStart(data, getSipxOpenAcdService().getAudioDir() + SLASH));
@@ -224,11 +223,14 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
             if (getSelectedClient() == null) {
                 throw new UserException(getMessages().getMessage("error.requiredClient"));
             } else {
-                line.getNumberCondition().addAction(OpenAcdLine.createClientAction(getSelectedClient().getIdentity()));
+                line.getNumberCondition().addAction(
+                        OpenAcdLine.createClientAction(getSelectedClient().getIdentity()));
             }
-            line.getNumberCondition().addAction(
-                    OpenAcdLine.createPlaybackAction(getSipxOpenAcdService().getAudioDir() + SLASH
-                            + getWelcomeMessage()));
+            if (StringUtils.isNotEmpty(getWelcomeMessage())) {
+                line.getNumberCondition().addAction(
+                        OpenAcdLine.createPlaybackAction(getSipxOpenAcdService().getAudioDir() + SLASH
+                                + getWelcomeMessage()));
+            }
 
             for (ActionBean actionBean : getActions()) {
                 line.getNumberCondition().addAction((FreeswitchAction) actionBean.getAction().duplicate());
