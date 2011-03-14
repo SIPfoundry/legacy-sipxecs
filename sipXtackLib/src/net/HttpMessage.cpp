@@ -1246,12 +1246,13 @@ int HttpMessage::read(OsSocket* inSocket, ssize_t bufferSize,
 
 
             allBytes->append(buffer, bytesRead); // move from temporary buffer into UtlString
-            if ( bytesRead == bufferSize )
+            if ( bytesRead == bufferSize && contentLength>=0 )
             {
                // we filled the buffer in the one read. We need to empty the socket buffer completely so read
                // again until we get nothing back or the buffer is not completely filled.
                int morebytesRead = bytesRead;
-               while ( morebytesRead == bufferSize )
+               while ( morebytesRead == bufferSize &&
+		       contentLength + headerEnd > (int)allBytes->length() )
                {
                  morebytesRead = inSocket->read(buffer, bufferSize,
                                            &remoteHost, &remotePort);
