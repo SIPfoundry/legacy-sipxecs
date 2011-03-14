@@ -5,7 +5,6 @@
   <bean id="openAcdExtension" abstract="true" class="org.sipfoundry.sipxconfig.openacd.OpenAcdExtension"
     parent="freeswitchExtension">
     <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="domainManager" ref="domainManager" />
   </bean>
 
   <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl">

@@ -139,15 +139,15 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     @Override
     public void removeExtensions(Collection<Integer> extensionIds) {
-        List<OpenAcdExtension> extensions = new ArrayList<OpenAcdExtension>();
         for (Integer id : extensionIds) {
             OpenAcdExtension ext = getExtensionById(id);
-            extensions.add(ext);
+            deleteExtension(ext);
         }
-        removeAll(OpenAcdExtension.class, extensionIds);
-        for (OpenAcdExtension openAcdExtension : extensions) {
-            replicateConfig(openAcdExtension);
-        }
+        replicateConfig();
+    }
+
+    public void deleteExtension(OpenAcdExtension ext) {
+        getHibernateTemplate().delete(ext);
     }
 
     public void saveExtension(OpenAcdExtension extension) {
@@ -173,14 +173,11 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         } else {
             getHibernateTemplate().merge(extension);
         }
-        getHibernateTemplate().flush();
-        replicateConfig(extension);
+        //getHibernateTemplate().flush();
+        replicateConfig();
     }
 
-    private void replicateConfig(OpenAcdExtension extension) {
-        if (extension != null) {
-            m_replicationContext.generate(extension);
-        }
+    private void replicateConfig() {
         SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
                 .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
         for (Location location : m_locationsManager.getLocations()) {
@@ -813,7 +810,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
                 getHibernateTemplate().merge(action);
             }
             getHibernateTemplate().flush();
-            replicateConfig(null);
+            replicateConfig();
         }
     }
 
