@@ -18,6 +18,7 @@ import java.util.Collections;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.acd.AcdContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.conference.ConferenceBridgeContext;
@@ -41,6 +42,20 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     private SipxServiceBundle m_primarySipRouterBundle;
     private SipxServiceBundle m_redundantSipRouterBundle;
     private SipxFreeswitchService m_sipxFreeswitchService;
+    private static String DBNAME = "imdb";
+    private static String COLL_NAME = "node";
+
+    @Override
+    protected void onSetUpBeforeTransaction() throws Exception {
+        super.onSetUpBeforeTransaction();
+        MongoTestCaseHelper.initMongo(DBNAME, COLL_NAME);
+    }
+
+    @Override
+    protected void onTearDownAfterTransaction() throws Exception {
+        super.onTearDownAfterTransaction();
+        MongoTestCaseHelper.destroyAllDbs();
+    }
 
     public void testGetLocations() throws Exception {
         loadDataSetXml("admin/commserver/clearLocations.xml");
@@ -110,22 +125,25 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         location.setName("test location");
         location.setAddress("192.168.1.2");
         location.setFqdn("localhost");
+        location.setRegistered(true);
 
-        DaoEventPublisher daoEventPublisher = EasyMock.createMock(DaoEventPublisher.class);
-        daoEventPublisher.publishSave(location);
-        EasyMock.expectLastCall();
-        EasyMock.replay(daoEventPublisher);
-        modifyContext(m_locationsManagerImpl, "daoEventPublisher", m_originalDaoEventPublisher, daoEventPublisher);
-
+        Location location2 = new Location();
+        location2.setName("test location");
+        location2.setAddress("192.168.1.3");
+        location2.setFqdn("localhost1");
+        location2.setRegistered(false);
+        
         m_out.saveLocation(location);
-
+        m_out.saveLocation(location2);
+        
         Location[] dbLocations = m_out.getLocations();
-        assertEquals(1, dbLocations.length);
+        assertEquals(2, dbLocations.length);
         assertEquals("test location", dbLocations[0].getName());
         assertEquals("192.168.1.2", dbLocations[0].getAddress());
         assertEquals("localhost", dbLocations[0].getFqdn());
 
-        EasyMock.verify(daoEventPublisher);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent(dbLocations[0].getId(), "ip", "192.168.1.2");
+        MongoTestCaseHelper.assertObjectWithIdNotPresent(dbLocations[1].getId());
     }
 
     public void testsaveLocationWithDuplicateFqdnOrIp() throws Exception {
@@ -168,25 +186,33 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     }
 
     public void testDelete() throws Exception {
-        loadDataSetXml("admin/commserver/seedLocations.xml");
+        loadDataSetXml("admin/commserver/clearLocations.xml");
+        Location location = new Location();
+        location.setName("test location");
+        location.setAddress("10.1.1.1");
+        location.setFqdn("localhost");
+        location.setRegistered(true);
+        m_out.saveLocation(location);
+        
+        Location location2 = new Location();
+        location2.setName("test location2");
+        location2.setAddress("10.1.1.2");
+        location2.setFqdn("localhost1");
+        location2.setRegistered(false);
+        m_out.saveLocation(location2);
+
         Location[] locationsBeforeDelete = m_out.getLocations();
         assertEquals(2, locationsBeforeDelete.length);
+        MongoTestCaseHelper.assertCollectionCount(1);
 
-        Location locationToDelete = m_out.getLocation(102);
-
-        DaoEventPublisher daoEventPublisher = EasyMock.createMock(DaoEventPublisher.class);
-        daoEventPublisher.publishDelete(locationToDelete);
-        EasyMock.expectLastCall();
-        EasyMock.replay(daoEventPublisher);
-        modifyContext(m_locationsManagerImpl, "daoEventPublisher", m_originalDaoEventPublisher, daoEventPublisher);
-
+        Location locationToDelete = m_out.getLocation(locationsBeforeDelete[0].getId());
         m_out.deleteLocation(locationToDelete);
 
         Location[] locationsAfterDelete = m_out.getLocations();
         assertEquals(1, locationsAfterDelete.length);
-        assertEquals("localhost", locationsAfterDelete[0].getFqdn());
+        assertEquals("localhost1", locationsAfterDelete[0].getFqdn());
 
-        EasyMock.verify(daoEventPublisher);
+        MongoTestCaseHelper.assertCollectionCount(0);
     }
 
     public void testDeleteWithServices() throws Exception {
@@ -290,8 +316,8 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         loadDataSetXml("admin/commserver/seedLocationsAndBundles.xml");
 
         Location primaryLocation = m_out.getLocation(1001);
-        m_serviceManager.setBundlesForLocation(primaryLocation, Arrays.asList(m_managementBundle,
-                m_primarySipRouterBundle));
+        m_serviceManager.setBundlesForLocation(primaryLocation,
+                Arrays.asList(m_managementBundle, m_primarySipRouterBundle));
         Location secondaryLocation = m_out.getLocation(1002);
         m_serviceManager.setBundlesForLocation(secondaryLocation, Arrays.asList(m_redundantSipRouterBundle));
 
@@ -362,7 +388,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         ServerRoleLocation serverRole = new ServerRoleLocation();
         serverRole.setModifiedBundles(m_serviceManager.getBundlesForLocation(location));
         m_out.saveServerRoleLocation(location, serverRole);
-        assertEquals(1,m_conferenceBridgeContext.getBridges().size());
+        assertEquals(1, m_conferenceBridgeContext.getBridges().size());
     }
 
     public void setSipxFreeswitchService(SipxFreeswitchService sipxFreeswitchService) {

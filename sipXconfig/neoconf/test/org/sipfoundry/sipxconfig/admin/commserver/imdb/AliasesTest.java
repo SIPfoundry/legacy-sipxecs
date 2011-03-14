@@ -53,8 +53,7 @@ public class AliasesTest extends MongoTestCase {
     public void testGenerate() {
         m_aliases.generate(m_user);
 
-        assertObjectWithIdPresent("User1");
-
+        MongoTestCaseHelper.assertObjectWithIdPresent("User1");
     }
 
 }

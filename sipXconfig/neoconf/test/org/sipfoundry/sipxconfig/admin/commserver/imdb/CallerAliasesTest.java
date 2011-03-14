@@ -122,38 +122,38 @@ public class CallerAliasesTest extends MongoTestCase {
         cas.generate(m_gateways.get(2));
         cas.generate(m_gateways.get(3));
         
-        assertCollectionCount(6);
-        assertObjectWithIdFieldValuePresent("Gateway1", CallerAliases.CALLERALIASES + "."
+        MongoTestCaseHelper.assertCollectionCount(6);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("Gateway1", CallerAliases.CALLERALIASES + "."
                 + CallerAliasesMapping.DOMAIN, "example.org;sipxecs-lineid=1");
-        assertObjectWithIdFieldValuePresent("Gateway1", CallerAliases.CALLERALIASES + "."
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("Gateway1", CallerAliases.CALLERALIASES + "."
                 + CallerAliasesMapping.ALIAS, "sip:7832331111@" + DOMAIN);
-        assertObjectWithIdNotPresent("Gateway2");
-        assertObjectWithIdFieldValuePresent("Gateway3", CallerAliases.CALLERALIASES + "."
+        MongoTestCaseHelper.assertObjectWithIdNotPresent("Gateway2");
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("Gateway3", CallerAliases.CALLERALIASES + "."
                 + CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
-        assertObjectWithIdFieldValuePresent("Gateway3", CallerAliases.CALLERALIASES + "."
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("Gateway3", CallerAliases.CALLERALIASES + "."
                 + CallerAliasesMapping.ALIAS, "sip:anonymous@anonymous.invalid");
-        assertObjectWithIdFieldValuePresent("Gateway4", CallerAliases.CALLERALIASES + "."
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("Gateway4", CallerAliases.CALLERALIASES + "."
                 + CallerAliasesMapping.DOMAIN, "1.2.3.4;sipxecs-lineid=4");
-        assertObjectWithIdFieldValuePresent("Gateway4", CallerAliases.CALLERALIASES + "."
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("Gateway4", CallerAliases.CALLERALIASES + "."
                 + CallerAliasesMapping.ALIAS, "sip:1234@" + DOMAIN);
         // users
-        assertObjectWithIdFieldValuePresent("User1",
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1",
                 CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "bongo.com:5060;sipxecs-lineid=2");
-        assertObjectWithIdFieldValuePresent("User1", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
                 "\"first last\"<sip:1234@" + DOMAIN + ">");
-        assertObjectWithIdFieldValuePresent("User1",
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1",
                 CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
-        assertObjectWithIdFieldValuePresent("User2",
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2",
                 CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "bongo.com:5060;sipxecs-lineid=2");
-        assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
                 "sip:4321@" + DOMAIN);
-        assertObjectWithIdFieldValuePresent("User2",
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2",
                 CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
-        assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
                 "sip:+21@" + DOMAIN);
-        assertObjectWithIdFieldValuePresent("User3",
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User3",
                 CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "kuku.net:1025;sipxecs-lineid=3");
-        assertObjectWithIdFieldValuePresent("User3", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User3", CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.ALIAS,
                 "\"user without\"<sip:+45@" + DOMAIN + ">");
     }
 }

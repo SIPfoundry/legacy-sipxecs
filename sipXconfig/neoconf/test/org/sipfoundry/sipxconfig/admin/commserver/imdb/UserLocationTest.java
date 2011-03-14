@@ -85,7 +85,7 @@ public class UserLocationTest extends MongoTestCase {
         replay(coreContext);
 
         ul.generate();
-        assertCollectionCount(0);
+        MongoTestCaseHelper.assertCollectionCount(0);
     }
 
     public void testGenerate() throws Exception {
@@ -99,8 +99,8 @@ public class UserLocationTest extends MongoTestCase {
         ul.setDbCollection(getCollection());
         ul.generate();
 
-        assertObjectWithIdFieldValuePresent("User0", UserLocation.LOCATION, USER_DATA[0][4]);
-        assertObjectWithIdFieldValuePresent("User1", UserLocation.LOCATION, USER_DATA[1][4]);
-        assertObjectWithIdFieldValuePresent("User2", UserLocation.LOCATION, USER_DATA[2][4]);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", UserLocation.LOCATION, USER_DATA[0][4]);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", UserLocation.LOCATION, USER_DATA[1][4]);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2", UserLocation.LOCATION, USER_DATA[2][4]);
     }
 }

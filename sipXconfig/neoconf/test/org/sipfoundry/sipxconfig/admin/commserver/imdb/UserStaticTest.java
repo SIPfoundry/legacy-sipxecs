@@ -69,7 +69,7 @@ public class UserStaticTest extends MongoTestCase {
         replay(coreContext);
 
         us.generate();
-        assertCollectionCount(0);
+        MongoTestCaseHelper.assertCollectionCount(0);
     }
 
     public void testGenerate() throws Exception {
@@ -82,13 +82,13 @@ public class UserStaticTest extends MongoTestCase {
         us.setDbCollection(getCollection());
         replay(coreContext);
         us.generate();
-        assertCollectionCount(3);
+        MongoTestCaseHelper.assertCollectionCount(3);
         QueryBuilder qb = QueryBuilder.start("id");
         qb.is("User0").and(UserStatic.STATIC+"."+UserStaticMapping.CONTACT).is("sip:"+USER_DATA[0][4]+"@"+DOMAIN);
-        assertObjectPresent(qb.get());
-        assertObjectWithIdFieldValuePresent("User0", UserStatic.STATIC+"."+UserStaticMapping.CONTACT, "sip:"+USER_DATA[0][4]+"@"+DOMAIN);
-        assertObjectWithIdFieldValuePresent("User0", UserStatic.STATIC+"."+UserStaticMapping.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
-        assertObjectWithIdFieldValuePresent("User1", UserStatic.STATIC+"."+UserStaticMapping.EVENT, "message-summary");
-        assertObjectWithIdFieldValuePresent("User2", UserStatic.STATIC+"."+UserStaticMapping.FROM_URI, "sip:IVR@"+DOMAIN);
+        MongoTestCaseHelper.assertObjectPresent(qb.get());
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", UserStatic.STATIC+"."+UserStaticMapping.CONTACT, "sip:"+USER_DATA[0][4]+"@"+DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", UserStatic.STATIC+"."+UserStaticMapping.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", UserStatic.STATIC+"."+UserStaticMapping.EVENT, "message-summary");
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2", UserStatic.STATIC+"."+UserStaticMapping.FROM_URI, "sip:IVR@"+DOMAIN);
     }
 }

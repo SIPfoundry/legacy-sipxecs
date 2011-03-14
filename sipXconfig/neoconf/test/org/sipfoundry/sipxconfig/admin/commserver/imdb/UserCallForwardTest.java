@@ -113,11 +113,11 @@ public class UserCallForwardTest extends MongoTestCase {
         uf.generate(m_users.get(1));
         uf.generate(m_users.get(2));
         uf.generate(m_users.get(3));
-        assertCollectionCount(4);
+        MongoTestCaseHelper.assertCollectionCount(4);
 
-        assertObjectWithIdFieldValuePresent("User1", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[0][4]));
-        assertObjectWithIdFieldValuePresent("User2", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[1][4]));
-        assertObjectWithIdFieldValuePresent("User3", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[2][4]));
-        assertObjectWithIdFieldValuePresent("User4", UserForward.CFWDTIME, 54);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[0][4]));
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[1][4]));
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User3", UserForward.CFWDTIME, Integer.valueOf(USER_DATA[2][4]));
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User4", UserForward.CFWDTIME, 54);
     }
 }
