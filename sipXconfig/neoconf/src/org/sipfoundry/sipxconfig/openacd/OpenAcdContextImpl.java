@@ -32,7 +32,6 @@ import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.alias.AliasManager;
 import org.sipfoundry.sipxconfig.common.BeanId;
@@ -49,7 +48,7 @@ import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext {
+public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext {
 
     private static final String VALUE = "value";
     private static final String LOCATION = "location";
@@ -76,8 +75,10 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     private LocationsManager m_locationsManager;
     private ServiceConfigurator m_serviceConfigurator;
     private SipxProcessContext m_processContext;
-    private SipxReplicationContext m_replicationContext;
+
     private CoreContext m_coreContext;
+
+    public abstract OpenAcdLine newOpenAcdLine();
 
     @Override
     public OpenAcdExtension getExtensionById(Integer extensionId) {
@@ -173,7 +174,7 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
         } else {
             getHibernateTemplate().merge(extension);
         }
-        //getHibernateTemplate().flush();
+        getHibernateTemplate().flush();
         replicateConfig();
     }
 
@@ -242,8 +243,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public Collection<AliasMapping> getAliasMappings() {
         Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
-        List<OpenAcdExtension> extensions = getHibernateTemplate().loadAll(OpenAcdExtension.class);
-        for (OpenAcdExtension extension : extensions) {
+        List<OpenAcdLine> extensions = getHibernateTemplate().loadAll(OpenAcdLine.class);
+        for (OpenAcdLine extension : extensions) {
             if (extension.getExtension() != null) {
                 aliases.addAll(extension.getAliasMappings(m_coreContext.getDomainName()));
             }
@@ -847,8 +848,8 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
     @Override
     public List<Replicable> getReplicables() {
         List<Replicable> replicables = new ArrayList<Replicable>();
-        for (OpenAcdExtension ext : getHibernateTemplate().loadAll(OpenAcdExtension.class)) {
-            replicables.add(ext);
+        for (OpenAcdLine line : getHibernateTemplate().loadAll(OpenAcdLine.class)) {
+            replicables.add(line);
         }
         return replicables;
     }
@@ -875,10 +876,6 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     public void setLocationsManager(LocationsManager locationsManager) {
         m_locationsManager = locationsManager;
-    }
-
-    public void setReplicationContext(SipxReplicationContext replicationContext) {
-        m_replicationContext = replicationContext;
     }
 
     public void setCoreContext(CoreContext coreContext) {
