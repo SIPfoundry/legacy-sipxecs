@@ -264,7 +264,7 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/itspTemplates/*
 
 # Jar files are in here, but declaring the directory includes them all implicitly
-%{_datadir}/java/sipXecs/sipXconfig
+%attr(755,sipxchange,sipxchange) %{_datadir}/java/sipXecs/sipXconfig
 
 # Because of generation of data and profiles
 %dir %attr(775,sipxchange,sipxchange) %{phonedir}
