@@ -58,7 +58,7 @@ public class UserServiceImpl implements UserService {
     }
 
     public void addUser(AddUser addUser) throws RemoteException {
-        org.sipfoundry.sipxconfig.common.User myUser = new org.sipfoundry.sipxconfig.common.User();
+        org.sipfoundry.sipxconfig.common.User myUser = m_coreContext.newUser();
         User apiUser = addUser.getUser();
         ApiBeanUtil.toMyObject(m_userBuilder, myUser, apiUser);
         String[] groups = apiUser.getGroups();

@@ -10,18 +10,14 @@
 package org.sipfoundry.sipxconfig.admin.tls;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.List;
 
-import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.MongoTestCaseHelper;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
-
-    private static final int NUM_BRANCHES = 5;
 
     private TlsPeerManager m_tlsPeerManager;
 
@@ -56,7 +52,8 @@ public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
         TlsPeer peer = m_tlsPeerManager.newTlsPeer();
         assertNotNull(peer.getInternalUser().getSipPassword());
         assertEquals(false, peer.getInternalUser().getSettingTypedValue(PermissionName.VOICEMAIL.getPath()));
-        assertEquals(false, peer.getInternalUser().getSettingTypedValue(PermissionName.FREESWITH_VOICEMAIL.getPath()));
+        assertEquals(false, peer.getInternalUser()
+                .getSettingTypedValue(PermissionName.FREESWITH_VOICEMAIL.getPath()));
     }
 
     public void saveTlsPeer() throws Exception {
@@ -75,7 +72,8 @@ public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
         peer1.setName(" tl spe e r4");
         m_tlsPeerManager.saveTlsPeer(peer1);
         assertEquals("~~tp~tlspeer4", peer1.getInternalUser().getUserName());
-
+        MongoTestCaseHelper.assertObjectWithIdPresent("TlsPeer1");
+        MongoTestCaseHelper.assertObjectWithIdPresent("TlsPeer2");
         TlsPeer peer2 = m_tlsPeerManager.getTlsPeerByName("tlspeer2");
         peer2.setName("tlspeer4");
         try {
@@ -84,6 +82,7 @@ public class TlsPeerManagerImplTestIntegration extends IntegrationTestCase {
         } catch (UserException ex) {
 
         }
+        MongoTestCaseHelper.assertObjectWithIdNotPresent("TlsPeer3");
     }
 
     public void setTlsPeerManager(TlsPeerManager peerManager) {

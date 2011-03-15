@@ -32,6 +32,7 @@ public interface OpenAcdContext extends FreeswitchExtensionProvider, AliasProvid
     void saveExtension(OpenAcdExtension extension);
 
     void removeExtensions(Collection<Integer> extensionIds);
+    void deleteExtension(OpenAcdExtension ext);
 
     OpenAcdExtension getExtensionById(Integer extensionId);
 

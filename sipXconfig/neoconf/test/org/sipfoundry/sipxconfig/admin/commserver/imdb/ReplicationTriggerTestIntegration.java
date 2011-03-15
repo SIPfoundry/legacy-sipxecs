@@ -50,6 +50,21 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     private TlsPeerManager m_tlsPeerManager;
     private PermissionManager m_permissionManager;
     private ForwardingContext m_forwardingContext;
+    private ReplicationManagerImpl m_replicationManager;
+    private static String DBNAME = "imdb";
+    private static String COLL_NAME = "entity";
+
+    @Override
+    protected void onSetUpInTransaction() throws Exception {
+        super.onSetUpInTransaction();
+        MongoTestCaseHelper.initMongo(DBNAME, COLL_NAME);
+    }
+
+    @Override
+    protected void onTearDownInTransaction() throws Exception {
+        super.onTearDownInTransaction();
+        MongoTestCaseHelper.destroyAllDbs();
+    }
 
     public void setReplicationTrigger(ReplicationTrigger trigger) {
         m_trigger = trigger;
@@ -78,35 +93,29 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         Group g = m_dao.getGroup(new Integer(1000));
         User user = m_coreContext.loadUser(1001);
         user.setPermissionManager(m_permissionManager);
-        CallSequence cs = m_forwardingContext.getCallSequenceForUser(user);
+        User user2 = m_coreContext.loadUser(1002);
+        user2.setPermissionManager(m_permissionManager);
 
         SortedSet<Group> groups = new TreeSet<Group>();
         groups.add(g);
         user.setGroups(groups);
-        
-        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
-        replicationContext.replicateEntity(user);
-        replicationContext.replicateEntity(cs);
-        replicationContext.replicateEntity(user);
-        replay(replicationContext);
 
         m_coreContext.saveUser(user);
+        MongoTestCaseHelper.assertObjectWithIdPresent("User1001");
+        MongoTestCaseHelper.assertObjectWithIdNotPresent("User1002");
         m_dao.saveGroup(g);
 
-        verify(replicationContext);
+        MongoTestCaseHelper.assertObjectWithIdPresent("User1002");
     }
 
     public void testReplicateOnTlsPeerCreation() throws Exception {
+        loadDataSetXml("domain/DomainSeed.xml");
         TlsPeer peer = m_tlsPeerManager.newTlsPeer();
         peer.setName("test");
-        
-        ReplicationManager replicationContext = createStrictMock(ReplicationManager.class);
-        replicationContext.replicateEntity(peer);
-        replay(replicationContext);
 
         m_tlsPeerManager.saveTlsPeer(peer);
+        MongoTestCaseHelper.assertObjectWithIdPresent("TlsPeer1");
 
-        verify(replicationContext);
     }
 
     /**
@@ -122,6 +131,7 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
 
         verify(replicationContext);
+        m_trigger.setReplicationManager(m_replicationManager);
     }
 
     /**
@@ -137,85 +147,80 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
         m_trigger.onApplicationEvent(new ApplicationInitializedEvent(new Object()));
 
         verify(replicationContext);
+        m_trigger.setReplicationManager(m_replicationManager);
     }
 
     /**
      * Tests that replication is triggered when branch with users deleted
      */
-/*    public void testDeleteBranchWithUser() throws Exception {
-        loadDataSet("branch/attached_branches.db.xml");
-
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generate(DataSet.USER_LOCATION);
-        replicationContext.replicate(m_contactInformationConfig);
-        replay(replicationContext);
-        m_contactInformationDaoListener.setSipxReplicationContext(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
-
-        Collection<Integer> allSelected = new ArrayList<Integer>();
-        allSelected.add(1000);
-        m_branchManager.deleteBranches(allSelected);
-
-        verify(replicationContext);
-    }*/
+    /*
+     * public void testDeleteBranchWithUser() throws Exception {
+     * loadDataSet("branch/attached_branches.db.xml");
+     * 
+     * SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+     * replicationContext.generate(DataSet.USER_LOCATION);
+     * replicationContext.replicate(m_contactInformationConfig); replay(replicationContext);
+     * m_contactInformationDaoListener.setSipxReplicationContext(replicationContext);
+     * m_trigger.setReplicationContext(replicationContext);
+     * 
+     * Collection<Integer> allSelected = new ArrayList<Integer>(); allSelected.add(1000);
+     * m_branchManager.deleteBranches(allSelected);
+     * 
+     * verify(replicationContext); }
+     */
 
     /**
      * Tests that replication is triggered when branch with users is saved
      */
-/*    public void testSaveBranchWithUser() throws Exception {
-        loadDataSet("branch/attached_branches.db.xml");
-
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replicationContext.generate(DataSet.USER_LOCATION);
-        replicationContext.replicate(m_contactInformationConfig);
-        replay(replicationContext);
-        m_contactInformationDaoListener.setSipxReplicationContext(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
-
-        Branch branch = m_branchManager.getBranch(1000);
-
-        m_branchManager.saveBranch(branch);
-
-        verify(replicationContext);
-    }*/
+    /*
+     * public void testSaveBranchWithUser() throws Exception {
+     * loadDataSet("branch/attached_branches.db.xml");
+     * 
+     * SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+     * replicationContext.generate(DataSet.USER_LOCATION);
+     * replicationContext.replicate(m_contactInformationConfig); replay(replicationContext);
+     * m_contactInformationDaoListener.setSipxReplicationContext(replicationContext);
+     * m_trigger.setReplicationContext(replicationContext);
+     * 
+     * Branch branch = m_branchManager.getBranch(1000);
+     * 
+     * m_branchManager.saveBranch(branch);
+     * 
+     * verify(replicationContext); }
+     */
 
     /**
      * Tests that no replication when branch without users is deleted
      */
-/*    public void testDeleteBranchesWithoutUser() throws Exception {
-        loadDataSet("branch/branches.db.xml");
-
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
-
-        m_branchManager.deleteBranches(Arrays.asList(1, 2, 3, 4, 5));
-
-        verify(replicationContext);
-    }*/
+    /*
+     * public void testDeleteBranchesWithoutUser() throws Exception {
+     * loadDataSet("branch/branches.db.xml");
+     * 
+     * SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+     * replay(replicationContext); m_trigger.setReplicationContext(replicationContext);
+     * 
+     * m_branchManager.deleteBranches(Arrays.asList(1, 2, 3, 4, 5));
+     * 
+     * verify(replicationContext); }
+     */
 
     /**
      * Tests that no replication is done when branch without users is saved
      */
-    /*public void testSaveBranchesWithoutUser() throws Exception {
-
-        SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
-        replay(replicationContext);
-        m_trigger.setReplicationContext(replicationContext);
-
-        //Save new branch
-        Branch newBranch = new Branch();
-        newBranch.setName("testBranch");
-        m_branchManager.saveBranch(newBranch);
-        flush();
-
-        //Save an existing branch
-        Branch existingBranch = m_branchManager.getBranch("testBranch");
-        m_branchManager.saveBranch(existingBranch);
-        flush();
-
-        verify(replicationContext);
-    }*/
+    /*
+     * public void testSaveBranchesWithoutUser() throws Exception {
+     * 
+     * SipxReplicationContext replicationContext = createStrictMock(SipxReplicationContext.class);
+     * replay(replicationContext); m_trigger.setReplicationContext(replicationContext);
+     * 
+     * //Save new branch Branch newBranch = new Branch(); newBranch.setName("testBranch");
+     * m_branchManager.saveBranch(newBranch); flush();
+     * 
+     * //Save an existing branch Branch existingBranch = m_branchManager.getBranch("testBranch");
+     * m_branchManager.saveBranch(existingBranch); flush();
+     * 
+     * verify(replicationContext); }
+     */
 
     public void setContactInformationConfig(ConfigurationFile contactInformationConfig) {
         m_contactInformationConfig = contactInformationConfig;
@@ -235,6 +240,10 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
 
     public void setForwardingContext(ForwardingContext forwardingContext) {
         m_forwardingContext = forwardingContext;
+    }
+
+    public void setReplicationManagerImpl(ReplicationManagerImpl replicationManager) {
+        m_replicationManager = replicationManager;
     }
 
 }
