@@ -203,7 +203,7 @@ public abstract class EditOpenAcdLine extends PageWithCallback implements PageBe
             if (getOpenAcdLineId() != null) {
                 line = (OpenAcdLine) getOpenAcdContext().getExtensionById(getOpenAcdLineId());
             } else {
-                line = new OpenAcdLine();
+                line = getOpenAcdContext().newOpenAcdLine();
                 line.addCondition(OpenAcdLine.createLineCondition());
             }
 

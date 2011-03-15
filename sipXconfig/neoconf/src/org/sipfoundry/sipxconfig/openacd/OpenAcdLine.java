@@ -15,18 +15,29 @@
  */
 package org.sipfoundry.sipxconfig.openacd;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.common.Replicable;
+import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
+import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
+import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 
-public class OpenAcdLine extends OpenAcdExtension {
+public class OpenAcdLine extends OpenAcdExtension implements Replicable {
     public static final String Q = "queue=";
     public static final String BRAND = "brand=";
     public static final String DESTINATION_NUMBER = "destination_number";
     public static final String ALLOW_VOICEMAIL = "allow_voicemail=";
     public static final String EMPTY_STRING = "";
+    private SipxServiceManager m_serviceManager;
 
     public static List<FreeswitchAction> getDefaultActions(Location location) {
         List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
@@ -58,4 +69,36 @@ public class OpenAcdLine extends OpenAcdExtension {
         return createAction(FreeswitchAction.PredefinedAction.playback.toString(), path);
     }
 
+    @Override
+    public Collection<AliasMapping> getAliasMappings(String domainName) {
+        List<AliasMapping> mappings = new ArrayList<AliasMapping>();
+        SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
+                .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
+
+        AliasMapping nameMapping = new AliasMapping(AliasMapping.createUri(getName(), domainName), SipUri.format(
+                getExtension(), freeswitchService.getAddress(), false), ALIAS_RELATION);
+        mappings.add(nameMapping);
+        AliasMapping lineMapping = new AliasMapping(AliasMapping.createUri(getExtension(), domainName),
+                SipUri.format(getExtension(), freeswitchService.getAddress(),
+                        freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
+        mappings.add(lineMapping);
+        return mappings;
+    }
+
+    @Override
+    public Set<DataSet> getDataSets() {
+        Set<DataSet> ds = new HashSet<DataSet>();
+        ds.add(DataSet.ALIAS);
+        return ds;
+    }
+
+    @Override
+    public String getIdentity(String domain) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    public void setSipxServiceManager(SipxServiceManager manager) {
+        m_serviceManager = manager;
+    }
 }
