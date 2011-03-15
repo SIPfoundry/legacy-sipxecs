@@ -10,6 +10,7 @@ Vendor:   Pingtel Corp.
 Packager: Pingtel <support@pingtel.com>
 Url:      http://www.pingtel.com
 
+BuildRequires: gettext
 BuildRequires: ant-commons-logging
 BuildRequires: ant-junit
 BuildRequires: ant-nodeps
@@ -195,6 +196,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %attr(755,sipxchange,sipxchange) %{_localstatedir}/log/sipxpbx/phone
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/webdav
 %dir %attr(755,sipxchange,sipxchange) %{_datadir}/www/var
+%{_datadir}/sipxecs/locale/en_US/LC_MESSAGES/*
 
 %pre
 

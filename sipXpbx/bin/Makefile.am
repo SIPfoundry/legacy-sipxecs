@@ -76,12 +76,25 @@ EXTRA_DIST = \
 	sipx-cert-check.in \
 	$(foreach libexecScript, $(SipxLibexecScripts), $(libexecScript).in) \
 	$(PythonScripts) \
-	$(SCRIPT_TEMPLATES)
+	$(SCRIPT_TEMPLATES) \
+	$(messages_SOURCES)
 
 $(foreach sipxScript,$(SCRIPT_TEMPLATES),$(sipxScript:.in=)) : % : $(srcdir)/%.in
 	@echo "Localize $< -> $@"
 	@$(LocalizeSipXconfig) $< > $@
 	chmod +x $@
+
+messagesdir = \
+	$(SIPX_DATADIR)/locale/en_US/LC_MESSAGES
+
+messages_SOURCES = \
+	sipxecs-setup.po
+
+messages_DATA = \
+	sipxecs-setup.mo
+
+%.mo : %.po
+	msgfmt --output-file=$@ $<
 
 install-exec-hook : \
 	$(DESTDIR)@DAILYDIR@/voicemail_clean \
