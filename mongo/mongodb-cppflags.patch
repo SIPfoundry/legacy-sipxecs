@@ -1,0 +1,42 @@
+diff -up mongodb-src-r1.6.1/SConstruct.cppflags mongodb-src-r1.6.1/SConstruct
+--- mongodb-src-r1.6.1/SConstruct.cppflags	2010-09-01 15:54:52.456271054 +0300
++++ mongodb-src-r1.6.1/SConstruct	2010-09-01 17:13:02.507181298 +0300
+@@ -110,6 +110,13 @@ AddOption('--asio',
+           action="store",
+           help="Use Asynchronous IO (NOT READY YET)" )
+ 
++AddOption('--cppflags',
++          dest='cppflags',
++          type="string",
++          nargs=1,
++          action="store",
++          help="set custom cppflags, overriding everything else")
++
+ AddOption( "--d",
+            dest="debugBuild",
+            type="string",
+@@ -744,8 +751,13 @@ else:
+     print( "No special config for [" + os.sys.platform + "] which probably means it won't work" )
+ 
+ if nix:
+-    env.Append( CPPFLAGS="-fPIC -fno-strict-aliasing -ggdb -pthread -Wall -Wsign-compare -Wno-unknown-pragmas -Winvalid-pch" )
+-    if linux:
++    cppflags = GetOption("cppflags")
++    if cppflags:
++        env.Append( CPPFLAGS= cppflags )
++    else:
++        env.Append( CPPFLAGS="-fPIC -fno-strict-aliasing -ggdb -pthread -Wall -Wsign-compare -Wno-unknown-pragmas -Winvalid-pch" )
++
++    if linux and not cppflags:
+         env.Append( CPPFLAGS=" -Werror " )
+     env.Append( CXXFLAGS=" -Wnon-virtual-dtor " )
+     env.Append( LINKFLAGS=" -fPIC -pthread -rdynamic" )
+@@ -757,7 +769,7 @@ if nix:
+     if debugBuild:
+         env.Append( CPPFLAGS=" -O0 -fstack-protector " );
+         env['ENV']['GLIBCXX_FORCE_NEW'] = 1; # play nice with valgrind
+-    else:
++    elif not cppflags:
+         env.Append( CPPFLAGS=" -O3" )
+ 
+     if debugLogging:
