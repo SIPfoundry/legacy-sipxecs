@@ -23,15 +23,15 @@ Patch0:         %{name}-cppflags.patch
 Patch1:         %{name}-client-ldflags.patch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
+BuildRequires:  gcc-c++
 BuildRequires:  python-devel
 BuildRequires:  scons
 BuildRequires:  boost-devel
 BuildRequires:  pcre-devel
 BuildRequires:  js-devel
 BuildRequires:  readline-devel
+BuildRequires:  ncurses-devel
 BuildRequires:  libpcap-devel
-# to run tests
-BuildRequires:  unittest
 
 Requires(post): chkconfig
 Requires(preun): chkconfig
