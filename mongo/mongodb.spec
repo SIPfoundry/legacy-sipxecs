@@ -12,6 +12,8 @@ License:        AGPLv3 and zlib and ASL 2.0
 # manpages and bson are under ASL 2.0
 # everything else is AGPLv3
 URL:            http://www.mongodb.org
+Obsoletes:	mongo
+Obsoletes:	mongo-debuginfo
 
 Source0:        http://fastdl.mongodb.org/src/%{name}-src-r%{version}.tar.gz
 Source1:        %{name}.init
@@ -65,6 +67,7 @@ Summary:        MongoDB header files
 Group:          Development/Libraries
 Requires:       %{name} = %{version}-%{release}
 Provides:       %{name}-static = %{version}-%{release}
+Obsoletes:	mongo-devel
 
 %description devel
 This package provides the header files and C++ driver for MongoDB. MongoDB is
@@ -74,6 +77,7 @@ a high-performance, open source, schema-free document-oriented database.
 Summary:        MongoDB server, sharding server and support scripts
 Group:          Applications/Databases
 Requires:       %{name} = %{version}-%{release}
+Obsoletes:	mongo-server
 
 %description server
 This package provides the mongo server software, mongo sharding server
