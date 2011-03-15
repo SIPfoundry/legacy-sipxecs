@@ -54,7 +54,9 @@ public class FreeswitchCondition extends BeanWithId {
     }
 
     public void addAction(FreeswitchAction action) {
-        m_actions.add(action);
+        if (action != null) {
+            m_actions.add(action);
+        }
     }
 
     public String getExtension() {
