@@ -41,6 +41,7 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventPublisher;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
 import org.sipfoundry.sipxconfig.service.ServiceConfigurator;
@@ -75,6 +76,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     private LocationsManager m_locationsManager;
     private ServiceConfigurator m_serviceConfigurator;
     private SipxProcessContext m_processContext;
+    private DaoEventPublisher m_daoEventPublisher;
 
     private CoreContext m_coreContext;
 
@@ -143,6 +145,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         for (Integer id : extensionIds) {
             OpenAcdExtension ext = getExtensionById(id);
             deleteExtension(ext);
+            m_daoEventPublisher.publishDelete(ext);
         }
         replicateConfig();
     }
@@ -170,11 +173,10 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         }
         removeNullActions(extension);
         if (extension.isNew()) {
-            getHibernateTemplate().save(extension);
+            getHibernateTemplate().saveOrUpdate(extension);
         } else {
             getHibernateTemplate().merge(extension);
         }
-        getHibernateTemplate().flush();
         replicateConfig();
     }
 
@@ -882,4 +884,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         m_coreContext = coreContext;
     }
 
+    public void setDaoEventPublisher(DaoEventPublisher daoEventPublisher) {
+        m_daoEventPublisher = daoEventPublisher;
+    }
 }

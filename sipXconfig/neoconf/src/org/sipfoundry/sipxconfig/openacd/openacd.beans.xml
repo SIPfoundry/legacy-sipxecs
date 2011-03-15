@@ -14,6 +14,7 @@
     <property name="locationsManager" ref="locationsManager" />
     <property name="serviceConfigurator" ref="serviceConfigurator" />
     <property name="processContext" ref="sipxProcessContext" />
+    <property name="daoEventPublisher" ref="daoEventPublisher"/>
   </bean>
 
   <bean id="openAcdContext" class="org.springframework.aop.framework.ProxyFactoryBean" parent="abstractDao">
