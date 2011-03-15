@@ -167,7 +167,7 @@ ACDServer::ACDServer(int provisioningAgentPort, int watchdogRpcServerPort)
       mDefaultIdentity.setHostAddress(mDomain);
 
       // Create the remainder of the server components
-      mpAcdCallManager  = new ACDCallManager(this, mUdpPort, mTcpPort, mTlsPort,
+      mpAcdCallManager  = new ACDCallManager(this, mUdpPort, mTcpPort, PORT_NONE,
                                              mRtpBase, mMaxAcdCallsAllowed,
                                              mDefaultIdentity.toString().data());
       if (mpAcdCallManager->getAcdCallManagerHandle() != SIPX_INST_NULL)
@@ -590,7 +590,7 @@ ProvisioningAttrList* ACDServer::Create(ProvisioningAttrList& rRequestAttributes
 
       // Now that the ACDServer instance has been initialized,
       // create the remainder of the server components
-      mpAcdCallManager  = new ACDCallManager(this, mUdpPort, mTcpPort, mTlsPort, mRtpBase, mMaxAcdCallsAllowed);
+      mpAcdCallManager  = new ACDCallManager(this, mUdpPort, mTcpPort, PORT_NONE, mRtpBase, mMaxAcdCallsAllowed);
       mpAcdLineManager  = new ACDLineManager(this);
       mpAcdAgentManager = new ACDAgentManager(this, mPresenceMonitorPort, mPresenceServerUriString, mPresenceServiceUriString);
       mpAcdQueueManager = new ACDQueueManager(this);
