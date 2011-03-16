@@ -44,21 +44,15 @@ HostName = ''
 def screen_sipx_startup ():
    global explain
 
-   t = sipxecsGlobals()
-   initialMessage = format_string2_5( t._('\
-This wizard creates the bootstrap configuration\n\
-for %s.\n\
-\n\
-Any existing configuration will be overwritten if you continue.\
-'), '@SIPXECS_NAME@')
+   initialMessage = _("setup.initial")
    grid = snack.Grid(2, 1)
-   continueButton = snack.Button(t._("Continue"))
+   continueButton = snack.Button(_("Continue"))
    grid.setField(continueButton, 0, 0, (1,0,1,1))
 
-   exitButton = snack.Button(t._("Exit"))
+   exitButton = snack.Button(_("Exit"))
    grid.setField(exitButton, 1, 0, (1,0,1,1))
 
-   titleMessage = format_string2_5(t._('%s System Setup Wizard'), '@SIPXECS_NAME@')
+   titleMessage = _('setup.title')
    f = screen_setup(titleMessage, initialMessage, grid)
    choice = f.run()
 
@@ -70,7 +64,7 @@ Any existing configuration will be overwritten if you continue.\
 
 def refresh_sipxconfig_db () :
     
-    progress(95, sipxecsGlobals()._('Refreshing configuration database') )
+    progress(95, _('Refreshing configuration database') )
     show_progress()
 
     cmdoutput=commands.getoutput('@SIPX_BINDIR@/sipxconfig.sh --first-run')
@@ -90,7 +84,7 @@ screen_init()
 
 try:
     chooseLanguage()
-    progress(1, format_string2_5(sipxecsGlobals()._("Start %s Services Setup"), '@SIPXECS_NAME@'))
+    progress(1, _("setup.start"))
     screen_sipx_startup()
 
     checkSystemType()
@@ -98,7 +92,7 @@ try:
 
     refresh_sipxconfig_db()
 
-    progress(100, sipxecsGlobals()._('Ready'))
+    progress(100, _('Ready'))
     setup_completed()
     # setup_completed does not return
 
