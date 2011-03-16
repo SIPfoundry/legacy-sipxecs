@@ -63,7 +63,9 @@ public abstract class FreeswitchExtension extends BeanWithId {
         if (m_conditions == null) {
             m_conditions = new LinkedHashSet<FreeswitchCondition>();
         }
-        m_conditions.add(condition);
+        if (condition != null) {
+            m_conditions.add(condition);            
+        }
     }
 
 }

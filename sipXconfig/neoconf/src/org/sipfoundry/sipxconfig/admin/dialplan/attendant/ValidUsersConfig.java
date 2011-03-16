@@ -175,7 +175,7 @@ public class ValidUsersConfig extends XmlFile {
         String identity = am.getString(AliasMapping.IDENTITY);
         String contact = am.getString(AliasMapping.CONTACT);
         userEl.addElement(ELEMENT_NAME_IDENTITY).setText(identity);
-        userEl.addElement(ELEMENT_NAME_USERNAME).setText(identity.substring(0, identity.indexOf('@')));
+        userEl.addElement(ELEMENT_NAME_USERNAME).setText(identity);
         userEl.addElement(ELEMENT_NAME_CONTACT).setText(contact);
         userEl.addElement(ELEMENT_NAME_INDIRECTORY).setText("false");
     }

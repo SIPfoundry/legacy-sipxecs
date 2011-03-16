@@ -75,10 +75,10 @@ public class OpenAcdLine extends OpenAcdExtension implements Replicable {
         SipxFreeswitchService freeswitchService = (SipxFreeswitchService) m_serviceManager
                 .getServiceByBeanId(SipxFreeswitchService.BEAN_ID);
 
-        AliasMapping nameMapping = new AliasMapping(AliasMapping.createUri(getName(), domainName), SipUri.format(
+        AliasMapping nameMapping = new AliasMapping(getName(), SipUri.format(
                 getExtension(), freeswitchService.getAddress(), false), ALIAS_RELATION);
         mappings.add(nameMapping);
-        AliasMapping lineMapping = new AliasMapping(AliasMapping.createUri(getExtension(), domainName),
+        AliasMapping lineMapping = new AliasMapping(getExtension(),
                 SipUri.format(getExtension(), freeswitchService.getAddress(),
                         freeswitchService.getFreeswitchSipPort()), ALIAS_RELATION);
         mappings.add(lineMapping);

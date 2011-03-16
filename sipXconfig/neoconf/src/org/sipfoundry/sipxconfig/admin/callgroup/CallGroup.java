@@ -184,7 +184,7 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
         }
 
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
-            AliasMapping extensionAlias = new AliasMapping(AliasMapping.createUri(m_extension, domainName),
+            AliasMapping extensionAlias = new AliasMapping(m_extension,
                     myIdentity, ALIAS_RELATION);
             mappings.add(extensionAlias);
         }

@@ -177,6 +177,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         } else {
             getHibernateTemplate().merge(extension);
         }
+        getHibernateTemplate().flush();
         replicateConfig();
     }
 

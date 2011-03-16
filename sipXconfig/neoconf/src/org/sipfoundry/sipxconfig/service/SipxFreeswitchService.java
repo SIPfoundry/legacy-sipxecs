@@ -332,7 +332,6 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity,
 
     @Override
     public Collection<AliasMapping> getAliasMappings(String domain) {
-        Map<Replicable, Collection<AliasMapping>> aliases = new HashMap<Replicable, Collection<AliasMapping>>();
         String contact = null;
         String mohSetting = getSettingValue(SipxFreeswitchService.FREESWITCH_MOH_SOURCE);
 

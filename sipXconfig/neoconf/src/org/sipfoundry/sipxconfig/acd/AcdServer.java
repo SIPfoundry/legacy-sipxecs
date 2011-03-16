@@ -168,13 +168,13 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
             signOutCode += String.valueOf(m_location.getId());
         }
 
-        mappings.add(createPresenceAliasMapping(signInCode.trim(), domainName, presencePort));
-        mappings.add(createPresenceAliasMapping(signOutCode.trim(), domainName, presencePort));
+        mappings.add(createPresenceAliasMapping(signInCode.trim(), presencePort));
+        mappings.add(createPresenceAliasMapping(signOutCode.trim(), presencePort));
         return mappings;
     }
 
-    private AliasMapping createPresenceAliasMapping(String code, String domainName, int port) {
-        AliasMapping mapping = new AliasMapping(AliasMapping.createUri(code, domainName), SipUri.format(code,
+    private AliasMapping createPresenceAliasMapping(String code, int port) {
+        AliasMapping mapping = new AliasMapping(code, SipUri.format(code,
                 getLocation().getFqdn(), port), ALIAS_RELATION);
         return mapping;
     }
