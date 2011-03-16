@@ -1,0 +1,60 @@
+msgid "setup.initial"
+msgstr "This wizard creates the bootstrap configuration for sipXecs. Any existing configuration will be overwritten if you continue."
+
+msgid "setup.title"
+msgstr "SipXecs System Setup Wizard"
+
+msgid "setup.start"
+msgstr "Start sipXecs Services Setup"
+
+msgid "common.systemtype"
+msgstr "Is this the first sipXecs server for this domain ?"
+
+msgid "common.runningasroot"
+msgstr "Because you are not running as root,\n\
+the sipXecs services have not been\n\
+configured to start by default."
+
+msgid "common.netexplanation"
+msgstr "\
+Unable to obtain the network address and mask data\n\
+from the configuration file:\n\
+   %s\n\
+Enter the network interface settings for the interface\n\
+to be used by sipXecs services:"
+
+msgid "common.configuration"
+msgstr "Retrieve sipXecs Configuration"
+
+msgid "common.autostart"
+msgstr "Configuring sipXecs Autostart"
+
+msgid "common.parameters.configured"
+msgstr "All bootstrap parameters have been configured. \n\
+\n\
+When the sipXecs services have started, open\n\
+\n\
+   http://%s\n\
+\n\
+in your web browser to continue configuring\n\
+your sipXecs services."
+
+msgid "common.start"
+msgstr "Start sipXecs"
+
+msgid "setupsystem.password"
+msgstr "Choose a new password for the 'root' user.\n\
+This is the password for the root shell, not for the\n\
+sipXecs administration web user interface."
+
+msgid "setupsystem.parameters"
+msgstr "The system level parameters have been configured. \n\
+The next step is to configure the sipXecs\n\
+service bootstrap parameters."
+
+msgid "setupsystem.services"
+msgstr "Setup sipXecs Services"
+
+msgid "setupsystem.setup"
+msgstr "SipXecs Services Setup"
+
