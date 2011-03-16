@@ -36,7 +36,9 @@ help.distro.{3}.{5} = Build or operate on repository for another distro other th
 distro.% : SUB_DISTRO=$(word 2,$(subst ., ,$@))
 distro.% : SUBMAKE_VARS=DISTRO=$(SUB_DISTRO)
 distro.all.% :
-	$(foreach D,@ALL_DISTROS@,$(MAKE) distro.$(D).$*;)
+	# split into separate bash commands so each command gets separate make environment. 
+	# Use command && command && true to ensure a failure in one aborts the build
+	$(foreach D,@ALL_DISTROS@,$(MAKE) distro.$(D).$* &&) true
 
 $(foreach D,@ALL_DISTROS@,distro.$(D).%) :
 	$(MAKE) $* $(SUBMAKE_VARS)
@@ -54,18 +56,6 @@ CopySourceFile = \
 	  fi ;\
 	  cp @DOWNLOAD_LIB_CACHE@/$(notdir $1) $2; \
 	fi; \
-
-# creates a flat file database with format: {filename, package name, build date}, then sorts records by 
-# {package name,build date}. Once sorted, group by package name using uniq command. Once grouped, use filename, 
-# to delete duplicate packages with oldest build date.
-RemoveDuplicateRpms = \
-	for f in $1/*.rpm; do \
-	  echo -n "$$f "; \
-	  rpm -qp --queryformat '%{BUILDTIME} %{name}\n' $$f; \
-	done > pkglist; \
-	for f in `sort -n -r -k 3,2 pkglist | uniq -d -f 2 | awk '{print $$1}'`; do \
-	  rm -v $$f; \
-	done
 
 help.{1|2}.srpm = Called automatically as part of rpm process after srpm target. Uses rpmbuild command after dist target
 %.srpm :

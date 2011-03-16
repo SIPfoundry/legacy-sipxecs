@@ -201,4 +201,12 @@
   </bean>
   <alias name="conferenceResource" alias="/my/conferences" />
 
+  <bean id="activecdrsResource" class="org.sipfoundry.sipxconfig.rest.UserActiveCdrsResource" scope="prototype">
+    <property name="coreContext" ref="coreContext" />
+    <property name="cdrManager" ref="cdrManager" />
+    <property name="readable" value="true" />
+    <property name="modifiable" value="false" />
+  </bean>
+  <alias name="activecdrsResource" alias="/my/activecdrs" />
+
 </beans>

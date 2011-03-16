@@ -276,9 +276,10 @@ void SipRedirectorPresenceRouting::readConfig(OsConfigDb& configDb)
     OsConfigDb domainConfiguration;
     domainConfiguration.loadFromFile(SipXecsService::domainConfigPath());
    // get the shared secret for generating signatures
-    UtlString sharedSecret = SharedSecret(domainConfiguration);
+    SharedSecret secret(domainConfiguration);
+
     // Set secret for signing SipXauthIdentity
-    SipXauthIdentity::setSecret(sharedSecret.data());
+    SipXauthIdentity::setSecret(secret.data());
 
     // openfire incorrectly uses base64 encoded version of shared secret for validation, so send that here
     UtlString base64SharedSecret;
