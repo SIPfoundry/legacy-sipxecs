@@ -263,16 +263,14 @@ public class Conference extends BeanWithSettings implements Replicable {
         Collection<AliasMapping> aliases = new ArrayList<AliasMapping>();
         if (StringUtils.isNotBlank(m_extension) && !m_extension.equals(m_name)) {
             // add extension mapping
-            String extensionUri = AliasMapping.createUri(m_extension, domainName);
             String identityUri = SipUri.format(m_name, domainName, false);
-            AliasMapping extensionAlias = new AliasMapping(extensionUri, identityUri, ALIAS_RELATION);
+            AliasMapping extensionAlias = new AliasMapping(m_extension, identityUri, ALIAS_RELATION);
             aliases.add(extensionAlias);
         }
         if (StringUtils.isNotBlank(m_did) && !m_did.equals(m_name)) {
             // add extension mapping
-            String didUri = AliasMapping.createUri(m_did, domainName);
             String identityUri = SipUri.format(m_name, domainName, false);
-            AliasMapping didAlias = new AliasMapping(didUri, identityUri, ALIAS_RELATION);
+            AliasMapping didAlias = new AliasMapping(m_did, identityUri, ALIAS_RELATION);
             aliases.add(didAlias);
         }
         aliases.add(createFreeSwitchAlias(domainName));
@@ -281,8 +279,7 @@ public class Conference extends BeanWithSettings implements Replicable {
 
     private AliasMapping createFreeSwitchAlias(String domainName) {
         String freeswitchUri = getUri();
-        String identity = AliasMapping.createUri(m_name, domainName);
-        return new AliasMapping(identity, freeswitchUri, ALIAS_RELATION);
+        return new AliasMapping(m_name, freeswitchUri, ALIAS_RELATION);
     }
 
     public String getDid() {

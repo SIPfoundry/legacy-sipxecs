@@ -201,18 +201,16 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     public Collection<AliasMapping> getAliasMappings(String domain) {
         Set<String> aliasesSet = getAliasesAsSet();
         Collection<AliasMapping> mappings = new ArrayList<AliasMapping>(aliasesSet.size());
-        String identity = null;
         // Add alias entry for each extension alias
         // all entries points to the same auth code url
         // sip:AUTH@47.135.162.72:15060;command=auth;
         // see mappingrules.xml
         for (String alias : aliasesSet) {
             // simple alias@bcm2072.com type of identity
-            identity = AliasMapping.createUri(alias, domain);
             String contact = SipUri.format(getAuthCodePrefix(), getDomainName(), false);
             // direct mapping is for testing only
             // contact = getDirectContactUri();
-            mappings.add(new AliasMapping(identity, contact, ALIAS_RELATION));
+            mappings.add(new AliasMapping(alias, contact, ALIAS_RELATION));
         }
         return mappings;
     }

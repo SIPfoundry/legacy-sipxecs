@@ -99,7 +99,7 @@ public class CallSequence extends AbstractCallSequence implements Replicable {
 
     @Override
     public Collection<AliasMapping> getAliasMappings(String domain) {
-        String identity = m_user.getUserName() + "@" + domain;
+        String identity = m_user.getUserName();
         // pass true to never route this to voicemail
         Collection<AliasMapping> mappings = generateAliases(identity, domain, true);
         return mappings;
