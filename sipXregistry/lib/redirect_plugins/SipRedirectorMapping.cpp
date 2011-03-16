@@ -125,6 +125,12 @@ SipRedirectorMapping::lookUp(
       Url& uri = const_cast<Url&>(requestUri);
       uri.getUrlParameter("sipx-noroute", ignorePermissionStr);
 
+      EntityRecord entity;
+     std::set<std::string> permissions;
+     if (_dataStore.entityDB().findByIdentityOrAlias(requestUri, entity))
+        permissions = entity.permissions();
+     size_t numDBPermissions = permissions.size();
+
       for (int i = 0; i<numUrlMappingPermissions; i++)
       {
          UtlHashMap record;
@@ -156,18 +162,16 @@ SipRedirectorMapping::lookUp(
 
 
 
-         EntityRecord entity;
-         std::set<std::string> permissions;
-         if (_dataStore.entityDB().findByIdentity(requestUri, entity))
-            permissions = entity.permissions();
-         size_t numDBPermissions = permissions.size();
+         
          
          UtlString permissionsFound;
          for (std::set<std::string>::const_iterator iter = permissions.begin();
              iter != permissions.end(); iter++)
          {
             UtlString dbPermissionStr = iter->c_str();
+
             bool equal = dbPermissionStr.compareTo(urlMappingPermissionStr, UtlString::ignoreCase) == 0;
+ 
             if (OsSysLog::willLog(FAC_SIP, PRI_DEBUG))
             {
                permissionsFound.append(" ");

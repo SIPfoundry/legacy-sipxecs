@@ -1,3 +1,17 @@
+/*
+ * Copyright (c) 2011 eZuce, Inc. All rights reserved.
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ */
+
 #include "sipdb/EntityDB.h"
 #include "os/OsSysLog.h"
 
@@ -66,6 +80,28 @@ bool EntityDB::findByUserId(const std::string& userId, EntityRecord& entity) con
     SYSLOG_INFO("EntityDB::findByUserId - Unable to find entity record for " << userId << " from namespace " << _ns);
     return false;
 }
+
+bool EntityDB::findByIdentityOrAlias(const Url& uri, EntityRecord& entity) const
+{
+    UtlString identity;
+    UtlString userId;
+    uri.getIdentity(identity);
+    uri.getUserId(userId);
+    return findByIdentityOrAlias(identity.str(), userId.str(), entity);
+}
+
+bool EntityDB::findByIdentityOrAlias(const std::string& identity, const std::string& alias, EntityRecord& entity) const
+{
+    bool found = false;
+    if (!identity.empty())
+        found = findByIdentity(identity, entity);
+
+    if (!found && !alias.empty())
+        found = findByAliasUserId(alias, entity);
+    
+    return found;
+}
+
 
 bool EntityDB::findByAliasUserId(const std::string& alias, EntityRecord& entity) const
 {
