@@ -73,7 +73,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertNotNull(acdServer.getLines());
         assertEquals(0, acdServer.getLines().size());
         acdServer.insertLine(line);
-        m_context.store(acdServer);
+        m_context.saveComponent(acdServer);
         assertEquals(1, acdServer.getLines().size());
         assertSame(acdServer, line.getAcdServer());
     }
@@ -131,12 +131,12 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertNotNull(acdServer.getQueues());
         assertEquals(0, acdServer.getQueues().size());
         acdServer.insertQueue(queue);
-        m_context.store(acdServer);
+        m_context.saveComponent(acdServer);
         assertEquals(1, acdServer.getQueues().size());
         assertSame(acdServer, queue.getAcdServer());
     }
 
-    public void testStoreServer() throws Exception {
+    public void testsaveComponentServer() throws Exception {
         AcdServer acdServer = m_context.newServer();
         Location location = new Location();
         location.setFqdn("localhost");
@@ -151,6 +151,10 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         EasyMock.expectLastCall().andReturn(5130).atLeastOnce();
         presenceService.getPresenceApiPort();
         EasyMock.expectLastCall().andReturn(8111).atLeastOnce();
+        presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_IN_CODE);
+        EasyMock.expectLastCall().andReturn("*88").atLeastOnce();
+        presenceService.getSettingValue(SipxPresenceService.PRESENCE_SIGN_OUT_CODE);
+        EasyMock.expectLastCall().andReturn("*81").atLeastOnce();
         org.easymock.classextension.EasyMock.replay(presenceService);
 
         SipxServiceManager sipxServiceManager = EasyMock.createMock(SipxServiceManager.class);
@@ -165,7 +169,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         Setting setting = settingRoot.getSetting("acd-server/log-level");
         assertNotNull(setting);
         setting.setValue("INFO");
-        m_context.store(acdServer);
+        m_context.saveComponent(acdServer);
         ITable acdServerTable = TestHelper.getConnection().createDataSet().getTable("acd_server");
 
         assertEquals(1, acdServerTable.getRowCount());
@@ -176,7 +180,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("INFO", valuesTable.getValue(0, "value"));
     }
 
-    public void testStoreLine() throws Exception {
+    public void testsaveComponentLine() throws Exception {
         TestHelper.insertFlat("acd/lines.db.xml");
         TestHelper.insertFlat("acd/lines_and_conferences.db.xml");
 
@@ -186,7 +190,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         line.setAcdServer(acdServer);
         line.setName("l1");
         try {
-            m_context.store(line);
+            m_context.saveComponent(line);
             fail("Should fail");
         } catch (UserException e) {
             // ok
@@ -195,7 +199,7 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         line.setName("l4");
         line.setExtension("102");
         try {
-            m_context.store(line);
+            m_context.saveComponent(line);
             fail("Should fail");
         } catch (UserException e) {
             // ok
@@ -204,20 +208,20 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         line.setName("l5");
         line.setExtension("7777");
         try {
-            m_context.store(line);
+            m_context.saveComponent(line);
             fail("Should fail. Extension used by a conference");
         } catch (UserException e) {
             // ok
         }
 
         line.setExtension("112");
-        m_context.store(line);
+        m_context.saveComponent(line);
 
-        // check if I can store the same line more than once
-        m_context.store(line);
+        // check if I can saveComponent the same line more than once
+        m_context.saveComponent(line);
     }
 
-    public void testStoreQueue() throws Exception {
+    public void testsaveComponentQueue() throws Exception {
         TestHelper.insertFlat("acd/queues.db.xml");
 
         AcdServer acdServer = m_context.loadServer(new Integer(1001));
@@ -226,14 +230,14 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
         queue.setAcdServer(acdServer);
         queue.setName("q1");
         try {
-            m_context.store(queue);
+            m_context.saveComponent(queue);
             fail("Should fail");
         } catch (UserException e) {
             // ok
         }
 
         queue.setName("q4");
-        m_context.store(queue);
+        m_context.saveComponent(queue);
     }
 
     public void testRemoveLines() throws Exception {

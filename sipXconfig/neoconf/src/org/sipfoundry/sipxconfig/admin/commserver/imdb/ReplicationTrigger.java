@@ -15,7 +15,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig;
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.branch.BranchesWithUsersDeletedEvent;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
@@ -62,11 +61,11 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     public void onDelete(Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.removeEntity((Replicable) entity);
-        } else if (entity instanceof Group) {
-            generateGroup((Group) entity);
             if (entity instanceof User) {
                 m_lazyReplicationContext.replicate(m_validUsersConfig);
             }
+        } else if (entity instanceof Group) {
+            generateGroup((Group) entity);
         } else if (entity instanceof Branch) {
             generateBranch((Branch) entity);
         } else if (entity instanceof Location) {
@@ -96,9 +95,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
         if (event instanceof ApplicationInitializedEvent && isReplicateOnStartup()) {
             LOG.info("Replicating all data sets after application has initialized");
             m_replicationManager.replicateAllData();
-        } else if (event instanceof BranchesWithUsersDeletedEvent) {
-            // m_replicationContext.generate(); 0 find all users in branch and replicate them
-            LOG.debug("aaaaaA");
         }
     }
 

@@ -149,7 +149,7 @@ public abstract class ManageLoggingLevels extends SipxBasePage implements PageBe
                 for (AcdServer acdServer : servers) {
                     acdServer.setSettingValue(AcdServer.LOG_SETTING, modelServer
                             .getSettingValue(AcdServer.LOG_SETTING));
-                    context.store(acdServer);
+                    context.saveComponent(acdServer);
                     getAcdProvisioningContext().deploy(acdServer.getId());
                 }
             }

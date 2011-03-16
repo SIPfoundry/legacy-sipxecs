@@ -55,7 +55,7 @@ public abstract class EditAcdAgent extends PageWithCallback implements PageBegin
         if (TapestryUtils.isValid(this)) {
             AcdContext acdContext = getAcdContext();
             AcdAgent acdAgent = getAcdAgent();
-            acdContext.store(acdAgent);
+            acdContext.saveComponent(acdAgent);
         }
     }
 

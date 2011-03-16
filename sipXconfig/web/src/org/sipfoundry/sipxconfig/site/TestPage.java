@@ -350,7 +350,7 @@ public abstract class TestPage extends SipxBasePage {
 
         AcdServer server = getAcdContext().newServer();
         server.setLocation(location);
-        getAcdContext().store(server);
+        getAcdContext().saveComponent(server);
     }
 
     public void seedBridgeSbc() {

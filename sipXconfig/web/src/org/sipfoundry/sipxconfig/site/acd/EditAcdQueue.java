@@ -221,7 +221,7 @@ public abstract class EditAcdQueue extends PageWithCallback implements PageBegin
             AcdQueue overflowQueue = acdContext.loadQueue(overflowQueueId);
             acdQueue.setOverflowQueue(overflowQueue);
         }
-        acdContext.store(acdQueue);
+        acdContext.saveComponent(acdQueue);
         setAcdQueueId(acdQueue.getId());
     }
 

@@ -49,7 +49,7 @@ public class CallSequenceTest extends TestCase {
         List<AliasMapping> mappings = (List<AliasMapping>) aliases;
         assertEquals(N, mappings.size());
         for (AliasMapping alias : mappings) {
-            assertEquals("abc@" + MYDOMAIN, alias.getIdentity());
+            assertEquals("abc", alias.getIdentity());
             String contact = alias.getContact();
             assertTrue(contact.matches("<sip:\\d+@" + MYDOMAIN
                     + ";sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));
@@ -79,7 +79,7 @@ public class CallSequenceTest extends TestCase {
         assertEquals(N / 2, mappings.size());
 
         for (AliasMapping alias : mappings) {
-            assertEquals("abc@" + MYDOMAIN, alias.getIdentity());
+            assertEquals("abc", alias.getIdentity());
             String contact = alias.getContact();
             assertTrue(contact.matches("<sip:\\d+@" + MYDOMAIN
                     + ";sipx-noroute=Voicemail\\?expires=\\d+>;q=[01]\\.\\d+"));

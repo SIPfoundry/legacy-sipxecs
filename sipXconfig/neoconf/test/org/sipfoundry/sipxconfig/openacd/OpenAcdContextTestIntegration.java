@@ -163,7 +163,6 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         fscondition.getActions().addAll((OpenAcdCommand.getDefaultActions(location)));
         command.addCondition(fscondition);
         command.setLocation(location);
-        command.setSipxServiceManager(sm);
         m_openAcdContextImpl.saveExtension(command);
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
 
@@ -253,10 +252,10 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         assertEquals(2, mappings.size());
         Iterator<AliasMapping> iter = mappings.iterator();
         AliasMapping mapping = iter.next();
-        assertEquals("sales@example.org", mapping.getIdentity());
+        assertEquals("sales", mapping.getIdentity());
         assertEquals("sip:300@10.1.1.2", mapping.getContact());
         mapping = iter.next();
-        assertEquals("300@example.org", mapping.getIdentity());
+        assertEquals("300", mapping.getIdentity());
         assertEquals("sip:300@10.1.1.2:50", mapping.getContact());
     }
 

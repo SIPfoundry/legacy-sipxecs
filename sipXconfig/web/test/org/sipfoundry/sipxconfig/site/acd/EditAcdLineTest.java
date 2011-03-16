@@ -97,7 +97,7 @@ public class EditAcdLineTest extends TestCase {
 
         IMocksControl control = EasyMock.createControl();
         AcdContext context = control.createMock(AcdContext.class);
-        context.store(line);
+        context.saveComponent(line);
         context.associate(line.getId(), queue.getId());
         control.replay();
 
@@ -124,7 +124,7 @@ public class EditAcdLineTest extends TestCase {
         AcdContext context = control.createMock(AcdContext.class);
         context.loadServer(server.getId());
         control.andReturn(server);
-        context.store(line);
+        context.saveComponent(line);
         context.associate(line.getId(), queue.getId());
         control.replay();
 

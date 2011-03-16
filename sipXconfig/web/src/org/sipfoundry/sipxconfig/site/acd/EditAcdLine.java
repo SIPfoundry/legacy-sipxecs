@@ -81,7 +81,7 @@ public abstract class EditAcdLine extends PageWithCallback implements PageBeginR
             AcdServer server = acdContext.loadServer(getAcdServerId());
             server.insertLine(acdLine);
         }
-        acdContext.store(acdLine);
+        acdContext.saveComponent(acdLine);
         acdContext.associate(acdLine.getId(), getAcdQueueId());
         setAcdLineId(acdLine.getId());
     }

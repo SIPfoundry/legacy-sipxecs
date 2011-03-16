@@ -53,13 +53,13 @@
     </email>
   </user>
   <user>
-    <identity>500@example.com</identity>
+    <identity>500</identity>
     <userName>500</userName>
     <contact>sip:500@example.com</contact>
     <inDirectory>false</inDirectory>
   </user>
   <user>
-    <identity>501@example.com</identity>
+    <identity>501</identity>
     <userName>501</userName>
     <contact>sip:501@example.com</contact>
     <inDirectory>false</inDirectory>

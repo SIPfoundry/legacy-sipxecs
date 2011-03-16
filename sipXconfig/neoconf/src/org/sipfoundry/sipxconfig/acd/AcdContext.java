@@ -29,7 +29,7 @@ public interface AcdContext extends AliasOwner, AliasProvider {
 
     List getUsersWithAgentsForLocation(Location location);
 
-    void store(AcdComponent acdComponent);
+    void saveComponent(AcdComponent acdComponent);
 
     AcdServer newServer();
 

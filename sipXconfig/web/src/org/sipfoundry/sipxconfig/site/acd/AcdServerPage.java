@@ -67,7 +67,7 @@ public abstract class AcdServerPage extends PageWithCallback implements PageBegi
             return;
         }
         AcdServer acdServer = getAcdServer();
-        getAcdContext().store(acdServer);
+        getAcdContext().saveComponent(acdServer);
         Integer id = acdServer.getId();
         setAcdServerId(id);
     }

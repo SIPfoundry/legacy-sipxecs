@@ -108,7 +108,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         return (AcdServer) getHibernateTemplate().load(AcdServer.class, id);
     }
 
-    public void store(AcdComponent acdComponent) {
+    public void saveComponent(AcdComponent acdComponent) {
         if (acdComponent instanceof AcdLine) {
             AcdLine line = (AcdLine) acdComponent;
             String name = line.getName();
@@ -316,13 +316,13 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     public void moveAgentsInQueue(Serializable queueId, Collection agentsIds, int step) {
         AcdQueue queue = loadQueue(queueId);
         queue.moveAgents(agentsIds, step);
-        store(queue);
+        saveComponent(queue);
     }
 
     public void moveQueuesInAgent(Serializable agnetId, Collection queueIds, int step) {
         AcdAgent agent = loadAgent(agnetId);
         agent.moveQueues(queueIds, step);
-        store(agent);
+        saveComponent(agent);
     }
 
     public void clear() {
@@ -497,7 +497,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
         if (acdServer == null) {
             acdServer = newServer();
             acdServer.setLocation(location);
-            store(acdServer);
+            saveComponent(acdServer);
         }
     }
 
@@ -545,7 +545,7 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             getHibernateTemplate().flush();
 
             acdServer.setLocation(location);
-            store(acdServer);
+            saveComponent(acdServer);
             getHibernateTemplate().flush();
         }
 

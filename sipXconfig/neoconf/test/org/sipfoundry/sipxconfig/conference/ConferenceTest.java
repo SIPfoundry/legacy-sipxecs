@@ -82,7 +82,7 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
         assertEquals(1, aliasMappings.size());
 
         AliasMapping am = (AliasMapping) aliasMappings.get(0);
-        assertEquals("conf1@sipfoundry.org", am.getIdentity());
+        assertEquals("conf1", am.getIdentity());
 
         // 2 aliases for conference with extension
         m_conf.setExtension("1111");
@@ -90,7 +90,7 @@ public class ConferenceTest extends BeanWithSettingsTestCase {
         assertEquals(2, aliasMappings.size());
 
         AliasMapping am0 = (AliasMapping) aliasMappings.get(0);
-        assertEquals("1111@sipfoundry.org", am0.getIdentity());
+        assertEquals("1111", am0.getIdentity());
         assertEquals("sip:conf1@sipfoundry.org", am0.getContact());
 
         AliasMapping am1 = (AliasMapping) aliasMappings.get(1);

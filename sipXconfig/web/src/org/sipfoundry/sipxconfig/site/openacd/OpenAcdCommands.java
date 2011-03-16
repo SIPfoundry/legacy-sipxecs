@@ -77,6 +77,11 @@ public abstract class OpenAcdCommands extends BaseComponent {
     }
 
     public void deleteCommands() {
-        getOpenAcdContext().removeExtensions(getRowsToDelete());
+        //delete extensions one by one since we want to trigger onDeleteEvent in order to
+        //have delete and mongo write in the same transaction
+        //deleteing bulk and publishing delete event will make 2 separate transactions
+        for (Integer id : getRowsToDelete()) {
+            getOpenAcdContext().deleteExtension(getOpenAcdContext().getExtensionById(id));
+        }
     }
 }
