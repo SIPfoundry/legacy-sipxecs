@@ -10,12 +10,12 @@
   </bean>
 
   <bean id="karelNT32I" parent="karelModelParent">
-    <property name="label" value="KAREL NT32I" />
+    <property name="label" value="Karel NT32I" />
     <property name="maxLineCount" value="6" />
   </bean>
 
   <bean id="karelNT42I" parent="karelModelParent">
-    <property name="label" value="KAREL NT42I" />
+    <property name="label" value="Karel NT42I" />
     <property name="maxLineCount" value="6" />
   </bean>
 

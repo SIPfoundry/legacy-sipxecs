@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<DialNow>
+</DialNow>
+
+[ account ]
+path = /config/voip/sipAccount0.cfg
+Enable = 
+Label = 
+DisplayName = Joe User
+AuthName = juser/0004f200e06b
+UserName = juser
+password = 1234
+SIPServerHost = sipfoundry.org
+SIPServerPort = 5060
+Transport = 3
+AnonymousCall = 0
+RejectAnonymousCall = 0
+Expire = 3600
+SIPListenPort = 5060
+SubscribeRegister = 0
+SubscribeMWI = 1
+SubscribeMWIExpire = 3600
+CIDSource = 0
+Enable 100Rel = 0
+VOICE_MAIL_NUM = 
+srtp_encryption = 0
+
+[ DTMF ]
+path = /config/voip/sipAccount0.cfg
+DTMFInbandTransfer = 1
+InfoType = 0
+DTMFPayload = 100
+
+[ NAT ]
+path = /config/voip/sipAccount0.cfg
+NATTraversal = 0
+STUNServer = 
+STUNPort = 3478
+EnableUDPUpdate = 1
+UDPUpdateTime = 30
+rport = 0
+
+[ audio0 ]
+path = /config/voip/sipAccount0.cfg
+enable = 1
+PayloadType = PCMU
+priority = 0
+rtpmap = 0
+
+[ audio1 ]
+path = /config/voip/sipAccount0.cfg
+enable = 1
+PayloadType = PCMA
+priority = 2
+rtpmap = 8
+
+[ audio2 ]
+path = /config/voip/sipAccount0.cfg
+enable = 0
+PayloadType = G723_53
+priority = 0
+rtpmap = 4
+
+[ audio3 ]
+path = /config/voip/sipAccount0.cfg
+enable = 0
+PayloadType = G723_63
+priority = 0
+rtpmap = 4
+
+[ audio4 ]
+path = /config/voip/sipAccount0.cfg
+enable = 1
+PayloadType = G729
+priority = 1
+rtpmap = 18
+
+[ audio5 ]
+path = /config/voip/sipAccount0.cfg
+enable = 1
+PayloadType = G722
+priority = 3
+rtpmap = 9
+
+[ audio7 ]
+path = /config/voip/sipAccount0.cfg
+enable = 0
+PayloadType = G726-16
+priority = 0
+rtpmap = 112
+
+[ audio8 ]
+path = /config/voip/sipAccount0.cfg
+enable = 0
+PayloadType = G726-24
+priority = 0
+rtpmap = 102
+
+[ audio9 ]
+path = /config/voip/sipAccount0.cfg
+enable = 0
+PayloadType = G726-32
+priority = 0
+rtpmap = 2
+
+[ audio10 ]
+path = /config/voip/sipAccount0.cfg
+enable = 0
+PayloadType = G726-40
+priority = 0
+rtpmap = 104
+
+[ WAN ]
+path = /config/Network/Network.cfg
+WANType = 
+WANStaticIP = 
+WANSubnetMask = 
+WANDefaultGateway = 
+
+[ DNS ]
+path = /config/Network/Network.cfg
+PrimaryDNS = 
+SecondaryDNS = 
+
+[ LAN ]
+path = /config/Network/Network.cfg
+LANTYPE = 1
+RouterIP = 10.0.0.1
+LANSubnetMask = 255.255.255.0
+EnableDHCP = 1
+DHCPStartIP = 10.0.0.10
+DHCPEndIP = 10.0.0.100
+
+[ PPPoE ]
+path = /config/Network/Network.cfg
+PPPoEUser = 
+PPPoEPWD = 
+
+[ VLAN ]
+path = /config/Network/Network.cfg
+ISVLAN = 0
+VID = 0
+USRPRIORITY = 7
+PC_PORT_VLAN_ENABLE = 0
+PC_PORT_VID = 0
+PC_PORT_PRIORITY = 0
+
+[ Time ]
+path = /config/Setting/Setting.cfg
+TimeZone = -5
+TimeServer1 = ntp.example.org
+TimeServer2 = cn.pool.ntp.org
+Interval = 1000
+SummerTime = 2
+TimeFormat = 0
+DateFormat = 3
+
+[ QOS ]
+path = /config/Network/Network.cfg
+SIGNALTOS = 40
+RTPTOS = 40
+
+[ RTPPORT ]
+path = /config/Network/Network.cfg
+MaxRTPPort = 11800
+MinRTPPort = 11780
+
+[ Lang ]
+path = /config/Setting/Setting.cfg
+WebLanguage = English
+ActiveWebLanguage = English
+
+[ PhoneSetting ]
+path = /config/Setting/Setting.cfg
+InterDigitTime = 4
+FlashHookTimer = 1
+Contrast = 6
+BackLight = 2
+BacklightTime = 30
+
+[ Features ]
+path = /config/Features/Phone.cfg
+Call_Waiting = 1
+Call_WaitingTone = 1
+
+[ DialNow ]
+path = /tmp/dialnow.xml
+server_address = tftp://sipfoundry.org/0004f200e06b_dialnow.xml
+
+[ RemotePhoneBook0 ]
+path = /config/Setting/Setting.cfg
+URL = 
+Name = 
+
+[ RemotePhoneBook1 ]
+path = /config/Setting/Setting.cfg
+URL = 
+Name = 
+
+[ AdminPassword ]
+path = /config/Setting/autop.cfg
+Password = 
+
