@@ -22,7 +22,7 @@ import os, commands, sys, re, time, traceback, glob, signal, snack, locale
 sys.path.insert(0,'@SIPX_LIBEXECDIR@')
 
 import gettext
-gettext.install('sipXecs', '@SIPX_DATADIR@/locale')
+gettext.install('sipxecs-setup', '@SIPX_DATADIR@/locale')
 
 from sipxecs_setup_common import *
 
