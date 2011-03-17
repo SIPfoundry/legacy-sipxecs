@@ -145,7 +145,7 @@ def runningAsRoot() :
     return MyID == 'root'
 
 def locale_id_from_path(x):
-    return x.rpartition('/')[2]
+    return x.rsplit('/')[-1]
 
 def chooseLanguage() :           
    ''' Offer a list of all the language packs installed '''
