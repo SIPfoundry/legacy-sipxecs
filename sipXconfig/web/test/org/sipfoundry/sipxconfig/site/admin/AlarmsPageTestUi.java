@@ -155,7 +155,7 @@ public class AlarmsPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
 
         assertElementPresent("hosts");
-        SiteTestHelper.selectOption(tester, "hosts", "host.example.org");
+        SiteTestHelper.selectOption(tester, "hosts", "sipx.example.org");
         assertElementPresent("datetimeDate");
         assertElementPresent("datetime:time");
         assertElementPresent("datetimeDate_0");

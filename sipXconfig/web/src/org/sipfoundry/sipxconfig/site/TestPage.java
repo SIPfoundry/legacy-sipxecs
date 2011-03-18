@@ -105,7 +105,7 @@ public abstract class TestPage extends SipxBasePage {
     public static final String EMPTY_STRING = "";
     public static final int SERIAL_NUM_LEN = 12;
 
-    public static final String TEST_LOCATION_FQDN = "host.example.org";
+    public static final String TEST_LOCATION_FQDN = "sipx.example.org";
     public static final String TEST_LOCATION_NAME = "Remote Location";
 
     // Data for the primary test user
@@ -309,22 +309,9 @@ public abstract class TestPage extends SipxBasePage {
         getMailboxManager().clearPersonalAttendants();
     }
 
-    private void resetPrimaryLocation() {
-        getLocationsManager().deletePrimaryLocation();
-        Location primaryLocation = new Location();
-        primaryLocation.setName(TEST_LOCATION_NAME);
-        primaryLocation.setFqdn(TEST_LOCATION_FQDN);
-        primaryLocation.setAddress("192.168.155.100");
-        primaryLocation.setPrimary(true);
-        primaryLocation.initBundles(getSipxServiceManager());
-        primaryLocation.setRegistered(true);
-        getLocationsManager().saveLocation(primaryLocation);
-    }
-
     public void seedLocationsManager() {
         resetConferenceBridgeContext();
         deleteLocations();
-        resetPrimaryLocation();
     }
 
     public void seedService(String beanId) {
@@ -711,5 +698,15 @@ public abstract class TestPage extends SipxBasePage {
         if (getCoreContext().loadUserByUserName(User.SUPERADMIN) == null) {
             getCoreContext().createAdminGroupAndInitialUser("123");
         }
+    }
+
+    public void seedSecondaryLocation() {
+        Location location = new Location();
+        location.setName("Secondary Location");
+        location.setFqdn("secondary.example.com");
+        location.setAddress("11.11.11.11");
+        location.setRegistered(true);
+        location.initBundles(getSipxServiceManager());
+        getLocationsManager().saveLocation(location);
     }
 }

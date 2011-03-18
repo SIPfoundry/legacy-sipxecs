@@ -44,7 +44,7 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
 
         clickLink("menu.statistics");
-        selectOption("PropertySelection", "host.example.org");
+        selectOption("PropertySelection", "sipx.example.org");
 
         assertLinkPresent("link.configureTargets");
         assertLinkPresent("report0");// summary report
@@ -70,7 +70,7 @@ public class StatisticsPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoException(tester);
 
         clickLink("menu.statistics");
-        selectOption("PropertySelection", "host.example.org");
+        selectOption("PropertySelection", "sipx.example.org");
         assertLinkPresent("report0");// summary report
         assertLinkPresent("report1");
         assertLinkPresent("report2");
@@ -82,7 +82,7 @@ public class StatisticsPageTestUi extends WebTestCase {
 
         // remove all targets to monitor
         clickLink("menu.statistics");
-        selectOption("PropertySelection", "host.example.org");
+        selectOption("PropertySelection", "sipx.example.org");
         clickLink("link.configureTargets");
         SiteTestHelper.selectRow(tester, 2, false);
         SiteTestHelper.selectRow(tester, 3, false);

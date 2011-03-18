@@ -69,12 +69,6 @@ public interface LocationsManager {
     List<Location> getLocationsForService(SipxService service);
 
     /**
-     * Convenience method used only in tests for resetting primary location when needed
-     * @see TestPage.resetPrimaryLocation
-     */
-    public void deletePrimaryLocation();
-
-    /**
      * Returning first location of the server which this bundle is installed on.
      *
      * @param bundleName - service bundle name

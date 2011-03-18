@@ -74,7 +74,7 @@ public class LocalizationContextTestIntegration extends IntegrationTestCase {
     }
 
     public void testDefaults() {
-        assertEquals("na.dialPlan", m_out.getCurrentRegionId());
+        assertEquals("na", m_out.getCurrentRegionId());
         assertEquals("en", m_out.getCurrentLanguage());
     }
 

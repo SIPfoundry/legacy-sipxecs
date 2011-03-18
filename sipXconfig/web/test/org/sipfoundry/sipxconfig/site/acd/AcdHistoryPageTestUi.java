@@ -19,46 +19,40 @@ public class AcdHistoryPageTestUi extends WebTestCase {
         return SiteTestHelper.webTestSuite(AcdHistoryPageTestUi.class);
     }
 
-    public void setUp() {
+    public void testReports() {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        //create one and only one location (primary)
         clickLink("seedLocationsManager");
         clickLink("toggleNavigation");
         clickLink("menu.locations");
-        SiteTestHelper.assertNoUserError(tester);
-        //make sure acd call center is not attached to primary location
         clickLink("editLocationLink");
+        SiteTestHelper.assertNoUserError(tester);
         clickLink("link:configureBundle");
+        SiteTestHelper.assertNoUserError(tester);
+        setWorkingForm("Form_0");
+        assertElementPresent("MultiplePropertySelection.0");
         uncheckCheckbox("MultiplePropertySelection", "0");
         clickButton("form:ok");
         SiteTestHelper.assertNoUserError(tester);
-    }
-
-    public void testNoReports() {
-        getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-        SiteTestHelper.home(getTester());
-        //test with no call center - no report is available
-        clickLink("acdReports");
+        clickLink("menu.acdHistory");
         SiteTestHelper.assertUserError(tester);
-    }
-     public void testReports() {
-         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-         SiteTestHelper.home(getTester());
-         //create one and only one location (primary): Acd bundle
-         //is enabled by default
-         clickLink("seedLocationsManager");
 
-         //all acd reports are available
-         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
-         SiteTestHelper.home(getTester());
-         clickLink("acdReports");
-         clickLink("report0");
-         clickLink("report1");
-         clickLink("report2");
-         clickLink("report3");
-         clickLink("report4");
-         clickLink("report5");
-         clickLink("report6");
-     }
+        clickLink("menu.locations");
+        clickLink("editLocationLink");
+        SiteTestHelper.assertNoUserError(tester);
+        clickLink("link:configureBundle");
+        setWorkingForm("Form_0");
+        assertElementPresent("MultiplePropertySelection.0");
+        checkCheckbox("MultiplePropertySelection", "0");
+        clickButton("form:ok");
+        clickLink("menu.acdHistory");
+        SiteTestHelper.assertNoUserError(tester);
+        clickLink("report0");
+        clickLink("report1");
+        clickLink("report2");
+        clickLink("report3");
+        clickLink("report4");
+        clickLink("report5");
+        clickLink("report6");
+    }
 }

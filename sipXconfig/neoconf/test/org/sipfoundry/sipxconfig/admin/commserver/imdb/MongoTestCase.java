@@ -9,9 +9,13 @@ import org.sipfoundry.sipxconfig.domain.DomainManager;
 
 import com.mongodb.DBCollection;
 
+/*
+ * Mongo test cases assume mongo is started in single server configuration.
+ * Running it as master (--master) will throw an exception when dropping the test DB.
+ */
 public class MongoTestCase extends TestCase {
     private static DBCollection m_collection;
-    public final static String DBNAME = "imdb";
+    public final static String DBNAME = "test";
     public final static String COLL_NAME = "entity";
     public final static String DOMAIN = "mydomain.org";
     private CoreContext m_coreContext;
@@ -44,7 +48,7 @@ public class MongoTestCase extends TestCase {
     @Override
     protected void tearDown() throws Exception {
         super.tearDown();
-        MongoTestCaseHelper.destroyAllDbs();
+        MongoTestCaseHelper.dropDb(DBNAME);
     }
 
     public DomainManager getDomainManager() {
