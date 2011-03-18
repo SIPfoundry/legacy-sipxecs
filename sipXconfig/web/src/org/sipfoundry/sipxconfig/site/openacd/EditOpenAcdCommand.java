@@ -159,7 +159,7 @@ public abstract class EditOpenAcdCommand extends PageWithCallback implements Pag
             if (getOpenAcdCommandId() != null) {
                 cmd = (OpenAcdCommand) getOpenAcdContext().getExtensionById(getOpenAcdCommandId());
             } else {
-                cmd = new OpenAcdCommand();
+                cmd = getOpenAcdContext().newOpenAcdCommand();
                 cmd.addCondition(OpenAcdCommand.createLineCondition());
             }
 
