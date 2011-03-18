@@ -5,8 +5,13 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
   </bean>
 
+  <bean id="openAcdCommand" class="org.sipfoundry.sipxconfig.openacd.OpenAcdCommand" singleton="false">
+    <property name="sipxServiceManager" ref="sipxServiceManager" />
+  </bean>
+
   <bean id="openAcdContextImpl" class="org.sipfoundry.sipxconfig.openacd.OpenAcdContextImpl">
     <lookup-method name="newOpenAcdLine" bean="openAcdLine"/>
+    <lookup-method name="newOpenAcdCommand" bean="openAcdCommand"/>
     <property name="sessionFactory" ref="sessionFactory" />
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="aliasManager" ref="aliasManager" />

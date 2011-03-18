@@ -1,10 +1,10 @@
 {"cdrs": [
   {
-    "from": "user4",
-    "from-aor": "<sip:user4@decebal.buc.ro:5060>",
+    "from": "user3",
+    "from-aor": "<sip:user3@decebal.buc.ro:5060>",
+    "to": "user4",
+    "to-aor": "<sip:user4@decebal.buc.ro:5060>",
     "direction": "INCOMING",
-    "to": "user3",
-    "to-aor": "<sip:user3@decebal.buc.ro:5060>",
     "internal": false,
     "type": "Unknown",
     "start-time": 1299785283000,

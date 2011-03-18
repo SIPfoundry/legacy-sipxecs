@@ -80,7 +80,7 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
     private CoreContext m_coreContext;
 
-    public abstract OpenAcdLine newOpenAcdLine();
+    public abstract OpenAcdExtension newOpenAcdExtension();
 
     @Override
     public OpenAcdExtension getExtensionById(Integer extensionId) {
@@ -851,8 +851,8 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
     @Override
     public List<Replicable> getReplicables() {
         List<Replicable> replicables = new ArrayList<Replicable>();
-        for (OpenAcdLine line : getHibernateTemplate().loadAll(OpenAcdLine.class)) {
-            replicables.add(line);
+        for (OpenAcdExtension ext : getHibernateTemplate().loadAll(OpenAcdExtension.class)) {
+            replicables.add(ext);
         }
         return replicables;
     }

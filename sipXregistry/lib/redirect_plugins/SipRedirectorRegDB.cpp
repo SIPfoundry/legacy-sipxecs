@@ -222,7 +222,7 @@ SipRedirectorRegDB::lookUp(
          // Check if database contained a Path value.  If so, add a Route
          // header parameter to the contact with the Path vector taken from
          // the registration data.
-         if (iter->getPath().empty())
+         if (!iter->getPath().empty())
          {
             UtlString existingRouteValue;
             std::string pathVector = iter->getPath();
