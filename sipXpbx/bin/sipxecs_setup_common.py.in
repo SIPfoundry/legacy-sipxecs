@@ -145,7 +145,7 @@ def runningAsRoot() :
     return MyID == 'root'
 
 def locale_id_from_path(x):
-    return x.rsplit('/', 2)[2]
+    return x.rsplit('/')[-1]
 
 def chooseLanguage() :           
    ''' Offer a list of all the language packs installed '''
@@ -154,7 +154,6 @@ def chooseLanguage() :
    numberLanguages = len(supportedLanguages)
    if numberLanguages == 0 :
       log_printout("No resource bundles found, forced to use keys")
-      screen_end()
       return
    elif numberLanguages == 1 :
       Language = supportedLanguages[0]
@@ -166,6 +165,7 @@ def chooseLanguage() :
          list.setCurrent(DefaultLanguage)
       f = screen_setup("Set Language", 'Select your language.', list)
       Language = f.run().current()
+      screen_end()
 
    log_printout("Locale set to " + Language)
    # number, date formating
@@ -182,7 +182,6 @@ def chooseLanguage() :
    lang = gettext.translation('sipxecs-setup', '@SIPX_DATADIR@/locale', languages=Languages)
    # add _() into namespace
    lang.install()
-   screen_end()
 
 def checkSystemType () :
     ''' Update filenames and commands to reflect current system.
