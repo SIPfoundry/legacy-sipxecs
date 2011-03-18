@@ -40,8 +40,10 @@ distro.all.% :
 	# Use command && command && true to ensure a failure in one aborts the build
 	$(foreach D,@ALL_DISTROS@,$(MAKE) distro.$(D).$* &&) true
 
-$(foreach D,@ALL_DISTROS@,distro.$(D).%) :
-	$(MAKE) $* $(SUBMAKE_VARS)
+# NOTE: 'eval' because 'make a b' when makefile is
+#   a.% b.% :; x
+# only makes x once. usually not what you want and not what we want here
+$(foreach D,@ALL_DISTROS@, $(eval distro.$(D).% :; $$(MAKE) $$* $$(SUBMAKE_VARS)))
 
 help.{1|2}.rpm = Build RPMs, you must have mock installed. See Experimental call to build rpms. See \
   http://wiki.sipfoundry.org/display/sipXecs/Building+RPMS+on+CentOS+or+Fedora
