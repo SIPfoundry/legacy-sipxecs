@@ -12,7 +12,7 @@ Url:      http://www.pingtel.com
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
-BuildRequires: pcre-devel >= 4.5
+BuildRequires: pcre-devel
 BuildRequires: sipxcommserverlib-devel  >= %version
 BuildRequires: sipxportlib-devel        >= %version
 BuildRequires: sipxtacklib-devel        >= %version
