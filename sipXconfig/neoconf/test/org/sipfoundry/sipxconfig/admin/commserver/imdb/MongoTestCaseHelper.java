@@ -72,9 +72,7 @@ public class MongoTestCaseHelper {
         TestCase.assertEquals(1, m_collection.find(ref).count());
     }
     
-    public static void destroyAllDbs() {
-        for (String db : m_mongoInstance.getDatabaseNames()) {
-            m_mongoInstance.dropDatabase(db);
-        }
+    public static void dropDb(String db) {
+           m_mongoInstance.dropDatabase(db);
     }
 }

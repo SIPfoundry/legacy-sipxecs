@@ -349,6 +349,6 @@ public class Gateway extends Device implements Replicable {
 
     @Override
     public String getIdentity(String domain) {
-        return null;
+        return "gw";
     }
 }

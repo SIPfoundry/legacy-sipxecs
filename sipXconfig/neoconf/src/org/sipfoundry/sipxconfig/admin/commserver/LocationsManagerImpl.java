@@ -141,20 +141,6 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         return loadLocationByUniqueProperty(LOCATION_PROP_PRIMARY, true);
     }
 
-    /**
-     * Convenience method used only in tests for resetting primary location when needed
-     *
-     * @see TestPage.resetPrimaryLocation
-     */
-    public void deletePrimaryLocation() {
-        Location location = getPrimaryLocation();
-        if (location != null) {
-            getHibernateTemplate().delete(location);
-        } else {
-            return;
-        }
-    }
-
     public List<Location> getLocationsForService(SipxService service) {
         List<Location> locations = new ArrayList<Location>();
         for (Location location : getLocations()) {
@@ -173,4 +159,5 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         }
         return locations.get(0);
     }
+
 }

@@ -28,7 +28,7 @@ public class LocationsPageTestUi extends WebTestCase {
 
     public void testDisplay() {
         SiteTestHelper.assertNoUserError(tester);
-        assertTextPresent("host.example.org");
+        assertTextPresent("sipx.example.org");
         assertEquals("Registered", SiteTestHelper.getCellAsText(getTable("locations:list"), 1, 4));
         clickLink("editLocationLink");
         assertLinkPresent("link:configureLocation");
@@ -84,7 +84,7 @@ public class LocationsPageTestUi extends WebTestCase {
         //added secondary locations deleted
         assertTextNotPresent("another.example.org");
         //primary location not deleted
-        assertTextPresent("host.example.org");
+        assertTextPresent("sipx.example.org");
     }
 
     public void testSendProfiles() {
@@ -109,7 +109,7 @@ public class LocationsPageTestUi extends WebTestCase {
 
     public void testNatPanel() {
         SiteTestHelper.assertNoUserError(tester);
-        assertTextPresent("host.example.org");
+        assertTextPresent("sipx.example.org");
         assertEquals("Registered", SiteTestHelper.getCellAsText(getTable("locations:list"), 1, 4));
         clickLink("editLocationLink");
         clickLink("link:natLocation");

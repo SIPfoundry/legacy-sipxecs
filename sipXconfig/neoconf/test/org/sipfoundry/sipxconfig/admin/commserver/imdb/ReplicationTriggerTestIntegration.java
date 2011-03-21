@@ -63,7 +63,7 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     @Override
     protected void onTearDownInTransaction() throws Exception {
         super.onTearDownInTransaction();
-        MongoTestCaseHelper.destroyAllDbs();
+        MongoTestCaseHelper.dropDb(DBNAME);
     }
 
     public void setReplicationTrigger(ReplicationTrigger trigger) {

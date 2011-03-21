@@ -72,6 +72,7 @@
     <property name="auditLogContext" ref="auditLogContext" />
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />
+    <property name="externalAliases" ref="externalAliases" />
   </bean>
 
   <bean id="sipxReplicationContextImpl"
@@ -157,7 +158,6 @@
   <!-- list of files and directory in which they are located can be changed in sipxconfig.properties -->
   <bean id="externalAliases"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ExternalAliases">
-     <property name="coreContext" ref="coreContext" />
   </bean>
 
   <bean id="aliasCollector"

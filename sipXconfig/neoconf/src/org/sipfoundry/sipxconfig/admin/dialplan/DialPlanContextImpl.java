@@ -71,6 +71,10 @@ public abstract class DialPlanContextImpl extends SipxHibernateDaoSupport implem
      */
     DialPlan getDialPlan() {
         List dialPlans = getHibernateTemplate().loadAll(DialPlan.class);
+        if (dialPlans.isEmpty()) {
+            DialPlan dp = new DialPlan();
+            return dp;
+        }
         return (DialPlan) DataAccessUtils.requiredSingleResult(dialPlans);
     }
 

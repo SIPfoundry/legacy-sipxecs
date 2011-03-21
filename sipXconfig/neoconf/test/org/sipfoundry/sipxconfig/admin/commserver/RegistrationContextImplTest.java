@@ -56,7 +56,6 @@ public class RegistrationContextImplTest extends TestCase {
         if (m_mongoInstance == null) {
             m_mongoInstance = new Mongo(m_host, m_port);
         }
-        m_mongoInstance.dropDatabase(DBNAME);
         DB datasetDb = m_mongoInstance.getDB(DBNAME);
         m_collection = datasetDb.getCollection(COLL_NAME);
         DBObject reg1 = new BasicDBObject();

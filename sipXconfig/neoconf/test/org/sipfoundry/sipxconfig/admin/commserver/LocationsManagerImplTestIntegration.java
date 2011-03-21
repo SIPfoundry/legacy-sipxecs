@@ -54,7 +54,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
     @Override
     protected void onTearDownAfterTransaction() throws Exception {
         super.onTearDownAfterTransaction();
-        MongoTestCaseHelper.destroyAllDbs();
+        MongoTestCaseHelper.dropDb(DBNAME);
     }
 
     public void testGetLocations() throws Exception {

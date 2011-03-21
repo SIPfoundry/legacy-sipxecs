@@ -10,21 +10,15 @@
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.digester.Digester;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.AliasProvider;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.xml.sax.SAXException;
 
 public class ExternalAliases implements AliasProvider {
     private static final Log LOG = LogFactory.getLog(ExternalAliases.class);
@@ -33,15 +27,14 @@ public class ExternalAliases implements AliasProvider {
     private String m_aliasAddins;
 
     private String m_addinsDirectory = StringUtils.EMPTY;
-    private CoreContext m_coreContext;
 
-    private List getFiles() {
+    public List<File> getFiles() {
         if (StringUtils.isBlank(m_aliasAddins)) {
             return Collections.EMPTY_LIST;
         }
         File dir = new File(m_addinsDirectory);
         String[] names = StringUtils.split(m_aliasAddins, ", ");
-        List files = new ArrayList(names.length);
+        List<File> files = new ArrayList<File>(names.length);
         for (int i = 0; i < names.length; i++) {
             File file = new File(names[i]);
             if (file.exists()) {
@@ -60,32 +53,10 @@ public class ExternalAliases implements AliasProvider {
 
     @SuppressWarnings("rawtypes")
     public Collection<AliasMapping> getAliasMappings() {
-        List files = getFiles();
         List<AliasMapping> mappings = new ArrayList<AliasMapping>();
-        for (Iterator i = files.iterator(); i.hasNext();) {
-            File file = (File) i.next();
-            List<AliasMapping> parsedAliases = parseAliases(file);
-            if (!CollectionUtils.isEmpty(parsedAliases)) {
-                mappings.addAll(parsedAliases);
-            }
-        }
-        if (!mappings.isEmpty()) {
-            return mappings;
-        }
-        return Collections.EMPTY_LIST;
-    }
-
-    private List parseAliases(File file) {
-        try {
-            // Digester documentation advises against reusing digester objects
-            Digester digester = ImdbXmlHelper.configureDigester(AliasMapping.class);
-            return (List) digester.parse(file);
-        } catch (IOException e) {
-            LOG.warn("Errors when reading aliases file.", e);
-        } catch (SAXException e) {
-            LOG.warn("Errors when parsing aliases file.", e);
-        }
-        return null;
+        ExternalAlias alias = new ExternalAlias();
+        alias.setFiles(getFiles());
+        return alias.getAliasMappings(null);
     }
 
     public void setAliasAddins(String aliasAddins) {
@@ -96,7 +67,4 @@ public class ExternalAliases implements AliasProvider {
         m_addinsDirectory = addinsDirectory;
     }
 
-    public void setCoreContext(CoreContext coreContext) {
-        m_coreContext = coreContext;
-    }
 }

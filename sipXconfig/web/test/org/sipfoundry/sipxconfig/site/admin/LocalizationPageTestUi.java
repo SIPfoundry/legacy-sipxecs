@@ -31,6 +31,5 @@ public class LocalizationPageTestUi extends WebTestCase {
     public void testDisplay() throws Exception {
         assertFormPresent("languageForm");
         assertFormPresent("regionForm");
-        assertFormPresent("installForm");
     }
 }
