@@ -1,10 +1,10 @@
 <cdrs>
   <cdr>
-    <from>user4</from>
-    <from-aor>&lt;sip:user4@decebal.buc.ro:5060&gt;</from-aor>
+    <from>user3</from>
+    <from-aor>&lt;sip:user3@decebal.buc.ro:5060&gt;</from-aor>
+    <to>user4</to>
+    <to-aor>&lt;sip:user4@decebal.buc.ro:5060&gt;</to-aor>
     <direction>INCOMING</direction>
-    <to>user3</to>
-    <to-aor>&lt;sip:user3@decebal.buc.ro:5060&gt;</to-aor>
     <internal>false</internal>
     <type>Unknown</type>
     <start-time>1299785283000</start-time>
