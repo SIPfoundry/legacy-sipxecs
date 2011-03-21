@@ -209,13 +209,9 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
 
             // look up any caller alias for this identity and contact domain
             UtlString callerAlias;
-            UtlString nullId; // empty string for wildcard matches
+            UtlString gwId = "gw"; // empty string for wildcard matches
 
-            if (getCallerAlias(callerIdentity, targetDomain, callerAlias)
-                || (   identityIsLocal
-                    && getCallerAlias(nullId, targetDomain, callerAlias)
-                    )
-                )
+            if (getCallerAlias(callerIdentity, targetDomain, callerAlias) || (identityIsLocal && getCallerAlias(gwId, targetDomain, callerAlias)))
             {
                // found a caller alias, so rewrite the From information
                /*

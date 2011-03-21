@@ -136,6 +136,7 @@ public class CallerAliasesTest extends MongoTestCase {
                 + CallerAliasesMapping.DOMAIN, "1.2.3.4;sipxecs-lineid=4");
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("Gateway4", CallerAliases.CALLERALIASES + "."
                 + CallerAliasesMapping.ALIAS, "sip:1234@" + DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("Gateway4", "ident", "gw");
         // users
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1",
                 CallerAliases.CALLERALIASES + "." + CallerAliasesMapping.DOMAIN, "bongo.com:5060;sipxecs-lineid=2");
