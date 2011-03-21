@@ -3692,6 +3692,7 @@ SIPXTAPI_API SIPX_RESULT sipxLineAdd(const SIPX_INST hInst,
             sipxGetContactHostPort(pInst, (SIPX_CONTACT_TYPE)contactType, uriPreferredContact) ;
             uriPreferredContact.setUserId(userId);
             lineToAdd.setPreferredContactUri(uriPreferredContact) ;
+    OsSysLog::add(FAC_SIPXTAPI, PRI_INFO, "Preferred Contact >>>>>>>>>> =%s",uriPreferredContact.toString().data());
 
             UtlBoolean bRC = pInst->pLineManager->addLine(lineToAdd, false) ;
             if (bRC)
