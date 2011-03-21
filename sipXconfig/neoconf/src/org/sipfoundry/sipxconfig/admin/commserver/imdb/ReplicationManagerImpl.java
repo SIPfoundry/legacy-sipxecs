@@ -75,6 +75,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private ListableBeanFactory m_beanFactory;
     private CoreContext m_coreContext;
     private ForwardingContext m_forwardingContext;
+    private ExternalAliases m_externalAliases;
 
     private void initMongo() throws Exception {
         if (m_mongoInstance == null) {
@@ -145,6 +146,11 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                     replicateEntity(entity);
                 }
             }
+            //Replicate the external aliases
+            ExternalAlias extalias = new ExternalAlias();
+            extalias.setFiles(m_externalAliases.getFiles());
+            replicateEntity(extalias);
+
         } catch (Exception e) {
             LOG.error("Regeneration of database failed", e);
             throw new UserException(e);
@@ -330,6 +336,10 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     public void setForwardingContext(ForwardingContext forwardingContext) {
         m_forwardingContext = forwardingContext;
+    }
+
+    public void setExternalAliases(ExternalAliases externalAliases) {
+        m_externalAliases = externalAliases;
     }
 
 }
