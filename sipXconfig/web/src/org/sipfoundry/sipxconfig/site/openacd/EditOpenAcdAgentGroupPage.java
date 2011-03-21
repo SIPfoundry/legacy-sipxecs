@@ -137,6 +137,14 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
     }
 
     public IPage addAgent(IRequestCycle cycle) {
+        OpenAcdAgentGroup group = getAgentGroup();
+        if (StringUtils.isBlank(group.getName())) {
+            getValidator().record(new ValidatorException(getMessages().getMessage("blank.agentGroupName.error")));
+            return this;
+        }
+        getOpenAcdContext().saveAgentGroup(group);
+        setGroupId(group.getId());
+
         SelectUsers addAgents = (SelectUsers) cycle.getPage(SelectUsers.PAGE);
         SelectUsersCallback callback = new SelectUsersCallback(this.getPage());
         callback.setIdsPropertyName("addedAgents");
