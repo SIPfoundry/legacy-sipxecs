@@ -107,8 +107,7 @@ public class DigestAuthenticationFilter extends Filter {
                 if (challengeResponse == null) {
                     logger.debug("Requesting DIGEST credentials");
                     ChallengeRequest challengeRequest = new ChallengeRequest(
-                            ChallengeScheme.HTTP_DIGEST, RestServer.getRestServerConfig()
-                                    .getSipxProxyDomain());
+                            ChallengeScheme.HTTP_DIGEST, RestServer.getRealm());
                     response.setChallengeRequest(challengeRequest);
                     response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 
@@ -119,8 +118,7 @@ public class DigestAuthenticationFilter extends Filter {
                 if (parameters.isEmpty()) {
                     String nonce = Util.H(Long.toString(Math.abs(random.nextLong())));
                     ChallengeRequest challengeRequest = new ChallengeRequest(
-                            ChallengeScheme.HTTP_DIGEST, RestServer.getRestServerConfig()
-                                    .getSipxProxyDomain());
+                            ChallengeScheme.HTTP_DIGEST, RestServer.getRealm());
                     response.setChallengeRequest(challengeRequest);
                     response.setStatus(Status.CLIENT_ERROR_UNAUTHORIZED);
 
@@ -128,7 +126,7 @@ public class DigestAuthenticationFilter extends Filter {
                     parameters.add("nonce", nonce);
                     parameters.add("algorithm", "MD5");
                     parameters
-                            .add("realm", RestServer.getRestServerConfig().getSipxProxyDomain());
+                            .add("realm", RestServer.getRealm());
                     challengeResponse.setCredentialComponents(parameters);
                     logger.debug("sending DIGEST challenge");
                     return Filter.STOP;
@@ -137,8 +135,7 @@ public class DigestAuthenticationFilter extends Filter {
                 if (parameters == null || parameters.isEmpty()) {
                     logger.debug("Requesting DIGEST credentials");
                     ChallengeRequest challengeRequest = new ChallengeRequest(
-                            ChallengeScheme.HTTP_DIGEST, RestServer.getRestServerConfig()
-                                    .getSipxProxyDomain());
+                            ChallengeScheme.HTTP_DIGEST, RestServer.getRealm());
                     response.setChallengeRequest(challengeRequest);
                     response.setStatus(Status.CLIENT_ERROR_PROXY_AUTHENTIFICATION_REQUIRED);
                     return Filter.STOP;
@@ -165,8 +162,8 @@ public class DigestAuthenticationFilter extends Filter {
                 } else {
                     String entity_digest = response.getEntity().getDigest().toString();
 
-                    A2 = method + ":" + uri + ":" + entity_digest;
-                }
+                    A2 = method + ":" + uri + ":" + RestServer.getRealm();
+                }                
                 String pintoken = user.getPintoken();
                 String expectedValue = null;
 
@@ -180,7 +177,7 @@ public class DigestAuthenticationFilter extends Filter {
                 } else {
                     expectedValue = KD(pintoken, nonce + ":" + Util.H(A2));
                 }
-
+                
                 if (expectedValue.equals(response_param)) {
                     logger.debug("Digest authentication succeeded");
                     return Filter.CONTINUE;
