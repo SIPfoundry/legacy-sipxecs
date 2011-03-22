@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-INCLUDES = -I$(top_srcdir)/include -I$(top_srcdir)/include/fastdb
+INCLUDES = -I$(top_srcdir)/include
 
 noinst_LTLIBRARIES = libsipdb.la
 

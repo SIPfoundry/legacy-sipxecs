@@ -48,7 +48,6 @@ libsipXcommserver_la_CXXFLAGS = \
 libsipXcommserver_la_LIBADD = \
 	@SIPXTACK_LIBS@ \
 	@ODBC_LIBS@ \
-	fastdb/libfastdb.la \
 	sipdb/libsipdb.la
 
 libsipXcommserver_la_SOURCES = \
