@@ -42,7 +42,6 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     private static final String ALIAS_RELATION = "alias";
 
     private AliasManager m_aliasManager;
-    private SipxServiceManager m_sipxServiceManager;
     private CoreContext m_coreContext;
 
     private SipxReplicationContext m_replicationContext;
@@ -228,12 +227,8 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
 
     @Override
     public String getIdentity(String domain) {
-        return SipUri.format(getAuthCodePrefix(), ((SipxFreeswitchService) m_sipxServiceManager
-                .getServiceByBeanId(SipxFreeswitchService.BEAN_ID)).getDomainName(), false);
-    }
-
-    public void setSipxServiceManager(SipxServiceManager sipxServiceManager) {
-        m_sipxServiceManager = sipxServiceManager;
+        return SipUri.format(getAuthCodePrefix(), ((SipxFreeswitchService) getSipxServiceManager()
+                    .getServiceByBeanId(SipxFreeswitchService.BEAN_ID)).getDomainName(), false);
     }
 
     public void setCoreContext(CoreContext coreContext) {
