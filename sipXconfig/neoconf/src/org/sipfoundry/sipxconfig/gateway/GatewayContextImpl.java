@@ -19,7 +19,8 @@ import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialingRule;
@@ -65,7 +66,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
 
     private BeanFactory m_beanFactory;
 
-    private SipxReplicationContext m_replicationContext;
+    private ReplicationManager m_replicationManager;
 
     private DialPlanActivationManager m_dialPlanActivationManager;
 
@@ -91,7 +92,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return (FxoPort) getHibernateTemplate().load(FxoPort.class, id);
     }
 
-    public void storeGateway(Gateway gateway) {
+    public void saveGateway(Gateway gateway) {
         // Before storing the gateway, make sure that it has a unique name.
         // Throw an exception if it doesn't.
         HibernateTemplate hibernate = getHibernateTemplate();
@@ -118,7 +119,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             sbc.generateProfiles(sbc.getProfileLocation());
             sbc.restart();
         }
-        m_replicationContext.generate(gateway);
     }
 
     public void storePort(FxoPort port) {
@@ -134,19 +134,24 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         return true;
     }
 
-    public void deleteGateways(Collection<Integer> selectedRows) {
+    public void deleteGateways(Collection<Gateway> selectedRows) {
         // remove gateways from rules first
-        m_dialPlanContext.removeGateways(selectedRows);
+        Collection<Integer> ids = new ArrayList<Integer>();
+        for (Gateway gateway : selectedRows) {
+            ids.add(gateway.getId());
+        }
+        m_dialPlanContext.removeGateways(ids);
         Set<SbcDevice> sbcSet = new LinkedHashSet<SbcDevice>(0);
         // remove gateways from the database
-        for (Integer id : selectedRows) {
-            SbcDevice sbc = getGateway(id).getSbcDevice();
+        for (Gateway gw : selectedRows) {
+            SbcDevice sbc = getGateway(gw.getId()).getSbcDevice();
             // Since this is a set duplicate SBCs will not be added.
             if (sbc != null) {
                 sbcSet.add(sbc);
             }
-            deleteGateway(id);
+            deleteGateway(gw.getId());
         }
+
         getHibernateTemplate().flush();
         m_dialPlanActivationManager.replicateDialPlan(true);
         for (Iterator i = sbcSet.iterator(); i.hasNext();) {
@@ -154,6 +159,12 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             sbc.generateProfiles(sbc.getProfileLocation());
             sbc.restart();
         }
+        // We have to regenerate all users' caller aliases.
+        // We must do this *after* the gws have been removed from DB.
+        // Also, this will not be in the same transaction as save.
+        // If mongo regeneration fails DB and mongo will be in inconsistent state.
+        // We must make sure to let user know about this.
+        m_replicationManager.replicateAllUsers(DataSet.CALLER_ALIAS);
     }
 
     public List<Gateway> getGatewayByIds(Collection<Integer> gatewayIds) {
@@ -224,8 +235,8 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
         m_dialPlanContext = dialPlanContext;
     }
 
-    public void setReplicationContext(SipxReplicationContext replicationContext) {
-        m_replicationContext = replicationContext;
+    public void setReplicationManager(ReplicationManager replicationContext) {
+        m_replicationManager = replicationContext;
     }
 
     public void setAuditLogContext(AuditLogContext auditLogContext) {
@@ -262,7 +273,7 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             for (SipTrunk sipTrunk : sipTrunks) {
                 if (sbcDevice.equals(sipTrunk.getSbcDevice())) {
                     sipTrunk.setSbcDevice(null);
-                    storeGateway(sipTrunk);
+                    saveGateway(sipTrunk);
                 }
             }
         }

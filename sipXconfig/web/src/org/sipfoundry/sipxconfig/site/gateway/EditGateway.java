@@ -186,7 +186,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
                 }
             }
         }
-        gatewayContext.storeGateway(gateway);
+        gatewayContext.saveGateway(gateway);
 
         // attach gateway to current rule
         Integer ruleId = getRuleId();
@@ -206,7 +206,7 @@ public abstract class EditGateway extends PageWithCallback implements PageBeginR
     public IPage addPort() {
         Gateway gateway = getGateway();
         gateway.addPort(new FxoPort());
-        getGatewayContext().storeGateway(gateway);
+        getGatewayContext().saveGateway(gateway);
         int last = gateway.getPorts().size() - 1;
         FxoPort port = gateway.getPorts().get(last);
 

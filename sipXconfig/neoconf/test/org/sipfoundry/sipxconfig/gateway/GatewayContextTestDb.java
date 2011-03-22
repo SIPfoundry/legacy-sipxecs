@@ -68,13 +68,13 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         Gateway g2 = new Gateway(m_genericModel);
 
         // add g1
-        m_context.storeGateway(g1);
+        m_context.saveGateway(g1);
 
         assertEquals(1, m_context.getGateways().size());
         assertTrue(m_context.getGateways().contains(g1));
 
         // add g2
-        m_context.storeGateway(g2);
+        m_context.saveGateway(g2);
 
         assertEquals(2, m_context.getGateways().size());
         assertTrue(m_context.getGateways().contains(g1));
@@ -88,11 +88,11 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         g2.setName("bongo");
 
         // add g1
-        m_context.storeGateway(g1);
+        m_context.saveGateway(g1);
 
         // add g2
         try {
-            m_context.storeGateway(g2);
+            m_context.saveGateway(g2);
             fail("Duplicate gateway names should not be possible.");
         } catch (UserException e) {
             // ok
@@ -105,12 +105,12 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         Gateway g3 = new Gateway(m_genericModel);
 
         // add all
-        m_context.storeGateway(g1);
-        m_context.storeGateway(g2);
-        m_context.storeGateway(g3);
+        m_context.saveGateway(g1);
+        m_context.saveGateway(g2);
+        m_context.saveGateway(g3);
 
-        Integer[] toBeRemoved = {
-            g1.getId(), g3.getId()
+        Gateway[] toBeRemoved = {
+            g1, g3
         };
         m_context.deleteGateways(Arrays.asList(toBeRemoved));
 
@@ -125,7 +125,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     public void testUpdateGateway() throws Exception {
         Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
-        m_context.storeGateway(g1);
+        m_context.saveGateway(g1);
         g1.setAddress("10.1.1.2");
         g1.setAddressPort(5050);
         g1.setPrefix("33");
@@ -143,7 +143,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
         info.setUrlParameters("param=value");
         g1.setCallerAliasInfo(info);
 
-        m_context.storeGateway(g1);
+        m_context.saveGateway(g1);
         assertEquals("10.1.1.2", g1.getAddress());
         assertEquals("10.1.1.2:5050", g1.getGatewayAddress());
         assertEquals(5050, g1.getAddressPort());
@@ -163,11 +163,11 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     public void testSaveLoadUpdateGateway() throws Exception {
         Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
-        m_context.storeGateway(g1);
+        m_context.saveGateway(g1);
 
         Gateway g2 = m_context.getGateway(g1.getId());
         g2.setAddress("10.1.1.2");
-        m_context.storeGateway(g2);
+        m_context.saveGateway(g2);
         assertEquals("10.1.1.2", g2.getGatewayAddress());
         assertEquals("10.1.1.2", g2.getAddress());
     }
@@ -175,7 +175,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
     public void testDeleteGatewayInUse() {
         Gateway g1 = new Gateway(m_genericModel);
         g1.setAddress("10.1.1.1");
-        m_context.storeGateway(g1);
+        m_context.saveGateway(g1);
         InternationalRule rule = new InternationalRule();
         rule.setName("testRule");
         rule.setInternationalPrefix("011");
@@ -183,7 +183,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
 
         m_dialPlanContext.storeRule(rule);
         // remove gateway
-        m_context.deleteGateways(Collections.singletonList(g1.getId()));
+        m_context.deleteGateways(Collections.singletonList(g1));
 
         Integer ruleId = rule.getId();
 
@@ -227,7 +227,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
             } else {
                 assertNotNull(gateway.getSettings());
             }
-            m_context.storeGateway(gateway);
+            m_context.saveGateway(gateway);
         }
         ITable actual = TestHelper.getConnection().createDataSet().getTable("gateway");
         // one gateway per row
@@ -249,7 +249,7 @@ public class GatewayContextTestDb extends SipxDatabaseTestCase {
             g1.addPort(new FxoPort());
         }
 
-        m_context.storeGateway(g1);
+        m_context.saveGateway(g1);
         ITable actual = TestHelper.getConnection().createDataSet().getTable("fxo_port");
         assertEquals(3, actual.getRowCount());
     }

@@ -27,7 +27,7 @@ public interface GatewayContext {
 
     FxoPort getPort(Integer id);
 
-    void storeGateway(Gateway gateway);
+    void saveGateway(Gateway gateway);
 
     void storePort(FxoPort port);
 
@@ -35,7 +35,7 @@ public interface GatewayContext {
 
     boolean deleteGateway(Integer id);
 
-    void deleteGateways(Collection<Integer> selectedRows);
+    void deleteGateways(Collection<Gateway> selectedRows);
 
     /**
      * Returns the list of gateways available for a specific rule

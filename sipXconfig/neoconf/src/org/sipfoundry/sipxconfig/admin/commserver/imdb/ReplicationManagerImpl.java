@@ -26,7 +26,6 @@ import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
@@ -66,6 +65,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String DESCRIPTION = "dsc";
     private static final String MASTER = "mstr";
     private Mongo m_mongoInstance;
+    private DBCollection m_datasetCollection;
 
     private boolean m_enabled = true;
 
@@ -81,6 +81,9 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         if (m_mongoInstance == null) {
             try {
                 m_mongoInstance = new Mongo(HOST, PORT);
+                // defaults - the entity DB;
+                DB datasetDb = m_mongoInstance.getDB(DB_NAME);
+                m_datasetCollection = datasetDb.getCollection(ENTITY_COLLECTION_NAME);
             } catch (Exception e) {
                 LOG.error(UNABLE_OPEN_MONGO + HOST + COLON + PORT);
                 throw (e);
@@ -114,9 +117,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     public void dropDb() throws Exception {
         initMongo();
-        DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-        DBCollection datasetCollection = datasetDb.getCollection(ENTITY_COLLECTION_NAME);
-        datasetCollection.drop();
+        m_datasetCollection.drop();
     }
 
     /*
@@ -146,7 +147,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
                     replicateEntity(entity);
                 }
             }
-            //Replicate the external aliases
+            // Replicate the external aliases
             ExternalAlias extalias = new ExternalAlias();
             extalias.setFiles(m_externalAliases.getFiles());
             replicateEntity(extalias);
@@ -160,17 +161,23 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     public void replicateEntity(Replicable entity) {
         try {
             initMongo();
-            DB datasetDb = m_mongoInstance.getDB(DB_NAME);
-            DBCollection datasetCollection = datasetDb.getCollection(ENTITY_COLLECTION_NAME);
-
             Set<DataSet> dataSets = entity.getDataSets();
             for (DataSet dataSet : dataSets) {
-                String beanName = dataSet.getBeanName();
-                final DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
-                        DataSetGenerator.class);
-                generator.setDbCollection(datasetCollection);
-                generator.generate(entity);
+                replicateEntity(entity, dataSet);
             }
+        } catch (Exception e) {
+            LOG.error(REPLICATION_FAILED + entity.getName(), e);
+            throw new UserException(REPLICATION_FAILED + entity.getName(), e);
+        }
+    }
+
+    private void replicateEntity(Replicable entity, DataSet dataSet) {
+        try {
+            String beanName = dataSet.getBeanName();
+            final DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
+                    DataSetGenerator.class);
+            generator.setDbCollection(m_datasetCollection);
+            generator.generate(entity);
             LOG.info("Replication: inserted/updated " + entity.getName());
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + entity.getName(), e);
@@ -217,11 +224,33 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             } else {
                 top = cursor.next();
             }
-            StringUtils.isEmpty(datasetCollection.remove(top).getError());
+            datasetCollection.remove(top).getError();
             LOG.info("Replication: removed " + entity.getName());
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED_REMOVE + entity.getName(), e);
             throw new UserException(REPLICATION_FAILED_REMOVE + entity.getName(), e);
+        }
+    }
+
+    /**
+     * Convenience method used to regenerate all users. Used in case a gateway is removed. In this
+     * case we must regenerate caller alias dataset for all users. No need to regenerate call
+     * sequence or other dataset
+     */
+    public void replicateAllUsers(final DataSet ds) {
+        try {
+            initMongo();
+            Closure<User> closure = new Closure<User>() {
+                @Override
+                public void execute(User user) {
+                    replicateEntity(user, ds);
+                }
+
+            };
+            DaoUtils.forAllUsersDo(m_coreContext, closure);
+        } catch (Exception e) {
+            LOG.error("Regeneration of users failed.", e);
+            throw new UserException("&user.regeneration.failed");
         }
     }
 

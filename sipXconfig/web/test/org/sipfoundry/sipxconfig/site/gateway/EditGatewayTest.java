@@ -40,7 +40,7 @@ public class EditGatewayTest extends TestCase {
         IMocksControl contextControl = EasyMock.createStrictControl();
         GatewayContext context = contextControl.createMock(GatewayContext.class);
 
-        context.storeGateway(g);
+        context.saveGateway(g);
 
         contextControl.replay();
         PropertyUtils.write(m_editGatewayPage, "gatewayContext", context);
@@ -65,7 +65,7 @@ public class EditGatewayTest extends TestCase {
         IMocksControl contextControl = EasyMock.createStrictControl();
         GatewayContext context = contextControl.createMock(GatewayContext.class);
 
-        context.storeGateway(g);
+        context.saveGateway(g);
         dialPlanContext.getRule(rule.getId());
         dialPlanContextControl.andReturn(rule);
         dialPlanContext.storeRule(rule);

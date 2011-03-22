@@ -9,6 +9,7 @@
  */
 package org.sipfoundry.sipxconfig.site.gateway;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import org.apache.tapestry.IPage;
@@ -25,6 +26,7 @@ import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.sipfoundry.sipxconfig.device.ProfileManager;
 import org.sipfoundry.sipxconfig.device.RestartManager;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayContext;
 import org.sipfoundry.sipxconfig.gateway.GatewayModel;
 import org.sipfoundry.sipxconfig.site.sbc.ListSbcDevices.DeviceDescriptorSelectionModel;
@@ -78,8 +80,13 @@ public abstract class ListGateways extends SipxBasePage {
 
     public void delete() {
         Collection<Integer> ids = getGatewayTable().getSelections().getAllSelected();
+        Collection<Gateway> gws = new ArrayList<Gateway>();
         if (!ids.isEmpty()) {
-            getGatewayContext().deleteGateways(ids);
+            for (Integer id : ids) {
+                Gateway gw = getGatewayContext().getGateway(id);
+                gws.add(gw);
+            }
+            getGatewayContext().deleteGateways(gws);
         }
     }
 
