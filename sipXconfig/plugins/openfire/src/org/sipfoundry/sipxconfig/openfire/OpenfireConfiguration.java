@@ -15,9 +15,11 @@
  */
 package org.sipfoundry.sipxconfig.openfire;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.velocity.VelocityContext;
 import org.sipfoundry.sipxconfig.admin.TemplateConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
+import org.sipfoundry.sipxconfig.bulk.ldap.LdapConnectionParams;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapManager;
 import org.sipfoundry.sipxconfig.bulk.ldap.LdapSystemSettings;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
@@ -66,7 +68,11 @@ public class OpenfireConfiguration extends TemplateConfigurationFile {
             context.put("securityAuditProvider", PROVIDER_SECURITY_AUDIT_CLASSNAME);
             context.put("sipxVcardProvider", PROVIDER_SIPX_VCARD_CLASSNAME);
         } else {
-            context.put("ldapParams", m_ldapManager.getConnectionParams());
+            LdapConnectionParams ldapConnectionParams = m_ldapManager.getConnectionParams();
+            boolean isLdapAnonymousAccess = (StringUtils.isBlank(ldapConnectionParams.getPrincipal())) ? true
+                    : false;
+            context.put("isLdapAnonymousAccess", isLdapAnonymousAccess);
+            context.put("ldapParams", ldapConnectionParams);
             context.put("attrMap", m_ldapManager.getAttrMap());
             context.put("ldapAuthProvider", PROVIDER_LDAP_AUTH_CLASSNAME);
             context.put("ldapUserProvider", PROVIDER_LDAP_USER_CLASSNAME);

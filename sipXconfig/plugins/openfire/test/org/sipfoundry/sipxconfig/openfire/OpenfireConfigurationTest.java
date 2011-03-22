@@ -103,6 +103,15 @@ public class OpenfireConfigurationTest extends TestCase {
         assertCorrectFileGeneration(configuration, "expected-ldap-tls-openfire-config.test.xml");
     }
 
+    public void testGenerateLdapAnonymousAccessOpenfireConfiguration() throws Exception {
+        m_ldapConnectionParams.setPrincipal("");
+        m_ldapSystemSettings.setEnableOpenfireConfiguration(true);
+        m_ldapSystemSettings.setConfigured(true);
+
+        OpenfireConfiguration configuration = generate();
+        assertCorrectFileGeneration(configuration, "expected-ldap-anonymous-access-openfire-config.test.xml");
+    }
+
     private OpenfireConfiguration generate() {
         OpenfireConfiguration configuration = new OpenfireConfiguration();
         configuration.setVelocityEngine(TestHelper.getVelocityEngine());
@@ -124,10 +133,8 @@ public class OpenfireConfigurationTest extends TestCase {
 
         Reader referenceConfigReader = new InputStreamReader(resourceAsStream);
         String referenceConfig = IOUtils.toString(referenceConfigReader);
-
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
         String actualConfig = IOUtils.toString(actualConfigReader);
-
         assertEquals(referenceConfig, actualConfig);
     }
 }
