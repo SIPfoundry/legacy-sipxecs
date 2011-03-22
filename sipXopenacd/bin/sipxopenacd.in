@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # Copyright (C) 2010 eZuce Inc.
-# Licensed by SIPfoundry under the LGPL license.
+# Licensed by SIPfoundry under the AGPL license.
 #
 Action="START"
 Status=0
