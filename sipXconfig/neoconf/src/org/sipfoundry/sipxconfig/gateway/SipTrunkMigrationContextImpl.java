@@ -53,7 +53,7 @@ public class SipTrunkMigrationContextImpl extends SipxHibernateDaoSupport implem
                 sipTrunk.setSbcDevice(m_sbcDeviceManager.getSbcDevice(sbcDeviceId));
                 sipTrunk.setOutboundAddress(sipTrunk.getSbcDevice().getAddress());
                 sipTrunk.setOutboundPort(sipTrunk.getSbcDevice().getPort());
-                m_gatewayContext.storeGateway(sipTrunk);
+                m_gatewayContext.saveGateway(sipTrunk);
                 getHibernateTemplate().flush();
             } catch (UserException e) {
                 LOG.warn("cannot migrate sip trunks", e);
