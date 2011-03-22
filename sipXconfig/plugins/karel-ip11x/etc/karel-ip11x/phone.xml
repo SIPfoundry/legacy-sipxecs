@@ -1,0 +1,587 @@
+<?xml version="1.0"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+  "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd">
+<model>
+  
+
+<!-- <group name="WAN"> -->
+  <group name="WAN">
+    <profileName>/config/Network/Network.cfg</profileName>
+    <setting name="WANType">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+    </setting>
+    <setting name="WANStaticIP">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="WANSubnetMask">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="WANDefaultGateway">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+  
+
+<!-- <group name="DNS"> -->
+  <group name="DNS">
+    <profileName>/config/Network/Network.cfg</profileName>
+    <setting name="PrimaryDNS">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="SecondaryDNS">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+
+
+<!-- <group name="LAN"> -->
+  <group name="LAN">
+    <profileName>/config/Network/Network.cfg</profileName>
+    <setting name="LANTYPE">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="RouterIP">
+      <type>
+        <string />
+      </type>
+      <value>10.0.0.1</value>
+    </setting>
+    <setting name="LANSubnetMask">
+      <type>
+        <string />
+      </type>
+      <value>255.255.255.0</value>
+    </setting>
+    <setting name="EnableDHCP">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="DHCPStartIP">
+      <type>
+        <string />
+      </type>
+      <value>10.0.0.10</value>
+    </setting>
+    <setting name="DHCPEndIP">
+      <type>
+        <string />
+      </type>
+      <value>10.0.0.100</value>
+    </setting>
+  </group>
+
+
+<!-- <group name="PPPoE"> -->
+  <group name="PPPoE">
+    <profileName>/config/Network/Network.cfg</profileName>
+    <setting name="PPPoEUser">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="PPPoEPWD">
+      <type>
+        <string password="yes" />
+      </type>
+    </setting>
+  </group>
+
+
+<!-- <group name="VLAN"> -->
+  <group name="VLAN">
+    <profileName>/config/Network/Network.cfg</profileName>
+    <setting name="ISVLAN">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="VID">
+      <type>
+        <integer min="0" max="4094" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="USRPRIORITY">
+      <type>
+        <integer min="0" max="7" />
+      </type>
+      <value>7</value>
+    </setting>
+    <setting name="PC_PORT_VLAN_ENABLE">
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PC_PORT_VID">
+      <type>
+        <integer min="0" max="4094" />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="PC_PORT_PRIORITY">
+      <type>
+        <integer min="0" max="7" />
+      </type>
+      <value>0</value>
+    </setting>
+  </group>
+
+  
+<!-- <group name="Time"> -->
+  <group name="Time">
+    <profileName>/config/Setting/Setting.cfg</profileName>
+
+    <setting name="TimeZone">
+      <type>
+        <integer min="-12" max="12" />
+      </type>
+    </setting>
+    <setting name="TimeServer1">
+      <type>
+        <string />
+      </type>
+	</setting>
+    <setting name="TimeServer2">
+      <type>
+        <string />
+      </type>
+	  <value>cn.pool.ntp.org</value>
+    </setting>
+    <setting name="Interval">
+      <type>
+        <integer />
+      </type>
+	  <value>1000</value>
+    </setting>
+
+    <setting name="SummerTime">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+        </enum>
+      </type>
+	  <value>2</value>
+    </setting>
+
+    <setting name="TimeFormat">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+	  <value>0</value>
+    </setting>
+    <setting name="DateFormat">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+        </enum>
+      </type>
+	  <value>3</value>
+    </setting>
+  </group>
+
+  
+<!-- <group name="QOS"> -->
+  <group name="QOS">
+    <profileName>/config/Network/Network.cfg</profileName>
+    <setting name="SIGNALTOS">
+      <type>
+        <integer min="0" max="63" />
+      </type>
+      <value>40</value>
+    </setting>
+    <setting name="RTPTOS">
+      <type>
+        <integer min="0" max="63" />
+      </type>
+      <value>40</value>
+    </setting>
+  </group>
+
+  
+<!-- <group name="RTPPORT"> -->
+  <group name="RTPPORT">
+    <profileName>/config/Network/Network.cfg</profileName>
+    <setting name="MaxRTPPort">
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>11800</value>
+    </setting>
+    <setting name="MinRTPPort">
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>11780</value>
+    </setting>
+  </group>
+
+
+<!-- <group name="Lang"> -->
+  <group name="Lang">
+    <profileName>/config/Setting/Setting.cfg</profileName>
+    <setting name="WebLanguage">
+      <type>
+        <enum>
+          <option>
+            <value>English</value>
+          </option>
+          <option>
+            <value>Turkish</value>
+          </option>
+          <option>
+            <value>Czech</value>
+          </option>
+          <option>
+            <value>Russian</value>
+          </option>
+        </enum>
+      </type>
+      <value>English</value>
+    </setting>
+	
+    <setting name="ActiveWebLanguage">
+      <type>
+        <enum>
+          <option>
+            <value>English</value>
+          </option>
+          <option>
+            <value>Turkish</value>
+          </option>
+          <option>
+            <value>French</value>
+          </option>
+          <option>
+            <value>German</value>
+          </option>
+          <option>
+            <value>Polish</value>
+          </option>
+          <option>
+            <value>Portuguese</value>
+          </option>
+          <option>
+            <value>Spanish</value>
+          </option>
+        </enum>
+      </type>
+      <value>English</value>
+    </setting>
+  </group>
+
+  
+<!-- <group name="PhoneSetting"> -->
+  <group name="PhoneSetting">
+    <profileName>/config/Setting/Setting.cfg</profileName>
+    <setting name="InterDigitTime">
+      <type>
+        <integer min="1" max="14" />
+      </type>
+      <value>4</value>
+    </setting>
+    <setting name="FlashHookTimer">
+      <type>
+        <integer min="0" max="800" />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="Contrast">
+      <type>
+        <integer min="1" max="10" />
+      </type>
+      <value>6</value>
+    </setting>
+    <setting name="BackLight">
+      <type>
+        <enum>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+        </enum>
+      </type>
+      <value>2</value>
+    </setting>
+    <setting name="BacklightTime">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>15</value>
+          </option>
+          <option>
+            <value>30</value>
+          </option>
+          <option>
+            <value>60</value>
+          </option>
+          <option>
+            <value>120</value>
+          </option>
+        </enum>
+      </type>
+      <value>30</value>
+    </setting>
+  </group>
+
+
+  <!-- <group name="Features"> -->
+  <group name="Features">
+    <profileName>/config/Features/Phone.cfg</profileName>
+    <setting name="Call_Waiting">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+	  <value>1</value>
+    </setting>
+    <setting name="Call_WaitingTone">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+        </enum>
+      </type>
+	  <value>1</value>
+    </setting>
+  </group>
+  
+  
+<!-- <group name="DialNow"> -->
+  <group name="DialNow">
+    <profileName>/tmp/dialnow.xml</profileName>
+    <setting name="Rule1">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID1">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Rule2">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID2">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Rule3">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID3">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Rule4">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID4">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Rule5">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID5">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Rule6">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID6">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Rule7">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID7">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Rule8">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID8">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Rule9">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID9">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Rule10">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="LineID10">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+
+  
+<!-- <group name="RemotePhoneBook0"> -->
+  <group name="RemotePhoneBook0">
+    <profileName>/config/Setting/Setting.cfg</profileName>
+    <setting name="URL">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Name">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+<!-- <group name="RemotePhoneBook1"> -->
+  <group name="RemotePhoneBook1">
+    <profileName>/config/Setting/Setting.cfg</profileName>
+    <setting name="URL">
+      <type>
+        <string />
+      </type>
+    </setting>
+    <setting name="Name">
+      <type>
+        <string />
+      </type>
+    </setting>
+  </group>
+
+  
+<!-- <group name="AdminPassword"> -->
+  <group name="AdminPassword">
+    <profileName>/config/Setting/autop.cfg</profileName>
+    <setting name="Password">
+      <type>
+        <string password="yes" />
+      </type>
+    </setting>
+  </group>
+  
+</model>

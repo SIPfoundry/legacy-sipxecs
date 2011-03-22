@@ -90,6 +90,7 @@ AC_CONFIG_FILES([
     plugins/hitachi/Makefile
     plugins/ipdialog/Makefile
     plugins/karel/Makefile
+    plugins/karel-ip11x/Makefile
     plugins/lg-nortel/Makefile
     plugins/linksys/Makefile
     plugins/mitel/Makefile

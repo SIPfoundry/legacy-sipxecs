@@ -70,6 +70,72 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
         } else {
             setAgentGroup(getOpenAcdContext().getAgentGroupById(getGroupId()));
         }
+
+        OpenAcdAgentGroup group = getAgentGroup();
+        if (getAddedAgents() != null && getAddedAgents().size() > 0) {
+            List<OpenAcdAgent> existingAgents = new ArrayList<OpenAcdAgent>();
+            try {
+                existingAgents = getOpenAcdContext().addAgentsToGroup(group,
+                        getAgentsBySelectedIds(getAddedAgents()));
+            } catch (UserException uex) {
+                IValidationDelegate validator = TapestryUtils.getValidator(getPage());
+                validator.record(new ValidatorException(getMessages().getMessage(uex.getMessage())));
+            }
+            if (!existingAgents.isEmpty()) {
+                List<String> existingAgentNames = new ArrayList<String>(existingAgents.size());
+                for (OpenAcdAgent agent : existingAgents) {
+                    existingAgentNames.add(agent.getUser().getUserName());
+                }
+                String msg = getMessages().format("duplicate.agents.error",
+                        StringUtils.join(existingAgentNames, ", "));
+                getValidator().record(new ValidatorException(msg));
+            }
+            // force a reload
+            setAgentGroup(getOpenAcdContext().getAgentGroupById(group.getId()));
+        }
+    }
+
+    private List<OpenAcdAgent> getAgentsBySelectedIds(Collection selectedIds) {
+        List<OpenAcdAgent> agents = new ArrayList<OpenAcdAgent>();
+        for (Object obj : selectedIds) {
+            OpenAcdAgent agent = new OpenAcdAgent();
+            agent.setUser(getCoreContext().loadUser((Integer) obj));
+            agents.add(agent);
+        }
+        return agents;
+    }
+
+    public IPage addAgent(IRequestCycle cycle) {
+        OpenAcdAgentGroup group = getAgentGroup();
+        if (StringUtils.isBlank(group.getName())) {
+            getValidator().record(new ValidatorException(getMessages().getMessage("blank.agentGroupName.error")));
+            return this;
+        }
+        getOpenAcdContext().saveAgentGroup(group);
+        setGroupId(group.getId());
+
+        SelectUsers addAgents = (SelectUsers) cycle.getPage(SelectUsers.PAGE);
+        SelectUsersCallback callback = new SelectUsersCallback(this.getPage());
+        callback.setIdsPropertyName("addedAgents");
+        addAgents.setCallback(callback);
+        addAgents.setTitle(getMessages().getMessage("title.selectAgents"));
+        addAgents.setPrompt(getMessages().getMessage("prompt.selectAgents"));
+        return addAgents;
+    }
+
+    public IPage editAgent(IRequestCycle cycle, Integer agentId) {
+        EditOpenAcdAgentPage page = (EditOpenAcdAgentPage) cycle.getPage(EditOpenAcdAgentPage.PAGE);
+        page.editAgent(agentId, getPage().getPageName());
+        return page;
+    }
+
+    public void delete() {
+        Collection ids = getSelections().getAllSelected();
+        if (ids.isEmpty()) {
+            return;
+        }
+        OpenAcdAgentGroup group = getAgentGroup();
+        getOpenAcdContext().deleteAgents(group.getId(), ids);
     }
 
     public void commit() {
