@@ -755,7 +755,10 @@ inline UtlString UtlString::operator=(const std::string& str)
 
 inline std::string UtlString::str() const
 {
-    return std::string(this->data());
+  if (this->isNull())
+    return "";
+  std::string val = this->data();
+  return val;
 }
 
 #endif    // _UtlString_h_

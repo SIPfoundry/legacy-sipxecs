@@ -9,6 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import java.util.ArrayList;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
@@ -20,6 +22,7 @@ import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
+import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.setting.Group;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationListener;
@@ -70,6 +73,14 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
             generateBranch((Branch) entity);
         } else if (entity instanceof Location) {
             m_replicationManager.removeLocation((Location) entity);
+        } else if (entity instanceof ArrayList< ? >) {
+            ArrayList< ? > col = (ArrayList< ? >) entity;
+            if (col.get(0) instanceof Gateway) {
+                for (Object object : col) {
+                    Gateway gw = (Gateway) object;
+                    m_replicationManager.removeEntity(gw);
+                }
+            }
         }
     }
 

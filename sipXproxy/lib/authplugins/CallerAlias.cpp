@@ -360,7 +360,7 @@ bool CallerAlias::getCallerAlias (
 
     EntityRecord entity;
 
-    SYSLOG_INFO("CallerAlias::getCallerAlias - EntityDB::findByIdentity");
+    SYSLOG_INFO("CallerAlias::getCallerAlias - EntityDB::findByIdentity for identity=" << identity.str() << " domain=" << domain.str());
 
     if (!_pEntities->collection().findByIdentity(identity.str(), entity))
         return false;
@@ -373,5 +373,7 @@ bool CallerAlias::getCallerAlias (
             return true;
         }
     }
+
+    SYSLOG_INFO("CallerAlias::getCallerAlias - No caller alias configured for identity=" << identity.str() << " domain=" << domain.str());
     return false;
 }

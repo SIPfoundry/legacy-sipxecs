@@ -514,7 +514,7 @@ public abstract class TestPage extends SipxBasePage {
         Gateway fxo = gatewayService.newGateway(fxoModel);
         fxo.setName("fxo");
         fxo.setAddress("1.1.1.1");
-        gatewayService.storeGateway(fxo);
+        gatewayService.saveGateway(fxo);
         EditGateway page = (EditGateway) getRequestCycle().getPage(EditGateway.PAGE);
         page.setGatewayId(fxo.getId());
         return page;
