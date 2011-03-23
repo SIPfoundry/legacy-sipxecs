@@ -2,9 +2,7 @@
 # Licensed to the User under the LGPL license.
 # 
 
-include @OEM_MAK@
-
-## Common make variables you may want to override in OEM_MAK file
+## Common make variables you may want to override in another makefile
 ISO_SRC ?= $(SRC)/mak/centos-iso
 ISO_LABEL ?= sipxecs
 ISO_REV ?= $(PACKAGE_REVISION)
@@ -14,6 +12,7 @@ APPLICATION_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 PUBLISHER_ID ?= sipx-dev@list.sipfoundry.org
 PREPARERER_ID ?= sipx-dev@list.sipfoundry.org
 ISO_RPM_DOWNLOAD_URL ?= http://centos.aol.com/5.5
+ISO_M4_OPTS = $(CUSTOM_ISO_M4_OPTS) -D PACKAGE_VERSION=$(PACKAGE_VERSION)
 
 %-32 : BITS = 32
 %-32 : ARCH = i386
@@ -21,9 +20,6 @@ ISO_RPM_DOWNLOAD_URL ?= http://centos.aol.com/5.5
 %-64 : ARCH = x86_64
 %-32 %-64 : ISO_DISC = iso-disc-$(BITS)
 %-32 %-64 : ISO ?= $(ISO_LABEL)-$(PACKAGE_VERSION)-$(ISO_REV)-$(ARCH).iso
-ISO_M4_OPTS = \
-	@OEM_M4_OPTS@ \
-	-D PACKAGE_VERSION=$(PACKAGE_VERSION)
 
 # very initial boot menu and graphics
 ISOLINUX_FILES = \
