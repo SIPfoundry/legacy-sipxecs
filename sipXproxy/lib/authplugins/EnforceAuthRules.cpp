@@ -6,6 +6,8 @@
 //////////////////////////////////////////////////////////////////////////////
 
 // SYSTEM INCLUDES
+#include <set>
+
 #include "sipdb/EntityDB.h"
 #include "SipRouter.h"
 #include "os/OsReadLock.h"
@@ -43,7 +45,8 @@ EnforceAuthRules::EnforceAuthRules(const UtlString& pluginName ///< the name for
    : AuthPlugin(pluginName)
    , mRulesLock(OsRWMutex::Q_FIFO)
    , mpAuthorizationRules(NULL),
-    mpSipRouter(0)
+    mpSipRouter(0),
+    _pEntities(0)
 {
     OsSysLog::add(FAC_SIP,PRI_INFO,"EnforceAuthRules plugin instantiated '%s'",
                  mInstanceName.data());
@@ -179,7 +182,7 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
       {
          ResultSet  requiredPermissions;
          mpAuthorizationRules->getPermissionRequired(requestUri, requiredPermissions);
-      
+
          if (requiredPermissions.isEmpty())
          {
             result = ALLOW;
@@ -206,14 +209,11 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
          {
             // some permission is required and caller is authenticated, so see if they have it
 
-            Url urlIdentity(id);
-            UtlString identity;
-            urlIdentity.getIdentity(identity);
+            
 
             UtlString unmatchedPermissions;
             UtlString matchedPermission;
-
-            if (isAuthorized(identity, requiredPermissions,
+            if (isAuthorized(id, requiredPermissions,
                              matchedPermission, unmatchedPermissions)
                 )
             {
@@ -258,12 +258,15 @@ EnforceAuthRules::authorizeAndModify(const UtlString& id,    /**< The authentica
 }
 
 /// @returns true iff at least one permission in grantedPermissions is in requiredPermissions
-bool EnforceAuthRules::isAuthorized(const UtlString& identity,
+bool EnforceAuthRules::isAuthorized(const UtlString& id,
      const ResultSet& requiredSet,
      UtlString& matchedPermission,   ///< first required permission found
      UtlString& unmatchedPermissions ///< requiredPermissions as a single string
  )
 {
+    if (id.isNull())
+      return false;
+
     bool authorized = false;
     matchedPermission.remove(0);
     unmatchedPermissions.remove(0);
@@ -271,7 +274,8 @@ bool EnforceAuthRules::isAuthorized(const UtlString& identity,
     SYSLOG_INFO("EnforceAuthRules::isAuthorized - EntityDB::findByIdentity");
 
     EntityRecord entity;
-    if (!_pEntities->collection().findByIdentity(identity.str(), entity))
+    std::string identity = id.str();
+    if (!_pEntities->collection().findByIdentity(identity, entity))
         return false;
 
     std::set<std::string> grantedPermissions = entity.permissions();
@@ -282,9 +286,14 @@ bool EnforceAuthRules::isAuthorized(const UtlString& identity,
     while((requiredRecord = dynamic_cast<UtlHashMap*>(requiredRecs())))
     {
       UtlString* reqPermission = dynamic_cast<UtlString*>(requiredRecord->findValue(&permissionKey));
-      if (reqPermission)
+      if (reqPermission && !reqPermission->isNull())
+      {
          requiredPermissions.insert(reqPermission->data());
+      }
     }
+
+    if (requiredPermissions.size() == 0)
+      return true;
 
     for (std::set<std::string>::const_iterator iter = requiredPermissions.begin();
         iter != requiredPermissions.end(); iter++)
@@ -325,7 +334,7 @@ bool EnforceAuthRules::isAuthorized(const UtlString& identity,
         
     }
 
-    return false;
+    return authorized;
 }
 
 /// destructor
