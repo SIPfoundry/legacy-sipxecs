@@ -9,12 +9,16 @@ AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
   fi
   
   AC_PATH_PROG(MKISOFS,mkisofs)
-  if [ test -z $MKISOFS ]; then
+  if [ test -z "$MKISOFS" ]; then
     AC_MSG_ERROR([mkisofs program is required. Redhat users run: 'yum install genisoimage'])
   fi
 
   if [ ! test -d $ISO_DIR ]; then
     AC_MSG_ERROR(Directory $ISO_DIR is missing)
+  fi
+
+  if [ test -z "$CENTOS_BASE_URL" ]; then
+    AC_MSG_ERROR([You must set a value for CENTOS_BASE_URL. Example: CENTOS_BASE_URL=http://centos.aol.com])
   fi
   
   if [ ! test -d $RPM_DIST_DIR ]; then
