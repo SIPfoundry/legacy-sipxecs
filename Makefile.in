@@ -48,7 +48,7 @@ lib.list sipx.list : %.list :
 
 include $(sort $(wildcard mak/*.mk))
 
-help.*{1|2}*... = Perform all targets would normally follow the given target in addition to the target itself. Very useful when you want to pick-up the build where it last stopped. For example 'make sipXthree...' would expand to 'make sipXthree sipXfour sipXfive' but it would not include 'make sipXone sipXtwo'. You can use the ... pattern anywhere you a specify a package name. Examples: 'make sipXconfig.rpm...', 'make xc.centos-5-i386.OpenACD.rpm...'.  See 'make sipx.list lib.list' for what the natural order of packages.
+help.*{1|2}*... = Perform all targets would normally follow the given target in addition to the target itself. Very useful when you want to pick-up the build where it last stopped. For example 'make sipXthree...' would expand to 'make sipXthree sipXfour sipXfive' but it would not include 'make sipXone sipXtwo'. You can use the ... pattern anywhere you a specify a package name. Examples: 'make sipXconfig.rpm...', 'make distro.centos-5-i386.OpenACD.rpm...'.  See 'make sipx.list lib.list' for what the natural order of packages.
 %... :
 	$(MAKE) $(..._sipx_expanded) $(..._lib_expanded)
 

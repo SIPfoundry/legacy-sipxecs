@@ -7,6 +7,11 @@ AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
   if test "x$ISO_DIR" == "x"; then
     ISO_DIR=~/Downloads
   fi
+  
+  AC_PATH_PROG(MKISOFS,mkisofs)
+  if [ test -z $MKISOFS ]; then
+    AC_MSG_ERROR([mkisofs program is required. Redhat users run: 'yum install genisoimage'])
+  fi
 
   if [ ! test -d $ISO_DIR ]; then
     AC_MSG_ERROR(Directory $ISO_DIR is missing)
@@ -14,14 +19,6 @@ AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
   
   if [ ! test -d $RPM_DIST_DIR ]; then
     AC_MSG_ERROR(Directory $REPO_DIR is missing)
-  fi
-
-  AC_ARG_VAR(OEM_DIR, [Optional: Directory containing your customizations])
-  if test "x$OEM_DIR" != "x"; then
-    OEM_MAK="$OEM_DIR/iso.mak"
-    AC_SUBST(OEM_MAK)
-    OEM_M4_OPTS="-I $OEM_DIR"
-    AC_SUBST(OEM_M4_OPTS)
   fi
 
   AC_ARG_WITH([distdir],
@@ -37,7 +34,5 @@ AC_ARG_ENABLE(centos-iso, [--enable-centos-iso Build sipXecs or custom CD],
     AC_MSG_ERROR(createrepo needs to be installed)
   fi
 
-  AC_CONFIG_FILES([
-     mak/35-centos-iso.mk 
-     $OEM_MAK])
+  AC_CONFIG_FILES([mak/35-centos-iso.mk])
 ])
