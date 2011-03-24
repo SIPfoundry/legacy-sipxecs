@@ -38,7 +38,7 @@ public class BeanId {
      */
     public static Collection createBeanIdCollection(Collection ids, Class beanClass) {
         if (SipxCollectionUtils.safeIsEmpty(ids)) {
-            return CollectionUtils.EMPTY_COLLECTION;
+            return new ArrayList<Integer>();
         }
         Collection bids = new ArrayList(ids.size());
         Collection idCheck = new ArrayList(ids.size());     // for uniqueness checking
