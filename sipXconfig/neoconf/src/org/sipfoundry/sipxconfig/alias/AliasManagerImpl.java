@@ -38,13 +38,12 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
         BeanFactoryAware {
     public static final String CONTEXT_BEAN_NAME = "aliasManagerImpl";
     private static final Log LOG = LogFactory.getLog(AliasManagerImpl.class);
-    private Collection m_aliasOwners;
+    private Collection<AliasOwner> m_aliasOwners;
     private ListableBeanFactory m_beanFactory;
 
     /** Return true if the alias is in use by some AliasOwner */
     public boolean isAliasInUse(String alias) {
-        for (Iterator iter = getAliasOwners().iterator(); iter.hasNext();) {
-            AliasOwner owner = (AliasOwner) iter.next();
+        for (AliasOwner owner : getAliasOwners()) {
             if (owner.isAliasInUse(alias)) {
                 return true;
             }
@@ -58,8 +57,7 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
      */
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
         Collection objects = new ArrayList();
-        for (Iterator iter = getAliasOwners().iterator(); iter.hasNext();) {
-            AliasOwner owner = (AliasOwner) iter.next();
+        for (AliasOwner owner : getAliasOwners()) {
             objects.addAll(owner.getBeanIdsOfObjectsWithAlias(alias));
         }
         return objects;
@@ -116,16 +114,15 @@ public class AliasManagerImpl extends SipxHibernateDaoSupport implements AliasMa
     }
 
     /** Return all alias owners (excluding the AliasManagerImpl itself) */
-    protected Collection getAliasOwners() {
+    protected Collection<AliasOwner> getAliasOwners() {
         if (m_aliasOwners == null) { // lazy initialization
             if (m_beanFactory == null) {
                 throw new BeanInitializationException(getClass().getName() + " not initialized");
             }
-            Map beanMap = m_beanFactory.getBeansOfType(AliasOwner.class, false, true);
-            m_aliasOwners = new ArrayList(beanMap.size());
+            Map<String, AliasOwner> beanMap = m_beanFactory.getBeansOfType(AliasOwner.class, false, true);
+            m_aliasOwners = new ArrayList<AliasOwner>(beanMap.size());
             // Collect all proxies
-            for (Iterator i = beanMap.values().iterator(); i.hasNext();) {
-                AliasOwner owner = (AliasOwner) i.next();
+            for (AliasOwner owner : beanMap.values()) {
                 // Only include beans created through Factories - need Hibernate support.
                 // Exclude the AliasManagerImpl itself, or we'll get into infinite recursion
                 // when calling the alias owners.

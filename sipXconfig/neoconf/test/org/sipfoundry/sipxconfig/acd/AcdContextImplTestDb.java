@@ -236,6 +236,21 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
             // ok
         }
 
+        queue.setName("*88");
+        try {
+            m_context.saveComponent(queue);
+            fail("Should fail");
+        } catch (UserException e) {
+            // ok
+        }
+
+        queue.setName("*86");
+        try {
+            m_context.saveComponent(queue);
+            fail("Should fail");
+        } catch (UserException e) {
+            // ok
+        }        
         queue.setName("q4");
         m_context.saveComponent(queue);
     }

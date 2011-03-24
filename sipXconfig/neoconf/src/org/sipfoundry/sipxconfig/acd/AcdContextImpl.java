@@ -134,9 +134,11 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
             DaoUtils.checkDuplicates(getHibernateTemplate(), AcdQueue.class, queue, NAME_PROPERTY,
                     new NameInUseException("queue", queue.getName()));
         }
-
-        getHibernateTemplate().saveOrUpdate(acdComponent);
-        getHibernateTemplate().flush();
+        if (!acdComponent.isNew()) {
+            getHibernateTemplate().merge(acdComponent);
+        } else {
+            getHibernateTemplate().save(acdComponent);
+        }
     }
 
     public AcdLine loadLine(Serializable id) {
@@ -598,13 +600,27 @@ public class AcdContextImpl extends SipxHibernateDaoSupport implements AcdContex
     }
 
     public boolean isAliasInUse(String alias) {
-        List confIds = getHibernateTemplate().findByNamedQueryAndNamedParam(ACD_LINE_IDS_WITH_ALIAS, VALUE, alias);
-        return !confIds.isEmpty();
+        for (AliasMapping aliasMapping : getAliasMappings()) {
+            if (aliasMapping.getIdentity().equals(alias)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        Collection ids = getHibernateTemplate().findByNamedQueryAndNamedParam(ACD_LINE_IDS_WITH_ALIAS, VALUE, alias);
-        Collection bids = BeanId.createBeanIdCollection(ids, AcdLine.class);
+        Collection<Integer> ids = getHibernateTemplate().findByNamedQueryAndNamedParam(ACD_LINE_IDS_WITH_ALIAS,
+                VALUE, alias);
+        Collection<BeanId> bids = BeanId.createBeanIdCollection(ids, AcdLine.class);
+
+        List<AcdServer> servers = getServers();
+        for (AcdServer server : servers) {
+            for (AliasMapping mapping : server.getAliasMappings(m_coreContext.getDomainName())) {
+                if (mapping.getIdentity().equals(alias)) {
+                    bids.add(new BeanId(server.getId(), AcdServer.class));
+                }
+            }
+        }
         return bids;
     }
 
