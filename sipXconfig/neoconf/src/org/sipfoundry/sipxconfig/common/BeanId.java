@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
-import org.apache.commons.collections.CollectionUtils;
-
 /**
  * BeanId -- uniquely identify a persisted object of type BeanWithId through two properties,
  * its Java class and its database ID.

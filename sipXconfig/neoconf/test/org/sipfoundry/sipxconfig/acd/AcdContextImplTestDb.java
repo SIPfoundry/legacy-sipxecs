@@ -214,11 +214,28 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
             // ok
         }
 
+        line.setName("*88");
+        try {
+            m_context.saveComponent(line);
+            fail("Should fail");
+        } catch (Exception e) {
+            // ok
+        }
+
+        line.setName("*86");
+        try {
+            m_context.saveComponent(line);
+            fail("Should fail");
+        } catch (Exception e) {
+            // ok
+        } 
+        line.setName("l5");
         line.setExtension("112");
         m_context.saveComponent(line);
 
         // check if I can saveComponent the same line more than once
         m_context.saveComponent(line);
+        
     }
 
     public void testsaveComponentQueue() throws Exception {
@@ -236,21 +253,6 @@ public class AcdContextImplTestDb extends SipxDatabaseTestCase {
             // ok
         }
 
-        queue.setName("*88");
-        try {
-            m_context.saveComponent(queue);
-            fail("Should fail");
-        } catch (UserException e) {
-            // ok
-        }
-
-        queue.setName("*86");
-        try {
-            m_context.saveComponent(queue);
-            fail("Should fail");
-        } catch (UserException e) {
-            // ok
-        }        
         queue.setName("q4");
         m_context.saveComponent(queue);
     }
