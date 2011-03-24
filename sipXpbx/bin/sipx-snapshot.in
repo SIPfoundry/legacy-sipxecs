@@ -1101,6 +1101,7 @@ EOF
        mongoexport -d imdb -c entity | sed -e 's/"pstk" : ".*", "pntk" : ".\{32\}"/"pstk" : "ELIDED", "pntk" : "ELIDED"/g' -e 's/"pstk" : ".\{10\}",/"pstk" : "ELIDED",/g' > ${Work}/mongo.imdb.entity.json
      else mongoexport -d imdb -c entity -o ${Work}/mongo.imdb.entity.json
      fi
+     mongoexport -d openacd -c commands -o ${Work}/OpenACD/mongo.openacd.commands.json
    fi
 }
 
