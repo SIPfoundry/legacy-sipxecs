@@ -171,7 +171,6 @@ fi
 %{_libdir}/libsipXcommserver.a
 %{_includedir}/configrpc/*
 %{_includedir}/digitmaps/*
-%{_includedir}/fastdb/*
 %{_includedir}/filereader/*
 %{_includedir}/odbc/*
 %{_includedir}/persist/*
