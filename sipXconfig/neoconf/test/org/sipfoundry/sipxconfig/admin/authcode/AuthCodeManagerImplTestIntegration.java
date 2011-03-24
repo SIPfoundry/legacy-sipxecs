@@ -16,12 +16,15 @@ import java.util.List;
 
 import org.dbunit.dataset.ITable;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
+import org.sipfoundry.sipxconfig.common.CoreContext;
+import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
 public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
 
     private AuthCodeManager m_authCodeManager;
+    private CoreContext m_coreContext;
 
     public void testDeleteAuthCode() throws Exception {
         loadDataSet("admin/authcode/auth_code.db.xml");
@@ -54,7 +57,8 @@ public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
         AuthCode authCode = m_authCodeManager.newAuthCode();
         assertNotNull(authCode.getInternalUser().getSipPassword());
         assertEquals(false, authCode.getInternalUser().getSettingTypedValue(PermissionName.VOICEMAIL.getPath()));
-        assertEquals(false, authCode.getInternalUser().getSettingTypedValue(PermissionName.FREESWITH_VOICEMAIL.getPath()));
+        assertEquals(false,
+                authCode.getInternalUser().getSettingTypedValue(PermissionName.FREESWITH_VOICEMAIL.getPath()));
     }
 
     public void saveAuthCode() throws Exception {
@@ -79,10 +83,29 @@ public class AuthCodeManagerImplTestIntegration extends IntegrationTestCase {
         } catch (UserException ex) {
 
         }
+
+        // check alias
+        User user = m_coreContext.newUser();
+        user.setAliasesString("*81");
+        user.setUserName("user1");
+        user.setPin("123", "domain.com");
+        user.setPintoken("123");
+        try {
+            m_coreContext.saveUser(user);
+            fail();
+        } catch (UserException e) {
+            assertEquals("The user ID or alias \"*81\" duplicates an existing alias for a user or service",
+                    e.getMessage());
+        }
+
     }
 
     public void setAuthCodeManager(AuthCodeManager authCodeManager) {
         m_authCodeManager = authCodeManager;
+    }
+
+    public void setCoreContext(CoreContext coreContext) {
+        m_coreContext = coreContext;
     }
 
 }

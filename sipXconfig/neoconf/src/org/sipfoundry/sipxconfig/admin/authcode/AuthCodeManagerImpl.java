@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.admin.authcode;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,8 +46,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import static org.sipfoundry.sipxconfig.common.DaoUtils.requireOneOrZero;
 
-public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
-        AuthCodeManager, ReplicableProvider {
+public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements AuthCodeManager, ReplicableProvider {
 
     private static final Log LOG = LogFactory.getLog(AuthCodeManagerImpl.class);
     private static final String AUTH_CODE_CODE = "code";
@@ -78,8 +78,7 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
 
     @Override
     public AuthCode getAuthCode(Integer authCodeId) {
-        return (AuthCode) getHibernateTemplate().load(AuthCode.class,
-                authCodeId);
+        return (AuthCode) getHibernateTemplate().load(AuthCode.class, authCodeId);
     }
 
     @Override
@@ -108,11 +107,10 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
             checkForDuplicateCode(authCode);
         }
 
-        String userName = StringUtils.deleteWhitespace(String.format(
-                INTERNAL_NAME, authCode.getId()));
+        String userName = StringUtils.deleteWhitespace(String.format(INTERNAL_NAME, authCode.getId()));
 
         InternalUser internalUser = authCode.getInternalUser();
-        Collection<String>permissionNames = internalUser.getUserPermissionNames();
+        Collection<String> permissionNames = internalUser.getUserPermissionNames();
         LOG.info("AuthCodeManagerImpl::saveAuthCode() got permissionNames:" + permissionNames);
 
         if (!gotCallPermission(permissionNames)) {
@@ -123,9 +121,8 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
             getHibernateTemplate().merge(authCode);
         } else {
             getHibernateTemplate().save(authCode);
-            //Need to update authname since we should have a real authcode id now
-            userName = StringUtils.deleteWhitespace(String.format(
-                    INTERNAL_NAME, authCode.getId()));
+            // Need to update authname since we should have a real authcode id now
+            userName = StringUtils.deleteWhitespace(String.format(INTERNAL_NAME, authCode.getId()));
             LOG.info("::authcode interanl user name after save: " + authCode.getInternalUser().getUserName());
             authCode.getInternalUser().setUserName(userName);
         }
@@ -136,8 +133,8 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
     @Override
     public AuthCode getAuthCodeByCode(String code) {
         String query = "authCodeByCode";
-        Collection<AuthCode> codes = getHibernateTemplate()
-                .findByNamedQueryAndNamedParam(query, AUTH_CODE_CODE, code);
+        Collection<AuthCode> codes = getHibernateTemplate().findByNamedQueryAndNamedParam(query, AUTH_CODE_CODE,
+                code);
         return requireOneOrZero(codes, query);
     }
 
@@ -145,10 +142,8 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
         AuthCode code = new AuthCode();
         InternalUser internaluser = m_coreContext.newInternalUser();
         internaluser.setSipPassword(RandomStringUtils.randomAlphanumeric(10));
-        internaluser.setSettingTypedValue(PermissionName.VOICEMAIL.getPath(),
-                false);
-        internaluser.setSettingTypedValue(PermissionName.FREESWITH_VOICEMAIL
-                .getPath(), false);
+        internaluser.setSettingTypedValue(PermissionName.VOICEMAIL.getPath(), false);
+        internaluser.setSettingTypedValue(PermissionName.FREESWITH_VOICEMAIL.getPath(), false);
         code.setInternalUser(internaluser);
         return code;
     }
@@ -204,14 +199,14 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
             if (pm != null) {
                 LOG.info("AuthCodeManagerImpl::saveAuthCode() got a perm:" + pm);
                 Type type = pm.getType();
-                //search for built-in permissions of "CALL" permission type
+                // search for built-in permissions of "CALL" permission type
                 if (type.equals(Type.CALL)) {
                     LOG.info("AuthCodeManagerImpl::saveAuthCode() got a call perm:" + name);
                     return true;
                 }
             } else if (name.startsWith(Permission.NAME_PREFIX)) {
-                //all customer permissions are "CALL" permission
-                //and custom permissions names starts with Permission.NAME_PREFIX
+                // all customer permissions are "CALL" permission
+                // and custom permissions names starts with Permission.NAME_PREFIX
                 LOG.info("AuthCodeManagerImpl::saveAuthCode() got a custom perm:" + name);
                 return true;
             }
@@ -219,40 +214,43 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
         return false;
     }
 
-
     /**
      * Format the identity string for the alias.xml
      */
     public String getIdentityUri(String alias) {
-        String identity =  SipUri.format(alias, getSipxFreeswitchService().getDomainName(), false);
+        String identity = SipUri.format(alias, getSipxFreeswitchService().getDomainName(), false);
         LOG.info("AuthCodeManagerImpl::getIdentityUri() for alias:" + alias + " is identity:" + identity);
         return identity;
     }
 
     @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        SipxAccCodeService service =
-            (SipxAccCodeService) m_sipxServiceManager.getServiceByBeanId(SipxAccCodeService.BEAN_ID);
-
-        Set<String> set = service.getAliasesAsSet();
-        if (!set.contains(alias)) {
-            Collection ids = new ArrayList(0);
-            return ids;
-        } else {
-            Collection ids = new ArrayList(1);
-            ids.add(service.getId());
-            Collection bids = BeanId.createBeanIdCollection(ids, SipxAccCodeService.class);
-            return bids;
+        SipxAccCodeService service = (SipxAccCodeService) m_sipxServiceManager
+                .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
+        Set<String> aliases = service.getAliasesAsSet();
+        aliases.add(service.getAuthCodeAliases());
+        for (String serviceAlias : aliases) {
+            if (serviceAlias.equals(alias)) {
+                return BeanId.createBeanIdCollection(Collections.singletonList(service.getId()),
+                        SipxAccCodeService.class);
+            }
         }
+        return Collections.EMPTY_LIST;
     }
 
     @Override
     public boolean isAliasInUse(String alias) {
-        SipxAccCodeService service =
-            (SipxAccCodeService) m_sipxServiceManager.getServiceByBeanId(SipxAccCodeService.BEAN_ID);
+        SipxAccCodeService service = (SipxAccCodeService) m_sipxServiceManager
+                .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
 
-        Set<String> set = service.getAliasesAsSet();
-        return set.contains(alias);
+        Set<String> aliases = service.getAliasesAsSet();
+        aliases.add(service.getAuthCodeAliases());
+        for (String serviceAlias : aliases) {
+            if (serviceAlias.equals(alias)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private SipxFreeswitchService getSipxFreeswitchService() {
@@ -263,10 +261,10 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
     // the acc extension prefix
     // (something like sip:*81@bcmsl2077.ca.nortel.com)
     // which then gets mapped in mappingrule.xml to the acc service
-    //( something like sip:AUTH@47.135.162.72:15060;command=auth;)
+    // ( something like sip:AUTH@47.135.162.72:15060;command=auth;)
     private String getContactUri() {
-        SipxAccCodeService service =
-            (SipxAccCodeService) m_sipxServiceManager.getServiceByBeanId(SipxAccCodeService.BEAN_ID);
+        SipxAccCodeService service = (SipxAccCodeService) m_sipxServiceManager
+                .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
         Map<String, String> params = new LinkedHashMap<String, String>();
         String prefix = service.getAuthCodePrefix();
         return SipUri.format(prefix, getSipxFreeswitchService().getDomainName(), false);
@@ -282,8 +280,8 @@ public class AuthCodeManagerImpl extends SipxHibernateDaoSupport implements
     }
 
     public Collection<AliasMapping> getAliasMappings() {
-        SipxAccCodeService service = (SipxAccCodeService)
-            m_sipxServiceManager.getServiceByBeanId(SipxAccCodeService.BEAN_ID);
+        SipxAccCodeService service = (SipxAccCodeService) m_sipxServiceManager
+                .getServiceByBeanId(SipxAccCodeService.BEAN_ID);
         Collection<AliasMapping> aliasMappings = service.getAliasMappings();
         LOG.debug("RETURNING AuthCodeManagerImpl::getAliasMapping: " + aliasMappings);
         return service.getAliasMappings();
