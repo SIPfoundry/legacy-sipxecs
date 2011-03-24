@@ -28,6 +28,7 @@ public class AboutBean {
     private String m_name;
     private String m_details;
     private String m_copyright;
+    private String m_text;
     private String m_configurationFile;
     private Resource m_template;
 
@@ -53,6 +54,11 @@ public class AboutBean {
     public String getName() {
         m_name = (m_name == null) ? m_aboutPage.getMessages().getMessage("product.name") : m_name;
         return m_name;
+    }
+
+    public String getText() {
+        m_text = (m_text == null) ? m_aboutPage.getMessages().getMessage("product.license") : m_text;
+        return m_text;
     }
 
     public String getDetails() {
