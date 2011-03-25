@@ -28,6 +28,7 @@ import java.util.Set;
 import org.easymock.EasyMock;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
+import org.sipfoundry.sipxconfig.admin.ExtensionInUseException;
 import org.sipfoundry.sipxconfig.admin.NameInUseException;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
@@ -180,6 +181,19 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         } catch (NameInUseException ex) {
         }
 
+        try {
+            OpenAcdExtension extension = new OpenAcdExtension();
+            extension.setName("tralala");
+            extension.setLocation(location);
+            FreeswitchCondition condition1 = new FreeswitchCondition();
+            condition1.setField("destination_number");
+            condition1.setExpression("login");
+            extension.addCondition(condition1);
+            m_openAcdContextImpl.saveExtension(extension);
+            fail();
+        } catch (ExtensionInUseException ex) {
+        }
+        
         // test get extension by name
         OpenAcdCommand savedExtension = (OpenAcdCommand) m_openAcdContextImpl.getExtensionByName("login");
         assertNotNull(command);
@@ -217,6 +231,8 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
             assertEquals("NORMAL_CLEARING", actions.get(3).getData());
         }
 
+        
+        
         // test remove extension
         assertEquals(1, m_openAcdContextImpl.getFreeswitchExtensions().size());
         m_openAcdContextImpl.removeExtensions(Collections.singletonList(id));

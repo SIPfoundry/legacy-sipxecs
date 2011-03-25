@@ -161,16 +161,12 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
         if (extension.getExtension() == null) {
             throw new UserException("&null.extension");
         }
-        if (extension.isNew() || (!extension.isNew() && isNameChanged(extension))) {
-            if (!m_aliasManager.canObjectUseAlias(extension, extension.getName())) {
-                throw new NameInUseException(LINE_NAME, extension.getName());
-            }
-        } else if ((!extension.isNew() && isExtensionChanged(extension))) {
-            if (extension.getExtension() != null
-                    && !m_aliasManager.canObjectUseAlias(extension, extension.getExtension())) {
-                throw new ExtensionInUseException(LINE_NAME, extension.getExtension());
-            }
+        if (!m_aliasManager.canObjectUseAlias(extension, extension.getName())) {
+            throw new NameInUseException(LINE_NAME, extension.getName());
+        } else if (!m_aliasManager.canObjectUseAlias(extension, extension.getExtension())) {
+            throw new ExtensionInUseException(LINE_NAME, extension.getExtension());
         }
+
         removeNullActions(extension);
         if (extension.isNew()) {
             getHibernateTemplate().saveOrUpdate(extension);
@@ -219,13 +215,19 @@ public abstract class OpenAcdContextImpl extends SipxHibernateDaoSupport impleme
 
     @Override
     public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        Collection bids = new ArrayList<BeanId>();
+        Collection<BeanId> bids = new ArrayList<BeanId>();
 
-        List<OpenAcdExtension> extensions = getFreeswitchExtensions();
-        for (OpenAcdExtension openAcdExtension : extensions) {
-            if (openAcdExtension.getExtension() != null
-                    && (openAcdExtension.getExtension().equals(alias) || openAcdExtension.getName().equals(alias))) {
-                bids.add(new BeanId(openAcdExtension.getId(), OpenAcdLine.class));
+        List<OpenAcdLine> lines = getHibernateTemplate().loadAll(OpenAcdLine.class);
+        for (OpenAcdLine line : lines) {
+            if (line.getExtension() != null && (line.getExtension().equals(alias) || line.getName().equals(alias))) {
+                bids.add(new BeanId(line.getId(), OpenAcdLine.class));
+            }
+        }
+        List<OpenAcdCommand> commands = getHibernateTemplate().loadAll(OpenAcdCommand.class);
+        for (OpenAcdCommand openAcdCommand : commands) {
+            if (openAcdCommand.getExtension() != null && (openAcdCommand.getExtension().equals(alias))
+                    || openAcdCommand.getName().equals(alias)) {
+                bids.add(new BeanId(openAcdCommand.getId(), OpenAcdCommand.class));
             }
         }
         return bids;
