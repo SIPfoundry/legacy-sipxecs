@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.rest;
@@ -72,26 +73,26 @@ public class UserActiveCdrsResource extends UserResource {
     }
 
     static class Representable implements Serializable {
+        private String m_caller;
+        private String m_callerAor;
         private String m_callee;
         private String m_calleeAor;
         private String m_calleeRoute;
         private String m_callDirection;
         private String m_recipient;
-        private String m_caller;
-        private String m_callerAor;
         private boolean m_callerInternal;
         private String m_callTypeName;
         private long m_startTime;
         private long m_duration;
 
         public Representable(Cdr cdr) {
+            m_caller = cdr.getCaller();
+            m_callerAor = cdr.getCallerAor();
             m_callee = cdr.getCallee();
             m_calleeAor = cdr.getCalleeAor();
             m_calleeRoute = cdr.getCalleeRoute();
             m_callDirection = cdr.getCallDirection();
             m_recipient = cdr.getRecipient();
-            m_caller = cdr.getCaller();
-            m_callerAor = cdr.getCallerAor();
             m_callerInternal = cdr.getCallerInternal();
             m_callTypeName = cdr.getCallTypeName();
             //put timestamp long value here, the REST client will parse it in any format wanted for display
@@ -114,10 +115,10 @@ public class UserActiveCdrsResource extends UserResource {
         protected void configureXStream(XStream xstream) {
             xstream.alias("cdrs", List.class);
             xstream.alias("cdr", Representable.class);
-            xstream.aliasField("from", Representable.class, "callee");
-            xstream.aliasField("from-aor", Representable.class, "calleeAor");
-            xstream.aliasField("to", Representable.class, "caller");
-            xstream.aliasField("to-aor", Representable.class, "callerAor");
+            xstream.aliasField("from", Representable.class, "caller");
+            xstream.aliasField("from-aor", Representable.class, "callerAor");
+            xstream.aliasField("to", Representable.class, "callee");
+            xstream.aliasField("to-aor", Representable.class, "calleeAor");
             xstream.aliasField("route", Representable.class, "calleeRoute");
             xstream.aliasField("direction", Representable.class, "callDirection");
             xstream.aliasField(RECIPIENT, Representable.class, RECIPIENT);

@@ -1,16 +1,11 @@
-<table width="100%" align="left">
+<table align="center" cellpadding="10">
     <tr>
-	<td><H3>${defaultAbout.title}</H3></td>
+		<td><H2>${defaultAbout.title}</H2></td>
     </tr>
 	<tr>
-		<td>${defaultAbout.name}</td>
-	</tr>
-	<BR/>
-	<tr>
-		<td>${defaultAbout.details}</td>
-	</tr>
-	<BR/>
-	<tr>
-		<td>${defaultAbout.copyright}</td>
+	    <td>${defaultAbout.name}${defaultAbout.details}
+                <br/>${defaultAbout.copyright}<br/>${defaultAbout.text}
+                <textarea id="license" rows="13" cols="45">${defaultAbout.licenseText}</textarea>
+        </td>
 	</tr>
 </table>

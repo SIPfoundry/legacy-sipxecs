@@ -28,8 +28,10 @@
 	<port>${ldapParams.portToUse}</port>
 	<sslEnabled>${ldapParams.useTls}</sslEnabled>
 	<baseDN>${attrMap.searchBase}</baseDN>
+#if(!$isLdapAnonymousAccess)
 	<adminDN>${ldapParams.principal}</adminDN>
 	<adminPassword>${ldapParams.secret}</adminPassword>
+#end
 	<usernameField>${attrMap.imAttributeName}</usernameField>
 	<searchFilter>${attrMap.searchFilter}</searchFilter>
   </ldap>

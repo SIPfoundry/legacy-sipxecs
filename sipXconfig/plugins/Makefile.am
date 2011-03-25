@@ -7,6 +7,7 @@ SUBDIRS = \
 	hitachi \
 	ipdialog \
 	karel \
+	karel-ip11x \
 	lg-nortel \
 	linksys \
 	mitel \

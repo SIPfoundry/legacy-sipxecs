@@ -1,16 +1,17 @@
-/*
+/**
  *
  *
- * Copyright (C) 2010 eZuce, Inc. All rights reserved.
+ * Copyright (c) 2010 / 2011 eZuce, Inc. All rights reserved.
+ * Contributed to SIPfoundry under a Contributor Agreement
  *
- * This library is free software; you can redistribute it and/or modify it under
- * the terms of the GNU Lesser General Public License as published by the Free
- * Software Foundation; either version 2.1 of the License, or (at your option)
+ * This software is free software; you can redistribute it and/or modify it under
+ * the terms of the Affero General Public License (AGPL) as published by the
+ * Free Software Foundation; either version 3 of the License, or (at your option)
  * any later version.
  *
- * This library is distributed in the hope that it will be useful, but WITHOUT
+ * This software is distributed in the hope that it will be useful, but WITHOUT
  * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License for more
  * details.
  */
 package org.sipfoundry.sipxconfig.openfire;
@@ -103,6 +104,15 @@ public class OpenfireConfigurationTest extends TestCase {
         assertCorrectFileGeneration(configuration, "expected-ldap-tls-openfire-config.test.xml");
     }
 
+    public void testGenerateLdapAnonymousAccessOpenfireConfiguration() throws Exception {
+        m_ldapConnectionParams.setPrincipal("");
+        m_ldapSystemSettings.setEnableOpenfireConfiguration(true);
+        m_ldapSystemSettings.setConfigured(true);
+
+        OpenfireConfiguration configuration = generate();
+        assertCorrectFileGeneration(configuration, "expected-ldap-anonymous-access-openfire-config.test.xml");
+    }
+
     private OpenfireConfiguration generate() {
         OpenfireConfiguration configuration = new OpenfireConfiguration();
         configuration.setVelocityEngine(TestHelper.getVelocityEngine());
@@ -124,10 +134,8 @@ public class OpenfireConfigurationTest extends TestCase {
 
         Reader referenceConfigReader = new InputStreamReader(resourceAsStream);
         String referenceConfig = IOUtils.toString(referenceConfigReader);
-
         Reader actualConfigReader = new StringReader(actualConfigWriter.toString());
         String actualConfig = IOUtils.toString(actualConfigReader);
-
         assertEquals(referenceConfig, actualConfig);
     }
 }

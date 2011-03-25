@@ -2,9 +2,7 @@
 # Licensed to the User under the LGPL license.
 # 
 
-include @OEM_MAK@
-
-## Common make variables you may want to override in OEM_MAK file
+## Common make variables you may want to override in another makefile
 ISO_SRC ?= $(SRC)/mak/centos-iso
 ISO_LABEL ?= sipxecs
 ISO_REV ?= $(PACKAGE_REVISION)
@@ -13,7 +11,8 @@ VOLUME_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 APPLICATION_LABEL ?= "CentOS sipX $(PACKAGE_VERSION)"
 PUBLISHER_ID ?= sipx-dev@list.sipfoundry.org
 PREPARERER_ID ?= sipx-dev@list.sipfoundry.org
-ISO_RPM_DOWNLOAD_URL ?= http://centos.aol.com/5.5
+ISO_RPM_DOWNLOAD_URL ?= @CENTOS_BASE_URL@/5.5
+ISO_M4_OPTS = $(CUSTOM_ISO_M4_OPTS) -D PACKAGE_VERSION=$(PACKAGE_VERSION)
 
 %-32 : BITS = 32
 %-32 : ARCH = i386
@@ -21,9 +20,6 @@ ISO_RPM_DOWNLOAD_URL ?= http://centos.aol.com/5.5
 %-64 : ARCH = x86_64
 %-32 %-64 : ISO_DISC = iso-disc-$(BITS)
 %-32 %-64 : ISO ?= $(ISO_LABEL)-$(PACKAGE_VERSION)-$(ISO_REV)-$(ARCH).iso
-ISO_M4_OPTS = \
-	@OEM_M4_OPTS@ \
-	-D PACKAGE_VERSION=$(PACKAGE_VERSION)
 
 # very initial boot menu and graphics
 ISOLINUX_FILES = \
@@ -92,10 +88,6 @@ iso-cp-sipx-rpms-% : iso-disc-%
 	  -o -name '*rrdtool-doc*' \
 	  -o -name '*rubygem-rake*' \
 	  -o -name '*scons*' \
-	  -o -name '*boost*' \
-	  -o -name '*openacd*' \
-	  -o -name '*erlang*' \
-	  -o -name '*mongo*' \
         \) \
 	-exec cp {}  $(ISO_DISC)/CentOS \;
 
@@ -141,11 +133,11 @@ iso-download-% :
 	## because glob pattern cannot remove both removbe and include devel packages
 	cd $@.tmp; \
 	  for site in extras/$(ARCH)/RPMS/ os/$(ARCH)/CentOS; do \
-	    wget -r -nc -nv -nH -nd -l1 --no-parent \
+	    @WGET_PROXY_OPTS@ wget -r -nc -nv -nH -nd -l1 --no-parent \
 	      -A "$(foreach P,$(ISO_ADD_LIST),$(P),) bogus" \
 	      -R "*-devel-*, *-debug-*" \
 	      $(ISO_RPM_DOWNLOAD_URL)/$$site; \
-	    wget -r -nc -nv -nH -nd -l1 --no-parent \
+	    @WGET_PROXY_OPTS@ wget -r -nc -nv -nH -nd -l1 --no-parent \
 	      -A "$(foreach P,$(filter %-devel* %-debug*,$(ISO_ADD_LIST)),$(P),) bogus" \
 	      $(ISO_RPM_DOWNLOAD_URL)/$$site; \
 	  done

@@ -13,8 +13,8 @@ Url: http://www.pingtel.com
 BuildRequires: automake
 BuildRequires: gcc-c++
 BuildRequires: cppunit-devel
-BuildRequires: openssl-devel >= 0.9.7a
-BuildRequires: pcre-devel >= 4.5
+BuildRequires: openssl-devel
+BuildRequires: pcre-devel
 BuildRequires: findutils
 
 # sipXphone would require 0.9.7c to decrypt profiles to get access to
@@ -55,11 +55,15 @@ encapsulate functions and operations for:
 
 # Install header files
 %package devel
-Requires: openssl-devel >= 0.9.7a
 Requires: %name
+Requires: openssl-devel
+Requires: boost-devel >= 1.39
+Requires: cppunit-devel
+Requires: pcre-devel
 Group: Development/Libraries
 Vendor: SIPfoundry
 Summary: Header files for %name
+
 
 %description devel
 This library provides a set of classes that provide an operating

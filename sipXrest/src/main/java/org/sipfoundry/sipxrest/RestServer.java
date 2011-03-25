@@ -28,6 +28,7 @@ import org.sipfoundry.commons.log4j.SipFoundryAppender;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
 import org.sipfoundry.commons.restconfig.RestServerConfig;
 import org.sipfoundry.commons.restconfig.RestServerConfigFileParser;
+import org.sipfoundry.commons.util.DomainConfiguration;
 
 public class RestServer {
     
@@ -241,12 +242,9 @@ public class RestServer {
     public static SipStackBean getSipStack() {
         return sipStackBean;
     }
-
-
-  
-
-   
-
-
-
+    
+    public static String getRealm() {
+    	DomainConfiguration config = new DomainConfiguration(System.getProperty("conf.dir")+"/domain-config");
+    	return config.getSipRealm();
+    }
 }

@@ -14,11 +14,7 @@ m4_include([config/sipXlib2.m4])
 m4_include([mak/opensuse-build-service.m4])
 m4_include([mak/centos-iso.m4])
 m4_include([mak/rpm.m4])
-
-AC_ARG_ENABLE(sipfoundry-publish, [--enable-sipfoundry-publish Enable publishing of RPMs to SIPfoundry],
-[
-  AC_CONFIG_FILES([mak/25-sipfoundry-publish.mk])
-])
+m4_sinclude([custom/custom.m4])
 
 AC_CONFIG_FILES([
 	Makefile

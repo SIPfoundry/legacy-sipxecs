@@ -41,15 +41,3 @@ $(foreach P,$(sipx),$(P).check) :; $(MAKE) -C $(PROJ) check
 # no-target default
 $(foreach C,all,$(foreach T,$(sipx),$(T).all)) :
 	$(MAKE) -C $(PROJ)
-
-help.repofile = Print to stdout yum repository file you can copy to /etc/yum.repos.d that will point your system to download rpms from SIPfoundry
-repofile :
-	@echo "$$repofile_contents"
-
-define repofile_contents
-[sipXecs]
-name=sipXecs software for $(TARGET_DISTRO) $$releasever - $$basearch
-baseurl=http://download.sipfoundry.org/pub/sipXecs/$(PACKAGE_VERSION)/$(TARGET_DISTRO)_$$releasever/$$basearch
-gpgcheck=0
-endef
-export repofile_contents

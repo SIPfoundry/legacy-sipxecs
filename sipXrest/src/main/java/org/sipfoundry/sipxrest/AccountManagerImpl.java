@@ -25,7 +25,7 @@ public class AccountManagerImpl extends AbstractAccountManager {
         if (userName == null || passwd == null)
             throw new NullPointerException(
                     "Null parameter to MessageDigestAlgorithm.calculateResponse()");
-        String realmValue = RestServer.getRestServerConfig().getSipxProxyDomain();
+        String realmValue = RestServer.getRealm();
         String A1 = userName + ":" + realmValue + ":" + passwd;
         return Util.H(A1);
 

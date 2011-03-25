@@ -83,7 +83,7 @@ public class BasicAuthenticationFilter extends Filter {
           if (challengeResponse == null ) {
               logger.debug("Cannot find challenge response");
               ChallengeRequest challengeRequest = new ChallengeRequest(ChallengeScheme.HTTP_BASIC,
-                      RestServer.getRestServerConfig().getSipxProxyDomain());
+                      RestServer.getRealm());
               response.setChallengeRequest(challengeRequest);
               response.setStatus(Status.CLIENT_ERROR_PROXY_AUTHENTIFICATION_REQUIRED);
               return Filter.STOP;
@@ -93,7 +93,7 @@ public class BasicAuthenticationFilter extends Filter {
           if ( secret == null ) {
               logger.debug("Requesting BASIC credentials");
               ChallengeRequest challengeRequest = new ChallengeRequest(ChallengeScheme.HTTP_BASIC,
-                      RestServer.getRestServerConfig().getSipxProxyDomain());
+                      RestServer.getRealm());
               response.setChallengeRequest(challengeRequest);
               response.setStatus(Status.CLIENT_ERROR_PROXY_AUTHENTIFICATION_REQUIRED);
               return Filter.STOP;
@@ -111,7 +111,7 @@ public class BasicAuthenticationFilter extends Filter {
           logger.debug("secret = " + passWord);
 
           String userDomainPassword =  userName +":" + 
-          RestServer.getRestServerConfig().getSipxProxyDomain() + ":" +
+          RestServer.getRealm() + ":" +
           passWord;
 
           String hashVal = DigestUtils.md5Hex(userDomainPassword);

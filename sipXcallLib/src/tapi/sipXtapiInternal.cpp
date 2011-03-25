@@ -1107,14 +1107,20 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
     if (contactType == CONTACT_RELAY)
     {
         // Relay is not supported yet -- default to AUTO for now.
+    OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+        "sipxGetContactHostPort >>>>> CONTACT_RELAY if");
         contactType = CONTACT_AUTO  ;
     }
 
     // Use configured address first
     if ((contactType == CONTACT_AUTO) || (contactType == CONTACT_CONFIG))
     {
+	OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+        "sipxGetContactHostPort >>>>> CONTACT_AUTO || CONTACT_CONFIG");
         if (pData->pSipUserAgent->getConfiguredPublicAddress(&useIp, &usePort))
         {
+OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+        "sipxGetContactHostPort >>>>> if (pData->pSipUserAgent->getConfiguredPublicAddress(&useIp, &usePort))");
             uri.setHostAddress(useIp) ;
             uri.setHostPort(usePort) ;
             bSet = TRUE ;
@@ -1124,8 +1130,12 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
     // Use NAT_MAPPED next
     if (!bSet && ((contactType == CONTACT_AUTO) || (contactType == CONTACT_NAT_MAPPED)))
     {
+OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+        "sipxGetContactHostPort >>>>> Use NAT_MAPPED next");
         if (pData->pSipUserAgent->getNatMappedAddress(&useIp, &usePort))
         {
+OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+        "sipxGetContactHostPort >>>>> pData->pSipUserAgent->getNatMappedAddress(&useIp, &usePort)");
             uri.setHostAddress(useIp) ;
             uri.setHostPort(usePort) ;
             bSet = TRUE ;
@@ -1135,8 +1145,11 @@ void sipxGetContactHostPort(SIPX_INSTANCE_DATA* pData,
     // Lastly, use local
     if (!bSet)
     {
+OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG,
+        "sipxGetContactHostPort >>>>> use local");
         if (pData->pSipUserAgent->getLocalAddress(&useIp, &usePort))
         {
+OsSysLog::add(FAC_SIPXTAPI, PRI_DEBUG, "pData->pSipUserAgent->getLocalAddress(&useIp, &usePort)");
             uri.setHostAddress(useIp) ;
             uri.setHostPort(usePort) ;
             bSet = TRUE ;
