@@ -1,11 +1,17 @@
+<style>
+TD.aside {font-size: smaller;}
+</style>
 <table align="center" cellpadding="10">
     <tr>
 		<td><H2>${defaultAbout.title}</H2></td>
     </tr>
 	<tr>
-	    <td>${defaultAbout.name}${defaultAbout.details}
-                <br/>${defaultAbout.copyright}<br/>${defaultAbout.text}
-                <textarea id="license" rows="13" cols="45">${defaultAbout.licenseText}</textarea>
+	    <td>${defaultAbout.name}${defaultAbout.details}<br/>${defaultAbout.copyright}</td>
+    </tr>
+    <tr>
+	    <td class="aside">
+                ${defaultAbout.text}
+                <textarea id="license" rows="12" cols="45">${defaultAbout.licenseText}</textarea>
         </td>
 	</tr>
 </table>
