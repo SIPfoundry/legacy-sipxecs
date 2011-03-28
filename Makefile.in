@@ -5,7 +5,7 @@ BUILDDIR = $(abspath @builddir@)
 SRC = $(abspath @srcdir@)
 
 PACKAGE_VERSION = @PACKAGE_VERSION@
-PACKAGE_REVISION := $(shell $(SRC)/config/revision-gen @PACKAGE_VERSION@)
+PACKAGE_REVISION = $(shell $(SRC)/config/revision-gen @PACKAGE_VERSION@)
 
 help-var.DISTRO=To run a command for a different target distro. Default: $(DISTRO). Complete list of available values: @ALL_DISTROS@
 DISTRO=@DISTRO@
@@ -22,6 +22,7 @@ lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 # for each sipx-% target, define a variable for the corresponding project directory
 PROJ = $(filter $(all),$(subst ., ,$@))
 proj = $(call lowercase,$(PROJ))
+PROJ_REVISION = $(shell cd $(SRC)/$(PROJ) && ./config/revision-gen @PACKAGE_VERSION@)
 
 # find any matches of $(sipx) or $(lib) anywhere in a target string and expands it into multiple target that
 # would follow the given target.  

@@ -19,10 +19,9 @@ MOCK_OPTS = \
 	  -r $(MOCK_TARGET_PLATFORM) \
 	  --resultdir=$(MOCK_RESULTS_DIR)
 
-# Define sipx SRPMS and tarball files. Cannot define RPM files however as they could be many
-# strange: cannot use $(call lowercase,$(P)) inside an eval so copy in lowercase macro
-$(foreach P,$(sipx) $(lang),$(eval $(P)_SRPM = $(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION)-$(PACKAGE_REVISION).src.rpm))
-$(foreach P,$(sipx) $(lang),$(eval $(P)_TAR = $(P)/$(shell echo $(P) | tr A-Z a-z)-$(PACKAGE_VERSION).tar.gz))
+# Define sipx SRPMS and tarball files. Cannot define RPM files however as one specfile may generate many rpms
+$(foreach P,$(sipx) $(lang),$(eval $(P)_SRPM = $$(call lowercase,$(P))-$(PACKAGE_VERSION)-$$(PROJ_REVISION).src.rpm))
+$(foreach P,$(sipx) $(lang),$(eval $(P)_TAR = $(P)/$$(call lowercase,$(P))-$(PACKAGE_VERSION).tar.gz))
 
 # pull in dependency make fragments
 include $(SRC)/*/.sipxecs.mk
