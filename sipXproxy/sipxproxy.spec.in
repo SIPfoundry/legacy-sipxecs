@@ -97,7 +97,7 @@ Internal class documentation for the proxy classes
 %build
 %configure --enable-rpmbuild --enable-cdr @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
-make
+make %{_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
