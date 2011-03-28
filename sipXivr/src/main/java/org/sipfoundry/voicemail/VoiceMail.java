@@ -371,9 +371,15 @@ public class VoiceMail {
      * 
      */
     public void goodbye() {
+        goodbye(true);
+    }
+
+    public void goodbye(boolean playPrompt) {
         LOG.info("good bye");
         // Thank you.  Goodbye.
-        m_locCurr.play("goodbye", "");
+        if (playPrompt) {
+            m_locCurr.play("goodbye", "");
+        }
         new Hangup(m_fses).go();
     }
 
@@ -385,6 +391,7 @@ public class VoiceMail {
     public void failure() {
         LOG.info("Input failure");
 
+        boolean playGoodbye = true;
         if (m_config.isTransferOnFailure()) {
             new Play(m_fses, m_config.getTransferPrompt()).go();
             
@@ -402,9 +409,10 @@ public class VoiceMail {
               xfer = new Transfer(m_fses, dest);
             }
             xfer.go();
+            playGoodbye = false;
         }
 
-        goodbye() ;
+        goodbye(playGoodbye) ;
     }
 
     public ResourceBundle getAttendantBundle() {
