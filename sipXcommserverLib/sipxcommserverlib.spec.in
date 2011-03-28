@@ -110,7 +110,10 @@ if ! /usr/bin/id sipxchange >/dev/null 2>&1; then
 fi
 
 %post
-
+# verified as idempotent
+chkconfig --add mongod
+chkconfig mongod on
+service mongod start
 
 %files
 %defattr(644,root,root,755)
