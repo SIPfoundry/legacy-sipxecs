@@ -39,7 +39,7 @@ Native ITSP and media bridging solution for SIPX PBX.
 %build
 %configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
-make all
+make %{_smp_mflags} all
 
 %install
 export NO_BRP_CHECK_BYTECODE_VERSION=true

@@ -58,7 +58,7 @@ mv %{_builddir}/%name-%version/%name-rpmlintrc %{_sourcedir}
 %build
 %configure @SIPX_RPM_CONFIGURE_OPTIONS@
 cp config.log %name.configlog
-make
+make %{_smp_mflags}
 
 %install
 
