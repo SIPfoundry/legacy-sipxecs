@@ -43,6 +43,7 @@ public class User extends AbstractUser implements Replicable {
         dataSets.add(DataSet.CREDENTIAL);
         dataSets.add(DataSet.USER_FORWARD);
         dataSets.add(DataSet.USER_LOCATION);
+        dataSets.add(DataSet.ATTENDANT);
         return dataSets;
     }
 

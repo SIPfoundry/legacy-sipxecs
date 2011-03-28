@@ -194,6 +194,9 @@
   <bean id="userstaticDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserStatic">
   </bean>
+  <bean id="attendantDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Attendant">
+  </bean>
 
   <bean id="aliasCollectorForAA"
     class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
