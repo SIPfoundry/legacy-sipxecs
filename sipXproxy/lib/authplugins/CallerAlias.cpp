@@ -209,9 +209,7 @@ CallerAlias::authorizeAndModify(const UtlString& id,    /**< The authenticated i
 
             // look up any caller alias for this identity and contact domain
             UtlString callerAlias;
-            UtlString gwId = "gw"; // empty string for wildcard matches
-
-            if (getCallerAlias(callerIdentity, targetDomain, callerAlias) || (identityIsLocal && getCallerAlias(gwId, targetDomain, callerAlias)))
+            if (identityIsLocal && getCallerAlias(callerIdentity, targetDomain, callerAlias) )
             {
                // found a caller alias, so rewrite the From information
                /*
@@ -347,33 +345,94 @@ CallerAlias::~CallerAlias()
    _pEntities = 0;
 }
 
+static std::string string_right(const std::string& str, size_t size)
+{
+  if (str.size() <= size)
+    return str;
 
+  size_t index = str.size() - size;
+
+  return str.substr(index, size);
+}
 
 bool CallerAlias::getCallerAlias (
   const UtlString& identity,
   const UtlString& domain,
-  UtlString& callerAlias
+  UtlString& callerAlias_
 ) const
 {
     if (!_pEntities)
         return false;
 
-    EntityRecord entity;
-
+    EntityRecord userEntity;
+    EntityRecord gatewayEntity;
+    bool hasUserEntity = false;
+    bool hasGatewayEntity = false;
+    std::string callerAlias;
     SYSLOG_INFO("CallerAlias::getCallerAlias - EntityDB::findByIdentity for identity=" << identity.str() << " domain=" << domain.str());
 
-    if (!_pEntities->collection().findByIdentity(identity.str(), entity))
-        return false;
-    std::vector<EntityRecord::CallerAlias>& aliases = entity.callerAliases();
-    for (std::vector<EntityRecord::CallerAlias>::const_iterator iter = aliases.begin(); iter != aliases.end(); iter++)
+    hasUserEntity = _pEntities->collection().findByIdentity(identity.str(), userEntity);
+    hasGatewayEntity = _pEntities->collection().findByIdentity(domain.str(), gatewayEntity);
+
+    if (hasUserEntity && !userEntity.callerId().id.empty())
+        callerAlias = userEntity.callerId().id;
+
+    if (hasGatewayEntity && gatewayEntity.callerId().ignoreUserCalleId)
     {
-        if (iter->targetDomain == domain.str())
+        if (gatewayEntity.callerId().enforcePrivacy)
         {
-            callerAlias = iter->alias;
-            return true;
+            callerAlias = "sip:anonymous@anonymous.invalid";
+        }
+        else if (!gatewayEntity.callerId().id.empty())
+        {
+            //
+            // first check if transformation is needed
+            //
+            if (!gatewayEntity.callerId().transformExtension)
+            {
+                Url callerIdHeader;
+                if (callerIdHeader.fromString(gatewayEntity.callerId().id.c_str(), FALSE))
+                {
+                    UtlString ext_;
+                    callerIdHeader.getUserId(ext_);
+                    if (!ext_.isNull())
+                    {
+                        std::string userId(ext_.data());
+                        //
+                        // Check if we need to truncate the userId to a certain length
+                        //
+                        if (gatewayEntity.callerId().extensionLength > 0 && userId.length() > gatewayEntity.callerId().extensionLength)
+                            userId = string_right(userId, gatewayEntity.callerId().extensionLength);
+
+                        //
+                        // Now check if a prefix is specified
+                        //
+                        if (!gatewayEntity.callerId().extensionPrefix.empty())
+                        {
+                            std::string buff = gatewayEntity.callerId().extensionPrefix;
+                            buff += userId;
+                            userId = userId = buff;
+                        }
+
+                        callerIdHeader.setUserId(userId.c_str());
+                        callerAlias = callerIdHeader.toString().data();
+                    }
+                }
+            }
+            else
+            {
+                //
+                // No transformation needed.  Use the gateway alias
+                //
+                callerAlias = gatewayEntity.callerId().id;
+            }
         }
     }
 
-    SYSLOG_INFO("CallerAlias::getCallerAlias - No caller alias configured for identity=" << identity.str() << " domain=" << domain.str());
-    return false;
+    if (!callerAlias.empty())
+        callerAlias_ = callerAlias.c_str();
+    else
+        SYSLOG_WARNING("CallerAlias::getCallerAlias - No caller alias configured for identity=" << identity.str() << " domain=" << domain.str());
+    
+    return !callerAlias.empty();
 }

@@ -57,6 +57,28 @@ public:
         std::string callId;
     };
 
+    //
+    // Caller-ID parameters
+    //
+    struct CallerId
+    {
+      std::string id;
+      std::string type;
+      bool enforcePrivacy;
+      bool ignoreUserCalleId;
+      bool transformExtension;
+      bool extensionLength;
+      std::string extensionPrefix;
+
+      CallerId()
+      {
+        enforcePrivacy = false;
+        ignoreUserCalleId = false;
+        transformExtension = false;
+        extensionLength = 0;
+      }
+    };
+
     EntityRecord();
 
     EntityRecord(const EntityRecord& entity);
@@ -132,10 +154,13 @@ public:
     //
     // Caller alias to be sent to certain target domains
     //
-    std::vector<CallerAlias>& callerAliases();
-    static const char* callerAliases_fld();
-    static const char* callerAliasesDomain_fld();
-    static const char* callerAliasesAlias_fld();
+    CallerId& callerId();
+    static const char* callerId_fld();
+    static const char*  callerIdEnforcePrivacy_fld();
+    static const char*  callerIdIgnoreUserCalleId_fld();
+    static const char*  callerIdTransformExtension_fld();
+    static const char*  callerIdExtensionLength_fld();
+    static const char*  callerIdExtensionPrefix_fld();
 
     //
     // Aliases that points back toa real user
@@ -166,9 +191,11 @@ private:
     std::string _pin;
     std::string _authType;
     std::string _location;
+    CallerId _callerId;
+    bool _ignoreUserCallerId;
+    bool _transformCallerExtension;
     int _callForwardTime;
     std::set<std::string> _permissions;
-    std::vector<CallerAlias> _callerAliases;
     std::vector<Alias> _aliases;
     std::vector<StaticUserLoc> _staticUserLoc;
 };
@@ -228,9 +255,9 @@ inline std::set<std::string>& EntityRecord::permissions()
     return _permissions;
 }
 
-inline std::vector<EntityRecord::CallerAlias>& EntityRecord::callerAliases()
+inline EntityRecord::CallerId& EntityRecord::callerId()
 {
-    return _callerAliases;
+    return _callerId;
 }
 
 inline std::vector<EntityRecord::Alias>& EntityRecord::aliases()
