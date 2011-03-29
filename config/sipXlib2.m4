@@ -1,4 +1,8 @@
+# Initial Version Copyright (C) 2011 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+# 
 # common directories and variables used in sipxecs
+#
 AC_PREFIX_DEFAULT([/usr/local/sipx])
 
 # This is a "common fix" to a "known issue" with using ${prefix} variable
