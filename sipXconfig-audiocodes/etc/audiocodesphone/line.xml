@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+ "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+ <!ENTITY types SYSTEM "types.xml">
+]>
+<model>
+  <group name="voip" hidden="yes">
+    <setting name="enabled">
+      <type>
+        <boolean/>
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="id">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="description">
+      <type>
+        <string  maxLen="22"/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="auth_name">
+      <type>
+        <string/>
+      </type>
+      <value/>
+    </setting>
+    <setting name="auth_password">
+      <type>
+        <string password="yes"/>
+      </type>
+      <value/>
+    </setting>
+  </group>
+</model>

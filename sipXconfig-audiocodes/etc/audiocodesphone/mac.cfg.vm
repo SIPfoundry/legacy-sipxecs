@@ -1,0 +1,71 @@
+## Velocity macros
+## emit 'setting value' pair - skipping _ignored_ settings
+#macro(emit_setting $s, $prefix)
+#if($s.ProfileName != '$ignore$')
+$prefix${s.ProfilePath}=$!{s.Value}
+#end
+#end
+## emit setting line for every setting in the group
+#macro(emit_group $g, $prefix)
+#foreach ($s in $g.Values)
+#if($s.isLeaf())
+#emit_setting($s, $prefix)
+#else
+#emit_group($s, $prefix)
+#end
+#end
+#end
+#macro(emit_groups_by_name $group_names, $prefix)
+#foreach ($gn in $group_names)
+#emit_group($phone.Settings.getSetting("$gn"), $prefix)
+#end
+#end
+#macro (computeCodecSettings)
+#set ($setting = $phone.Settings.getSetting("codec/codec_info"))
+#set ($selected_codecs = $setting.value)
+#set ($codec_options = $setting.getType().getEnums().keySet())
+## Loop through each selected codec.  
+#foreach ($codec in $phone.SelectedCodecs)
+#set ($index1 = $velocityCount - 1)
+voip/codec/codec_info/$index1/ptime=20
+voip/codec/codec_info/$index1/enabled=1
+voip/codec/codec_info/$index1/name=$codec
+#end
+## Loop through each supported codec.
+#set ($index2 = $index1)
+#foreach ($codec_option in $codec_options)
+#if (!${selected_codecs.contains(${codec_option})})
+#set ($index2 = $index2 + 1)
+voip/codec/codec_info/$index2/ptime=20
+voip/codec/codec_info/$index2/enabled=0
+voip/codec/codec_info/$index2/name=$codec_option
+#end
+#end
+#end
+## Configuration template for Audiocodes 300HD series phone
+system/type=$phone.ModelName
+#emit_groups_by_name(['system'], "")
+voip/signalling/sip/use_proxy_ip_port_for_registrar=1
+#emit_groups_by_name(['sip'], "voip/signalling/")
+#emit_groups_by_name(['services'], "voip/")
+#emit_groups_by_name(['regional_settings'], "voip/")
+#computeCodecSettings()
+#foreach ($line in $phone.lines)
+#set($line_id = $velocityCount)
+#foreach ($group in $line.Settings.Values)
+#foreach ($setting in $group.Values)
+#if($setting.isLeaf())
+#set ($id = $line_id - 1)
+voip/line/${id}/${setting.ProfileName}=$!{setting.Value}
+#else
+#emit_group($setting, '')
+#end
+#end
+#end
+voip/line/${id}/do_not_disturb/activated=0
+#end
+provisioning/method=STATIC
+provisioning/period/type=POWERUP
+provisioning/firmware/url=tftp://$phone.TftpServer/$phone.FirmwareFileName
+provisioning/speed_dial_uri=tftp://$phone.TftpServer/$phone.speedDialFileName
+provisioning/configuration/url=tftp://$phone.TftpServer/$phone.profileFilename

@@ -1,0 +1,360 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE model PUBLIC "-//SIPFoundry//sipXconfig//Model specification 2.0//EN"
+ "http://www.sipfoundry.org/sipXconfig/dtd/setting_2_0.dtd" [
+ <!ENTITY types SYSTEM "types.xml">
+]>
+<model>
+  <type id="preferred-codecs-type">
+    <multi-enum labelKeyPrefix="codec">
+      <option>
+        <value>G722</value>
+      </option>
+      <option>
+        <value>PCMA</value>
+      </option>
+      <option>
+        <value>PCMU</value>
+      </option>
+      <option>
+        <value>G729</value>
+      </option>
+      <option>
+        <value>G723</value>
+      </option>
+    </multi-enum>
+  </type>
+  <!--  NETWORK SETTINGS  -->
+  <group name="codec">
+    <setting name="codec_info">
+      <profileName>$ignore$</profileName>
+      <type refid="preferred-codecs-type"/>
+      <value>G722|PCMA|PCMU|G729|G723</value>
+    </setting>
+  </group>
+  <group name="sip">
+    <setting name="sdp_include_ptime" advanced="yes" >
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="connect_media_on_180" advanced="yes" >
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="keepalive_options" advanced="yes" >
+      <type>
+        <boolean />
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="use_proxy">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="proxy_address">
+      <type>
+        <hostname />
+      </type>
+      <value />
+    </setting>
+    <setting name="proxy_port">
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>5060</value>
+    </setting>
+    <group name="sip_outbound_proxy" advanced="yes">
+      <setting name="enabled" >
+        <type>
+          <boolean />
+        </type>
+        <value>1</value>
+      </setting>
+      <setting name="addr">
+        <type>
+          <hostname />
+        </type>
+        <value />
+      </setting>
+      <setting name="port">
+        <type>
+          <integer min="0" max="65535" />
+        </type>
+        <value>5060</value>
+      </setting>
+    </group>
+  </group>
+  <group name="services">
+  <group name="msg_waiting_ind">
+    <setting name="enabled">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="subscribe">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="subscribe_address">
+      <type>
+        <hostname />
+      </type>
+      <value></value>
+    </setting>
+    <setting name="subscribe_port">
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+      <value>5060</value>
+    </setting>
+    <setting name="expiration_timeout">
+      <type>
+        <integer min="0"/>
+      </type>
+      <value>360</value>
+    </setting>
+    <setting name="voice_mail_number" hidden="yes">
+      <type>
+        <integer />
+      </type>
+      <value></value>
+    </setting>
+  </group>
+  </group>
+  <group name="regional_settings">
+    <setting name="selected_country">
+      <type>
+        <enum>
+          <option>
+            <value>Argentina</value>
+          </option>
+          <option>
+            <value>Brazil</value>
+          </option>
+          <option>
+            <value>China</value>
+          </option>
+          <option>
+            <value>France</value>
+          </option>
+          <option>
+            <value>Germany</value>
+          </option>
+          <option>
+            <value>Israel</value>
+          </option>
+          <option>
+            <value>Italy</value>
+          </option>
+          <option>
+            <value>Netherlands</value>
+          </option>
+          <option>
+           <value>UK</value>
+          </option>
+          <option>
+            <value>USA</value>
+          </option>
+        </enum>
+      </type>
+      <value>USA</value>
+    </setting>
+  </group>
+  <group name="system">
+  <group name="syslog">
+    <setting name="syslog_server_addr">
+      <type>
+        <hostname/>
+      </type>
+      <value></value>
+    </setting>
+    <setting name="syslog_server_port">
+      <type>
+        <integer min="0" max="65535" />
+      </type>
+    <value>514</value>
+    </setting>
+    <setting name="sip_log_filter">
+      <type>
+        <enum>
+          <option>
+            <value>0</value>
+          </option>
+          <option>
+            <value>1</value>
+          </option>
+          <option>
+            <value>2</value>
+          </option>
+          <option>
+            <value>3</value>
+          </option>
+          <option>
+            <value>4</value>
+          </option>
+          <option>
+            <value>5</value>
+          </option>
+          <option>
+            <value>6</value>
+          </option>
+          <option>
+            <value>7</value>
+          </option>
+        </enum>
+      </type>
+      <value>0</value>
+    </setting>
+    <setting name="mode">
+      <type>
+        <enum>
+          <option>
+            <value>NONE</value>
+          </option>
+          <option>
+            <value>UDP</value>
+          </option>
+        </enum>
+      </type>
+      <value>NONE</value>
+    </setting>
+  </group>
+  <group name="ntp">
+    <setting name="enabled">
+      <type>
+        <boolean />
+      </type>
+      <value>1</value>
+    </setting>
+    <setting name="primary_server_address">
+      <type>
+        <hostname />
+      </type>
+      <value />
+    </setting>
+    <setting name="secondary_server_address">
+      <type>
+        <hostname />
+      </type>
+      <value />
+    </setting>
+    <setting name="gmt_offset">
+      <type>
+        <enum>
+          <option>
+            <value>-12:00</value>
+          </option>
+          <option>
+            <value>-11:00</value>
+          </option>
+          <option>
+            <value>-10:00</value>
+          </option>
+          <option>
+            <value>-09:00</value>
+          </option>
+          <option>
+            <value>-08:00</value>
+          </option>
+          <option>
+            <value>-07:00</value>
+          </option>
+          <option>
+            <value>-06:00</value>
+          </option>
+          <option>
+            <value>-05:00</value>
+          </option>
+          <option>
+           <value>-04:00</value>
+          </option>
+          <option>
+            <value>-03:30</value>
+          </option>
+          <option>
+            <value>-03:00</value>
+          </option>
+          <option>
+            <value>-02:00</value>
+          </option>
+          <option>
+            <value>-01:00</value>
+          </option>
+          <option>
+            <value>+00:00</value>
+          </option>
+          <option>
+            <value>+01:00</value>
+          </option>
+          <option>
+            <value>+02:00</value>
+          </option>
+          <option>
+            <value>+03:00</value>
+          </option>
+          <option>
+            <value>+03:30</value>
+          </option>
+          <option>
+            <value>+04:00</value>
+          </option>
+          <option>
+            <value>+04:30</value>
+          </option>
+          <option>
+            <value>+05:00</value>
+          </option>
+          <option>
+            <value>+05:30</value>
+          </option>
+          <option>
+            <value>+06:00</value>
+          </option>
+          <option>
+            <value>+07:00</value>
+          </option>
+          <option>
+            <value>+08:00</value>
+          </option>
+          <option>
+            <value>+09:00</value>
+          </option>
+          <option>
+            <value>+09:30</value>
+          </option>
+          <option>
+            <value>+10:00</value>
+          </option>
+          <option>
+            <value>+11:00</value>
+          </option>
+          <option>
+            <value>+12:00</value>
+          </option>
+         <option>
+            <value>china</value>
+          </option>
+
+        </enum>
+      </type>
+      <value>+00:00</value>
+    </setting>
+    <group name="daylight_saving">
+      <setting name="activate">
+        <type>
+          <boolean />
+        </type>
+        <value>0</value>
+      </setting>
+    </group>
+  </group>
+  </group>
+</model>

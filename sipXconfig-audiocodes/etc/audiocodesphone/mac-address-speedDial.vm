@@ -1,0 +1,8 @@
+#foreach($entry in $cfg.SpeedDialButtons)
+#if($entry.isBlf())
+#set($isBlf = 1) 
+#else 
+#set($isBlf = 0)
+#end
+$velocityCount,$entry.number,$isBlf 
+#end

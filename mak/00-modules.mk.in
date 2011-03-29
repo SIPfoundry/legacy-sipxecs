@@ -27,6 +27,7 @@ sipx = \
   sipXrls \
   sipXpbx \
   sipXconfig \
+  sipXconfig-audiocodes \
   sipXimbot \
   sipXivr \
   sipXpage \
