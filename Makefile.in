@@ -17,6 +17,9 @@ DISTRO_RESULTS_DIR = $(strip \
         $(subst fedora,Fedora, \
         $(subst centos,CentOS,$(DISTRO_OS)))_$(DISTRO_VER))
 
+# utility
+empty :=
+space := $(empty) $(empty)
 lowercase = $(shell echo $(1) | tr '[:upper:]' '[:lower:]')
 
 # for each sipx-% target, define a variable for the corresponding project directory
@@ -27,16 +30,13 @@ PROJ_REVISION = $(shell cd $(SRC)/$(PROJ) && ./config/revision-gen @PACKAGE_VERS
 # find any matches of $(sipx) or $(lib) anywhere in a target string and expands it into multiple target that
 # would follow the given target.  
 # example:  foo.B.bar...  becomes  'foo.B.bar foo.C.bar'   when list is 'A B C'
-after = $(shell echo $2 | sed 's|\(.*\)\($1.*\)|\2|g')
-..._sipx_target = $(strip $(firstword $(foreach Z,$(sipx),$(findstring $(Z), $@))))
-..._sipx_list = $(call after,$(..._sipx_target),$(sipx))
-..._sipx_expanded = $(foreach T,$(..._sipx_list),$(subst $(..._sipx_target),$(T),$*))
-..._lib_target = $(strip $(firstword $(foreach Z,$(lib),$(findstring $(Z), $@))))
-..._lib_list = $(call after,$(..._lib_target),$(lib))
-..._lib_expanded = $(foreach T,$(..._lib_list),$(subst $(..._lib_target),$(T),$*))
-..._lang_target = $(strip $(firstword $(foreach Z,$(lang),$(findstring $(Z), $@))))
-..._lang_list = $(call after,$(..._lang_target),$(lang))
-..._lang_expanded = $(foreach T,$(..._lang_list),$(subst $(..._lang_target),$(T),$*))
+after = $(shell echo $(space)$2$(space) | awk -F : '{if (match($$0,/ $1 /)) {print substr($$0,RSTART)}}')
+..._sipx_list = $(call after,$(PROJ),$(sipx))
+..._sipx_expanded = $(foreach T,$(..._sipx_list),$(subst $(PROJ),$(T),$*))
+..._lib_list = $(call after,$(PROJ),$(lib))
+..._lib_expanded = $(foreach T,$(..._lib_list),$(subst $(PROJ),$(T),$*))
+..._lang_list = $(call after,$(PROJ),$(lang))
+..._lang_expanded = $(foreach T,$(..._lang_list),$(subst $(PROJ),$(T),$*))
 
 default-first-target : help;
 
@@ -55,9 +55,14 @@ lang.list lib.list sipx.list : %.list :
 
 include $(sort $(wildcard mak/*.mk))
 
-help.*{1|2}*... = Perform all targets would normally follow the given target in addition to the target itself. Very useful when you want to pick-up the build where it last stopped. For example 'make sipXthree...' would expand to 'make sipXthree sipXfour sipXfive' but it would not include 'make sipXone sipXtwo'. You can use the ... pattern anywhere you a specify a package name. Examples: 'make sipXconfig.rpm...', 'make distro.centos-5-i386.OpenACD.rpm...'.  See 'make sipx.list lib.list' for what the natural order of packages.
+help.*{1|2}*... = Perform all targets would normally follow the given target in addition to the target itself.\
+ Very useful when you want to pick-up the build where it last stopped. For example 'make sipXthree...' would\
+ expand to 'make sipXthree sipXfour sipXfive' but it would not include 'make sipXone sipXtwo'. You can use\
+ the ... pattern anywhere you a specify a package name. Examples: 'make sipXconfig.rpm...',\
+ 'make distro.centos-5-i386.OpenACD.rpm...'.  See 'make sipx.list lib.list' for what the natural order of\
+ packages.
+
 %... :
-# hack: ...lang_expanded will always have first target doubled because ...sipx_expanded detect sipXecs-lang
 	$(MAKE) $(..._sipx_expanded) $(..._lib_expanded) $(..._lang_expanded)
 
 help-values.{1} = Any sipXecs package. For all sipXecs packages use 'sipx'. Complete list of sipXecs packages : $(sipx)
