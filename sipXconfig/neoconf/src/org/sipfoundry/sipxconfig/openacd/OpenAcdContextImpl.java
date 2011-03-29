@@ -41,6 +41,7 @@ import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.common.UserException;
+import org.sipfoundry.sipxconfig.common.event.DaoEventListener;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchAction;
 import org.sipfoundry.sipxconfig.freeswitch.FreeswitchCondition;
@@ -49,7 +50,7 @@ import org.sipfoundry.sipxconfig.service.SipxFreeswitchService;
 import org.sipfoundry.sipxconfig.service.SipxServiceManager;
 import org.springframework.dao.support.DataAccessUtils;
 
-public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext {
+public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenAcdContext, DaoEventListener {
 
     private static final String VALUE = "value";
     private static final String LOCATION = "location";
@@ -513,6 +514,21 @@ public class OpenAcdContextImpl extends SipxHibernateDaoSupport implements OpenA
 
     public void setDomainManager(DomainManager manager) {
         m_domainManager = manager;
+    }
+
+    public void onSave(Object entity) {
+
+    }
+
+    public void onDelete(Object entity) {
+        if (entity instanceof User) {
+            User user = (User) entity;
+            OpenAcdAgent agent = getAgentByUser(user);
+            if (agent != null) {
+                deleteAgents(agent.getGroup().getId(), Collections.singletonList(agent.getId()));
+                getHibernateTemplate().flush();
+            }
+        }
     }
 
     public void setSipxServiceManager(SipxServiceManager manager) {
