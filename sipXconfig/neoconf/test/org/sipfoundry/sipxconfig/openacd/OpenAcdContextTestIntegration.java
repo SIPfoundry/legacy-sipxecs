@@ -428,6 +428,19 @@ public class OpenAcdContextTestIntegration extends IntegrationTestCase {
         m_openAcdContextImpl.deleteAgents(Collections.singletonList(agent2.getId()));
         assertEquals(1, m_openAcdContextImpl.getAgents().size());
 
+        // remove user should remove also associated agent
+        User newAgent = m_coreContext.newUser();
+        newAgent.setUserName("test");
+        m_coreContext.saveUser(newAgent);
+        OpenAcdAgent agent3 = new OpenAcdAgent();
+        agent3.setGroup(newGroup);
+        agent3.setPin("123433");
+        agent3.setUser(newAgent);
+        m_openAcdContextImpl.addAgentsToGroup(newGroup, Collections.singletonList(agent3));
+        assertEquals(2, m_openAcdContextImpl.getAgents().size());
+        m_coreContext.deleteUser(newAgent);
+        assertEquals(1, m_openAcdContextImpl.getAgents().size());
+
         // remove groups
         Collection<Integer> agentGroupIds = new ArrayList<Integer>();
         agentGroupIds.add(group.getId());
