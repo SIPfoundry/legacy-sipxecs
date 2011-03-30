@@ -212,23 +212,9 @@
     </property>
   </bean>
 
-  <bean id="validUsersConfig" parent="defaultConfigurationFile"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig">
-    <property name="name" value="validusers.xml" />
-    <property name="coreContext" ref="coreContext" />
-    <property name="domainManager" ref="domainManager" />
-    <property name="aliasProvider">
-      <ref local="aliasCollectorForAA" />
-    </property>
-  </bean>
-
   <bean id="replicationTrigger"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationManager" ref="replicationManagerImpl" />
-    <property name="lazyReplicationContext" ref="sipxReplicationContext" />
-    <property name="validUsersConfig">
-      <ref local="validUsersConfig"/>
-    </property>
     <property name="coreContext" ref="coreContext" />
   </bean>
 

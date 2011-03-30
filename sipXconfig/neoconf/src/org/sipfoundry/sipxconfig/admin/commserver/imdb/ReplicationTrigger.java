@@ -14,8 +14,6 @@ import java.util.ArrayList;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig;
 import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.ApplicationInitializedEvent;
 import org.sipfoundry.sipxconfig.common.CoreContext;
@@ -31,8 +29,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     protected static final Log LOG = LogFactory.getLog(ReplicationTrigger.class);
 
     private CoreContext m_coreContext;
-    private SipxReplicationContext m_lazyReplicationContext;
-    private ValidUsersConfig m_validUsersConfig;
     private ReplicationManager m_replicationManager;
 
     /** no replication at start-up by default */
@@ -49,9 +45,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     public void onSave(Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.replicateEntity((Replicable) entity);
-            if (entity instanceof User) {
-                m_lazyReplicationContext.replicate(m_validUsersConfig);
-            }
         } else if (entity instanceof Group) {
             generateGroup((Group) entity);
         } else if (entity instanceof Branch) {
@@ -64,9 +57,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
     public void onDelete(Object entity) {
         if (entity instanceof Replicable) {
             m_replicationManager.removeEntity((Replicable) entity);
-            if (entity instanceof User) {
-                m_lazyReplicationContext.replicate(m_validUsersConfig);
-            }
         } else if (entity instanceof Group) {
             generateGroup((Group) entity);
         } else if (entity instanceof Branch) {
@@ -111,14 +101,6 @@ public class ReplicationTrigger implements ApplicationListener, DaoEventListener
 
     public void setCoreContext(CoreContext coreContext) {
         m_coreContext = coreContext;
-    }
-
-    public void setLazyReplicationContext(SipxReplicationContext lazySipxReplicationContext) {
-        m_lazyReplicationContext = lazySipxReplicationContext;
-    }
-
-    public void setValidUsersConfig(ValidUsersConfig validUsersConfig) {
-        m_validUsersConfig = validUsersConfig;
     }
 
     public void setReplicationManager(ReplicationManager replicationManager) {

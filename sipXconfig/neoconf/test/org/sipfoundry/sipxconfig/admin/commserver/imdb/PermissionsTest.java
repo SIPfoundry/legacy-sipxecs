@@ -9,22 +9,14 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
@@ -136,7 +128,7 @@ public class PermissionsTest extends MongoTestCase {
         m_permissions.generate(m_testUser);
 
         MongoTestCaseHelper.assertObjectWithIdPresent("User1");
-        MongoTestCaseHelper.assertObjectListFieldCount("User1", Permissions.PERMISSIONS, 4);
+        MongoTestCaseHelper.assertObjectListFieldCount("User1", Permissions.PERMISSIONS, 8);
         QueryBuilder qb = QueryBuilder.start("id");
         qb.is("User1").and(Permissions.PERMISSIONS).size(4).and(Permissions.PERMISSIONS)
                 .is(PermissionName.LOCAL_DIALING.getName()).is(PermissionName.VOICEMAIL.getName())

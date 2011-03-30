@@ -71,7 +71,6 @@
     <property name="sipxServiceManager" ref="sipxServiceManager" />
     <property name="sipxProcessContext" ref="sipxProcessContext" />
     <property name="domainManager" ref="domainManager" />
-    <property name="validUsersConfig" ref="validUsersConfig"/>
   </bean>
 
   <bean id="serviceConfigurator" class="org.springframework.aop.framework.ProxyFactoryBean">

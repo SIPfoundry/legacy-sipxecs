@@ -20,11 +20,9 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig;
 import org.sipfoundry.sipxconfig.common.AlarmContext;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.service.SipxServiceTest.DummyConfig;
-import org.sipfoundry.sipxconfig.service.SipxServiceTest.DummyValidUsersConfig;
 
 import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
@@ -229,7 +227,6 @@ public class ServiceConfiguratorImplTest extends TestCase {
         ConfigurationFile a = new DummyConfig("a", true);
         ConfigurationFile b = new DummyConfig("b", false);
         ConfigurationFile c = new DummyConfig("c", true);
-        ValidUsersConfig validUsersConfig = new DummyValidUsersConfig("d", false);
 
         service.setConfigurations(asList(a, b, c));
 
@@ -266,11 +263,6 @@ public class ServiceConfiguratorImplTest extends TestCase {
         rc.resyncSlave(location2);
         expectLastCall().anyTimes();
         
-        rc.replicate(same(location1), same(validUsersConfig));
-        expectLastCall().times(1);
-        rc.replicate(same(location2), same(validUsersConfig));
-        expectLastCall().times(1);
-
         dm.replicateDialPlan(false);
         expectLastCall().times(1);
 
@@ -311,7 +303,6 @@ public class ServiceConfiguratorImplTest extends TestCase {
         sc.setDialPlanActivationManager(dm);
         sc.setSipxServiceManager(sm);
         sc.setDomainManager(domainManager);
-        sc.setValidUsersConfig(validUsersConfig);
 
         sc.replicateAllServiceConfig();
 

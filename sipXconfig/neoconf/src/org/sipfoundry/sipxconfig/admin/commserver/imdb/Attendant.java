@@ -1,4 +1,15 @@
+/*
+ *
+ *
+ * Copyright (C) 2011 eZuce Inc., certain elements licensed under a Contributor Agreement.
+ * Contributors retain copyright to elements licensed under a Contributor Agreement.
+ * Licensed to the User under the AGPL license.
+ *
+ * $
+ */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
+
+import com.mongodb.DBObject;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
@@ -6,10 +17,7 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
-import com.mongodb.DBObject;
-
 public class Attendant extends DataSetGenerator {
-    private static final String INDIRECTORY = "indir";
     private static final String USERBUSYPROMPT = "bsyprmpt";
     private static final String VOICEMAILTUI = "vcmltui";
     private static final String EMAIL = "email";
@@ -32,11 +40,11 @@ public class Attendant extends DataSetGenerator {
         }
         User user = (User) entity;
         DBObject top = findOrCreate(user);
-        top.put(USERBUSYPROMPT, user.getSettingValue("voicemail/mailbox/user-busy-prompt"));// can
-                                                                                            // be
-                                                                                            // null
-        top.put(VOICEMAILTUI, user.getSettingValue("voicemail/mailbox/voicemail-tui"));// can be
-                                                                                       // null
+        top.put(USERBUSYPROMPT, user.getSettingValue("voicemail/mailbox/user-busy-prompt")); // can
+                                                                                             // be
+                                                                                             // null
+        top.put(VOICEMAILTUI, user.getSettingValue("voicemail/mailbox/voicemail-tui")); // can be
+                                                                                        // null
         MailboxPreferences mp = new MailboxPreferences(user);
         String emailAddress = mp.getEmailAddress();
         if (StringUtils.isNotBlank(emailAddress)) {
