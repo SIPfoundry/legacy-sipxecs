@@ -33,6 +33,7 @@ public class Attendant extends DataSetGenerator {
     private static final String ACCOUNT = "acnt";
     private static final String PASSWD = "pswd";
     private static final String DISPLAY_NAME = "dspl";
+    private static final String HASHED_PASSTOKEN = "hshpstk";
 
     @Override
     public void generate(Replicable entity) {
@@ -47,6 +48,7 @@ public class Attendant extends DataSetGenerator {
         top.put(VOICEMAILTUI, user.getSettingValue("voicemail/mailbox/voicemail-tui")); // can be
                                                                                         // null
         top.put(DISPLAY_NAME, user.getDisplayName());
+        top.put(HASHED_PASSTOKEN, user.getSipPasswordHash(getCoreContext().getAuthorizationRealm()));
         MailboxPreferences mp = new MailboxPreferences(user);
         String emailAddress = mp.getEmailAddress();
         if (StringUtils.isNotBlank(emailAddress)) {
