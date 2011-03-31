@@ -25,6 +25,7 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
+import com.mongodb.WriteResult;
 
 import org.sipfoundry.sipxconfig.common.UserChangeEvent;
 import org.sipfoundry.sipxconfig.common.UserException;
@@ -110,7 +111,12 @@ public class OpenAcdProvisioningContextImpl implements OpenAcdProvisioningContex
             DB openAcdDb = m_mongoInstance.getDB("openacd");
             openAcdDb.requestStart();
             DBCollection commandsCollection = openAcdDb.getCollection("commands");
-            commandsCollection.insert(command);
+            WriteResult result = commandsCollection.insert(command);
+            String error = result.getError();
+            if (error != null) {
+                throw new UserException("&msg.mongo.write.error", error);
+            }
+            openAcdDb.requestDone();
         } catch (Exception ex) {
             throw new UserException("&msg.cannot.connect");
         }
