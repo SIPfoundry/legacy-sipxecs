@@ -312,8 +312,6 @@
     address_port CDATA #REQUIRED
     address_transport CDATA #REQUIRED
     sbc_device_id CDATA #IMPLIED
-    enable_caller_id CDATA #REQUIRED
-    caller_id CDATA #IMPLIED
     display_name CDATA #IMPLIED
     url_parameters CDATA #IMPLIED
     shared CDATA #REQUIRED

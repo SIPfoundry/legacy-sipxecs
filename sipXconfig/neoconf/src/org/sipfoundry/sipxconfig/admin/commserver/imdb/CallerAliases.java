@@ -59,7 +59,6 @@ public class CallerAliases extends DataSetGenerator {
             top.put(TRANSFORM_EXT, gatewayInfo.isTransformUserExtension());
             top.put(ANONYMOUS, gatewayInfo.isAnonymous());
             getDbCollection().save(top);
-
         }
     }
 }

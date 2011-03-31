@@ -52,7 +52,7 @@ public class CallerAliasesTest extends MongoTestCase {
         ref.put("id", "Gateway1");
         ref.put("ident", "gateway.example.org;sipxecs-lineid=1");
         ref.put("uid", "~~gw");
-        ref.put(CallerAliases.CALLERALIAS, "sip:gatewayCID@mydomain.org");
+        ref.put(CallerAliases.CALLERALIAS, "\"display name\"<sip:gatewayCID@mydomain.org;key=value>");
         ref.put(CallerAliases.IGNORE_USER_CID, gcai.isIgnoreUserInfo());
         ref.put(CallerAliases.CID_PREFIX, gcai.getAddPrefix());
         ref.put(CallerAliases.KEEP_DIGITS, gcai.getKeepDigits());
