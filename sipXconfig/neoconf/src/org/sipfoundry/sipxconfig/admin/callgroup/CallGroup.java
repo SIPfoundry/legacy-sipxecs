@@ -237,4 +237,9 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
         return SipUri.stripSipPrefix(SipUri.format(null, getName(), domain));
     }
 
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
+
 }

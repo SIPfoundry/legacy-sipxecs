@@ -342,4 +342,9 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
     public String getIdentity(String domain) {
         return null;
     }
+
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
 }

@@ -121,4 +121,9 @@ public class ExternalAlias implements Replicable {
         m_files = files;
     }
 
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
+
 }

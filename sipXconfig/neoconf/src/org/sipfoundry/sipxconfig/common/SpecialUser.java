@@ -105,4 +105,9 @@ public class SpecialUser extends BeanWithId implements Replicable {
         return null;
     }
 
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
 }

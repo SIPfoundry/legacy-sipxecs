@@ -381,4 +381,9 @@ public class SipxFreeswitchService extends SipxService implements LoggingEntity,
         replicables.add(this);
         return replicables;
     }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
 }

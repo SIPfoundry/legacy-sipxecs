@@ -25,6 +25,7 @@ public abstract class DataSetGenerator {
     public static final String IDENTITY = "ident";
     public static final String CONTACT = "cnt";
     public static final String UID = "uid";
+    public static final String VALID_USER = "vld";
     private DBCollection m_dbCollection;
     private CoreContext m_coreContext;
 
@@ -76,6 +77,9 @@ public abstract class DataSetGenerator {
         if (entity instanceof User) {
             top.put(CONTACT, ((User) entity).getContactUri(getSipDomain()));
             top.put(UID, ((User) entity).getUserName());
+        }
+        if (entity.isValidUser()) {
+            top.put(VALID_USER, true);
         }
         return top;
     }

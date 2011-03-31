@@ -118,5 +118,10 @@ public class CallSequence extends AbstractCallSequence implements Replicable {
         return null;
     }
 
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
 
 }

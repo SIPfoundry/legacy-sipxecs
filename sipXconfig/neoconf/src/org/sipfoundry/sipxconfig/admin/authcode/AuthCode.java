@@ -65,4 +65,9 @@ public class AuthCode extends BeanWithUserPermissions implements Replicable {
     public void setName(String name) {
     }
 
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
+
 }

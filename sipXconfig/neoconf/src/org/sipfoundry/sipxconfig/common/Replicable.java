@@ -19,4 +19,5 @@ public interface Replicable extends NamedObject {
     public Set<DataSet> getDataSets();
     public String getIdentity(String domainName);
     public Collection<AliasMapping> getAliasMappings(String domainName);
+    public boolean isValidUser();
 }

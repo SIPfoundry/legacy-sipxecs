@@ -242,4 +242,9 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
         return replicables;
     }
 
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
 }

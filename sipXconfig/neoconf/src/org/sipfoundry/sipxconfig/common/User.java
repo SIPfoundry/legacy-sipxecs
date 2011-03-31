@@ -102,4 +102,9 @@ public class User extends AbstractUser implements Replicable {
 
         return mappings;
     }
+
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
 }

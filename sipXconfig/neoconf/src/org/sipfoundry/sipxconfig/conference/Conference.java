@@ -309,4 +309,9 @@ public class Conference extends BeanWithSettings implements Replicable {
         return null;
     }
 
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
+
 }

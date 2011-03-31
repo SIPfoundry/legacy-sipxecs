@@ -126,4 +126,9 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
     public void setSipxServiceManager(SipxServiceManager manager) {
         m_serviceManager = manager;
     }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
 }

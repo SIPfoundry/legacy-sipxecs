@@ -47,4 +47,9 @@ public class TlsPeer extends BeanWithUserPermissions implements Replicable {
         return null;
     }
 
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
 }
