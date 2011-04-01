@@ -29,8 +29,10 @@ import org.apache.tapestry.annotations.InjectObject;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
 import org.apache.tapestry.form.IPropertySelectionModel;
+import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.components.SelectMap;
 import org.sipfoundry.sipxconfig.components.SipxValidationDelegate;
+import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.components.selection.AdaptedSelectionModel;
 import org.sipfoundry.sipxconfig.components.selection.OptGroup;
 import org.sipfoundry.sipxconfig.components.selection.OptionAdapter;
@@ -47,9 +49,6 @@ public abstract class OpenAcdAgentsPanel extends BaseComponent implements PageBe
 
     @Bean
     public abstract SelectMap getSelections();
-
-    @Bean
-    public abstract SipxValidationDelegate getValidator();
 
     public abstract void setAgents(List<OpenAcdAgent> agents);
 
@@ -82,7 +81,14 @@ public abstract class OpenAcdAgentsPanel extends BaseComponent implements PageBe
         if (ids.isEmpty()) {
             return;
         }
-        getOpenAcdContext().deleteAgents(ids);
+        try {
+            getOpenAcdContext().deleteAgents(ids);
+        } catch (UserException ex) {
+            //forward the error message display to contained page for this component
+            //components do not scale very well on UserException automatic catch
+            SipxValidationDelegate validator = (SipxValidationDelegate) TapestryUtils.getValidator(getPage());
+            validator.record(ex, getMessages());
+        }
     }
 
     public IPropertySelectionModel getActionModel() {

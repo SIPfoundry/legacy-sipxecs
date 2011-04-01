@@ -15,7 +15,6 @@ import org.apache.tapestry.annotations.Parameter;
 import org.apache.tapestry.annotations.Persist;
 import org.apache.tapestry.event.PageBeginRenderListener;
 import org.apache.tapestry.event.PageEvent;
-import org.apache.tapestry.valid.ValidatorException;
 import org.sipfoundry.sipxconfig.components.TapestryUtils;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 
@@ -31,14 +30,6 @@ public abstract class GatewayCallerAliasInfoPanel extends BaseComponent implemen
 
     public void pageBeginRender(PageEvent event) {
         if (!TapestryUtils.isValid(this)) {
-            return;
-        }
-
-        if (getGcai().isEnableCallerId() && getGcai().getCallerId() == null) {
-            TapestryUtils.getValidator(getPage())
-                    .record(
-                            new ValidatorException(getMessages().getMessage(
-                                    "message.mandatoryCallerId")));
             return;
         }
     }

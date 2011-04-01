@@ -27,7 +27,7 @@ sipx = \
   sipXrls \
   sipXpbx \
   sipXconfig \
-  sipXconfig-audiocodes \
+  sipXaudiocodes \
   sipXimbot \
   sipXivr \
   sipXpage \
@@ -42,21 +42,21 @@ sipx = \
   sipXecs
 
 lang = \
-  sipXecs-lang-abitibi-fr_CA \
-  sipXecs-lang-ch \
-  sipXecs-lang-cs \
-  sipXecs-lang-de \
-  sipXecs-lang-en_GB \
-  sipXecs-lang-es \
-  sipXecs-lang-fr_CA \
-  sipXecs-lang-fr \
-  sipXecs-lang-it \
-  sipXecs-lang-ja \
-  sipXecs-lang-es_MX \
-  sipXecs-lang-nl \
-  sipXecs-lang-pl \
-  sipXecs-lang-pt_BR \
-  sipXecs-lang-zh
+  sipXlang-abitibi-fr_CA \
+  sipXlang-ch \
+  sipXlang-cs \
+  sipXlang-de \
+  sipXlang-en_GB \
+  sipXlang-es \
+  sipXlang-fr_CA \
+  sipXlang-fr \
+  sipXlang-it \
+  sipXlang-ja \
+  sipXlang-es_MX \
+  sipXlang-nl \
+  sipXlang-pl \
+  sipXlang-pt_BR \
+  sipXlang-zh
 
 lib_common = \
   rubygem-file-tail \
@@ -79,7 +79,6 @@ lib_centos_5 = \
   scons \
   boost-jam \
   boost \
-  unittest \
   $(lib_common) \
   rsyslog \
   cppunit \

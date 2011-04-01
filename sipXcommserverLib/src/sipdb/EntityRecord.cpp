@@ -28,9 +28,14 @@ const char* EntityRecord::pin_fld(){ static std::string fld = "pntk"; return fld
 const char* EntityRecord::authType_fld(){ static std::string fld = "authtp"; return fld.c_str(); }
 const char* EntityRecord::location_fld(){ static std::string fld = "loc"; return fld.c_str(); }
 const char* EntityRecord::permission_fld(){ static std::string fld = "prm"; return fld.c_str(); }
-const char* EntityRecord::callerAliases_fld(){ static std::string fld = "cals"; return fld.c_str(); }
-const char* EntityRecord::callerAliasesDomain_fld(){ static std::string fld = "dm"; return fld.c_str(); }
-const char* EntityRecord::callerAliasesAlias_fld(){ static std::string fld = "als"; return fld.c_str(); }
+
+const char* EntityRecord::callerId_fld(){ static std::string fld = "clrid"; return fld.c_str(); }
+const char* EntityRecord::callerIdEnforcePrivacy_fld(){ static std::string fld = "blkcid"; return fld.c_str(); }
+const char* EntityRecord::callerIdIgnoreUserCalleId_fld(){ static std::string fld = "ignorecid"; return fld.c_str(); }
+const char* EntityRecord::callerIdTransformExtension_fld(){ static std::string fld = "trnsfrmext"; return fld.c_str(); }
+const char* EntityRecord::callerIdExtensionLength_fld(){ static std::string fld = "kpdgts"; return fld.c_str(); }
+const char* EntityRecord::callerIdExtensionPrefix_fld(){ static std::string fld = "pfix"; return fld.c_str(); }
+
 const char* EntityRecord::aliases_fld(){ static std::string fld = "als"; return fld.c_str(); }
 const char* EntityRecord::aliasesId_fld(){ static std::string fld = "id"; return fld.c_str(); }
 const char* EntityRecord::aliasesContact_fld(){ static std::string fld = "cnt"; return fld.c_str(); }
@@ -58,7 +63,7 @@ EntityRecord::EntityRecord(const EntityRecord& entity)
     _pin = entity._pin;
     _authType = entity._authType;
     _permissions = entity._permissions;
-    _callerAliases = entity._callerAliases;
+    _callerId = entity._callerId;
     _aliases = entity._aliases;
     _callForwardTime = entity._callForwardTime;
     _staticUserLoc = entity._staticUserLoc;
@@ -86,7 +91,7 @@ void EntityRecord::swap(EntityRecord& entity)
     std::swap(_pin, entity._pin);
     std::swap(_authType, entity._authType);
     std::swap(_permissions, entity._permissions);
-    std::swap(_callerAliases, entity._callerAliases);
+    std::swap(_callerId, entity._callerId);
     std::swap(_aliases, entity._aliases);
     std::swap(_callForwardTime, entity._callForwardTime);
     std::swap(_staticUserLoc, entity._staticUserLoc);
@@ -138,6 +143,20 @@ EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
             _callForwardTime = bsonObj.getIntField(EntityRecord::callForwardTime_fld());
         }
 
+        if (bsonObj.hasField(EntityRecord::callerId_fld()))
+        {
+            _callerId.id = bsonObj.getStringField(EntityRecord::callerId_fld());
+            _callerId.enforcePrivacy = bsonObj.getBoolField(EntityRecord::callerIdEnforcePrivacy_fld());
+            _callerId.ignoreUserCalleId = bsonObj.getBoolField(EntityRecord::callerIdIgnoreUserCalleId_fld());
+            _callerId.transformExtension = bsonObj.getBoolField(EntityRecord::callerIdTransformExtension_fld());
+            _callerId.extensionLength = bsonObj.getIntField(EntityRecord::callerIdExtensionLength_fld());
+            _callerId.extensionPrefix = bsonObj.getStringField(EntityRecord::callerIdExtensionPrefix_fld());
+            if (_userId == "~~gw")
+                _callerId.type = "gateway";
+            else
+                _callerId.type = "user";
+        }
+
         if (bsonObj.hasField(EntityRecord::permission_fld()))
         {
             MongoDB::BSONElement obj = bsonObj[EntityRecord::permission_fld()];
@@ -149,27 +168,6 @@ EntityRecord& EntityRecord::operator =(const MongoDB::BSONObj& bsonObj)
                     iter != permissions.end(); iter++)
                 {
                     _permissions.insert(iter->String());
-                }
-            }
-        }
-
-        if (bsonObj.hasField(EntityRecord::callerAliases_fld()))
-        {
-            MongoDB::BSONElement obj = bsonObj[EntityRecord::callerAliases_fld()];
-            if ( obj.isABSONObj() &&  obj.type() == mongo::Array)
-            {
-                std::vector<MongoDB::BSONElement> callerAliases = obj.Array();
-                for (std::vector<MongoDB::BSONElement>::iterator iter = callerAliases.begin();
-                    iter != callerAliases.end(); iter++)
-                {
-                    MongoDB::BSONObj innerObj = iter->Obj();
-                    CallerAlias callerAlias;
-                    if (innerObj.hasField(EntityRecord::callerAliasesAlias_fld()))
-                        callerAlias.alias = innerObj.getStringField(EntityRecord::callerAliasesAlias_fld());
-                    if (innerObj.hasField(EntityRecord::callerAliasesDomain_fld()))
-                        callerAlias.targetDomain = innerObj.getStringField(EntityRecord::callerAliasesDomain_fld());
-
-                    _callerAliases.push_back(callerAlias);
                 }
             }
         }

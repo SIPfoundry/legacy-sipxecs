@@ -8,7 +8,7 @@
   </component>
   <component id="defaultCallerAlias" type="TextField">
     <binding name="value" value="gcai.defaultCallerAlias" />
-    <binding name="validators" value="spring-validators:validSipUserId" />
+    <binding name="validators" value="spring-validators:validSipUserIdOrAor" />
     <binding name="displayName" value="message:label.defaultCallerAlias" />
   </component>
 

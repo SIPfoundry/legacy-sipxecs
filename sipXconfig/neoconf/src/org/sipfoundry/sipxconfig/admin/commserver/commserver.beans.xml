@@ -181,9 +181,6 @@
   </bean>
   <bean id="calleraliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.CallerAliases">
-    <property name="anonymousAlias"
-      value="sip:anonymous@anonymous.invalid" />
-    <property name="gatewayContext" ref="gatewayContext" />
   </bean>
   <bean id="userlocationDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserLocation">
