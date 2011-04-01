@@ -40,13 +40,10 @@ public class UserLocationTest extends MongoTestCase {
 
     private List<User> m_users;
 
-    @Override
-    protected void setUp() throws Exception {
-        super.setUp();
+    public void testGenerate() throws Exception {
         PermissionManagerImpl impl = new PermissionManagerImpl();
         impl.setModelFilesContext(TestHelper.getModelFilesContext());
-        DomainManager dm = getDomainManager();
-        replay(dm);
+        replay(getCoreContext());
         m_users = new ArrayList<User>();
         for (String[] ud : USER_DATA) {
             User user = new User();
@@ -56,7 +53,7 @@ public class UserLocationTest extends MongoTestCase {
             user.setFirstName(ud[1]);
             user.setLastName(ud[2]);
             user.setUserName(ud[3]);
-            user.setDomainManager(dm);
+            user.setDomainManager(getDomainManager());
             if (ud[4] != null) {
                 Branch branch = new Branch();
                 branch.setUniqueId();
@@ -71,33 +68,12 @@ public class UserLocationTest extends MongoTestCase {
             }
             m_users.add(user);
         }
-    }
-
-    public void testGenerateEmpty() throws Exception {
         UserLocation ul = new UserLocation();
-
-        CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        expectLastCall().andReturn(Collections.emptyList());
-
-        ul.setCoreContext(coreContext);
-
-        replay(coreContext);
-
-        ul.generate();
-        MongoTestCaseHelper.assertCollectionCount(0);
-    }
-
-    public void testGenerate() throws Exception {
-        UserLocation ul = new UserLocation();
-
-        CoreContext coreContext = getCoreContext();
-        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        expectLastCall().andReturn(m_users);
-        replay(coreContext);
-        ul.setCoreContext(coreContext);
         ul.setDbCollection(getCollection());
-        ul.generate();
+        ul.setCoreContext(getCoreContext());
+        ul.generate(m_users.get(0));
+        ul.generate(m_users.get(1));
+        ul.generate(m_users.get(2));
 
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", UserLocation.LOCATION, USER_DATA[0][4]);
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", UserLocation.LOCATION, USER_DATA[1][4]);

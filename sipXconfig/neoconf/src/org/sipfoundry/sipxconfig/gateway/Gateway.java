@@ -32,6 +32,8 @@ import org.sipfoundry.sipxconfig.setting.Setting;
  * Gateway
  */
 public class Gateway extends Device implements Replicable {
+    public static final String LINEID = ";sipxecs-lineid=";
+    public static final String UID = "~~gw";
     private String m_name;
 
     private String m_address;
@@ -349,6 +351,6 @@ public class Gateway extends Device implements Replicable {
 
     @Override
     public String getIdentity(String domain) {
-        return "gw";
+        return getGatewayAddress() + LINEID + getId().toString();
     }
 }

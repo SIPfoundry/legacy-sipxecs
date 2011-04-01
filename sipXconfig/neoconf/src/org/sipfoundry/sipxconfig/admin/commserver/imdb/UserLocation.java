@@ -12,11 +12,8 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import com.mongodb.DBObject;
 
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
-
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class UserLocation extends DataSetGenerator {
     public static final String LOCATION = "loc";
@@ -24,16 +21,6 @@ public class UserLocation extends DataSetGenerator {
     @Override
     protected DataSet getType() {
         return DataSet.USER_LOCATION;
-    }
-
-    public void generate() {
-        Closure<User> closure = new Closure<User>() {
-            @Override
-            public void execute(User user) {
-                generate(user);
-            }
-        };
-        forAllUsersDo(getCoreContext(), closure);
     }
 
     public void generate(Replicable entity) {

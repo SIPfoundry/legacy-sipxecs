@@ -4,6 +4,8 @@
 // Licensed to the User under the LGPL license.
 // 
 //////////////////////////////////////////////////////////////////////////////
+#include <string>
+
 #include "CallerAlias.h"
 #include "SipRouter.h"
 // SYSTEM INCLUDES
@@ -374,61 +376,54 @@ bool CallerAlias::getCallerAlias (
     hasUserEntity = _pEntities->collection().findByIdentity(identity.str(), userEntity);
     hasGatewayEntity = _pEntities->collection().findByIdentity(domain.str(), gatewayEntity);
 
-    if (hasUserEntity && !userEntity.callerId().id.empty())
-        callerAlias = userEntity.callerId().id;
-
-    if (hasGatewayEntity && gatewayEntity.callerId().ignoreUserCalleId)
+    if (hasGatewayEntity && gatewayEntity.callerId().transformExtension)
     {
-        if (gatewayEntity.callerId().enforcePrivacy)
+        size_t loc = identity.str().find("@");
+        if (loc != std::string::npos)
         {
-            callerAlias = "sip:anonymous@anonymous.invalid";
-        }
-        else if (!gatewayEntity.callerId().id.empty())
-        {
+            std::string userId = identity.str().substr(0, loc);
             //
-            // first check if transformation is needed
+            // Check if we need to truncate the userId to a certain length
             //
-            if (!gatewayEntity.callerId().transformExtension)
-            {
-                Url callerIdHeader;
-                if (callerIdHeader.fromString(gatewayEntity.callerId().id.c_str(), FALSE))
-                {
-                    UtlString ext_;
-                    callerIdHeader.getUserId(ext_);
-                    if (!ext_.isNull())
-                    {
-                        std::string userId(ext_.data());
-                        //
-                        // Check if we need to truncate the userId to a certain length
-                        //
-                        if (gatewayEntity.callerId().extensionLength > 0 && userId.length() > gatewayEntity.callerId().extensionLength)
-                            userId = string_right(userId, gatewayEntity.callerId().extensionLength);
+            if (gatewayEntity.callerId().extensionLength > 0 && userId.length() > (size_t)gatewayEntity.callerId().extensionLength)
+                userId = string_right(userId, gatewayEntity.callerId().extensionLength);
 
-                        //
-                        // Now check if a prefix is specified
-                        //
-                        if (!gatewayEntity.callerId().extensionPrefix.empty())
-                        {
-                            std::string buff = gatewayEntity.callerId().extensionPrefix;
-                            buff += userId;
-                            userId = userId = buff;
-                        }
-
-                        callerIdHeader.setUserId(userId.c_str());
-                        callerAlias = callerIdHeader.toString().data();
-                    }
-                }
-            }
-            else
+            //
+            // Now check if a prefix is specified
+            //
+            if (!gatewayEntity.callerId().extensionPrefix.empty())
             {
-                //
-                // No transformation needed.  Use the gateway alias
-                //
-                callerAlias = gatewayEntity.callerId().id;
+                std::string buff = gatewayEntity.callerId().extensionPrefix;
+                buff += userId;
+                userId = userId = buff;
             }
+
+            callerAlias = "<sip:";
+            callerAlias += userId;
+            callerAlias += identity.str().substr(loc);
+            callerAlias += ">";
         }
     }
+    else
+    {
+      if (hasUserEntity && !userEntity.callerId().id.empty())
+          callerAlias = userEntity.callerId().id;
+      else if (hasGatewayEntity)
+          gatewayEntity.callerId().ignoreUserCalleId = true;
 
+      if (hasGatewayEntity && gatewayEntity.callerId().ignoreUserCalleId)
+      {
+          if (gatewayEntity.callerId().enforcePrivacy)
+          {
+              callerAlias = "sip:anonymous@anonymous.invalid";
+          }
+          else if (!gatewayEntity.callerId().id.empty())
+          {
+              callerAlias = gatewayEntity.callerId().id;
+          }
+      }
+    }
+    
     if (!callerAlias.empty())
         callerAlias_ = callerAlias.c_str();
     else

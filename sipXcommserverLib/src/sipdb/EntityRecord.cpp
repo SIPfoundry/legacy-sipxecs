@@ -30,7 +30,7 @@ const char* EntityRecord::location_fld(){ static std::string fld = "loc"; return
 const char* EntityRecord::permission_fld(){ static std::string fld = "prm"; return fld.c_str(); }
 
 const char* EntityRecord::callerId_fld(){ static std::string fld = "clrid"; return fld.c_str(); }
-const char* EntityRecord::callerIdEnforcePrivacy_fld(){ static std::string fld = "blckid"; return fld.c_str(); }
+const char* EntityRecord::callerIdEnforcePrivacy_fld(){ static std::string fld = "blkcid"; return fld.c_str(); }
 const char* EntityRecord::callerIdIgnoreUserCalleId_fld(){ static std::string fld = "ignorecid"; return fld.c_str(); }
 const char* EntityRecord::callerIdTransformExtension_fld(){ static std::string fld = "trnsfrmext"; return fld.c_str(); }
 const char* EntityRecord::callerIdExtensionLength_fld(){ static std::string fld = "kpdgts"; return fld.c_str(); }

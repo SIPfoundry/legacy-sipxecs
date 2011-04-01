@@ -38,8 +38,6 @@
       <property name="transformUserExtension" not-null="true" />
       <property name="addPrefix" />
       <property name="keepDigits" not-null="true" />
-      <property name="enableCallerId" not-null="true" />
-      <property name="callerId" />
       <property name="displayName" />
       <property name="urlParameters" />
     </component>

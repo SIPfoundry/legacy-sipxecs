@@ -67,7 +67,7 @@ public:
       bool enforcePrivacy;
       bool ignoreUserCalleId;
       bool transformExtension;
-      bool extensionLength;
+      int extensionLength;
       std::string extensionPrefix;
 
       CallerId()
