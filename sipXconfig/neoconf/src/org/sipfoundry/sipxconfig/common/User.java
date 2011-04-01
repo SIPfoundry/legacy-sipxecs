@@ -27,6 +27,7 @@ public class User extends AbstractUser implements Replicable {
     private static final String ALIAS_RELATION = "alias";
     private static final String ALIAS_RELATION_FAX = "fax";
     private String m_identity;
+    private boolean m_validUser = true;
 
     /**
      * get all the data sets that are replicable for this entity
@@ -103,8 +104,12 @@ public class User extends AbstractUser implements Replicable {
         return mappings;
     }
 
+    public void setValidUser(boolean vld) {
+        m_validUser = vld;
+    }
+    
     @Override
     public boolean isValidUser() {
-        return true;
+        return m_validUser;
     }
 }
