@@ -2125,7 +2125,9 @@
       </type>
       <value>0</value>
     </setting>
-    <setting name="custom-configs" advanced="yes">
+  </group>
+  <group name="custom">
+    <setting name="custom-configs">
      <type>
        <string/>
      </type>
