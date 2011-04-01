@@ -434,7 +434,13 @@ public class Attendant {
      * 
      */
     void goodbye() {
-        m_loc.play("goodbye", "");
+        goodbye(true);
+    }
+    
+    void goodbye(boolean play) {
+        if (play) {
+            m_loc.play("goodbye", "");
+        }
         Hangup h = new Hangup(m_fses);
         h.go();
     }
@@ -446,6 +452,7 @@ public class Attendant {
      */
     void failure() {
         LOG.info("Attendant::failure");
+        boolean playGoodbye = true;
         if (m_config.isTransferOnFailure()) {
             String transferPrompt = m_config.getTransferPrompt();
             if (transferPrompt != null){
@@ -462,6 +469,7 @@ public class Attendant {
             LOG.info("Attendant::failure Transfer on falure to " + dest);
 
             m_loc.play("please_hold","");
+            playGoodbye = false;
             String domainPart = ValidUsersXML.getDomainPart(dest);
             String transferDomain = m_ivrConfig.getSipxchangeDomainName();
             if (domainPart.equalsIgnoreCase(transferDomain)){
@@ -495,7 +503,7 @@ public class Attendant {
         }
 
         // This is an enhancement over the original VoiceXML 
-        goodbye() ;
+        goodbye(playGoodbye) ;
 
         Hangup h = new Hangup(m_fses);
         h.go();
