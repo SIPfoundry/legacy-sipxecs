@@ -98,7 +98,7 @@ public class AudioCodesPhone extends Phone {
 
     @Override
     public String getProfileFilename() {
-        return  getModelName() + FILE_SEPERATOR + getSerialNumber() + ".cfg";
+        return  getSerialNumber() + ".cfg";
     }
 
     static class SpeedDialProfile extends Profile {
@@ -121,7 +121,7 @@ public class AudioCodesPhone extends Phone {
     }
 
     public String getSpeedDialFileName() {
-        return getModelName() + FILE_SEPERATOR + getSerialNumber() + SPEED_DIAL_FILE_NAME;
+        return getSerialNumber() + SPEED_DIAL_FILE_NAME;
     }
 
     public void restart() {
