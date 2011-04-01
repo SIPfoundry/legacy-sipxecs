@@ -42,7 +42,7 @@ sipx = \
   sipXecs
 
 lang = \
-  sipXecs-lang-abitibi-fr_CA \
+  sipXlang-abitibi-fr_CA \
   sipXecs-lang-ch \
   sipXecs-lang-cs \
   sipXecs-lang-de \
