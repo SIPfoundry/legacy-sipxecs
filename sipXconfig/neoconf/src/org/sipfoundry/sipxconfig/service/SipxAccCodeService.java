@@ -228,7 +228,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     @Override
     public String getIdentity(String domain) {
         return SipUri.format(getAuthCodePrefix(), ((SipxFreeswitchService) getSipxServiceManager()
-                    .getServiceByBeanId(SipxFreeswitchService.BEAN_ID)).getDomainName(), false);
+                .getServiceByBeanId(SipxFreeswitchService.BEAN_ID)).getDomainName(), false);
     }
 
     public void setCoreContext(CoreContext coreContext) {
@@ -238,7 +238,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     @Override
     public List<Replicable> getReplicables() {
         List<Replicable> replicables = new ArrayList<Replicable>();
-        replicables.add(this);
+        replicables.add((SipxAccCodeService) getSipxServiceManager().getServiceByBeanId(this.BEAN_ID));
         return replicables;
     }
 
