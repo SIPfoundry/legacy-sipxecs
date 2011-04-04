@@ -2,6 +2,14 @@
 ## AC macros for general packages like OpenSSL, Xerces, etc
 ##
 
+AC_DEFUN([CHECK_MSGFMT],
+[
+  AC_PATH_PROG(MSGFMT,msgfmt)
+  if [ test -z "$MSGFMT" ]; then
+    AC_MSG_ERROR([msgfmt program is required. Redhat users run: 'yum install gettext'])
+  fi
+])
+
 # ============ C L O V E R  =======================
 AC_DEFUN([CHECK_CLOVER],
 [
