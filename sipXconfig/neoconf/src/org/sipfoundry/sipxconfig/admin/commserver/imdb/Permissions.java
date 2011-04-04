@@ -68,6 +68,7 @@ public class Permissions extends DataSetGenerator {
             InternalUser user = ((BeanWithUserPermissions) entity).getInternalUser();
             User u = addSpecialUser(user.getUserName());
             u.setUserName(entity.getClass().getSimpleName() + ((BeanWithUserPermissions) entity).getId());
+            u.setValidUser(false);
             insertDbObject(u);
         }
     }
