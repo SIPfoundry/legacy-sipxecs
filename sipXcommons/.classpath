@@ -17,9 +17,10 @@
 	<classpathentry kind="lib" path="lib/commons-lang.jar"/>
 	<classpathentry kind="lib" path="lib/jce.jar"/>
 	<classpathentry kind="lib" path="lib/not-yet-commons-ssl.jar"/>
-	<classpathentry kind="lib" path="lib/jain-sip-sdp.jar"  sourcepath="JAIN-SRC"/>
+	<classpathentry kind="lib" path="lib/jain-sip-sdp.jar" sourcepath="JAIN-SRC"/>
 	<classpathentry kind="lib" path="lib/xmlrpc-client.jar"/>
 	<classpathentry kind="lib" path="lib/xmlrpc-common.jar"/>
 	<classpathentry kind="lib" path="lib/postgresql-jdbc.jar"/>
+	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/mongo-2.3.jar"/>
 	<classpathentry kind="output" path="bin.eclipse/classes"/>
 </classpath>

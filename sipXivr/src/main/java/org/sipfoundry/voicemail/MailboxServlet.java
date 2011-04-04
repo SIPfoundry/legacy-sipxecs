@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.SipUriUtil;
 import org.sipfoundry.sipxivr.Mailbox;
 
@@ -85,17 +85,7 @@ public class MailboxServlet extends HttpServlet {
         String context = subDirs[2];
 
 
-        // Load the list of valid users
-        // (it is static, so don't worry about sucking it in each time, it'll only
-        // be re-read if it has changed on disk)
-        ValidUsersXML validUsers = null;
-        try {
-            validUsers = ValidUsersXML.update(LOG, true);
-        } catch (Exception e) {
-            response.sendError(500, "Cannot read validusers.xml");
-            return;
-        }
-        User user = validUsers.getUser(mailboxString);
+        User user = ValidUsers.INSTANCE.getUser(mailboxString);
         // only superadmin and mailbox owner can access this service
         // TODO allow all admin user to access it
         String authenticatedUserName = request.getUserPrincipal().getName();

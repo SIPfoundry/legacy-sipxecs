@@ -20,7 +20,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.MonitorConf;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 
 public class ConfBasicThread extends Thread {
     // Default freeswitch socket client strings, should be read from:
@@ -80,14 +80,8 @@ public class ConfBasicThread extends Thread {
         String memberId =  event.getEventValue("member-id");
 
         if(action != null) {
-            ValidUsersXML users = null;
-            try {
-                users = ValidUsersXML.update(LOG, true);
-            } catch (Exception e1) {
-                System.exit(1); // If you can't trust validUsers, who can you trust?
-            }
 
-            User user = users.getUser(memberNumber);
+            User user = ValidUsers.INSTANCE.getUser(memberNumber);
 
             ConferenceTask conf = m_ConferenceMap.get(confName);
             

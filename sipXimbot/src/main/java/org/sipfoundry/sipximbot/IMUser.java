@@ -35,7 +35,7 @@ import org.sipfoundry.commons.freeswitch.ConferenceMember;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Set;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipximbot.CallHelper.CallHelperReturnCode;
 import org.sipfoundry.sipximbot.IMContext.Command;
 import org.sipfoundry.sipximbot.IMContext.Place;
@@ -387,8 +387,8 @@ public class IMUser {
                         next = next.getNextSibling();
                     }  
                     
-                    callerUserPart = ValidUsersXML.getUserPart(caller);
-                    callerDisplayPart = ValidUsersXML.getDisplayPart(caller);
+                    callerUserPart = ValidUsers.getUserPart(caller);
+                    callerDisplayPart = ValidUsers.getDisplayPart(caller);
                     
                     calleeIdent = callee.substring(callee.indexOf("sip:"));
                     calleeIdentTail = calleeIdent.indexOf(";");

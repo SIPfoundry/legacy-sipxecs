@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.Mailbox;
 
 /**
@@ -57,16 +57,7 @@ public class Mwistatus extends HttpServlet {
         // read the query string
         String idUri = request.getParameter("identity");
         
-        // Load the list of valid users 
-        // (it is static, so don't worry about sucking it in each time, it'll only 
-        // be re-read if it has changed on disk)
-        ValidUsersXML validUsers = null ;
-        try {
-            validUsers = ValidUsersXML.update(LOG, true);
-        } catch (Exception e) {
-            System.exit(1); // If you can trust validUsers, who can you trust?
-        }
-        User user = validUsers.getUser(ValidUsersXML.getUserPart(idUri));
+        User user = ValidUsers.INSTANCE.getUser(ValidUsers.getUserPart(idUri));
         if (user != null) {
             // determine the message counts for the mailbox
             // (Okay, worry about this one.  It walks the mailstore directories counting .xml and .sta files.)

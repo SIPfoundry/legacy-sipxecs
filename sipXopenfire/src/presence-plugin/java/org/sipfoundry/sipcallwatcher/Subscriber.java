@@ -58,7 +58,6 @@ import javax.sip.message.Request;
 import javax.sip.message.Response;
 
 import org.apache.log4j.Logger;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.openfire.config.WatcherConfig;
 import org.sipfoundry.sipcallwatcher.SubscribeDialog.SubscribeDialog;
 import org.sipfoundry.sipcallwatcher.DialogInfoMessagePart.EndpointInfo;

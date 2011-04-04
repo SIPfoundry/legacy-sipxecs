@@ -9,6 +9,7 @@ import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice;
@@ -59,7 +60,7 @@ public class CpThruDial {
        // toll fraud .. ie can't dial 90 to get an operator
        
        if(!digits.startsWith(namePrefix)) {           
-           if(m_vm.getValidUsers().getUser(digits) == null) {
+           if(ValidUsers.INSTANCE.getUser(digits) == null) {
                // don't allow transfer to a non-user or external number
                m_vm.playError("invalid_extension");
                return;
@@ -68,7 +69,7 @@ public class CpThruDial {
            String sipUrl = m_vm.extensionToUrl(digits); 
            m_vm.transfer(sipUrl);
        } else {         
-           CpDialByName dbn = new CpDialByName(m_vm, m_vm.getConfig(), m_vm.getValidUsers());
+           CpDialByName dbn = new CpDialByName(m_vm, m_vm.getConfig());
            DialByNameChoice dbnChoice = dbn.dialByName();
            if (dbnChoice.getIvrChoiceReason() == IvrChoiceReason.CANCELED) {
                return;

@@ -63,7 +63,7 @@ import javax.security.auth.login.LoginException;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.ImapInfo;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.GreetingType;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
@@ -151,8 +151,7 @@ public class ExtMailStore {
         
         public void run() {
             boolean running = true;
-            Vector<User> users, currUsers;
-            ValidUsersXML validUsersXML = null;
+            List<User> users, currUsers;
             Collection<IMAPConnection> connections;
             IMAPConnection conn;
             boolean changed;
@@ -161,14 +160,8 @@ public class ExtMailStore {
                 currUsers = null;    
                 
                 while (running) {
-                    try {
-                        validUsersXML = ValidUsersXML.update(LOG, true);
-                    } catch (Exception e1) {
-                        LOG.error("SipXivr IMAP::run validusers", e1);
-                        System.exit(1); // If you can't trust validUsers, who can you trust?
-                    }
     
-                    users = ValidUsersXML.GetUsers();
+                    users = ValidUsers.INSTANCE.getUsers();
                     if (!users.equals(currUsers)) {
     
                         // check for deleted mailboxes
@@ -176,7 +169,7 @@ public class ExtMailStore {
                         for (Iterator<IMAPConnection> it = connections.iterator(); it.hasNext();) {
                             conn = it.next();
     
-                            User user = validUsersXML.getUser(conn.m_user.getUserName());
+                            User user = ValidUsers.INSTANCE.getUser(conn.m_user.getUserName());
                             boolean deleteit;
                             if (user != null) {
                                 deleteit = !user.hasVoicemail();

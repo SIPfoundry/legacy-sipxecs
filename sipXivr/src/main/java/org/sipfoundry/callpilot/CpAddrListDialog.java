@@ -12,6 +12,7 @@ import java.util.Vector;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.DistributionList;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
@@ -81,7 +82,7 @@ public class CpAddrListDialog {
         m_numAddressesLastAdded = 0;
         if (userNames != null) {
             for (String userName : userNames) {
-                User u = m_vm.getValidUsers().getUser(userName);
+                User u = ValidUsers.INSTANCE.getUser(userName);
                 if (u != null && u.hasVoicemail()) {
                     m_userList.add(u);
                     m_numAddressesLastAdded++;
@@ -164,7 +165,7 @@ public class CpAddrListDialog {
                 continue;
             }
          
-            user = m_vm.getValidUsers().getUser(addrStr);
+            user = ValidUsers.INSTANCE.getUser(addrStr);
             if(user == null) {                            
                 m_vm.playError("no_mailbox_at", addrStr);
             } else if(!user.hasVoicemail()) {
@@ -187,7 +188,7 @@ public class CpAddrListDialog {
     
     private User getAddressByName() {
         
-        CpDialByName dbn = new CpDialByName(m_vm, m_vm.getConfig(), m_vm.getValidUsers());
+        CpDialByName dbn = new CpDialByName(m_vm, m_vm.getConfig());
         DialByNameChoice dbnChoice = dbn.dialByName();
         
         if (dbnChoice.getIvrChoiceReason() == IvrChoiceReason.SUCCESS) {

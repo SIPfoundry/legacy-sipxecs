@@ -23,7 +23,7 @@ import org.mortbay.http.UserRealm;
 import org.mortbay.util.Credential;
 import org.mortbay.util.Password;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 
 public class SipxIvrUserRealm implements UserRealm {
 
@@ -41,8 +41,7 @@ public class SipxIvrUserRealm implements UserRealm {
     public Principal authenticate(String username, Object credentials, HttpRequest request) {
         Principal principal = null;
         try {
-            ValidUsersXML validUsers = ValidUsersXML.update(LOG, true);
-            User user = validUsers.getUser(username);
+            User user = ValidUsers.INSTANCE.getUser(username);
             if (user != null) {
                 principal = checkCredentials(user.getUserName(), user.getPintoken(), credentials);
                 if (principal == null) {

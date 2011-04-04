@@ -15,7 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -43,7 +43,6 @@ public class FullUsers {
     private static HashMap<String, FullUser> m_confMap;
     
     private static FullUsers s_fullUsers = null;
-    private static ValidUsersXML s_validUserXML = null;
 
     /**
      * Private constructor for updatable singleton
@@ -58,20 +57,7 @@ public class FullUsers {
     /**
      */
     public static synchronized FullUsers update() {
-        ValidUsersXML newValidUserXML = null;
         boolean dataChanged = false;
-        
-        try {
-            newValidUserXML = ValidUsersXML.update(null, true);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        
-        if(newValidUserXML != s_validUserXML) {
-            dataChanged = true;
-            s_validUserXML = newValidUserXML;
-        }
         
         s_contactInfoFile = new File(s_contactInfoFileName);
         
@@ -96,7 +82,7 @@ public class FullUsers {
     void loadInfo() {
         LOG.info("Loading contact-information.xml configuration");
      
-        for (User u : s_validUserXML.GetUsers()) {
+        for (User u : ValidUsers.INSTANCE.getUsers()) {
             
             FullUser fullUser = new FullUser(u);
             
@@ -113,7 +99,7 @@ public class FullUsers {
             contactInfoDoc = builder.parse(s_contactInfoFile);
             
         } catch (Throwable t) {
-            LOG.fatal("Something went wrong loading the validusers.xml file.", t);
+            LOG.fatal("Something went wrong loading the valid users.", t);
             System.exit(1);
         }
         

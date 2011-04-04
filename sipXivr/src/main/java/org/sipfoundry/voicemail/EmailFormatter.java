@@ -15,8 +15,8 @@ import java.util.Locale;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
-import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
 
@@ -99,8 +99,8 @@ public class EmailFormatter {
 
         if(m_vmMessage != null) {
             fromUri = m_vmMessage.getMessageDescriptor().getFromUri();
-            fromUser = ValidUsersXML.getUserPart(fromUri);
-            fromDisplay = ValidUsersXML.getDisplayPart(fromUri);
+            fromUser = ValidUsers.getUserPart(fromUri);
+            fromDisplay = ValidUsers.getDisplayPart(fromUri);
             args[ 0] = new Long(m_vmMessage.getDuration()*1000);    //  0 audio Duration in mS
             args[ 5] = m_vmMessage.getMessageId();                  //  5 Message Id
             args[ 6] = new Date(m_vmMessage.getTimestamp());        //  6 message timestamp         

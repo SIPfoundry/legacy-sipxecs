@@ -24,7 +24,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Hangup;
 import org.sipfoundry.commons.freeswitch.Set;
 import org.sipfoundry.commons.log4j.SipFoundryLayout;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.conference.ConfRecordStatus;
 import org.sipfoundry.moh.Moh;
 import org.sipfoundry.faxrx.FaxRx;
@@ -82,7 +82,7 @@ public class SipXivr implements Runnable {
                     if(index > 0) {
                         String sipOcn = divHeader.substring(0, index);
                         // Ignore the domain for now (it may be an IP address)
-                        ocn = ValidUsersXML.getUserPart(sipOcn);
+                        ocn = ValidUsers.getUserPart(sipOcn);
                     }
                 }
             }

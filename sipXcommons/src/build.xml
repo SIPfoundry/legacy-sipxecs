@@ -37,6 +37,7 @@
     <pathelement location="${src.dir}/lib/jce.jar"/>
     <pathelement location="${src.dir}/lib/not-yet-commons-ssl.jar"/>
     <pathelement location="${src.dir}/lib/postgresql-jdbc.jar"/>
+    <pathelement location="${src.dir}/lib/mongo-2.3.jar"/>
   </path>
   <property name="classpath" refid="base.path" />
 
@@ -215,6 +216,7 @@
       <fileset file="${src.dir}/lib/org.restlet.jar" />
       <fileset file="${src.dir}/lib/rocksaw.dll"/>
       <fileset file="${src.dir}/lib/commons-httpclient.jar"/>
+      <fileset file="${src.dir}/lib/mongo-2.3.jar"/>
     </copy>
   </target>
 

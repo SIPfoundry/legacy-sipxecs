@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
 import org.sipfoundry.sipxivr.IvrChoice;
@@ -59,7 +60,7 @@ public class EnterExtension {
                 
             } else if (digits.equals("9")) {
                 // Do the DialByName dialog
-                DialByName dbn = new DialByName(loc, vm.getConfig(), vm.getValidUsers());
+                DialByName dbn = new DialByName(loc, vm.getConfig());
                 dbn.setOnlyVoicemailUsers(true);
                 DialByNameChoice dbnChoice = dbn.dialByName();
                 
@@ -78,7 +79,7 @@ public class EnterExtension {
                 userList.addAll(dbnChoice.getUsers());
                 break ;
             } else {
-                User user = vm.getValidUsers().getUser(digits);
+                User user = ValidUsers.INSTANCE.getUser(digits);
                 if (user == null || !user.hasVoicemail()) {
                     // "that extension is not valid"
                     loc.play("invalid_extension", "");
