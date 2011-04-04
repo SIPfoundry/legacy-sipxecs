@@ -10,8 +10,6 @@
 package org.sipfoundry.sipxconfig.phone.polycom;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -53,7 +51,7 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     }
 
     public String getCustomConfigs() {
-        Setting custom = getDevice().getSettings().getSetting("feature/custom-configs");
+        Setting custom = getDevice().getSettings().getSetting("custom/custom-configs");
         return ApplicationConfiguration.nonBlankEndsInComma(custom.getValue());
     }
 
@@ -61,7 +59,8 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
      *   transform "abc" goes to "abc," if non-blank
      */
     protected static String nonBlankEndsInComma(String s)  {
-        return StringUtils.isNotBlank(s) && !s.endsWith(",") ? s + ',' : s;
+        String c =  StringUtils.defaultString(s).trim();
+        return StringUtils.isNotBlank(c) && !c.endsWith(",") ? c + ',' : c;
     }
 
    /**
@@ -70,21 +69,10 @@ public class ApplicationConfiguration extends ProfileContext<PolycomPhone> {
     *
     */
     public String getLicenseFileNames() {
-
-        String licenseFiles = null;
-        List<String> licenseFileNames = new ArrayList<String>();
-        String universalLicenseFilename = getUniversalLicenseFilename();
-        if (universalLicenseFilename != null) {
-            licenseFileNames.add(universalLicenseFilename);
-        }
-        String myLicenseFileName = getMyLicenseFilename();
-        if (myLicenseFileName != null) {
-            licenseFileNames.add(myLicenseFileName);
-        }
-        if (!licenseFileNames.isEmpty()) {
-            licenseFiles =  StringUtils.join(licenseFileNames, ", ");
-        }
-        return licenseFiles;
+        StringBuilder licenseFiles = new StringBuilder();
+        licenseFiles.append(ApplicationConfiguration.nonBlankEndsInComma(getUniversalLicenseFilename()));
+        licenseFiles.append(ApplicationConfiguration.nonBlankEndsInComma(getMyLicenseFilename()));
+        return licenseFiles.toString();
 
     }
     /**
