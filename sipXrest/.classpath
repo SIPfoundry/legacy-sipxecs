@@ -13,5 +13,6 @@
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/org.restlet.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/commons-codec.jar"/>
 	<classpathentry kind="var" path="SIPX_BUILD_TOP/sipXcommons/dist/sipxcommons.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>
