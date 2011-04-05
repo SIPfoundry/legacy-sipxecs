@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
@@ -124,6 +125,11 @@ public class ExternalAlias implements Replicable {
     @Override
     public boolean isValidUser() {
         return true;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 
 }

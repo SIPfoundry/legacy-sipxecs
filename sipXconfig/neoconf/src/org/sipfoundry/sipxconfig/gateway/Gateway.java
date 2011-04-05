@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -357,5 +358,10 @@ public class Gateway extends Device implements Replicable {
     @Override
     public boolean isValidUser() {
         return false;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 }

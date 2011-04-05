@@ -362,7 +362,6 @@
       <list>
         <ref bean="sipxImbotConfiguration" />
         <ref bean="sipxIvrConfiguration" />
-        <ref bean="contactInformationConfig" />
       </list>
     </property>
     <property name="docDir" value="${sysdir.doc}" />

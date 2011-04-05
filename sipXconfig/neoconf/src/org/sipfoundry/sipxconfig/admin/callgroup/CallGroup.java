@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -240,6 +241,11 @@ public class CallGroup extends AbstractCallSequence implements Replicable {
     @Override
     public boolean isValidUser() {
         return true;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 
 }

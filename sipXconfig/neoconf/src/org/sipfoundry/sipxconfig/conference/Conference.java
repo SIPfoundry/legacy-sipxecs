@@ -12,13 +12,16 @@ package org.sipfoundry.sipxconfig.conference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
@@ -143,7 +146,6 @@ public class Conference extends BeanWithSettings implements Replicable {
 
     /**
      * It is called by deployment module every time we provision the bridge
-     *
      */
     public void generateRemoteAdmitSecret() {
         m_defaults.generateRemoteAdmitSecret();
@@ -312,6 +314,17 @@ public class Conference extends BeanWithSettings implements Replicable {
     @Override
     public boolean isValidUser() {
         return true;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(DataSetGenerator.CONF_EXT, getExtension());
+        props.put(DataSetGenerator.CONF_NAME, getName());
+        if (getOwner() != null) {
+            props.put(DataSetGenerator.CONF_OWNER, getOwner().getUserName());
+        }
+        return props;
     }
 
 }

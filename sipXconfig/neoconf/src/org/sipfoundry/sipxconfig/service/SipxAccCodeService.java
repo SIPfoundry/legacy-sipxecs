@@ -9,9 +9,11 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -228,7 +230,7 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     @Override
     public String getIdentity(String domain) {
         return SipUri.format(getAuthCodePrefix(), ((SipxFreeswitchService) getSipxServiceManager()
-                .getServiceByBeanId(SipxFreeswitchService.BEAN_ID)).getDomainName(), false);
+                    .getServiceByBeanId(SipxFreeswitchService.BEAN_ID)).getDomainName(), false);
     }
 
     public void setCoreContext(CoreContext coreContext) {
@@ -245,6 +247,11 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     @Override
     public boolean isValidUser() {
         return true;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 
 }

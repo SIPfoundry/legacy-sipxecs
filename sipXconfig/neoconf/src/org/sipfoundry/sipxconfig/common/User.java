@@ -10,13 +10,16 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
@@ -107,9 +110,17 @@ public class User extends AbstractUser implements Replicable {
     public void setValidUser(boolean vld) {
         m_validUser = vld;
     }
-    
+
     @Override
     public boolean isValidUser() {
         return m_validUser;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(DataSetGenerator.UID, getUserName());
+        props.put(DataSetGenerator.CONTACT, getContactUri(domain));
+        return props;
     }
 }

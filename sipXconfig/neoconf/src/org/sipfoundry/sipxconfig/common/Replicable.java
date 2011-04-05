@@ -9,6 +9,7 @@
 package org.sipfoundry.sipxconfig.common;
 
 import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
@@ -20,4 +21,5 @@ public interface Replicable extends NamedObject {
     public String getIdentity(String domainName);
     public Collection<AliasMapping> getAliasMappings(String domainName);
     public boolean isValidUser();
+    public Map<String, Object> getMongoProperties(String domain);
 }

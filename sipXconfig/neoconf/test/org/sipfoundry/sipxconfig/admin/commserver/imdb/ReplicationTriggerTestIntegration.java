@@ -20,7 +20,6 @@ import java.util.TreeSet;
 import org.sipfoundry.sipxconfig.IntegrationTestCase;
 import org.sipfoundry.sipxconfig.admin.ConfigurationFile;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener;
 import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.admin.forwarding.ForwardingContext;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
@@ -45,8 +44,6 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
     private SettingDao m_dao;
     private CoreContext m_coreContext;
     private BranchManager m_branchManager;
-    private ConfigurationFile m_contactInformationConfig;
-    private ContactInformationDaoListener m_contactInformationDaoListener;
     private TlsPeerManager m_tlsPeerManager;
     private PermissionManager m_permissionManager;
     private ForwardingContext m_forwardingContext;
@@ -221,14 +218,6 @@ public class ReplicationTriggerTestIntegration extends IntegrationTestCase {
      * 
      * verify(replicationContext); }
      */
-
-    public void setContactInformationConfig(ConfigurationFile contactInformationConfig) {
-        m_contactInformationConfig = contactInformationConfig;
-    }
-
-    public void setContactInformationDaoListener(ContactInformationDaoListener contactInformationDaoListener) {
-        m_contactInformationDaoListener = contactInformationDaoListener;
-    }
 
     public void setTlsPeerManager(TlsPeerManager peerManager) {
         m_tlsPeerManager = peerManager;

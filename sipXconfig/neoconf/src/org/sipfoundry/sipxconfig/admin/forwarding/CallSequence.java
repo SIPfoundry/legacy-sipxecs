@@ -10,9 +10,11 @@
 package org.sipfoundry.sipxconfig.admin.forwarding;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.callgroup.AbstractCallSequence;
@@ -123,5 +125,8 @@ public class CallSequence extends AbstractCallSequence implements Replicable {
         return false;
     }
 
-
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
+    }
 }
