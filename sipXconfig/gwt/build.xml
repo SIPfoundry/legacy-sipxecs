@@ -14,7 +14,7 @@
 
 	<target name="gwt.compile.module" depends="clean">
 		<mkdir dir="${output}" />
-		<!--antcall target="gwt.compile.module.userportal" /-->
+		<antcall target="gwt.compile.module.userportal" />
 	</target>
 
 	<target name="gwt.compile.module.userportal">
