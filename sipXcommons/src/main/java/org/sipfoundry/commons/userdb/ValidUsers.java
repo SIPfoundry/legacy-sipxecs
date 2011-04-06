@@ -293,7 +293,7 @@ public enum ValidUsers {
      * 
      * @param orig
      */
-    private static String compress(String orig) {
+    protected static String compress(String orig) {
         if (orig == null) {
             return "";
         }
@@ -318,7 +318,7 @@ public enum ValidUsers {
     /**
      * Map from letters to DTMF numbers
      */
-    private static String mapDTMF(String orig) {
+    protected static String mapDTMF(String orig) {
         if (orig == null) {
             return "";
         }
@@ -412,7 +412,7 @@ public enum ValidUsers {
      * 
      * @param u
      */
-    private static void buildDialPatterns(User u) {
+    protected static void buildDialPatterns(User u) {
         u.setDialPatterns(new Vector<String>());
 
         if (u.getDisplayName() == null) {
