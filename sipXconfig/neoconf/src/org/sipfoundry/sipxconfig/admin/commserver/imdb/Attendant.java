@@ -62,7 +62,6 @@ public class Attendant extends DataSetGenerator {
     private static final String OFFICE_STATE = "ostate";
     private static final String OFFICE_ZIP = "ozip";
     private static final String OFFICE_DESIGNATION = "odsgn";
-    private static final String OFFICE_ADDRESS = "ofcadr";
     private static final String CONF_ENTRY_IM = "cnfentry";
     private static final String CONF_EXIT_IM = "cnfexit";
     private static final String LEAVE_MESSAGE_BEGIN_IM = "lvmsgbeg";
@@ -151,7 +150,7 @@ public class Attendant extends DataSetGenerator {
                 top.put(OFFICE_COUNTRY, officeAddress.getCountry());
                 top.put(OFFICE_STATE, officeAddress.getState());
                 top.put(OFFICE_ZIP, officeAddress.getZip());
-                top.put(OFFICE_ADDRESS, officeAddress.getOfficeDesignation());
+                top.put(OFFICE_DESIGNATION, officeAddress.getOfficeDesignation());
             }
         }
         top.put(CONF_ENTRY_IM, user.getSettingValue("im_notification/conferenceEntryIM").toString());

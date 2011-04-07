@@ -324,6 +324,7 @@ public class Conference extends BeanWithSettings implements Replicable {
         if (getOwner() != null) {
             props.put(DataSetGenerator.CONF_OWNER, getOwner().getUserName());
         }
+        props.put(DataSetGenerator.CONF_PIN, getParticipantAccessCode());
         return props;
     }
 

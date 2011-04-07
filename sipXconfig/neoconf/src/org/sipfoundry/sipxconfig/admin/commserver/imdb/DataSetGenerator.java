@@ -29,6 +29,7 @@ public abstract class DataSetGenerator {
     public static final String CONF_EXT = "cnfext";
     public static final String CONF_NAME = "cnfnm";
     public static final String CONF_OWNER = "cnfown";
+    public static final String CONF_PIN = "cnfpin";
     private DBCollection m_dbCollection;
     private CoreContext m_coreContext;
 
