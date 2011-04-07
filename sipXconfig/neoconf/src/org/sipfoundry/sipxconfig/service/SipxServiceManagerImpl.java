@@ -20,12 +20,10 @@ import org.apache.commons.collections.Factory;
 import org.apache.commons.collections.Predicate;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.collections.map.LazyMap;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
-import org.sipfoundry.sipxconfig.common.BeanId;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.device.ModelSource;
 import org.springframework.beans.factory.annotation.Required;
@@ -58,26 +56,6 @@ public class SipxServiceManagerImpl extends SipxHibernateDaoSupport<SipxService>
         }
         ensureBeanIsInitialized(service);
         return service;
-    }
-
-    public boolean isAliasInUse(String alias) {
-        SipxRegistrarService registrar = (SipxRegistrarService) getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        return isRegistrarAliasInUse(registrar, alias);
-    }
-
-    private boolean isRegistrarAliasInUse(SipxRegistrarService registrar, String alias) {
-        String pickupCode = registrar.getDirectedCallPickupCode();
-        String callRetrieveCode = registrar.getCallRetrieveCode();
-        return StringUtils.equals(pickupCode, alias) || StringUtils.equals(callRetrieveCode, alias);
-    }
-
-    public Collection getBeanIdsOfObjectsWithAlias(String alias) {
-        Collection<BeanId> bids = new ArrayList<BeanId>();
-        SipxRegistrarService registrar = (SipxRegistrarService) getServiceByBeanId(SipxRegistrarService.BEAN_ID);
-        if (isRegistrarAliasInUse(registrar, alias)) {
-            bids.add(new BeanId(registrar.getId(), SipxRegistrarService.class));
-        }
-        return bids;
     }
 
     public SipxService getServiceByName(String name) {

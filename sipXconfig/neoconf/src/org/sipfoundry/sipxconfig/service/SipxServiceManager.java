@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
-import org.sipfoundry.sipxconfig.alias.AliasOwner;
 
-public interface SipxServiceManager extends AliasOwner {
+public interface SipxServiceManager {
     String CONTEXT_BEAN_NAME = "sipxServiceManager";
 
     SipxService getServiceByName(String name);

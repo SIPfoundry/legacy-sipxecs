@@ -47,7 +47,7 @@ public class ConflictingFeatureCodeValidator extends AbstractSettingVisitor {
             for (Setting code : m_codes) {
                 String codeValue = code.getValue();
                 if (value.startsWith(codeValue) || codeValue.startsWith(value)) {
-                    throw new ConflictingFeatureCodeException("&conflict.feature.codes", setting, code);
+                    throw new ConflictingFeatureCodeException(setting, code);
                 }
             }
             m_codes.add(setting);

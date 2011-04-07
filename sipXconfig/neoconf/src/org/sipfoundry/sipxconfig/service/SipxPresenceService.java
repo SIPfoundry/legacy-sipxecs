@@ -37,14 +37,6 @@ public class SipxPresenceService extends SipxService implements LoggingEntity {
         }));
     }
 
-    public String getPresenceSignIn() {
-        return getSettingValue(PRESENCE_SIGN_IN_CODE);
-    }
-
-    public String getPresenceSignOut() {
-        return getSettingValue(PRESENCE_SIGN_OUT_CODE);
-    }
-
     public int getPresenceServerPort() {
         return (Integer) getSettingTypedValue(PRESENCE_SERVER_SIP_PORT);
     }

@@ -1,11 +1,7 @@
 /*
- *
- *
- * Copyright (C) 2008 Pingtel Corp., certain elements licensed under a Contributor Agreement.
+ * Copyright (C) 2010 Avaya, certain elements licensed under a Contributor Agreement.
  * Contributors retain copyright to elements licensed under a Contributor Agreement.
  * Licensed to the User under the LGPL license.
- *
- * $
  */
 package org.sipfoundry.sipxconfig.site.service;
 
@@ -14,22 +10,24 @@ import net.sourceforge.jwebunit.junit.WebTestCase;
 
 import org.sipfoundry.sipxconfig.site.SiteTestHelper;
 
-public class EditSipxServiceTestUi extends WebTestCase {
+public class EditPresenceServiceTestUi extends WebTestCase {
 
     public static Test suite() throws Exception {
-        return SiteTestHelper.webTestSuite(EditSipxServiceTestUi.class);
+        return SiteTestHelper.webTestSuite(EditPresenceServiceTestUi.class);
     }
 
-    public void initService(String service) {
+    @Override
+    protected void setUp() throws Exception {
         getTestContext().setBaseUrl(SiteTestHelper.getBaseUrl());
         SiteTestHelper.home(getTester());
-        clickLink(service);
+        clickLink("seedPresenceService");
         clickLink("toggleNavigation");
         clickLink("menu.locations");
+    }
 
+    public void testDisplay() {
         SiteTestHelper.assertNoException(tester);
         SiteTestHelper.assertNoUserError(tester);
-
         clickLink("menu.locations");
         assertLinkPresent("editLocationLink");
         clickLink("editLocationLink");
@@ -40,30 +38,7 @@ public class EditSipxServiceTestUi extends WebTestCase {
         assertLinkPresent("editSipxService");
         clickLink("editSipxService");
         SiteTestHelper.assertNoException(tester);
-    }
-
-    public void testEditProxyServiceDisplay() {
-        initService("seedProxyService");
-        assertTextPresent("SIPX_PROXY_DEFAULT_SERIAL_EXPIRES");
-    }
-
-    public void testEditRegistrarServiceDisplay() {
-        initService("seedRegistrarService");
-        assertTextPresent("SIP_REDIRECT.160-ENUM.ADD_PREFIX");
-    }
-
-    public void testEditRegistrarServiceNoDuplicateCodes() {
-        initService("seedRegistrarService");
-        SiteTestHelper.dumpPage(tester);
-    }
-
-    public void testEditFreeswitchServiceDisplay() {
-        initService("seedFreeswitchService");
-        SiteTestHelper.assertNoUserError(tester);
-    }
-
-    public void testEditRelayServiceDisplay() {
-        initService("seedRelayService");
-        SiteTestHelper.assertNoUserError(tester);
+        assertTextPresent("SIP_PRESENCE_SIGN_IN_CODE");
+        assertTextNotPresent("SIP_PRESENCE_LOG_LEVEL");
     }
 }
