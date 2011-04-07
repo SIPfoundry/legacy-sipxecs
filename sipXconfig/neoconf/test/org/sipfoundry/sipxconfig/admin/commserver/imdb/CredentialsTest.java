@@ -15,6 +15,7 @@ import static org.easymock.EasyMock.replay;
 
 import java.util.Collections;
 
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -53,9 +54,9 @@ public class CredentialsTest extends MongoTestCase {
         String digest = "8e5d70cc7173bca2802dd45113229c1b";
 
         MongoTestCaseHelper.assertObjectWithIdPresent("CallGroup1");
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.IDENTITY, "sales@" + DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.PASSTOKEN, "pass4321");
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", Credentials.PINTOKEN, digest);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", MongoConstants.PASSTOKEN, "pass4321");
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", MongoConstants.PINTOKEN, digest);
     }
 
     public void testAddUser() throws Exception {
@@ -72,9 +73,9 @@ public class CredentialsTest extends MongoTestCase {
         m_credentials.generate(user);
 
         MongoTestCaseHelper.assertObjectWithIdPresent("User1");
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", Credentials.IDENTITY, "superadmin@" + DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", Credentials.PASSTOKEN, "pass4321");
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", Credentials.PINTOKEN,
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.IDENTITY, "superadmin@" + DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.PASSTOKEN, "pass4321");
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.PINTOKEN,
                 Md5Encoder.digestPassword("superadmin", DOMAIN, PIN));
     }
 
@@ -92,11 +93,11 @@ public class CredentialsTest extends MongoTestCase {
         m_credentials.generate(user);
 
         MongoTestCaseHelper.assertObjectWithIdPresent("User1");
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", Credentials.IDENTITY, "superadmin@" + DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.IDENTITY, "superadmin@" + DOMAIN);
         String emptyHash = Md5Encoder.digestPassword("superadmin", DOMAIN, "");
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", Credentials.PASSTOKEN, "");
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", Credentials.PINTOKEN, emptyHash);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", Credentials.REALM, DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.PASSTOKEN, "");
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.PINTOKEN, emptyHash);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.REALM, DOMAIN);
     }
 
 }

@@ -21,51 +21,9 @@ import org.sipfoundry.sipxconfig.phonebook.Address;
 import org.sipfoundry.sipxconfig.phonebook.AddressBookEntry;
 import org.sipfoundry.sipxconfig.vm.MailboxPreferences;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.*;
+
 public class Attendant extends DataSetGenerator {
-    private static final String USERBUSYPROMPT = "bsyprmpt";
-    private static final String VOICEMAILTUI = "vcmltui";
-    private static final String EMAIL = "email";
-    private static final String NOTIFICATION = "notif";
-    private static final String ATTACH_AUDIO = "attaudio";
-    private static final String ALT_EMAIL = "altemail";
-    private static final String ALT_NOTIFICATION = "altnotif";
-    private static final String ALT_ATTACH_AUDIO = "altattaudio";
-    private static final String SYNC = "synch";
-    private static final String HOST = "host";
-    private static final String PORT = "port";
-    private static final String TLS = "tls";
-    private static final String ACCOUNT = "acnt";
-    private static final String PASSWD = "pswd";
-    private static final String DISPLAY_NAME = "dspl";
-    private static final String HASHED_PASSTOKEN = "hshpstk";
-    private static final String IM_ID = "imid";
-    private static final String IM_DISPLAY_NAME = "imdn";
-    private static final String ALT_IM_ID = "altimid";
-    private static final String JOB_TITLE = "jbttl";
-    private static final String JOB_DEPT = "jbdpt";
-    private static final String COMPANY_NAME = "cmpnm";
-    private static final String ASSISTANT_NAME = "astnm";
-    private static final String ASSISTANT_PHONE = "astph";
-    private static final String FAX_NUMBER = "fax";
-    private static final String LOCATION = "loctn"; // this is different than loc field in user
-                                                    // location db
-    private static final String HOME_PHONE_NUMBER = "hmph";
-    private static final String CELL_PHONE_NUMBER = "cell";
-    private static final String HOME_STREET = "hstr";
-    private static final String HOME_CITY = "hcty";
-    private static final String HOME_COUNTRY = "hcntry";
-    private static final String HOME_STATE = "hstate";
-    private static final String HOME_ZIP = "hzip";
-    private static final String OFFICE_STREET = "ostr";
-    private static final String OFFICE_CITY = "octy";
-    private static final String OFFICE_COUNTRY = "ocntry";
-    private static final String OFFICE_STATE = "ostate";
-    private static final String OFFICE_ZIP = "ozip";
-    private static final String OFFICE_DESIGNATION = "odsgn";
-    private static final String CONF_ENTRY_IM = "cnfentry";
-    private static final String CONF_EXIT_IM = "cnfexit";
-    private static final String LEAVE_MESSAGE_BEGIN_IM = "lvmsgbeg";
-    private static final String LEAVE_MESSAGE_END_IM = "lvmsgend";
 
     @Override
     public void generate(Replicable entity) {

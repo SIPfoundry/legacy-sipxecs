@@ -28,10 +28,13 @@ import org.apache.commons.logging.LogFactory;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.xml.sax.SAXException;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.ID;
+
 public class ExternalAlias implements Replicable {
     private static final Log LOG = LogFactory.getLog(ExternalAliases.class);
-    private static final String IDENTITY = "identity";
-    private static final String CONTACT = "contact";
+    private static final String ALIAS_IDENTITY = "identity";
+    private static final String ALIAS_CONTACT = "contact";
 
     private List<File> m_files;
 
@@ -84,17 +87,17 @@ public class ExternalAlias implements Replicable {
      * the id if present
      */
     private void transformMapping(AliasMapping mapping) {
-        String id = mapping.getString(IDENTITY);
-        String cnt = mapping.getString(CONTACT);
+        String id = mapping.getString(ALIAS_IDENTITY);
+        String cnt = mapping.getString(ALIAS_CONTACT);
         if (id != null) {
             // strip domain part
             String[] tokens = StringUtils.split(id, "@");
-            mapping.put(AliasMapping.IDENTITY, tokens[0]);
-            mapping.remove(IDENTITY);
+            mapping.put(ID, tokens[0]);
+            mapping.remove(ALIAS_IDENTITY);
         }
         if (cnt != null) {
-            mapping.put(AliasMapping.CONTACT, cnt);
-            mapping.remove(CONTACT);
+            mapping.put(CONTACT, cnt);
+            mapping.remove(ALIAS_CONTACT);
         }
     }
 

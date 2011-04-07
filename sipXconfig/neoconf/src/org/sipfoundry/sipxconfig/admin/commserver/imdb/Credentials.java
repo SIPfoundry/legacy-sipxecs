@@ -20,12 +20,9 @@ import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
 
 import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.sipfoundry.commons.mongo.MongoConstants.*;
 
 public class Credentials extends DataSetGenerator {
-    public static final String REALM = "rlm";
-    public static final String PASSTOKEN = "pstk";
-    public static final String PINTOKEN = "pntk";
-    public static final String AUTHTYPE = "authtp";
     public static final String DIGEST = "DIGEST";
 
     @Override

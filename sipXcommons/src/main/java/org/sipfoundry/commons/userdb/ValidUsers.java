@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Vector;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.*;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
 
 import com.mongodb.BasicDBList;
@@ -38,50 +39,24 @@ public enum ValidUsers {
     // Position of letter in letters maps to corresponding position in numbers
     private static String LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private static String NUMBERS = "22233344455566677778889999";
-    private static final String IMDB_USERBUSYPROMPT = "bsyprmpt";
-    private static final String IMDB_VOICEMAILTUI = "vcmltui";
-    private static final String IMDB_EMAIL = "email";
-    private static final String IMDB_NOTIFICATION = "notif";
-    private static final String IMDB_ATTACH_AUDIO = "attaudio";
-    private static final String IMDB_ALT_EMAIL = "altemail";
-    private static final String IMDB_ALT_NOTIFICATION = "altnotif";
-    private static final String IMDB_ALT_ATTACH_AUDIO = "altattaudio";
-    private static final String IMDB_SYNC = "synch";
-    private static final String IMDB_HOST = "host";
-    private static final String IMDB_PORT = "port";
-    private static final String IMDB_TLS = "tls";
-    private static final String IMDB_ACCOUNT = "acnt";
-    private static final String IMDB_PASSWD = "pswd";
-    private static final String IMDB_DISPLAY_NAME = "dspl";
-    private static final String IMDB_HASHED_PASSTOKEN = "hshpstk";
-    private static final String IMDB_ID = "id";
-    private static final String IMDB_UID = "uid";
-    private static final String IMDB_VALID = "vld";
-    private static final String IMDB_ALIASSES = "als";
-    private static final String IMDB_ALIAS = "alias";
-    private static final String IMDB_PERMISSION = "prm";
-    private static final String IMDB_CONTACT = "cnt";
-    private static final String IMDB_IDENTITY = "ident";
     private static final String IMDB_PERM_AA = "AutoAttendant";
     private static final String IMDB_PERM_VOICEMAIL = "Voicemail";
     private static final String IMDB_PERM_RECPROMPTS = "RecordSystemPrompts";
     private static final String IMDB_PERM_TUICHANGEPIN = "tui-change-pin";
-    private static final String IMDB_RELATION = "rln";
-    private static final String IMDB_PINTOKEN = "pntk";
 
-    private static String HOST = "localhost";
-    private static int PORT = 27017;
+    private static String MONGO_HOST = "localhost";
+    private static int MONGO_PORT = 27017;
     private Mongo m_mongoInstance;
 
     public List<User> getUsers() {
         List<User> users = new ArrayList<User>();
         try {
-            DBCursor cursor = getEntityCollection().find(QueryBuilder.start(IMDB_VALID).is(Boolean.TRUE).get());
+            DBCursor cursor = getEntityCollection().find(QueryBuilder.start(VALID_USER).is(Boolean.TRUE).get());
             Iterator<DBObject> objects = cursor.iterator();
             while (objects.hasNext()) {
                 DBObject validUser = objects.next();
-                if (!validUser.get(IMDB_ID).toString().startsWith("User")) {
-                    BasicDBList aliasesObj = (BasicDBList) validUser.get(IMDB_ALIASSES);
+                if (!validUser.get(ID).toString().startsWith("User")) {
+                    BasicDBList aliasesObj = (BasicDBList) validUser.get(ALIASES);
                     if (aliasesObj != null) {
                         for (int i = 0; i < aliasesObj.size(); i++) {
                             DBObject aliasObj = (DBObject) aliasesObj.get(i);
@@ -106,7 +81,7 @@ public enum ValidUsers {
      * @return user found or null
      */
     public User getUser(String userName) {
-        DBObject queryUserName = QueryBuilder.start(IMDB_VALID).is(Boolean.TRUE).and(IMDB_UID).is(userName).get();
+        DBObject queryUserName = QueryBuilder.start(VALID_USER).is(Boolean.TRUE).and(UID).is(userName).get();
         DBObject result = getEntityCollection().findOne(queryUserName);
         if (result != null) {
             return extractValidUser(getEntityCollection().findOne(queryUserName));
@@ -114,26 +89,61 @@ public enum ValidUsers {
 
         // check aliases
         BasicDBObject elemMatch = new BasicDBObject();
-        elemMatch.put(IMDB_ID, userName);
+        elemMatch.put(ID, userName);
         BasicDBObject alias = new BasicDBObject();
         alias.put("$elemMatch", elemMatch);
         BasicDBObject queryAls = new BasicDBObject();
-        queryAls.put(IMDB_ALIASSES, alias);
-        queryAls.put(IMDB_VALID, Boolean.TRUE);
+        queryAls.put(ALIASES, alias);
+        queryAls.put(VALID_USER, Boolean.TRUE);
         DBObject aliasResult = getEntityCollection().findOne(queryAls);
         if (aliasResult == null) {
             return null;
         }
-        if (!aliasResult.get(IMDB_ID).toString().startsWith("User")) {
-            BasicDBList aliases = (BasicDBList) aliasResult.get(IMDB_ALIASSES);
+        if (!aliasResult.get(ID).toString().startsWith("User")) {
+            BasicDBList aliases = (BasicDBList) aliasResult.get(ALIASES);
             for (int i = 0; i < aliases.size(); i++) {
                 DBObject aliasObj = (DBObject) aliases.get(i);
-                if (getStringValue(aliasObj, IMDB_ID).equals(userName)) {
+                if (getStringValue(aliasObj, ID).equals(userName)) {
                     return extractValidUserFromAlias(aliasObj);
                 }
             }
         }
         return extractValidUser(aliasResult);
+    }
+
+    public User getUserByConferenceName(String conferenceName) {
+        DBObject queryConference = QueryBuilder.start(CONF_NAME).is(conferenceName).get();
+        DBObject conferenceResult = getEntityCollection().findOne(queryConference);
+        if (conferenceResult != null && getStringValue(conferenceResult, CONF_OWNER) != null) {
+            User user = getUser(getStringValue(conferenceResult, CONF_OWNER));
+            addConference(user, conferenceResult);
+            return user;
+        }
+        return null;
+    }
+
+    public User getUserByJid(String jid) {
+        BasicDBObject jidQuery = new BasicDBObject();
+        jidQuery.put(IM_ID, jid);
+        BasicDBObject altJidQuery = new BasicDBObject();
+        altJidQuery.put(ALT_IM_ID, jid);
+        DBObject queryJid = QueryBuilder.start().or(jidQuery, altJidQuery).get();
+        DBObject jidResult = getEntityCollection().findOne(queryJid);
+        User user = extractValidUser(jidResult);
+        if (user != null) {
+            DBObject queryConference = QueryBuilder.start(CONF_OWNER).is(user.getUserName()).get();
+            DBObject conferenceResult = getEntityCollection().findOne(queryConference);
+            if (conferenceResult != null) {
+                addConference(user, conferenceResult);
+            }
+        }
+        return user;
+    }
+
+    private void addConference(User user, DBObject conference) {
+        user.setConfName(getStringValue(conference, CONF_NAME));
+        user.setConfNum(getStringValue(conference, CONF_EXT));
+        user.setConfPin(getStringValue(conference, CONF_PIN));
     }
 
     /**
@@ -152,9 +162,9 @@ public enum ValidUsers {
         BasicDBObject hasDisplayName = new BasicDBObject();
         hasDisplayName.put("$exists", Boolean.TRUE);
         BasicDBObject queryAls = new BasicDBObject();
-        queryAls.put(IMDB_PERMISSION, inDirectory);
-        queryAls.put(IMDB_VALID, Boolean.TRUE);
-        queryAls.put(IMDB_DISPLAY_NAME, hasDisplayName);
+        queryAls.put(PERMISSIONS, inDirectory);
+        queryAls.put(VALID_USER, Boolean.TRUE);
+        queryAls.put(DISPLAY_NAME, hasDisplayName);
         DBCursor aliasResult = getEntityCollection().find(queryAls);
         Iterator<DBObject> objects = aliasResult.iterator();
         while (objects.hasNext()) {
@@ -177,7 +187,7 @@ public enum ValidUsers {
         DBCollection entity = null;
         try {
             if (m_mongoInstance == null) {
-                m_mongoInstance = new Mongo(HOST, PORT);
+                m_mongoInstance = new Mongo(MONGO_HOST, MONGO_PORT);
             }
             DB imdb = m_mongoInstance.getDB("imdb");
             entity = imdb.getCollection("entity");
@@ -192,10 +202,10 @@ public enum ValidUsers {
             return null;
         }
         User user = new User();
-        String id = getStringValue(aliasObj, IMDB_ID);
+        String id = getStringValue(aliasObj, ID);
         user.setIdentity(id);
         user.setUserName(id);
-        user.setUri(getStringValue(aliasObj, IMDB_CONTACT));
+        user.setUri(getStringValue(aliasObj, CONTACT));
         user.setInDirectory(false);
         return user;
     }
@@ -204,19 +214,19 @@ public enum ValidUsers {
         if (obj == null) {
             return null;
         }
-        if (!Boolean.valueOf(obj.get(IMDB_VALID).toString())) {
+        if (!Boolean.valueOf(obj.get(VALID_USER).toString())) {
             return null;
         }
 
         User user = new User();
-        user.setIdentity(getStringValue(obj, IMDB_IDENTITY));
-        user.setUserName(getStringValue(obj, IMDB_UID));
-        user.setDisplayName(getStringValue(obj, IMDB_DISPLAY_NAME));
-        user.setUri(getStringValue(obj, IMDB_CONTACT));
-        user.setPasstoken(getStringValue(obj, IMDB_HASHED_PASSTOKEN));
-        user.setPintoken(getStringValue(obj, IMDB_PINTOKEN));
+        user.setIdentity(getStringValue(obj, IDENTITY));
+        user.setUserName(getStringValue(obj, UID));
+        user.setDisplayName(getStringValue(obj, DISPLAY_NAME));
+        user.setUri(getStringValue(obj, CONTACT));
+        user.setPasstoken(getStringValue(obj, HASHED_PASSTOKEN));
+        user.setPintoken(getStringValue(obj, PINTOKEN));
 
-        BasicDBList permissions = (BasicDBList) obj.get(IMDB_PERMISSION);
+        BasicDBList permissions = (BasicDBList) obj.get(PERMISSIONS);
         if (permissions != null) {
             user.setInDirectory(permissions.contains(IMDB_PERM_AA));
             user.setHasVoicemail(permissions.contains(IMDB_PERM_VOICEMAIL));
@@ -224,40 +234,40 @@ public enum ValidUsers {
             user.setCanTuiChangePin(permissions.contains(IMDB_PERM_TUICHANGEPIN));
         }
 
-        user.setUserBusyPrompt(Boolean.valueOf(getStringValue(obj, IMDB_USERBUSYPROMPT)));
-        user.setVoicemailTui(getStringValue(obj, IMDB_VOICEMAILTUI));
-        user.setEmailAddress(getStringValue(obj, IMDB_EMAIL));
-        if (obj.keySet().contains(IMDB_NOTIFICATION)) {
-            user.setEmailFormat(getStringValue(obj, IMDB_NOTIFICATION));
+        user.setUserBusyPrompt(Boolean.valueOf(getStringValue(obj, USERBUSYPROMPT)));
+        user.setVoicemailTui(getStringValue(obj, VOICEMAILTUI));
+        user.setEmailAddress(getStringValue(obj, EMAIL));
+        if (obj.keySet().contains(NOTIFICATION)) {
+            user.setEmailFormat(getStringValue(obj, NOTIFICATION));
         }
-        user.setAttachAudioToEmail(Boolean.valueOf(getStringValue(obj, IMDB_ATTACH_AUDIO)));
+        user.setAttachAudioToEmail(Boolean.valueOf(getStringValue(obj, ATTACH_AUDIO)));
 
-        user.setAltEmailAddress(getStringValue(obj, IMDB_ALT_EMAIL));
-        if (obj.keySet().contains(IMDB_ALT_NOTIFICATION)) {
-            user.setAltEmailFormat(getStringValue(obj, IMDB_ALT_NOTIFICATION));
+        user.setAltEmailAddress(getStringValue(obj, ALT_EMAIL));
+        if (obj.keySet().contains(ALT_NOTIFICATION)) {
+            user.setAltEmailFormat(getStringValue(obj, ALT_NOTIFICATION));
         }
-        user.setAltAttachAudioToEmail(Boolean.valueOf(getStringValue(obj, IMDB_ALT_ATTACH_AUDIO)));
+        user.setAltAttachAudioToEmail(Boolean.valueOf(getStringValue(obj, ALT_ATTACH_AUDIO)));
 
-        BasicDBList aliasesObj = (BasicDBList) obj.get(IMDB_ALIASSES);
+        BasicDBList aliasesObj = (BasicDBList) obj.get(ALIASES);
         if (aliasesObj != null) {
             Vector<String> aliases = new Vector<String>();
             for (int i = 0; i < aliasesObj.size(); i++) {
                 DBObject aliasObj = (DBObject) aliasesObj.get(i);
-                if (aliasObj.get(IMDB_RELATION).toString().equals(IMDB_ALIAS)) {
-                    aliases.add(aliasObj.get(IMDB_ID).toString());
+                if (aliasObj.get(RELATION).toString().equals(ALIAS)) {
+                    aliases.add(aliasObj.get(ID).toString());
                 }
             }
             user.setAliases(aliases);
         }
 
-        if (obj.keySet().contains(IMDB_SYNC)) {
+        if (obj.keySet().contains(SYNC)) {
             ImapInfo imapInfo = new ImapInfo();
-            imapInfo.setSynchronize(Boolean.valueOf(getStringValue(obj, IMDB_SYNC)));
-            imapInfo.setHost(getStringValue(obj, IMDB_HOST));
-            imapInfo.setPort(getStringValue(obj, IMDB_PORT));
-            imapInfo.setUseTLS(Boolean.valueOf(getStringValue(obj, IMDB_TLS)));
-            imapInfo.setAccount(getStringValue(obj, IMDB_ACCOUNT));
-            imapInfo.setPassword(getStringValue(obj, IMDB_PASSWD));
+            imapInfo.setSynchronize(Boolean.valueOf(getStringValue(obj, SYNC)));
+            imapInfo.setHost(getStringValue(obj, HOST));
+            imapInfo.setPort(getStringValue(obj, PORT));
+            imapInfo.setUseTLS(Boolean.valueOf(getStringValue(obj, TLS)));
+            imapInfo.setAccount(getStringValue(obj, ACCOUNT));
+            imapInfo.setPassword(getStringValue(obj, PASSWD));
             user.setImapInfo(imapInfo);
             if (imapInfo.isSynchronize()) {
                 user.setEmailFormat(EmailFormats.FORMAT_IMAP);
@@ -270,6 +280,16 @@ public enum ValidUsers {
                 }
             }
         }
+
+        // contact info related data
+        user.setCellNum(getStringValue(obj, CELL_PHONE_NUMBER));
+        user.setHomeNum(getStringValue(obj, HOME_PHONE_NUMBER));
+        user.setConfEntryIM(getStringValue(obj, CONF_ENTRY_IM));
+        user.setConfExitIM(getStringValue(obj, CONF_EXIT_IM));
+        user.setVMEntryIM(getStringValue(obj, LEAVE_MESSAGE_BEGIN_IM));
+        user.setVMExitIM(getStringValue(obj, LEAVE_MESSAGE_END_IM));
+        user.setJid(getStringValue(obj, IM_ID));
+        user.setAltJid(getStringValue(obj, ALT_IM_ID));
 
         if (user.isInDirectory()) {
             buildDialPatterns(user);

@@ -16,8 +16,9 @@ import org.sipfoundry.sipxconfig.admin.forwarding.CallSequence;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.CFWDTIME;
+
 public class UserForward extends DataSetGenerator {
-    public static final String CFWDTIME = "cfwdtm";
 
     @Override
     protected DataSet getType() {

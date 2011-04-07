@@ -20,16 +20,9 @@ import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.User;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.*;
+
 public abstract class DataSetGenerator {
-    public static final String ID = "id";
-    public static final String IDENTITY = "ident";
-    public static final String CONTACT = "cnt";
-    public static final String UID = "uid";
-    public static final String VALID_USER = "vld";
-    public static final String CONF_EXT = "cnfext";
-    public static final String CONF_NAME = "cnfnm";
-    public static final String CONF_OWNER = "cnfown";
-    public static final String CONF_PIN = "cnfpin";
     private DBCollection m_dbCollection;
     private CoreContext m_coreContext;
 

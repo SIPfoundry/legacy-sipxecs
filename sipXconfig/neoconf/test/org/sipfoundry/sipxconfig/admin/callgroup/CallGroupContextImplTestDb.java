@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.dbunit.dataset.ITable;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.SipxDatabaseTestCase;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
@@ -191,16 +192,16 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
 
         Iterator<AliasMapping> i = aliases.iterator();
         AliasMapping aliasMapping = i.next();
-        assertTrue(aliasMapping.get(AliasMapping.IDENTITY).toString().startsWith("sales"));
-        assertTrue(aliasMapping.get(AliasMapping.CONTACT).toString().startsWith("<sip:default@pingtel.com>;q="));
+        assertTrue(aliasMapping.get(MongoConstants.ID).toString().startsWith("sales"));
+        assertTrue(aliasMapping.get(MongoConstants.CONTACT).toString().startsWith("<sip:default@pingtel.com>;q="));
 
         aliasMapping = i.next();
-        assertTrue(aliasMapping.get(AliasMapping.IDENTITY).toString().startsWith("401"));
-        assertTrue(aliasMapping.get(AliasMapping.CONTACT).toString().startsWith("sales"));
+        assertTrue(aliasMapping.get(MongoConstants.ID).toString().startsWith("401"));
+        assertTrue(aliasMapping.get(MongoConstants.CONTACT).toString().startsWith("sales"));
 
         aliasMapping = i.next();
-        assertTrue(aliasMapping.get(AliasMapping.IDENTITY).toString().startsWith("123456781"));
-        assertTrue(aliasMapping.get(AliasMapping.CONTACT).toString().startsWith("sales"));
+        assertTrue(aliasMapping.get(MongoConstants.ID).toString().startsWith("123456781"));
+        assertTrue(aliasMapping.get(MongoConstants.CONTACT).toString().startsWith("sales"));
     }
 
     public void testRemoveUser() throws Exception {

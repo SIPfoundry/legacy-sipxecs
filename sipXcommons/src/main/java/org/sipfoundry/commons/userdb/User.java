@@ -36,6 +36,17 @@ public class User {
 	private boolean m_attachAudioToEmail;
 	private boolean m_altAttachAudioToEmail;
 	private ImapInfo m_imapInfo;
+    private String  m_cellNumber;
+    private String  m_homeNumber;
+    private String  m_jid;
+    private String  m_altjid;
+    private String  m_confName;
+    private String  m_confNum;
+    private String  m_confPin;
+    private boolean m_sendConfEntryIM;
+    private boolean m_sendConfExitIM;
+    private boolean m_sendVMEntryIM;
+    private boolean m_sendVMExitIM;
 
 	public enum EmailFormats {
 		FORMAT_NONE("NONE"), FORMAT_FULL("FULL"), FORMAT_MEDIUM("MEDIUM"), FORMAT_BRIEF(
@@ -266,6 +277,94 @@ public class User {
 	public void setImapInfo(ImapInfo imapInfo) {
 		m_imapInfo = imapInfo;
 	}
+
+    public void setCellNum(String cellNum) {
+        m_cellNumber = cellNum;
+    }
+
+    public String getCellNum() {
+        return m_cellNumber;
+    }
+    
+    public String getHomeNum() {
+        return m_homeNumber;
+    }
+
+    public void setHomeNum(String homeNum) {
+        m_homeNumber = homeNum;
+    }
+    
+    public String getJid() {
+        return m_jid;
+    }
+
+    public void setJid(String jid) {
+        m_jid = jid;
+    }
+    
+    public String getAltJid() {
+        return m_altjid;
+    }
+
+    public void setAltJid(String jid) {
+        m_altjid = jid;
+    }
+    
+    public void setConfName(String confName) {
+        m_confName = confName;
+    }    
+    
+    public String getConfName() {
+        return m_confName;
+    }    
+    
+    public void setConfNum(String confNum) {
+        m_confNum = confNum;
+    }    
+    
+    public String getConfNum() {
+        return m_confNum;
+    }    
+    
+    public void setConfPin(String confPin) {
+        m_confPin = confPin;
+    }    
+    
+    public String getConfPin() {
+        return m_confPin;
+    }
+
+    public void setConfEntryIM(String value) {
+        m_sendConfEntryIM = value.equals("1") || value.equals("true");  
+    } 
+    
+    public boolean getConfEntryIM() {
+        return m_sendConfEntryIM;
+    } 
+    
+    public void setConfExitIM(String value) {
+        m_sendConfExitIM = value.equals("1") || value.equals("true");  
+    }   
+    
+    public boolean getConfExitIM() {
+        return m_sendConfExitIM;
+    } 
+    
+    public void setVMEntryIM(String value) {
+        m_sendVMEntryIM = value.equals("1") || value.equals("true");  
+    }    
+    
+    public boolean getVMEntryIM() {
+        return m_sendVMEntryIM;
+    } 
+    
+    public void setVMExitIM(String value) {
+        m_sendVMExitIM = value.equals("1") || value.equals("true");  
+    }    
+    
+    public boolean getVMExitIM() {
+        return m_sendVMExitIM;
+    }
 
 	/*
 	 * public void addDistributionList(String digits, DistributionList dl) {

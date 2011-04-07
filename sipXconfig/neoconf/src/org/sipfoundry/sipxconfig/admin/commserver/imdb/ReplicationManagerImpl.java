@@ -48,6 +48,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.ID;
+
 public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAware {
     private static final int PERMISSIONS = 0644;
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
@@ -60,7 +62,6 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
     private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
     private static final String COLON = ":";
-    private static final String ID = "id";
     private static final String IP = "ip";
     private static final String DESCRIPTION = "dsc";
     private static final String MASTER = "mstr";
@@ -216,11 +217,11 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             DBCollection datasetCollection = datasetDb.getCollection(ENTITY_COLLECTION_NAME);
             String id = DataSetGenerator.getEntityId(entity);
             DBObject search = new BasicDBObject();
-            search.put(DataSetGenerator.ID, id);
+            search.put(ID, id);
             DBCursor cursor = datasetCollection.find(search);
             DBObject top = new BasicDBObject();
             if (!cursor.hasNext()) {
-                top.put(DataSetGenerator.ID, id);
+                top.put(ID, id);
             } else {
                 top = cursor.next();
             }

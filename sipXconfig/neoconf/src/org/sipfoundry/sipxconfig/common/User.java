@@ -19,9 +19,11 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
+
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
@@ -119,8 +121,8 @@ public class User extends AbstractUser implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(DataSetGenerator.UID, getUserName());
-        props.put(DataSetGenerator.CONTACT, getContactUri(domain));
+        props.put(UID, getUserName());
+        props.put(CONTACT, getContactUri(domain));
         return props;
     }
 }

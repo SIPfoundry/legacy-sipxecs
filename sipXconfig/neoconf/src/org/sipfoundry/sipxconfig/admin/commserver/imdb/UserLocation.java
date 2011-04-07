@@ -15,8 +15,9 @@ import org.sipfoundry.sipxconfig.branch.Branch;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.USER_LOCATION;
+
 public class UserLocation extends DataSetGenerator {
-    public static final String LOCATION = "loc";
 
     @Override
     protected DataSet getType() {
@@ -29,7 +30,7 @@ public class UserLocation extends DataSetGenerator {
             User user = (User) entity;
             Branch site = user.getSite();
             if (site != null) {
-                top.put(LOCATION, site.getName());
+                top.put(USER_LOCATION, site.getName());
             }
             getDbCollection().save(top);
         }

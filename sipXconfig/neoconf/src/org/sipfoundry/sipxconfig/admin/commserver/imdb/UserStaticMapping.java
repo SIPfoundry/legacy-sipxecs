@@ -11,13 +11,9 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import org.sipfoundry.sipxconfig.common.SipUri;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.*;
+
 public class UserStaticMapping extends DataSetRecord {
-    public static final String IDENTITY = "ident";
-    public static final String EVENT = "evt";
-    public static final String CONTACT = "cnt";
-    public static final String FROM_URI = "from";
-    public static final String TO_URI = "to";
-    public static final String CALLID = "cid";
 
     public UserStaticMapping(String domain, String username, String mwi) {
         String identity = username + "@" + domain;

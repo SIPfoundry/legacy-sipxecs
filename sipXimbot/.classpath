@@ -19,10 +19,10 @@
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-common.jar"/>
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXopenfire/plugins/sipx-openfire-presence-plugin.jar" sourcepath="SIPX-PROJECT-ROOT/sipXopenfire"/>
 	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXrest/sipxrest.jar"/>
-	<classpathentry kind="var" path="SIPX_PREFIX/share/java/sipXecs/sipXcommons/sipxcommons.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/xmlrpc-client.jar"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/ws-commons-util.jar"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/sipxcommons"/>
 	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-httpclient.jar"/>
+	<classpathentry kind="var" path="SIPX_COMMONS/lib/commons-lang.jar"/>
 	<classpathentry kind="output" path="classes"/>
 </classpath>

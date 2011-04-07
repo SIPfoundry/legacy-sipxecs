@@ -21,7 +21,6 @@ import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.SipUri;
 import org.sipfoundry.sipxconfig.common.User;
@@ -31,6 +30,11 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
+
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXT;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
 
 public class Conference extends BeanWithSettings implements Replicable {
     public static final String BEAN_NAME = "conferenceConference";
@@ -319,14 +323,14 @@ public class Conference extends BeanWithSettings implements Replicable {
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
         Map<String, Object> props = new HashMap<String, Object>();
-        props.put(DataSetGenerator.CONF_EXT, getExtension());
-        props.put(DataSetGenerator.CONF_NAME, getName());
+        props.put(CONF_EXT, getExtension());
+        props.put(CONF_NAME, getName());
         if (getOwner() != null) {
-            props.put(DataSetGenerator.CONF_OWNER, getOwner().getUserName());
+            props.put(CONF_OWNER, getOwner().getUserName());
         } else {
-            props.put(DataSetGenerator.CONF_OWNER, StringUtils.EMPTY);
+            props.put(CONF_OWNER, StringUtils.EMPTY);
         }
-        props.put(DataSetGenerator.CONF_PIN, getParticipantAccessCode());
+        props.put(CONF_PIN, getParticipantAccessCode());
         return props;
     }
 

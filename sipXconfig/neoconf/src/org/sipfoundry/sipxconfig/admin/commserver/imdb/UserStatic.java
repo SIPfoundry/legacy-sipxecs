@@ -15,11 +15,11 @@ import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.STATIC;
 import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class UserStatic extends DataSetGenerator {
     public static final String EXTERNAL_MWI = "voicemail/mailbox/external-mwi";
-    public static final String STATIC = "stc";
 
     @Override
     protected DataSet getType() {

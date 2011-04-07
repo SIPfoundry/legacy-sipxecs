@@ -9,6 +9,10 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.ID;
+import static org.sipfoundry.commons.mongo.MongoConstants.RELATION;;
+
 /**
  * AliasMapping defines the relationships between an identity and a contact. For example (in
  * context of hunt group): (identity -> contact) 300 -> sip:sales@kuku sales -> sip:user-one@kuku
@@ -16,10 +20,6 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
  * sipXregistry/meta/alias.xsd.in for valid values.
  */
 public class AliasMapping extends DataSetRecord {
-
-    public static final String IDENTITY = "id";
-    public static final String CONTACT = "cnt";
-    public static final String RELATION = "rln";
 
     public AliasMapping() {
         // empty default
@@ -30,14 +30,14 @@ public class AliasMapping extends DataSetRecord {
      * @param contact
      */
     public AliasMapping(String identity, String contact, String relation) {
-        put(IDENTITY, identity);
+        put(ID, identity);
         put(CONTACT, contact);
         put(RELATION, relation);
     }
 
     // convenience methods
     public String getIdentity() {
-        return get(IDENTITY).toString();
+        return get(ID).toString();
     }
 
     public String getContact() {
@@ -48,7 +48,7 @@ public class AliasMapping extends DataSetRecord {
     }
 
     public void setIdentity(String ident) {
-        put(IDENTITY, ident);
+        put(ID, ident);
     }
 
     public void setContact(String cnt) {

@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.common.CoreContext;
 import org.sipfoundry.sipxconfig.common.DaoUtils;
@@ -84,11 +85,11 @@ public class UserStaticTest extends MongoTestCase {
         us.generate();
         MongoTestCaseHelper.assertCollectionCount(3);
         QueryBuilder qb = QueryBuilder.start("id");
-        qb.is("User0").and(UserStatic.STATIC+"."+UserStaticMapping.CONTACT).is("sip:"+USER_DATA[0][4]+"@"+DOMAIN);
+        qb.is("User0").and(MongoConstants.STATIC+"."+MongoConstants.CONTACT).is("sip:"+USER_DATA[0][4]+"@"+DOMAIN);
         MongoTestCaseHelper.assertObjectPresent(qb.get());
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", UserStatic.STATIC+"."+UserStaticMapping.CONTACT, "sip:"+USER_DATA[0][4]+"@"+DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", UserStatic.STATIC+"."+UserStaticMapping.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", UserStatic.STATIC+"."+UserStaticMapping.EVENT, "message-summary");
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2", UserStatic.STATIC+"."+UserStaticMapping.FROM_URI, "sip:IVR@"+DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", MongoConstants.STATIC+"."+MongoConstants.CONTACT, "sip:"+USER_DATA[0][4]+"@"+DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", MongoConstants.STATIC+"."+MongoConstants.TO_URI, "sip:"+USER_DATA[0][3]+"@"+DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.STATIC+"."+MongoConstants.EVENT, "message-summary");
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User2", MongoConstants.STATIC+"."+MongoConstants.FROM_URI, "sip:IVR@"+DOMAIN);
     }
 }

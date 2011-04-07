@@ -20,8 +20,9 @@ import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
 import org.sipfoundry.sipxconfig.common.User;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.PERMISSIONS;
+
 public class Permissions extends DataSetGenerator {
-    public static final String PERMISSIONS = "prm";
 
     private User addSpecialUser(String userId) {
         User user = getCoreContext().newUser();

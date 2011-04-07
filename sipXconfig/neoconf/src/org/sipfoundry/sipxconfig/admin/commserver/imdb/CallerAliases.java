@@ -19,15 +19,9 @@ import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.*;
+
 public class CallerAliases extends DataSetGenerator {
-    public static final String CALLERALIAS = "clrid";
-    public static final String IGNORE_USER_CID = "ignorecid";
-    public static final String CID_PREFIX = "pfix";
-    public static final String KEEP_DIGITS = "kpdgts";
-    public static final String TRANSFORM_EXT = "trnsfrmext";
-    public static final String ANONYMOUS = "blkcid";
-    public static final String DISPLAY_NAME = "name";
-    public static final String URL_PARAMS = "url";
 
     @Override
     protected DataSet getType() {

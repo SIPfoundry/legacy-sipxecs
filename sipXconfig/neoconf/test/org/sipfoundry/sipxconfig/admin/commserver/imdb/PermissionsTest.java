@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
@@ -85,7 +86,7 @@ public class PermissionsTest extends MongoTestCase {
             // As PHONE_PROVISION does NOT require any permissions, skip it.
             if (!su.equals(SpecialUserType.PHONE_PROVISION)) {
                 MongoTestCaseHelper.assertObjectWithIdPresent(su.getUserName());
-                MongoTestCaseHelper.assertObjectListFieldCount(su.getUserName(), Permissions.PERMISSIONS, PERM_COUNT);
+                MongoTestCaseHelper.assertObjectListFieldCount(su.getUserName(), MongoConstants.PERMISSIONS, PERM_COUNT);
             }
         }
     }
@@ -107,8 +108,8 @@ public class PermissionsTest extends MongoTestCase {
         m_permissions.generate(callGroup2);
         m_permissions.generate(callGroup3);
 
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", DataSetGenerator.IDENTITY, "sales@" + DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup2", DataSetGenerator.IDENTITY, "marketing@" + DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup2", MongoConstants.IDENTITY, "marketing@" + DOMAIN);
         MongoTestCaseHelper.assertObjectWithIdNotPresent("CallGroup3");
 
     }
@@ -128,9 +129,9 @@ public class PermissionsTest extends MongoTestCase {
         m_permissions.generate(m_testUser);
 
         MongoTestCaseHelper.assertObjectWithIdPresent("User1");
-        MongoTestCaseHelper.assertObjectListFieldCount("User1", Permissions.PERMISSIONS, 8);
+        MongoTestCaseHelper.assertObjectListFieldCount("User1", MongoConstants.PERMISSIONS, 8);
         QueryBuilder qb = QueryBuilder.start("id");
-        qb.is("User1").and(Permissions.PERMISSIONS).size(4).and(Permissions.PERMISSIONS)
+        qb.is("User1").and(MongoConstants.PERMISSIONS).size(4).and(MongoConstants.PERMISSIONS)
                 .is(PermissionName.LOCAL_DIALING.getName()).is(PermissionName.VOICEMAIL.getName())
                 .is(PermissionName.EXCHANGE_VOICEMAIL.getName()).is(PermissionName.MOBILE.getName());
         MongoTestCaseHelper.assertObjectPresent(qb.get());
