@@ -53,7 +53,7 @@ public abstract class ChatPanel extends BaseComponent implements PageBeginRender
 
     public void apply() {
         if (TapestryUtils.isValid(this)) {
-            getConferenceBridgeContext().store(getConference());
+            getConferenceBridgeContext().saveConference(getConference());
         }
     }
 }

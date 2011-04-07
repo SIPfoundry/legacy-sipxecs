@@ -25,7 +25,7 @@ public interface ConferenceBridgeContext extends AliasOwner, AliasProvider {
 
     void store(Bridge bridge);
 
-    void store(Conference conference);
+    void saveConference(Conference conference);
 
     /**
      * Check whether the conference is valid and can be stored. If the conference is OK, then
