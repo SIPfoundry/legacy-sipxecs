@@ -84,7 +84,7 @@ public class UserConferenceResourceTest extends TestCase {
         conferences.add(m_conference);
 
         m_conferenceBridgeContext = createMock(ConferenceBridgeContext.class);
-        m_conferenceBridgeContext.store(m_conference);
+        m_conferenceBridgeContext.saveConference(m_conference);
         expectLastCall().anyTimes();
         m_conferenceBridgeContext.findConferencesByOwner(m_user);
         expectLastCall().andReturn(conferences);

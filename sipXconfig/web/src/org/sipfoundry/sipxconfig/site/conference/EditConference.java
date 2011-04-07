@@ -175,7 +175,7 @@ public abstract class EditConference extends PageWithCallback implements PageBeg
             bridge.addConference(conference);
             conference.setBridge(bridge);
         }
-        getConferenceBridgeContext().store(conference);
+        getConferenceBridgeContext().saveConference(conference);
         Integer id = conference.getId();
         setConferenceId(id);
     }
