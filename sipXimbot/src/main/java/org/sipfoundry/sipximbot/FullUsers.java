@@ -29,7 +29,13 @@ public enum FullUsers {
      * @return user found or null
      */
     public User isValidUser(String userName) {
-        return ValidUsers.INSTANCE.getUser(userName);
+        User user = ValidUsers.INSTANCE.getUser(userName);
+        if (user != null) {
+            String jid = user.getJid() + "@" + ImbotConfiguration.get().getSipxchangeDomainName();
+            user.setJid(jid);
+            return user;
+        }
+        return null;
     }
 
     public User findByjid(String jid) {
@@ -42,7 +48,13 @@ public enum FullUsers {
     }
     
     public User findByConfName(String confName) {
-        return ValidUsers.INSTANCE.getUserByConferenceName(confName);
+        User user = ValidUsers.INSTANCE.getUserByConferenceName(confName);
+        if (user != null) {
+            String jid = user.getJid() + "@" + ImbotConfiguration.get().getSipxchangeDomainName();
+            user.setJid(jid);
+            return user;
+        }
+        return null;
     }
     
 
