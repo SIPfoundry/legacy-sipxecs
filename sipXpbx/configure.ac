@@ -23,6 +23,7 @@ SFAC_LIB_STACK
 CHECK_GIPSNEQ
 CHECK_JDK
 CHECK_ANT
+CHECK_MSGFMT
 AC_ARG_WITH([dailydir],
   AC_HELP_STRING([--with-dailydir=directory],
     [The directory containing scripts that are run every night]),

@@ -70,6 +70,13 @@ public class CallerAliasesTest extends MongoTestCase {
         
         cas.generate(user);
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", CallerAliases.CALLERALIAS, "sip:userCID@mydomain.org");
+
+        User userWithoutClrid = new User();
+        userWithoutClrid.setUniqueId(1);
+        userWithoutClrid.setPermissionManager(pm);
+        
+        cas.generate(userWithoutClrid);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", CallerAliases.CALLERALIAS, "");
         
     }
 }

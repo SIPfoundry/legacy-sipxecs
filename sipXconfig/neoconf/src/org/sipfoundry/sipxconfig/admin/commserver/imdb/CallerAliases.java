@@ -39,8 +39,12 @@ public class CallerAliases extends DataSetGenerator {
         if (entity instanceof User) {
             User user = (User) entity;
             DBObject top = findOrCreate(user);
-            top.put(CALLERALIAS, SipUri.format(user.getDisplayName(),
-                    user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER), getSipDomain()));
+            if (StringUtils.isNotBlank(user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER))) {
+                top.put(CALLERALIAS, SipUri.format(user.getDisplayName(),
+                        user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER), getSipDomain()));
+            } else {
+                top.put(CALLERALIAS, StringUtils.EMPTY);
+            }
             getDbCollection().save(top);
         } else if (entity instanceof Gateway) {
             Gateway gateway = (Gateway) entity;
