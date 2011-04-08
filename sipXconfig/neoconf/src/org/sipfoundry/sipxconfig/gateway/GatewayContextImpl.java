@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.hibernate.Criteria;
 import org.hibernate.Session;
-import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanContext;
@@ -159,12 +158,6 @@ public class GatewayContextImpl extends HibernateDaoSupport implements GatewayCo
             sbc.generateProfiles(sbc.getProfileLocation());
             sbc.restart();
         }
-        // We have to regenerate all users' caller aliases.
-        // We must do this *after* the gws have been removed from DB.
-        // Also, this will not be in the same transaction as save.
-        // If mongo regeneration fails DB and mongo will be in inconsistent state.
-        // We must make sure to let user know about this.
-        m_replicationManager.replicateAllUsers(DataSet.CALLER_ALIAS);
     }
 
     public List<Gateway> getGatewayByIds(Collection<Integer> gatewayIds) {

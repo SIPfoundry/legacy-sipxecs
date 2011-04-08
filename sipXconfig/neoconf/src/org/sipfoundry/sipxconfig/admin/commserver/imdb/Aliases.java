@@ -24,9 +24,9 @@ public class Aliases extends DataSetGenerator {
         return DataSet.ALIAS;
     }
 
-    public void generate(Replicable entity) {
-        DBObject top = findOrCreate(entity);
+    public void generate(Replicable entity, DBObject top) {
         top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
         getDbCollection().save(top);
     }
+
 }

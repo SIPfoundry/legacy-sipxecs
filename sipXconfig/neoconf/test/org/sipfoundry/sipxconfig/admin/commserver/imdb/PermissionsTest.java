@@ -75,7 +75,7 @@ public class PermissionsTest extends MongoTestCase {
 
     public void testGenerateEmpty() throws Exception {
         for (SpecialUserType u : SpecialUserType.values()) {
-            m_permissions.generate(getCoreContext().getSpecialUserAsSpecialUser(u));
+            m_permissions.generate(getCoreContext().getSpecialUserAsSpecialUser(u), m_permissions.findOrCreate(getCoreContext().getSpecialUserAsSpecialUser(u)));
         }
 
         // As PHONE_PROVISION does NOT require any permissions, don't count it.
@@ -104,9 +104,9 @@ public class PermissionsTest extends MongoTestCase {
         callGroup3.setName("disabled");
         callGroup3.setUniqueId(3);
 
-        m_permissions.generate(callGroup1);
-        m_permissions.generate(callGroup2);
-        m_permissions.generate(callGroup3);
+        m_permissions.generate(callGroup1, m_permissions.findOrCreate(callGroup1));
+        m_permissions.generate(callGroup2, m_permissions.findOrCreate(callGroup2));
+        m_permissions.generate(callGroup3, m_permissions.findOrCreate(callGroup3));
 
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup2", MongoConstants.IDENTITY, "marketing@" + DOMAIN);
@@ -126,11 +126,11 @@ public class PermissionsTest extends MongoTestCase {
         m_testUser.addGroup(g);
         m_testUser.setUserName("goober");
         m_testUser.setUniqueId(1);
-        m_permissions.generate(m_testUser);
+        m_permissions.generate(m_testUser, m_permissions.findOrCreate(m_testUser));
 
         MongoTestCaseHelper.assertObjectWithIdPresent("User1");
         MongoTestCaseHelper.assertObjectListFieldCount("User1", MongoConstants.PERMISSIONS, 8);
-        QueryBuilder qb = QueryBuilder.start("id");
+        QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
         qb.is("User1").and(MongoConstants.PERMISSIONS).size(4).and(MongoConstants.PERMISSIONS)
                 .is(PermissionName.LOCAL_DIALING.getName()).is(PermissionName.VOICEMAIL.getName())
                 .is(PermissionName.EXCHANGE_VOICEMAIL.getName()).is(PermissionName.MOBILE.getName());

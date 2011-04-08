@@ -11,12 +11,10 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
 import com.mongodb.DBObject;
 
-import org.sipfoundry.sipxconfig.common.Closure;
 import org.sipfoundry.sipxconfig.common.Replicable;
 import org.sipfoundry.sipxconfig.common.User;
 
 import static org.sipfoundry.commons.mongo.MongoConstants.STATIC;
-import static org.sipfoundry.sipxconfig.common.DaoUtils.forAllUsersDo;
 
 public class UserStatic extends DataSetGenerator {
     public static final String EXTERNAL_MWI = "voicemail/mailbox/external-mwi";
@@ -26,19 +24,8 @@ public class UserStatic extends DataSetGenerator {
         return DataSet.USER_STATIC;
     }
 
-    public void generate() {
-        Closure<User> closure = new Closure<User>() {
-            @Override
-            public void execute(User user) {
-                generate(user);
-            }
-        };
-        forAllUsersDo(getCoreContext(), closure);
-    }
-
-    public void generate(Replicable entity) {
+    public void generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
-            DBObject top = findOrCreate(entity);
             User user = (User) entity;
             String domainName = getSipDomain();
             String externalMwi = user.getSettingValue(EXTERNAL_MWI);

@@ -73,6 +73,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />
     <property name="externalAliases" ref="externalAliases" />
+    <property name="dataSetGenerator" ref="dataSetGenerator" />
   </bean>
 
   <bean id="sipxReplicationContextImpl"
@@ -150,7 +151,7 @@
     </property>
   </bean>
 
-  <bean id="dataSetGenerator" abstract="true"
+  <bean id="abstractDataSetGenerator" abstract="true"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
     <property name="coreContext" ref="coreContext" />
   </bean>
@@ -170,6 +171,9 @@
     </property>
   </bean>
 
+  <bean id="dataSetGenerator" parent="abstractDataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
+  </bean>
   <bean id="aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases">
   </bean>

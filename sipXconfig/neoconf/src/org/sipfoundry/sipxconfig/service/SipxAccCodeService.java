@@ -173,8 +173,6 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     public Set<String> getAliasesAsSet() {
 
         String aliasesString = this.getSettingValue(SipxAccCodeService.AUTH_CODE_ALIASES);
-        LOG.info(String.format("SipxAccCodeService::getAliasesAsSet(): %s:", aliasesString));
-
         Set<String> aliasesSet = new LinkedHashSet<String>(0);
 
         if (aliasesString != null) {
@@ -183,7 +181,6 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
                 aliasesSet.add(trim(alias));
             }
         }
-        LOG.info(String.format("SipxAccCodeService::getAliasesAsSet(): return set :%s:", aliasesSet));
         return aliasesSet;
     }
 

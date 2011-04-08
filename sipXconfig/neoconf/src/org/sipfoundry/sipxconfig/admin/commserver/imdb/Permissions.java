@@ -43,10 +43,10 @@ public class Permissions extends DataSetGenerator {
     }
 
     @Override
-    public void generate(Replicable entity) {
+    public void generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
-            insertDbObject(user);
+            insertDbObject(user, top);
         } else if (entity instanceof CallGroup) {
             CallGroup callGroup = (CallGroup) entity;
             if (!callGroup.isEnabled()) {
@@ -55,7 +55,7 @@ public class Permissions extends DataSetGenerator {
             // HACK: set the user name as what we'd like to have in the id field of mongo object
             User user = addSpecialUser(CallGroup.class.getSimpleName() + callGroup.getId());
             user.setIdentity(callGroup.getIdentity(getSipDomain()));
-            insertDbObject(user);
+            insertDbObject(user, top);
         } else if (entity instanceof SpecialUser) {
             SpecialUser specialUser = (SpecialUser) entity;
             if (specialUser.getType().equals(SpecialUserType.PHONE_PROVISION.toString())) {
@@ -64,18 +64,17 @@ public class Permissions extends DataSetGenerator {
             User u = addSpecialUser(specialUser.getUserName());
             u.setIdentity(null);
             u.setValidUser(false);
-            insertDbObject(u);
+            insertDbObject(u, top);
         } else if (entity instanceof BeanWithUserPermissions) {
             InternalUser user = ((BeanWithUserPermissions) entity).getInternalUser();
             User u = addSpecialUser(user.getUserName());
             u.setUserName(entity.getClass().getSimpleName() + ((BeanWithUserPermissions) entity).getId());
             u.setValidUser(false);
-            insertDbObject(u);
+            insertDbObject(u, top);
         }
     }
 
-    private void insertDbObject(User user) {
-        DBObject top = findOrCreate(user);
+    private void insertDbObject(User user, DBObject top) {
         top.put(PERMISSIONS, user.getPermissions());
         getDbCollection().save(top);
     }

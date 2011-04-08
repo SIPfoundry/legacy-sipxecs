@@ -31,8 +31,7 @@ public class Credentials extends DataSetGenerator {
     }
 
     @Override
-    public void generate(Replicable entity) {
-        DBObject top = findOrCreate(entity);
+    public void generate(Replicable entity, DBObject top) {
         String realm = getCoreContext().getAuthorizationRealm();
         if (entity instanceof User) {
             User user = (User) entity;

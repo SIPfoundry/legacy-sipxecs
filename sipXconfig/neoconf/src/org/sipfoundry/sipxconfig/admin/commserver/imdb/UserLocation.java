@@ -24,9 +24,8 @@ public class UserLocation extends DataSetGenerator {
         return DataSet.USER_LOCATION;
     }
 
-    public void generate(Replicable entity) {
+    public void generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
-            DBObject top = findOrCreate(entity);
             User user = (User) entity;
             Branch site = user.getSite();
             if (site != null) {

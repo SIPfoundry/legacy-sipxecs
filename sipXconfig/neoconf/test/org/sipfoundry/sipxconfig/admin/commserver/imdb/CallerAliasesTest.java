@@ -46,11 +46,11 @@ public class CallerAliasesTest extends MongoTestCase {
         gcai.setUrlParameters("key=value");
         gw.setCallerAliasInfo(gcai);
         
-        cas.generate(gw);
+        cas.generate(gw, cas.findOrCreate(gw));
         
         MongoTestCaseHelper.assertObjectWithIdPresent("Gateway1");
         DBObject ref = new BasicDBObject();
-        ref.put("id", "Gateway1");
+        ref.put(MongoTestCaseHelper.ID, "Gateway1");
         ref.put("ident", "gateway.example.org;sipxecs-lineid=1");
         ref.put("uid", "~~gw");
         ref.put(MongoConstants.CALLERALIAS, "\"display name\"<sip:gatewayCID@mydomain.org;key=value>");
@@ -69,14 +69,14 @@ public class CallerAliasesTest extends MongoTestCase {
         user.setPermissionManager(pm);
         user.setSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER, "userCID");
         
-        cas.generate(user);
+        cas.generate(user, cas.findOrCreate(user));
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.CALLERALIAS, "sip:userCID@mydomain.org");
 
         User userWithoutClrid = new User();
         userWithoutClrid.setUniqueId(1);
         userWithoutClrid.setPermissionManager(pm);
         
-        cas.generate(userWithoutClrid);
+        cas.generate(userWithoutClrid, cas.findOrCreate(userWithoutClrid));
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.CALLERALIAS, "");
         
     }

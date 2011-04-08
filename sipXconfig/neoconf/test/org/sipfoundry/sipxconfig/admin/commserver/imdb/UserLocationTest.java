@@ -9,21 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.branch.Branch;
-import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.User;
-import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.sipfoundry.sipxconfig.permission.PermissionManagerImpl;
 import org.sipfoundry.sipxconfig.setting.Group;
 
@@ -72,9 +66,9 @@ public class UserLocationTest extends MongoTestCase {
         UserLocation ul = new UserLocation();
         ul.setDbCollection(getCollection());
         ul.setCoreContext(getCoreContext());
-        ul.generate(m_users.get(0));
-        ul.generate(m_users.get(1));
-        ul.generate(m_users.get(2));
+        ul.generate(m_users.get(0), ul.findOrCreate(m_users.get(0)));
+        ul.generate(m_users.get(1), ul.findOrCreate(m_users.get(1)));
+        ul.generate(m_users.get(2), ul.findOrCreate(m_users.get(2)));
 
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", MongoConstants.USER_LOCATION, USER_DATA[0][4]);
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.USER_LOCATION, USER_DATA[1][4]);

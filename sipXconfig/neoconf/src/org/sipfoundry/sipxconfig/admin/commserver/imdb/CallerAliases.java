@@ -29,10 +29,9 @@ public class CallerAliases extends DataSetGenerator {
     }
 
     @Override
-    public void generate(Replicable entity) {
+    public void generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
-            DBObject top = findOrCreate(user);
             if (StringUtils.isNotBlank(user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER))) {
                 top.put(CALLERALIAS, SipUri.format(user.getDisplayName(),
                         user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER), getSipDomain()));
@@ -43,7 +42,6 @@ public class CallerAliases extends DataSetGenerator {
         } else if (entity instanceof Gateway) {
             Gateway gateway = (Gateway) entity;
             final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
-            DBObject top = findOrCreate(gateway);
             top.put("uid", Gateway.UID);
             if (StringUtils.isNotBlank(gatewayInfo.getDefaultCallerAlias())) {
                 top.put(CALLERALIAS, SipUri.fixWithDisplayName(gatewayInfo.getDefaultCallerAlias(),

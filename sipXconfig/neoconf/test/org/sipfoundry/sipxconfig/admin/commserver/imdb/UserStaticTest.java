@@ -56,35 +56,18 @@ public class UserStaticTest extends MongoTestCase {
             user.setSettingValue("voicemail/mailbox/external-mwi", ud[4]);
             m_users.add(user);
         }
-    }
-
-    public void testGenerateEmpty() throws Exception {
-        UserStatic us = new UserStatic();
-
-        CoreContext coreContext = createMock(CoreContext.class);
-        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        expectLastCall().andReturn(Collections.emptyList());
-
-        us.setCoreContext(coreContext);
-
-        replay(coreContext);
-
-        us.generate();
-        MongoTestCaseHelper.assertCollectionCount(0);
+        replay(getCoreContext());
     }
 
     public void testGenerate() throws Exception {
         UserStatic us = new UserStatic();
-
-        CoreContext coreContext = getCoreContext();
-        coreContext.loadUsersByPage(0, DaoUtils.PAGE_SIZE);
-        expectLastCall().andReturn(m_users);
-        us.setCoreContext(coreContext);
         us.setDbCollection(getCollection());
-        replay(coreContext);
-        us.generate();
+        us.setCoreContext(getCoreContext());
+        us.generate(m_users.get(0), us.findOrCreate(m_users.get(0)));
+        us.generate(m_users.get(1), us.findOrCreate(m_users.get(1)));
+        us.generate(m_users.get(2), us.findOrCreate(m_users.get(2)));
         MongoTestCaseHelper.assertCollectionCount(3);
-        QueryBuilder qb = QueryBuilder.start("id");
+        QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
         qb.is("User0").and(MongoConstants.STATIC+"."+MongoConstants.CONTACT).is("sip:"+USER_DATA[0][4]+"@"+DOMAIN);
         MongoTestCaseHelper.assertObjectPresent(qb.get());
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User0", MongoConstants.STATIC+"."+MongoConstants.CONTACT, "sip:"+USER_DATA[0][4]+"@"+DOMAIN);

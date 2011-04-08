@@ -26,12 +26,11 @@ import static org.sipfoundry.commons.mongo.MongoConstants.*;
 public class Attendant extends DataSetGenerator {
 
     @Override
-    public void generate(Replicable entity) {
+    public void generate(Replicable entity, DBObject top) {
         if (!(entity instanceof User)) {
             return;
         }
         User user = (User) entity;
-        DBObject top = findOrCreate(user);
         // The following settings used to be in validusers.xml
         top.put(USERBUSYPROMPT, user.getSettingValue("voicemail/mailbox/user-busy-prompt")); // can
                                                                                              // be

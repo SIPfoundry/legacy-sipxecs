@@ -46,5 +46,4 @@ public interface ReplicationManager {
 
     void resyncSlave(Location location);
 
-    void replicateAllUsers(DataSet ds);
 }

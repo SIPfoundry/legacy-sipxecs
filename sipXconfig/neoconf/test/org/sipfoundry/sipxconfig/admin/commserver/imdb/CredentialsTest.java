@@ -48,7 +48,7 @@ public class CredentialsTest extends MongoTestCase {
         cg.setName("sales");
         cg.setSipPassword("pass4321");
 
-        m_credentials.generate(cg);
+        m_credentials.generate(cg, m_credentials.findOrCreate(cg));
 
         // Md5Encoder.digestPassword("sales", "sipfoundry.org", "pass4321");
         String digest = "8e5d70cc7173bca2802dd45113229c1b";
@@ -70,7 +70,7 @@ public class CredentialsTest extends MongoTestCase {
         user.setSipPassword("pass4321");
         user.setDomainManager(dm);
 
-        m_credentials.generate(user);
+        m_credentials.generate(user, m_credentials.findOrCreate(user));
 
         MongoTestCaseHelper.assertObjectWithIdPresent("User1");
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.IDENTITY, "superadmin@" + DOMAIN);
@@ -90,7 +90,7 @@ public class CredentialsTest extends MongoTestCase {
         user.setPin("", DOMAIN);
         user.setDomainManager(dm);
 
-        m_credentials.generate(user);
+        m_credentials.generate(user, m_credentials.findOrCreate(user));
 
         MongoTestCaseHelper.assertObjectWithIdPresent("User1");
         MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("User1", MongoConstants.IDENTITY, "superadmin@" + DOMAIN);
