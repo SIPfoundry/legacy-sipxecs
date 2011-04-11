@@ -27,6 +27,7 @@ public class CustomDialingRule extends LocationBasedDialingRule {
     private List<DialPattern> m_dialPatterns = new ArrayList<DialPattern>();
     private CallPattern m_callPattern = new CallPattern();
     private List<String> m_permissionNames = new ArrayList<String>();
+    private boolean m_regex;
 
     public CustomDialingRule() {
         m_dialPatterns.add(new DialPattern());
@@ -56,12 +57,24 @@ public class CustomDialingRule extends LocationBasedDialingRule {
         m_callPattern = callPattern;
     }
 
+    public boolean isRegex() {
+        return m_regex;
+    }
+
+    public void setRegex(boolean regex) {
+        m_regex = regex;
+    }
+
     @Override
     public String[] getPatterns() {
         String[] patterns = new String[m_dialPatterns.size()];
         for (int i = 0; i < patterns.length; i++) {
             DialPattern p = m_dialPatterns.get(i);
-            patterns[i] = p.calculatePattern();
+            String pattern = p.calculatePattern();
+            if (m_regex) {
+                pattern = "regex:" + pattern;
+            }
+            patterns[i] = pattern;
         }
         return patterns;
     }

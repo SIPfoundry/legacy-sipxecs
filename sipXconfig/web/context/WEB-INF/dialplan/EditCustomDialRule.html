@@ -1,11 +1,20 @@
 <div jwcid="@dialplan/DialRuleCommon" availableSchedules="ognl:availableSchedules"
   ruleId="ognl:ruleId" rule="ognl:rule" callback="ognl:callback" dialRuleHelp="message:quick.help">
   <fieldset>
+    <table>
+      <tbody>
+      	<tr jwcid="@common/FieldPanel" for="item:useregex" field="component:useregex" label="message:useregex">
+      	  <input jwcid="useregex@Checkbox" type="checkbox" id="item:useregex" value="ognl:rule.regex" onchange="javascript:this.form.submit();"/>
+        </tr>
+      </tbody>
+    </table>
+  </fieldset>
+  <fieldset>
     <legend><span key="label.dialedNumber"/></legend>
     <table>
       <tbody>
-        <span jwcid="@dialplan/PatternsEditor"
-          patterns="ognl:rule.dialPatterns"/>
+      	<span jwcid="@dialplan/PatternsEditor"
+          patterns="ognl:rule.dialPatterns" regex="ognl:rule.regex" />
       </tbody>
     </table>
   </fieldset>
@@ -16,12 +25,12 @@
       model="bean:permissionTypeModel"/>
   </fieldset>
   <fieldset>
-    <legend><span key="label.resultingCall"/></legend>
-    <table>
-      <tbody>
-        <span jwcid="@dialplan/CallPatternEditor"
-          pattern="ognl:rule.callPattern"/>
-      </tbody>
+   <legend><span key="label.resultingCall"/></legend>
+     <table>
+       <tbody>
+         <span jwcid="@dialplan/CallPatternEditor"
+           pattern="ognl:rule.callPattern" regex="ognl:rule.regex"/>
+       </tbody>
     </table>
   </fieldset>
 </div>

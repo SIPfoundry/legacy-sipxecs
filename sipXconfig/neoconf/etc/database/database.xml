@@ -387,6 +387,7 @@
 	<antcall target="openacd-add-default-client" />
 	<antcall target="migrate-regionid-to-beanid" />
     <antcall target="migrate-gw-calleralias-info" />
+    <antcall target="custom_dial_rule_add_regexp" />
   </target>
 
   <target name="nattraversal_defaults" unless="patches,version1,version2,version3,version4,version5,version6,version7,version8,version9">
@@ -1219,6 +1220,9 @@
   </target>
   <target name="migrate-gw-calleralias-info" unless="migrate-gw-calleralias-info">
     <db-patch patch="migrate-gw-calleralias-info" />
+  </target>
+  <target name="custom_dial_rule_add_regexp" unless="custom_dial_rule_add_regexp">
+    <db-patch patch="custom_dial_rule_add_regexp" />
   </target>
 	
   <!--

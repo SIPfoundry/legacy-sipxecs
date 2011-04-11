@@ -38,6 +38,9 @@ public abstract class PatternsEditor extends BaseComponent {
     @Parameter(required = true)
     public abstract List<DialPattern> getPatterns();
 
+    @Parameter(defaultValue = "false")
+    public abstract boolean isRegex();
+
     public abstract int getIndex();
 
     public abstract int getSize();
@@ -67,6 +70,13 @@ public abstract class PatternsEditor extends BaseComponent {
      */
     protected void renderComponent(IMarkupWriter writer, IRequestCycle cycle) {
         List<DialPattern> patterns = getPatterns();
+        // only one pattern for regex, no digits
+        if (isRegex()) {
+            if (patterns != null && patterns.size() > 1) {
+                patterns.subList(1, patterns.size()).clear();
+                patterns.get(0).setDigits(0);
+            }
+        }
         if (TapestryUtils.isRewinding(cycle, this)) {
             // reset components before rewind
             setIndexToRemove(-1);

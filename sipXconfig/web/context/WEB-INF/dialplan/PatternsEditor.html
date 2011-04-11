@@ -2,6 +2,19 @@
   <span jwcid="@Hidden" value="ognl:size" listener="listener:sizeChanged"/>
   <tr jwcid="@For" source="ognl:patterns" index="ognl:index"
     value="ognl:pattern" volatile="ognl:true">
+    <span jwcid="@If" condition="ognl:regex">
+    <td>
+      <label jwcid="regexLabel@FieldLabel" field="component:regex"
+        label="message:label.regex">Regex</label>
+    </td>
+    <td>
+      <input jwcid="regex@TextArea" id="pattern:regex" maxlength="250" type="text"
+        value="ognl:pattern.prefix"
+        displayName="message:label.regex"
+        rows="1" cols="55"/>
+    </td>
+    </span>
+    <span jwcid="@Else">
     <td>
       <label jwcid="prefixLabel@FieldLabel" field="component:prefix"
         label="message:label.prefix">Prefix</label>
@@ -40,5 +53,6 @@
         </a>
       </span>
     </td>
+    </span>
   </tr>
 </span>
