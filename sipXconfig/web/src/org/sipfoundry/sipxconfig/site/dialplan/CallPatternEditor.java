@@ -16,7 +16,4 @@ import org.sipfoundry.sipxconfig.admin.dialplan.CallPattern;
 public abstract class CallPatternEditor extends BaseComponent {
     @Parameter(required = true)
     public abstract CallPattern getPattern();
-
-    @Parameter(defaultValue = "false")
-    public abstract boolean isRegex();
 }

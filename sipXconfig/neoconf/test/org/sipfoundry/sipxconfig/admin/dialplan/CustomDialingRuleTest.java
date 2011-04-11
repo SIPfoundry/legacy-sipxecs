@@ -298,19 +298,4 @@ public class CustomDialingRuleTest {
         CustomDialingRule rule = new CustomDialingRule();
         assertSame(CallTag.CUST, rule.getCallTag());
     }
-
-    @Test
-    public void testGetRegexPatterns() {
-        DialPattern regexPattern = new DialPattern();
-        regexPattern.setPrefix("^456$");
-        regexPattern.setDigits(0);
-        DialPattern[] dialPatterns = new DialPattern[] {
-            regexPattern
-        };
-        CustomDialingRule rule = new CustomDialingRule();
-        rule.setDialPatterns(Arrays.asList(dialPatterns));
-        rule.setEnabled(true);
-        rule.setRegex(true);
-        assertEquals("regex:^456$", rule.getPatterns()[0]);
-    }
 }

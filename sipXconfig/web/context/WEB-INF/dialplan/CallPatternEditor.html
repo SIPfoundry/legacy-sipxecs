@@ -1,6 +1,5 @@
 <span jwcid="$content$">
     <tr>
-      <span jwcid="@If" condition="ognl:!regex">
         <td>
             <label jwcid="@FieldLabel" for="call:prefix"
               field="component:prefix">Prefix:</label>
@@ -21,17 +20,5 @@
                 <option value="3">Variable digits</option>
             </select>
         </td>
-      </span>
-      <span jwcid="@Else">
-        <td>
-            <label jwcid="@FieldLabel" for="call:regex"
-              field="component:regex">Regex:</label>
-        </td>
-        <td>
-            <input jwcid="regex@TextField" id="call:regex" maxlength="40"
-              type="text"  value="ognl:pattern.prefix"
-              displayName="message:label.regex"/>
-        </td>
-      </span>
     </tr>
 </span>
