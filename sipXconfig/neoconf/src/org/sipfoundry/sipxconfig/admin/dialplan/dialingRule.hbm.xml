@@ -34,6 +34,7 @@
 
     <joined-subclass name="CustomDialingRule" table="custom_dialing_rule">
       <key column="custom_dialing_rule_id" />
+      <property name="regex" />
       <component name="callPattern" class="CallPattern">
         <property name="digits" column="call_pattern_digits"
           type="org.sipfoundry.sipxconfig.admin.dialplan.CallDigits$UserType" />
