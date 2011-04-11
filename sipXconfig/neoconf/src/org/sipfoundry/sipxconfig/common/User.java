@@ -10,8 +10,10 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +22,9 @@ import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
 import org.sipfoundry.sipxconfig.im.ImAccount;
 import org.sipfoundry.sipxconfig.permission.PermissionName;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
+
 /**
  * Can be user that logs in, can be superadmin, can be user for phone line
  */
@@ -27,6 +32,7 @@ public class User extends AbstractUser implements Replicable {
     private static final String ALIAS_RELATION = "alias";
     private static final String ALIAS_RELATION_FAX = "fax";
     private String m_identity;
+    private boolean m_validUser = true;
 
     /**
      * get all the data sets that are replicable for this entity
@@ -43,6 +49,7 @@ public class User extends AbstractUser implements Replicable {
         dataSets.add(DataSet.CREDENTIAL);
         dataSets.add(DataSet.USER_FORWARD);
         dataSets.add(DataSet.USER_LOCATION);
+        dataSets.add(DataSet.ATTENDANT);
         return dataSets;
     }
 
@@ -100,5 +107,22 @@ public class User extends AbstractUser implements Replicable {
         }
 
         return mappings;
+    }
+
+    public void setValidUser(boolean vld) {
+        m_validUser = vld;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return m_validUser;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(UID, getUserName());
+        props.put(CONTACT, getContactUri(domain));
+        return props;
     }
 }

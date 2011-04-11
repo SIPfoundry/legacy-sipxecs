@@ -17,9 +17,11 @@ package org.sipfoundry.sipxconfig.openacd;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
@@ -125,5 +127,15 @@ public class OpenAcdExtension extends FreeswitchExtension implements Replicable 
 
     public void setSipxServiceManager(SipxServiceManager manager) {
         m_serviceManager = manager;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 }

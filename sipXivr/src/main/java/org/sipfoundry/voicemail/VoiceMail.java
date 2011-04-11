@@ -30,7 +30,7 @@ import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.freeswitch.Transfer;
 import org.sipfoundry.commons.userdb.DistributionList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.IvrChoice;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
@@ -53,7 +53,6 @@ public class VoiceMail {
     private FreeSwitchEventSocketInterface m_fses;
     private ResourceBundle m_vmBundle;
     private Configuration m_config;
-    private ValidUsersXML m_validUsers;
     private HashMap<String, DistributionList> m_sysDistLists;
 
     private Hashtable<String, String> m_parameters;  // The parameters from the sip URI
@@ -122,12 +121,6 @@ public class VoiceMail {
         // Load the Voice Mail configuration
         m_config = Configuration.update(true);
 
-        // Update the valid users list
-        try {
-            m_validUsers = ValidUsersXML.update(LOG, true);
-        } catch (Exception e) {
-            System.exit(1); // If you can't trust validUsers, who can you trust?        
-        }
     }
 
     /**
@@ -160,7 +153,7 @@ public class VoiceMail {
         String mailboxString = m_parameters.get("origCalledNumber");
         if(mailboxString != null) {
             // validate
-            if(m_validUsers.getUser(mailboxString) == null) {
+            if(ValidUsers.INSTANCE.getUser(mailboxString) == null) {
                 mailboxString = null;
             }
         }        
@@ -189,7 +182,7 @@ public class VoiceMail {
      */
     String voicemail(String mailboxString) {
                
-        User user = m_validUsers.getUser(mailboxString);
+        User user = ValidUsers.INSTANCE.getUser(mailboxString);
         Localization usrLoc = setLoc(usingCpUi(user));
                  
         m_mailbox = null;
@@ -291,7 +284,7 @@ public class VoiceMail {
             if (userNames != null) {
                 Vector<User> users = new Vector<User>();
                 for (String userName : userNames) {
-                    User u = m_validUsers.getUser(userName);
+                    User u = ValidUsers.INSTANCE.getUser(userName);
                     if (u != null && u.hasVoicemail()) {
                         users.add(u);
                     }
@@ -435,14 +428,6 @@ public class VoiceMail {
         m_config = config;
     }
 
-    public ValidUsersXML getValidUsers() {
-        return m_validUsers;
-    }
-
-    public void setValidUsers(ValidUsersXML validUsers) {
-        m_validUsers = validUsers;
-    }
-    
     public boolean usingCpUi(User user) {
         if(user == null) {
             // return true if the system wide primary UI is set to use CPUI

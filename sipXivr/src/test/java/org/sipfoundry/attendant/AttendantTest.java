@@ -20,7 +20,6 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketEmulator;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.TextToPrompts_en;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 
 import junit.framework.TestCase;
@@ -75,7 +74,6 @@ public class AttendantTest extends TestCase {
         a.setLocalization(loc);
         a.setTtp(new TextToPrompts_en());
         a.setAttendantConfig(org.sipfoundry.attendant.Configuration.update(false));
-        a.setValidUsers(ValidUsersXML.update(null, false));
         a.setSchedules(new Schedule());
 
         try {

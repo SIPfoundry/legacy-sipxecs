@@ -9,9 +9,6 @@
 package org.sipfoundry.sipxivr;
 
 import org.apache.log4j.Logger;
-import org.mortbay.http.BasicAuthenticator;
-import org.mortbay.http.DigestAuthenticator;
-import org.mortbay.http.HashUserRealm;
 import org.mortbay.http.HttpContext;
 import org.mortbay.http.HttpServer;
 import org.mortbay.http.SecurityConstraint;
@@ -19,8 +16,6 @@ import org.mortbay.http.SslListener;
 import org.mortbay.http.UserRealm;
 import org.mortbay.http.handler.SecurityHandler;
 import org.mortbay.jetty.servlet.ServletHandler;
-import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
 import org.sipfoundry.commons.util.DomainConfiguration;
 
 /**

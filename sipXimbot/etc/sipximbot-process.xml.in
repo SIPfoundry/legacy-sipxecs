@@ -22,6 +22,5 @@
   <resources>
     <osconfig>@SIPX_CONFDIR@/domain-config</osconfig>
     <file>@SIPX_CONFDIR@/sipximbot.properties</file>
-    <file>@SIPX_CONFDIR@/contact-information.xml</file>
   </resources>
 </sipXecs-process>

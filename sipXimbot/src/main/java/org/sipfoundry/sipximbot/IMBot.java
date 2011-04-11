@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.apache.log4j.Logger;
 import org.jivesoftware.smack.ConnectionConfiguration;
 import org.jivesoftware.smack.PacketListener;
@@ -20,11 +21,11 @@ import org.jivesoftware.smack.packet.Packet;
 import org.jivesoftware.smack.packet.PacketExtension;
 import org.jivesoftware.smack.packet.Presence;
 import org.jivesoftware.smackx.packet.VCard;
+import org.sipfoundry.commons.userdb.User;
 import org.sipfoundry.sipximbot.IMUser.UserPresence;
 
 public class IMBot {
     private static Roster m_roster;
-    private static FullUsers m_fullUsers;
     
     static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
             
@@ -147,17 +148,17 @@ public class IMBot {
             }
         }
         
-        public static void AddToRoster(FullUser user) {         
+        public static void AddToRoster(User user) {         
             Presence presPacket = new Presence(Presence.Type.subscribe); 
             presPacket.setFrom(ImbotConfiguration.get().getMyAsstAcct());
             
-            if(user.getjid() != null) {  
-                presPacket.setTo(user.getjid());                        
+            if(user.getJid() != null) {  
+                presPacket.setTo(user.getJid());                        
                 m_con.sendPacket(presPacket);
             }
 
-            if(user.getAltjid() != null) {  
-                presPacket.setTo(user.getAltjid());                                    
+            if(user.getAltJid() != null) {  
+                presPacket.setTo(user.getAltJid());                                    
                 m_con.sendPacket(presPacket);
             }
         }
@@ -188,7 +189,7 @@ public class IMBot {
                             jid = jid.substring(0, jid.indexOf('/'));
                         }                   
                         
-                        FullUser user = findUser(jid);
+                        User user = findUser(jid);
                         if(user == null) {
                             LOG.error("Rejected subscription from " + jid);     
                             presPacket = new Presence(Presence.Type.unsubscribed); 
@@ -229,7 +230,7 @@ public class IMBot {
             
             // create map with initial presence and status info
             
-            FullUser user;
+            User user;
             Collection<RosterEntry> entries = m_roster.getEntries();
             for (RosterEntry entry : entries) {
                 user = findUser(entry.getUser());
@@ -256,7 +257,7 @@ public class IMBot {
                             continue;
                         }          
                         
-                        FullUser user = findUser(address);
+                        User user = findUser(address);
                         if(user == null) {
                             LOG.error("Rejected addition from " + address);
                         } else {                        
@@ -304,20 +305,19 @@ public class IMBot {
         }
     }  
     
-    static public synchronized FullUser findUser(String jid) {        
-        m_fullUsers = FullUsers.update();       
-        return(m_fullUsers.findByjid(jid));
+    static public synchronized User findUser(String jid) {        
+        return(FullUsers.INSTANCE.findByjid(jid));
     }
     
-    static private String getjid(FullUser user) {
-        String jid = user.getjid();
+    static private String getjid(User user) {
+        String jid = user.getJid();
         if(jid == null) {
-            jid = user.getAltjid();
+            jid = user.getAltJid();
         }    
         return jid;
     }
     
-    static public String getUserStatus(FullUser user) {
+    static public String getUserStatus(User user) {
         // return status corresponding to primary IM Id. If not filled in
         // try altId and if not filled in either then assume AVAILABLE
         String jid = getjid(user);
@@ -334,7 +334,7 @@ public class IMBot {
         }
     }
     
-    static public UserPresence getUserPresence(FullUser user) {
+    static public UserPresence getUserPresence(User user) {
         // return presence corresponding to primary IM Id. If not filled in
         // try altId and if not filled in either then assume AVAILABLE
      
@@ -387,18 +387,11 @@ public class IMBot {
         }
     }
      
-    // send to both user's IM accounts 
-    public static void sendIM(String userName, String msg) {
-        m_fullUsers = FullUsers.update();
-        FullUser user = m_fullUsers.isValidUser(userName);
-        sendIM(user, msg);    
-    }    
-    
-    public static void sendIM(FullUser user, String msg) {        
+    public static void sendIM(User user, String msg) {        
         if(user != null) {
             IMUser toIMUser;
             
-            String jid = user.getjid();
+            String jid = user.getJid();
             if(jid != null) {
                 toIMUser = m_ChatsMap.get(jid);  
                 if(toIMUser != null) {
@@ -406,7 +399,7 @@ public class IMBot {
                 }
             }    
 
-            jid = user.getAltjid();
+            jid = user.getAltJid();
             if(jid != null) {
                 toIMUser = m_ChatsMap.get(jid);
                 if(toIMUser != null) {
@@ -416,7 +409,7 @@ public class IMBot {
         }         
     }
     
-    static public IMUser getIMUser(FullUser user) {
+    static public IMUser getIMUser(User user) {
         String jid = getjid(user);
         if(jid == null) {
             return null;
@@ -424,7 +417,7 @@ public class IMBot {
         return m_ChatsMap.get(jid);
     }
     
-    static public void SendReturnCallIM(FullUser toUser, FullUser fromUser, 
+    static public void SendReturnCallIM(User toUser, User fromUser, 
                                        String callingName, String callingNumber) {
 
         IMUser toIMuser = getIMUser(toUser);
@@ -438,7 +431,7 @@ public class IMBot {
         }
     }
     
-    public static void AddToRoster(FullUser user) {
+    public static void AddToRoster(User user) {
         IMClientThread.AddToRoster(user);
     }
 

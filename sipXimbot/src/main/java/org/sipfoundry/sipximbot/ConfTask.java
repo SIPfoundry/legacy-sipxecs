@@ -7,6 +7,7 @@ import org.sipfoundry.commons.freeswitch.ConferenceMember;
 import org.sipfoundry.commons.freeswitch.ConferenceTask;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 import org.sipfoundry.commons.freeswitch.ConfCommand;
+import org.sipfoundry.commons.userdb.User;
 
 public class ConfTask extends ConfBasicThread {
 
@@ -18,8 +19,7 @@ public class ConfTask extends ConfBasicThread {
     }
 
     public void ProcessConfStart(FreeSwitchEvent event, ConferenceTask conf) {
-        FullUsers users = FullUsers.update();
-        FullUser owner = users.findByConfName(event.getEventValue("conference-name"));
+        User owner = FullUsers.INSTANCE.findByConfName(event.getEventValue("conference-name"));
         if(owner != null) {
             conf.setOwner(owner);
         }
@@ -30,39 +30,35 @@ public class ConfTask extends ConfBasicThread {
 
     public void ProcessConfUserAdd(ConferenceTask conf, ConferenceMember member) {
 
-        if(conf.getOwner() == null) {
+        User owner = conf.getOwner();
+        if(owner == null) {
             return;
         }
 
-        FullUsers users = FullUsers.update();
-        FullUser owner = users.isValidUser(conf.getOwner().getUserName());
-
-        if(owner.getConfEntryIM()) {
+        if(owner != null && owner.getConfEntryIM()) {
             Date date = new Date();
 
-            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + " (" + member.memberNumber() + ") " +
+            IMBot.sendIM(owner, member.memberName() + " (" + member.memberNumber() + ") " +
                          m_localizer.localize("participant_entered") + " [" + member.memberIndex() + "] at " + date.toString());
         }
     }
 
     public void ProcessConfUserDel(ConferenceTask conf, ConferenceMember member) {
 
-        if(conf.getOwner() == null) {
+        User owner = conf.getOwner();
+        if(owner == null) {
             return;
         }
 
-        FullUsers users = FullUsers.update();
-        FullUser owner = users.isValidUser(conf.getOwner().getUserName());
-
-        if(owner.getConfExitIM()) {
+        if(owner != null && owner.getConfExitIM()) {
             Date date = new Date();
 
-            IMBot.sendIM(conf.getOwner().getUserName(), member.memberName() + " (" + member.memberNumber() + ") " +
+            IMBot.sendIM(owner, member.memberName() + " (" + member.memberNumber() + ") " +
                          m_localizer.localize("participant_left") + " " + date.toString());
         }
     }
 
-    public static synchronized String ConfCommand(FullUser user, String cmd, Localizer localizer) {
+    public static synchronized String ConfCommand(User user, String cmd, Localizer localizer) {
 
         if(user.getConfName() == null) {
             return m_localizer.localize("no_conf");

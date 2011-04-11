@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.acd;
 
 import org.easymock.EasyMock;
 import org.easymock.IMocksControl;
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.commserver.Location;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
@@ -105,7 +106,7 @@ public class AcdLineTest extends BeanWithSettingsTestCase {
         m_line.setAcdServer(server);
 
         AliasMapping alias = m_line.getAliasMappings("mydomain.org").iterator().next();
-        assertEquals("555", alias.get(AliasMapping.IDENTITY));
+        assertEquals("555", alias.get(MongoConstants.ID));
         assertEquals("myline@localhost:100", m_line.getIdentity("mydomain.org"));
 
         mcs.verify();

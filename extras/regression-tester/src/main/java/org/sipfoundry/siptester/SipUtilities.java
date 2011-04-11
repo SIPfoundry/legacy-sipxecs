@@ -75,7 +75,6 @@ import javax.sip.message.Response;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.siprouter.FindSipServer;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
 
 public class SipUtilities {
 	private static final Logger logger = Logger.getLogger(SipUtilities.class);

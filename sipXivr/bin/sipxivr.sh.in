@@ -58,7 +58,6 @@ done
 CONFIG_FILES="\
   @SIPX_CONFDIR@/sipxivr.properties \
   @SIPX_CONFDIR@/autoattendants.xml \
-  @SIPX_CONFDIR@/validusers.xml \
   "
 
 pidfile=@SIPX_RUNDIR@/sipxivr.pid
@@ -95,8 +94,6 @@ case ${Action} in
 
      # check validity of xml files
      @bindir@/sipx-validate-xml @SIPX_CONFDIR@/autoattendants.xml
-     Status=$(($Status+$?))
-     @bindir@/sipx-validate-xml @SIPX_CONFDIR@/validusers.xml
      Status=$(($Status+$?))
 
      # Check that the log file is writable.

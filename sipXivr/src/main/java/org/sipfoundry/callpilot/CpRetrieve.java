@@ -19,6 +19,7 @@ import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.Messages;
 import org.sipfoundry.voicemail.VmMessage;
@@ -149,7 +150,7 @@ public class CpRetrieve {
             }
 
             // See if the user exists
-            user = m_vm.getValidUsers().getUser(mbxString);         
+            user = ValidUsers.INSTANCE.getUser(mbxString);         
 
             // "Enter your personal identification number, and then press #.":
             // "To log in as a different user, press #"

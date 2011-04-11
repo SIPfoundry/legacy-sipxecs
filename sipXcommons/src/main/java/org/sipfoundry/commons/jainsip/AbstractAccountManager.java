@@ -18,21 +18,17 @@ import javax.sip.header.FromHeader;
 import javax.sip.message.Request;
 
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 
 public abstract class AbstractAccountManager implements SecureAccountManager {
 
-    ValidUsersXML validUsers;
- 
     public AbstractAccountManager() throws Exception {
-        validUsers = ValidUsersXML.update(null, true);
       
     }
 
     public UserCredentialHash getCredentialHash(String userName) {
         try {
-            validUsers = ValidUsersXML.update(null, true);
-            User user = validUsers.getUser(userName);
+            User user = ValidUsers.INSTANCE.getUser(userName);
             if (user == null) {
                 return null;
             } else {
@@ -45,8 +41,7 @@ public abstract class AbstractAccountManager implements SecureAccountManager {
 
     public User getUser(String userName) {
         try {
-            validUsers = ValidUsersXML.update(null, true);
-            return validUsers.getUser(userName);
+            return ValidUsers.INSTANCE.getUser(userName);
         } catch (Exception ex) {
             return null;
         }
@@ -54,7 +49,7 @@ public abstract class AbstractAccountManager implements SecureAccountManager {
 
    
     public String getIdentity(String userName) {
-        User user = validUsers.getUser(userName);
+        User user = ValidUsers.INSTANCE.getUser(userName);
         if (user == null) {
             return null;
         } else {

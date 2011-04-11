@@ -13,8 +13,10 @@ import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.enums.ValuedEnum;
@@ -341,5 +343,15 @@ public class AcdServer extends AcdComponent implements LoggingEntity, Replicable
     @Override
     public String getIdentity(String domain) {
         return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 }

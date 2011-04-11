@@ -197,16 +197,8 @@ public class RestServer {
      */
     public static void main(String[] args) throws Exception {
 
-        String accountFileName = System.getProperties().getProperty("conf.dir", "/etc/sipxpbx")
-                + "/validusers.xml";
-
         configFileName = System.getProperties().getProperty("conf.dir",  "/etc/sipxpbx")
                 + "/sipxrest-config.xml";
-
-        if (!new File(accountFileName).exists()) {
-            System.err.println("Cannot find the accounts file");
-            System.exit(-1);
-        }
 
         if (!new File(configFileName).exists()) {
             System.err.println("Cannot find the config file");

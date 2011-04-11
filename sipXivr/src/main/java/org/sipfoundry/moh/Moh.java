@@ -23,9 +23,8 @@ import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.IvrConfiguration;
-import org.sipfoundry.sipxivr.Mailbox;
 
 
 public class Moh {
@@ -38,7 +37,6 @@ public class Moh {
     private IvrConfiguration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
     private String m_mohParam;
-    private ValidUsersXML m_validUsers;
     @SuppressWarnings("unused")
     private TextToPrompts m_ttp;
     private String m_localeString;
@@ -83,12 +81,6 @@ public class Moh {
         m_loc = new Localization(RESOURCE_NAME, 
                 m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
         
-        // Update the valid users list
-        try {
-            m_validUsers = ValidUsersXML.update(LOG, true);
-        } catch (Exception e) {
-            System.exit(1); // If you can't trust validUsers, who can you trust?
-        }
     }
 
 
@@ -147,7 +139,7 @@ public class Moh {
             musicPath = "portaudio_stream://";
         } else if (id.startsWith("u")) {
             String userName = id.substring(1);
-            User user = m_validUsers.getUser(userName);
+            User user = ValidUsers.INSTANCE.getUser(userName);
             if (user != null) {
                 musicPath = m_ivrConfig.getDataDirectory()+"/moh/"+user.getUserName();
             } else {

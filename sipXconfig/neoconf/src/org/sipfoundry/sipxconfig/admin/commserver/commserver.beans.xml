@@ -73,6 +73,7 @@
     <property name="coreContext" ref="coreContext" />
     <property name="forwardingContext" ref="forwardingContext" />
     <property name="externalAliases" ref="externalAliases" />
+    <property name="dataSetGenerator" ref="dataSetGenerator" />
   </bean>
 
   <bean id="sipxReplicationContextImpl"
@@ -150,7 +151,7 @@
     </property>
   </bean>
 
-  <bean id="dataSetGenerator" abstract="true"
+  <bean id="abstractDataSetGenerator" abstract="true"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
     <property name="coreContext" ref="coreContext" />
   </bean>
@@ -170,6 +171,9 @@
     </property>
   </bean>
 
+  <bean id="dataSetGenerator" parent="abstractDataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSetGenerator">
+  </bean>
   <bean id="aliasDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Aliases">
   </bean>
@@ -191,6 +195,9 @@
   <bean id="userstaticDataSet" parent="dataSetGenerator"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.UserStatic">
   </bean>
+  <bean id="attendantDataSet" parent="dataSetGenerator"
+    class="org.sipfoundry.sipxconfig.admin.commserver.imdb.Attendant">
+  </bean>
 
   <bean id="aliasCollectorForAA"
     class="org.sipfoundry.sipxconfig.admin.commserver.AliasCollector">
@@ -206,23 +213,9 @@
     </property>
   </bean>
 
-  <bean id="validUsersConfig" parent="defaultConfigurationFile"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig">
-    <property name="name" value="validusers.xml" />
-    <property name="coreContext" ref="coreContext" />
-    <property name="domainManager" ref="domainManager" />
-    <property name="aliasProvider">
-      <ref local="aliasCollectorForAA" />
-    </property>
-  </bean>
-
   <bean id="replicationTrigger"
     class="org.sipfoundry.sipxconfig.admin.commserver.imdb.ReplicationTrigger">
     <property name="replicationManager" ref="replicationManagerImpl" />
-    <property name="lazyReplicationContext" ref="sipxReplicationContext" />
-    <property name="validUsersConfig">
-      <ref local="validUsersConfig"/>
-    </property>
     <property name="coreContext" ref="coreContext" />
   </bean>
 
@@ -245,21 +238,6 @@
         <value>phonebook_file_entry_task</value>
       </list>
     </property>
-  </bean>
-
-  <bean id="contactInformationConfig" parent="defaultConfigurationFile"
-    class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationConfig">
-    <property name="name" value="contact-information.xml" />
-    <property name="coreContext" ref="coreContext" />
-    <property name="conferenceBridgeContext" ref="conferenceBridgeContext" />
-    <property name="sipxServiceManager" ref="sipxServiceManager" />
-    <property name="restartRequired" value="false" />
-  </bean>
-
-  <bean id="contactInformationDaoListener" class="org.sipfoundry.sipxconfig.admin.dialplan.attendant.ContactInformationDaoListener">
-    <property name="sipxReplicationContext" ref="sipxReplicationContext" />
-    <property name="configurationFile" ref="contactInformationConfig" />
-    <property name="settingDao" ref="settingDao" />
   </bean>
 
 </beans>

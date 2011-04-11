@@ -9,22 +9,15 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
-import static org.easymock.EasyMock.createMock;
 import static org.easymock.EasyMock.expectLastCall;
 import static org.easymock.EasyMock.replay;
 
-import java.util.Arrays;
-import java.util.Collections;
-
+import org.sipfoundry.commons.mongo.MongoConstants;
 import org.sipfoundry.sipxconfig.TestHelper;
 import org.sipfoundry.sipxconfig.admin.authcode.AuthCode;
-import org.sipfoundry.sipxconfig.admin.authcode.AuthCodeManager;
 import org.sipfoundry.sipxconfig.admin.callgroup.CallGroup;
-import org.sipfoundry.sipxconfig.admin.callgroup.CallGroupContext;
 import org.sipfoundry.sipxconfig.admin.tls.TlsPeer;
-import org.sipfoundry.sipxconfig.admin.tls.TlsPeerManager;
 import org.sipfoundry.sipxconfig.common.CoreContext;
-import org.sipfoundry.sipxconfig.common.DaoUtils;
 import org.sipfoundry.sipxconfig.common.InternalUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser;
 import org.sipfoundry.sipxconfig.common.SpecialUser.SpecialUserType;
@@ -82,7 +75,7 @@ public class PermissionsTest extends MongoTestCase {
 
     public void testGenerateEmpty() throws Exception {
         for (SpecialUserType u : SpecialUserType.values()) {
-            m_permissions.generate(getCoreContext().getSpecialUserAsSpecialUser(u));
+            m_permissions.generate(getCoreContext().getSpecialUserAsSpecialUser(u), m_permissions.findOrCreate(getCoreContext().getSpecialUserAsSpecialUser(u)));
         }
 
         // As PHONE_PROVISION does NOT require any permissions, don't count it.
@@ -93,7 +86,7 @@ public class PermissionsTest extends MongoTestCase {
             // As PHONE_PROVISION does NOT require any permissions, skip it.
             if (!su.equals(SpecialUserType.PHONE_PROVISION)) {
                 MongoTestCaseHelper.assertObjectWithIdPresent(su.getUserName());
-                MongoTestCaseHelper.assertObjectListFieldCount(su.getUserName(), Permissions.PERMISSIONS, PERM_COUNT);
+                MongoTestCaseHelper.assertObjectListFieldCount(su.getUserName(), MongoConstants.PERMISSIONS, PERM_COUNT);
             }
         }
     }
@@ -111,12 +104,12 @@ public class PermissionsTest extends MongoTestCase {
         callGroup3.setName("disabled");
         callGroup3.setUniqueId(3);
 
-        m_permissions.generate(callGroup1);
-        m_permissions.generate(callGroup2);
-        m_permissions.generate(callGroup3);
+        m_permissions.generate(callGroup1, m_permissions.findOrCreate(callGroup1));
+        m_permissions.generate(callGroup2, m_permissions.findOrCreate(callGroup2));
+        m_permissions.generate(callGroup3, m_permissions.findOrCreate(callGroup3));
 
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", DataSetGenerator.IDENTITY, "sales@" + DOMAIN);
-        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup2", DataSetGenerator.IDENTITY, "marketing@" + DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup1", MongoConstants.IDENTITY, "sales@" + DOMAIN);
+        MongoTestCaseHelper.assertObjectWithIdFieldValuePresent("CallGroup2", MongoConstants.IDENTITY, "marketing@" + DOMAIN);
         MongoTestCaseHelper.assertObjectWithIdNotPresent("CallGroup3");
 
     }
@@ -133,12 +126,12 @@ public class PermissionsTest extends MongoTestCase {
         m_testUser.addGroup(g);
         m_testUser.setUserName("goober");
         m_testUser.setUniqueId(1);
-        m_permissions.generate(m_testUser);
+        m_permissions.generate(m_testUser, m_permissions.findOrCreate(m_testUser));
 
         MongoTestCaseHelper.assertObjectWithIdPresent("User1");
-        MongoTestCaseHelper.assertObjectListFieldCount("User1", Permissions.PERMISSIONS, 4);
-        QueryBuilder qb = QueryBuilder.start("id");
-        qb.is("User1").and(Permissions.PERMISSIONS).size(4).and(Permissions.PERMISSIONS)
+        MongoTestCaseHelper.assertObjectListFieldCount("User1", MongoConstants.PERMISSIONS, 8);
+        QueryBuilder qb = QueryBuilder.start(MongoConstants.ID);
+        qb.is("User1").and(MongoConstants.PERMISSIONS).size(4).and(MongoConstants.PERMISSIONS)
                 .is(PermissionName.LOCAL_DIALING.getName()).is(PermissionName.VOICEMAIL.getName())
                 .is(PermissionName.EXCHANGE_VOICEMAIL.getName()).is(PermissionName.MOBILE.getName());
         MongoTestCaseHelper.assertObjectPresent(qb.get());

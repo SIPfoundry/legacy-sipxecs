@@ -30,11 +30,11 @@ import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.freeswitch.Transfer;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
-import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 
 
 public class Attendant {
@@ -52,7 +52,6 @@ public class Attendant {
     private AttendantConfig m_config;
     private Configuration m_attendantConfig;
     private Schedule m_schedule;
-    private ValidUsersXML m_validUsers;
     private TextToPrompts m_ttp;
     private String m_localeString;
     private Localization m_loc;
@@ -106,13 +105,6 @@ public class Attendant {
                 
         // Load the attendant configuration
         m_attendantConfig = Configuration.update(true);
-
-        // Update the valid users list
-        try {
-            m_validUsers = ValidUsersXML.update(LOG, true);
-        } catch (Exception e) {
-            System.exit(1); // If you can't trust validUsers, who can you trust?
-        }
 
         // Load the schedule configuration
         m_schedule = m_attendantConfig.getSchedule(m_scheduleId) ;
@@ -271,7 +263,7 @@ public class Attendant {
                 // See if the entered digits matches a dialable extension
                 // (keeps AA users from entering long distance numbers, 900 numbers,
                 // call pickup, paging, etc.)
-                User user = m_validUsers.getUser(digits);
+                User user = ValidUsers.INSTANCE.getUser(digits);
                 if (user != null) {
                     String uri = user.getUri();
                     LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s) uuid=%s", digits, uri, m_uuid));
@@ -329,7 +321,7 @@ public class Attendant {
             
             // Lookup the extension (it may be an alias)
             String extension = item.getExtension();
-            User u = m_validUsers.getUser(extension);
+            User u = ValidUsers.INSTANCE.getUser(extension);
             if (u != null) {
                 // Use the internal ~~vm~xxxx user to do this.
                 dest = extensionToUrl("~~vm~"+u.getUserName());
@@ -347,7 +339,7 @@ public class Attendant {
         case dial_by_name: 
             // Enter the Dial By Name dialog.
             LOG.info("Attendant::doAction Dial by Name");
-            DialByName dbn = new DialByName(m_loc, m_config, m_validUsers);
+            DialByName dbn = new DialByName(m_loc, m_config);
             DialByNameChoice choice = dbn.dialByName() ;
             if (choice.getIvrChoiceReason() == IvrChoiceReason.CANCELED) {
                 return NextAction.repeat;
@@ -470,11 +462,11 @@ public class Attendant {
 
             m_loc.play("please_hold","");
             playGoodbye = false;
-            String domainPart = ValidUsersXML.getDomainPart(dest);
+            String domainPart = ValidUsers.getDomainPart(dest);
             String transferDomain = m_ivrConfig.getSipxchangeDomainName();
             if (domainPart.equalsIgnoreCase(transferDomain)){
-                String userpart = ValidUsersXML.getUserPart(dest);
-                User user = m_validUsers.getUser(userpart);
+                String userpart = ValidUsers.getUserPart(dest);
+                User user = ValidUsers.INSTANCE.getUser(userpart);
                 if (user != null) {
                     String uri = user.getUri();
                     LOG.info(String.format("Attendant::attendant Transfer to extension %s (%s) uuid=%s", dest, uri, m_uuid));
@@ -549,11 +541,4 @@ public class Attendant {
         m_ttp = ttp;
     }
 
-    public ValidUsersXML getValidUsers() {
-        return m_validUsers;
-    }
-
-    public void setValidUsers(ValidUsersXML validUsers) {
-        m_validUsers = validUsers;
-    }
 }

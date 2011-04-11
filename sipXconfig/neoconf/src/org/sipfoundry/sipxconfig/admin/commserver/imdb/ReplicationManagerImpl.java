@@ -48,6 +48,8 @@ import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.annotation.Required;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.ID;
+
 public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAware {
     private static final int PERMISSIONS = 0644;
     private static final Log LOG = LogFactory.getLog(ReplicationManagerImpl.class);
@@ -60,7 +62,6 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private static final String REPLICATION_FAILED_REMOVE = "Replication: delete failed - ";
     private static final String UNABLE_OPEN_MONGO = "Unable to open mongo connection on: ";
     private static final String COLON = ":";
-    private static final String ID = "id";
     private static final String IP = "ip";
     private static final String DESCRIPTION = "dsc";
     private static final String MASTER = "mstr";
@@ -76,6 +77,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     private CoreContext m_coreContext;
     private ForwardingContext m_forwardingContext;
     private ExternalAliases m_externalAliases;
+    private DataSetGenerator m_dataSetGenerator;
 
     private void initMongo() throws Exception {
         if (m_mongoInstance == null) {
@@ -128,6 +130,7 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
     @Override
     public void replicateAllData() {
         try {
+            Long start = System.currentTimeMillis();
             dropDb(); // this calls initMongo()
             Closure<User> closure = new Closure<User>() {
                 @Override
@@ -151,7 +154,9 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             ExternalAlias extalias = new ExternalAlias();
             extalias.setFiles(m_externalAliases.getFiles());
             replicateEntity(extalias);
-
+            Long end = System.currentTimeMillis();
+            LOG.info("Regeneration of database completed in " + (end - start) / 1000 + "s | " + (end - start) / 1000
+                    / 60 + " m.");
         } catch (Exception e) {
             LOG.error("Regeneration of database failed", e);
             throw new UserException(e);
@@ -160,29 +165,29 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     public void replicateEntity(Replicable entity) {
         try {
+            Long start = System.currentTimeMillis();
             initMongo();
+            m_dataSetGenerator.setDbCollection(m_datasetCollection);
+            DBObject top = m_dataSetGenerator.findOrCreate(entity);
             Set<DataSet> dataSets = entity.getDataSets();
             for (DataSet dataSet : dataSets) {
-                replicateEntity(entity, dataSet);
+                replicateEntity(entity, dataSet, top);
             }
+            Long end = System.currentTimeMillis();
+            LOG.info("Replication: inserted/updated " + entity.getName() + " in " + (end - start) + "ms");
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED + entity.getName(), e);
             throw new UserException(REPLICATION_FAILED + entity.getName(), e);
         }
     }
 
-    private void replicateEntity(Replicable entity, DataSet dataSet) {
-        try {
-            String beanName = dataSet.getBeanName();
-            final DataSetGenerator generator = (DataSetGenerator) m_beanFactory.getBean(beanName,
-                    DataSetGenerator.class);
-            generator.setDbCollection(m_datasetCollection);
-            generator.generate(entity);
-            LOG.info("Replication: inserted/updated " + entity.getName());
-        } catch (Exception e) {
-            LOG.error(REPLICATION_FAILED + entity.getName(), e);
-            throw new UserException(REPLICATION_FAILED + entity.getName(), e);
-        }
+    private void replicateEntity(Replicable entity, DataSet dataSet, DBObject top) {
+        String beanName = dataSet.getBeanName();
+        final DataSetGenerator generator = (DataSetGenerator) m_beanFactory
+                .getBean(beanName, DataSetGenerator.class);
+        generator.setDbCollection(m_datasetCollection);
+        generator.generate(entity, top);
+
     }
 
     public void replicateLocation(Location location) {
@@ -216,11 +221,11 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
             DBCollection datasetCollection = datasetDb.getCollection(ENTITY_COLLECTION_NAME);
             String id = DataSetGenerator.getEntityId(entity);
             DBObject search = new BasicDBObject();
-            search.put(DataSetGenerator.ID, id);
+            search.put(ID, id);
             DBCursor cursor = datasetCollection.find(search);
             DBObject top = new BasicDBObject();
             if (!cursor.hasNext()) {
-                top.put(DataSetGenerator.ID, id);
+                top.put(ID, id);
             } else {
                 top = cursor.next();
             }
@@ -229,28 +234,6 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
         } catch (Exception e) {
             LOG.error(REPLICATION_FAILED_REMOVE + entity.getName(), e);
             throw new UserException(REPLICATION_FAILED_REMOVE + entity.getName(), e);
-        }
-    }
-
-    /**
-     * Convenience method used to regenerate all users. Used in case a gateway is removed. In this
-     * case we must regenerate caller alias dataset for all users. No need to regenerate call
-     * sequence or other dataset
-     */
-    public void replicateAllUsers(final DataSet ds) {
-        try {
-            initMongo();
-            Closure<User> closure = new Closure<User>() {
-                @Override
-                public void execute(User user) {
-                    replicateEntity(user, ds);
-                }
-
-            };
-            DaoUtils.forAllUsersDo(m_coreContext, closure);
-        } catch (Exception e) {
-            LOG.error("Regeneration of users failed.", e);
-            throw new UserException("&user.regeneration.failed");
         }
     }
 
@@ -369,6 +352,10 @@ public class ReplicationManagerImpl implements ReplicationManager, BeanFactoryAw
 
     public void setExternalAliases(ExternalAliases externalAliases) {
         m_externalAliases = externalAliases;
+    }
+
+    public void setDataSetGenerator(DataSetGenerator dataSetGenerator) {
+        m_dataSetGenerator = dataSetGenerator;
     }
 
 }

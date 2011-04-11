@@ -12,6 +12,7 @@ package org.sipfoundry.sipxconfig.common;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -103,6 +104,16 @@ public class SpecialUser extends BeanWithId implements Replicable {
     public String getIdentity(String domain) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 
 }

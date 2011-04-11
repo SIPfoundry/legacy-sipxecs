@@ -9,7 +9,7 @@ import org.apache.xmlrpc.server.AbstractReflectiveHandlerMapping.AuthenticationH
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.util.DomainConfiguration;
 
 public class BasicXmlRpcAuthenticationHandler implements AuthenticationHandler{
@@ -32,8 +32,7 @@ public class BasicXmlRpcAuthenticationHandler implements AuthenticationHandler{
             return true;
         }
         try {
-            ValidUsersXML validUsers = ValidUsersXML.update(logger, true);
-            User user = validUsers.getUser(username);
+            User user = ValidUsers.INSTANCE.getUser(username);
             if (user == null) {
                 return false;
             } else {

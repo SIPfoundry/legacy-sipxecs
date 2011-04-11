@@ -19,6 +19,7 @@ public class MongoTestCaseHelper {
     private static Mongo m_mongoInstance;
     private static DBCollection m_collection;
     public final static String DOMAIN = "mydomain.org";
+    public final static String ID = "_id";
 
     public static DBCollection initMongo(String dbName, String collectionName) throws UnknownHostException,
             MongoException {
@@ -37,13 +38,13 @@ public class MongoTestCaseHelper {
 
     public static void assertObjectWithIdPresent(String id) throws AssertionFailedError {
         DBObject ref = new BasicDBObject();
-        ref.put("id", id);
+        ref.put(ID, id);
         TestCase.assertEquals(1, m_collection.find(ref).size());
     }
 
     public static void assertObjectWithIdNotPresent(Object id) throws AssertionFailedError {
         DBObject ref = new BasicDBObject();
-        ref.put("id", id);
+        ref.put(ID, id);
         TestCase.assertEquals(0, m_collection.find(ref).size());
     }
     
@@ -57,7 +58,7 @@ public class MongoTestCaseHelper {
 
     public static void assertObjectListFieldCount(String id, String listField, int count){
         DBObject ref = new BasicDBObject();
-        ref.put("id", id);
+        ref.put(ID, id);
         TestCase.assertEquals(1, m_collection.find(ref).size());
         DBObject obj = m_collection.findOne(ref);
         TestCase.assertTrue(obj.containsField(listField));
@@ -67,7 +68,7 @@ public class MongoTestCaseHelper {
     
     public static void assertObjectWithIdFieldValuePresent(Object id, String field, Object value) {
         DBObject ref = new BasicDBObject();
-        ref.put("id", id);
+        ref.put(ID, id);
         ref.put(field, value);
         TestCase.assertEquals(1, m_collection.find(ref).count());
     }

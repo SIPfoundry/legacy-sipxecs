@@ -11,16 +11,16 @@ package org.sipfoundry.sipxivr;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.Vector;
 
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.Collect;
 import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.IvrChoice.IvrChoiceReason;
 
 public class DialByName {
@@ -32,14 +32,12 @@ public class DialByName {
 
     protected Localization m_loc;
     protected ApplicationConfiguraton m_config;
-    protected ValidUsersXML m_validUsers;
     private boolean m_OnlyVoicemailUsers;   // Limit users to those who have voicemail permssions
 
-    public DialByName(Localization localization, ApplicationConfiguraton config, ValidUsersXML validUsers) {
+    public DialByName(Localization localization, ApplicationConfiguraton config) {
         // Load the DialByNameProperties bundle
         m_loc = new Localization(RESOURCE_NAME, s_resourcesByLocale, localization);
         m_config = config;
-        m_validUsers= validUsers;
     }
     
     /**
@@ -51,9 +49,9 @@ public class DialByName {
      */
     protected DialByNameChoice selectChoice(String digits){
         // Lookup the list of validUsers that match the DTMF digits
-        Vector<User> matches = m_validUsers.lookupDTMF(digits, false);
+        List<User> matches = ValidUsers.INSTANCE.lookupDTMF(digits, false);
         if (matches.size() != 0) {
-            matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers);
+            matches = ValidUsers.INSTANCE.lookupDTMF(digits, m_OnlyVoicemailUsers);
             if (matches.size() == 0) {
                 // Indicate dose match but user has no voice mail permission
                 m_loc.play("invalid_extension", "");
@@ -207,7 +205,7 @@ public class DialByName {
                     break ; // "enter" key
                 }
                 digits += digit;
-                Vector<User> matches = m_validUsers.lookupDTMF(digits, m_OnlyVoicemailUsers);
+                List<User> matches = ValidUsers.INSTANCE.lookupDTMF(digits, m_OnlyVoicemailUsers);
                 LOG.info(String.format("DialByName::dialByName %s matchs %d users", digits, matches.size()));
                 if (matches.size() < 3) {
                     break ; // Less than 3 (including none!) time to leave

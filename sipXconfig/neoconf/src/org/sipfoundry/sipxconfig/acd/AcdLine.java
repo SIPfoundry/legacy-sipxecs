@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -180,5 +181,15 @@ public class AcdLine extends AcdComponent implements Replicable {
     public String getIdentity(String domain) {
         String server = StringUtils.defaultIfEmpty(m_acdServer.getLocation().getFqdn(), "localhost");
         return SipUri.stripSipPrefix(SipUri.format(getName(), server, m_acdServer.getSipPort()));
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 }

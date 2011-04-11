@@ -29,7 +29,6 @@ import org.sipfoundry.sipxconfig.admin.commserver.LocationsManager;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxProcessContext;
 import org.sipfoundry.sipxconfig.admin.commserver.SipxReplicationContext;
 import org.sipfoundry.sipxconfig.admin.dialplan.DialPlanActivationManager;
-import org.sipfoundry.sipxconfig.admin.dialplan.attendant.ValidUsersConfig;
 import org.sipfoundry.sipxconfig.domain.DomainManager;
 import org.springframework.beans.factory.annotation.Required;
 
@@ -45,7 +44,6 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
     private LocationsManager m_locationsManager;
     private SipxServiceManager m_sipxServiceManager;
     private DomainManager m_domainManager;
-    private ValidUsersConfig m_validUsersConfig;
 
     public void startService(Location location, SipxService service) {
         replicateServiceConfig(location, service);
@@ -243,9 +241,6 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
         LOG.debug("Replicating alarmservice");
         SipxService alarmService = m_sipxServiceManager.getServiceByBeanId(SipxAlarmService.BEAN_ID);
         replicateServiceConfig(location, alarmService);
-        LOG.debug("About to replicate validusers...");
-        m_replicationContext.replicate(location, m_validUsersConfig);
-        LOG.debug("Finished replicating validusers...");
         if (location.isPrimary()) {
             LOG.debug("Generating the entity mongo db");
             generateDataSets();
@@ -320,10 +315,6 @@ public class ServiceConfiguratorImpl implements ServiceConfigurator {
 
     public void markServiceForRestart(Collection< ? extends SipxService> services) {
         m_sipxProcessContext.markServicesForRestart(services);
-    }
-
-    public void setValidUsersConfig(ValidUsersConfig validUsersConfig) {
-        m_validUsersConfig = validUsersConfig;
     }
 
 }

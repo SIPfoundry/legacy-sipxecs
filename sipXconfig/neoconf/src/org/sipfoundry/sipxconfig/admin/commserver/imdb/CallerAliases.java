@@ -19,15 +19,9 @@ import org.sipfoundry.sipxconfig.common.UserCallerAliasInfo;
 import org.sipfoundry.sipxconfig.gateway.Gateway;
 import org.sipfoundry.sipxconfig.gateway.GatewayCallerAliasInfo;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.*;
+
 public class CallerAliases extends DataSetGenerator {
-    public static final String CALLERALIAS = "clrid";
-    public static final String IGNORE_USER_CID = "ignorecid";
-    public static final String CID_PREFIX = "pfix";
-    public static final String KEEP_DIGITS = "kpdgts";
-    public static final String TRANSFORM_EXT = "trnsfrmext";
-    public static final String ANONYMOUS = "blkcid";
-    public static final String DISPLAY_NAME = "name";
-    public static final String URL_PARAMS = "url";
 
     @Override
     protected DataSet getType() {
@@ -35,10 +29,9 @@ public class CallerAliases extends DataSetGenerator {
     }
 
     @Override
-    public void generate(Replicable entity) {
+    public void generate(Replicable entity, DBObject top) {
         if (entity instanceof User) {
             User user = (User) entity;
-            DBObject top = findOrCreate(user);
             if (StringUtils.isNotBlank(user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER))) {
                 top.put(CALLERALIAS, SipUri.format(user.getDisplayName(),
                         user.getSettingValue(UserCallerAliasInfo.EXTERNAL_NUMBER), getSipDomain()));
@@ -49,7 +42,6 @@ public class CallerAliases extends DataSetGenerator {
         } else if (entity instanceof Gateway) {
             Gateway gateway = (Gateway) entity;
             final GatewayCallerAliasInfo gatewayInfo = gateway.getCallerAliasInfo();
-            DBObject top = findOrCreate(gateway);
             top.put("uid", Gateway.UID);
             if (StringUtils.isNotBlank(gatewayInfo.getDefaultCallerAlias())) {
                 top.put(CALLERALIAS, SipUri.fixWithDisplayName(gatewayInfo.getDefaultCallerAlias(),

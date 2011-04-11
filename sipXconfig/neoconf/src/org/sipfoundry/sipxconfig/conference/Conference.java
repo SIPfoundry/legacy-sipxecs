@@ -12,7 +12,9 @@ package org.sipfoundry.sipxconfig.conference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -28,6 +30,11 @@ import org.sipfoundry.sipxconfig.setting.Setting;
 import org.sipfoundry.sipxconfig.setting.SettingEntry;
 import org.sipfoundry.sipxconfig.setting.SettingValue;
 import org.sipfoundry.sipxconfig.setting.SettingValueImpl;
+
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_EXT;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_NAME;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_OWNER;
+import static org.sipfoundry.commons.mongo.MongoConstants.CONF_PIN;
 
 public class Conference extends BeanWithSettings implements Replicable {
     public static final String BEAN_NAME = "conferenceConference";
@@ -143,7 +150,6 @@ public class Conference extends BeanWithSettings implements Replicable {
 
     /**
      * It is called by deployment module every time we provision the bridge
-     *
      */
     public void generateRemoteAdmitSecret() {
         m_defaults.generateRemoteAdmitSecret();
@@ -307,6 +313,25 @@ public class Conference extends BeanWithSettings implements Replicable {
     public String getIdentity(String domain) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(CONF_EXT, getExtension());
+        props.put(CONF_NAME, getName());
+        if (getOwner() != null) {
+            props.put(CONF_OWNER, getOwner().getUserName());
+        } else {
+            props.put(CONF_OWNER, StringUtils.EMPTY);
+        }
+        props.put(CONF_PIN, getParticipantAccessCode());
+        return props;
     }
 
 }

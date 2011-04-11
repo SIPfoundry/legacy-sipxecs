@@ -39,7 +39,7 @@ import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.Set;
 import org.sipfoundry.commons.freeswitch.Sleep;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.commons.userdb.User.EmailFormats;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.Mailbox;
@@ -55,7 +55,6 @@ public class FaxRx {
 
     private IvrConfiguration m_ivrConfig;
     private FreeSwitchEventSocketInterface m_fses;
-    private ValidUsersXML m_validUsers;
     private String m_localeString;
     private String m_mailboxid;
     private Localization m_loc;
@@ -91,12 +90,6 @@ public class FaxRx {
         m_loc = new Localization(RESOURCE_NAME, 
                 m_localeString, s_resourcesByLocale, m_ivrConfig, m_fses);
         
-        // Update the valid users list
-        try {
-            m_validUsers = ValidUsersXML.update(LOG, true);
-        } catch (Exception e) {
-            System.exit(1); // If you can't trust validUsers, who can you trust?
-        }
     }
 
     public void run() {
@@ -193,7 +186,7 @@ public class FaxRx {
         
         LOG.info("faxrx::Starting mailbox (" + m_mailbox + ") in locale " + m_loc.getLocale());
        
-        User user = m_validUsers.getUser(m_mailboxid);
+        User user = ValidUsers.INSTANCE.getUser(m_mailboxid);
         if(user == null) {
             LOG.error("FaxReceive: no user found for mailbox " + m_mailboxid);
             return;

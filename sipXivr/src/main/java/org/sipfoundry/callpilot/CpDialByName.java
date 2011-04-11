@@ -6,10 +6,10 @@
 package org.sipfoundry.callpilot;
 
 import java.io.File;
-import java.util.Vector;
+import java.util.List;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.ApplicationConfiguraton;
 import org.sipfoundry.sipxivr.DialByName;
 import org.sipfoundry.sipxivr.DialByNameChoice;
@@ -22,14 +22,14 @@ public class CpDialByName extends DialByName {
 
     private VoiceMail m_vm;
     
-    CpDialByName(VoiceMail vm, ApplicationConfiguraton config, ValidUsersXML validUsers) {
-        super(vm.getLoc(), config, validUsers);
+    CpDialByName(VoiceMail vm, ApplicationConfiguraton config) {
+        super(vm.getLoc(), config);
         m_vm = vm;
         m_loc = vm.getLoc();
     }
 
     protected DialByNameChoice selectChoice(String digits) {
-        Vector<User> matches = m_validUsers.lookupDTMF(digits, true);
+        List<User> matches = ValidUsers.INSTANCE.lookupDTMF(digits, true);
         CpDialog dlg;
 
         if (matches.size() == 0) {

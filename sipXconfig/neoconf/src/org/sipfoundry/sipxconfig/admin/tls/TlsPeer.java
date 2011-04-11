@@ -10,7 +10,9 @@
 package org.sipfoundry.sipxconfig.admin.tls;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
@@ -45,6 +47,16 @@ public class TlsPeer extends BeanWithUserPermissions implements Replicable {
     @Override
     public Collection<AliasMapping> getAliasMappings(String domainName) {
         return null;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return false;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 
 }

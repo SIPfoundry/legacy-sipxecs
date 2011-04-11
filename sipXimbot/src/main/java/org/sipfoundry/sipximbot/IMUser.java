@@ -35,7 +35,8 @@ import org.sipfoundry.commons.freeswitch.ConferenceMember;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocketInterface;
 import org.sipfoundry.commons.freeswitch.Set;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.User;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipximbot.CallHelper.CallHelperReturnCode;
 import org.sipfoundry.sipximbot.IMContext.Command;
 import org.sipfoundry.sipximbot.IMContext.Place;
@@ -62,7 +63,7 @@ public class IMUser {
         private String         m_resource;;
         private IMUser         m_callingUser;
         private IMContext      m_context;
-        private FullUser       m_user;
+        private User       m_user;
         private XMPPConnection m_con;
         //private String         m_atNumber;
         //private Place          m_atPlace;
@@ -76,7 +77,7 @@ public class IMUser {
         static final Logger LOG = Logger.getLogger("org.sipfoundry.sipximbot");
        
         
-        IMUser(FullUser user, String jabberId, Presence presence, XMPPConnection con, Localizer localizer) {
+        IMUser(User user, String jabberId, Presence presence, XMPPConnection con, Localizer localizer) {
             m_con = con;
             m_localizer = localizer;
             m_usersToPoke = new HashSet<IMUser>();
@@ -101,7 +102,7 @@ public class IMUser {
                     }       
 
                     
-                    FullUser fromUser = IMBot.findUser(from);
+                    User fromUser = IMBot.findUser(from);
                     
                     boolean deleteRosterEntry = fromUser == null;
                     if(fromUser != null) {
@@ -178,7 +179,7 @@ public class IMUser {
             }
         }
                        
-        public void  addUsertoPoke(FullUser user) {
+        public void  addUsertoPoke(User user) {
             IMUser imuser = IMBot.getIMUser(user);
             if(imuser != null) {
                 m_usersToPoke.add(imuser);
@@ -387,8 +388,8 @@ public class IMUser {
                         next = next.getNextSibling();
                     }  
                     
-                    callerUserPart = ValidUsersXML.getUserPart(caller);
-                    callerDisplayPart = ValidUsersXML.getDisplayPart(caller);
+                    callerUserPart = ValidUsers.getUserPart(caller);
+                    callerDisplayPart = ValidUsers.getDisplayPart(caller);
                     
                     calleeIdent = callee.substring(callee.indexOf("sip:"));
                     calleeIdentTail = calleeIdent.indexOf(";");
@@ -458,7 +459,7 @@ public class IMUser {
             // lets see if this corresponds to an end user and if so 
             // determine the user's presence info
             String presAndStatus = "";
-            FullUser user = FullUsers.update().isValidUser(userId);
+            User user = FullUsers.INSTANCE.isValidUser(userId);
             if(user != null) {
                 UserPresence presence = IMBot.getUserPresence(user);
                 String status = IMBot.getUserStatus(user);
@@ -626,7 +627,7 @@ public class IMUser {
             return localize("error");            
         }
         
-        private String getUUID(FullUser user) {
+        private String getUUID(User user) {
             String uuid = null;
             HttpClient httpClient = new HttpClient();
             List<String> authPrefs = new ArrayList<String>(1);

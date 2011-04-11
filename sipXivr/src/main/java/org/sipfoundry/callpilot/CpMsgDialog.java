@@ -15,7 +15,7 @@ import org.sipfoundry.commons.freeswitch.Localization;
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.freeswitch.TextToPrompts;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.Message;
 import org.sipfoundry.voicemail.MessageDescriptor;
@@ -167,8 +167,8 @@ public class CpMsgDialog{
     }
     
     private User getFrom() {
-        String from = ValidUsersXML.getUserPart(m_vmMessage.getMessageDescriptor().getFromUri());                
-        User user = m_vm.getValidUsers().getUser(from);
+        String from = ValidUsers.getUserPart(m_vmMessage.getMessageDescriptor().getFromUri());                
+        User user = ValidUsers.INSTANCE.getUser(from);
         if (user != null) {
             // If user doesn't have voicemail, don't allow reply or reply all
             if (!user.hasVoicemail()) {
@@ -383,7 +383,7 @@ public class CpMsgDialog{
                        continue;
                    }
                    
-                   recipUser = m_vm.getValidUsers().getUser(recipient);
+                   recipUser = ValidUsers.INSTANCE.getUser(recipient);
                    if(recipUser != null && recipUser.hasVoicemail()) {
                        m_recipientList.add(recipUser);
                    }
@@ -454,7 +454,7 @@ public class CpMsgDialog{
         PromptList pl = loc.getPromptList("msg_received_from");
         
         // Build the appropriate "from" based on what we know about the caller who left this message
-        String from = ValidUsersXML.getUserPart(m_md.getFromUri());
+        String from = ValidUsers.getUserPart(m_md.getFromUri());
         
         playUser(pl, from);
         return pl;
@@ -462,7 +462,7 @@ public class CpMsgDialog{
             
     private void playUser(PromptList pl, String addr) {
         
-        User user = m_vm.getValidUsers().getUser(addr);
+        User user = ValidUsers.INSTANCE.getUser(addr);
         
         if (user != null) {
             Mailbox userMbox = new Mailbox(user);

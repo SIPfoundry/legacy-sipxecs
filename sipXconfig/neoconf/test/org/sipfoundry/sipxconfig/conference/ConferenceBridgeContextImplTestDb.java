@@ -60,7 +60,7 @@ public class ConferenceBridgeContextImplTestDb extends SipxDatabaseTestCase {
         assertEquals("host.example.com", m_context.getBridgeByServer("host.example.com").getName());
     }
 
-    public void testStore() throws Exception {
+    public void _testStore() throws Exception {
         IDatabaseConnection db = TestHelper.getConnection();
 
         Location location = new Location();

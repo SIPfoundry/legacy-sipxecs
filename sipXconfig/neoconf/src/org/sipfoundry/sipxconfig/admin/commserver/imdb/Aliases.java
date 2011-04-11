@@ -12,10 +12,10 @@ package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 import com.mongodb.DBObject;
 
 import org.sipfoundry.sipxconfig.common.Replicable;
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIASES;
 
 public class Aliases extends DataSetGenerator {
     public static final String FAX_EXTENSION_PREFIX = "~~ff~";
-    public static final String ALIASES = "als";
 
     public Aliases() {
     }
@@ -24,9 +24,9 @@ public class Aliases extends DataSetGenerator {
         return DataSet.ALIAS;
     }
 
-    public void generate(Replicable entity) {
-        DBObject top = findOrCreate(entity);
+    public void generate(Replicable entity, DBObject top) {
         top.put(ALIASES, entity.getAliasMappings(getCoreContext().getDomainName()));
         getDbCollection().save(top);
     }
+
 }

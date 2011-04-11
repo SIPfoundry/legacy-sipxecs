@@ -7,7 +7,7 @@ package org.sipfoundry.callpilot;
 
 import org.sipfoundry.commons.freeswitch.PromptList;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.IvrConfiguration;
 import org.sipfoundry.sipxivr.RestfulRequest;
 import org.sipfoundry.voicemail.VoiceMail;
@@ -32,7 +32,7 @@ public class CpAttdAdminDialog {
        
        String transferUrl = m_vm.getMailbox().getPersonalAttendant().getOperator(); 
        if(transferUrl != null) {
-           attdExt = ValidUsersXML.getUserPart(transferUrl);
+           attdExt = ValidUsers.getUserPart(transferUrl);
        } else {
            attdExt = "";
        }
@@ -70,7 +70,7 @@ public class CpAttdAdminDialog {
            if(tmpAttdExt.equals("0")) {
                tmpAttdExt = "";
            } else {
-               user = m_vm.getValidUsers().getUser(tmpAttdExt);         
+               user = ValidUsers.INSTANCE.getUser(tmpAttdExt);         
                if (user == null){
                    m_vm.playError("invalid_number");
                    continue;

@@ -51,7 +51,7 @@ public class AliasesTest extends MongoTestCase {
     }
 
     public void testGenerate() {
-        m_aliases.generate(m_user);
+        m_aliases.generate(m_user, m_aliases.findOrCreate(m_user));
 
         MongoTestCaseHelper.assertObjectWithIdPresent("User1");
     }

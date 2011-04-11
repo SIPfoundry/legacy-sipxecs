@@ -24,7 +24,7 @@ import javax.sound.sampled.AudioSystem;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.sipfoundry.commons.userdb.User;
-import org.sipfoundry.commons.userdb.ValidUsersXML;
+import org.sipfoundry.commons.userdb.ValidUsers;
 import org.sipfoundry.sipxivr.Mailbox;
 import org.sipfoundry.voicemail.MessageDescriptor.Priority;
 
@@ -323,7 +323,7 @@ public class VmMessage {
         
         // correct the other recipient list
         if(me.m_messageDescriptor.getOtherRecipients() != null) {
-            me.m_messageDescriptor.addOtherRecipient(ValidUsersXML.getUserPart(me.m_messageDescriptor.getId()));
+            me.m_messageDescriptor.addOtherRecipient(ValidUsers.getUserPart(me.m_messageDescriptor.getId()));
             me.m_messageDescriptor.removeOtherRecipient(mailbox.getUser().getUserName());
         }
        

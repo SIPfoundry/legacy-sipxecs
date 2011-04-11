@@ -9,9 +9,11 @@ package org.sipfoundry.sipxconfig.service;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -171,8 +173,6 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     public Set<String> getAliasesAsSet() {
 
         String aliasesString = this.getSettingValue(SipxAccCodeService.AUTH_CODE_ALIASES);
-        LOG.info(String.format("SipxAccCodeService::getAliasesAsSet(): %s:", aliasesString));
-
         Set<String> aliasesSet = new LinkedHashSet<String>(0);
 
         if (aliasesString != null) {
@@ -181,7 +181,6 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
                 aliasesSet.add(trim(alias));
             }
         }
-        LOG.info(String.format("SipxAccCodeService::getAliasesAsSet(): return set :%s:", aliasesSet));
         return aliasesSet;
     }
 
@@ -238,8 +237,18 @@ public class SipxAccCodeService extends SipxService implements LoggingEntity, Re
     @Override
     public List<Replicable> getReplicables() {
         List<Replicable> replicables = new ArrayList<Replicable>();
-        replicables.add(this);
+        replicables.add((SipxAccCodeService) getSipxServiceManager().getServiceByBeanId(this.BEAN_ID));
         return replicables;
+    }
+
+    @Override
+    public boolean isValidUser() {
+        return true;
+    }
+
+    @Override
+    public Map<String, Object> getMongoProperties(String domain) {
+        return Collections.EMPTY_MAP;
     }
 
 }

@@ -10,18 +10,16 @@ package org.sipfoundry.sipximbot;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
+import org.sipfoundry.commons.userdb.User;
 
 /**
  * A RESTful interface for sending IMs
@@ -74,8 +72,7 @@ public class ImbotServlet extends HttpServlet {
         // Load the list of valid users 
         // (it is static, so don't worry about sucking it in each time, it'll only 
         // be re-read if it has changed on disk)
-        FullUsers fullUsers = FullUsers.update();
-        FullUser user = fullUsers.isValidUser(userString);
+        User user = FullUsers.INSTANCE.isValidUser(userString);
         if (user != null) {
             PrintWriter pw = response.getWriter();
             LOG.info(String.format("ImbotServlet::doIt %s %s", method, pathInfo));
