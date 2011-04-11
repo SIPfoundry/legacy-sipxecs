@@ -10,6 +10,7 @@
 // SYSTEM INCLUDES
 #include <assert.h>
 #include <stdlib.h>
+#include <boost/regex.hpp>
 
 
 // APPLICATION INCLUDES
@@ -565,14 +566,39 @@ UrlMapping::getUserMatchContainer(const Url&             requestUri,
                       if (pXmlUser)
                       {
                          UtlString userRE = pXmlUser->Value();
-                         UtlString regStr;
-                         convertRegularExpression(userRE, regStr);
-                         RegEx userExpression(regStr.data());
-                         if (userExpression.Search(testUser.data(), testUser.length()))
+                         if (userRE.str().substr(0, 6) == "regex:")
                          {
-                            getVDigits(userExpression, variableDigits);
-                            prMatchingUserMatchContainerNode = pUserMatchNode;
-                            userMatchFound = OS_SUCCESS;
+                             //
+                             // This is an explicit regex
+                             //
+                             try
+                             {
+                                 boost::regex expression(userRE.str().substr(6));
+                                 boost::cmatch match;
+
+                                 if (boost::regex_match(testUser.str().c_str(), match, expression, boost::format_all))
+                                 {
+                                    userMatchFound = OS_SUCCESS;
+                                    prMatchingUserMatchContainerNode = pUserMatchNode;
+                                    variableDigits = userRE.str();
+                                 }
+                             }
+                             catch(const std::exception& e)
+                             {
+                                SYSLOG_ERROR("UrlMapping::getUserMatchContainer - Exception caught while matching regular expression. " << e.what());
+                             }
+                         }
+                         else
+                         {
+                           UtlString regStr;
+                           convertRegularExpression(userRE, regStr);
+                           RegEx userExpression(regStr.data());
+                           if (userExpression.Search(testUser.data(), testUser.length()))
+                           {
+                              getVDigits(userExpression, variableDigits);
+                              prMatchingUserMatchContainerNode = pUserMatchNode;
+                              userMatchFound = OS_SUCCESS;
+                           }
                          }
                       }
                    }
@@ -586,10 +612,25 @@ UrlMapping::getUserMatchContainer(const Url&             requestUri,
 
 OsStatus
 UrlMapping::doTransform(const Url& requestUri,
-                        const UtlString& vdigits,
+                        const UtlString& vdigits_,
                         ResultSet& rContacts,
                         const TiXmlNode* permMatchNode) const
 {
+  //
+  // Full regex support has been recently added to fallback rules.
+  // This eliminated the need to supply a vdigit from getUserMatchContainer
+  // and instead would be replaced by a replacement regex from the user.
+  // To avoid modifying function signatures to assure backward compatibility,
+  // we recycled vdigits to contain the replacement regex string.
+  //
+  UtlString vdigits;
+  bool doRegexReplace = vdigits_.str().substr(0,6) == "regex:";
+  std::string strRegex;
+  if (!doRegexReplace)
+      vdigits = vdigits_;
+  else
+     strRegex = vdigits_.str().substr(6);
+
 #  ifdef REPLACE_TEST
    {
       UtlString out;
@@ -697,12 +738,41 @@ UrlMapping::doTransform(const Url& requestUri,
                   if(transformText && transformText->Type() == TiXmlNode::TEXT)
                   {
                      const TiXmlText* XmlUser = transformText->ToText();
-                     if (XmlUser)
+
+                     if (XmlUser && !doRegexReplace)
                      {
                         UtlString transformUser = XmlUser->Value();
                         symbols.replace(transformUser, vdigits);
                         transformedUrl.setUserId(transformUser);
                         transformState = UserTransformed;
+                     }
+                     else if(XmlUser && doRegexReplace && !strRegex.empty())
+                     {
+                       try
+                       {
+                          boost::regex expression(strRegex.c_str());
+                          UtlString testUser;
+                          requestUri.getUserId(testUser);
+
+                          std::string transformUserRegex = XmlUser->Value();
+                          std::string output = boost::regex_replace(testUser.str(), expression, transformUserRegex.c_str());
+                          
+                          SYSLOG_INFO("UrlMapping::doTransform regex_replace("
+                            << testUser.str() << ", "
+                            << strRegex << ", "
+                            << transformUserRegex << ") ... yields "
+                            << output);
+
+                          if (!output.empty())
+                          {
+                            transformedUrl.setUserId(output.c_str());
+                            transformState = UserTransformed;
+                          }
+                       }
+                       catch(const std::exception& e)
+                       {
+                         SYSLOG_ERROR("UrlMapping::doTransform regex_repalce exception: " << e.what());
+                       }
                      }
                   }
                }
