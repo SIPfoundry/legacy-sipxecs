@@ -27,7 +27,7 @@
 	<sslEnabled>false</sslEnabled>
 	<baseDN>dc=example,dc=com</baseDN>
 	<usernameField>uid</usernameField>
-	<searchFilter>(objectclass=person)</searchFilter>
+	<searchFilter><![CDATA[(objectclass=person)]]></searchFilter>
   </ldap>
   <provider>
     <auth>
