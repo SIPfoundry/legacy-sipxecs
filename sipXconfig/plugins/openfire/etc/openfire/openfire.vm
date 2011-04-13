@@ -33,7 +33,7 @@
 	<adminPassword>${ldapParams.secret}</adminPassword>
 #end
 	<usernameField>${attrMap.imAttributeName}</usernameField>
-	<searchFilter>${attrMap.searchFilter}</searchFilter>
+	<searchFilter><![CDATA[${attrMap.searchFilter}]]></searchFilter>
   </ldap>
   <provider>
     <auth>
