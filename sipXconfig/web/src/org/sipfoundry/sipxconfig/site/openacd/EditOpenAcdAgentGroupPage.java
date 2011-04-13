@@ -226,11 +226,16 @@ public abstract class EditOpenAcdAgentGroupPage extends PageWithCallback impleme
             if (ids.isEmpty()) {
                 return;
             }
-            for (Integer id : ids) {
-                OpenAcdAgent agent = getOpenAcdContext().getAgentById(id);
-                agent.setGroup(m_group);
-                getOpenAcdContext().saveAgent(agent);
+            try {
+                for (Integer id : ids) {
+                    OpenAcdAgent agent = getOpenAcdContext().getAgentById(id);
+                    agent.setGroup(m_group);
+                    getOpenAcdContext().saveAgent(agent);
+                }
+            } catch (UserException ex) {
+                getValidator().record(new ValidatorException(getMessages().getMessage("msg.cannot.connect")));
             }
+
         }
     }
 }

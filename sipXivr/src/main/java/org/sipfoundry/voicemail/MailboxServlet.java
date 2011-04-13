@@ -100,8 +100,10 @@ public class MailboxServlet extends HttpServlet {
         // TODO allow all admin user to access it
         String authenticatedUserName = request.getUserPrincipal().getName();
         if (!authenticatedUserName.equals(user.getUserName())) {
-            response.sendError(403); // Send 403 Forbidden
-            return;
+            if (!authenticatedUserName.equals("superadmin")) {
+                response.sendError(403); // Send 403 Forbidden
+                return;
+            }
         }
         if (user != null) {
             PrintWriter pw = response.getWriter();

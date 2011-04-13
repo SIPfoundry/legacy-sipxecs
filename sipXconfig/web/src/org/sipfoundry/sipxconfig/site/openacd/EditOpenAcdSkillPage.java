@@ -46,7 +46,6 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
 
     public abstract void setSkillId(Integer skillId);
 
-    @Persist
     public abstract OpenAcdSkill getSkill();
 
     public abstract void setSkill(OpenAcdSkill skill);
@@ -67,7 +66,6 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
 
     public void editSkill(Integer skillId, String returnPage) {
         setSkillId(skillId);
-        setSkill(getOpenAcdContext().getSkillById(skillId));
         setReturnPage(returnPage);
     }
 
@@ -77,9 +75,12 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
             return;
         }
 
-        if (getSkill() == null && getSkillId() == null) {
+        if (getSkillId() == null) {
             setSkill(new OpenAcdSkill());
+        } else {
+            setSkill(getOpenAcdContext().getSkillById(getSkillId()));
         }
+
     }
 
     public String[] getSkillGroupNames() {
@@ -113,5 +114,6 @@ public abstract class EditOpenAcdSkillPage extends PageWithCallback implements P
         }
 
         getOpenAcdContext().saveSkill(getSkill());
+        setSkillId(getSkill().getId());
     }
 }
