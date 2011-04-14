@@ -29,7 +29,7 @@
 	<adminDN>cn=Directory Manager</adminDN>
 	<adminPassword>secret</adminPassword>
 	<usernameField>uid</usernameField>
-	<searchFilter>(objectclass=person)</searchFilter>
+	<searchFilter><![CDATA[(objectclass=person)]]></searchFilter>
   </ldap>
   <provider>
     <auth>
