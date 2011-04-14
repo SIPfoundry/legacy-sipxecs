@@ -14,7 +14,7 @@ import org.sipfoundry.sipxconfig.admin.commserver.Location;
 public class NatLocation {
     private boolean m_useStun = true;
 
-    private String m_stunAddress = "stun01.sipphone.com";
+    private String m_stunAddress = "stun.ezuce.com";
 
     private int m_stunInterval = 60; // seconds
 

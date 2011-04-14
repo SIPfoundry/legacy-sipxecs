@@ -302,7 +302,7 @@ public class LocationsManagerImplTestIntegration extends IntegrationTestCase {
         loadDataSet("nattraversal/nat_location.db.xml");
 
         NatLocation natLocation = m_out.getLocation(111).getNat();
-        assertEquals("stun01.sipphone.com", natLocation.getStunAddress());
+        assertEquals("stun.ezuce.com", natLocation.getStunAddress());
         assertEquals(60, natLocation.getStunInterval());
         assertEquals(5060, natLocation.getPublicPort());
         assertEquals(5061, natLocation.getPublicTlsPort());
