@@ -73,7 +73,7 @@ public class EditLocationPageTestUi extends WebTestCase {
         SiteTestHelper.assertNoUserError(tester);
         assertElementPresent("stunAddress");
         assertElementPresent("stunInterval");
-        assertTextFieldEquals("stunAddress", "stun01.sipphone.com");
+        assertTextFieldEquals("stunAddress", "stun.ezuce.com");
         assertTextFieldEquals("stunInterval", "60");
         assertElementNotPresent("publicAddress");
 
