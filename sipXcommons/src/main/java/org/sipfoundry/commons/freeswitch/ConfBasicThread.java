@@ -259,16 +259,20 @@ public class ConfBasicThread extends Thread {
                 else {
                     LOG.error("ConfBasicThread::run() failed to connect");
                 }
-            } catch (IOException e) {
-                LOG.error("ConfBasicThread::run() got IOException: " + e.getMessage());
+            } catch (Exception e) {
+                LOG.error("ConfBasicThread::run() got Exception: " + e.getMessage());
             }     
 
             // Close any open sockets
-            try {
-                m_fsCmdSocket.close();
-                m_fsListenSocket.close();
-            } catch (IOException e) {
+            finally {
+                try {
+                    m_fsCmdSocket.close();
+                    m_fsListenSocket.close();
+                } catch (IOException e) {
+                    LOG.error("ConfBasicThread::run() got IOException when closing sockets: " + e.getMessage());
+                } 
             }
+
             // Delay before attempting to connect again.
             try {
                 sleep(1000);

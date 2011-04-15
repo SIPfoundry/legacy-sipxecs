@@ -15,25 +15,28 @@ package org.sipfoundry.voicemail;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.Socket;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.sipfoundry.commons.freeswitch.ConfBasicThread;
+import org.apache.log4j.Logger;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEvent;
 import org.sipfoundry.commons.freeswitch.FreeSwitchEventSocket;
 import org.sipfoundry.commons.timeout.Result;
 import org.sipfoundry.commons.timeout.SipxExecutor;
 import org.sipfoundry.commons.timeout.Timeout;
+import org.sipfoundry.sipxivr.IvrConfiguration;
 
 public class ConferenceServlet extends HttpServlet {
+    static final Logger LOG = Logger.getLogger("org.sipfoundry.sipxivr");
 
     public void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter pw = response.getWriter();
         String pathInfo = request.getPathInfo();
-        String commandStr = "conference"+pathInfo.replace('/', ' ');
+        String commandStr = "conference" + pathInfo.replace('/', ' ');
 
         response.setContentType("text/xml");
 
@@ -44,14 +47,30 @@ public class ConferenceServlet extends HttpServlet {
 
     private synchronized void executeCommand(String cmd, IvrLocalizer localizer, PrintWriter pw) {
 
-        FreeSwitchEventSocket socket = ConfBasicThread.getCmdSocket();
-        Result result = null;
+        FreeSwitchEventSocket fsEventSocket = new FreeSwitchEventSocket(IvrConfiguration.get());
+        Socket socket = null;
         try {
-            result = SipxExecutor.execute(new TimeoutCommand(socket, cmd), 60);
-            pw.format("<command-response>%s</command-response>\n", result.getResult());
-        } catch(Exception ex) {
-            pw.format("<command-exception>%s</command-exception>\n", ex.getMessage());
+            socket = new Socket("localhost", 8021);
+            if (fsEventSocket.connect(socket, "ClueCon")) {
+                Result result = null;
+                try {
+                    result = SipxExecutor.execute(new TimeoutCommand(fsEventSocket, cmd), 60);
+                    pw.format("<command-response>%s</command-response>\n", result.getResult());
+                } catch (Exception ex) {
+                    pw.format("<command-exception>%s</command-exception>\n", ex.getMessage());
+                }
+            }
+        } catch (IOException ioEx) {
+            LOG.error("failed to executeCommand" + ioEx.getMessage());
+        } finally {
+            try {
+                fsEventSocket.close();
+            } catch (IOException ex) {
+                LOG.error("failed to close FS socket" + ex.getMessage());
+            }
+
         }
+
     }
 
     private class TimeoutCommand implements Timeout {
@@ -62,6 +81,7 @@ public class ConferenceServlet extends HttpServlet {
             m_socket = socket;
             m_command = command;
         }
+
         @Override
         public Result timeoutMethod() {
             FreeSwitchEvent event = m_socket.apiCmdResponse(m_command);

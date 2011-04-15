@@ -223,11 +223,6 @@ public class SipXivr implements Runnable {
         props.setProperty("log4j.appender.file.layout.facility", "sipXivr");
         PropertyConfigurator.configure(props);
 
-        //Start conference thread to listen to conferences
-        ConfBasicThread confThread = new ConfBasicThread();
-        confThread.setConfConfiguration(s_config);
-        confThread.start();
-
         // Create Web Server
         WebServer webServer = new WebServer(s_config);
         // add MWI servlet on /mwi
