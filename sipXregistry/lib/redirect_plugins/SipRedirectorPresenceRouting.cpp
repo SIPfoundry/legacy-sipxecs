@@ -583,6 +583,7 @@ OsStatus SipRedirectorPresenceRouting::pingOpenfire( void )
     OsStatus rc = OS_FAILED;
     UtlString presenceMonitorUrlAsString = mLocalPresenceMonitorServerUrl.toString();
     XmlRpcRequest pingRequest( mOpenFirePresenceServerUrl, PING_METHOD );
+    pingRequest.setHeaderField("Authorization", mXmlApcApiCreds.c_str());
     pingRequest.addParam( &mLogName );
     XmlRpcResponse pingResponse;
     if( pingRequest.execute( pingResponse ) == true )
