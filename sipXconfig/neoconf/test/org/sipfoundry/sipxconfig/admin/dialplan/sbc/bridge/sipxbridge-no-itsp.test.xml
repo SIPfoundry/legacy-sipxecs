@@ -11,7 +11,7 @@
     <sipx-proxy-domain>sipfoundry.org</sipx-proxy-domain>
     <sipx-supervisor-host>sipx.example.org</sipx-supervisor-host>
     <sipx-supervisor-xml-rpc-port>8092</sipx-supervisor-xml-rpc-port>
-    <stun-server-address>stun01.sipphone.com</stun-server-address>
+    <stun-server-address>stun.ezuce.com</stun-server-address>
     <sip-keepalive-seconds>20</sip-keepalive-seconds>
     <media-keepalive-seconds>1</media-keepalive-seconds>
     <xml-rpc-port>8088</xml-rpc-port>

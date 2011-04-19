@@ -232,7 +232,7 @@
 					<xs:documentation xml:lang="en">
 						The stun server address used to determine the
 						global address of the bridge. If this is not present
-						then stun01.sipphone.com is used for global address discovery.
+						then stun.ezuce.com is used for global address discovery.
 					</xs:documentation>
 				</xs:annotation>
 			</xs:element>
