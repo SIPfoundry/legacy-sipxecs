@@ -171,7 +171,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
             Url url( hostIpAddress, TRUE );
             mPublicTransport.setAddress( hostIpAddress );
             mSecurePublicTransport.setAddress( hostIpAddress );
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using host IP: '%s'", XML_TAG_PUBLIC_ADDRESS, mPublicTransport.getAddress().data() );
+            OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using host IP: '%s'", XML_TAG_PUBLIC_ADDRESS, mPublicTransport.getAddress().data() );
          }
 
          // get the 'publicport' node
@@ -236,7 +236,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          {
             mbMediaRelayPublicAddressProvidedInConfig = false;
             mMediaRelayPublicAddress = mPublicTransport.getAddress();
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using public IP address of '%s'", XML_TAG_MR_PUBLIC_ADDRESS, mPublicTransport.getAddress().data() );
+            OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s', using public IP address of '%s'", XML_TAG_MR_PUBLIC_ADDRESS, mPublicTransport.getAddress().data() );
          }
 
          // get the 'mediarelaynativeaddress' node
@@ -322,7 +322,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          }
          else
          {
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_STUN_REFRESH_INTERVAL );
+            OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_STUN_REFRESH_INTERVAL );
          }
 
          // get the 'STUNServer' node
@@ -332,7 +332,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          }
          else
          {
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_STUN_SERVER );
+            OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_STUN_SERVER );
          }
 
          // get the 'secureXMLRPC' node
@@ -350,7 +350,7 @@ void NatTraversalRules::initializeNatTraversalInfo( void )
          }
          else
          {
-            OsSysLog::add(FAC_NAT, PRI_ERR, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_SECURE_XMLRPC );
+            OsSysLog::add(FAC_NAT, PRI_DEBUG, "NatTraversalRules::initializeNatTraversalInfo - No child Node named '%s'", XML_TAG_SECURE_XMLRPC );
          }
       }
       else
