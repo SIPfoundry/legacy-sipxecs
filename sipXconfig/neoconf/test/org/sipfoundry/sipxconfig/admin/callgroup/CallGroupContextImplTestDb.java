@@ -192,15 +192,15 @@ public class CallGroupContextImplTestDb extends SipxDatabaseTestCase {
 
         Iterator<AliasMapping> i = aliases.iterator();
         AliasMapping aliasMapping = i.next();
-        assertTrue(aliasMapping.get(MongoConstants.ID).toString().startsWith("sales"));
+        assertTrue(aliasMapping.get("id").toString().startsWith("sales"));
         assertTrue(aliasMapping.get(MongoConstants.CONTACT).toString().startsWith("<sip:default@pingtel.com>;q="));
 
         aliasMapping = i.next();
-        assertTrue(aliasMapping.get(MongoConstants.ID).toString().startsWith("401"));
+        assertTrue(aliasMapping.get("id").toString().startsWith("401"));
         assertTrue(aliasMapping.get(MongoConstants.CONTACT).toString().startsWith("sales"));
 
         aliasMapping = i.next();
-        assertTrue(aliasMapping.get(MongoConstants.ID).toString().startsWith("123456781"));
+        assertTrue(aliasMapping.get("id").toString().startsWith("123456781"));
         assertTrue(aliasMapping.get(MongoConstants.CONTACT).toString().startsWith("sales"));
     }
 

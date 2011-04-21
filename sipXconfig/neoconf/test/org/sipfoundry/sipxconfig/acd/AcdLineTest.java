@@ -106,7 +106,7 @@ public class AcdLineTest extends BeanWithSettingsTestCase {
         m_line.setAcdServer(server);
 
         AliasMapping alias = m_line.getAliasMappings("mydomain.org").iterator().next();
-        assertEquals("555", alias.get(MongoConstants.ID));
+        assertEquals("555", alias.get("id"));
         assertEquals("myline@localhost:100", m_line.getIdentity("mydomain.org"));
 
         mcs.verify();

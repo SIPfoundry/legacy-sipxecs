@@ -9,8 +9,8 @@
  */
 package org.sipfoundry.sipxconfig.admin.commserver.imdb;
 
+import static org.sipfoundry.commons.mongo.MongoConstants.ALIAS_ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.CONTACT;
-import static org.sipfoundry.commons.mongo.MongoConstants.ID;
 import static org.sipfoundry.commons.mongo.MongoConstants.RELATION;;
 
 /**
@@ -30,14 +30,14 @@ public class AliasMapping extends DataSetRecord {
      * @param contact
      */
     public AliasMapping(String identity, String contact, String relation) {
-        put(ID, identity);
+        put(ALIAS_ID, identity);
         put(CONTACT, contact);
         put(RELATION, relation);
     }
 
     // convenience methods
     public String getIdentity() {
-        return get(ID).toString();
+        return get(ALIAS_ID).toString();
     }
 
     public String getContact() {
@@ -48,7 +48,7 @@ public class AliasMapping extends DataSetRecord {
     }
 
     public void setIdentity(String ident) {
-        put(ID, ident);
+        put(ALIAS_ID, ident);
     }
 
     public void setContact(String cnt) {

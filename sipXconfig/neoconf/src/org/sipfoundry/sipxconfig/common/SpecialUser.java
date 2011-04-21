@@ -11,6 +11,7 @@ package org.sipfoundry.sipxconfig.common;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,8 @@ import java.util.Set;
 import org.apache.commons.lang.RandomStringUtils;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.AliasMapping;
 import org.sipfoundry.sipxconfig.admin.commserver.imdb.DataSet;
+
+import static org.sipfoundry.commons.mongo.MongoConstants.UID;
 
 public class SpecialUser extends BeanWithId implements Replicable {
 
@@ -102,8 +105,7 @@ public class SpecialUser extends BeanWithId implements Replicable {
 
     @Override
     public String getIdentity(String domain) {
-        // TODO Auto-generated method stub
-        return null;
+        return SipUri.stripSipPrefix(SipUri.format(null, getUserName(), domain));
     }
 
     @Override
@@ -113,7 +115,9 @@ public class SpecialUser extends BeanWithId implements Replicable {
 
     @Override
     public Map<String, Object> getMongoProperties(String domain) {
-        return Collections.EMPTY_MAP;
+        Map<String, Object> props = new HashMap<String, Object>();
+        props.put(UID, getUserName());
+        return props;
     }
 
 }

@@ -15,6 +15,7 @@ public interface MongoConstants {
     static final String ALIASES = "als";
     static final String ALIAS = "alias";
     static final String ID = "_id";
+    static final String ALIAS_ID = "id";
     static final String CONTACT = "cnt";
     static final String RELATION = "rln";
     static final String USERBUSYPROMPT = "bsyprmpt";
