@@ -2439,7 +2439,7 @@ void HttpMessage::getBytes(UtlString* bufferString, ssize_t* length, bool includ
             {
                 char bodyLengthString[40];
                 sprintf(bodyLengthString, "%zu", bodyLen);
-                OsSysLog::add(FAC_HTTP, PRI_WARNING,
+                OsSysLog::add(FAC_HTTP, PRI_DEBUG,
                               "HttpMessage::getBytes content-length: %s wrong setting to: %s",
                               value ? value : "", bodyLengthString);
                 headerField->setValue(bodyLengthString);
