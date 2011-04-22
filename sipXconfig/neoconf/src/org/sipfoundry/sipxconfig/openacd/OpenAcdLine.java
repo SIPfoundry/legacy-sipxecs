@@ -27,6 +27,7 @@ public class OpenAcdLine extends OpenAcdExtension {
     public static final String DESTINATION_NUMBER = "destination_number";
     public static final String ALLOW_VOICEMAIL = "allow_voicemail=";
     public static final String EMPTY_STRING = "";
+    public static final String OPEN_ACD = "openacd@";
 
     public static List<FreeswitchAction> getDefaultActions(Location location) {
         List<FreeswitchAction> actions = new LinkedList<FreeswitchAction>();
@@ -35,10 +36,10 @@ public class OpenAcdLine extends OpenAcdExtension {
         actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), Q));
         actions.add(createAction(FreeswitchAction.PredefinedAction.set.toString(), "allow_voicemail=true"));
         actions.add(createAction(FreeswitchAction.PredefinedAction.erlang_sendmsg.toString(),
-                "freeswitch_media_manager  " + location.getHostname() + "@127.0.0.1 inivr ${uuid}"));
+                "freeswitch_media_manager  " + OPEN_ACD + location.getFqdn() + " inivr ${uuid}"));
         actions.add(createAction(FreeswitchAction.PredefinedAction.playback.toString(), EMPTY_STRING));
         actions.add(createAction(FreeswitchAction.PredefinedAction.erlang.toString(),
-                "freeswitch_media_manager:!  " + location.getHostname() + "@127.0.0.1"));
+                "freeswitch_media_manager:!  " + OPEN_ACD + location.getFqdn()));
         return actions;
     }
 
