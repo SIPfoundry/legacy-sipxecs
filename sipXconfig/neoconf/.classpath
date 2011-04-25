@@ -76,7 +76,6 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/xalan-2.7.1.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/org.restlet.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/com.noelios.restlet.jar"/>
-	<classpathentry kind="var" path="SIPX_SRC_TOP"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.aop-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.asm-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.beans-3.0.5.RELEASE.jar"/>
@@ -90,5 +89,6 @@
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.web-3.0.5.RELEASE.jar"/>
 	<classpathentry exported="true" kind="var" path="SIPX_SRC_TOP/sipXconfig/lib/org.springframework.web.servlet-3.0.5.RELEASE.jar"/>
 	<classpathentry kind="var" path="SIPX_SRC_TOP/sipXcommons/lib/mongo-2.3.jar"/>
+	<classpathentry kind="var" path="ECLIPSE_HOME"/>
 	<classpathentry kind="output" path="bin.eclipse"/>
 </classpath>

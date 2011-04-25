@@ -4,6 +4,24 @@
 # case this is relevant to some odd platform.
 INSTALL=@INSTALL@
 
+# Lists common variable names defined in sipx projects
+CommonVariablesNames = \
+	$(filter SIPX%,$(.VARIABLES)) \
+	$(filter PACKAGE%,$(.VARIABLES)) \
+	$(filter-out am__%_dir,$(filter %dir,$(.VARIABLES)))
+
+# Search and replace @VAR@ in a file with common or explicit make variables
+#  arg1 - input file
+#  arg2 - output file
+#  [arg3] - optional:  space delimitted list of variable names to add to ones listed in $(CommonVariableNames)
+#
+# Examples:
+#  $(call SearchAndReplace, infile, outfile)
+#  $(call SearchAndReplace, $<, $@)
+#  $(call SearchAndReplace, $<, $@, MYVAR1 MYVAR2)
+SearchAndReplace = \
+	sed $(foreach V,$3 $(CommonVariablesNames), -e 's|@$(V)\@|$($(V))|g') $1 > $2
+
 LocalizeSipXconfig = sed \
 		  -e 's,@PACKAGE\@,@PACKAGE@,g' \
 		  -e 's,@PACKAGE_REVISION\@,@PACKAGE_REVISION@,g' \

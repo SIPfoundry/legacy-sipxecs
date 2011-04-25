@@ -114,7 +114,7 @@ public class FirstRunTaskTestIntegration extends IntegrationTestCase {
         // by default, the following bundles are autoEnabled:
         // Management, Primpary Sip Router, Voicemail, Call Center
         // SIP Trunking, Conference, Instant Message
-        assertEquals(7, primaryLocation.getInstalledBundles().size());
+        assertEquals(8, primaryLocation.getInstalledBundles().size());
 
         Location secondaryLocation = m_locationsManager.getLocationByFqdn("secondary.example.org");
         Collection<LocationSpecificService> servicesForSecondaryLocation = secondaryLocation.getServices();

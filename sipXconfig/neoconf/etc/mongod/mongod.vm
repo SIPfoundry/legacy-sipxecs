@@ -1,0 +1,7 @@
+# special var used in /etc/init.d/mongod script. append to mongod CLI
+# this assumes stunnel config in place. bind_ip
+#if( location.primary )
+options="$options --bind_ip 127.0.0.1 --master"
+#else
+options="$options --bind_ip 127.0.0.1 --master --slave --source localhost:27019 --only imdb --autoresync"
+#end
