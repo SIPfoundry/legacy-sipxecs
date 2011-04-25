@@ -35,7 +35,7 @@ AC_ARG_ENABLE(agent,
   AC_HELP_STRING([--enable-agent], [Build optional call distribution api]),
   enable_agent=yes,)
 AM_CONDITIONAL(AGENT, test x$enable_agent = xyes)
-if test false && x$enable_agent = xyes ; then
+if test false && test x$enable_agent = xyes ; then
   CHECK_RUBY_GEM([file-tail])
 fi
 
@@ -69,7 +69,9 @@ CHECK_SERVICEDIR
 AC_CONFIG_FILES([
     Makefile
     bin/Makefile
+    etc/Makefile
     neoconf/Makefile
+    neoconf/etc/Makefile
     gwt/Makefile
     web/Makefile
     meta/Makefile
