@@ -51,6 +51,9 @@ public abstract class ConfirmProfileGeneration extends BaseComponent {
             return;
         }
         Collection<Integer> deviceIds = getDeviceIds();
+        if (deviceIds == null) {
+            return;
+        }
         getProfileManager().generateProfiles(deviceIds, getRestart(), getRestartDate());
         String msg = getMessages().format("msg.success.profiles", deviceIds.size());
         TapestryUtils.recordSuccess(this, msg);
