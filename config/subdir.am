@@ -6,6 +6,7 @@ INSTALL=@INSTALL@
 
 # Lists common variable names defined in sipx projects
 CommonVariablesNames = \
+	VERSION \
 	$(filter SIPX%,$(.VARIABLES)) \
 	$(filter PACKAGE%,$(.VARIABLES)) \
 	$(filter-out am__%_dir,$(filter %dir,$(.VARIABLES)))
@@ -13,7 +14,8 @@ CommonVariablesNames = \
 # Search and replace @VAR@ in a file with common or explicit make variables
 #  arg1 - input file
 #  arg2 - output file
-#  [arg3] - optional:  space delimitted list of variable names to add to ones listed in $(CommonVariableNames)
+#  [arg3] - optional:  space delimitted list of addtional autoconf variable names to add search/replace.
+#           this is in addtion to ones listed in $(CommonVariableNames)
 #
 # Examples:
 #  $(call SearchAndReplace, infile, outfile)

@@ -35,9 +35,6 @@ AC_ARG_ENABLE(agent,
   AC_HELP_STRING([--enable-agent], [Build optional call distribution api]),
   enable_agent=yes,)
 AM_CONDITIONAL(AGENT, test x$enable_agent = xyes)
-if test false && test x$enable_agent = xyes ; then
-  CHECK_RUBY_GEM([file-tail])
-fi
 
 AC_ARG_ENABLE(mrtg,
   AC_HELP_STRING([--enable-mrtg], [Enable MRTG integration]),
@@ -45,9 +42,9 @@ AC_ARG_ENABLE(mrtg,
 AM_CONDITIONAL(MRTG, test x$enable_mrtg = xyes)
 AC_SUBST(MRTG_ENABLED, [])
 if test x$enable_mrtg = xyes ; then
-  MRTG_ENABLED="mrtg-enabled=true"
+  MRTG_ENABLED="true"
 else
-  MRTG_ENABLED="mrtg-enabled=false"
+  MRTG_ENABLED="false"
 fi
 
 AC_ARG_WITH(mrtg-binary-location,[  --with-mrtg-binary-location=PFX   Location where mrtg is installed (optional)],

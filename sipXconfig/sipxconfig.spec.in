@@ -152,6 +152,15 @@ Summary: Configures/enables SNMP for %{name}
 %description snmp
 * installs and configures SNMP
 
+%package tunnel
+Requires: stunnel
+Group: Productivity/Telephony/SIP/Servers
+Vendor: SIPfoundry
+Summary: Configures/enables stunnels for %{name}
+
+%description tunnel
+Create encrypted tunnels using stunnnel from one machine to another
+
 %package mrtg
 Requires: sipxconfig-snmp
 Requires: sipxconfig
@@ -395,6 +404,8 @@ rm -rf $RPM_BUILD_ROOT
 %config(noreplace) %{sipxpbxconf}/sipxprovision/*
 %dir %{sipxpbxconf}/openacd
 %config(noreplace) %{sipxpbxconf}/openacd/*
+%dir %{sipxpbxconf}/tunnel
+%config(noreplace) %{sipxpbxconf}/tunnel/*
 
 %define audiocodesdir %{_localstatedir}/sipxdata/audiocodes
 %dir %attr(775,sipxchange,sipxchange) %{audiocodesdir}
@@ -521,6 +532,11 @@ fi
 
 %post snmp
 sipx-snmp-init > /dev/null
+
+%files tunnel
+%attr(755,sipxchange,sipxchange) %{_bindir}/sipx-tunnel
+%attr(644,root,root) %{_datadir}/sipxecs/process.d/tunnel-process.xml
+%dir %attr(775,sipxchange,sipxchange) %{sipxpbxconf}/mongod/mongod.vm
 
 %files mrtg
 %defattr(644,sipxchange,sipxchange,755)

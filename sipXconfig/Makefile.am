@@ -31,7 +31,9 @@ endif
 SUBDIRS = \
 	. \
 	bin \
+	etc \
 	neoconf \
+	neoconf/etc \
 	gwt \
 	web \
 	meta \

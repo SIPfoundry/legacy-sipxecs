@@ -4,7 +4,7 @@
     Verify that the DHCP server is properly issuing Option 120 addresses.
   </description>
   <longDescription>
-      From the perspective of phones which will be used as part of a @sipxecs.name@
+      From the perspective of phones which will be used as part of a
       PBX, a DHCP server is expected to be present on their network.
       At a minimum, the DHCP server should be provisioned to supply the network
       domain name, network mask, default router address and a list of one or
