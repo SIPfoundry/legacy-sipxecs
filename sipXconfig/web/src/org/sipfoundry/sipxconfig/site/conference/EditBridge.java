@@ -115,6 +115,7 @@ public abstract class EditBridge extends PageWithCallback implements PageBeginRe
         editConference.setBridgeId(getBridgeId());
         editConference.setTestBridge(getBridge());
         editConference.setConferenceId(id);
+        editConference.setAutoReload(false);
         if (tab != null) {
             editConference.setTab(tab);
         }
