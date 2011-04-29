@@ -1039,17 +1039,6 @@ void SipClient::clientStopSelf()
 
    // Stop the run loop.
    OsTask::requestShutdown();
-   // Signal the owning SipServer to check for dead clients.
-   if (mpSipServer)
-   {
-      OsMsg message(OsMsg::OS_EVENT,
-                    SipProtocolServerBase::SIP_SERVER_GC);
-      // If the SipServer's queue is full, don't wait, since
-      // that can cause deadlocks.  The SipServer will eventually
-      // garbage-collect terminated clients spontaneously.
-      mpSipServer->postMessage(message,
-                               OsTime::NO_WAIT);
-   }
 }
 
 /* //////////////////////////// PRIVATE /////////////////////////////////// */
