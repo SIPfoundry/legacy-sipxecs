@@ -21,19 +21,21 @@ import org.hibernate.criterion.Restrictions;
 import org.sipfoundry.sipxconfig.common.SipxHibernateDaoSupport;
 import org.sipfoundry.sipxconfig.common.UserException;
 import org.sipfoundry.sipxconfig.nattraversal.NatLocation;
+import org.sipfoundry.sipxconfig.nattraversal.NatTraversalManager;
 import org.sipfoundry.sipxconfig.service.SipxService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 
 import static org.springframework.dao.support.DataAccessUtils.intResult;
 import static org.springframework.dao.support.DataAccessUtils.singleResult;
 
-public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
+public abstract class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> implements LocationsManager {
     public static final Log LOG = LogFactory.getLog(LocationsManagerImpl.class);
     private static final String LOCATION_PROP_NAME = "fqdn";
     private static final String LOCATION_PROP_PRIMARY = "primary";
     private static final String LOCATION_PROP_IP = "ipAddress";
     private static final String LOCATION_PROP_ID = "locationId";
     private static final String DUPLICATE_FQDN_OR_IP = "&error.duplicateFqdnOrIp";
+    protected abstract NatTraversalManager getNatTraversalManager();
 
     /** Return the replication URLs, retrieving them on demand */
     public Location[] getLocations() {
@@ -79,6 +81,7 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         getHibernateTemplate().saveOrUpdate(location);
         // There is a 1-1 relation between Nat and Location
         nat.setLocation(location);
+        getNatTraversalManager().activateNatLocation(location);
     }
 
     public void saveServerRoleLocation(Location location, ServerRoleLocation role) {
@@ -159,5 +162,4 @@ public class LocationsManagerImpl extends SipxHibernateDaoSupport<Location> impl
         }
         return locations.get(0);
     }
-
 }

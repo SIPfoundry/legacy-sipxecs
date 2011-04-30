@@ -38,6 +38,9 @@ public class LazyProfileManagerImpl implements ProfileManager {
     }
 
     public synchronized void generateProfiles(Collection<Integer> phoneIds, boolean restart, Date restartTime) {
+        if (phoneIds == null) {
+            return;
+        }
         for (Integer id : phoneIds) {
             updateRestart(id, restart ? TaskInfo.GENERATE_RESTART : TaskInfo.GENERATE, restartTime);
         }

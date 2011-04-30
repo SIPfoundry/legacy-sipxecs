@@ -49,6 +49,13 @@ public class LazyProfileManagerImplTest extends TestCase {
         verify(manager);
     }
 
+    public void testGenerateNullProfiles() throws Exception {
+        LazyProfileManagerImpl lazyManager = new LazyProfileManagerImpl();
+        lazyManager.setSleepInterval(100);
+        lazyManager.init();
+        lazyManager.generateProfiles(null, true, null);
+    }
+    
     public void testGenerateProfile() throws Exception {
         generateProfile(true);
         generateProfile(false);

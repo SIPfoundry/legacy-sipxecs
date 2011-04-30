@@ -28,7 +28,7 @@ public class SipxOpenAcdVmArgsConfiguration extends SipxServiceConfiguration {
     protected VelocityContext setupContext(Location location) {
         VelocityContext context = super.setupContext(location);
         context.put("etc_dir", m_etcDir);
-        context.put("host", m_locationsManager.getPrimaryLocation().getHostname());
+        context.put("fqdn", m_locationsManager.getPrimaryLocation().getFqdn());
 
         return context;
     }

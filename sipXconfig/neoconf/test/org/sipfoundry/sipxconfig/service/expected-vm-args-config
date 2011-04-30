@@ -1,5 +1,5 @@
 
--name sipx@127.0.0.1
+-name openacd@sipx.example.org
 
 -setcookie ClueCon
 
@@ -9,6 +9,6 @@
 
 -env ERL_MAX_PORTS 4096
 
--mnesia dir '"/home/sipxecs/etc/openacd/Mnesia.sipx@127.0.0.1"'
+-mnesia dir '"/home/sipxecs/etc/openacd/Mnesia.openacd@sipx.example.org"'
 
 -env ERL_FULLSWEEP_AFTER 10

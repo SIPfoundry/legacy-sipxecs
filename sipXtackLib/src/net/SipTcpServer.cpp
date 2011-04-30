@@ -105,6 +105,7 @@ UtlBoolean SipTcpServer::startListener()
        (dynamic_cast <SipServerBroker*> (iterator.value()))->start();
        bRet = TRUE;
     }
+    start();
     return bRet;
 }
 
@@ -190,9 +191,21 @@ SipTcpServer::~SipTcpServer()
 
 int SipTcpServer::run(void* runArgument)
 {
+    OsMsg*    pMsg = NULL;
+    OsStatus  res;
+
     while (!isShuttingDown())
     {
-        OsTask::delay(500); // this method really shouldn't do anything
+        // this method really shouldn't do anything but empty the queue
+	res = receiveMessage((OsMsg*&) pMsg);
+	
+	if(res == OS_SUCCESS)
+        {
+	  if (!pMsg->getSentFromISR())
+	  {
+	        pMsg->releaseMsg();
+	  }
+	}
     }
 
     return (0);
