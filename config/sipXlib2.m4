@@ -39,3 +39,10 @@ test -n "$SIPXPBXGROUP" || SIPXPBXGROUP=$SIPXPBXUSER
 PACKAGE_REVISION=`cd ${srcdir} && ./config/revision-gen ${PACKAGE_VERSION}`
 AC_SUBST(PACKAGE_REVISION)
 AC_DEFINE_UNQUOTED([PACKAGE_REVISION], "${PACKAGE_REVISION}", [Revion number including git SHA])
+
+# automake eats straight "if.." in makefiles as autoconf conditions. this avoids that
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=34051
+AC_SUBST(IF, [if])
+AC_SUBST(IFDEF, [ifdef])
+AC_SUBST(IFNDEF, [ifndef])
+AC_SUBST(ENDIF, [endif])

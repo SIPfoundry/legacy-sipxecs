@@ -1,208 +1,60 @@
-##
-## AC macros for general packages like OpenSSL, Xerces, etc
-##
 
-AC_DEFUN([CHECK_MSGFMT],
+# ============ J D K  =======================
+AC_DEFUN([CHECK_JDK],
 [
-  AC_PATH_PROG(MSGFMT,msgfmt)
-  if [ test -z "$MSGFMT" ]; then
-    AC_MSG_ERROR([msgfmt program is required. Redhat users run: 'yum install gettext'])
-  fi
-])
+    AC_ARG_VAR(JAVA_HOME, [Java Development Kit])
 
-# ============ C L O V E R  =======================
-AC_DEFUN([CHECK_CLOVER],
-[
-   AC_ARG_VAR(CLOVER_JAR, [Clover home directory])
-
-   if test x_"${CLOVER_JAR}" != x_
-   then
-       AC_CHECK_FILE([$CLOVER_JAR],
-       [
-           CLOVER_JAR=$CLOVER_RPM_JAR
-       ],
-       [
-           AC_MSG_ERROR([Invalid CLOVER_JAR environment variable: Cannot find $CLOVER_JAR.])
-       ])
-   else
-       CLOVER_RPM_JAR=/usr/share/java/ant/clover.jar
-       AC_CHECK_FILE([$CLOVER_RPM_JAR],
-       [
-           CLOVER_JAR=$CLOVER_RPM_JAR
-       ],)
-   fi
-])
-
-# ================ NET SNMP ================
-AC_DEFUN([CHECK_NET_SNMP],
-[
-    AC_MSG_CHECKING([for net-snmp-config.h ])
-    include_path="$includedir $prefix/include /usr/include /usr/local/include"
-    include_check="net-snmp/net-snmp-config.h"
-
-    foundpath=""
-    for dir in $include_path ; do
-        if test -f "$dir/$include_check";
-        then
-            foundpath=$dir;
+    TRY_JAVA_HOME=`ls -dr /usr/java/* 2> /dev/null | head -n 1`
+    for dir in $JAVA_HOME $JDK_HOME /usr/lib/jvm/java /usr/lib64/jvm/java /usr/local/jdk /usr/local/java $TRY_JAVA_HOME; do
+        AC_CHECK_FILE([$dir/lib/dt.jar],[jar=$dir/lib/dt.jar])
+        if test x$jar != x; then
+            found_jdk="yes";
+            JAVA_HOME=$dir
             break;
-        fi;
+        fi
     done
-    if test x_$foundpath = x_; then
-       AC_MSG_RESULT([no])
-       AC_MSG_WARN([searched $include_path    ])
-       AC_MSG_ERROR('$include_check' not found)
-    else
-       AC_MSG_RESULT($foundpath/$include_check)
+
+    if test x_$found_jdk != x_yes; then
+        AC_MSG_ERROR([Cannot find dt.jar in expected location. You may try setting the JAVA_HOME environment variable if you haven't already done so])
     fi
 
-    AC_MSG_CHECKING([for net-snmp-includes.h ])
-    include_path="$includedir $prefix/include /usr/include /usr/local/include"
-    include_check="net-snmp/net-snmp-includes.h"
+    AC_SUBST(JAVA, [$JAVA_HOME/jre/bin/java])
 
-    foundpath=""
-    for dir in $include_path ; do
-        if test -f "$dir/$include_check";
-        then
-            foundpath=$dir;
-            break;
-        fi;
-    done
-    if test x_$foundpath = x_; then
-       AC_MSG_RESULT([no])
-       AC_MSG_WARN([searched $include_path    ])
-       AC_MSG_ERROR('$include_check' not found)
-    else
-       AC_MSG_RESULT($foundpath/$include_check)
-    fi
+    AC_ARG_VAR(JAVAC_OPTIMIZED, [Java compiler option for faster performance. Default is on])
+    test -z $JAVAC_OPTIMIZED && JAVAC_OPTIMIZED=on
+
+    AC_ARG_VAR(JAVAC_DEBUG, [Java compiler option to reduce code size. Default is off])
+    test -z $JAVAC_DEBUG && JAVAC_DEBUG=off
 ])
 
-# ============ O P E N F I R E  =======================
-AC_DEFUN([CHECK_OPENFIRE],
-[
-    AC_ARG_ENABLE(openfire,
-    AC_HELP_STRING([--disable-openfire], [openfire integration]), enable_openfire=no, enable_openfire=yes)
 
-    AC_ARG_VAR(OPENFIRE_HOME, [Openfire home directory])
-    AC_CHECK_FILE([$OPENFIRE_HOME],
+# ============ J N I =======================
+AC_DEFUN([CHECK_JNI],
+[
+   AC_REQUIRE([CHECK_JDK])
+
+   JAVA_HOME_INCL=$JAVA_HOME/include
+   AC_CHECK_FILE([$JAVA_HOME_INCL/jni.h],
        [
-         OPENFIRE_HOME_DIR=$OPENFIRE_HOME 
+           XFLAGS="-I$JAVA_HOME_INCL -I$JAVA_HOME_INCL/linux";
+           CFLAGS="$XFLAGS $CFLAGS";
+           CXXFLAGS="$XFLAGS $CXXFLAGS";
+
+           ## i386 is a big assumption, TODO: make smarter
+           JAVA_LIB_DIR="$JAVA_HOME/jre/lib/i386";
+
+           ## Effectively LD_LIBRARY_PATH for JVM for unittests or anything else
+           AC_SUBST(JAVA_LIB_PATH, [$JAVA_LIB_DIR:$JAVA_LIB_DIR/client])
+
+           LDFLAGS="$LDFLAGS -L$JAVA_LIB_DIR -ljava -lverify"
+
+           ## Use client flags as only call for this is phone. config server
+           ## should use jre/lib/i386/server, but not a big deal
+           LDFLAGS="$LDFLAGS -L$JAVA_LIB_DIR/client -ljvm"
        ],
-       [
-           AC_MSG_WARN([Cannot find OPENFIRE_HOME ($OPENFIRE_HOME)]; openfire build disabled)
-           enable_openfire=no
-       ])
-    AC_SUBST(enable_openfire)
+       AC_MSG_ERROR([Cannot find or validate header file $JAVA_HOME_INCL/jni.h]))
 ])
 
-# ============= C P P U N I T ==================
-dnl
-dnl AM_PATH_CPPUNIT(MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND]])
-dnl
-AC_DEFUN([AM_PATH_CPPUNIT],
-[
-
-AC_ARG_WITH(cppunit-prefix,[  --with-cppunit-prefix=PFX   Prefix where CppUnit is installed (optional)],
-            cppunit_config_prefix="$withval", cppunit_config_prefix="")
-AC_ARG_WITH(cppunit-exec-prefix,[  --with-cppunit-exec-prefix=PFX  Exec prefix where CppUnit is installed (optional)],
-            cppunit_config_exec_prefix="$withval", cppunit_config_exec_prefix="")
-
-  dnl Assemble the arguments to be passed to cppunit-config in cppunit_config_args.
-  dnl Construct the cppunit-config executable name in CPPUNIT_CONFIG.
-  cppunit_config_args=
-  if test x$cppunit_config_exec_prefix != x ; then
-     cppunit_config_args="$cppunit_config_args --exec-prefix=$cppunit_config_exec_prefix"
-     if test x${CPPUNIT_CONFIG+set} != xset ; then
-        CPPUNIT_CONFIG=$cppunit_config_exec_prefix/bin/cppunit-config
-     fi
-  fi
-  if test x$cppunit_config_prefix != x ; then
-     cppunit_config_args="$cppunit_config_args --prefix=$cppunit_config_prefix"
-     if test x${CPPUNIT_CONFIG+set} != xset ; then
-        CPPUNIT_CONFIG=$cppunit_config_prefix/bin/cppunit-config
-     fi
-  fi
-
-  dnl Find cppunit-config, put path in CPPUNIT_CONFIG, but if CPPUNIT_CONFIG
-  dnl already has a value containing '/', use that value.
-  AC_PATH_PROG(CPPUNIT_CONFIG, cppunit-config, no)
-  cppunit_version_min=$1
-
-  AC_MSG_CHECKING(for Cppunit - version >= $cppunit_version_min)
-  no_cppunit=""
-  if test "$CPPUNIT_CONFIG" = "no" ; then
-    AC_MSG_RESULT(no)
-    no_cppunit=yes
-  else
-    dnl Get cppunit's recommendations for cflags and libraries.
-    CPPUNIT_CFLAGS=`$CPPUNIT_CONFIG $cppunit_config_args --cflags`
-    CPPUNIT_LIBS=`$CPPUNIT_CONFIG $cppunit_config_args --libs`
-    dnl Query cppunit to determine its version.
-    cppunit_version=`$CPPUNIT_CONFIG $cppunit_config_args --version`
-
-    cppunit_major_version=`echo $cppunit_version | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
-    cppunit_minor_version=`echo $cppunit_version | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
-    cppunit_micro_version=`echo $cppunit_version | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
-
-    cppunit_major_min=`echo $cppunit_version_min | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\1/'`
-    if test "x${cppunit_major_min}" = "x" ; then
-       cppunit_major_min=0
-    fi
-
-    cppunit_minor_min=`echo $cppunit_version_min | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\2/'`
-    if test "x${cppunit_minor_min}" = "x" ; then
-       cppunit_minor_min=0
-    fi
-
-    cppunit_micro_min=`echo $cppunit_version_min | \
-           sed 's/\([[0-9]]*\).\([[0-9]]*\).\([[0-9]]*\)/\3/'`
-    if test "x${cppunit_micro_min}" = "x" ; then
-       cppunit_micro_min=0
-    fi
-
-    cppunit_version_proper=`expr \
-        $cppunit_major_version \> $cppunit_major_min \| \
-        $cppunit_major_version \= $cppunit_major_min \& \
-        $cppunit_minor_version \> $cppunit_minor_min \| \
-        $cppunit_major_version \= $cppunit_major_min \& \
-        $cppunit_minor_version \= $cppunit_minor_min \& \
-        $cppunit_micro_version \>= $cppunit_micro_min `
-
-    if test "$cppunit_version_proper" = "1" ; then
-      AC_MSG_RESULT([$cppunit_major_version.$cppunit_minor_version.$cppunit_micro_version])
-    else
-      AC_MSG_RESULT(no)
-      no_cppunit=yes
-    fi
-  fi
-
-  if test "x$no_cppunit" = x ; then
-     ifelse([$2], , :, [$2])
-  else
-     CPPUNIT_CFLAGS=""
-     CPPUNIT_LIBS=""
-     ifelse([$3], , :, [$3])
-  fi
-
-  AC_SUBST(CPPUNIT_CFLAGS)
-  AC_SUBST(CPPUNIT_LIBS)
-])
-
-
-AC_DEFUN([CHECK_CPPUNIT],
-[
-    AM_PATH_CPPUNIT(1.9,
-      [],
-      [AC_MSG_ERROR("cppunit headers not found")]
-    )
-])
-
-m4_include([config/check_jdk.m4])
 
 # ============ A N T  ==================
 AC_DEFUN([CHECK_ANT],

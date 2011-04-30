@@ -1,0 +1,103 @@
+# Initial Version Copyright (C) 2011 eZuce, Inc., All Rights Reserved.
+# Licensed to the User under the LGPL license.
+# 
+# Java directories should include this.  This is based on the java support that comes with automake, which
+# is known to be very limited. I've expanded on the java targets and tried to keep automake conventions
+# like inventing variable conventions.  
+#
+# These conventions are separate into required and optional arguments:
+#
+# Required variables:
+# =======================
+# java_modules - a list of names of each java module you with to build. Names are arbitrary but will 
+#               control the names of the other variables.
+#               Example:
+#                 java_modules = foo bar
+#
+# foo_SRC     - for module "foo", this should be list of all the java source that should be compiled
+#               Example: 
+#                 foo_SRC = \
+#	               $(shell find $(srcdir) -type f -name '*.java')
+#
+# foo_DEPS    - used to build the CLASSPATH, list jars and directories 
+#               Example: 
+#                 foo_DEPS = \
+#                      $(JAVAROOT) \
+#	               $(shell find $(top_srcdir)/lib -type f -name '*.jar')
+#
+# Optional variables:
+# =======================
+# foo_ENV     - Any environment variabled need to compile your program. Example LD_LIBRARY_PATH
+#
+# JAVAROOT    - Where classfile go. Default is classes
+#
+# test_SRC    - If defined, the "make check" will run the tests found in this set of test files.
+#               based on the convention of the filename ending in *Test.java
+#
+# Optional targets
+# =======================
+# java-compile-foo  - To write your own recipe for compiling module foo
+# java-clean-foo    - To write your own recipe for cleaning module foo
+# 
+
+include $(top_srcdir)/config/subdir.am
+include $(top_srcdir)/config/utility.am
+
+# Turn a space separated list into a colon separated value used for classpaths
+#
+# Example: $(call ClassPath, jar1 jar2)
+#
+ClassPath = $(subst $(space),:,$1)
+
+# Turn a space separated list into an environment variable definition.
+#
+# Example: $(call ClassPathEnv, jar1 jar2)
+#
+ClassPathEnv = CLASSPATH=$(call ClassPath,$1):$$CLASSPATH
+
+# default location only. Simply redfine to send elsewhere. NOTE: there is only one output
+# but that can be easily changed if deemed nec.
+JAVAROOT = classes
+
+# run clean for each java module
+clean : $(foreach M,$(java_modules),java-clean-$(M));
+
+java-clean-% :
+	find $(JAVAROOT) -name '*.class' -exec rm {} \;
+	! test -f java-compile-$* || rm java-compile-$*
+
+# Adds this to list automake targets
+noinst_DATA = $(java_modules)
+
+# So you can run "make foo"
+$(java_modules) : % : java-compile-%;
+
+$(JAVAROOT) :
+	mkdir -p $@
+
+# SECONDEXPANSION will turn $$($$*_SRC) into $(foo_SRC) for target java-compile-foo
+# create a timestamp file so make knows not to recomple
+.SECONDEXPANSION:
+java-compile-% : $$($$*_SRC) $(JAVAROOT) Makefile
+	@list1='$($*_SRC)'; list2=; if test -n "$$list1"; then \
+	  for p in $$list1; do \
+	    if test -f $$p; then d=; else d="$(srcdir)/"; fi; \
+	    list2="$$list2 $$d$$p"; \
+	  done; \
+	  echo '$($*_ENV) $(call ClassPathEnv,$($*_DEPS)) $(JAVAC) -d $(JAVAROOT) $(AM_JAVACFLAGS) $($*_JAVACFLAGS) '"$$list2"; \
+	  $($*_ENV) $(call ClassPathEnv,$($*_DEPS)) $(JAVAC) -d $(JAVAROOT) $(AM_JAVACFLAGS) $($*_JAVACFLAGS) $$list2; \
+	else :; fi
+	echo timestamp > $@
+
+# Text based runner in junit 4. Runs 3.x and 4.x unit tests.
+TEST_RUNNER = org.junit.runner.JUnitCore
+
+# Turns list of java source files into their respective class names
+#  ./com/example/Foo.java  ->  com.example.Foo
+#
+JAVA_TESTS = $(subst /,.,$(subst ./,$(empty),$(patsubst %.java,%,$(filter %Test.java,$(test_SRC)))))
+
+check : java-compile-test
+	if [ -n "$(JAVA_TESTS)" ]; then \
+	  $(test_ENV) $(call ClassPathEnv,$(test_DEPS)) $(JAVA) $(TEST_RUNNER) $(TEST_RUNNER_FLAGS) $(JAVA_TESTS); \
+	fi
