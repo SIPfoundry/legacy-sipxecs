@@ -51,6 +51,7 @@ nobase_include_HEADERS = \
     os/OsFS.h \
     os/OsLock.h \
     os/OsLockingList.h \
+    os/OsLogger.h \
     os/OsMsg.h \
     os/OsMsgPool.h \
     os/OsMsgQ.h \

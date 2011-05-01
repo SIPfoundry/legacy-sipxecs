@@ -21,6 +21,7 @@
 #include "os/OsDefs.h"
 #include "os/OsStatus.h"
 #include "os/OsTime.h"
+#include "os/OsLogger.h"
 
 // DEFINES
 // MACROS
